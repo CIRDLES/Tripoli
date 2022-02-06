@@ -54,9 +54,9 @@ test_*
 !TripoliApp/src/main/resources/org/cirdles/tripoli/gui/images/*.png
 !TripoliCore/src/main/resources/org/cirdles/tripoli/docs/*.txt
 !TripoliCore/src/main/resources/org/cirdles/tripoli/version.txt
-!ProcessDocs/MeetingNotes/*
-!ProductDocs/RequirementsNotes/*
-!Website/*
+!processDocs/meetingNotes/*
+!productDocs/requirementsNotes/*
+!docs/*
 
 # Testing resources
 
