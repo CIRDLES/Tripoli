@@ -3,4 +3,4 @@ language: bash
 sudo: required
 
 script: chmod u+x customBuildForJava17.sh
-        bash customBuildForJava17.sh
+script: bash customBuildForJava17.sh
