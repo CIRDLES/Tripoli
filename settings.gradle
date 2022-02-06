@@ -1,0 +1,3 @@
+rootProject.name = 'Tripoli'
+include 'TripoliCore'
+include 'TripoliApp'

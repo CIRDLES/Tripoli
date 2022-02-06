@@ -1,0 +1,56 @@
+/*
+ * Copyright 2022 James F. Bowring and CIRDLES.org.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import org.apache.tools.ant.filters.ReplaceTokens
+import java.text.SimpleDateFormat
+
+plugins {
+    id 'java'
+    id 'java-library'
+    id "de.jjohannes.extra-java-module-info" version "0.10"
+}
+
+dependencies {
+    implementation "com.github.cirdles:commons:bc38781605"
+
+    testImplementation "com.github.cirdles:commons:bc38781605"
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+}
+
+extraJavaModuleInfo {
+    // failOnMissingModuleInfo.set(false)
+    automaticModule('commons-bc38781605.jar', 'commons.bc38781605')
+}
+
+test {
+    useJUnitPlatform()
+}
+
+def timestamp() {
+    new SimpleDateFormat("dd MMMM yyyy").format(new Date())
+}
+
+processResources {
+    from(sourceSets.main.resources.srcDirs) {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        include '**/*.txt'
+        filter ReplaceTokens, tokens: [
+                "pom.version": version,
+                "timestamp"  : timestamp()
+        ]
+    }
+}

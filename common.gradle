@@ -1,0 +1,136 @@
+/*
+ * Copyright 2022 James F. Bowring and CIRDLES.org.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+//
+// This file is to be applied to every subproject.
+//
+
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+sourceCompatibility = '17'
+targetCompatibility = '17'
+
+String mavenGroupId = 'org.cirdles'
+String mavenVersion = '1.0.0'
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+repositories {
+    mavenCentral()
+
+    maven {
+        url "https://jitpack.io"
+    }
+
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    // Adding dependencies here will add the dependencies to each subproject.
+}
+
+String mavenArtifactId = name
+
+group = mavenGroupId
+version = mavenVersion
+
+task sourcesJar(type: Jar, dependsOn: classes, description: 'Creates a jar from the source files.') {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    archiveClassifier.set("sources")
+    from sourceSets.main.allSource
+}
+
+task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
+    from javadoc.destinationDir
+    archiveClassifier.set("javadoc")
+}
+
+artifacts {
+    archives jar
+    archives sourcesJar
+    //  Uncomment next line to produce javadocs
+    //    archives packageJavadoc
+}
+
+// refer to https://github.com/renatoathaydes/rawhttp/blob/master/rawhttp-core/build.gradle#L72
+// refer to https://docs.gradle.org/current/userguide/publishing_maven.html
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = mavenGroupId
+            artifactId = mavenArtifactId
+            version = mavenVersion
+
+            from components.java
+
+            pom {
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+        }
+    }
+}
+
+task createFolders(description: 'Creates the source folders if they do not exist.') doLast {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    sourceSets*.allSource*.srcDirs*.each { File srcDir ->
+        if (!srcDir.isDirectory()) {
+            println "Creating source folder: ${srcDir}"
+            srcDir.mkdirs()
+        }
+    }
+}
+
+ext {
+    junitVersion = '5.8.2'
+}
+
+
+tasks.withType(JavaCompile) {
+    configure(options) {
+        options.compilerArgs << '-Xlint:deprecation' << '-Xlint:unchecked'
+        options.encoding = 'UTF-8'
+    }
+    println 'Compiler args: ' + options.compilerArgs
+}
+
+javadoc {
+    options.tags = [
+            'pre:a:Precondition:',
+            'post:a:Postcondition:',
+            'imports:a:Imports libraries:',
+            'author:a:Author:'
+    ]
+}
+
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
