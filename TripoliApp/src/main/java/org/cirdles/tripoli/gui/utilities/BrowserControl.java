@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2022 James F. Bowring and CIRDLES.org.
+ * Copyright 2022 James Bowring, Noah McLean, Scott Burdick, and CIRDLES.org.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
