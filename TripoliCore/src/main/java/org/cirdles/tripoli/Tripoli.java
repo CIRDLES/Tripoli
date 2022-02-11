@@ -17,6 +17,7 @@
 package org.cirdles.tripoli;
 
 import org.cirdles.commons.util.ResourceExtractor;
+import org.cirdles.tripoli.utilities.fileUtilities.TripoliFileResources;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,16 +31,16 @@ import java.nio.file.Path;
  */
 public class Tripoli {
     public static final String VERSION;
-    public static  final  String RELEASE_DATE;
+    public static final String RELEASE_DATE;
 
-    public static  final  StringBuilder ABOUT_WINDOW_CONTENT = new StringBuilder();
-    public static  final  StringBuilder CONTRIBUTORS_CONTENT = new StringBuilder();
-    public static  final  StringBuilder SUPPORTERS_CONTENT = new StringBuilder();
+    public static final StringBuilder ABOUT_WINDOW_CONTENT = new StringBuilder();
+    public static final StringBuilder CONTRIBUTORS_CONTENT = new StringBuilder();
+    public static final StringBuilder SUPPORTERS_CONTENT = new StringBuilder();
 
-    public static  final  ResourceExtractor TRIPOLI_RESOURCE_EXTRACTOR
+    public static final ResourceExtractor TRIPOLI_RESOURCE_EXTRACTOR
             = new ResourceExtractor(Tripoli.class);
 
-  static {
+    static {
         String version = "version";
         String releaseDate = "date";
 
@@ -70,11 +71,9 @@ public class Tripoli {
         resourcePath = Tripoli.TRIPOLI_RESOURCE_EXTRACTOR.extractResourceAsPath("docs/aboutContent.txt");
         try (BufferedReader reader = Files.newBufferedReader(resourcePath, charset)) {
             String thisLine;
-
             while ((thisLine = reader.readLine()) != null) {
                 Tripoli.ABOUT_WINDOW_CONTENT.append(thisLine);
             }
-
         } catch (IOException x) {
             System.err.format("IOException: %s%n", x);
         }
@@ -102,5 +101,13 @@ public class Tripoli {
         } catch (IOException x) {
             System.err.format("IOException: %s%n", x);
         }
+
+        try {
+            TripoliFileResources.init();
+            TripoliFileResources.loadTripoliSchema();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

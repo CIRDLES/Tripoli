@@ -1,5 +1,9 @@
 *.class
 
+# local helpers
+run
+run.sh
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
@@ -55,7 +59,9 @@ test_*
 !TripoliCore/src/main/resources/org/cirdles/tripoli/docs/*.txt
 !TripoliCore/src/main/resources/org/cirdles/tripoli/version.txt
 !processDocs/meetingNotes/*
-!productDocs/requirementsNotes/*
+!productDocs/requirements/*
+!productDocs/testDesign/*
+!productDocs/uxDesign/*
 !docs/*
 
 # Testing resources
