@@ -16,5 +16,6 @@
 
 module Tripoli.TripoliCore {
     requires commons.bc38781605;
+    requires org.apache.poi.poi;
     exports org.cirdles.tripoli;
 }
