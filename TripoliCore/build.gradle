@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 James F. Bowring and CIRDLES.org.
+ * Copyright 2022 James Bowring, Noah McLean, Scott Burdick, and CIRDLES.org.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
     implementation group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+    // https://mvnrepository.com/artifact/com.zaxxer/SparseBitSet
+    implementation group: 'com.zaxxer', name: 'SparseBitSet', version: '1.2'
+
 
     // https://mvnrepository.com/artifact/org.apache.poi/poi
     implementation group: 'org.apache.poi', name: 'poi', version: '5.0.0'
@@ -46,11 +49,11 @@ dependencies {
 }
 
 extraJavaModuleInfo {
-    // failOnMissingModuleInfo.set(false)
+    failOnMissingModuleInfo.set(false)
     automaticModule('commons-bc38781605.jar', 'commons.bc38781605')
-    automaticModule('commons-math3-3.6.1.jar', 'commons-math3-3.6.1')
-    automaticModule('commons-math3-3.6.1-module.jar', 'commons-math3-3.6.1-module')
-    automaticModule('SparseBitSet-1.2.jar', 'SparseBitSet-1.2')
+    automaticModule('org.apache.commons-math3-3.6.1.jar', 'org.apache.commons-math3')
+    //automaticModule('org.apache.commons-math3-3.6.1-module.jar', 'org.apache.commons-math3')
+    automaticModule('com.zaxxer.SparseBitSet-1.2.jar', 'com.zaxxer.SparseBitSet')
 }
 
 test {
