@@ -16,13 +16,23 @@
 
 package org.cirdles.tripoli.gui;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.Label;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import org.cirdles.tripoli.Tripoli;
+import org.cirdles.tripoli.gui.utilities.BrowserControl;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import static org.cirdles.tripoli.gui.utilities.BrowserControl.urlEncode;
 
 /**
  * @author James F. Bowring
@@ -37,6 +47,9 @@ public class TripoliGUIController {
     @FXML // URL location of the FXML file that was given to the FXMLLoader
     private URL location;
 
+    @FXML
+    private AnchorPane splashAnchor;
+
     @FXML // fx:id="versionBuildDate"
     private Label versionBuildDate; // Value injected by FXMLLoader
 
@@ -49,10 +62,41 @@ public class TripoliGUIController {
     }
 
     @FXML
+    private void quitAction(ActionEvent event) {
+        // TODO: checks for save status etc.
+        Platform.exit();
+    }
+
+    @FXML
+    void showTripoliContributeIssue(ActionEvent event) {
+        String version = "Tripoli Version: " + Tripoli.VERSION;
+        String javaVersion = "Java Version: " + System.getProperties().getProperty("java.version");
+        String javaFXVersion = "JavaFX Version: " + System.getProperties().getProperty("javafx.runtime.version");
+        String operatingSystem = "OS: " + System.getProperties().getProperty("os.name") + " " + System.getProperties().getProperty("os.version");
+
+        String issueBody = urlEncode(version + "\n") +
+                urlEncode(javaVersion + "\n") +
+                urlEncode(javaFXVersion + "\n") +
+                urlEncode(operatingSystem + "\n") +
+                urlEncode("\nIssue details:\n");
+
+        BrowserControl.showURI("https://github.com/CIRDLES/Tripoli/issues/new?body=" + issueBody);
+    }
+
+    @FXML
+    void showTripoliGitHubRepo(ActionEvent event) {
+        BrowserControl.showURI("https://github.com/CIRDLES/Tripoli");
+    }
+
+    @FXML
         // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
+
+
         versionLabel.setText("v" + Tripoli.VERSION);
         versionBuildDate.setText(Tripoli.RELEASE_DATE);
     }
+
+
 
 }
