@@ -29,6 +29,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
+
 <VBox prefHeight="725.0" prefWidth="1250.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.TripoliGUIController">
    <MenuBar prefHeight="17.0" prefWidth="1234.0" VBox.vgrow="NEVER">
      <menus>
@@ -47,7 +48,7 @@
                <SeparatorMenuItem mnemonicParsing="false" />
                <MenuItem mnemonicParsing="false" text="Close  Project" />
                <SeparatorMenuItem mnemonicParsing="false" />
-               <MenuItem mnemonicParsing="false" text="Quit" />
+               <MenuItem mnemonicParsing="false" onAction="#quitAction" text="Quit" />
          </items>
        </Menu>
        <Menu mnemonicParsing="false" text="Data">
@@ -55,14 +56,25 @@
            <MenuItem mnemonicParsing="false" text="Load Raw Data from Mass Spec" />
          </items>
        </Menu>
-       <Menu mnemonicParsing="false" text="Help">
+         <Menu mnemonicParsing="false" text="Parameters">
+            <items>
+               <MenuItem mnemonicParsing="false" text="Tracer Models" />
+            </items>
+         </Menu>
+       <Menu mnemonicParsing="false" text="About">
          <items>
-           <MenuItem mnemonicParsing="false" onAction="#showTripoliAbout" text="About" />
+           <MenuItem mnemonicParsing="false" onAction="#showTripoliAbout" text="About Tripoli" />
+               <MenuItem mnemonicParsing="false" onAction="#showTripoliGitHubRepo" text="Tripoli GitHub Repository" />
          </items>
        </Menu>
+         <Menu mnemonicParsing="false" text="Help">
+            <items>
+               <MenuItem mnemonicParsing="false" onAction="#showTripoliContributeIssue" text="Contribute an Issue on Github" />
+            </items>
+         </Menu>
      </menus>
    </MenuBar>
-   <AnchorPane prefHeight="673.0" prefWidth="900.0" style="-fx-background-color: #faf0e6;" VBox.vgrow="ALWAYS">
+   <AnchorPane fx:id="splashAnchor" prefHeight="673.0" prefWidth="900.0" style="-fx-background-color: #faf0e6;" VBox.vgrow="ALWAYS">
       <children>
          <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <center>
@@ -72,7 +84,7 @@
                         <children>
                            <ImageView fitHeight="247.0" fitWidth="246.0" pickOnBounds="true" preserveRatio="true">
                               <image>
-                                 <Image url="@images/Tripoli2009.png" />
+                                 <Image url="@images/TripoliNoah2.png" />
                               </image>
                            </ImageView>
                            <Label alignment="CENTER" prefHeight="68.0" prefWidth="248.0" style="-fx-text-fill: black; -fx-font-size: 48; -fx-font-family: SansSerif;" text="Tripoli" textFill="#fffdfd" />

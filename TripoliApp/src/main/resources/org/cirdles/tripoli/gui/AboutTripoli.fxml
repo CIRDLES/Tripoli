@@ -47,7 +47,7 @@
         <Label fx:id="buildDate" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" layoutX="94.0" layoutY="251.0" prefHeight="17.0" prefWidth="360.0" styleClass="main-Text-Color" stylesheets="@css/about.css" text="Build Date: mm/dd/yyyy" textAlignment="CENTER" />
         <ImageView fitHeight="300.0" fitWidth="400.0" layoutX="124.0" layoutY="-41.0" pickOnBounds="true" preserveRatio="true" styleClass="logo">
             <image>
-                <Image url="@images/Tripoli_icon.png" />
+                <Image url="@images/TripoliNoah2.png" />
             </image>
         </ImageView>
         <Label fx:id="contributorsLabel" layoutX="25.0" layoutY="350.0" prefHeight="100.0" prefWidth="500.0" styleClass="description-Text" text="Contributors" textAlignment="JUSTIFY" wrapText="true" />
