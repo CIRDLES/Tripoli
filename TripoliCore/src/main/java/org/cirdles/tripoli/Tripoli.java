@@ -37,8 +37,7 @@ public class Tripoli {
     public static final StringBuilder CONTRIBUTORS_CONTENT = new StringBuilder();
     public static final StringBuilder SUPPORTERS_CONTENT = new StringBuilder();
 
-    public static final ResourceExtractor TRIPOLI_RESOURCE_EXTRACTOR
-            = new ResourceExtractor(Tripoli.class);
+    public static final ResourceExtractor TRIPOLI_RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
 
     static {
         String version = "version";

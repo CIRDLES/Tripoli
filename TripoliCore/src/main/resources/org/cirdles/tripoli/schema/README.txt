@@ -1,0 +1,1 @@
+This folder contains certified Tripoli schema XML files.

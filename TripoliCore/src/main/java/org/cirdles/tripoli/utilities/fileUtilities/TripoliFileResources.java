@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static org.cirdles.tripoli.Tripoli.TRIPOLI_RESOURCE_EXTRACTOR;
 import static org.cirdles.tripoli.TripoliConstants.*;
 
 public class TripoliFileResources {
@@ -57,9 +58,7 @@ public class TripoliFileResources {
      */
     public static void retrieveResourceFiles(File resourceTargetFolder, String resourceFolderName)
             throws IOException {
-        ResourceExtractor prawnFileResourceExtractor = new ResourceExtractor(Tripoli.class);
-
-        Path listOfResourceFiles = prawnFileResourceExtractor.extractResourceAsPath(resourceFolderName + File.separator + "listOfResourceFiles.txt");
+        Path listOfResourceFiles = TRIPOLI_RESOURCE_EXTRACTOR.extractResourceAsPath(resourceFolderName + File.separator + "listOfResourceFiles.txt");
         if (resourceTargetFolder.exists()) {
             FileUtilities.recursiveDelete(resourceTargetFolder.toPath());
         }
@@ -68,7 +67,7 @@ public class TripoliFileResources {
                 List<String> fileNames = Files.readAllLines(listOfResourceFiles, ISO_8859_1);
                 for (int i = 0; i < fileNames.size(); i++) {
                     if (fileNames.get(i).trim().length() > 0) {
-                        File resourceFileName = prawnFileResourceExtractor.extractResourceAsFile(resourceFolderName + File.separator + fileNames.get(i));
+                        File resourceFileName = TRIPOLI_RESOURCE_EXTRACTOR.extractResourceAsFile(resourceFolderName + File.separator + fileNames.get(i));
                         File resourceLocalFileName = new File(resourceTargetFolder.getCanonicalPath() + File.separator + fileNames.get(i));
                         if (resourceFileName != null) {
                             try {
