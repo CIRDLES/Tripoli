@@ -40,7 +40,7 @@ import java.io.*;
  */
 public class TripoliGUI extends Application {
 
-    public static final String Tripoli_LOGO_SANS_TEXT_URL = "images/Tripoli2009.png";
+    public static final String Tripoli_LOGO_SANS_TEXT_URL = "images/TripoliNoah2.png";
     public static Window primaryStageWindow;
     protected static Stage primaryStage;
     protected static TripoliAboutWindow TripoliAboutWindow;

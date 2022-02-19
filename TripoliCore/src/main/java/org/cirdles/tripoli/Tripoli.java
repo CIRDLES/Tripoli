@@ -103,8 +103,7 @@ public class Tripoli {
         }
 
         try {
-            TripoliFileResources.init();
-            TripoliFileResources.loadTripoliSchema();
+            TripoliFileResources.initLocalResources();
         } catch (IOException e) {
             e.printStackTrace();
         }

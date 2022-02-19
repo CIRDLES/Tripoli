@@ -55,13 +55,25 @@ test_*
 
 
 # Resources
+!TripoliApp/src/main/resources/org/cirdles/tripoli/gui/css/*.css
 !TripoliApp/src/main/resources/org/cirdles/tripoli/gui/images/*.png
-!TripoliCore/src/main/resources/org/cirdles/tripoli/docs/*.txt
+
 !TripoliCore/src/main/resources/org/cirdles/tripoli/version.txt
+!TripoliCore/src/main/resources/org/cirdles/tripoli/docs/*.txt
+!TripoliCore/src/main/resources/org/cirdles/tripoli/parameterModels/*.txt
+!TripoliCore/src/main/resources/org/cirdles/tripoli/parameterModels/physicalConstantsModels/*.txt
+!TripoliCore/src/main/resources/org/cirdles/tripoli/parameterModels/referenceMaterialsModels/*.txt
+!TripoliCore/src/main/resources/org/cirdles/tripoli/parameterModels/tracerModels/*.txt
+!TripoliCore/src/main/resources/org/cirdles/tripoli/schema/*.txt
+
+# Developer docs
 !processDocs/meetingNotes/*
+!productDocs/dataFormatDocs/*
 !productDocs/requirements/*
 !productDocs/testDesign/*
 !productDocs/uxDesign/*
+
+# webpage via pages
 !docs/*
 
 # Testing resources
