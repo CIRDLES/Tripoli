@@ -1,0 +1,795 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="https://raw.githubusercontent.com/EARTHTIME/Schema"
+           xmlns="https://raw.githubusercontent.com/EARTHTIME/Schema"
+           elementFormDefault="qualified">
+    <xs:annotation>
+        <xs:documentation xml:lang="en">
+            This schema defines the contents of the EARTHTIME Ratio.
+
+            Copyright 2006-2016 James F. Bowring and EARTHTIME
+
+            Licensed under the Apache License, Version 2.0 (the "License");
+            you may not use this file except in compliance with the License.
+            You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+            Unless required by applicable law or agreed to in writing, software
+            distributed under the License is distributed on an "AS IS" BASIS,
+            WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+            See the License for the specific language governing permissions and
+            limitations under the License.
+
+            Author: James F. Bowring[smtp:bowring@gmail.com]
+
+            Created: 1.January.2007
+            Revised: 1.January.2008
+            Revised: 21.March.2009
+            Revised: 5.April.2009
+            Revised: 22.September.2009
+            Revised: 7.October.2009
+            Revised: 4.November.2010
+            Revised: 9.January 2011
+            Revised: 15.January 2011
+            Revised: 15.April.2012
+            Revised: 10.May.2012
+            Revised: 18.July.2012
+            Revised: 03.October.2013
+            Revised: 27.December.2014
+            Revised: 09.January.2015
+            Revised: 22.March.2015
+            Revised: 23.December.2015
+            Revised: 04.April.2017
+            Revised: 10.June.2017
+
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:element name="ValueModel" type="ValueModel"/>
+    <xs:element name="ValueModelReferenced" type="ValueModelReferenced"/>
+    <xs:element name="MeasuredRatioModel" type="MeasuredRatioModel"/>
+    <xs:element name="SampleDateModel" type="SampleDateModel"/>
+    <xs:element name="TracerRatio" type="TracerRatio"/>
+    <xs:element name="TracerUPbRatiodAndConcentrations" type="TracerUPbRatiodAndConcentrations" />
+    <xs:element name="IsotopeConcentration" type="IsotopeConcentration"/>
+    <xs:element name="IsotopeAbundance" type="IsotopeAbundance"/>
+    <xs:element name="PbBlankRatio" type="PbBlankRatio"/>
+    <xs:element name="PbBlankRhoCorrelation" type="PbBlankRhoCorrelation"/>
+    <xs:element name="InitialPbModelRatio" type="InitialPbModelRatio"/>
+    <xs:element name="RadiogenicIsotopeRatio" type="RadiogenicIsotopeRatio"/>
+    <xs:element name="RadiogenicIsotopeDate" type="RadiogenicIsotopeDate"/>
+    <xs:element name="AnalysisMeasure" type="AnalysisMeasure"/>
+    <xs:element name="AtomicMolarMass" type="AtomicMolarMass"/>
+    <xs:element name="MeasuredConstant" type="MeasuredConstant"/>
+    <xs:element name="MeasuredRatio" type="MeasuredRatio"/>
+    <xs:element name="CompositionalMeasure" type="CompositionalMeasure"/>
+    <xs:element name="SampleIsochronRatio" type="SampleIsochronRatio"/>
+    <xs:element name="MineralStandardTrueAge" type="MineralStandardTrueAge"/>
+    <xs:element name="MineralStandardMeasuredAge" type="MineralStandardMeasuredAge"/>
+    <xs:element name="MineralStandardUPbRatioModel" type="MineralStandardUPbRatioModel"/>
+    <xs:element name="MineralStandardPPMConcentration" type="MineralStandardPPMConcentration"/>
+    <xs:element name="DetritalUThModelRatio" type="DetritalUThModelRatio"/>
+    <xs:element name="DetritalUThModelRhoCorrelation" type="DetritalUThModelRhoCorrelation"/>
+
+
+    <xs:complexType name="ValueModel">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string" />
+            <xs:element name="value" type="xs:decimal" />
+            <xs:element name="uncertaintyType" type="uncertaintyTypes" />
+            <xs:element name="oneSigma" type="xs:decimal" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ValueModelReferenced">
+        <xs:complexContent>
+            <xs:extension base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="reference" type="xs:string" />
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="MeasuredRatioModel">
+        <xs:complexContent>
+            <xs:extension base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="fracCorr" type="xs:boolean" />
+                    <xs:element name="oxideCorr" type="xs:boolean" />
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="MineralStandardUPbRatioModel">
+        <xs:complexContent>
+            <xs:extension base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="measured" type="xs:boolean" />
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="SampleDateModel">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string" />
+            <xs:element name="value" type="xs:decimal" />
+            <xs:element name="uncertaintyType" type="uncertaintyTypes" />
+            <xs:element name="oneSigma" type="xs:decimal" />
+            <xs:element name="meanSquaredWeightedDeviation" type="xs:decimal" />
+            <xs:element name="internalTwoSigmaUnct" type="xs:decimal" minOccurs="0"/>
+            <xs:element name="plusInternalTwoSigmaUnct" type="xs:decimal" minOccurs="0"/>
+            <xs:element name="minusInternalTwoSigmaUnct" type="xs:decimal" minOccurs="0"/>
+            <xs:element name="internalTwoSigmaUnctWithTracerCalibrationUnct" type="xs:decimal" minOccurs="0"/>
+            <xs:element name="plusInternalTwoSigmaUnctWithTracerCalibrationUnct" type="xs:decimal" minOccurs="0"/>
+            <xs:element name="minusInternalTwoSigmaUnctWithTracerCalibrationUnct" type="xs:decimal" minOccurs="0"/>
+            <xs:element name="internalTwoSigmaUnctWithTracerCalibrationAndDecayConstantUnct" type="xs:decimal" minOccurs="0"/>
+            <xs:element name="plusInternalTwoSigmaUnctWithTracerCalibrationAndDecayConstantUnct" type="xs:decimal" minOccurs="0"/>
+            <xs:element name="minusInternalTwoSigmaUnctWithTracerCalibrationAndDecayConstantUnct" type="xs:decimal" minOccurs="0"/>
+            <xs:element name="includedFractionsVector">
+                <xs:complexType>
+                    <xs:sequence maxOccurs="unbounded">
+                        <xs:element name="fractionID" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="explanation" type="xs:string" />
+            <xs:element name="comment" type="xs:string" />
+            <xs:element name="preferred" type="xs:boolean" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="TracerRatio">
+        <xs:complexContent>
+            <xs:restriction base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="name" type="tracerRatioNameType" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" fixed="PCT"/>
+                    <xs:element name="oneSigma" type="xs:decimal" />
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="tracerRatioNameType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="r206_204t" />
+            <xs:enumeration value="r207_204t" />
+            <xs:enumeration value="r208_204t" />
+            <xs:enumeration value="r207_206t" />
+            <xs:enumeration value="r206_208t" />
+            <xs:enumeration value="r204_205t" />
+            <xs:enumeration value="r206_205t" />
+            <xs:enumeration value="r207_205t" />
+            <xs:enumeration value="r208_205t" />
+            <xs:enumeration value="r202_205t" />
+            <xs:enumeration value="r238_235t" />
+            <xs:enumeration value="r233_235t" />
+            <xs:enumeration value="r238_233t" />
+            <xs:enumeration value="r233_236t" />
+            <xs:enumeration value="r235_205t" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="IsotopeConcentration">
+        <xs:complexContent>
+            <xs:restriction base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="name" type="isotopeConcNameType" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" fixed="PCT"/>
+                    <xs:element name="oneSigma" type="xs:decimal" />
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="isotopeConcNameType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="concPb205t" />
+            <xs:enumeration value="concU235t" />
+            <xs:enumeration value="concU236t" />
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- TracerUPbRatiodAndConcentrations added May 2012 as part of new model system  -->
+    <xs:complexType name="TracerUPbRatiodAndConcentrations">
+        <xs:complexContent>
+            <xs:restriction base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="name" type="tracerUPbRatioAndConcentrationNameType" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" />
+                    <xs:element name="oneSigma" type="xs:decimal" />
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="tracerUPbRatioAndConcentrationNameType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="r202_205t" />
+            <xs:enumeration value="r204_205t" />
+            <xs:enumeration value="r206_205t" />
+            <xs:enumeration value="r207_205t" />
+            <xs:enumeration value="r208_205t" />
+            <xs:enumeration value="r233_235t" />
+            <xs:enumeration value="r238_235t" />
+            <xs:enumeration value="r233_236t" />
+            <xs:enumeration value="r238_233t" />
+            <xs:enumeration value="concPb205t" />
+            <xs:enumeration value="concU235t" />
+            <xs:enumeration value="concU236t" />
+        </xs:restriction>
+    </xs:simpleType>
+    
+    
+
+    <xs:complexType name="IsotopeAbundance">
+        <xs:complexContent>
+            <xs:restriction base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="name" type="isotopeAbundanceNameType" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" fixed="PCT"/>
+                    <xs:element name="oneSigma" type="xs:decimal" />
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="isotopeAbundanceNameType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="pct130Ba_BaPO2" />
+            <xs:enumeration value="pct132Ba_BaPO2" />
+            <xs:enumeration value="pct134Ba_BaPO2" />
+            <xs:enumeration value="pct135Ba_BaPO2" />
+            <xs:enumeration value="pct136Ba_BaPO2" />
+            <xs:enumeration value="pct137Ba_BaPO2" />
+            <xs:enumeration value="pct138Ba_BaPO2" />
+            <xs:enumeration value="pct16O_BaPO2" />
+            <xs:enumeration value="pct17O_BaPO2" />
+            <xs:enumeration value="pct18O_BaPO2" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="PbBlankRatio">
+        <xs:complexContent>
+            <xs:restriction base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="name" type="pbBlankRatioNameType" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" />
+                    <xs:element name="oneSigma" type="xs:decimal" />
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="pbBlankRatioNameType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="r206_204b" />
+            <xs:enumeration value="r207_204b" />
+            <xs:enumeration value="r208_204b" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="PbBlankRhoCorrelation">
+        <xs:complexContent>
+            <xs:restriction base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="name" type="PbBlankModelRhoNameType" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" fixed="NONE"/>
+                    <xs:element name="oneSigma" type="xs:decimal" fixed="0.0" />
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:simpleType name="PbBlankModelRhoNameType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="rhoR206_204b__r207_204b" />
+            <xs:enumeration value="rhoR206_204b__r208_204b" />
+            <xs:enumeration value="rhoR207_204b__r208_204b" />
+        </xs:restriction>
+    </xs:simpleType>
+    
+    
+    <xs:complexType name="DetritalUThModelRatio">
+        <xs:complexContent>
+            <xs:restriction base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="name" type="DetritalUThModelRatioNameType" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" />
+                    <xs:element name="oneSigma" type="xs:decimal" />
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="DetritalUThModelRatioNameType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ar232Th_238U" />
+            <xs:enumeration value="ar230Th_238U" />
+            <xs:enumeration value="ar234U_238U" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="DetritalUThModelRhoCorrelation">
+        <xs:complexContent>
+            <xs:restriction base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="name" type="DetritalUThModelRhoNameType" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" fixed="NONE"/>
+                    <xs:element name="oneSigma" type="xs:decimal" fixed="0.0" />
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:simpleType name="DetritalUThModelRhoNameType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="rhoAr232Th_238U__ar230Th_238U" />
+            <xs:enumeration value="rhoAr232Th_238U__ar234U_238U" />
+            <xs:enumeration value="rhoAr230Th_238U__ar234U_238U" />
+        </xs:restriction>
+    </xs:simpleType>   
+
+    <xs:complexType name="InitialPbModelRatio">
+        <xs:complexContent>
+            <xs:restriction base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="name" type="InitialPbModelRatioNameType" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" />
+                    <xs:element name="oneSigma" type="xs:decimal" />
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="InitialPbModelRatioNameType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="r206_204c" />
+            <xs:enumeration value="r207_204c" />
+            <xs:enumeration value="r208_204c" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="InitialPbModelRho">
+        <xs:complexContent>
+            <xs:restriction base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="name" type="InitialPbModelRhoNameType" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" fixed="NONE"/>
+                    <xs:element name="oneSigma" type="xs:decimal" fixed="0.0"/>
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="InitialPbModelRhoNameType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="rhoR206_204c__r207_204c" />
+            <xs:enumeration value="rhoR206_204c__r208_204c" />
+            <xs:enumeration value="rhoR207_204c__r208_204c" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="RadiogenicIsotopeRatio">
+        <xs:complexContent>
+            <xs:restriction base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="name" type="RadiogenicIsotopeRatioTypes" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" />
+                    <xs:element name="oneSigma" type="xs:decimal" />
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="RadiogenicIsotopeDate">
+        <xs:complexContent>
+            <xs:restriction base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="name" type="RadiogenicIsotopeDateTypes" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" />
+                    <xs:element name="oneSigma" type="xs:decimal" />
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="RadiogenicIsotopeRatioTypes">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="r206_204r" />
+            <xs:enumeration value="r208_206r" />
+            <xs:enumeration value="r206_238r" />
+            <xs:enumeration value="r207_235r" />
+            <xs:enumeration value="r207_206r" />
+            <xs:enumeration value="r208_232r" />
+            <xs:enumeration value="r206_238r_Th" />
+            <xs:enumeration value="r207_235r_Pa" />
+            <xs:enumeration value="r207_206r_Th" />
+            <xs:enumeration value="r207_206r_Pa" />
+            <xs:enumeration value="r207_206r_ThPa" />
+            <xs:enumeration value="r207_206_PbcCorr" />
+            <xs:enumeration value="r206_238_PbcCorr" />
+            <xs:enumeration value="r238_206_PbcCorr" />
+            <xs:enumeration value="r208_232_PbcCorr" />
+            <xs:enumeration value="r207_235_PbcCorr" />
+            <xs:enumeration value="rhoR206_238r__r207_235r" />
+            <xs:enumeration value="rhoR206_238r__r207_235r_Pa" />
+            <xs:enumeration value="rhoR206_238r_Th__r207_235r" />
+            <xs:enumeration value="rhoR206_238r_Th__r207_235r_Pa" />
+            <xs:enumeration value="rhoR207_206r__r238_206r" />
+            <xs:enumeration value="rhoR207_206r_Th__r238_206r" />
+            <xs:enumeration value="rhoR207_206r_Pa__r238_206r" />
+            <xs:enumeration value="rhoR207_206r_ThPa__r238_206r" />
+            <xs:enumeration value="rhoR207_206r_Th__r238_206r_Th" />
+            <xs:enumeration value="rhoR207_206r_Pa__r238_206r_Th" />
+            <xs:enumeration value="rhoR207_206r_ThPa__r238_206r_Th" />
+            <xs:enumeration value="rhoR208_232r__r207_235r" />
+            <xs:enumeration value="rhoR206_238PbcCorr__r207_235PbcCorr" />
+            <xs:enumeration value="rhoR207_206PbcCorr__r238_206PbcCorr" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="RadiogenicIsotopeDateTypes">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="age206_238r" />
+            <xs:enumeration value="age207_235r" />
+            <xs:enumeration value="age207_206r" />
+            <xs:enumeration value="age208_232r" />
+            <xs:enumeration value="percentDiscordance" />
+            <xs:enumeration value="age206_238r_Th" />
+            <xs:enumeration value="age207_206r_Th" />
+            <xs:enumeration value="age207_235r_Pa" />
+            <xs:enumeration value="age207_206r_Pa" />
+            <xs:enumeration value="age207_206r_ThPa" />
+            <xs:enumeration value="age207_206_PbcCorr" />
+            <xs:enumeration value="age206_238_PbcCorr" />
+            <xs:enumeration value="age207_235_PbcCorr" />
+            <xs:enumeration value="age208_232_PbcCorr" />
+            <xs:enumeration value="bestAge_PbcCorr" />
+            <xs:enumeration value="percentDiscordance_PbcCorr" />
+
+            <!-- Nov 2010 start transition to using bestAge -->
+            <xs:enumeration value="preferredAge" />
+            <xs:enumeration value="bestAge" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="AnalysisMeasure">
+        <xs:complexContent>
+            <xs:restriction base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="name" type="AnalysisMeasureNameType" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes"/>
+                    <xs:element name="oneSigma" type="xs:decimal" />
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="AnalysisMeasureNameType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="fractionMass" />
+            <xs:enumeration value="tracerMassInGrams" />
+            <xs:enumeration value="uBlankMassInGrams" />
+            <xs:enumeration value="pbBlankMassInGrams" />
+            <xs:enumeration value="alphaPb" />
+            <xs:enumeration value="alphaU" />
+            <xs:enumeration value="r238_235b" />
+            <xs:enumeration value="r238_235s" />
+            <xs:enumeration value="r18O_16O" />
+            <xs:enumeration value="r18O_16O_revised" />
+            <xs:enumeration value="r238_235s" />
+            <xs:enumeration value="r18O_16O" />
+            <xs:enumeration value="rTh_Umagma" />
+            <xs:enumeration value="ar231_235sample" />
+            <xs:enumeration value="r270_267m" />
+            <xs:enumeration value="r265_267m" />
+            <xs:enumeration value="r270_265m" />
+            <!-- Oct 2013 in response to Drew Coleman -->
+            <xs:enumeration value="r265_268m" />
+            <xs:enumeration value="r270_268m" />
+        </xs:restriction>
+    </xs:simpleType>
+
+
+    <xs:complexType name="AtomicMolarMass">
+        <xs:complexContent>
+            <xs:restriction base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="name" type="AtomicMolarMassNameType" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" fixed="NONE"/>
+                    <xs:element name="oneSigma" type="xs:decimal" fixed ="0.0"/>
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="AtomicMolarMassNameType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="gmol204"/>
+            <xs:enumeration value="gmol205"/>
+            <xs:enumeration value="gmol206"/>
+            <xs:enumeration value="gmol207"/>
+            <xs:enumeration value="gmol208"/>
+            <xs:enumeration value="gmol238"/>
+            <xs:enumeration value="gmol235"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="MeasuredConstant">
+        <xs:complexContent>
+            <xs:restriction base="ValueModelReferenced">
+                <xs:sequence>
+                    <xs:element name="name" type="MeasuredConstantNameType" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" />
+                    <xs:element name="oneSigma" type="xs:decimal"/>
+                    <xs:element name ="reference" type ="xs:string"/>
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="MeasuredConstantNameType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="lambda238"/>
+            <xs:enumeration value="lambda235"/>
+            <xs:enumeration value="lambda234"/>
+            <xs:enumeration value="lambda232"/>
+            <xs:enumeration value="lambda231"/>
+            <xs:enumeration value="lambda230"/>
+            <xs:enumeration value="lambda226"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="MeasuredRatio">
+        <xs:complexContent>
+            <xs:restriction base="MeasuredRatioModel">
+                <xs:sequence>
+                    <xs:element name="name" type="MeasuredRatioNameType" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" fixed="PCT"/>
+                    <xs:element name="oneSigma" type="xs:decimal"/>
+                    <xs:element name="fracCorr" type="xs:boolean" />
+                    <xs:element name="oxideCorr" type="xs:boolean" />
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="MeasuredRatioNameType" >
+        <xs:restriction base="xs:string" >
+            <xs:enumeration value="r206_204m" />
+            <xs:enumeration value="r207_204m" />
+            <xs:enumeration value="r208_204m" />
+            <xs:enumeration value="r206_207m" />
+            <xs:enumeration value="r206_208m" />
+            <xs:enumeration value="r204_205m" />
+            <xs:enumeration value="r206_205m" />
+            <xs:enumeration value="r206_238m" />
+            <xs:enumeration value="r207_205m" />
+            <xs:enumeration value="r208_205m" />
+            <xs:enumeration value="r208_232m" />
+            <xs:enumeration value="r202_205m" />
+            <xs:enumeration value="r238_236m" />
+            <xs:enumeration value="r233_236m" />
+            <xs:enumeration value="r238_235m" />
+            <xs:enumeration value="r233_235m" />
+            <xs:enumeration value="r238_233m" />
+
+            <xs:enumeration value="206_204" />
+            <xs:enumeration value="207_204" />
+            <xs:enumeration value="208_204" />
+            <xs:enumeration value="206_207" />
+            <xs:enumeration value="206_208" />
+            <xs:enumeration value="206_238" />
+            <xs:enumeration value="204_205" />
+            <xs:enumeration value="206_205" />
+            <xs:enumeration value="207_205" />
+            <xs:enumeration value="208_205" />
+            <xs:enumeration value="208_232" />
+            <xs:enumeration value="202_205" />
+            <xs:enumeration value="238_236" />
+            <xs:enumeration value="233_236" />
+            <xs:enumeration value="238_235" />
+            <xs:enumeration value="233_235" />
+            <xs:enumeration value="238_233" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="CompositionalMeasure">
+        <xs:complexContent>
+            <xs:restriction base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="name" type="CompositionalMeasureNameType" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" fixed="ABS"/>
+                    <xs:element name="oneSigma" type="xs:decimal" />
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="CompositionalMeasureNameType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="concU"/>
+            <xs:enumeration value="concTh"/>
+            <xs:enumeration value="rTh_Usample"/>
+            <xs:enumeration value="concPb_rib"/>
+            <xs:enumeration value="concPb_r"/>
+            <xs:enumeration value="concPb_i"/>
+            <xs:enumeration value="concPb_ib"/>
+            <xs:enumeration value="concPb206_rib"/>
+            <xs:enumeration value="concPb206_r"/>
+            <xs:enumeration value="concPb206_ib"/>
+            <xs:enumeration value="massPb_rib"/>
+            <xs:enumeration value="massU"/>
+            <xs:enumeration value="totRadiogenicPbMass"/>
+            <xs:enumeration value="radToCommonTotal"/>
+            <xs:enumeration value="totCommonPbMass"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="SampleIsochronRatio">
+        <xs:complexContent>
+            <xs:restriction base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="name" type="SampleIsochronRatioNameType" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" />
+                    <xs:element name="oneSigma" type="xs:decimal" />
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="SampleIsochronRatioNameType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="r206_204tfc"/>
+            <xs:enumeration value="r204_206s"/>
+            <xs:enumeration value="r238_204s"/>
+            <xs:enumeration value="rhoR238_204s__r206_204s"/>
+            <xs:enumeration value="r235_204s"/>
+            <xs:enumeration value="r204_207s"/>
+            <xs:enumeration value="rhoR235_204s__r207_204s"/>
+            <xs:enumeration value="r232_204s"/>
+            <xs:enumeration value="r208_204s"/>
+            <xs:enumeration value="rhoR202_204s__r208_204s"/>
+            <xs:enumeration value="r238_206s"/>
+            <xs:enumeration value="r207_206s"/>
+            <xs:enumeration value="rhoR238_206s__r207_206s"/>
+            <xs:enumeration value="rhoR207_206s__r204_206s"/>
+            <xs:enumeration value="r238_207s"/>
+            <xs:enumeration value="r235_207s"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="MineralStandardTrueAge">
+        <xs:complexContent>
+            <xs:restriction base="ValueModelReferenced">
+                <xs:sequence>
+                    <xs:element name="name" type="xs:string" fixed="TrueAge" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" fixed="ABS"/>
+                    <xs:element name="oneSigma" type="xs:decimal" />
+                    <xs:element name ="reference" type ="xs:string"/>
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="MineralStandardMeasuredAge">
+        <xs:complexContent>
+            <xs:restriction base="ValueModelReferenced">
+                <xs:sequence>
+                    <xs:element name="name" type="xs:string" fixed="MeasuredAge" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" fixed="ABS"/>
+                    <xs:element name="oneSigma" type="xs:decimal" />
+                    <xs:element name="reference" type ="xs:string"/>
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+
+
+    <xs:simpleType name="SampleDateType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="single analysis 206Pb/238U"/>
+            <xs:enumeration value="single analysis 207Pb/235U"/>
+            <xs:enumeration value="single analysis 207Pb/206Pb"/>
+            <xs:enumeration value="single analysis 208Pb/232Th"/>
+            <xs:enumeration value="weighted mean 207Pb/235U"/>
+            <xs:enumeration value="weighted mean 206Pb/238U"/>
+            <xs:enumeration value="weighted mean 207Pb/206Pb"/>
+            <xs:enumeration value="weighted mean_208Pb/232Th"/>
+            <xs:enumeration value="Tuff Zirc 206Pb/238U (filtered median date)"/>
+            <xs:enumeration value="Tuff Zirc 207Pb/235U (filtered median date)"/>
+            <xs:enumeration value="Tuff Zirc 208Pb/232U (filtered median date)"/>
+            <xs:enumeration value="concordia"/>
+            <xs:enumeration value="upper intercept"/>
+            <xs:enumeration value="lower intercept"/>
+            <xs:enumeration value="238U/206Pb isochron"/>
+            <xs:enumeration value="235U/207Pb isochron"/>
+            <xs:enumeration value="232Th/208Pb isochron"/>
+            <xs:enumeration value="Semi-TotalPb isochron"/>
+            <xs:enumeration value="Total Pb isochron"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+
+    <xs:simpleType name="uncertaintyTypes">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="NONE" />
+            <xs:enumeration value="ABS" />
+            <xs:enumeration value="PCT" />
+        </xs:restriction>
+    </xs:simpleType>
+                
+        
+    <xs:complexType name="MineralStandardUPbRatio">
+        <xs:complexContent>
+            <xs:restriction base="MineralStandardUPbRatioModel">
+                <xs:sequence>
+                    <xs:element name="name" type="MineralStandardUPbRatioType" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes" />
+                    <xs:element name="oneSigma" type="xs:decimal" />
+                    <xs:element name="measured" type="xs:boolean"/>
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="MineralStandardUPbRatioType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="r206_207r" />
+            <xs:enumeration value="r206_208r" />
+            <xs:enumeration value="r206_238r" />
+            <xs:enumeration value="r208_232r" />
+            <xs:enumeration value="r238_235s" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Dec 2014 for LAICPMS -->
+    <xs:complexType name="MineralStandardPPMConcentration">
+        <xs:complexContent>
+            <xs:restriction base="ValueModel">
+                <xs:sequence>
+                    <xs:element name="name" type="MineralStandardPPMConcentrationNameType" />
+                    <xs:element name="value" type="xs:decimal" />
+                    <xs:element name="uncertaintyType" type="uncertaintyTypes"/>
+                    <xs:element name="oneSigma" type="xs:decimal" />
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:simpleType name="MineralStandardPPMConcentrationNameType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="concU" />
+            <xs:enumeration value="concTh" />
+        </xs:restriction>
+    </xs:simpleType>
+
+
+</xs:schema>

@@ -16,9 +16,6 @@
 
 package org.cirdles.tripoli.utilities.fileUtilities;
 
-import org.cirdles.commons.util.ResourceExtractor;
-import org.cirdles.tripoli.Tripoli;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,6 +25,7 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.cirdles.tripoli.Tripoli.TRIPOLI_RESOURCE_EXTRACTOR;
 import static org.cirdles.tripoli.TripoliConstants.*;
+import static org.cirdles.tripoli.utilities.fileUtilities.GithubFileExtractor.extractGithubFile;
 
 public class TripoliFileResources {
     public static void initLocalResources() throws IOException {
@@ -67,13 +65,25 @@ public class TripoliFileResources {
                 List<String> fileNames = Files.readAllLines(listOfResourceFiles, ISO_8859_1);
                 for (int i = 0; i < fileNames.size(); i++) {
                     if (fileNames.get(i).trim().length() > 0) {
-                        File resourceFileName = TRIPOLI_RESOURCE_EXTRACTOR.extractResourceAsFile(resourceFolderName + File.separator + fileNames.get(i));
-                        File resourceLocalFileName = new File(resourceTargetFolder.getCanonicalPath() + File.separator + fileNames.get(i));
-                        if (resourceFileName != null) {
+                        if (fileNames.get(i).startsWith("https")) {
+                            int fileNameIndex = fileNames.get(i).lastIndexOf("/");
+                            String fileName = fileNames.get(i).substring(fileNameIndex + 1);
                             try {
-                                resourceFileName.renameTo(resourceLocalFileName);
+                                extractGithubFile(
+                                        fileNames.get(i).trim(),
+                                        resourceTargetFolder + File.separator + fileName);
                             } catch (Exception e) {
                                 e.printStackTrace();
+                            }
+                        } else {
+                            File resourceFileName = TRIPOLI_RESOURCE_EXTRACTOR.extractResourceAsFile(resourceFolderName + File.separator + fileNames.get(i));
+                            File resourceLocalFileName = new File(resourceTargetFolder.getCanonicalPath() + File.separator + fileNames.get(i));
+                            if (resourceFileName != null) {
+                                try {
+                                    resourceFileName.renameTo(resourceLocalFileName);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
                     }
