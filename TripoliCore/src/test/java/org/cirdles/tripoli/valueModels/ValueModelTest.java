@@ -42,10 +42,10 @@ class ValueModelTest {
         try {
             TripoliSerializer.serializeObjectToFile(vm, "TestValueModel.ser");
             ValueModel vm2 = (ValueModel) TripoliSerializer.getSerializedObjectFromFile("TestValueModel.ser", true);
-            assertEquals(vm.name, vm2.name);
-            assertEquals(vm.value, vm2.value);
-            assertEquals(vm.oneSigma, vm2.oneSigma);
-            assertEquals(vm.oneSigmaSys, vm2.oneSigmaSys);
+            assertEquals(vm.getName(), vm2.getName());
+            assertEquals(vm.getValue(), vm2.getValue());
+            assertEquals(vm.getOneSigma(), vm2.getOneSigma());
+            assertEquals(vm.getOneSigmaSys(), vm2.getOneSigmaSys());
         } catch (TripoliException e) {
             e.printStackTrace();
         }

@@ -16,6 +16,8 @@
 
 package org.cirdles.tripoli.valueModels;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -23,14 +25,14 @@ import java.util.Objects;
 /**
  * @author James F. Bowring
  */
-public class ValueModel implements Serializable {
+public class ValueModel implements Serializable, ValueModelInterface {
 
     private static final long serialVersionUID = -2165611302657545964L;
 
-    String name;
-    BigDecimal value;
-    BigDecimal oneSigma;
-    BigDecimal oneSigmaSys;
+    private String name;
+    private BigDecimal value;
+    private BigDecimal oneSigma;
+    private BigDecimal oneSigmaSys;
 
     private ValueModel() {
         this("NO_NAME", BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
@@ -68,10 +70,9 @@ public class ValueModel implements Serializable {
     }
 
     /**
-     *
      * @return
      */
-    public String prettyPrintValueModel(){
+    public String prettyPrintValueModel() {
         return "ValueModel " + name;
     }
 
@@ -106,6 +107,14 @@ public class ValueModel implements Serializable {
     public void setOneSigmaSys(BigDecimal oneSigmaSys) {
         this.oneSigmaSys = oneSigmaSys;
     }
+
+    @Override
+    public int compareTo(@NotNull ValueModel valueModel) throws ClassCastException {
+        String name = valueModel.getName();
+        return this.getName().trim().compareToIgnoreCase(name.trim());
+    }
+
+    // TODO: equals, hashcode, copy
 
 //    private void readObject(ObjectInputStream stream) throws IOException,
 //            ClassNotFoundException {
