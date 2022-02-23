@@ -24,7 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class GithubFileExtractor {
-    public static void extractGithubFile(String fileRawURI, String fileName) throws Exception {
+    public static void extractGithubFile(String fileRawURI, String fileName) {
         java.net.URL url;
 
         try {
@@ -33,16 +33,15 @@ public class GithubFileExtractor {
             uc = url.openConnection();
 
             uc.setRequestProperty("X-Requested-With", "Curl");
-            java.util.ArrayList<String> list = new java.util.ArrayList<>();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(uc.getInputStream()));
-            String fileContents = "";
-            String line = null;
+            StringBuilder fileContents = new StringBuilder();
+            String line;
             while ((line = reader.readLine()) != null)
-                fileContents += line + "\n";
+                fileContents.append(line).append("\n");
 
             Path path = Paths.get(fileName);
-            byte[] strToBytes = fileContents.getBytes();
+            byte[] strToBytes = fileContents.toString().getBytes();
 
             Files.write(path, strToBytes);
 

@@ -17,5 +17,9 @@
 module Tripoli.TripoliCore {
     requires commons.bc38781605;
     requires org.apache.poi.poi;
+    requires org.jetbrains.annotations;
     exports org.cirdles.tripoli;
+    exports org.cirdles.tripoli.valueModels;
+    exports org.cirdles.tripoli.utilities.stateUtilities;
+    exports org.cirdles.tripoli.utilities.exceptions;
 }
