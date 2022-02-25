@@ -18,24 +18,29 @@ package org.cirdles.tripoli.valueModels;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamClass;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+import static org.cirdles.tripoli.TripoliConstants.DEFAULT_OBJECT_NAME;
+
 /**
  * @author James F. Bowring
  */
-public class ValueModel implements Serializable, ValueModelInterface {
+public class ValueModel implements Serializable, Comparable<ValueModel>, ValueModelInterface {
 
     private static final long serialVersionUID = -2165611302657545964L;
 
     private String name;
     private BigDecimal value;
-    private BigDecimal oneSigma;
-    private BigDecimal oneSigmaSys;
+    private BigDecimal oneSigmaAbs;
+    private BigDecimal oneSigmaSysAbs;
 
     private ValueModel() {
-        this("NO_NAME", BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+        this(DEFAULT_OBJECT_NAME, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
     }
 
     private ValueModel(String name) {
@@ -46,15 +51,15 @@ public class ValueModel implements Serializable, ValueModelInterface {
         this(name, value, BigDecimal.ZERO, BigDecimal.ZERO);
     }
 
-    private ValueModel(String name, BigDecimal value, BigDecimal oneSigma) {
-        this(name, value, oneSigma, BigDecimal.ZERO);
+    private ValueModel(String name, BigDecimal value, BigDecimal oneSigmaAbs) {
+        this(name, value, oneSigmaAbs, BigDecimal.ZERO);
     }
 
-    private ValueModel(String name, BigDecimal value, BigDecimal oneSigma, BigDecimal oneSigmaSys) {
+    private ValueModel(String name, BigDecimal value, BigDecimal oneSigmaAbs, BigDecimal oneSigmaSysAbs) {
         this.name = Objects.requireNonNull(name);
         this.value = value;
-        this.oneSigma = oneSigma;
-        this.oneSigmaSys = oneSigmaSys;
+        this.oneSigmaAbs = oneSigmaAbs;
+        this.oneSigmaSysAbs = oneSigmaSysAbs;
     }
 
     /**
@@ -65,8 +70,30 @@ public class ValueModel implements Serializable, ValueModelInterface {
         return new ValueModel(name);
     }
 
-    public static ValueModel createFullNamedValueModel(String name, BigDecimal value, BigDecimal oneSigma, BigDecimal oneSigmaSys) {
-        return new ValueModel(name, value, oneSigma, oneSigmaSys);
+    public static ValueModel createFullNamedValueModel(String name, BigDecimal value, BigDecimal oneSigmaAbs, BigDecimal oneSigmaSysAbs) {
+        return new ValueModel(name, value, oneSigmaAbs, oneSigmaSysAbs);
+    }
+
+    public static ValueModel createCopyOfValueModel(@NotNull ValueModel valueModel) {
+        ValueModel valueModelCopy =
+                createFullNamedValueModel(valueModel.getName(), valueModel.getValue(), valueModel.getOneSigmaAbs(), valueModel.getOneSigmaSysAbs());
+        return valueModelCopy;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean hasPositiveVarUnct() {
+        return oneSigmaAbs.compareTo(BigDecimal.ZERO) > 0;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean hasPositiveSysUnct() {
+        return oneSigmaSysAbs.compareTo(BigDecimal.ZERO) > 0;
     }
 
     /**
@@ -92,20 +119,20 @@ public class ValueModel implements Serializable, ValueModelInterface {
         this.value = value;
     }
 
-    public BigDecimal getOneSigma() {
-        return oneSigma;
+    public BigDecimal getOneSigmaAbs() {
+        return oneSigmaAbs;
     }
 
-    public void setOneSigma(BigDecimal oneSigma) {
-        this.oneSigma = oneSigma;
+    public void setOneSigmaAbs(BigDecimal oneSigmaAbs) {
+        this.oneSigmaAbs = oneSigmaAbs;
     }
 
-    public BigDecimal getOneSigmaSys() {
-        return oneSigmaSys;
+    public BigDecimal getOneSigmaSysAbs() {
+        return oneSigmaSysAbs;
     }
 
-    public void setOneSigmaSys(BigDecimal oneSigmaSys) {
-        this.oneSigmaSys = oneSigmaSys;
+    public void setOneSigmaSysAbs(BigDecimal oneSigmaSysAbs) {
+        this.oneSigmaSysAbs = oneSigmaSysAbs;
     }
 
     @Override
@@ -116,14 +143,14 @@ public class ValueModel implements Serializable, ValueModelInterface {
 
     // TODO: equals, hashcode, copy
 
-//    private void readObject(ObjectInputStream stream) throws IOException,
-//            ClassNotFoundException {
-//        stream.defaultReadObject();
-//
-//        ObjectStreamClass myObject = ObjectStreamClass.lookup(
-//                Class.forName(ValueModel.class.getCanonicalName()));
-//        long theSUID = myObject.getSerialVersionUID();
-//
-//        System.out.println("Customized De-serialization of ValueModel " + theSUID);
-//    }
+    private void readObject(ObjectInputStream stream) throws IOException,
+            ClassNotFoundException {
+        stream.defaultReadObject();
+
+        ObjectStreamClass myObject = ObjectStreamClass.lookup(
+                Class.forName(ValueModel.class.getCanonicalName()));
+        long theSUID = myObject.getSerialVersionUID();
+
+        System.out.println("Customized De-serialization of ValueModel " + theSUID);
+    }
 }

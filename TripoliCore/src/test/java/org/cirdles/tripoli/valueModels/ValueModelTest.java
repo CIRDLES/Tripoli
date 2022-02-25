@@ -38,14 +38,14 @@ class ValueModelTest {
 
     @Test
     void createFullNamedValueModel() {
-        ValueModel vm = ValueModel.createFullNamedValueModel("Test", new BigDecimal("1.00000000000000000000000000022"), BigDecimal.ONE, BigDecimal.ONE);
+        ValueModel vm = ValueModel.createFullNamedValueModel("Test", new BigDecimal("1.00000000000000000000000000022"), new BigDecimal("1.00000000000000000000000033322"), BigDecimal.ONE);
         try {
             TripoliSerializer.serializeObjectToFile(vm, "TestValueModel.ser");
             ValueModel vm2 = (ValueModel) TripoliSerializer.getSerializedObjectFromFile("TestValueModel.ser", true);
             assertEquals(vm.getName(), vm2.getName());
             assertEquals(vm.getValue(), vm2.getValue());
-            assertEquals(vm.getOneSigma(), vm2.getOneSigma());
-            assertEquals(vm.getOneSigmaSys(), vm2.getOneSigmaSys());
+            assertEquals(vm.getOneSigmaAbs(), vm2.getOneSigmaAbs());
+            assertEquals(vm.getOneSigmaSysAbs(), vm2.getOneSigmaSysAbs());
         } catch (TripoliException e) {
             e.printStackTrace();
         }
