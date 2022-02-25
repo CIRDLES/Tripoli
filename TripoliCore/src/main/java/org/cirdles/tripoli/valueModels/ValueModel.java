@@ -36,8 +36,8 @@ public class ValueModel implements Serializable, Comparable<ValueModel>, ValueMo
 
     private String name;
     private BigDecimal value;
-    private BigDecimal oneSigmaAbs;
-    private BigDecimal oneSigmaSysAbs;
+    private BigDecimal analyticalOneSigmaAbs;
+    private BigDecimal systematicOneSigmaAbs;
 
     private ValueModel() {
         this(DEFAULT_OBJECT_NAME, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
@@ -51,15 +51,15 @@ public class ValueModel implements Serializable, Comparable<ValueModel>, ValueMo
         this(name, value, BigDecimal.ZERO, BigDecimal.ZERO);
     }
 
-    private ValueModel(String name, BigDecimal value, BigDecimal oneSigmaAbs) {
-        this(name, value, oneSigmaAbs, BigDecimal.ZERO);
+    private ValueModel(String name, BigDecimal value, BigDecimal analyticalOneSigmaAbs) {
+        this(name, value, analyticalOneSigmaAbs, BigDecimal.ZERO);
     }
 
-    private ValueModel(String name, BigDecimal value, BigDecimal oneSigmaAbs, BigDecimal oneSigmaSysAbs) {
+    private ValueModel(String name, BigDecimal value, BigDecimal analyticalOneSigmaAbs, BigDecimal systematicOneSigmaAbs) {
         this.name = Objects.requireNonNull(name);
         this.value = value;
-        this.oneSigmaAbs = oneSigmaAbs;
-        this.oneSigmaSysAbs = oneSigmaSysAbs;
+        this.analyticalOneSigmaAbs = analyticalOneSigmaAbs;
+        this.systematicOneSigmaAbs = systematicOneSigmaAbs;
     }
 
     /**
@@ -76,7 +76,7 @@ public class ValueModel implements Serializable, Comparable<ValueModel>, ValueMo
 
     public static ValueModel createCopyOfValueModel(@NotNull ValueModel valueModel) {
         ValueModel valueModelCopy =
-                createFullNamedValueModel(valueModel.getName(), valueModel.getValue(), valueModel.getOneSigmaAbs(), valueModel.getOneSigmaSysAbs());
+                createFullNamedValueModel(valueModel.getName(), valueModel.getValue(), valueModel.getAnalyticalOneSigmaAbs(), valueModel.getSystematicOneSigmaAbs());
         return valueModelCopy;
     }
 
@@ -85,7 +85,7 @@ public class ValueModel implements Serializable, Comparable<ValueModel>, ValueMo
      * @return
      */
     public boolean hasPositiveVarUnct() {
-        return oneSigmaAbs.compareTo(BigDecimal.ZERO) > 0;
+        return analyticalOneSigmaAbs.compareTo(BigDecimal.ZERO) > 0;
     }
 
     /**
@@ -93,7 +93,7 @@ public class ValueModel implements Serializable, Comparable<ValueModel>, ValueMo
      * @return
      */
     public boolean hasPositiveSysUnct() {
-        return oneSigmaSysAbs.compareTo(BigDecimal.ZERO) > 0;
+        return systematicOneSigmaAbs.compareTo(BigDecimal.ZERO) > 0;
     }
 
     /**
@@ -119,20 +119,20 @@ public class ValueModel implements Serializable, Comparable<ValueModel>, ValueMo
         this.value = value;
     }
 
-    public BigDecimal getOneSigmaAbs() {
-        return oneSigmaAbs;
+    public BigDecimal getAnalyticalOneSigmaAbs() {
+        return analyticalOneSigmaAbs;
     }
 
-    public void setOneSigmaAbs(BigDecimal oneSigmaAbs) {
-        this.oneSigmaAbs = oneSigmaAbs;
+    public void setAnalyticalOneSigmaAbs(BigDecimal analyticalOneSigmaAbs) {
+        this.analyticalOneSigmaAbs = analyticalOneSigmaAbs;
     }
 
-    public BigDecimal getOneSigmaSysAbs() {
-        return oneSigmaSysAbs;
+    public BigDecimal getSystematicOneSigmaAbs() {
+        return systematicOneSigmaAbs;
     }
 
-    public void setOneSigmaSysAbs(BigDecimal oneSigmaSysAbs) {
-        this.oneSigmaSysAbs = oneSigmaSysAbs;
+    public void setSystematicOneSigmaAbs(BigDecimal systematicOneSigmaAbs) {
+        this.systematicOneSigmaAbs = systematicOneSigmaAbs;
     }
 
     @Override
@@ -143,14 +143,14 @@ public class ValueModel implements Serializable, Comparable<ValueModel>, ValueMo
 
     // TODO: equals, hashcode, copy
 
-    private void readObject(ObjectInputStream stream) throws IOException,
-            ClassNotFoundException {
-        stream.defaultReadObject();
-
-        ObjectStreamClass myObject = ObjectStreamClass.lookup(
-                Class.forName(ValueModel.class.getCanonicalName()));
-        long theSUID = myObject.getSerialVersionUID();
-
-        System.out.println("Customized De-serialization of ValueModel " + theSUID);
-    }
+//    private void readObject(ObjectInputStream stream) throws IOException,
+//            ClassNotFoundException {
+//        stream.defaultReadObject();
+//
+//        ObjectStreamClass myObject = ObjectStreamClass.lookup(
+//                Class.forName(ValueModel.class.getCanonicalName()));
+//        long theSUID = myObject.getSerialVersionUID();
+//
+//        System.out.println("Customized De-serialization of ValueModel " + theSUID);
+//    }
 }

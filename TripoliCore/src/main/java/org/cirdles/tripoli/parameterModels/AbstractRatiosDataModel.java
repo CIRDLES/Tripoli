@@ -510,8 +510,8 @@ public abstract class AbstractRatiosDataModel implements
                     double correlation
                             = //
                             dataCovariancesVarUnct.getMatrix().get(row, col)//
-                                    / rowData.getOneSigmaAbs().doubleValue() //
-                                    / colData.getOneSigmaAbs().doubleValue();
+                                    / rowData.getAnalyticalOneSigmaAbs().doubleValue() //
+                                    / colData.getAnalyticalOneSigmaAbs().doubleValue();
                     dataCorrelationsVarUnct.setValueAt(row, col, correlation);
                 }
             }
@@ -533,8 +533,8 @@ public abstract class AbstractRatiosDataModel implements
                     ValueModel rowData = getDatumByName(rowName);
                     double correlation =
                             dataCovariancesSysUnct.getMatrix().get(row, col)
-                                    / rowData.getOneSigmaSysAbs().doubleValue()
-                                    / colData.getOneSigmaSysAbs().doubleValue();
+                                    / rowData.getSystematicOneSigmaAbs().doubleValue()
+                                    / colData.getSystematicOneSigmaAbs().doubleValue();
                     dataCorrelationsSysUnct.setValueAt(row, col, correlation);
                 }
             }
@@ -564,8 +564,8 @@ public abstract class AbstractRatiosDataModel implements
                     double covariance
                             = //
                             dataCorrelationsVarUnct.getMatrix().get(row, col)//
-                                    * rowData.getOneSigmaAbs().doubleValue() //
-                                    * colData.getOneSigmaAbs().doubleValue();
+                                    * rowData.getAnalyticalOneSigmaAbs().doubleValue() //
+                                    * colData.getAnalyticalOneSigmaAbs().doubleValue();
                     dataCovariancesVarUnct.setValueAt(row, col, covariance);
                 }
             }
@@ -588,8 +588,8 @@ public abstract class AbstractRatiosDataModel implements
                     double covariance
                             = //
                             dataCorrelationsSysUnct.getMatrix().get(row, col)//
-                                    * rowData.getOneSigmaSysAbs().doubleValue() //
-                                    * colData.getOneSigmaSysAbs().doubleValue();
+                                    * rowData.getSystematicOneSigmaAbs().doubleValue() //
+                                    * colData.getSystematicOneSigmaAbs().doubleValue();
                     dataCovariancesSysUnct.setValueAt(row, col, covariance);
                 }
             }
