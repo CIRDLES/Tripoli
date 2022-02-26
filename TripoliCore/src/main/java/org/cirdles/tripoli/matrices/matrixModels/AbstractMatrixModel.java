@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public abstract class AbstractMatrixModel implements Serializable {
 
-    // private static final long serialVersionUID = -1858833405279253150L;
+    private static final long serialVersionUID = 19645743150111042L;
     /**
      *
      */
@@ -290,6 +290,7 @@ public abstract class AbstractMatrixModel implements Serializable {
     protected String createPartialDerivName(String variableName) {
         return "d" + variableName.substring(0, 1).toUpperCase() + variableName.substring(1);
     }
+
 //    private void readObject ( ObjectInputStream stream ) throws IOException,
 //            ClassNotFoundException {
 //        stream.defaultReadObject();
@@ -298,7 +299,7 @@ public abstract class AbstractMatrixModel implements Serializable {
 //                Class.forName( AbstractMatrixModel.class.getCanonicalName()) );
 //        long theSUID = myObject.getSerialVersionUID();
 //
-//        System.out.println( "Customized De-serialization of AbstractMatrixModel "
+//        System.err.println( "Customized De-serialization of AbstractMatrixModel "
 //                + theSUID );
 //    }
 }

@@ -18,9 +18,6 @@ package org.cirdles.tripoli.valueModels;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectStreamClass;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -81,7 +78,6 @@ public class ValueModel implements Serializable, Comparable<ValueModel>, ValueMo
     }
 
     /**
-     *
      * @return
      */
     public boolean hasPositiveVarUnct() {
@@ -89,7 +85,6 @@ public class ValueModel implements Serializable, Comparable<ValueModel>, ValueMo
     }
 
     /**
-     *
      * @return
      */
     public boolean hasPositiveSysUnct() {
@@ -151,6 +146,6 @@ public class ValueModel implements Serializable, Comparable<ValueModel>, ValueMo
 //                Class.forName(ValueModel.class.getCanonicalName()));
 //        long theSUID = myObject.getSerialVersionUID();
 //
-//        System.out.println("Customized De-serialization of ValueModel " + theSUID);
+//        System.err.println("Customized De-serialization of ValueModel " + theSUID);
 //    }
 }
