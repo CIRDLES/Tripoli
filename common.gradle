@@ -21,6 +21,8 @@
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
+
+
 sourceCompatibility = '17'
 targetCompatibility = '17'
 
@@ -36,13 +38,19 @@ repositories {
         url "https://jitpack.io"
     }
 
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+
     flatDir {
         dirs 'libs'
     }
 }
 
 dependencies {
-    // Adding dependencies here will add the dependencies to each subproject.
+    // https://mvnrepository.com/artifact/org.jetbrains/annotations
+    implementation group: 'org.jetbrains', name: 'annotations', version: '23.0.0'
+
 }
 
 String mavenArtifactId = name

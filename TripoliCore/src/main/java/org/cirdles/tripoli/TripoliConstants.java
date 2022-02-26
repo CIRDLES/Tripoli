@@ -28,4 +28,6 @@ public final class TripoliConstants {
     public static final File PHYSCONST_MODELS_FOLDER = new File(PARAMETER_MODELS_FOLDER.getAbsolutePath() + File.separator + "PhysicalConstantsModels");
     public static final File TRACER_MODELS_FOLDER = new File(PARAMETER_MODELS_FOLDER.getAbsolutePath() + File.separator + "TracerModels");
 
+    public static final String DEFAULT_OBJECT_NAME = "NO_NAME";
+
 }
