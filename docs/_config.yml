@@ -1,1 +1,14 @@
 theme: jekyll-theme-time-machine
+
+---
+layout: default
+title: docs
+nav_order: 2
+has_children: true
+---
+---
+layout: default
+title: History
+parent: docs
+nav_order: 2
+---
