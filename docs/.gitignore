@@ -3,3 +3,7 @@ _site
 .jekyll-cache
 .jekyll-metadata
 vendor
+
+!*.html
+!_layouts/*.html
+!_includes/themes/twitter/*.html
