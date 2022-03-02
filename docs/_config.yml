@@ -22,7 +22,7 @@ production_url: http://cirdles.org/Tripoli
 # (see https://help.github.com/articles/migrating-your-pages-site-from-maruku)
 markdown: kramdown
 
-BASE_PATH: http://cirdles.org/Tripoli
+BASE_PATH: https://github.com/CIRDLES/Tripoli
 # All Jekyll-Bootstrap specific configurations are namespaced into this hash
 #
 JB:
