@@ -17,7 +17,7 @@ author:
   feedburner:
 
 baseurl: "" 
-url: "http://cirdles.org/tripoli" # the base hostname & protocol for your site
+#url: "http://cirdles.org/tripoli" # the base hostname & protocol for your site
 github_username:  CIRDLES
 
 #production_url: http://cirdles.org/Tripoli
