@@ -17,7 +17,7 @@ author:
   feedburner:
 
 production_url: http://cirdles.org/Tripoli
-base_url: http://cirdles.org/Tripoli
+baseurl: /Tripoli
 
 # Tell Github to use the kramdown markdown interpreter
 # (see https://help.github.com/articles/migrating-your-pages-site-from-maruku)
