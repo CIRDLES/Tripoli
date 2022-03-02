@@ -1,6 +1,6 @@
 # gem 'github-pages'
 #source "https://rubygems.org"
-theme: jekyll-theme-cayman
+
 #gem 'github-pages',  group: :jekyll_plugins
 
 # Hello! This is where you manage which Jekyll version is used to run.
