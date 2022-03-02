@@ -16,6 +16,10 @@ author:
   twitter: Tripoli_ET
   feedburner:
 
+baseurl: "" 
+url: "http://cirdles.org/tripoli" # the base hostname & protocol for your site
+github_username:  CIRDLES
+
 #production_url: http://cirdles.org/Tripoli
 
 # Tell Github to use the kramdown markdown interpreter
