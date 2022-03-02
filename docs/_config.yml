@@ -2,7 +2,7 @@
 # For more see: https://github.com/mojombo/jekyll/wiki/Permalinks
 permalink: /:categories/:year/:month/:day/:title
 
-#exclude: [ ".rvmrc", ".rbenv-version", "ReadMe.md", "Rakefile", "changelog.md", "License.md", "Makefile", "Gemfile", "Gemfile.lock" ]
+exclude: [ ".rvmrc", ".rbenv-version", "ReadMe.md", "Rakefile", "changelog.md", "License.md", "Makefile", "Gemfile", "Gemfile.lock" ]
 highlighter: rouge
 
 # Themes are encouraged to use these universal variables
@@ -16,11 +16,7 @@ author:
   twitter: Tripoli_ET
   feedburner:
 
-#baseurl: "" 
-#url: "http://cirdles.org/" # the base hostname & protocol for your site
-github_username:  CIRDLES
-
-#production_url: http://cirdles.org/Tripoli
+production_url: http://cirdles.org/Tripoli
 
 # Tell Github to use the kramdown markdown interpreter
 # (see https://help.github.com/articles/migrating-your-pages-site-from-maruku)
