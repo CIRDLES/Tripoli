@@ -16,7 +16,7 @@ author:
   twitter: Tripoli_ET
   feedburner:
 
-production_url: http://cirdles.org/Tripoli
+#production_url: http://cirdles.org/Tripoli
 baseurl: /Tripoli
 
 # Tell Github to use the kramdown markdown interpreter
