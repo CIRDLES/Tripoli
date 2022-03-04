@@ -5,8 +5,8 @@ date:   2022-03-01 00:00:00 -0500
 categories: tripoli
 ---
 #### Announcement and Call to Participate
-PIs Noah McLean, Scott Burdick, and Jim Bowring (see [About](/about.html)) have received a three-year 
-NSF grant (see [Abstract](/nsf_award_abstract.html)) to develop a new version of the software product Tripoli.
+PIs Noah McLean, Scott Burdick, and Jim Bowring (see [About](http://cirdles.org/Tripoli/about.html)) have received a three-year 
+NSF grant (see [Abstract](http://cirdles.org/Tripoli/nsf_award_abstract.html)) to develop a new version of the software product Tripoli.
 
 ##### Tripoli Description
 Tripoli imports raw mass spectrometer data files and supports interactive review and archiving of isotopic data. Tripoli facilitates visualization of temporal trends and scatter during measurement, statistically rigorous filtering of data, and calculation of statistical parameters.
