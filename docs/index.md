@@ -22,7 +22,7 @@ We will be posting updates here:
 <ul>
   {% for post in site.posts %}
     <li>
-      <a href="/Tripoli{{ post.url }}">{{ post.title }}</a>
+      <a href="{{BASE_PATH}}{{ post.url }}">{{ post.title }}</a>
     </li>
   {% endfor %}
 </ul>
