@@ -5,7 +5,7 @@ date:   2022-03-01 00:00:00 -0500
 categories: tripoli
 ---
 #### Announcement and Call to Participate
-PIs Noah McLean, Scott Burdick, and Jim Bowring (see [About](http://cirdles.org/Tripoli/about.html)) have received a three-year 
+PIs Noah McLean, Scott Burdick, and Jim Bowring (see [About](/Tripoli/about.html)) have received a three-year 
 NSF grant (see [Abstract](http://cirdles.org/Tripoli/nsf_award_abstract.html)) to develop a new version of the software product Tripoli.
 
 ##### Tripoli Description
