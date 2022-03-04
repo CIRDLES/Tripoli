@@ -7,3 +7,4 @@ vendor
 !*.html
 !_layouts/*.html
 !_includes/themes/twitter/*.html
+!*.png
