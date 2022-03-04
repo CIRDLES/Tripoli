@@ -16,15 +16,10 @@ author:
   twitter: Tripoli_ET
   feedburner:
 
-#production_url: https://cirdles.github.io/Tripoli
-#baseurl: /Tripoli
-#BASE_PATH: https://cirdles.github.io/Tripoli
-
 # Tell Github to use the kramdown markdown interpreter
 # (see https://help.github.com/articles/migrating-your-pages-site-from-maruku)
 markdown: kramdown
 
-#BASE_PATH: http://cirdles.org/Tripoli
 # All Jekyll-Bootstrap specific configurations are namespaced into this hash
 #
 JB:
