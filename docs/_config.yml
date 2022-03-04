@@ -104,12 +104,4 @@ JB:
   # and include your custom code. Your custom file must be defined at:
   #   ./_includes/custom/[HELPER]
   # where [HELPER] is the name of the helper you are overriding.
-  
-  plugins:
-- jekyll-avatar
-- jekyll-feed
-- jekyll-mentions
-- jekyll-redirect-from
-- jekyll-seo-tag
-- jekyll-sitemap
-- jemoji
+ 
