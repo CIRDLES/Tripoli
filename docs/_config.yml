@@ -28,6 +28,7 @@ markdown: kramdown
 # All Jekyll-Bootstrap specific configurations are namespaced into this hash
 #
 JB:
+  BASE_PATH: /Tripoli
   version: 0.3.0
 
   # All links will be namespaced by BASE_PATH if defined.
