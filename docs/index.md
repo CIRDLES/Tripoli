@@ -18,7 +18,7 @@ description: Web presence for the development of Tripoli software.
 
 #### Welcome to the Tripoli software development home page.
 
-We will be posting updates here2:
+We will be posting updates here (newest first):
 <ul>
   {% for post in site.posts %}
     <li>
