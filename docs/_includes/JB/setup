@@ -6,11 +6,11 @@
     {% include custom/setup %}
   {% else %}
     {% if site.safe and site.JB.BASE_PATH and site.JB.BASE_PATH != '' %}
-      {% assign BASE_PATH = "http://cirdles.org/Tripoli" %}
+      {% assign BASE_PATH = "/Tripoli" %}
       {% assign site.JB.BASE_PATH = BASE_PATH %}
       {% assign HOME_PATH = BASE_PATH  %}
     {% else %}
-      {% assign BASE_PATH = "http://cirdles.org/Tripoli" %}
+      {% assign BASE_PATH = "/Tripoli" %}
       {% assign site.JB.BASE_PATH = BASE_PATH %}
       {% assign HOME_PATH = BASE_PATH  %}
     {% endif %}
