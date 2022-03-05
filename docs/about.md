@@ -50,7 +50,7 @@ Tripoli imports raw mass spectrometer data files and supports interactive review
             USA<br/><br/>
 
             <div id="hide_email">
-            Email: <code>bow</code><b>I</b><code>ring</code><b>don't</b><code>@</code><b>want</b><code></code><b>spam!
+            Email: <code>bow</code><b>I</b><code>ringj</code><b>don't</b><code>@</code><b>want</b><code></code><b>spam!
             </b><code></code><b>So</b><code></code><b>please</b><code>co</code><b>leave
             </b><code>fc</code><b>me</b><code>.</code><b>alone</b><code>e</code><b>!</b><code>du</code><br/>
             Phone: 843.953.0805
