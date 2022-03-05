@@ -9,8 +9,9 @@
       {% assign BASE_PATH = site.JB.BASE_PATH %}
       {% assign HOME_PATH = site.JB.BASE_PATH %}
     {% else %}
-      {% assign BASE_PATH = site.JB.BASE_PATH %}
-      {% assign HOME_PATH = site.JB.BASE_PATH %}
+      {% assign BASE_PATH = "\Tripoli" %}
+      {% assign site.JB.BASE_PATH = BASE_PATH %}
+      {% assign HOME_PATH = "\Tripoli"  %}
     {% endif %}
 
     {% if site.JB.ASSET_PATH %}
