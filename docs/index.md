@@ -18,11 +18,11 @@ description: Web presence for the development of Tripoli software.
 
 #### Welcome to the Tripoli software development home page.
 
-We will be posting updates here:
+We will be posting updates here1:
 <ul>
   {% for post in site.posts %}
     <li>
-      <a href="{{ site.JB.BASE_PATH }}{{ post.url }}">{{ post.title }}</a>
+      <a href="/Tripoli{{ post.url }}">{{ post.title }}</a>
     </li>
   {% endfor %}
 </ul>
