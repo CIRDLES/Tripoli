@@ -38,24 +38,36 @@ create a free account at [GitHub.com](https://github.com).
 2) We will maintain a [website](http://cirdles.org/Tripoli) that provides timely updates and tutorials as we develop them.  If you are reluctant to get a GitHub acount, this site is for you.
 
 3) We will host regularly scheduled Zoom meetings for collaboration among community members.
+
 4) Agile development is iterative and driven by use cases and requests provided by the community.  If you join 
 GitHub, you will be able to start and join [discussions](https://github.com/CIRDLES/Tripoli/discussions).  Here
 you can propose needed functionality or discuss current progress, etc.
+
 5) Agile development is test-driven.  This simply means that we should be able to think of a way to test any
 functionality that we want Tripoli to implement.  So, in addition to describing the functionality,
 we write some test cases
 in natural language that provide 
 both the inputs and the expected outcomes for each test.
+
 6) We intend to follow the open source practice of "release early and often."
+
 7) Community members can contribute in many ways:
+
    1) Join GitHub and participate in [discussions](https://github.com/CIRDLES/Tripoli/discussions).
+   
    2) Attend and contribute to team Zoom meetings.
+   
    3) Download releases and provide evaluations and suggestions via 
    [GitHub Issues](https://github.com/CIRDLES/Tripoli/issues).
+   
    4) Contribute actual or synthetic data for testing.
+   
    5) Contribute to and maintain the [Wiki](https://github.com/CIRDLES/Tripoli/wiki) 
    and / or [website](http://cirdles.org/Tripoli/).
+   
    6) Contribute tutorials about your related expertise and / or about using Tripoli as it matures.
+   
    7) Become and / or recruit people to inherit key roles in the development process.
+   
    8) Take a leading role in establishing our industrial-academic oversight board that is envisioned as
    a vehicle to establish sustainability and maintenance plans for the Tripoli product.
