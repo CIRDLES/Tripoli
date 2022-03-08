@@ -28,8 +28,8 @@ Tripoli imports raw mass spectrometer data files and supports interactive review
 
             <br/><br/>
             Scott Burdick<br/>
-            <a href="https://www.compsci.cofc.edu">Department of  Environmental Science & Geology</a><br/>
-            <a href="https://www.cofc.edu">Wayne State University</a><br/>
+            <a href="https://clas.wayne.edu/esg">Department of  Environmental Science & Geology</a><br/>
+            <a href="https://wayne.edu/">Wayne State University</a><br/>
             4841 Cass Avenue<br/>
             Detroit, MI 48201<br/>
             USA<br/><br/>
@@ -43,7 +43,7 @@ Tripoli imports raw mass spectrometer data files and supports interactive review
             <br/><br/>
 
             Jim Bowring<br/>
-            <a href="https://www.compsci.cofc.edu">Department of Computer Science</a><br/>
+            <a href="https://compsci.cofc.edu">Department of Computer Science</a><br/>
             <a href="https://www.cofc.edu">College of Charleston</a><br/>
             66 George Street<br/>
             Charleston, SC 29424<br/>
