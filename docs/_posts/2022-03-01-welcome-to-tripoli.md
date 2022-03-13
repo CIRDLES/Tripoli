@@ -53,21 +53,21 @@ both the inputs and the expected outcomes for each test.
 
 7) Community members can contribute in many ways:
 
-   1) Join GitHub and participate in [discussions](https://github.com/CIRDLES/Tripoli/discussions).
+   - Join GitHub and participate in [discussions](https://github.com/CIRDLES/Tripoli/discussions).
    
-   2) Attend and contribute to team Zoom meetings.
+   - Attend and contribute to team Zoom meetings.
    
-   3) Download releases and provide evaluations and suggestions via 
+   - Download releases and provide evaluations and suggestions via 
    [GitHub Issues](https://github.com/CIRDLES/Tripoli/issues).
    
-   4) Contribute actual or synthetic data for testing.
+   - Contribute actual or synthetic data for testing.
    
-   5) Contribute to and maintain the [Wiki](https://github.com/CIRDLES/Tripoli/wiki) 
+   - Contribute to and maintain the [Wiki](https://github.com/CIRDLES/Tripoli/wiki) 
    and / or [website](http://cirdles.org/Tripoli/).
    
-   6) Contribute tutorials about your related expertise and / or about using Tripoli as it matures.
+   - Contribute tutorials about your related expertise and / or about using Tripoli as it matures.
    
-   7) Become and / or recruit people to inherit key roles in the development process.
+   - Become and / or recruit people to inherit key roles in the development process.
    
-   8) Take a leading role in establishing our industrial-academic oversight board that is envisioned as
+   - Take a leading role in establishing our industrial-academic oversight board that is envisioned as
    a vehicle to establish sustainability and maintenance plans for the Tripoli product.
