@@ -48,6 +48,8 @@ public class TripoliFileResources {
         retrieveResourceFiles(PHYSCONST_MODELS_FOLDER, "parameterModels/physicalConstantsModels");
         retrieveResourceFiles(REFMAT_MODELS_FOLDER, "parameterModels/referenceMaterialsModels");
 
+        retrieveResourceFiles(SYNTHETIC_DATA_FOLDER, "dataProcessors/dataSources/synthetic");
+
         System.out.println("Tripoli Resources loaded");
     }
 

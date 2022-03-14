@@ -1,0 +1,1 @@
+This folder contains synthetic data files for testing and demonstration.
