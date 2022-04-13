@@ -53,21 +53,22 @@ We are implementing an agile development process to support collaboration:
 
 7) Community members can contribute in many ways:
 
-    - Join GitHub and participate in [discussions](https://github.com/CIRDLES/Tripoli/discussions).
-
-    - Attend and contribute to team Zoom meetings.
-
-    - Download releases and provide evaluations and suggestions via
-      [GitHub Issues](https://github.com/CIRDLES/Tripoli/issues).
-
-    - Contribute actual or synthetic data for testing.
-
-    - Contribute to and maintain the [Wiki](https://github.com/CIRDLES/Tripoli/wiki)
-      and / or [website](http://cirdles.org/Tripoli/).
-
-    - Contribute tutorials about your related expertise and / or about using Tripoli as it matures.
-
-    - Become and / or recruit people to inherit key roles in the development process.
-
-    - Take a leading role in establishing our industrial-academic oversight board that is envisioned as a vehicle to
-      establish sustainability and maintenance plans for the Tripoli product.
+   - Join GitHub and participate in [discussions](https://github.com/CIRDLES/Tripoli/discussions).
+   
+   - Attend and contribute to team Zoom meetings.
+   
+   - Download releases and provide evaluations and suggestions via 
+   [GitHub Issues](https://github.com/CIRDLES/Tripoli/issues).
+   
+   - Contribute actual or synthetic data for testing.
+   
+   - Contribute to and maintain the [Wiki](https://github.com/CIRDLES/Tripoli/wiki) 
+   and / or [website](http://cirdles.org/Tripoli/).
+   
+   - Contribute tutorials about your related expertise and / or about using Tripoli as it matures.
+   
+   - Become and / or recruit people to inherit key roles in the development process.
+   
+   - Take a leading role in establishing our industrial-academic oversight board that is envisioned as
+   a vehicle to establish sustainability and maintenance plans for the Tripoli product.
+   
