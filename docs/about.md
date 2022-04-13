@@ -1,9 +1,9 @@
 ---
-layout: page
-title: About
-description: Tripoli 2022
+layout: page title: About description: Tripoli 2022
 ---
-Tripoli imports raw mass spectrometer data files and supports interactive review and archiving of isotopic data. Tripoli facilitates visualization of temporal trends and scatter during measurement, statistically rigorous filtering of data, and calculation of statistical parameters.
+Tripoli imports raw mass spectrometer data files and supports interactive review and archiving of isotopic data. Tripoli
+facilitates visualization of temporal trends and scatter during measurement, statistically rigorous filtering of data,
+and calculation of statistical parameters.
 
 ---
 
@@ -59,4 +59,5 @@ Tripoli imports raw mass spectrometer data files and supports interactive review
         
 
     </div>
+
 </div>

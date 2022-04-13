@@ -51,9 +51,9 @@ project(":TripoliApp") {
 }
 
 task fatAppJar(type: Jar) {
-    dependsOn(TripoliCore:build)
+    dependsOn(TripoliCore: build)
     manifest {
-        attributes ('Main-Class': 'org.cirdles.tripoli.gui.TripoliGUI')
+        attributes('Main-Class': 'org.cirdles.tripoli.gui.TripoliGUI')
     }
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }

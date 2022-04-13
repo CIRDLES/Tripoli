@@ -19,11 +19,8 @@ package org.cirdles.tripoli.matrices.matrixModels;
 import jama.Matrix;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author James F. Bowring

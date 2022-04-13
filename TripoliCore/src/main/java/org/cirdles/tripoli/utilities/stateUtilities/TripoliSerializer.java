@@ -29,12 +29,11 @@ public final class TripoliSerializer {
     }
 
     /**
-     *
      * @param serializableObject
      * @param fileName
      * @throws TripoliException
      */
-    public static void serializeObjectToFile(Object serializableObject, String fileName) throws TripoliException{
+    public static void serializeObjectToFile(Object serializableObject, String fileName) throws TripoliException {
 
         // https://dzone.com/articles/fast-java-file-serialization
         // Sept 2018 speedup per Rayner request
@@ -58,7 +57,6 @@ public final class TripoliSerializer {
     }
 
     /**
-     *
      * @param filename
      * @param verbose
      * @return

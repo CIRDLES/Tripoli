@@ -718,7 +718,7 @@ public abstract class AbstractRatiosDataModel implements
         ValueModel[] clonedData = new ValueModel[ratios.length];
 
         for (int i = 0; i < ratios.length; i++) {
-            clonedData[i] =  ValueModel.createCopyOfValueModel(ratios[i]);
+            clonedData[i] = ValueModel.createCopyOfValueModel(ratios[i]);
         }
         return clonedData;
     }

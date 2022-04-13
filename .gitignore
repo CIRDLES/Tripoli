@@ -65,6 +65,7 @@ test_*
 !TripoliCore/src/main/resources/org/cirdles/tripoli/parameterModels/referenceMaterialsModels/*.txt
 !TripoliCore/src/main/resources/org/cirdles/tripoli/parameterModels/tracerModels/*.txt
 !TripoliCore/src/main/resources/org/cirdles/tripoli/schema/*.txt
+!TripoliCore/src/main/resources/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/*.txt
 
 # Developer docs
 !processDocs/meetingNotes/*
