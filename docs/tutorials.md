@@ -1,3 +1,5 @@
 ---
-layout: page title: Tripoli tutorials description: Tripoli tutorials
+layout: page
+title: Tripoli tutorials
+description: Tripoli tutorials
 ---
