@@ -16,13 +16,14 @@
 
 package org.cirdles.tripoli.gui;
 
-import java.net.URL;
-import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
+
+import java.net.URL;
+import java.util.ResourceBundle;
 
 public class AboutTripoliController {
 
@@ -57,7 +58,8 @@ public class AboutTripoliController {
         BrowserControl.showURI("https://github.com/CIRDLES/Tripoli");
     }
 
-    @FXML // This method is called by the FXMLLoader when initialization is complete
+    @FXML
+        // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
         versionText.setText("Tripoli v" + Tripoli.VERSION);
         buildDate.setText("Release Date: " + Tripoli.RELEASE_DATE);

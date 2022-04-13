@@ -31,9 +31,9 @@
                 <String fx:value="main-Text-Color" />
             </styleClass>
         </Label>
-        <ImageView fitHeight="75.0" fitWidth="156.0" layoutX="304.0" layoutY="603.0" pickOnBounds="true" preserveRatio="true" scaleX="0.75" scaleY="0.75">
+        <ImageView fitHeight="75.0" fitWidth="156.0" layoutX="345.0" layoutY="603.0" pickOnBounds="true" preserveRatio="true" scaleX="0.75" scaleY="0.75">
             <image>
-                <Image url="@images/cirdles-logov2.png" />
+                <Image url="@images/TripoliNoah2.png" />
             </image>
         </ImageView>
         <Hyperlink layoutX="326.0" layoutY="669.0" onAction="#visitTripoliOnCirdlesAction" styleClass="links" text="A CIRDLES Project" textAlignment="CENTER" />

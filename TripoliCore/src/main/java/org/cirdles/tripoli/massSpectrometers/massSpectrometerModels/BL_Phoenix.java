@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.dataProcessors.dataSources.synthetic;
+package org.cirdles.tripoli.massSpectrometers.massSpectrometerModels;
 
-import org.cirdles.tripoli.dataProcessors.dataModels.MassSpecDataModel;
+import org.cirdles.tripoli.massSpectrometers.MassSpectrometerInterface;
 
-import java.nio.file.Path;
-
-public class SyntheticDataSourceProcessorTypeA implements SyntheticDataSourceProcessorInterface{
-
-    @Override
-    public MassSpecDataModel prepareInputDataModelFromFile(Path inputDataFile) {
-        return null;
-    }
+/**
+ * @author James F. Bowring
+ */
+public class BL_Phoenix implements MassSpectrometerInterface {
 }

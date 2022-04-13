@@ -31,10 +31,11 @@ import javafx.scene.paint.Stop;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-import org.cirdles.tripoli.valueModels.ValueModel;
 
 import java.awt.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 
 /**
  * @author James F. Bowring
@@ -131,13 +132,13 @@ public class TripoliGUI extends Application {
         primaryStage.show();
 
         // create stops for color gradient
-        Stop[] stop = {new Stop(0,  new Color(243.0/256.0, 227.0/256.0, 118.0/256.0, 1.0)),
+        Stop[] stop = {new Stop(0, new Color(243.0 / 256.0, 227.0 / 256.0, 118.0 / 256.0, 1.0)),
 //                new Stop(0.5, new Color(24.0/256.0, 162.0/256.0, 74.0/256.0, 1.0)),
-                new Stop(1, new Color(236.0/256.0, 123.0/256.0, 56.0/256.0, 1.0))};
+                new Stop(1, new Color(236.0 / 256.0, 123.0 / 256.0, 56.0 / 256.0, 1.0))};
         // create a Linear gradient object
         LinearGradient linear_gradient = new LinearGradient(0, 0,
                 1, 0, true, CycleMethod.NO_CYCLE, stop);
         BackgroundFill bgFill = new BackgroundFill(linear_gradient, CornerRadii.EMPTY, Insets.EMPTY);
-        ((AnchorPane)((VBox)scene.getRoot()).getChildren().get(1)).setBackground(new Background(bgFill));
+        ((AnchorPane) ((VBox) scene.getRoot()).getChildren().get(1)).setBackground(new Background(bgFill));
     }
 }

@@ -25,7 +25,6 @@ public class TripoliException extends Exception {
     }
 
     /**
-     *
      * @param message
      */
     public TripoliException(String message) {
@@ -33,7 +32,6 @@ public class TripoliException extends Exception {
     }
 
     /**
-     *
      * @param cause
      */
     public TripoliException(Throwable cause) {
@@ -41,7 +39,6 @@ public class TripoliException extends Exception {
     }
 
     /**
-     *
      * @param message
      * @param cause
      */
@@ -50,7 +47,6 @@ public class TripoliException extends Exception {
     }
 
     /**
-     *
      * @param message
      * @param cause
      * @param enableSuppression

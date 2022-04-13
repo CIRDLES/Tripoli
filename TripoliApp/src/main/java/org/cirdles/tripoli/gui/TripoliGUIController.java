@@ -19,20 +19,11 @@ package org.cirdles.tripoli.gui;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.Label;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Stop;
+import javafx.scene.layout.AnchorPane;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
-import org.cirdles.tripoli.utilities.exceptions.TripoliException;
-import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
-import org.cirdles.tripoli.valueModels.ValueModel;
 
-import java.math.BigDecimal;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -98,7 +89,6 @@ public class TripoliGUIController {
         versionLabel.setText("v" + Tripoli.VERSION);
         versionBuildDate.setText(Tripoli.RELEASE_DATE);
     }
-
 
 
 }

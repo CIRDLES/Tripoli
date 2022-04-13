@@ -17,17 +17,13 @@
 package org.cirdles.tripoli.matrices.matrixModels;
 
 import jama.Matrix;
-// import org.earthtime.dataDictionaries.MeasuredRatios;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author James F. Bowring
