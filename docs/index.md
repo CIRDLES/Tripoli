@@ -1,10 +1,10 @@
 ---
-
 # Feel free to add content and custom Front Matter to this file.
-
 # To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
 
-layout: frontpage title: Tripoli description: Web presence for the development of Tripoli software.
+layout: frontpage
+title: Tripoli
+description: Web presence for the development of Tripoli software.
 ---
 <div class="navbar">
   <div class="navbar-inner">
