@@ -19,11 +19,15 @@ package org.cirdles.tripoli.gui;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -82,6 +86,12 @@ public class TripoliGUIController {
     void showTripoliGitHubRepo(ActionEvent event) {
         BrowserControl.showURI("https://github.com/CIRDLES/Tripoli");
     }
+
+    @FXML
+    void showPeriodicTable(ActionEvent event) {
+        (new PeriodicTableController()).launch();
+        }
+
 
     @FXML
         // This method is called by the FXMLLoader when initialization is complete

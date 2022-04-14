@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.massSpectrometers.dataModels;
+package org.cirdles.tripoli.massSpectrometers.dataSourceProcessors;
 
 import jama.Matrix;
+import org.cirdles.tripoli.massSpectrometers.dataOutputModels.MassSpecOutputDataModel;
 import org.cirdles.tripoli.massSpectrometers.detectorSetups.DetectorEnumTypeA;
 import org.cirdles.tripoli.parameterModels.IsotopesEnum;
 
@@ -26,7 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-public class DataSourceProcessorTypeA implements DataSourceProcessorInterface {
+public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorInterface {
 
     private static final List<IsotopesEnum> isotopesList = new ArrayList<>();
 
@@ -38,7 +39,7 @@ public class DataSourceProcessorTypeA implements DataSourceProcessorInterface {
     }
 
     @Override
-    public MassSpecDataModel prepareInputDataModelFromFile(Path inputDataFile) throws IOException {
+    public MassSpecOutputDataModel prepareInputDataModelFromFile(Path inputDataFile) throws IOException {
 
         List<String> contentsByLine = new ArrayList<>();
         contentsByLine.addAll(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
@@ -181,7 +182,7 @@ public class DataSourceProcessorTypeA implements DataSourceProcessorInterface {
         baseLineFlagsForDataAccumulatorList.addAll(sequenceFaradayAccumulator.baseLineFlagsForDataAccumulatorList);
         baseLineFlagsForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.baseLineFlagsForDataAccumulatorList);
 
-        // convert to arrays to  build parameters for MassSpecDataModel record
+        // convert to arrays to  build parameters for MassSpecOutputDataModel record
         double[] dataAccumulatorArray = dataAccumulatorList.stream().mapToDouble(d -> d).toArray();
         Matrix rawDataColumn = new Matrix(dataAccumulatorArray, dataAccumulatorArray.length);
 
@@ -191,8 +192,8 @@ public class DataSourceProcessorTypeA implements DataSourceProcessorInterface {
         double[] baseLineFlagsForDataAccumulatorArray = baseLineFlagsForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
         Matrix baseLineFlagsForRawDataColumn = new Matrix(baseLineFlagsForDataAccumulatorArray, baseLineFlagsForDataAccumulatorArray.length);
 
-        MassSpecDataModel retVal =
-                new MassSpecDataModel(
+        MassSpecOutputDataModel retVal =
+                new MassSpecOutputDataModel(
                         rawDataColumn,
                         isotopeIndicesForRawDataColumn,
                         baseLineFlagsForRawDataColumn);

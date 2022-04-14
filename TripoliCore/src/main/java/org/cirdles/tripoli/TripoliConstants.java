@@ -20,6 +20,8 @@ import java.io.File;
 
 public final class TripoliConstants {
 
+    public static final String TRIPOLI_LOGO_SANS_TEXT_URL = "org/cirdles/tripoli/gui/images/TripoliNoah2.png";
+
     public static final File TRIPOLI_RESOURCES_FOLDER = new File("TripoliResources");
     public static final File SCHEMA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "Schema");
 
@@ -29,6 +31,7 @@ public final class TripoliConstants {
     public static final File TRACER_MODELS_FOLDER = new File(PARAMETER_MODELS_FOLDER.getAbsolutePath() + File.separator + "TracerModels");
 
     public static final File SYNTHETIC_DATA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "SyntheticData");
+    public static final File PERIODICTABLE_DATA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "PeriodicTableData");
 
     public static final String DEFAULT_OBJECT_NAME = "NO_NAME";
 

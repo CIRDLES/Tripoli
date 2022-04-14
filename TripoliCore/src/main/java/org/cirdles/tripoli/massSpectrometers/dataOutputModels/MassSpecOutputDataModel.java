@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.massSpectrometers.dataModels;
+package org.cirdles.tripoli.massSpectrometers.dataOutputModels;
 
 import jama.Matrix;
 
-public record MassSpecDataModel(
+public record MassSpecOutputDataModel(
         Matrix rawDataColumn,
         Matrix isotopeIndicesForRawDataColumn,
         Matrix baseLineFlagsForRawDataColumn

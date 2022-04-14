@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.massSpectrometers.dataModels;
+package org.cirdles.tripoli.periodicTable;
 
-import java.io.IOException;
-import java.nio.file.Path;
-
-public interface DataSourceProcessorInterface {
-    MassSpecDataModel prepareInputDataModelFromFile(Path inputDataFile) throws IOException;
+public interface PeriodicTableInterface {
 }
