@@ -76,6 +76,11 @@
                     <MenuItem mnemonicParsing="false" text="Tracer Models" />
                 </items>
             </Menu>
+         <Menu mnemonicParsing="false" text="Resources">
+            <items>
+               <MenuItem mnemonicParsing="false" onAction="#showPeriodicTable" text="Periodic Table" />
+            </items>
+         </Menu>
             <Menu mnemonicParsing="false" text="About">
                 <items>
                     <MenuItem mnemonicParsing="false" onAction="#showTripoliAbout" text="About Tripoli" />
