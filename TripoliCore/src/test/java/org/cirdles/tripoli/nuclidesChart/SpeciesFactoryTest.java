@@ -21,8 +21,8 @@ class SpeciesFactoryTest {
 
     @Test
     void validateSpeciesChart(){
-        String actualValue = ((Species)((List<?>)SpeciesFactory.speciesByProtonList.get(60)).get(0)).elementSymbol();
-        String expectedValue = "Nd";
+        int actualValue = ((Species)((List<?>)SpeciesFactory.speciesByProtonList.get("Nd")).get(0)).neutronsN();
+        int expectedValue = 65;
 
         assertEquals(actualValue, expectedValue);
 

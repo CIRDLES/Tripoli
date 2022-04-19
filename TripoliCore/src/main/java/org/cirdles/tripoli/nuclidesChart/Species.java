@@ -28,6 +28,8 @@ public record Species(
         double halfLifeAnnum,
         double naturalAbundancePercent
 ) {
-
+    public int getMassNumber(){
+        return protonsZ + neutronsN;
+    }
 
 }

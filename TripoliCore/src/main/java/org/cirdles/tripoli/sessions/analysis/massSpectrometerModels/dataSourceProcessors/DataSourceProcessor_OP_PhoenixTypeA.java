@@ -17,9 +17,10 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
 import jama.Matrix;
+import org.cirdles.tripoli.nuclidesChart.Species;
+import org.cirdles.tripoli.nuclidesChart.SpeciesFactory;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorEnumTypeA;
-import org.cirdles.tripoli.parameterModels.IsotopesEnum;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -29,13 +30,13 @@ import java.util.*;
 
 public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorInterface {
 
-    private static final List<IsotopesEnum> isotopesList = new ArrayList<>();
+    private static final List<Species> speciesList = new ArrayList<>();
 
     static {
-        // build isotopes list
-        isotopesList.add(IsotopesEnum.INDEX_ZERO_DUMMY);
-        isotopesList.add(IsotopesEnum.PB206);
-        isotopesList.add(IsotopesEnum.PB208);
+        // build Species list with dummy first entry as placeholder for index compatibility with matlab
+        speciesList.add(SpeciesFactory.retrieveSpecies("n", 1));
+        speciesList.add(SpeciesFactory.retrieveSpecies("Pb", 206));
+        speciesList.add(SpeciesFactory.retrieveSpecies("Pb", 208));
     }
 
     @Override
@@ -127,33 +128,33 @@ public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorI
 
 
         // build Baseline and sequence tables experiment
-        Map<DetectorEnumTypeA, Map<String, IsotopesEnum>> baselineTable = new LinkedHashMap<>();
+        Map<DetectorEnumTypeA, Map<String, Species>> baselineTable = new LinkedHashMap<>();
 
-        Map<String, IsotopesEnum> AX_FARA_Map = new LinkedHashMap<>();
-        AX_FARA_Map.put("BL1", IsotopesEnum.INDEX_ZERO_DUMMY);
+        Map<String, Species> AX_FARA_Map = new LinkedHashMap<>();
+        AX_FARA_Map.put("BL1", speciesList.get(0));
 
-        Map<String, IsotopesEnum> AXIAL_Map = new LinkedHashMap<>();
-        AXIAL_Map.put("BL1", IsotopesEnum.INDEX_ZERO_DUMMY);
+        Map<String, Species> AXIAL_Map = new LinkedHashMap<>();
+        AXIAL_Map.put("BL1", speciesList.get(0));
 
-        Map<String, IsotopesEnum> H1_Map = new LinkedHashMap<>();
-        H1_Map.put("BL1", IsotopesEnum.INDEX_ZERO_DUMMY);
+        Map<String, Species> H1_Map = new LinkedHashMap<>();
+        H1_Map.put("BL1", speciesList.get(0));
 
         baselineTable.put(DetectorEnumTypeA.AX_FARA, AX_FARA_Map);
         baselineTable.put(DetectorEnumTypeA.AXIAL, AXIAL_Map);
         baselineTable.put(DetectorEnumTypeA.H1, H1_Map);
 
         // sequence table
-        Map<DetectorEnumTypeA, Map<String, IsotopesEnum>> sequenceTable = new LinkedHashMap<>();
+        Map<DetectorEnumTypeA, Map<String, Species>> sequenceTable = new LinkedHashMap<>();
 
         AX_FARA_Map = new LinkedHashMap<>();
-        AX_FARA_Map.put("S2", IsotopesEnum.PB206);
+        AX_FARA_Map.put("S2", speciesList.get(1));
 
         AXIAL_Map = new LinkedHashMap<>();
-        AXIAL_Map.put("S1", IsotopesEnum.PB206);
-        AXIAL_Map.put("S2", IsotopesEnum.PB208);
+        AXIAL_Map.put("S1", speciesList.get(1));
+        AXIAL_Map.put("S2", speciesList.get(2));
 
         H1_Map = new LinkedHashMap<>();
-        H1_Map.put("S1", IsotopesEnum.PB208);
+        H1_Map.put("S1", speciesList.get(2));
 
         sequenceTable.put(DetectorEnumTypeA.AX_FARA, AX_FARA_Map);
         sequenceTable.put(DetectorEnumTypeA.AXIAL, AXIAL_Map);
@@ -213,7 +214,7 @@ public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorI
      * @return
      */
     private AccumulatedData accumulateDataPerTableSpecs(
-            String[] sequenceID, double[][] detectorData, Map<DetectorEnumTypeA, Map<String, IsotopesEnum>> tableSpecs, boolean faraday) {
+            String[] sequenceID, double[][] detectorData, Map<DetectorEnumTypeA, Map<String, Species>> tableSpecs, boolean faraday) {
         List<Double> dataAccumulatorList = new ArrayList<>();
         List<Double> isotopeIndicesForDataAccumulatorList = new ArrayList<>();
         List<Double> baseLineFlagsForDataAccumulatorList = new ArrayList<>();
@@ -224,8 +225,8 @@ public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorI
                     for (int detectorDataRowIndex = 0; detectorDataRowIndex < sequenceID.length; detectorDataRowIndex++) {
                         if (sequenceID[detectorDataRowIndex].toUpperCase(Locale.ROOT).compareTo(sequenceName.toUpperCase(Locale.ROOT)) == 0) {
                             dataAccumulatorList.add(detectorData[detectorDataRowIndex][detectorDataColumnIndex]);
-                            isotopeIndicesForDataAccumulatorList.add((double) isotopesList.indexOf(tableSpecs.get(detector).get(sequenceName)));
-                            if (tableSpecs.get(detector).get(sequenceName).equals(IsotopesEnum.INDEX_ZERO_DUMMY)) {
+                            isotopeIndicesForDataAccumulatorList.add((double) speciesList.indexOf(tableSpecs.get(detector).get(sequenceName)));
+                            if (tableSpecs.get(detector).get(sequenceName).equals(speciesList.get(0))) {
                                 baseLineFlagsForDataAccumulatorList.add(1.0);
                             } else {
                                 baseLineFlagsForDataAccumulatorList.add(0.0);

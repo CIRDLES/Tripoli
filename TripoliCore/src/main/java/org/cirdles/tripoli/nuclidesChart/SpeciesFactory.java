@@ -25,13 +25,14 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author James F. Bowring
  */
 public final class SpeciesFactory implements Serializable {
 
-    public static Map<Integer, List<Species>> speciesByProtonList = new LinkedHashMap<>();
+    public static Map<String, List<Species>> speciesByProtonList = new LinkedHashMap<>();
 
     static {
         final ResourceExtractor RESOURCE_EXTRACTOR
@@ -46,7 +47,6 @@ public final class SpeciesFactory implements Serializable {
         }
         // remove header
         contentsByLine.remove(0);
-        int saveProtonsZ = -1;
         int protonsZ;
         for (String line : contentsByLine) {
             String[] lineContents = line.split(",");
@@ -88,15 +88,25 @@ public final class SpeciesFactory implements Serializable {
                     naturalAbundancePercent
             );
 
-            if (protonsZ == saveProtonsZ){
-                speciesByProtonList.get(protonsZ).add(species);
+            if (speciesByProtonList.get(elementSymbol) instanceof List<Species>){
+                speciesByProtonList.get(elementSymbol).add(species);
             } else {
-                List<Species> speciesListForProtonCount = new ArrayList<>();
-                speciesListForProtonCount.add(species);
-                speciesByProtonList.put(protonsZ, speciesListForProtonCount);
-                saveProtonsZ = protonsZ;
+                List<Species> speciesListForElement = new ArrayList<>();
+                speciesListForElement.add(species);
+                speciesByProtonList.put(elementSymbol, speciesListForElement);
             }
         }
 
+
     }
+
+    public static Species retrieveSpecies(String elementName, int massNumber){
+        List<Species> nuclides = speciesByProtonList.get(elementName);
+        List<Species> targetNuclideList = nuclides
+                .stream()
+                .filter(nuclide -> (nuclide.getMassNumber() == massNumber))
+                .collect(Collectors.toList());
+        return targetNuclideList.get(0);
+    }
+
 }
