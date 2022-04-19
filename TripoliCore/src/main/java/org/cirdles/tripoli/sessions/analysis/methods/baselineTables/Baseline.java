@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-module Tripoli.TripoliCore {
-    requires commons.bc38781605;
-    requires org.apache.poi.poi;
-    requires org.jetbrains.annotations;
-    requires jama;
+package org.cirdles.tripoli.sessions.analysis.methods.baselineTables;
 
-    exports org.cirdles.tripoli;
-    exports org.cirdles.tripoli.valueModels;
-    exports org.cirdles.tripoli.utilities.stateUtilities;
-    exports org.cirdles.tripoli.utilities.exceptions;
-    exports org.cirdles.tripoli.nuclidesChart;
-    exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
-    exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
+
+import java.io.Serializable;
+import java.util.Map;
+
+/**
+ * @author James F. Bowring
+ */
+public class Baseline implements Serializable {
+
+    private Map<Detector, BaselineCell> baselineCellsMap;
 }
