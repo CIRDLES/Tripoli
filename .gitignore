@@ -60,6 +60,8 @@ test_*
 
 !TripoliCore/src/main/resources/org/cirdles/tripoli/version.txt
 !TripoliCore/src/main/resources/org/cirdles/tripoli/docs/*.txt
+!TripoliCore/src/main/resources/org/cirdles/tripoli/nuclidesChart/*.txt
+!TripoliCore/src/main/resources/org/cirdles/tripoli/nuclidesChart/*.csv
 !TripoliCore/src/main/resources/org/cirdles/tripoli/parameterModels/*.txt
 !TripoliCore/src/main/resources/org/cirdles/tripoli/parameterModels/physicalConstantsModels/*.txt
 !TripoliCore/src/main/resources/org/cirdles/tripoli/parameterModels/referenceMaterialsModels/*.txt
