@@ -12,6 +12,7 @@ class SpeciesFactoryTest {
 
     @BeforeEach
     void setUp() {
+        System.out.println("Testing SpeciesFactory  " + SpeciesFactory.speciesByProtonList.size());
     }
 
     @AfterEach
