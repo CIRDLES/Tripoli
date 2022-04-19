@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.massSpectrometers.methods.methodLibrary;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels;
 
-import org.cirdles.tripoli.massSpectrometers.methods.MethodInterface;
+import jama.Matrix;
 
-/**
- * @author James F. Bowring
- */
-public class KU_PbDaly204_5_6_7_8 implements MethodInterface {
+public record MassSpecOutputDataModel(
+        Matrix rawDataColumn,
+        Matrix isotopeIndicesForRawDataColumn,
+        Matrix baseLineFlagsForRawDataColumn
+) {
+
 }

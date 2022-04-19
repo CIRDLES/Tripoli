@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.massSpectrometers.methods.methodLibrary;
+package org.cirdles.tripoli.sessions.analysis.methods.baselineTables;
 
-import org.cirdles.tripoli.massSpectrometers.methods.MethodInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
+
+import java.io.Serializable;
+import java.util.Map;
 
 /**
  * @author James F. Bowring
  */
-public class GarconDynNd1 implements MethodInterface {
+public class Baseline implements Serializable {
+
+    private Map<Detector, BaselineCell> baselineCellsMap;
 }

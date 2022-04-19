@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.massSpectrometers.methods.methodLibrary;
+package org.cirdles.tripoli.nuclidesChart;
 
-import org.cirdles.tripoli.massSpectrometers.methods.MethodInterface;
+import java.io.Serializable;
 
 /**
  * @author James F. Bowring
  */
-public class BurdickBISyntheticData implements MethodInterface {
+public final class NuclidesChart implements Serializable {
+
+
 }

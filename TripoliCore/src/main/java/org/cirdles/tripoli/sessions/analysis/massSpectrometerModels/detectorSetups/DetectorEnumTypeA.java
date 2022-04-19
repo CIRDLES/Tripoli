@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.massSpectrometers.detectorSetups;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups;
 
 /**
  * @author James F. Bowring

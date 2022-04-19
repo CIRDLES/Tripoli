@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.massSpectrometers.massSpectrometerModels;
+package org.cirdles.tripoli.sessions.analysis.methods.sequenceTables;
 
-import org.cirdles.tripoli.massSpectrometers.MassSpectrometerInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
+
+import java.io.Serializable;
+import java.util.Map;
 
 /**
  * @author James F. Bowring
  */
-public class BL_Phoenix implements MassSpectrometerInterface {
+public class Sequence implements Serializable {
+
+    private Map<Detector, SequenceCell> sequenceCellsMap;
+
+
 }

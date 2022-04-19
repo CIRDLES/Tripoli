@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.massSpectrometers.methods.methodLibrary;
+package org.cirdles.tripoli.sessions.analysis.methods.baselineTables;
 
-import org.cirdles.tripoli.massSpectrometers.methods.MethodInterface;
+import java.io.Serializable;
 
 /**
  * @author James F. Bowring
  */
-public class KU_UoxideStaticFaraday implements MethodInterface {
+public class BaselineCell implements Serializable {
+
+    private double cellMass;
 }

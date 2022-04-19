@@ -14,12 +14,21 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.massSpectrometers.massSpectrometerModels;
+package org.cirdles.tripoli.sessions.analysis.methods.sequenceTables;
 
-import org.cirdles.tripoli.massSpectrometers.MassSpectrometerInterface;
+import org.cirdles.tripoli.nuclidesChart.Species;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author James F. Bowring
  */
-public class OP_Triton implements MassSpectrometerInterface {
+public class SequenceCell implements Serializable {
+
+    private double cellMass;
+    private Species targetSpecies;
+    private List<Species> includedSpecies;
+
+
 }

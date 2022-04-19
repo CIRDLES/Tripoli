@@ -14,7 +14,20 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.periodicTable;
+package org.cirdles.tripoli.nuclidesChart;
 
-public interface PeriodicTableInterface {
+/**
+ * @author James F. Bowring
+ */
+public record Species(
+        String elementSymbol,
+        int protonsZ,
+        int neutronsN,
+        // mass number = Z + N
+        double atomicMass,
+        double halfLifeAnnum,
+        double naturalAbundancePercent
+) {
+
+
 }

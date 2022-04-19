@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.massSpectrometers.dataOutputModels;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
-import jama.Matrix;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataModel;
 
-public record MassSpecOutputDataModel(
-        Matrix rawDataColumn,
-        Matrix isotopeIndicesForRawDataColumn,
-        Matrix baseLineFlagsForRawDataColumn
-) {
+import java.io.IOException;
+import java.nio.file.Path;
 
+public interface DataSourceProcessorInterface {
+    MassSpecOutputDataModel prepareInputDataModelFromFile(Path inputDataFile) throws IOException;
 }

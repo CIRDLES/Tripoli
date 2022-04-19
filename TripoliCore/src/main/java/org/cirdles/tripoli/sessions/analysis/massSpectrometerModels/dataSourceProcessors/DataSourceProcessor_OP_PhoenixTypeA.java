@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.massSpectrometers.dataSourceProcessors;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
 import jama.Matrix;
-import org.cirdles.tripoli.massSpectrometers.dataOutputModels.MassSpecOutputDataModel;
-import org.cirdles.tripoli.massSpectrometers.detectorSetups.DetectorEnumTypeA;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataModel;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorEnumTypeA;
 import org.cirdles.tripoli.parameterModels.IsotopesEnum;
 
 import java.io.IOException;
@@ -126,7 +126,7 @@ public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorI
         */
 
 
-        // build baseline and sequence tables experiment
+        // build Baseline and sequence tables experiment
         Map<DetectorEnumTypeA, Map<String, IsotopesEnum>> baselineTable = new LinkedHashMap<>();
 
         Map<String, IsotopesEnum> AX_FARA_Map = new LinkedHashMap<>();
@@ -160,7 +160,7 @@ public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorI
         sequenceTable.put(DetectorEnumTypeA.H1, H1_Map);
 
 
-        // start with baseline table
+        // start with Baseline table
         AccumulatedData baselineFaradayAccumulator = accumulateDataPerTableSpecs(sequenceID, detectorData, baselineTable, true);
         // now sequence table Faraday
         AccumulatedData sequenceFaradayAccumulator = accumulateDataPerTableSpecs(sequenceID, detectorData, sequenceTable, true);

@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.massSpectrometers.detectorSetups;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups;
 
-public interface DetectorSetupInterface {
+import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class DetectorSetup implements Serializable {
     /* Notes
     List of detectors (order matters)
     Amplifier assignments
@@ -26,4 +30,23 @@ public interface DetectorSetupInterface {
     Detector type for each detector (ion counter, Faraday, etc)
 
      */
+
+    private Map<String, Detector> mapOfDetectors;
+    private DetectorSetup() {
+        mapOfDetectors = new LinkedHashMap<>();
+    }
+
+    public static DetectorSetup createEmptyDetectorSetup(){
+        DetectorSetup detectorSetup = new DetectorSetup();
+
+        return detectorSetup;
+    }
+
+    public Map<String, Detector> getMapOfDetectors() {
+        return mapOfDetectors;
+    }
+
+    public void setMapOfDetectors(Map<String, Detector> mapOfDetectors) {
+        this.mapOfDetectors = mapOfDetectors;
+    }
 }
