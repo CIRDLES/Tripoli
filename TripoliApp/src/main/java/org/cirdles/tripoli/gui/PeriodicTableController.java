@@ -32,6 +32,9 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import org.cirdles.tripoli.elements.ElementRecord;
 import org.cirdles.tripoli.elements.ElementsFactory;
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.species.nuclides.NuclideRecord;
+import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
 
 import java.io.IOException;
 import java.net.URL;
@@ -117,8 +120,14 @@ public class PeriodicTableController {
         Button button = ((Button) mouseEvent.getSource());
         buttonStyle = button.getStyle();
         button.setStyle("-fx-background-color: WHEAT");
+        List<SpeciesRecordInterface> nuclides = NuclidesFactory.nuclidesListByElementMap.get(((ElementRecord) button.getUserData()).symbol());
+        StringBuilder stringBuilder = new StringBuilder();
+        for (SpeciesRecordInterface species : nuclides) {
+            stringBuilder.append("\t").append(((NuclideRecord) species).prettyPrint()).append("\n");
+        }
         elementDetailsTextBox.setText(
-                        ((ElementRecord)button.getUserData()).elementName());
+                ((ElementRecord) button.getUserData()).elementName()
+                        + "\n" + stringBuilder);
     }
 
     public void buttonRelease(MouseEvent mouseEvent) {

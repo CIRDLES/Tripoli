@@ -54,92 +54,92 @@
                         <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                     <children>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="4">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="4">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="2">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="2">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="13" GridPane.rowIndex="4">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="13" GridPane.rowIndex="4">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="7">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="7">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="19" GridPane.rowIndex="1">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="19" GridPane.rowIndex="1">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="14" GridPane.rowIndex="2">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="14" GridPane.rowIndex="2">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="9">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="9">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="10">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="10">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="17" GridPane.rowIndex="9">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="17" GridPane.rowIndex="9">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="17" GridPane.rowIndex="10">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="17" GridPane.rowIndex="10">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="19" GridPane.rowIndex="2">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="19" GridPane.rowIndex="2">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="14" GridPane.rowIndex="7">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="14" GridPane.rowIndex="7">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="19" GridPane.rowIndex="7">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="19" GridPane.rowIndex="7">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="13" GridPane.rowIndex="7">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="13" GridPane.rowIndex="7">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="7">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="7">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="7">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="7">
                             <effect>
                                 <DropShadow />
                             </effect>
@@ -222,152 +222,152 @@
                                 <Insets top="5.0" />
                             </padding>
                         </Label>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="3">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="3">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="3">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="4">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="4">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="4">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="5">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="5">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="5">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="6">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="6">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="6">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: pink;" text="s" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="6">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="5">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="5">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="6">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="6">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="5" GridPane.rowIndex="4">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="5" GridPane.rowIndex="4">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="6" GridPane.rowIndex="4">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="6" GridPane.rowIndex="4">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="7" GridPane.rowIndex="4">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="7" GridPane.rowIndex="4">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="8" GridPane.rowIndex="4">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="8" GridPane.rowIndex="4">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="9" GridPane.rowIndex="4">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="9" GridPane.rowIndex="4">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="12" GridPane.rowIndex="4">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="12" GridPane.rowIndex="4">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="10" GridPane.rowIndex="4">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="10" GridPane.rowIndex="4">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="11" GridPane.rowIndex="4">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="11" GridPane.rowIndex="4">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="13" GridPane.rowIndex="5">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="13" GridPane.rowIndex="5">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="13" GridPane.rowIndex="6">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="13" GridPane.rowIndex="6">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="12" GridPane.rowIndex="7">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="12" GridPane.rowIndex="7">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="11" GridPane.rowIndex="7">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="11" GridPane.rowIndex="7">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="6" GridPane.rowIndex="5">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="6" GridPane.rowIndex="5">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="5" GridPane.rowIndex="5">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="5" GridPane.rowIndex="5">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="9" GridPane.rowIndex="7">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="9" GridPane.rowIndex="7">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="8" GridPane.rowIndex="7">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="8" GridPane.rowIndex="7">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="7" GridPane.rowIndex="7">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="7" GridPane.rowIndex="7">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="6" GridPane.rowIndex="7">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="6" GridPane.rowIndex="7">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="5" GridPane.rowIndex="7">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="5" GridPane.rowIndex="7">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="5" GridPane.rowIndex="6">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="5" GridPane.rowIndex="6">
                             <effect>
                                 <DropShadow />
                             </effect>
@@ -397,352 +397,352 @@
                                 <Font size="14.0" />
                             </font>
                         </Label>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="6" GridPane.rowIndex="6">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="6" GridPane.rowIndex="6">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="12" GridPane.rowIndex="5">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="12" GridPane.rowIndex="5">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="11" GridPane.rowIndex="5">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="11" GridPane.rowIndex="5">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="10" GridPane.rowIndex="5">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="10" GridPane.rowIndex="5">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="9" GridPane.rowIndex="5">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="9" GridPane.rowIndex="5">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="8" GridPane.rowIndex="5">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="8" GridPane.rowIndex="5">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="7" GridPane.rowIndex="5">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="7" GridPane.rowIndex="5">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="10" GridPane.rowIndex="6">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="10" GridPane.rowIndex="6">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="11" GridPane.rowIndex="6">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="11" GridPane.rowIndex="6">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="12" GridPane.rowIndex="6">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="12" GridPane.rowIndex="6">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="10" GridPane.rowIndex="7">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="10" GridPane.rowIndex="7">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="9" GridPane.rowIndex="6">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="9" GridPane.rowIndex="6">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="8" GridPane.rowIndex="6">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="8" GridPane.rowIndex="6">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="7" GridPane.rowIndex="6">
+                        <Button mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: cyan;" text="d" textAlignment="CENTER" GridPane.columnIndex="7" GridPane.rowIndex="6">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="16" GridPane.rowIndex="7">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="16" GridPane.rowIndex="7">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="17" GridPane.rowIndex="7">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="17" GridPane.rowIndex="7">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="18" GridPane.rowIndex="7">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="18" GridPane.rowIndex="7">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="19" GridPane.rowIndex="6">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="19" GridPane.rowIndex="6">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="19" GridPane.rowIndex="5">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="19" GridPane.rowIndex="5">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="19" GridPane.rowIndex="4">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="19" GridPane.rowIndex="4">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="19" GridPane.rowIndex="3">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="19" GridPane.rowIndex="3">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="18" GridPane.rowIndex="2">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="18" GridPane.rowIndex="2">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="17" GridPane.rowIndex="2">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="17" GridPane.rowIndex="2">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="16" GridPane.rowIndex="2">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="16" GridPane.rowIndex="2">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="15" GridPane.rowIndex="2">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="15" GridPane.rowIndex="2">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="16" GridPane.rowIndex="6">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="16" GridPane.rowIndex="6">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="15" GridPane.rowIndex="5">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="15" GridPane.rowIndex="5">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="15" GridPane.rowIndex="6">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="15" GridPane.rowIndex="6">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="15" GridPane.rowIndex="7">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="15" GridPane.rowIndex="7">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="14" GridPane.rowIndex="6">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="14" GridPane.rowIndex="6">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="14" GridPane.rowIndex="5">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="14" GridPane.rowIndex="5">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="14" GridPane.rowIndex="4">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="14" GridPane.rowIndex="4">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="18" GridPane.rowIndex="3">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="18" GridPane.rowIndex="3">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="17" GridPane.rowIndex="3">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="17" GridPane.rowIndex="3">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="14" GridPane.rowIndex="3">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="14" GridPane.rowIndex="3">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="17" GridPane.rowIndex="5">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="17" GridPane.rowIndex="5">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="16" GridPane.rowIndex="4">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="16" GridPane.rowIndex="4">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="15" GridPane.rowIndex="3">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="15" GridPane.rowIndex="3">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="16" GridPane.rowIndex="5">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="16" GridPane.rowIndex="5">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="17" GridPane.rowIndex="4">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="17" GridPane.rowIndex="4">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="18" GridPane.rowIndex="4">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="18" GridPane.rowIndex="4">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="16" GridPane.rowIndex="3">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="16" GridPane.rowIndex="3">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="15" GridPane.rowIndex="4">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="15" GridPane.rowIndex="4">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="17" GridPane.rowIndex="6">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="17" GridPane.rowIndex="6">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="18" GridPane.rowIndex="6">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="18" GridPane.rowIndex="6">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="18" GridPane.rowIndex="5">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: yellow;" text="p" textAlignment="CENTER" GridPane.columnIndex="18" GridPane.rowIndex="5">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="14" GridPane.rowIndex="9">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="14" GridPane.rowIndex="9">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="13" GridPane.rowIndex="10">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="13" GridPane.rowIndex="10">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="13" GridPane.rowIndex="9">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="13" GridPane.rowIndex="9">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="10" GridPane.rowIndex="9">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="10" GridPane.rowIndex="9">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="10" GridPane.rowIndex="10">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="10" GridPane.rowIndex="10">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="5" GridPane.rowIndex="10">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="5" GridPane.rowIndex="10">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="16" GridPane.rowIndex="10">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="16" GridPane.rowIndex="10">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="6" GridPane.rowIndex="10">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="6" GridPane.rowIndex="10">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="6" GridPane.rowIndex="9">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="6" GridPane.rowIndex="9">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="5" GridPane.rowIndex="9">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="5" GridPane.rowIndex="9">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" layoutX="251.0" layoutY="342.0" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="7" GridPane.rowIndex="9">
+                        <Button alignment="CENTER" layoutX="251.0" layoutY="342.0" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="7" GridPane.rowIndex="9">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" layoutX="291.0" layoutY="342.0" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="9" GridPane.rowIndex="9">
+                        <Button alignment="CENTER" layoutX="291.0" layoutY="342.0" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="9" GridPane.rowIndex="9">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" layoutX="291.0" layoutY="342.0" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="8" GridPane.rowIndex="9">
+                        <Button alignment="CENTER" layoutX="291.0" layoutY="342.0" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="8" GridPane.rowIndex="9">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="11" GridPane.rowIndex="10">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="11" GridPane.rowIndex="10">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="7" GridPane.rowIndex="10">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="7" GridPane.rowIndex="10">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="8" GridPane.rowIndex="10">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="8" GridPane.rowIndex="10">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="9" GridPane.rowIndex="10">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="9" GridPane.rowIndex="10">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="12" GridPane.rowIndex="9">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="12" GridPane.rowIndex="9">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="11" GridPane.rowIndex="9">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="11" GridPane.rowIndex="9">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="16" GridPane.rowIndex="9">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="16" GridPane.rowIndex="9">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="15" GridPane.rowIndex="9">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="15" GridPane.rowIndex="9">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="14" GridPane.rowIndex="10">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="14" GridPane.rowIndex="10">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="12" GridPane.rowIndex="10">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="12" GridPane.rowIndex="10">
                             <effect>
                                 <DropShadow />
                             </effect>
                         </Button>
-                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="15" GridPane.rowIndex="10">
+                        <Button alignment="CENTER" mnemonicParsing="false" onMouseEntered="#buttonEnter" onMousePressed="#buttonPress" onMouseReleased="#buttonRelease" prefHeight="35.0" prefWidth="37.0" style="-fx-background-color: springgreen;" text="f" textAlignment="CENTER" GridPane.columnIndex="15" GridPane.rowIndex="10">
                             <effect>
                                 <DropShadow />
                             </effect>
@@ -824,9 +824,9 @@
                 </GridPane>
                 <TextFlow prefHeight="149.0" prefWidth="807.0" style="-fx-border-width: 3; -fx-border-color: black;">
                     <children>
-                        <TextArea fx:id="elementDetailsTextBox" editable="false" prefHeight="144.0" prefWidth="801.0" promptText="Details will appear here">
+                        <TextArea fx:id="elementDetailsTextBox" editable="false" prefHeight="144.0" prefWidth="801.0" promptText="Details will appear here" style="-fx-font-family: Monospaced; -fx-font-weight: bold; -fx-font-size: 13;">
                             <font>
-                                <Font size="18.0" />
+                                <Font size="12.0" />
                             </font>
                         </TextArea>
                     </children>
