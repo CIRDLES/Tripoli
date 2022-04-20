@@ -22,17 +22,6 @@ import java.io.Serializable;
  * @author James F. Bowring
  */
 public class Amplifier implements Serializable {
-    public enum AmplifierTypeEnum{
-        RESISTANCE("RESISTANCE"),
-        CAPACITANCE("CAPACITANCE");
-
-        final String name;
-
-        AmplifierTypeEnum(String name) {
-            this.name = name;
-        }
-    }
-
     private AmplifierTypeEnum amplifierType;
 
     private Amplifier() {
@@ -43,7 +32,7 @@ public class Amplifier implements Serializable {
         this.amplifierType = amplifierType;
     }
 
-    static Amplifier createAmplifier(){
+    static Amplifier createAmplifier() {
         Amplifier amplifier = new Amplifier();
         return amplifier;
     }
@@ -54,5 +43,17 @@ public class Amplifier implements Serializable {
 
     public void setAmplifierType(AmplifierTypeEnum amplifierType) {
         this.amplifierType = amplifierType;
+    }
+
+    public enum AmplifierTypeEnum {
+        RESISTANCE("RESISTANCE"),
+        CAPACITANCE("CAPACITANCE"),
+        NA("NA");
+
+        final String name;
+
+        AmplifierTypeEnum(String name) {
+            this.name = name;
+        }
     }
 }

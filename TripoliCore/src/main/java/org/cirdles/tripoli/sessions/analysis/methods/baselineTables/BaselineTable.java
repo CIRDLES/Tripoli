@@ -26,9 +26,10 @@ import java.util.Map;
 public class BaselineTable implements Serializable {
     private Map<String, Baseline> baselineMap;
 
-    private BaselineTable(){}
+    private BaselineTable() {
+    }
 
-    public static BaselineTable createEmptyBaselineTable(){
+    public static BaselineTable createEmptyBaselineTable() {
         /* Notes:
         Each row is a sequence (S1, S2, S3)
         Each column is a detector from the detector setup.

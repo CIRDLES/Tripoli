@@ -32,11 +32,12 @@ public class DetectorSetup implements Serializable {
      */
 
     private Map<String, Detector> mapOfDetectors;
+
     private DetectorSetup() {
         mapOfDetectors = new LinkedHashMap<>();
     }
 
-    public static DetectorSetup createEmptyDetectorSetup(){
+    public static DetectorSetup createEmptyDetectorSetup() {
         DetectorSetup detectorSetup = new DetectorSetup();
 
         return detectorSetup;

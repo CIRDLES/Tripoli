@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SpeciesFactoryTest {
 
@@ -20,8 +20,8 @@ class SpeciesFactoryTest {
     }
 
     @Test
-    void validateSpeciesChart(){
-        int actualValue = ((Species)((List<?>)SpeciesFactory.speciesByProtonList.get("Nd")).get(0)).neutronsN();
+    void validateSpeciesChart() {
+        int actualValue = ((Species) ((List<?>) SpeciesFactory.speciesByProtonList.get("Nd")).get(0)).neutronsN();
         int expectedValue = 65;
 
         assertEquals(actualValue, expectedValue);

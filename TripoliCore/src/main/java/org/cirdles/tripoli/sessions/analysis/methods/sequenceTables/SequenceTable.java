@@ -23,13 +23,14 @@ import java.util.Map;
 /**
  * @author James F. Bowring
  */
-public class SequenceTable  implements Serializable {
+public class SequenceTable implements Serializable {
 
     private Map<String, Sequence> sequenceMap;
 
-    private SequenceTable(){}
+    private SequenceTable() {
+    }
 
-    public static SequenceTable createEmptySequenceTable(){
+    public static SequenceTable createEmptySequenceTable() {
         /* Notes:
         Each row is a sequence (S1, S2, S3)
         Each column is a detector from the detector setup.

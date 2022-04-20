@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  */
 public final class SpeciesFactory implements Serializable {
 
-    public static Map<String, List<Species>> speciesByProtonList = new LinkedHashMap<>();
+    public static Map<String, List<SpeciesRecordInterface>> speciesByProtonList = new LinkedHashMap<>();
 
     static {
         final ResourceExtractor RESOURCE_EXTRACTOR
@@ -65,7 +65,7 @@ public final class SpeciesFactory implements Serializable {
             try {
                 halfLifeAnnum = Double.parseDouble(lineContents[4]);
             } catch (NumberFormatException e) {
-                if (lineContents[4].toUpperCase(Locale.ROOT).contains("STABLE")){
+                if (lineContents[4].toUpperCase(Locale.ROOT).contains("STABLE")) {
                     halfLifeAnnum = -1.;
                 } else {
                     halfLifeAnnum = 0.;
@@ -79,7 +79,7 @@ public final class SpeciesFactory implements Serializable {
                 naturalAbundancePercent = 0.;
             }
 
-            Species species = new Species(
+            SpeciesRecordInterface species = new Species(
                     elementSymbol,
                     protonsZ,
                     neutronsN,
@@ -88,10 +88,10 @@ public final class SpeciesFactory implements Serializable {
                     naturalAbundancePercent
             );
 
-            if (speciesByProtonList.get(elementSymbol) instanceof List<Species>){
+            if (speciesByProtonList.get(elementSymbol) instanceof List<SpeciesRecordInterface>) {
                 speciesByProtonList.get(elementSymbol).add(species);
             } else {
-                List<Species> speciesListForElement = new ArrayList<>();
+                List<SpeciesRecordInterface> speciesListForElement = new ArrayList<>();
                 speciesListForElement.add(species);
                 speciesByProtonList.put(elementSymbol, speciesListForElement);
             }
@@ -100,11 +100,11 @@ public final class SpeciesFactory implements Serializable {
 
     }
 
-    public static Species retrieveSpecies(String elementName, int massNumber){
-        List<Species> nuclides = speciesByProtonList.get(elementName);
-        List<Species> targetNuclideList = nuclides
+    public static SpeciesRecordInterface retrieveSpecies(String elementName, int massNumber) {
+        List<SpeciesRecordInterface> nuclides = speciesByProtonList.get(elementName);
+        List<SpeciesRecordInterface> targetNuclideList = nuclides
                 .stream()
-                .filter(nuclide -> (nuclide.getMassNumber() == massNumber))
+                .filter(nuclide -> ((nuclide instanceof Species) && ((Species) nuclide).getMassNumber() == massNumber))
                 .collect(Collectors.toList());
         return targetNuclideList.get(0);
     }

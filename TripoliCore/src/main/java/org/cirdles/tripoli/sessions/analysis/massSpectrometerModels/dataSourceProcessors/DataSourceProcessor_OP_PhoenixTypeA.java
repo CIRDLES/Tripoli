@@ -17,8 +17,8 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
 import jama.Matrix;
-import org.cirdles.tripoli.nuclidesChart.Species;
 import org.cirdles.tripoli.nuclidesChart.SpeciesFactory;
+import org.cirdles.tripoli.nuclidesChart.SpeciesRecordInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorEnumTypeA;
 
@@ -30,7 +30,7 @@ import java.util.*;
 
 public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorInterface {
 
-    private static final List<Species> speciesList = new ArrayList<>();
+    private static final List<SpeciesRecordInterface> speciesList = new ArrayList<>();
 
     static {
         // build Species list with dummy first entry as placeholder for index compatibility with matlab
@@ -128,15 +128,15 @@ public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorI
 
 
         // build Baseline and sequence tables experiment
-        Map<DetectorEnumTypeA, Map<String, Species>> baselineTable = new LinkedHashMap<>();
+        Map<DetectorEnumTypeA, Map<String, SpeciesRecordInterface>> baselineTable = new LinkedHashMap<>();
 
-        Map<String, Species> AX_FARA_Map = new LinkedHashMap<>();
+        Map<String, SpeciesRecordInterface> AX_FARA_Map = new LinkedHashMap<>();
         AX_FARA_Map.put("BL1", speciesList.get(0));
 
-        Map<String, Species> AXIAL_Map = new LinkedHashMap<>();
+        Map<String, SpeciesRecordInterface> AXIAL_Map = new LinkedHashMap<>();
         AXIAL_Map.put("BL1", speciesList.get(0));
 
-        Map<String, Species> H1_Map = new LinkedHashMap<>();
+        Map<String, SpeciesRecordInterface> H1_Map = new LinkedHashMap<>();
         H1_Map.put("BL1", speciesList.get(0));
 
         baselineTable.put(DetectorEnumTypeA.AX_FARA, AX_FARA_Map);
@@ -144,7 +144,7 @@ public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorI
         baselineTable.put(DetectorEnumTypeA.H1, H1_Map);
 
         // sequence table
-        Map<DetectorEnumTypeA, Map<String, Species>> sequenceTable = new LinkedHashMap<>();
+        Map<DetectorEnumTypeA, Map<String, SpeciesRecordInterface>> sequenceTable = new LinkedHashMap<>();
 
         AX_FARA_Map = new LinkedHashMap<>();
         AX_FARA_Map.put("S2", speciesList.get(1));
@@ -214,7 +214,7 @@ public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorI
      * @return
      */
     private AccumulatedData accumulateDataPerTableSpecs(
-            String[] sequenceID, double[][] detectorData, Map<DetectorEnumTypeA, Map<String, Species>> tableSpecs, boolean faraday) {
+            String[] sequenceID, double[][] detectorData, Map<DetectorEnumTypeA, Map<String, SpeciesRecordInterface>> tableSpecs, boolean faraday) {
         List<Double> dataAccumulatorList = new ArrayList<>();
         List<Double> isotopeIndicesForDataAccumulatorList = new ArrayList<>();
         List<Double> baseLineFlagsForDataAccumulatorList = new ArrayList<>();

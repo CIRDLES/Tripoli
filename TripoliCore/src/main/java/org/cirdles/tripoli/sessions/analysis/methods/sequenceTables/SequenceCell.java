@@ -16,7 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods.sequenceTables;
 
-import org.cirdles.tripoli.nuclidesChart.Species;
+import org.cirdles.tripoli.nuclidesChart.SpeciesRecordInterface;
 
 import java.io.Serializable;
 import java.util.List;
@@ -27,8 +27,8 @@ import java.util.List;
 public class SequenceCell implements Serializable {
 
     private double cellMass;
-    private Species targetSpecies;
-    private List<Species> includedSpecies;
+    private SpeciesRecordInterface targetSpecies;
+    private List<SpeciesRecordInterface> includedSpecies;
 
 
 }

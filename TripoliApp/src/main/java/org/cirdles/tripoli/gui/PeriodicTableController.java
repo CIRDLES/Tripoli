@@ -90,7 +90,7 @@ public class PeriodicTableController {
         ((Button) mouseEvent.getSource()).setStyle("-fx-background-color: WHEAT");
         elementDetailsTextBox.setText(
                 "Row: " + GridPane.getRowIndex(((Button) mouseEvent.getSource()))
-                + ", Col: " + GridPane.getColumnIndex(((Button) mouseEvent.getSource())));
+                        + ", Col: " + GridPane.getColumnIndex(((Button) mouseEvent.getSource())));
     }
 
     public void buttonRelease(MouseEvent mouseEvent) {

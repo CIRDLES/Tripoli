@@ -16,26 +16,6 @@
 
 package org.cirdles.tripoli.nuclidesChart;
 
-import java.io.Serializable;
-
-/**
- * @author James F. Bowring
- */
-public record Species(
-        String elementSymbol,
-        int protonsZ,
-        int neutronsN,
-        // mass number = Z + N
-        double atomicMass,
-        double halfLifeAnnum,
-        double naturalAbundancePercent
-) implements SpeciesRecordInterface, Serializable {
-    public int getMassNumber() {
-        return protonsZ + neutronsN;
-    }
-
-    @Override
-    public String getMolecularFormula() {
-        return elementSymbol;
-    }
+public interface SpeciesRecordInterface {
+    String getMolecularFormula();
 }

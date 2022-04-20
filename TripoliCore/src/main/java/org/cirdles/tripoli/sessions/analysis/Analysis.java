@@ -36,7 +36,7 @@ public class Analysis implements Serializable {
         this.analysisMethod = analysisMethod;
     }
 
-    public static Analysis initializeAnalysis(String analysisName, AnalysisMethod analysisMethod){
+    public static Analysis initializeAnalysis(String analysisName, AnalysisMethod analysisMethod) {
         return new Analysis(analysisName, analysisMethod);
     }
 
