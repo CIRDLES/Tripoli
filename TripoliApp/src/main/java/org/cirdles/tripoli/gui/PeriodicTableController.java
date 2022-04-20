@@ -16,8 +16,10 @@
 
 package org.cirdles.tripoli.gui;
 
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
@@ -28,10 +30,14 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
+import org.cirdles.tripoli.elements.ElementRecord;
+import org.cirdles.tripoli.elements.ElementsFactory;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.TripoliConstants.TRIPOLI_LOGO_SANS_TEXT_URL;
 
@@ -42,6 +48,9 @@ public class PeriodicTableController {
     public static Window periodicTableWindow;
     public static Stage primaryLocalStage = new Stage();
     private static String buttonStyle;
+
+    @FXML
+    public GridPane periodicTableGridPane;
     @FXML
     private TextArea elementDetailsTextBox;
     @FXML // ResourceBundle that was given to the FXMLLoader
@@ -52,6 +61,25 @@ public class PeriodicTableController {
     @FXML
         // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
+
+        ObservableList<Node> buttonList = periodicTableGridPane.getChildren();
+
+        for (Node button : buttonList) {
+            if (button instanceof Button) {
+                int row = GridPane.getRowIndex(button);
+                int col = GridPane.getColumnIndex(button);
+
+                List<ElementRecord> targetElementList = ElementsFactory.periodicTableElementsList
+                        .stream()
+                        .filter(element -> ((element.tripoliCol() == col) && (element.tripoliRow() == row)))
+                        .collect(Collectors.toList());
+
+                if (!targetElementList.isEmpty()) {
+                    ((Button) button).setText(targetElementList.get(0).symbol());
+                    button.setUserData(targetElementList.get(0));
+                }
+            }
+        }
 
     }
 
@@ -66,7 +94,7 @@ public class PeriodicTableController {
                 e.consume();
             });
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("periodicTable/PeriodicTable.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("elements/PeriodicTable.fxml"));
 
             try {
                 Scene scene = new Scene(loader.load());
@@ -86,11 +114,11 @@ public class PeriodicTableController {
     }
 
     public void buttonPress(MouseEvent mouseEvent) {
-        buttonStyle = ((Button) mouseEvent.getSource()).getStyle();
-        ((Button) mouseEvent.getSource()).setStyle("-fx-background-color: WHEAT");
+        Button button = ((Button) mouseEvent.getSource());
+        buttonStyle = button.getStyle();
+        button.setStyle("-fx-background-color: WHEAT");
         elementDetailsTextBox.setText(
-                "Row: " + GridPane.getRowIndex(((Button) mouseEvent.getSource()))
-                        + ", Col: " + GridPane.getColumnIndex(((Button) mouseEvent.getSource())));
+                        ((ElementRecord)button.getUserData()).elementName());
     }
 
     public void buttonRelease(MouseEvent mouseEvent) {

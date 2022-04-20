@@ -49,7 +49,8 @@ public class TripoliFileResources {
         retrieveResourceFiles(REFMAT_MODELS_FOLDER, "parameterModels/referenceMaterialsModels");
 
         retrieveResourceFiles(SYNTHETIC_DATA_FOLDER, "dataProcessors/dataSources/synthetic");
-        retrieveResourceFiles(NUCLIDESCHART_DATA_FOLDER, "nuclidesChart");
+        retrieveResourceFiles(NUCLIDESCHART_DATA_FOLDER, "species/nuclides");
+        retrieveResourceFiles(PERIODICTABLE_DATA_FOLDER, "elements");
 
         System.out.println("Tripoli Resources loaded");
     }

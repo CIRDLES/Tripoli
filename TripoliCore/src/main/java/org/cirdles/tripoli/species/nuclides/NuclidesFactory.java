@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.nuclidesChart;
+package org.cirdles.tripoli.species.nuclides;
 
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -30,15 +31,20 @@ import java.util.stream.Collectors;
 /**
  * @author James F. Bowring
  */
-public final class SpeciesFactory implements Serializable {
+public final class NuclidesFactory implements Serializable {
 
-    public static Map<String, List<SpeciesRecordInterface>> speciesByProtonList = new LinkedHashMap<>();
+    public static Map<String, List<SpeciesRecordInterface>> nuclidesListByElementMap = new LinkedHashMap<>();
 
     static {
         final ResourceExtractor RESOURCE_EXTRACTOR
                 = new ResourceExtractor(Tripoli.class);
-        Path nuclidesChartData = RESOURCE_EXTRACTOR
-                .extractResourceAsFile("/org/cirdles/tripoli/nuclidesChart/NuclidesChartData.csv").toPath();
+        Path nuclidesChartData = null;
+        try {
+            nuclidesChartData = RESOURCE_EXTRACTOR
+                    .extractResourceAsFile("/org/cirdles/tripoli/species/nuclides/NuclidesChartData.csv").toPath();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         List<String> contentsByLine = new ArrayList<>();
         try {
             contentsByLine.addAll(Files.readAllLines(nuclidesChartData, Charset.defaultCharset()));
@@ -47,11 +53,11 @@ public final class SpeciesFactory implements Serializable {
         }
         // remove header
         contentsByLine.remove(0);
-        int protonsZ;
+
         for (String line : contentsByLine) {
             String[] lineContents = line.split(",");
             String elementSymbol = lineContents[2].trim();
-            protonsZ = Integer.parseInt(lineContents[0]);
+            int protonsZ = Integer.parseInt(lineContents[0]);
             int neutronsN = Integer.parseInt(lineContents[1]);
 
             double atomicMass;
@@ -79,7 +85,7 @@ public final class SpeciesFactory implements Serializable {
                 naturalAbundancePercent = 0.;
             }
 
-            SpeciesRecordInterface species = new Species(
+            SpeciesRecordInterface species = new NuclideRecord(
                     elementSymbol,
                     protonsZ,
                     neutronsN,
@@ -88,12 +94,12 @@ public final class SpeciesFactory implements Serializable {
                     naturalAbundancePercent
             );
 
-            if (speciesByProtonList.get(elementSymbol) instanceof List<SpeciesRecordInterface>) {
-                speciesByProtonList.get(elementSymbol).add(species);
+            if (nuclidesListByElementMap.get(elementSymbol) instanceof List<SpeciesRecordInterface>) {
+                nuclidesListByElementMap.get(elementSymbol).add(species);
             } else {
                 List<SpeciesRecordInterface> speciesListForElement = new ArrayList<>();
                 speciesListForElement.add(species);
-                speciesByProtonList.put(elementSymbol, speciesListForElement);
+                nuclidesListByElementMap.put(elementSymbol, speciesListForElement);
             }
         }
 
@@ -101,10 +107,10 @@ public final class SpeciesFactory implements Serializable {
     }
 
     public static SpeciesRecordInterface retrieveSpecies(String elementName, int massNumber) {
-        List<SpeciesRecordInterface> nuclides = speciesByProtonList.get(elementName);
+        List<SpeciesRecordInterface> nuclides = nuclidesListByElementMap.get(elementName);
         List<SpeciesRecordInterface> targetNuclideList = nuclides
                 .stream()
-                .filter(nuclide -> ((nuclide instanceof Species) && ((Species) nuclide).getMassNumber() == massNumber))
+                .filter(nuclide -> ((nuclide instanceof NuclideRecord) && ((NuclideRecord) nuclide).getMassNumber() == massNumber))
                 .collect(Collectors.toList());
         return targetNuclideList.get(0);
     }

@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.nuclidesChart;
+package org.cirdles.tripoli.species;
 
 public interface SpeciesRecordInterface {
     String getMolecularFormula();
+    double getAtomicMass();
+    double getNaturalAbundancePercent();
 }

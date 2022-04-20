@@ -14,21 +14,41 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.methods.sequenceTables;
+package org.cirdles.tripoli.species.nuclides;
 
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * @author James F. Bowring
  */
-public class SequenceCell implements Serializable {
+public record NuclideRecord(
+        String elementSymbol,
+        int protonsZ,
+        int neutronsN,
+        // mass number = Z + N
+        double atomicMass,
+        double halfLifeAnnum,
+        double naturalAbundancePercent
+) implements SpeciesRecordInterface, Serializable {
 
-    private double cellMass;
-    private SpeciesRecordInterface targetSpecies;
-    private List<SpeciesRecordInterface> includedSpecies;
+    public int getMassNumber() {
+        return protonsZ + neutronsN;
+    }
 
+    @Override
+    public String getMolecularFormula() {
+        return elementSymbol;
+    }
 
+    @Override
+    public double getAtomicMass() {
+        return atomicMass;
+    }
+
+    @Override
+    public double getNaturalAbundancePercent() {
+        return naturalAbundancePercent;
+    }
 }

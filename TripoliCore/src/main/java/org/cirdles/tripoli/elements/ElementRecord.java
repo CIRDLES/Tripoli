@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.nuclidesChart;
+package org.cirdles.tripoli.elements;
 
-import java.io.Serializable;
-
-/**
- * @author James F. Bowring
- */
-public final class NuclidesChart implements Serializable {
-
-
+public record ElementRecord(
+        String symbol,
+        String elementName,
+        int atomicNumber,
+        double atomicMass,
+        int tripoliRow,
+        int tripoliCol
+) {
 }

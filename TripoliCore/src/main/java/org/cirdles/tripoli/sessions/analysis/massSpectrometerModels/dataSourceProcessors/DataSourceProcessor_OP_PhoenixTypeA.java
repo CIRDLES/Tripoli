@@ -17,8 +17,8 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
 import jama.Matrix;
-import org.cirdles.tripoli.nuclidesChart.SpeciesFactory;
-import org.cirdles.tripoli.nuclidesChart.SpeciesRecordInterface;
+import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorEnumTypeA;
 
@@ -33,10 +33,10 @@ public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorI
     private static final List<SpeciesRecordInterface> speciesList = new ArrayList<>();
 
     static {
-        // build Species list with dummy first entry as placeholder for index compatibility with matlab
-        speciesList.add(SpeciesFactory.retrieveSpecies("n", 1));
-        speciesList.add(SpeciesFactory.retrieveSpecies("Pb", 206));
-        speciesList.add(SpeciesFactory.retrieveSpecies("Pb", 208));
+        // build NuclideRecord list with dummy first entry as placeholder for index compatibility with matlab
+        speciesList.add(NuclidesFactory.retrieveSpecies("n", 1));
+        speciesList.add(NuclidesFactory.retrieveSpecies("Pb", 206));
+        speciesList.add(NuclidesFactory.retrieveSpecies("Pb", 208));
     }
 
     @Override
