@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.nuclidesChart;
+package org.cirdles.tripoli.elements;
 
-/**
- * @author James F. Bowring
- */
-public record Species(
-        String elementSymbol,
-        int protonsZ,
-        int neutronsN,
-        // mass number = Z + N
+public record ElementRecord(
+        String symbol,
+        String elementName,
+        int atomicNumber,
         double atomicMass,
-        double halfLifeAnnum,
-        double naturalAbundancePercent
+        int tripoliRow,
+        int tripoliCol
 ) {
-    public int getMassNumber(){
-        return protonsZ + neutronsN;
-    }
-
 }

@@ -18,6 +18,7 @@ package org.cirdles.tripoli.matrices.matrixModels;
 
 import jama.Matrix;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -30,6 +31,7 @@ import java.util.Map;
  */
 public abstract class AbstractMatrixModel implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 19645743150111042L;
     /**
      *
@@ -49,7 +51,7 @@ public abstract class AbstractMatrixModel implements Serializable {
     protected Matrix matrix;
 
     /**
-     * @param levelName
+     * @param levelName name of internal matrix
      */
     public AbstractMatrixModel(
             String levelName) {
@@ -60,14 +62,12 @@ public abstract class AbstractMatrixModel implements Serializable {
     }
 
     /**
-     * @param rowMap
-     * @return
+     * @param rowMap maps row indices to their names
+     * @return map of columns with rownames and keys
      */
     public static Map<String, Integer> invertRowMap(Map<Integer, String> rowMap) {
-        Map<String, Integer> myCols = new HashMap<String, Integer>();
-        Iterator<Integer> keys = rowMap.keySet().iterator();
-        while (keys.hasNext()) {
-            Integer key = keys.next();
+        Map<String, Integer> myCols = new HashMap<>();
+        for (Integer key : rowMap.keySet()) {
             myCols.put(rowMap.get(key), key);
         }
 
@@ -82,9 +82,7 @@ public abstract class AbstractMatrixModel implements Serializable {
      */
     public static Map<Integer, String> invertColMap(Map<String, Integer> colMap) {
         Map<Integer, String> myRows = new HashMap<>();
-        Iterator<String> keys = colMap.keySet().iterator();
-        while (keys.hasNext()) {
-            String key = keys.next();
+        for (String key : colMap.keySet()) {
             myRows.put(colMap.get(key), key);
         }
 
@@ -118,9 +116,9 @@ public abstract class AbstractMatrixModel implements Serializable {
      */
     public boolean isCovMatrixSymmetricAndPositiveDefinite() {
         try {
-            return matrix.chol().isSPD();
+            return !matrix.chol().isSPD();
         } catch (Exception e) {
-            return false;
+            return true;
         }
     }
 
@@ -130,36 +128,34 @@ public abstract class AbstractMatrixModel implements Serializable {
     public String ToStringWithLabels() {
         String formatCell = "%1$-23s";
 
-        String retVal = String.format(formatCell, "MATRIX#=" + getLevelName());
+        StringBuilder retVal = new StringBuilder(String.format(formatCell, "MATRIX#=" + getLevelName()));
 
         // make an inverse map of columns
-        Map<Integer, String> tempCols = new HashMap<Integer, String>();
-        Iterator<String> colKeys = getCols().keySet().iterator();
-        while (colKeys.hasNext()) {
-            String colKey = colKeys.next();
+        Map<Integer, String> tempCols = new HashMap<>();
+        for (String colKey : getCols().keySet()) {
             tempCols.put(getCols().get(colKey), colKey);
         }
 
         for (int i = 0; i < tempCols.size(); i++) {
-            retVal += String.format(formatCell, tempCols.get(i));
+            retVal.append(String.format(formatCell, tempCols.get(i)));
         }
 
-        retVal += "\n";
+        retVal.append("\n");
 
         NumberFormat formatter = new DecimalFormat("0.000000000E00");
 
         for (int row = 0; row < rows.size(); row++) {
-            retVal += String.format(formatCell, rows.get(row));
+            retVal.append(String.format(formatCell, rows.get(row)));
             try {
                 for (int col = 0; col < matrix.getColumnDimension(); col++) {
-                    retVal += String.format(formatCell, formatter.format(matrix.get(row, col)));
+                    retVal.append(String.format(formatCell, formatter.format(matrix.get(row, col))));
                 }
             } catch (Exception e) {
             }
-            retVal += "\n";
+            retVal.append("\n");
         }
 
-        return retVal;
+        return retVal.toString();
     }
 
     /**
@@ -173,7 +169,7 @@ public abstract class AbstractMatrixModel implements Serializable {
      * @param rowNames
      */
     public void setRows(String[] rowNames) {
-        Map<Integer, String> myRows = new HashMap<Integer, String>();
+        Map<Integer, String> myRows = new HashMap<>();
         for (int i = 0; i < rowNames.length; i++) {
             myRows.put(i, rowNames[i]);
         }
@@ -209,7 +205,7 @@ public abstract class AbstractMatrixModel implements Serializable {
     }
 
     /**
-     * @return the lerow
+     * @return the levelName
      */
     public String getLevelName() {
         return levelName;
@@ -271,9 +267,7 @@ public abstract class AbstractMatrixModel implements Serializable {
         boolean retVal = !(getRows().isEmpty() || getCols().isEmpty());
         if (retVal) {
             initializeMatrix();
-            Iterator<String> colNames = parentModel.getCols().keySet().iterator();
-            while (colNames.hasNext()) {
-                String colName = colNames.next();
+            for (String colName : parentModel.getCols().keySet()) {
                 Integer col = getCols().get(colName);
                 if (col != null) {
                     //copy values from this column

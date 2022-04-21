@@ -14,21 +14,10 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.methods.sequenceTables;
+package org.cirdles.tripoli.species;
 
-import org.cirdles.tripoli.species.SpeciesRecordInterface;
-
-import java.io.Serializable;
-import java.util.List;
-
-/**
- * @author James F. Bowring
- */
-public class SequenceCell implements Serializable {
-
-    private double cellMass;
-    private SpeciesRecordInterface targetSpecies;
-    private List<SpeciesRecordInterface> includedSpecies;
-
-
+public interface SpeciesRecordInterface {
+    String getMolecularFormula();
+    double getAtomicMass();
+    double getNaturalAbundancePercent();
 }

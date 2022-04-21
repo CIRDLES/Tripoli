@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.nuclidesChart;
+package org.cirdles.tripoli.species.nuclides;
 
 import java.io.Serializable;
 

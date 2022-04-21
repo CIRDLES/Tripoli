@@ -22,7 +22,6 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -62,9 +61,7 @@ public class CovarianceMatrixModel extends AbstractMatrixModel {
             // walk the rows of covariance matrix and for each row get the name
             // if that name is in the variances (for example, inputVariances)
             // then populate the diagonal at that row with the value
-            Iterator<Integer> rowKeys = getRows().keySet().iterator();
-            while (rowKeys.hasNext()) {
-                int rowKey = rowKeys.next();
+            for (int rowKey : getRows().keySet()) {
                 String rowName = getRows().get(rowKey);
 
                 BigDecimal varianceModel = variances.get(rowName);
@@ -79,21 +76,17 @@ public class CovarianceMatrixModel extends AbstractMatrixModel {
 
     /**
      * @param coVariances
-     * @return
      */
-    public boolean initializeCoVariances(
+    public void initializeCoVariances(
             Map<String, BigDecimal> coVariances) {
 
         boolean retVal = !(getRows().isEmpty() || getCols().isEmpty());
         if (retVal) {
-            Iterator<String> covKeys = coVariances.keySet().iterator();
-            while (covKeys.hasNext()) {
-                String covName = covKeys.next();
+            for (String covName : coVariances.keySet()) {
                 BigDecimal covariance = coVariances.get(covName);
                 setCovarianceCells(covName, covariance.doubleValue());
             }
         }
-        return retVal;
     }
 
     /**
@@ -116,19 +109,14 @@ public class CovarianceMatrixModel extends AbstractMatrixModel {
      * @param leftSide
      * @param rightSide
      * @param coVariance
-     * @return
      */
-    protected boolean setCovarianceCell(String leftSide, String rightSide, double coVariance) {
-        boolean retval = false;
-
+    protected void setCovarianceCell(String leftSide, String rightSide, double coVariance) {
         Integer left = getCols().get(leftSide);
         Integer right = getCols().get(rightSide);
         if ((left != null) && (right != null)) {
             matrix.set(left, right, coVariance);
             matrix.set(right, left, coVariance);
-            retval = true;
         }
-        return retval;
     }
 
     /**
@@ -206,7 +194,7 @@ public class CovarianceMatrixModel extends AbstractMatrixModel {
     }
 
     /**
-     * This method evauates the correlations between pairs of measured ratio
+     * This method evaluates the correlations between pairs of measured ratio
      * uncertainties. If any are out of the range [-1,1], a report is returned.
      *
      * @param fractionID
@@ -215,12 +203,12 @@ public class CovarianceMatrixModel extends AbstractMatrixModel {
     public String checkValidityOfMeasuredRatioUncertainties(String fractionID) {
         String retval = "";
         // first, we detect which measured ratios are present
-        // TODO: generaliz the source of measured ratios on the fly
+        // TODO: generalize the source of measured ratios on the fly
         String[] measuredNames = new String[0];//MeasuredRatios.getNames();
         ArrayList<String> measuredNamesFound = new ArrayList<String>();
-        for (int i = 0; i < measuredNames.length; i++) {
-            if (getCols().containsKey(measuredNames[i])) {
-                measuredNamesFound.add(measuredNames[i]);
+        for (String measuredName : measuredNames) {
+            if (getCols().containsKey(measuredName)) {
+                measuredNamesFound.add(measuredName);
             }
         }
 

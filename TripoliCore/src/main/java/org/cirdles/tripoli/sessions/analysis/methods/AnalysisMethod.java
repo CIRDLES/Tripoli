@@ -57,8 +57,7 @@ public class AnalysisMethod implements Serializable {
     public boolean equals(Object otherObject) {
         boolean retVal = true;
         if (otherObject != this) {
-            if (otherObject instanceof AnalysisMethod) {
-                AnalysisMethod otherAnalysisMethod = (AnalysisMethod) otherObject;
+            if (otherObject instanceof AnalysisMethod otherAnalysisMethod) {
                 retVal = this.getMethodName().compareToIgnoreCase(otherAnalysisMethod.getMethodName()) == 0;
             } else {
                 retVal = false;

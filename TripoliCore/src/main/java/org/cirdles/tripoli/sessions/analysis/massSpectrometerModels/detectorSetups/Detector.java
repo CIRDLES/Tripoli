@@ -23,19 +23,9 @@ import java.io.Serializable;
  */
 public class Detector implements Serializable {
 
-    public enum DetectorTypeEnum{
-        FARADAY("FARADAY"),
-        ION_COUNTER("ION_COUNTER");
-
-        final String name;
-
-        DetectorTypeEnum(String name) {
-            this.name = name;
-        }
-    }
-
     private DetectorTypeEnum detectorType;
-
+    private String detectorName;
+    private int detectorNumber;
     private Detector() {
         this(DetectorTypeEnum.FARADAY);
     }
@@ -44,7 +34,7 @@ public class Detector implements Serializable {
         this.detectorType = detectorType;
     }
 
-    static Detector createDetector(){
+    static Detector createDetector() {
         Detector detector = new Detector();
         return detector;
     }
@@ -55,5 +45,18 @@ public class Detector implements Serializable {
 
     public void setDetectorType(DetectorTypeEnum detectorType) {
         this.detectorType = detectorType;
+    }
+
+    public enum DetectorTypeEnum {
+        FARADAY("FARADAY"),
+        DALY("DALY"),
+        SEM("SEM"),
+        CDD("CDD");
+
+        final String name;
+
+        DetectorTypeEnum(String name) {
+            this.name = name;
+        }
     }
 }

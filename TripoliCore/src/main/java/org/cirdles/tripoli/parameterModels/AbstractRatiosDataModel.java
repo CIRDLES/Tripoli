@@ -297,8 +297,8 @@ public abstract class AbstractRatiosDataModel implements
 
         // precondition: the data model has been created with a prescribed set of ratios with names
         // need to check each incoming ratio for validity
-        for (int i = 0; i < dataIncoming.length; i++) {
-            ValueModel ratio = ValueModel.createCopyOfValueModel(getDatumByName(dataIncoming[i].getName()));
+        for (ValueModel valueModel : dataIncoming) {
+            ValueModel ratio = ValueModel.createCopyOfValueModel(getDatumByName(valueModel.getName()));
         }
 
         // introduce special comparator that puts concentrations (conc) after dataIncoming)//dec 2014 not needed
@@ -308,9 +308,8 @@ public abstract class AbstractRatiosDataModel implements
             buildRhosMap();
         } else {
             for (String key : myRhos.keySet()) {
-                String rhoName = key;
-                if (rhosUnct.get(rhoName) != null) {
-                    rhosUnct.put(rhoName, myRhos.get(rhoName));
+                if (rhosUnct.get(key) != null) {
+                    rhosUnct.put(key, myRhos.get(key));
                 }
             }
         }
@@ -319,9 +318,8 @@ public abstract class AbstractRatiosDataModel implements
             buildRhosSysUnctMap();
         } else {
             for (String key : myRhosSysUnct.keySet()) {
-                String rhoName = key;
-                if (rhosSysUnct.get(rhoName) != null) {
-                    rhosSysUnct.put(rhoName, myRhosSysUnct.get(rhoName));
+                if (rhosSysUnct.get(key) != null) {
+                    rhosSysUnct.put(key, myRhosSysUnct.get(key));
                 }
             }
         }
@@ -450,18 +448,14 @@ public abstract class AbstractRatiosDataModel implements
             buildRhosMap();
         }
 
-        for (String rhoName : rhosUnct.keySet()) {
-            rhosUnct.put(rhoName, new BigDecimal(((CorrelationMatrixModel) dataCorrelationsVarUnct).getCorrelationCell(rhoName)));
-        }
+        rhosUnct.replaceAll((n, v) -> new BigDecimal(((CorrelationMatrixModel) dataCorrelationsVarUnct).getCorrelationCell(n)));
 
         // sept 2014 backwards compat
         if (rhosSysUnct == null) {
             buildRhosSysUnctMap();
         }
 
-        for (String rhoName : rhosSysUnct.keySet()) {
-            rhosSysUnct.put(rhoName, new BigDecimal(((CorrelationMatrixModel) dataCorrelationsSysUnct).getCorrelationCell(rhoName)));
-        }
+        rhosSysUnct.replaceAll((n, v) -> new BigDecimal(((CorrelationMatrixModel) dataCorrelationsSysUnct).getCorrelationCell(n)));
     }
 
     /**
@@ -475,10 +469,10 @@ public abstract class AbstractRatiosDataModel implements
 
             copyBothRhosFromEachCorrelationM();
 
-            if (checkCovarianceValidity && !dataCovariancesVarUnct.isCovMatrixSymmetricAndPositiveDefinite()) {
+            if (checkCovarianceValidity && dataCovariancesVarUnct.isCovMatrixSymmetricAndPositiveDefinite()) {
                 throw new TripoliException("Var Unct Correlations yield Var Unct covariance matrix NOT positive definite.");
             }
-            if (checkCovarianceValidity && !dataCovariancesSysUnct.isCovMatrixSymmetricAndPositiveDefinite()) {
+            if (checkCovarianceValidity && dataCovariancesSysUnct.isCovMatrixSymmetricAndPositiveDefinite()) {
                 throw new TripoliException("Sys Unct Correlations yield Sys Unct covariance matrix NOT positive definite.");
             }
         }
@@ -741,9 +735,9 @@ public abstract class AbstractRatiosDataModel implements
     public ValueModel getDatumByName(String datumName) {
 
         ValueModel retVal = ValueModel.createEmptyNamedValueModel(datumName);
-        for (int i = 0; i < ratios.length; i++) {
-            if (ratios[i].getName().equals(datumName)) {
-                retVal = ratios[i];
+        for (ValueModel ratio : ratios) {
+            if (ratio.getName().equals(datumName)) {
+                retVal = ratio;
             }
         }
 
@@ -787,13 +781,10 @@ public abstract class AbstractRatiosDataModel implements
             myRhoValue = BigDecimal.ZERO;
         }
 
-        ValueModel coeffModel
-                = ValueModel.createFullNamedValueModel(//
-                coeffName,
-                myRhoValue,
-                BigDecimal.ZERO, BigDecimal.ZERO);
-
-        return coeffModel;
+        return ValueModel.createFullNamedValueModel(//
+        coeffName,
+        myRhoValue,
+        BigDecimal.ZERO, BigDecimal.ZERO);
     }
 
     /**
@@ -817,9 +808,7 @@ public abstract class AbstractRatiosDataModel implements
      */
     public Map<String, BigDecimal> getRhosVarUnctForXMLSerialization() {
         Map<String, BigDecimal> tightRhos = new HashMap<>();
-        Iterator<String> rhosKeyIterator = rhosUnct.keySet().iterator();
-        while (rhosKeyIterator.hasNext()) {
-            String key = rhosKeyIterator.next();
+        for (String key : rhosUnct.keySet()) {
             if (rhosUnct.get(key).compareTo(BigDecimal.ZERO) != 0) {
                 tightRhos.put(key, rhosUnct.get(key));
             }
@@ -850,9 +839,7 @@ public abstract class AbstractRatiosDataModel implements
     public Map<String, BigDecimal> cloneRhosVarUnct() {
 
         Map<String, BigDecimal> clonedRhosVarUnct = new HashMap<>();
-        rhosUnct.entrySet().stream().forEach((entry) -> {
-            clonedRhosVarUnct.put(entry.getKey(), entry.getValue());
-        });
+        rhosUnct.entrySet().stream().forEach((entry) -> clonedRhosVarUnct.put(entry.getKey(), entry.getValue()));
 
         return clonedRhosVarUnct;
     }
@@ -883,13 +870,10 @@ public abstract class AbstractRatiosDataModel implements
             myRhoValue = BigDecimal.ZERO;
         }
 
-        ValueModel coeffModel
-                = ValueModel.createFullNamedValueModel(
-                coeffName,
-                myRhoValue,
-                BigDecimal.ZERO, BigDecimal.ZERO);
-
-        return coeffModel;
+        return ValueModel.createFullNamedValueModel(
+        coeffName,
+        myRhoValue,
+        BigDecimal.ZERO, BigDecimal.ZERO);
     }
 
     /**

@@ -43,7 +43,7 @@ public class Session implements Serializable {
         this.mapOfAnalyses = mapOfAnalyses;
     }
 
-    public static Session initializeDefaultSession(){
+    public static Session initializeDefaultSession() {
         return new Session();
     }
 

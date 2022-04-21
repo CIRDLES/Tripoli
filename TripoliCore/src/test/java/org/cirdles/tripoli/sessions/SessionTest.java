@@ -14,7 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.methodsBuiltinMap;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SessionTest {
 
@@ -36,7 +36,7 @@ class SessionTest {
         testSession.getMapOfAnalyses().put("testAnalysis2", Analysis.initializeAnalysis("testAnalysis", methodsBuiltinMap.get("BurdickBlSyntheticData")));
 
         TripoliSerializer.serializeObjectToFile(testSession, String.valueOf(testFilePath.getFileName()));
-        Session testSession2 = (Session)TripoliSerializer.getSerializedObjectFromFile(String.valueOf(testFilePath.getFileName()), true);
+        Session testSession2 = (Session) TripoliSerializer.getSerializedObjectFromFile(String.valueOf(testFilePath.getFileName()), true);
 
         assertEquals(testSession2.getSessionName(), testSession.getSessionName());
         assertEquals(testSession2.getMapOfAnalyses().keySet(), testSession.getMapOfAnalyses().keySet());

@@ -32,7 +32,7 @@ public class MassSpectrometerModel implements Serializable {
     private String massSpectrometerName;
     private DetectorSetup detectorSetup;
 
-    private MassSpectrometerModel(){
+    private MassSpectrometerModel() {
         this("DefaultMassSpectrometer");
     }
 
@@ -45,7 +45,7 @@ public class MassSpectrometerModel implements Serializable {
         this.detectorSetup = detectorSetup;
     }
 
-    public static MassSpectrometerModel initializeMassSpectrometer(String name){
+    public static MassSpectrometerModel initializeMassSpectrometer(String name) {
         return new MassSpectrometerModel(name);
     }
 
