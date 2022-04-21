@@ -42,8 +42,7 @@ public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorI
     @Override
     public MassSpecOutputDataModel prepareInputDataModelFromFile(Path inputDataFile) throws IOException {
 
-        List<String> contentsByLine = new ArrayList<>();
-        contentsByLine.addAll(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
+        List<String> contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
 
         List<String[]> headerByLineSplit = new ArrayList<>();
         List<String[]> columnNamesSplit = new ArrayList<>();
@@ -193,13 +192,10 @@ public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorI
         double[] baseLineFlagsForDataAccumulatorArray = baseLineFlagsForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
         Matrix baseLineFlagsForRawDataColumn = new Matrix(baseLineFlagsForDataAccumulatorArray, baseLineFlagsForDataAccumulatorArray.length);
 
-        MassSpecOutputDataModel retVal =
-                new MassSpecOutputDataModel(
-                        rawDataColumn,
-                        isotopeIndicesForRawDataColumn,
-                        baseLineFlagsForRawDataColumn);
-
-        return retVal;
+        return new MassSpecOutputDataModel(
+                rawDataColumn,
+                isotopeIndicesForRawDataColumn,
+                baseLineFlagsForRawDataColumn);
     }
 
     /**

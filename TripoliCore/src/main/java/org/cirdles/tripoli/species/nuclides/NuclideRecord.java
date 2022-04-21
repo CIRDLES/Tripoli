@@ -16,7 +16,6 @@
 
 package org.cirdles.tripoli.species.nuclides;
 
-import org.apache.poi.util.StringUtil;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.io.Serializable;
@@ -35,18 +34,15 @@ public record NuclideRecord(
         double naturalAbundancePercent
 ) implements SpeciesRecordInterface, Serializable {
 
-    public String prettyPrint(){
+    public String prettyPrint() {
         DecimalFormat df = new DecimalFormat("###0.0000000#####           ");
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(elementSymbol)
-                .append("" + (protonsZ + neutronsN))
-                .append(": ").append(df.format(atomicMass))
-                .append("\t %abun: ")
-                .append(naturalAbundancePercent)
-                .append("\t 1/2Life: ")
-                .append(halfLifeAnnum >0 ? halfLifeAnnum : (halfLifeAnnum < 0)? "Stable" : "n/a");
-
-        return stringBuilder.toString();
+        return elementSymbol +
+                "" + (protonsZ + neutronsN) +
+                ": " + df.format(atomicMass) +
+                "\t %abundance: " +
+                naturalAbundancePercent +
+                "\t 1/2Life: " +
+                (halfLifeAnnum > 0 ? halfLifeAnnum : (halfLifeAnnum < 0) ? "Stable" : "n/a");
     }
 
     public int getMassNumber() {

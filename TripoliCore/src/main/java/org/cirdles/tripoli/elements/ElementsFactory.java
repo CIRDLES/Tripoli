@@ -19,7 +19,6 @@ package org.cirdles.tripoli.elements;
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,19 +35,16 @@ public final class ElementsFactory {
     static {
         final ResourceExtractor RESOURCE_EXTRACTOR
                 = new ResourceExtractor(Tripoli.class);
-        Path periodicTableData = null;
+        Path periodicTableData;
+        List<String> contentsByLine = new ArrayList<>();
         try {
             periodicTableData = RESOURCE_EXTRACTOR
                     .extractResourceAsFile("/org/cirdles/tripoli/elements/PeriodicTableOfElements.csv").toPath();
+            contentsByLine.addAll(Files.readAllLines(periodicTableData, Charset.defaultCharset()));
         } catch (Exception e) {
             e.printStackTrace();
         }
-        List<String> contentsByLine = new ArrayList<>();
-        try {
-            contentsByLine.addAll(Files.readAllLines(periodicTableData, Charset.defaultCharset()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         // remove header
         contentsByLine.remove(0);
         for (String line : contentsByLine) {

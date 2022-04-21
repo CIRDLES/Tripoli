@@ -40,7 +40,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.TripoliConstants.TRIPOLI_LOGO_SANS_TEXT_URL;
 
@@ -74,8 +73,7 @@ public class PeriodicTableController {
 
                 List<ElementRecord> targetElementList = ElementsFactory.periodicTableElementsList
                         .stream()
-                        .filter(element -> ((element.tripoliCol() == col) && (element.tripoliRow() == row)))
-                        .collect(Collectors.toList());
+                        .filter(element -> ((element.tripoliCol() == col) && (element.tripoliRow() == row))).toList();
 
                 if (!targetElementList.isEmpty()) {
                     ((Button) button).setText(targetElementList.get(0).symbol());

@@ -20,13 +20,11 @@ import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author James F. Bowring
@@ -38,19 +36,16 @@ public final class NuclidesFactory implements Serializable {
     static {
         final ResourceExtractor RESOURCE_EXTRACTOR
                 = new ResourceExtractor(Tripoli.class);
-        Path nuclidesChartData = null;
+        Path nuclidesChartData;
+        List<String> contentsByLine = new ArrayList<>();
         try {
             nuclidesChartData = RESOURCE_EXTRACTOR
                     .extractResourceAsFile("/org/cirdles/tripoli/species/nuclides/NuclidesChartData.csv").toPath();
+            contentsByLine.addAll(Files.readAllLines(nuclidesChartData, Charset.defaultCharset()));
         } catch (Exception e) {
             e.printStackTrace();
         }
-        List<String> contentsByLine = new ArrayList<>();
-        try {
-            contentsByLine.addAll(Files.readAllLines(nuclidesChartData, Charset.defaultCharset()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         // remove header
         contentsByLine.remove(0);
 
@@ -85,7 +80,7 @@ public final class NuclidesFactory implements Serializable {
                 naturalAbundancePercent = 0.;
             }
 
-            SpeciesRecordInterface species = new NuclideRecord(
+            SpeciesRecordInterface nuclide = new NuclideRecord(
                     elementSymbol,
                     protonsZ,
                     neutronsN,
@@ -94,25 +89,21 @@ public final class NuclidesFactory implements Serializable {
                     naturalAbundancePercent
             );
 
-            if (nuclidesListByElementMap.get(elementSymbol) instanceof List<SpeciesRecordInterface>) {
-                nuclidesListByElementMap.get(elementSymbol).add(species);
+            if (nuclidesListByElementMap.get(elementSymbol) != null) {
+                nuclidesListByElementMap.get(elementSymbol).add(nuclide);
             } else {
                 List<SpeciesRecordInterface> speciesListForElement = new ArrayList<>();
-                speciesListForElement.add(species);
+                speciesListForElement.add(nuclide);
                 nuclidesListByElementMap.put(elementSymbol, speciesListForElement);
             }
         }
-
-
     }
 
     public static SpeciesRecordInterface retrieveSpecies(String elementName, int massNumber) {
         List<SpeciesRecordInterface> nuclides = nuclidesListByElementMap.get(elementName);
         List<SpeciesRecordInterface> targetNuclideList = nuclides
                 .stream()
-                .filter(nuclide -> ((nuclide instanceof NuclideRecord) && ((NuclideRecord) nuclide).getMassNumber() == massNumber))
-                .collect(Collectors.toList());
+                .filter(nuclide -> ((nuclide instanceof NuclideRecord) && ((NuclideRecord) nuclide).getMassNumber() == massNumber)).toList();
         return targetNuclideList.get(0);
     }
-
 }

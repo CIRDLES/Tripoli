@@ -55,9 +55,8 @@ public class CorrelationMatrixModel extends AbstractMatrixModel {
 
     /**
      * @param correlations
-     * @return
      */
-    public boolean initializeCorrelations(
+    public void initializeCorrelations(
             Map<String, BigDecimal> correlations) {
 
         boolean retVal = !(getRows().isEmpty() || getCols().isEmpty());
@@ -69,7 +68,6 @@ public class CorrelationMatrixModel extends AbstractMatrixModel {
                 setCorrelationCells(covName, rho.doubleValue());
             }
         }
-        return retVal;
     }
 
     /**
@@ -92,19 +90,14 @@ public class CorrelationMatrixModel extends AbstractMatrixModel {
      * @param leftSide
      * @param rightSide
      * @param rho
-     * @return
      */
-    protected boolean setCorrelationCell(String leftSide, String rightSide, double rho) {
-        boolean retval = false;
-
+    protected void setCorrelationCell(String leftSide, String rightSide, double rho) {
         Integer left = getCols().get(leftSide);
         Integer right = getCols().get(rightSide);
         if ((left != null) && (right != null)) {
             matrix.set(left, right, rho);
             matrix.set(right, left, rho);
-            retval = true;
         }
-        return retval;
     }
 
     /**
@@ -112,7 +105,6 @@ public class CorrelationMatrixModel extends AbstractMatrixModel {
      * @return
      */
     public double getCorrelationCell(String correlationName) {
-
         // name is of form rhoXXX__YYY
         String both = correlationName.substring(3);
         String[] each = both.split("__");
@@ -120,7 +112,6 @@ public class CorrelationMatrixModel extends AbstractMatrixModel {
         String leftSide = each[0].substring(0, 1).toLowerCase() + each[0].substring(1);
 
         return getCorrelationCell(leftSide, each[1]);
-
     }
 
     /**

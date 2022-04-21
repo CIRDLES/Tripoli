@@ -16,8 +16,6 @@
 
 package org.cirdles.tripoli.species.nuclides;
 
-import org.cirdles.tripoli.species.nuclides.NuclideRecord;
-import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
