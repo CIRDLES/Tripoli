@@ -26,6 +26,7 @@ public class Detector implements Serializable {
     private DetectorTypeEnum detectorType;
     private String detectorName;
     private int detectorNumber;
+
     private Detector() {
         this(DetectorTypeEnum.FARADAY);
     }

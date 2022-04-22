@@ -20,18 +20,15 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrom
 import org.cirdles.tripoli.sessions.analysis.methods.baselineTables.BaselineTable;
 import org.cirdles.tripoli.sessions.analysis.methods.sequenceTables.SequenceTable;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
  * @author James F. Bowring
  */
 public class AnalysisMethod implements Serializable {
-    /* Notes
-    MassSpec Model
-    Isotopes of Interest
-    Baseline Table
-    Sequence Table
-     */
+    @Serial
+    private static final long serialVersionUID = -642166785514147638L;
 
     protected String methodName;
     protected MassSpectrometerModel massSpectrometer;

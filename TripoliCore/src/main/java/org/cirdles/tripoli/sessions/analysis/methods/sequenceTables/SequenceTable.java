@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods.sequenceTables;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -24,6 +25,8 @@ import java.util.Map;
  * @author James F. Bowring
  */
 public class SequenceTable implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -3937544780355208600L;
 
     private Map<String, Sequence> sequenceMap;
 

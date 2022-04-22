@@ -17,10 +17,10 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
 import jama.Matrix;
-import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
-import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorEnumTypeA;
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
 
 import java.io.IOException;
 import java.nio.charset.Charset;

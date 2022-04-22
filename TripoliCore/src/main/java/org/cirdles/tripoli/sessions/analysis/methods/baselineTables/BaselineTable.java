@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods.baselineTables;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -24,6 +25,10 @@ import java.util.Map;
  * @author James F. Bowring
  */
 public class BaselineTable implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 6152558186543823004L;
+
     private Map<String, Baseline> baselineMap;
 
     private BaselineTable() {
@@ -38,6 +43,7 @@ public class BaselineTable implements Serializable {
         To determine which species (isotopologues, isobars) are going into that collector, use a formula based on the MassSpec Model (™)
 
          */
+
         BaselineTable baselineTable = new BaselineTable();
         baselineTable.baselineMap = new LinkedHashMap<>();
 

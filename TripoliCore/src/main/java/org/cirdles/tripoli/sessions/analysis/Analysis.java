@@ -18,12 +18,15 @@ package org.cirdles.tripoli.sessions.analysis;
 
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
  * @author James F. Bowring
  */
 public class Analysis implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 5737165372498262402L;
 
     private String analysisName;
     private AnalysisMethod analysisMethod;

@@ -16,15 +16,29 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods.baselineTables;
 
+import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 
-import java.io.Serializable;
+import java.io.*;
 import java.util.Map;
 
 /**
  * @author James F. Bowring
  */
 public class Baseline implements Serializable {
+//    @Serial
+//    private static final long serialVersionUID = 6597752272434171800L;
+        private void readObject ( ObjectInputStream stream ) throws IOException,
+            ClassNotFoundException {
+        stream.defaultReadObject();
+
+        ObjectStreamClass myObject = ObjectStreamClass.lookup(
+                Class.forName( Baseline.class.getCanonicalName()) );
+        long theSUID = myObject.getSerialVersionUID();
+
+        System.err.println( "Customized De-serialization of Baseline "
+                + theSUID );
+    }
 
     private Map<Detector, BaselineCell> baselineCellsMap;
 }
