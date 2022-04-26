@@ -32,9 +32,10 @@ public class BaselineTable implements Serializable {
     private Map<String, Baseline> baselineMap;
 
     private BaselineTable() {
+        this.baselineMap = new LinkedHashMap<>();
     }
 
-    public static BaselineTable createEmptyBaselineTable() {
+    public static BaselineTable initializeBaselineTable() {
         /* Notes:
         Each row is a sequence (S1, S2, S3)
         Each column is a detector from the detector setup.
@@ -45,9 +46,20 @@ public class BaselineTable implements Serializable {
          */
 
         BaselineTable baselineTable = new BaselineTable();
-        baselineTable.baselineMap = new LinkedHashMap<>();
 
         return baselineTable;
     }
 
+    public Baseline addBaseline(Baseline baseline){
+        baselineMap.put(baseline.getBaselineName(), baseline);
+        return baseline;
+    }
+
+    public Map<String, Baseline> getBaselineMap() {
+        return baselineMap;
+    }
+
+    public void setBaselineMap(Map<String, Baseline> baselineMap) {
+        this.baselineMap = baselineMap;
+    }
 }

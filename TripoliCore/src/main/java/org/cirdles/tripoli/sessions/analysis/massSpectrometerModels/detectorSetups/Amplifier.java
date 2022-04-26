@@ -32,7 +32,7 @@ public class Amplifier implements Serializable {
         this.amplifierType = amplifierType;
     }
 
-    static Amplifier createAmplifier() {
+    static Amplifier initializeAmplifier() {
         Amplifier amplifier = new Amplifier();
         return amplifier;
     }

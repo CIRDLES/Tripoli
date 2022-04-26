@@ -41,7 +41,7 @@ public class MassSpectrometerModel implements Serializable {
     }
 
     private MassSpectrometerModel(String massSpectrometerName) {
-        this(massSpectrometerName, DetectorSetup.createEmptyDetectorSetup());
+        this(massSpectrometerName, DetectorSetup.initializeDetectorSetup());
     }
 
     private MassSpectrometerModel(String massSpectrometerName, DetectorSetup detectorSetup) {

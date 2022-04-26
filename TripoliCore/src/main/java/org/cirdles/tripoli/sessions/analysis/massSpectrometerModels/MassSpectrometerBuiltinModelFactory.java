@@ -16,6 +16,9 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels;
 
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -29,6 +32,13 @@ public final class MassSpectrometerBuiltinModelFactory {
     static {
         MassSpectrometerModel op_Phoenix = MassSpectrometerModel.initializeMassSpectrometer("OP_Phoenix");
         massSpectrometersBuiltinMap.put(op_Phoenix.getMassSpectrometerName(), op_Phoenix);
+
+        DetectorSetup detectorSetup = DetectorSetup.initializeDetectorSetup();
+        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "Ax_Fara"));
+        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.DALY, "Axial"));
+        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H1"));
+        op_Phoenix.setDetectorSetup(detectorSetup);
+
     }
 
     static {

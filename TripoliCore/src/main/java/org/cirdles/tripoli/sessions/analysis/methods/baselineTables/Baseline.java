@@ -18,8 +18,11 @@ package org.cirdles.tripoli.sessions.analysis.methods.baselineTables;
 
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -40,5 +43,39 @@ public class Baseline implements Serializable {
                 + theSUID );
     }
 
+    private String baselineName;
     private Map<Detector, BaselineCell> baselineCellsMap;
+
+    private Baseline() {
+    }
+
+    private Baseline(String baselineName) {
+        this.baselineName = baselineName;
+        baselineCellsMap = new LinkedHashMap<>();
+    }
+
+    @Contract(value = "_ -> new", pure = true)
+    public static @NotNull Baseline initializeBaseline(String baselineName){
+        return new Baseline(baselineName);
+    }
+
+    public void addBaselineCell(Detector detector, BaselineCell baselineCell){
+        baselineCellsMap.put(detector, baselineCell);
+    }
+
+    public String getBaselineName() {
+        return baselineName;
+    }
+
+    public void setBaselineName(String baselineName) {
+        this.baselineName = baselineName;
+    }
+
+    public Map<Detector, BaselineCell> getBaselineCellsMap() {
+        return baselineCellsMap;
+    }
+
+    public void setBaselineCellsMap(Map<Detector, BaselineCell> baselineCellsMap) {
+        this.baselineCellsMap = baselineCellsMap;
+    }
 }

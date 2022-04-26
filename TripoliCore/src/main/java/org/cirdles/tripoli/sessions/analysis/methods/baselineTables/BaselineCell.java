@@ -20,8 +20,21 @@ import java.io.Serializable;
 
 /**
  * @author James F. Bowring
+ *
+ * BaselineCell holds a mass only.
  */
 public class BaselineCell implements Serializable {
 
     private double cellMass;
+
+    private BaselineCell() {
+    }
+
+    private BaselineCell(double cellMass) {
+        this.cellMass = cellMass;
+    }
+
+    public static BaselineCell initializeBaselineCell(double cellMass) {
+        return new BaselineCell(cellMass);
+    }
 }

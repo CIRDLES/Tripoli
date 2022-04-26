@@ -36,7 +36,7 @@ public class AnalysisMethod implements Serializable {
     protected SequenceTable sequenceTable;
 
     private AnalysisMethod(String methodName, MassSpectrometerModel massSpectrometer) {
-        this(methodName, massSpectrometer, BaselineTable.createEmptyBaselineTable(), SequenceTable.createEmptySequenceTable());
+        this(methodName, massSpectrometer, BaselineTable.initializeBaselineTable(), SequenceTable.createEmptySequenceTable());
     }
 
     private AnalysisMethod(String methodName, MassSpectrometerModel massSpectrometer, BaselineTable baselineTable, SequenceTable sequenceTable) {

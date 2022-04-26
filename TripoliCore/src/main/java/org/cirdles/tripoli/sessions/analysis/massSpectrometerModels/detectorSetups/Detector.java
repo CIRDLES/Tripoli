@@ -25,19 +25,21 @@ public class Detector implements Serializable {
 
     private DetectorTypeEnum detectorType;
     private String detectorName;
-    private int detectorNumber;
 
     private Detector() {
-        this(DetectorTypeEnum.FARADAY);
     }
 
-    private Detector(DetectorTypeEnum detectorType) {
+    private Detector(DetectorTypeEnum detectorType, String detectorName) {
         this.detectorType = detectorType;
+        this.detectorName =detectorName;
     }
 
-    static Detector createDetector() {
-        Detector detector = new Detector();
-        return detector;
+    public static Detector initializeDetector(DetectorTypeEnum detectorType, String detectorName) {
+        return new Detector(detectorType, detectorName);
+    }
+
+    public boolean isFaraday(){
+        return detectorType.equals(DetectorTypeEnum.FARADAY);
     }
 
     public DetectorTypeEnum getDetectorType() {
@@ -46,6 +48,14 @@ public class Detector implements Serializable {
 
     public void setDetectorType(DetectorTypeEnum detectorType) {
         this.detectorType = detectorType;
+    }
+
+    public String getDetectorName() {
+        return detectorName;
+    }
+
+    public void setDetectorName(String detectorName) {
+        this.detectorName = detectorName;
     }
 
     public enum DetectorTypeEnum {
