@@ -20,7 +20,7 @@ import jama.Matrix;
 import jama.MatrixIO;
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataModel;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_OP_PhoenixTypeA;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,10 +48,12 @@ class SyntheticDataSourceProcessorOPPhoenixTypeATest {
         Path dataFile = RESOURCE_EXTRACTOR
                 .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/SyntheticDataset_05.txt").toPath();
         DataSourceProcessor_OP_PhoenixTypeA syntheticDataSourceProcessorOPPhoenixTypeA = new DataSourceProcessor_OP_PhoenixTypeA();
-        MassSpecOutputDataModel massSpecOutputDataModel = syntheticDataSourceProcessorOPPhoenixTypeA.prepareInputDataModelFromFile(dataFile);
+        MassSpecOutputDataRecord massSpecOutputDataRecord = syntheticDataSourceProcessorOPPhoenixTypeA.prepareInputDataModelFromFile(dataFile);
 
         double[] testArray = new double[]{1, 2, 3, 4, 5};
         Matrix test = new Matrix(testArray, testArray.length);
         MatrixIO.print(2, 2, test);
+
+        assert(massSpecOutputDataRecord.rawDataColumn().getRowDimension() == 3600);
     }
 }

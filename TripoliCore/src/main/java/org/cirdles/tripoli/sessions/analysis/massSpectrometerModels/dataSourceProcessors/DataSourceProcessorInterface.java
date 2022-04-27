@@ -16,11 +16,11 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataModel;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataRecord;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
 public interface DataSourceProcessorInterface {
-    MassSpecOutputDataModel prepareInputDataModelFromFile(Path inputDataFile) throws IOException;
+    MassSpecOutputDataRecord prepareInputDataModelFromFile(Path inputDataFile) throws IOException;
 }

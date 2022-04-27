@@ -16,9 +16,15 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods.sequenceTables;
 
+import org.cirdles.tripoli.elements.ElementRecord;
+import org.cirdles.tripoli.elements.ElementsFactory;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
+
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,9 +34,11 @@ public class SequenceTable implements Serializable {
     @Serial
     private static final long serialVersionUID = -3937544780355208600L;
 
-    private Map<String, Sequence> sequenceMap;
+    // DetectorName maps to map of sequencename to sequencecell
+    private Map<Detector, List<SequenceCell>> mapOfDetectorsToSequenceCells;
 
     private SequenceTable() {
+        mapOfDetectorsToSequenceCells = new LinkedHashMap<>();
     }
 
     public static SequenceTable createEmptySequenceTable() {
@@ -43,9 +51,33 @@ public class SequenceTable implements Serializable {
 
          */
         SequenceTable sequenceTable = new SequenceTable();
-        sequenceTable.sequenceMap = new LinkedHashMap<>();
 
         return sequenceTable;
     }
 
+    public SequenceCell accessSequenceCellForDetector(Detector detector, String sequenceName){
+        List<SequenceCell> targetList = mapOfDetectorsToSequenceCells.get(detector);
+        SequenceCell sequenceCell = SequenceCell.initializeSequenceCell(sequenceName);
+        if (targetList == null){
+            targetList = new ArrayList<>();
+            targetList.add(sequenceCell);
+            mapOfDetectorsToSequenceCells.put(detector, targetList);
+        }
+        if(!targetList.contains(sequenceCell)){
+            targetList.add(sequenceCell);
+        }
+        List<SequenceCell> targetCellList = targetList
+                .stream()
+                .filter(cell -> ((cell.getSequenceName().compareToIgnoreCase(sequenceName) == 0))).toList();
+
+        return targetCellList.get(0);
+    }
+
+    public Map<Detector, List<SequenceCell>> getMapOfDetectorsToSequenceCells() {
+        return mapOfDetectorsToSequenceCells;
+    }
+
+    public void setMapOfDetectorsToSequenceCells(Map<Detector, List<SequenceCell>> mapOfDetectorsToSequenceCells) {
+        this.mapOfDetectorsToSequenceCells = mapOfDetectorsToSequenceCells;
+    }
 }

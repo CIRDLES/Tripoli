@@ -18,7 +18,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputM
 
 import jama.Matrix;
 
-public record MassSpecOutputDataModel(
+public record MassSpecOutputDataRecord(
         Matrix rawDataColumn,
         Matrix isotopeIndicesForRawDataColumn,
         Matrix baseLineFlagsForRawDataColumn

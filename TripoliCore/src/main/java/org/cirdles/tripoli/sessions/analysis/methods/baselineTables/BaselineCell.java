@@ -16,6 +16,9 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods.baselineTables;
 
+import org.cirdles.tripoli.sessions.analysis.methods.sequenceTables.SequenceCell;
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
+
 import java.io.Serializable;
 
 /**
@@ -25,16 +28,50 @@ import java.io.Serializable;
  */
 public class BaselineCell implements Serializable {
 
+    private String baselineName;
     private double cellMass;
 
-    private BaselineCell() {
+    public BaselineCell(String baselineName) {
+        this.baselineName = baselineName;
+        this.cellMass = 0.0;
     }
 
-    private BaselineCell(double cellMass) {
+    public static BaselineCell initializeBaselineCell(String baselineName) {
+        return new BaselineCell(baselineName);
+    }
+
+    @Override
+    public boolean equals(Object otherObject) {
+        boolean retVal = true;
+        if (otherObject != this) {
+            if (otherObject instanceof BaselineCell otherBaselineCell) {
+                retVal = this.getBaselineName().compareToIgnoreCase(otherBaselineCell.getBaselineName()) == 0;
+            } else {
+                retVal = false;
+            }
+        }
+        return retVal;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 31 * hash + (baselineName == null ? 0 : baselineName.hashCode());
+        return hash;
+    }
+    public String getBaselineName() {
+        return baselineName;
+    }
+
+    public void setBaselineName(String baselineName) {
+        this.baselineName = baselineName;
+    }
+
+    public double getCellMass() {
+        return cellMass;
+    }
+
+    public void setCellMass(double cellMass) {
         this.cellMass = cellMass;
-    }
-
-    public static BaselineCell initializeBaselineCell(double cellMass) {
-        return new BaselineCell(cellMass);
     }
 }
