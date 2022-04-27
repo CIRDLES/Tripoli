@@ -17,10 +17,8 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
 import jama.Matrix;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataRecord;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 import org.cirdles.tripoli.sessions.analysis.methods.baselineTables.BaselineCell;
 import org.cirdles.tripoli.sessions.analysis.methods.baselineTables.BaselineTable;
@@ -33,16 +31,52 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorInterface {
 
-    private static final List<SpeciesRecordInterface> speciesList = new ArrayList<>();
-    private static final MassSpectrometerModel op_PhoenixTypeA = MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Phoenix");
+    private MassSpectrometerModel op_Phoenix;
+    private List<SpeciesRecordInterface> speciesList;
+    private BaselineTable baselineTable;
+    private SequenceTable sequenceTable;
 
-    static {
-        speciesList.add(NuclidesFactory.retrieveSpecies("Pb", 206));
-        speciesList.add(NuclidesFactory.retrieveSpecies("Pb", 208));
+    public DataSourceProcessor_OP_PhoenixTypeA(MassSpectrometerModel op_Phoenix) {
+        this.op_Phoenix = op_Phoenix;
+        this.speciesList = new ArrayList<>();
+        this.baselineTable = BaselineTable.createEmptyBaselineTable();
+        this.sequenceTable = SequenceTable.createEmptySequenceTable();
+    }
+
+    public static DataSourceProcessor_OP_PhoenixTypeA  initializeWithTwoIsotopes(MassSpectrometerModel op_Phoenix) {
+        DataSourceProcessor_OP_PhoenixTypeA twoIsotopeVersion = new DataSourceProcessor_OP_PhoenixTypeA(op_Phoenix);
+        twoIsotopeVersion.getSpeciesList().add(NuclidesFactory.retrieveSpecies("Pb", 206));
+        twoIsotopeVersion.getSpeciesList().add(NuclidesFactory.retrieveSpecies("Pb", 208));
+
+        DetectorSetup detectorSetup = op_Phoenix.getDetectorSetup();
+
+        BaselineCell baselineCell = twoIsotopeVersion.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Ax_Fara"), "Bl1");
+        baselineCell.setCellMass(203.5);
+
+        baselineCell = twoIsotopeVersion.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "Bl1");
+        baselineCell.setCellMass(205.5);
+
+        baselineCell = twoIsotopeVersion.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "Bl1");
+        baselineCell.setCellMass(207.5);
+
+        SequenceCell sequenceCell = twoIsotopeVersion.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax_Fara"), "S2");
+        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 206));
+
+        sequenceCell = twoIsotopeVersion.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S1");
+        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 206));
+        sequenceCell = twoIsotopeVersion.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S2");
+        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 208));
+
+        sequenceCell = twoIsotopeVersion.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S1");
+        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 208));
+
+        return twoIsotopeVersion;
     }
 
     @Override
@@ -62,28 +96,29 @@ public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorI
 
         int phase = 0;
         for (String line : contentsByLine) {
-            switch (phase) {
-                case 0 -> headerByLineSplit.add(line.split(","));
-                case 1 -> columnNamesSplit.add(line.split(","));
-                case 2 -> {
-                    String[] lineSplit = line.split(",");
-                    sequenceIDByLineSplit.add(lineSplit[0]);
-                    blockNumberByLineSplit.add(lineSplit[1]);
-                    cycleNumberByLineSplit.add(lineSplit[2]);
-                    integrationNumberByLineSplit.add(lineSplit[3]);
-                    timeStampByLineSplit.add(lineSplit[4]);
-                    massByLineSplit.add(lineSplit[5]);
+            if (!line.isEmpty()) {
+                switch (phase) {
+                    case 0 -> headerByLineSplit.add(line.split(","));
+                    case 1 -> columnNamesSplit.add(line.split(","));
+                    case 2 -> {
+                        String[] lineSplit = line.split(",");
+                        sequenceIDByLineSplit.add(lineSplit[0]);
+                        blockNumberByLineSplit.add(lineSplit[1]);
+                        cycleNumberByLineSplit.add(lineSplit[2]);
+                        integrationNumberByLineSplit.add(lineSplit[3]);
+                        timeStampByLineSplit.add(lineSplit[4]);
+                        massByLineSplit.add(lineSplit[5]);
 
-                    detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 6, lineSplit.length));
+                        detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 6, lineSplit.length));
+                    }
+                }
+                if (line.startsWith("#START")) {
+                    phase = 1;
+                } else if (phase == 1) {
+                    phase = 2;
                 }
             }
-            if (line.startsWith("#START")) {
-                phase = 1;
-            } else if (phase == 1) {
-                phase = 2;
-            }
         }
-
         String[] sequenceID = sequenceIDByLineSplit.toArray(new String[0]);
         double[] blockNumber = convertListOfNumbersAsStringsToDoubleArray(blockNumberByLineSplit);
         double[] cycleNumber = convertListOfNumbersAsStringsToDoubleArray(cycleNumberByLineSplit);
@@ -104,81 +139,27 @@ public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorI
             index++;
         }
 
-
-        /* TODO: provide a model of the data acquisition including a map of
-                the sequences to the detectors;  here we are temporarily hard-coding
-                BL1 to Ax_Fara, Axial, and High1;
-                S1 to Axial and High1;
-                S2 to Ax_Fara and Axial
-
-                Baseline Table
-                Amplifier Number	1	 2	 3	 4	   5	 NA	     6	7	8	9
-                Detector name	    L5	L4	L3	L2	Ax Fara	Axial	H1	H2	H3	H4
-                BL1					                 203.5	205.5  207.5
-
-                Sequence Table
-                Amplifier Num	1	2	3	4	   5	 NA	     6	7	8	9
-                Detector name	L5	L4	L3	L2	Ax Fara	Axial	H1	H2	H3	H4
-                S1						                206Pb	208Pb
-                S2					             206Pb	208Pb
-
-            so the algorithm for building the data vector basically works the faradays from left to right
-            recording meaningful entries for each sequence grouped together and ignoring the other
-            sequences per the table;  then at the end adds the axial column grouped by sequence
-            that may or may not (in this case not) start with BL1 axial ...
-
-            each sequence is made of integrations, each cycle is made of sequences,
-            each block is made of cycles, and each measurement is made of blocks.
-        */
-        DetectorSetup detectorSetup = op_PhoenixTypeA.getDetectorSetup();
-
-        BaselineTable baselineTable1 = BaselineTable.createEmptyBaselineTable();
-
-        BaselineCell baselineCell = baselineTable1.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Ax_Fara"), "Bl1");
-        baselineCell.setCellMass(203.5);
-
-        baselineCell = baselineTable1.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "Bl1");
-        baselineCell.setCellMass(205.5);
-
-        baselineCell = baselineTable1.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "Bl1");
-        baselineCell.setCellMass(207.5);
-
-
-        SequenceTable sequenceTable = SequenceTable.createEmptySequenceTable();
-
-        SequenceCell sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax_Fara"), "S2");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 206));
-
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S1");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 206));
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S2");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 208));
-
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S1");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 208));
-
-
         // start with Baseline table
-        AccumulatedData baselineFaradayAccumulator = accumulateDataPerBaselineTableSpecs(sequenceID, detectorData, baselineTable1, true);
+        AccumulatedData baselineFaradayAccumulator = accumulateBaselineDataPerSequenceTableSpecs(sequenceID, detectorData, sequenceTable, true);
         // now sequence table Faraday
         AccumulatedData sequenceFaradayAccumulator = accumulateDataPerSequenceTableSpecs(sequenceID, detectorData, sequenceTable, true);
         // now sequence table NOT Faraday (ion counter)
         AccumulatedData sequenceIonCounterAccumulator = accumulateDataPerSequenceTableSpecs(sequenceID, detectorData, sequenceTable, false);
 
         List<Double> dataAccumulatorList = new ArrayList<>();
-        dataAccumulatorList.addAll(baselineFaradayAccumulator.dataAccumulatorList);
-        dataAccumulatorList.addAll(sequenceFaradayAccumulator.dataAccumulatorList);
-        dataAccumulatorList.addAll(sequenceIonCounterAccumulator.dataAccumulatorList);
+        dataAccumulatorList.addAll(baselineFaradayAccumulator.dataAccumulatorList());
+        dataAccumulatorList.addAll(sequenceFaradayAccumulator.dataAccumulatorList());
+        dataAccumulatorList.addAll(sequenceIonCounterAccumulator.dataAccumulatorList());
 
         List<Double> isotopeIndicesForDataAccumulatorList = new ArrayList<>();
-        isotopeIndicesForDataAccumulatorList.addAll(baselineFaradayAccumulator.isotopeIndicesForDataAccumulatorList);
-        isotopeIndicesForDataAccumulatorList.addAll(sequenceFaradayAccumulator.isotopeIndicesForDataAccumulatorList);
-        isotopeIndicesForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.isotopeIndicesForDataAccumulatorList);
+        isotopeIndicesForDataAccumulatorList.addAll(baselineFaradayAccumulator.isotopeIndicesForDataAccumulatorList());
+        isotopeIndicesForDataAccumulatorList.addAll(sequenceFaradayAccumulator.isotopeIndicesForDataAccumulatorList());
+        isotopeIndicesForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.isotopeIndicesForDataAccumulatorList());
 
         List<Double> baseLineFlagsForDataAccumulatorList = new ArrayList<>();
-        baseLineFlagsForDataAccumulatorList.addAll(baselineFaradayAccumulator.baseLineFlagsForDataAccumulatorList);
-        baseLineFlagsForDataAccumulatorList.addAll(sequenceFaradayAccumulator.baseLineFlagsForDataAccumulatorList);
-        baseLineFlagsForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.baseLineFlagsForDataAccumulatorList);
+        baseLineFlagsForDataAccumulatorList.addAll(baselineFaradayAccumulator.baseLineFlagsForDataAccumulatorList());
+        baseLineFlagsForDataAccumulatorList.addAll(sequenceFaradayAccumulator.baseLineFlagsForDataAccumulatorList());
+        baseLineFlagsForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.baseLineFlagsForDataAccumulatorList());
 
         // convert to arrays to  build parameters for MassSpecOutputDataRecord record
         double[] dataAccumulatorArray = dataAccumulatorList.stream().mapToDouble(d -> d).toArray();
@@ -196,61 +177,6 @@ public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorI
                 baseLineFlagsForRawDataColumn);
     }
 
-    private AccumulatedData accumulateDataPerSequenceTableSpecs(
-            String[] sequenceID, double[][] detectorData, SequenceTable tableSpecs, boolean faraday) {
-        List<Double> dataAccumulatorList = new ArrayList<>();
-        List<Double> isotopeIndicesForDataAccumulatorList = new ArrayList<>();
-        List<Double> baseLineFlagsForDataAccumulatorList = new ArrayList<>();
-
-        // this map is in ascending detector order
-        Map<Detector, List<SequenceCell>> detectorToSequenceCellMap = tableSpecs.getMapOfDetectorsToSequenceCells();
-        for (Detector detector : detectorToSequenceCellMap.keySet()) {
-            if (detector.isFaraday() == faraday) {
-                // need to retrieve cells of detector sorted by isotope mass ascending
-                List<SequenceCell> detectorCellsByMass = detectorToSequenceCellMap.get(detector)
-                        .stream()
-                        .sorted(Comparator.comparingDouble(SequenceCell::getCellMass)).toList();
-                for (SequenceCell sequenceCell : detectorCellsByMass) {
-                    int detectorDataColumnIndex = detector.getOrdinalIndex();
-                    String sequenceName = sequenceCell.getSequenceName();
-                    for (int detectorDataRowIndex = 0; detectorDataRowIndex < sequenceID.length; detectorDataRowIndex++) {
-                        if (sequenceID[detectorDataRowIndex].toUpperCase(Locale.ROOT).compareTo(sequenceName.toUpperCase(Locale.ROOT)) == 0) {
-                            dataAccumulatorList.add(detectorData[detectorDataRowIndex][detectorDataColumnIndex]);
-                            isotopeIndicesForDataAccumulatorList.add((double) speciesList.indexOf(sequenceCell.getTargetSpecies()) + 1.0);
-                            baseLineFlagsForDataAccumulatorList.add(0.0);
-                        }
-                    }
-                }
-            }
-        }
-        return new AccumulatedData(dataAccumulatorList, isotopeIndicesForDataAccumulatorList, baseLineFlagsForDataAccumulatorList);
-    }
-
-    private AccumulatedData accumulateDataPerBaselineTableSpecs(
-            String[] sequenceID, double[][] detectorData, BaselineTable tableSpecs, boolean faraday) {
-        List<Double> dataAccumulatorList = new ArrayList<>();
-        List<Double> isotopeIndicesForDataAccumulatorList = new ArrayList<>();
-        List<Double> baseLineFlagsForDataAccumulatorList = new ArrayList<>();
-
-        // this map is in ascending detector order
-        Map<Detector, List<BaselineCell>> detectorToBaselineCellMap = tableSpecs.getMapOfDetectorsToBaselineCells();
-        for (Detector detector : detectorToBaselineCellMap.keySet()) {
-            if (detector.isFaraday() == faraday) {
-                BaselineCell baselineCell = detectorToBaselineCellMap.get(detector).get(0);
-                int detectorDataColumnIndex = detector.getOrdinalIndex();
-                String baselineName = baselineCell.getBaselineName();
-                for (int detectorDataRowIndex = 0; detectorDataRowIndex < sequenceID.length; detectorDataRowIndex++) {
-                    if (sequenceID[detectorDataRowIndex].toUpperCase(Locale.ROOT).compareTo(baselineName.toUpperCase(Locale.ROOT)) == 0) {
-                        dataAccumulatorList.add(detectorData[detectorDataRowIndex][detectorDataColumnIndex]);
-                        isotopeIndicesForDataAccumulatorList.add(0.0);
-                        baseLineFlagsForDataAccumulatorList.add(1.0);
-                    }
-                }
-            }
-        }
-
-        return new AccumulatedData(dataAccumulatorList, isotopeIndicesForDataAccumulatorList, baseLineFlagsForDataAccumulatorList);
-    }
 
     private double[] convertListOfNumbersAsStringsToDoubleArray(List<String> listToConvert) {
         double[] retVal = new double[listToConvert.size()];
@@ -263,10 +189,16 @@ public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorI
         return retVal;
     }
 
-    private record AccumulatedData(
-            List<Double> dataAccumulatorList,
-            List<Double> isotopeIndicesForDataAccumulatorList,
-            List<Double> baseLineFlagsForDataAccumulatorList
-    ) {
+    @Override
+    public List<SpeciesRecordInterface> getSpeciesList() {
+        return speciesList;
+    }
+
+    public BaselineTable getBaselineTable() {
+        return baselineTable;
+    }
+
+    public SequenceTable getSequenceTable() {
+        return sequenceTable;
     }
 }
