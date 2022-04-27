@@ -1,7 +1,7 @@
 package org.cirdles.tripoli.sessions;
 
 import org.cirdles.tripoli.sessions.analysis.Analysis;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.junit.jupiter.api.AfterEach;
@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.methodsBuiltinMap;
+import static org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SessionTest {
@@ -32,8 +32,8 @@ class SessionTest {
     @Test
     void initializeDefaultSession() throws TripoliException {
         Session testSession = Session.initializeDefaultSession();
-        testSession.getMapOfAnalyses().put("testAnalysis", Analysis.initializeAnalysis("testAnalysis", methodsBuiltinMap.get("BurdickBlSyntheticData")));
-        testSession.getMapOfAnalyses().put("testAnalysis2", Analysis.initializeAnalysis("testAnalysis", methodsBuiltinMap.get("BurdickBlSyntheticData")));
+        testSession.getMapOfAnalyses().put("testAnalysis", Analysis.initializeAnalysis("testAnalysis", analysisMethodsBuiltinMap.get("BurdickBlSyntheticData")));
+        testSession.getMapOfAnalyses().put("testAnalysis2", Analysis.initializeAnalysis("testAnalysis", analysisMethodsBuiltinMap.get("BurdickBlSyntheticData")));
 
 //        testSession.getMapOfAnalyses().get("testAnalysis").
 

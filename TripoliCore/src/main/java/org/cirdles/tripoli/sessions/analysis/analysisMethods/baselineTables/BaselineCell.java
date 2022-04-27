@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.methods.baselineTables;
-
-import org.cirdles.tripoli.sessions.analysis.methods.sequenceTables.SequenceCell;
-import org.cirdles.tripoli.species.SpeciesRecordInterface;
+package org.cirdles.tripoli.sessions.analysis.analysisMethods.baselineTables;
 
 import java.io.Serializable;
 
 /**
  * @author James F. Bowring
- *
+ * <p>
  * BaselineCell holds a mass only.
  */
 public class BaselineCell implements Serializable {
@@ -59,6 +56,7 @@ public class BaselineCell implements Serializable {
         hash = 31 * hash + (baselineName == null ? 0 : baselineName.hashCode());
         return hash;
     }
+
     public String getBaselineName() {
         return baselineName;
     }

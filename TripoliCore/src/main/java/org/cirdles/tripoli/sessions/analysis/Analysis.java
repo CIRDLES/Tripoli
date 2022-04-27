@@ -16,7 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis;
 
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethod;
 
 import java.io.Serial;
 import java.io.Serializable;

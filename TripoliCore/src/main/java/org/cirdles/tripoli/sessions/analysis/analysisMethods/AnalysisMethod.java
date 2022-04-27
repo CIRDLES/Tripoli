@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.methods;
+package org.cirdles.tripoli.sessions.analysis.analysisMethods;
 
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
-import org.cirdles.tripoli.sessions.analysis.methods.baselineTables.BaselineTable;
-import org.cirdles.tripoli.sessions.analysis.methods.sequenceTables.SequenceTable;
+import org.cirdles.tripoli.sessions.analysis.analysisMethods.baselineTables.BaselineTable;
+import org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables.SequenceTable;
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author James F. Bowring
@@ -34,6 +37,7 @@ public class AnalysisMethod implements Serializable {
     protected MassSpectrometerModel massSpectrometer;
     protected BaselineTable baselineTable;
     protected SequenceTable sequenceTable;
+    private List<SpeciesRecordInterface> speciesList;
 
     private AnalysisMethod(String methodName, MassSpectrometerModel massSpectrometer) {
         this(methodName, massSpectrometer, BaselineTable.createEmptyBaselineTable(), SequenceTable.createEmptySequenceTable());
@@ -42,11 +46,12 @@ public class AnalysisMethod implements Serializable {
     private AnalysisMethod(String methodName, MassSpectrometerModel massSpectrometer, BaselineTable baselineTable, SequenceTable sequenceTable) {
         this.methodName = methodName;
         this.massSpectrometer = massSpectrometer;
+        this.speciesList = new ArrayList<>();
         this.baselineTable = baselineTable;
         this.sequenceTable = sequenceTable;
     }
 
-    public static AnalysisMethod initializeMethod(String methodName, MassSpectrometerModel massSpectrometer) {
+    public static AnalysisMethod initializeAnalysisMethod(String methodName, MassSpectrometerModel massSpectrometer) {
         return new AnalysisMethod(methodName, massSpectrometer);
     }
 
@@ -85,6 +90,14 @@ public class AnalysisMethod implements Serializable {
 
     public void setMassSpectrometer(MassSpectrometerModel massSpectrometer) {
         this.massSpectrometer = massSpectrometer;
+    }
+
+    public List<SpeciesRecordInterface> getSpeciesList() {
+        return speciesList;
+    }
+
+    public void setSpeciesList(List<SpeciesRecordInterface> speciesList) {
+        this.speciesList = speciesList;
     }
 
     public BaselineTable getBaselineTable() {

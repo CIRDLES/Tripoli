@@ -17,15 +17,8 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
 import jama.Matrix;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataRecord;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
-import org.cirdles.tripoli.sessions.analysis.methods.baselineTables.BaselineCell;
-import org.cirdles.tripoli.sessions.analysis.methods.baselineTables.BaselineTable;
-import org.cirdles.tripoli.sessions.analysis.methods.sequenceTables.SequenceCell;
-import org.cirdles.tripoli.sessions.analysis.methods.sequenceTables.SequenceTable;
-import org.cirdles.tripoli.species.SpeciesRecordInterface;
-import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
+import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethod;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -35,48 +28,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorInterface {
+public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterface {
+    private final AnalysisMethod analysisMethod;
 
-    private MassSpectrometerModel op_Phoenix;
-    private List<SpeciesRecordInterface> speciesList;
-    private BaselineTable baselineTable;
-    private SequenceTable sequenceTable;
-
-    public DataSourceProcessor_OP_PhoenixTypeA(MassSpectrometerModel op_Phoenix) {
-        this.op_Phoenix = op_Phoenix;
-        this.speciesList = new ArrayList<>();
-        this.baselineTable = BaselineTable.createEmptyBaselineTable();
-        this.sequenceTable = SequenceTable.createEmptySequenceTable();
+    private DataSourceProcessor_OPPhoenix(AnalysisMethod analysisMethod) {
+        this.analysisMethod = analysisMethod;
     }
 
-    public static DataSourceProcessor_OP_PhoenixTypeA  initializeWithTwoIsotopes(MassSpectrometerModel op_Phoenix) {
-        DataSourceProcessor_OP_PhoenixTypeA twoIsotopeVersion = new DataSourceProcessor_OP_PhoenixTypeA(op_Phoenix);
-        twoIsotopeVersion.getSpeciesList().add(NuclidesFactory.retrieveSpecies("Pb", 206));
-        twoIsotopeVersion.getSpeciesList().add(NuclidesFactory.retrieveSpecies("Pb", 208));
-
-        DetectorSetup detectorSetup = op_Phoenix.getDetectorSetup();
-
-        BaselineCell baselineCell = twoIsotopeVersion.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Ax_Fara"), "Bl1");
-        baselineCell.setCellMass(203.5);
-
-        baselineCell = twoIsotopeVersion.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "Bl1");
-        baselineCell.setCellMass(205.5);
-
-        baselineCell = twoIsotopeVersion.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "Bl1");
-        baselineCell.setCellMass(207.5);
-
-        SequenceCell sequenceCell = twoIsotopeVersion.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax_Fara"), "S2");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 206));
-
-        sequenceCell = twoIsotopeVersion.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S1");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 206));
-        sequenceCell = twoIsotopeVersion.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S2");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 208));
-
-        sequenceCell = twoIsotopeVersion.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S1");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 208));
-
-        return twoIsotopeVersion;
+    public static DataSourceProcessor_OPPhoenix initializeWithAnalysisMethod(AnalysisMethod analysisMethod) {
+        return new DataSourceProcessor_OPPhoenix(analysisMethod);
     }
 
     @Override
@@ -140,11 +100,11 @@ public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorI
         }
 
         // start with Baseline table
-        AccumulatedData baselineFaradayAccumulator = accumulateBaselineDataPerSequenceTableSpecs(sequenceID, detectorData, sequenceTable, true);
+        AccumulatedData baselineFaradayAccumulator = accumulateBaselineDataPerSequenceTableSpecs(sequenceID, detectorData, analysisMethod.getSequenceTable(), true);
         // now sequence table Faraday
-        AccumulatedData sequenceFaradayAccumulator = accumulateDataPerSequenceTableSpecs(sequenceID, detectorData, sequenceTable, true);
+        AccumulatedData sequenceFaradayAccumulator = accumulateDataPerSequenceTableSpecs(sequenceID, detectorData, analysisMethod.getSequenceTable(), analysisMethod.getSpeciesList(), true);
         // now sequence table NOT Faraday (ion counter)
-        AccumulatedData sequenceIonCounterAccumulator = accumulateDataPerSequenceTableSpecs(sequenceID, detectorData, sequenceTable, false);
+        AccumulatedData sequenceIonCounterAccumulator = accumulateDataPerSequenceTableSpecs(sequenceID, detectorData, analysisMethod.getSequenceTable(), analysisMethod.getSpeciesList(), false);
 
         List<Double> dataAccumulatorList = new ArrayList<>();
         dataAccumulatorList.addAll(baselineFaradayAccumulator.dataAccumulatorList());
@@ -187,18 +147,5 @@ public class DataSourceProcessor_OP_PhoenixTypeA implements DataSourceProcessorI
         }
 
         return retVal;
-    }
-
-    @Override
-    public List<SpeciesRecordInterface> getSpeciesList() {
-        return speciesList;
-    }
-
-    public BaselineTable getBaselineTable() {
-        return baselineTable;
-    }
-
-    public SequenceTable getSequenceTable() {
-        return sequenceTable;
     }
 }

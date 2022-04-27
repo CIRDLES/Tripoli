@@ -27,6 +27,7 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.species.nuclides;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels;
+    exports org.cirdles.tripoli.sessions.analysis.analysisMethods;
     exports org.cirdles.tripoli.species;
     exports org.cirdles.tripoli.elements;
 }

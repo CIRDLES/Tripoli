@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.methods.sequenceTables;
+package org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables;
 
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.io.Serializable;
@@ -40,14 +39,14 @@ public class SequenceCell implements Serializable {
         this.sequenceName = sequenceName;
     }
 
-    public static SequenceCell initializeSequenceCell(String sequenceName){
+    public static SequenceCell initializeSequenceCell(String sequenceName) {
         return new SequenceCell(sequenceName);
     }
 
-    public void addTargetSpecies(SpeciesRecordInterface species){
+    public void addTargetSpecies(SpeciesRecordInterface species) {
         targetSpecies = species;
         cellMass = species.getAtomicMass();
-        if (!includedSpecies.contains(species)){
+        if (!includedSpecies.contains(species)) {
             includedSpecies.add(species);
         }
     }

@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.methods.baselineTables;
+package org.cirdles.tripoli.sessions.analysis.analysisMethods.baselineTables;
 
-import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamClass;
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -29,23 +31,8 @@ import java.util.Map;
  * @author James F. Bowring
  */
 public class Baseline implements Serializable {
-//    @Serial
-//    private static final long serialVersionUID = 6597752272434171800L;
-        private void readObject ( ObjectInputStream stream ) throws IOException,
-            ClassNotFoundException {
-        stream.defaultReadObject();
-
-        ObjectStreamClass myObject = ObjectStreamClass.lookup(
-                Class.forName( Baseline.class.getCanonicalName()) );
-        long theSUID = myObject.getSerialVersionUID();
-
-        System.err.println( "Customized De-serialization of Baseline "
-                + theSUID );
-    }
-
     private String baselineName;
     private Map<Detector, BaselineCell> baselineCellsMap;
-
     private Baseline() {
     }
 
@@ -55,11 +42,25 @@ public class Baseline implements Serializable {
     }
 
     @Contract(value = "_ -> new", pure = true)
-    public static @NotNull Baseline initializeBaseline(String baselineName){
+    public static @NotNull Baseline initializeBaseline(String baselineName) {
         return new Baseline(baselineName);
     }
 
-    public void addBaselineCell(Detector detector, BaselineCell baselineCell){
+    //    @Serial
+//    private static final long serialVersionUID = 6597752272434171800L;
+    private void readObject(ObjectInputStream stream) throws IOException,
+            ClassNotFoundException {
+        stream.defaultReadObject();
+
+        ObjectStreamClass myObject = ObjectStreamClass.lookup(
+                Class.forName(Baseline.class.getCanonicalName()));
+        long theSUID = myObject.getSerialVersionUID();
+
+        System.err.println("Customized De-serialization of Baseline "
+                + theSUID);
+    }
+
+    public void addBaselineCell(Detector detector, BaselineCell baselineCell) {
         baselineCellsMap.put(detector, baselineCell);
     }
 

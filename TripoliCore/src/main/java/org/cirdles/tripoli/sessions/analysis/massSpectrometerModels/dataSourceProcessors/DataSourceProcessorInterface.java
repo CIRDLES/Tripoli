@@ -18,8 +18,8 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
-import org.cirdles.tripoli.sessions.analysis.methods.sequenceTables.SequenceCell;
-import org.cirdles.tripoli.sessions.analysis.methods.sequenceTables.SequenceTable;
+import org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables.SequenceCell;
+import org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables.SequenceTable;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.io.IOException;
@@ -57,7 +57,7 @@ public interface DataSourceProcessorInterface {
     }
 
     default AccumulatedData accumulateDataPerSequenceTableSpecs(
-            String[] sequenceID, double[][] detectorData, SequenceTable tableSpecs, boolean faraday) {
+            String[] sequenceID, double[][] detectorData, SequenceTable tableSpecs, List<SpeciesRecordInterface> speciesList, boolean faraday) {
         List<Double> dataAccumulatorList = new ArrayList<>();
         List<Double> isotopeIndicesForDataAccumulatorList = new ArrayList<>();
         List<Double> baseLineFlagsForDataAccumulatorList = new ArrayList<>();
@@ -65,7 +65,7 @@ public interface DataSourceProcessorInterface {
         // this map is in ascending detector order
         Map<Detector, List<SequenceCell>> detectorToSequenceCellMap = tableSpecs.getMapOfDetectorsToSequenceCells();
         // speciesList is in ascending order
-        for (SpeciesRecordInterface species : getSpeciesList()) {
+        for (SpeciesRecordInterface species : speciesList) {
             for (Detector detector : detectorToSequenceCellMap.keySet()) {
                 if (detector.isFaraday() == faraday) {
                     // need to retrieve cells of detector sorted by isotope mass ascending
@@ -78,7 +78,7 @@ public interface DataSourceProcessorInterface {
                         for (int detectorDataRowIndex = 0; detectorDataRowIndex < sequenceID.length; detectorDataRowIndex++) {
                             if (sequenceID[detectorDataRowIndex].toUpperCase(Locale.ROOT).compareTo(sequenceName.toUpperCase(Locale.ROOT)) == 0) {
                                 dataAccumulatorList.add(detectorData[detectorDataRowIndex][detectorDataColumnIndex]);
-                                isotopeIndicesForDataAccumulatorList.add((double) getSpeciesList().indexOf(species) + 1.0);
+                                isotopeIndicesForDataAccumulatorList.add((double) speciesList.indexOf(species) + 1.0);
                                 baseLineFlagsForDataAccumulatorList.add(0.0);
                             }
                         }
@@ -88,8 +88,6 @@ public interface DataSourceProcessorInterface {
         }
         return new AccumulatedData(dataAccumulatorList, isotopeIndicesForDataAccumulatorList, baseLineFlagsForDataAccumulatorList);
     }
-
-    List<SpeciesRecordInterface>  getSpeciesList();
 
     record AccumulatedData(
             List<Double> dataAccumulatorList,

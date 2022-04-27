@@ -43,7 +43,7 @@ public class DetectorSetup implements Serializable {
         return detectorSetup;
     }
 
-    public Detector addDetector(Detector detector){
+    public Detector addDetector(Detector detector) {
         mapOfDetectors.put(detector.getDetectorName(), detector);
         return detector;
     }

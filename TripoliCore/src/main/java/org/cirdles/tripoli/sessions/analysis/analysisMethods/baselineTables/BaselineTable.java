@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.methods.baselineTables;
+package org.cirdles.tripoli.sessions.analysis.analysisMethods.baselineTables;
 
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
-import org.cirdles.tripoli.sessions.analysis.methods.sequenceTables.SequenceCell;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -55,15 +54,15 @@ public class BaselineTable implements Serializable {
         return baselineTable;
     }
 
-    public BaselineCell accessBaselineCellForDetector(Detector detector, String baselineName){
+    public BaselineCell accessBaselineCellForDetector(Detector detector, String baselineName) {
         List<BaselineCell> targetList = mapOfDetectorsToBaselineCells.get(detector);
-        BaselineCell baselineCell  = BaselineCell.initializeBaselineCell(baselineName);
-        if (targetList == null){
+        BaselineCell baselineCell = BaselineCell.initializeBaselineCell(baselineName);
+        if (targetList == null) {
             targetList = new ArrayList<>();
             targetList.add(baselineCell);
             mapOfDetectorsToBaselineCells.put(detector, targetList);
         }
-        if(!targetList.contains(baselineCell)){
+        if (!targetList.contains(baselineCell)) {
             targetList.add(baselineCell);
         }
         List<BaselineCell> targetCellList = targetList

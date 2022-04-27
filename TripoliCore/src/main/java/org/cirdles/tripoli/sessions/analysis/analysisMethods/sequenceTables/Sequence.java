@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.methods.sequenceTables;
+package org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables;
 
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 

@@ -33,7 +33,7 @@ public class Detector implements Serializable {
 
     private Detector(DetectorTypeEnum detectorType, String detectorName, int ordinalIndex) {
         this.detectorType = detectorType;
-        this.detectorName =detectorName;
+        this.detectorName = detectorName;
         this.ordinalIndex = ordinalIndex;
     }
 
@@ -41,7 +41,7 @@ public class Detector implements Serializable {
         return new Detector(detectorType, detectorName, ordinalIndex);
     }
 
-    public boolean isFaraday(){
+    public boolean isFaraday() {
         return detectorType.equals(DetectorTypeEnum.FARADAY);
     }
 
