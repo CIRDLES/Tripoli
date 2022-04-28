@@ -79,9 +79,9 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
                 }
             }
         }
-        String[] sequenceID = sequenceIDByLineSplit.toArray(new String[0]);
-        double[] blockNumber = convertListOfNumbersAsStringsToDoubleArray(blockNumberByLineSplit);
-        double[] cycleNumber = convertListOfNumbersAsStringsToDoubleArray(cycleNumberByLineSplit);
+        String[] sequenceIDs = sequenceIDByLineSplit.toArray(new String[0]);
+        int[] blockNumbers = convertListOfNumbersAsStringsToIntegerArray(blockNumberByLineSplit);
+        int[] cycleNumbers = convertListOfNumbersAsStringsToIntegerArray(cycleNumberByLineSplit);
         double[] integrationNumber = convertListOfNumbersAsStringsToDoubleArray(integrationNumberByLineSplit);
         double[] timeStamp = convertListOfNumbersAsStringsToDoubleArray(timeStampByLineSplit);
         double[] mass = convertListOfNumbersAsStringsToDoubleArray(massByLineSplit);
@@ -100,11 +100,11 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         }
 
         // start with Baseline table
-        AccumulatedData baselineFaradayAccumulator = accumulateBaselineDataPerSequenceTableSpecs(sequenceID, detectorData, analysisMethod.getSequenceTable(), true);
+        AccumulatedData baselineFaradayAccumulator = accumulateBaselineDataPerSequenceTableSpecs(sequenceIDs, detectorData, analysisMethod.getSequenceTable(), true);
         // now sequence table Faraday
-        AccumulatedData sequenceFaradayAccumulator = accumulateDataPerSequenceTableSpecs(sequenceID, detectorData, analysisMethod.getSequenceTable(), analysisMethod.getSpeciesList(), true);
+        AccumulatedData sequenceFaradayAccumulator = accumulateDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, detectorData, analysisMethod.getSequenceTable(), analysisMethod.getSpeciesList(), true);
         // now sequence table NOT Faraday (ion counter)
-        AccumulatedData sequenceIonCounterAccumulator = accumulateDataPerSequenceTableSpecs(sequenceID, detectorData, analysisMethod.getSequenceTable(), analysisMethod.getSpeciesList(), false);
+        AccumulatedData sequenceIonCounterAccumulator = accumulateDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, detectorData, analysisMethod.getSequenceTable(), analysisMethod.getSpeciesList(), false);
 
         List<Double> dataAccumulatorList = new ArrayList<>();
         dataAccumulatorList.addAll(baselineFaradayAccumulator.dataAccumulatorList());
@@ -143,6 +143,17 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         int index = 0;
         for (String blockNumberAsString : listToConvert) {
             retVal[index] = Double.parseDouble(blockNumberAsString);
+            index++;
+        }
+
+        return retVal;
+    }
+
+    private int[] convertListOfNumbersAsStringsToIntegerArray(List<String> listToConvert) {
+        int[] retVal = new int[listToConvert.size()];
+        int index = 0;
+        for (String blockNumberAsString : listToConvert) {
+            retVal[index] = Integer.parseInt(blockNumberAsString);
             index++;
         }
 

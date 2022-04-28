@@ -28,8 +28,10 @@ import org.junit.jupiter.api.*;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class DataSourceProcessorOPPhoenixTypeATest {
+class DataSourceProcessorOPPhoenixTest {
 
     private static final ResourceExtractor RESOURCE_EXTRACTOR
             = new ResourceExtractor(Tripoli.class);
@@ -45,6 +47,7 @@ class DataSourceProcessorOPPhoenixTypeATest {
     @Test
     @Order(1)
     void prepareInputDataModelFromFileTwoIsotopes() throws IOException {
+        System.err.println("Testing Synthetic Data 2 isotopes.");
         Path dataFile = RESOURCE_EXTRACTOR
                 .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/SyntheticDataset_05.txt").toPath();
         DataSourceProcessor_OPPhoenix dataSourceProcessorOPPhoenix
@@ -61,16 +64,14 @@ class DataSourceProcessorOPPhoenixTypeATest {
     @Test
     @Order(2)
     void prepareInputDataModelFromFileFiveIsotopes() throws IOException {
+        System.err.println("Testing Synthetic Data 5 isotopes.");
         Path dataFile = RESOURCE_EXTRACTOR
                 .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/SyntheticDataset_01R.txt").toPath();
         DataSourceProcessor_OPPhoenix dataSourceProcessorOPPhoenix
                 = DataSourceProcessor_OPPhoenix.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("KU_204_5_6_7_8_Daly_AllFaradayPb"));
         MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFile);
 
-        double[] testArray = new double[]{6, 7, 8, 9, 10};
-        Matrix test = new Matrix(testArray, testArray.length);
-        MatrixIO.print(2, 2, test);
-
         assert (massSpecOutputDataRecord.rawDataColumn().getRowDimension() == 162000);
+        assertEquals(-531920.15291, massSpecOutputDataRecord.rawDataColumn().get(26669, 0));
     }
 }

@@ -19,6 +19,7 @@ module Tripoli.TripoliCore {
     requires org.apache.poi.poi;
     requires org.jetbrains.annotations;
     requires jama;
+    requires com.google.common;
 
     exports org.cirdles.tripoli;
     exports org.cirdles.tripoli.valueModels;

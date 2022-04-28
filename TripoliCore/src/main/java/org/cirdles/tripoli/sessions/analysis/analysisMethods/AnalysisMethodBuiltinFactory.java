@@ -16,12 +16,12 @@
 
 package org.cirdles.tripoli.sessions.analysis.analysisMethods;
 
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.baselineTables.BaselineCell;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.baselineTables.BaselineTable;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables.SequenceCell;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables.SequenceTable;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
 
@@ -36,14 +36,20 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
 
     public static final Map<String, AnalysisMethod> analysisMethodsBuiltinMap = new LinkedHashMap<>();
 
+    public static final SpeciesRecordInterface pb204 = NuclidesFactory.retrieveSpecies("Pb", 204);
+    public static final SpeciesRecordInterface pb205 = NuclidesFactory.retrieveSpecies("Pb", 205);
+    public static final SpeciesRecordInterface pb206 = NuclidesFactory.retrieveSpecies("Pb", 206);
+    public static final SpeciesRecordInterface pb207 = NuclidesFactory.retrieveSpecies("Pb", 207);
+    public static final SpeciesRecordInterface pb208 = NuclidesFactory.retrieveSpecies("Pb", 208);
+
     static {
         AnalysisMethod burdickBlSyntheticData = AnalysisMethod.initializeAnalysisMethod(
                 "BurdickBlSyntheticData",
                 MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Phoenix"));
         analysisMethodsBuiltinMap.put(burdickBlSyntheticData.getMethodName(), burdickBlSyntheticData);
 
-        burdickBlSyntheticData.getSpeciesList().add(NuclidesFactory.retrieveSpecies("Pb", 206));
-        burdickBlSyntheticData.getSpeciesList().add(NuclidesFactory.retrieveSpecies("Pb", 208));
+        burdickBlSyntheticData.getSpeciesList().add(pb206);
+        burdickBlSyntheticData.getSpeciesList().add(pb208);
 
         DetectorSetup detectorSetup = burdickBlSyntheticData.getMassSpectrometer().getDetectorSetup();
 
@@ -57,15 +63,15 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         baselineCell.setCellMass(207.5);
 
         SequenceCell sequenceCell = burdickBlSyntheticData.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax_Fara"), "S2");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 206));
+        sequenceCell.addTargetSpecies(pb206);
 
         sequenceCell = burdickBlSyntheticData.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S1");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 206));
+        sequenceCell.addTargetSpecies(pb206);
         sequenceCell = burdickBlSyntheticData.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S2");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 208));
+        sequenceCell.addTargetSpecies(pb208);
 
         sequenceCell = burdickBlSyntheticData.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S1");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 208));
+        sequenceCell.addTargetSpecies(pb208);
     }
 
     static {
@@ -74,15 +80,11 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
                 MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Phoenix"));
         analysisMethodsBuiltinMap.put(ku_204_5_6_7_8_Daly_AllFaradayPb.getMethodName(), ku_204_5_6_7_8_Daly_AllFaradayPb);
 
-        SpeciesRecordInterface pb204 = NuclidesFactory.retrieveSpecies("Pb", 204);
-        SpeciesRecordInterface pb205 = NuclidesFactory.retrieveSpecies("Pb", 205);
-        SpeciesRecordInterface pb206 = NuclidesFactory.retrieveSpecies("Pb", 206);
-
         ku_204_5_6_7_8_Daly_AllFaradayPb.getSpeciesList().add(pb204);
         ku_204_5_6_7_8_Daly_AllFaradayPb.getSpeciesList().add(pb205);
         ku_204_5_6_7_8_Daly_AllFaradayPb.getSpeciesList().add(pb206);
-        ku_204_5_6_7_8_Daly_AllFaradayPb.getSpeciesList().add(NuclidesFactory.retrieveSpecies("Pb", 207));
-        ku_204_5_6_7_8_Daly_AllFaradayPb.getSpeciesList().add(NuclidesFactory.retrieveSpecies("Pb", 208));
+        ku_204_5_6_7_8_Daly_AllFaradayPb.getSpeciesList().add(pb207);
+        ku_204_5_6_7_8_Daly_AllFaradayPb.getSpeciesList().add(pb208);
 
         DetectorSetup detectorSetup = ku_204_5_6_7_8_Daly_AllFaradayPb.getMassSpectrometer().getDetectorSetup();
         BaselineTable baselineTable = ku_204_5_6_7_8_Daly_AllFaradayPb.getBaselineTable();
@@ -126,7 +128,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax_Fara"), "S4");
         sequenceCell.addTargetSpecies(pb206);
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax_Fara"), "S5");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 207));
+        sequenceCell.addTargetSpecies(pb207);
 
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S1");
         sequenceCell.addTargetSpecies(pb204);
@@ -135,33 +137,33 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S3");
         sequenceCell.addTargetSpecies(pb206);
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S4");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 207));
+        sequenceCell.addTargetSpecies(pb207);
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S5");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 208));
+        sequenceCell.addTargetSpecies(pb208);
 
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S1");
         sequenceCell.addTargetSpecies(pb205);
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S2");
         sequenceCell.addTargetSpecies(pb206);
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S3");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 207));
+        sequenceCell.addTargetSpecies(pb207);
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S4");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 208));
+        sequenceCell.addTargetSpecies(pb208);
 
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H2"), "S1");
         sequenceCell.addTargetSpecies(pb206);
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H2"), "S2");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 207));
+        sequenceCell.addTargetSpecies(pb207);
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H2"), "S3");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 208));
+        sequenceCell.addTargetSpecies(pb208);
 
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H3"), "S1");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 207));
+        sequenceCell.addTargetSpecies(pb207);
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H3"), "S2");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 208));
+        sequenceCell.addTargetSpecies(pb208);
 
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H4"), "S1");
-        sequenceCell.addTargetSpecies(NuclidesFactory.retrieveSpecies("Pb", 208));
+        sequenceCell.addTargetSpecies(pb208);
     }
 
     static {
