@@ -16,9 +16,12 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.common.primitives.Ints;
 import jama.Matrix;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethod;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataRecord;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -99,24 +102,53 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
             index++;
         }
 
+        // extract unique block numbers
+        List<Integer> blockList = Ints.asList(blockNumbers);
+        List<Integer> blockListWithoutDuplicates
+                = Lists.newArrayList(Sets.newLinkedHashSet(blockList));
+        // following matlab code
+        int nBlocks = Math.max(1, blockListWithoutDuplicates.size() - 1);
+        // extract cycles per block
+        int[] nCycle = new int[nBlocks];
+        if (nBlocks == 1) {
+            nCycle[0] = cycleNumbers[cycleNumbers.length - 1] + 1;
+        } else {
+            int startIndex = 0;
+            for (Integer blockNumber : blockListWithoutDuplicates) {
+                for (int i = startIndex; i < blockNumbers.length; i++) {
+                    if (blockNumbers[i] > blockNumber) {
+                        nCycle[blockNumber - 1] = cycleNumbers[i - 1] + 1;
+                        startIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // build InterpMat for each block
+        for (int blockIndex = 0; blockIndex < nBlocks; blockIndex++ ){
+            double[][] interpMatArrayForBlock = new double[0][];
+        }
+
+
         // start with Baseline table
         AccumulatedData baselineFaradayAccumulator = accumulateBaselineDataPerSequenceTableSpecs(sequenceIDs, detectorData, analysisMethod.getSequenceTable(), true);
         // now sequence table Faraday
-        AccumulatedData sequenceFaradayAccumulator = accumulateDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, detectorData, analysisMethod.getSequenceTable(), analysisMethod.getSpeciesList(), true);
+        AccumulatedData sequenceFaradayAccumulator = accumulateDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, blockListWithoutDuplicates, detectorData, analysisMethod.getSequenceTable(), analysisMethod.getSpeciesList(), true);
         // now sequence table NOT Faraday (ion counter)
-        AccumulatedData sequenceIonCounterAccumulator = accumulateDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, detectorData, analysisMethod.getSequenceTable(), analysisMethod.getSpeciesList(), false);
+        AccumulatedData sequenceIonCounterAccumulator = accumulateDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, blockListWithoutDuplicates, detectorData, analysisMethod.getSequenceTable(), analysisMethod.getSpeciesList(), false);
 
         List<Double> dataAccumulatorList = new ArrayList<>();
         dataAccumulatorList.addAll(baselineFaradayAccumulator.dataAccumulatorList());
         dataAccumulatorList.addAll(sequenceFaradayAccumulator.dataAccumulatorList());
         dataAccumulatorList.addAll(sequenceIonCounterAccumulator.dataAccumulatorList());
 
-        List<Double> isotopeIndicesForDataAccumulatorList = new ArrayList<>();
+        List<Integer> isotopeIndicesForDataAccumulatorList = new ArrayList<>();
         isotopeIndicesForDataAccumulatorList.addAll(baselineFaradayAccumulator.isotopeIndicesForDataAccumulatorList());
         isotopeIndicesForDataAccumulatorList.addAll(sequenceFaradayAccumulator.isotopeIndicesForDataAccumulatorList());
         isotopeIndicesForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.isotopeIndicesForDataAccumulatorList());
 
-        List<Double> baseLineFlagsForDataAccumulatorList = new ArrayList<>();
+        List<Integer> baseLineFlagsForDataAccumulatorList = new ArrayList<>();
         baseLineFlagsForDataAccumulatorList.addAll(baselineFaradayAccumulator.baseLineFlagsForDataAccumulatorList());
         baseLineFlagsForDataAccumulatorList.addAll(sequenceFaradayAccumulator.baseLineFlagsForDataAccumulatorList());
         baseLineFlagsForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.baseLineFlagsForDataAccumulatorList());
@@ -131,6 +163,7 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         double[] baseLineFlagsForDataAccumulatorArray = baseLineFlagsForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
         Matrix baseLineFlagsForRawDataColumn = new Matrix(baseLineFlagsForDataAccumulatorArray, baseLineFlagsForDataAccumulatorArray.length);
 
+        // TODO:  add in nBlock, nCycle,
         return new MassSpecOutputDataRecord(
                 rawDataColumn,
                 isotopeIndicesForRawDataColumn,

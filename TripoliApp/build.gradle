@@ -15,7 +15,7 @@
  */
 
 plugins {
-    id 'application'
+    id ("application")
 }
 
 if (!hasProperty('mainClass')) {
@@ -25,7 +25,7 @@ if (!hasProperty('mainClass')) {
 mainClassName = 'org.cirdles.tripoli.gui.TripoliGUI'
 
 dependencies {
-    implementation 'org.jetbrains:annotations:22.0.0'
+    implementation ('org.jetbrains:annotations:23.0.0')
     implementation project(":TripoliCore")
 //    implementation('org.controlsfx:controlsfx:11.1.1')
 //    implementation('com.dlsc.formsfx:formsfx-core:11.4.2') {
@@ -37,8 +37,8 @@ dependencies {
 //        exclude(group: 'org.openjfx')
 //    }
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
 }
 
 test {
