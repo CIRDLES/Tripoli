@@ -3,8 +3,15 @@ plugins{
     `maven-publish`
 }
 
-val sourceCompatibility = "17"
-val targetCompatibility = "17"
+
+
+
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    withJavadocJar()
+}
 
 repositories {
     mavenCentral()
@@ -16,15 +23,20 @@ repositories {
     flatDir { dirs("libs") }
 }
 
-val mavenArtifactId = name
-val mavenGroupId = "org.cirdles"
-val mavenVersion = "0.0.2"
 
 dependencies {
     // https://mvnrepository.com/artifact/org.jetbrains/annotations
     implementation("org.jetbrains:annotations:23.0.0") //group: 'org.jetbrains', name: 'annotations', version: '23.0.0'
 
 }
+
+
+val mavenArtifactId = name
+val mavenGroupId = "org.cirdles"
+val mavenVersion = "0.0.2"
+
+group = mavenGroupId
+version = mavenVersion
 
 
 
@@ -82,6 +94,18 @@ tasks.withType(JavaCompile::class) {
     options.encoding = "UTF-8"
 }
 
+tasks.register("CreateFolder") {
+    doLast{
+        //duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        sourceSets["main"].allSource.srcDirs.forEach{ srcDir: File ->
+            if (!srcDir.isDirectory()){
+                println("Create source folder: $srcDir")
+                srcDir.mkdirs()
+            }
+        }
+    }
+
+}
 
 
 
@@ -90,46 +114,27 @@ publishing {
         maven {
             // change to point to your repo, e.g. http://my.org/repo
             url = uri("$buildDir/repo")
-            version = mavenVersion
-            group = mavenGroupId
 
       }
     }
+
     publications {
-        register("mavenJava", MavenPublication::class) {
+        create<MavenPublication>("mavenJava") {
             from(components["java"])
+            artifactId = mavenArtifactId
+
+            pom {
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+            }
         }
     }
 }
 
 
-//publishing {
-//    publications {
-//        (MavenPublication) {
-//            groupId = mavenGroupId
-//            artifactId = mavenArtifactId
-//            version = mavenVersion
-//
-//            from components.java
-//
-//                    pom {
-//                        licenses {
-//                            license {
-//                                name = 'The Apache License, Version 2.0'
-//                                url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-//                            }
-//                        }
-//                    }
-//        }
-//    }
-//}
 
-//tasks.create( "Creates the source folders if they do not exist.") doLast {
-//    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-//    sourceSets*.allSource*.srcDirs*.each { File srcDir ->
-//        if (!srcDir.isDirectory()) {
-//            println "Creating source folder: ${srcDir}"
-//            srcDir.mkdirs()
-//        }
-//    }
-//}
+
