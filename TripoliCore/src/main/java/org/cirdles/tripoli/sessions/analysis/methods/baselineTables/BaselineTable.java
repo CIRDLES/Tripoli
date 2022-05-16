@@ -34,7 +34,7 @@ public class BaselineTable implements Serializable {
         Each row is a sequence (S1, S2, S3)
         Each column is a detector from the detector setup.
         Each cell is a user-input mass (double precision, units of u aka Dalton).
-                    User input could be manually typed or filled from a dropdown menu of “Isotopes of Interest”.
+        User input could be manually typed or filled from a dropdown menu of "Isotopes of Interest".
         To determine which species (isotopologues, isobars) are going into that collector, use a formula based on the MassSpec Model (™)
 
          */
