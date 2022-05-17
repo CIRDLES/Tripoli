@@ -27,7 +27,6 @@ plugins{
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
-    withJavadocJar()
 }
 
 repositories {
@@ -70,12 +69,12 @@ tasks {
 
 
 
-//    val packageJavadoc by tasks.registering(Jar::class){
-//        from(javadoc)
-//        archiveClassifier.set("javadoc")
-//        dependsOn(javadoc)
-//
-//    }
+    val packageJavadoc by tasks.registering(Jar::class){
+        from(javadoc)
+        archiveClassifier.set("javadoc")
+        dependsOn(javadoc)
+
+    }
 
     val sourcesJar by creating(Jar::class){
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
@@ -89,7 +88,7 @@ tasks {
         archives(jar)
         archives(sourcesJar)
         //  Uncomment next line to produce javadocs
-        //    archives packageJavadoc
+        archives(packageJavadoc)
     }
 
 }
