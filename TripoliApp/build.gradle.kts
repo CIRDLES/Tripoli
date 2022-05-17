@@ -26,6 +26,7 @@ dependencies {
 
 project(":TripoliApp") {
     description = "Tripoli GUI"
+    base.archivesName.set("Tripoli")
 
 }
 
