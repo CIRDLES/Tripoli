@@ -46,13 +46,13 @@ project(":TripoliApp") {
 
 }
 
-tasks.create("fatAppJar", Jar::class){
+tasks.create("fatAppJar", Jar::class) {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     manifest.attributes.apply {
         put("Main-Class", mainClassName)
     }
 
-    from( configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) } )
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
     with(tasks.jar.get())
 
 }

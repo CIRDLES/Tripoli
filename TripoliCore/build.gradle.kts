@@ -18,7 +18,6 @@ import java.util.Date
 import java.text.SimpleDateFormat
 
 
-
 plugins {
     java
     `java-library`

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-plugins{
+plugins {
     java
     `maven-publish`
 
@@ -67,16 +67,14 @@ tasks {
     }
 
 
-
-
-    val packageJavadoc by tasks.registering(Jar::class){
+    val packageJavadoc by creating(Jar::class) {
         from(javadoc)
         archiveClassifier.set("javadoc")
         dependsOn(javadoc)
 
     }
 
-    val sourcesJar by creating(Jar::class){
+    val sourcesJar by creating(Jar::class) {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
         dependsOn(classes)
         archiveClassifier.set("sources")
@@ -88,7 +86,7 @@ tasks {
         archives(jar)
         archives(sourcesJar)
         //  Uncomment next line to produce javadocs
-        archives(packageJavadoc)
+        //archives(packageJavadoc)
     }
 
 }
@@ -111,16 +109,15 @@ tasks.withType(JavaCompile::class) {
 }
 
 tasks.register("CreateFolder") {
-    doLast{
+    doLast {
         //duplicatesStrategy = DuplicatesStrategy.INCLUDE
-        sourceSets["main"].allSource.srcDirs.forEach{ srcDir: File ->
-            if (!srcDir.isDirectory()){
+        sourceSets["main"].allSource.srcDirs.forEach { srcDir: File ->
+            if (!srcDir.isDirectory()) {
                 println("Create source folder: $srcDir")
                 srcDir.mkdirs()
             }
         }
     }
-
 }
 
 
