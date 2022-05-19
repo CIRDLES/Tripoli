@@ -24,11 +24,6 @@ application {
     mainClass.set("org.cirdles.tripoli.gui.TripoliGUI")
 }
 
-
-
-
-
-
 dependencies {
     implementation(project(":TripoliCore"))
     implementation("org.jetbrains:annotations:22.0.0")
