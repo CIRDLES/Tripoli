@@ -9,11 +9,11 @@ ls jdk-17.0.1-full
 echo ""
 
 echo "getting Gradle7            **************************"
-wget -O  gradle7.zip https://services.gradle.org/distributions/gradle-7.3.3-bin.zip
+wget -O  gradle7.zip https://services.gradle.org/distributions/gradle-7.4.2-bin.zip
 mkdir gradle7
 unzip -qd gradle7 gradle7.zip
-ls gradle7/gradle-7.3.3
+ls gradle7/gradle-7.4.2
 echo ""
 
 echo "building Tripoli          **************************"
-gradle7/gradle-7.3.3/bin/gradle clean build -Dorg.gradle.java.home=./jdk-17.0.1-full/
+gradle7/gradle-7.4.2/bin/gradle clean build -Dorg.gradle.java.home=./jdk-17.0.1-full/
