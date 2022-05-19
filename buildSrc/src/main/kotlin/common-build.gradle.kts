@@ -17,7 +17,6 @@
 plugins {
     java
     `maven-publish`
-
 }
 
 
