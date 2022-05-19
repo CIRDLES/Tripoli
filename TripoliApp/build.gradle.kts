@@ -47,7 +47,6 @@ project(":TripoliApp") {
 }
 
 tasks.create("fatAppJar", Jar::class) {
-    dependsOn(":TripoliCore")
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     manifest.attributes.apply {
         put("Main-Class", mainClassName)
