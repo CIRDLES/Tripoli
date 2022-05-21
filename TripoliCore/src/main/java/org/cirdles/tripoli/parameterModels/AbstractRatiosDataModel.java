@@ -782,9 +782,9 @@ public abstract class AbstractRatiosDataModel implements
         }
 
         return ValueModel.createFullNamedValueModel(//
-        coeffName,
-        myRhoValue,
-        BigDecimal.ZERO, BigDecimal.ZERO);
+                coeffName,
+                myRhoValue,
+                BigDecimal.ZERO, BigDecimal.ZERO);
     }
 
     /**
@@ -871,9 +871,9 @@ public abstract class AbstractRatiosDataModel implements
         }
 
         return ValueModel.createFullNamedValueModel(
-        coeffName,
-        myRhoValue,
-        BigDecimal.ZERO, BigDecimal.ZERO);
+                coeffName,
+                myRhoValue,
+                BigDecimal.ZERO, BigDecimal.ZERO);
     }
 
     /**

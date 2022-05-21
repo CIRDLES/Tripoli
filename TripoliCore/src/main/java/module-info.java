@@ -19,6 +19,7 @@ module Tripoli.TripoliCore {
     requires org.apache.poi.poi;
     requires org.jetbrains.annotations;
     requires jama;
+    requires com.google.common;
 
     exports org.cirdles.tripoli;
     exports org.cirdles.tripoli.valueModels;
@@ -27,6 +28,9 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.species.nuclides;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels;
+    exports org.cirdles.tripoli.sessions.analysis.analysisMethods;
+    exports org.cirdles.tripoli.sessions.analysis.analysisMethods.baselineTables;
+    exports org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables;
     exports org.cirdles.tripoli.species;
     exports org.cirdles.tripoli.elements;
 }

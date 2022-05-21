@@ -37,10 +37,15 @@ public class DetectorSetup implements Serializable {
         mapOfDetectors = new LinkedHashMap<>();
     }
 
-    public static DetectorSetup createEmptyDetectorSetup() {
+    public static DetectorSetup initializeDetectorSetup() {
         DetectorSetup detectorSetup = new DetectorSetup();
 
         return detectorSetup;
+    }
+
+    public Detector addDetector(Detector detector) {
+        mapOfDetectors.put(detector.getDetectorName(), detector);
+        return detector;
     }
 
     public Map<String, Detector> getMapOfDetectors() {

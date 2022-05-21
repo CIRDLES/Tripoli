@@ -18,6 +18,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels;
 
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public class MassSpectrometerModel implements Serializable {
@@ -29,6 +30,9 @@ public class MassSpectrometerModel implements Serializable {
     Beam width (mm)
      */
 
+    @Serial
+    private static final long serialVersionUID = 1402626964061990257L;
+
     private String massSpectrometerName;
     private DetectorSetup detectorSetup;
 
@@ -37,7 +41,7 @@ public class MassSpectrometerModel implements Serializable {
     }
 
     private MassSpectrometerModel(String massSpectrometerName) {
-        this(massSpectrometerName, DetectorSetup.createEmptyDetectorSetup());
+        this(massSpectrometerName, DetectorSetup.initializeDetectorSetup());
     }
 
     private MassSpectrometerModel(String massSpectrometerName, DetectorSetup detectorSetup) {

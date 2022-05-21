@@ -25,18 +25,24 @@ public class Detector implements Serializable {
 
     private DetectorTypeEnum detectorType;
     private String detectorName;
-    private int detectorNumber;
+    // 0-based index of detector order, used for reading data column
+    private int ordinalIndex;
+
     private Detector() {
-        this(DetectorTypeEnum.FARADAY);
     }
 
-    private Detector(DetectorTypeEnum detectorType) {
+    private Detector(DetectorTypeEnum detectorType, String detectorName, int ordinalIndex) {
         this.detectorType = detectorType;
+        this.detectorName = detectorName;
+        this.ordinalIndex = ordinalIndex;
     }
 
-    static Detector createDetector() {
-        Detector detector = new Detector();
-        return detector;
+    public static Detector initializeDetector(DetectorTypeEnum detectorType, String detectorName, int ordinalIndex) {
+        return new Detector(detectorType, detectorName, ordinalIndex);
+    }
+
+    public boolean isFaraday() {
+        return detectorType.equals(DetectorTypeEnum.FARADAY);
     }
 
     public DetectorTypeEnum getDetectorType() {
@@ -45,6 +51,22 @@ public class Detector implements Serializable {
 
     public void setDetectorType(DetectorTypeEnum detectorType) {
         this.detectorType = detectorType;
+    }
+
+    public String getDetectorName() {
+        return detectorName;
+    }
+
+    public void setDetectorName(String detectorName) {
+        this.detectorName = detectorName;
+    }
+
+    public int getOrdinalIndex() {
+        return ordinalIndex;
+    }
+
+    public void setOrdinalIndex(int ordinalIndex) {
+        this.ordinalIndex = ordinalIndex;
     }
 
     public enum DetectorTypeEnum {

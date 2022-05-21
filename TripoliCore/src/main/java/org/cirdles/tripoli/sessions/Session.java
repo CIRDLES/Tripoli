@@ -18,6 +18,7 @@ package org.cirdles.tripoli.sessions;
 
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,6 +27,20 @@ import java.util.Map;
  * @author James F. Bowring
  */
 public class Session implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 6597752272434171800L;
+//        private void readObject ( ObjectInputStream stream ) throws IOException,
+//            ClassNotFoundException {
+//        stream.defaultReadObject();
+//
+//        ObjectStreamClass myObject = ObjectStreamClass.lookup(
+//                Class.forName( Session.class.getCanonicalName()) );
+//        long theSUID = myObject.getSerialVersionUID();
+//
+//        System.err.println( "Customized De-serialization of Session "
+//                + theSUID );
+//    }
 
     private String sessionName;
     private Map<String, Analysis> mapOfAnalyses;

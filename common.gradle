@@ -26,7 +26,7 @@ sourceCompatibility = '17'
 targetCompatibility = '17'
 
 String mavenGroupId = 'org.cirdles'
-String mavenVersion = '0.0.2'
+String mavenVersion = '0.0.3'
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
