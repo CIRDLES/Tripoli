@@ -27,6 +27,9 @@ plugins {
 
 
 dependencies {
+    // https://mvnrepository.com/artifact/com.google.guava/guava
+    implementation("com.google.guava:guava:31.1-jre")
+
     implementation("com.github.cirdles:commons:bc38781605")
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
@@ -82,4 +85,3 @@ tasks.processResources {
 
     }
 }
-
