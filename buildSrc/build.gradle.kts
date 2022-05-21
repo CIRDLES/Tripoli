@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-apply plugin: 'base'
-
-subprojects {
-    apply from: rootProject.file('common.gradle')
+plugins {
+    `kotlin-dsl`
+    base
 }
 
-wrapper {
-    gradleVersion = '7.4.2'
+repositories {
+    gradlePluginPortal()
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>{
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
 }

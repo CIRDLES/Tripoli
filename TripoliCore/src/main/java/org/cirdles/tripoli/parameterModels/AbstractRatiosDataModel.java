@@ -215,7 +215,7 @@ public abstract class AbstractRatiosDataModel implements
 
     /**
      * compares this <code>AbstractRatiosDataModel</code> to argument
-     * <code>AbstractRatiosDataModel<?code> by their <code>name</code> and
+     * <code>AbstractRatiosDataModel</code> by their <code>name</code> and
      * <code>version</code>.
      *
      * @param model
