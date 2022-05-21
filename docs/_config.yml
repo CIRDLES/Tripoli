@@ -23,6 +23,7 @@ markdown: kramdown
 # All Jekyll-Bootstrap specific configurations are namespaced into this hash
 #
 JB:
+  # for local build, comment out next line and from /docs execute: bundle exec jekyll serve
   BASE_PATH: /Tripoli
   version: 0.3.0
 

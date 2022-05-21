@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Tripoli receives NSF funding"
-date:   2022-03-01 00:00:00 -0500
+date:   2022-05-21 00:00:00 -0500
 categories: tripoli
 ---
 #### Announcement and Call to Participate
