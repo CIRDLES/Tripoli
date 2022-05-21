@@ -20,7 +20,9 @@ important goal is to create a culture and practice of sustainability to ensure a
 Tripoli.
 
 ##### History
-The original [Tripoli](https://github.com/bowring/tripoli) dates from 2002 and is in wide use and is maintained.
+The original [Tripoli](https://github.com/bowring/tripoli) dates from 2002 and is in wide use and is maintained. 
+
+See [article](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2010GC003479) for details.
 
 ##### Development Plan
 We are implementing an agile development process to support collaboration:  
@@ -37,7 +39,7 @@ create a free account at [GitHub.com](https://github.com).
 
 2) We will maintain a [website](http://cirdles.org/Tripoli) that provides timely updates and tutorials as we develop them.  If you are reluctant to get a GitHub acount, this site is for you.
 
-3) We will host regularly scheduled Zoom meetings for collaboration among community members.
+3) We will host regularly scheduled Zoom [Workshops](../../../../workshops.html) for collaboration among community members.
 
 4) Agile development is iterative and driven by use cases and requests provided by the community.  If you join 
 GitHub, you will be able to start and join [discussions](https://github.com/CIRDLES/Tripoli/discussions).  Here
@@ -55,7 +57,7 @@ both the inputs and the expected outcomes for each test.
 
    1) Join GitHub and participate in [discussions](https://github.com/CIRDLES/Tripoli/discussions).
    
-   2) Attend and contribute to team Zoom meetings.
+   2) Attend and contribute to team Zoom [Workshops](../../../../workshops.html).
    
    3) Download releases and provide evaluations and suggestions via 
    [GitHub Issues](https://github.com/CIRDLES/Tripoli/issues).
@@ -69,5 +71,5 @@ both the inputs and the expected outcomes for each test.
    
    7) Become and / or recruit people to inherit key roles in the development process.
    
-   8) Take a leading role in establishing our industrial-academic oversight board that is envisioned as
+   8) Take a leading role in establishing our industrial-academic [Oversight Board](../../../../oversight_board.html) that is envisioned as
    a vehicle to establish sustainability and maintenance plans for the Tripoli product.
