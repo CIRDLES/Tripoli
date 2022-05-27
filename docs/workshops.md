@@ -19,6 +19,6 @@ description: Community Workshops via Zoom
 
 
 
-#### Please click this [link](https://docs.google.com/forms/d/e/1FAIpQLSf6n226u6SAF6k3oyaonSzfdhMGWW7YZllN8YSylnVMNYXxqA/viewform?usp=sf_link){:target="_blank" rel="noopener"} to register for the Tripoli Launch and Development workshops you wish to attend and to get the meeting details.
+### Please click this [link](https://docs.google.com/forms/d/e/1FAIpQLSf6n226u6SAF6k3oyaonSzfdhMGWW7YZllN8YSylnVMNYXxqA/viewform?usp=sf_link){:target="_blank" rel="noopener"} to register for the Tripoli Launch and Development workshops you wish to attend and to get the meeting details.
 
 ---
