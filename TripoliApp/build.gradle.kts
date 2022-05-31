@@ -1,3 +1,5 @@
+import Common_build_gradle.Versions.junitVersion
+
 /*
  * Copyright 2022 James Bowring, Noah McLean, Scott Burdick, and CIRDLES.org.
  *
@@ -16,7 +18,7 @@
 
 plugins {
     application
-    id("common-build")
+    id("common-build") // Plugin calls common gradle build from buildSrc
 }
 val mainClassName = "org.cirdles.tripoli.gui.TripoliGUI"
 
@@ -27,7 +29,7 @@ application {
 dependencies {
     implementation(project(":TripoliCore"))
     implementation("org.jetbrains:annotations:22.0.0")
-    val junitVersion = "5.8.2"
+
 
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")

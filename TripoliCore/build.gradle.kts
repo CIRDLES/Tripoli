@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 import org.apache.tools.ant.filters.ReplaceTokens
-import java.util.Date
 import java.text.SimpleDateFormat
+import java.util.*
 
 
 plugins {
     java
     `java-library`
     id("de.jjohannes.extra-java-module-info") version "0.11"
-    id("common-build")
+    id("common-build") // Plugin calls common gradle build from buildSrc
 }
 
 
@@ -54,13 +54,16 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
 }
 
+
 tasks.test {
     useJUnitPlatform()
 }
 
+
 val timestamp = {
     SimpleDateFormat("dd MMMM yyyy").format(Date())
 }
+
 
 extraJavaModuleInfo {
     failOnMissingModuleInfo.set(false)
@@ -71,17 +74,14 @@ extraJavaModuleInfo {
     automaticModule("jama-master-SNAPSHOT.jar", "jama")
 }
 
+
 tasks.processResources {
     val tokens = mapOf("pom.version" to version, "timestamp" to timestamp())
     inputs.properties(tokens)
 
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     from(sourceSets["main"].resources.srcDirs) {
-
         include("**/*.txt")
-        //expand("pom.version" to version, "timestamp" to timestamp())
         filter<ReplaceTokens>("tokens" to tokens)
-
-
     }
 }

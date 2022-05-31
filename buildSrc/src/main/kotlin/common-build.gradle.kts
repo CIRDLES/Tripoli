@@ -20,9 +20,6 @@ plugins {
 }
 
 
-
-
-
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
@@ -50,6 +47,12 @@ val mavenArtifactId = name
 val mavenGroupId = "org.cirdles"
 val mavenVersion = "0.0.2"
 
+
+object Versions {
+    const val junitVersion = "5.8.2"
+    // Creates desired junit version that can be called in all subprojects
+}
+
 group = mavenGroupId
 version = mavenVersion
 
@@ -70,7 +73,7 @@ tasks {
         from(javadoc)
         archiveClassifier.set("javadoc")
         dependsOn(javadoc)
-
+        // currently not called unless uncommented in artifacts
     }
 
     val sourcesJar by creating(Jar::class) {
@@ -109,7 +112,6 @@ tasks.withType(JavaCompile::class) {
 
 tasks.register("CreateFolder") {
     doLast {
-        //duplicatesStrategy = DuplicatesStrategy.INCLUDE
         sourceSets["main"].allSource.srcDirs.forEach { srcDir: File ->
             if (!srcDir.isDirectory()) {
                 println("Create source folder: $srcDir")
