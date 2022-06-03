@@ -1,4 +1,4 @@
-<img src="https://github.com/CIRDLES/cirdles.github.com/blob/master/assets/icons/TripoliNoah2.png" alt="Tripoli Logo" width="100">
+<img src="https://github.com/CIRDLES/cirdles.github.com/blob/master/assets/icons/TripoliJune2022.png" alt="Tripoli Logo" width="100">
 
 Tripoli
 ==========
