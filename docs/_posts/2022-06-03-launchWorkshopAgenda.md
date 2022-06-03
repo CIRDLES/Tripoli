@@ -11,7 +11,7 @@ Tripoli Project Launch Workshop
 
 #### 10 June 2022, 2:00 - 3:00 EDT
 
-#### [https://kansas.zoom.us/j/93543402808](https://kansas.zoom.us/j/93543402808), pwd: 4567
+#### [https://kansas.zoom.us/j/93543402808](https://kansas.zoom.us/j/93543402808), pwd: see registration email
 
 ### Agenda
 
