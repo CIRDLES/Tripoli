@@ -4,8 +4,7 @@ title:  "Tripoli Project Launch Agenda for June 7 and 10, 2022"
 date:   2022-06-03 00:00:00 -0500
 categories: tripoli
 ---
-Tripoli Project Launch Workshop
-===
+## Tripoli Project Launch Workshop
 
 #### 7 June 2022, 10:00 - 11:00 EDT
 
