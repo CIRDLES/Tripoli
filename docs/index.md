@@ -16,13 +16,13 @@ description: Web presence for the development of Tripoli software.
   </div>
 </div>
 
-#### Welcome to the Tripoli software development home page.
+### Welcome to the Tripoli software development home page.
 
-We will be posting updates here (newest first):
+#### We will be posting updates here (newest first):
 <ul>
   {% for post in site.posts %}
     <li>
-      <a href="{{ site.JB.BASE_PATH }}{{ post.url }}">{{ post.title }}</a>
+      <a style="font-size: 18px;" href="{{ site.JB.BASE_PATH }}{{ post.url }}">{{ post.title }}</a>
     </li>
   {% endfor %}
 </ul>

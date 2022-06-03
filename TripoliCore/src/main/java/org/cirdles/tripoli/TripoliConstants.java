@@ -20,7 +20,7 @@ import java.io.File;
 
 public final class TripoliConstants {
 
-    public static final String TRIPOLI_LOGO_SANS_TEXT_URL = "org/cirdles/tripoli/gui/images/TripoliNoah2.png";
+    public static final String TRIPOLI_LOGO_SANS_TEXT_URL = "org/cirdles/tripoli/gui/images/TripoliJune2022.png";
 
     public static final File TRIPOLI_RESOURCES_FOLDER = new File("TripoliResources");
     public static final File SCHEMA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "Schema");

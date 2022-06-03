@@ -35,7 +35,7 @@
         <ImageView fitHeight="75.0" fitWidth="156.0" layoutX="345.0" layoutY="603.0" pickOnBounds="true"
                    preserveRatio="true" scaleX="0.75" scaleY="0.75">
             <image>
-                <Image url="@images/TripoliNoah2.png"/>
+                <Image url="@images/TripoliJune2022.png"/>
             </image>
         </ImageView>
         <Hyperlink layoutX="326.0" layoutY="669.0" onAction="#visitTripoliOnCirdlesAction" styleClass="links"
@@ -58,7 +58,7 @@
         <ImageView fitHeight="300.0" fitWidth="400.0" layoutX="124.0" layoutY="-41.0" pickOnBounds="true"
                    preserveRatio="true" styleClass="logo">
             <image>
-                <Image url="@images/TripoliNoah2.png"/>
+                <Image url="@images/TripoliJune2022.png"/>
             </image>
         </ImageView>
         <Label fx:id="contributorsLabel" layoutX="25.0" layoutY="350.0" prefHeight="100.0" prefWidth="500.0"
