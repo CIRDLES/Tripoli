@@ -39,7 +39,7 @@ can provide one or provide instructions for you to build one from the source cod
 
 ***Note to Developers***
 
-Tripoli can be compiled from the source code by using [Gradle 7.3](https://gradle.org/releases/) using the same JDK/JRE
+Tripoli can be compiled from the source code by using [Gradle 7.4.2](https://gradle.org/releases/) using the same JDK/JRE
 17.
 
 ```text
