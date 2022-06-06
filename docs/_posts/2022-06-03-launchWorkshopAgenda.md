@@ -14,27 +14,28 @@ categories: tripoli
 
 ### Agenda
 
-- 0:00 - 0:05 	Brief history of Tripoli (Jim Bowring)
-- 0:05 - 0:10 	Tripoli current capabilities (Noah McLean)
-- 0:10 - 0:15 	Limitations of current mass spec data handling approaches (Noah McLean)
-- 0:15 - 0:20 	Proposed solutions: Baseline subtraction for TIMS (Noah McLean)
-- 0:20 - 0:25 	Proposed solutions: Single-collector measurements revisited (Scott Burdick)
-- 0:25 - 0:30 	Proposed solutions: Compositional Data, Data Visualization (Noah McLean)
-- 0:30 - 0:35 	Modern Cyberinfrastructure and Sustainability (Jim Bowring)
-- 0:35 - 0:40 	How to engage with Tripoli Development (Jim Bowring)
-- 0:40 - 0:60 	Community Input: Themes for the Development Meetings
+1. Brief history of Tripoli (Jim Bowring)
+2. Tripoli current capabilities (Noah McLean)
+3. Limitations of current mass spec data handling approaches (Noah McLean)
+4. Proposed solutions: Baseline subtraction for TIMS (Noah McLean)
+5. Proposed solutions: Single-collector measurements revisited (Scott Burdick)
+6. Proposed solutions: Compositional Data, Data Visualization (Noah McLean)
+7. Modern Cyberinfrastructure and Sustainability (Jim Bowring)
+8. How to engage with Tripoli Development (Jim Bowring)
+9. Community Input: Themes for the Development Meetings
 
-   Such as:
+    Such as:
 
-   - Feature Requests - What should Tripoli be able to do? 
+    - Feature Requests - What should Tripoli be able to do? 
 
-   - What (meta)data are displayed and how are they displayed?
+    - What (meta)data are displayed and how are they displayed?
 
-   - Lab workflows - How can Tripoli best integrate with your lab?
+    - Lab workflows - How can Tripoli best integrate with your lab?
 
-   - Opportunities for teaching and tutorials.
+    - Opportunities for teaching and tutorials.
 
-   - What’s missing?
+    - What’s missing?
+
 
 ### Questions?
 Leave questions any time in the Zoom chat.  We’ll open the discussion for the last ~half of the workshop – please raise your hand to contribute. 
