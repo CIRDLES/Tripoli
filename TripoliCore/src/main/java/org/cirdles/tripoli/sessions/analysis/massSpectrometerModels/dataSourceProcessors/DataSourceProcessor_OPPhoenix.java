@@ -102,7 +102,10 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
             index++;
         }
 
-        // extract unique block numbers
+
+        // blocks start at 1, cycles start at 0 but cycle 1 starts the Sequences
+        // new block starts with BL# and cycles restart at 0
+
         List<Integer> blockList = Ints.asList(blockNumbers);
         List<Integer> blockListWithoutDuplicates
                 = Lists.newArrayList(Sets.newLinkedHashSet(blockList));
@@ -110,14 +113,17 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         int nBlocks = Math.max(1, blockListWithoutDuplicates.size() - 1);
         // extract cycles per block
         int[] nCycle = new int[nBlocks];
+        int totalCycles = 0;
         if (nBlocks == 1) {
             nCycle[0] = cycleNumbers[cycleNumbers.length - 1] + 1;
+            totalCycles = nCycle[0];
         } else {
             int startIndex = 0;
             for (Integer blockNumber : blockListWithoutDuplicates) {
                 for (int i = startIndex; i < blockNumbers.length; i++) {
                     if (blockNumbers[i] > blockNumber) {
                         nCycle[blockNumber - 1] = cycleNumbers[i - 1] + 1;
+                        totalCycles += nCycle[blockNumber - 1];
                         startIndex = i;
                         break;
                     }
@@ -125,9 +131,65 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
             }
         }
 
-        // build InterpMat for each block
-        for (int blockIndex = 0; blockIndex < nBlocks; blockIndex++ ){
-            double[][] interpMatArrayForBlock = new double[0][];
+        // collect the starting indices of each cycle in each block
+        int currentBlockNumber = 1;
+        int currentCycleNumber = 0;
+        int currentIndex = 0;
+        int currentRecordNumber = 0;
+        int row;
+        int[][] startingIndicesOfCyclesByBlock = new int[totalCycles][4]; //blockNum, cycleNum, startIndex
+        for (row = 0; row < blockNumbers.length; row++) {
+            if (blockNumbers[row] == currentBlockNumber) {
+                if (cycleNumbers[row] > currentCycleNumber) {
+                    startingIndicesOfCyclesByBlock[currentRecordNumber] = new int[]{currentBlockNumber, currentCycleNumber, currentIndex};
+                    currentRecordNumber++;
+                    currentCycleNumber++;
+                    currentIndex = row;
+                }
+            } else {
+                // new block
+                startingIndicesOfCyclesByBlock[currentRecordNumber] = new int[]{currentBlockNumber, currentCycleNumber, currentIndex};
+                currentRecordNumber++;
+                currentBlockNumber++;
+                currentCycleNumber = 0;
+            }
+        }
+
+        if (currentRecordNumber < startingIndicesOfCyclesByBlock.length) {
+            startingIndicesOfCyclesByBlock[currentRecordNumber] = new int[]{currentBlockNumber, currentCycleNumber, currentIndex};
+        }
+
+        // build InterpMat for each block using linear approach
+        // june 2022 assume 1 block for now
+        double[][] interpMatArrayForBlock;// = new double[nCycle[0]][];
+        for (int cycleStartIndex = 1; cycleStartIndex < (startingIndicesOfCyclesByBlock.length); cycleStartIndex++) {
+            int startOfCycleIndex = startingIndicesOfCyclesByBlock[cycleStartIndex][2];
+
+            // detect last cycle
+            boolean lastCycle = false;
+            int startOfNextCycleIndex;
+            if (cycleStartIndex == startingIndicesOfCyclesByBlock.length - 1) {
+                startOfNextCycleIndex = timeStamp.length - 1;
+                lastCycle = true;
+            } else {
+                startOfNextCycleIndex = startingIndicesOfCyclesByBlock[cycleStartIndex + 1][2];
+            }
+
+            int countOfEntries = startOfNextCycleIndex - startOfCycleIndex;
+            if (lastCycle)  countOfEntries ++;
+            interpMatArrayForBlock = new double[2][countOfEntries];
+            double deltaTimeStamp = timeStamp[startOfNextCycleIndex] - timeStamp[startOfCycleIndex];
+
+            for (int timeIndex = startOfCycleIndex; timeIndex < startOfNextCycleIndex; timeIndex++) {
+                interpMatArrayForBlock[1][timeIndex - startOfCycleIndex] = (timeStamp[timeIndex] - timeStamp[startOfCycleIndex]) / deltaTimeStamp;
+                interpMatArrayForBlock[0][timeIndex - startOfCycleIndex] = 1.0 - interpMatArrayForBlock[1][timeIndex - startOfCycleIndex];
+            }
+            if (lastCycle){
+                interpMatArrayForBlock[1][countOfEntries - 1] = 1.0;
+                interpMatArrayForBlock[0][countOfEntries - 1] = 0.0;
+            }
+
+
         }
 
 
