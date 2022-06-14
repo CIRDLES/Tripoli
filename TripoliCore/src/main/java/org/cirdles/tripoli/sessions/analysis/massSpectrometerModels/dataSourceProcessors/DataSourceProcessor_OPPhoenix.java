@@ -137,59 +137,72 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         int currentIndex = 0;
         int currentRecordNumber = 0;
         int row;
+        boolean cycleStartRecorded = false;
         int[][] startingIndicesOfCyclesByBlock = new int[totalCycles][4]; //blockNum, cycleNum, startIndex
         for (row = 0; row < blockNumbers.length; row++) {
             if (blockNumbers[row] == currentBlockNumber) {
-                if (cycleNumbers[row] > currentCycleNumber) {
+                if (!cycleStartRecorded) {
                     startingIndicesOfCyclesByBlock[currentRecordNumber] = new int[]{currentBlockNumber, currentCycleNumber, currentIndex};
+                    cycleStartRecorded = true;
+                }
+                if (cycleNumbers[row] > currentCycleNumber) {
                     currentRecordNumber++;
                     currentCycleNumber++;
                     currentIndex = row;
+                    startingIndicesOfCyclesByBlock[currentRecordNumber] = new int[]{currentBlockNumber, currentCycleNumber, currentIndex};
                 }
             } else {
                 // new block
-                startingIndicesOfCyclesByBlock[currentRecordNumber] = new int[]{currentBlockNumber, currentCycleNumber, currentIndex};
+                currentIndex = row;
                 currentRecordNumber++;
-                currentBlockNumber++;
                 currentCycleNumber = 0;
+                currentBlockNumber++;
+                if (currentRecordNumber >= totalCycles){
+                    break;
+                }
+                startingIndicesOfCyclesByBlock[currentRecordNumber] = new int[]{currentBlockNumber, currentCycleNumber, currentIndex};
             }
-        }
-
-        if (currentRecordNumber < startingIndicesOfCyclesByBlock.length) {
-            startingIndicesOfCyclesByBlock[currentRecordNumber] = new int[]{currentBlockNumber, currentCycleNumber, currentIndex};
         }
 
         // build InterpMat for each block using linear approach
         // june 2022 assume 1 block for now
-        double[][] interpMatArrayForBlock;// = new double[nCycle[0]][];
-        for (int cycleStartIndex = 1; cycleStartIndex < (startingIndicesOfCyclesByBlock.length); cycleStartIndex++) {
-            int startOfCycleIndex = startingIndicesOfCyclesByBlock[cycleStartIndex][2];
+        // the general approach for a block is to create a knot at the start of each cycle and
+        // linearly interpolate between knots to create fractional placement of each recorded timestamp
+        // which takes the form of (1 - fractional distance of time with knot range, fractional distance of time with knot range)
+        int blockIndex = 0;
+        // hard coded est of block length since only doing first block for now
+        double[][] interpMatArrayForBlock = new double[nCycle[0]][4000];
+        for (int cycleIndex = 1; cycleIndex < (nCycle[blockIndex]); cycleIndex++) {
+            int startOfCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex][2];
 
-            // detect last cycle
-            boolean lastCycle = false;
             int startOfNextCycleIndex;
-            if (cycleStartIndex == startingIndicesOfCyclesByBlock.length - 1) {
-                startOfNextCycleIndex = timeStamp.length - 1;
-                lastCycle = true;
+            if ((cycleIndex == nCycle[blockIndex] - 1) && (nCycle.length == blockIndex + 1)) {
+                startOfNextCycleIndex = timeStamp.length;
             } else {
-                startOfNextCycleIndex = startingIndicesOfCyclesByBlock[cycleStartIndex + 1][2];
+                startOfNextCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex + 1][2];
             }
 
-            int countOfEntries = startOfNextCycleIndex - startOfCycleIndex;
-            if (lastCycle)  countOfEntries ++;
-            interpMatArrayForBlock = new double[2][countOfEntries];
+            // detect last cycle because it uses its last entry as the upper limit
+            // whereas the matlab code uses the starting entry of the next cycle for all previous cycles
+            boolean lastCycle = false;
+            lastCycle = (cycleIndex == nCycle[blockIndex] - 1);
+            if (lastCycle){
+                startOfNextCycleIndex --;
+            }
+            int countOfEntries = startingIndicesOfCyclesByBlock[cycleIndex][2] - startingIndicesOfCyclesByBlock[1][2];
+
             double deltaTimeStamp = timeStamp[startOfNextCycleIndex] - timeStamp[startOfCycleIndex];
 
             for (int timeIndex = startOfCycleIndex; timeIndex < startOfNextCycleIndex; timeIndex++) {
-                interpMatArrayForBlock[1][timeIndex - startOfCycleIndex] = (timeStamp[timeIndex] - timeStamp[startOfCycleIndex]) / deltaTimeStamp;
-                interpMatArrayForBlock[0][timeIndex - startOfCycleIndex] = 1.0 - interpMatArrayForBlock[1][timeIndex - startOfCycleIndex];
+                interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) +  countOfEntries] =
+                        (timeStamp[timeIndex] - timeStamp[startOfCycleIndex]) / deltaTimeStamp;
+                interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] =
+                        1.0 - interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) +  countOfEntries];
             }
             if (lastCycle){
-                interpMatArrayForBlock[1][countOfEntries - 1] = 1.0;
-                interpMatArrayForBlock[0][countOfEntries - 1] = 0.0;
+                interpMatArrayForBlock[cycleIndex][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 1.0;
+                interpMatArrayForBlock[cycleIndex - 1][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 0.0;
             }
-
-
         }
 
 
