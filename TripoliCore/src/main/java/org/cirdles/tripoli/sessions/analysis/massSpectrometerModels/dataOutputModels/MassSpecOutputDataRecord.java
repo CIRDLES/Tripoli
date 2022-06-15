@@ -21,7 +21,9 @@ import jama.Matrix;
 public record MassSpecOutputDataRecord(
         Matrix rawDataColumn,
         Matrix isotopeIndicesForRawDataColumn,
-        Matrix baseLineFlagsForRawDataColumn
+        Matrix detectorFlagsForRawDataColumn,
+        Matrix baseLineFlagsForRawDataColumn,
+        Matrix firstBlockInterpolations
 ) {
 
 }

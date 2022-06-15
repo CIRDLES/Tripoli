@@ -36,12 +36,14 @@ public interface DataSourceProcessorInterface {
             String[] sequenceIDs, double[][] detectorData, SequenceTable tableSpecs, boolean faraday) {
         List<Double> dataAccumulatorList = new ArrayList<>();
         List<Integer> isotopeIndicesForDataAccumulatorList = new ArrayList<>();
+        List<int[]> detectorFlagsForDataAccumulatorList = new ArrayList<>();
         List<Integer> baseLineFlagsForDataAccumulatorList = new ArrayList<>();
         List<Integer> signalIndexForDataAccumulatorList = new ArrayList<>();
 
         // this map is in ascending detector order
         Map<Detector, List<SequenceCell>> detectorToSequenceCellMap = tableSpecs.getMapOfDetectorsToSequenceCells();
         int signalIndex = 1;
+        int detectorIndex = 0;
         for (Detector detector : detectorToSequenceCellMap.keySet()) {
             if (detector.isFaraday() == faraday) {
                 int detectorDataColumnIndex = detector.getOrdinalIndex();
@@ -52,14 +54,21 @@ public interface DataSourceProcessorInterface {
                     if (sequenceIDs[detectorDataRowIndex].toUpperCase(Locale.ROOT).compareTo(baselineName.toUpperCase(Locale.ROOT)) == 0) {
                         dataAccumulatorList.add(detectorData[detectorDataRowIndex][detectorDataColumnIndex]);
                         isotopeIndicesForDataAccumulatorList.add(0);
+
+                        int[] detectorFlags = new int[detectorToSequenceCellMap.keySet().size()];
+                        detectorFlags[detectorIndex] = 1;
+                        detectorFlagsForDataAccumulatorList.add(detectorFlags);
+
                         baseLineFlagsForDataAccumulatorList.add(1);
                     }
                 }
+                detectorIndex++;
             }
         }
         return new AccumulatedData(
                 dataAccumulatorList,
                 isotopeIndicesForDataAccumulatorList,
+                detectorFlagsForDataAccumulatorList,
                 baseLineFlagsForDataAccumulatorList,
                 signalIndexForDataAccumulatorList);
     }
@@ -68,6 +77,7 @@ public interface DataSourceProcessorInterface {
             String[] sequenceIDs, int[] blockNumbers, List<Integer> blockListWithoutDuplicates, double[][] detectorData, SequenceTable tableSpecs, List<SpeciesRecordInterface> speciesList, boolean faraday) {
         List<Double> dataAccumulatorList = new ArrayList<>();
         List<Integer> isotopeIndicesForDataAccumulatorList = new ArrayList<>();
+        List<int[]> detectorFlagsForDataAccumulatorList = new ArrayList<>();
         List<Integer> baseLineFlagsForDataAccumulatorList = new ArrayList<>();
         List<Integer> signalIndexForDataAccumulatorList = new ArrayList<>();
 
@@ -77,6 +87,7 @@ public interface DataSourceProcessorInterface {
             // speciesList is in ascending order
             for (SpeciesRecordInterface species : speciesList) {
                 for (Detector detector : detectorToSequenceCellMap.keySet()) {
+                    int detectorIndex = 0;
                     if (detector.isFaraday() == faraday) {
                         // need to retrieve cells of detector sorted by isotope mass ascending
                         List<SequenceCell> detectorCellsByMass = detectorToSequenceCellMap.get(detector)
@@ -90,10 +101,21 @@ public interface DataSourceProcessorInterface {
                                         && blockNumbers[detectorDataRowIndex] == blockNumber) {
                                     dataAccumulatorList.add(detectorData[detectorDataRowIndex][detectorDataColumnIndex]);
                                     isotopeIndicesForDataAccumulatorList.add(speciesList.indexOf(species) + 1);
+
+                                    int[] detectorFlags = new int[detectorToSequenceCellMap.keySet().size()];
+                                    if (faraday) {
+                                        detectorFlags[detectorIndex] = 1;
+                                    } else {
+                                        // not a Faraday = Daly so 1 goes in last cell
+                                        detectorFlags[detectorToSequenceCellMap.keySet().size() - 1] = 1;
+                                    }
+                                    detectorFlagsForDataAccumulatorList.add(detectorFlags);
+
                                     baseLineFlagsForDataAccumulatorList.add(0);
                                 }
                             }
                         }
+                        detectorIndex++;
                     }
                 }
             }
@@ -101,6 +123,7 @@ public interface DataSourceProcessorInterface {
         return new AccumulatedData(
                 dataAccumulatorList,
                 isotopeIndicesForDataAccumulatorList,
+                detectorFlagsForDataAccumulatorList,
                 baseLineFlagsForDataAccumulatorList,
                 signalIndexForDataAccumulatorList);
     }
@@ -108,6 +131,7 @@ public interface DataSourceProcessorInterface {
     record AccumulatedData(
             List<Double> dataAccumulatorList,
             List<Integer> isotopeIndicesForDataAccumulatorList,
+            List<int[]> detectorFlagsForDataAccumulatorList,
             List<Integer> baseLineFlagsForDataAccumulatorList,
             List<Integer> signalIndexForDataAccumulatorList
     ) {

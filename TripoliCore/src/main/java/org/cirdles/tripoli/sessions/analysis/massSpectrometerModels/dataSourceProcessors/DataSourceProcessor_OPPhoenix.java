@@ -171,6 +171,7 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         // which takes the form of (1 - fractional distance of time with knot range, fractional distance of time with knot range)
         int blockIndex = 0;
         // hard coded est of block length since only doing first block for now
+        Matrix firstBlockInterpolationsMatrix = null;
         double[][] interpMatArrayForBlock = new double[nCycle[0]][4000];
         for (int cycleIndex = 1; cycleIndex < (nCycle[blockIndex]); cycleIndex++) {
             int startOfCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex][2];
@@ -202,6 +203,10 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
             if (lastCycle){
                 interpMatArrayForBlock[cycleIndex][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 1.0;
                 interpMatArrayForBlock[cycleIndex - 1][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 0.0;
+
+                // generate matrix and then transpose it to match matlab
+                Matrix firstPass = new Matrix(interpMatArrayForBlock, cycleIndex + 1,  countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
+                firstBlockInterpolationsMatrix = firstPass.transpose();
             }
         }
 
@@ -223,6 +228,11 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         isotopeIndicesForDataAccumulatorList.addAll(sequenceFaradayAccumulator.isotopeIndicesForDataAccumulatorList());
         isotopeIndicesForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.isotopeIndicesForDataAccumulatorList());
 
+        List<int[]> detectorFlagsForDataAccumulatorList = new ArrayList<>();
+        detectorFlagsForDataAccumulatorList.addAll(baselineFaradayAccumulator.detectorFlagsForDataAccumulatorList());
+        detectorFlagsForDataAccumulatorList.addAll(sequenceFaradayAccumulator.detectorFlagsForDataAccumulatorList());
+        detectorFlagsForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.detectorFlagsForDataAccumulatorList());
+
         List<Integer> baseLineFlagsForDataAccumulatorList = new ArrayList<>();
         baseLineFlagsForDataAccumulatorList.addAll(baselineFaradayAccumulator.baseLineFlagsForDataAccumulatorList());
         baseLineFlagsForDataAccumulatorList.addAll(sequenceFaradayAccumulator.baseLineFlagsForDataAccumulatorList());
@@ -235,17 +245,40 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         double[] isotopeIndicesForDataAccumulatorArray = isotopeIndicesForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
         Matrix isotopeIndicesForRawDataColumn = new Matrix(isotopeIndicesForDataAccumulatorArray, isotopeIndicesForDataAccumulatorArray.length);
 
+        double[][] detectorFlagsForDataAccumulatorArray = new double[detectorFlagsForDataAccumulatorList.size()][];
+        int i = 0;
+        for (int[] detectorFlags : detectorFlagsForDataAccumulatorList){
+            detectorFlagsForDataAccumulatorArray[i] = new double[detectorFlags.length];
+            for (int d = 0; d < detectorFlags.length; d++){
+                detectorFlagsForDataAccumulatorArray[i][d] = detectorFlags[d];
+            }
+            i++;
+        }
+        Matrix detectorFlagsForRawDataColumn = new Matrix(detectorFlagsForDataAccumulatorArray);
+
         double[] baseLineFlagsForDataAccumulatorArray = baseLineFlagsForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
         Matrix baseLineFlagsForRawDataColumn = new Matrix(baseLineFlagsForDataAccumulatorArray, baseLineFlagsForDataAccumulatorArray.length);
 
+
         // TODO:  add in nBlock, nCycle,
+        /*
+            Matlab code >> here
+            d0.data >> rawDataColumn
+            d0.iso_vec >> isotopeIndicesForRawDataColumn (isotopes are indexed starting at 1)
+            d0.det_ind >> detectorFlagsForRawDataColumn (each Faraday has a column and the last column is for Daly; 1 flags detector used)
+            d0.blflag >> baseLineFlagsForRawDataColumn (contains 1 for baseline, 0 for sequence)
+            d0.InterpMat >> firstBlockInterpolationsMatrix  (matlab actually puts matrices into cells)
+         */
         return new MassSpecOutputDataRecord(
                 rawDataColumn,
                 isotopeIndicesForRawDataColumn,
-                baseLineFlagsForRawDataColumn);
+                detectorFlagsForRawDataColumn,
+                baseLineFlagsForRawDataColumn,
+                firstBlockInterpolationsMatrix);
     }
 
 
+    // helper methods **************************************************************************************************
     private double[] convertListOfNumbersAsStringsToDoubleArray(List<String> listToConvert) {
         double[] retVal = new double[listToConvert.size()];
         int index = 0;
