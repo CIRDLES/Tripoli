@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import org.apache.tools.ant.filters.ReplaceTokens
+import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.include
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -21,12 +22,12 @@ import java.util.*
 plugins {
     java
     `java-library`
-    id("de.jjohannes.extra-java-module-info") version "0.11"
+    id("de.jjohannes.extra-java-module-info") version "0.14"
     id("common-build") // Plugin calls common gradle build from buildSrc
 }
 
-
 dependencies {
+//    implementation("de.jjohannes.gradle:extra-java-module-info:0.14")
     // https://mvnrepository.com/artifact/com.google.guava/guava
     implementation("com.google.guava:guava:31.1-jre")
 
@@ -68,8 +69,9 @@ val timestamp = {
 extraJavaModuleInfo {
     failOnMissingModuleInfo.set(false)
     automaticModule("commons-bc38781605.jar", "commons.bc38781605")
-    automaticModule("org.apache.commons-math3-3.6.1.jar", "org.apache.commons-math3")
-    automaticModule("org.apache.commons-lang3-3.12.0.jar", "org.apache.commons-lang3")
+    // https://github.com/gradle/gradle/issues/12630
+    automaticModule("org.apache.commons:commons-math3", "commons.math3")
+    //automaticModule("org.apache.commons-lang3-3.12.0.jar", "org.apache.commons.lang3")
     automaticModule("com.zaxxer.SparseBitSet-1.2.jar", "com.zaxxer.SparseBitSet")
     automaticModule("jama-master-SNAPSHOT.jar", "jama")
 }

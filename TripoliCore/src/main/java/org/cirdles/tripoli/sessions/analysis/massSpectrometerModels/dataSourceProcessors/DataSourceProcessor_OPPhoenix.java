@@ -110,11 +110,11 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         List<Integer> blockListWithoutDuplicates
                 = Lists.newArrayList(Sets.newLinkedHashSet(blockList));
         // following matlab code
-        int nBlocks = Math.max(1, blockListWithoutDuplicates.size() - 1);
+        int blockCount = Math.max(1, blockListWithoutDuplicates.size() - 1);
         // extract cycles per block
-        int[] nCycle = new int[nBlocks];
+        int[] nCycle = new int[blockCount];
         int totalCycles = 0;
-        if (nBlocks == 1) {
+        if (blockCount == 1) {
             nCycle[0] = cycleNumbers[cycleNumbers.length - 1] + 1;
             totalCycles = nCycle[0];
         } else {
@@ -212,21 +212,36 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
 
 
         // start with Baseline table
-        AccumulatedData baselineFaradayAccumulator = accumulateBaselineDataPerSequenceTableSpecs(sequenceIDs, detectorData, analysisMethod.getSequenceTable(), true);
+        AccumulatedData baselineFaradayAccumulator = accumulateBaselineDataPerSequenceTableSpecs(sequenceIDs, detectorData, analysisMethod, true);
         // now sequence table Faraday
-        AccumulatedData sequenceFaradayAccumulator = accumulateDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, blockListWithoutDuplicates, detectorData, analysisMethod.getSequenceTable(), analysisMethod.getSpeciesList(), true);
+        AccumulatedData sequenceFaradayAccumulator = accumulateDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, blockListWithoutDuplicates, detectorData, analysisMethod, true);
         // now sequence table NOT Faraday (ion counter)
-        AccumulatedData sequenceIonCounterAccumulator = accumulateDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, blockListWithoutDuplicates, detectorData, analysisMethod.getSequenceTable(), analysisMethod.getSpeciesList(), false);
+        AccumulatedData sequenceIonCounterAccumulator = accumulateDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, blockListWithoutDuplicates, detectorData, analysisMethod, false);
 
         List<Double> dataAccumulatorList = new ArrayList<>();
         dataAccumulatorList.addAll(baselineFaradayAccumulator.dataAccumulatorList());
         dataAccumulatorList.addAll(sequenceFaradayAccumulator.dataAccumulatorList());
         dataAccumulatorList.addAll(sequenceIonCounterAccumulator.dataAccumulatorList());
 
+        List<Integer> blockIndicesForDataAccumulatorList = new ArrayList<>();
+        blockIndicesForDataAccumulatorList.addAll(baselineFaradayAccumulator.blockIndicesForDataAccumulatorList());
+        blockIndicesForDataAccumulatorList.addAll(sequenceFaradayAccumulator.blockIndicesForDataAccumulatorList());
+        blockIndicesForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.blockIndicesForDataAccumulatorList());
+
         List<Integer> isotopeIndicesForDataAccumulatorList = new ArrayList<>();
         isotopeIndicesForDataAccumulatorList.addAll(baselineFaradayAccumulator.isotopeIndicesForDataAccumulatorList());
         isotopeIndicesForDataAccumulatorList.addAll(sequenceFaradayAccumulator.isotopeIndicesForDataAccumulatorList());
         isotopeIndicesForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.isotopeIndicesForDataAccumulatorList());
+
+        List<int[]> isotopeFlagsForDataAccumulatorList = new ArrayList<>();
+        isotopeFlagsForDataAccumulatorList.addAll(baselineFaradayAccumulator.isotopeFlagsForDataAccumulatorList());
+        isotopeFlagsForDataAccumulatorList.addAll(sequenceFaradayAccumulator.isotopeFlagsForDataAccumulatorList());
+        isotopeFlagsForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.isotopeFlagsForDataAccumulatorList());
+
+        List<Integer> detectorIndicesForDataAccumulatorList = new ArrayList<>();
+        detectorIndicesForDataAccumulatorList.addAll(baselineFaradayAccumulator.detectorIndicesForDataAccumulatorList());
+        detectorIndicesForDataAccumulatorList.addAll(sequenceFaradayAccumulator.detectorIndicesForDataAccumulatorList());
+        detectorIndicesForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.detectorIndicesForDataAccumulatorList());
 
         List<int[]> detectorFlagsForDataAccumulatorList = new ArrayList<>();
         detectorFlagsForDataAccumulatorList.addAll(baselineFaradayAccumulator.detectorFlagsForDataAccumulatorList());
@@ -238,15 +253,39 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         baseLineFlagsForDataAccumulatorList.addAll(sequenceFaradayAccumulator.baseLineFlagsForDataAccumulatorList());
         baseLineFlagsForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.baseLineFlagsForDataAccumulatorList());
 
+        List<Integer> axialFlagsForDataAccumulatorList = new ArrayList<>();
+        axialFlagsForDataAccumulatorList.addAll(baselineFaradayAccumulator.axialFlagsForDataAccumulatorList());
+        axialFlagsForDataAccumulatorList.addAll(sequenceFaradayAccumulator.axialFlagsForDataAccumulatorList());
+        axialFlagsForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.axialFlagsForDataAccumulatorList());
+
+
         // convert to arrays to  build parameters for MassSpecOutputDataRecord record
         double[] dataAccumulatorArray = dataAccumulatorList.stream().mapToDouble(d -> d).toArray();
         Matrix rawDataColumn = new Matrix(dataAccumulatorArray, dataAccumulatorArray.length);
 
+        double[] blockIndicesForDataAccumulatorArray = blockIndicesForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
+        Matrix blockIndicesForRawDataColumn = new Matrix(blockIndicesForDataAccumulatorArray, blockIndicesForDataAccumulatorArray.length);
+
         double[] isotopeIndicesForDataAccumulatorArray = isotopeIndicesForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
         Matrix isotopeIndicesForRawDataColumn = new Matrix(isotopeIndicesForDataAccumulatorArray, isotopeIndicesForDataAccumulatorArray.length);
 
-        double[][] detectorFlagsForDataAccumulatorArray = new double[detectorFlagsForDataAccumulatorList.size()][];
+
+        double[][] isotopeFlagsForDataAccumulatorArray = new double[isotopeFlagsForDataAccumulatorList.size()][];
         int i = 0;
+        for (int[] isotopeFlags : isotopeFlagsForDataAccumulatorList){
+            isotopeFlagsForDataAccumulatorArray[i] = new double[isotopeFlags.length];
+            for (int iso = 0; iso < isotopeFlags.length;  iso++){
+                isotopeFlagsForDataAccumulatorArray[i][iso] = isotopeFlags[iso];
+            }
+            i++;
+        }
+        Matrix isotopeFlagsForRawDataColumn = new Matrix(isotopeFlagsForDataAccumulatorArray);
+
+        double[] detectorIndicesForDataAccumulatorArray = detectorIndicesForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
+        Matrix detectorIndicesForRawDataColumn = new Matrix(detectorIndicesForDataAccumulatorArray, detectorIndicesForDataAccumulatorArray.length);
+
+        double[][] detectorFlagsForDataAccumulatorArray = new double[detectorFlagsForDataAccumulatorList.size()][];
+        i = 0;
         for (int[] detectorFlags : detectorFlagsForDataAccumulatorList){
             detectorFlagsForDataAccumulatorArray[i] = new double[detectorFlags.length];
             for (int d = 0; d < detectorFlags.length; d++){
@@ -259,22 +298,43 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         double[] baseLineFlagsForDataAccumulatorArray = baseLineFlagsForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
         Matrix baseLineFlagsForRawDataColumn = new Matrix(baseLineFlagsForDataAccumulatorArray, baseLineFlagsForDataAccumulatorArray.length);
 
+        double[] axialFlagsForDataAccumulatorArray = axialFlagsForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
+        Matrix axialFlagsForRawDataColumn = new Matrix(axialFlagsForDataAccumulatorArray, axialFlagsForDataAccumulatorArray.length);
+
 
         // TODO:  add in nBlock, nCycle,
         /*
             Matlab code >> here
             d0.data >> rawDataColumn
+            d0.block >> blockIndicesForRawDataColumn (1-based block number for sequence data, BaseLine data is set to block 0)
             d0.iso_vec >> isotopeIndicesForRawDataColumn (isotopes are indexed starting at 1)
+            d0.iso_ind >> isotopeFlagsForRawDataColumn (each isotope has a column and a 1 denotes it is being read)
+            d0.det_vec >> detectorIndicesForRawDataColumn (detectors are indexed from 1 through all Faraday and the last is the Axial (Daly)))
             d0.det_ind >> detectorFlagsForRawDataColumn (each Faraday has a column and the last column is for Daly; 1 flags detector used)
             d0.blflag >> baseLineFlagsForRawDataColumn (contains 1 for baseline, 0 for sequence)
+            d0.axflag >> axialFlagsForRawDataColumn (contains 1 for data from DALY detector, 0 otherwise)
             d0.InterpMat >> firstBlockInterpolationsMatrix  (matlab actually puts matrices into cells)
+            d0.Nfarar >> faradayCount
+            d0.Niso >> isotopeCount
+            d0.Nblock >> blockCount
          */
+
+        int faradayCount = analysisMethod.getSequenceTable().getMapOfDetectorsToSequenceCells().keySet().size() - 1;
+        int isotopeCount = analysisMethod.getSpeciesList().size();
+
         return new MassSpecOutputDataRecord(
                 rawDataColumn,
+                blockIndicesForRawDataColumn,
                 isotopeIndicesForRawDataColumn,
+                isotopeFlagsForRawDataColumn,
+                detectorIndicesForRawDataColumn,
                 detectorFlagsForRawDataColumn,
                 baseLineFlagsForRawDataColumn,
-                firstBlockInterpolationsMatrix);
+                axialFlagsForRawDataColumn,
+                firstBlockInterpolationsMatrix,
+                faradayCount,
+                isotopeCount,
+                blockCount);
     }
 
 

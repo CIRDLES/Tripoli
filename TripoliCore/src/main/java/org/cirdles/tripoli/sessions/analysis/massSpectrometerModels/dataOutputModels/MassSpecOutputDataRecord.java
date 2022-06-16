@@ -20,10 +20,17 @@ import jama.Matrix;
 
 public record MassSpecOutputDataRecord(
         Matrix rawDataColumn,
+        Matrix blockIndicesForRawDataColumn,
         Matrix isotopeIndicesForRawDataColumn,
+        Matrix isotopeFlagsForRawDataColumn,
+        Matrix detectorIndicesForRawDataColumn,
         Matrix detectorFlagsForRawDataColumn,
         Matrix baseLineFlagsForRawDataColumn,
-        Matrix firstBlockInterpolations
+        Matrix axialFlagsForRawDataColumn,
+        Matrix firstBlockInterpolations,
+        int faradayCount,
+        int isotopeCount,
+        int blockCount
 ) {
 
 }

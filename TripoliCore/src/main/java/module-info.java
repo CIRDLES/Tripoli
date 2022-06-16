@@ -20,6 +20,8 @@ module Tripoli.TripoliCore {
     requires org.jetbrains.annotations;
     requires jama;
     requires com.google.common;
+    requires commons.math3;
+
 
     exports org.cirdles.tripoli;
     exports org.cirdles.tripoli.valueModels;

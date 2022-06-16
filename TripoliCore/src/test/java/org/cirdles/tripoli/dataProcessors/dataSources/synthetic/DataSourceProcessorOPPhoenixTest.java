@@ -20,6 +20,7 @@ import jama.Matrix;
 import jama.MatrixIO;
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.DataModeller;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_OPPhoenix;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethodBuiltinFactory;
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.*;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.DataModeller.modellingTest;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -59,6 +61,8 @@ class DataSourceProcessorOPPhoenixTest {
         MatrixIO.print(2, 2, test);
 
         assert (massSpecOutputDataRecord.rawDataColumn().getRowDimension() == 3600);
+
+        DataModeller.modellingTest(massSpecOutputDataRecord);
     }
 
     @Test
