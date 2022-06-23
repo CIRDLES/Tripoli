@@ -20,7 +20,8 @@ import jama.Matrix;
 import jama.MatrixIO;
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.DataModeller;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.DataModelInitializer;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.DataModellerOutputRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_OPPhoenix;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethodBuiltinFactory;
@@ -29,7 +30,7 @@ import org.junit.jupiter.api.*;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.DataModeller.modellingTest;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.DataModelDriverTest.driveModelTest;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -52,17 +53,21 @@ class DataSourceProcessorOPPhoenixTest {
         System.err.println("Testing Synthetic Data 2 isotopes.");
         Path dataFile = RESOURCE_EXTRACTOR
                 .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/SyntheticDataset_05.txt").toPath();
-        DataSourceProcessor_OPPhoenix dataSourceProcessorOPPhoenix
-                = DataSourceProcessor_OPPhoenix.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
-        MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFile);
+//        DataSourceProcessor_OPPhoenix dataSourceProcessorOPPhoenix
+//                = DataSourceProcessor_OPPhoenix.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
+//        MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFile);
+//
+//        double[] testArray = new double[]{1, 2, 3, 4, 5};
+//        Matrix test = new Matrix(testArray, testArray.length);
+//        MatrixIO.print(2, 2, test);
+//
+//        assert (massSpecOutputDataRecord.rawDataColumn().getRowDimension() == 3600);
 
-        double[] testArray = new double[]{1, 2, 3, 4, 5};
-        Matrix test = new Matrix(testArray, testArray.length);
-        MatrixIO.print(2, 2, test);
+        DataModellerOutputRecord dataModelInit = driveModelTest(dataFile);
 
-        assert (massSpecOutputDataRecord.rawDataColumn().getRowDimension() == 3600);
+        System.out.println();
+        assertEquals (dataModelInit.blockIntensities().get(0,0) , 87806.56134575832);
 
-        DataModeller.modellingTest(massSpecOutputDataRecord);
     }
 
     @Test

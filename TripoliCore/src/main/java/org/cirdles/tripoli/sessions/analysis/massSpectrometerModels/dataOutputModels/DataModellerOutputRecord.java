@@ -18,22 +18,13 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputM
 
 import jama.Matrix;
 
-public record MassSpecOutputDataRecord(
-        Matrix rawDataColumn,
-        Matrix timeColumn,
-        Matrix timeIndColumn,
-        Matrix signalIndicesForRawDataColumn,
-        Matrix blockIndicesForRawDataColumn,
-        Matrix isotopeIndicesForRawDataColumn,
-        Matrix isotopeFlagsForRawDataColumn,
-        Matrix detectorIndicesForRawDataColumn,
-        Matrix detectorFlagsForRawDataColumn,
-        Matrix baseLineFlagsForRawDataColumn,
-        Matrix axialFlagsForRawDataColumn,
-        Matrix firstBlockInterpolations,
-        int faradayCount,
-        int isotopeCount,
-        int blockCount
+public record DataModellerOutputRecord(
+        Matrix baselineMeans,
+        Matrix baselineStandardDeviations,
+        double dfGain,
+        Matrix logratios,
+        Matrix blockIntensities,
+        Matrix sigmas
 ) {
 
 }
