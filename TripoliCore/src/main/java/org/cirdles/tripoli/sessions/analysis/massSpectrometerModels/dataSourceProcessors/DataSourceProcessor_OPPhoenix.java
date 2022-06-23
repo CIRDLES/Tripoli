@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import jama.Matrix;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataRecord;
 
@@ -30,6 +31,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ListIterator;
 
 public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterface {
     private final AnalysisMethod analysisMethod;
@@ -102,22 +104,28 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
             index++;
         }
 
-        // extract unique block numbers
+
+        // blocks start at 1, cycles start at 0 but cycle 1 starts the Sequences
+        // new block starts with BL# and cycles restart at 0
+
         List<Integer> blockList = Ints.asList(blockNumbers);
         List<Integer> blockListWithoutDuplicates
                 = Lists.newArrayList(Sets.newLinkedHashSet(blockList));
         // following matlab code
-        int nBlocks = Math.max(1, blockListWithoutDuplicates.size() - 1);
+        int blockCount = Math.max(1, blockListWithoutDuplicates.size() - 1);
         // extract cycles per block
-        int[] nCycle = new int[nBlocks];
-        if (nBlocks == 1) {
+        int[] nCycle = new int[blockCount];
+        int totalCycles = 0;
+        if (blockCount == 1) {
             nCycle[0] = cycleNumbers[cycleNumbers.length - 1] + 1;
+            totalCycles = nCycle[0];
         } else {
             int startIndex = 0;
             for (Integer blockNumber : blockListWithoutDuplicates) {
                 for (int i = startIndex; i < blockNumbers.length; i++) {
                     if (blockNumbers[i] > blockNumber) {
                         nCycle[blockNumber - 1] = cycleNumbers[i - 1] + 1;
+                        totalCycles += nCycle[blockNumber - 1];
                         startIndex = i;
                         break;
                     }
@@ -125,52 +133,368 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
             }
         }
 
-        // build InterpMat for each block
-        for (int blockIndex = 0; blockIndex < nBlocks; blockIndex++ ){
-            double[][] interpMatArrayForBlock = new double[0][];
+        // collect the starting indices of each cycle in each block
+        int currentBlockNumber = 1;
+        int currentCycleNumber = 0;
+        int currentIndex = 0;
+        int currentRecordNumber = 0;
+        int row;
+        boolean cycleStartRecorded = false;
+        int[][] startingIndicesOfCyclesByBlock = new int[totalCycles][4]; //blockNum, cycleNum, startIndex
+        for (row = 0; row < blockNumbers.length; row++) {
+            if (blockNumbers[row] == currentBlockNumber) {
+                if (!cycleStartRecorded) {
+                    startingIndicesOfCyclesByBlock[currentRecordNumber] = new int[]{currentBlockNumber, currentCycleNumber, currentIndex};
+                    cycleStartRecorded = true;
+                }
+                if (cycleNumbers[row] > currentCycleNumber) {
+                    currentRecordNumber++;
+                    currentCycleNumber++;
+                    currentIndex = row;
+                    startingIndicesOfCyclesByBlock[currentRecordNumber] = new int[]{currentBlockNumber, currentCycleNumber, currentIndex};
+                }
+            } else {
+                // new block
+                currentIndex = row;
+                currentRecordNumber++;
+                currentCycleNumber = 0;
+                currentBlockNumber++;
+                if (currentRecordNumber >= totalCycles){
+                    break;
+                }
+                startingIndicesOfCyclesByBlock[currentRecordNumber] = new int[]{currentBlockNumber, currentCycleNumber, currentIndex};
+            }
         }
 
+        // build InterpMat for each block using linear approach
+        // june 2022 assume 1 block for now
+        // the general approach for a block is to create a knot at the start of each cycle and
+        // linearly interpolate between knots to create fractional placement of each recorded timestamp
+        // which takes the form of (1 - fractional distance of time with knot range, fractional distance of time with knot range)
+        int blockIndex = 0;
+        // hard coded est of block length since only doing first block for now
+        Matrix firstBlockInterpolationsMatrix = null;
+        double[][] interpMatArrayForBlock = new double[nCycle[0]][4000];
+        for (int cycleIndex = 1; cycleIndex < (nCycle[blockIndex]); cycleIndex++) {
+            int startOfCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex][2];
+
+            int startOfNextCycleIndex;
+            if ((cycleIndex == nCycle[blockIndex] - 1) && (nCycle.length == blockIndex + 1)) {
+                startOfNextCycleIndex = timeStamp.length;
+            } else {
+                startOfNextCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex + 1][2];
+            }
+
+            // detect last cycle because it uses its last entry as the upper limit
+            // whereas the matlab code uses the starting entry of the next cycle for all previous cycles
+            boolean lastCycle = false;
+            lastCycle = (cycleIndex == nCycle[blockIndex] - 1);
+            if (lastCycle){
+                startOfNextCycleIndex --;
+            }
+            int countOfEntries = startingIndicesOfCyclesByBlock[cycleIndex][2] - startingIndicesOfCyclesByBlock[1][2];
+
+            double deltaTimeStamp = timeStamp[startOfNextCycleIndex] - timeStamp[startOfCycleIndex];
+
+            for (int timeIndex = startOfCycleIndex; timeIndex < startOfNextCycleIndex; timeIndex++) {
+                interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) +  countOfEntries] =
+                        (timeStamp[timeIndex] - timeStamp[startOfCycleIndex]) / deltaTimeStamp;
+                interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] =
+                        1.0 - interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) +  countOfEntries];
+            }
+            if (lastCycle){
+                interpMatArrayForBlock[cycleIndex][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 1.0;
+                interpMatArrayForBlock[cycleIndex - 1][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 0.0;
+
+                // generate matrix and then transpose it to match matlab
+                Matrix firstPass = new Matrix(interpMatArrayForBlock, cycleIndex + 1,  countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
+                firstBlockInterpolationsMatrix = firstPass.transpose();
+            }
+        }
+
+        int faradayCount = analysisMethod.getSequenceTable().getMapOfDetectorsToSequenceCells().keySet().size() - 1;
+        int isotopeCount = analysisMethod.getSpeciesList().size();
 
         // start with Baseline table
-        AccumulatedData baselineFaradayAccumulator = accumulateBaselineDataPerSequenceTableSpecs(sequenceIDs, detectorData, analysisMethod.getSequenceTable(), true);
+        AccumulatedData baselineFaradayAccumulator = accumulateBaselineDataPerSequenceTableSpecs(sequenceIDs, detectorData, analysisMethod, true);
         // now sequence table Faraday
-        AccumulatedData sequenceFaradayAccumulator = accumulateDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, blockListWithoutDuplicates, detectorData, analysisMethod.getSequenceTable(), analysisMethod.getSpeciesList(), true);
+        AccumulatedData sequenceFaradayAccumulator = accumulateDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, blockListWithoutDuplicates, detectorData, timeStamp, analysisMethod, true);
         // now sequence table NOT Faraday (ion counter)
-        AccumulatedData sequenceIonCounterAccumulator = accumulateDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, blockListWithoutDuplicates, detectorData, analysisMethod.getSequenceTable(), analysisMethod.getSpeciesList(), false);
+        AccumulatedData sequenceIonCounterAccumulator = accumulateDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, blockListWithoutDuplicates, detectorData, timeStamp, analysisMethod, false);
 
         List<Double> dataAccumulatorList = new ArrayList<>();
         dataAccumulatorList.addAll(baselineFaradayAccumulator.dataAccumulatorList());
         dataAccumulatorList.addAll(sequenceFaradayAccumulator.dataAccumulatorList());
         dataAccumulatorList.addAll(sequenceIonCounterAccumulator.dataAccumulatorList());
 
+        List<Double> timeAccumulatorList = new ArrayList<>();
+        timeAccumulatorList.addAll(baselineFaradayAccumulator.timeAccumulatorList());
+        timeAccumulatorList.addAll(sequenceFaradayAccumulator.timeAccumulatorList());
+        timeAccumulatorList.addAll(sequenceIonCounterAccumulator.timeAccumulatorList());
+
+        // this only works for single block
+        // TODO: fix
+        List<Integer> timeIndAccumulatorList = new ArrayList<>();
+        timeIndAccumulatorList.addAll(baselineFaradayAccumulator.timeIndAccumulatorList());
+        timeIndAccumulatorList.addAll(sequenceFaradayAccumulator.timeIndAccumulatorList());
+        timeIndAccumulatorList.addAll(sequenceIonCounterAccumulator.timeIndAccumulatorList());
+
+        List<Integer> blockIndicesForDataAccumulatorList = new ArrayList<>();
+        blockIndicesForDataAccumulatorList.addAll(baselineFaradayAccumulator.blockIndicesForDataAccumulatorList());
+        blockIndicesForDataAccumulatorList.addAll(sequenceFaradayAccumulator.blockIndicesForDataAccumulatorList());
+        blockIndicesForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.blockIndicesForDataAccumulatorList());
+
         List<Integer> isotopeIndicesForDataAccumulatorList = new ArrayList<>();
         isotopeIndicesForDataAccumulatorList.addAll(baselineFaradayAccumulator.isotopeIndicesForDataAccumulatorList());
         isotopeIndicesForDataAccumulatorList.addAll(sequenceFaradayAccumulator.isotopeIndicesForDataAccumulatorList());
         isotopeIndicesForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.isotopeIndicesForDataAccumulatorList());
+
+        List<int[]> isotopeFlagsForDataAccumulatorList = new ArrayList<>();
+        isotopeFlagsForDataAccumulatorList.addAll(baselineFaradayAccumulator.isotopeFlagsForDataAccumulatorList());
+        isotopeFlagsForDataAccumulatorList.addAll(sequenceFaradayAccumulator.isotopeFlagsForDataAccumulatorList());
+        isotopeFlagsForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.isotopeFlagsForDataAccumulatorList());
+
+        List<Integer> detectorIndicesForDataAccumulatorList = new ArrayList<>();
+        detectorIndicesForDataAccumulatorList.addAll(baselineFaradayAccumulator.detectorIndicesForDataAccumulatorList());
+        detectorIndicesForDataAccumulatorList.addAll(sequenceFaradayAccumulator.detectorIndicesForDataAccumulatorList());
+        detectorIndicesForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.detectorIndicesForDataAccumulatorList());
+
+        List<int[]> detectorFlagsForDataAccumulatorList = new ArrayList<>();
+        detectorFlagsForDataAccumulatorList.addAll(baselineFaradayAccumulator.detectorFlagsForDataAccumulatorList());
+        detectorFlagsForDataAccumulatorList.addAll(sequenceFaradayAccumulator.detectorFlagsForDataAccumulatorList());
+        detectorFlagsForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.detectorFlagsForDataAccumulatorList());
 
         List<Integer> baseLineFlagsForDataAccumulatorList = new ArrayList<>();
         baseLineFlagsForDataAccumulatorList.addAll(baselineFaradayAccumulator.baseLineFlagsForDataAccumulatorList());
         baseLineFlagsForDataAccumulatorList.addAll(sequenceFaradayAccumulator.baseLineFlagsForDataAccumulatorList());
         baseLineFlagsForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.baseLineFlagsForDataAccumulatorList());
 
+        List<Integer> axialFlagsForDataAccumulatorList = new ArrayList<>();
+        axialFlagsForDataAccumulatorList.addAll(baselineFaradayAccumulator.axialFlagsForDataAccumulatorList());
+        axialFlagsForDataAccumulatorList.addAll(sequenceFaradayAccumulator.axialFlagsForDataAccumulatorList());
+        axialFlagsForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.axialFlagsForDataAccumulatorList());
+
+        List<Integer> signalIndexForDataAccumulatorList = new ArrayList<>();
+        signalIndexForDataAccumulatorList.addAll(baselineFaradayAccumulator.signalIndexForDataAccumulatorList());
+        // add baseline highest signal index to Faraday items
+        int lastSignalIndexUsed = signalIndexForDataAccumulatorList.get(signalIndexForDataAccumulatorList.size() - 1);
+        List<Integer> faradaySignalIndices = sequenceFaradayAccumulator.signalIndexForDataAccumulatorList();
+        for (final ListIterator<Integer> iterator = faradaySignalIndices.listIterator(); iterator.hasNext();) {
+            final Integer element = iterator.next();
+            iterator.set(element + lastSignalIndexUsed);
+        }
+        signalIndexForDataAccumulatorList.addAll(faradaySignalIndices);
+        // add faraday highest signal index to Axial items
+        lastSignalIndexUsed = signalIndexForDataAccumulatorList.get(signalIndexForDataAccumulatorList.size() - 1);
+        List<Integer> axialSignalIndices = sequenceIonCounterAccumulator.signalIndexForDataAccumulatorList();
+        for (final ListIterator<Integer> iterator = axialSignalIndices.listIterator(); iterator.hasNext();) {
+            final Integer element = iterator.next();
+            iterator.set(element + lastSignalIndexUsed);
+        }
+        signalIndexForDataAccumulatorList.addAll(axialSignalIndices);
+
         // convert to arrays to  build parameters for MassSpecOutputDataRecord record
         double[] dataAccumulatorArray = dataAccumulatorList.stream().mapToDouble(d -> d).toArray();
         Matrix rawDataColumn = new Matrix(dataAccumulatorArray, dataAccumulatorArray.length);
 
+        double[] timeAccumulatorArray = timeAccumulatorList.stream().mapToDouble(d -> d).toArray();
+        Matrix timeColumn = new Matrix(timeAccumulatorArray, timeAccumulatorArray.length);
+
+        double[] timeIndAccumulatorArray = timeIndAccumulatorList.stream().mapToDouble(d -> d).toArray();
+        Matrix timeIndColumn = new Matrix(timeIndAccumulatorArray, timeIndAccumulatorArray.length);
+
+        double[] blockIndicesForDataAccumulatorArray = blockIndicesForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
+        Matrix blockIndicesForRawDataColumn = new Matrix(blockIndicesForDataAccumulatorArray, blockIndicesForDataAccumulatorArray.length);
+
         double[] isotopeIndicesForDataAccumulatorArray = isotopeIndicesForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
         Matrix isotopeIndicesForRawDataColumn = new Matrix(isotopeIndicesForDataAccumulatorArray, isotopeIndicesForDataAccumulatorArray.length);
+
+        double[][] isotopeFlagsForDataAccumulatorArray = new double[isotopeFlagsForDataAccumulatorList.size()][];
+        int i = 0;
+        for (int[] isotopeFlags : isotopeFlagsForDataAccumulatorList){
+            isotopeFlagsForDataAccumulatorArray[i] = new double[isotopeFlags.length];
+            for (int iso = 0; iso < isotopeFlags.length;  iso++){
+                isotopeFlagsForDataAccumulatorArray[i][iso] = isotopeFlags[iso];
+            }
+            i++;
+        }
+        Matrix isotopeFlagsForRawDataColumn = new Matrix(isotopeFlagsForDataAccumulatorArray);
+
+        double[] detectorIndicesForDataAccumulatorArray = detectorIndicesForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
+        Matrix detectorIndicesForRawDataColumn = new Matrix(detectorIndicesForDataAccumulatorArray, detectorIndicesForDataAccumulatorArray.length);
+
+        double[][] detectorFlagsForDataAccumulatorArray = new double[detectorFlagsForDataAccumulatorList.size()][];
+        i = 0;
+        for (int[] detectorFlags : detectorFlagsForDataAccumulatorList){
+            detectorFlagsForDataAccumulatorArray[i] = new double[detectorFlags.length];
+            for (int d = 0; d < detectorFlags.length; d++){
+                detectorFlagsForDataAccumulatorArray[i][d] = detectorFlags[d];
+            }
+            i++;
+        }
+        Matrix detectorFlagsForRawDataColumn = new Matrix(detectorFlagsForDataAccumulatorArray);
 
         double[] baseLineFlagsForDataAccumulatorArray = baseLineFlagsForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
         Matrix baseLineFlagsForRawDataColumn = new Matrix(baseLineFlagsForDataAccumulatorArray, baseLineFlagsForDataAccumulatorArray.length);
 
-        // TODO:  add in nBlock, nCycle,
+        double[] axialFlagsForDataAccumulatorArray = axialFlagsForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
+        Matrix axialFlagsForRawDataColumn = new Matrix(axialFlagsForDataAccumulatorArray, axialFlagsForDataAccumulatorArray.length);
+
+        double[] signalIndicesForDataAccumulatorArray = signalIndexForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
+        Matrix signalIndicesForRawDataColumn = new Matrix(signalIndicesForDataAccumulatorArray, signalIndicesForDataAccumulatorArray.length);
+
+
+
+        // Time_Far = repmat(Time,1,Nfar);
+        double[][] timeFarArray = new double[faradayCount][timeStamp.length];
+        for (int far = 0; far < faradayCount; far ++){
+            timeFarArray[far] = timeStamp.clone();
+        }
+        Matrix timeFar = new Matrix(timeFarArray).transpose();
+
+        /*
+            for m = 1:Niso
+                mmass = abs(Mass-Isotopes(m))<0.25;
+                Ax_ind(mmass,1) = m;
+                Far_ind(mmass,:) = repmat(F_ind(m,:),sum(mmass),1);
+            end
+         */
+        // Far_ind and Ax_ind
+        double[][] isotopeIndicesPerFaraday = sequenceFaradayAccumulator.isotopeIndicesPerFaradayOrAxial().clone();
+        double[][] isotopeIndicesPerAxial = sequenceIonCounterAccumulator.isotopeIndicesPerFaradayOrAxial().clone();
+
+        /*
+            for m = 1:Nblock
+                for n = 1:Ncycle(m)-1
+                    medCycleTime(m,n) = median(Time(Block==m & Cycle==n));
+                    minCycleTime(m,n) = min(Time(Block==m & Cycle==n));
+                    maxCycleTime(m,n) = max(Time(Block==m & Cycle==n));
+
+                    iminCT(m,n) = find(Time==minCycleTime(m,n));
+                    imaxCT(m,n) = find(Time==maxCycleTime(m,n));
+
+                end
+            end
+
+            Tknots0 = [minCycleTime maxCycleTime(:,end)];
+            iTknots0 =  [iminCT (:,end)];
+         */
+
+        double[][] medCycleTime = new double[blockCount][nCycle[blockIndex] - 1];
+        double[][] minCycleTime = new double[blockCount][nCycle[blockIndex] - 1];
+        double[][] maxCycleTime = new double[blockCount][nCycle[blockIndex] - 1];
+        double[][] iminCT = new double[blockCount][nCycle[blockIndex] - 1];
+        double[][] imaxCT = new double[blockCount][nCycle[blockIndex] - 1];
+        for (blockIndex = 0; blockIndex < blockCount; blockIndex++){
+            for (int cycleIndex = 1; cycleIndex < nCycle[blockIndex]; cycleIndex++){
+                DescriptiveStatistics descriptiveStatisticsA = new DescriptiveStatistics();
+                for (row = 0; row < blockNumbers.length; row++){
+                    if ((blockNumbers[row] == blockIndex + 1) && (cycleNumbers[row] == cycleIndex)){
+                        descriptiveStatisticsA.addValue(timeStamp[row]);
+                    }
+                }
+                medCycleTime[blockIndex][cycleIndex - 1] = descriptiveStatisticsA.getPercentile(50);
+                minCycleTime[blockIndex][cycleIndex - 1] = descriptiveStatisticsA.getMin();
+                maxCycleTime[blockIndex][cycleIndex - 1] = descriptiveStatisticsA.getMax();
+                for (row = 0; row < timeStamp.length; row++){
+                    if (timeStamp[row] >= minCycleTime[blockIndex][cycleIndex - 1]){
+                        iminCT[blockIndex][cycleIndex - 1] = row;
+                        break;
+                    }
+                }
+                for (row = 0; row < timeStamp.length; row++){
+                    if (timeStamp[row] >= maxCycleTime[blockIndex][cycleIndex - 1]){
+                        imaxCT[blockIndex][cycleIndex - 1] = row;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // to make knots, copy min array and add new column from last column of max array
+        blockIndex = 0;
+        double[][] tKnots0 = new double[minCycleTime.length][nCycle[blockIndex]];
+        double[][] iTKnots0 = new double[minCycleTime.length][nCycle[blockIndex]];
+        for (row = 0; row < minCycleTime.length; row++){
+            for (int col = 0; col < (nCycle[blockIndex] - 1); col++){
+                tKnots0[row][col] = minCycleTime[row][col];
+                iTKnots0[row][col] = iminCT[row][col];
+            }
+            tKnots0[row][nCycle[blockIndex]-1] = maxCycleTime[row][nCycle[blockIndex] -2];
+            iTKnots0[row][nCycle[blockIndex]-1] = imaxCT[row][nCycle[blockIndex] -2];
+        }
+
+    /*
+        for m=1:Nblock
+            Block_Time{m} = Time(iTknots0(m,1):iTknots0(m,end));
+            InterpMat{m} = interp1(Tknots0(m,:),eye(length(Tknots0(m,:))),Block_Time{m},'linear');
+
+            Nknots(m) = length(Tknots0(m,:));
+            Ntb(m) = length(Block_Time{m});
+        end
+
+        ftimeind = repmat([1:Nsamptot]',1,Nfar);
+     */
+        double[][] blockTime = new double[blockCount][];
+        double[] nKnots = new double[blockCount];
+        double[] nTb = new double[blockCount];
+        for (blockIndex = 0; blockIndex < blockCount; blockIndex++){
+            blockTime[blockIndex] = Arrays.copyOfRange(timeStamp, (int)iTKnots0[blockIndex][0], (int)iTKnots0[blockIndex][nCycle[blockIndex] - 1] + 1);
+            // interpolation for block 1 done above
+            // TODO: Extend to all blocks
+            nKnots[blockIndex] = tKnots0[blockIndex].length;
+            nTb[blockIndex] = blockTime[blockIndex].length;
+        }
+
+        // d0.Nsamptot >> countOfSamples
+        int countOfSamples = sequenceIDByLineSplit.size();
+        // identical columns for each faraday
+        double[][] faradayTimeIndices = new double[countOfSamples][faradayCount];
+        row = 0;
+        for (double[] rowS : faradayTimeIndices){
+            Arrays.fill(rowS, row);
+            row++;
+        }
+
+        /*
+            Matlab code >> here
+            d0.data >> rawDataColumn
+            d0.time >> timeColumn
+            d0.time_ind >> timeIndColumn
+            d0.sig_ind >> signalIndicesForRawDataColumn
+            d0.block >> blockIndicesForRawDataColumn (1-based block number for sequence data, BaseLine data is set to block 0)
+            d0.iso_vec >> isotopeIndicesForRawDataColumn (isotopes are indexed starting at 1)
+            d0.iso_ind >> isotopeFlagsForRawDataColumn (each isotope has a column and a 1 denotes it is being read)
+            d0.det_vec >> detectorIndicesForRawDataColumn (detectors are indexed from 1 through all Faraday and the last is the Axial (Daly)))
+            d0.det_ind >> detectorFlagsForRawDataColumn (each Faraday has a column and the last column is for Daly; 1 flags detector used)
+            d0.blflag >> baseLineFlagsForRawDataColumn (contains 1 for baseline, 0 for sequence)
+            d0.axflag >> axialFlagsForRawDataColumn (contains 1 for data from DALY detector, 0 otherwise)
+            d0.InterpMat >> firstBlockInterpolationsMatrix  (matlab actually puts matrices into cells)
+            d0.Nfar >> faradayCount
+            d0.Niso >> isotopeCount
+            d0.Nblock >> blockCount
+         */
+
         return new MassSpecOutputDataRecord(
                 rawDataColumn,
+                timeColumn,
+                timeIndColumn,
+                signalIndicesForRawDataColumn,
+                blockIndicesForRawDataColumn,
                 isotopeIndicesForRawDataColumn,
-                baseLineFlagsForRawDataColumn);
+                isotopeFlagsForRawDataColumn,
+                detectorIndicesForRawDataColumn,
+                detectorFlagsForRawDataColumn,
+                baseLineFlagsForRawDataColumn,
+                axialFlagsForRawDataColumn,
+                firstBlockInterpolationsMatrix,
+                faradayCount,
+                isotopeCount,
+                blockCount);
     }
 
 
+    // helper methods **************************************************************************************************
     private double[] convertListOfNumbersAsStringsToDoubleArray(List<String> listToConvert) {
         double[] retVal = new double[listToConvert.size()];
         int index = 0;
