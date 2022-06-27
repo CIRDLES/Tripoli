@@ -273,8 +273,9 @@ public class DataModelInitializer {
                 new Matrix(blStdArray),
                 dfGain,
                 new Matrix(logRatios),
-                IO,
-                new Matrix(sigmas, sigmas.length)
+                new Matrix(sigmas, sigmas.length),
+                new Matrix(dataArray, dataArray.length),
+                IO
         );
     }
 

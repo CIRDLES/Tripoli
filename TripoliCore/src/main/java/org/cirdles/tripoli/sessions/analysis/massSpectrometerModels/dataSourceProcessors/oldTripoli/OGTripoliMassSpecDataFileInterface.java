@@ -14,18 +14,8 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.oldTripoli;
 
-import jama.Matrix;
-
-public record DataModellerOutputRecord(
-        Matrix baselineMeans,
-        Matrix baselineStandardDeviations,
-        double dfGain,
-        Matrix logratios,
-        Matrix sigmas,
-        Matrix dataArray,
-        Matrix blockIntensities
-) {
-
+public interface OGTripoliMassSpecDataFileInterface {
+    public boolean testFileValidity();
 }
