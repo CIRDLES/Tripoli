@@ -33,7 +33,8 @@ public record MassSpecOutputDataRecord(
         Matrix firstBlockInterpolations,
         int faradayCount,
         int isotopeCount,
-        int blockCount
+        int blockCount,
+        int[] nCycleArray
 ) {
 
 }

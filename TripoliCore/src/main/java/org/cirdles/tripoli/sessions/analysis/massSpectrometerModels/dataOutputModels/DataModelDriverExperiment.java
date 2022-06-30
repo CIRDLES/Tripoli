@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels;
 
 import jama.Matrix;
+import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_OPPhoenix;
 
@@ -26,11 +27,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.StrictMath.exp;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.DataModelUpdater.updateMSv2;
 
 /**
  * @author James F. Bowring
  */
-public class DataModelDriverTest {
+public class DataModelDriverExperiment {
 
     public static DataModellerOutputRecord driveModelTest(Path dataFilePath) throws IOException {
         DataSourceProcessor_OPPhoenix dataSourceProcessorOPPhoenix
@@ -95,10 +97,23 @@ public class DataModelDriverTest {
             minIntensity = Math.min(dataModelInit.blockIntensities().get(row, 0), minIntensity);
         }
         Matrix priorIntensity = new Matrix(new double[][]{{0.0, 1.5 * maxIntensity}});
-        Matrix priorDFgain = new Matrix(new double[][]{{-0.8, 1.0}});
+        Matrix priorDFgain = new Matrix(new double[][]{{0.8, 1.0}});
         Matrix priorSignalNoiseFaraday = new Matrix(new double[][]{{0.0, 1.0e6}});
         Matrix priorSignalNoiseDaly = new Matrix(new double[][]{{0.0, 0.0}});
         Matrix priorPoissonNoiseDaly = new Matrix(new double[][]{{0.0, 10.0}});
+
+        PriorRecord priorRecord = new PriorRecord(
+                priorBaselineFaraday,
+                priorBaselineDaly,
+                priorLogRatio,
+                maxIntensity,
+                minIntensity,
+                priorIntensity,
+                priorDFgain,
+                priorSignalNoiseFaraday,
+                priorSignalNoiseDaly,
+                priorPoissonNoiseDaly
+        );
 
         /*
             % "Proposal Sigmas"
@@ -126,6 +141,17 @@ public class DataModelDriverTest {
         double psigSignalNoiseFaraday = maxValue;
         double psigSignalNoisePoisson = 0.5;
         double psigSignalNoiseDaly = 0;
+
+        PsigRecord psigRecord = new PsigRecord(
+                psigBaselineFaraday,
+                psigBaselineDaly,
+                psigLogRatio,
+                psigIntensityPercent,
+                psigDFgain,
+                psigSignalNoiseFaraday,
+                psigSignalNoisePoisson,
+                psigSignalNoiseDaly
+        );
 
         /*
             % Assign initial values for model x
@@ -220,12 +246,12 @@ public class DataModelDriverTest {
          */
 
         Matrix dSignalNoise = new Matrix(massSpecOutputDataRecord.detectorIndicesForRawDataColumn().getRowDimension(), 1);
-        for (int row = 0; row < massSpecOutputDataRecord.detectorIndicesForRawDataColumn().getRowDimension(); row++){
+        for (int row = 0; row < massSpecOutputDataRecord.detectorIndicesForRawDataColumn().getRowDimension(); row++) {
             double calculatedValue =
-                    StrictMath.sqrt(Math.pow(dataModelInit.sigmas().get((int)massSpecOutputDataRecord.detectorIndicesForRawDataColumn().get(row, 0) - 1, 0), 2)
+                    StrictMath.sqrt(Math.pow(dataModelInit.sigmas().get((int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn().get(row, 0) - 1, 0), 2)
                             // faradaycount plus 1 = number of detectors and we subtract 1 for the 1-based matlab indices
-                    + dataModelInit.sigmas().get((int)massSpecOutputDataRecord.isotopeIndicesForRawDataColumn().get(row, 0)  + massSpecOutputDataRecord.faradayCount(), 0)
-                    * dataWithNoBaseline.get(row, 0));
+                            + dataModelInit.sigmas().get((int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn().get(row, 0) + massSpecOutputDataRecord.faradayCount(), 0)
+                            * dataWithNoBaseline.get(row, 0));
             dSignalNoise.set(row, 0, calculatedValue);
         }
 
@@ -233,8 +259,8 @@ public class DataModelDriverTest {
         Matrix residualTmp2 = new Matrix(dSignalNoise.getRowDimension(), 1);
         double errorWeighted = 0.0;
         double errorUnWeighted = 0.0;
-        for (int row = 0; row < residualTmp.getRowDimension(); row++){
-            double calculatedValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn().get(row,0) - dataModelInit.dataArray().get(row,0), 2);
+        for (int row = 0; row < residualTmp.getRowDimension(); row++) {
+            double calculatedValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn().get(row, 0) - dataModelInit.dataArray().get(row, 0), 2);
             residualTmp.set(row, 0, calculatedValue);
             errorWeighted = errorWeighted + (calculatedValue * baselineMultiplier.get(row, 0) / dSignalNoise.get(row, 0));
             errorUnWeighted = errorUnWeighted + calculatedValue;
@@ -263,9 +289,206 @@ public class DataModelDriverTest {
             %%
             d0.iso_vec(d0.iso_vec==0)=d0.Niso; %Set BL to denominator iso
          */
+        int counter = 0;
+        Matrix keptUpdates = new Matrix(5, 4, 0.0);
+        List<EnsembleRecord> ensembleRecordsList = new ArrayList<>();
+        int countOfDFGains = 1;
+        int sumNCycle = 0;
+        for (int i = 0; i < massSpecOutputDataRecord.nCycleArray().length; i++) {
+            sumNCycle = sumNCycle + massSpecOutputDataRecord.nCycleArray()[i];
+        }
+        int sizeOfModel = massSpecOutputDataRecord.isotopeCount() + sumNCycle + massSpecOutputDataRecord.faradayCount() + countOfDFGains;
+        Matrix xDataMean = new Matrix(sizeOfModel, 1, 0.0);
+        Matrix xDataCovariance = new Matrix(sizeOfModel, sizeOfModel, 0.0);
+        Matrix delx_adapt = new Matrix(sizeOfModel, stepCountForcedSave);
+        for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().getRowDimension(); row++) {
+            if (massSpecOutputDataRecord.isotopeIndicesForRawDataColumn().get(row, 0) == 0) {
+                // TODO: see matlab comment above this seems odd in case of five isotopes
+                massSpecOutputDataRecord.isotopeIndicesForRawDataColumn().set(row, 0, massSpecOutputDataRecord.isotopeCount());
+            }
+        }
 
+        /*
+            % Find beginning and end of each block for Faraday and Daly (ax)
+            for ii=1:d0.Nblock
+                block0(ii,1) = find(d0.block(:,ii)&~d0.axflag,1,'first');
+                blockf(ii,1) = find(d0.block(:,ii)&~d0.axflag,1,'last');
+                blockax0(ii,1) = find(d0.block(:,ii)&d0.axflag,1,'first');
+                blockaxf(ii,1) = find(d0.block(:,ii)&d0.axflag,1,'last');
+            end
+         */
+        Matrix blockStartIndicesFaraday = new Matrix(massSpecOutputDataRecord.blockCount(), 1, 0);
+        Matrix blockEndIndicesFaraday = new Matrix(massSpecOutputDataRecord.blockCount(), 1, 0);
+        Matrix blockStartIndicesDaly = new Matrix(massSpecOutputDataRecord.blockCount(), 1, 0);
+        Matrix blockEndIndicesDaly = new Matrix(massSpecOutputDataRecord.blockCount(), 1, 0);
+        for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
+            blockStartIndicesFaraday.set(blockIndex, 0,
+                    findFirstOrLast(true, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 0, massSpecOutputDataRecord.axialFlagsForRawDataColumn()));
+            blockEndIndicesFaraday.set(blockIndex, 0,
+                    findFirstOrLast(false, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 0, massSpecOutputDataRecord.axialFlagsForRawDataColumn()));
+            blockStartIndicesDaly.set(blockIndex, 0,
+                    findFirstOrLast(true, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 1, massSpecOutputDataRecord.axialFlagsForRawDataColumn()));
+            blockEndIndicesDaly.set(blockIndex, 0,
+                    findFirstOrLast(false, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 1, massSpecOutputDataRecord.axialFlagsForRawDataColumn()));
+        }
 
+        /*
+            for m = 1:maxcnt*datsav
+                % Choose an operation for updating model
+                oper = RandomOperMS(hier);
 
+                clear delx
+
+                if cnt<100000
+                    adaptflag = 0;  % For first NN iterations, do regular MCMC
+                else
+                    adaptflag = 1;  % After, switch to Adaptive
+                    temp = 1;
+                end
+
+                allflag = adaptflag;
+
+                % Update model and save proposed update values (delx)
+                [x2,delx] = UpdateMSv2(oper,x,psig,prior,ensemble,xcov,delx_adapt(:,mod(m,datsav)+1),adaptflag,allflag);
+         */
+
+        for (int modelIndex = 0; modelIndex < maxCount * stepCountForcedSave; modelIndex++) {
+            String operation = randomOperMS(hierarchical);
+            boolean adaptiveFlag = (counter >= 100000);
+            boolean allFlag = adaptiveFlag;
+            int columnChoice = modelIndex % stepCountForcedSave;
+            DataModellerOutputRecord dataModelUpdaterOutputRecord = updateMSv2(
+                    operation,
+                    dataModelInit,
+                    psigRecord,
+                    priorRecord,
+                    ensembleRecordsList,
+                    xDataCovariance,
+                    delx_adapt.getMatrix(0, delx_adapt.getRowDimension() - 1, columnChoice, columnChoice),
+                    adaptiveFlag,
+                    allFlag
+            );
+
+            /*
+            %% Create updated data based on new model
+                % I was working on making this more compact and some of the details
+                % elude me.
+                tmpBLind = [x2.BL; 0];
+                tmpBL = tmpBLind(d0.det_vec);
+                tmpDF = ones(d0.Ndata,1); tmpDF(~d0.axflag) = x2.DFgain^-1;
+                tmpLR = exp(x2.lograt(d0.iso_vec));
+                tmpI = zeros(d0.Ndata,1);
+                for n=1:d0.Nblock
+                    Intensity2{n} = InterpMat{n}*x2.I{n};
+                    tmpI(block0(n):blockf(n)) = Intensity2{n}(d0.time_ind(block0(n):blockf(n)));
+                    tmpI(blockax0(n):blockaxf(n)) = Intensity2{n}(d0.time_ind(blockax0(n):blockaxf(n)));
+                end
+
+                dnobl2 = tmpDF.*tmpLR.*tmpI;
+                % New data vector
+                d2 = dnobl2 + tmpBL;
+                % New data covariance vector
+                Dsig2 = x2.sig(d0.det_vec).^2 + x2.sig(d0.iso_vec+d0.Ndet).*dnobl2;
+                % Calculate residuals for current and new model
+                restmp = (d0.data-d).^2;
+                restmp2 = (d0.data-d2).^2;
+                E02=sum(restmp2);  % Unweighted error func (for visualization)
+                if strcmp(oper,'noise')
+                    % If noise operation
+                    E=sum(restmp./Dsig);
+                    E2=sum(restmp2./Dsig2);
+                    dE=E2-E; % Change in misfit
+                else
+                    % If any other model update
+                    E=sum(restmp.*blmult./Dsig);
+                    E2=sum(restmp2.*blmult./Dsig2);
+                    dE=temp^-1*(E2-E); % Change in misfit
+                end
+             */
+
+        }
         System.err.println();
+    }
+
+    private static int findFirstOrLast(boolean first, int index, Matrix target, int flag, Matrix flags) {
+        // assume column vectors
+        int retVal = -1;
+        for (int row = 0; row < target.getRowDimension(); row++) {
+            if ((target.get(row, 0) == index) && (flags.get(row, 0) == flag)) {
+                retVal = row;
+                if (first) break;
+            }
+        }
+        return retVal;
+    }
+
+    /**
+     * Randomly generate next model operation, with or without hierarchical step
+     *
+     * @param hierFlag
+     * @return
+     */
+    private static String randomOperMS(boolean hierFlag) {
+        Object[][] notHier = new Object[][]{{40, 60, 80, 100}, {"changeI", "changer", "changebl", "changedfg"}};
+        Object[][] hier = new Object[][]{{60, 80, 95, 100, 120}, {"changeI", "changer", "changebl", "changedfg", "noise"}};
+
+        RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
+        int choice = hierFlag ? randomDataGenerator.nextInt(0, 100) : randomDataGenerator.nextInt(0, 120);
+        String retVal = "changeI";
+        if (hierFlag) {
+            for (int i = 0; i < hier[0].length; i++) {
+                if (choice < (int) hier[0][i]) {
+                    retVal = (String) hier[1][i];
+                    break;
+                }
+            }
+        } else {
+            for (int i = 0; i < notHier[0].length; i++) {
+                if (choice < (int) notHier[0][i]) {
+                    retVal = (String) notHier[1][i];
+                    break;
+                }
+            }
+        }
+
+        return retVal;
+    }
+
+    record EnsembleRecord(
+            Matrix logRatios,
+            Matrix intensity,
+            Matrix baseLine,
+            double dfGain,
+            Matrix signalNoise,
+            double errorWeighted,
+            double errorUnWeighted
+    ) {
+    }
+
+    record PsigRecord(
+            double psigBaselineFaraday,
+            double psigBaselineDaly,
+            double psigLogRatio,
+            double psigIntensityPercent,
+            double psigDFgain,
+            double psigSignalNoiseFaraday,
+            double psigSignalNoisePoisson,
+            double psigSignalNoiseDaly
+    ) {
+    }
+
+    record PriorRecord(
+            Matrix priorBaselineFaraday,
+            Matrix priorBaselineDaly,
+            Matrix priorLogRatio,
+            double maxIntensity,
+            double minIntensity,
+            Matrix priorIntensity,
+            Matrix priorDFgain,
+            Matrix priorSignalNoiseFaraday,
+            Matrix priorSignalNoiseDaly,
+            Matrix priorPoissonNoiseDaly
+    ) {
+
     }
 }

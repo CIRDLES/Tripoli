@@ -490,7 +490,8 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
                 firstBlockInterpolationsMatrix,
                 faradayCount,
                 isotopeCount,
-                blockCount);
+                blockCount,
+                nCycle);
     }
 
 

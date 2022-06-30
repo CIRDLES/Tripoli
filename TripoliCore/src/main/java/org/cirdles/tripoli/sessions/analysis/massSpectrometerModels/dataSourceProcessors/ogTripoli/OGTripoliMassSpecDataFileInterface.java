@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.oldTripoli;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.ogTripoli;
 
 public interface OGTripoliMassSpecDataFileInterface {
     public boolean testFileValidity();
