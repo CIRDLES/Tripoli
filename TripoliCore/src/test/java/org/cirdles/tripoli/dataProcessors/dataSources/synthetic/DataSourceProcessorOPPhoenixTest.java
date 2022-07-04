@@ -18,17 +18,17 @@ package org.cirdles.tripoli.dataProcessors.dataSources.synthetic;
 
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
+import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.DataModellerOutputRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_OPPhoenix;
-import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethodBuiltinFactory;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.DataModelDriverExperiment.driveModelTest;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DataSourceProcessorOPPhoenixTest {
@@ -63,7 +63,7 @@ class DataSourceProcessorOPPhoenixTest {
         DataModellerOutputRecord dataModelInit = driveModelTest(dataFile);
 
         System.out.println();
-        assertEquals (dataModelInit.blockIntensities().get(0,0) , 87806.56134575832);
+        assertEquals(dataModelInit.blockIntensities().get(0, 0), 87806.56134575832);
 
     }
 

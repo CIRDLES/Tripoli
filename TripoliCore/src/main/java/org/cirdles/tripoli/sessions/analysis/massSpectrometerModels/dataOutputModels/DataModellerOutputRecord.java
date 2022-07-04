@@ -23,7 +23,7 @@ public record DataModellerOutputRecord(
         Matrix baselineStandardDeviations,
         double dfGain,
         Matrix logratios,
-        Matrix sigmas,
+        Matrix signalNoise,
         Matrix dataArray,
         Matrix blockIntensities
 ) {

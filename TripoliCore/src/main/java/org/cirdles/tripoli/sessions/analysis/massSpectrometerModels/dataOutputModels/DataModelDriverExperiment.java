@@ -25,9 +25,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
+import static java.lang.Math.min;
 import static java.lang.StrictMath.exp;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.DataModelUpdater.updateMSv2;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.DataModelUpdater.updateMeanCovMS;
 
 /**
  * @author James F. Bowring
@@ -94,7 +97,7 @@ public class DataModelDriverExperiment {
         double minIntensity = Double.MAX_VALUE;
         for (int row = 0; row < dataModelInit.blockIntensities().getRowDimension(); row++) {
             maxIntensity = Math.max(dataModelInit.blockIntensities().get(row, 0), maxIntensity);
-            minIntensity = Math.min(dataModelInit.blockIntensities().get(row, 0), minIntensity);
+            minIntensity = min(dataModelInit.blockIntensities().get(row, 0), minIntensity);
         }
         Matrix priorIntensity = new Matrix(new double[][]{{0.0, 1.5 * maxIntensity}});
         Matrix priorDFgain = new Matrix(new double[][]{{0.8, 1.0}});
@@ -200,8 +203,9 @@ public class DataModelDriverExperiment {
         */
 
         // only using first block
+        Matrix Intensity;
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
-            Matrix Intensity = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelInit.blockIntensities());
+            Intensity = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelInit.blockIntensities());
 
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().getRowDimension(); row++) {
@@ -248,22 +252,22 @@ public class DataModelDriverExperiment {
         Matrix dSignalNoise = new Matrix(massSpecOutputDataRecord.detectorIndicesForRawDataColumn().getRowDimension(), 1);
         for (int row = 0; row < massSpecOutputDataRecord.detectorIndicesForRawDataColumn().getRowDimension(); row++) {
             double calculatedValue =
-                    StrictMath.sqrt(Math.pow(dataModelInit.sigmas().get((int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn().get(row, 0) - 1, 0), 2)
+                    StrictMath.sqrt(Math.pow(dataModelInit.signalNoise().get((int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn().get(row, 0) - 1, 0), 2)
                             // faradaycount plus 1 = number of detectors and we subtract 1 for the 1-based matlab indices
-                            + dataModelInit.sigmas().get((int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn().get(row, 0) + massSpecOutputDataRecord.faradayCount(), 0)
+                            + dataModelInit.signalNoise().get((int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn().get(row, 0) + massSpecOutputDataRecord.faradayCount(), 0)
                             * dataWithNoBaseline.get(row, 0));
             dSignalNoise.set(row, 0, calculatedValue);
         }
 
         Matrix residualTmp = new Matrix(dSignalNoise.getRowDimension(), 1);
         Matrix residualTmp2 = new Matrix(dSignalNoise.getRowDimension(), 1);
-        double errorWeighted = 0.0;
-        double errorUnWeighted = 0.0;
+        double errorWeighted_E = 0.0;
+        double errorUnWeighted_E0 = 0.0;
         for (int row = 0; row < residualTmp.getRowDimension(); row++) {
             double calculatedValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn().get(row, 0) - dataModelInit.dataArray().get(row, 0), 2);
             residualTmp.set(row, 0, calculatedValue);
-            errorWeighted = errorWeighted + (calculatedValue * baselineMultiplier.get(row, 0) / dSignalNoise.get(row, 0));
-            errorUnWeighted = errorUnWeighted + calculatedValue;
+            errorWeighted_E = errorWeighted_E + (calculatedValue * baselineMultiplier.get(row, 0) / dSignalNoise.get(row, 0));
+            errorUnWeighted_E0 = errorUnWeighted_E0 + calculatedValue;
         }
 
         /*
@@ -317,10 +321,10 @@ public class DataModelDriverExperiment {
                 blockaxf(ii,1) = find(d0.block(:,ii)&d0.axflag,1,'last');
             end
          */
-        Matrix blockStartIndicesFaraday = new Matrix(massSpecOutputDataRecord.blockCount(), 1, 0);
-        Matrix blockEndIndicesFaraday = new Matrix(massSpecOutputDataRecord.blockCount(), 1, 0);
-        Matrix blockStartIndicesDaly = new Matrix(massSpecOutputDataRecord.blockCount(), 1, 0);
-        Matrix blockEndIndicesDaly = new Matrix(massSpecOutputDataRecord.blockCount(), 1, 0);
+        Matrix blockStartIndicesFaraday = new Matrix(massSpecOutputDataRecord.blockCount(), 1, 0.0);
+        Matrix blockEndIndicesFaraday = new Matrix(massSpecOutputDataRecord.blockCount(), 1, 0.0);
+        Matrix blockStartIndicesDaly = new Matrix(massSpecOutputDataRecord.blockCount(), 1, 0.0);
+        Matrix blockEndIndicesDaly = new Matrix(massSpecOutputDataRecord.blockCount(), 1, 0.0);
         for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
             blockStartIndicesFaraday.set(blockIndex, 0,
                     findFirstOrLast(true, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 0, massSpecOutputDataRecord.axialFlagsForRawDataColumn()));
@@ -352,7 +356,7 @@ public class DataModelDriverExperiment {
                 [x2,delx] = UpdateMSv2(oper,x,psig,prior,ensemble,xcov,delx_adapt(:,mod(m,datsav)+1),adaptflag,allflag);
          */
 
-        for (int modelIndex = 0; modelIndex < maxCount * stepCountForcedSave; modelIndex++) {
+        for (int modelIndex = 1; modelIndex <= maxCount * stepCountForcedSave; modelIndex++) {//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             String operation = randomOperMS(hierarchical);
             boolean adaptiveFlag = (counter >= 100000);
             boolean allFlag = adaptiveFlag;
@@ -362,7 +366,6 @@ public class DataModelDriverExperiment {
                     dataModelInit,
                     psigRecord,
                     priorRecord,
-                    ensembleRecordsList,
                     xDataCovariance,
                     delx_adapt.getMatrix(0, delx_adapt.getRowDimension() - 1, columnChoice, columnChoice),
                     adaptiveFlag,
@@ -375,7 +378,8 @@ public class DataModelDriverExperiment {
                 % elude me.
                 tmpBLind = [x2.BL; 0];
                 tmpBL = tmpBLind(d0.det_vec);
-                tmpDF = ones(d0.Ndata,1); tmpDF(~d0.axflag) = x2.DFgain^-1;
+                tmpDF = ones(d0.Ndata,1);
+                tmpDF(~d0.axflag) = x2.DFgain^-1;
                 tmpLR = exp(x2.lograt(d0.iso_vec));
                 tmpI = zeros(d0.Ndata,1);
                 for n=1:d0.Nblock
@@ -406,8 +410,210 @@ public class DataModelDriverExperiment {
                 end
              */
 
-        }
-        System.err.println();
+            int tempering = 1;
+            Matrix tmpBLind = new Matrix(dataModelUpdaterOutputRecord.baselineMeans().getRowDimension() + 1, 1, 0.0);
+            tmpBLind.setMatrix(0, dataModelUpdaterOutputRecord.baselineMeans().getRowDimension() - 1, 0, 0,
+                    dataModelUpdaterOutputRecord.baselineMeans().getMatrix(0, dataModelUpdaterOutputRecord.baselineMeans().getRowDimension() - 1, 0, 0));
+
+            Matrix tmpBL = new Matrix(massSpecOutputDataRecord.detectorIndicesForRawDataColumn().getRowDimension(), 1);
+            Matrix tmpDF = new Matrix(massSpecOutputDataRecord.detectorIndicesForRawDataColumn().getRowDimension(), 1, 1.0);
+            Matrix tmpLR = new Matrix(massSpecOutputDataRecord.detectorIndicesForRawDataColumn().getRowDimension(), 1, 0.0);
+            Matrix tmpI = new Matrix(massSpecOutputDataRecord.detectorIndicesForRawDataColumn().getRowDimension(), 1, 0.0);
+            for (int row = 0; row < massSpecOutputDataRecord.detectorIndicesForRawDataColumn().getRowDimension(); row++) {
+                tmpBL.set(row, 0, tmpBLind.get((int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn().get(row, 0) - 1, 0));
+                if (massSpecOutputDataRecord.axialFlagsForRawDataColumn().get(row, 0) == 0) {
+                    tmpDF.set(row, 0, 1.0 / dataModelUpdaterOutputRecord.dfGain());
+                }
+                tmpLR.set(row, 0, exp(dataModelUpdaterOutputRecord.logratios().get((int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn().get(row, 0) - 1, 0)));
+            }
+
+            // todo: reminder only 1 block here
+            Matrix intensity2 = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelUpdaterOutputRecord.blockIntensities());
+            for (int row = (int) blockStartIndicesFaraday.get(0, 0); row <= (int) blockEndIndicesFaraday.get(0, 0); row++) {
+                tmpI.set(row, 0, intensity2.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0));
+            }
+            for (int row = (int) blockStartIndicesDaly.get(0, 0); row <= (int) blockEndIndicesDaly.get(0, 0); row++) {
+                tmpI.set(row, 0, intensity2.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0));
+            }
+
+            Matrix dnobl2 = tmpDF.arrayTimes(tmpLR).arrayTimes(tmpI);
+            Matrix d2 = dnobl2.plus(tmpBL);
+            Matrix dSignalNoise2 = new Matrix(massSpecOutputDataRecord.rawDataColumn().getRowDimension(), 1, 0.0);
+            Matrix restmp = new Matrix(massSpecOutputDataRecord.rawDataColumn().getRowDimension(), 1, 0.0);
+            Matrix restmp2 = new Matrix(massSpecOutputDataRecord.rawDataColumn().getRowDimension(), 1, 0.0);
+            double E02 = 0;
+            double E0 = 0;
+            double E = 0;
+            double E2 = 0;
+            double dE = 0;
+            double sumLogDSignalNoise = 0;
+            double sumLogDSignalNoise2 = 0;
+            double keep = 0;
+            for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().getRowDimension(); row++) {
+                double term1 = StrictMath.pow(dataModelInit.signalNoise().get((int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn().get(row, 0) - 1, 0), 2);
+                double term2 = dataModelInit.signalNoise().get((int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn().get(row, 0) - 1 + massSpecOutputDataRecord.faradayCount() + 1, 0);
+                dSignalNoise2.set(row, 0, term1 + term2 * dnobl2.get(row, 0));
+                double residualValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn().get(row, 0) - dataModelInit.dataArray().get(row, 0), 2);
+                restmp.set(row, 0, residualValue);
+                E0 += residualValue;
+
+                double residualValue2 = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn().get(row, 0) - d2.get(row, 0), 2);
+                restmp2.set(row, 0, residualValue2);
+                E02 += residualValue2;
+
+                /*
+                    % Decide whether to accept or reject model
+                    keep = AcceptItMS(oper,dE,psig,delx,prior,Dsig,Dsig2,d0);
+                 */
+
+//                if strcmp(oper,'noise')
+//                        % If noise operation
+//                E=sum(restmp./Dsig);
+//                E2=sum(restmp2./Dsig2);
+//                dE=E2-E; % Change in misfit
+//                else
+//                    % If any other model update
+//                        E=sum(restmp.*blmult./Dsig);
+//                E2=sum(restmp2.*blmult./Dsig2);
+//                dE=temp^-1*(E2-E); % Change in misfit
+//                        end
+                if (operation.toLowerCase(Locale.ROOT).startsWith("n")) {
+                    E += residualValue / dSignalNoise.get(row, 0);
+                    E2 += residualValue2 / dSignalNoise2.get(row, 0);
+                    sumLogDSignalNoise += -1.0 * Math.log(dSignalNoise.get(row, 0));
+                    sumLogDSignalNoise2 += -1.0 * Math.log(dSignalNoise2.get(row, 0));
+                } else {
+                    E += residualValue * baselineMultiplier.get(row, 0) / dSignalNoise.get(row, 0);
+                    E2 += residualValue2 * baselineMultiplier.get(row, 0) / dSignalNoise2.get(row, 0);
+                }
+            } //rows loop
+            if (operation.toLowerCase(Locale.ROOT).startsWith("n")) {
+                dE = E2 - E;
+                double deltaLogNoise = sumLogDSignalNoise2 - sumLogDSignalNoise;//X = sum(-log(Dsig2))-sum(-log(Dsig));
+                keep = min(1, exp(deltaLogNoise / 2.0 - (dE) / 2.0));//keep = min(1,exp(X/2-(dE)/2));
+            } else {
+                dE = 1 / tempering * (E2 - E);
+                keep = min(1, 1.0 * exp(-(dE) / 2.0));
+            }
+            /*
+                % Update kept variables for display
+                kept(OpNumMS(oper),2) = kept(OpNumMS(oper),2)+1;
+                kept(OpNumMS(oper),4) = kept(OpNumMS(oper),4)+1;
+
+                % If we accept the new model update values
+                if keep>=rand(1)
+                    E=E2; % Misfit
+                    E0=E02; % Unweighted misfit
+                    d=d2; % Data
+                    x=x2; % Model
+                    Dsig=Dsig2;  % Model variance
+                    dnobl=dnobl2;  % Data without baseline
+                    Intensity=Intensity2;  % Intensity
+
+                    % Display info
+                    kept(OpNumMS(oper),1) = kept(OpNumMS(oper),1)+1;
+                    kept(OpNumMS(oper),3) = kept(OpNumMS(oper),3)+1;
+                end
+             */
+
+            int operationIndex = DataModelUpdater.operations.indexOf(operation);
+            keptUpdates.set(operationIndex, 1, keptUpdates.get(operationIndex, 1) + 1);
+            keptUpdates.set(operationIndex, 3, keptUpdates.get(operationIndex, 3) + 1);
+
+            RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
+            randomDataGenerator.reSeedSecure();
+
+            DataModellerOutputRecord dataModelInit2 = new DataModellerOutputRecord(
+                    dataModelInit.baselineMeans(),
+                    dataModelInit.baselineStandardDeviations(),
+                    dataModelInit.dfGain(),
+                    dataModelInit.logratios(),
+                    dataModelInit.signalNoise(),
+                    dataModelInit.dataArray(),
+                    dataModelInit.blockIntensities()
+            );
+            if (keep >= randomDataGenerator.nextUniform(0, 1)) {
+                E = E2;
+                errorUnWeighted_E0 =    E02;
+
+                //Matrix d = (Matrix) d2.clone();
+                dataModelInit2 = new DataModellerOutputRecord(
+                        dataModelUpdaterOutputRecord.baselineMeans(),
+                        dataModelUpdaterOutputRecord.baselineStandardDeviations(),
+                        dataModelUpdaterOutputRecord.dfGain(),
+                        dataModelUpdaterOutputRecord.logratios(),
+                        dataModelUpdaterOutputRecord.signalNoise(),
+                        d2,//dataModelUpdaterOutputRecord.dataArray(),
+                        dataModelUpdaterOutputRecord.blockIntensities()
+                );
+                dSignalNoise = (Matrix) dSignalNoise2.clone();
+                //dataWithNoBaseline = (Matrix) dnobl2.clone();
+                //Intensity = (Matrix) intensity2.clone();
+
+                keptUpdates.set(operationIndex, 0, keptUpdates.get(operationIndex, 0) + 1);
+                keptUpdates.set(operationIndex, 2, keptUpdates.get(operationIndex, 2) + 1);
+            }
+            if (modelIndex % (stepCountForcedSave) == 0) {
+                /*
+                    cnt=cnt+1; % Increment counter
+                    ensemble(cnt).lograt=x.lograt; % Log ratios
+                    for mm=1:d0.Nblock
+                        ensemble(cnt).I{mm}=x.I{mm}; % Intensity by block
+                    end
+                    ensemble(cnt).BL=x.BL;  % Baselines
+                    ensemble(cnt).DFgain=x.DFgain;  %Daly-Faraday gain
+                    ensemble(cnt).sig=x.sig;  % Noise hyperparameter
+                    ensemble(cnt).E=E;  % Misfit
+                    ensemble(cnt).E0=E0; % Unweighted misfit
+
+                    covstart = 50;  % After this many iterations, begin calculating covariance iteratively
+                    if cnt>=covstart+1
+                        % Iterative covariance
+                        [xmean,xcov] = UpdateMeanCovMS(x,xcov,xmean,ensemble,cnt-covstart,0);
+
+                        % Draw random numbers based on covariance for next update
+                        delx_adapt = mvnrnd(zeros(Nmod,1),2.38^2*xcov/Nmod,datsav)';
+                    end
+                 */
+                counter ++;
+                ensembleRecordsList.add(new EnsembleRecord(
+                        dataModelInit2.logratios(),
+                        dataModelInit2.blockIntensities(),
+                        dataModelInit2.baselineMeans(),
+                        dataModelInit2.dfGain(),
+                        dataModelInit2.signalNoise(),
+                        E,
+                        errorUnWeighted_E0
+                ));
+
+                int covStart = 50;
+                if (counter >= covStart + 1){
+                    DataModelUpdater.UpdatedCovariancesRecord  updatedCovariancesRecord =
+                            updateMeanCovMS(dataModelInit2, xDataCovariance, xDataMean, ensembleRecordsList, counter - covStart, false);
+                    xDataCovariance = updatedCovariancesRecord.dataCov();
+                    xDataMean = updatedCovariancesRecord.dataMean();
+                }
+
+                if (modelIndex % (10 * stepCountForcedSave) == 0) {
+                    if (operationIndex == 0) {
+                        System.err.println(
+                                "Error = "
+                                        + StrictMath.sqrt(errorUnWeighted_E0 / massSpecOutputDataRecord.detectorIndicesForRawDataColumn().getRowDimension())
+                                        + " models: " + modelIndex
+                                        + " Change Log Ratio: "
+                                        + keptUpdates.get(0, 0)
+                                        + " of "
+                                        + keptUpdates.get(0, 1)
+                                        + " accepted (" + 100 * keptUpdates.get(0, 2) / keptUpdates.get(0, 3) + "% total)");
+
+                        keptUpdates.set(operationIndex, 0, 0);
+                        keptUpdates.set(operationIndex, 1, 0);
+                    }
+                }
+            }
+            // System.err.println();
+        } // end model loop
+        // System.err.println();
     }
 
     private static int findFirstOrLast(boolean first, int index, Matrix target, int flag, Matrix flags) {
@@ -433,6 +639,7 @@ public class DataModelDriverExperiment {
         Object[][] hier = new Object[][]{{60, 80, 95, 100, 120}, {"changeI", "changer", "changebl", "changedfg", "noise"}};
 
         RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
+        randomDataGenerator.reSeedSecure();
         int choice = hierFlag ? randomDataGenerator.nextInt(0, 100) : randomDataGenerator.nextInt(0, 120);
         String retVal = "changeI";
         if (hierFlag) {
