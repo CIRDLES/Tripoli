@@ -21,6 +21,7 @@ module Tripoli.TripoliCore {
     requires jama;
     requires com.google.common;
     requires commons.math3;
+    requires commons.lang3;
 
 
     exports org.cirdles.tripoli;

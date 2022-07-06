@@ -35,17 +35,17 @@ public class DataModelUpdater {
     static {
         operations.add("changer");
         operations.add("changeI");
-        operations.add("changebl");
         operations.add("changedfg");
+        operations.add("changebl");
         operations.add("noise");
     }
 
+    // function  [x2,delx,xcov] = UpdateMSv2(oper,x,psig,prior,ensemble,xcov,delx_adapt,adaptflag,allflag)
     static DataModellerOutputRecord updateMSv2(
             String operation,
             DataModellerOutputRecord dataModelInit,
             DataModelDriverExperiment.PsigRecord psigRecord,
             DataModelDriverExperiment.PriorRecord priorRecord,
-            //List<DataModelDriverExperiment.EnsembleRecord> ensembleRecordsList,
             Matrix xDataCovariance,
             Matrix delx_adapt,
             boolean adaptiveFlag,
@@ -67,7 +67,6 @@ public class DataModelUpdater {
             priormax = [prior.lograt(2)*ones(Niso-1,1); 0; prior.I(2)*ones(sum(Ncycle),1); prior.BL(2)*ones(Nfar,1); prior.DFgain(2)*ones(Ndf,1)];
          */
 
-        //int count = ensembleRecordsList.size();
         int countOfIsotopes = dataModelInit.logratios().getRowDimension();
         int countOfBlocks = dataModelInit.blockIntensities().getColumnDimension();
         int[] nCycle = new int[countOfBlocks];
@@ -195,103 +194,42 @@ public class DataModelUpdater {
             end
          */
 
-        // clone for creating return value
-        DataModellerOutputRecord dataModelInit2 = new DataModellerOutputRecord(
-                dataModelInit.baselineMeans(),
-                dataModelInit.baselineStandardDeviations(),
-                dataModelInit.dfGain(),
-                dataModelInit.logratios(),
-                dataModelInit.signalNoise(),
-                dataModelInit.dataArray(),
-                dataModelInit.blockIntensities()
-        );
+        DataModellerOutputRecord dataModelInit2 = null;
+
         RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
         randomDataGenerator.reSeedSecure();
 
-        int nInd = 6;//0;
-        Matrix x2Sigmas = (Matrix) dataModelInit.signalNoise().clone();
+        int nInd = 0;
+        int randomSigma = 1;
+        Matrix x2SignalNoise = (Matrix) dataModelInit.signalNoise().clone();
         Matrix xx = (Matrix) xx0.clone();
 
-//        //+++++++++++++++++++++++++++++++
-//        double delX = ps0Diag.get(nInd, 0) * 0.5;//randomDataGenerator.nextUniform(0, 1);
-//        xx = (Matrix) xx0.clone();
-//        xx.set(nInd, 0, xx.get(nInd, 0) + delX);
-//        for (int row = 0; row < xx.getRowDimension(); row++) {
-//            if ((xx.get(row, 0) > priorMax.get(row, 0) || (xx.get(row, 0) < priorMin.get(row, 0)))) {
-//                // todo: seems redundant?
-//                xx.set(row, 0, xx0.get(row, 0));
-//            }
-//        }
-//
-//        // todo: only 1 block here for now
-//        List<Double> x2LogRatioList = new ArrayList<>();
-//        List<Double> x2BlockIntensitiesList = new ArrayList<>();
-//        List<Double> x2BaselineMeansList = new ArrayList<>();
-//        double x2DFGain = 0.0;
-//        for (int row = 0; row < xx.getRowDimension(); row++) {
-//            if (xInd.get(row, 0) == 1) {
-//                x2LogRatioList.add(xx.get(row, 0));
-//            }
-//            if (xInd.get(row, 0) == 2) {
-//                x2BlockIntensitiesList.add(xx.get(row, 0));
-//            }
-//            if (xInd.get(row, 0) == 2 + countOfBlocks) {
-//                x2BaselineMeansList.add(xx.get(row, 0));
-//            }
-//            if (xInd.get(row, 0) == 3 + countOfBlocks) {
-//                x2DFGain = xx.get(row, 0);
-//            }
-//        }
-//
-//        double[] x2LogRatioArray = x2LogRatioList.stream().mapToDouble(d -> d).toArray();
-//        Matrix x2LogRatio = new Matrix(x2LogRatioArray, x2LogRatioArray.length);
-//        double[] x2BlockIntensitiesArray = x2BlockIntensitiesList.stream().mapToDouble(d -> d).toArray();
-//        Matrix x2BlockIntensities = new Matrix(x2BlockIntensitiesArray, x2BlockIntensitiesArray.length);
-//        double[] x2BaselineMeansArray = x2BaselineMeansList.stream().mapToDouble(d -> d).toArray();
-//        Matrix x2BaselineMeans = new Matrix(x2BaselineMeansArray, x2BaselineMeansArray.length);
-//
-//        dataModelInit2 = new DataModellerOutputRecord(
-//                x2BaselineMeans,
-//                dataModelInit.baselineStandardDeviations(),
-//                x2DFGain,
-//                x2LogRatio,
-//                dataModelInit.signalNoise(),
-//                dataModelInit.dataArray(),
-//                x2BlockIntensities
-//        );
-//
-//
-//
-//        //++++++++++++++++++++++++++++++++++
-//
         boolean noiseFlag = false;
         if (!allFlag) {
             double delX;
             switch (operation) {
                 case "changer":
-                    nInd = randomDataGenerator.nextInt(0, countOfIsotopes - 1);
+                    nInd = randomDataGenerator.nextInt(1, countOfIsotopes) - 1;
                     break;
                 case "changeI":
-                    nInd = countOfIsotopes + randomDataGenerator.nextInt(0, sumOfCycleCounts);
+                    nInd = countOfIsotopes + randomDataGenerator.nextInt(1, sumOfCycleCounts) - 1;
                     break;
                 case "changebl":
-                    nInd = countOfIsotopes + sumOfCycleCounts + randomDataGenerator.nextInt(0, countOfFaradays);
+                    nInd = countOfIsotopes + sumOfCycleCounts + randomDataGenerator.nextInt(1, countOfFaradays) - 1;
                     break;
                 case "changedfg":
-                    nInd = countOfIsotopes + sumOfCycleCounts + randomDataGenerator.nextInt(0, countOfFaradays);
+                    nInd = countOfIsotopes + sumOfCycleCounts + countOfFaradays;// + randomDataGenerator.nextInt(0, 1);
                     break;
                 case "noise":
                     noiseFlag = true;
-                    nInd = randomDataGenerator.nextInt(0, dataModelInit.baselineMeans().getColumnDimension());
+                    nInd = randomDataGenerator.nextInt(1, dataModelInit.baselineMeans().getRowDimension()) - 1;
 
-                    delX = psigRecord.psigSignalNoiseFaraday() * randomDataGenerator.nextUniform(0, 1);
-                    double testDelta = x2Sigmas.get(nInd, 0) + delX;
+                    delX = psigRecord.psigSignalNoiseFaraday() * randomDataGenerator.nextGaussian(0, randomSigma);
+                    double testDelta = x2SignalNoise.get(nInd, 0) + delX;
                     if ((testDelta >= priorRecord.priorSignalNoiseFaraday().get(0, 0))
                             &&
                             (testDelta <= priorRecord.priorSignalNoiseFaraday().get(0, 1))) {
-                        x2Sigmas.set(nInd, 0, testDelta);
-                    } else {
-                        delX = 0.0;
+                        x2SignalNoise.set(nInd, 0, testDelta);
                     }
 
                     dataModelInit2 = new DataModellerOutputRecord(
@@ -299,25 +237,22 @@ public class DataModelUpdater {
                             dataModelInit.baselineStandardDeviations(),
                             dataModelInit.dfGain(),
                             dataModelInit.logratios(),
-                            x2Sigmas,
+                            x2SignalNoise,
                             dataModelInit.dataArray(),
                             dataModelInit.blockIntensities()
                     );
             }
             if (!noiseFlag) {
                 if (adaptiveFlag) {
-                    delX = StrictMath.sqrt(xDataCovariance.get(nInd, nInd)) * randomDataGenerator.nextUniform(0, 1);
+                    delX = StrictMath.sqrt(xDataCovariance.get(nInd, nInd)) * randomDataGenerator.nextGaussian(0, randomSigma);
                 } else {
-                    delX = ps0Diag.get(nInd, 0) * randomDataGenerator.nextUniform(0, 1);
+                    delX = ps0Diag.get(nInd, 0) * randomDataGenerator.nextGaussian(0, randomSigma);
                 }
 
                 xx = (Matrix) xx0.clone();
-                xx.set(nInd, 0, xx.get(nInd, 0) + delX);
-                for (int row = 0; row < xx.getRowDimension(); row++) {
-                    if ((xx.get(row, 0) > priorMax.get(row, 0) || (xx.get(row, 0) < priorMin.get(row, 0)))) {
-                        // todo: seems redundant?
-                        xx.set(row, 0, xx0.get(row, 0));
-                    }
+                double changed = xx.get(nInd, 0) + delX;
+                if ((changed <= priorMax.get(nInd, 0) && (changed >= priorMin.get(nInd, 0)))) {
+                    xx.set(nInd, 0, changed);
                 }
             }
         } else {
@@ -370,8 +305,6 @@ public class DataModelUpdater {
                     x2BlockIntensities
             );
         }
-
-        //       System.err.println();
         return dataModelInit2;
     }
 

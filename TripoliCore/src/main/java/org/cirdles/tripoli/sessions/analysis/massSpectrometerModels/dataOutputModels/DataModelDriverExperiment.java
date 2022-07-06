@@ -17,12 +17,14 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels;
 
 import jama.Matrix;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_OPPhoenix;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -261,13 +263,13 @@ public class DataModelDriverExperiment {
 
         Matrix residualTmp = new Matrix(dSignalNoise.getRowDimension(), 1);
         Matrix residualTmp2 = new Matrix(dSignalNoise.getRowDimension(), 1);
-        double errorWeighted_E = 0.0;
-        double errorUnWeighted_E0 = 0.0;
+        double initialModelErrorWeighted_E = 0.0;
+        double initialModelErrorUnWeighted_E0 = 0.0;
         for (int row = 0; row < residualTmp.getRowDimension(); row++) {
             double calculatedValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn().get(row, 0) - dataModelInit.dataArray().get(row, 0), 2);
             residualTmp.set(row, 0, calculatedValue);
-            errorWeighted_E = errorWeighted_E + (calculatedValue * baselineMultiplier.get(row, 0) / dSignalNoise.get(row, 0));
-            errorUnWeighted_E0 = errorUnWeighted_E0 + calculatedValue;
+            initialModelErrorWeighted_E = initialModelErrorWeighted_E + (calculatedValue * baselineMultiplier.get(row, 0) / dSignalNoise.get(row, 0));
+            initialModelErrorUnWeighted_E0 = initialModelErrorUnWeighted_E0 + calculatedValue;
         }
 
         /*
@@ -356,7 +358,11 @@ public class DataModelDriverExperiment {
                 [x2,delx] = UpdateMSv2(oper,x,psig,prior,ensemble,xcov,delx_adapt(:,mod(m,datsav)+1),adaptflag,allflag);
          */
 
+        DecimalFormat statsFormat = new DecimalFormat("#0.000");
+        org.apache.commons.lang3.time.StopWatch watch = new StopWatch();
+        watch.start();
         for (int modelIndex = 1; modelIndex <= maxCount * stepCountForcedSave; modelIndex++) {//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
             String operation = randomOperMS(hierarchical);
             boolean adaptiveFlag = (counter >= 100000);
             boolean allFlag = adaptiveFlag;
@@ -371,6 +377,7 @@ public class DataModelDriverExperiment {
                     adaptiveFlag,
                     allFlag
             );
+
 
             /*
             %% Create updated data based on new model
@@ -427,6 +434,7 @@ public class DataModelDriverExperiment {
                 tmpLR.set(row, 0, exp(dataModelUpdaterOutputRecord.logratios().get((int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn().get(row, 0) - 1, 0)));
             }
 
+
             // todo: reminder only 1 block here
             Matrix intensity2 = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelUpdaterOutputRecord.blockIntensities());
             for (int row = (int) blockStartIndicesFaraday.get(0, 0); row <= (int) blockEndIndicesFaraday.get(0, 0); row++) {
@@ -450,8 +458,9 @@ public class DataModelDriverExperiment {
             double sumLogDSignalNoise2 = 0;
             double keep = 0;
             for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().getRowDimension(); row++) {
-                double term1 = StrictMath.pow(dataModelInit.signalNoise().get((int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn().get(row, 0) - 1, 0), 2);
-                double term2 = dataModelInit.signalNoise().get((int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn().get(row, 0) - 1 + massSpecOutputDataRecord.faradayCount() + 1, 0);
+                //Dsig2 = x2.sig(d0.det_vec).^2 + x2.sig(d0.iso_vec+d0.Ndet).*dnobl2;
+                double term1 = StrictMath.pow(dataModelUpdaterOutputRecord.signalNoise().get((int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn().get(row, 0) - 1, 0), 2);
+                double term2 = dataModelUpdaterOutputRecord.signalNoise().get((int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn().get(row, 0) - 1 + massSpecOutputDataRecord.faradayCount() + 1, 0);
                 dSignalNoise2.set(row, 0, term1 + term2 * dnobl2.get(row, 0));
                 double residualValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn().get(row, 0) - dataModelInit.dataArray().get(row, 0), 2);
                 restmp.set(row, 0, residualValue);
@@ -466,17 +475,6 @@ public class DataModelDriverExperiment {
                     keep = AcceptItMS(oper,dE,psig,delx,prior,Dsig,Dsig2,d0);
                  */
 
-//                if strcmp(oper,'noise')
-//                        % If noise operation
-//                E=sum(restmp./Dsig);
-//                E2=sum(restmp2./Dsig2);
-//                dE=E2-E; % Change in misfit
-//                else
-//                    % If any other model update
-//                        E=sum(restmp.*blmult./Dsig);
-//                E2=sum(restmp2.*blmult./Dsig2);
-//                dE=temp^-1*(E2-E); % Change in misfit
-//                        end
                 if (operation.toLowerCase(Locale.ROOT).startsWith("n")) {
                     E += residualValue / dSignalNoise.get(row, 0);
                     E2 += residualValue2 / dSignalNoise2.get(row, 0);
@@ -523,32 +521,20 @@ public class DataModelDriverExperiment {
             RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
             randomDataGenerator.reSeedSecure();
 
-            DataModellerOutputRecord dataModelInit2 = new DataModellerOutputRecord(
-                    dataModelInit.baselineMeans(),
-                    dataModelInit.baselineStandardDeviations(),
-                    dataModelInit.dfGain(),
-                    dataModelInit.logratios(),
-                    dataModelInit.signalNoise(),
-                    dataModelInit.dataArray(),
-                    dataModelInit.blockIntensities()
-            );
             if (keep >= randomDataGenerator.nextUniform(0, 1)) {
                 E = E2;
-                errorUnWeighted_E0 =    E02;
+                initialModelErrorUnWeighted_E0 = E02;
 
-                //Matrix d = (Matrix) d2.clone();
-                dataModelInit2 = new DataModellerOutputRecord(
+                dataModelInit = new DataModellerOutputRecord(
                         dataModelUpdaterOutputRecord.baselineMeans(),
                         dataModelUpdaterOutputRecord.baselineStandardDeviations(),
                         dataModelUpdaterOutputRecord.dfGain(),
                         dataModelUpdaterOutputRecord.logratios(),
                         dataModelUpdaterOutputRecord.signalNoise(),
-                        d2,//dataModelUpdaterOutputRecord.dataArray(),
+                        (Matrix)d2.clone(),
                         dataModelUpdaterOutputRecord.blockIntensities()
                 );
                 dSignalNoise = (Matrix) dSignalNoise2.clone();
-                //dataWithNoBaseline = (Matrix) dnobl2.clone();
-                //Intensity = (Matrix) intensity2.clone();
 
                 keptUpdates.set(operationIndex, 0, keptUpdates.get(operationIndex, 0) + 1);
                 keptUpdates.set(operationIndex, 2, keptUpdates.get(operationIndex, 2) + 1);
@@ -575,45 +561,74 @@ public class DataModelDriverExperiment {
                         delx_adapt = mvnrnd(zeros(Nmod,1),2.38^2*xcov/Nmod,datsav)';
                     end
                  */
-                counter ++;
+                counter++;
                 ensembleRecordsList.add(new EnsembleRecord(
-                        dataModelInit2.logratios(),
-                        dataModelInit2.blockIntensities(),
-                        dataModelInit2.baselineMeans(),
-                        dataModelInit2.dfGain(),
-                        dataModelInit2.signalNoise(),
+                        dataModelInit.logratios(),
+                        dataModelInit.blockIntensities(),
+                        dataModelInit.baselineMeans(),
+                        dataModelInit.dfGain(),
+                        dataModelInit.signalNoise(),
                         E,
-                        errorUnWeighted_E0
+                        initialModelErrorUnWeighted_E0
                 ));
 
                 int covStart = 50;
-                if (counter >= covStart + 1){
-                    DataModelUpdater.UpdatedCovariancesRecord  updatedCovariancesRecord =
-                            updateMeanCovMS(dataModelInit2, xDataCovariance, xDataMean, ensembleRecordsList, counter - covStart, false);
+                if (counter >= covStart + 1) {
+                    DataModelUpdater.UpdatedCovariancesRecord updatedCovariancesRecord =
+                            updateMeanCovMS(dataModelInit, xDataCovariance, xDataMean, ensembleRecordsList, counter - covStart, false);
                     xDataCovariance = updatedCovariancesRecord.dataCov();
                     xDataMean = updatedCovariancesRecord.dataMean();
                 }
 
                 if (modelIndex % (10 * stepCountForcedSave) == 0) {
-                    if (operationIndex == 0) {
-                        System.err.println(
-                                "Error = "
-                                        + StrictMath.sqrt(errorUnWeighted_E0 / massSpecOutputDataRecord.detectorIndicesForRawDataColumn().getRowDimension())
-                                        + " models: " + modelIndex
-                                        + " Change Log Ratio: "
-                                        + keptUpdates.get(0, 0)
-                                        + " of "
-                                        + keptUpdates.get(0, 1)
-                                        + " accepted (" + 100 * keptUpdates.get(0, 2) / keptUpdates.get(0, 3) + "% total)");
+                    System.err.println(
+                            "\n%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
+                                    + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
+                                    + "\nError function = "
+                                    + statsFormat.format(StrictMath.sqrt(initialModelErrorUnWeighted_E0 / massSpecOutputDataRecord.detectorIndicesForRawDataColumn().getRowDimension()))
 
-                        keptUpdates.set(operationIndex, 0, 0);
-                        keptUpdates.set(operationIndex, 1, 0);
+                                    + "\nChange Log Ratio: "
+                                    + keptUpdates.get(0, 0)
+                                    + " of "
+                                    + keptUpdates.get(0, 1)
+                                    + " accepted (" + statsFormat.format(100.0 * keptUpdates.get(0, 2) / keptUpdates.get(0, 3)) + "% total)"
+
+                                    + "\nChange Intensity: "
+                                    + keptUpdates.get(1, 0)
+                                    + " of "
+                                    + keptUpdates.get(1, 1)
+                                    + " accepted (" + statsFormat.format(100.0 * keptUpdates.get(1, 2) / keptUpdates.get(1, 3)) + "% total)"
+
+                                    + "\nChange DF Gain: "
+                                    + keptUpdates.get(2, 0)
+                                    + " of "
+                                    + keptUpdates.get(2, 1)
+                                    + " accepted (" + statsFormat.format(100.0 * keptUpdates.get(2, 2) / keptUpdates.get(2, 3)) + "% total)"
+
+                                    + "\nChange Baseline: "
+                                    + keptUpdates.get(3, 0)
+                                    + " of "
+                                    + keptUpdates.get(3, 1)
+                                    + " accepted (" + statsFormat.format(100.0 * keptUpdates.get(3, 2) / keptUpdates.get(3, 3)) + "% total)"
+
+                                    + (hierarchical ?
+                                    ("\nNoise: "
+                                            + keptUpdates.get(4, 0)
+                                            + " of "
+                                            + keptUpdates.get(4, 1)
+                                            + " accepted (" + statsFormat.format(100.0 * keptUpdates.get(4, 2) / keptUpdates.get(4, 3)) + "% total)")
+                                    : ""));
+
+                    for (int i = 0; i < 5; i++) {
+                        keptUpdates.set(i, 0, 0);
+                        keptUpdates.set(i, 1, 0);
                     }
+
+                    watch.reset();
+                    watch.start();
                 }
             }
-            // System.err.println();
         } // end model loop
-        // System.err.println();
     }
 
     private static int findFirstOrLast(boolean first, int index, Matrix target, int flag, Matrix flags) {
@@ -636,11 +651,11 @@ public class DataModelDriverExperiment {
      */
     private static String randomOperMS(boolean hierFlag) {
         Object[][] notHier = new Object[][]{{40, 60, 80, 100}, {"changeI", "changer", "changebl", "changedfg"}};
-        Object[][] hier = new Object[][]{{60, 80, 95, 100, 120}, {"changeI", "changer", "changebl", "changedfg", "noise"}};
+        Object[][] hier = new Object[][]{{60, 80, 90, 100, 120}, {"changeI", "changer", "changebl", "changedfg", "noise"}};
 
         RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
         randomDataGenerator.reSeedSecure();
-        int choice = hierFlag ? randomDataGenerator.nextInt(0, 100) : randomDataGenerator.nextInt(0, 120);
+        int choice = hierFlag ? randomDataGenerator.nextInt(0, 120) : randomDataGenerator.nextInt(0, 100);
         String retVal = "changeI";
         if (hierFlag) {
             for (int i = 0; i < hier[0].length; i++) {
