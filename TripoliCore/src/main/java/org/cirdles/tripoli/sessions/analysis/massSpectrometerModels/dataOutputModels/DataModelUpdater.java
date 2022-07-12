@@ -419,7 +419,6 @@ public class DataModelUpdater {
             RealMatrix covMatrix = cov.getCovarianceMatrix();
             double[][] covarianceArray = covMatrix.getData();
             dataCov = new Matrix(covarianceArray);
-
         }
         return new UpdatedCovariancesRecord(dataCov, dataMean);
     }

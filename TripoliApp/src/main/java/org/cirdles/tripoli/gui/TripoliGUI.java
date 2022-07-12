@@ -31,6 +31,7 @@ import javafx.scene.paint.Stop;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
+import org.cirdles.tripoli.gui.dataViews.plots.PlotsWindow;
 
 import java.awt.*;
 import java.io.IOException;
@@ -45,7 +46,7 @@ public class TripoliGUI extends Application {
     public static final String Tripoli_LOGO_SANS_TEXT_URL = "images/TripoliJune2022.png";
     public static Window primaryStageWindow;
     protected static Stage primaryStage;
-    protected static TripoliAboutWindow TripoliAboutWindow;
+    protected static TripoliAboutWindow tripoliAboutWindow;
 
     public static void updateStageTitle(String fileName) {
         String fileSpec = "[Project File: NONE]";
@@ -127,7 +128,7 @@ public class TripoliGUI extends Application {
         primaryStage.setMinWidth(scene.getWidth());
         primaryStage.getIcons().add(new Image(TripoliGUI.class.getResourceAsStream(Tripoli_LOGO_SANS_TEXT_URL)));
 
-        TripoliAboutWindow = new TripoliAboutWindow(primaryStage);
+        tripoliAboutWindow = new TripoliAboutWindow(primaryStage);
 
         primaryStage.show();
 
