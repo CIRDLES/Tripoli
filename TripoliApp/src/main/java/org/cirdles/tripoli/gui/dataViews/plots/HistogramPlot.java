@@ -74,8 +74,7 @@ public class HistogramPlot extends AbstractDataView {
         // plot bins
         g2d.setLineWidth(2.0);
         for (int i = 0; i < xAxisData.length; i++) {
-            System.err.println(mapX(xAxisData[i] - histogram.getBinWidth() / 2.0) + "    " + mapY(yAxisData[i]) + "   " + mapX(xAxisData[i] + histogram.getBinWidth()) + "   " + mapY(yAxisData[i]));
-            g2d.fillRect(
+             g2d.fillRect(
                     mapX(xAxisData[i] - histogram.getBinWidth() / 2.0),
                     mapY(yAxisData[i]),
                     mapX(xAxisData[1]) - mapX(xAxisData[0]),
@@ -88,7 +87,6 @@ public class HistogramPlot extends AbstractDataView {
         }
 
         // plot line for giggles
-        g2d.setStroke(Paint.valueOf("BLACK"));
         g2d.beginPath();
         g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]));
         for (int i = 0; i < xAxisData.length; i++) {

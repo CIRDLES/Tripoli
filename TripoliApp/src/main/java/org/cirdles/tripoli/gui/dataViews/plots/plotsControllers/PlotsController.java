@@ -22,7 +22,11 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
 
+import static org.cirdles.tripoli.gui.dataViews.plots.PlotsWindow.*;
+
 public class PlotsController {
+
+
 
     @FXML
     private ResourceBundle resources;
@@ -55,11 +59,11 @@ public class PlotsController {
     @FXML
     void initialize() {
 
-        masterVBox.setPrefSize(500.0, 500.0);
-        toolbar.setPrefSize(500, 20.0);
-        plotScrollPane.setPrefSize(500.0, 500.0 - toolbar.getHeight());
-        plotScrollPane.setPrefViewportWidth(485.0);
-        plotScrollPane.setPrefViewportHeight(465.0);
+        masterVBox.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT);
+        toolbar.setPrefSize(PLOT_WINDOW_WIDTH, 20.0);
+        plotScrollPane.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT - toolbar.getHeight());
+        plotScrollPane.setPrefViewportWidth(PLOT_WINDOW_WIDTH - SCROLLBAR_THICKNESS);
+        plotScrollPane.setPrefViewportHeight(plotScrollPane.getPrefHeight() - SCROLLBAR_THICKNESS);
 
         masterVBox.prefWidthProperty().bind(plotsAnchorPane.widthProperty());
         masterVBox.prefHeightProperty().bind(plotsAnchorPane.heightProperty());
@@ -84,8 +88,7 @@ public class PlotsController {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 if (newValue.intValue() > 100) {
-                    histogramPlot.setMyWidth(newValue.intValue() - 15);
-                    histogramPlot.preparePanel();
+                    histogramPlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
                     histogramPlot.repaint();
                 }
             }
@@ -95,8 +98,7 @@ public class PlotsController {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 if (newValue.intValue() > 100) {
-                    histogramPlot.setMyHeight(newValue.intValue() - 15);
-                    histogramPlot.preparePanel();
+                    histogramPlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
                     histogramPlot.repaint();
                 }
             }

@@ -28,6 +28,11 @@ import java.io.IOException;
  * @author James F. Bowring
  */
 public class PlotsWindow {
+
+    public static final double PLOT_WINDOW_WIDTH = 700.0;
+    public static final double PLOT_WINDOW_HEIGHT = 500.0;
+    public static final double SCROLLBAR_THICKNESS = 15.0;
+
     private final double xOffset = 0;
     private final double yOffset = 0;
     public Stage plottingStage;
@@ -40,8 +45,8 @@ public class PlotsWindow {
     public PlotsWindow(Stage primaryStage) {
         this.primaryStage = primaryStage;
         plottingStage = new Stage();
-        plottingStage.setMinHeight(500);
-        plottingStage.setMinWidth(500);
+        plottingStage.setMinWidth(PLOT_WINDOW_WIDTH);
+        plottingStage.setMinHeight(PLOT_WINDOW_HEIGHT);
         plottingStage.setTitle("Tripoli Demo Window");
 
         plottingStage.setOnCloseRequest((WindowEvent e) -> {
