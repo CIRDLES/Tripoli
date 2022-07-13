@@ -36,4 +36,5 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables;
     exports org.cirdles.tripoli.species;
     exports org.cirdles.tripoli.elements;
+    exports org.cirdles.tripoli.visualizationUtilities;
 }

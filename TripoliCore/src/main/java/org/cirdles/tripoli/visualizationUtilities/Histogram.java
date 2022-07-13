@@ -25,7 +25,7 @@ public class Histogram {
 
     private double[] data;
     private int binCount;
-    private int[] binCounts;
+    private double[] binCounts;
     private double binWidth;
     private double[] binCenters;
 
@@ -48,7 +48,7 @@ public class Histogram {
         double dataMax = descriptiveStatisticsRatios.getMax();
         double dataMin = descriptiveStatisticsRatios.getMin();
 
-        binCounts = new int[binCount];
+        binCounts = new double[binCount];
         binWidth = (dataMax - dataMin) / (double) binCount;
 
         int maxBinCount = 0;
@@ -72,7 +72,7 @@ public class Histogram {
         }
     }
 
-    public int[] getBinCounts() {
+    public double[] getBinCounts() {
         return binCounts;
     }
 

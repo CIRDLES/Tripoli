@@ -21,29 +21,41 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import org.cirdles.tripoli.visualizationUtilities.Histogram;
 
 /**
  * @author James F. Bowring
  */
 public class HistogramPlot extends AbstractDataView {
 
+    private Histogram histogram;
+
     /**
      * @param bounds
      */
-    public HistogramPlot(Rectangle bounds) {
+    public HistogramPlot(Rectangle bounds, Histogram histogram) {
         super(bounds, 100, 200);
+        this.histogram = histogram;
     }
 
     @Override
     public void preparePanel() {
 
-        minX = 100.0;
-        maxX = 750;
-        xAxisData = new double[]{100, 200, 300, 333, 400, 444, 500, 600, 700, 750};
+        xAxisData = histogram.getBinCenters();
+        minX = xAxisData[0];
+        maxX = xAxisData[xAxisData.length - 1];
 
-        minY = 2.0;
-        maxY = 7.0;
-        yAxisData = new double[]{2, 4, 5, 6, 7, 8, 7, 6, 5, 4};
+        yAxisData = histogram.getBinCounts();
+        minY = Double.MAX_VALUE;
+        maxY = -Double.MAX_VALUE;
+
+        for (int i = 0; i < yAxisData.length; i++) {
+            minY = StrictMath.min(minY, yAxisData[i]);
+            maxY = StrictMath.max(maxY, yAxisData[i]);
+        }
+
+        minY = -5.0;
+        maxY += 5.0;
 
         setDisplayOffsetY(0.0);
         setDisplayOffsetX(0.0);
@@ -56,24 +68,27 @@ public class HistogramPlot extends AbstractDataView {
         super.paint(g2d);
 
         g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 15));
-        g2d.setStroke(Paint.valueOf("BLACK"));
-        g2d.setLineWidth(0.5);
-
         g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText("HELLO", 20, 20);
+        g2d.fillText("Histogram", 20, 20);
 
-        // plot data
+        // plot bins
         g2d.setLineWidth(2.0);
         for (int i = 0; i < xAxisData.length; i++) {
-            g2d.setStroke(Paint.valueOf("RED"));
-
-            g2d.strokeLine(
-                    mapX(xAxisData[i]),
-                    mapY(yAxisData[i] - 1),
-                    mapX(xAxisData[i]),
-                    mapY(yAxisData[i] + 1));
+            System.err.println(mapX(xAxisData[i] - histogram.getBinWidth() / 2.0) + "    " + mapY(yAxisData[i]) + "   " + mapX(xAxisData[i] + histogram.getBinWidth()) + "   " + mapY(yAxisData[i]));
+            g2d.fillRect(
+                    mapX(xAxisData[i] - histogram.getBinWidth() / 2.0),
+                    mapY(yAxisData[i]),
+                    mapX(xAxisData[1]) - mapX(xAxisData[0]),
+                    mapY(0.0) - mapY(yAxisData[i]));
         }
 
+        g2d.setStroke(Paint.valueOf("BLACK"));
+        for (int i = 0; i < xAxisData.length; i++) {
+            g2d.strokeLine(mapX(xAxisData[i]), mapY(0.0), mapX(xAxisData[i]), mapY(yAxisData[i]));
+        }
+
+        // plot line for giggles
+        g2d.setStroke(Paint.valueOf("BLACK"));
         g2d.beginPath();
         g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]));
         for (int i = 0; i < xAxisData.length; i++) {

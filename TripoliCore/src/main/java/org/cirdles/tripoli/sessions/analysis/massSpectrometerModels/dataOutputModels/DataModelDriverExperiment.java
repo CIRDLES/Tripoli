@@ -41,19 +41,19 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
  */
 public class DataModelDriverExperiment {
 
-    public static DataModellerOutputRecord driveModelTest(Path dataFilePath) throws IOException {
+    public static Histogram driveModelTest(Path dataFilePath) throws IOException {
         DataSourceProcessor_OPPhoenix dataSourceProcessorOPPhoenix
                 = DataSourceProcessor_OPPhoenix.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
         MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFilePath);
         DataModellerOutputRecord dataModelInit = DataModelInitializer.modellingTest(massSpecOutputDataRecord);
 
-        applyInversionWithRJ_MCMC(massSpecOutputDataRecord, dataModelInit);
+        Histogram histogram = applyInversionWithRJ_MCMC(massSpecOutputDataRecord, dataModelInit);
 
 
-        return dataModelInit;
+        return histogram;
     }
 
-    static void applyInversionWithRJ_MCMC(MassSpecOutputDataRecord massSpecOutputDataRecord, DataModellerOutputRecord dataModelInit) {
+    static Histogram applyInversionWithRJ_MCMC(MassSpecOutputDataRecord massSpecOutputDataRecord, DataModellerOutputRecord dataModelInit) {
         /*
             % MCMC Parameters
             maxcnt = 2000;  % Maximum number of models to save
@@ -717,6 +717,8 @@ public class DataModelDriverExperiment {
         System.err.println(baselinesMeans[0] + "         " + baselinesMeans[1] + "    " + baselinesStdDev[0] + "     " + baselinesStdDev[1]);
         System.err.println(signalNoiseMeans[0] + "         " + signalNoiseMeans[1] + "    " + signalNoiseStdDev[0] + "     " + signalNoiseStdDev[1]);
         System.err.println(dalyFaradayGainMeans + "    " + dalyFaradayGainStdDev);
+
+        return histogram;
     }
 
     private static int findFirstOrLast(boolean first, int index, Matrix target, int flag, Matrix flags) {

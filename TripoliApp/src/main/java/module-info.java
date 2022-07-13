@@ -21,4 +21,5 @@ module Tripoli.TripoliApp {
     requires Tripoli.TripoliCore;
     requires java.datatransfer;
     requires java.desktop;
+    requires commons.bc38781605;
 }

@@ -10,10 +10,16 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
+import org.cirdles.commons.util.ResourceExtractor;
+import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.HistogramPlot;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.DataModelDriverExperiment;
+import org.cirdles.tripoli.visualizationUtilities.Histogram;
 
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ResourceBundle;
 
 public class PlotsController {
@@ -40,8 +46,9 @@ public class PlotsController {
     private Button button;
 
     @FXML
-    void buttonAction(ActionEvent event) {
+    void buttonAction(ActionEvent event) throws IOException {
         loadPlot();
+        ((Button)event.getSource()).setDisable(true);
     }
 
 
@@ -49,7 +56,7 @@ public class PlotsController {
     void initialize() {
 
         masterVBox.setPrefSize(500.0, 500.0);
-        toolbar.setPrefSize(500,20.0);
+        toolbar.setPrefSize(500, 20.0);
         plotScrollPane.setPrefSize(500.0, 500.0 - toolbar.getHeight());
         plotScrollPane.setPrefViewportWidth(485.0);
         plotScrollPane.setPrefViewportHeight(465.0);
@@ -62,10 +69,16 @@ public class PlotsController {
 
     }
 
-    public void loadPlot() {
+    public void loadPlot() throws IOException {
+        org.cirdles.commons.util.ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
+        Path dataFile = RESOURCE_EXTRACTOR
+                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/SyntheticDataset_05.txt").toPath();
+        Histogram histogram = DataModelDriverExperiment.driveModelTest(dataFile);
+
         AbstractDataView histogramPlot = new HistogramPlot(
                 new Rectangle(plotScrollPane.getWidth(),
-                        plotScrollPane.getHeight()));
+                        plotScrollPane.getHeight()),
+                histogram);
 
         plotScrollPane.widthProperty().addListener(new ChangeListener<Number>() {
             @Override
