@@ -62,7 +62,7 @@ class DataSourceProcessorOPPhoenixTest {
 //        assert (massSpecOutputDataRecord.rawDataColumn().getRowDimension() == 3600);
 
         //DataModellerOutputRecord dataModelInit = driveModelTest(dataFile);
-        Histogram histogram = driveModelTest(dataFile, null);
+        //Histogram histogram = driveModelTest(dataFile, null);
 
         //assertEquals(dataModelInit.blockIntensities().get(0, 0), 87806.56134575832);
 // todo fix all this
