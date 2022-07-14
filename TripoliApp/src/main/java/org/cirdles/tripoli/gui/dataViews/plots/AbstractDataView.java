@@ -250,7 +250,7 @@ public abstract class AbstractDataView extends Canvas {
 
     public void updateGraphSize(){
         this.graphWidth = (int) (width - 2 * leftMargin);
-        this.graphHeight = (int) (height - topMargin);
+        this.graphHeight = (int) (height - 2 * topMargin);
     }
 
     public void setMyWidth(double width) {

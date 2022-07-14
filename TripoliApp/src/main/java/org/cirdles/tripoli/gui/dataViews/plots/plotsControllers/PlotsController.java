@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
@@ -15,6 +16,7 @@ import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.HistogramPlot;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.DataModelDriverExperiment;
+import org.cirdles.tripoli.utilities.callBacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.visualizationUtilities.Histogram;
 
 import java.io.IOException;
@@ -24,9 +26,7 @@ import java.util.ResourceBundle;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotsWindow.*;
 
-public class PlotsController {
-
-
+public class PlotsController implements LoggingCallbackInterface {
 
     @FXML
     private ResourceBundle resources;
@@ -42,6 +42,9 @@ public class PlotsController {
 
     @FXML
     private ScrollPane plotScrollPane;
+
+    @FXML
+    private TextArea eventLogTextArea;
 
     @FXML
     private ToolBar toolbar;
@@ -77,7 +80,7 @@ public class PlotsController {
         org.cirdles.commons.util.ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
         Path dataFile = RESOURCE_EXTRACTOR
                 .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/SyntheticDataset_05.txt").toPath();
-        Histogram histogram = DataModelDriverExperiment.driveModelTest(dataFile);
+        Histogram histogram = DataModelDriverExperiment.driveModelTest(dataFile, this);
 
         AbstractDataView histogramPlot = new HistogramPlot(
                 new Rectangle(plotScrollPane.getWidth(),
@@ -109,5 +112,9 @@ public class PlotsController {
 
     }
 
-
+    @Override
+    public void receiveLoggingSnippet(String loggingSnippet) {
+        // todo: needs threading
+        eventLogTextArea.setText(eventLogTextArea.getText() + "\n" + loggingSnippet);
+    }
 }

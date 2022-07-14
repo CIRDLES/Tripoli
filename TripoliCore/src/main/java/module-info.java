@@ -37,4 +37,5 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.species;
     exports org.cirdles.tripoli.elements;
     exports org.cirdles.tripoli.visualizationUtilities;
+    exports org.cirdles.tripoli.utilities.callBacks;
 }

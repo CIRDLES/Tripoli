@@ -22,6 +22,7 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_OPPhoenix;
+import org.cirdles.tripoli.utilities.callBacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.visualizationUtilities.Histogram;
 
 import java.io.IOException;
@@ -41,19 +42,20 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
  */
 public class DataModelDriverExperiment {
 
-    public static Histogram driveModelTest(Path dataFilePath) throws IOException {
+    public static Histogram driveModelTest(Path dataFilePath, LoggingCallbackInterface loggingCallback) throws IOException {
+
         DataSourceProcessor_OPPhoenix dataSourceProcessorOPPhoenix
                 = DataSourceProcessor_OPPhoenix.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
         MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFilePath);
         DataModellerOutputRecord dataModelInit = DataModelInitializer.modellingTest(massSpecOutputDataRecord);
 
-        Histogram histogram = applyInversionWithRJ_MCMC(massSpecOutputDataRecord, dataModelInit);
+        Histogram histogram = applyInversionWithRJ_MCMC(massSpecOutputDataRecord, dataModelInit, loggingCallback);
 
 
         return histogram;
     }
 
-    static Histogram applyInversionWithRJ_MCMC(MassSpecOutputDataRecord massSpecOutputDataRecord, DataModellerOutputRecord dataModelInit) {
+    static Histogram applyInversionWithRJ_MCMC(MassSpecOutputDataRecord massSpecOutputDataRecord, DataModellerOutputRecord dataModelInit, LoggingCallbackInterface loggingCallback) {
         /*
             % MCMC Parameters
             maxcnt = 2000;  % Maximum number of models to save
@@ -586,7 +588,7 @@ public class DataModelDriverExperiment {
                 }
 
                 if (modelIndex % (10 * stepCountForcedSave) == 0) {
-                    System.err.println(
+                    String loggingSnippet =
                             "\n%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
                                     + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
                                     + "\nError function = "
@@ -622,7 +624,10 @@ public class DataModelDriverExperiment {
                                             + " of "
                                             + keptUpdates.get(4, 1)
                                             + " accepted (" + statsFormat.format(100.0 * keptUpdates.get(4, 2) / keptUpdates.get(4, 3)) + "% total)")
-                                    : ""));
+                                    : "");
+
+                    System.err.println(loggingSnippet);
+                    loggingCallback.receiveLoggingSnippet(loggingSnippet);
 
                     for (int i = 0; i < 5; i++) {
                         keptUpdates.set(i, 0, 0);
