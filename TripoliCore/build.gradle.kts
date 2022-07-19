@@ -71,7 +71,7 @@ extraJavaModuleInfo {
     automaticModule("commons-bc38781605.jar", "commons.bc38781605")
     // https://github.com/gradle/gradle/issues/12630
     automaticModule("org.apache.commons:commons-math3", "commons.math3")
-    //automaticModule("org.apache.commons-lang3-3.12.0.jar", "org.apache.commons.lang3")
+    automaticModule("org.apache.commons:commons-lang3", "commons.lang3")
     automaticModule("com.zaxxer.SparseBitSet-1.2.jar", "com.zaxxer.SparseBitSet")
     automaticModule("jama-master-SNAPSHOT.jar", "jama")
 }

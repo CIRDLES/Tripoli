@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-module Tripoli.TripoliApp {
-    requires javafx.base;
-    requires javafx.fxml;
-    requires javafx.controls;
-    requires Tripoli.TripoliCore;
-    requires java.datatransfer;
-    requires java.desktop;
-    requires commons.bc38781605;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.ogTripoli;
+
+public interface OGTripoliMassSpecDataFileInterface {
+    public boolean testFileValidity();
 }

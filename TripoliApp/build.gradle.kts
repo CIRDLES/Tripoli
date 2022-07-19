@@ -18,6 +18,7 @@ import Common_build_gradle.Versions.junitVersion
 
 plugins {
     application
+    id("de.jjohannes.extra-java-module-info") version "0.14"
     id("common-build") // Plugin calls common gradle build from buildSrc
 }
 val mainClassName = "org.cirdles.tripoli.gui.TripoliGUI"
@@ -30,12 +31,16 @@ dependencies {
     implementation(project(":TripoliCore"))
     implementation("org.jetbrains:annotations:22.0.0")
 
-
+    implementation("com.github.cirdles:commons:bc38781605")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }
 
+extraJavaModuleInfo {
+    failOnMissingModuleInfo.set(false)
+    automaticModule("commons-bc38781605.jar", "commons.bc38781605")
+}
 
 project(":TripoliApp") {
     description = "Tripoli GUI"

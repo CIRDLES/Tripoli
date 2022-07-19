@@ -21,6 +21,7 @@ module Tripoli.TripoliCore {
     requires jama;
     requires com.google.common;
     requires commons.math3;
+    requires commons.lang3;
 
 
     exports org.cirdles.tripoli;
@@ -35,4 +36,6 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables;
     exports org.cirdles.tripoli.species;
     exports org.cirdles.tripoli.elements;
+    exports org.cirdles.tripoli.visualizationUtilities;
+    exports org.cirdles.tripoli.utilities.callBacks;
 }

@@ -22,6 +22,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import org.cirdles.tripoli.Tripoli;
+import org.cirdles.tripoli.gui.dataViews.plots.PlotsWindow;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
 
 import java.net.URL;
@@ -35,6 +36,7 @@ import static org.cirdles.tripoli.gui.utilities.BrowserControl.urlEncode;
 public class TripoliGUIController {
 
     public static String projectFileName;
+    public static PlotsWindow plotsWindow;
 
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -53,7 +55,7 @@ public class TripoliGUIController {
 
     @FXML
     void showTripoliAbout(ActionEvent event) {
-        TripoliGUI.TripoliAboutWindow.loadAboutWindow();
+        TripoliGUI.tripoliAboutWindow.loadAboutWindow();
     }
 
     @FXML
@@ -88,12 +90,19 @@ public class TripoliGUIController {
         (new PeriodicTableController()).launch();
     }
 
+    @FXML
+    void showDemo1(ActionEvent event) {
+        PlotsWindow plotsWindow = new PlotsWindow(TripoliGUI.primaryStage);
+        plotsWindow.loadPlotsWindow();
+    }
 
     @FXML
         // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
         versionLabel.setText("v" + Tripoli.VERSION);
         versionBuildDate.setText(Tripoli.RELEASE_DATE);
+
+        plotsWindow = new PlotsWindow(TripoliGUI.primaryStage);
     }
 
 

@@ -14,67 +14,50 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.oldTripoli;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.ogTripoli;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author James F. Bowring
  */
-public class IsotopXPhoeniX_ImportedTIMSDPDataFile {
-//
-//    // Fields
-//    FileInfo _DatFile = null;
-//    StreamReader _DatStream = null;
-//
-//    /// <summary>
-//    ///
-//    /// </summary>
-//    /// <param name="fi"></param>
-//    public IsotopXPhoeniX_ImportedTIMSDPDataFile(FileInfo fi)
-//    {
-//        // we will open a simple stream on a textfile
-//
-//        DataFileInfo = fi;
-//        _DatFile = fi;
-//
-//        // we open the stream
-//        _DatStream = new StreamReader(fi.FullName);
-//    }
-//
-//        #region Properties
-//
-//    public StreamReader DatStream
-//    {
-//        get
-//        {
-//            return _DatStream;
-//        }
-//        set
-//        {
-//            _DatStream = value;
-//        }
-//    }
-//
-//        #endregion
-//
-//        #region Methods
-//
-//    /// <summary>
-//    ///
-//    /// </summary>
-//    /// <returns></returns>
-//    public override string TestFileValidity()
-//    {
-//        string line = DatStream.ReadLine();
-//        if (line.IndexOf("#HEADER") > -1)
-//            return "TRUE";
-//        else
-//        {
-//            close();
-//            return "FALSE";
-//        }
-//    }
-//
-//
+public class IsotopXPhoeniX_ImportedTIMSDPDataFile implements OGTripoliMassSpecDataFileInterface {
+
+    private Path filePath;
+    private List<String> contentsByLine;
+
+    private IsotopXPhoeniX_ImportedTIMSDPDataFile() {
+    }
+
+    private IsotopXPhoeniX_ImportedTIMSDPDataFile(Path filePath) {
+        this.filePath = filePath;
+    }
+
+    public static IsotopXPhoeniX_ImportedTIMSDPDataFile initializeIsotopXPhoeniX_ImportedTIMSDPDataFile(Path filePath) {
+        return new IsotopXPhoeniX_ImportedTIMSDPDataFile(filePath);
+    }
+
+    public void readDataFile() throws IOException {
+        contentsByLine = new ArrayList<>();
+        contentsByLine.addAll(Files.readAllLines(filePath, Charset.defaultCharset()));
+
+
+        System.out.println();
+    }
+
+    /**
+     * @return boolean
+     */
+    @Override
+    public boolean testFileValidity() {
+        return (contentsByLine.get(0).indexOf("#HEADER") > -1);
+    }
+
 //    /// <summary>
 //    ///
 //    /// </summary>

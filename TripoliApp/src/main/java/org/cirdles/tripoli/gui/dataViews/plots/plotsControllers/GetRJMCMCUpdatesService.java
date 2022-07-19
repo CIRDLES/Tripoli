@@ -14,12 +14,24 @@
  * limitations under the License.
  */
 
-module Tripoli.TripoliApp {
-    requires javafx.base;
-    requires javafx.fxml;
-    requires javafx.controls;
-    requires Tripoli.TripoliCore;
-    requires java.datatransfer;
-    requires java.desktop;
-    requires commons.bc38781605;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers;
+
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
+
+/**
+ * @author James F. Bowring
+ */
+public class GetRJMCMCUpdatesService extends Service<String> {
+    private Task<String> histogramTask;
+
+    public Task<String> getHistogramTask() {
+        return histogramTask;
+    }
+
+    @Override
+    protected Task<String> createTask() {
+        histogramTask = new GetRJMCMCUpdatesTask();
+        return histogramTask;
+    }
 }
