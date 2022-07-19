@@ -11,22 +11,17 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
-import org.cirdles.commons.util.ResourceExtractor;
-import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.HistogramPlot;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.DataModelDriverExperiment;
-import org.cirdles.tripoli.utilities.callBacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.visualizationUtilities.Histogram;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Path;
 import java.util.ResourceBundle;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotsWindow.*;
 
-public class PlotsController implements LoggingCallbackInterface {
+public class PlotsController {
 
     @FXML
     private ResourceBundle resources;
@@ -55,9 +50,8 @@ public class PlotsController implements LoggingCallbackInterface {
     @FXML
     void buttonAction(ActionEvent event) throws IOException {
         loadPlot();
-        ((Button)event.getSource()).setDisable(true);
+        ((Button) event.getSource()).setDisable(true);
     }
-
 
     @FXML
     void initialize() {
@@ -77,44 +71,41 @@ public class PlotsController implements LoggingCallbackInterface {
     }
 
     public void loadPlot() throws IOException {
-        org.cirdles.commons.util.ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
-        Path dataFile = RESOURCE_EXTRACTOR
-                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/SyntheticDataset_05.txt").toPath();
-        Histogram histogram = DataModelDriverExperiment.driveModelTest(dataFile, this);
+        final GetRJMCMCUpdatesService service = new GetRJMCMCUpdatesService();
+        eventLogTextArea.textProperty().bind(service.valueProperty());
+        service.start();
+        service.setOnSucceeded(evt -> {
+            Histogram histogram = ((GetRJMCMCUpdatesTask) service.getHistogramTask()).getHistogram();
 
-        AbstractDataView histogramPlot = new HistogramPlot(
-                new Rectangle(plotScrollPane.getWidth(),
-                        plotScrollPane.getHeight()),
-                histogram);
+            AbstractDataView histogramPlot = new HistogramPlot(
+                    new Rectangle(plotScrollPane.getWidth(),
+                            plotScrollPane.getHeight()),
+                    histogram);
 
-        plotScrollPane.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                if (newValue.intValue() > 100) {
-                    histogramPlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
-                    histogramPlot.repaint();
+            plotScrollPane.widthProperty().addListener(new ChangeListener<Number>() {
+                @Override
+                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                    if (newValue.intValue() > 100) {
+                        histogramPlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
+                        histogramPlot.repaint();
+                    }
                 }
-            }
-        });
+            });
 
-        plotScrollPane.heightProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                if (newValue.intValue() > 100) {
-                    histogramPlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
-                    histogramPlot.repaint();
+            plotScrollPane.heightProperty().addListener(new ChangeListener<Number>() {
+                @Override
+                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                    if (newValue.intValue() > 100) {
+                        histogramPlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
+                        histogramPlot.repaint();
+                    }
                 }
-            }
-        });
+            });
 
-        histogramPlot.preparePanel();
-        plotScrollPane.setContent(histogramPlot);
+            histogramPlot.preparePanel();
+            plotScrollPane.setContent(histogramPlot);
+        });
 
     }
 
-    @Override
-    public void receiveLoggingSnippet(String loggingSnippet) {
-        // todo: needs threading
-        eventLogTextArea.setText(eventLogTextArea.getText() + "\n" + loggingSnippet);
-    }
 }

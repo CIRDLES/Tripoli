@@ -589,7 +589,7 @@ public class DataModelDriverExperiment {
 
                 if (modelIndex % (10 * stepCountForcedSave) == 0) {
                     String loggingSnippet =
-                            "\n%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
+                            "%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
                                     + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
                                     + "\nError function = "
                                     + statsFormat.format(StrictMath.sqrt(initialModelErrorUnWeighted_E0 / massSpecOutputDataRecord.detectorIndicesForRawDataColumn().getRowDimension()))
@@ -626,7 +626,7 @@ public class DataModelDriverExperiment {
                                             + " accepted (" + statsFormat.format(100.0 * keptUpdates.get(4, 2) / keptUpdates.get(4, 3)) + "% total)")
                                     : "");
 
-                    System.err.println(loggingSnippet);
+                    System.err.println("\n" + loggingSnippet);
                     loggingCallback.receiveLoggingSnippet(loggingSnippet);
 
                     for (int i = 0; i < 5; i++) {

@@ -25,14 +25,12 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.visualizationUtilities.Histogram;
 
-import java.math.BigDecimal;
-
 /**
  * @author James F. Bowring
  */
 public class HistogramPlot extends AbstractDataView {
 
-    private Histogram histogram;
+    private final Histogram histogram;
 
     /**
      * @param bounds
@@ -49,7 +47,7 @@ public class HistogramPlot extends AbstractDataView {
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
 
-        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 20.0));
+        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 25.0));
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.05);
         minX -= xMarginStretch;
         maxX += xMarginStretch;
@@ -91,12 +89,12 @@ public class HistogramPlot extends AbstractDataView {
 
         g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 15));
         g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText("Histogram", 20, 20);
+        g2d.fillText("Histogram of ratio", 20, 20);
 
         // plot bins
         g2d.setLineWidth(2.0);
         for (int i = 0; i < xAxisData.length; i++) {
-             g2d.fillRect(
+            g2d.fillRect(
                     mapX(xAxisData[i] - histogram.getBinWidth() / 2.0),
                     mapY(yAxisData[i]),
                     mapX(xAxisData[1]) - mapX(xAxisData[0]),

@@ -28,7 +28,7 @@
       <VBox fx:id="masterVBox" prefHeight="538.0" prefWidth="500.0">
          <children>
             <ScrollPane fx:id="plotScrollPane" fitToHeight="true" fitToWidth="true" prefHeight="500.0" prefWidth="500.0" VBox.vgrow="ALWAYS" />
-            <TextArea fx:id="eventLogTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" text="Event log  (eventually) appears here ..." />
+            <TextArea fx:id="eventLogTextArea" editable="false" prefHeight="350.0" prefWidth="200.0" text="Event log  (eventually) appears here ..." />
             <ToolBar fx:id="toolbar" prefHeight="15.0" prefWidth="500.0">
               <items>
                 <Button mnemonicParsing="false" onAction="#buttonAction" text="Start Demo for isotopes 206Pb and 208Pb" />
