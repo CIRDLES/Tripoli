@@ -11,12 +11,15 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
+import org.cirdles.commons.util.ResourceExtractor;
+import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.HistogramPlot;
 import org.cirdles.tripoli.visualizationUtilities.Histogram;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ResourceBundle;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotsWindow.*;
@@ -49,7 +52,7 @@ public class PlotsController {
 
     @FXML
     void buttonAction(ActionEvent event) throws IOException {
-        loadPlot();
+        processDataFileAndShowPlots();
         ((Button) event.getSource()).setDisable(true);
     }
 
@@ -70,8 +73,11 @@ public class PlotsController {
 
     }
 
-    public void loadPlot() throws IOException {
-        final GetRJMCMCUpdatesService service = new GetRJMCMCUpdatesService();
+    public void processDataFileAndShowPlots() throws IOException {
+        org.cirdles.commons.util.ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
+        Path dataFile = RESOURCE_EXTRACTOR
+                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/SyntheticDataset_05.txt").toPath();
+        final GetRJMCMCUpdatesService service = new GetRJMCMCUpdatesService(dataFile);
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
         service.setOnSucceeded(evt -> {

@@ -17,8 +17,6 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers;
 
 import javafx.concurrent.Task;
-import org.cirdles.commons.util.ResourceExtractor;
-import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.DataModelDriverExperiment;
 import org.cirdles.tripoli.utilities.callBacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.visualizationUtilities.Histogram;
@@ -29,7 +27,12 @@ import java.nio.file.Path;
  * @author James F. Bowring
  */
 public class GetRJMCMCUpdatesTask extends Task<String> implements LoggingCallbackInterface {
+    private Path dataFile;
     private Histogram histogram;
+
+    public GetRJMCMCUpdatesTask(Path dataFile) {
+        this.dataFile = dataFile;
+    }
 
     public Histogram getHistogram() {
         return histogram;
@@ -37,10 +40,6 @@ public class GetRJMCMCUpdatesTask extends Task<String> implements LoggingCallbac
 
     @Override
     protected String call() throws Exception {
-        org.cirdles.commons.util.ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
-        Path dataFile = RESOURCE_EXTRACTOR
-                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/SyntheticDataset_05.txt").toPath();
-
         histogram = DataModelDriverExperiment.driveModelTest(dataFile, this);
 
         return "DONE";

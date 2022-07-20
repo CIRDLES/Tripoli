@@ -47,7 +47,7 @@ public class HistogramPlot extends AbstractDataView {
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
 
-        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 25.0));
+        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 50.0));
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.05);
         minX -= xMarginStretch;
         maxX += xMarginStretch;

@@ -19,11 +19,18 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
+import java.nio.file.Path;
+
 /**
  * @author James F. Bowring
  */
 public class GetRJMCMCUpdatesService extends Service<String> {
+    private Path dataFile;
     private Task<String> histogramTask;
+
+    public GetRJMCMCUpdatesService(Path dataFile) {
+        this.dataFile = dataFile;
+    }
 
     public Task<String> getHistogramTask() {
         return histogramTask;
@@ -31,7 +38,7 @@ public class GetRJMCMCUpdatesService extends Service<String> {
 
     @Override
     protected Task<String> createTask() {
-        histogramTask = new GetRJMCMCUpdatesTask();
+        histogramTask = new GetRJMCMCUpdatesTask(dataFile);
         return histogramTask;
     }
 }
