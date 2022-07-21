@@ -4,9 +4,9 @@ Tripoli
 ==========
 
 Tripoli is developed using Java 17 and JavaFX 17 and designed to run in the specialized open source Java Virtual
-Machines (JDK/JRE) that include JavaFX (denoted by "full" or "JDK-fx") and can be found:
+Machines (JDK/JRE) that include JavaFX **- denoted by "full" or "JDK-fx" -** and can be found:
 
-[Liberica JDK/JRE 17 full](https://bell-sw.com/pages/downloads/#/java-17-lts%20/%20current)
+[Liberica JDK/JRE 17 full](https://bell-sw.com/pages/downloads/#/java-17-lts%20/%20current) (select **full** from drop-down list)
 
 [Azul JDK-fx 17 ](https://www.azul.com/downloads/?package=jdk-fx#download-openjdk)
 
