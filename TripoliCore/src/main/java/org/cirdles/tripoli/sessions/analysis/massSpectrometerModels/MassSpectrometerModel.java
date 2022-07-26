@@ -35,6 +35,9 @@ public class MassSpectrometerModel implements Serializable {
 
     private String massSpectrometerName;
     private DetectorSetup detectorSetup;
+    private double collectorWidthMM;        //% collector aperture width (mm)
+    private double theoreticalBeamWidthMM;  //% a priori estimate of beam width (mm)
+    private double effectiveRadiusMagnetMM;
 
     private MassSpectrometerModel() {
         this("DefaultMassSpectrometer");
@@ -47,6 +50,9 @@ public class MassSpectrometerModel implements Serializable {
     private MassSpectrometerModel(String massSpectrometerName, DetectorSetup detectorSetup) {
         this.massSpectrometerName = massSpectrometerName;
         this.detectorSetup = detectorSetup;
+        this.collectorWidthMM = 0.0;
+        this.theoreticalBeamWidthMM = 0.0;
+        this.effectiveRadiusMagnetMM = 0.0;
     }
 
     public static MassSpectrometerModel initializeMassSpectrometer(String name) {
@@ -57,15 +63,35 @@ public class MassSpectrometerModel implements Serializable {
         return massSpectrometerName;
     }
 
-    public void setMassSpectrometerName(String massSpectrometerName) {
-        this.massSpectrometerName = massSpectrometerName;
-    }
-
     public DetectorSetup getDetectorSetup() {
         return detectorSetup;
     }
 
     public void setDetectorSetup(DetectorSetup detectorSetup) {
         this.detectorSetup = detectorSetup;
+    }
+
+    public double getCollectorWidthMM() {
+        return collectorWidthMM;
+    }
+
+    public void setCollectorWidthMM(double collectorWidthMM) {
+        this.collectorWidthMM = collectorWidthMM;
+    }
+
+    public double getTheoreticalBeamWidthMM() {
+        return theoreticalBeamWidthMM;
+    }
+
+    public void setTheoreticalBeamWidthMM(double theoreticalBeamWidthMM) {
+        this.theoreticalBeamWidthMM = theoreticalBeamWidthMM;
+    }
+
+    public double getEffectiveRadiusMagnetMM() {
+        return effectiveRadiusMagnetMM;
+    }
+
+    public void setEffectiveRadiusMagnetMM(double effectiveRadiusMagnetMM) {
+        this.effectiveRadiusMagnetMM = effectiveRadiusMagnetMM;
     }
 }
