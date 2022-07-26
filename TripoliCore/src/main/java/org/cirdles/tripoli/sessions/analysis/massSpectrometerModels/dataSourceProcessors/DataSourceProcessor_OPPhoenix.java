@@ -20,9 +20,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import jama.Matrix;
+import org.ojalgo.matrix.Primitive64Matrix;
+import org.ojalgo.matrix.store.PhysicalStore;
+import org.ojalgo.matrix.store.Primitive64Store;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataRecord;
+import org.ojalgo.matrix.store.RawStore;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -166,6 +170,9 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
             }
         }
 
+        Primitive64Matrix.Factory matrixFactory = Primitive64Matrix.FACTORY;
+        Primitive64Matrix firstBlockInterpolationsOJ = null;
+
         // build InterpMat for each block using linear approach
         // june 2022 assume 1 block for now
         // the general approach for a block is to create a knot at the start of each cycle and
@@ -209,6 +216,16 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
                 // generate matrix and then transpose it to match matlab
                 Matrix firstPass = new Matrix(interpMatArrayForBlock, cycleIndex + 1,  countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
                 firstBlockInterpolationsMatrix = firstPass.transpose();
+
+                // wraps double[][] to ojalgo store mutable data type
+                // consider refactoring above code to use data type to begin with
+                Primitive64Matrix firstPassOJ = matrixFactory.columns(
+                        PhysicalStore.Factory<Double,RawStore> RawStore(interpMatArrayForBlock,
+                                cycleIndex + 1,
+                                countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
+                firstBlockInterpolationsOJ = firstPassOJ.transpose();
+                RawStore temp = new RawStore(interpMatArrayForBlock, cycleIndex + 1, countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
+
             }
         }
 
@@ -474,7 +491,6 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
             d0.Niso >> isotopeCount
             d0.Nblock >> blockCount
          */
-
         return new MassSpecOutputDataRecord(
                 rawDataColumn,
                 timeColumn,
@@ -488,6 +504,7 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
                 baseLineFlagsForRawDataColumn,
                 axialFlagsForRawDataColumn,
                 firstBlockInterpolationsMatrix,
+                firstBlockInterpolationsOJ,
                 faradayCount,
                 isotopeCount,
                 blockCount,

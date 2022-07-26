@@ -50,6 +50,8 @@ dependencies {
 
     implementation("com.thoughtworks.xstream:xstream:1.4.19") //group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.19'
 
+    implementation("org.ojalgo:ojalgo:51.4.0")
+
     testImplementation("com.github.cirdles:commons:bc38781605")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
@@ -74,6 +76,7 @@ extraJavaModuleInfo {
     automaticModule("org.apache.commons:commons-lang3", "commons.lang3")
     automaticModule("com.zaxxer.SparseBitSet-1.2.jar", "com.zaxxer.SparseBitSet")
     automaticModule("jama-master-SNAPSHOT.jar", "jama")
+    automaticModule("org.ojalgo:ojalgo", "ojalgo")
 }
 
 

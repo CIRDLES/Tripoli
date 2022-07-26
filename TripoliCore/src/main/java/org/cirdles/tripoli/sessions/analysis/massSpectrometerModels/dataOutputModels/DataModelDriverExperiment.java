@@ -24,6 +24,8 @@ import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethodBuilt
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_OPPhoenix;
 import org.cirdles.tripoli.utilities.callBacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.visualizationUtilities.Histogram;
+import org.ojalgo.*;
+import org.ojalgo.matrix.Primitive64Matrix;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -210,9 +212,10 @@ public class DataModelDriverExperiment {
 
         // only using first block
         Matrix Intensity;
+        Primitive64Matrix IntensityOJ;
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
             Intensity = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelInit.blockIntensities());
-
+            //IntensityOJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ().multiply(dataModelInit.blockIntensitiesOJ());
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().getRowDimension(); row++) {
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn().get(row, isotopeIndex) == 1)
@@ -238,7 +241,6 @@ public class DataModelDriverExperiment {
                 }
             }
         }
-
         /*
             % New data covariance vector
             Dsig = sqrt(x0.sig(d0.det_vec).^2 + x0.sig(d0.iso_vec+d0.Ndet).*dnobl);
@@ -537,7 +539,8 @@ public class DataModelDriverExperiment {
                         dataModelUpdaterOutputRecord_x2.logratios(),
                         dataModelUpdaterOutputRecord_x2.signalNoise(),
                         (Matrix) d2.clone(),
-                        dataModelUpdaterOutputRecord_x2.blockIntensities()
+                        dataModelUpdaterOutputRecord_x2.blockIntensities(),
+                        dataModelUpdaterOutputRecord_x2.blockIntensitiesOJ()
                 );
                 dSignalNoise = (Matrix) dSignalNoise2.clone();
 

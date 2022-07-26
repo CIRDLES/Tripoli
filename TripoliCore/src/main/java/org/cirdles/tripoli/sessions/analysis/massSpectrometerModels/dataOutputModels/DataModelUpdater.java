@@ -20,6 +20,7 @@ import jama.Matrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.stat.correlation.Covariance;
+import org.ojalgo.matrix.Primitive64Matrix;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -239,7 +240,8 @@ public class DataModelUpdater {
                             dataModelInit.logratios(),
                             x2SignalNoise,
                             dataModelInit.dataArray(),
-                            dataModelInit.blockIntensities()
+                            dataModelInit.blockIntensities(),
+                            dataModelInit.blockIntensitiesOJ()
                     );
             }
             if (!noiseFlag) {
@@ -287,13 +289,14 @@ public class DataModelUpdater {
                     x2DFGain = xx.get(row, 0);
                 }
             }
-
+            Primitive64Matrix.Factory matrixFactory = Primitive64Matrix.FACTORY;
+            double[] x2BaselineMeansArray = x2BaselineMeansList.stream().mapToDouble(d -> d).toArray();
+            Matrix x2BaselineMeans = new Matrix(x2BaselineMeansArray, x2BaselineMeansArray.length);
             double[] x2LogRatioArray = x2LogRatioList.stream().mapToDouble(d -> d).toArray();
             Matrix x2LogRatio = new Matrix(x2LogRatioArray, x2LogRatioArray.length);
             double[] x2BlockIntensitiesArray = x2BlockIntensitiesList.stream().mapToDouble(d -> d).toArray();
             Matrix x2BlockIntensities = new Matrix(x2BlockIntensitiesArray, x2BlockIntensitiesArray.length);
-            double[] x2BaselineMeansArray = x2BaselineMeansList.stream().mapToDouble(d -> d).toArray();
-            Matrix x2BaselineMeans = new Matrix(x2BaselineMeansArray, x2BaselineMeansArray.length);
+            Primitive64Matrix x2BlockIntensitiesOJ = matrixFactory.column(x2BlockIntensitiesArray);
 
             dataModelInit2 = new DataModellerOutputRecord(
                     x2BaselineMeans,
@@ -302,7 +305,8 @@ public class DataModelUpdater {
                     x2LogRatio,
                     dataModelInit.signalNoise(),
                     dataModelInit.dataArray(),
-                    x2BlockIntensities
+                    x2BlockIntensities,
+                    x2BlockIntensitiesOJ
             );
         }
         return dataModelInit2;

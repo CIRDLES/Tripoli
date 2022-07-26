@@ -17,6 +17,8 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels;
 
 import jama.Matrix;
+import org.ojalgo.matrix.Primitive64Matrix;
+import org.ojalgo.matrix.store.Primitive64Store;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.util.ArrayList;
@@ -142,7 +144,10 @@ public class DataModelInitializer {
          */
         // just playing with first block for now
         Matrix IO = null;
+        Primitive64Matrix IOOJ = null;
+        Primitive64Matrix.Factory matrixFactory = Primitive64Matrix.FACTORY;
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
+            Primitive64Matrix interpolatedKnotDataOJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ();
             Matrix interpolatedKnotData = massSpecOutputDataRecord.firstBlockInterpolations();
             double[][] dind = new double[massSpecOutputDataRecord.rawDataColumn().getRowDimension()][1];
             List<Double> dd = new ArrayList<>();
@@ -170,8 +175,10 @@ public class DataModelInitializer {
             for (int i = 0; i < ddArray.length; i++) {
                 ddSortedArray[i] = ddArray[dsortIndices[i]];
             }
-
             Matrix ddMatrix = new Matrix(ddSortedArray, ddSortedArray.length);
+            Primitive64Matrix ddMatrixOJ = matrixFactory.column(ddSortedArray);
+            IOOJ = (interpolatedKnotDataOJ.transpose().multiply(interpolatedKnotDataOJ)).invert().multiply(interpolatedKnotDataOJ.transpose()).multiply(ddMatrixOJ);
+
             IO = (interpolatedKnotData.transpose().times(interpolatedKnotData)).inverse()
                     .times(interpolatedKnotData.transpose()).times(ddMatrix);
         }
@@ -275,7 +282,8 @@ public class DataModelInitializer {
                 new Matrix(logRatios),
                 new Matrix(sigmas, sigmas.length),
                 new Matrix(dataArray, dataArray.length),
-                IO
+                IO,
+                IOOJ
         );
     }
 
