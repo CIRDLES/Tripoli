@@ -211,11 +211,11 @@ public class DataModelDriverExperiment {
         */
 
         // only using first block
-        Matrix Intensity;
+        //Matrix Intensity;
         Primitive64Matrix IntensityOJ;
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
-            Intensity = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelInit.blockIntensities());
-            // current issue matrices incorrect size
+            //Intensity = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelInit.blockIntensities());
+
             IntensityOJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ().multiply(dataModelInit.blockIntensitiesOJ());
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().getRowDimension(); row++) {
@@ -224,7 +224,7 @@ public class DataModelDriverExperiment {
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn().get(row, 0) == (blockIndex + 1)) {
                         double calcValue =
                                 exp(dataModelInit.logratios().get(isotopeIndex, 0))
-                                        * Intensity.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
+                                        * IntensityOJ.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
                         dataModelInit.dataArray().set(row, 0, calcValue);
                         dataWithNoBaseline.set(row, 0, calcValue);
                     }
@@ -234,7 +234,7 @@ public class DataModelDriverExperiment {
                         double calcValue =
                                 exp(dataModelInit.logratios().get(isotopeIndex, 0))
                                         * 1.0 / dataModelInit.dfGain()
-                                        * Intensity.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
+                                        * IntensityOJ.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
                         dataWithNoBaseline.set(row, 0, calcValue);
                         dataModelInit.dataArray().set(row, 0,
                                 calcValue + dataModelInit.baselineMeans().get((int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn().get(row, 0) - 1, 0));
@@ -444,6 +444,8 @@ public class DataModelDriverExperiment {
 
 
             // todo: reminder only 1 block here
+            // next matrix multiplication to tackle
+            //Primitive64Matrix Intensity2OJ = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelUpdaterOutputRecord_x2.blockIntensities());
             Matrix intensity2 = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelUpdaterOutputRecord_x2.blockIntensities());
             for (int row = (int) blockStartIndicesFaraday.get(0, 0); row <= (int) blockEndIndicesFaraday.get(0, 0); row++) {
                 tmpI.set(row, 0, intensity2.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0));
