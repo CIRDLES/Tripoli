@@ -26,7 +26,6 @@ public record DataModellerOutputRecord(
         Matrix logratios,
         Matrix signalNoise,
         Matrix dataArray,
-        Matrix blockIntensities,
         Primitive64Matrix blockIntensitiesOJ
 ) {
 

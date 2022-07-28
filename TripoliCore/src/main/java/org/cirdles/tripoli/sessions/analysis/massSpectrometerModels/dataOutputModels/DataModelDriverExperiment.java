@@ -214,8 +214,6 @@ public class DataModelDriverExperiment {
         //Matrix Intensity;
         Primitive64Matrix IntensityOJ;
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
-            //Intensity = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelInit.blockIntensities());
-
             IntensityOJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ().multiply(dataModelInit.blockIntensitiesOJ());
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().getRowDimension(); row++) {
@@ -444,9 +442,7 @@ public class DataModelDriverExperiment {
 
 
             // todo: reminder only 1 block here
-            // next matrix multiplication to tackle
             Primitive64Matrix Intensity2OJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ().multiply(dataModelUpdaterOutputRecord_x2.blockIntensitiesOJ());
-            //Matrix intensity2 = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelUpdaterOutputRecord_x2.blockIntensities());
             for (int row = (int) blockStartIndicesFaraday.get(0, 0); row <= (int) blockEndIndicesFaraday.get(0, 0); row++) {
                 tmpI.set(row, 0, Intensity2OJ.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0));
             }
@@ -542,7 +538,7 @@ public class DataModelDriverExperiment {
                         dataModelUpdaterOutputRecord_x2.logratios(),
                         dataModelUpdaterOutputRecord_x2.signalNoise(),
                         (Matrix) d2.clone(),
-                        dataModelUpdaterOutputRecord_x2.blockIntensities(),
+                        //dataModelUpdaterOutputRecord_x2.blockIntensities(),
                         dataModelUpdaterOutputRecord_x2.blockIntensitiesOJ()
                 );
                 dSignalNoise = (Matrix) dSignalNoise2.clone();
@@ -575,7 +571,7 @@ public class DataModelDriverExperiment {
                 counter++;
                 ensembleRecordsList.add(new EnsembleRecord(
                         dataModelInit.logratios(),
-                        dataModelInit.blockIntensities(),
+                        dataModelInit.blockIntensitiesOJ(),
                         dataModelInit.baselineMeans(),
                         dataModelInit.dfGain(),
                         dataModelInit.signalNoise(),
@@ -779,7 +775,7 @@ public class DataModelDriverExperiment {
 
     record EnsembleRecord(
             Matrix logRatios,
-            Matrix intensity,
+            Primitive64Matrix intensity,
             Matrix baseLine,
             double dfGain,
             Matrix signalNoise,

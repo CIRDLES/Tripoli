@@ -135,7 +135,7 @@ public class DataModelUpdater {
         // todo: only good for one block
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
             // research matrix to packed array in ojalgo
-            System.arraycopy(dataModelInit.blockIntensities().getColumnPackedCopy(), 0, xx0Array, countOfIsotopes, nCycle[blockIndex]);
+            System.arraycopy(dataModelInit.blockIntensitiesOJ().toRawCopy1D(), 0, xx0Array, countOfIsotopes, nCycle[blockIndex]);
             System.arraycopy((new Matrix(nCycle[blockIndex], 1, blockIndex + 2)).getColumnPackedCopy(), 0, xIndArray, countOfIsotopes, nCycle[blockIndex]);
         }
         System.arraycopy(dataModelInit.baselineMeans().getColumnPackedCopy(), 0, xx0Array, countOfIsotopes + nCycle[0], countOfFaradays);
