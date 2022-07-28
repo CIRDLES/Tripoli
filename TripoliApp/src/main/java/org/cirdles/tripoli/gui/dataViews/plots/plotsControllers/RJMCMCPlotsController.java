@@ -11,17 +11,20 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
+import org.cirdles.commons.util.ResourceExtractor;
+import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.HistogramPlot;
-import org.cirdles.tripoli.visualizationUtilities.Histogram;
+import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ResourceBundle;
 
-import static org.cirdles.tripoli.gui.dataViews.plots.PlotsWindow.*;
+import static org.cirdles.tripoli.gui.dataViews.plots.RJMCMCPlotsWindow.*;
 
-public class PlotsController {
+public class RJMCMCPlotsController {
 
     @FXML
     private ResourceBundle resources;
@@ -45,11 +48,8 @@ public class PlotsController {
     private ToolBar toolbar;
 
     @FXML
-    private Button button;
-
-    @FXML
-    void buttonAction(ActionEvent event) throws IOException {
-        loadPlot();
+    void demo1ButtonAction(ActionEvent event) throws IOException {
+        processDataFileAndShowPlotsOfRJMCMC();
         ((Button) event.getSource()).setDisable(true);
     }
 
@@ -70,17 +70,20 @@ public class PlotsController {
 
     }
 
-    public void loadPlot() throws IOException {
-        final GetRJMCMCUpdatesService service = new GetRJMCMCUpdatesService();
+    public void processDataFileAndShowPlotsOfRJMCMC() throws IOException {
+        org.cirdles.commons.util.ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
+        Path dataFile = RESOURCE_EXTRACTOR
+                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/SyntheticDataset_05.txt").toPath();
+        final GetRJMCMCUpdatesService service = new GetRJMCMCUpdatesService(dataFile);
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
         service.setOnSucceeded(evt -> {
-            Histogram histogram = ((GetRJMCMCUpdatesTask) service.getHistogramTask()).getHistogram();
+            HistogramBuilder histogramBuilder = ((GetRJMCMCUpdatesTask) service.getHistogramTask()).getHistogram();
 
             AbstractDataView histogramPlot = new HistogramPlot(
                     new Rectangle(plotScrollPane.getWidth(),
                             plotScrollPane.getHeight()),
-                    histogram);
+                    histogramBuilder);
 
             plotScrollPane.widthProperty().addListener(new ChangeListener<Number>() {
                 @Override
@@ -107,5 +110,5 @@ public class PlotsController {
         });
 
     }
-
+    
 }

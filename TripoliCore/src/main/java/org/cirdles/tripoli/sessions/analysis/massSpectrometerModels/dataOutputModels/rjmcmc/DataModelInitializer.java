@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
 import jama.Matrix;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -258,7 +258,7 @@ public class DataModelInitializer {
             sigmas[faradayIndex] = descriptiveStatistics.getStandardDeviation();
         }
 
-        for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++){
+        for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
             for (int row = 0; row < massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().getRowDimension(); row++) {
                 if (massSpecOutputDataRecord.isotopeIndicesForRawDataColumn().get(row, 0) == (isotopeIndex + 1)) {
                     sigmas[massSpecOutputDataRecord.faradayCount() + 1 + isotopeIndex] = 11.0;

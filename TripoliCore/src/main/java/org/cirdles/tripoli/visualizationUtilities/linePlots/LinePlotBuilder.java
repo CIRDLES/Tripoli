@@ -14,18 +14,27 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels;
+package org.cirdles.tripoli.visualizationUtilities.linePlots;
 
-import jama.Matrix;
+public class LinePlotBuilder {
 
-public record DataModellerOutputRecord(
-        Matrix baselineMeans,
-        Matrix baselineStandardDeviations,
-        double dfGain,
-        Matrix logratios,
-        Matrix signalNoise,
-        Matrix dataArray,
-        Matrix blockIntensities
-) {
+    private double[] xData;
+    private double[] yData;
 
+    protected LinePlotBuilder(double[] xData, double[] yData) {
+        this.xData = xData;
+        this.yData = yData;
+    }
+
+    public static LinePlotBuilder initializeLinePlot(double[] xData, double[] yData) {
+        return new LinePlotBuilder(xData, yData);
+    }
+
+    public double[] getyData() {
+        return yData;
+    }
+
+    public double[] getxData() {
+        return xData;
+    }
 }

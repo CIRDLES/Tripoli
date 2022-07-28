@@ -45,7 +45,9 @@ public final class MassSpectrometerBuiltinModelFactory {
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H3", 8));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H4", 9));
         op_Phoenix.setDetectorSetup(detectorSetup);
-
+        op_Phoenix.setCollectorWidthMM(0.95135);
+        op_Phoenix.setEffectiveRadiusMagnetMM(540.0);
+        op_Phoenix.setTheoreticalBeamWidthMM(0.35);
     }
 
     static {

@@ -22,7 +22,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import org.cirdles.tripoli.Tripoli;
-import org.cirdles.tripoli.gui.dataViews.plots.PlotsWindow;
+import org.cirdles.tripoli.gui.dataViews.plots.PeakShapePlotsWindow;
+import org.cirdles.tripoli.gui.dataViews.plots.RJMCMCPlotsWindow;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
 
 import java.net.URL;
@@ -36,7 +37,7 @@ import static org.cirdles.tripoli.gui.utilities.BrowserControl.urlEncode;
 public class TripoliGUIController {
 
     public static String projectFileName;
-    public static PlotsWindow plotsWindow;
+    public static RJMCMCPlotsWindow RJMCMCPlotsWindow;
 
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -92,9 +93,16 @@ public class TripoliGUIController {
 
     @FXML
     void showDemo1(ActionEvent event) {
-        PlotsWindow plotsWindow = new PlotsWindow(TripoliGUI.primaryStage);
-        plotsWindow.loadPlotsWindow();
+        RJMCMCPlotsWindow RJMCMCPlotsWindow = new RJMCMCPlotsWindow(TripoliGUI.primaryStage);
+        RJMCMCPlotsWindow.loadPlotsWindow();
     }
+
+    @FXML
+    void showDemo2(ActionEvent event) {
+        PeakShapePlotsWindow peakShapePlotsWindow = new PeakShapePlotsWindow(TripoliGUI.primaryStage);
+        peakShapePlotsWindow.loadPlotsWindow();
+    }
+
 
     @FXML
         // This method is called by the FXMLLoader when initialization is complete
@@ -102,7 +110,7 @@ public class TripoliGUIController {
         versionLabel.setText("v" + Tripoli.VERSION);
         versionBuildDate.setText(Tripoli.RELEASE_DATE);
 
-        plotsWindow = new PlotsWindow(TripoliGUI.primaryStage);
+        RJMCMCPlotsWindow = new RJMCMCPlotsWindow(TripoliGUI.primaryStage);
     }
 
 

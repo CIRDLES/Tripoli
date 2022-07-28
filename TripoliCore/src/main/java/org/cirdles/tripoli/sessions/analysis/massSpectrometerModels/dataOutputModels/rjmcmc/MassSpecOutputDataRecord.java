@@ -14,28 +14,27 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
 import jama.Matrix;
 
 /**
- *
- *             Matlab code >> here
- *             d0.data >> rawDataColumn
- *             d0.time >> timeColumn
- *             d0.time_ind >> timeIndColumn
- *             d0.sig_ind >> signalIndicesForRawDataColumn
- *             d0.block >> blockIndicesForRawDataColumn (1-based block number for sequence data, BaseLine data is set to block 0)
- *             d0.iso_vec >> isotopeIndicesForRawDataColumn (isotopes are indexed starting at 1)
- *             d0.iso_ind >> isotopeFlagsForRawDataColumn (each isotope has a column and a 1 denotes it is being read)
- *             d0.det_vec >> detectorIndicesForRawDataColumn (detectors are indexed from 1 through all Faraday and the last is the Axial (Daly)))
- *             d0.det_ind >> detectorFlagsForRawDataColumn (each Faraday has a column and the last column is for Daly; 1 flags detector used)
- *             d0.blflag >> baseLineFlagsForRawDataColumn (contains 1 for baseline, 0 for sequence)
- *             d0.axflag >> axialFlagsForRawDataColumn (contains 1 for data from DALY detector, 0 otherwise)
- *             d0.InterpMat >> firstBlockInterpolationsMatrix  (matlab actually puts matrices into cells)
- *             d0.Nfar >> faradayCount
- *             d0.Niso >> isotopeCount
- *             d0.Nblock >> blockCount
+ * Matlab code >> here
+ * d0.data >> rawDataColumn
+ * d0.time >> timeColumn
+ * d0.time_ind >> timeIndColumn
+ * d0.sig_ind >> signalIndicesForRawDataColumn
+ * d0.block >> blockIndicesForRawDataColumn (1-based block number for sequence data, BaseLine data is set to block 0)
+ * d0.iso_vec >> isotopeIndicesForRawDataColumn (isotopes are indexed starting at 1)
+ * d0.iso_ind >> isotopeFlagsForRawDataColumn (each isotope has a column and a 1 denotes it is being read)
+ * d0.det_vec >> detectorIndicesForRawDataColumn (detectors are indexed from 1 through all Faraday and the last is the Axial (Daly)))
+ * d0.det_ind >> detectorFlagsForRawDataColumn (each Faraday has a column and the last column is for Daly; 1 flags detector used)
+ * d0.blflag >> baseLineFlagsForRawDataColumn (contains 1 for baseline, 0 for sequence)
+ * d0.axflag >> axialFlagsForRawDataColumn (contains 1 for data from DALY detector, 0 otherwise)
+ * d0.InterpMat >> firstBlockInterpolationsMatrix  (matlab actually puts matrices into cells)
+ * d0.Nfar >> faradayCount
+ * d0.Niso >> isotopeCount
+ * d0.Nblock >> blockCount
  *
  * @param rawDataColumn
  * @param timeColumn

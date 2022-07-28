@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.visualizationUtilities;
+package org.cirdles.tripoli.visualizationUtilities.histograms;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 /**
  * @author James F. Bowring
  */
-public class Histogram {
+public class HistogramBuilder {
 
     private double[] data;
     private int binCount;
@@ -29,18 +29,18 @@ public class Histogram {
     private double binWidth;
     private double[] binCenters;
 
-    private Histogram(double[] data, int binCount) {
+    private HistogramBuilder(double[] data, int binCount) {
         this.data = data;
         this.binCount = binCount;
     }
 
-    public static Histogram initializeHistogram(double[] data, int binCount){
-        Histogram histogram = new Histogram(data, binCount);
-        histogram.generateHistogram();
-        return histogram;
+    public static HistogramBuilder initializeHistogram(double[] data, int binCount) {
+        HistogramBuilder histogramBuilder = new HistogramBuilder(data, binCount);
+        histogramBuilder.generateHistogram();
+        return histogramBuilder;
     }
 
-    private void generateHistogram(){
+    private void generateHistogram() {
         DescriptiveStatistics descriptiveStatisticsRatios = new DescriptiveStatistics();
         for (int index = 0; index < data.length; index++) {
             descriptiveStatisticsRatios.addValue(data[index]);
@@ -67,8 +67,8 @@ public class Histogram {
         }
 
         binCenters = new double[binCount];
-        for (int binIndex = 0; binIndex < binCount; binIndex ++){
-            binCenters[binIndex] = dataMin + ( binIndex + 0.5) * binWidth;
+        for (int binIndex = 0; binIndex < binCount; binIndex++) {
+            binCenters[binIndex] = dataMin + (binIndex + 0.5) * binWidth;
         }
     }
 

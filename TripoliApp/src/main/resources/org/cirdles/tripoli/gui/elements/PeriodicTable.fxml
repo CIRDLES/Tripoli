@@ -5,7 +5,8 @@
 <?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="560.0" maxWidth="809.0" minHeight="-Infinity" minWidth="-Infinity"
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="560.0" maxWidth="809.0" minHeight="-Infinity"
+            minWidth="-Infinity"
             prefHeight="560.0" prefWidth="809.0" style="-fx-border-color: black; -fx-border-width: 3;"
             xmlns="http://javafx.com/javafx/17" fx:controller="org.cirdles.tripoli.gui.PeriodicTableController">
     <children>

@@ -19,7 +19,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables.SequenceCell;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables.SequenceTable;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.MassSpecOutputDataRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
@@ -131,8 +131,8 @@ public interface DataSourceProcessorInterface {
 
         // matlab matrices Far_ind and Ax_ind
         double[][] isotopeIndicesPerFaradayOrAxial;
-        if (faraday){
-            isotopeIndicesPerFaradayOrAxial = new double[sequenceIDs.length][detectorToSequenceCellMap.keySet().size() -1];
+        if (faraday) {
+            isotopeIndicesPerFaradayOrAxial = new double[sequenceIDs.length][detectorToSequenceCellMap.keySet().size() - 1];
         } else {
             isotopeIndicesPerFaradayOrAxial = new double[sequenceIDs.length][1];
         }

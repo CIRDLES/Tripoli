@@ -24,21 +24,21 @@ import java.nio.file.Path;
 /**
  * @author James F. Bowring
  */
-public class GetRJMCMCUpdatesService extends Service<String> {
+public class GetPeakShapesService extends Service<String> {
     private Path dataFile;
-    private Task<String> histogramTask;
+    private Task<String> peakShapesTask;
 
-    public GetRJMCMCUpdatesService(Path dataFile) {
+    public GetPeakShapesService(Path dataFile) {
         this.dataFile = dataFile;
     }
 
-    public Task<String> getHistogramTask() {
-        return histogramTask;
+    public Task<String> getPeakShapesTask() {
+        return peakShapesTask;
     }
 
     @Override
     protected Task<String> createTask() {
-        histogramTask = new GetRJMCMCUpdatesTask(dataFile);
-        return histogramTask;
+        peakShapesTask = new GetPeakShapesTask(dataFile);
+        return peakShapesTask;
     }
 }

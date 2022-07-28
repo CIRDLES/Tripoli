@@ -23,6 +23,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+
 import java.math.BigDecimal;
 
 /**
@@ -248,7 +249,7 @@ public abstract class AbstractDataView extends Canvas {
                 && (evt.getX() < (graphWidth + leftMargin - 2)));
     }
 
-    public void updateGraphSize(){
+    public void updateGraphSize() {
         this.graphWidth = (int) (width - 2 * leftMargin);
         this.graphHeight = (int) (height - 2 * topMargin);
     }

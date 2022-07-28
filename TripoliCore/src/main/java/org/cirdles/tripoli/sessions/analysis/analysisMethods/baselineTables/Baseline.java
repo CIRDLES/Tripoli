@@ -33,6 +33,7 @@ import java.util.Map;
 public class Baseline implements Serializable {
     private String baselineName;
     private Map<Detector, BaselineCell> baselineCellsMap;
+
     private Baseline() {
     }
 

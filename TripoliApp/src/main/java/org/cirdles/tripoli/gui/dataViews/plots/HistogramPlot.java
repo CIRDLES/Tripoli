@@ -23,36 +23,36 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import org.cirdles.tripoli.visualizationUtilities.Histogram;
+import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
 
 /**
  * @author James F. Bowring
  */
 public class HistogramPlot extends AbstractDataView {
 
-    private final Histogram histogram;
+    private final HistogramBuilder histogramBuilder;
 
     /**
      * @param bounds
      */
-    public HistogramPlot(Rectangle bounds, Histogram histogram) {
+    public HistogramPlot(Rectangle bounds, HistogramBuilder histogramBuilder) {
         super(bounds, 100, 100);
-        this.histogram = histogram;
+        this.histogramBuilder = histogramBuilder;
     }
 
     @Override
     public void preparePanel() {
 
-        xAxisData = histogram.getBinCenters();
+        xAxisData = histogramBuilder.getBinCenters();
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
 
-        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 25.0));
+        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 50.0));
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.05);
         minX -= xMarginStretch;
         maxX += xMarginStretch;
 
-        yAxisData = histogram.getBinCounts();
+        yAxisData = histogramBuilder.getBinCounts();
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 
@@ -89,13 +89,13 @@ public class HistogramPlot extends AbstractDataView {
 
         g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 15));
         g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText("Histogram of ratio", 20, 20);
+        g2d.fillText("HistogramBuilder of ratio", 20, 20);
 
         // plot bins
         g2d.setLineWidth(2.0);
         for (int i = 0; i < xAxisData.length; i++) {
             g2d.fillRect(
-                    mapX(xAxisData[i] - histogram.getBinWidth() / 2.0),
+                    mapX(xAxisData[i] - histogramBuilder.getBinWidth() / 2.0),
                     mapY(yAxisData[i]),
                     mapX(xAxisData[1]) - mapX(xAxisData[0]),
                     mapY(0.0) - mapY(yAxisData[i]));

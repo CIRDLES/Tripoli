@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import org.apache.tools.ant.filters.ReplaceTokens
-import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.include
 import java.text.SimpleDateFormat
 import java.util.*
 
