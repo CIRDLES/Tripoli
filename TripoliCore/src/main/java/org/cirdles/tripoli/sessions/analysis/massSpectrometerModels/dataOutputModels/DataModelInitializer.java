@@ -175,11 +175,12 @@ public class DataModelInitializer {
             for (int i = 0; i < ddArray.length; i++) {
                 ddSortedArray[i] = ddArray[dsortIndices[i]];
             }
-            Matrix ddMatrix = new Matrix(ddSortedArray, ddSortedArray.length);
-            Primitive64Matrix ddMatrixOJ = matrixFactory.column(ddSortedArray);
 
-            IO = (interpolatedKnotData.transpose().times(interpolatedKnotData)).inverse()
-                    .times(interpolatedKnotData.transpose()).times(ddMatrix);
+            Matrix ddMatrix = new Matrix(ddSortedArray, ddSortedArray.length);
+            //IO = (interpolatedKnotData.transpose().times(interpolatedKnotData)).inverse()
+            //        .times(interpolatedKnotData.transpose()).times(ddMatrix);
+
+            Primitive64Matrix ddMatrixOJ = matrixFactory.column(ddSortedArray);
             IOOJ = (interpolatedKnotDataOJ.transpose().multiply(interpolatedKnotDataOJ)).invert().multiply(interpolatedKnotDataOJ.transpose()).multiply(ddMatrixOJ);
         }
             /*

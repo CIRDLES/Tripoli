@@ -103,9 +103,9 @@ public class DataModelDriverExperiment {
         Matrix priorLogRatio = new Matrix(new double[][]{{-20.0, 20.0}});
         double maxIntensity = Double.MIN_VALUE;
         double minIntensity = Double.MAX_VALUE;
-        for (int row = 0; row < dataModelInit.blockIntensities().getRowDimension(); row++) {
-            maxIntensity = Math.max(dataModelInit.blockIntensities().get(row, 0), maxIntensity);
-            minIntensity = min(dataModelInit.blockIntensities().get(row, 0), minIntensity);
+        for (int row = 0; row < dataModelInit.blockIntensitiesOJ().getRowDim(); row++) {
+            maxIntensity = Math.max(dataModelInit.blockIntensitiesOJ().get(row, 0), maxIntensity);
+            minIntensity = min(dataModelInit.blockIntensitiesOJ().get(row, 0), minIntensity);
         }
         Matrix priorIntensity = new Matrix(new double[][]{{0.0, 1.5 * maxIntensity}});
         Matrix priorDFgain = new Matrix(new double[][]{{0.8, 1.0}});
@@ -445,13 +445,13 @@ public class DataModelDriverExperiment {
 
             // todo: reminder only 1 block here
             // next matrix multiplication to tackle
-            //Primitive64Matrix Intensity2OJ = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelUpdaterOutputRecord_x2.blockIntensities());
-            Matrix intensity2 = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelUpdaterOutputRecord_x2.blockIntensities());
+            Primitive64Matrix Intensity2OJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ().multiply(dataModelUpdaterOutputRecord_x2.blockIntensitiesOJ());
+            //Matrix intensity2 = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelUpdaterOutputRecord_x2.blockIntensities());
             for (int row = (int) blockStartIndicesFaraday.get(0, 0); row <= (int) blockEndIndicesFaraday.get(0, 0); row++) {
-                tmpI.set(row, 0, intensity2.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0));
+                tmpI.set(row, 0, Intensity2OJ.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0));
             }
             for (int row = (int) blockStartIndicesDaly.get(0, 0); row <= (int) blockEndIndicesDaly.get(0, 0); row++) {
-                tmpI.set(row, 0, intensity2.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0));
+                tmpI.set(row, 0, Intensity2OJ.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0));
             }
 
             Matrix dnobl2 = tmpDF.arrayTimes(tmpLR).arrayTimes(tmpI);

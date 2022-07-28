@@ -69,11 +69,11 @@ public class DataModelUpdater {
          */
 
         int countOfIsotopes = dataModelInit.logratios().getRowDimension();
-        int countOfBlocks = dataModelInit.blockIntensities().getColumnDimension();
+        int countOfBlocks = dataModelInit.blockIntensitiesOJ().getColDim();
         int[] nCycle = new int[countOfBlocks];
         int sumOfCycleCounts = 0;
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
-            nCycle[blockIndex] = dataModelInit.blockIntensities().getRowDimension();
+            nCycle[blockIndex] = dataModelInit.blockIntensitiesOJ().getRowDim();
             sumOfCycleCounts += nCycle[blockIndex];
         }
         int countOfFaradays = dataModelInit.baselineMeans().getRowDimension();
@@ -134,6 +134,7 @@ public class DataModelUpdater {
         Arrays.fill(xIndArray, 1.0);
         // todo: only good for one block
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
+            // research matrix to packed array in ojalgo
             System.arraycopy(dataModelInit.blockIntensities().getColumnPackedCopy(), 0, xx0Array, countOfIsotopes, nCycle[blockIndex]);
             System.arraycopy((new Matrix(nCycle[blockIndex], 1, blockIndex + 2)).getColumnPackedCopy(), 0, xIndArray, countOfIsotopes, nCycle[blockIndex]);
         }
@@ -240,7 +241,6 @@ public class DataModelUpdater {
                             dataModelInit.logratios(),
                             x2SignalNoise,
                             dataModelInit.dataArray(),
-                            dataModelInit.blockIntensities(),
                             dataModelInit.blockIntensitiesOJ()
                     );
             }
@@ -305,7 +305,6 @@ public class DataModelUpdater {
                     x2LogRatio,
                     dataModelInit.signalNoise(),
                     dataModelInit.dataArray(),
-                    x2BlockIntensities,
                     x2BlockIntensitiesOJ
             );
         }
@@ -361,11 +360,11 @@ public class DataModelUpdater {
             end
          */
         int countOfIsotopes = dataModelInit.logratios().getRowDimension();
-        int countOfBlocks = dataModelInit.blockIntensities().getColumnDimension();
+        int countOfBlocks = dataModelInit.blockIntensitiesOJ().getColDim();
         int[] nCycle = new int[countOfBlocks];
         int sumOfCycleCounts = 0;
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
-            nCycle[blockIndex] = dataModelInit.blockIntensities().getRowDimension();
+            nCycle[blockIndex] = dataModelInit.blockIntensitiesOJ().getRowDim();
             sumOfCycleCounts += nCycle[blockIndex];
         }
         int countOfFaradays = dataModelInit.baselineMeans().getRowDimension();
@@ -393,7 +392,7 @@ public class DataModelUpdater {
                 enso.set(row, modelIndex, ensembleRecordsList.get(modelIndex + countOfNewModels - 1).logRatios().get(1, 0));
                 totalsByRow.set(row, 0, totalsByRow.get(row, 0) + ensembleRecordsList.get(modelIndex + countOfNewModels - 1).logRatios().get(1, 0));
                 row++;
-                for (int intensityIndex = 0; intensityIndex < dataModelInit.blockIntensities().getRowDimension(); intensityIndex++) {
+                for (int intensityIndex = 0; intensityIndex < dataModelInit.blockIntensitiesOJ().getRowDim(); intensityIndex++) {
                     enso.set(row, modelIndex, ensembleRecordsList.get(modelIndex + countOfNewModels - 1).intensity().get(intensityIndex, 0));
                     totalsByRow.set(row, 0, totalsByRow.get(row, 0) + ensembleRecordsList.get(modelIndex + countOfNewModels - 1).intensity().get(intensityIndex, 0));
                     row++;
