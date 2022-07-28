@@ -219,12 +219,10 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
 
                 // wraps double[][] to ojalgo store mutable data type
                 // atm not working returned matrix wrong dimensions look into rawStore, limits
-                Primitive64Matrix firstPassOJ = matrixFactory.columns(
-                        PhysicalStore.Factory<Double,RawStore> RawStore(interpMatArrayForBlock,
+                Primitive64Matrix firstPassOJ = matrixFactory.columns(interpMatArrayForBlock).limits(
                                 cycleIndex + 1,
                                 countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
                 firstBlockInterpolationsOJ = firstPassOJ.transpose();
-                RawStore temp = new RawStore(interpMatArrayForBlock, cycleIndex + 1, countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
 
             }
         }
