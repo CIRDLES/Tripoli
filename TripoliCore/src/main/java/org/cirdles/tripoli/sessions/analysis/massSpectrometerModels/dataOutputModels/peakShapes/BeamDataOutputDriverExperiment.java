@@ -135,12 +135,12 @@ public class BeamDataOutputDriverExperiment {
         Matrix peakLeft = beamShape.getMatrix(0, (int) maxBeamIndex - 1, 0, 0);
         Matrix leftAboveTheshold = MatLab.greaterThan(peakLeft, thresholdIntensity);
         Matrix leftThesholdChange = leftAboveTheshold.getMatrix(1, leftAboveTheshold.getRowDimension() - 1, 0, 0).minus(leftAboveTheshold.getMatrix(0, leftAboveTheshold.getRowDimension() - 2, 0, 0));
-        double leftBoundary = MatLab.find(leftThesholdChange, 1, "last").get(0, 0) + 1;
+        int leftBoundary = (int) (MatLab.find(leftThesholdChange, 1, "last").get(0, 0) + 1);
 
         Matrix peakRight = beamShape.getMatrix((int) maxBeamIndex, beamShape.getRowDimension() - 1, 0, 0);
         Matrix rightAboveThreshold = MatLab.greaterThan(peakRight, thresholdIntensity);
         Matrix rightThesholdChange = rightAboveThreshold.getMatrix(0, rightAboveThreshold.getRowDimension() - 2, 0, 0).minus(rightAboveThreshold.getMatrix(1, rightAboveThreshold.getRowDimension() - 1, 0, 0));
-        double rightBoundary = MatLab.find(rightThesholdChange, 1, "first").get(0, 0) + maxBeamIndex;
+        int rightBoundary = (int) (MatLab.find(rightThesholdChange, 1, "first").get(0, 0) + maxBeamIndex);
 
         Matrix gBeam = TrimGMatrix.times(beamShape);
 

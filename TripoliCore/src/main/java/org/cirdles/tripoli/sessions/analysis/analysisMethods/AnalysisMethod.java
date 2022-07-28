@@ -16,9 +16,9 @@
 
 package org.cirdles.tripoli.sessions.analysis.analysisMethods;
 
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.baselineTables.BaselineTable;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables.SequenceTable;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.io.Serial;

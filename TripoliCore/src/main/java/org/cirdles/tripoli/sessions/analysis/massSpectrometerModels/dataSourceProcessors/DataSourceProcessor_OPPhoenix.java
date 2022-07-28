@@ -159,7 +159,7 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
                 currentRecordNumber++;
                 currentCycleNumber = 0;
                 currentBlockNumber++;
-                if (currentRecordNumber >= totalCycles){
+                if (currentRecordNumber >= totalCycles) {
                     break;
                 }
                 startingIndicesOfCyclesByBlock[currentRecordNumber] = new int[]{currentBlockNumber, currentCycleNumber, currentIndex};
@@ -189,25 +189,25 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
             // whereas the matlab code uses the starting entry of the next cycle for all previous cycles
             boolean lastCycle = false;
             lastCycle = (cycleIndex == nCycle[blockIndex] - 1);
-            if (lastCycle){
-                startOfNextCycleIndex --;
+            if (lastCycle) {
+                startOfNextCycleIndex--;
             }
             int countOfEntries = startingIndicesOfCyclesByBlock[cycleIndex][2] - startingIndicesOfCyclesByBlock[1][2];
 
             double deltaTimeStamp = timeStamp[startOfNextCycleIndex] - timeStamp[startOfCycleIndex];
 
             for (int timeIndex = startOfCycleIndex; timeIndex < startOfNextCycleIndex; timeIndex++) {
-                interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) +  countOfEntries] =
+                interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries] =
                         (timeStamp[timeIndex] - timeStamp[startOfCycleIndex]) / deltaTimeStamp;
                 interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] =
-                        1.0 - interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) +  countOfEntries];
+                        1.0 - interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries];
             }
-            if (lastCycle){
+            if (lastCycle) {
                 interpMatArrayForBlock[cycleIndex][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 1.0;
                 interpMatArrayForBlock[cycleIndex - 1][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 0.0;
 
                 // generate matrix and then transpose it to match matlab
-                Matrix firstPass = new Matrix(interpMatArrayForBlock, cycleIndex + 1,  countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
+                Matrix firstPass = new Matrix(interpMatArrayForBlock, cycleIndex + 1, countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
                 firstBlockInterpolationsMatrix = firstPass.transpose();
             }
         }
@@ -279,7 +279,7 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         // add baseline highest signal index to Faraday items
         int lastSignalIndexUsed = signalIndexForDataAccumulatorList.get(signalIndexForDataAccumulatorList.size() - 1);
         List<Integer> faradaySignalIndices = sequenceFaradayAccumulator.signalIndexForDataAccumulatorList();
-        for (final ListIterator<Integer> iterator = faradaySignalIndices.listIterator(); iterator.hasNext();) {
+        for (final ListIterator<Integer> iterator = faradaySignalIndices.listIterator(); iterator.hasNext(); ) {
             final Integer element = iterator.next();
             iterator.set(element + lastSignalIndexUsed);
         }
@@ -287,7 +287,7 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         // add faraday highest signal index to Axial items
         lastSignalIndexUsed = signalIndexForDataAccumulatorList.get(signalIndexForDataAccumulatorList.size() - 1);
         List<Integer> axialSignalIndices = sequenceIonCounterAccumulator.signalIndexForDataAccumulatorList();
-        for (final ListIterator<Integer> iterator = axialSignalIndices.listIterator(); iterator.hasNext();) {
+        for (final ListIterator<Integer> iterator = axialSignalIndices.listIterator(); iterator.hasNext(); ) {
             final Integer element = iterator.next();
             iterator.set(element + lastSignalIndexUsed);
         }
@@ -311,9 +311,9 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
 
         double[][] isotopeFlagsForDataAccumulatorArray = new double[isotopeFlagsForDataAccumulatorList.size()][];
         int i = 0;
-        for (int[] isotopeFlags : isotopeFlagsForDataAccumulatorList){
+        for (int[] isotopeFlags : isotopeFlagsForDataAccumulatorList) {
             isotopeFlagsForDataAccumulatorArray[i] = new double[isotopeFlags.length];
-            for (int iso = 0; iso < isotopeFlags.length;  iso++){
+            for (int iso = 0; iso < isotopeFlags.length; iso++) {
                 isotopeFlagsForDataAccumulatorArray[i][iso] = isotopeFlags[iso];
             }
             i++;
@@ -325,9 +325,9 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
 
         double[][] detectorFlagsForDataAccumulatorArray = new double[detectorFlagsForDataAccumulatorList.size()][];
         i = 0;
-        for (int[] detectorFlags : detectorFlagsForDataAccumulatorList){
+        for (int[] detectorFlags : detectorFlagsForDataAccumulatorList) {
             detectorFlagsForDataAccumulatorArray[i] = new double[detectorFlags.length];
-            for (int d = 0; d < detectorFlags.length; d++){
+            for (int d = 0; d < detectorFlags.length; d++) {
                 detectorFlagsForDataAccumulatorArray[i][d] = detectorFlags[d];
             }
             i++;
@@ -344,10 +344,9 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         Matrix signalIndicesForRawDataColumn = new Matrix(signalIndicesForDataAccumulatorArray, signalIndicesForDataAccumulatorArray.length);
 
 
-
         // Time_Far = repmat(Time,1,Nfar);
         double[][] timeFarArray = new double[faradayCount][timeStamp.length];
-        for (int far = 0; far < faradayCount; far ++){
+        for (int far = 0; far < faradayCount; far++) {
             timeFarArray[far] = timeStamp.clone();
         }
         Matrix timeFar = new Matrix(timeFarArray).transpose();
@@ -385,25 +384,25 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         double[][] maxCycleTime = new double[blockCount][nCycle[blockIndex] - 1];
         double[][] iminCT = new double[blockCount][nCycle[blockIndex] - 1];
         double[][] imaxCT = new double[blockCount][nCycle[blockIndex] - 1];
-        for (blockIndex = 0; blockIndex < blockCount; blockIndex++){
-            for (int cycleIndex = 1; cycleIndex < nCycle[blockIndex]; cycleIndex++){
+        for (blockIndex = 0; blockIndex < blockCount; blockIndex++) {
+            for (int cycleIndex = 1; cycleIndex < nCycle[blockIndex]; cycleIndex++) {
                 DescriptiveStatistics descriptiveStatisticsA = new DescriptiveStatistics();
-                for (row = 0; row < blockNumbers.length; row++){
-                    if ((blockNumbers[row] == blockIndex + 1) && (cycleNumbers[row] == cycleIndex)){
+                for (row = 0; row < blockNumbers.length; row++) {
+                    if ((blockNumbers[row] == blockIndex + 1) && (cycleNumbers[row] == cycleIndex)) {
                         descriptiveStatisticsA.addValue(timeStamp[row]);
                     }
                 }
                 medCycleTime[blockIndex][cycleIndex - 1] = descriptiveStatisticsA.getPercentile(50);
                 minCycleTime[blockIndex][cycleIndex - 1] = descriptiveStatisticsA.getMin();
                 maxCycleTime[blockIndex][cycleIndex - 1] = descriptiveStatisticsA.getMax();
-                for (row = 0; row < timeStamp.length; row++){
-                    if (timeStamp[row] >= minCycleTime[blockIndex][cycleIndex - 1]){
+                for (row = 0; row < timeStamp.length; row++) {
+                    if (timeStamp[row] >= minCycleTime[blockIndex][cycleIndex - 1]) {
                         iminCT[blockIndex][cycleIndex - 1] = row;
                         break;
                     }
                 }
-                for (row = 0; row < timeStamp.length; row++){
-                    if (timeStamp[row] >= maxCycleTime[blockIndex][cycleIndex - 1]){
+                for (row = 0; row < timeStamp.length; row++) {
+                    if (timeStamp[row] >= maxCycleTime[blockIndex][cycleIndex - 1]) {
                         imaxCT[blockIndex][cycleIndex - 1] = row;
                         break;
                     }
@@ -415,13 +414,13 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         blockIndex = 0;
         double[][] tKnots0 = new double[minCycleTime.length][nCycle[blockIndex]];
         double[][] iTKnots0 = new double[minCycleTime.length][nCycle[blockIndex]];
-        for (row = 0; row < minCycleTime.length; row++){
-            for (int col = 0; col < (nCycle[blockIndex] - 1); col++){
+        for (row = 0; row < minCycleTime.length; row++) {
+            for (int col = 0; col < (nCycle[blockIndex] - 1); col++) {
                 tKnots0[row][col] = minCycleTime[row][col];
                 iTKnots0[row][col] = iminCT[row][col];
             }
-            tKnots0[row][nCycle[blockIndex]-1] = maxCycleTime[row][nCycle[blockIndex] -2];
-            iTKnots0[row][nCycle[blockIndex]-1] = imaxCT[row][nCycle[blockIndex] -2];
+            tKnots0[row][nCycle[blockIndex] - 1] = maxCycleTime[row][nCycle[blockIndex] - 2];
+            iTKnots0[row][nCycle[blockIndex] - 1] = imaxCT[row][nCycle[blockIndex] - 2];
         }
 
     /*
@@ -438,8 +437,8 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         double[][] blockTime = new double[blockCount][];
         double[] nKnots = new double[blockCount];
         double[] nTb = new double[blockCount];
-        for (blockIndex = 0; blockIndex < blockCount; blockIndex++){
-            blockTime[blockIndex] = Arrays.copyOfRange(timeStamp, (int)iTKnots0[blockIndex][0], (int)iTKnots0[blockIndex][nCycle[blockIndex] - 1] + 1);
+        for (blockIndex = 0; blockIndex < blockCount; blockIndex++) {
+            blockTime[blockIndex] = Arrays.copyOfRange(timeStamp, (int) iTKnots0[blockIndex][0], (int) iTKnots0[blockIndex][nCycle[blockIndex] - 1] + 1);
             // interpolation for block 1 done above
             // TODO: Extend to all blocks
             nKnots[blockIndex] = tKnots0[blockIndex].length;
@@ -451,7 +450,7 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         // identical columns for each faraday
         double[][] faradayTimeIndices = new double[countOfSamples][faradayCount];
         row = 0;
-        for (double[] rowS : faradayTimeIndices){
+        for (double[] rowS : faradayTimeIndices) {
             Arrays.fill(rowS, row);
             row++;
         }

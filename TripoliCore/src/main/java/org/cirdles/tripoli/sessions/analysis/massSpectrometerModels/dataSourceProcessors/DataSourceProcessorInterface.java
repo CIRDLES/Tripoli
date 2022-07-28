@@ -131,8 +131,8 @@ public interface DataSourceProcessorInterface {
 
         // matlab matrices Far_ind and Ax_ind
         double[][] isotopeIndicesPerFaradayOrAxial;
-        if (faraday){
-            isotopeIndicesPerFaradayOrAxial = new double[sequenceIDs.length][detectorToSequenceCellMap.keySet().size() -1];
+        if (faraday) {
+            isotopeIndicesPerFaradayOrAxial = new double[sequenceIDs.length][detectorToSequenceCellMap.keySet().size() - 1];
         } else {
             isotopeIndicesPerFaradayOrAxial = new double[sequenceIDs.length][1];
         }

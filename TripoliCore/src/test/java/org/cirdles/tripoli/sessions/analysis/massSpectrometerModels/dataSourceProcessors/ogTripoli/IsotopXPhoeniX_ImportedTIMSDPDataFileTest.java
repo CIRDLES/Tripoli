@@ -31,7 +31,7 @@ class IsotopXPhoeniX_ImportedTIMSDPDataFileTest {
         IsotopXPhoeniX_ImportedTIMSDPDataFile isotopXPhoeniX_ImportedTIMSDPDataFile = initializeIsotopXPhoeniX_ImportedTIMSDPDataFile(timsdpFilePath);
 
         isotopXPhoeniX_ImportedTIMSDPDataFile.readDataFile();
-        assert(isotopXPhoeniX_ImportedTIMSDPDataFile.testFileValidity());
+        assert (isotopXPhoeniX_ImportedTIMSDPDataFile.testFileValidity());
 
 
     }

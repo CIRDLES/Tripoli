@@ -258,7 +258,7 @@ public class DataModelInitializer {
             sigmas[faradayIndex] = descriptiveStatistics.getStandardDeviation();
         }
 
-        for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++){
+        for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
             for (int row = 0; row < massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().getRowDimension(); row++) {
                 if (massSpecOutputDataRecord.isotopeIndicesForRawDataColumn().get(row, 0) == (isotopeIndex + 1)) {
                     sigmas[massSpecOutputDataRecord.faradayCount() + 1 + isotopeIndex] = 11.0;

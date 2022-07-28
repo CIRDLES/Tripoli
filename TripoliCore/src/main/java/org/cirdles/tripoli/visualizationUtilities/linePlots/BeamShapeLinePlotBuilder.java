@@ -20,24 +20,24 @@ package org.cirdles.tripoli.visualizationUtilities.linePlots;
  * @author James F. Bowring
  */
 public class BeamShapeLinePlotBuilder extends LinePlotBuilder {
-    private double leftBoundary;
-    private double rightBoundary;
+    private int leftBoundary;
+    private int rightBoundary;
 
-    private BeamShapeLinePlotBuilder(double[] xData, double[] yData, double leftBoundary, double rightBoundary) {
+    private BeamShapeLinePlotBuilder(double[] xData, double[] yData, int leftBoundary, int rightBoundary) {
         super(xData, yData);
         this.leftBoundary = leftBoundary;
         this.rightBoundary = rightBoundary;
     }
 
-    public static BeamShapeLinePlotBuilder initializeBeamShapeLinePlot(double[] xData, double[] yData, double leftBoundary, double rightBoundary) {
+    public static BeamShapeLinePlotBuilder initializeBeamShapeLinePlot(double[] xData, double[] yData, int leftBoundary, int rightBoundary) {
         return new BeamShapeLinePlotBuilder(xData, yData, leftBoundary, rightBoundary);
     }
 
-    public double getLeftBoundary() {
+    public int getLeftBoundary() {
         return leftBoundary;
     }
 
-    public double getRightBoundary() {
+    public int getRightBoundary() {
         return rightBoundary;
     }
 }

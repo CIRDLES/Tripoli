@@ -22,19 +22,24 @@
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
-
-<AnchorPane fx:id="plotsAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="538.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlotsController">
-   <children>
-      <VBox fx:id="masterVBox" prefHeight="538.0" prefWidth="500.0">
-         <children>
-            <ScrollPane fx:id="plotScrollPane" fitToHeight="true" fitToWidth="true" prefHeight="500.0" prefWidth="500.0" VBox.vgrow="ALWAYS" />
-            <TextArea fx:id="eventLogTextArea" editable="false" prefHeight="350.0" prefWidth="200.0" text="Event log  (eventually) appears here ..." />
-            <ToolBar fx:id="toolbar" prefHeight="15.0" prefWidth="500.0">
-              <items>
-                <Button mnemonicParsing="false" onAction="#demo1ButtonAction" text="Start Demo1 for isotopes 206Pb and 208Pb" />
-              </items>
-            </ToolBar>
-         </children>
-      </VBox>
-   </children>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:id="plotsAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity"
+            minHeight="-Infinity" minWidth="-Infinity" prefHeight="538.0" prefWidth="500.0"
+            xmlns="http://javafx.com/javafx/17"
+            fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlotsController">
+    <children>
+        <VBox fx:id="masterVBox" prefHeight="538.0" prefWidth="500.0">
+            <children>
+                <ScrollPane fx:id="plotScrollPane" fitToHeight="true" fitToWidth="true" prefHeight="500.0"
+                            prefWidth="500.0" VBox.vgrow="ALWAYS"/>
+                <TextArea fx:id="eventLogTextArea" editable="false" prefHeight="350.0" prefWidth="200.0"
+                          text="Event log  (eventually) appears here ..."/>
+                <ToolBar fx:id="toolbar" prefHeight="15.0" prefWidth="500.0">
+                    <items>
+                        <Button mnemonicParsing="false" onAction="#demo1ButtonAction"
+                                text="Start Demo1 for isotopes 206Pb and 208Pb"/>
+                    </items>
+                </ToolBar>
+            </children>
+        </VBox>
+    </children>
 </AnchorPane>

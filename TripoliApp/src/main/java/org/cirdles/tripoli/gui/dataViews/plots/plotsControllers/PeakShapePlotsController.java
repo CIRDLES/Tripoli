@@ -14,9 +14,9 @@ import javafx.scene.shape.Rectangle;
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
+import org.cirdles.tripoli.gui.dataViews.plots.BeamShapeLinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.GBeamLinePlot;
-import org.cirdles.tripoli.gui.dataViews.plots.HistogramPlot;
-import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
+import org.cirdles.tripoli.visualizationUtilities.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.GBeamLinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
@@ -42,7 +42,10 @@ public class PeakShapePlotsController {
     private VBox masterVBox;
 
     @FXML
-    private ScrollPane plotScrollPane;
+    private ScrollPane beamShapePlotScrollPane;
+
+    @FXML
+    private ScrollPane gBeamPlotScrollPane;
 
     @FXML
     private TextArea eventLogTextArea;
@@ -61,15 +64,15 @@ public class PeakShapePlotsController {
 
         masterVBox.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT);
         toolbar.setPrefSize(PLOT_WINDOW_WIDTH, 20.0);
-        plotScrollPane.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT - toolbar.getHeight());
-        plotScrollPane.setPrefViewportWidth(PLOT_WINDOW_WIDTH - SCROLLBAR_THICKNESS);
-        plotScrollPane.setPrefViewportHeight(plotScrollPane.getPrefHeight() - SCROLLBAR_THICKNESS);
+        gBeamPlotScrollPane.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT - toolbar.getHeight());
+        gBeamPlotScrollPane.setPrefViewportWidth(PLOT_WINDOW_WIDTH - SCROLLBAR_THICKNESS);
+        gBeamPlotScrollPane.setPrefViewportHeight(gBeamPlotScrollPane.getPrefHeight() - SCROLLBAR_THICKNESS);
 
         masterVBox.prefWidthProperty().bind(plotsAnchorPane.widthProperty());
         masterVBox.prefHeightProperty().bind(plotsAnchorPane.heightProperty());
 
-        plotScrollPane.prefWidthProperty().bind(masterVBox.widthProperty());
-        plotScrollPane.prefHeightProperty().bind(masterVBox.heightProperty().subtract(toolbar.getHeight()));
+        gBeamPlotScrollPane.prefWidthProperty().bind(masterVBox.widthProperty());
+        gBeamPlotScrollPane.prefHeightProperty().bind(masterVBox.heightProperty().subtract(toolbar.getHeight()));
 
     }
 
@@ -81,15 +84,15 @@ public class PeakShapePlotsController {
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
         service.setOnSucceeded(evt -> {
-            LinePlotBuilder linePlotBuilder = ((GetPeakShapesTask) service.getPeakShapesTask()).getGBeamPlotBuilder();
+            LinePlotBuilder gBeamPlotBuilder = ((GetPeakShapesTask) service.getPeakShapesTask()).getGBeamPlotBuilder();
 
             AbstractDataView gBeamLinePlot = new GBeamLinePlot(
-                    new Rectangle(plotScrollPane.getWidth(),
-                            plotScrollPane.getHeight()),
-                    (GBeamLinePlotBuilder) linePlotBuilder
-                    );
+                    new Rectangle(gBeamPlotScrollPane.getWidth(),
+                            gBeamPlotScrollPane.getHeight()),
+                    (GBeamLinePlotBuilder) gBeamPlotBuilder
+            );
 
-            plotScrollPane.widthProperty().addListener(new ChangeListener<Number>() {
+            gBeamPlotScrollPane.widthProperty().addListener(new ChangeListener<Number>() {
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                     if (newValue.intValue() > 100) {
@@ -99,7 +102,7 @@ public class PeakShapePlotsController {
                 }
             });
 
-            plotScrollPane.heightProperty().addListener(new ChangeListener<Number>() {
+            gBeamPlotScrollPane.heightProperty().addListener(new ChangeListener<Number>() {
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                     if (newValue.intValue() > 100) {
@@ -110,7 +113,39 @@ public class PeakShapePlotsController {
             });
 
             gBeamLinePlot.preparePanel();
-            plotScrollPane.setContent(gBeamLinePlot);
+            gBeamPlotScrollPane.setContent(gBeamLinePlot);
+
+
+            LinePlotBuilder beamShapePlotBuilder = ((GetPeakShapesTask) service.getPeakShapesTask()).getBeamShapePlotBuilder();
+
+            AbstractDataView beamShapeLinePlot = new BeamShapeLinePlot(
+                    new Rectangle(beamShapePlotScrollPane.getWidth(),
+                            beamShapePlotScrollPane.getHeight()),
+                    (BeamShapeLinePlotBuilder) beamShapePlotBuilder
+            );
+
+            beamShapePlotScrollPane.widthProperty().addListener(new ChangeListener<Number>() {
+                @Override
+                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                    if (newValue.intValue() > 100) {
+                        beamShapeLinePlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
+                        beamShapeLinePlot.repaint();
+                    }
+                }
+            });
+
+            beamShapePlotScrollPane.heightProperty().addListener(new ChangeListener<Number>() {
+                @Override
+                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                    if (newValue.intValue() > 100) {
+                        beamShapeLinePlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
+                        beamShapeLinePlot.repaint();
+                    }
+                }
+            });
+
+            beamShapeLinePlot.preparePanel();
+            beamShapePlotScrollPane.setContent(beamShapeLinePlot);
         });
 
     }
