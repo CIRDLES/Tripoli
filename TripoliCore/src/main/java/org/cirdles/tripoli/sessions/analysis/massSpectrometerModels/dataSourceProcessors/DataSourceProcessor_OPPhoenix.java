@@ -217,8 +217,6 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
                 Matrix firstPass = new Matrix(interpMatArrayForBlock, cycleIndex + 1,  countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
                 firstBlockInterpolationsMatrix = firstPass.transpose();
 
-                // wraps double[][] to ojalgo store mutable data type
-                // atm not working returned matrix wrong dimensions look into rawStore, limits
                 Primitive64Matrix firstPassOJ = matrixFactory.columns(interpMatArrayForBlock).limits(
                                 cycleIndex + 1,
                                 countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);

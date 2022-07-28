@@ -177,10 +177,11 @@ public class DataModelInitializer {
             }
             Matrix ddMatrix = new Matrix(ddSortedArray, ddSortedArray.length);
             Primitive64Matrix ddMatrixOJ = matrixFactory.column(ddSortedArray);
-            IOOJ = (interpolatedKnotDataOJ.transpose().multiply(interpolatedKnotDataOJ)).invert().multiply(interpolatedKnotDataOJ.transpose()).multiply(ddMatrixOJ);
 
             IO = (interpolatedKnotData.transpose().times(interpolatedKnotData)).inverse()
                     .times(interpolatedKnotData.transpose()).times(ddMatrix);
+            // current issue here possibly with interpolatedKnotDataOJ, possibly look into another way to create standard matrix
+            IOOJ = (interpolatedKnotDataOJ.transpose().multiply(interpolatedKnotDataOJ)).invert().multiply(interpolatedKnotDataOJ.transpose()).multiply(ddMatrixOJ);
         }
             /*
                 %%% MODEL DATA WITH INITIAL MODEL
