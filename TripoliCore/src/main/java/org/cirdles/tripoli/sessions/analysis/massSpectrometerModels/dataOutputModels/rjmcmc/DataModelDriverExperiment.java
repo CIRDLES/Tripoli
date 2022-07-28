@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
 import jama.Matrix;
 import org.apache.commons.lang3.time.StopWatch;
@@ -23,7 +23,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_OPPhoenix;
 import org.cirdles.tripoli.utilities.callBacks.LoggingCallbackInterface;
-import org.cirdles.tripoli.visualizationUtilities.Histogram;
+import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -34,28 +34,28 @@ import java.util.Locale;
 
 import static java.lang.Math.min;
 import static java.lang.StrictMath.exp;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.DataModelUpdater.updateMSv2;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.DataModelUpdater.updateMeanCovMS;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdater.updateMSv2;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdater.updateMeanCovMS;
 
 /**
  * @author James F. Bowring
  */
 public class DataModelDriverExperiment {
 
-    public static Histogram driveModelTest(Path dataFilePath, LoggingCallbackInterface loggingCallback) throws IOException {
+    public static HistogramBuilder driveModelTest(Path dataFilePath, LoggingCallbackInterface loggingCallback) throws IOException {
 
         DataSourceProcessor_OPPhoenix dataSourceProcessorOPPhoenix
                 = DataSourceProcessor_OPPhoenix.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
         MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFilePath);
         DataModellerOutputRecord dataModelInit = DataModelInitializer.modellingTest(massSpecOutputDataRecord);
 
-        Histogram histogram = applyInversionWithRJ_MCMC(massSpecOutputDataRecord, dataModelInit, loggingCallback);
+        HistogramBuilder histogramBuilder = applyInversionWithRJ_MCMC(massSpecOutputDataRecord, dataModelInit, loggingCallback);
 
 
-        return histogram;
+        return histogramBuilder;
     }
 
-    static Histogram applyInversionWithRJ_MCMC(MassSpecOutputDataRecord massSpecOutputDataRecord, DataModellerOutputRecord dataModelInit, LoggingCallbackInterface loggingCallback) {
+    static HistogramBuilder applyInversionWithRJ_MCMC(MassSpecOutputDataRecord massSpecOutputDataRecord, DataModellerOutputRecord dataModelInit, LoggingCallbackInterface loggingCallback) {
         /*
             % MCMC Parameters
             maxcnt = 2000;  % Maximum number of models to save
@@ -714,7 +714,7 @@ public class DataModelDriverExperiment {
 
 
         // visualization
-        Histogram histogram = Histogram.initializeHistogram(ensembleRatios[0], 50);
+        HistogramBuilder histogramBuilder = HistogramBuilder.initializeHistogram(ensembleRatios[0], 50);
 
 
         // todo: missing additional elements of signalNoise (i.e., 0,11,11)
@@ -723,7 +723,7 @@ public class DataModelDriverExperiment {
         System.err.println(signalNoiseMeans[0] + "         " + signalNoiseMeans[1] + "    " + signalNoiseStdDev[0] + "     " + signalNoiseStdDev[1]);
         System.err.println(dalyFaradayGainMeans + "    " + dalyFaradayGainStdDev);
 
-        return histogram;
+        return histogramBuilder;
     }
 
     private static int findFirstOrLast(boolean first, int index, Matrix target, int flag, Matrix flags) {

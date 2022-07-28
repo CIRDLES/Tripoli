@@ -95,6 +95,11 @@ public class TripoliGUIController {
         PlotsWindow plotsWindow = new PlotsWindow(TripoliGUI.primaryStage);
         plotsWindow.loadPlotsWindow();
     }
+    @FXML
+    void showDemo2(ActionEvent event) {
+
+    }
+
 
     @FXML
         // This method is called by the FXMLLoader when initialization is complete

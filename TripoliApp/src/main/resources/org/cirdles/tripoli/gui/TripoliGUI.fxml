@@ -95,6 +95,7 @@
          <Menu mnemonicParsing="false" text="Demos">
             <items>
                <MenuItem mnemonicParsing="false" onAction="#showDemo1" text="Demo1: RJ MMC for 2-isotope analysis" />
+               <MenuItem mnemonicParsing="false" onAction="#showDemo2" text="Demo2: PeakShapes" />
             </items>
          </Menu>
         </menus>

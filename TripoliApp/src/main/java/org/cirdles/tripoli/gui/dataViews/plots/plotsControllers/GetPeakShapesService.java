@@ -16,37 +16,29 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers;
 
+import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelDriverExperiment;
-import org.cirdles.tripoli.utilities.callBacks.LoggingCallbackInterface;
-import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
 
 import java.nio.file.Path;
 
 /**
  * @author James F. Bowring
  */
-public class GetRJMCMCUpdatesTask extends Task<String> implements LoggingCallbackInterface {
+public class GetPeakShapesService extends Service<String> {
     private Path dataFile;
-    private HistogramBuilder histogramBuilder;
+    private Task<String> peakShapesTask;
 
-    public GetRJMCMCUpdatesTask(Path dataFile) {
+    public GetPeakShapesService(Path dataFile) {
         this.dataFile = dataFile;
     }
 
-    public HistogramBuilder getHistogram() {
-        return histogramBuilder;
+    public Task<String> getPeakShapesTask() {
+        return peakShapesTask;
     }
 
     @Override
-    protected String call() throws Exception {
-        histogramBuilder = DataModelDriverExperiment.driveModelTest(dataFile, this);
-
-        return "DONE";
-    }
-
-    @Override
-    public void receiveLoggingSnippet(String loggingSnippet) {
-        updateValue(loggingSnippet);
+    protected Task<String> createTask() {
+        peakShapesTask = new GetPeakShapesTask(dataFile);
+        return peakShapesTask;
     }
 }

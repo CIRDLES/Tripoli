@@ -31,7 +31,8 @@
             <TextArea fx:id="eventLogTextArea" editable="false" prefHeight="350.0" prefWidth="200.0" text="Event log  (eventually) appears here ..." />
             <ToolBar fx:id="toolbar" prefHeight="15.0" prefWidth="500.0">
               <items>
-                <Button mnemonicParsing="false" onAction="#buttonAction" text="Start Demo for isotopes 206Pb and 208Pb" />
+                <Button mnemonicParsing="false" onAction="#demo1ButtonAction" text="Start Demo1 for isotopes 206Pb and 208Pb" />
+                  <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#demo2ButtonAction" text="Start Demo2 PeakShapes" />
               </items>
             </ToolBar>
          </children>

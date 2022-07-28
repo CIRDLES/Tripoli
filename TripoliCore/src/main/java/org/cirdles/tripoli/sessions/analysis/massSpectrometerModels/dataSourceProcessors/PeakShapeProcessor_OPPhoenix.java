@@ -19,7 +19,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 import jama.Matrix;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.PeakShapeOutputDataRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes.PeakShapeOutputDataRecord;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
