@@ -47,6 +47,10 @@ dependencies {
     // modernized update: https://github.com/topobyte/jama
     implementation("com.github.topobyte:jama:master-SNAPSHOT")
 
+    // https://github.com/optimatika/ojAlgo
+    // https://github.com/optimatika/ojAlgo/wiki/Optimisation-Modelling-Advice
+    implementation("org.ojalgo:ojalgo:51.4.0")
+
     implementation("com.thoughtworks.xstream:xstream:1.4.19") //group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.19'
 
     testImplementation("com.github.cirdles:commons:bc38781605")
@@ -73,6 +77,7 @@ extraJavaModuleInfo {
     automaticModule("org.apache.commons:commons-lang3", "commons.lang3")
     automaticModule("com.zaxxer.SparseBitSet-1.2.jar", "com.zaxxer.SparseBitSet")
     automaticModule("jama-master-SNAPSHOT.jar", "jama")
+    automaticModule("org.ojalgo:ojalgo", "ojalgo")
 }
 
 

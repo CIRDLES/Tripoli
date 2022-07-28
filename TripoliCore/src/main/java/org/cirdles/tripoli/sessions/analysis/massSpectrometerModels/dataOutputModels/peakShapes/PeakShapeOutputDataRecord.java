@@ -1,6 +1,7 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes;
 
 import jama.Matrix;
+import org.ojalgo.matrix.Primitive64Matrix;
 
 /**
  * @param magnetMasses
@@ -17,7 +18,11 @@ import jama.Matrix;
  */
 public record PeakShapeOutputDataRecord(
         Matrix magnetMasses,               // vector of masses for intensity measurements
+
+        Primitive64Matrix magnetMassesOJ,
         Matrix measuredPeakIntensities,    // vector of corresponding peak intensities
+
+        Primitive64Matrix measuredPeakIntensitiesOJ,
         double peakCenterMass,             // mass at center of peak from header
         double integrationPeriodMS,              // integration period of measurements in ms
         String massID,                     // name of peak getting centered e.g. "205Pb"

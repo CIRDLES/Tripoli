@@ -22,6 +22,7 @@ module Tripoli.TripoliCore {
     requires com.google.common;
     requires commons.math3;
     requires commons.lang3;
+    requires ojalgo;
 
 
     exports org.cirdles.tripoli;
