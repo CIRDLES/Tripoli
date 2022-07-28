@@ -180,7 +180,6 @@ public class DataModelInitializer {
 
             IO = (interpolatedKnotData.transpose().times(interpolatedKnotData)).inverse()
                     .times(interpolatedKnotData.transpose()).times(ddMatrix);
-            // current issue here possibly with interpolatedKnotDataOJ, possibly look into another way to create standard matrix
             IOOJ = (interpolatedKnotDataOJ.transpose().multiply(interpolatedKnotDataOJ)).invert().multiply(interpolatedKnotDataOJ.transpose()).multiply(ddMatrixOJ);
         }
             /*

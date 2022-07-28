@@ -217,7 +217,7 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
                 Matrix firstPass = new Matrix(interpMatArrayForBlock, cycleIndex + 1,  countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
                 firstBlockInterpolationsMatrix = firstPass.transpose();
 
-                Primitive64Matrix firstPassOJ = matrixFactory.columns(interpMatArrayForBlock).limits(
+                Primitive64Matrix firstPassOJ = matrixFactory.rows(interpMatArrayForBlock).limits(
                                 cycleIndex + 1,
                                 countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
                 firstBlockInterpolationsOJ = firstPassOJ.transpose();
