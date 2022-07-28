@@ -80,11 +80,11 @@ public class PeakShapePlotsController {
         ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
         Path dataFile = RESOURCE_EXTRACTOR
                 .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/peakShapes/DVCC18-9 z9 Pb-570-PKC-205Pb-PM-S2B7C1.TXT").toPath();
-        final GetPeakShapesService service = new GetPeakShapesService(dataFile);
+        final PeakShapesService service = new PeakShapesService(dataFile);
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
         service.setOnSucceeded(evt -> {
-            LinePlotBuilder gBeamPlotBuilder = ((GetPeakShapesTask) service.getPeakShapesTask()).getGBeamPlotBuilder();
+            LinePlotBuilder gBeamPlotBuilder = ((PeakShapesTask) service.getPeakShapesTask()).getGBeamPlotBuilder();
 
             AbstractDataView gBeamLinePlot = new GBeamLinePlot(
                     new Rectangle(gBeamPlotScrollPane.getWidth(),
@@ -116,7 +116,7 @@ public class PeakShapePlotsController {
             gBeamPlotScrollPane.setContent(gBeamLinePlot);
 
 
-            LinePlotBuilder beamShapePlotBuilder = ((GetPeakShapesTask) service.getPeakShapesTask()).getBeamShapePlotBuilder();
+            LinePlotBuilder beamShapePlotBuilder = ((PeakShapesTask) service.getPeakShapesTask()).getBeamShapePlotBuilder();
 
             AbstractDataView beamShapeLinePlot = new BeamShapeLinePlot(
                     new Rectangle(beamShapePlotScrollPane.getWidth(),
