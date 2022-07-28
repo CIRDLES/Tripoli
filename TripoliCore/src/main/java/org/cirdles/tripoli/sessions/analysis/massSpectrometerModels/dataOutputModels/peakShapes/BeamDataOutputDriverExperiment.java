@@ -6,6 +6,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourcePr
 import org.cirdles.tripoli.utilities.callBacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLab;
 import org.cirdles.tripoli.utilities.mathUtilities.SplineBasisModel;
+import org.cirdles.tripoli.visualizationUtilities.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.GBeamLinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
@@ -14,18 +15,16 @@ import java.nio.file.Path;
 
 public class BeamDataOutputDriverExperiment {
 
-    public static GBeamLinePlotBuilder modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException {
+    public static LinePlotBuilder[] modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException {
         PeakShapeProcessor_OPPhoenix peakShapeProcessor_opPhoenix
                 = PeakShapeProcessor_OPPhoenix.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
         PeakShapeOutputDataRecord peakShapeOutputDataRecord = peakShapeProcessor_opPhoenix.prepareInputDataModelFromFile(dataFile);
-        GBeamLinePlotBuilder gBeamLinePlotBuilder = gatherBeamWidth(peakShapeOutputDataRecord, loggingCallback);
+        LinePlotBuilder[] gBeamLinePlotBuilder = gatherBeamWidth(peakShapeOutputDataRecord, loggingCallback);
 
         return gBeamLinePlotBuilder;
     }
 
-    static GBeamLinePlotBuilder gatherBeamWidth(PeakShapeOutputDataRecord peakShapeOutputDataRecord, LoggingCallbackInterface loggingCallback) {
-        LinePlotBuilder linePlotBuilder = null;
-
+    static LinePlotBuilder[] gatherBeamWidth(PeakShapeOutputDataRecord peakShapeOutputDataRecord, LoggingCallbackInterface loggingCallback) {
         double maxBeam, maxBeamIndex, thresholdIntensity;
         // Spline basis Basis
         int basisDegree = 3;
@@ -145,11 +144,17 @@ public class BeamDataOutputDriverExperiment {
 
         Matrix gBeam = TrimGMatrix.times(beamShape);
 
+        LinePlotBuilder[] linePlots = new LinePlotBuilder[2];
         // "beamShape"
-        linePlotBuilder = LinePlotBuilder.initializeLinePlot(beamMassInterp.getArray()[0], beamShape.transpose().getArray()[0]);
+        BeamShapeLinePlotBuilder beamShapeLinePlotBuilder
+                = BeamShapeLinePlotBuilder.initializeBeamShapeLinePlot(beamMassInterp.getArray()[0], beamShape.transpose().getArray()[0], leftBoundary, rightBoundary);
+
         GBeamLinePlotBuilder gBeamLinePlotBuilder
                 = GBeamLinePlotBuilder.initializeGBeamLinePlot(magnetMasses.transpose().getArray()[0], gBeam.transpose().getArray()[0], massData, intensityData);
 
-        return gBeamLinePlotBuilder;
+        linePlots[0] = beamShapeLinePlotBuilder;
+        linePlots[1] = gBeamLinePlotBuilder;
+
+        return linePlots;
     }
 }

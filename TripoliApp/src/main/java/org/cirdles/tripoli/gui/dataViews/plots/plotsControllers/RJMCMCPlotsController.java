@@ -14,19 +14,17 @@ import javafx.scene.shape.Rectangle;
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
-import org.cirdles.tripoli.gui.dataViews.plots.GBeamLinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.HistogramPlot;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.GBeamLinePlotBuilder;
 
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
 
-import static org.cirdles.tripoli.gui.dataViews.plots.PlotsWindow.*;
+import static org.cirdles.tripoli.gui.dataViews.plots.RJMCMCPlotsWindow.*;
 
-public class PlotsController {
+public class RJMCMCPlotsController {
 
     @FXML
     private ResourceBundle resources;
@@ -50,17 +48,8 @@ public class PlotsController {
     private ToolBar toolbar;
 
     @FXML
-    private Button button;
-
-    @FXML
     void demo1ButtonAction(ActionEvent event) throws IOException {
         processDataFileAndShowPlotsOfRJMCMC();
-        ((Button) event.getSource()).setDisable(true);
-    }
-
-    @FXML
-    void demo2ButtonAction(ActionEvent event) throws IOException {
-        processDataFileAndShowPlotsOfPeakShapes();
         ((Button) event.getSource()).setDisable(true);
     }
 
@@ -118,47 +107,6 @@ public class PlotsController {
 
             histogramPlot.preparePanel();
             plotScrollPane.setContent(histogramPlot);
-        });
-
-    }
-    public void processDataFileAndShowPlotsOfPeakShapes() throws IOException {
-        org.cirdles.commons.util.ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
-        Path dataFile = RESOURCE_EXTRACTOR
-                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/peakShapes/DVCC18-9 z9 Pb-570-PKC-205Pb-PM-S2B7C1.TXT").toPath();
-        final GetPeakShapesService service = new GetPeakShapesService(dataFile);
-        eventLogTextArea.textProperty().bind(service.valueProperty());
-        service.start();
-        service.setOnSucceeded(evt -> {
-            GBeamLinePlotBuilder linePlotBuilder = ((GetPeakShapesTask) service.getPeakShapesTask()).getgBeam();
-
-            AbstractDataView gBeamLinePlot = new GBeamLinePlot(
-                    new Rectangle(plotScrollPane.getWidth(),
-                            plotScrollPane.getHeight()),
-                    linePlotBuilder
-                    );
-
-            plotScrollPane.widthProperty().addListener(new ChangeListener<Number>() {
-                @Override
-                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    if (newValue.intValue() > 100) {
-                        gBeamLinePlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
-                        gBeamLinePlot.repaint();
-                    }
-                }
-            });
-
-            plotScrollPane.heightProperty().addListener(new ChangeListener<Number>() {
-                @Override
-                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    if (newValue.intValue() > 100) {
-                        gBeamLinePlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
-                        gBeamLinePlot.repaint();
-                    }
-                }
-            });
-
-            gBeamLinePlot.preparePanel();
-            plotScrollPane.setContent(gBeamLinePlot);
         });
 
     }

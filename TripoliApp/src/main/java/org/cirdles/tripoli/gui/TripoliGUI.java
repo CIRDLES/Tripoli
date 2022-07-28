@@ -31,7 +31,6 @@ import javafx.scene.paint.Stop;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-import org.cirdles.tripoli.gui.dataViews.plots.PlotsWindow;
 
 import java.awt.*;
 import java.io.IOException;

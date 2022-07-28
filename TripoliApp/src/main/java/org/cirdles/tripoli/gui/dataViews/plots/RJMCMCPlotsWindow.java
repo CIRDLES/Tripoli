@@ -27,7 +27,7 @@ import java.io.IOException;
 /**
  * @author James F. Bowring
  */
-public class PlotsWindow {
+public class RJMCMCPlotsWindow {
 
     public static final double PLOT_WINDOW_WIDTH = 900.0;
     public static final double PLOT_WINDOW_HEIGHT = 600.0;
@@ -39,15 +39,15 @@ public class PlotsWindow {
     public Window plottingWindow;
     private Stage primaryStage;
 
-    private PlotsWindow() {
+    private RJMCMCPlotsWindow() {
     }
 
-    public PlotsWindow(Stage primaryStage) {
+    public RJMCMCPlotsWindow(Stage primaryStage) {
         this.primaryStage = primaryStage;
         plottingStage = new Stage();
         plottingStage.setMinWidth(PLOT_WINDOW_WIDTH);
         plottingStage.setMinHeight(PLOT_WINDOW_HEIGHT);
-        plottingStage.setTitle("Tripoli Demo Window");
+        plottingStage.setTitle("Tripoli Demo1 of RJMCMC");
 
         plottingStage.setOnCloseRequest((WindowEvent e) -> {
             plottingStage.hide();
@@ -59,7 +59,7 @@ public class PlotsWindow {
     public void loadPlotsWindow() {
         if (!plottingStage.isShowing()) {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("plotsControllers/Plots.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("plotsControllers/RJMCMCPlots.fxml"));
                 Scene scene = new Scene(loader.load());
                 plottingStage.setScene(scene);
 

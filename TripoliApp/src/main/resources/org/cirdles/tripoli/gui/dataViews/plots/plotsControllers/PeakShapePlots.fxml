@@ -23,7 +23,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane fx:id="plotsAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="538.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.PlotsController">
+<AnchorPane fx:id="plotsAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="538.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.PeakShapePlotsController">
    <children>
       <VBox fx:id="masterVBox" prefHeight="538.0" prefWidth="500.0">
          <children>
@@ -31,7 +31,6 @@
             <TextArea fx:id="eventLogTextArea" editable="false" prefHeight="350.0" prefWidth="200.0" text="Event log  (eventually) appears here ..." />
             <ToolBar fx:id="toolbar" prefHeight="15.0" prefWidth="500.0">
               <items>
-                <Button mnemonicParsing="false" onAction="#demo1ButtonAction" text="Start Demo1 for isotopes 206Pb and 208Pb" />
                   <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#demo2ButtonAction" text="Start Demo2 PeakShapes" />
               </items>
             </ToolBar>
