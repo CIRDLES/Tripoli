@@ -4,6 +4,13 @@ import jama.Matrix;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.ojalgo.matrix.Primitive32Matrix;
+import org.ojalgo.matrix.Primitive64Matrix;
+import org.ojalgo.matrix.store.MatrixStore;
+import org.ojalgo.matrix.store.PhysicalStore;
+import org.ojalgo.matrix.store.Primitive32Store;
+import org.ojalgo.matrix.store.Primitive64Store;
+import org.ojalgo.matrix.task.SolverTask;
 
 import java.util.Arrays;
 
@@ -45,6 +52,13 @@ class MatLabTest {
 
     @Test
     void linspaceTest() {
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+
+        Matrix linTest1 = MatLab.linspace(24.06, 25.08, 22);
+        Primitive64Store linTest2 = MatLab.linspaceOJ(24.06, 25.08, 22);
+        Primitive64Store test = Primitive64Store.FACTORY.make(5, 5);
+        Primitive64Matrix test2 = Primitive64Matrix.FACTORY.make(5, 5);
+        SolverTask<Double> solver = SolverTask.PRIMITIVE.make(test, linTest2);
     }
 
     @Test

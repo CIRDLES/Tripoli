@@ -3,8 +3,9 @@ package org.cirdles.tripoli.utilities.mathUtilities;
 
 import jama.Matrix;
 import org.apache.commons.math3.special.Gamma;
-import org.ojalgo.matrix.Primitive64Matrix;
-
+import org.ojalgo.matrix.store.MatrixStore;
+import org.ojalgo.matrix.store.PhysicalStore;
+import org.ojalgo.matrix.store.Primitive64Store;
 
 
 public class SplineBasisModel {
@@ -96,6 +97,7 @@ public class SplineBasisModel {
         Matrix matrixT = MatLab.kron(knots, new Matrix(nx, 1, 1));
 
         Matrix matrixP = MatLab.expMatrix(matrixX.minus(matrixT), basisDegree).arrayTimes(MatLab.greatEqual(matrixX, matrixT));
+        Matrix testP = matrixX.minus(matrixT);
 
         double v = (basisDegree + 1);
         Matrix matrixD = MatLab.divMatrix(MatLab.diff(Matrix.identity(nt, nt), basisDegree + 1), (Gamma.gamma(v) * (Math.pow(dx, basisDegree))));
@@ -117,8 +119,8 @@ public class SplineBasisModel {
         return Base.arrayTimes(MASK);
     }
 
-    public static Primitive64Matrix bBase(Primitive64Matrix x, double xl, double xr, double numSegments, int basisDegree) {
-        Primitive64Matrix.Factory matrixFactory = Primitive64Matrix.FACTORY;
+    public static Primitive64Store bBase(Primitive64Store x, double xl, double xr, double numSegments, int basisDegree) {
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         double[][] sk;
         double xLower;
         double xUpper;
@@ -130,18 +132,27 @@ public class SplineBasisModel {
 
         double dx = (xUpper - xLower) / numSegments;
         // Matrix knots = MatLab.linspace(xLower - basisDegree * dx, xUpper + basisDegree * dx, numSegments + 2 * basisDegree + 1);
-        Primitive64Matrix knotsOJ = MatLab.linspaceOJ(xLower - basisDegree * dx, xUpper + basisDegree * dx, numSegments + 2 * basisDegree + 1);
+        Primitive64Store knotsOJ = MatLab.linspaceOJ(xLower - basisDegree * dx, xUpper + basisDegree * dx, numSegments + 2 * basisDegree + 1);
 
         int nx = x.getColDim();
         int nt = knotsOJ.getColDim();
 
         // TODO produce an all one primitive64Matrix
         //Matrix matrixX = MatLab.kron(x, new Matrix(1, nt, 1).transpose()).transpose();
-        // Primitive64Matrix matrixXOJ = MatLab.kronOJ(x, matrixFactory.makeFilled(1, nt));
+        Primitive64Store kronTerm = storeFactory.make(1, nt);
+        kronTerm.fillAll(1.0);
+        // Primitive64Matrix test = Primitive64Matrix.FACTORY.make(1, nt);
+        MatrixStore<Double> matrixXOJ = MatLab.kronOJ(x, kronTerm.transpose());
+        matrixXOJ = matrixXOJ.transpose();
+//        matrixXOJ.transpose();
 
 //        Matrix matrixT = MatLab.kron(knots, new Matrix(nx, 1, 1));
+        Primitive64Store term2 = storeFactory.make(nx, 1);
+        term2.fillAll(1.0);
+        MatrixStore<Double> matrixTOJ = MatLab.kronOJ(knotsOJ, term2);
 //
 //        Matrix matrixP = MatLab.expMatrix(matrixX.minus(matrixT), basisDegree).arrayTimes(MatLab.greatEqual(matrixX, matrixT));
+        MatrixStore<Double> matrixPOJ = matrixXOJ.subtract(matrixTOJ);
 
         double v = (basisDegree + 1);
 //        Matrix matrixD = MatLab.divMatrix(MatLab.diff(Matrix.identity(nt, nt), basisDegree + 1), (Gamma.gamma(v) * (Math.pow(dx, basisDegree))));

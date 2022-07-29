@@ -1,7 +1,12 @@
 package org.cirdles.tripoli.utilities.mathUtilities;
 
 import jama.Matrix;
+import org.ojalgo.matrix.Primitive32Matrix;
 import org.ojalgo.matrix.Primitive64Matrix;
+import org.ojalgo.matrix.store.MatrixStore;
+import org.ojalgo.matrix.store.PhysicalStore;
+import org.ojalgo.matrix.store.Primitive32Store;
+import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,12 +64,12 @@ public class MatLab {
 
     }
 
-    public static Primitive64Matrix kronOJ(Primitive64Matrix A, Primitive64Matrix B) {
+    public static Primitive64Store kronOJ(MatrixStore<Double> A, MatrixStore<Double> B) {
         int rowA = A.getRowDim();
         int colA = A.getColDim();
         int rowB = B.getRowDim();
         int colB = B.getColDim();
-        Primitive64Matrix.Factory  matrixFactory = Primitive64Matrix.FACTORY;
+
 
         double[][] newKron = new double[rowA * rowB][colA * colB];
         if (rowB == 1) {
@@ -84,7 +89,7 @@ public class MatLab {
                 }
             }
 
-            return matrixFactory.columns(newKron);
+            return Primitive64Store.FACTORY.rows(newKron);
 
         } else {
             int kronRow = 0;
@@ -100,7 +105,7 @@ public class MatLab {
                     }
                 }
             }
-            return matrixFactory.columns(newKron);
+            return Primitive64Store.FACTORY.rows(newKron);
         }
 
     }
@@ -350,13 +355,12 @@ public class MatLab {
         return new Matrix(d);
     }
 
-    public static Primitive64Matrix linspaceOJ(double min, double max, double points) {
-        Primitive64Matrix.Factory  matrixFactory = Primitive64Matrix.FACTORY;
+    public static Primitive64Store linspaceOJ(double min, double max, double points) {
         double[][] d = new double[1][(int) points];
         for (int i = 0; i < points; i++) {
             d[0][i] = min + i * (max - min) / (points - 1);
         }
-        return matrixFactory.columns(d);
+        return Primitive64Store.FACTORY.rows(d);
     }
 
     /**
