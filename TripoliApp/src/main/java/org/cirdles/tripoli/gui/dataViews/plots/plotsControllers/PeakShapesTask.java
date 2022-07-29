@@ -17,30 +17,37 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers;
 
 import javafx.concurrent.Task;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelDriverExperiment;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes.BeamDataOutputDriverExperiment;
 import org.cirdles.tripoli.utilities.callBacks.LoggingCallbackInterface;
-import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
+import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
 import java.nio.file.Path;
 
 /**
  * @author James F. Bowring
  */
-public class GetRJMCMCUpdatesTask extends Task<String> implements LoggingCallbackInterface {
+public class PeakShapesTask extends Task<String> implements LoggingCallbackInterface {
     private Path dataFile;
-    private HistogramBuilder histogramBuilder;
+    private LinePlotBuilder beamShapePlotBuilder;
+    private LinePlotBuilder gBeamPlotBuilder;
 
-    public GetRJMCMCUpdatesTask(Path dataFile) {
+    public PeakShapesTask(Path dataFile) {
         this.dataFile = dataFile;
     }
 
-    public HistogramBuilder getHistogram() {
-        return histogramBuilder;
+    public LinePlotBuilder getBeamShapePlotBuilder() {
+        return beamShapePlotBuilder;
+    }
+
+    public LinePlotBuilder getGBeamPlotBuilder() {
+        return gBeamPlotBuilder;
     }
 
     @Override
     protected String call() throws Exception {
-        histogramBuilder = DataModelDriverExperiment.driveModelTest(dataFile, this);
+        LinePlotBuilder[] linePlots = BeamDataOutputDriverExperiment.modelTest(dataFile, this);
+        beamShapePlotBuilder = linePlots[0];
+        gBeamPlotBuilder = linePlots[1];
 
         return "DONE";
     }
