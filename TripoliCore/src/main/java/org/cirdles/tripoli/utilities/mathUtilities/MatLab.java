@@ -1,6 +1,7 @@
 package org.cirdles.tripoli.utilities.mathUtilities;
 
 import jama.Matrix;
+import org.ojalgo.matrix.Primitive64Matrix;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,52 @@ public class MatLab {
                 }
             }
             return new Matrix(newKron);
+        }
+
+    }
+
+    public static Primitive64Matrix kronOJ(Primitive64Matrix A, Primitive64Matrix B) {
+        int rowA = A.getRowDim();
+        int colA = A.getColDim();
+        int rowB = B.getRowDim();
+        int colB = B.getColDim();
+        Primitive64Matrix.Factory  matrixFactory = Primitive64Matrix.FACTORY;
+
+        double[][] newKron = new double[rowA * rowB][colA * colB];
+        if (rowB == 1) {
+            int kronRow = 0;
+            for (int i = 0; i < rowA; i++) {
+                kronRow++;
+                for (int j = 0; j < rowB; j++) {
+
+                    int kronCol = 0;
+                    for (int k = 0; k < colA; k++) {
+
+                        for (int h = 0; h < colB; h++) {
+                            newKron[kronRow - 1][kronCol] = A.get(i, k) * B.get(j, h);
+                            kronCol++;
+                        }
+                    }
+                }
+            }
+
+            return matrixFactory.columns(newKron);
+
+        } else {
+            int kronRow = 0;
+            for (int i = 0; i < rowA; i++) {
+                for (int j = 0; j < rowB; j++) {
+                    kronRow++;
+                    int kronCol = 0;
+                    for (int k = 0; k < colA; k++) {
+                        for (int h = 0; h < colB; h++) {
+                            newKron[kronRow - 1][kronCol] = A.get(i, k) * B.get(j, h);
+                            kronCol++;
+                        }
+                    }
+                }
+            }
+            return matrixFactory.columns(newKron);
         }
 
     }
@@ -301,6 +348,15 @@ public class MatLab {
             d[0][i] = min + i * (max - min) / (points - 1);
         }
         return new Matrix(d);
+    }
+
+    public static Primitive64Matrix linspaceOJ(double min, double max, double points) {
+        Primitive64Matrix.Factory  matrixFactory = Primitive64Matrix.FACTORY;
+        double[][] d = new double[1][(int) points];
+        for (int i = 0; i < points; i++) {
+            d[0][i] = min + i * (max - min) / (points - 1);
+        }
+        return matrixFactory.columns(d);
     }
 
     /**

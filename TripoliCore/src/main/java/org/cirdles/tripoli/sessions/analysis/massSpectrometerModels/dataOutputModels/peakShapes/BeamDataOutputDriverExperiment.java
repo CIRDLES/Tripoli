@@ -40,12 +40,12 @@ public class BeamDataOutputDriverExperiment {
         double deltaBeamMassInterp = beamMassInterp.get(0, 1) - beamMassInterp.get(0, 0);
 
         // Calculate integration matrix G, depends on matrix B and peakShapeOutputDataRecord
-        int numMagnetMasses = peakShapeOutputDataRecord.magnetMasses().getRowDimension();
+        int numMagnetMasses = peakShapeOutputDataRecord.magnetMassesOJ().getRowDim();
         Matrix gMatrix = new Matrix(numMagnetMasses, nInterp, 0);
 
         for (int iMass = 0; iMass < numMagnetMasses; iMass++) {
-            Matrix term1 = MatLab.greaterOrEqual(beamMassInterp, peakShapeOutputDataRecord.collectorLimits().get(iMass, 0));
-            Matrix term2 = MatLab.lessOrEqual(beamMassInterp, peakShapeOutputDataRecord.collectorLimits().get(iMass, 1));
+            Matrix term1 = MatLab.greaterOrEqual(beamMassInterp, peakShapeOutputDataRecord.collectorLimitsOJ().get(iMass, 0));
+            Matrix term2 = MatLab.lessOrEqual(beamMassInterp, peakShapeOutputDataRecord.collectorLimitsOJ().get(iMass, 1));
             Matrix massesInCollector = term1.arrayTimes(term2);
             Matrix firstMassIndexInside;
             Matrix lastMassIndexInside;
@@ -83,21 +83,22 @@ public class BeamDataOutputDriverExperiment {
         }
         Matrix TrimGMatrix = new Matrix(trimGMatrix);
 
-        double[][] trimMagnetMasses = new double[newDataSet][peakShapeOutputDataRecord.magnetMasses().getRowDimension()];
+        double[][] trimMagnetMasses = new double[newDataSet][peakShapeOutputDataRecord.magnetMassesOJ().getRowDim()];
         int h = 0;
 
-        for (int i = 0; i < peakShapeOutputDataRecord.magnetMasses().getRowDimension(); i++) {
+        for (int i = 0; i < peakShapeOutputDataRecord.magnetMassesOJ().getRowDim(); i++) {
             if (hasModelBeam.get(i, 0) > 0) {
-                trimMagnetMasses[h] = peakShapeOutputDataRecord.magnetMasses().getArray()[i];
+                trimMagnetMasses[h] = peakShapeOutputDataRecord.magnetMassesOJ().toRawCopy2D()[i];
+
                 h++;
             }
         }
 
-        double[][] trimPeakIntensity = new double[newDataSet][peakShapeOutputDataRecord.magnetMasses().getRowDimension()];
+        double[][] trimPeakIntensity = new double[newDataSet][peakShapeOutputDataRecord.magnetMassesOJ().getRowDim()];
         int k = 0;
-        for (int i = 0; i < peakShapeOutputDataRecord.measuredPeakIntensities().getRowDimension(); i++) {
+        for (int i = 0; i < peakShapeOutputDataRecord.measuredPeakIntensitiesOJ().getRowDim(); i++) {
             if (hasModelBeam.get(i, 0) > 0) {
-                trimPeakIntensity[k] = peakShapeOutputDataRecord.measuredPeakIntensities().getArray()[i];
+                trimPeakIntensity[k] = peakShapeOutputDataRecord.measuredPeakIntensitiesOJ().toRawCopy2D()[i];
                 k++;
             }
         }
