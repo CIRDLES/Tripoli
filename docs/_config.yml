@@ -28,7 +28,7 @@ markdown: kramdown
 #
 JB:
   # for local build, comment out next line and from /docs execute: bundle exec jekyll serve
-  #BASE_PATH: /Tripoli
+  BASE_PATH: /Tripoli
   version: 0.3.0
 
   # All links will be namespaced by BASE_PATH if defined.
