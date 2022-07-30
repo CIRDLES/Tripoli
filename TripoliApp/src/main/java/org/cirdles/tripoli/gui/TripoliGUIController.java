@@ -23,7 +23,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.PeakShapePlotsWindow;
-import org.cirdles.tripoli.gui.dataViews.plots.RJMCMCPlotsWindow;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
 
 import java.net.URL;

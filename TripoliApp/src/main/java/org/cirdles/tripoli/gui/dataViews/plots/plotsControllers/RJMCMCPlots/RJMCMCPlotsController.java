@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -22,7 +22,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
 
-import static org.cirdles.tripoli.gui.dataViews.plots.RJMCMCPlotsWindow.*;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.*;
 
 public class RJMCMCPlotsController {
 
