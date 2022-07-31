@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -22,7 +22,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
 
-import static org.cirdles.tripoli.gui.dataViews.plots.RJMCMCPlotsWindow.*;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.*;
 
 public class RJMCMCPlotsController {
 
@@ -74,11 +74,11 @@ public class RJMCMCPlotsController {
         org.cirdles.commons.util.ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
         Path dataFile = RESOURCE_EXTRACTOR
                 .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/SyntheticDataset_05.txt").toPath();
-        final GetRJMCMCUpdatesService service = new GetRJMCMCUpdatesService(dataFile);
+        final RJMCMCUpdatesService service = new RJMCMCUpdatesService(dataFile);
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
         service.setOnSucceeded(evt -> {
-            HistogramBuilder histogramBuilder = ((GetRJMCMCUpdatesTask) service.getHistogramTask()).getHistogram();
+            HistogramBuilder histogramBuilder = ((RJMCMCUpdatesTask) service.getHistogramTask()).getHistogram();
 
             AbstractDataView histogramPlot = new HistogramPlot(
                     new Rectangle(plotScrollPane.getWidth(),

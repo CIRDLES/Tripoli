@@ -3,6 +3,10 @@
 Tripoli
 ==========
 
+[![Build Status](https://app.travis-ci.com/CIRDLES/Tripoli.svg?branch=main)](https://app.travis-ci.com/CIRDLES/Tripoli)
+[![Known Vulnerabilities](https://snyk.io/test/github/CIRDLES/Squid/badge.svg)](https://snyk.io/test/github/CIRDLES/Squid)
+[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/CIRDLES/Tripoli.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/CIRDLES/Tripoli/context:javascript)
+
 Tripoli is developed using Java 17 and JavaFX 17 and designed to run in the specialized open source Java Virtual
 Machines (JDK/JRE) that include JavaFX **- denoted by "full" or "JDK-fx" -** and can be found:
 

@@ -26,12 +26,12 @@ import java.nio.file.Path;
 /**
  * @author James F. Bowring
  */
-public class GetPeakShapesTask extends Task<String> implements LoggingCallbackInterface {
+public class PeakShapesTask extends Task<String> implements LoggingCallbackInterface {
     private Path dataFile;
     private LinePlotBuilder beamShapePlotBuilder;
     private LinePlotBuilder gBeamPlotBuilder;
 
-    public GetPeakShapesTask(Path dataFile) {
+    public PeakShapesTask(Path dataFile) {
         this.dataFile = dataFile;
     }
 

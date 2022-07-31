@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
 
 import javafx.concurrent.Task;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelDriverExperiment;
@@ -26,11 +26,11 @@ import java.nio.file.Path;
 /**
  * @author James F. Bowring
  */
-public class GetRJMCMCUpdatesTask extends Task<String> implements LoggingCallbackInterface {
+public class RJMCMCUpdatesTask extends Task<String> implements LoggingCallbackInterface {
     private Path dataFile;
     private HistogramBuilder histogramBuilder;
 
-    public GetRJMCMCUpdatesTask(Path dataFile) {
+    public RJMCMCUpdatesTask(Path dataFile) {
         this.dataFile = dataFile;
     }
 

@@ -2,7 +2,7 @@
 # For more see: https://github.com/mojombo/jekyll/wiki/Permalinks
 permalink: /:categories/:year/:month/:day/:title
 
-exclude: [ ".rvmrc", ".rbenv-version", "ReadMe.md", "Rakefile", "changelog.md", "License.md", "Makefile", "Gemfile", "Gemfile.lock" ]
+exclude: [ ".rvmrc", ".rbenv-version", "ReadMe.md", "Rakefile", "changelog.md", "License.md", "Makefile", "Gemfile", "Gemfile.lock", "vendor/bundle" ]
 highlighter: rouge
 
 # Themes are encouraged to use these universal variables
@@ -15,6 +15,10 @@ author:
   github: bowring
   twitter: Tripoli_ET
   feedburner:
+
+
+plugins:
+  - jekyll-include-cache
 
 # Tell Github to use the kramdown markdown interpreter
 # (see https://help.github.com/articles/migrating-your-pages-site-from-maruku)

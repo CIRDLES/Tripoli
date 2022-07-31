@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -24,21 +24,21 @@ import java.nio.file.Path;
 /**
  * @author James F. Bowring
  */
-public class GetPeakShapesService extends Service<String> {
+public class RJMCMCUpdatesService extends Service<String> {
     private Path dataFile;
-    private Task<String> peakShapesTask;
+    private Task<String> histogramTask;
 
-    public GetPeakShapesService(Path dataFile) {
+    public RJMCMCUpdatesService(Path dataFile) {
         this.dataFile = dataFile;
     }
 
-    public Task<String> getPeakShapesTask() {
-        return peakShapesTask;
+    public Task<String> getHistogramTask() {
+        return histogramTask;
     }
 
     @Override
     protected Task<String> createTask() {
-        peakShapesTask = new GetPeakShapesTask(dataFile);
-        return peakShapesTask;
+        histogramTask = new RJMCMCUpdatesTask(dataFile);
+        return histogramTask;
     }
 }
