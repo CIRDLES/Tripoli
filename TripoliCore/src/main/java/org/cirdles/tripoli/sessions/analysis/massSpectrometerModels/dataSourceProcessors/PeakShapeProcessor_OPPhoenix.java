@@ -16,11 +16,14 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
-// import jama.Matrix;
+
+
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes.PeakShapeOutputDataRecord;
 import org.ojalgo.matrix.Primitive32Matrix;
+import org.ojalgo.matrix.store.PhysicalStore;
+import org.ojalgo.matrix.store.Primitive64Store;
 
 
 import java.io.IOException;
@@ -47,7 +50,8 @@ public class PeakShapeProcessor_OPPhoenix {
 
     public PeakShapeOutputDataRecord prepareInputDataModelFromFile(Path inputDataFile) throws IOException {
 
-        // Matrix Factory
+        // Matrix Factory/Store Factory
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         Primitive32Matrix.Factory matrixFactory = Primitive32Matrix.FACTORY;
         List<String> contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
 
@@ -85,12 +89,13 @@ public class PeakShapeProcessor_OPPhoenix {
         double[] magMasses = masses.stream().mapToDouble(d -> d).toArray();
         // Matrix magnetMasses = new Matrix(magMasses, magMasses.length);
         // Ojalgo matrix Test
-        Primitive32Matrix magnetMassesOJ = matrixFactory.columns(magMasses);
+        Primitive64Store magnetMassesOJ = storeFactory.columns(magMasses);
+
         
         double[] mPeakIntensity = intensity.stream().mapToDouble(d -> d).toArray();
         // Matrix measuredPeakIntensities = new Matrix(mPeakIntensity, mPeakIntensity.length);
         // Ojalgo matrix Test
-        Primitive32Matrix measuredPeakIntensitiesOJ = matrixFactory.columns(mPeakIntensity);
+        Primitive64Store measuredPeakIntensitiesOJ = storeFactory.columns(mPeakIntensity);
 
         MassSpectrometerModel massSpec = analysisMethod.getMassSpectrometer();
         double collectorWidthAMU = peakCenterMass / massSpec.getEffectiveRadiusMagnetMM() * massSpec.getCollectorWidthMM();
@@ -106,7 +111,7 @@ public class PeakShapeProcessor_OPPhoenix {
             collector[i][1] = magnetMassesOJ.get(i, 0) + collectorWidthAMU / 2;
         }
         // Matrix collectorLimits = new Matrix(collector);
-        Primitive32Matrix collectorLimitsOJ = matrixFactory.rows(collector);
+        Primitive64Store collectorLimitsOJ = storeFactory.rows(collector);
 
         double deltaMagnetMass = magnetMassesOJ.get(1, 0) - magnetMassesOJ.get(0, 0);
         double beamWindow = theoreticalBeamWidthAMU * 2.0;
