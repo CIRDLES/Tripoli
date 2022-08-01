@@ -1,8 +1,12 @@
 package org.cirdles.tripoli.utilities.mathUtilities;
 
 import jama.Matrix;
+import org.ojalgo.RecoverableCondition;
 import org.ojalgo.matrix.store.MatrixStore;
+import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
+import org.ojalgo.matrix.task.SolverTask;
+import org.ojalgo.matrix.task.iterative.JacobiSolver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -337,6 +341,23 @@ public class MatLab {
         return new Matrix(ge);
     }
 
+    public static Primitive64Store greaterOrEqual(MatrixStore<Double> mat, double num) {
+        int row = mat.getRowDim();
+        int col = mat.getColDim();
+        double[][] ge = new double[row][col];
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                if (mat.get(i, j) >= num) {
+                    ge[i][j] = 1;
+                } else {
+                    ge[i][j] = 0;
+                }
+            }
+        }
+
+        return Primitive64Store.FACTORY.rows(ge);
+    }
+
     /**
      * Returns a copy of param mat with elements either 1 or 0 based on if the element is greater than param
      * num
@@ -361,6 +382,23 @@ public class MatLab {
         return new Matrix(ge);
     }
 
+    public static Primitive64Store greaterThan(MatrixStore<Double> mat, double num) {
+        int row = mat.getRowDim();
+        int col = mat.getColDim();
+        double[][] ge = new double[row][col];
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                if (mat.get(i, j) > num) {
+                    ge[i][j] = 1;
+                } else {
+                    ge[i][j] = 0;
+                }
+            }
+        }
+
+        return Primitive64Store.FACTORY.rows(ge);
+    }
+
     /**
      * Returns a copy of param mat with elements either 1 or 0 based on if the element is less than or equal to param
      * num
@@ -368,6 +406,8 @@ public class MatLab {
      * @param mat Matrix
      * @param num Number compared
      */
+
+
     public static Matrix lessOrEqual(Matrix mat, double num) {
         int row = mat.getRowDimension();
         int col = mat.getColumnDimension();
@@ -386,6 +426,23 @@ public class MatLab {
         return new Matrix(le);
     }
 
+    public static Primitive64Store lessOrEqual(MatrixStore<Double> mat, double num) {
+        int row = mat.getRowDim();
+        int col = mat.getColDim();
+
+        double[][] le = new double[row][col];
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                if (mat.get(i, j) <= num) {
+                    le[i][j] = 1;
+                } else {
+                    le[i][j] = 0;
+                }
+            }
+        }
+
+        return Primitive64Store.FACTORY.rows(le);
+    }
     /**
      * Returns a matrix comparing param mat1 and mat2 and sets elements of new matrix to 1 or 0 based on if element
      * in mat1 is less than element in mat2
@@ -542,6 +599,53 @@ public class MatLab {
         return new Matrix(found);
     }
 
+    public static Primitive64Store find(MatrixStore<Double> mat, int num, String dir) {
+        double[][] found = new double[num][1];
+        int row = mat.getRowDim();
+        int col = mat.getColDim();
+        int numCheck = 0;
+        int i = 0;
+        int index;
+        if (dir.equalsIgnoreCase("first")) {
+            index = 0;
+            for (int startCol = 0; startCol < col; startCol++) {
+                for (int startRow = 0; startRow < row; startRow++) {
+                    index++;
+                    if (numCheck != num) {
+                        if (mat.get(startRow, startCol) > 0) {
+                            found[i][0] = index - 1;
+                            numCheck++;
+                            i++;
+                        }
+
+                    } else {
+                        break;
+                    }
+                }
+
+            }
+
+        } else if (dir.equalsIgnoreCase("last")) {
+            index = (row * col) - 1;
+            for (int startCol = col - 1; startCol >= 0; startCol--) {
+                for (int startRow = row - 1; startRow >= 0; startRow--) {
+                    index--;
+                    if (numCheck != num) {
+                        if (mat.get(startRow, startCol) > 0) {
+                            found[i][0] = index + 1;
+                            numCheck++;
+                            i++;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+
+            }
+        }
+        return Primitive64Store.FACTORY.rows(found);
+    }
+
     /**
      * Determines if any array elements are nonzero. Returns elements along dimension dim. The dim input is a positive integer scalar.
      *
@@ -593,6 +697,50 @@ public class MatLab {
         assert anyMat != null;
         return new Matrix(anyMat);
     }
+    public static Primitive64Store any(MatrixStore<Double> matrix, int dim) {
+        int row = matrix.getRowDim();
+        int col = matrix.getColDim();
+        double[][] anyMat = new double[0][];
+        double sum = 0;
+        if (dim == 1) {
+            anyMat = new double[1][col];
+
+            for (int i = 0; i < col; i++) {
+                for (int j = 0; j < row; j++) {
+                    sum += matrix.get(j, i);
+
+                }
+                if (sum > 0) {
+                    anyMat[0][i] = 1;
+                } else {
+                    anyMat[0][i] = 0;
+                }
+                sum = 0;
+
+            }
+
+
+        } else if (dim == 2) {
+            anyMat = new double[row][1];
+
+            for (int i = 0; i < row; i++) {
+                for (int j = 0; j < col; j++) {
+                    sum += matrix.get(i, j);
+
+                }
+                if (sum > 0) {
+                    anyMat[i][0] = 1;
+                } else {
+                    anyMat[i][0] = 0;
+                }
+                sum = 0;
+
+            }
+        }
+
+        return Primitive64Store.FACTORY.rows(anyMat);
+    }
+
 
     /**
      * Divides param div by the elements in param A
@@ -614,6 +762,19 @@ public class MatLab {
         return new Matrix(divMat);
     }
 
+    public static Primitive64Store rDivide(MatrixStore<Double> A, double div) {
+        int row = A.getRowDim();
+        int col = A.getColDim();
+        double[][] divMat = new double[row][col];
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                divMat[i][j] = div / A.get(i, j);
+            }
+        }
+
+        return Primitive64Store.FACTORY.rows(divMat);
+    }
+
     /**
      * returns the maximum element along dimension dim.
      *
@@ -631,6 +792,18 @@ public class MatLab {
             }
         }
         return new Matrix(maxMat);
+    }
+
+    public static Primitive64Store max(MatrixStore<Double> matrix, int max) {
+        int row = matrix.getRowDim();
+        int col = matrix.getColDim();
+        double[][] maxMat = new double[row][col];
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                maxMat[i][j] = (max > matrix.get(i, j)) ? max : matrix.get(i, j);
+            }
+        }
+        return Primitive64Store.FACTORY.rows(maxMat);
     }
 
     /**
@@ -655,6 +828,25 @@ public class MatLab {
         }
 
         return new Matrix(diagMat);
+    }
+
+    public static Primitive64Store diag(MatrixStore<Double> mat) {
+        int row = mat.getRowDim();
+        double[][] diagMat = new double[row][row];
+        int dag = 0;
+
+        for (int i = 0; i < diagMat.length; i++) {
+            for (int j = 0; j < diagMat[0].length; j++) {
+                if (i == j) {
+                    diagMat[i][j] = mat.get(dag, 0);
+                    dag++;
+                } else {
+                    diagMat[i][j] = 0;
+                }
+            }
+        }
+
+        return Primitive64Store.FACTORY.rows(diagMat);
     }
 
 //    /**
@@ -813,5 +1005,110 @@ public class MatLab {
         for (int i = 0; i < m; i++)
             result &= w.get(i, 0) <= 1e-15;
         return result;
+    }
+
+
+    public static MatrixStore<Double> solveNNLS(MatrixStore<Double> A, MatrixStore<Double> b) throws RecoverableCondition {
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+        List<Integer> p = new ArrayList<>();
+        List<Integer> z = new ArrayList<>();
+        int i = 0;
+        int xm = A.getColDim();
+        int xn = 1;
+        while (i < A.getColDim())
+            z.add(i++);
+        Primitive64Store x = storeFactory.make(xm, xn);
+        /*
+         * You need a finite number of iterations. Without this condition, the finite precision nature
+         * of the math being done almost makes certain that the <1e-15 conditions won't ever hold up.
+         * However, after so many iterations, it should at least be close to the correct answer.
+         * For the intrepid coder, however, one could replace this again with an infinite while
+         * loop and make the <1e-15 conditions into something like c*norm(A) or c*norm(b).
+         */
+        for (int iterations = 0; iterations < 300 * A.getColDim() * A.getRowDim(); iterations++) {
+            //System.out.println(z.size() + " " + p.size());
+            MatrixStore<Double> w = A.transpose().multiply(b.subtract(A.multiply(x)));
+            //w.print(7, 5);
+            if (z.size() == 0 || isAllNegative(w)) {
+                //System.out.println("Computation should break");
+                //We are done with the computation. Break here!
+                break;//Should break out of the outer while loop.
+            }
+            //Step 4
+            int t = z.get(0);
+            double max = w.get(t, 0);
+            for (i = 1; i < z.size(); i++) {
+                if (w.get(z.get(i), 0) > max) {
+                    t = z.get(i);
+                    max = w.get(z.get(i), 0);
+                }
+            }
+            //Step 5
+            p.add(t);
+            z.remove((Integer) t);
+            boolean allPositive = false;
+            while (!allPositive) {
+                //Step 6
+                Primitive64Store Ep = storeFactory.make(b.getRowDim(), p.size());
+                JacobiSolver solver = new JacobiSolver();
+
+                for (i = 0; i < p.size(); i++)
+                    for (int j = 0; j < Ep.getRowDim(); j++)
+                        Ep.set(j, i, A.get(j, p.get(i)));
+                SolverTask<Double> solverTask = SolverTask.PRIMITIVE.make(Ep, b);
+                MatrixStore<Double> Zprime = solverTask.solve(Ep, b);
+                Ep = null;
+                Primitive64Store Z = storeFactory.make(xm, xn);
+                for (i = 0; i < p.size(); i++)
+                    Z.set((long) p.get(i), 0,  Zprime.get(i, 0));
+                //Step 7
+                allPositive = true;
+                for (i = 0; i < p.size(); i++)
+                    allPositive &= Z.get(p.get(i), 0) > 0;
+                if (allPositive)
+                    x = Z;
+                else {
+                    double alpha = Double.MAX_VALUE;
+                    for (i = 0; i < p.size(); i++) {
+                        int q = p.get(i);
+                        if (Z.get(q, 0) <= 0) {
+                            double xq = x.get(q, 0);
+                            if (xq / (xq - Z.get(q, 0)) < alpha)
+                                alpha = xq / (xq - Z.get(q, 0));
+                        }
+                    }
+                    //Finished getting alpha. Onto step 10
+                    x = (Primitive64Store) x.add(Z.subtract(x).multiply(alpha));
+                    for (i = p.size() - 1; i >= 0; i--)
+                        if (Math.abs(x.get(p.get(i), 0)) < 1e-15)//Close enough to zero, no?
+                            z.add(p.remove(i));
+                }
+            }
+        }
+        return x;
+    }
+
+    public static boolean isAllNegative(MatrixStore<Double> w) {
+        boolean result = true;
+        int m = w.getRowDim();
+        for (int i = 0; i < m; i++)
+            result &= w.get(i, 0) <= 1e-15;
+        return result;
+    }
+
+
+    public static double normInf(MatrixStore<Double> mat){
+        double[][] A = mat.toRawCopy2D();
+        int m = mat.getRowDim();
+        int n = mat.getColDim();
+        double f = 0;
+        for (int i = 0; i < m; i++) {
+            double s = 0;
+            for (int j = 0; j < n; j++) {
+                s += Math.abs(A[i][j]);
+            }
+            f = Math.max(f, s);
+        }
+        return f;
     }
 }

@@ -22,4 +22,5 @@ module Tripoli.TripoliApp {
     requires java.datatransfer;
     requires java.desktop;
     requires commons.bc38781605;
+    requires ojalgo;
 }
