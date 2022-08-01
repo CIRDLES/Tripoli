@@ -5,8 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.ojalgo.matrix.store.Primitive64Store;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class SplineBasisModelTest {
 
     @BeforeEach
@@ -19,7 +17,7 @@ class SplineBasisModelTest {
 
     @Test
     void bBase() {
-        Primitive64Store test = MatLab.linspaceOJ(204.83994725925928, 205.10565274074074, 1000);
+        Primitive64Store test = MatLab.linspace(204.83994725925928, 205.10565274074074, 1000);
         Primitive64Store bBaseTest = SplineBasisModel.bBase(test, 204.83994725925928, 205.10565274074074, 22, 3);
     }
 }

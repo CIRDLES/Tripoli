@@ -17,14 +17,11 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
 
-
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes.PeakShapeOutputDataRecord;
-import org.ojalgo.matrix.Primitive32Matrix;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
-
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -50,9 +47,8 @@ public class PeakShapeProcessor_OPPhoenix {
 
     public PeakShapeOutputDataRecord prepareInputDataModelFromFile(Path inputDataFile) throws IOException {
 
-        // Matrix Factory/Store Factory
+        // Store Factory
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        Primitive32Matrix.Factory matrixFactory = Primitive32Matrix.FACTORY;
         List<String> contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
 
         List<String[]> headerLine = new ArrayList<>();
@@ -87,15 +83,10 @@ public class PeakShapeProcessor_OPPhoenix {
         double integrationPeriodMS = Double.parseDouble(headerLine.get(10)[1].replaceFirst("ms", ""));
 
         double[] magMasses = masses.stream().mapToDouble(d -> d).toArray();
-        // Matrix magnetMasses = new Matrix(magMasses, magMasses.length);
-        // Ojalgo matrix Test
-        Primitive64Store magnetMassesOJ = storeFactory.columns(magMasses);
+        Primitive64Store magnetMasses = storeFactory.columns(magMasses);
 
-        
         double[] mPeakIntensity = intensity.stream().mapToDouble(d -> d).toArray();
-        // Matrix measuredPeakIntensities = new Matrix(mPeakIntensity, mPeakIntensity.length);
-        // Ojalgo matrix Test
-        Primitive64Store measuredPeakIntensitiesOJ = storeFactory.columns(mPeakIntensity);
+        Primitive64Store measuredPeakIntensities = storeFactory.columns(mPeakIntensity);
 
         MassSpectrometerModel massSpec = analysisMethod.getMassSpectrometer();
         double collectorWidthAMU = peakCenterMass / massSpec.getEffectiveRadiusMagnetMM() * massSpec.getCollectorWidthMM();
@@ -105,27 +96,27 @@ public class PeakShapeProcessor_OPPhoenix {
         // number of rows as magnet masses.  Each row contains the mass
         // range of the beam that is entering the collector (defined by
         // collectorWidthAMU)
-        double[][] collector = new double[magnetMassesOJ.getRowDim()][2];
+        double[][] collector = new double[magnetMasses.getRowDim()][2];
         for (int i = 0; i < collector.length; i++) {
-            collector[i][0] = magnetMassesOJ.get(i, 0) - collectorWidthAMU / 2;
-            collector[i][1] = magnetMassesOJ.get(i, 0) + collectorWidthAMU / 2;
+            collector[i][0] = magnetMasses.get(i, 0) - collectorWidthAMU / 2;
+            collector[i][1] = magnetMasses.get(i, 0) + collectorWidthAMU / 2;
         }
-        // Matrix collectorLimits = new Matrix(collector);
-        Primitive64Store collectorLimitsOJ = storeFactory.rows(collector);
 
-        double deltaMagnetMass = magnetMassesOJ.get(1, 0) - magnetMassesOJ.get(0, 0);
+        Primitive64Store collectorLimits = storeFactory.rows(collector);
+
+        double deltaMagnetMass = magnetMasses.get(1, 0) - magnetMasses.get(0, 0);
         double beamWindow = theoreticalBeamWidthAMU * 2.0;
 
         return new PeakShapeOutputDataRecord(
-                magnetMassesOJ,
-                measuredPeakIntensitiesOJ,
+                magnetMasses,
+                measuredPeakIntensities,
                 peakCenterMass,
                 integrationPeriodMS,
                 massID,
                 detectorName,
                 collectorWidthAMU,
                 theoreticalBeamWidthAMU,
-                collectorLimitsOJ,
+                collectorLimits,
                 deltaMagnetMass,
                 beamWindow
         );
