@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.analysisMethods.baselineTables;
+package org.cirdles.tripoli.sessions.analysis.methods.baseline;
 
 import java.io.Serializable;
 

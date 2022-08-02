@@ -21,7 +21,7 @@ import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import jama.Matrix;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethod;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.MassSpecOutputDataRecord;
 
 import java.io.IOException;

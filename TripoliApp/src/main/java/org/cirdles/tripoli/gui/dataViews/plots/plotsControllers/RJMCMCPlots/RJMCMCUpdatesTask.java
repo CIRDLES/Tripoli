@@ -18,7 +18,7 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
 
 import javafx.concurrent.Task;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelDriverExperiment;
-import org.cirdles.tripoli.utilities.callBacks.LoggingCallbackInterface;
+import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
 
 import java.nio.file.Path;

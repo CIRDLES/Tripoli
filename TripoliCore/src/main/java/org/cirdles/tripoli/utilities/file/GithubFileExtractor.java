@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.utilities.fileUtilities;
+package org.cirdles.tripoli.utilities.file;
 
 import java.io.BufferedReader;
 import java.io.IOException;

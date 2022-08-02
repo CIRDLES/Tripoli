@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.analysisMethods.baselineTables;
+package org.cirdles.tripoli.sessions.analysis.methods.sequence;
 
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 
@@ -28,19 +28,18 @@ import java.util.Map;
 /**
  * @author James F. Bowring
  */
-public class BaselineTable implements Serializable {
-
+public class SequenceTable implements Serializable {
     @Serial
-    private static final long serialVersionUID = 6152558186543823004L;
+    private static final long serialVersionUID = -3937544780355208600L;
 
     // DetectorName maps to map of sequencename to sequencecell
-    private Map<Detector, List<BaselineCell>> mapOfDetectorsToBaselineCells;
+    private Map<Detector, List<SequenceCell>> mapOfDetectorsToSequenceCells;
 
-    private BaselineTable() {
-        this.mapOfDetectorsToBaselineCells = new LinkedHashMap<>();
+    private SequenceTable() {
+        mapOfDetectorsToSequenceCells = new LinkedHashMap<>();
     }
 
-    public static BaselineTable createEmptyBaselineTable() {
+    public static SequenceTable createEmptySequenceTable() {
         /* Notes:
         Each row is a sequence (S1, S2, S3)
         Each column is a detector from the detector setup.
@@ -49,34 +48,34 @@ public class BaselineTable implements Serializable {
         To determine which species (isotopologues, isobars) are going into that collector, use a formula based on the MassSpec Model (™)
 
          */
-        BaselineTable baselineTable = new BaselineTable();
+        SequenceTable sequenceTable = new SequenceTable();
 
-        return baselineTable;
+        return sequenceTable;
     }
 
-    public BaselineCell accessBaselineCellForDetector(Detector detector, String baselineName) {
-        List<BaselineCell> targetList = mapOfDetectorsToBaselineCells.get(detector);
-        BaselineCell baselineCell = BaselineCell.initializeBaselineCell(baselineName);
+    public SequenceCell accessSequenceCellForDetector(Detector detector, String sequenceName) {
+        List<SequenceCell> targetList = mapOfDetectorsToSequenceCells.get(detector);
+        SequenceCell sequenceCell = SequenceCell.initializeSequenceCell(sequenceName);
         if (targetList == null) {
             targetList = new ArrayList<>();
-            targetList.add(baselineCell);
-            mapOfDetectorsToBaselineCells.put(detector, targetList);
+            targetList.add(sequenceCell);
+            mapOfDetectorsToSequenceCells.put(detector, targetList);
         }
-        if (!targetList.contains(baselineCell)) {
-            targetList.add(baselineCell);
+        if (!targetList.contains(sequenceCell)) {
+            targetList.add(sequenceCell);
         }
-        List<BaselineCell> targetCellList = targetList
+        List<SequenceCell> targetCellList = targetList
                 .stream()
-                .filter(cell -> ((cell.getBaselineName().compareToIgnoreCase(baselineName) == 0))).toList();
+                .filter(cell -> ((cell.getSequenceName().compareToIgnoreCase(sequenceName) == 0))).toList();
 
         return targetCellList.get(0);
     }
 
-    public Map<Detector, List<BaselineCell>> getMapOfDetectorsToBaselineCells() {
-        return mapOfDetectorsToBaselineCells;
+    public Map<Detector, List<SequenceCell>> getMapOfDetectorsToSequenceCells() {
+        return mapOfDetectorsToSequenceCells;
     }
 
-    public void setMapOfDetectorsToBaselineCells(Map<Detector, List<BaselineCell>> mapOfDetectorsToBaselineCells) {
-        this.mapOfDetectorsToBaselineCells = mapOfDetectorsToBaselineCells;
+    public void setMapOfDetectorsToSequenceCells(Map<Detector, List<SequenceCell>> mapOfDetectorsToSequenceCells) {
+        this.mapOfDetectorsToSequenceCells = mapOfDetectorsToSequenceCells;
     }
 }

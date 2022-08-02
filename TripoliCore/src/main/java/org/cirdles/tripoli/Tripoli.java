@@ -17,7 +17,7 @@
 package org.cirdles.tripoli;
 
 import org.cirdles.commons.util.ResourceExtractor;
-import org.cirdles.tripoli.utilities.fileUtilities.TripoliFileResources;
+import org.cirdles.tripoli.utilities.file.TripoliFileResources;
 
 import java.io.BufferedReader;
 import java.io.IOException;

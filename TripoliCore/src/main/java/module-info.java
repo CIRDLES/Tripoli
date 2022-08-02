@@ -31,12 +31,12 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.utilities.exceptions;
     exports org.cirdles.tripoli.species.nuclides;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
-    exports org.cirdles.tripoli.sessions.analysis.analysisMethods;
-    exports org.cirdles.tripoli.sessions.analysis.analysisMethods.baselineTables;
-    exports org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables;
+    exports org.cirdles.tripoli.sessions.analysis.methods;
+    exports org.cirdles.tripoli.sessions.analysis.methods.baseline;
+    exports org.cirdles.tripoli.sessions.analysis.methods.sequence;
     exports org.cirdles.tripoli.species;
     exports org.cirdles.tripoli.elements;
-    exports org.cirdles.tripoli.utilities.callBacks;
+    exports org.cirdles.tripoli.utilities.callbacks;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes;
     exports org.cirdles.tripoli.visualizationUtilities.histograms;

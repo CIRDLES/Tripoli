@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.utilities.fileUtilities;
+package org.cirdles.tripoli.utilities.file;
 
 import org.apache.poi.util.IOUtils;
 
