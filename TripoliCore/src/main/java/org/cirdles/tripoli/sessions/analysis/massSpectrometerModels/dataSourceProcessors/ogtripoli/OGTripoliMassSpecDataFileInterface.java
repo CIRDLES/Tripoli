@@ -14,19 +14,8 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.ogtripoli;
 
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
-
-import java.io.Serializable;
-import java.util.Map;
-
-/**
- * @author James F. Bowring
- */
-public class Sequence implements Serializable {
-
-    private Map<Detector, SequenceCell> sequenceCellsMap;
-
-
+public interface OGTripoliMassSpecDataFileInterface {
+    public boolean testFileValidity();
 }

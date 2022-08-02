@@ -17,7 +17,7 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
 
-import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethod;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes.PeakShapeOutputDataRecord;
 import org.ojalgo.matrix.store.PhysicalStore;
