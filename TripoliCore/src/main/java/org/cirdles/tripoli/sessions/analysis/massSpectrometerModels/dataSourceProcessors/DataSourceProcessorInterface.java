@@ -16,9 +16,9 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
-import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethod;
-import org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables.SequenceCell;
-import org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables.SequenceTable;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
+import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceTable;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;

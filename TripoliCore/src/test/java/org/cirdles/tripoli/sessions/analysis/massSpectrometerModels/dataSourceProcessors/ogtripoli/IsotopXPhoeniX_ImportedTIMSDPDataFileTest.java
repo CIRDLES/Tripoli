@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.ogTripoli;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.ogtripoli;
 
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.ogTripoli.IsotopXPhoeniX_ImportedTIMSDPDataFile.initializeIsotopXPhoeniX_ImportedTIMSDPDataFile;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.ogtripoli.IsotopXPhoeniX_ImportedTIMSDPDataFile.initializeIsotopXPhoeniX_ImportedTIMSDPDataFile;
 
 class IsotopXPhoeniX_ImportedTIMSDPDataFileTest {
 

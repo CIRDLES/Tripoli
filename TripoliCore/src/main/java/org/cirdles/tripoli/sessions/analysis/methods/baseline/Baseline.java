@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.analysisMethods.baselineTables;
+package org.cirdles.tripoli.sessions.analysis.methods.baseline;
 
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.jetbrains.annotations.Contract;
