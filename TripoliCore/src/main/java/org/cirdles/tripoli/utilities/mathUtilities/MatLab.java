@@ -24,43 +24,21 @@ public class MatLab {
         int rowB = B.getRowDim();
         int colB = B.getColDim();
 
-
         double[][] newKron = new double[rowA * rowB][colA * colB];
-        if (rowB == 1) {
-            int kronRow = 0;
-            for (int i = 0; i < rowA; i++) {
+        int kronRow = 0;
+        for (int i = 0; i < rowA; i++) {
+            for (int j = 0; j < rowB; j++) {
                 kronRow++;
-                for (int j = 0; j < rowB; j++) {
-
-                    int kronCol = 0;
-                    for (int k = 0; k < colA; k++) {
-
-                        for (int h = 0; h < colB; h++) {
-                            newKron[kronRow - 1][kronCol] = A.get(i, k) * B.get(j, h);
-                            kronCol++;
-                        }
+                int kronCol = 0;
+                for (int k = 0; k < colA; k++) {
+                    for (int h = 0; h < colB; h++) {
+                        newKron[kronRow - 1][kronCol] = A.get(i, k) * B.get(j, h);
+                        kronCol++;
                     }
                 }
             }
-
-            return Primitive64Store.FACTORY.rows(newKron);
-
-        } else {
-            int kronRow = 0;
-            for (int i = 0; i < rowA; i++) {
-                for (int j = 0; j < rowB; j++) {
-                    kronRow++;
-                    int kronCol = 0;
-                    for (int k = 0; k < colA; k++) {
-                        for (int h = 0; h < colB; h++) {
-                            newKron[kronRow - 1][kronCol] = A.get(i, k) * B.get(j, h);
-                            kronCol++;
-                        }
-                    }
-                }
-            }
-            return Primitive64Store.FACTORY.rows(newKron);
         }
+        return Primitive64Store.FACTORY.rows(newKron);
 
     }
 
@@ -133,7 +111,7 @@ public class MatLab {
             newDiff = new double[row][col];
             for (int i = 0; i < row; i++) {
                 for (int j = 0; j < col; j++) {
-                    newDiff[i][j] = (mat.get(i, j) - mat.get(i, j + 1));
+                    newDiff[i][j] = mat.get(i, j + 1) - mat.get(i, j);
                 }
             }
             return Primitive64Store.FACTORY.rows(newDiff);
@@ -141,7 +119,7 @@ public class MatLab {
             newDiff = new double[row - 1][col + 1];
             for (int i = 0; i < row - 1; i++) {
                 for (int j = 0; j < col + 1; j++) {
-                    newDiff[i][j] = mat.get(i, j) - mat.get(i + 1, j);
+                    newDiff[i][j] = mat.get(i + 1, j) - mat.get(i, j);
                 }
             }
             return Primitive64Store.FACTORY.rows(newDiff);
@@ -169,11 +147,11 @@ public class MatLab {
 
     /**
      * Compares param mat1 and mat2 and sets elements of new matrix to 1 or 0 based on if element
-     * in mat1 is greater than element in mat2
+     * in mat1 is greater than or equal element in mat2
      *
      * @param mat1 Matrix
      * @param mat2 Matrix
-     * @return A matrix of 1's and 0's based on if element in mat1 is greater than element in mat2
+     * @return A matrix of 1's and 0's based on if element in mat1 is greater than or equal to the element in mat2
      */
     public static Primitive64Store greaterOrEqual(MatrixStore<Double> mat1, MatrixStore<Double> mat2) {
         int maxRow = Math.min(mat1.getRowDim(), mat2.getRowDim());
