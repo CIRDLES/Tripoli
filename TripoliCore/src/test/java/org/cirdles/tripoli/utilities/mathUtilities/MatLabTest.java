@@ -105,7 +105,6 @@ class MatLabTest {
 
     @Test
     void linspaceTest() {
-        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
 
         Primitive64Store actual = MatLab.linspace(-5, 5, 7);
         double[][] expected = new double[][]{{-5.0, -3.333333333333333, -1.6666666666666665, 0.0, 1.666666666666667, 3.333333333333334, 5.0}};
@@ -130,20 +129,51 @@ class MatLabTest {
     @Test
     void anyTest() {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+
+        Primitive64Store A = storeFactory.rows(new double[][]{{0, 0, 3}, {0, 0, 3}, {0, 0, 3}});
+        Primitive64Store actual = MatLab.any(A, 1);
+        double[][] expected = new double[][]{{0, 0, 1}};
+
+        assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
+
+        actual = MatLab.any(A, 2);
+        expected = new double[][]{{1}, {1}, {1}};
+
+        assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
+
     }
 
     @Test
     void rDivideTest() {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+
+        double[][] testArr = new double[][]{{8, 1, 6}, {3, 5, 7}, {4, 9, 2}};
+        Primitive64Store A = storeFactory.rows(testArr);
+
+        Primitive64Store actual = MatLab.rDivide(A, 5);
+        double[][] expected = new double[][]{{0.625, 5.0, 0.8333333333333334}, {1.6666666666666667, 1.0, 0.7142857142857143}, {1.25, 0.5555555555555556, 2.5}};
+
+        assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
     }
 
     @Test
     void maxTest() {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+
+        Primitive64Store A = storeFactory.rows(new double[][]{{1, 7, 3}, {6, 2, 9}});
+        Primitive64Store actual = MatLab.max(A, 5);
+        double[][] expected = new double[][]{{5, 7, 5}, {6, 5, 9}};
+        assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
     }
 
     @Test
     void diagTest() {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+
+        Primitive64Store A = storeFactory.rows(new double[][]{{2, 1, -1, -2, -5}});
+        Primitive64Store actual = MatLab.diag(A);
+        System.out.println(Arrays.deepToString(actual.toRawCopy2D()));
+        double[][] expected = new double[][]{{2, 0, 0, 0, 0}, {0, 1, 0, 0, 0}, {0, 0, -1, 0, 0}, {0, 0, 0, -2, 0}, {0, 0, 0, 0, -5}};
+        assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
     }
 }

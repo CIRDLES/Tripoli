@@ -9,32 +9,10 @@ import org.ojalgo.matrix.store.Primitive64Store;
 
 public class SplineBasisModel {
 
-    private final MatrixStore<Double> x; // vector of x values
+    private final MatrixStore<Double> BSplineMatrix;
 
-    private final double basisDegree;
-
-    private final double numSegments;
-
-    private final Primitive64Store BSplineMatrix;
-
-
-    private SplineBasisModel() {
-        this.x = null;
-        this.basisDegree = 0;
-        this.numSegments = 0;
-        this.BSplineMatrix = null;
-    }
-
-    private SplineBasisModel(MatrixStore<Double> x, int numSegments, int basisDegree) {
-        this.x = x;
-        this.basisDegree = basisDegree;
-        this.numSegments = numSegments;
+    public SplineBasisModel(MatrixStore<Double> x, int numSegments, int basisDegree) {
         this.BSplineMatrix = bBase(x, numSegments, basisDegree);
-    }
-
-
-    public static SplineBasisModel initializeSpline(Primitive64Store x, int numSegments, int basisDegree) {
-        return new SplineBasisModel(x, numSegments, basisDegree);
     }
 
 
@@ -44,19 +22,19 @@ public class SplineBasisModel {
         double xLower = x.get(0, 0);
         double xUpper = x.get(x.getRowDim() - 1, x.getColDim() - 1);
 
-        x = x.transpose();
+        MatrixStore<Double> transposeX = x.transpose();
 
         double dx = (xUpper - xLower) / numSegments;
         Primitive64Store knots = MatLab.linspace(xLower - basisDegree * dx, xUpper + basisDegree * dx, numSegments + 2 * basisDegree + 1);
 
-        int nx = x.getRowDim();
+        int nx = transposeX.getRowDim();
         int nt = knots.getColDim();
 
 
         Primitive64Store kronTerm = storeFactory.make(1, nt);
         kronTerm.fillAll(1.0);
 
-        MatrixStore<Double> matrixX = MatLab.kron(x, kronTerm);
+        MatrixStore<Double> matrixX = MatLab.kron(transposeX, kronTerm);
 
 
         Primitive64Store term2 = storeFactory.make(nx, 1);
@@ -74,10 +52,9 @@ public class SplineBasisModel {
         MatrixStore<Double> Base = matrixP.multiply(matrixD.transpose());
 
         int nb = MatLab.size(Base, 2);
-        Primitive64Store kronTerm2 = storeFactory.make(nb, 1);
+        Primitive64Store kronTerm2 = storeFactory.make(1, nb);
         kronTerm2.fillAll(1.0);
-        matrixX = MatLab.kron(x, kronTerm2);
-        matrixX = matrixX.transpose();
+        matrixX = MatLab.kron(transposeX, kronTerm2);
 
         sk = new double[1][nb];
         for (int i = 0; i < 1; i++) {
@@ -106,19 +83,19 @@ public class SplineBasisModel {
         xLower = xl > x.get(0, 0) ? x.get(0, 0) : xl;
         xUpper = xr < x.get(x.getRowDim() - 1, x.getColDim() - 1) ? x.get(x.getRowDim() - 1, x.getColDim() - 1) : xr;
 
-        x = x.transpose();
+        MatrixStore<Double> transposeX = x.transpose();
 
         double dx = (xUpper - xLower) / numSegments;
         Primitive64Store knots = MatLab.linspace(xLower - basisDegree * dx, xUpper + basisDegree * dx, numSegments + 2 * basisDegree + 1);
 
-        int nx = x.getRowDim();
+        int nx = transposeX.getRowDim();
         int nt = knots.getColDim();
 
 
         Primitive64Store kronTerm = storeFactory.make(1, nt);
         kronTerm.fillAll(1.0);
 
-        MatrixStore<Double> matrixX = MatLab.kron(x, kronTerm);
+        MatrixStore<Double> matrixX = MatLab.kron(transposeX, kronTerm);
 
 
         Primitive64Store term2 = storeFactory.make(nx, 1);
@@ -138,7 +115,7 @@ public class SplineBasisModel {
         int nb = MatLab.size(Base, 2);
         Primitive64Store kronTerm2 = storeFactory.make(1, nb);
         kronTerm2.fillAll(1.0);
-        matrixX = MatLab.kron(x, kronTerm2);
+        matrixX = MatLab.kron(transposeX, kronTerm2);
 
         sk = new double[1][nb];
         for (int i = 0; i < 1; i++) {
@@ -157,11 +134,7 @@ public class SplineBasisModel {
     }
 
 
-    public MatrixStore<Double> getX() {
-        return x;
-    }
-
-    public Primitive64Store getBSplineMatrix() {
+    public MatrixStore<Double> getBSplineMatrix() {
         return BSplineMatrix;
     }
 }

@@ -466,8 +466,8 @@ public class MatLab {
      */
 
     public static Primitive64Store diag(MatrixStore<Double> mat) {
-        int row = mat.getRowDim();
-        double[][] diagMat = new double[row][row];
+        int size = Math.max(mat.getRowDim(), mat.getColDim());
+        double[][] diagMat = new double[size][size];
         int dag = 0;
 
         for (int i = 0; i < diagMat.length; i++) {
