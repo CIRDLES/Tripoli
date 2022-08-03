@@ -51,6 +51,7 @@ public class TripoliFileResources {
         retrieveResourceFiles(SYNTHETIC_DATA_FOLDER, "dataProcessors/dataSources/synthetic");
         retrieveResourceFiles(NUCLIDESCHART_DATA_FOLDER, "species/nuclides");
         retrieveResourceFiles(PERIODICTABLE_DATA_FOLDER, "elements");
+        retrieveResourceFiles(PEAK_CENTRES_FOLDER, "dataProcessors/dataSources/peakShapes");
 
         System.out.println("Tripoli Resources loaded");
     }
@@ -60,6 +61,7 @@ public class TripoliFileResources {
      */
     public static void retrieveResourceFiles(File resourceTargetFolder, String resourceFolderName)
             throws IOException {
+
         Path listOfResourceFiles = TRIPOLI_RESOURCE_EXTRACTOR.extractResourceAsPath(resourceFolderName + File.separator + "listOfResourceFiles.txt");
         if (resourceTargetFolder.exists()) {
             FileUtilities.recursiveDelete(resourceTargetFolder.toPath());
