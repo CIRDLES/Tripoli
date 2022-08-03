@@ -31,7 +31,9 @@ public class BeamDataOutputDriverExperiment {
     static LinePlotBuilder[] gatherBeamWidth(PeakShapeOutputDataRecord peakShapeOutputDataRecord, LoggingCallbackInterface loggingCallback) throws RecoverableCondition {
 
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        double maxBeamIndex, thresholdIntensity;
+        double maxBeamIndex;
+        double thresholdIntensity;
+
         // Spline basis Basis
         int basisDegree = 3;
         // int orderDiff = 2;

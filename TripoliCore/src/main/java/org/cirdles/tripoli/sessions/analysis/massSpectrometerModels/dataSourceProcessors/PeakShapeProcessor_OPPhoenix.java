@@ -67,6 +67,8 @@ public class PeakShapeProcessor_OPPhoenix {
                         masses.add(Double.parseDouble(cols[0]));
                         intensity.add(Double.parseDouble(cols[1]));
                     }
+                    default -> {
+                    }
                 }
 
                 if (line.startsWith("#START")) {
