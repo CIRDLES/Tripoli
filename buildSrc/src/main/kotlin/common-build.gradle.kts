@@ -55,12 +55,10 @@ object Versions {
 
 group = mavenGroupId
 version = mavenVersion
-
+val utf8 = "UTF-8"
 
 
 tasks {
-
-    val utf8 = "UTF-8"
 
     compileJava {
         options.encoding = utf8
@@ -99,7 +97,7 @@ tasks.withType(JavaCompile::class) {
 
     options.compilerArgs.add("-Xlint:deprecation")
     options.compilerArgs.add("-Xlint:unchecked")
-    options.encoding = "UTF-8"
+    options.encoding = utf8
     println("Compiler args: " + options.compilerArgs)
 
 }
@@ -109,7 +107,7 @@ tasks.withType<Javadoc> {
 }
 
 tasks.withType(JavaCompile::class) {
-    options.encoding = "UTF-8"
+    options.encoding = utf8
 }
 
 tasks.register("CreateFolder") {

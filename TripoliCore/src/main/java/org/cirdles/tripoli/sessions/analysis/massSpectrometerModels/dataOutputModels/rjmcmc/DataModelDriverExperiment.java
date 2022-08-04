@@ -48,7 +48,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
  */
 public class DataModelDriverExperiment {
 
-    private static final boolean doFullProcessing = false;
+    private static final boolean doFullProcessing = true;
 
     public static AbstractPlotBuilder[] driveModelTest(Path dataFilePath, LoggingCallbackInterface loggingCallback) throws IOException {
 
@@ -61,7 +61,7 @@ public class DataModelDriverExperiment {
 
         List<EnsembleRecord> ensembleRecordsList = null;
         if (doFullProcessing) {
-            histogramBuilder = applyInversionWithRJ_MCMC(massSpecOutputDataRecord, dataModelInit, loggingCallback);
+            histogramBuilder = applyInversionWithRJMCMC(massSpecOutputDataRecord, dataModelInit, loggingCallback);
         } else {
             try {
                 EnsemblesStore ensemblesStore = (EnsemblesStore) TripoliSerializer.getSerializedObjectFromFile("EnsemblesStore.ser", true);
@@ -76,7 +76,7 @@ public class DataModelDriverExperiment {
         return histogramBuilder;
     }
 
-    static AbstractPlotBuilder[] applyInversionWithRJ_MCMC(MassSpecOutputDataRecord massSpecOutputDataRecord, DataModellerOutputRecord dataModelInit, LoggingCallbackInterface loggingCallback) {
+    static AbstractPlotBuilder[] applyInversionWithRJMCMC(MassSpecOutputDataRecord massSpecOutputDataRecord, DataModellerOutputRecord dataModelInit, LoggingCallbackInterface loggingCallback) {
         /*
             % MCMC Parameters
             maxcnt = 2000;  % Maximum number of models to save
@@ -563,8 +563,8 @@ public class DataModelDriverExperiment {
                 double deltaLogNoise = sumLogDSignalNoise2 - sumLogDSignalNoise;//X = sum(-log(Dsig2))-sum(-log(Dsig));
                 keep = min(1, exp(deltaLogNoise / 2.0 - (dE) / 2.0));//keep = min(1,exp(X/2-(dE)/2));
             } else {
-                dE = 1 / tempering * (E2 - E);
-                keep = min(1, 1.0 * exp(-(dE) / 2.0));
+                dE = 1.0 / tempering * (E2 - E);
+                keep = min(1, exp(-(dE) / 2.0));
             }
             /*
                 % Update kept variables for display
