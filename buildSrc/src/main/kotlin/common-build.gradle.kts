@@ -60,12 +60,14 @@ version = mavenVersion
 
 tasks {
 
+    val utf8 = "UTF-8"
+
     compileJava {
-        options.encoding = "UTF-8"
+        options.encoding = utf8
     }
 
     compileTestJava {
-        options.encoding = "UTF-8"
+        options.encoding = utf8
     }
 
 
