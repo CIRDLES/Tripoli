@@ -20,12 +20,17 @@ import jama.Matrix;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_OPPhoenix;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
+import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
+import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -43,20 +48,35 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
  */
 public class DataModelDriverExperiment {
 
-    public static HistogramBuilder driveModelTest(Path dataFilePath, LoggingCallbackInterface loggingCallback) throws IOException {
+    private static final boolean doFullProcessing = true;
+
+    public static AbstractPlotBuilder[] driveModelTest(Path dataFilePath, LoggingCallbackInterface loggingCallback) throws IOException {
 
         DataSourceProcessor_OPPhoenix dataSourceProcessorOPPhoenix
                 = DataSourceProcessor_OPPhoenix.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
         MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFilePath);
         DataModellerOutputRecord dataModelInit = DataModelInitializer.modellingTest(massSpecOutputDataRecord);
 
-        HistogramBuilder histogramBuilder = applyInversionWithRJ_MCMC(massSpecOutputDataRecord, dataModelInit, loggingCallback);
+        AbstractPlotBuilder[] histogramBuilder = new LinePlotBuilder[0];
+
+        List<EnsembleRecord> ensembleRecordsList = null;
+        if (doFullProcessing) {
+            histogramBuilder = applyInversionWithRJMCMC(massSpecOutputDataRecord, dataModelInit, loggingCallback);
+        } else {
+            try {
+                EnsemblesStore ensemblesStore = (EnsemblesStore) TripoliSerializer.getSerializedObjectFromFile("EnsemblesStore.ser", true);
+                ensembleRecordsList = ensemblesStore.getEnsembles();
+            } catch (TripoliException e) {
+                e.printStackTrace();
+            }
+            histogramBuilder = analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList);
+        }
 
 
         return histogramBuilder;
     }
 
-    static HistogramBuilder applyInversionWithRJ_MCMC(MassSpecOutputDataRecord massSpecOutputDataRecord, DataModellerOutputRecord dataModelInit, LoggingCallbackInterface loggingCallback) {
+    static AbstractPlotBuilder[] applyInversionWithRJMCMC(MassSpecOutputDataRecord massSpecOutputDataRecord, DataModellerOutputRecord dataModelInit, LoggingCallbackInterface loggingCallback) {
         /*
             % MCMC Parameters
             maxcnt = 2000;  % Maximum number of models to save
@@ -270,7 +290,7 @@ public class DataModelDriverExperiment {
 
 //        Matrix residualTmp = new Matrix(dSignalNoise.getRowDimension(), 1);
         double[] residualTmpArray = new double[dSignalNoiseArray.length];
-       // not used?? Matrix residualTmp2 = new Matrix(dSignalNoise.getRowDimension(), 1);
+        // not used?? Matrix residualTmp2 = new Matrix(dSignalNoise.getRowDimension(), 1);
         double initialModelErrorWeighted_E = 0.0;
         double initialModelErrorUnWeighted_E0 = 0.0;
 //        for (int row = 0; row < residualTmp.getRowDimension(); row++) {
@@ -436,7 +456,7 @@ public class DataModelDriverExperiment {
 
             double[] tmpBLindArray = new double[dataModelUpdaterOutputRecord_x2.baselineMeans().getRowDimension() + 1];
             System.arraycopy(dataModelUpdaterOutputRecord_x2.baselineMeans()
-                    .getMatrix(0, dataModelUpdaterOutputRecord_x2.baselineMeans().getRowDimension() - 1, 0, 0).getColumnPackedCopy(),
+                            .getMatrix(0, dataModelUpdaterOutputRecord_x2.baselineMeans().getRowDimension() - 1, 0, 0).getColumnPackedCopy(),
                     0, tmpBLindArray, 0, tmpBLindArray.length - 1);
 
 //            Matrix tmpBL = new Matrix(massSpecOutputDataRecord.detectorIndicesForRawDataColumn().getRowDimension(), 1);
@@ -543,8 +563,8 @@ public class DataModelDriverExperiment {
                 double deltaLogNoise = sumLogDSignalNoise2 - sumLogDSignalNoise;//X = sum(-log(Dsig2))-sum(-log(Dsig));
                 keep = min(1, exp(deltaLogNoise / 2.0 - (dE) / 2.0));//keep = min(1,exp(X/2-(dE)/2));
             } else {
-                dE = 1 / tempering * (E2 - E);
-                keep = min(1, 1.0 * exp(-(dE) / 2.0));
+                dE = 1.0 / tempering * (E2 - E);
+                keep = min(1, exp(-(dE) / 2.0));
             }
             /*
                 % Update kept variables for display
@@ -689,6 +709,18 @@ public class DataModelDriverExperiment {
             }
         } // end model loop
 
+        // experiment with serializing results during development
+        EnsemblesStore ensemblesStore = new EnsemblesStore(ensembleRecordsList);
+        try {
+            TripoliSerializer.serializeObjectToFile(ensemblesStore, "EnsemblesStore.ser");
+        } catch (TripoliException e) {
+            e.printStackTrace();
+        }
+
+        return analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList);
+    }
+
+    private static AbstractPlotBuilder []analysisAndPlotting(MassSpecOutputDataRecord massSpecOutputDataRecord, List<EnsembleRecord> ensembleRecordsList) {
         /*
             %% Analysis and Plotting
 
@@ -709,7 +741,7 @@ public class DataModelDriverExperiment {
             DFstd = std(ens_DF(:,burn:cnt),[],2);
 
          */
-        burn = 100;//1000;
+        int burn = 100;//1000;
         int countOfEnsemblesUsed = ensembleRecordsList.size() - burn;
 
         double[][] ensembleLogRatios = new double[massSpecOutputDataRecord.isotopeCount()][countOfEnsemblesUsed];
@@ -739,7 +771,7 @@ public class DataModelDriverExperiment {
                 descriptiveStatisticsLogRatios.addValue(ensembleLogRatios[isotopeIndex][index - burn]);
                 ensembleRatios[isotopeIndex][index - burn] = StrictMath.exp(ensembleLogRatios[isotopeIndex][index - burn]);
 
-                ensembleBaselines[isotopeIndex][index - burn] = ensembleRecordsList.get(index).baseLine().get(isotopeIndex, 0);
+                ensembleBaselines[isotopeIndex][index - burn] = ensembleRecordsList.get(index).baseLine().get(isotopeIndex, 0) / 6.24e7 * 1e6;
                 descriptiveStatisticsBaselines.addValue(ensembleBaselines[isotopeIndex][index - burn]);
 
                 ensembleSignalnoise[isotopeIndex][index - burn] = ensembleRecordsList.get(index).signalNoise().get(isotopeIndex, 0);
@@ -763,7 +795,9 @@ public class DataModelDriverExperiment {
 
 
         // visualization
-        HistogramBuilder histogramBuilder = HistogramBuilder.initializeHistogram(ensembleRatios[0], 50);
+        AbstractPlotBuilder[] histogramBuilder = new AbstractPlotBuilder[2];
+        histogramBuilder[0] = HistogramBuilder.initializeHistogram(ensembleRatios[0], 50, "Histogram of ratios");
+        histogramBuilder[1] = HistogramBuilder.initializeHistogram(ensembleBaselines, 50, "Histogram of baseline");
 
 
         // todo: missing additional elements of signalNoise (i.e., 0,11,11)
@@ -828,7 +862,7 @@ public class DataModelDriverExperiment {
             Matrix signalNoise,
             double errorWeighted,
             double errorUnWeighted
-    ) {
+    ) implements Serializable {
     }
 
     record PsigRecord(

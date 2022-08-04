@@ -89,7 +89,7 @@ public class HistogramPlot extends AbstractDataView {
 
         g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 15));
         g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText("HistogramBuilder of ratio", 20, 20);
+        g2d.fillText(histogramBuilder.getTitle(), 20, 20);
 
         // plot bins
         g2d.setLineWidth(2.0);
@@ -100,21 +100,6 @@ public class HistogramPlot extends AbstractDataView {
                     mapX(xAxisData[1]) - mapX(xAxisData[0]),
                     mapY(0.0) - mapY(yAxisData[i]));
         }
-
-
-//        // plot lines for giggles
-//        g2d.setStroke(Paint.valueOf("BLACK"));
-//        for (int i = 0; i < xAxisData.length; i++) {
-//            g2d.strokeLine(mapX(xAxisData[i]), mapY(0.0), mapX(xAxisData[i]), mapY(yAxisData[i]));
-//        }
-//
-//        g2d.beginPath();
-//        g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]));
-//        for (int i = 0; i < xAxisData.length; i++) {
-//            // line tracing through points
-//            g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
-//        }
-//        g2d.stroke();
 
         if (ticsY.length > 1) {
             // border and fill

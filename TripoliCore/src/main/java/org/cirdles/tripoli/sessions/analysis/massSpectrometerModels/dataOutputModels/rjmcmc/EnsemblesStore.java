@@ -14,12 +14,23 @@
  * limitations under the License.
  */
 
-module Tripoli.TripoliApp {
-    requires javafx.base;
-    requires javafx.fxml;
-    requires javafx.controls;
-    requires Tripoli.TripoliCore;
-    requires java.datatransfer;
-    requires java.desktop;
-    requires commons.bc38781605;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * @author James F. Bowring
+ */
+public class EnsemblesStore implements Serializable {
+
+    private List<DataModelDriverExperiment.EnsembleRecord> ensembles;
+
+    public EnsemblesStore(List<DataModelDriverExperiment.EnsembleRecord> ensembles) {
+        this.ensembles = ensembles;
+    }
+
+    public List<DataModelDriverExperiment.EnsembleRecord> getEnsembles() {
+        return ensembles;
+    }
 }
