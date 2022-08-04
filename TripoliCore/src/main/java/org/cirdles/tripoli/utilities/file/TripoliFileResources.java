@@ -59,10 +59,11 @@ public class TripoliFileResources {
     /**
      * Provides a clean copy of resource files every time Tripoli runs
      */
+    // https://www.atlassian.com/blog/developer/2006/12/how_to_use_file_separator_when
     public static void retrieveResourceFiles(File resourceTargetFolder, String resourceFolderName)
             throws IOException {
 
-        Path listOfResourceFiles = TRIPOLI_RESOURCE_EXTRACTOR.extractResourceAsPath(resourceFolderName + File.separator + "listOfResourceFiles.txt");
+        Path listOfResourceFiles = TRIPOLI_RESOURCE_EXTRACTOR.extractResourceAsPath(resourceFolderName + "/" + "listOfResourceFiles.txt");
         if (resourceTargetFolder.exists()) {
             FileUtilities.recursiveDelete(resourceTargetFolder.toPath());
         }
@@ -76,13 +77,13 @@ public class TripoliFileResources {
                         try {
                             extractGithubFile(
                                     name.trim(),
-                                    resourceTargetFolder + File.separator + fileName);
+                                    resourceTargetFolder + "/" + fileName);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     } else {
-                        File resourceFileName = TRIPOLI_RESOURCE_EXTRACTOR.extractResourceAsFile(resourceFolderName + File.separator + name);
-                        File resourceLocalFileName = new File(resourceTargetFolder.getCanonicalPath() + File.separator + name);
+                        File resourceFileName = TRIPOLI_RESOURCE_EXTRACTOR.extractResourceAsFile(resourceFolderName + "/" + name);
+                        File resourceLocalFileName = new File(resourceTargetFolder.getCanonicalPath() + "/" + name);
                         if (resourceFileName != null) {
                             boolean renameTo = resourceFileName.renameTo(resourceLocalFileName);
                             if (!renameTo) {
