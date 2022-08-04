@@ -41,4 +41,5 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes;
     exports org.cirdles.tripoli.visualizationUtilities.histograms;
     exports org.cirdles.tripoli.visualizationUtilities.linePlots;
+    exports org.cirdles.tripoli.visualizationUtilities;
 }

@@ -5,6 +5,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourcePr
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLab;
 import org.cirdles.tripoli.utilities.mathUtilities.SplineBasisModel;
+import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.GBeamLinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
@@ -19,16 +20,21 @@ import java.nio.file.Path;
 
 public class BeamDataOutputDriverExperiment {
 
-    public static LinePlotBuilder[] modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException, RecoverableCondition {
+    public static AbstractPlotBuilder[] modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException {
         PeakShapeProcessor_OPPhoenix peakShapeProcessor_opPhoenix
                 = PeakShapeProcessor_OPPhoenix.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
         PeakShapeOutputDataRecord peakShapeOutputDataRecord = peakShapeProcessor_opPhoenix.prepareInputDataModelFromFile(dataFile);
-        LinePlotBuilder[] gBeamLinePlotBuilder = gatherBeamWidth(peakShapeOutputDataRecord, loggingCallback);
+        AbstractPlotBuilder[] gBeamLinePlotBuilder = new LinePlotBuilder[0];
+        try {
+            gBeamLinePlotBuilder = gatherBeamWidth(peakShapeOutputDataRecord, loggingCallback);
+        } catch (RecoverableCondition e) {
+            e.printStackTrace();
+        }
 
         return gBeamLinePlotBuilder;
     }
 
-    static LinePlotBuilder[] gatherBeamWidth(PeakShapeOutputDataRecord peakShapeOutputDataRecord, LoggingCallbackInterface loggingCallback) throws RecoverableCondition {
+    static AbstractPlotBuilder[] gatherBeamWidth(PeakShapeOutputDataRecord peakShapeOutputDataRecord, LoggingCallbackInterface loggingCallback) throws RecoverableCondition {
 
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         double maxBeamIndex;
@@ -193,12 +199,12 @@ public class BeamDataOutputDriverExperiment {
 
         MatrixStore<Double> gBeam = trimGMatrix.multiply(beamShape);
 
-        LinePlotBuilder[] linePlots = new LinePlotBuilder[2];
+        AbstractPlotBuilder[] linePlots = new LinePlotBuilder[2];
         // "beamShape"
-        BeamShapeLinePlotBuilder beamShapeLinePlotBuilder
+        AbstractPlotBuilder beamShapeLinePlotBuilder
                 = BeamShapeLinePlotBuilder.initializeBeamShapeLinePlot(beamMassInterp.toRawCopy2D()[0], beamShape.transpose().toRawCopy2D()[0], leftBoundary, rightBoundary);
 
-        GBeamLinePlotBuilder gBeamLinePlotBuilder
+        AbstractPlotBuilder gBeamLinePlotBuilder
                 = GBeamLinePlotBuilder.initializeGBeamLinePlot(magnetMasses.transpose().toRawCopy2D()[0], gBeam.transpose().toRawCopy2D()[0], massData, intensityData);
 
         linePlots[0] = beamShapeLinePlotBuilder;

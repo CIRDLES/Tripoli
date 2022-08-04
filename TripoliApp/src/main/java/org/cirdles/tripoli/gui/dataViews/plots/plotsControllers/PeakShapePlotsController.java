@@ -16,6 +16,7 @@ import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.BeamShapeLinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.GBeamLinePlot;
+import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.GBeamLinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
@@ -84,7 +85,7 @@ public class PeakShapePlotsController {
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
         service.setOnSucceeded(evt -> {
-            LinePlotBuilder gBeamPlotBuilder = ((PeakShapesTask) service.getPeakShapesTask()).getGBeamPlotBuilder();
+            AbstractPlotBuilder gBeamPlotBuilder = ((PeakShapesTask) service.getPeakShapesTask()).getGBeamPlotBuilder();
 
             AbstractDataView gBeamLinePlot = new GBeamLinePlot(
                     new Rectangle(gBeamPlotScrollPane.getWidth(),
@@ -116,7 +117,7 @@ public class PeakShapePlotsController {
             gBeamPlotScrollPane.setContent(gBeamLinePlot);
 
 
-            LinePlotBuilder beamShapePlotBuilder = ((PeakShapesTask) service.getPeakShapesTask()).getBeamShapePlotBuilder();
+            AbstractPlotBuilder beamShapePlotBuilder = ((PeakShapesTask) service.getPeakShapesTask()).getBeamShapePlotBuilder();
 
             AbstractDataView beamShapeLinePlot = new BeamShapeLinePlot(
                     new Rectangle(beamShapePlotScrollPane.getWidth(),
