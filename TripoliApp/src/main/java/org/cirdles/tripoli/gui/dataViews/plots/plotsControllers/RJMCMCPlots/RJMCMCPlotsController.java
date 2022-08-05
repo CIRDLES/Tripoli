@@ -9,6 +9,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.commons.util.ResourceExtractor;
@@ -49,6 +50,9 @@ public class RJMCMCPlotsController {
     private ToolBar toolbar;
 
     @FXML
+    private GridPane ensembleGridPane;
+
+    @FXML
     void demo1ButtonAction(ActionEvent event) throws IOException {
         processDataFileAndShowPlotsOfRJMCMC();
         ((Button) event.getSource()).setDisable(true);
@@ -79,35 +83,44 @@ public class RJMCMCPlotsController {
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
         service.setOnSucceeded(evt -> {
-            AbstractPlotBuilder histogramBuilder = ((RJMCMCUpdatesTask) service.getHistogramTask()).getRatiosHistogramBuilder();
+            AbstractPlotBuilder ratiosHistogramBuilder = ((RJMCMCUpdatesTask) service.getHistogramTask()).getRatiosHistogramBuilder();
+            AbstractPlotBuilder baselineHistogramBuilder = ((RJMCMCUpdatesTask) service.getHistogramTask()).getBaselineHistogramBuilder();
 
-            AbstractDataView histogramPlot = new HistogramPlot(
-                    new Rectangle(plotScrollPane.getWidth(),
-                            plotScrollPane.getHeight()),
-                    (HistogramBuilder)histogramBuilder);
+            AbstractDataView ratiosHistogramPlot = new HistogramPlot(
+                    new Rectangle(ensembleGridPane.getWidth(),
+                            ensembleGridPane.getHeight() / ensembleGridPane.getRowCount()),
+                    (HistogramBuilder)ratiosHistogramBuilder);
 
-            plotScrollPane.widthProperty().addListener(new ChangeListener<Number>() {
-                @Override
-                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    if (newValue.intValue() > 100) {
-                        histogramPlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
-                        histogramPlot.repaint();
-                    }
-                }
-            });
+            AbstractDataView baselineHistogramPlot = new HistogramPlot(
+                    new Rectangle(ensembleGridPane.getWidth() / ensembleGridPane.getColumnCount(),
+                            ensembleGridPane.getHeight()/ ensembleGridPane.getRowCount()),
+                    (HistogramBuilder)baselineHistogramBuilder);
 
-            plotScrollPane.heightProperty().addListener(new ChangeListener<Number>() {
-                @Override
-                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    if (newValue.intValue() > 100) {
-                        histogramPlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
-                        histogramPlot.repaint();
-                    }
-                }
-            });
+//            plotScrollPane.widthProperty().addListener(new ChangeListener<Number>() {
+//                @Override
+//                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+//                    if (newValue.intValue() > 100) {
+//                        ratiosHistogramPlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
+//                        ratiosHistogramPlot.repaint();
+//                    }
+//                }
+//            });
+//
+//            plotScrollPane.heightProperty().addListener(new ChangeListener<Number>() {
+//                @Override
+//                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+//                    if (newValue.intValue() > 100) {
+//                        ratiosHistogramPlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
+//                        ratiosHistogramPlot.repaint();
+//                    }
+//                }
+//            });
 
-            histogramPlot.preparePanel();
-            plotScrollPane.setContent(histogramPlot);
+            ratiosHistogramPlot.preparePanel();
+            //ensembleGridPane.add(ratiosHistogramPlot, 0, 0, 2, 1);
+            baselineHistogramPlot.preparePanel();
+            ensembleGridPane.add(baselineHistogramPlot, 0, 1);
+
         });
 
     }
