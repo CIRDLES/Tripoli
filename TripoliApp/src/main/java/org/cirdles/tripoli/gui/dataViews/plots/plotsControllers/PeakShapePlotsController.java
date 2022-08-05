@@ -181,7 +181,7 @@ public class PeakShapePlotsController {
     }
 
     @FXML
-    private void browseResourceFileAction(ActionEvent event) {
+    private void browseResourceFileAction() {
         resourceBrowserTarget = FileUtilities.selectPeakShapeResourceFileForBrowsing(plottingWindow);
         demo2Button.setDisable(false);
     }
@@ -192,10 +192,8 @@ public class PeakShapePlotsController {
         resourceBrowserTarget = new File("TripoliResources/PeakCentres");
 
         // Filter has not been applied yet
-        if (resourceBrowserTarget != null) {
-            if (resourceBrowserType.compareToIgnoreCase(".txt") == 0) {
-                resourceFilesInFolder.addAll(Arrays.asList(Objects.requireNonNull(resourceBrowserTarget.listFiles())));
-            }
+        if (resourceBrowserTarget != null && (resourceBrowserType.compareToIgnoreCase(".txt") == 0)) {
+            resourceFilesInFolder.addAll(Arrays.asList(Objects.requireNonNull(resourceBrowserTarget.listFiles())));
         }
 
         if (resourceFilesInFolder.isEmpty()) {
