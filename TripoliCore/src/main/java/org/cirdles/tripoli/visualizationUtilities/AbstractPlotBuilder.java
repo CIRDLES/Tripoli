@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables;
-
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
-
-import java.io.Serializable;
-import java.util.Map;
+package org.cirdles.tripoli.visualizationUtilities;
 
 /**
  * @author James F. Bowring
  */
-public class Sequence implements Serializable {
+public class AbstractPlotBuilder {
 
-    private Map<Detector, SequenceCell> sequenceCellsMap;
+    protected String title;
 
+    public AbstractPlotBuilder(String title) {
+        this.title = title;
+    }
 
+    public String getTitle() {
+        return title;
+    }
 }

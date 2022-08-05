@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.analysisMethods;
+package org.cirdles.tripoli.sessions.analysis.methods;
 
-import org.cirdles.tripoli.sessions.analysis.analysisMethods.baselineTables.BaselineCell;
-import org.cirdles.tripoli.sessions.analysis.analysisMethods.baselineTables.BaselineTable;
-import org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables.SequenceCell;
-import org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables.SequenceTable;
+import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
+import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineTable;
+import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
+import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceTable;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;

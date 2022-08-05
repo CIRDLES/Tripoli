@@ -22,7 +22,7 @@ import com.google.common.primitives.Ints;
 import jama.Matrix;
 import org.ojalgo.matrix.Primitive64Matrix;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethod;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.MassSpecOutputDataRecord;
 
 import java.io.IOException;
@@ -50,8 +50,8 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
 
         List<String> contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
 
-        List<String[]> headerByLineSplit = new ArrayList<>();
-        List<String[]> columnNamesSplit = new ArrayList<>();
+//        List<String[]> headerByLineSplit = new ArrayList<>();
+//        List<String[]> columnNamesSplit = new ArrayList<>();
         List<String> sequenceIDByLineSplit = new ArrayList<>();
         List<String> blockNumberByLineSplit = new ArrayList<>();
         List<String> cycleNumberByLineSplit = new ArrayList<>();
@@ -62,11 +62,11 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
 
         int phase = 0;
         for (String line : contentsByLine) {
-            if (!line.isEmpty()) {
-                switch (phase) {
-                    case 0 -> headerByLineSplit.add(line.split(","));
-                    case 1 -> columnNamesSplit.add(line.split(","));
-                    case 2 -> {
+            if (!line.isEmpty() &&  phase == 2) {
+//                switch (phase) {
+//                    case 0 -> headerByLineSplit.add(line.split(","));
+//                    case 1 -> columnNamesSplit.add(line.split(","));
+//                    case 2 -> {
                         String[] lineSplit = line.split(",");
                         sequenceIDByLineSplit.add(lineSplit[0]);
                         blockNumberByLineSplit.add(lineSplit[1]);
@@ -76,7 +76,7 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
                         massByLineSplit.add(lineSplit[5]);
 
                         detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 6, lineSplit.length));
-                    }
+//                    }
                 }
                 if (line.startsWith("#START")) {
                     phase = 1;
@@ -84,13 +84,13 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
                     phase = 2;
                 }
             }
-        }
+//        }
         String[] sequenceIDs = sequenceIDByLineSplit.toArray(new String[0]);
         int[] blockNumbers = convertListOfNumbersAsStringsToIntegerArray(blockNumberByLineSplit);
         int[] cycleNumbers = convertListOfNumbersAsStringsToIntegerArray(cycleNumberByLineSplit);
-        double[] integrationNumber = convertListOfNumbersAsStringsToDoubleArray(integrationNumberByLineSplit);
+//        double[] integrationNumber = convertListOfNumbersAsStringsToDoubleArray(integrationNumberByLineSplit);
         double[] timeStamp = convertListOfNumbersAsStringsToDoubleArray(timeStampByLineSplit);
-        double[] mass = convertListOfNumbersAsStringsToDoubleArray(massByLineSplit);
+//        double[] mass = convertListOfNumbersAsStringsToDoubleArray(massByLineSplit);
 
 
         // convert detectorDataByLineSplit to doubles array
@@ -353,12 +353,12 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         Matrix signalIndicesForRawDataColumn = new Matrix(signalIndicesForDataAccumulatorArray, signalIndicesForDataAccumulatorArray.length);
 
 
-        // Time_Far = repmat(Time,1,Nfar);
-        double[][] timeFarArray = new double[faradayCount][timeStamp.length];
-        for (int far = 0; far < faradayCount; far++) {
-            timeFarArray[far] = timeStamp.clone();
-        }
-        Matrix timeFar = new Matrix(timeFarArray).transpose();
+//        // Time_Far = repmat(Time,1,Nfar);
+//        double[][] timeFarArray = new double[faradayCount][timeStamp.length];
+//        for (int far = 0; far < faradayCount; far++) {
+//            timeFarArray[far] = timeStamp.clone();
+//        }
+//        Matrix timeFar = new Matrix(timeFarArray).transpose();
 
         /*
             for m = 1:Niso
@@ -368,8 +368,8 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
             end
          */
         // Far_ind and Ax_ind
-        double[][] isotopeIndicesPerFaraday = sequenceFaradayAccumulator.isotopeIndicesPerFaradayOrAxial().clone();
-        double[][] isotopeIndicesPerAxial = sequenceIonCounterAccumulator.isotopeIndicesPerFaradayOrAxial().clone();
+//        double[][] isotopeIndicesPerFaraday = sequenceFaradayAccumulator.isotopeIndicesPerFaradayOrAxial().clone();
+//        double[][] isotopeIndicesPerAxial = sequenceIonCounterAccumulator.isotopeIndicesPerFaradayOrAxial().clone();
 
         /*
             for m = 1:Nblock
@@ -388,49 +388,49 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
             iTknots0 =  [iminCT (:,end)];
          */
 
-        double[][] medCycleTime = new double[blockCount][nCycle[blockIndex] - 1];
-        double[][] minCycleTime = new double[blockCount][nCycle[blockIndex] - 1];
-        double[][] maxCycleTime = new double[blockCount][nCycle[blockIndex] - 1];
-        double[][] iminCT = new double[blockCount][nCycle[blockIndex] - 1];
-        double[][] imaxCT = new double[blockCount][nCycle[blockIndex] - 1];
-        for (blockIndex = 0; blockIndex < blockCount; blockIndex++) {
-            for (int cycleIndex = 1; cycleIndex < nCycle[blockIndex]; cycleIndex++) {
-                DescriptiveStatistics descriptiveStatisticsA = new DescriptiveStatistics();
-                for (row = 0; row < blockNumbers.length; row++) {
-                    if ((blockNumbers[row] == blockIndex + 1) && (cycleNumbers[row] == cycleIndex)) {
-                        descriptiveStatisticsA.addValue(timeStamp[row]);
-                    }
-                }
-                medCycleTime[blockIndex][cycleIndex - 1] = descriptiveStatisticsA.getPercentile(50);
-                minCycleTime[blockIndex][cycleIndex - 1] = descriptiveStatisticsA.getMin();
-                maxCycleTime[blockIndex][cycleIndex - 1] = descriptiveStatisticsA.getMax();
-                for (row = 0; row < timeStamp.length; row++) {
-                    if (timeStamp[row] >= minCycleTime[blockIndex][cycleIndex - 1]) {
-                        iminCT[blockIndex][cycleIndex - 1] = row;
-                        break;
-                    }
-                }
-                for (row = 0; row < timeStamp.length; row++) {
-                    if (timeStamp[row] >= maxCycleTime[blockIndex][cycleIndex - 1]) {
-                        imaxCT[blockIndex][cycleIndex - 1] = row;
-                        break;
-                    }
-                }
-            }
-        }
+////        double[][] medCycleTime = new double[blockCount][nCycle[blockIndex] - 1];
+//        double[][] minCycleTime = new double[blockCount][nCycle[blockIndex] - 1];
+//        double[][] maxCycleTime = new double[blockCount][nCycle[blockIndex] - 1];
+//        double[][] iminCT = new double[blockCount][nCycle[blockIndex] - 1];
+//        double[][] imaxCT = new double[blockCount][nCycle[blockIndex] - 1];
+//        for (blockIndex = 0; blockIndex < blockCount; blockIndex++) {
+//            for (int cycleIndex = 1; cycleIndex < nCycle[blockIndex]; cycleIndex++) {
+//                DescriptiveStatistics descriptiveStatisticsA = new DescriptiveStatistics();
+//                for (row = 0; row < blockNumbers.length; row++) {
+//                    if ((blockNumbers[row] == blockIndex + 1) && (cycleNumbers[row] == cycleIndex)) {
+//                        descriptiveStatisticsA.addValue(timeStamp[row]);
+//                    }
+//                }
+////                medCycleTime[blockIndex][cycleIndex - 1] = descriptiveStatisticsA.getPercentile(50);
+//                minCycleTime[blockIndex][cycleIndex - 1] = descriptiveStatisticsA.getMin();
+//                maxCycleTime[blockIndex][cycleIndex - 1] = descriptiveStatisticsA.getMax();
+//                for (row = 0; row < timeStamp.length; row++) {
+//                    if (timeStamp[row] >= minCycleTime[blockIndex][cycleIndex - 1]) {
+//                        iminCT[blockIndex][cycleIndex - 1] = row;
+//                        break;
+//                    }
+//                }
+//                for (row = 0; row < timeStamp.length; row++) {
+//                    if (timeStamp[row] >= maxCycleTime[blockIndex][cycleIndex - 1]) {
+//                        imaxCT[blockIndex][cycleIndex - 1] = row;
+//                        break;
+//                    }
+//                }
+//            }
+//        }
 
-        // to make knots, copy min array and add new column from last column of max array
-        blockIndex = 0;
-        double[][] tKnots0 = new double[minCycleTime.length][nCycle[blockIndex]];
-        double[][] iTKnots0 = new double[minCycleTime.length][nCycle[blockIndex]];
-        for (row = 0; row < minCycleTime.length; row++) {
-            for (int col = 0; col < (nCycle[blockIndex] - 1); col++) {
-                tKnots0[row][col] = minCycleTime[row][col];
-                iTKnots0[row][col] = iminCT[row][col];
-            }
-            tKnots0[row][nCycle[blockIndex] - 1] = maxCycleTime[row][nCycle[blockIndex] - 2];
-            iTKnots0[row][nCycle[blockIndex] - 1] = imaxCT[row][nCycle[blockIndex] - 2];
-        }
+//        // to make knots, copy min array and add new column from last column of max array
+//        blockIndex = 0;
+//        double[][] tKnots0 = new double[minCycleTime.length][nCycle[blockIndex]];
+//        double[][] iTKnots0 = new double[minCycleTime.length][nCycle[blockIndex]];
+//        for (row = 0; row < minCycleTime.length; row++) {
+//            for (int col = 0; col < (nCycle[blockIndex] - 1); col++) {
+//                tKnots0[row][col] = minCycleTime[row][col];
+//                iTKnots0[row][col] = iminCT[row][col];
+//            }
+//            tKnots0[row][nCycle[blockIndex] - 1] = maxCycleTime[row][nCycle[blockIndex] - 2];
+//            iTKnots0[row][nCycle[blockIndex] - 1] = imaxCT[row][nCycle[blockIndex] - 2];
+//        }
 
     /*
         for m=1:Nblock
@@ -443,26 +443,26 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
 
         ftimeind = repmat([1:Nsamptot]',1,Nfar);
      */
-        double[][] blockTime = new double[blockCount][];
-        double[] nKnots = new double[blockCount];
-        double[] nTb = new double[blockCount];
-        for (blockIndex = 0; blockIndex < blockCount; blockIndex++) {
-            blockTime[blockIndex] = Arrays.copyOfRange(timeStamp, (int) iTKnots0[blockIndex][0], (int) iTKnots0[blockIndex][nCycle[blockIndex] - 1] + 1);
-            // interpolation for block 1 done above
-            // TODO: Extend to all blocks
-            nKnots[blockIndex] = tKnots0[blockIndex].length;
-            nTb[blockIndex] = blockTime[blockIndex].length;
-        }
+//        double[][] blockTime = new double[blockCount][];
+//        double[] nKnots = new double[blockCount];
+//        double[] nTb = new double[blockCount];
+//        for (blockIndex = 0; blockIndex < blockCount; blockIndex++) {
+//            blockTime[blockIndex] = Arrays.copyOfRange(timeStamp, (int) iTKnots0[blockIndex][0], (int) iTKnots0[blockIndex][nCycle[blockIndex] - 1] + 1);
+//            // interpolation for block 1 done above
+//            // TODO: Extend to all blocks
+//            nKnots[blockIndex] = tKnots0[blockIndex].length;
+//            nTb[blockIndex] = blockTime[blockIndex].length;
+//        }
 
-        // d0.Nsamptot >> countOfSamples
-        int countOfSamples = sequenceIDByLineSplit.size();
-        // identical columns for each faraday
-        double[][] faradayTimeIndices = new double[countOfSamples][faradayCount];
-        row = 0;
-        for (double[] rowS : faradayTimeIndices) {
-            Arrays.fill(rowS, row);
-            row++;
-        }
+//        // d0.Nsamptot >> countOfSamples
+//        int countOfSamples = sequenceIDByLineSplit.size();
+//        // identical columns for each faraday
+//        double[][] faradayTimeIndices = new double[countOfSamples][faradayCount];
+//        row = 0;
+//        for (double[] rowS : faradayTimeIndices) {
+//            Arrays.fill(rowS, row);
+//            row++;
+//        }
 
         /*
             Matlab code >> here

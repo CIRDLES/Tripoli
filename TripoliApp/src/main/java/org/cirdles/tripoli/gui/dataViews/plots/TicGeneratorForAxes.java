@@ -28,11 +28,6 @@ import java.math.RoundingMode;
 public class TicGeneratorForAxes {
 
     /**
-     *
-     */
-    private static int indexOfFirstMajorTic = 0;
-
-    /**
      * @param axisMin
      * @param axisMax
      * @param numberTics
@@ -53,9 +48,6 @@ public class TicGeneratorForAxes {
 
         ticRange = niceNum(axisMax - axisMin, true);
         d = niceNum(ticRange / (numberTics - 1), false);
-        // the following changes did not work and I reverted on Dec 27 2019
-//        ticMin = StrictMath.floor(StrictMath.ceil(axisMin) / d) * d;
-//        ticMax = StrictMath.ceil(StrictMath.ceil(axisMax) / d) * d;
         ticMin = StrictMath.floor(axisMin / d) * d;
         ticMax = StrictMath.ceil(axisMax / d) * d;
 
@@ -69,34 +61,6 @@ public class TicGeneratorForAxes {
             for (double x = ticMin; x < ticMax + 0.5 * d; x += d) {
                 tics[index] = new BigDecimal(Double.toString(x)).setScale(nfrac, RoundingMode.HALF_UP);
                 index++;
-            }
-
-            // find index of tic ending with most zeroes (3 2 1 or 0)
-            indexOfFirstMajorTic = 0;
-            for (int i = 0; i < tics.length; i++) {
-                String val = tics[i].toPlainString();
-                if ((val.length() > 2) && val.endsWith("000")) {
-                    indexOfFirstMajorTic = i;
-                    break;
-                }
-            }
-            if (indexOfFirstMajorTic == 0) {
-                for (int i = 0; i < tics.length; i++) {
-                    String val = tics[i].toPlainString();
-                    if ((val.length() > 1) && val.endsWith("00")) {
-                        indexOfFirstMajorTic = i;
-                        break;
-                    }
-                }
-            }
-            if (indexOfFirstMajorTic == 0) {
-                for (int i = 0; i < tics.length; i++) {
-                    String val = tics[i].toPlainString();
-                    if ((val.length() > 1) && val.endsWith("0")) {
-                        indexOfFirstMajorTic = i;
-                        break;
-                    }
-                }
             }
         } catch (Exception e) {
         }

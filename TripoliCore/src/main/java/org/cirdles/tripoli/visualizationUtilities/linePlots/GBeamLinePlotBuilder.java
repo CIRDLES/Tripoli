@@ -24,7 +24,7 @@ public class GBeamLinePlotBuilder extends LinePlotBuilder {
     private double[] intensityData;
 
     private GBeamLinePlotBuilder(double[] xData, double[] yData, double[] massData, double[] intensityData) {
-        super(xData, yData);
+        super(xData, yData, "Line Plot of G-Beam");
         this.massData = massData;
         this.intensityData = intensityData;
     }

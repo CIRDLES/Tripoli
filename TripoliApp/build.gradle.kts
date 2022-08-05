@@ -35,11 +35,15 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    //implementation("org.ojalgo:ojalgo:51.4.0")
+
+    implementation("eu.hansolo.fx:charts:17.1.13")
 }
 
 extraJavaModuleInfo {
     failOnMissingModuleInfo.set(false)
     automaticModule("commons-bc38781605.jar", "commons.bc38781605")
+   // automaticModule("org.ojalgo:ojalgo", "ojalgo")
 }
 
 project(":TripoliApp") {

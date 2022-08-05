@@ -14,8 +14,23 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.ogTripoli;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
-public interface OGTripoliMassSpecDataFileInterface {
-    public boolean testFileValidity();
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * @author James F. Bowring
+ */
+public class EnsemblesStore implements Serializable {
+
+    private List<DataModelDriverExperiment.EnsembleRecord> ensembles;
+
+    public EnsemblesStore(List<DataModelDriverExperiment.EnsembleRecord> ensembles) {
+        this.ensembles = ensembles;
+    }
+
+    public List<DataModelDriverExperiment.EnsembleRecord> getEnsembles() {
+        return ensembles;
+    }
 }

@@ -17,11 +17,12 @@
 package org.cirdles.tripoli.visualizationUtilities.histograms;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 
 /**
  * @author James F. Bowring
  */
-public class HistogramBuilder {
+public class HistogramBuilder extends AbstractPlotBuilder {
 
     private double[] data;
     private int binCount;
@@ -29,13 +30,24 @@ public class HistogramBuilder {
     private double binWidth;
     private double[] binCenters;
 
-    private HistogramBuilder(double[] data, int binCount) {
+    private HistogramBuilder(double[] data, int binCount, String title) {
+        super(title);
         this.data = data;
         this.binCount = binCount;
     }
 
-    public static HistogramBuilder initializeHistogram(double[] data, int binCount) {
-        HistogramBuilder histogramBuilder = new HistogramBuilder(data, binCount);
+    public static HistogramBuilder initializeHistogram(double[] data, int binCount, String title) {
+        HistogramBuilder histogramBuilder = new HistogramBuilder(data, binCount, title);
+        histogramBuilder.generateHistogram();
+        return histogramBuilder;
+    }
+
+    public static HistogramBuilder initializeHistogram(double[][] data, int binCount, String title) {
+        double[] allData = new double[data[0].length * data.length];
+        for (int row = 0; row < data.length; row ++){
+            System.arraycopy(data[row], 0, allData, row * data[0].length, data[0].length);
+        }
+        HistogramBuilder histogramBuilder = new HistogramBuilder(allData, binCount, title);
         histogramBuilder.generateHistogram();
         return histogramBuilder;
     }
@@ -54,7 +66,7 @@ public class HistogramBuilder {
         int maxBinCount = 0;
         for (int index = 0; index < data.length; index++) {
             double datum = data[index];
-            if (datum > 0.0) { //ignore 0s here
+            if (datum != 0.0) { //ignore 0s here
                 int binNum = (int) Math.floor(Math.abs((datum - dataMin * 1.000000001) / binWidth));
                 try {
                     binCounts[binNum]++;

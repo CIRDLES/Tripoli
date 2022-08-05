@@ -18,8 +18,8 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
 
 import javafx.concurrent.Task;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelDriverExperiment;
-import org.cirdles.tripoli.utilities.callBacks.LoggingCallbackInterface;
-import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
+import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
+import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 
 import java.nio.file.Path;
 
@@ -28,20 +28,26 @@ import java.nio.file.Path;
  */
 public class RJMCMCUpdatesTask extends Task<String> implements LoggingCallbackInterface {
     private Path dataFile;
-    private HistogramBuilder histogramBuilder;
+    private AbstractPlotBuilder ratiosHistogramBuilder;
+    private AbstractPlotBuilder baselineHistogramBuilder;
 
     public RJMCMCUpdatesTask(Path dataFile) {
         this.dataFile = dataFile;
     }
 
-    public HistogramBuilder getHistogram() {
-        return histogramBuilder;
+    public AbstractPlotBuilder getRatiosHistogramBuilder() {
+        return ratiosHistogramBuilder;
+    }
+
+    public AbstractPlotBuilder getBaselineHistogramBuilder() {
+        return baselineHistogramBuilder;
     }
 
     @Override
     protected String call() throws Exception {
-        histogramBuilder = DataModelDriverExperiment.driveModelTest(dataFile, this);
-
+        AbstractPlotBuilder[] plots = DataModelDriverExperiment.driveModelTest(dataFile, this);
+        ratiosHistogramBuilder = plots[0];
+        baselineHistogramBuilder = plots[1];
         return "DONE";
     }
 

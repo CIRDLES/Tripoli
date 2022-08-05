@@ -15,6 +15,7 @@ import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.HistogramPlot;
+import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
 
 import java.io.IOException;
@@ -78,12 +79,12 @@ public class RJMCMCPlotsController {
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
         service.setOnSucceeded(evt -> {
-            HistogramBuilder histogramBuilder = ((RJMCMCUpdatesTask) service.getHistogramTask()).getHistogram();
+            AbstractPlotBuilder histogramBuilder = ((RJMCMCUpdatesTask) service.getHistogramTask()).getRatiosHistogramBuilder();
 
             AbstractDataView histogramPlot = new HistogramPlot(
                     new Rectangle(plotScrollPane.getWidth(),
                             plotScrollPane.getHeight()),
-                    histogramBuilder);
+                    (HistogramBuilder)histogramBuilder);
 
             plotScrollPane.widthProperty().addListener(new ChangeListener<Number>() {
                 @Override

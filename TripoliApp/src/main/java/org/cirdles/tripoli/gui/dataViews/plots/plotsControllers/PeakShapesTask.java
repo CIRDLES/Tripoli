@@ -18,7 +18,8 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers;
 
 import javafx.concurrent.Task;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes.BeamDataOutputDriverExperiment;
-import org.cirdles.tripoli.utilities.callBacks.LoggingCallbackInterface;
+import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
+import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
 import java.nio.file.Path;
@@ -28,24 +29,24 @@ import java.nio.file.Path;
  */
 public class PeakShapesTask extends Task<String> implements LoggingCallbackInterface {
     private Path dataFile;
-    private LinePlotBuilder beamShapePlotBuilder;
-    private LinePlotBuilder gBeamPlotBuilder;
+    private AbstractPlotBuilder beamShapePlotBuilder;
+    private AbstractPlotBuilder gBeamPlotBuilder;
 
     public PeakShapesTask(Path dataFile) {
         this.dataFile = dataFile;
     }
 
-    public LinePlotBuilder getBeamShapePlotBuilder() {
+    public AbstractPlotBuilder getBeamShapePlotBuilder() {
         return beamShapePlotBuilder;
     }
 
-    public LinePlotBuilder getGBeamPlotBuilder() {
+    public AbstractPlotBuilder getGBeamPlotBuilder() {
         return gBeamPlotBuilder;
     }
 
     @Override
     protected String call() throws Exception {
-        LinePlotBuilder[] linePlots = BeamDataOutputDriverExperiment.modelTest(dataFile, this);
+        AbstractPlotBuilder[] linePlots = BeamDataOutputDriverExperiment.modelTest(dataFile, this);
         beamShapePlotBuilder = linePlots[0];
         gBeamPlotBuilder = linePlots[1];
 

@@ -1,6 +1,10 @@
 package org.cirdles.tripoli.utilities.mathUtilities;
 
-import jama.Matrix;
+import org.ojalgo.RecoverableCondition;
+import org.ojalgo.matrix.store.MatrixStore;
+import org.ojalgo.matrix.store.PhysicalStore;
+import org.ojalgo.matrix.store.Primitive64Store;
+import org.ojalgo.matrix.task.SolverTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,48 +17,28 @@ public class MatLab {
      * @param B Matrix
      * @return the Kronecker product of matrices A and B
      */
-    public static Matrix kron(Matrix A, Matrix B) {
-        int rowA = A.getRowDimension();
-        int colA = A.getColumnDimension();
-        int rowB = B.getRowDimension();
-        int colB = B.getColumnDimension();
+
+    public static Primitive64Store kron(MatrixStore<Double> A, MatrixStore<Double> B) {
+        int rowA = A.getRowDim();
+        int colA = A.getColDim();
+        int rowB = B.getRowDim();
+        int colB = B.getColDim();
 
         double[][] newKron = new double[rowA * rowB][colA * colB];
-        if (rowB == 1) {
-            int kronRow = 0;
-            for (int i = 0; i < rowA; i++) {
+        int kronRow = 0;
+        for (int i = 0; i < rowA; i++) {
+            for (int j = 0; j < rowB; j++) {
                 kronRow++;
-                for (int j = 0; j < rowB; j++) {
-
-                    int kronCol = 0;
-                    for (int k = 0; k < colA; k++) {
-
-                        for (int h = 0; h < colB; h++) {
-                            newKron[kronRow - 1][kronCol] = A.get(i, k) * B.get(j, h);
-                            kronCol++;
-                        }
+                int kronCol = 0;
+                for (int k = 0; k < colA; k++) {
+                    for (int h = 0; h < colB; h++) {
+                        newKron[kronRow - 1][kronCol] = A.get(i, k) * B.get(j, h);
+                        kronCol++;
                     }
                 }
             }
-
-            return new Matrix(newKron);
-
-        } else {
-            int kronRow = 0;
-            for (int i = 0; i < rowA; i++) {
-                for (int j = 0; j < rowB; j++) {
-                    kronRow++;
-                    int kronCol = 0;
-                    for (int k = 0; k < colA; k++) {
-                        for (int h = 0; h < colB; h++) {
-                            newKron[kronRow - 1][kronCol] = A.get(i, k) * B.get(j, h);
-                            kronCol++;
-                        }
-                    }
-                }
-            }
-            return new Matrix(newKron);
         }
+        return Primitive64Store.FACTORY.rows(newKron);
 
     }
 
@@ -65,8 +49,9 @@ public class MatLab {
      * @param deg Degree exponent
      * @return A^deg
      */
-    public static Matrix expMatrix(Matrix A, int deg) {
-        double[][] matrix = A.getArray();
+
+    public static Primitive64Store expMatrix(MatrixStore<Double> A, int deg) {
+        double[][] matrix = A.toRawCopy2D();
         int row = matrix.length;
         int col = matrix[0].length;
         double[][] mat = new double[row][col];
@@ -77,24 +62,37 @@ public class MatLab {
             }
         }
 
-        return new Matrix(mat);
+        return Primitive64Store.FACTORY.rows(mat);
     }
 
     /**
-     * Returns matrix of each element of matrix A by param divide
+     * Multiplies matrices of the same dimension element by element
      *
-     * @param A      Matrix
-     * @param divide dividend
-     * @return A/div
+     * @param A Matrix A
+     * @param B Matrix B
+     * @return A*B
      */
-    public static Matrix divMatrix(Matrix A, double divide) {
-        for (int i = 0; i < A.getRowDimension(); i++) {
-            for (int j = 0; j < A.getColumnDimension(); j++) {
-                A.set(i, j, A.get(i, j) / divide);
+    public static Primitive64Store arrayMultiply(MatrixStore<Double> A, MatrixStore<Double> B) {
+        int aRow = A.getRowDim();
+        int aCol = A.getColDim();
+        int bRow = B.getRowDim();
+        int bCol = B.getColDim();
+        double[][] mArray = new double[0][];
+
+        if (aRow != bRow || aCol != bCol) {
+            System.err.println("Either row or column dimensions do not match.");
+        } else {
+            mArray = new double[aRow][aCol];
+            for (int i = 0; i < aRow; i++) {
+                for (int j = 0; j < aCol; j++) {
+                    mArray[i][j] = A.get(i, j) * B.get(i, j);
+                }
             }
+
         }
 
-        return A;
+
+        return Primitive64Store.FACTORY.rows(mArray);
     }
 
     /**
@@ -103,27 +101,28 @@ public class MatLab {
      * @param mat Matrix
      * @return Vector matrix of differences between elements
      */
-    public static Matrix diff(Matrix mat) {
-        int row = mat.getRowDimension();
-        int col = mat.getColumnDimension() - 1;
+
+    public static Primitive64Store diff(MatrixStore<Double> mat) {
+        int row = mat.getRowDim();
+        int col = mat.getColDim() - 1;
         double[][] newDiff;
 
         if (row == 1) {
             newDiff = new double[row][col];
             for (int i = 0; i < row; i++) {
                 for (int j = 0; j < col; j++) {
-                    newDiff[i][j] = (mat.get(i, j) - mat.get(i, j + 1));
+                    newDiff[i][j] = mat.get(i, j + 1) - mat.get(i, j);
                 }
             }
-            return new Matrix(newDiff);
+            return Primitive64Store.FACTORY.rows(newDiff);
         } else {
             newDiff = new double[row - 1][col + 1];
             for (int i = 0; i < row - 1; i++) {
                 for (int j = 0; j < col + 1; j++) {
-                    newDiff[i][j] = mat.get(i, j) - mat.get(i + 1, j);
+                    newDiff[i][j] = mat.get(i + 1, j) - mat.get(i, j);
                 }
             }
-            return new Matrix(newDiff);
+            return Primitive64Store.FACTORY.rows(newDiff);
         }
     }
 
@@ -134,8 +133,9 @@ public class MatLab {
      * @param num Number of iterations
      * @return Vector matrix of differences between elements recursively num times
      */
-    public static Matrix diff(Matrix mat, int num) {
-        Matrix refDiff;
+
+    public static MatrixStore<Double> diff(MatrixStore<Double> mat, int num) {
+        MatrixStore<Double> refDiff;
         refDiff = mat;
         for (int i = 0; i < num; i++) {
             refDiff = diff(refDiff);
@@ -144,18 +144,18 @@ public class MatLab {
         return refDiff;
     }
 
+
     /**
      * Compares param mat1 and mat2 and sets elements of new matrix to 1 or 0 based on if element
-     * in mat1 is greater than element in mat2
+     * in mat1 is greater than or equal element in mat2
      *
      * @param mat1 Matrix
      * @param mat2 Matrix
-     * @return A matrix of 1's and 0's based on if element in mat1 is greater than element in mat2
+     * @return A matrix of 1's and 0's based on if element in mat1 is greater than or equal to the element in mat2
      */
-    public static Matrix greatEqual(Matrix mat1, Matrix mat2) {
-        int maxRow = Math.min(mat1.getRowDimension(), mat2.getRowDimension());
-        int maxCol = Math.min(mat1.getColumnDimension(), mat2.getColumnDimension());
-        int i, j = 0;
+    public static Primitive64Store greaterOrEqual(MatrixStore<Double> mat1, MatrixStore<Double> mat2) {
+        int maxRow = Math.min(mat1.getRowDim(), mat2.getRowDim());
+        int maxCol = Math.min(mat1.getColDim(), mat2.getColDim());
         double[][] ge = new double[maxRow][maxCol];
         for (int k = 0; k < maxRow; k++) {
             for (int h = 0; h < maxCol; h++) {
@@ -166,7 +166,7 @@ public class MatLab {
                 }
             }
         }
-        return new Matrix(ge);
+        return Primitive64Store.FACTORY.rows(ge);
     }
 
     /**
@@ -176,9 +176,10 @@ public class MatLab {
      * @param num number to be compared
      * @return A copy of param mat with elements either 1 or 0 based on if the element is greater than or equal to param
      */
-    public static Matrix greaterOrEqual(Matrix mat, double num) {
-        int row = mat.getRowDimension();
-        int col = mat.getColumnDimension();
+
+    public static Primitive64Store greaterOrEqual(MatrixStore<Double> mat, double num) {
+        int row = mat.getRowDim();
+        int col = mat.getColDim();
         double[][] ge = new double[row][col];
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
@@ -190,7 +191,7 @@ public class MatLab {
             }
         }
 
-        return new Matrix(ge);
+        return Primitive64Store.FACTORY.rows(ge);
     }
 
     /**
@@ -200,9 +201,10 @@ public class MatLab {
      * @param mat Matrix
      * @param num Number compared
      */
-    public static Matrix greaterThan(Matrix mat, double num) {
-        int row = mat.getRowDimension();
-        int col = mat.getColumnDimension();
+
+    public static Primitive64Store greaterThan(MatrixStore<Double> mat, double num) {
+        int row = mat.getRowDim();
+        int col = mat.getColDim();
         double[][] ge = new double[row][col];
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
@@ -214,7 +216,7 @@ public class MatLab {
             }
         }
 
-        return new Matrix(ge);
+        return Primitive64Store.FACTORY.rows(ge);
     }
 
     /**
@@ -224,9 +226,10 @@ public class MatLab {
      * @param mat Matrix
      * @param num Number compared
      */
-    public static Matrix lessOrEqual(Matrix mat, double num) {
-        int row = mat.getRowDimension();
-        int col = mat.getColumnDimension();
+
+    public static Primitive64Store lessOrEqual(MatrixStore<Double> mat, double num) {
+        int row = mat.getRowDim();
+        int col = mat.getColDim();
 
         double[][] le = new double[row][col];
         for (int i = 0; i < row; i++) {
@@ -239,7 +242,7 @@ public class MatLab {
             }
         }
 
-        return new Matrix(le);
+        return Primitive64Store.FACTORY.rows(le);
     }
 
     /**
@@ -249,10 +252,11 @@ public class MatLab {
      * @param mat1 Matrix
      * @param mat2 Matrix
      */
-    public static Matrix lessThan(Matrix mat1, Matrix mat2) {
-        int maxRow = Math.min(mat1.getRowDimension(), mat2.getRowDimension());
-        int maxCol = Math.min(mat1.getColumnDimension(), mat2.getColumnDimension());
-        int i, j = 0;
+
+    public static Primitive64Store lessThan(MatrixStore<Double> mat1, MatrixStore<Double> mat2) {
+        int maxRow = Math.min(mat1.getRowDim(), mat2.getRowDim());
+        int maxCol = Math.min(mat1.getColDim(), mat2.getColDim());
+
         double[][] lt = new double[maxRow][maxCol];
         for (int k = 0; k < maxRow; k++) {
             for (int h = 0; h < maxCol; h++) {
@@ -264,7 +268,7 @@ public class MatLab {
             }
         }
 
-        return new Matrix(lt);
+        return Primitive64Store.FACTORY.rows(lt);
     }
 
     /**
@@ -274,8 +278,9 @@ public class MatLab {
      * @param num number compared
      * @return The size of the dimension in matrix A chosen by param num
      */
-    public static int size(Matrix A, int num) {
-        double[][] mat = A.getArray();
+
+    public static int size(MatrixStore<Double> A, int num) {
+        double[][] mat = A.toRawCopy2D();
         if (num > 2) {
             return -1;
         } else {
@@ -295,12 +300,13 @@ public class MatLab {
      * @param points number of points spaced between
      * @return A vector matrix of linearly spaced vector
      */
-    public static Matrix linspace(double min, double max, double points) {
+
+    public static Primitive64Store linspace(double min, double max, double points) {
         double[][] d = new double[1][(int) points];
         for (int i = 0; i < points; i++) {
             d[0][i] = min + i * (max - min) / (points - 1);
         }
-        return new Matrix(d);
+        return Primitive64Store.FACTORY.rows(d);
     }
 
     /**
@@ -312,10 +318,11 @@ public class MatLab {
      * @param num Number of indices to find
      * @param dir Direction
      */
-    public static Matrix find(Matrix mat, int num, String dir) {
+
+    public static Primitive64Store find(MatrixStore<Double> mat, int num, String dir) {
         double[][] found = new double[num][1];
-        int row = mat.getRowDimension();
-        int col = mat.getColumnDimension();
+        int row = mat.getRowDim();
+        int col = mat.getColDim();
         int numCheck = 0;
         int i = 0;
         int index;
@@ -356,7 +363,7 @@ public class MatLab {
 
             }
         }
-        return new Matrix(found);
+        return Primitive64Store.FACTORY.rows(found);
     }
 
     /**
@@ -365,10 +372,11 @@ public class MatLab {
      * @param matrix Matrix matrix
      * @param dim    Dimension dim
      */
-    public static Matrix any(Matrix matrix, int dim) {
-        int row = matrix.getRowDimension();
-        int col = matrix.getColumnDimension();
-        double[][] anyMat = null;
+
+    public static Primitive64Store any(MatrixStore<Double> matrix, int dim) {
+        int row = matrix.getRowDim();
+        int col = matrix.getColDim();
+        double[][] anyMat = new double[0][];
         double sum = 0;
         if (dim == 1) {
             anyMat = new double[1][col];
@@ -406,10 +414,9 @@ public class MatLab {
             }
         }
 
-
-        assert anyMat != null;
-        return new Matrix(anyMat);
+        return Primitive64Store.FACTORY.rows(anyMat);
     }
+
 
     /**
      * Divides param div by the elements in param A
@@ -418,9 +425,10 @@ public class MatLab {
      * @param div dividend div
      * @return div/A
      */
-    public static Matrix rDivide(Matrix A, double div) {
-        int row = A.getRowDimension();
-        int col = A.getColumnDimension();
+
+    public static Primitive64Store rDivide(MatrixStore<Double> A, double div) {
+        int row = A.getRowDim();
+        int col = A.getColDim();
         double[][] divMat = new double[row][col];
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
@@ -428,7 +436,7 @@ public class MatLab {
             }
         }
 
-        return new Matrix(divMat);
+        return Primitive64Store.FACTORY.rows(divMat);
     }
 
     /**
@@ -438,16 +446,17 @@ public class MatLab {
      * @param max    comparable max
      * @return max > matrix
      */
-    public static Matrix max(Matrix matrix, int max) {
-        int row = matrix.getRowDimension();
-        int col = matrix.getColumnDimension();
+
+    public static Primitive64Store max(MatrixStore<Double> matrix, int max) {
+        int row = matrix.getRowDim();
+        int col = matrix.getColDim();
         double[][] maxMat = new double[row][col];
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
                 maxMat[i][j] = (max > matrix.get(i, j)) ? max : matrix.get(i, j);
             }
         }
-        return new Matrix(maxMat);
+        return Primitive64Store.FACTORY.rows(maxMat);
     }
 
     /**
@@ -455,9 +464,10 @@ public class MatLab {
      *
      * @param mat Matrix mat
      */
-    public static Matrix diag(Matrix mat) {
-        int row = mat.getRowDimension();
-        double[][] diagMat = new double[row][row];
+
+    public static Primitive64Store diag(MatrixStore<Double> mat) {
+        int size = Math.max(mat.getRowDim(), mat.getColDim());
+        double[][] diagMat = new double[size][size];
         int dag = 0;
 
         for (int i = 0; i < diagMat.length; i++) {
@@ -471,7 +481,7 @@ public class MatLab {
             }
         }
 
-        return new Matrix(diagMat);
+        return Primitive64Store.FACTORY.rows(diagMat);
     }
 
 //    /**
@@ -548,15 +558,17 @@ public class MatLab {
     // * this to be licensed under the LGPL. Since the license itself is longer
     // * than the code, if this truly worries you, you can look up the text at
     // * http://www.gnu.org/licenses/
-    public static Matrix solveNNLS(Matrix A, Matrix b) {
-        List<Integer> p = new ArrayList<Integer>();
-        List<Integer> z = new ArrayList<Integer>();
+
+    public static MatrixStore<Double> solveNNLS(MatrixStore<Double> A, MatrixStore<Double> b) throws RecoverableCondition {
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+        List<Integer> p = new ArrayList<>();
+        List<Integer> z = new ArrayList<>();
         int i = 0;
-        int xm = A.getColumnDimension();
+        int xm = A.getColDim();
         int xn = 1;
-        while (i < A.getColumnDimension())
+        while (i < A.getColDim())
             z.add(i++);
-        Matrix x = new Matrix(xm, xn);
+        Primitive64Store x = storeFactory.make(xm, xn);
         /*
          * You need a finite number of iterations. Without this condition, the finite precision nature
          * of the math being done almost makes certain that the <1e-15 conditions won't ever hold up.
@@ -564,9 +576,9 @@ public class MatLab {
          * For the intrepid coder, however, one could replace this again with an infinite while
          * loop and make the <1e-15 conditions into something like c*norm(A) or c*norm(b).
          */
-        for (int iterations = 0; iterations < 300 * A.getColumnDimension() * A.getRowDimension(); iterations++) {
+        for (int iterations = 0; iterations < 300 * A.getColDim() * A.getRowDim(); iterations++) {
             //System.out.println(z.size() + " " + p.size());
-            Matrix w = A.transpose().times(b.minus(A.times(x)));
+            MatrixStore<Double> w = A.transpose().multiply(b.subtract(A.multiply(x)));
             //w.print(7, 5);
             if (z.size() == 0 || isAllNegative(w)) {
                 //System.out.println("Computation should break");
@@ -588,15 +600,16 @@ public class MatLab {
             boolean allPositive = false;
             while (!allPositive) {
                 //Step 6
-                Matrix Ep = new Matrix(b.getRowDimension(), p.size());
+                Primitive64Store Ep = storeFactory.make(b.getRowDim(), p.size());
                 for (i = 0; i < p.size(); i++)
-                    for (int j = 0; j < Ep.getRowDimension(); j++)
+                    for (int j = 0; j < Ep.getRowDim(); j++)
                         Ep.set(j, i, A.get(j, p.get(i)));
-                Matrix Zprime = Ep.solve(b);
+                SolverTask<Double> solverTask = SolverTask.PRIMITIVE.make(Ep, b);
+                MatrixStore<Double> Zprime = solverTask.solve(Ep, b);
                 Ep = null;
-                Matrix Z = new Matrix(xm, xn);
+                Primitive64Store Z = storeFactory.make(xm, xn);
                 for (i = 0; i < p.size(); i++)
-                    Z.set(p.get(i), 0, Zprime.get(i, 0));
+                    Z.set((long) p.get(i), 0, Zprime.get(i, 0));
                 //Step 7
                 allPositive = true;
                 for (i = 0; i < p.size(); i++)
@@ -614,7 +627,7 @@ public class MatLab {
                         }
                     }
                     //Finished getting alpha. Onto step 10
-                    x = x.plus(Z.minus(x).times(alpha));
+                    x = (Primitive64Store) x.add(Z.subtract(x).multiply(alpha));
                     for (i = p.size() - 1; i >= 0; i--)
                         if (Math.abs(x.get(p.get(i), 0)) < 1e-15)//Close enough to zero, no?
                             z.add(p.remove(i));
@@ -624,11 +637,27 @@ public class MatLab {
         return x;
     }
 
-    public static boolean isAllNegative(Matrix w) {
+    public static boolean isAllNegative(MatrixStore<Double> w) {
         boolean result = true;
-        int m = w.getRowDimension();
+        int m = w.getRowDim();
         for (int i = 0; i < m; i++)
             result &= w.get(i, 0) <= 1e-15;
         return result;
+    }
+
+
+    public static double normInf(MatrixStore<Double> mat) {
+        double[][] A = mat.toRawCopy2D();
+        int m = mat.getRowDim();
+        int n = mat.getColDim();
+        double f = 0;
+        for (int i = 0; i < m; i++) {
+            double s = 0;
+            for (int j = 0; j < n; j++) {
+                s += Math.abs(A[i][j]);
+            }
+            f = Math.max(f, s);
+        }
+        return f;
     }
 }

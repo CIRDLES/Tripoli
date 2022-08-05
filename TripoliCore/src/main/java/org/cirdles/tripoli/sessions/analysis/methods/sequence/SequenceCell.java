@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.analysisMethods.sequenceTables;
+package org.cirdles.tripoli.sessions.analysis.methods.sequence;
 
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
