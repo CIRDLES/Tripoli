@@ -21,7 +21,11 @@ import org.cirdles.tripoli.visualizationUtilities.linePlots.GBeamLinePlotBuilder
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.PeakShapePlotsWindow.plottingWindow;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.*;
@@ -181,9 +185,10 @@ public class PeakShapePlotsController {
     }
 
     @FXML
-    private void browseResourceFileAction() {
+    public void browseResourceFileAction() throws IOException {
         resourceBrowserTarget = FileUtilities.selectPeakShapeResourceFileForBrowsing(plottingWindow);
-        demo2Button.setDisable(false);
+        processDataFileAndShowPlotsOfPeakShapes();
+        demo2Button.setDisable(true);
     }
 
     private void populateListOfResources() {
@@ -191,9 +196,34 @@ public class PeakShapePlotsController {
         resourceFilesInFolder = new ArrayList<>();
         resourceBrowserTarget = new File("TripoliResources/PeakCentres");
 
-        // Filter has not been applied yet
+        // Sort by date not implemented yet
         if (resourceBrowserTarget != null && (resourceBrowserType.compareToIgnoreCase(".txt") == 0)) {
-            resourceFilesInFolder.addAll(Arrays.asList(Objects.requireNonNull(resourceBrowserTarget.listFiles())));
+
+            for (File file : resourceBrowserTarget.listFiles()) {
+                try {
+                    List<String> contentsByLine = new ArrayList<>(Files.readAllLines(file.toPath(), Charset.defaultCharset()));
+                    List<String[]> headerLine = new ArrayList<>();
+
+                    for (String line : contentsByLine) {
+                        if (!line.isEmpty()) {
+                            headerLine.add(line.split("\\s*,\\s*"));
+
+                            if (line.startsWith("#START")) {
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!(headerLine.size() < 2)) {
+                        if (headerLine.get(1)[1].equalsIgnoreCase("PhotoMultiplier") || headerLine.get(1)[1].equalsIgnoreCase("Axial")) {
+                            resourceFilesInFolder.add(file);
+                        }
+                    }
+                } catch (IOException e) {
+
+                }
+
+            }
         }
 
         if (resourceFilesInFolder.isEmpty()) {
@@ -215,6 +245,32 @@ public class PeakShapePlotsController {
                 @Override
                 public void changed(ObservableValue<? extends File> observable, File oldValue, File newValue) {
                     resourceBrowserTarget = newValue;
+                    try {
+                        List<String> contentsByLine = new ArrayList<>(Files.readAllLines(resourceBrowserTarget.toPath(), Charset.defaultCharset()));
+                        List<String[]> headerLine = new ArrayList<>();
+
+                        for (String line : contentsByLine) {
+                            if (!line.isEmpty()) {
+                                headerLine.add(line.split("\\s*,\\s*"));
+
+                                if (line.startsWith("#START")) {
+                                    break;
+                                }
+                            }
+                        }
+
+                        String collector = headerLine.get(1)[1];
+                        String massID = headerLine.get(2)[1];
+                        String initialMass = headerLine.get(3)[1];
+                        String peakCentreMass = headerLine.get(4)[1];
+                        eventLogTextArea.textProperty().unbind();
+                        eventLogTextArea.setText("Collector: " + collector + "\n" + "Mass ID: " + massID + "\n" + "Initial Mass: " + initialMass + "\n" +
+                                "Peak Centre Mass: " + peakCentreMass);
+
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
                     demo2Button.setDisable(false);
                 }
             });
