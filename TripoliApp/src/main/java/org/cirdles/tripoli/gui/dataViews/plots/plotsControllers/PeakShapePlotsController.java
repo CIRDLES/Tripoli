@@ -214,13 +214,11 @@ public class PeakShapePlotsController {
                         }
                     }
 
-                    if (!(headerLine.size() < 2)) {
-                        if (headerLine.get(1)[1].equalsIgnoreCase("PhotoMultiplier") || headerLine.get(1)[1].equalsIgnoreCase("Axial")) {
-                            resourceFilesInFolder.add(file);
-                        }
+                    if (headerLine.size() >= 2 && (headerLine.get(1)[1].equalsIgnoreCase("PhotoMultiplier") || headerLine.get(1)[1].equalsIgnoreCase("Axial"))) {
+                        resourceFilesInFolder.add(file);
                     }
                 } catch (IOException e) {
-
+                    e.printStackTrace();
                 }
 
             }
@@ -268,7 +266,7 @@ public class PeakShapePlotsController {
                                 "Peak Centre Mass: " + peakCentreMass);
 
                     } catch (IOException e) {
-                        throw new RuntimeException(e);
+                        e.printStackTrace();
                     }
 
                     demo2Button.setDisable(false);
