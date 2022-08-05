@@ -20,10 +20,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import jama.Matrix;
-import org.ojalgo.matrix.Primitive64Matrix;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.MassSpecOutputDataRecord;
+// import org.ojalgo.matrix.Primitive64Matrix;
+import org.ojalgo.matrix.store.MatrixStore;
+import org.ojalgo.matrix.store.PhysicalStore;
+import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -176,8 +179,10 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         // hard coded est of block length since only doing first block for now
 
         // Matrix firstBlockInterpolationsMatrix = null;
-        Primitive64Matrix.Factory matrixFactory = Primitive64Matrix.FACTORY;
-        Primitive64Matrix firstBlockInterpolationsOJ = null;
+        // Primitive64Matrix.Factory matrixFactory = Primitive64Matrix.FACTORY;
+        // Primitive64Matrix firstBlockInterpolationsOJ = null;
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+        MatrixStore<Double> firstBlockInterpolationsOJ = null;
         double[][] interpMatArrayForBlock = new double[nCycle[0]][4000];
         for (int cycleIndex = 1; cycleIndex < (nCycle[blockIndex]); cycleIndex++) {
             int startOfCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex][2];
@@ -214,7 +219,8 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
                 // Matrix firstPass = new Matrix(interpMatArrayForBlock, cycleIndex + 1, countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
                 // firstBlockInterpolationsMatrix = firstPass.transpose();
 
-                Primitive64Matrix firstPassOJ = matrixFactory.rows(interpMatArrayForBlock).limits(
+                //  Primitive64Matrix firstPassOJ = matrixFactory.rows(interpMatArrayForBlock).limits(
+                MatrixStore<Double> firstPassOJ = storeFactory.rows(interpMatArrayForBlock).limits(
                         cycleIndex + 1,
                         countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
                 firstBlockInterpolationsOJ = firstPassOJ.transpose();

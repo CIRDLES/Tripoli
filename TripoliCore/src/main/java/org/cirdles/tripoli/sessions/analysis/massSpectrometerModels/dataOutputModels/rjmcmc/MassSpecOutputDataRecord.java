@@ -17,8 +17,8 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
 import jama.Matrix;
-import org.ojalgo.matrix.Primitive64Matrix;
-import org.ojalgo.matrix.store.Primitive64Store;
+// import org.ojalgo.matrix.Primitive64Matrix;
+import org.ojalgo.matrix.store.MatrixStore;
 
 /**
  * Matlab code >> here
@@ -68,7 +68,8 @@ public record MassSpecOutputDataRecord(
         Matrix baseLineFlagsForRawDataColumn,
         Matrix axialFlagsForRawDataColumn,
         // Matrix firstBlockInterpolations,
-        Primitive64Matrix firstBlockInterpolationsOJ,
+        // Primitive64Matrix firstBlockInterpolationsOJ,
+        MatrixStore<Double> firstBlockInterpolationsOJ,
         int faradayCount,
         int isotopeCount,
         int blockCount,

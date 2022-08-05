@@ -17,7 +17,12 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
 import jama.Matrix;
-import org.ojalgo.matrix.Primitive64Matrix;
+import org.ojalgo.RecoverableCondition;
+// import org.ojalgo.matrix.Primitive64Matrix;
+import org.ojalgo.matrix.store.MatrixStore;
+import org.ojalgo.matrix.store.PhysicalStore;
+import org.ojalgo.matrix.store.Primitive64Store;
+import org.ojalgo.matrix.task.InverterTask;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.util.ArrayList;
@@ -143,12 +148,14 @@ public class DataModelInitializer {
          */
         // just playing with first block for now
         // Matrix IO = null;
-        Primitive64Matrix IOOJ = null;
-        // PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        Primitive64Matrix.Factory matrixFactory = Primitive64Matrix.FACTORY;
+        // Primitive64Matrix IOOJ = null;
+        // Primitive64Matrix.Factory matrixFactory = Primitive64Matrix.FACTORY;
+        MatrixStore<Double> IOOJ = null;
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
             // Matrix interpolatedKnotData = massSpecOutputDataRecord.firstBlockInterpolations();
-            Primitive64Matrix interpolatedKnotDataOJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ();
+            // Primitive64Matrix interpolatedKnotDataOJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ();
+            MatrixStore<Double> interpolatedKnotDataOJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ();
 //            double[][] dind = new double[massSpecOutputDataRecord.rawDataColumn().getRowDimension()][1];
             List<Double> dd = new ArrayList<>();
             List<Double> timeIndForSorting = new ArrayList<>();
@@ -180,8 +187,21 @@ public class DataModelInitializer {
             // IO = (interpolatedKnotData.transpose().times(interpolatedKnotData)).inverse()
             //         .times(interpolatedKnotData.transpose()).times(ddMatrix);
 
-            Primitive64Matrix ddMatrixOJ = matrixFactory.column(ddSortedArray);
-            IOOJ = (interpolatedKnotDataOJ.transpose().multiply(interpolatedKnotDataOJ)).invert().multiply(interpolatedKnotDataOJ.transpose()).multiply(ddMatrixOJ);
+            // Primitive64Matrix ddMatrixOJ = matrixFactory.column(ddSortedArray);
+            // IOOJ = (interpolatedKnotDataOJ.transpose().multiply(interpolatedKnotDataOJ)).invert().multiply(interpolatedKnotDataOJ.transpose()).multiply(ddMatrixOJ);
+
+            Primitive64Store ddMatrixOJ = storeFactory.columns(ddSortedArray);
+            MatrixStore<Double> tempMatrix = interpolatedKnotDataOJ.transpose().multiply(interpolatedKnotDataOJ);
+            MatrixStore<Double> tempMatrix2;
+            InverterTask<Double> inverter = InverterTask.PRIMITIVE.make(tempMatrix, false, false);
+            try {
+                tempMatrix2 = inverter.invert(tempMatrix);
+            } catch (RecoverableCondition e) {
+                // Will throw and exception if inversion fails, rethrowing it.
+                throw new RuntimeException(e);
+            }
+
+            IOOJ = tempMatrix2.multiply(interpolatedKnotDataOJ.transpose()).multiply(ddMatrixOJ);
         }
             /*
                 %%% MODEL DATA WITH INITIAL MODEL
@@ -216,7 +236,8 @@ public class DataModelInitializer {
 
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
             // Matrix intensity = massSpecOutputDataRecord.firstBlockInterpolations().times(IO);
-            Primitive64Matrix intensityOJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ().multiply(IOOJ);
+            // Primitive64Matrix intensityOJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ().multiply(IOOJ);
+            MatrixStore<Double> intensityOJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ().multiply(IOOJ);
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().getRowDimension(); row++) {
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn().get(row, isotopeIndex) == 1)

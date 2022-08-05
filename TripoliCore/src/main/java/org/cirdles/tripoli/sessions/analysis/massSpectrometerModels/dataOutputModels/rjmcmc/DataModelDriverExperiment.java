@@ -17,7 +17,6 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
 import jama.Matrix;
-import org.ojalgo.matrix.Primitive64Matrix;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -29,6 +28,9 @@ import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
+import org.ojalgo.matrix.store.MatrixStore;
+import org.ojalgo.matrix.store.PhysicalStore;
+import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -138,7 +140,7 @@ public class DataModelDriverExperiment {
         Matrix priorSignalNoiseDaly = new Matrix(new double[][]{{0.0, 0.0}});
         Matrix priorPoissonNoiseDaly = new Matrix(new double[][]{{0.0, 10.0}});
 
-        DataModelDriverExperiment.PriorRecord priorRecord = new PriorRecord(
+        PriorRecord priorRecord = new PriorRecord(
                 priorBaselineFaraday,
                 priorBaselineDaly,
                 priorLogRatio,
@@ -178,7 +180,7 @@ public class DataModelDriverExperiment {
         double psigSignalNoisePoisson = 0.5;
         double psigSignalNoiseDaly = 0;
 
-        DataModelDriverExperiment.PsigRecord psigRecord = new PsigRecord(
+        PsigRecord psigRecord = new PsigRecord(
                 psigBaselineFaraday,
                 psigBaselineDaly,
                 psigLogRatio,
@@ -237,10 +239,12 @@ public class DataModelDriverExperiment {
 
         // only using first block
         // Matrix Intensity;
-        Primitive64Matrix IntensityOJ;
+        // MatrixStore<Double> IntensityOJ;
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+        Primitive64Store IntensityOJ = storeFactory.make(massSpecOutputDataRecord.firstBlockInterpolationsOJ().countRows(), dataModelInit.blockIntensitiesOJ().countColumns());
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
             // Intensity = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelInit.blockIntensities());
-            IntensityOJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ().multiply(dataModelInit.blockIntensitiesOJ());
+            IntensityOJ.fillByMultiplying(massSpecOutputDataRecord.firstBlockInterpolationsOJ(), dataModelInit.blockIntensitiesOJ());
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().getRowDimension(); row++) {
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn().get(row, isotopeIndex) == 1)
@@ -497,7 +501,9 @@ public class DataModelDriverExperiment {
 
             // todo: reminder only 1 block here
             // Matrix intensity2 = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelUpdaterOutputRecord_x2.blockIntensities());
-            Primitive64Matrix Intensity2OJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ().multiply(dataModelUpdaterOutputRecord_x2.blockIntensitiesOJ());
+            // MatrixStore<Double> Intensity2OJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ().multiply(dataModelUpdaterOutputRecord_x2.blockIntensitiesOJ());
+            Primitive64Store Intensity2OJ = storeFactory.make(massSpecOutputDataRecord.firstBlockInterpolationsOJ().countRows(), dataModelUpdaterOutputRecord_x2.blockIntensitiesOJ().countColumns());
+            Intensity2OJ.fillByMultiplying(massSpecOutputDataRecord.firstBlockInterpolationsOJ(), (dataModelUpdaterOutputRecord_x2.blockIntensitiesOJ()));
             for (int row = (int) blockStartIndicesFaraday.get(0, 0); row <= (int) blockEndIndicesFaraday.get(0, 0); row++) {
                 // tmpIArray[row] = intensity2.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
                 tmpIArray[row] =  Intensity2OJ.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
@@ -871,7 +877,8 @@ public class DataModelDriverExperiment {
     record EnsembleRecord(
             Matrix logRatios,
             // Matrix intensity,
-            Primitive64Matrix intensityOJ,
+            // Primitive64Matrix intensityOJ,
+            MatrixStore<Double> intensityOJ,
             Matrix baseLine,
             double dfGain,
             Matrix signalNoise,

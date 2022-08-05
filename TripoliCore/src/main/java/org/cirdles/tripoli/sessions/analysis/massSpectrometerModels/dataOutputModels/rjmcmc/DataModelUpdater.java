@@ -21,6 +21,9 @@ import org.ojalgo.matrix.Primitive64Matrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.stat.correlation.Covariance;
+import org.ojalgo.matrix.store.MatrixStore;
+import org.ojalgo.matrix.store.PhysicalStore;
+import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -293,12 +296,14 @@ public class DataModelUpdater {
                 }
             }
 
-            Primitive64Matrix.Factory matrixFactory = Primitive64Matrix.FACTORY;
+            // Primitive64Matrix.Factory matrixFactory = Primitive64Matrix.FACTORY;
+            PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
             double[] x2LogRatioArray = x2LogRatioList.stream().mapToDouble(d -> d).toArray();
             Matrix x2LogRatio = new Matrix(x2LogRatioArray, x2LogRatioArray.length);
             double[] x2BlockIntensitiesArray = x2BlockIntensitiesList.stream().mapToDouble(d -> d).toArray();
-            Matrix x2BlockIntensities = new Matrix(x2BlockIntensitiesArray, x2BlockIntensitiesArray.length);
-            Primitive64Matrix x2BlockIntensitiesOJ = matrixFactory.column(x2BlockIntensitiesArray);
+            // Matrix x2BlockIntensities = new Matrix(x2BlockIntensitiesArray, x2BlockIntensitiesArray.length);
+            // Primitive64Matrix x2BlockIntensitiesOJ = matrixFactory.column(x2BlockIntensitiesArray);
+            MatrixStore<Double> x2BlockIntensitiesOJ = storeFactory.column(x2BlockIntensitiesArray);
             double[] x2BaselineMeansArray = x2BaselineMeansList.stream().mapToDouble(d -> d).toArray();
             Matrix x2BaselineMeans = new Matrix(x2BaselineMeansArray, x2BaselineMeansArray.length);
 

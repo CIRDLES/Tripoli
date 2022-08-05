@@ -47,7 +47,8 @@ dependencies {
     // modernized update: https://github.com/topobyte/jama
     implementation("com.github.topobyte:jama:master-SNAPSHOT")
 
-
+    // https://github.com/optimatika/ojAlgo
+    // https://github.com/optimatika/ojAlgo/wiki/Optimisation-Modelling-Advice
     implementation("org.ojalgo:ojalgo:51.4.0")
 
     implementation("com.thoughtworks.xstream:xstream:1.4.19") //group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.19'

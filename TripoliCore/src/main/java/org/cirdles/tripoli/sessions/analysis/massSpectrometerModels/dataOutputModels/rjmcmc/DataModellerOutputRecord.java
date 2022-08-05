@@ -18,7 +18,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputM
 
 import jama.Matrix;
 import org.ojalgo.matrix.Primitive64Matrix;
-import org.ojalgo.matrix.store.Primitive64Store;
+import org.ojalgo.matrix.store.MatrixStore;
 
 public record DataModellerOutputRecord(
         Matrix baselineMeans,
@@ -28,7 +28,8 @@ public record DataModellerOutputRecord(
         Matrix signalNoise,
         Matrix dataArray,
         // Matrix blockIntensities,
-        Primitive64Matrix blockIntensitiesOJ
+        // Primitive64Matrix blockIntensitiesOJ
+        MatrixStore<Double> blockIntensitiesOJ
 ) {
 
 }
