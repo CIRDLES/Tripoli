@@ -38,16 +38,16 @@
               <items>
                   <ScrollPane fx:id="resourceListScrollPane" prefHeight="200.0" prefWidth="200.0">
                      <content>
-                      <AnchorPane fx:id="resourceListAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="162.0" prefWidth="250.0" />
+                      <AnchorPane fx:id="resourceListAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="350.0" prefWidth="200.0" />
                      </content>
                   </ScrollPane>
-                      <TextArea fx:id="eventLogTextArea" editable="false" prefHeight="350.0" prefWidth="200.0" text="Event log  (eventually) appears here ..." />
+                      <TextArea fx:id="eventLogTextArea" editable="false" prefHeight="350.0" prefWidth="200.0" text="Details will appear here ..." />
               </items>
             </SplitPane>
                 <ToolBar fx:id="toolbar" prefHeight="15.0" prefWidth="500.0">
                     <items>
-                        <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#demo2ButtonAction" text="Start Demo2 PeakShapes" />
-                  <Button mnemonicParsing="false" onAction="#browseResourceFolderTaskMenuItemAction" text="Choose File" />
+                        <Button fx:id="demo2Button" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#demo2ButtonAction" text="Start Demo2 PeakShapes" />
+                  <Button fx:id="browseResourceButton" mnemonicParsing="false" onAction="#browseResourceFileAction" text="Choose File" />
                     </items>
                 </ToolBar>
             </children>

@@ -16,6 +16,8 @@
 
 package org.cirdles.tripoli.utilities.file;
 
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 import org.apache.poi.util.IOUtils;
 
 import java.io.*;
@@ -86,5 +88,25 @@ public class FileUtilities {
                 }
             }
         }
+    }
+
+
+    public static File selectPeakShapeResourceFileForBrowsing(Window ownerWindow) {
+        File resourceFile;
+
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Select PeakShapes Resource File");
+
+        // Default folder location for now
+        File defaultFolder = new File("TripoliResources");
+        if (defaultFolder.isDirectory()) {
+            chooser.setInitialDirectory(defaultFolder);
+        } else {
+            File userHome = new File("Tripoli");
+            chooser.setInitialDirectory(userHome.isDirectory() ? userHome : null);
+        }
+
+        resourceFile = chooser.showOpenDialog(ownerWindow);
+        return resourceFile;
     }
 }
