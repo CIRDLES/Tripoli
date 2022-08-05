@@ -16,30 +16,38 @@
  * limitations under the License.
  -->
 
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:id="plotsAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity"
-            minHeight="-Infinity" minWidth="-Infinity" prefHeight="538.0" prefWidth="500.0"
-            xmlns="http://javafx.com/javafx/17"
-            fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.PeakShapePlotsController">
+
+<AnchorPane fx:id="plotsAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="538.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.PeakShapePlotsController">
     <children>
         <VBox fx:id="masterVBox" prefHeight="538.0" prefWidth="500.0">
             <children>
-                <SplitPane dividerPositions="0.5" VBox.vgrow="ALWAYS">
+                <SplitPane dividerPositions="0.5" prefHeight="322.0" prefWidth="500.0" VBox.vgrow="ALWAYS">
                     <items>
-                        <ScrollPane fx:id="gBeamPlotScrollPane" fitToHeight="true" fitToWidth="true" prefHeight="500.0"
-                                    prefWidth="500.0"/>
-                        <ScrollPane fx:id="beamShapePlotScrollPane" fitToHeight="true" fitToWidth="true" layoutX="10.0"
-                                    layoutY="10.0" prefHeight="500.0" prefWidth="500.0"/>
+                        <ScrollPane fx:id="gBeamPlotScrollPane" fitToHeight="true" fitToWidth="true" prefHeight="500.0" prefWidth="500.0" />
+                        <ScrollPane fx:id="beamShapePlotScrollPane" fitToHeight="true" fitToWidth="true" layoutX="10.0" layoutY="10.0" prefHeight="500.0" prefWidth="500.0" />
                     </items>
                 </SplitPane>
-                <TextArea fx:id="eventLogTextArea" editable="false" prefHeight="350.0" prefWidth="200.0"
-                          text="Event log  (eventually) appears here ..."/>
+            <SplitPane dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0">
+              <items>
+                  <ScrollPane fx:id="resourceListScrollPane" prefHeight="200.0" prefWidth="200.0">
+                     <content>
+                      <AnchorPane fx:id="resourceListAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="162.0" prefWidth="250.0" />
+                     </content>
+                  </ScrollPane>
+                      <TextArea fx:id="eventLogTextArea" editable="false" prefHeight="350.0" prefWidth="200.0" text="Event log  (eventually) appears here ..." />
+              </items>
+            </SplitPane>
                 <ToolBar fx:id="toolbar" prefHeight="15.0" prefWidth="500.0">
                     <items>
-                        <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#demo2ButtonAction"
-                                text="Start Demo2 PeakShapes"/>
+                        <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#demo2ButtonAction" text="Start Demo2 PeakShapes" />
+                  <Button mnemonicParsing="false" onAction="#browseResourceFolderTaskMenuItemAction" text="Choose File" />
                     </items>
                 </ToolBar>
             </children>

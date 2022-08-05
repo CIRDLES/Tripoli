@@ -4,6 +4,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
@@ -19,7 +20,6 @@ import org.cirdles.tripoli.gui.dataViews.plots.GBeamLinePlot;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.GBeamLinePlotBuilder;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
 import java.io.IOException;
 import java.net.URL;
@@ -30,11 +30,17 @@ import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlo
 
 public class PeakShapePlotsController {
 
+    public static Node resourceFolderBrowserUI;
+    public static String resourceBrowserType = ".txt";
     @FXML
     private ResourceBundle resources;
-
     @FXML
     private URL location;
+    @FXML
+    private ScrollPane resourceListScrollPane;
+
+    @FXML
+    private AnchorPane resourceListAnchorPane;
 
     @FXML
     private AnchorPane plotsAnchorPane;
@@ -74,6 +80,11 @@ public class PeakShapePlotsController {
 
         gBeamPlotScrollPane.prefWidthProperty().bind(masterVBox.widthProperty());
         gBeamPlotScrollPane.prefHeightProperty().bind(masterVBox.heightProperty().subtract(toolbar.getHeight()));
+
+        populateListOfResources();
+
+        resourceListAnchorPane.prefHeightProperty().bind(resourceListScrollPane.heightProperty());
+        resourceListAnchorPane.prefWidthProperty().bind(resourceListScrollPane.widthProperty());
 
     }
 
@@ -150,4 +161,14 @@ public class PeakShapePlotsController {
         });
 
     }
+
+    @FXML
+    private void browseResourceFolderTaskMenuItemAction(ActionEvent event) {
+    }
+
+    private void populateListOfResources() {
+
+    }
+
+
 }
