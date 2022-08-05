@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
 import jama.Matrix;
+import org.ojalgo.matrix.Primitive64Matrix;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -102,9 +103,14 @@ public class DataModelDriverExperiment {
         Matrix priorLogRatio = new Matrix(new double[][]{{-20.0, 20.0}});
         double maxIntensity = Double.MIN_VALUE;
         double minIntensity = Double.MAX_VALUE;
-        for (int row = 0; row < dataModelInit.blockIntensities().getRowDimension(); row++) {
+        /*for (int row = 0; row < dataModelInit.blockIntensities().getRowDimension(); row++) {
             maxIntensity = Math.max(dataModelInit.blockIntensities().get(row, 0), maxIntensity);
             minIntensity = min(dataModelInit.blockIntensities().get(row, 0), minIntensity);
+
+        }*/
+        for (int row = 0; row < dataModelInit.blockIntensitiesOJ().getRowDim(); row++) {
+            maxIntensity = Math.max(dataModelInit.blockIntensitiesOJ().get(row, 0), maxIntensity);
+            minIntensity = min(dataModelInit.blockIntensitiesOJ().get(row, 0), minIntensity);
         }
         Matrix priorIntensity = new Matrix(new double[][]{{0.0, 1.5 * maxIntensity}});
         Matrix priorDFgain = new Matrix(new double[][]{{0.8, 1.0}});
@@ -112,7 +118,7 @@ public class DataModelDriverExperiment {
         Matrix priorSignalNoiseDaly = new Matrix(new double[][]{{0.0, 0.0}});
         Matrix priorPoissonNoiseDaly = new Matrix(new double[][]{{0.0, 10.0}});
 
-        PriorRecord priorRecord = new PriorRecord(
+        DataModelDriverExperiment.PriorRecord priorRecord = new PriorRecord(
                 priorBaselineFaraday,
                 priorBaselineDaly,
                 priorLogRatio,
@@ -152,7 +158,7 @@ public class DataModelDriverExperiment {
         double psigSignalNoisePoisson = 0.5;
         double psigSignalNoiseDaly = 0;
 
-        PsigRecord psigRecord = new PsigRecord(
+        DataModelDriverExperiment.PsigRecord psigRecord = new PsigRecord(
                 psigBaselineFaraday,
                 psigBaselineDaly,
                 psigLogRatio,
@@ -210,10 +216,11 @@ public class DataModelDriverExperiment {
         */
 
         // only using first block
-        Matrix Intensity;
+        // Matrix Intensity;
+        Primitive64Matrix IntensityOJ;
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
-            Intensity = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelInit.blockIntensities());
-
+            // Intensity = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelInit.blockIntensities());
+            IntensityOJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ().multiply(dataModelInit.blockIntensitiesOJ());
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().getRowDimension(); row++) {
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn().get(row, isotopeIndex) == 1)
@@ -221,7 +228,8 @@ public class DataModelDriverExperiment {
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn().get(row, 0) == (blockIndex + 1)) {
                         double calcValue =
                                 exp(dataModelInit.logratios().get(isotopeIndex, 0))
-                                        * Intensity.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
+                                        // * Intensity.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
+                                        * IntensityOJ.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
                         dataModelInit.dataArray().set(row, 0, calcValue);
                         dataWithNoBaseline.set(row, 0, calcValue);
                     }
@@ -231,7 +239,8 @@ public class DataModelDriverExperiment {
                         double calcValue =
                                 exp(dataModelInit.logratios().get(isotopeIndex, 0))
                                         * 1.0 / dataModelInit.dfGain()
-                                        * Intensity.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
+                                        // * Intensity.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
+                                        * IntensityOJ.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
                         dataWithNoBaseline.set(row, 0, calcValue);
                         dataModelInit.dataArray().set(row, 0,
                                 calcValue + dataModelInit.baselineMeans().get((int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn().get(row, 0) - 1, 0));
@@ -467,12 +476,15 @@ public class DataModelDriverExperiment {
             }
 
             // todo: reminder only 1 block here
-            Matrix intensity2 = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelUpdaterOutputRecord_x2.blockIntensities());
+            // Matrix intensity2 = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelUpdaterOutputRecord_x2.blockIntensities());
+            Primitive64Matrix Intensity2OJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ().multiply(dataModelUpdaterOutputRecord_x2.blockIntensitiesOJ());
             for (int row = (int) blockStartIndicesFaraday.get(0, 0); row <= (int) blockEndIndicesFaraday.get(0, 0); row++) {
-                tmpIArray[row] = intensity2.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
+                // tmpIArray[row] = intensity2.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
+                tmpIArray[row] =  Intensity2OJ.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
             }
             for (int row = (int) blockStartIndicesDaly.get(0, 0); row <= (int) blockEndIndicesDaly.get(0, 0); row++) {
-                tmpIArray[row] = intensity2.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
+                // tmpIArray[row] = intensity2.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
+                tmpIArray[row] = Intensity2OJ.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
             }
 
             Matrix tmpBL = new Matrix(tmpBLArray, tmpBLArray.length);
@@ -585,7 +597,8 @@ public class DataModelDriverExperiment {
                         dataModelUpdaterOutputRecord_x2.logratios(),
                         dataModelUpdaterOutputRecord_x2.signalNoise(),
                         (Matrix) d2.clone(),
-                        dataModelUpdaterOutputRecord_x2.blockIntensities()
+                        // dataModelUpdaterOutputRecord_x2.blockIntensities(),
+                        dataModelUpdaterOutputRecord_x2.blockIntensitiesOJ()
                 );
                 //dSignalNoise = (Matrix) dSignalNoise2.clone();
                 dSignalNoiseArray = dSignalNoise2Array.clone();
@@ -618,7 +631,8 @@ public class DataModelDriverExperiment {
                 counter++;
                 ensembleRecordsList.add(new EnsembleRecord(
                         dataModelInit.logratios(),
-                        dataModelInit.blockIntensities(),
+                        // dataModelInit.blockIntensities(),
+                        dataModelInit.blockIntensitiesOJ(),
                         dataModelInit.baselineMeans(),
                         dataModelInit.dfGain(),
                         dataModelInit.signalNoise(),
@@ -822,7 +836,8 @@ public class DataModelDriverExperiment {
 
     record EnsembleRecord(
             Matrix logRatios,
-            Matrix intensity,
+            // Matrix intensity,
+            Primitive64Matrix intensityOJ,
             Matrix baseLine,
             double dfGain,
             Matrix signalNoise,

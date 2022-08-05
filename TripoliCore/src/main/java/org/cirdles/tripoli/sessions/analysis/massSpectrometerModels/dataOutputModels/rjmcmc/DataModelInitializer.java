@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
 import jama.Matrix;
+import org.ojalgo.matrix.Primitive64Matrix;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.util.ArrayList;
@@ -141,9 +142,13 @@ public class DataModelInitializer {
         end
          */
         // just playing with first block for now
-        Matrix IO = null;
+        // Matrix IO = null;
+        Primitive64Matrix IOOJ = null;
+        // PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+        Primitive64Matrix.Factory matrixFactory = Primitive64Matrix.FACTORY;
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
-            Matrix interpolatedKnotData = massSpecOutputDataRecord.firstBlockInterpolations();
+            // Matrix interpolatedKnotData = massSpecOutputDataRecord.firstBlockInterpolations();
+            Primitive64Matrix interpolatedKnotDataOJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ();
             double[][] dind = new double[massSpecOutputDataRecord.rawDataColumn().getRowDimension()][1];
             List<Double> dd = new ArrayList<>();
             List<Double> timeIndForSorting = new ArrayList<>();
@@ -171,9 +176,12 @@ public class DataModelInitializer {
                 ddSortedArray[i] = ddArray[dsortIndices[i]];
             }
 
-            Matrix ddMatrix = new Matrix(ddSortedArray, ddSortedArray.length);
-            IO = (interpolatedKnotData.transpose().times(interpolatedKnotData)).inverse()
-                    .times(interpolatedKnotData.transpose()).times(ddMatrix);
+            // Matrix ddMatrix = new Matrix(ddSortedArray, ddSortedArray.length);
+            // IO = (interpolatedKnotData.transpose().times(interpolatedKnotData)).inverse()
+            //         .times(interpolatedKnotData.transpose()).times(ddMatrix);
+
+            Primitive64Matrix ddMatrixOJ = matrixFactory.column(ddSortedArray);
+            IOOJ = (interpolatedKnotDataOJ.transpose().multiply(interpolatedKnotDataOJ)).invert().multiply(interpolatedKnotDataOJ.transpose()).multiply(ddMatrixOJ);
         }
             /*
                 %%% MODEL DATA WITH INITIAL MODEL
@@ -207,7 +215,8 @@ public class DataModelInitializer {
         }
 
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
-            Matrix intensity = massSpecOutputDataRecord.firstBlockInterpolations().times(IO);
+            // Matrix intensity = massSpecOutputDataRecord.firstBlockInterpolations().times(IO);
+            Primitive64Matrix intensityOJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ().multiply(IOOJ);
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().getRowDimension(); row++) {
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn().get(row, isotopeIndex) == 1)
@@ -216,7 +225,8 @@ public class DataModelInitializer {
                             &&
                             (massSpecOutputDataRecord.blockIndicesForRawDataColumn().get(row, 0) == (blockIndex + 1))) {
                         dataArray[row] = exp(logRatios[isotopeIndex][0])
-                                * intensity.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
+                                // * intensity.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
+                                * intensityOJ.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
                     }
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn().get(row, isotopeIndex) == 1)
                             &&
@@ -224,7 +234,8 @@ public class DataModelInitializer {
                             &&
                             (massSpecOutputDataRecord.blockIndicesForRawDataColumn().get(row, 0) == (blockIndex + 1))) {
                         dataArray[row] = exp(logRatios[isotopeIndex][0]) * 1.0 / dfGain
-                                * intensity.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0)
+                                // * intensity.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0)
+                                * intensityOJ.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0)
                                 + blMeansArray[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn().get(row, 0) - 1][0];
                     }
                 }
@@ -275,7 +286,8 @@ public class DataModelInitializer {
                 new Matrix(logRatios),
                 new Matrix(sigmas, sigmas.length),
                 new Matrix(dataArray, dataArray.length),
-                IO
+                // IO,
+                IOOJ
         );
     }
 

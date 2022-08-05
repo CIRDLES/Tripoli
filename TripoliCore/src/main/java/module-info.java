@@ -19,6 +19,7 @@ module Tripoli.TripoliCore {
     requires org.apache.poi.poi;
     requires org.jetbrains.annotations;
     requires jama;
+    requires ojalgo;
     requires com.google.common;
     requires commons.math3;
     requires commons.lang3;

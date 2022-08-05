@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import jama.Matrix;
+import org.ojalgo.matrix.Primitive64Matrix;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.sessions.analysis.analysisMethods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.MassSpecOutputDataRecord;
@@ -173,7 +174,10 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         // which takes the form of (1 - fractional distance of time with knot range, fractional distance of time with knot range)
         int blockIndex = 0;
         // hard coded est of block length since only doing first block for now
-        Matrix firstBlockInterpolationsMatrix = null;
+
+        // Matrix firstBlockInterpolationsMatrix = null;
+        Primitive64Matrix.Factory matrixFactory = Primitive64Matrix.FACTORY;
+        Primitive64Matrix firstBlockInterpolationsOJ = null;
         double[][] interpMatArrayForBlock = new double[nCycle[0]][4000];
         for (int cycleIndex = 1; cycleIndex < (nCycle[blockIndex]); cycleIndex++) {
             int startOfCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex][2];
@@ -207,8 +211,13 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
                 interpMatArrayForBlock[cycleIndex - 1][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 0.0;
 
                 // generate matrix and then transpose it to match matlab
-                Matrix firstPass = new Matrix(interpMatArrayForBlock, cycleIndex + 1, countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
-                firstBlockInterpolationsMatrix = firstPass.transpose();
+                // Matrix firstPass = new Matrix(interpMatArrayForBlock, cycleIndex + 1, countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
+                // firstBlockInterpolationsMatrix = firstPass.transpose();
+
+                Primitive64Matrix firstPassOJ = matrixFactory.rows(interpMatArrayForBlock).limits(
+                        cycleIndex + 1,
+                        countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
+                firstBlockInterpolationsOJ = firstPassOJ.transpose();
             }
         }
 
@@ -486,7 +495,8 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
                 detectorFlagsForRawDataColumn,
                 baseLineFlagsForRawDataColumn,
                 axialFlagsForRawDataColumn,
-                firstBlockInterpolationsMatrix,
+                // firstBlockInterpolationsMatrix,
+                firstBlockInterpolationsOJ,
                 faradayCount,
                 isotopeCount,
                 blockCount,
