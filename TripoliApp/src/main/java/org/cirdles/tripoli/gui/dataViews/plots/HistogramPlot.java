@@ -36,7 +36,7 @@ public class HistogramPlot extends AbstractDataView {
      * @param bounds
      */
     public HistogramPlot(Rectangle bounds, HistogramBuilder histogramBuilder) {
-        super(bounds, 100, 100);
+        super(bounds, 35, 25);
         this.histogramBuilder = histogramBuilder;
     }
 
@@ -84,12 +84,12 @@ public class HistogramPlot extends AbstractDataView {
         super.paint(g2d);
 
         Text text = new Text();
-        text.setFont(Font.font("SansSerif", 15));
+        text.setFont(Font.font("SansSerif", 12));
         int textWidth = 0;
 
-        g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 15));
+        g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 12));
         g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText(histogramBuilder.getTitle(), 20, 20);
+        g2d.fillText(histogramBuilder.getTitle(), 10, 15);
 
         // plot bins
         g2d.setLineWidth(2.0);

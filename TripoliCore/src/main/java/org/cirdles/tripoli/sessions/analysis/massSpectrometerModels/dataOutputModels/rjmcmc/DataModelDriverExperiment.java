@@ -795,9 +795,10 @@ public class DataModelDriverExperiment {
 
 
         // visualization
-        AbstractPlotBuilder[] histogramBuilder = new AbstractPlotBuilder[2];
+        AbstractPlotBuilder[] histogramBuilder = new AbstractPlotBuilder[3];
         histogramBuilder[0] = HistogramBuilder.initializeHistogram(ensembleRatios[0], 50, "Histogram of ratios");
         histogramBuilder[1] = HistogramBuilder.initializeHistogram(ensembleBaselines, 50, "Histogram of baseline");
+        histogramBuilder[2] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain, 50, "Histogram of Daly/Faraday Gain");
 
 
         // todo: missing additional elements of signalNoise (i.e., 0,11,11)

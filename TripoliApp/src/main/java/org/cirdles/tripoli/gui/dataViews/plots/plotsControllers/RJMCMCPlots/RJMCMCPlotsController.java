@@ -4,11 +4,9 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
@@ -41,13 +39,13 @@ public class RJMCMCPlotsController {
     private VBox masterVBox;
 
     @FXML
-    private ScrollPane plotScrollPane;
-
-    @FXML
     private TextArea eventLogTextArea;
 
     @FXML
     private ToolBar toolbar;
+
+    @FXML
+    private TabPane plotTabPane;
 
     @FXML
     private GridPane ensembleGridPane;
@@ -63,15 +61,16 @@ public class RJMCMCPlotsController {
 
         masterVBox.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT);
         toolbar.setPrefSize(PLOT_WINDOW_WIDTH, 20.0);
-        plotScrollPane.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT - toolbar.getHeight());
-        plotScrollPane.setPrefViewportWidth(PLOT_WINDOW_WIDTH - SCROLLBAR_THICKNESS);
-        plotScrollPane.setPrefViewportHeight(plotScrollPane.getPrefHeight() - SCROLLBAR_THICKNESS);
+
 
         masterVBox.prefWidthProperty().bind(plotsAnchorPane.widthProperty());
         masterVBox.prefHeightProperty().bind(plotsAnchorPane.heightProperty());
 
-        plotScrollPane.prefWidthProperty().bind(masterVBox.widthProperty());
-        plotScrollPane.prefHeightProperty().bind(masterVBox.heightProperty().subtract(toolbar.getHeight()));
+        plotTabPane.prefWidthProperty().bind(masterVBox.widthProperty());
+        plotTabPane.prefHeightProperty().bind(masterVBox.heightProperty().subtract(toolbar.getHeight()));
+
+        ensembleGridPane.prefWidthProperty().bind(plotTabPane.widthProperty());
+        ensembleGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(toolbar.getHeight()));
 
     }
 
@@ -85,6 +84,7 @@ public class RJMCMCPlotsController {
         service.setOnSucceeded(evt -> {
             AbstractPlotBuilder ratiosHistogramBuilder = ((RJMCMCUpdatesTask) service.getHistogramTask()).getRatiosHistogramBuilder();
             AbstractPlotBuilder baselineHistogramBuilder = ((RJMCMCUpdatesTask) service.getHistogramTask()).getBaselineHistogramBuilder();
+            AbstractPlotBuilder dalyFaradayHistogramBuilder = ((RJMCMCUpdatesTask) service.getHistogramTask()).getDalyFaradayGainHistogramBuilder();
 
             AbstractDataView ratiosHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth(),
@@ -93,33 +93,48 @@ public class RJMCMCPlotsController {
 
             AbstractDataView baselineHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth() / ensembleGridPane.getColumnCount(),
-                            ensembleGridPane.getHeight()/ ensembleGridPane.getRowCount()),
+                            ensembleGridPane.getHeight() / ensembleGridPane.getRowCount()),
                     (HistogramBuilder)baselineHistogramBuilder);
 
-//            plotScrollPane.widthProperty().addListener(new ChangeListener<Number>() {
-//                @Override
-//                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-//                    if (newValue.intValue() > 100) {
-//                        ratiosHistogramPlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
-//                        ratiosHistogramPlot.repaint();
-//                    }
-//                }
-//            });
-//
-//            plotScrollPane.heightProperty().addListener(new ChangeListener<Number>() {
-//                @Override
-//                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-//                    if (newValue.intValue() > 100) {
-//                        ratiosHistogramPlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
-//                        ratiosHistogramPlot.repaint();
-//                    }
-//                }
-//            });
+            AbstractDataView dalyFaradayHistogramPlot = new HistogramPlot(
+                    new Rectangle(ensembleGridPane.getWidth() / ensembleGridPane.getColumnCount(),
+                            ensembleGridPane.getHeight() / ensembleGridPane.getRowCount()),
+                    (HistogramBuilder)dalyFaradayHistogramBuilder);
+
+            plotTabPane.widthProperty().addListener(new ChangeListener<Number>() {
+                @Override
+                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                    if (newValue.intValue() > 100) {
+                        ratiosHistogramPlot.setMyWidth(newValue.intValue());
+                        ratiosHistogramPlot.repaint();
+                        baselineHistogramPlot.setMyWidth(newValue.intValue() / ensembleGridPane.getColumnCount());
+                        baselineHistogramPlot.repaint();
+                        dalyFaradayHistogramPlot.setMyWidth(newValue.intValue() / ensembleGridPane.getColumnCount());
+                        dalyFaradayHistogramPlot.repaint();
+                    }
+                }
+            });
+
+            plotTabPane.heightProperty().addListener(new ChangeListener<Number>() {
+                @Override
+                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                    if (newValue.intValue() > 100) {
+                        ratiosHistogramPlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount());
+                        ratiosHistogramPlot.repaint();
+                        baselineHistogramPlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount());
+                        baselineHistogramPlot.repaint();
+                        dalyFaradayHistogramPlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount());
+                        dalyFaradayHistogramPlot.repaint();
+                    }
+                }
+            });
 
             ratiosHistogramPlot.preparePanel();
-            //ensembleGridPane.add(ratiosHistogramPlot, 0, 0, 2, 1);
+            ensembleGridPane.add(ratiosHistogramPlot, 0, 0, 2, 1);
             baselineHistogramPlot.preparePanel();
-            ensembleGridPane.add(baselineHistogramPlot, 0, 1);
+            ensembleGridPane.add(baselineHistogramPlot, 0, 1,1,1);
+            dalyFaradayHistogramPlot.preparePanel();
+            ensembleGridPane.add(dalyFaradayHistogramPlot, 1, 1,1,1);
 
         });
 
