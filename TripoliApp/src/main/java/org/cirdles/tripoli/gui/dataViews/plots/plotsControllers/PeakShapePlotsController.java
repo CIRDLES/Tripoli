@@ -24,6 +24,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -76,7 +77,7 @@ public class PeakShapePlotsController {
     private Button browseResourceButton;
 
     @FXML
-    void demo2ButtonAction(ActionEvent event) throws IOException {
+    void demo2ButtonAction(ActionEvent event) {
         processDataFileAndShowPlotsOfPeakShapes();
         ((Button) event.getSource()).setDisable(true);
     }
@@ -106,7 +107,7 @@ public class PeakShapePlotsController {
 
     }
 
-    public void processDataFileAndShowPlotsOfPeakShapes() throws IOException {
+    public void processDataFileAndShowPlotsOfPeakShapes() {
 //        ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
 //        Path dataFile = RESOURCE_EXTRACTOR
 //               .extractResourceAsFile(String.valueOf(resourceBrowserTarget)).toPath();
@@ -179,6 +180,7 @@ public class PeakShapePlotsController {
                 beamShapePlotScrollPane.setContent(beamShapeLinePlot);
             });
         } else {
+            eventLogTextArea.textProperty().unbind();
             eventLogTextArea.setText("Please Choose File");
         }
 
@@ -196,7 +198,7 @@ public class PeakShapePlotsController {
         resourceFilesInFolder = new ArrayList<>();
         resourceBrowserTarget = new File("TripoliResources/PeakCentres");
 
-        // Sort by date not implemented yet
+
         if (resourceBrowserTarget != null && (resourceBrowserType.compareToIgnoreCase(".txt") == 0)) {
 
             for (File file : resourceBrowserTarget.listFiles()) {
@@ -217,6 +219,7 @@ public class PeakShapePlotsController {
                     if (headerLine.size() >= 2 && (headerLine.get(1)[1].equalsIgnoreCase("PhotoMultiplier") || headerLine.get(1)[1].equalsIgnoreCase("Axial"))) {
                         resourceFilesInFolder.add(file);
                     }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -237,9 +240,12 @@ public class PeakShapePlotsController {
 
 
             ObservableList<File> items = FXCollections.observableArrayList(resourceFilesInFolder);
+            // Sorts by file last modified
+            // Sort by date within file not implemented yet
+            items.sort(Comparator.comparing(File::lastModified));
             listViewOfResourcesInFolder.setItems(items);
 
-            listViewOfResourcesInFolder.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<File>() {
+            listViewOfResourcesInFolder.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
                 @Override
                 public void changed(ObservableValue<? extends File> observable, File oldValue, File newValue) {
                     resourceBrowserTarget = newValue;
