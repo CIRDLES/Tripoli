@@ -24,35 +24,40 @@ import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
  */
 public class HistogramBuilder extends AbstractPlotBuilder {
 
-    private double[] data;
-    private int binCount;
-    private double[] binCounts;
-    private double binWidth;
-    private double[] binCenters;
+    private HistogramRecord[] histograms;
 
-    private HistogramBuilder(double[] data, int binCount, String title) {
+    private HistogramBuilder(String title) {
         super(title);
-        this.data = data;
-        this.binCount = binCount;
+        histograms = new HistogramRecord[0];
     }
 
     public static HistogramBuilder initializeHistogram(double[] data, int binCount, String title) {
-        HistogramBuilder histogramBuilder = new HistogramBuilder(data, binCount, title);
-        histogramBuilder.generateHistogram();
+        HistogramBuilder histogramBuilder = new HistogramBuilder(title);
+        histogramBuilder.histograms = new HistogramRecord[1];
+        histogramBuilder.histograms[0] = histogramBuilder.generateHistogram(data, binCount);
         return histogramBuilder;
     }
 
-    public static HistogramBuilder initializeHistogram(double[][] data, int binCount, String title) {
-        double[] allData = new double[data[0].length * data.length];
-        for (int row = 0; row < data.length; row ++){
-            System.arraycopy(data[row], 0, allData, row * data[0].length, data[0].length);
+    public static HistogramBuilder initializeHistogram(boolean histogramPerRow, double[][] data, int binCount, String title) {
+        HistogramBuilder histogramBuilder = new HistogramBuilder(title);
+        if (histogramPerRow){
+            histogramBuilder.histograms = new HistogramRecord[data.length];
+            for (int row = 0; row < data.length; row ++){
+                histogramBuilder.histograms[row] = histogramBuilder.generateHistogram(data[row], binCount);
+            }
+        } else {
+            double[] allData = new double[data[0].length * data.length];
+            histogramBuilder.histograms = new HistogramRecord[1];
+            for (int row = 0; row < data.length; row++) {
+                System.arraycopy(data[row], 0, allData, row * data[0].length, data[0].length);
+            }
+            histogramBuilder.histograms[0] = histogramBuilder.generateHistogram(allData, binCount);
         }
-        HistogramBuilder histogramBuilder = new HistogramBuilder(allData, binCount, title);
-        histogramBuilder.generateHistogram();
+
         return histogramBuilder;
     }
 
-    private void generateHistogram() {
+    private HistogramRecord generateHistogram(double[] data, int binCount) {
         DescriptiveStatistics descriptiveStatisticsRatios = new DescriptiveStatistics();
         for (int index = 0; index < data.length; index++) {
             descriptiveStatisticsRatios.addValue(data[index]);
@@ -60,9 +65,9 @@ public class HistogramBuilder extends AbstractPlotBuilder {
         double dataMax = descriptiveStatisticsRatios.getMax();
         double dataMin = descriptiveStatisticsRatios.getMin();
 
-        binCounts = new double[binCount];
-        binWidth = (dataMax - dataMin) / (double) binCount;
-        
+        double[] binCounts = new double[binCount];
+        double binWidth = (dataMax - dataMin) / (double) binCount;
+
         for (int index = 0; index < data.length; index++) {
             double datum = data[index];
             if (datum != 0.0) { //ignore 0s here
@@ -75,21 +80,21 @@ public class HistogramBuilder extends AbstractPlotBuilder {
             }
         }
 
-        binCenters = new double[binCount];
+        double[] binCenters = new double[binCount];
         for (int binIndex = 0; binIndex < binCount; binIndex++) {
             binCenters[binIndex] = dataMin + (binIndex + 0.5) * binWidth;
         }
+
+        return new HistogramRecord(
+                data,
+                binCount,
+                binCounts,
+                binWidth,
+                binCenters
+        );
     }
 
-    public double[] getBinCounts() {
-        return binCounts;
-    }
-
-    public double getBinWidth() {
-        return binWidth;
-    }
-
-    public double[] getBinCenters() {
-        return binCenters;
+    public HistogramRecord[] getHistograms() {
+        return histograms;
     }
 }

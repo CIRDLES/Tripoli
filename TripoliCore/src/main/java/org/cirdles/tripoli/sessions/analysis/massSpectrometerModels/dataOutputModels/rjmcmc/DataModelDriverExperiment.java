@@ -786,7 +786,7 @@ public class DataModelDriverExperiment {
         double[] signalNoiseMeans = new double[2];
         double[] signalNoiseStdDev = new double[2];
 
-        for (int row = 0; row < 2; row++) {
+        for (int row = 0; row < massSpecOutputDataRecord.faradayCount(); row++) {
             DescriptiveStatistics descriptiveStatisticsSignalNoise = new DescriptiveStatistics();
             for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
                 ensembleSignalnoise[row][index - burn] = ensembleRecordsList.get(index).signalNoise().get(row, 0);
@@ -810,9 +810,9 @@ public class DataModelDriverExperiment {
         // visualization
         AbstractPlotBuilder[] histogramBuilder = new AbstractPlotBuilder[4];
         histogramBuilder[0] = HistogramBuilder.initializeHistogram(ensembleRatios, 50, "Histogram of ratios");
-        histogramBuilder[1] = HistogramBuilder.initializeHistogram(ensembleBaselines, 50, "Histogram of baseline");
+        histogramBuilder[1] = HistogramBuilder.initializeHistogram(false, ensembleBaselines, 50, "Histogram of baseline");
         histogramBuilder[2] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain, 50, "Histogram of Daly/Faraday Gain");
-        histogramBuilder[3] = HistogramBuilder.initializeHistogram(ensembleSignalnoise, 50, "Histogram of Signal Noise");
+        histogramBuilder[3] = HistogramBuilder.initializeHistogram(true, ensembleSignalnoise, 50, "Histogram of Signal Noise");
 
 
         // todo: missing additional elements of signalNoise (i.e., 0,11,11)
