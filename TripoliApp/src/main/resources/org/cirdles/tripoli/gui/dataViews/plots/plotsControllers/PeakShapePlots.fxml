@@ -47,7 +47,7 @@
                 <ToolBar fx:id="toolbar" prefHeight="15.0" prefWidth="500.0">
                     <items>
                         <Button fx:id="demo2Button" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#demo2ButtonAction" text="Start Demo2 PeakShapes" />
-                  <Button fx:id="browseResourceButton" mnemonicParsing="false" onAction="#browseResourceFileAction" text="Choose File" />
+                  <Button fx:id="browseResourceButton" mnemonicParsing="false" onAction="#browseResourceFileAction" text="Choose Folder" />
                     </items>
                 </ToolBar>
             </children>

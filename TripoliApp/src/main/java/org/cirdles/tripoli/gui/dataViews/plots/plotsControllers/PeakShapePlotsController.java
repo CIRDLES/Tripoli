@@ -5,8 +5,10 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
@@ -23,10 +25,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.PeakShapePlotsWindow.plottingWindow;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.*;
@@ -78,8 +77,12 @@ public class PeakShapePlotsController {
 
     @FXML
     void demo2ButtonAction(ActionEvent event) {
-        processDataFileAndShowPlotsOfPeakShapes();
-        ((Button) event.getSource()).setDisable(true);
+        if (resourceBrowserTarget != null) {
+            processDataFileAndShowPlotsOfPeakShapes();
+            ((Button) event.getSource()).setDisable(true);
+        } else {
+            eventLogTextArea.setText("No file has been selected");
+        }
     }
 
     @FXML
@@ -88,7 +91,6 @@ public class PeakShapePlotsController {
         masterVBox.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT);
         toolbar.setPrefSize(PLOT_WINDOW_WIDTH, 20.0);
 
-        populateListOfResources();
         gBeamPlotScrollPane.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT - toolbar.getHeight());
         gBeamPlotScrollPane.setPrefViewportWidth(PLOT_WINDOW_WIDTH - SCROLLBAR_THICKNESS);
         gBeamPlotScrollPane.setPrefViewportHeight(gBeamPlotScrollPane.getPrefHeight() - SCROLLBAR_THICKNESS);
@@ -102,8 +104,7 @@ public class PeakShapePlotsController {
 
         resourceListAnchorPane.prefHeightProperty().bind(resourceListScrollPane.heightProperty());
         resourceListAnchorPane.prefWidthProperty().bind(resourceListScrollPane.widthProperty());
-        listViewOfResourcesInFolder.prefHeightProperty().bind(resourceListAnchorPane.prefHeightProperty());
-        listViewOfResourcesInFolder.prefWidthProperty().bind(resourceListAnchorPane.prefWidthProperty());
+
 
     }
 
@@ -124,7 +125,7 @@ public class PeakShapePlotsController {
                         (GBeamLinePlotBuilder) gBeamPlotBuilder
                 );
 
-                gBeamPlotScrollPane.widthProperty().addListener(new ChangeListener<Number>() {
+                gBeamPlotScrollPane.widthProperty().addListener(new ChangeListener<>() {
                     @Override
                     public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                         if (newValue.intValue() > 100) {
@@ -134,7 +135,7 @@ public class PeakShapePlotsController {
                     }
                 });
 
-                gBeamPlotScrollPane.heightProperty().addListener(new ChangeListener<Number>() {
+                gBeamPlotScrollPane.heightProperty().addListener(new ChangeListener<>() {
                     @Override
                     public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                         if (newValue.intValue() > 100) {
@@ -156,7 +157,7 @@ public class PeakShapePlotsController {
                         (BeamShapeLinePlotBuilder) beamShapePlotBuilder
                 );
 
-                beamShapePlotScrollPane.widthProperty().addListener(new ChangeListener<Number>() {
+                beamShapePlotScrollPane.widthProperty().addListener(new ChangeListener<>() {
                     @Override
                     public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                         if (newValue.intValue() > 100) {
@@ -166,7 +167,7 @@ public class PeakShapePlotsController {
                     }
                 });
 
-                beamShapePlotScrollPane.heightProperty().addListener(new ChangeListener<Number>() {
+                beamShapePlotScrollPane.heightProperty().addListener(new ChangeListener<>() {
                     @Override
                     public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                         if (newValue.intValue() > 100) {
@@ -181,27 +182,25 @@ public class PeakShapePlotsController {
             });
         } else {
             eventLogTextArea.textProperty().unbind();
-            eventLogTextArea.setText("Please Choose File");
+            eventLogTextArea.setText("Please Choose Folder");
         }
 
     }
 
     @FXML
-    public void browseResourceFileAction() throws IOException {
-        resourceBrowserTarget = FileUtilities.selectPeakShapeResourceFileForBrowsing(plottingWindow);
-        processDataFileAndShowPlotsOfPeakShapes();
-        demo2Button.setDisable(true);
+    public void browseResourceFileAction() {
+        resourceBrowserTarget = FileUtilities.selectPeakShapeResourceFolderForBrowsing(plottingWindow);
+        populateListOfResources();
     }
 
     private void populateListOfResources() {
 
         resourceFilesInFolder = new ArrayList<>();
-        resourceBrowserTarget = new File("TripoliResources/PeakCentres");
+        // resourceBrowserTarget = new File("TripoliResources/PeakCentres");
 
 
         if (resourceBrowserTarget != null && (resourceBrowserType.compareToIgnoreCase(".txt") == 0)) {
-
-            for (File file : resourceBrowserTarget.listFiles()) {
+            for (File file : Objects.requireNonNull(resourceBrowserTarget.listFiles(File::isFile))) {
                 try {
                     List<String> contentsByLine = new ArrayList<>(Files.readAllLines(file.toPath(), Charset.defaultCharset()));
                     List<String[]> headerLine = new ArrayList<>();
@@ -215,9 +214,11 @@ public class PeakShapePlotsController {
                             }
                         }
                     }
-
-                    if (headerLine.size() >= 2 && (headerLine.get(1)[1].equalsIgnoreCase("PhotoMultiplier") || headerLine.get(1)[1].equalsIgnoreCase("Axial"))) {
+                    // Filters out files
+                    if (headerLine.size() >= 2 && (headerLine.get(0)[0].equalsIgnoreCase("timestamp")) && ((headerLine.get(1)[1].equalsIgnoreCase("PhotoMultiplier") || headerLine.get(1)[1].equalsIgnoreCase("Axial")))) {
                         resourceFilesInFolder.add(file);
+                    } else {
+                        eventLogTextArea.setText("No valid resources");
                     }
 
                 } catch (IOException e) {
@@ -225,11 +226,15 @@ public class PeakShapePlotsController {
                 }
 
             }
+        } else {
+            eventLogTextArea.setText("No valid resources");
         }
-
+        // Checks if there are no files in folder
         if (resourceFilesInFolder.isEmpty()) {
             if (resourceBrowserType.compareToIgnoreCase(".txt") == 0) {
-                eventLogTextArea.setText("No Valid Resources");
+                eventLogTextArea.textProperty().unbind();
+                eventLogTextArea.setText("No valid resources");
+                resourceListAnchorPane.getChildren().remove(listViewOfResourcesInFolder);
             }
         } else {
             listViewOfResourcesInFolder = new ListView<>();
@@ -245,6 +250,7 @@ public class PeakShapePlotsController {
             items.sort(Comparator.comparing(File::lastModified));
             listViewOfResourcesInFolder.setItems(items);
 
+            // Selects the file and list and displays details of selected file
             listViewOfResourcesInFolder.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
                 @Override
                 public void changed(ObservableValue<? extends File> observable, File oldValue, File newValue) {
@@ -276,6 +282,17 @@ public class PeakShapePlotsController {
                     }
 
                     demo2Button.setDisable(false);
+
+                }
+            });
+
+            listViewOfResourcesInFolder.setOnMouseClicked(new EventHandler<>() {
+                @Override
+                public void handle(MouseEvent click) {
+                    if (click.getClickCount() == 2) {
+                        resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
+                        processDataFileAndShowPlotsOfPeakShapes();
+                    }
                 }
             });
 
@@ -283,6 +300,8 @@ public class PeakShapePlotsController {
                 listViewOfResourcesInFolder.getSelectionModel().selectFirst();
             }
 
+            listViewOfResourcesInFolder.prefHeightProperty().bind(resourceListAnchorPane.prefHeightProperty());
+            listViewOfResourcesInFolder.prefWidthProperty().bind(resourceListAnchorPane.prefWidthProperty());
             resourceListAnchorPane.getChildren().add(listViewOfResourcesInFolder);
         }
 

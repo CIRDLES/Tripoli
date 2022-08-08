@@ -24,6 +24,8 @@ import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.PeakShapePlotsController.resourceBrowserTarget;
+
 /**
  * @author James F. Bowring
  */
@@ -51,6 +53,7 @@ public class PeakShapePlotsWindow {
         plottingStage.setOnCloseRequest((WindowEvent e) -> {
             plottingStage.hide();
             plottingStage.setScene(null);
+            resourceBrowserTarget = null;
             e.consume();
         });
     }
