@@ -36,7 +36,7 @@ public class HistogramPlot extends AbstractDataView {
      * @param bounds
      */
     public HistogramPlot(Rectangle bounds, HistogramBuilder histogramBuilder) {
-        super(bounds, 35, 25);
+        super(bounds, 35, 5);
         this.histogramBuilder = histogramBuilder;
     }
 
@@ -60,7 +60,10 @@ public class HistogramPlot extends AbstractDataView {
             minY = StrictMath.min(minY, yAxisDatum);
             maxY = StrictMath.max(maxY, yAxisDatum);
         }
-        ticsY = TicGeneratorForAxes.generateTics(minY, maxY, (int) (graphHeight / 20.0));
+
+        // customized for histogram
+        minY = 0;
+        ticsY = TicGeneratorForAxes.generateTics(minY, maxY, (int) (graphHeight / 10.0));
 
         // check for no data
         if ((ticsY != null) && (ticsY.length > 1)) {
@@ -148,13 +151,13 @@ public class HistogramPlot extends AbstractDataView {
                                 mapX(ticsX[i].doubleValue()),
                                 mapY(ticsY[0].doubleValue()),
                                 mapX(ticsX[i].doubleValue()),
-                                mapY(ticsY[0].doubleValue()) + 5);
+                                mapY(ticsY[0].doubleValue()) + 2);
 
                         // bottom
                         String xText = ticsX[i].toPlainString();
                         g2d.fillText(xText,
                                 (float) mapX(ticsX[i].doubleValue()) - 5f,
-                                (float) mapY(ticsY[0].doubleValue()) + 15);
+                                (float) mapY(ticsY[0].doubleValue()) + 10);
 
                     } catch (Exception e) {
                     }

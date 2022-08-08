@@ -119,11 +119,11 @@ public class RJMCMCPlotsController {
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                     if (newValue.intValue() > 100) {
-                        ratiosHistogramPlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount());
+                        ratiosHistogramPlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount() - 5);
                         ratiosHistogramPlot.repaint();
-                        baselineHistogramPlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount());
+                        baselineHistogramPlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount() - 5);
                         baselineHistogramPlot.repaint();
-                        dalyFaradayHistogramPlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount());
+                        dalyFaradayHistogramPlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount() - 5);
                         dalyFaradayHistogramPlot.repaint();
                     }
                 }

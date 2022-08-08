@@ -117,7 +117,7 @@ public abstract class AbstractDataView extends Canvas {
      * @return mapped y
      */
     protected double mapY(double y) {
-        return (((getMaxY_Display() - y) / getRangeY_Display()) * graphHeight) + topMargin;
+        return (((getMaxY_Display() - y) / getRangeY_Display()) * graphHeight) + topMargin / 2.0;
     }
 
     /**
