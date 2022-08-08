@@ -203,13 +203,15 @@ public class DataModelDriverExperiment {
             end
          */
 
-        Matrix dataWithNoBaseline = new Matrix(dataModelInit.dataArray().getRowDimension(), 1);
+        // Matrix dataWithNoBaseline = new Matrix(dataModelInit.dataArray().getRowDimension(), 1);
+        Matrix dataWithNoBaseline = new Matrix(dataModelInit.dataArray().length, 1);
         for (int faradayIndex = 0; faradayIndex < massSpecOutputDataRecord.faradayCount(); faradayIndex++) {
             for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().getRowDimension(); row++) {
                 if ((massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().get(row, 0) == 1)
                         &&
                         (massSpecOutputDataRecord.detectorFlagsForRawDataColumn().get(row, faradayIndex) == 1)) {
-                    dataModelInit.dataArray().set(row, 0, dataModelInit.baselineMeans().get(faradayIndex, 0));
+                    // dataModelInit.dataArray().set(row, 0, dataModelInit.baselineMeans().get(faradayIndex, 0));
+                    dataModelInit.dataArray()[row] = dataModelInit.baselineMeans().get(faradayIndex, 0);
                     dataWithNoBaseline.set(row, 0, 0.0);
                 }
             }
@@ -254,7 +256,8 @@ public class DataModelDriverExperiment {
                                 exp(dataModelInit.logratios().get(isotopeIndex, 0))
                                         // * Intensity.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
                                         * IntensityOJ.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
-                        dataModelInit.dataArray().set(row, 0, calcValue);
+                        // dataModelInit.dataArray().set(row, 0, calcValue);
+                        dataModelInit.dataArray()[row] =  calcValue;
                         dataWithNoBaseline.set(row, 0, calcValue);
                     }
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn().get(row, isotopeIndex) == 1)
@@ -266,8 +269,10 @@ public class DataModelDriverExperiment {
                                         // * Intensity.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
                                         * IntensityOJ.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
                         dataWithNoBaseline.set(row, 0, calcValue);
-                        dataModelInit.dataArray().set(row, 0,
-                                calcValue + dataModelInit.baselineMeans().get((int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn().get(row, 0) - 1, 0));
+                        // dataModelInit.dataArray().set(row, 0,
+                        //         calcValue + dataModelInit.baselineMeans().get((int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn().get(row, 0) - 1, 0));
+                        dataModelInit.dataArray()[row] =
+                                calcValue + dataModelInit.baselineMeans().get((int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn().get(row, 0) - 1, 0);
                     }
                 }
             }
@@ -308,7 +313,8 @@ public class DataModelDriverExperiment {
         double initialModelErrorUnWeighted_E0 = 0.0;
 //        for (int row = 0; row < residualTmp.getRowDimension(); row++) {
         for (int row = 0; row < residualTmpArray.length; row++) {
-            double calculatedValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn().get(row, 0) - dataModelInit.dataArray().get(row, 0), 2);
+            // double calculatedValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn().get(row, 0) - dataModelInit.dataArray().get(row, 0), 2);
+            double calculatedValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn().get(row, 0) - dataModelInit.dataArray()[row], 2);
 //            residualTmp.set(row, 0, calculatedValue);
             residualTmpArray[row] = calculatedValue;
 //            initialModelErrorWeighted_E = initialModelErrorWeighted_E + (calculatedValue * baselineMultiplier.get(row, 0) / dSignalNoise.get(row, 0));
@@ -406,7 +412,7 @@ public class DataModelDriverExperiment {
         org.apache.commons.lang3.time.StopWatch watch = new StopWatch();
         watch.start();
         for (int modelIndex = 1; modelIndex <= maxCount * stepCountForcedSave; modelIndex++) {//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
+            long prev = System.nanoTime();
             String operation = randomOperMS(hierarchical);
             // todo: handle adaptiveFlag case
             boolean adaptiveFlag = (counter >= 100000);
@@ -499,6 +505,9 @@ public class DataModelDriverExperiment {
                 tmpLRArray[row] = exp(dataModelUpdaterOutputRecord_x2.logratios().get((int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn().get(row, 0) - 1, 0));
             }
 
+            long interval1 = System.nanoTime() - prev;
+            prev = interval1 + prev;
+
             // todo: reminder only 1 block here
             // Matrix intensity2 = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelUpdaterOutputRecord_x2.blockIntensities());
             // MatrixStore<Double> Intensity2OJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ().multiply(dataModelUpdaterOutputRecord_x2.blockIntensitiesOJ());
@@ -513,10 +522,15 @@ public class DataModelDriverExperiment {
                 tmpIArray[row] = Intensity2OJ.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
             }
 
+            /*
             Matrix tmpBL = new Matrix(tmpBLArray, tmpBLArray.length);
             Matrix tmpDF = new Matrix(tmpDFArray, tmpDFArray.length);
             Matrix tmpLR = new Matrix(tmpLRArray, tmpLRArray.length);
             Matrix tmpI = new Matrix(tmpIArray, tmpIArray.length);
+            */
+
+            long interval2 = System.nanoTime() - prev;
+            prev = interval2 + prev;
 
 //            // todo: reminder only 1 block here
 //            Matrix intensity2 = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelUpdaterOutputRecord_x2.blockIntensities());
@@ -527,8 +541,17 @@ public class DataModelDriverExperiment {
 //                tmpI.set(row, 0, intensity2.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0));
 //            }
 
-            Matrix dnobl2 = tmpDF.arrayTimes(tmpLR).arrayTimes(tmpI);
-            Matrix d2 = dnobl2.plus(tmpBL);
+            // Matrix dnobl2 = tmpDF.arrayTimes(tmpLR).arrayTimes(tmpI);
+            // Matrix d2 = dnobl2.plus(tmpBL);
+            double[] dnobl2 = new double[rowDimension];
+            double [] d2 = new double[rowDimension];
+
+            for (int row = 0; row < rowDimension; row++) {
+                double value = tmpDFArray[row] * tmpLRArray[row] * tmpIArray[row];
+                dnobl2[row] = value;
+                d2[row] = value + tmpBLArray[row];
+            }
+
 //            Matrix dSignalNoise2 = new Matrix(massSpecOutputDataRecord.rawDataColumn().getRowDimension(), 1, 0.0);
             double[] dSignalNoise2Array = new double[massSpecOutputDataRecord.rawDataColumn().getRowDimension()];
 //            Matrix restmp = new Matrix(massSpecOutputDataRecord.rawDataColumn().getRowDimension(), 1, 0.0);
@@ -541,17 +564,24 @@ public class DataModelDriverExperiment {
             double sumLogDSignalNoise = 0;
             double sumLogDSignalNoise2 = 0;
             double keep = 0;
+
+            long interval3 = System.nanoTime() - prev;
+            prev = interval3 + prev;
+
             for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().getRowDimension(); row++) {
                 //Dsig2 = x2.sig(d0.det_vec).^2 + x2.sig(d0.iso_vec+d0.Ndet).*dnobl2;
                 double term1 = StrictMath.pow(dataModelUpdaterOutputRecord_x2.signalNoise().get((int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn().get(row, 0) - 1, 0), 2);
                 double term2 = dataModelUpdaterOutputRecord_x2.signalNoise().get((int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn().get(row, 0) - 1 + massSpecOutputDataRecord.faradayCount() + 1, 0);
 //                dSignalNoise2.set(row, 0, term1 + term2 * dnobl2.get(row, 0));
-                dSignalNoise2Array[row] = term1 + term2 * dnobl2.get(row, 0);
-                double residualValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn().get(row, 0) - dataModelInit.dataArray().get(row, 0), 2);
+                // dSignalNoise2Array[row] = term1 + term2 * dnobl2.get(row, 0);
+                dSignalNoise2Array[row] = term1 + term2 * dnobl2[row];
+                // double residualValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn().get(row, 0) - dataModelInit.dataArray().get(row, 0), 2);
+                double residualValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn().get(row, 0) - dataModelInit.dataArray()[row], 2);
 //                restmp.set(row, 0, residualValue);
                 E0 += residualValue;
 
-                double residualValue2 = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn().get(row, 0) - d2.get(row, 0), 2);
+                // double residualValue2 = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn().get(row, 0) - d2.get(row, 0), 2);
+                double residualValue2 = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn().get(row, 0) - d2[row], 2);
 //                restmp2.set(row, 0, residualValue2);
                 E02 += residualValue2;
 
@@ -576,6 +606,10 @@ public class DataModelDriverExperiment {
                     E2 += residualValue2 * baselineMultiplier.get(row, 0) / dSignalNoise2Array[row];
                 }
             } //rows loop
+
+            long interval4 = System.nanoTime() - prev;
+            prev = interval4 + prev;
+
             if (operation.toLowerCase(Locale.ROOT).startsWith("n")) {
                 dE = E2 - E;
                 double deltaLogNoise = sumLogDSignalNoise2 - sumLogDSignalNoise;//X = sum(-log(Dsig2))-sum(-log(Dsig));
@@ -622,7 +656,8 @@ public class DataModelDriverExperiment {
                         dataModelUpdaterOutputRecord_x2.dfGain(),
                         dataModelUpdaterOutputRecord_x2.logratios(),
                         dataModelUpdaterOutputRecord_x2.signalNoise(),
-                        (Matrix) d2.clone(),
+                        // (Matrix) d2.clone(),
+                        d2,
                         // dataModelUpdaterOutputRecord_x2.blockIntensities(),
                         dataModelUpdaterOutputRecord_x2.blockIntensitiesOJ()
                 );
@@ -632,6 +667,9 @@ public class DataModelDriverExperiment {
                 keptUpdates.set(operationIndex, 0, keptUpdates.get(operationIndex, 0) + 1);
                 keptUpdates.set(operationIndex, 2, keptUpdates.get(operationIndex, 2) + 1);
             }
+
+            long interval5 = System.nanoTime() - prev;
+
             if (modelIndex % (stepCountForcedSave) == 0) {
                 /*
                     cnt=cnt+1; % Increment counter
@@ -713,6 +751,13 @@ public class DataModelDriverExperiment {
                                             + " of "
                                             + keptUpdates.get(4, 1)
                                             + " accepted (" + statsFormat.format(100.0 * keptUpdates.get(4, 2) / keptUpdates.get(4, 3)) + "% total)")
+                                    +("\nIntervals: in microseconds, each from prev or zero time till new interval"
+                                            + " Interval1 " + (interval1 / 1000)
+                                            + " Interval2 " + (interval2 / 1000)
+                                            + " Interval3 " + (interval3 / 1000)
+                                            + " Interval4 " + (interval4 / 1000)
+                                            + " Interval5 " + (interval5 / 1000)
+                                    )
                                     : "");
 
                     System.err.println("\n" + loggingSnippet);

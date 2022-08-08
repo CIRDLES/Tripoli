@@ -18,7 +18,6 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputM
 
 import jama.Matrix;
 import org.ojalgo.RecoverableCondition;
-// import org.ojalgo.matrix.Primitive64Matrix;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
@@ -307,7 +306,8 @@ public class DataModelInitializer {
                 dfGain,
                 new Matrix(logRatios),
                 new Matrix(sigmas, sigmas.length),
-                new Matrix(dataArray, dataArray.length),
+                // new Matrix(dataArray, dataArray.length),
+                dataArray,
                 // IO,
                 IOOJ
         );
