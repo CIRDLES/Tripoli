@@ -47,10 +47,11 @@ public class HistogramPlot extends AbstractDataView {
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
 
-        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 50.0));
+//        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 50.0));
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.05);
-        minX -= xMarginStretch;
+//        minX -= xMarginStretch;
         maxX += xMarginStretch;
+        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 20.0));
 
         yAxisData = histogramBuilder.getBinCounts();
         minY = Double.MAX_VALUE;
@@ -92,7 +93,7 @@ public class HistogramPlot extends AbstractDataView {
 
         g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 12));
         g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText(histogramBuilder.getTitle(), 10, 15);
+        g2d.fillText(histogramBuilder.getTitle(), leftMargin + 25, 15);
 
         // plot bins
         g2d.setLineWidth(2.0);
@@ -145,7 +146,7 @@ public class HistogramPlot extends AbstractDataView {
             }
             // ticsX
             if (ticsX != null) {
-                for (int i = 0; i < ticsX.length - 1; i++) {
+                for (int i = 1; i < ticsX.length - 1; i++) {
                     try {
                         g2d.strokeLine(
                                 mapX(ticsX[i].doubleValue()),

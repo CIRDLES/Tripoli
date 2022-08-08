@@ -31,6 +31,7 @@ public class RJMCMCUpdatesTask extends Task<String> implements LoggingCallbackIn
     private AbstractPlotBuilder ratiosHistogramBuilder;
     private AbstractPlotBuilder baselineHistogramBuilder;
     private AbstractPlotBuilder dalyFaradayGainHistogramBuilder;
+    private AbstractPlotBuilder signalNoiseHistogramBuilder;
 
     public RJMCMCUpdatesTask(Path dataFile) {
         this.dataFile = dataFile;
@@ -48,12 +49,17 @@ public class RJMCMCUpdatesTask extends Task<String> implements LoggingCallbackIn
         return dalyFaradayGainHistogramBuilder;
     }
 
+    public AbstractPlotBuilder getSignalNoiseHistogramBuilder() {
+        return signalNoiseHistogramBuilder;
+    }
+
     @Override
     protected String call() throws Exception {
         AbstractPlotBuilder[] plots = DataModelDriverExperiment.driveModelTest(dataFile, this);
         ratiosHistogramBuilder = plots[0];
         baselineHistogramBuilder = plots[1];
         dalyFaradayGainHistogramBuilder = plots[2];
+        signalNoiseHistogramBuilder = plots[3];
         return "DONE";
     }
 

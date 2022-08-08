@@ -62,16 +62,13 @@ public class HistogramBuilder extends AbstractPlotBuilder {
 
         binCounts = new double[binCount];
         binWidth = (dataMax - dataMin) / (double) binCount;
-
-//        int maxBinCount = 0;
+        
         for (int index = 0; index < data.length; index++) {
             double datum = data[index];
             if (datum != 0.0) { //ignore 0s here
                 int binNum = Math.min((int) Math.floor(Math.abs((datum - dataMin * 1.000000001) / binWidth)), binCount - 1);
                 try {
                     binCounts[binNum]++;
-//                    if (binCounts[binNum] > maxBinCount)
-//                        maxBinCount++;
                 } catch (Exception eHist) {
                     System.err.println(eHist.getMessage());
                 }

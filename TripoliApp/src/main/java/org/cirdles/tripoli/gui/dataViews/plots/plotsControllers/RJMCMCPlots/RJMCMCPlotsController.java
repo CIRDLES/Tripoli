@@ -85,6 +85,7 @@ public class RJMCMCPlotsController {
             AbstractPlotBuilder ratiosHistogramBuilder = ((RJMCMCUpdatesTask) service.getHistogramTask()).getRatiosHistogramBuilder();
             AbstractPlotBuilder baselineHistogramBuilder = ((RJMCMCUpdatesTask) service.getHistogramTask()).getBaselineHistogramBuilder();
             AbstractPlotBuilder dalyFaradayHistogramBuilder = ((RJMCMCUpdatesTask) service.getHistogramTask()).getDalyFaradayGainHistogramBuilder();
+            AbstractPlotBuilder signalNoiseHistogramBuilder = ((RJMCMCUpdatesTask) service.getHistogramTask()).getSignalNoiseHistogramBuilder();
 
             AbstractDataView ratiosHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth(),
@@ -101,6 +102,11 @@ public class RJMCMCPlotsController {
                             ensembleGridPane.getHeight() / ensembleGridPane.getRowCount()),
                     (HistogramBuilder)dalyFaradayHistogramBuilder);
 
+            AbstractDataView signalNoiseHistogramPlot = new HistogramPlot(
+                    new Rectangle(ensembleGridPane.getWidth(),
+                            ensembleGridPane.getHeight() / ensembleGridPane.getRowCount()),
+                    (HistogramBuilder)signalNoiseHistogramBuilder);
+
             plotTabPane.widthProperty().addListener(new ChangeListener<Number>() {
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -111,6 +117,8 @@ public class RJMCMCPlotsController {
                         baselineHistogramPlot.repaint();
                         dalyFaradayHistogramPlot.setMyWidth(newValue.intValue() / ensembleGridPane.getColumnCount());
                         dalyFaradayHistogramPlot.repaint();
+                        signalNoiseHistogramPlot.setMyWidth(newValue.intValue());
+                        signalNoiseHistogramPlot.repaint();
                     }
                 }
             });
@@ -125,6 +133,8 @@ public class RJMCMCPlotsController {
                         baselineHistogramPlot.repaint();
                         dalyFaradayHistogramPlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount() - 5);
                         dalyFaradayHistogramPlot.repaint();
+                        signalNoiseHistogramPlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount() - 5);
+                        signalNoiseHistogramPlot.repaint();
                     }
                 }
             });
@@ -135,6 +145,8 @@ public class RJMCMCPlotsController {
             ensembleGridPane.add(baselineHistogramPlot, 0, 1,1,1);
             dalyFaradayHistogramPlot.preparePanel();
             ensembleGridPane.add(dalyFaradayHistogramPlot, 1, 1,1,1);
+            signalNoiseHistogramPlot.preparePanel();
+            ensembleGridPane.add(signalNoiseHistogramPlot, 0, 4,2,1);
 
         });
 
