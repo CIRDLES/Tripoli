@@ -27,6 +27,7 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
+import org.cirdles.tripoli.visualizationUtilities.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
 import java.io.IOException;
@@ -806,13 +807,36 @@ public class DataModelDriverExperiment {
             end
          */
 
+        // Intensity
+        // meanof 16 items across 400
+        int knotsCount = ensembleRecordsList.get(0).intensity().getRowDimension();
+        double[][] ensembleIntensity = new double[knotsCount][countOfEnsemblesUsed];
+        double[] intensityMeans = new double[knotsCount];
+        double[] intensityStdDevs = new double[knotsCount];
+
+        for (int knotIndex = 0; knotIndex < knotsCount; knotIndex++) {
+            DescriptiveStatistics descriptiveStatisticsIntensity = new DescriptiveStatistics();
+            for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
+                ensembleIntensity[knotIndex][index - burn] = ensembleRecordsList.get(index).intensity().get(knotIndex, 0);
+                descriptiveStatisticsIntensity.addValue(ensembleIntensity[knotIndex][index - burn]);
+            }
+            intensityMeans[knotIndex] = descriptiveStatisticsIntensity.getMean();
+            intensityStdDevs[knotIndex] = descriptiveStatisticsIntensity.getStandardDeviation();
+        }
+
+        // calculate intensity means for plotting
+        Matrix intensityMeansMatrix = new Matrix(intensityMeans, knotsCount);
+        Matrix xdataMatrix = massSpecOutputDataRecord.firstBlockInterpolations().times(intensityMeansMatrix).times((1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
+
+
 
         // visualization
-        AbstractPlotBuilder[] histogramBuilder = new AbstractPlotBuilder[4];
+        AbstractPlotBuilder[] histogramBuilder = new AbstractPlotBuilder[5];
         histogramBuilder[0] = HistogramBuilder.initializeHistogram(ensembleRatios, 50, "Histogram of ratios");
-        histogramBuilder[1] = HistogramBuilder.initializeHistogram(false, ensembleBaselines, 50, "Histogram of baseline");
+        histogramBuilder[1] = HistogramBuilder.initializeHistogram(true, ensembleBaselines, 50, "Histogram of baseline");
         histogramBuilder[2] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain, 50, "Histogram of Daly/Faraday Gain");
         histogramBuilder[3] = HistogramBuilder.initializeHistogram(true, ensembleSignalnoise, 50, "Histogram of Signal Noise");
+//        histogramBuilder[4] = BeamShapeLinePlotBuilder.initializeBeamShapeLinePlot(ensembleIntensity, ensembleIntensity, 0, 0);//"Mean vs True Intensity");
 
 
         // todo: missing additional elements of signalNoise (i.e., 0,11,11)

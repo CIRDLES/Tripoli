@@ -103,30 +103,36 @@ public class HistogramPlot extends AbstractDataView {
         int textWidth = 0;
 
         g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 12));
-        g2d.setFill(Paint.valueOf("RED"));
+        g2d.setFill(Paint.valueOf("BLUE"));
         g2d.fillText(histogramBuilder.getTitle(), leftMargin + 25, 15);
 
         // plot bins
         g2d.setLineWidth(2.0);
+        double binWidth = histogramBuilder.getHistograms()[0].binWidth();
+        boolean doFrameBins = (mapX(xAxisData[1]) - mapX(xAxisData[0])) > 1.0;
         for (int i = 0; i < xAxisData.length; i++) {
             g2d.fillRect(
-                    mapX(xAxisData[i] - histogramBuilder.getHistograms()[0].binWidth() / 2.0) + 1,
+                    mapX(xAxisData[i] - binWidth / 2.0) + (doFrameBins ? 1.0 : 0.0),
                     mapY(yAxisData[i]),
-                    mapX(xAxisData[1]) - mapX(xAxisData[0]) - 1,
+                    mapX(xAxisData[1]) - mapX(xAxisData[0]) - (doFrameBins ? 1.0 : 0.0),
                     mapY(0.0) - mapY(yAxisData[i]));
         }
 
         if (histogramBuilder.getHistograms().length > 1) {
-            g2d.setFill(Paint.valueOf("BLUE"));
+            g2d.setFill(Paint.valueOf("GREEN"));
             xAxisData = histogramBuilder.getHistograms()[1].binCenters();
             yAxisData = histogramBuilder.getHistograms()[1].binCounts();
+            binWidth = histogramBuilder.getHistograms()[1].binWidth();
+            doFrameBins = (mapX(xAxisData[1]) - mapX(xAxisData[0])) > 1.0;
             for (int i = 0; i < xAxisData.length; i++) {
                 g2d.fillRect(
-                        mapX(xAxisData[i] - histogramBuilder.getHistograms()[0].binWidth() / 2.0) + 1,
+                        mapX(xAxisData[i] - binWidth / 2.0) + (doFrameBins ? 1.0 : 0.0),
                         mapY(yAxisData[i]),
-                        mapX(xAxisData[1]) - mapX(xAxisData[0]) - 1,
+                        mapX(xAxisData[1]) - mapX(xAxisData[0]) - (doFrameBins ? 1.0 : 0.0),
                         mapY(0.0) - mapY(yAxisData[i]));
             }
+            xAxisData = histogramBuilder.getHistograms()[0].binCenters();
+            yAxisData = histogramBuilder.getHistograms()[0].binCounts();
         }
 
         if (ticsY.length > 1) {
