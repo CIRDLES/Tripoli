@@ -218,6 +218,7 @@ public class PeakShapePlotsController {
                     if (headerLine.size() >= 2 && (headerLine.get(0)[0].equalsIgnoreCase("timestamp")) && ((headerLine.get(1)[1].equalsIgnoreCase("PhotoMultiplier") || headerLine.get(1)[1].equalsIgnoreCase("Axial")))) {
                         resourceFilesInFolder.add(file);
                     } else {
+                        eventLogTextArea.textProperty().unbind();
                         eventLogTextArea.setText("No valid resources");
                     }
 
@@ -227,6 +228,7 @@ public class PeakShapePlotsController {
 
             }
         } else {
+            eventLogTextArea.textProperty().unbind();
             eventLogTextArea.setText("No valid resources");
         }
         // Checks if there are no files in folder
