@@ -1,4 +1,4 @@
-Timestamp, 2022-04-26 4:44:43 PM
+Timestamp, 26/04/2022 16:44:43
 Collector, PhotoMultiplier
 Mass ID, 267UO
 Initial Mass, 267.0000
@@ -9,7 +9,7 @@ Baseline, 0.000000
 DetThreshold, 6.000000
 DeltaMass, 0.572143
 IntegPeriod, ms200
-#START
+
 Mass, Intensity
 266.42786, 2.00000000
 266.44044, 0.00000000

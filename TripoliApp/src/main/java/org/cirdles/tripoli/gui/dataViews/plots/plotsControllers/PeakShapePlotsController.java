@@ -20,11 +20,16 @@ import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.GBeamLinePlotBuilder;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.PeakShapePlotsWindow.plottingWindow;
@@ -201,30 +206,31 @@ public class PeakShapePlotsController {
 
         if (resourceBrowserTarget != null && (resourceBrowserType.compareToIgnoreCase(".txt") == 0)) {
             for (File file : Objects.requireNonNull(resourceBrowserTarget.listFiles(File::isFile))) {
-                try {
-                    List<String> contentsByLine = new ArrayList<>(Files.readAllLines(file.toPath(), Charset.defaultCharset()));
-                    List<String[]> headerLine = new ArrayList<>();
+                if (file.getName().endsWith(".txt") || file.getName().endsWith(".TXT")) {
+                    try {
+                        List<String> contentsByLine = new ArrayList<>(Files.readAllLines(file.toPath(), Charset.defaultCharset()));
+                        List<String[]> headerLine = new ArrayList<>();
 
-                    for (String line : contentsByLine) {
-                        if (!line.isEmpty()) {
-                            headerLine.add(line.split("\\s*,\\s*"));
-
-                            if (line.startsWith("#START")) {
+                        for (String line : contentsByLine) {
+                            if (!line.isEmpty()) {
+                                headerLine.add(line.split("\\s*,\\s*"));
+                            } else {
                                 break;
                             }
                         }
-                    }
-                    // Filters out files
-                    if (headerLine.size() >= 2 && (headerLine.get(0)[0].equalsIgnoreCase("timestamp")) && ((headerLine.get(1)[1].equalsIgnoreCase("PhotoMultiplier") || headerLine.get(1)[1].equalsIgnoreCase("Axial")))) {
-                        resourceFilesInFolder.add(file);
-                    } else {
-                        eventLogTextArea.textProperty().unbind();
-                        eventLogTextArea.setText("No valid resources");
-                    }
+                        // Filters out files
+                        if (headerLine.size() >= 2 && (headerLine.get(0)[0].equalsIgnoreCase("timestamp")) && ((headerLine.get(1)[1].equalsIgnoreCase("PhotoMultiplier") || headerLine.get(1)[1].equalsIgnoreCase("Axial")))) {
+                            resourceFilesInFolder.add(file);
+                        } else {
+                            eventLogTextArea.textProperty().unbind();
+                            eventLogTextArea.setText("No valid resources");
+                        }
 
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
+
 
             }
         } else {
@@ -245,11 +251,23 @@ public class PeakShapePlotsController {
                             -> new ResourceDisplayName()
             );
 
+            // Sorted by date within file
+            resourceFilesInFolder.sort(new Comparator<File>() {
+                DateFormat f = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+                @Override
+                public int compare(File o1, File o2) {
+                    try {
+                        String file1 = new BufferedReader(new FileReader(o1)).readLine().replaceFirst("Timestamp, ", "");
+                        String file2 = new BufferedReader(new FileReader(o2)).readLine().replaceFirst("Timestamp, ", "");
+                        return f.parse(file1).compareTo(f.parse(file2));
+                    } catch (IOException | ParseException e) {
+                        e.printStackTrace();
+                    }
+                    return 0;
+                }
+            });
 
             ObservableList<File> items = FXCollections.observableArrayList(resourceFilesInFolder);
-            // Sorts by file last modified
-            // Sort by date within file not implemented yet
-            items.sort(Comparator.comparing(File::lastModified));
             listViewOfResourcesInFolder.setItems(items);
 
             // Selects the file and list and displays details of selected file
@@ -264,10 +282,8 @@ public class PeakShapePlotsController {
                         for (String line : contentsByLine) {
                             if (!line.isEmpty()) {
                                 headerLine.add(line.split("\\s*,\\s*"));
-
-                                if (line.startsWith("#START")) {
-                                    break;
-                                }
+                            } else {
+                                break;
                             }
                         }
 

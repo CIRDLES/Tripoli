@@ -71,11 +71,11 @@ public class PeakShapeProcessor_OPPhoenix {
                     }
                 }
 
-                if (line.startsWith("#START")) {
-                    phase = 1;
-                } else if (phase == 1) {
+                if (phase == 1) {
                     phase = 2;
                 }
+            } else {
+                phase = 1;
             }
         }
 
