@@ -27,7 +27,6 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
 import java.io.IOException;
@@ -752,7 +751,7 @@ public class DataModelDriverExperiment {
         for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
             ensembleLogRatios[index - burn] = ensembleRecordsList.get(index).logRatios().get(0, 0);
             descriptiveStatisticsLogRatios.addValue(ensembleLogRatios[index - burn]);
-            ensembleRatios[index - burn] = StrictMath.exp(ensembleLogRatios[index - burn]);
+            ensembleRatios[index - burn] = exp(ensembleLogRatios[index - burn]);
         }
         double logRatioMean = descriptiveStatisticsLogRatios.getMean();
         double logRatioStdDev = descriptiveStatisticsLogRatios.getStandardDeviation();
@@ -779,7 +778,7 @@ public class DataModelDriverExperiment {
             ensembleDalyFaradayGain[index - burn] = ensembleRecordsList.get(index).dfGain();
             descriptiveStatisticsDalyFaradayGain.addValue(ensembleDalyFaradayGain[index - burn]);
         }
-        double dalyFaradayGainMean =descriptiveStatisticsDalyFaradayGain.getMean();
+        double dalyFaradayGainMean = descriptiveStatisticsDalyFaradayGain.getMean();
         double dalyFaradayGainStdDev = descriptiveStatisticsDalyFaradayGain.getStandardDeviation();
 
         // signal noise
@@ -829,8 +828,8 @@ public class DataModelDriverExperiment {
         Matrix yDataMatrix = massSpecOutputDataRecord.firstBlockInterpolations().times(intensityMeansMatrix).times((1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
         double[] yData = yDataMatrix.getColumnPackedCopy();
         // x is Interpolations length
-        double[] xData = new double [massSpecOutputDataRecord.firstBlockInterpolations().getRowDimension()];
-        for (int i = 0; i < xData.length; i ++){
+        double[] xData = new double[massSpecOutputDataRecord.firstBlockInterpolations().getRowDimension()];
+        for (int i = 0; i < xData.length; i++) {
             xData[i] = i;
         }
 

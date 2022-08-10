@@ -6,7 +6,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
 
@@ -15,7 +14,6 @@ public class IntensityLinePlot extends AbstractDataView {
     private final LinePlotBuilder intensityLinePlotBuilder;
 
     /**
-     *
      * @param bounds
      * @param intensityLinePlotBuilder
      */

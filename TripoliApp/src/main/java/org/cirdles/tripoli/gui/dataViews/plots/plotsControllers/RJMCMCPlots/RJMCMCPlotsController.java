@@ -4,7 +4,10 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.ToolBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -12,12 +15,10 @@ import javafx.scene.shape.Rectangle;
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
-import org.cirdles.tripoli.gui.dataViews.plots.BeamShapeLinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.HistogramPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.IntensityLinePlot;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
 import java.io.IOException;
@@ -25,7 +26,8 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
 
-import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.*;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.PLOT_WINDOW_WIDTH;
 
 public class RJMCMCPlotsController {
 
@@ -94,17 +96,17 @@ public class RJMCMCPlotsController {
             AbstractDataView ratiosHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth(),
                             ensembleGridPane.getHeight() / ensembleGridPane.getRowCount()),
-                    (HistogramBuilder)ratiosHistogramBuilder);
+                    (HistogramBuilder) ratiosHistogramBuilder);
 
             AbstractDataView baselineHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth() / ensembleGridPane.getColumnCount(),
                             ensembleGridPane.getHeight() / ensembleGridPane.getRowCount()),
-                    (HistogramBuilder)baselineHistogramBuilder);
+                    (HistogramBuilder) baselineHistogramBuilder);
 
             AbstractDataView dalyFaradayHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth() / ensembleGridPane.getColumnCount(),
                             ensembleGridPane.getHeight() / ensembleGridPane.getRowCount()),
-                    (HistogramBuilder)dalyFaradayHistogramBuilder);
+                    (HistogramBuilder) dalyFaradayHistogramBuilder);
 
             AbstractDataView intensityLinePlot = new IntensityLinePlot(
                     new Rectangle(ensembleGridPane.getWidth(),
@@ -115,7 +117,7 @@ public class RJMCMCPlotsController {
             AbstractDataView signalNoiseHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth(),
                             ensembleGridPane.getHeight() / ensembleGridPane.getRowCount()),
-                    (HistogramBuilder)signalNoiseHistogramBuilder);
+                    (HistogramBuilder) signalNoiseHistogramBuilder);
 
             plotTabPane.widthProperty().addListener(new ChangeListener<Number>() {
                 @Override
@@ -156,16 +158,16 @@ public class RJMCMCPlotsController {
             ratiosHistogramPlot.preparePanel();
             ensembleGridPane.add(ratiosHistogramPlot, 0, 0, 2, 1);
             baselineHistogramPlot.preparePanel();
-            ensembleGridPane.add(baselineHistogramPlot, 0, 1,1,1);
+            ensembleGridPane.add(baselineHistogramPlot, 0, 1, 1, 1);
             dalyFaradayHistogramPlot.preparePanel();
-            ensembleGridPane.add(dalyFaradayHistogramPlot, 1, 1,1,1);
+            ensembleGridPane.add(dalyFaradayHistogramPlot, 1, 1, 1, 1);
             intensityLinePlot.preparePanel();
             ensembleGridPane.add(intensityLinePlot, 0, 2, 2, 1);
             signalNoiseHistogramPlot.preparePanel();
-            ensembleGridPane.add(signalNoiseHistogramPlot, 0, 4,2,1);
+            ensembleGridPane.add(signalNoiseHistogramPlot, 0, 4, 2, 1);
 
         });
 
     }
-    
+
 }

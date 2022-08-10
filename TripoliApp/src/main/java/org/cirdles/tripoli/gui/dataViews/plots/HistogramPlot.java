@@ -110,13 +110,7 @@ public class HistogramPlot extends AbstractDataView {
         g2d.setLineWidth(2.0);
         double binWidth = histogramBuilder.getHistograms()[0].binWidth();
         boolean doFrameBins = (mapX(xAxisData[1]) - mapX(xAxisData[0])) > 1.0;
-        for (int i = 0; i < xAxisData.length; i++) {
-            g2d.fillRect(
-                    mapX(xAxisData[i] - binWidth / 2.0) + (doFrameBins ? 1.0 : 0.0),
-                    mapY(yAxisData[i]),
-                    mapX(xAxisData[1]) - mapX(xAxisData[0]) - (doFrameBins ? 1.0 : 0.0),
-                    mapY(0.0) - mapY(yAxisData[i]));
-        }
+        plotData(g2d, binWidth, doFrameBins);
 
         if (histogramBuilder.getHistograms().length > 1) {
             g2d.setFill(Paint.valueOf("GREEN"));
@@ -124,13 +118,7 @@ public class HistogramPlot extends AbstractDataView {
             yAxisData = histogramBuilder.getHistograms()[1].binCounts();
             binWidth = histogramBuilder.getHistograms()[1].binWidth();
             doFrameBins = (mapX(xAxisData[1]) - mapX(xAxisData[0])) > 1.0;
-            for (int i = 0; i < xAxisData.length; i++) {
-                g2d.fillRect(
-                        mapX(xAxisData[i] - binWidth / 2.0) + (doFrameBins ? 1.0 : 0.0),
-                        mapY(yAxisData[i]),
-                        mapX(xAxisData[1]) - mapX(xAxisData[0]) - (doFrameBins ? 1.0 : 0.0),
-                        mapY(0.0) - mapY(yAxisData[i]));
-            }
+            plotData(g2d, binWidth, doFrameBins);
             xAxisData = histogramBuilder.getHistograms()[0].binCenters();
             yAxisData = histogramBuilder.getHistograms()[0].binCounts();
         }
@@ -194,6 +182,16 @@ public class HistogramPlot extends AbstractDataView {
                     }
                 }
             }
+        }
+    }
+
+    private void plotData(GraphicsContext g2d, double binWidth, boolean doFrameBins){
+        for (int i = 0; i < xAxisData.length; i++) {
+            g2d.fillRect(
+                    mapX(xAxisData[i] - binWidth / 2.0) + (doFrameBins ? 1.0 : 0.0),
+                    mapY(yAxisData[i]),
+                    mapX(xAxisData[1]) - mapX(xAxisData[0]) - (doFrameBins ? 1.0 : 0.0),
+                    mapY(0.0) - mapY(yAxisData[i]));
         }
     }
 }
