@@ -26,19 +26,19 @@ import java.nio.file.Path;
  */
 public class RJMCMCUpdatesService extends Service<String> {
     private Path dataFile;
-    private Task<String> histogramTask;
+    private Task<String> plotBuilderTask;
 
     public RJMCMCUpdatesService(Path dataFile) {
         this.dataFile = dataFile;
     }
 
-    public Task<String> getHistogramTask() {
-        return histogramTask;
+    public Task<String> getPlotBuildersTask() {
+        return plotBuilderTask;
     }
 
     @Override
     protected Task<String> createTask() {
-        histogramTask = new RJMCMCUpdatesTask(dataFile);
-        return histogramTask;
+        plotBuilderTask = new RJMCMCPlotBuildersTask(dataFile);
+        return plotBuilderTask;
     }
 }
