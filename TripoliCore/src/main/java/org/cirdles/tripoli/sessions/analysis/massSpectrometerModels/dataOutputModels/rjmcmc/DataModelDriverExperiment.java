@@ -826,17 +826,22 @@ public class DataModelDriverExperiment {
 
         // calculate intensity means for plotting
         Matrix intensityMeansMatrix = new Matrix(intensityMeans, knotsCount);
-        Matrix xdataMatrix = massSpecOutputDataRecord.firstBlockInterpolations().times(intensityMeansMatrix).times((1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
-
+        Matrix yDataMatrix = massSpecOutputDataRecord.firstBlockInterpolations().times(intensityMeansMatrix).times((1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
+        double[] yData = yDataMatrix.getColumnPackedCopy();
+        // x is Interpolations length
+        double[] xData = new double [massSpecOutputDataRecord.firstBlockInterpolations().getRowDimension()];
+        for (int i = 0; i < xData.length; i ++){
+            xData[i] = i;
+        }
 
 
         // visualization
-        AbstractPlotBuilder[] histogramBuilder = new AbstractPlotBuilder[5];
-        histogramBuilder[0] = HistogramBuilder.initializeHistogram(ensembleRatios, 50, "Histogram of ratios");
-        histogramBuilder[1] = HistogramBuilder.initializeHistogram(true, ensembleBaselines, 50, "Histogram of baseline");
-        histogramBuilder[2] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain, 50, "Histogram of Daly/Faraday Gain");
-        histogramBuilder[3] = HistogramBuilder.initializeHistogram(true, ensembleSignalnoise, 50, "Histogram of Signal Noise");
-//        histogramBuilder[4] = BeamShapeLinePlotBuilder.initializeBeamShapeLinePlot(ensembleIntensity, ensembleIntensity, 0, 0);//"Mean vs True Intensity");
+        AbstractPlotBuilder[] plotBuilders = new AbstractPlotBuilder[5];
+        plotBuilders[0] = HistogramBuilder.initializeHistogram(ensembleRatios, 50, "Histogram of ratios");
+        plotBuilders[1] = HistogramBuilder.initializeHistogram(true, ensembleBaselines, 50, "Histogram of baseline");
+        plotBuilders[2] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain, 50, "Histogram of Daly/Faraday Gain");
+        plotBuilders[3] = HistogramBuilder.initializeHistogram(true, ensembleSignalnoise, 50, "Histogram of Signal Noise");
+        plotBuilders[4] = LinePlotBuilder.initializeLinePlot(xData, yData, "Mean Intensity");
 
 
         // todo: missing additional elements of signalNoise (i.e., 0,11,11)
@@ -846,7 +851,7 @@ public class DataModelDriverExperiment {
         System.err.println(signalNoiseMeans[0] + "         " + signalNoiseMeans[1] + "    " + signalNoiseStdDev[0] + "     " + signalNoiseStdDev[1]);
 
 
-        return histogramBuilder;
+        return plotBuilders;
     }
 
     private static int findFirstOrLast(boolean first, int index, Matrix target, int flag, Matrix flags) {

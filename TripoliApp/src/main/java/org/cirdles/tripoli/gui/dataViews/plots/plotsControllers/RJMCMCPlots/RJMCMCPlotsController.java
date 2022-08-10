@@ -6,16 +6,19 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
+import org.cirdles.tripoli.gui.dataViews.plots.BeamShapeLinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.HistogramPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.IntensityLinePlot;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
+import org.cirdles.tripoli.visualizationUtilities.linePlots.BeamShapeLinePlotBuilder;
+import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
 import java.io.IOException;
 import java.net.URL;
@@ -82,10 +85,11 @@ public class RJMCMCPlotsController {
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
         service.setOnSucceeded(evt -> {
-            AbstractPlotBuilder ratiosHistogramBuilder = ((RJMCMCUpdatesTask) service.getHistogramTask()).getRatiosHistogramBuilder();
-            AbstractPlotBuilder baselineHistogramBuilder = ((RJMCMCUpdatesTask) service.getHistogramTask()).getBaselineHistogramBuilder();
-            AbstractPlotBuilder dalyFaradayHistogramBuilder = ((RJMCMCUpdatesTask) service.getHistogramTask()).getDalyFaradayGainHistogramBuilder();
-            AbstractPlotBuilder signalNoiseHistogramBuilder = ((RJMCMCUpdatesTask) service.getHistogramTask()).getSignalNoiseHistogramBuilder();
+            AbstractPlotBuilder ratiosHistogramBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getRatiosHistogramBuilder();
+            AbstractPlotBuilder baselineHistogramBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getBaselineHistogramBuilder();
+            AbstractPlotBuilder dalyFaradayHistogramBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getDalyFaradayGainHistogramBuilder();
+            AbstractPlotBuilder signalNoiseHistogramBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getSignalNoiseHistogramBuilder();
+            AbstractPlotBuilder intensityLinePlotBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getMeanIntensityLineBuilder();
 
             AbstractDataView ratiosHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth(),
@@ -102,6 +106,12 @@ public class RJMCMCPlotsController {
                             ensembleGridPane.getHeight() / ensembleGridPane.getRowCount()),
                     (HistogramBuilder)dalyFaradayHistogramBuilder);
 
+            AbstractDataView intensityLinePlot = new IntensityLinePlot(
+                    new Rectangle(ensembleGridPane.getWidth(),
+                            ensembleGridPane.getHeight() / ensembleGridPane.getRowCount()),
+                    (LinePlotBuilder) intensityLinePlotBuilder
+            );
+
             AbstractDataView signalNoiseHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth(),
                             ensembleGridPane.getHeight() / ensembleGridPane.getRowCount()),
@@ -117,6 +127,8 @@ public class RJMCMCPlotsController {
                         baselineHistogramPlot.repaint();
                         dalyFaradayHistogramPlot.setMyWidth(newValue.intValue() / ensembleGridPane.getColumnCount());
                         dalyFaradayHistogramPlot.repaint();
+                        intensityLinePlot.setMyWidth(newValue.intValue());
+                        intensityLinePlot.repaint();
                         signalNoiseHistogramPlot.setMyWidth(newValue.intValue());
                         signalNoiseHistogramPlot.repaint();
                     }
@@ -133,6 +145,8 @@ public class RJMCMCPlotsController {
                         baselineHistogramPlot.repaint();
                         dalyFaradayHistogramPlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount() - 5);
                         dalyFaradayHistogramPlot.repaint();
+                        intensityLinePlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount() - 5);
+                        intensityLinePlot.repaint();
                         signalNoiseHistogramPlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount() - 5);
                         signalNoiseHistogramPlot.repaint();
                     }
@@ -145,6 +159,8 @@ public class RJMCMCPlotsController {
             ensembleGridPane.add(baselineHistogramPlot, 0, 1,1,1);
             dalyFaradayHistogramPlot.preparePanel();
             ensembleGridPane.add(dalyFaradayHistogramPlot, 1, 1,1,1);
+            intensityLinePlot.preparePanel();
+            ensembleGridPane.add(intensityLinePlot, 0, 2, 2, 1);
             signalNoiseHistogramPlot.preparePanel();
             ensembleGridPane.add(signalNoiseHistogramPlot, 0, 4,2,1);
 
