@@ -26,12 +26,15 @@ import java.nio.file.Path;
 /**
  * @author James F. Bowring
  */
-public class RJMCMCUpdatesTask extends Task<String> implements LoggingCallbackInterface {
+public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface {
     private Path dataFile;
     private AbstractPlotBuilder ratiosHistogramBuilder;
     private AbstractPlotBuilder baselineHistogramBuilder;
+    private AbstractPlotBuilder dalyFaradayGainHistogramBuilder;
+    private AbstractPlotBuilder signalNoiseHistogramBuilder;
+    private AbstractPlotBuilder meanIntensityLineBuilder;
 
-    public RJMCMCUpdatesTask(Path dataFile) {
+    public RJMCMCPlotBuildersTask(Path dataFile) {
         this.dataFile = dataFile;
     }
 
@@ -43,11 +46,26 @@ public class RJMCMCUpdatesTask extends Task<String> implements LoggingCallbackIn
         return baselineHistogramBuilder;
     }
 
+    public AbstractPlotBuilder getDalyFaradayGainHistogramBuilder() {
+        return dalyFaradayGainHistogramBuilder;
+    }
+
+    public AbstractPlotBuilder getSignalNoiseHistogramBuilder() {
+        return signalNoiseHistogramBuilder;
+    }
+
+    public AbstractPlotBuilder getMeanIntensityLineBuilder() {
+        return meanIntensityLineBuilder;
+    }
+
     @Override
     protected String call() throws Exception {
         AbstractPlotBuilder[] plots = DataModelDriverExperiment.driveModelTest(dataFile, this);
         ratiosHistogramBuilder = plots[0];
         baselineHistogramBuilder = plots[1];
+        dalyFaradayGainHistogramBuilder = plots[2];
+        signalNoiseHistogramBuilder = plots[3];
+        meanIntensityLineBuilder = plots[4];
         return "DONE";
     }
 
