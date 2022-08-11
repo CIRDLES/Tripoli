@@ -51,7 +51,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
  */
 public class DataModelDriverExperiment {
 
-    private static final boolean doFullProcessing = true;
+    private static final boolean doFullProcessing = false;
 
     public static AbstractPlotBuilder[] driveModelTest(Path dataFilePath, LoggingCallbackInterface loggingCallback) throws IOException {
 
@@ -785,7 +785,7 @@ public class DataModelDriverExperiment {
         return analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList);
     }
 
-    private static AbstractPlotBuilder []analysisAndPlotting(MassSpecOutputDataRecord massSpecOutputDataRecord, List<EnsembleRecord> ensembleRecordsList) {
+    private static AbstractPlotBuilder[] analysisAndPlotting(MassSpecOutputDataRecord massSpecOutputDataRecord, List<EnsembleRecord> ensembleRecordsList) {
         /*
             %% Analysis and Plotting
 
@@ -809,69 +809,113 @@ public class DataModelDriverExperiment {
         int burn = 100;//1000;
         int countOfEnsemblesUsed = ensembleRecordsList.size() - burn;
 
-        double[][] ensembleLogRatios = new double[massSpecOutputDataRecord.isotopeCount()][countOfEnsemblesUsed];
-        double[][] ensembleRatios = new double[massSpecOutputDataRecord.isotopeCount()][countOfEnsemblesUsed];
-        double[] logRatioMeans = new double[massSpecOutputDataRecord.isotopeCount()];
-        double[] logRatioStdDev = new double[massSpecOutputDataRecord.isotopeCount()];
+        // log ratios - only the first row
+        double[] ensembleLogRatios = new double[countOfEnsemblesUsed];
+        double[] ensembleRatios = new double[countOfEnsemblesUsed];
+        DescriptiveStatistics descriptiveStatisticsLogRatios = new DescriptiveStatistics();
+        for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
+            ensembleLogRatios[index - burn] = ensembleRecordsList.get(index).logRatios().get(0, 0);
+            descriptiveStatisticsLogRatios.addValue(ensembleLogRatios[index - burn]);
+            ensembleRatios[index - burn] = exp(ensembleLogRatios[index - burn]);
+        }
+        double logRatioMean = descriptiveStatisticsLogRatios.getMean();
+        double logRatioStdDev = descriptiveStatisticsLogRatios.getStandardDeviation();
 
-        double[][] ensembleBaselines = new double[massSpecOutputDataRecord.isotopeCount()][countOfEnsemblesUsed];
+        // baseLines - first 2 rows
+        double[][] ensembleBaselines = new double[ensembleRecordsList.get(0).baseLine().getRowDimension()][countOfEnsemblesUsed];
         double[] baselinesMeans = new double[massSpecOutputDataRecord.isotopeCount()];
         double[] baselinesStdDev = new double[massSpecOutputDataRecord.isotopeCount()];
 
-        double[][] ensembleSignalnoise = new double[massSpecOutputDataRecord.isotopeCount()][countOfEnsemblesUsed];
-        double[] signalNoiseMeans = new double[massSpecOutputDataRecord.isotopeCount()];
-        double[] signalNoiseStdDev = new double[massSpecOutputDataRecord.isotopeCount()];
-
-        double[][] ensembleDalyFaradayGain = new double[massSpecOutputDataRecord.isotopeCount()][countOfEnsemblesUsed];
-        double dalyFaradayGainMeans = 0.0;
-        double dalyFaradayGainStdDev = 0.0;
-
-        for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
-            DescriptiveStatistics descriptiveStatisticsLogRatios = new DescriptiveStatistics();
+        for (int row = 0; row < ensembleRecordsList.get(0).baseLine().getRowDimension(); row++) {
             DescriptiveStatistics descriptiveStatisticsBaselines = new DescriptiveStatistics();
-            DescriptiveStatistics descriptiveStatisticsSignalNoise = new DescriptiveStatistics();
-            DescriptiveStatistics descriptiveStatisticsDalyFaradayGain = new DescriptiveStatistics();
             for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
-                ensembleLogRatios[isotopeIndex][index - burn] = ensembleRecordsList.get(index).logRatios().get(isotopeIndex, 0);
-                descriptiveStatisticsLogRatios.addValue(ensembleLogRatios[isotopeIndex][index - burn]);
-                ensembleRatios[isotopeIndex][index - burn] = StrictMath.exp(ensembleLogRatios[isotopeIndex][index - burn]);
-
-                ensembleBaselines[isotopeIndex][index - burn] = ensembleRecordsList.get(index).baseLine().get(isotopeIndex, 0) / 6.24e7 * 1e6;
-                descriptiveStatisticsBaselines.addValue(ensembleBaselines[isotopeIndex][index - burn]);
-
-                ensembleSignalnoise[isotopeIndex][index - burn] = ensembleRecordsList.get(index).signalNoise().get(isotopeIndex, 0);
-                descriptiveStatisticsSignalNoise.addValue(ensembleSignalnoise[isotopeIndex][index - burn]);
-
-                ensembleDalyFaradayGain[isotopeIndex][index - burn] = ensembleRecordsList.get(index).dfGain();
-                descriptiveStatisticsDalyFaradayGain.addValue(ensembleDalyFaradayGain[isotopeIndex][index - burn]);
+                ensembleBaselines[row][index - burn] = ensembleRecordsList.get(index).baseLine().get(row, 0) / 6.24e7 * 1e6;
+                descriptiveStatisticsBaselines.addValue(ensembleBaselines[row][index - burn]);
             }
-            logRatioMeans[isotopeIndex] = descriptiveStatisticsLogRatios.getMean();
-            logRatioStdDev[isotopeIndex] = descriptiveStatisticsLogRatios.getStandardDeviation();
+            baselinesMeans[row] = descriptiveStatisticsBaselines.getMean();
+            baselinesStdDev[row] = descriptiveStatisticsBaselines.getStandardDeviation();
+        }
 
-            baselinesMeans[isotopeIndex] = descriptiveStatisticsBaselines.getMean();
-            baselinesStdDev[isotopeIndex] = descriptiveStatisticsBaselines.getStandardDeviation();
+        // dalyFaraday gains
+        double[] ensembleDalyFaradayGain = new double[countOfEnsemblesUsed];
+        DescriptiveStatistics descriptiveStatisticsDalyFaradayGain = new DescriptiveStatistics();
+        for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
+            ensembleDalyFaradayGain[index - burn] = ensembleRecordsList.get(index).dfGain();
+            descriptiveStatisticsDalyFaradayGain.addValue(ensembleDalyFaradayGain[index - burn]);
+        }
+        double dalyFaradayGainMean = descriptiveStatisticsDalyFaradayGain.getMean();
+        double dalyFaradayGainStdDev = descriptiveStatisticsDalyFaradayGain.getStandardDeviation();
 
-            signalNoiseMeans[isotopeIndex] = descriptiveStatisticsSignalNoise.getMean();
-            signalNoiseStdDev[isotopeIndex] = descriptiveStatisticsSignalNoise.getStandardDeviation();
+        // signal noise
+        double[][] ensembleSignalnoise = new double[2][countOfEnsemblesUsed];
+        double[] signalNoiseMeans = new double[2];
+        double[] signalNoiseStdDev = new double[2];
 
-            dalyFaradayGainMeans = descriptiveStatisticsDalyFaradayGain.getMean();
-            dalyFaradayGainStdDev = descriptiveStatisticsDalyFaradayGain.getStandardDeviation();
+        for (int row = 0; row < massSpecOutputDataRecord.faradayCount(); row++) {
+            DescriptiveStatistics descriptiveStatisticsSignalNoise = new DescriptiveStatistics();
+            for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
+                ensembleSignalnoise[row][index - burn] = ensembleRecordsList.get(index).signalNoise().get(row, 0);
+                descriptiveStatisticsSignalNoise.addValue(ensembleSignalnoise[row][index - burn]);
+            }
+            signalNoiseMeans[row] = descriptiveStatisticsSignalNoise.getMean();
+            signalNoiseStdDev[row] = descriptiveStatisticsSignalNoise.getStandardDeviation();
+        }
+
+        /*
+            for m=1:d0.Nblock
+                for n = 1:cnt;
+                    ens_I{m}(:,n) =[ensemble(n).I{m}];
+                end
+                Imean{m} = mean(ens_I{m}(:,burn:cnt),2);
+                Istd{m} = std(ens_I{m}(:,burn:cnt),[],2);
+            end
+         */
+
+        // Intensity
+        // meanof 16 items across 400
+        int knotsCount = ensembleRecordsList.get(0).intensity().getRowDimension();
+        double[][] ensembleIntensity = new double[knotsCount][countOfEnsemblesUsed];
+        double[] intensityMeans = new double[knotsCount];
+        double[] intensityStdDevs = new double[knotsCount];
+
+        for (int knotIndex = 0; knotIndex < knotsCount; knotIndex++) {
+            DescriptiveStatistics descriptiveStatisticsIntensity = new DescriptiveStatistics();
+            for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
+                ensembleIntensity[knotIndex][index - burn] = ensembleRecordsList.get(index).intensity().get(knotIndex, 0);
+                descriptiveStatisticsIntensity.addValue(ensembleIntensity[knotIndex][index - burn]);
+            }
+            intensityMeans[knotIndex] = descriptiveStatisticsIntensity.getMean();
+            intensityStdDevs[knotIndex] = descriptiveStatisticsIntensity.getStandardDeviation();
+        }
+
+        // calculate intensity means for plotting
+        Matrix intensityMeansMatrix = new Matrix(intensityMeans, knotsCount);
+        Matrix yDataMatrix = massSpecOutputDataRecord.firstBlockInterpolations().times(intensityMeansMatrix).times((1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
+        double[] yData = yDataMatrix.getColumnPackedCopy();
+        // x is Interpolations length
+        double[] xData = new double[massSpecOutputDataRecord.firstBlockInterpolations().getRowDimension()];
+        for (int i = 0; i < xData.length; i++) {
+            xData[i] = i;
         }
 
 
         // visualization
-        AbstractPlotBuilder[] histogramBuilder = new AbstractPlotBuilder[2];
-        histogramBuilder[0] = HistogramBuilder.initializeHistogram(ensembleRatios[0], 50, "Histogram of ratios");
-        histogramBuilder[1] = HistogramBuilder.initializeHistogram(ensembleBaselines, 50, "Histogram of baseline");
+        AbstractPlotBuilder[] plotBuilders = new AbstractPlotBuilder[5];
+        plotBuilders[0] = HistogramBuilder.initializeHistogram(ensembleRatios, 50, "Histogram of ratios");
+        plotBuilders[1] = HistogramBuilder.initializeHistogram(true, ensembleBaselines, 50, "Histogram of baseline");
+        plotBuilders[2] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain, 50, "Histogram of Daly/Faraday Gain");
+        plotBuilders[3] = HistogramBuilder.initializeHistogram(true, ensembleSignalnoise, 50, "Histogram of Signal Noise");
+        plotBuilders[4] = LinePlotBuilder.initializeLinePlot(xData, yData, "Mean Intensity");
 
 
         // todo: missing additional elements of signalNoise (i.e., 0,11,11)
-        System.err.println(logRatioMeans[0] + "         " + logRatioMeans[1] + "    " + logRatioStdDev[0] + "     " + logRatioStdDev[1]);
+        System.err.println(logRatioMean + "         " + logRatioStdDev);
         System.err.println(baselinesMeans[0] + "         " + baselinesMeans[1] + "    " + baselinesStdDev[0] + "     " + baselinesStdDev[1]);
+        System.err.println(dalyFaradayGainMean + "    " + dalyFaradayGainStdDev);
         System.err.println(signalNoiseMeans[0] + "         " + signalNoiseMeans[1] + "    " + signalNoiseStdDev[0] + "     " + signalNoiseStdDev[1]);
-        System.err.println(dalyFaradayGainMeans + "    " + dalyFaradayGainStdDev);
 
-        return histogramBuilder;
+
+        return plotBuilders;
     }
 
     private static int findFirstOrLast(boolean first, int index, Matrix target, int flag, Matrix flags) {

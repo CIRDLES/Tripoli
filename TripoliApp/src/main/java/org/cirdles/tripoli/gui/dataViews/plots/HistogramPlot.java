@@ -36,31 +36,46 @@ public class HistogramPlot extends AbstractDataView {
      * @param bounds
      */
     public HistogramPlot(Rectangle bounds, HistogramBuilder histogramBuilder) {
-        super(bounds, 100, 100);
+        super(bounds, 35, 5);
         this.histogramBuilder = histogramBuilder;
     }
 
     @Override
     public void preparePanel() {
 
-        xAxisData = histogramBuilder.getBinCenters();
+        xAxisData = histogramBuilder.getHistograms()[0].binCenters();
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
+        if (histogramBuilder.getHistograms().length > 1){
+            // assume only 2 for now
+            minX = Math.min(minX, histogramBuilder.getHistograms()[1].binCenters()[0]);
+            maxX = Math.max(maxX, histogramBuilder.getHistograms()[1].binCenters()[histogramBuilder.getHistograms()[1].binCount() - 1]);
+        }
 
-        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 50.0));
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.05);
         minX -= xMarginStretch;
         maxX += xMarginStretch;
+        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 20.0));
 
-        yAxisData = histogramBuilder.getBinCounts();
+        yAxisData = histogramBuilder.getHistograms()[0].binCounts();
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 
-        for (int i = 0; i < yAxisData.length; i++) {
-            minY = StrictMath.min(minY, yAxisData[i]);
-            maxY = StrictMath.max(maxY, yAxisData[i]);
+        for (double yAxisDatum : yAxisData) {
+            minY = StrictMath.min(minY, yAxisDatum);
+            maxY = StrictMath.max(maxY, yAxisDatum);
         }
-        ticsY = TicGeneratorForAxes.generateTics(minY, maxY, (int) (graphHeight / 20.0));
+        if (histogramBuilder.getHistograms().length > 1) {
+            // assume only 2 for now
+            for (double yAxisDatum : histogramBuilder.getHistograms()[1].binCounts()) {
+                minY = StrictMath.min(minY, yAxisDatum);
+                maxY = StrictMath.max(maxY, yAxisDatum);
+            }
+        }
+
+        // customized for histogram
+        minY = 0;
+        ticsY = TicGeneratorForAxes.generateTics(minY, maxY, (int) (graphHeight / 10.0));
 
         // check for no data
         if ((ticsY != null) && (ticsY.length > 1)) {
@@ -84,21 +99,28 @@ public class HistogramPlot extends AbstractDataView {
         super.paint(g2d);
 
         Text text = new Text();
-        text.setFont(Font.font("SansSerif", 15));
+        text.setFont(Font.font("SansSerif", 12));
         int textWidth = 0;
 
-        g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 15));
-        g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText(histogramBuilder.getTitle(), 20, 20);
+        g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 12));
+        g2d.setFill(Paint.valueOf("BLUE"));
+        g2d.fillText(histogramBuilder.getTitle(), leftMargin + 25, 15);
 
         // plot bins
         g2d.setLineWidth(2.0);
-        for (int i = 0; i < xAxisData.length; i++) {
-            g2d.fillRect(
-                    mapX(xAxisData[i] - histogramBuilder.getBinWidth() / 2.0),
-                    mapY(yAxisData[i]),
-                    mapX(xAxisData[1]) - mapX(xAxisData[0]),
-                    mapY(0.0) - mapY(yAxisData[i]));
+        double binWidth = histogramBuilder.getHistograms()[0].binWidth();
+        boolean doFrameBins = (mapX(xAxisData[1]) - mapX(xAxisData[0])) > 1.0;
+        plotData(g2d, binWidth, doFrameBins);
+
+        if (histogramBuilder.getHistograms().length > 1) {
+            g2d.setFill(Paint.valueOf("GREEN"));
+            xAxisData = histogramBuilder.getHistograms()[1].binCenters();
+            yAxisData = histogramBuilder.getHistograms()[1].binCounts();
+            binWidth = histogramBuilder.getHistograms()[1].binWidth();
+            doFrameBins = (mapX(xAxisData[1]) - mapX(xAxisData[0])) > 1.0;
+            plotData(g2d, binWidth, doFrameBins);
+            xAxisData = histogramBuilder.getHistograms()[0].binCenters();
+            yAxisData = histogramBuilder.getHistograms()[0].binCounts();
         }
 
         if (ticsY.length > 1) {
@@ -142,24 +164,34 @@ public class HistogramPlot extends AbstractDataView {
             }
             // ticsX
             if (ticsX != null) {
-                for (int i = 0; i < ticsX.length - 1; i++) {
+                for (int i = 1; i < ticsX.length - 1; i++) {
                     try {
                         g2d.strokeLine(
                                 mapX(ticsX[i].doubleValue()),
                                 mapY(ticsY[0].doubleValue()),
                                 mapX(ticsX[i].doubleValue()),
-                                mapY(ticsY[0].doubleValue()) + 5);
+                                mapY(ticsY[0].doubleValue()) + 2);
 
                         // bottom
                         String xText = ticsX[i].toPlainString();
                         g2d.fillText(xText,
                                 (float) mapX(ticsX[i].doubleValue()) - 5f,
-                                (float) mapY(ticsY[0].doubleValue()) + 15);
+                                (float) mapY(ticsY[0].doubleValue()) + 10);
 
                     } catch (Exception e) {
                     }
                 }
             }
+        }
+    }
+
+    private void plotData(GraphicsContext g2d, double binWidth, boolean doFrameBins){
+        for (int i = 0; i < xAxisData.length; i++) {
+            g2d.fillRect(
+                    mapX(xAxisData[i] - binWidth / 2.0) + (doFrameBins ? 1.0 : 0.0),
+                    mapY(yAxisData[i]),
+                    mapX(xAxisData[1]) - mapX(xAxisData[0]) - (doFrameBins ? 1.0 : 0.0),
+                    mapY(0.0) - mapY(yAxisData[i]));
         }
     }
 }
