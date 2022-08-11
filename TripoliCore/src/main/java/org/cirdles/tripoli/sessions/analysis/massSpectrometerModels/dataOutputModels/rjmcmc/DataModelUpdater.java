@@ -17,7 +17,6 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
 import jama.Matrix;
-import org.ojalgo.matrix.Primitive64Matrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.stat.correlation.Covariance;
@@ -410,8 +409,10 @@ public class DataModelUpdater {
                     row++;
                 }*/
                 for (int intensityIndex = 0; intensityIndex < dataModelInit.blockIntensitiesOJ().getRowDim(); intensityIndex++) {
-                    enso.set(row, modelIndex, ensembleRecordsList.get(modelIndex + countOfNewModels - 1).intensityOJ().get(intensityIndex, 0));
-                    totalsByRow.set(row, 0, totalsByRow.get(row, 0) + ensembleRecordsList.get(modelIndex + countOfNewModels - 1).intensityOJ().get(intensityIndex, 0));
+                    // enso.set(row, modelIndex, ensembleRecordsList.get(modelIndex + countOfNewModels - 1).intensityOJ().get(intensityIndex, 0));
+                    // totalsByRow.set(row, 0, totalsByRow.get(row, 0) + ensembleRecordsList.get(modelIndex + countOfNewModels - 1).intensityOJ().get(intensityIndex, 0));
+                    enso.set(row, modelIndex, ensembleRecordsList.get(modelIndex + countOfNewModels - 1).intensityOJ()[intensityIndex]);
+                    totalsByRow.set(row, 0, totalsByRow.get(row, 0) + ensembleRecordsList.get(modelIndex + countOfNewModels - 1).intensityOJ()[intensityIndex]);
                     row++;
                 }
                 enso.set(row, modelIndex, ensembleRecordsList.get(modelIndex + countOfNewModels - 1).baseLine().get(0, 0));

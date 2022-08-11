@@ -147,8 +147,6 @@ public class DataModelInitializer {
          */
         // just playing with first block for now
         // Matrix IO = null;
-        // Primitive64Matrix IOOJ = null;
-        // Primitive64Matrix.Factory matrixFactory = Primitive64Matrix.FACTORY;
         MatrixStore<Double> IOOJ = null;
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
@@ -189,7 +187,7 @@ public class DataModelInitializer {
             // Primitive64Matrix ddMatrixOJ = matrixFactory.column(ddSortedArray);
             // IOOJ = (interpolatedKnotDataOJ.transpose().multiply(interpolatedKnotDataOJ)).invert().multiply(interpolatedKnotDataOJ.transpose()).multiply(ddMatrixOJ);
 
-            Primitive64Store ddMatrixOJ = storeFactory.columns(ddSortedArray);
+            MatrixStore<Double> ddMatrixOJ = storeFactory.columns(ddSortedArray);
             MatrixStore<Double> tempMatrix = interpolatedKnotDataOJ.transpose().multiply(interpolatedKnotDataOJ);
             MatrixStore<Double> tempMatrix2;
             InverterTask<Double> inverter = InverterTask.PRIMITIVE.make(tempMatrix, false, false);

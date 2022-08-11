@@ -51,7 +51,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
  */
 public class DataModelDriverExperiment {
 
-    private static final boolean doFullProcessing = false;
+    private static final boolean doFullProcessing = true;
 
     public static AbstractPlotBuilder[] driveModelTest(Path dataFilePath, LoggingCallbackInterface loggingCallback) throws IOException {
 
@@ -174,7 +174,7 @@ public class DataModelDriverExperiment {
         double psigBaselineFaraday = maxValue / 10.0;
         double psigBaselineDaly = 1.0e-1;
         double psigLogRatio = 0.0005 * 0.2;
-        double psigIntensityPercent = (maxIntensity - minIntensity) / 100.0 * 1.0;
+        double psigIntensityPercent = (maxIntensity - minIntensity) / 100.0;
         double psigDFgain = 0.001;
         double psigSignalNoiseFaraday = maxValue;
         double psigSignalNoisePoisson = 0.5;
@@ -696,7 +696,7 @@ public class DataModelDriverExperiment {
                 ensembleRecordsList.add(new EnsembleRecord(
                         dataModelInit.logratios(),
                         // dataModelInit.blockIntensities(),
-                        dataModelInit.blockIntensitiesOJ(),
+                        dataModelInit.blockIntensitiesOJ().toRawCopy1D(),
                         dataModelInit.baselineMeans(),
                         dataModelInit.dfGain(),
                         dataModelInit.signalNoise(),
@@ -873,7 +873,8 @@ public class DataModelDriverExperiment {
 
         // Intensity
         // meanof 16 items across 400
-        int knotsCount = ensembleRecordsList.get(0).intensity().getRowDimension();
+        // int knotsCount = ensembleRecordsList.get(0).intensity().getRowDimension();
+        int knotsCount = ensembleRecordsList.get(0).intensityOJ().length;
         double[][] ensembleIntensity = new double[knotsCount][countOfEnsemblesUsed];
         double[] intensityMeans = new double[knotsCount];
         double[] intensityStdDevs = new double[knotsCount];
@@ -881,7 +882,8 @@ public class DataModelDriverExperiment {
         for (int knotIndex = 0; knotIndex < knotsCount; knotIndex++) {
             DescriptiveStatistics descriptiveStatisticsIntensity = new DescriptiveStatistics();
             for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
-                ensembleIntensity[knotIndex][index - burn] = ensembleRecordsList.get(index).intensity().get(knotIndex, 0);
+                // ensembleIntensity[knotIndex][index - burn] = ensembleRecordsList.get(index).intensity().get(knotIndex, 0);
+                ensembleIntensity[knotIndex][index - burn] = ensembleRecordsList.get(index).intensityOJ()[knotIndex];
                 descriptiveStatisticsIntensity.addValue(ensembleIntensity[knotIndex][index - burn]);
             }
             intensityMeans[knotIndex] = descriptiveStatisticsIntensity.getMean();
@@ -889,11 +891,17 @@ public class DataModelDriverExperiment {
         }
 
         // calculate intensity means for plotting
-        Matrix intensityMeansMatrix = new Matrix(intensityMeans, knotsCount);
-        Matrix yDataMatrix = massSpecOutputDataRecord.firstBlockInterpolations().times(intensityMeansMatrix).times((1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
-        double[] yData = yDataMatrix.getColumnPackedCopy();
+        // Matrix intensityMeansMatrix = new Matrix(intensityMeans, knotsCount);
+        // Matrix yDataMatrix = massSpecOutputDataRecord.firstBlockInterpolations().times(intensityMeansMatrix).times((1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+        MatrixStore<Double> intensityMeansMatrix = storeFactory.columns(intensityMeans);
+        MatrixStore<Double> yDataMatrixOJ = massSpecOutputDataRecord.firstBlockInterpolationsOJ().multiply(intensityMeansMatrix).multiply((1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
+
+        // double[] yData = yDataMatrix.getColumnPackedCopy();
+        double[] yData = yDataMatrixOJ.toRawCopy1D();
         // x is Interpolations length
-        double[] xData = new double[massSpecOutputDataRecord.firstBlockInterpolations().getRowDimension()];
+        // double[] xData = new double[massSpecOutputDataRecord.firstBlockInterpolations().getRowDimension()];
+        double[] xData = new double[massSpecOutputDataRecord.firstBlockInterpolationsOJ().getRowDim()];
         for (int i = 0; i < xData.length; i++) {
             xData[i] = i;
         }
@@ -966,8 +974,7 @@ public class DataModelDriverExperiment {
     record EnsembleRecord(
             Matrix logRatios,
             // Matrix intensity,
-            // Primitive64Matrix intensityOJ,
-            MatrixStore<Double> intensityOJ,
+            double[] intensityOJ,
             Matrix baseLine,
             double dfGain,
             Matrix signalNoise,

@@ -28,7 +28,6 @@ public record DataModellerOutputRecord(
         // Matrix dataArray,
         double[] dataArray,
         // Matrix blockIntensities,
-        // Primitive64Matrix blockIntensitiesOJ
         MatrixStore<Double> blockIntensitiesOJ
 ) {
 
