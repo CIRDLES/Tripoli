@@ -57,7 +57,7 @@ public class DataModelDriverExperiment {
         MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFilePath);
         DataModellerOutputRecord dataModelInit = DataModelInitializer.modellingTest(massSpecOutputDataRecord);
 
-        AbstractPlotBuilder[] histogramBuilder = new LinePlotBuilder[0];
+        AbstractPlotBuilder[] histogramBuilder;
 
         List<EnsembleRecord> ensembleRecordsList = null;
         if (doFullProcessing) {
@@ -166,7 +166,7 @@ public class DataModelDriverExperiment {
         double psigBaselineFaraday = maxValue / 10.0;
         double psigBaselineDaly = 1.0e-1;
         double psigLogRatio = 0.0005 * 0.2;
-        double psigIntensityPercent = (maxIntensity - minIntensity) / 100.0 * 1.0;
+        double psigIntensityPercent = (maxIntensity - minIntensity) / 100.0;
         double psigDFgain = 0.001;
         double psigSignalNoiseFaraday = maxValue;
         double psigSignalNoisePoisson = 0.5;
