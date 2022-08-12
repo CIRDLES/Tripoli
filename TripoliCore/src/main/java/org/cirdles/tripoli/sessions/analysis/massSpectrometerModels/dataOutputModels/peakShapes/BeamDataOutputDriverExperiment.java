@@ -20,6 +20,8 @@ import java.nio.file.Path;
 
 public class BeamDataOutputDriverExperiment {
 
+    private static final boolean doFullProcessing = false;
+
     public static AbstractPlotBuilder[] modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException {
         PeakShapeProcessor_OPPhoenix peakShapeProcessor_opPhoenix
                 = PeakShapeProcessor_OPPhoenix.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));

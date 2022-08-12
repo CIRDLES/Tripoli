@@ -15,6 +15,7 @@ import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.BeamShapeLinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.GBeamLinePlot;
+import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.file.FileUtilities;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.BeamShapeLinePlotBuilder;
@@ -117,6 +118,8 @@ public class PeakShapePlotsController {
 //        ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
 //        Path dataFile = RESOURCE_EXTRACTOR
 //               .extractResourceAsFile(String.valueOf(resourceBrowserTarget)).toPath();
+
+
         if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
             final PeakShapesService service = new PeakShapesService(resourceBrowserTarget.toPath());
             eventLogTextArea.textProperty().bind(service.valueProperty());
@@ -201,8 +204,8 @@ public class PeakShapePlotsController {
     private void populateListOfResources() {
 
         resourceFilesInFolder = new ArrayList<>();
-        // resourceBrowserTarget = new File("TripoliResources/PeakCentres");
-
+        File[] allFiles;
+        ArrayList<ArrayList<File>> resourceGroups = new ArrayList<>();
 
         if (resourceBrowserTarget != null && (resourceBrowserType.compareToIgnoreCase(".txt") == 0)) {
             for (File file : Objects.requireNonNull(resourceBrowserTarget.listFiles(File::isFile))) {
@@ -251,9 +254,11 @@ public class PeakShapePlotsController {
                             -> new ResourceDisplayName()
             );
 
+
             // Sorted by date within file
             resourceFilesInFolder.sort(new Comparator<File>() {
                 DateFormat f = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+
                 @Override
                 public int compare(File o1, File o2) {
                     try {
@@ -266,6 +271,50 @@ public class PeakShapePlotsController {
                     return 0;
                 }
             });
+
+            if (resourceFilesInFolder.get(0).getName().contains("NBS987")) {
+                // Working on grouping and sorting
+                allFiles = resourceFilesInFolder.toArray(new File[resourceFilesInFolder.size()]);
+
+                // Generates a map of groups
+                Map<Integer, String> fileGroups = new HashMap<>();
+                int j = 0;
+                for (int i = 0; i < allFiles.length; i++) {
+                    // Checks if substring in filename is already present in map
+                    if (!fileGroups.containsValue(allFiles[i].getName().substring(27, 34))) {
+                        fileGroups.put(j, allFiles[i].getName().substring(27, 34));
+                        j++;
+                    }
+                }
+
+                // Generates groups of list that contain a list of files
+
+                for (int i = 0; i < fileGroups.size(); i++) {
+                    resourceGroups.add(new ArrayList<>());
+                }
+
+                for (int i = 0; i < resourceGroups.size(); i++) {
+                    for (int k = 0; k < allFiles.length; k++) {
+                        // Adds to list according to key and value in fileGroups
+                        if (allFiles[k].getName().substring(27, 34).equals(fileGroups.get(i))) {
+                            resourceGroups.get(i).add(allFiles[k]);
+                        }
+                    }
+                }
+
+
+                IntuitiveStringComparator<String> intuitiveStringComparator = new IntuitiveStringComparator<>();
+                for (int i = 0; i < resourceGroups.size(); i++) {
+                    resourceGroups.get(i).sort(new Comparator<File>() {
+                        @Override
+                        public int compare(File o1, File o2) {
+                            String file1 = o1.getName().substring(35, 41);
+                            String file2 = o2.getName().substring(35, 41);
+                            return intuitiveStringComparator.compare(file1, file2);
+                        }
+                    });
+                }
+            }
 
             ObservableList<File> items = FXCollections.observableArrayList(resourceFilesInFolder);
             listViewOfResourcesInFolder.setItems(items);
