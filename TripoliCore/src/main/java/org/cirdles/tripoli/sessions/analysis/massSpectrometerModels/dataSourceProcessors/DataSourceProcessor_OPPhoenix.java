@@ -20,9 +20,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import jama.Matrix;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.MassSpecOutputDataRecord;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -61,28 +60,28 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
 
         int phase = 0;
         for (String line : contentsByLine) {
-            if (!line.isEmpty()) {
-                switch (phase) {
-                    case 0 -> headerByLineSplit.add(line.split(","));
-                    case 1 -> columnNamesSplit.add(line.split(","));
-                    case 2 -> {
-                        String[] lineSplit = line.split(",");
-                        sequenceIDByLineSplit.add(lineSplit[0]);
-                        blockNumberByLineSplit.add(lineSplit[1]);
-                        cycleNumberByLineSplit.add(lineSplit[2]);
-                        integrationNumberByLineSplit.add(lineSplit[3]);
-                        timeStampByLineSplit.add(lineSplit[4]);
-                        massByLineSplit.add(lineSplit[5]);
+            if (!line.isEmpty() && (phase == 2)) {
+//                switch (phase) {
+//                    case 0 -> headerByLineSplit.add(line.split(","));
+//                    case 1 -> columnNamesSplit.add(line.split(","));
+//                    case 2 -> {
+                String[] lineSplit = line.split(",");
+                sequenceIDByLineSplit.add(lineSplit[0]);
+                blockNumberByLineSplit.add(lineSplit[1]);
+                cycleNumberByLineSplit.add(lineSplit[2]);
+                integrationNumberByLineSplit.add(lineSplit[3]);
+                timeStampByLineSplit.add(lineSplit[4]);
+                massByLineSplit.add(lineSplit[5]);
 
-                        detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 6, lineSplit.length));
-                    }
-                }
-                if (line.startsWith("#START")) {
-                    phase = 1;
-                } else if (phase == 1) {
-                    phase = 2;
-                }
+                detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 6, lineSplit.length));
+//                    }
             }
+            if (line.startsWith("#START")) {
+                phase = 1;
+            } else if (phase == 1) {
+                phase = 2;
+            }
+//            }
         }
         String[] sequenceIDs = sequenceIDByLineSplit.toArray(new String[0]);
         int[] blockNumbers = convertListOfNumbersAsStringsToIntegerArray(blockNumberByLineSplit);

@@ -892,7 +892,6 @@ public class DataModelDriverExperiment {
         Dsig = sqrt(x.sig(d0.det_vec).^2 + x.sig(end).*dnobl); % New data covar vector
          */
 
-        int countOfEntriesInBlock_Ntb = massSpecOutputDataRecord.firstBlockInterpolations().getRowDimension();
         // only first block for now
         // todo: this is duplicated code from above in part
         EnsembleRecord lastModelRecord = ensembleRecordsList.get(ensembleRecordsList.size() - 1);
