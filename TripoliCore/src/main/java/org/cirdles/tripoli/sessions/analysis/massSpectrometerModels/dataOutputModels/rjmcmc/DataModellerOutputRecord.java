@@ -16,19 +16,23 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
-import jama.Matrix;
+// import jama.Matrix;
 import org.ojalgo.matrix.store.MatrixStore;
 
 public record DataModellerOutputRecord(
-        Matrix baselineMeans,
-        Matrix baselineStandardDeviations,
+        // Matrix baselineMeans,
+        double[] baselineMeans,
+        // Matrix baselineStandardDeviations,
+        double[] baselineStandardDeviations,
         double dfGain,
-        Matrix logratios,
-        Matrix signalNoise,
+        // Matrix logratios,
+        double[] logratios,
+        // Matrix signalNoise,
+        double[] signalNoise,
         // Matrix dataArray,
         double[] dataArray,
         // Matrix blockIntensities,
-        MatrixStore<Double> blockIntensitiesOJ
+        MatrixStore<Double> blockIntensities
 ) {
 
 }
