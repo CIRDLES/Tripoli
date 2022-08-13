@@ -49,8 +49,8 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
 
         List<String> contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
 
-//        List<String[]> headerByLineSplit = new ArrayList<>();
-//        List<String[]> columnNamesSplit = new ArrayList<>();
+        List<String[]> headerByLineSplit = new ArrayList<>();
+        List<String[]> columnNamesSplit = new ArrayList<>();
         List<String> sequenceIDByLineSplit = new ArrayList<>();
         List<String> blockNumberByLineSplit = new ArrayList<>();
         List<String> cycleNumberByLineSplit = new ArrayList<>();
@@ -61,11 +61,11 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
 
         int phase = 0;
         for (String line : contentsByLine) {
-            if (!line.isEmpty() &&  phase == 2) {
-//                switch (phase) {
-//                    case 0 -> headerByLineSplit.add(line.split(","));
-//                    case 1 -> columnNamesSplit.add(line.split(","));
-//                    case 2 -> {
+            if (!line.isEmpty()) {
+                switch (phase) {
+                    case 0 -> headerByLineSplit.add(line.split(","));
+                    case 1 -> columnNamesSplit.add(line.split(","));
+                    case 2 -> {
                         String[] lineSplit = line.split(",");
                         sequenceIDByLineSplit.add(lineSplit[0]);
                         blockNumberByLineSplit.add(lineSplit[1]);
@@ -75,7 +75,7 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
                         massByLineSplit.add(lineSplit[5]);
 
                         detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 6, lineSplit.length));
-//                    }
+                    }
                 }
                 if (line.startsWith("#START")) {
                     phase = 1;
@@ -83,7 +83,7 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
                     phase = 2;
                 }
             }
-//        }
+        }
         String[] sequenceIDs = sequenceIDByLineSplit.toArray(new String[0]);
         int[] blockNumbers = convertListOfNumbersAsStringsToIntegerArray(blockNumberByLineSplit);
         int[] cycleNumbers = convertListOfNumbersAsStringsToIntegerArray(cycleNumberByLineSplit);
