@@ -48,7 +48,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
  */
 public class DataModelDriverExperiment {
 
-    private static final boolean doFullProcessing = false;
+    private static final boolean doFullProcessing = true;
 
     public static AbstractPlotBuilder[] driveModelTest(Path dataFilePath, LoggingCallbackInterface loggingCallback) throws IOException {
 
@@ -898,7 +898,7 @@ public class DataModelDriverExperiment {
         EnsembleRecord lastModelRecord = ensembleRecordsList.get(ensembleRecordsList.size() - 1);
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
             Matrix[] intensity = new Matrix[1];
-            intensity[0] = massSpecOutputDataRecord.firstBlockInterpolations().times(lastModelRecord.intensity());
+            intensity[0] = lastDataModelInit.intensityPerBlock()[0];
             Matrix data = (Matrix) lastDataModelInit.dataArray().clone();
             Matrix dataWithNoBaseline = new Matrix(lastDataModelInit.dataArray().getRowDimension(), 1);
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
