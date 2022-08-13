@@ -37,10 +37,16 @@ import static java.lang.StrictMath.log;
  */
 public class DataModelInitializer {
     public static DataModellerOutputRecord modellingTest(MassSpecOutputDataRecord massSpecOutputDataRecord) {
-        return initializeModelSynth(massSpecOutputDataRecord);
+        // return initializeModelSynth(massSpecOutputDataRecord);
+        try {
+            return initializeModelSynth(massSpecOutputDataRecord);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    private static DataModellerOutputRecord initializeModelSynth(MassSpecOutputDataRecord massSpecOutputDataRecord) {
+    private static DataModellerOutputRecord initializeModelSynth(MassSpecOutputDataRecord massSpecOutputDataRecord) throws Exception {
         /*
             for m=1:d0.Nfar%+1
                 x0.BL(m,1) = mean(d0.data(d0.blflag & d0.det_ind(:,m)));
@@ -242,7 +248,7 @@ public class DataModelInitializer {
                 tempMatrix2 = inverter.invert(tempMatrix);
             } catch ( final RecoverableCondition e) {
                 // Will throw and exception if inversion fails, rethrowing it.
-                throw new RuntimeException(e);
+                throw new Exception(e);
             }
             IO = tempMatrix2.multiply(interpolatedKnotData.transpose()).multiply(ddMatrix);
         }
