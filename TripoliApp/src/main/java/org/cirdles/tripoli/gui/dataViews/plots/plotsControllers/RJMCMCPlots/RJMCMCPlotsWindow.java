@@ -29,8 +29,8 @@ import java.io.IOException;
  */
 public class RJMCMCPlotsWindow {
 
-    public static final double PLOT_WINDOW_WIDTH = 900.0;
-    public static final double PLOT_WINDOW_HEIGHT = 600.0;
+    public static final double PLOT_WINDOW_WIDTH = 1000.0;
+    public static final double PLOT_WINDOW_HEIGHT = 800.0;
     public static final double SCROLLBAR_THICKNESS = 15.0;
 
     private final double xOffset = 0;

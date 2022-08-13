@@ -18,6 +18,8 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputM
 
 import jama.Matrix;
 
+import java.io.Serializable;
+
 public record DataModellerOutputRecord(
         Matrix baselineMeans,
         Matrix baselineStandardDeviations,
@@ -25,7 +27,8 @@ public record DataModellerOutputRecord(
         Matrix logratios,
         Matrix signalNoise,
         Matrix dataArray,
-        Matrix blockIntensities
-) {
+        Matrix blockIntensities,
+        Matrix[] intensityPerBlock
+) implements Serializable {
 
 }

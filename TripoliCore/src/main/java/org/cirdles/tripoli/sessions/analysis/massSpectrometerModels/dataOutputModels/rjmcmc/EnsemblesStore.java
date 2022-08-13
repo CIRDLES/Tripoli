@@ -25,12 +25,18 @@ import java.util.List;
 public class EnsemblesStore implements Serializable {
 
     private List<DataModelDriverExperiment.EnsembleRecord> ensembles;
+    private DataModellerOutputRecord lastDataModelInit;
 
-    public EnsemblesStore(List<DataModelDriverExperiment.EnsembleRecord> ensembles) {
+    public EnsemblesStore(List<DataModelDriverExperiment.EnsembleRecord> ensembles, DataModellerOutputRecord lastDataModelInit) {
         this.ensembles = ensembles;
+        this.lastDataModelInit = lastDataModelInit;
     }
 
     public List<DataModelDriverExperiment.EnsembleRecord> getEnsembles() {
         return ensembles;
+    }
+
+    public DataModellerOutputRecord getLastDataModelInit() {
+        return lastDataModelInit;
     }
 }

@@ -206,8 +206,9 @@ public class DataModelInitializer {
             }
         }
 
+        Matrix[] intensityPerBlock = new Matrix[1];
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
-            Matrix intensity = massSpecOutputDataRecord.firstBlockInterpolations().times(IO);
+            intensityPerBlock[blockIndex] = massSpecOutputDataRecord.firstBlockInterpolations().times(IO);
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().getRowDimension(); row++) {
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn().get(row, isotopeIndex) == 1)
@@ -216,7 +217,7 @@ public class DataModelInitializer {
                             &&
                             (massSpecOutputDataRecord.blockIndicesForRawDataColumn().get(row, 0) == (blockIndex + 1))) {
                         dataArray[row] = exp(logRatios[isotopeIndex][0])
-                                * intensity.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
+                                * intensityPerBlock[blockIndex].get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
                     }
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn().get(row, isotopeIndex) == 1)
                             &&
@@ -224,7 +225,7 @@ public class DataModelInitializer {
                             &&
                             (massSpecOutputDataRecord.blockIndicesForRawDataColumn().get(row, 0) == (blockIndex + 1))) {
                         dataArray[row] = exp(logRatios[isotopeIndex][0]) / dfGain
-                                * intensity.get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0)
+                                * intensityPerBlock[blockIndex].get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0)
                                 + blMeansArray[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn().get(row, 0) - 1][0];
                     }
                 }
@@ -275,7 +276,8 @@ public class DataModelInitializer {
                 new Matrix(logRatios),
                 new Matrix(sigmas, sigmas.length),
                 new Matrix(dataArray, dataArray.length),
-                IO
+                IO,
+                intensityPerBlock
         );
     }
 

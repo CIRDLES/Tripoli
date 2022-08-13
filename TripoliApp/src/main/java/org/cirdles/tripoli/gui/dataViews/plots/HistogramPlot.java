@@ -55,7 +55,7 @@ public class HistogramPlot extends AbstractDataView {
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.05);
         minX -= xMarginStretch;
         maxX += xMarginStretch;
-        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 20.0));
+        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 40.0));
 
         yAxisData = histogramBuilder.getHistograms()[0].binCounts();
         minY = Double.MAX_VALUE;
@@ -104,7 +104,7 @@ public class HistogramPlot extends AbstractDataView {
 
         g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 12));
         g2d.setFill(Paint.valueOf("BLUE"));
-        g2d.fillText(histogramBuilder.getTitle(), leftMargin + 25, 15);
+        g2d.fillText(histogramBuilder.getTitle(), leftMargin + 25, topMargin + 15);
 
         // plot bins
         g2d.setLineWidth(2.0);
