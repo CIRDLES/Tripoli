@@ -9,7 +9,7 @@ import javafx.scene.text.Text;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
 
-public class IntensityLinePlot extends AbstractDataView {
+public class BasicLinePlot extends AbstractDataView {
 
     private final LinePlotBuilder intensityLinePlotBuilder;
 
@@ -17,8 +17,8 @@ public class IntensityLinePlot extends AbstractDataView {
      * @param bounds
      * @param intensityLinePlotBuilder
      */
-    public IntensityLinePlot(Rectangle bounds, LinePlotBuilder intensityLinePlotBuilder) {
-        super(bounds, 35, 5);
+    public BasicLinePlot(Rectangle bounds, LinePlotBuilder intensityLinePlotBuilder) {
+        super(bounds, 50, 5);
         this.intensityLinePlotBuilder = intensityLinePlotBuilder;
     }
 
@@ -30,7 +30,7 @@ public class IntensityLinePlot extends AbstractDataView {
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
 
-        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 25.0));
+        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 40.0));
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.01);
         minX -= xMarginStretch;
         maxX += xMarginStretch;
