@@ -40,13 +40,13 @@ public class DataModelInitializer {
         // return initializeModelSynth(massSpecOutputDataRecord);
         try {
             return initializeModelSynth(massSpecOutputDataRecord);
-        } catch (Exception e) {
+        } catch (RecoverableCondition e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    private static DataModellerOutputRecord initializeModelSynth(MassSpecOutputDataRecord massSpecOutputDataRecord) throws Exception {
+    private static DataModellerOutputRecord initializeModelSynth(MassSpecOutputDataRecord massSpecOutputDataRecord) throws RecoverableCondition {
         /*
             for m=1:d0.Nfar%+1
                 x0.BL(m,1) = mean(d0.data(d0.blflag & d0.det_ind(:,m)));
@@ -244,12 +244,7 @@ public class DataModelInitializer {
             MatrixStore<Double> tempMatrix = interpolatedKnotData.transpose().multiply(interpolatedKnotData);
             MatrixStore<Double> tempMatrix2;
             InverterTask<Double> inverter = InverterTask.PRIMITIVE.make(tempMatrix, false, false);
-            try {
-                tempMatrix2 = inverter.invert(tempMatrix);
-            } catch ( final RecoverableCondition e) {
-                // Will throw and exception if inversion fails, rethrowing it.
-                throw new Exception(e);
-            }
+            tempMatrix2 = inverter.invert(tempMatrix);
             IO = tempMatrix2.multiply(interpolatedKnotData.transpose()).multiply(ddMatrix);
         }
             /*
