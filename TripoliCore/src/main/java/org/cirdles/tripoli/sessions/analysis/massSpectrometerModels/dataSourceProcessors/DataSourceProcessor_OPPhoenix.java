@@ -48,8 +48,8 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
 
         List<String> contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
 
-        List<String[]> headerByLineSplit = new ArrayList<>();
-        List<String[]> columnNamesSplit = new ArrayList<>();
+//        List<String[]> headerByLineSplit = new ArrayList<>();
+//        List<String[]> columnNamesSplit = new ArrayList<>();
         List<String> sequenceIDByLineSplit = new ArrayList<>();
         List<String> blockNumberByLineSplit = new ArrayList<>();
         List<String> cycleNumberByLineSplit = new ArrayList<>();
