@@ -233,13 +233,14 @@ public class DataModelUpdater {
                     }
 
                     dataModelInit2 = new DataModellerOutputRecord(
-                            dataModelInit.baselineMeans(),
-                            dataModelInit.baselineStandardDeviations(),
+                            (Matrix) dataModelInit.baselineMeans().clone(),
+                            (Matrix) dataModelInit.baselineStandardDeviations().clone(),
                             dataModelInit.dfGain(),
-                            dataModelInit.logratios(),
+                            (Matrix) dataModelInit.logratios().clone(),
                             x2SignalNoise,
-                            dataModelInit.dataArray(),
-                            dataModelInit.blockIntensities()
+                            (Matrix) dataModelInit.dataArray().clone(),
+                            (Matrix) dataModelInit.blockIntensities().clone(),
+                            dataModelInit.intensityPerBlock() //? deep clone??
                     );
             }
             if (!noiseFlag) {
@@ -297,12 +298,13 @@ public class DataModelUpdater {
 
             dataModelInit2 = new DataModellerOutputRecord(
                     x2BaselineMeans,
-                    dataModelInit.baselineStandardDeviations(),
+                    (Matrix) dataModelInit.baselineStandardDeviations().clone(),
                     x2DFGain,
                     x2LogRatio,
-                    dataModelInit.signalNoise(),
-                    dataModelInit.dataArray(),
-                    x2BlockIntensities
+                    (Matrix) dataModelInit.signalNoise().clone(),
+                    (Matrix) dataModelInit.dataArray().clone(),
+                    x2BlockIntensities,
+                    dataModelInit.intensityPerBlock() // ?deep clone
             );
         }
         return dataModelInit2;
