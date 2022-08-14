@@ -32,6 +32,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.PeakShapePlotsWindow.plottingWindow;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.*;
@@ -278,17 +280,23 @@ public class PeakShapePlotsController {
 
                 // Generates a map of groups
                 Map<Integer, String> fileGroups = new HashMap<>();
+                Pattern groupPattern = Pattern.compile("C-(.*?)-S");
+                Pattern endPattern = Pattern.compile("-(.*?).");
+
                 int j = 0;
                 for (int i = 0; i < allFiles.length; i++) {
                     // Checks if substring in filename is already present in map
-                    if (!fileGroups.containsValue(allFiles[i].getName().substring(27, 34))) {
-                        fileGroups.put(j, allFiles[i].getName().substring(27, 34));
-                        j++;
+                    Matcher groupMatch = groupPattern.matcher(allFiles[i].getName());
+                    if (groupMatch.find()) {
+                        if (!fileGroups.containsValue(groupMatch.group(1))) {
+                            fileGroups.put(j, groupMatch.group(1));
+                            j++;
+                        }
                     }
+
                 }
 
                 // Generates groups of list that contain a list of files
-
                 for (int i = 0; i < fileGroups.size(); i++) {
                     resourceGroups.add(new ArrayList<>());
                 }
@@ -296,8 +304,11 @@ public class PeakShapePlotsController {
                 for (int i = 0; i < resourceGroups.size(); i++) {
                     for (int k = 0; k < allFiles.length; k++) {
                         // Adds to list according to key and value in fileGroups
-                        if (allFiles[k].getName().substring(27, 34).equals(fileGroups.get(i))) {
-                            resourceGroups.get(i).add(allFiles[k]);
+                        Matcher matcher = groupPattern.matcher(allFiles[k].getName());
+                        if (matcher.find()) {
+                            if (matcher.group(1).equals(fileGroups.get(i))) {
+                                resourceGroups.get(i).add(allFiles[k]);
+                            }
                         }
                     }
                 }
@@ -306,14 +317,28 @@ public class PeakShapePlotsController {
                 IntuitiveStringComparator<String> intuitiveStringComparator = new IntuitiveStringComparator<>();
                 for (int i = 0; i < resourceGroups.size(); i++) {
                     resourceGroups.get(i).sort(new Comparator<File>() {
+
                         @Override
                         public int compare(File o1, File o2) {
-                            String file1 = o1.getName().substring(35, 41);
-                            String file2 = o2.getName().substring(35, 41);
-                            return intuitiveStringComparator.compare(file1, file2);
+                            Matcher endMatch1 = endPattern.matcher(o1.getName());
+                            Matcher endMatch2 = endPattern.matcher(o2.getName());
+                            if (endMatch1.find() && endMatch2.find()) {
+                                return intuitiveStringComparator.compare(endMatch1.group(1), endMatch2.group(1));
+                            }
+                            return 0;
                         }
                     });
                 }
+
+                for (int i = 0; i < fileGroups.size(); i++) {
+                    System.out.println("Group: " + fileGroups.get(i));
+                    for (int k = 0; k < resourceGroups.get(i).size(); k++) {
+                        System.out.println("File: " + resourceGroups.get(i).get(k));
+                    }
+                    System.out.println();
+                }
+
+
             }
 
             ObservableList<File> items = FXCollections.observableArrayList(resourceFilesInFolder);
