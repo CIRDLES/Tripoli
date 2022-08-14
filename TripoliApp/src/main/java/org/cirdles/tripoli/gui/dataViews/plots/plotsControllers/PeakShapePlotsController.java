@@ -287,11 +287,9 @@ public class PeakShapePlotsController {
                 for (int i = 0; i < allFiles.length; i++) {
                     // Checks if substring in filename is already present in map
                     Matcher groupMatch = groupPattern.matcher(allFiles[i].getName());
-                    if (groupMatch.find()) {
-                        if (!fileGroups.containsValue(groupMatch.group(1))) {
+                    if (groupMatch.find() && (!fileGroups.containsValue(groupMatch.group(1)))) {
                             fileGroups.put(j, groupMatch.group(1));
                             j++;
-                        }
                     }
 
                 }
@@ -305,10 +303,8 @@ public class PeakShapePlotsController {
                     for (int k = 0; k < allFiles.length; k++) {
                         // Adds to list according to key and value in fileGroups
                         Matcher matcher = groupPattern.matcher(allFiles[k].getName());
-                        if (matcher.find()) {
-                            if (matcher.group(1).equals(fileGroups.get(i))) {
+                        if (matcher.find() && (matcher.group(1).equals(fileGroups.get(i)))) {
                                 resourceGroups.get(i).add(allFiles[k]);
-                            }
                         }
                     }
                 }

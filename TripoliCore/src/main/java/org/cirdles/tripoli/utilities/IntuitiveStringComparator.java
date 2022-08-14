@@ -37,8 +37,42 @@ public class IntuitiveStringComparator<T extends CharSequence>
 
     private static final long serialVersionUID = 7971843528648376464L;
 
-    private T str1, str2;
-    private int pos1, pos2, len1, len2;
+    private T str1;
+    private T str2;
+    private int pos1;
+    private int pos2;
+    private int len1;
+    private int len2;
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        String[] list = {
+//                "1z1", "1z2", "1z14",
+//                "1d", "1c",
+//                "1b",
+//                "foo 03",
+//                "foo 00003",
+//                "foo 5",
+//                "foo 003",
+//                "foo~03",
+//                "foo 10far",
+//                "foo 10boo",
+//                "foo 10bar",
+//                "foo 10",
+//                "foo!03",
+
+                "80", "180", "190.5"
+        };
+
+        Arrays.sort(list, new IntuitiveStringComparator<String>());
+
+        for (String s : list) {
+            System.out.println(s);
+
+        }
+    }
 
     /**
      * @param s1
@@ -104,9 +138,13 @@ public class IntuitiveStringComparator<T extends CharSequence>
     private int compareNumbers() {
         int delta = 0;
 
-        int zeroes1 = 0, zeroes2 = 0;
+        int zeroes1 = 0;
 
-        char ch1 = (char) 0, ch2 = (char) 0;
+        int zeroes2 = 0;
+
+        char ch1 = (char) 0;
+
+        char ch2 = (char) 0;
 
         // Skip leading zeroes, but keep a count of them.
         while (pos1 < len1 && (ch1 = str1.charAt(pos1++)) == '0') {
@@ -178,35 +216,5 @@ public class IntuitiveStringComparator<T extends CharSequence>
 
         return ch1 - ch2;
 
-    }
-
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        String[] list = {
-//                "1z1", "1z2", "1z14",
-//                "1d", "1c",
-//                "1b",
-//                "foo 03",
-//                "foo 00003",
-//                "foo 5",
-//                "foo 003",
-//                "foo~03",
-//                "foo 10far",
-//                "foo 10boo",
-//                "foo 10bar",
-//                "foo 10",
-//                "foo!03",
-
-                "80","180","190.5"
-        };
-
-        Arrays.sort(list, new IntuitiveStringComparator<String>());
-
-        for (String s : list) {
-            System.out.println(s);
-
-        }
     }
 }
