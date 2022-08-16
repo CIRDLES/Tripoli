@@ -35,7 +35,7 @@ import java.util.Objects;
 public class IntuitiveStringComparator<T extends CharSequence>
         implements Comparator<T>, Serializable {
 
-    private static final long serialVersionUID = 7971843528648376464L;
+//    private static final long serialVersionUID = 7971843528648376464L;
 
     private T str1;
     private T str2;

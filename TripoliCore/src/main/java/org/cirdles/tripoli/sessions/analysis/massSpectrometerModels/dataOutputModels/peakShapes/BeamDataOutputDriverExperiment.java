@@ -1,5 +1,7 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes;
 
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.PeakShapeProcessor_OPPhoenix;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
@@ -20,6 +22,7 @@ import java.nio.file.Path;
 
 public class BeamDataOutputDriverExperiment {
 
+    private static double measBeamWidthAMU;
     public static AbstractPlotBuilder[] modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException {
         PeakShapeProcessor_OPPhoenix peakShapeProcessor_opPhoenix
                 = PeakShapeProcessor_OPPhoenix.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
@@ -199,6 +202,10 @@ public class BeamDataOutputDriverExperiment {
 
         MatrixStore<Double> gBeam = trimGMatrix.multiply(beamShape);
 
+        MassSpectrometerModel massSpec = MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Phoenix");
+        measBeamWidthAMU = beamMassInterp.get(rightBoundary) - beamMassInterp.get(leftBoundary);
+        double measBeamWidthMM = measBeamWidthAMU * massSpec.getEffectiveRadiusMagnetMM() / peakShapeOutputDataRecord.peakCenterMass();
+
         AbstractPlotBuilder[] linePlots = new LinePlotBuilder[2];
         // "beamShape"
         AbstractPlotBuilder beamShapeLinePlotBuilder
@@ -211,5 +218,9 @@ public class BeamDataOutputDriverExperiment {
         linePlots[1] = gBeamLinePlotBuilder;
 
         return linePlots;
+    }
+
+    public static double getMeasBeamWidthAMU() {
+        return measBeamWidthAMU;
     }
 }

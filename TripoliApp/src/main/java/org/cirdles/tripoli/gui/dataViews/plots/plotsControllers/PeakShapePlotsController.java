@@ -46,6 +46,7 @@ public class PeakShapePlotsController {
 
     public static String resourceBrowserType = ".txt";
 
+    private ListView<String> listViewOfGroupResourcesInFolder;
     private ListView<File> listViewOfResourcesInFolder;
 
     @FXML
@@ -208,6 +209,8 @@ public class PeakShapePlotsController {
         resourceFilesInFolder = new ArrayList<>();
         File[] allFiles;
         ArrayList<ArrayList<File>> resourceGroups = new ArrayList<>();
+        Map<Integer, String> fileGroups = new HashMap<>();
+        ArrayList<String> groups = new ArrayList<>();
 
         if (resourceBrowserTarget != null && (resourceBrowserType.compareToIgnoreCase(".txt") == 0)) {
             for (File file : Objects.requireNonNull(resourceBrowserTarget.listFiles(File::isFile))) {
@@ -242,54 +245,46 @@ public class PeakShapePlotsController {
             eventLogTextArea.textProperty().unbind();
             eventLogTextArea.setText("No valid resources");
         }
+
         // Checks if there are no files in folder
         if (resourceFilesInFolder.isEmpty()) {
             if (resourceBrowserType.compareToIgnoreCase(".txt") == 0) {
                 eventLogTextArea.textProperty().unbind();
                 eventLogTextArea.setText("No valid resources");
+                resourceListAnchorPane.getChildren().remove(listViewOfGroupResourcesInFolder);
                 resourceListAnchorPane.getChildren().remove(listViewOfResourcesInFolder);
             }
         } else {
-            listViewOfResourcesInFolder = new ListView<>();
-            listViewOfResourcesInFolder.setCellFactory(
-                    (parameter)
-                            -> new ResourceDisplayName()
-            );
-
-
-            // Sorted by date within file
-            resourceFilesInFolder.sort(new Comparator<File>() {
-                DateFormat f = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-
-                @Override
-                public int compare(File o1, File o2) {
-                    try {
-                        String file1 = new BufferedReader(new FileReader(o1)).readLine().replaceFirst("Timestamp, ", "");
-                        String file2 = new BufferedReader(new FileReader(o2)).readLine().replaceFirst("Timestamp, ", "");
-                        return f.parse(file1).compareTo(f.parse(file2));
-                    } catch (IOException | ParseException e) {
-                        e.printStackTrace();
-                    }
-                    return 0;
-                }
-            });
 
             if (resourceFilesInFolder.get(0).getName().contains("NBS987")) {
+                listViewOfGroupResourcesInFolder = new ListView<>();
+                listViewOfGroupResourcesInFolder.setCellFactory(
+                        (parameter)
+                                -> new ResourceDisplayName()
+                );
+            } else {
+                listViewOfResourcesInFolder = new ListView<>();
+                listViewOfResourcesInFolder.setCellFactory(param -> new ResourceDisplayName2());
+            }
+
+            // Works with files that follow the format
+            if (resourceFilesInFolder.get(0).getName().contains("NBS987")) {
                 // Working on grouping and sorting
-                allFiles = resourceFilesInFolder.toArray(new File[resourceFilesInFolder.size()]);
+                allFiles = resourceFilesInFolder.toArray(new File[0]);
+                eventLogTextArea.textProperty().unbind();
+                eventLogTextArea.setText("");
 
                 // Generates a map of groups
-                Map<Integer, String> fileGroups = new HashMap<>();
                 Pattern groupPattern = Pattern.compile("C-(.*?)-S");
-                Pattern endPattern = Pattern.compile("-(.*?).");
+                Pattern endPattern = Pattern.compile("-(.*?)T");
 
                 int j = 0;
                 for (int i = 0; i < allFiles.length; i++) {
                     // Checks if substring in filename is already present in map
                     Matcher groupMatch = groupPattern.matcher(allFiles[i].getName());
                     if (groupMatch.find() && (!fileGroups.containsValue(groupMatch.group(1)))) {
-                            fileGroups.put(j, groupMatch.group(1));
-                            j++;
+                        fileGroups.put(j, groupMatch.group(1));
+                        j++;
                     }
 
                 }
@@ -304,7 +299,7 @@ public class PeakShapePlotsController {
                         // Adds to list according to key and value in fileGroups
                         Matcher matcher = groupPattern.matcher(allFiles[k].getName());
                         if (matcher.find() && (matcher.group(1).equals(fileGroups.get(i)))) {
-                                resourceGroups.get(i).add(allFiles[k]);
+                            resourceGroups.get(i).add(allFiles[k]);
                         }
                     }
                 }
@@ -334,68 +329,126 @@ public class PeakShapePlotsController {
                     System.out.println();
                 }
 
+                for (int i = 0; i < fileGroups.size(); i++) {
+                    groups.add(fileGroups.get(i));
+                }
 
-            }
+                ObservableList<String> items = FXCollections.observableArrayList(groups);
+                listViewOfGroupResourcesInFolder.setItems(items);
 
-            ObservableList<File> items = FXCollections.observableArrayList(resourceFilesInFolder);
-            listViewOfResourcesInFolder.setItems(items);
+                listViewOfGroupResourcesInFolder.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+                    @Override
+                    public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                        // Files will be manipulated here when group is selected
+                    }
+                });
+            } else { // Works with files that do not fit the format
 
-            // Selects the file and list and displays details of selected file
-            listViewOfResourcesInFolder.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
-                @Override
-                public void changed(ObservableValue<? extends File> observable, File oldValue, File newValue) {
-                    resourceBrowserTarget = newValue;
-                    try {
-                        List<String> contentsByLine = new ArrayList<>(Files.readAllLines(resourceBrowserTarget.toPath(), Charset.defaultCharset()));
-                        List<String[]> headerLine = new ArrayList<>();
+                // Sorted by date within file
+                resourceFilesInFolder.sort(new Comparator<File>() {
+                    DateFormat f = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
 
-                        for (String line : contentsByLine) {
-                            if (!line.isEmpty()) {
-                                headerLine.add(line.split("\\s*,\\s*"));
-                            } else {
-                                break;
+                    @Override
+                    public int compare(File o1, File o2) {
+                        try {
+                            String file1 = new BufferedReader(new FileReader(o1)).readLine().replaceFirst("Timestamp, ", "");
+                            String file2 = new BufferedReader(new FileReader(o2)).readLine().replaceFirst("Timestamp, ", "");
+                            return f.parse(file1).compareTo(f.parse(file2));
+                        } catch (IOException | ParseException e) {
+                            e.printStackTrace();
+                        }
+                        return 0;
+                    }
+                });
+
+                // Selects the file and list and displays details of selected file
+                listViewOfResourcesInFolder.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
+                    @Override
+                    public void changed(ObservableValue<? extends File> observable, File oldValue, File newValue) {
+                        resourceBrowserTarget = newValue;
+                        try {
+                            List<String> contentsByLine = new ArrayList<>(Files.readAllLines(resourceBrowserTarget.toPath(), Charset.defaultCharset()));
+                            List<String[]> headerLine = new ArrayList<>();
+
+                            for (String line : contentsByLine) {
+                                if (!line.isEmpty()) {
+                                    headerLine.add(line.split("\\s*,\\s*"));
+                                } else {
+                                    break;
+                                }
                             }
+
+                            String collector = headerLine.get(1)[1];
+                            String massID = headerLine.get(2)[1];
+                            String initialMass = headerLine.get(3)[1];
+                            String peakCentreMass = headerLine.get(4)[1];
+                            eventLogTextArea.textProperty().unbind();
+                            eventLogTextArea.setText("Collector: " + collector + "\n" + "Mass ID: " + massID + "\n" + "Initial Mass: " + initialMass + "\n" +
+                                    "Peak Centre Mass: " + peakCentreMass);
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
 
-                        String collector = headerLine.get(1)[1];
-                        String massID = headerLine.get(2)[1];
-                        String initialMass = headerLine.get(3)[1];
-                        String peakCentreMass = headerLine.get(4)[1];
-                        eventLogTextArea.textProperty().unbind();
-                        eventLogTextArea.setText("Collector: " + collector + "\n" + "Mass ID: " + massID + "\n" + "Initial Mass: " + initialMass + "\n" +
-                                "Peak Centre Mass: " + peakCentreMass);
+                        demo2Button.setDisable(false);
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
                     }
+                });
 
-                    demo2Button.setDisable(false);
+                listViewOfResourcesInFolder.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
-                }
-            });
-
-            listViewOfResourcesInFolder.setOnMouseClicked(new EventHandler<>() {
-                @Override
-                public void handle(MouseEvent click) {
-                    if (click.getClickCount() == 2) {
-                        resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
-                        processDataFileAndShowPlotsOfPeakShapes();
+                    @Override
+                    public void handle(MouseEvent click) {
+                        if (click.getClickCount() == 2) {
+                            resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
+                            processDataFileAndShowPlotsOfPeakShapes();
+                        }
                     }
-                }
-            });
+                });
 
-            if (resourceFilesInFolder.size() > 0) {
-                listViewOfResourcesInFolder.getSelectionModel().selectFirst();
+                ObservableList<File> items = FXCollections.observableArrayList(resourceFilesInFolder);
+                listViewOfResourcesInFolder.setItems(items);
             }
 
-            listViewOfResourcesInFolder.prefHeightProperty().bind(resourceListAnchorPane.prefHeightProperty());
-            listViewOfResourcesInFolder.prefWidthProperty().bind(resourceListAnchorPane.prefWidthProperty());
-            resourceListAnchorPane.getChildren().add(listViewOfResourcesInFolder);
+
+//
+
+            if (resourceFilesInFolder.size() > 0) {
+                if (resourceFilesInFolder.get(0).getName().contains("NBS987")) {
+                    listViewOfGroupResourcesInFolder.getSelectionModel().selectFirst();
+                } else {
+                    listViewOfResourcesInFolder.getSelectionModel().selectFirst();
+                }
+
+            }
+            if (resourceFilesInFolder.get(0).getName().contains("NBS987")) {
+                listViewOfGroupResourcesInFolder.prefHeightProperty().bind(resourceListAnchorPane.prefHeightProperty());
+                listViewOfGroupResourcesInFolder.prefWidthProperty().bind(resourceListAnchorPane.prefWidthProperty());
+                resourceListAnchorPane.getChildren().add(listViewOfGroupResourcesInFolder);
+            } else {
+                listViewOfResourcesInFolder.prefHeightProperty().bind(resourceListAnchorPane.prefHeightProperty());
+                listViewOfResourcesInFolder.prefWidthProperty().bind(resourceListAnchorPane.prefWidthProperty());
+                resourceListAnchorPane.getChildren().add(listViewOfResourcesInFolder);
+            }
+
         }
 
     }
 
-    static class ResourceDisplayName extends ListCell<File> {
+    static class ResourceDisplayName extends ListCell<String> {
+
+        @Override
+        protected void updateItem(String resource, boolean empty) {
+            super.updateItem(resource, empty);
+            if (resource == null || empty) {
+                setText(null);
+            } else {
+                setText(resource);
+            }
+        }
+    }
+
+    static class ResourceDisplayName2 extends ListCell<File> {
 
         @Override
         protected void updateItem(File resource, boolean empty) {
