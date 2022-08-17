@@ -129,10 +129,10 @@ public class PeakShapePlotsController {
 
     public void processFilesAndShowPeakCentre(String groupValue) {
 
-        PeakShapesService service;
+
         double[] finalYAxis = new double[0];
         double[] finalXAxis = new double[0];
-
+//        PeakShapesService service;
 //        double[] testXAxis = new double[0];
 //        double[] testYAxis = new double[0];
 //        // Trying to get data from peakShapeTask
@@ -201,8 +201,8 @@ public class PeakShapePlotsController {
                     if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
                         try {
                             AbstractPlotBuilder[] linePlots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
-                            AbstractPlotBuilder beamShapePlotBuilder = linePlots[0];
-                            AbstractPlotBuilder gBeamPlotBuilder = linePlots[1];
+//                            AbstractPlotBuilder beamShapePlotBuilder = linePlots[0];
+//                            AbstractPlotBuilder gBeamPlotBuilder = linePlots[1];
                             xAxis[k] = k + 1;
                             yAxis[k] = BeamDataOutputDriverExperiment.getMeasBeamWidthMM();
                         } catch (IOException e) {
