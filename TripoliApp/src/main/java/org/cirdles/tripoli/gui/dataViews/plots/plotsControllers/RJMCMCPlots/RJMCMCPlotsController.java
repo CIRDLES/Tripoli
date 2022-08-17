@@ -95,7 +95,7 @@ public class RJMCMCPlotsController {
     public void processDataFileAndShowPlotsOfRJMCMC() throws IOException {
         org.cirdles.commons.util.ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
         Path dataFile = RESOURCE_EXTRACTOR
-                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/SyntheticDataset_05.txt").toPath();
+                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_05.txt").toPath();
         final RJMCMCUpdatesService service = new RJMCMCUpdatesService(dataFile);
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();

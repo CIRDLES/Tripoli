@@ -1,0 +1,10 @@
+README.txt
+SyntheticDataset_01.txt
+SyntheticDataset_02.txt
+SyntheticDataset_03.txt
+SyntheticDataset_04.txt
+SyntheticDataset_05.txt
+SyntheticDataset_06.txt
+SyntheticDataset_07.txt
+SyntheticDataset_08.txt
+synthetic208PbIntensityfor2isotopes.csv.txt
