@@ -6,26 +6,27 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
+import org.cirdles.tripoli.visualizationUtilities.linePlots.ComboPlotBuilder;
 
 
-public class BasicScatterPlot extends AbstractDataView {
+public class BasicScatterAndLinePlot extends AbstractDataView {
 
-    private final LinePlotBuilder intensityLinePlotBuilder;
-
+    private final ComboPlotBuilder comboPlotBuilder;
+    private double[] yAxisData2;
     /**
      * @param bounds
-     * @param intensityLinePlotBuilder
+     * @param comboPlotBuilder
      */
-    public BasicScatterPlot(Rectangle bounds, LinePlotBuilder intensityLinePlotBuilder) {
+    public BasicScatterAndLinePlot(Rectangle bounds, ComboPlotBuilder comboPlotBuilder) {
         super(bounds, 50, 5);
-        this.intensityLinePlotBuilder = intensityLinePlotBuilder;
+        this.comboPlotBuilder = comboPlotBuilder;
     }
 
     @Override
     public void preparePanel() {
-        xAxisData = intensityLinePlotBuilder.getxData();
-        yAxisData = intensityLinePlotBuilder.getyData();
+        xAxisData = comboPlotBuilder.getxData();
+        yAxisData = comboPlotBuilder.getyData();
+        yAxisData2 = comboPlotBuilder.getyData2();
 
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
@@ -41,6 +42,11 @@ public class BasicScatterPlot extends AbstractDataView {
         for (int i = 0; i < yAxisData.length; i++) {
             minY = StrictMath.min(minY, yAxisData[i]);
             maxY = StrictMath.max(maxY, yAxisData[i]);
+            minY = StrictMath.min(minY, yAxisData2[i]);
+            maxY = StrictMath.max(maxY, yAxisData2[i]);
+            if (comboPlotBuilder.isyData2OneSigma()){
+                minY = StrictMath.min(minY, -yAxisData2[i]);
+            }
         }
         ticsY = TicGeneratorForAxes.generateTics(minY, maxY, (int) (graphHeight / 15.0));
         if ((ticsY != null) && (ticsY.length > 1)) {
@@ -69,13 +75,33 @@ public class BasicScatterPlot extends AbstractDataView {
 
         g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 12));
         g2d.setFill(Paint.valueOf("BLUE"));
-        g2d.fillText(intensityLinePlotBuilder.getTitle(), leftMargin + 25, 15);
+        g2d.fillText(comboPlotBuilder.getTitle(), leftMargin + 25, 15);
 
-        g2d.setLineWidth(0.5);
         // scatter plot
+        g2d.setLineWidth(0.75);
         g2d.setStroke(Paint.valueOf("Black"));
         for (int i = 0; i < xAxisData.length; i++) {
             g2d.strokeOval(mapX(xAxisData[i]) - 2f, mapY(yAxisData[i]) -2f, 4f, 4f);
+        }
+
+        // new line plot from yAxisData2
+        g2d.setStroke(Paint.valueOf("red"));
+        g2d.beginPath();
+        g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData2[0]));
+        for (int i = 0; i < xAxisData.length; i++) {
+            // line tracing through points
+            g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData2[i]));
+        }
+        g2d.stroke();
+
+        if (comboPlotBuilder.isyData2OneSigma()){
+            g2d.beginPath();
+            g2d.moveTo(mapX(xAxisData[0]), mapY(-yAxisData2[0]));
+            for (int i = 0; i < xAxisData.length; i++) {
+                // line tracing through points
+                g2d.lineTo(mapX(xAxisData[i]), mapY(-yAxisData2[i]));
+            }
+            g2d.stroke();
         }
 
 

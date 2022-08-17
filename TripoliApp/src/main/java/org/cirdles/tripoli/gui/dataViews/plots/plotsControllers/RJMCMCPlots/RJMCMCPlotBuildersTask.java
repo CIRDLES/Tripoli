@@ -37,7 +37,8 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
 
     private AbstractPlotBuilder convergeRatioLineBuilder;
 
-    private AbstractPlotBuilder ObserveDataLineBuilder;
+    private AbstractPlotBuilder observedDataLineBuilder;
+    private AbstractPlotBuilder residualDataLineBuilder;
 
     public RJMCMCPlotBuildersTask(Path dataFile) {
         this.dataFile = dataFile;
@@ -67,8 +68,12 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
         return convergeRatioLineBuilder;
     }
 
-    public AbstractPlotBuilder getObserveDataLineBuilder() {
-        return ObserveDataLineBuilder;
+    public AbstractPlotBuilder getObservedDataLineBuilder() {
+        return observedDataLineBuilder;
+    }
+
+    public AbstractPlotBuilder getResidualDataLineBuilder() {
+        return residualDataLineBuilder;
     }
 
     @Override
@@ -82,7 +87,8 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
 
         convergeRatioLineBuilder = plots[5];
 
-        ObserveDataLineBuilder = plots[6];
+        observedDataLineBuilder = plots[6];
+        residualDataLineBuilder = plots[7];
         return "DONE";
     }
 
