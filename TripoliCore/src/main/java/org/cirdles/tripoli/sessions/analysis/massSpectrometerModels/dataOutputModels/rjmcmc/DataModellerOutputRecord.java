@@ -16,19 +16,26 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
-import jama.Matrix;
+// import jama.Matrix;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public record DataModellerOutputRecord(
-        Matrix baselineMeans,
-        Matrix baselineStandardDeviations,
+        // Matrix baselineMeans,
+        double[] baselineMeans,
+        // Matrix baselineStandardDeviations,
+        double[] baselineStandardDeviations,
         double dfGain,
-        Matrix logratios,
-        Matrix signalNoise,
-        Matrix dataArray,
-        Matrix blockIntensities,
-        Matrix[] intensityPerBlock
+        // Matrix logratios,
+        double[] logratios,
+        // Matrix signalNoise,
+        double[] signalNoise,
+        // Matrix dataArray,
+        double[] dataArray,
+        // Matrix blockIntensities,
+        double [] blockIntensities,
+        // Matrix[] intensityPerBlock
+        ArrayList<double []> intensityPerBlock
 ) implements Serializable {
-
 }
