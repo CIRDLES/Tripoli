@@ -72,7 +72,7 @@ public class BasicLinePlot extends AbstractDataView {
         g2d.fillText(intensityLinePlotBuilder.getTitle(), leftMargin + 25, 15);
 
         g2d.setLineWidth(2.0);
-        // new line graph
+        // new line plot
         g2d.setStroke(Paint.valueOf("Black"));
         g2d.beginPath();
         g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]));
