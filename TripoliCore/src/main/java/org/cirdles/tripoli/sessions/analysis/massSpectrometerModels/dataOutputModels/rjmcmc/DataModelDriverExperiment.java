@@ -147,9 +147,9 @@ public class DataModelDriverExperiment {
 
         }
         */
-        for (int row = 0; row < dataModelInit_X0.blockIntensities().getRowDim(); row++) {
-            maxIntensity = Math.max(dataModelInit_X0.blockIntensities().get(row, 0), maxIntensity);
-            minIntensity = min(dataModelInit_X0.blockIntensities().get(row, 0), minIntensity);
+        for (int row = 0; row < dataModelInit_X0.blockIntensities().length; row++) {
+            maxIntensity = Math.max(dataModelInit_X0.blockIntensities()[row], maxIntensity);
+            minIntensity = min(dataModelInit_X0.blockIntensities()[row], minIntensity);
 
         }
         /*
@@ -255,7 +255,7 @@ public class DataModelDriverExperiment {
                 if ((massSpecOutputDataRecord.baseLineFlagsForRawDataColumn()[row] == 1)
                         &&
                         (massSpecOutputDataRecord.detectorFlagsForRawDataColumn()[row][faradayIndex] == 1)) {
-                    dataModelInit.dataArray()[row] = dataModelInit.baselineMeans()[faradayIndex];
+                    data[row] = dataModelInit_X0.baselineMeans()[faradayIndex];
                     dataWithNoBaseline[row] = 0.0;
                 }
             }
@@ -286,10 +286,10 @@ public class DataModelDriverExperiment {
         // only using first block
         // Matrix Intensity;
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        Primitive64Store Intensity = storeFactory.make(massSpecOutputDataRecord.firstBlockInterpolations().countRows(), dataModelInit.blockIntensities().countColumns());
+        // Primitive64Store Intensity = storeFactory.make(massSpecOutputDataRecord.firstBlockInterpolations().countRows(), data.blockIntensities().countColumns());
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
             /*
-            Intensity = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelInit.blockIntensities());
+            // Intensity = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelInit.blockIntensities());
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().getRowDimension(); row++) {
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn().get(row, isotopeIndex) == 1)
@@ -316,28 +316,28 @@ public class DataModelDriverExperiment {
                 }
             }
             */
-            Intensity.fillByMultiplying(massSpecOutputDataRecord.firstBlockInterpolations(), dataModelInit.blockIntensities());
+            // Intensity.fillByMultiplying(massSpecOutputDataRecord.firstBlockInterpolations(), dataModelInit.blockIntensities());
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
                             && (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1)
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
                         double calcValue =
-                                exp(dataModelInit.logratios()[isotopeIndex])
-                                        * Intensity.get((int) massSpecOutputDataRecord.timeIndColumn()[row] - 1, 0);
-                        dataModelInit.dataArray()[row] =  calcValue;
+                        // todo check here
+                                 exp(dataModelInit_X0.logratios()[isotopeIndex]
+                                        * dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1]);
+                        data[row] =  calcValue;
                         dataWithNoBaseline[row] = calcValue;
                     }
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
                             && (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 0)
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
                         double calcValue =
-                                exp(dataModelInit.logratios()[isotopeIndex])
-                                        / dataModelInit.dfGain()
-                                        * Intensity.get((int) massSpecOutputDataRecord.timeIndColumn()[row] - 1, 0);
+                                exp(dataModelInit_X0.logratios()[isotopeIndex]) / dataModelInit_X0.dfGain()
+                                        * dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
                         dataWithNoBaseline[row] = calcValue;
-                        dataModelInit.dataArray()[row] =
-                                calcValue + dataModelInit.baselineMeans()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1];
+                        data[row] =
+                                calcValue + dataModelInit_X0.baselineMeans()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1];
                     }
                 }
             }
@@ -487,13 +487,18 @@ public class DataModelDriverExperiment {
         }
 
         DataModellerOutputRecord dataModelInit = new DataModellerOutputRecord(
-                (Matrix) dataModelInit_X0.baselineMeans().clone(),
-                (Matrix) dataModelInit_X0.baselineStandardDeviations().clone(),
+                // (Matrix) dataModelInit_X0.baselineMeans().clone(),
+                dataModelInit_X0.baselineMeans().clone(),
+                // (Matrix) dataModelInit_X0.baselineStandardDeviations().clone(),
+                dataModelInit_X0.baselineStandardDeviations().clone(),
                 dataModelInit_X0.dfGain(),
-                (Matrix) dataModelInit_X0.logratios().clone(),
-                (Matrix) dataModelInit_X0.signalNoise().clone(),
+                // (Matrix) dataModelInit_X0.logratios().clone(),
+                dataModelInit_X0.logratios().clone(),
+                // (Matrix) dataModelInit_X0.signalNoise().clone(),
+                dataModelInit_X0.signalNoise().clone(),
                 data,
-                (Matrix) dataModelInit_X0.blockIntensities().clone(),
+                // (Matrix) dataModelInit_X0.blockIntensities().clone(),
+                dataModelInit_X0.blockIntensities(),
                 dataModelInit_X0.intensityPerBlock()
         );
 
@@ -626,8 +631,12 @@ public class DataModelDriverExperiment {
             // todo: reminder only 1 block here
             // Matrix[] intensity2 = new Matrix[1];
             // intensity2[0] = massSpecOutputDataRecord.firstBlockInterpolations().times(dataModelUpdaterOutputRecord_x2.blockIntensities());
-            Primitive64Store Intensity2 = storeFactory.make(massSpecOutputDataRecord.firstBlockInterpolations().countRows(), dataModelUpdaterOutputRecord_x2.blockIntensities().countColumns());
-            Intensity2.fillByMultiplying(massSpecOutputDataRecord.firstBlockInterpolations(), (dataModelUpdaterOutputRecord_x2.blockIntensities()));
+            // todo: faster multiplication not working research further
+            ArrayList<double []> intensity2 = new ArrayList<>(1);
+            MatrixStore<Double> tempIntensity;//  = storeFactory.make(massSpecOutputDataRecord.firstBlockInterpolations().countRows(), dataModelUpdaterOutputRecord_x2.blockIntensities().length);
+            // tempIntensity.fillByMultiplying(massSpecOutputDataRecord.firstBlockInterpolations(), Access2D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()));
+            tempIntensity = massSpecOutputDataRecord.firstBlockInterpolations().multiply(storeFactory.columns(dataModelUpdaterOutputRecord_x2.blockIntensities()));
+            intensity2.add(0, tempIntensity.toRawCopy1D());
             /*
             for (int row = (int) blockStartIndicesFaraday.get(0, 0); row <= (int) blockEndIndicesFaraday.get(0, 0); row++) {
                 tmpIArray[row] = intensity2[0].get((int) massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1, 0);
@@ -637,10 +646,10 @@ public class DataModelDriverExperiment {
             }
             */
             for (int row = (int) blockStartIndicesFaraday[0]; row <= (int) blockEndIndicesFaraday[0]; row++) {
-                tmpIArray[row] =  Intensity2.get((int) massSpecOutputDataRecord.timeIndColumn()[row] - 1, 0);
+                tmpIArray[row] =  intensity2.get(0)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
             }
             for (int row = (int) blockStartIndicesDaly[0]; row <= (int) blockEndIndicesDaly[0]; row++) {
-                tmpIArray[row] = Intensity2.get((int) massSpecOutputDataRecord.timeIndColumn()[row] - 1, 0);
+                tmpIArray[row] = intensity2.get(0)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
             }
 
             /*
@@ -826,8 +835,7 @@ public class DataModelDriverExperiment {
                 counter++;
                 ensembleRecordsList.add(new EnsembleRecord(
                         dataModelInit.logratios(),
-                        // dataModelInit.blockIntensities(),
-                        dataModelInit.blockIntensities().toRawCopy1D(),
+                        dataModelInit.blockIntensities(),
                         dataModelInit.baselineMeans(),
                         dataModelInit.dfGain(),
                         dataModelInit.signalNoise(),
@@ -1093,7 +1101,8 @@ public class DataModelDriverExperiment {
         double[] convergeRatios = new double[ensembleRecordsList.size()];
         double[] xDataconvergeRatios = new double[ensembleRecordsList.size()];
         for (int index = 0; index < ensembleRecordsList.size(); index++) {
-            convergeLogRatios[index] = ensembleRecordsList.get(index).logRatios().get(0, 0);
+            // convergeLogRatios[index] = ensembleRecordsList.get(index).logRatios().get(0, 0);
+            convergeLogRatios[index] = ensembleRecordsList.get(index).logRatios()[0];
             convergeRatios[index] = exp(convergeLogRatios[index]);
             xDataconvergeRatios[index] = index;
         }
@@ -1123,6 +1132,7 @@ public class DataModelDriverExperiment {
         // only first block for now
         // todo: this is duplicated code from above in part
         EnsembleRecord lastModelRecord = ensembleRecordsList.get(ensembleRecordsList.size() - 1);
+        /*
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
             Matrix[] intensity = new Matrix[1];
             intensity[0] = lastDataModelInit.intensityPerBlock()[0];
@@ -1152,9 +1162,39 @@ public class DataModelDriverExperiment {
                 }
             }
         }
-
+        */
+        for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
+            ArrayList<double []> intensity = new ArrayList<>(1);
+            intensity.add(0, lastDataModelInit.intensityPerBlock().get(0));
+            double[] data = lastDataModelInit.dataArray().clone();
+            double [] dataWithNoBaseline = new double [lastDataModelInit.dataArray().length];
+            for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
+                for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
+                    if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
+                            && (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1)
+                            && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
+                        double calcValue =
+                                exp(lastModelRecord.logRatios()[isotopeIndex])
+                                        * intensity.get(0)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                        data[row] =  calcValue;
+                        dataWithNoBaseline[row] = calcValue;
+                    }
+                    if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
+                            && (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 0)
+                            && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
+                        double calcValue =
+                                exp(lastModelRecord.logRatios()[isotopeIndex]) / lastModelRecord.dfGain()
+                                        * intensity.get(0)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                        dataWithNoBaseline[row] = calcValue;
+                        data[row] =
+                                calcValue + lastModelRecord.baseLine()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1];
+                    }
+                }
+            }
+        }
         int step = 10;
-        double [] dataCounts = massSpecOutputDataRecord.rawDataColumn().getColumnPackedCopy();
+        // double [] dataCounts = massSpecOutputDataRecord.rawDataColumn().getColumnPackedCopy();
+        double [] dataCounts = massSpecOutputDataRecord.rawDataColumn().clone();
         double[] xDataIndex = new double[dataCounts.length / step];
         double[] yDataCounts = new double[dataCounts.length / step];
 

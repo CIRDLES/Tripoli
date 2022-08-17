@@ -72,16 +72,17 @@ public class DataModelUpdater {
             priormin = [prior.lograt(1)*ones(Niso-1,1); 0; prior.I(1)*ones(sum(Ncycle),1); prior.BL(1)*ones(Nfar,1); prior.DFgain(1)*ones(Ndf,1)];
             priormax = [prior.lograt(2)*ones(Niso-1,1); 0; prior.I(2)*ones(sum(Ncycle),1); prior.BL(2)*ones(Nfar,1); prior.DFgain(2)*ones(Ndf,1)];
          */
-
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         // int countOfIsotopes = dataModelInit.logratios().getRowDimension();
         int countOfIsotopes = dataModelInit.logratios().length;
         // int countOfBlocks = dataModelInit.blockIntensities().getColumnDimension();
-        int countOfBlocks = dataModelInit.blockIntensities().getColDim();
+        // todo check if this should be 2d array
+        int countOfBlocks = storeFactory.columns(dataModelInit.blockIntensities()).getColDim();
         int[] nCycle = new int[countOfBlocks];
         int sumOfCycleCounts = 0;
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
             // nCycle[blockIndex] = dataModelInit.blockIntensities().getRowDimension();
-            nCycle[blockIndex] = dataModelInit.blockIntensities().getRowDim();
+            nCycle[blockIndex] = dataModelInit.blockIntensities().length;
             sumOfCycleCounts += nCycle[blockIndex];
         }
         // int countOfFaradays = dataModelInit.baselineMeans().getRowDimension();
@@ -153,7 +154,7 @@ public class DataModelUpdater {
         // todo: only good for one block
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
             // System.arraycopy(dataModelInit.blockIntensities().getColumnPackedCopy(), 0, xx0Array, countOfIsotopes, nCycle[blockIndex]);
-            System.arraycopy(dataModelInit.blockIntensities().toRawCopy1D(), 0, xx0Array, countOfIsotopes, nCycle[blockIndex]);
+            System.arraycopy(dataModelInit.blockIntensities(), 0, xx0Array, countOfIsotopes, nCycle[blockIndex]);
             // System.arraycopy((new Matrix(nCycle[blockIndex], 1, blockIndex + 2)).getColumnPackedCopy(), 0, xIndArray, countOfIsotopes, nCycle[blockIndex]);
             double[] temp = new double[nCycle[blockIndex]];
             Arrays.fill(temp, blockIndex + 2);
@@ -233,7 +234,6 @@ public class DataModelUpdater {
         // Matrix xx = (Matrix) xx0.clone();
         double[] xx = xx0Array.clone();
 
-        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         boolean noiseFlag = false;
         if (!allFlag) {
             double delX;
@@ -268,13 +268,18 @@ public class DataModelUpdater {
                     }
 
                     dataModelInit2 = new DataModellerOutputRecord(
-                            (Matrix) dataModelInit.baselineMeans().clone(),
-                            (Matrix) dataModelInit.baselineStandardDeviations().clone(),
+                            // (Matrix) dataModelInit.baselineMeans().clone(),
+                            dataModelInit.baselineMeans().clone(),
+                            // (Matrix) dataModelInit.baselineStandardDeviations().clone(),
+                            dataModelInit.baselineStandardDeviations().clone(),
                             dataModelInit.dfGain(),
-                            (Matrix) dataModelInit.logratios().clone(),
+                            // (Matrix) dataModelInit.logratios().clone(),
+                            dataModelInit.logratios().clone(),
                             x2SignalNoise,
-                            (Matrix) dataModelInit.dataArray().clone(),
-                            (Matrix) dataModelInit.blockIntensities().clone(),
+                            // (Matrix) dataModelInit.dataArray().clone(),
+                            dataModelInit.dataArray().clone(),
+                            // (Matrix) dataModelInit.blockIntensities().clone(),
+                            dataModelInit.blockIntensities().clone(),
                             dataModelInit.intensityPerBlock() //? deep clone??
                     );
             }
@@ -357,9 +362,9 @@ public class DataModelUpdater {
             }
             double[] x2LogRatioArray = x2LogRatioList.stream().mapToDouble(d -> d).toArray();
             // Matrix x2LogRatio = new Matrix(x2LogRatioArray, x2LogRatioArray.length);
-            double[] x2BlockIntensitiesArray = x2BlockIntensitiesList.stream().mapToDouble(d -> d).toArray();
+            // double[] x2BlockIntensitiesArray = x2BlockIntensitiesList.stream().mapToDouble(d -> d).toArray();
             // Matrix x2BlockIntensities = new Matrix(x2BlockIntensitiesArray, x2BlockIntensitiesArray.length);
-            MatrixStore<Double> x2BlockIntensities = storeFactory.column(x2BlockIntensitiesArray);
+            MatrixStore<Double> x2BlockIntensities = storeFactory.column(x2BlockIntensitiesList.stream().mapToDouble(d -> d).toArray());
             double[] x2BaselineMeansArray = x2BaselineMeansList.stream().mapToDouble(d -> d).toArray();
             // Matrix x2BaselineMeans = new Matrix(x2BaselineMeansArray, x2BaselineMeansArray.length);
 
@@ -375,7 +380,7 @@ public class DataModelUpdater {
                     dataModelInit.signalNoise(),
                     // (Matrix) dataModelInit.dataArray().clone(),
                     dataModelInit.dataArray(),
-                    x2BlockIntensities
+                    x2BlockIntensities.toRawCopy1D(),
                     dataModelInit.intensityPerBlock() // ?deep clone
             );
         }
@@ -435,12 +440,13 @@ public class DataModelUpdater {
         // int countOfIsotopes = dataModelInit.logratios().getRowDimension();
         int countOfIsotopes = dataModelInit.logratios().length;
         // int countOfBlocks = dataModelInit.blockIntensities().getColumnDimension();
-        int countOfBlocks = dataModelInit.blockIntensities().getColDim();
+        // int countOfBlocks = dataModelInit.blockIntensities().length;
+        int countOfBlocks = 1;
         int[] nCycle = new int[countOfBlocks];
         int sumOfCycleCounts = 0;
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
             // nCycle[blockIndex] = dataModelInit.blockIntensities().getRowDimension();
-            nCycle[blockIndex] = dataModelInit.blockIntensities().getRowDim();
+            nCycle[blockIndex] = dataModelInit.blockIntensities().length;
             sumOfCycleCounts += nCycle[blockIndex];
         }
         // int countOfFaradays = dataModelInit.baselineMeans().getRowDimension();
@@ -504,7 +510,7 @@ public class DataModelUpdater {
                 enso.set(row, modelIndex, ensembleRecordsList.get(modelIndex + countOfNewModels - 1).logRatios()[1]);
                 totalsByRow.set(row, 0, totalsByRow.get(row, 0) + ensembleRecordsList.get(modelIndex + countOfNewModels - 1).logRatios()[1]);
                 row++;
-                for (int intensityIndex = 0; intensityIndex < dataModelInit.blockIntensities().getRowDim(); intensityIndex++) {
+                for (int intensityIndex = 0; intensityIndex < dataModelInit.blockIntensities().length; intensityIndex++) {
                     enso.set(row, modelIndex, ensembleRecordsList.get(modelIndex + countOfNewModels - 1).intensity()[intensityIndex]);
                     totalsByRow.set(row, 0, totalsByRow.get(row, 0) + ensembleRecordsList.get(modelIndex + countOfNewModels - 1).intensity()[intensityIndex]);
                     row++;

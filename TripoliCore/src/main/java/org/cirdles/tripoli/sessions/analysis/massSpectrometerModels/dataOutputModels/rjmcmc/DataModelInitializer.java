@@ -192,7 +192,8 @@ public class DataModelInitializer {
          */
         // just playing with first block for now
         // Matrix IO = null;
-        MatrixStore<Double> IO = null;
+        // MatrixStore<Double> IO = null;
+        double[] IO = null;
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
             // Matrix interpolatedKnotData = massSpecOutputDataRecord.firstBlockInterpolations();
             MatrixStore<Double> interpolatedKnotData = massSpecOutputDataRecord.firstBlockInterpolations();
@@ -245,7 +246,7 @@ public class DataModelInitializer {
             MatrixStore<Double> tempMatrix2;
             InverterTask<Double> inverter = InverterTask.PRIMITIVE.make(tempMatrix, false, false);
             tempMatrix2 = inverter.invert(tempMatrix);
-            IO = tempMatrix2.multiply(interpolatedKnotData.transpose()).multiply(ddMatrix);
+            IO = tempMatrix2.multiply(interpolatedKnotData.transpose()).multiply(ddMatrix).toRawCopy1D();
         }
             /*
                 %%% MODEL DATA WITH INITIAL MODEL
@@ -317,8 +318,11 @@ public class DataModelInitializer {
             }
         }
         */
+        // ArrayList<MatrixStore<Double>> intensityPerBlock = new ArrayList<>(1);
+        ArrayList<double []> intensityPerBlock = new ArrayList<>(1);
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
-            MatrixStore<Double> intensity = massSpecOutputDataRecord.firstBlockInterpolations().multiply(IO);
+            MatrixStore<Double> intensity = massSpecOutputDataRecord.firstBlockInterpolations().multiply(storeFactory.columns(IO));
+            intensityPerBlock.add(blockIndex, intensity.toRawCopy1D());
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().length; row++) {
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)

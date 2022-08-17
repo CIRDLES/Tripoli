@@ -17,9 +17,9 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
 // import jama.Matrix;
-import org.ojalgo.matrix.store.MatrixStore;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public record DataModellerOutputRecord(
         // Matrix baselineMeans,
@@ -34,7 +34,8 @@ public record DataModellerOutputRecord(
         // Matrix dataArray,
         double[] dataArray,
         // Matrix blockIntensities,
-        MatrixStore<Double> intensityPerBlock
-        Matrix[] intensityPerBlock
+        double [] blockIntensities,
+        // Matrix[] intensityPerBlock
+        ArrayList<double []> intensityPerBlock
 ) implements Serializable {
 }
