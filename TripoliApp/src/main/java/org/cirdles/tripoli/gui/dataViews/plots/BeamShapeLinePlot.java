@@ -16,13 +16,12 @@ public class BeamShapeLinePlot extends AbstractDataView {
     private int rightBoundary;
 
     /**
-     * @param leftBoundary
-     * @param rightBoundary
+     *
      * @param bounds
-     * @param linePlot
+     * @param beamShapeLinePlotBuilder
      */
     public BeamShapeLinePlot(Rectangle bounds, BeamShapeLinePlotBuilder beamShapeLinePlotBuilder) {
-        super(bounds, 100, 100);
+        super(bounds, 50, 35);
         this.beamShapeLinePlotBuilder = beamShapeLinePlotBuilder;
     }
 
@@ -70,11 +69,11 @@ public class BeamShapeLinePlot extends AbstractDataView {
         super.paint(g2d);
 
         Text text = new Text();
-        g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 15));
+        g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 12));
         int textWidth = 0;
 
         g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText(beamShapeLinePlotBuilder.getTitle(), 20, 20);
+        g2d.fillText(beamShapeLinePlotBuilder.getTitle(), 20, 15);
 
         g2d.setLineWidth(2.0);
         // new line graph
@@ -98,8 +97,8 @@ public class BeamShapeLinePlot extends AbstractDataView {
         g2d.stroke();
 
         g2d.setFill(Paint.valueOf("Red"));
-        g2d.fillOval(mapX(xAxisData[leftBoundary]), mapY(yAxisData[leftBoundary]) - 4, 7, 7);
-        g2d.fillOval(mapX(xAxisData[rightBoundary]), mapY(yAxisData[rightBoundary]) - 4, 7, 7);
+        g2d.fillOval(mapX(xAxisData[leftBoundary]) - 2, mapY(yAxisData[leftBoundary]) - 4, 7, 7);
+        g2d.fillOval(mapX(xAxisData[rightBoundary]) - 2, mapY(yAxisData[rightBoundary]) - 4, 7, 7);
 
         g2d.beginPath();
         g2d.setLineDashes(0);

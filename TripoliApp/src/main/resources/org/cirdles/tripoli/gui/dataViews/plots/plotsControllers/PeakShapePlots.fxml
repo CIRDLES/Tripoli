@@ -34,11 +34,12 @@
                         <ScrollPane fx:id="beamShapePlotScrollPane" fitToHeight="true" fitToWidth="true" layoutX="10.0" layoutY="10.0" prefHeight="500.0" prefWidth="500.0" />
                     </items>
                 </SplitPane>
+            <ScrollPane fx:id="peakCentrePlotScrollPane" prefHeight="200.0" prefWidth="200.0" />
             <SplitPane dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0">
               <items>
                   <ScrollPane fx:id="resourceListScrollPane" prefHeight="200.0" prefWidth="200.0">
                      <content>
-                      <AnchorPane fx:id="resourceListAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="350.0" prefWidth="200.0" />
+                      <AnchorPane fx:id="resourceListAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="138.0" prefWidth="246.0" />
                      </content>
                   </ScrollPane>
                       <TextArea fx:id="eventLogTextArea" editable="false" prefHeight="350.0" prefWidth="200.0" text="Details will appear here ..." />

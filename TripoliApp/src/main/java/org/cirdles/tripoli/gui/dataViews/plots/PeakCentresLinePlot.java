@@ -6,29 +6,24 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.GBeamLinePlotBuilder;
+import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
-public class GBeamLinePlot extends AbstractDataView {
-
-    private final GBeamLinePlotBuilder gBeamLinePlotBuilder;
-    private double[] xMass;
-    private double[] yIntensity;
+public class PeakCentresLinePlot extends AbstractDataView {
+    private final LinePlotBuilder peakCentrePlotBuilder;
 
     /**
      * @param bounds
-     * @param gBeamLinePlotBuilder
+     * @param linePlotBuilder
      */
-    public GBeamLinePlot(Rectangle bounds, GBeamLinePlotBuilder gBeamLinePlotBuilder) {
-        super(bounds, 50, 35);
-        this.gBeamLinePlotBuilder = gBeamLinePlotBuilder;
+    public PeakCentresLinePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
+        super(bounds, 50, 30);
+        this.peakCentrePlotBuilder = linePlotBuilder;
     }
 
     @Override
     public void preparePanel() {
-        xAxisData = gBeamLinePlotBuilder.getxData();
-        yAxisData = gBeamLinePlotBuilder.getyData();
-        xMass = gBeamLinePlotBuilder.getMassData();
-        yIntensity = gBeamLinePlotBuilder.getIntensityData();
+        xAxisData = peakCentrePlotBuilder.getxData();
+        yAxisData = peakCentrePlotBuilder.getyData();
 
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
@@ -38,13 +33,12 @@ public class GBeamLinePlot extends AbstractDataView {
         minX -= xMarginStretch;
         maxX += xMarginStretch;
 
-
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 
-        for (int i = 0; i < yIntensity.length; i++) {
-            minY = StrictMath.min(minY, yIntensity[i]);
-            maxY = StrictMath.max(maxY, yIntensity[i]);
+        for (int i = 0; i < yAxisData.length; i++) {
+            minY = StrictMath.min(minY, yAxisData[i]);
+            maxY = StrictMath.max(maxY, yAxisData[i]);
         }
 
         ticsY = TicGeneratorForAxes.generateTics(minY, maxY, (int) (graphHeight / 20.0));
@@ -73,17 +67,17 @@ public class GBeamLinePlot extends AbstractDataView {
         int textWidth = 0;
 
         g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText(gBeamLinePlotBuilder.getTitle(), 20, 15);
+        g2d.fillText(peakCentrePlotBuilder.getTitle(), 20, 12);
 
         g2d.setLineWidth(2.5);
 
         g2d.beginPath();
-        g2d.setStroke(Paint.valueOf("Blue"));
+        g2d.setStroke(Paint.valueOf("Black"));
         g2d.setLineDashes(0);
         // x = magnetMass y = intensity
 
-        for (int i = 0; i < xMass.length; i++) {
-            g2d.lineTo(mapX(xMass[i]), mapY(yIntensity[i]));
+        for (int i = 0; i < xAxisData.length; i++) {
+            g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
         }
 
         g2d.stroke();
@@ -96,7 +90,7 @@ public class GBeamLinePlot extends AbstractDataView {
         g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]));
         for (int i = 0; i < xAxisData.length; i++) {
             // line tracing through points
-            g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
+            g2d.fillOval(mapX(xAxisData[i]) -2, mapY(yAxisData[i]) - 4, 7, 7);
         }
         g2d.stroke();
         g2d.beginPath();

@@ -15,11 +15,14 @@ import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.BeamShapeLinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.GBeamLinePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.PeakCentresLinePlot;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes.BeamDataOutputDriverExperiment;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.file.FileUtilities;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.GBeamLinePlotBuilder;
+import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -45,10 +48,10 @@ public class PeakShapePlotsController {
     public static File resourceBrowserTarget;
 
     public static String resourceBrowserType = ".txt";
-
+    ArrayList<ArrayList<File>> resourceGroups;
+    Map<Integer, String> fileGroups;
     private ListView<String> listViewOfGroupResourcesInFolder;
     private ListView<File> listViewOfResourcesInFolder;
-
     @FXML
     private ResourceBundle resources;
 
@@ -68,6 +71,9 @@ public class PeakShapePlotsController {
 
     @FXML
     private ScrollPane beamShapePlotScrollPane;
+
+    @FXML
+    private ScrollPane peakCentrePlotScrollPane;
 
     @FXML
     private ScrollPane gBeamPlotScrollPane;
@@ -114,13 +120,127 @@ public class PeakShapePlotsController {
         resourceListAnchorPane.prefHeightProperty().bind(resourceListScrollPane.heightProperty());
         resourceListAnchorPane.prefWidthProperty().bind(resourceListScrollPane.widthProperty());
 
+        peakCentrePlotScrollPane.prefHeightProperty().bind(plotsAnchorPane.heightProperty().subtract(300));
+        peakCentrePlotScrollPane.prefWidthProperty().bind(masterVBox.widthProperty());
+
 
     }
 
+
+    public void processFilesAndShowPeakCentre(String groupValue) {
+
+        PeakShapesService service;
+        double[] finalYAxis = new double[0];
+        double[] finalXAxis = new double[0];
+
+//        double[] testXAxis = new double[0];
+//        double[] testYAxis = new double[0];
+//        // Trying to get data from peakShapeTask
+//        for (int j = 0; j < fileGroups.size(); j++) {
+//            if (fileGroups.get(j).equalsIgnoreCase(groupValue)) {
+//                for (int h = 0; h < resourceGroups.get(j).size(); h++) {
+//                    testXAxis = new double[resourceGroups.get(j).size()];
+//                    testYAxis = new double[resourceGroups.get(j).size()];
+//
+//                    testXAxis[h] = h + 1;
+//                    for (int i = 0; i < resourceGroups.get(j).size(); i++) {
+//                        resourceBrowserTarget = resourceGroups.get(j).get(i);
+//                        service = new PeakShapesService(resourceBrowserTarget.toPath());
+//                        service.start();
+//                        int finalI = i;
+//                        double[] finalTestYAxis = testYAxis;
+//                        int finalJ = j;
+//                        double[] finalTestXAxis = testXAxis;
+//                        PeakShapesService finalService = service;
+//                        service.setOnSucceeded(evt -> {
+//                            if (finalI < resourceGroups.get(finalJ).size()-2) {
+//                                AbstractPlotBuilder beamShapePlotBuilder = ((PeakShapesTask) finalService.getPeakShapesTask()).getBeamShapePlotBuilder();
+//                                AbstractPlotBuilder gBeamPlotBuilder = ((PeakShapesTask) finalService.getPeakShapesTask()).getGBeamPlotBuilder();
+//                                finalTestYAxis[finalI] = ((PeakShapesTask) finalService.getPeakShapesTask()).getPeakWidth();
+//                            } else {
+//                                LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalTestXAxis, finalTestYAxis, "PeakCentre Plot");
+//
+//                                AbstractDataView peakCentreLinePlot = new PeakCentresLinePlot(new Rectangle(peakCentrePlotScrollPane.getWidth(), peakCentrePlotScrollPane.getHeight()), peakCentrePlotBuilder);
+//
+//                                peakCentrePlotScrollPane.widthProperty().addListener(new ChangeListener<Number>() {
+//                                    @Override
+//                                    public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+//                                        peakCentreLinePlot.setMyWidth(newValue.intValue());
+//                                        peakCentreLinePlot.repaint();
+//                                    }
+//                                });
+//
+//                                peakCentrePlotScrollPane.heightProperty().addListener(new ChangeListener<Number>() {
+//                                    @Override
+//                                    public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+//                                        peakCentreLinePlot.setMyHeight(newValue.intValue());
+//                                        peakCentreLinePlot.repaint();
+//                                    }
+//                                });
+//
+//                                peakCentreLinePlot.preparePanel();
+//                                peakCentrePlotScrollPane.setContent(peakCentreLinePlot);
+//                                resourceBrowserTarget = null;
+//                            }
+//
+//                        });
+//
+//                    }
+//
+//                }
+//            }
+//        }
+        // Work in progress todo
+        //88Sr-Ax takes a long time to load
+        for (int i = 0; i < fileGroups.size(); i++) {
+            if (fileGroups.get(i).equalsIgnoreCase(groupValue)) {
+                double[] xAxis = new double[resourceGroups.get(i).size()];
+                double[] yAxis = new double[resourceGroups.get(i).size()];
+                for (int k = 0; k < resourceGroups.get(i).size(); k++) {
+                    resourceBrowserTarget = resourceGroups.get(i).get(k);
+                    if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
+                        try {
+                            AbstractPlotBuilder[] linePlots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
+                            AbstractPlotBuilder beamShapePlotBuilder = linePlots[0];
+                            AbstractPlotBuilder gBeamPlotBuilder = linePlots[1];
+                            xAxis[k] = k + 1;
+                            yAxis[k] = BeamDataOutputDriverExperiment.getMeasBeamWidthMM();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                finalYAxis = yAxis;
+                finalXAxis = xAxis;
+            }
+        }
+
+        LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, "PeakCentre Plot");
+
+        AbstractDataView peakCentreLinePlot = new PeakCentresLinePlot(new Rectangle(peakCentrePlotScrollPane.getWidth(), peakCentrePlotScrollPane.getHeight()), peakCentrePlotBuilder);
+
+        peakCentrePlotScrollPane.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                peakCentreLinePlot.setMyWidth(newValue.intValue());
+                peakCentreLinePlot.repaint();
+            }
+        });
+
+        peakCentrePlotScrollPane.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                peakCentreLinePlot.setMyHeight(newValue.intValue());
+                peakCentreLinePlot.repaint();
+            }
+        });
+
+        peakCentreLinePlot.preparePanel();
+        peakCentrePlotScrollPane.setContent(peakCentreLinePlot);
+        resourceBrowserTarget = null;
+    }
+
     public void processDataFileAndShowPlotsOfPeakShapes() {
-//        ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
-//        Path dataFile = RESOURCE_EXTRACTOR
-//               .extractResourceAsFile(String.valueOf(resourceBrowserTarget)).toPath();
 
 
         if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
@@ -208,8 +328,8 @@ public class PeakShapePlotsController {
 
         resourceFilesInFolder = new ArrayList<>();
         File[] allFiles;
-        ArrayList<ArrayList<File>> resourceGroups = new ArrayList<>();
-        Map<Integer, String> fileGroups = new HashMap<>();
+        resourceGroups = new ArrayList<>();
+        fileGroups = new HashMap<>();
         ArrayList<String> groups = new ArrayList<>();
 
         if (resourceBrowserTarget != null && (resourceBrowserType.compareToIgnoreCase(".txt") == 0)) {
@@ -322,14 +442,6 @@ public class PeakShapePlotsController {
                 }
 
                 for (int i = 0; i < fileGroups.size(); i++) {
-                    System.out.println("Group: " + fileGroups.get(i));
-                    for (int k = 0; k < resourceGroups.get(i).size(); k++) {
-                        System.out.println("File: " + resourceGroups.get(i).get(k));
-                    }
-                    System.out.println();
-                }
-
-                for (int i = 0; i < fileGroups.size(); i++) {
                     groups.add(fileGroups.get(i));
                 }
 
@@ -340,6 +452,8 @@ public class PeakShapePlotsController {
                     @Override
                     public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                         // Files will be manipulated here when group is selected
+                        processFilesAndShowPeakCentre(newValue);
+                        demo2Button.setDisable(false);
                     }
                 });
             } else { // Works with files that do not fit the format

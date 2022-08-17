@@ -23,6 +23,7 @@ import java.nio.file.Path;
 public class BeamDataOutputDriverExperiment {
 
     private static double measBeamWidthAMU;
+    private static double measBeamWidthMM;
     public static AbstractPlotBuilder[] modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException {
         PeakShapeProcessor_OPPhoenix peakShapeProcessor_opPhoenix
                 = PeakShapeProcessor_OPPhoenix.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
@@ -37,7 +38,7 @@ public class BeamDataOutputDriverExperiment {
         return gBeamLinePlotBuilder;
     }
 
-    static AbstractPlotBuilder[] gatherBeamWidth(PeakShapeOutputDataRecord peakShapeOutputDataRecord, LoggingCallbackInterface loggingCallback) throws RecoverableCondition {
+    public static AbstractPlotBuilder[] gatherBeamWidth(PeakShapeOutputDataRecord peakShapeOutputDataRecord, LoggingCallbackInterface loggingCallback) throws RecoverableCondition {
 
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         double maxBeamIndex;
@@ -204,7 +205,7 @@ public class BeamDataOutputDriverExperiment {
 
         MassSpectrometerModel massSpec = MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Phoenix");
         measBeamWidthAMU = beamMassInterp.get(rightBoundary) - beamMassInterp.get(leftBoundary);
-        double measBeamWidthMM = measBeamWidthAMU * massSpec.getEffectiveRadiusMagnetMM() / peakShapeOutputDataRecord.peakCenterMass();
+        measBeamWidthMM = measBeamWidthAMU * massSpec.getEffectiveRadiusMagnetMM() / peakShapeOutputDataRecord.peakCenterMass();
 
         AbstractPlotBuilder[] linePlots = new LinePlotBuilder[2];
         // "beamShape"
@@ -220,7 +221,7 @@ public class BeamDataOutputDriverExperiment {
         return linePlots;
     }
 
-    public static double getMeasBeamWidthAMU() {
-        return measBeamWidthAMU;
+    public static double getMeasBeamWidthMM() {
+        return measBeamWidthMM;
     }
 }
