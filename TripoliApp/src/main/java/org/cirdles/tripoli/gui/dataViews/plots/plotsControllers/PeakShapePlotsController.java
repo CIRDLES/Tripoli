@@ -38,8 +38,7 @@ public class PeakShapePlotsController {
 
     public static File resourceBrowserTarget;
     Map<String, List<File>> resourceGroups;
-    private ListView<String> listViewOfGroupResourcesInFolder;
-    private ListView<File> listViewOfResourcesInFolder;
+
     @FXML
     private ResourceBundle resources;
 
@@ -130,10 +129,8 @@ public class PeakShapePlotsController {
             for (File file : Objects.requireNonNull(resourceBrowserTarget.listFiles((file, name) -> name.toLowerCase().endsWith(".txt")))) {
                 try {
                     List<String> contentsByLine = new ArrayList<>(Files.readAllLines(file.toPath(), Charset.defaultCharset()));
-                    if (contentsByLine.size() > 5) {
-                        if (contentsByLine.get(4).startsWith("Peak Centre Mass")) {
+                    if (contentsByLine.size() > 5 && (contentsByLine.get(4).startsWith("Peak Centre Mass"))) {
                             resourceFilesInFolder.add(file);
-                        }
                     }
 
                 } catch (IOException e) {
@@ -146,7 +143,7 @@ public class PeakShapePlotsController {
 
 
         if (!resourceFilesInFolder.isEmpty()) {
-            listViewOfGroupResourcesInFolder = new ListView<>();
+            ListView<String> listViewOfGroupResourcesInFolder = new ListView<>();
             listViewOfGroupResourcesInFolder.setCellFactory(
                     (parameter)
                             -> new ResourceDisplayName()
@@ -158,7 +155,6 @@ public class PeakShapePlotsController {
             // Generates a map of groups
             Pattern groupPattern = Pattern.compile("C-(.*?)-S");
 
-            int j = 0;
             for (File allFile : allFiles) {
                 // Checks if substring in filename is already present in map
                 Matcher groupMatch = groupPattern.matcher(allFile.getName());
@@ -198,7 +194,7 @@ public class PeakShapePlotsController {
         } else {
             eventLogTextArea.textProperty().unbind();
             eventLogTextArea.setText("No valid resources");
-            listViewOfResourcesInFolder = new ListView<>();
+            ListView<File> listViewOfResourcesInFolder = new ListView<>();
             listViewOfResourcesInFolder.setCellFactory(param -> new ResourceDisplayName2());
         }
 
