@@ -51,7 +51,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
  */
 public class DataModelDriverExperiment {
 
-    private static final boolean doFullProcessing = true;
+    private static final boolean doFullProcessing = false;
 
     public static AbstractPlotBuilder[] driveModelTest(Path dataFilePath, LoggingCallbackInterface loggingCallback) throws IOException {
 
@@ -112,7 +112,7 @@ public class DataModelDriverExperiment {
             prior.sigdaly = [0 0]; % Gaussian noise on Daly
             prior.sigpois = [0 10]; % Poisson noise on Daly
          */
-        int maxCount = 500;//2000;
+        int maxCount = 1000;//2000;
         boolean hierarchical = true;
         int stepCountForcedSave = 100;
 
@@ -752,7 +752,7 @@ public class DataModelDriverExperiment {
             DFstd = std(ens_DF(:,burn:cnt),[],2);
 
          */
-        int burn = 100;//1000;
+        int burn = 500;//1000;
         int countOfEnsemblesUsed = ensembleRecordsList.size() - burn;
 
         // log ratios - only the first row

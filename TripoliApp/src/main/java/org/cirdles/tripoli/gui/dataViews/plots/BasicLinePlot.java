@@ -106,7 +106,7 @@ public class BasicLinePlot extends AbstractDataView {
                     text.setText(ticsY[i].toString());
                     textWidth = (int) text.getLayoutBounds().getWidth();
                     g2d.fillText(text.getText(),//
-                            (float) mapX(minX) - textWidth + 5f,
+                            (float) mapX(minX) - textWidth - 5f,
                             (float) mapY(ticsY[i].doubleValue()) + verticalTextShift);
 
                 }
