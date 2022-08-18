@@ -22,20 +22,28 @@ import java.nio.file.Path;
 
 public class BeamDataOutputDriverExperiment {
 
-    private static double measBeamWidthAMU;
     private static double measBeamWidthMM;
+
+    private static final boolean doFullProcessing = true;
+
     public static AbstractPlotBuilder[] modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException {
         PeakShapeProcessor_OPPhoenix peakShapeProcessor_opPhoenix
                 = PeakShapeProcessor_OPPhoenix.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
         PeakShapeOutputDataRecord peakShapeOutputDataRecord = peakShapeProcessor_opPhoenix.prepareInputDataModelFromFile(dataFile);
-        AbstractPlotBuilder[] gBeamLinePlotBuilder = new LinePlotBuilder[0];
-        try {
-            gBeamLinePlotBuilder = gatherBeamWidth(peakShapeOutputDataRecord, loggingCallback);
-        } catch (RecoverableCondition e) {
-            e.printStackTrace();
+        AbstractPlotBuilder[] peakShapeLinePlotBuilder = new LinePlotBuilder[0];
+
+        if (doFullProcessing){
+            try {
+                peakShapeLinePlotBuilder = gatherBeamWidth(peakShapeOutputDataRecord, loggingCallback);
+            } catch (RecoverableCondition e) {
+                e.printStackTrace();
+            }
+        }else {
+
         }
 
-        return gBeamLinePlotBuilder;
+
+        return peakShapeLinePlotBuilder;
     }
 
     public static AbstractPlotBuilder[] gatherBeamWidth(PeakShapeOutputDataRecord peakShapeOutputDataRecord, LoggingCallbackInterface loggingCallback) throws RecoverableCondition {
@@ -204,7 +212,7 @@ public class BeamDataOutputDriverExperiment {
         MatrixStore<Double> gBeam = trimGMatrix.multiply(beamShape);
 
         MassSpectrometerModel massSpec = MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Phoenix");
-        measBeamWidthAMU = beamMassInterp.get(rightBoundary) - beamMassInterp.get(leftBoundary);
+        double measBeamWidthAMU = beamMassInterp.get(rightBoundary) - beamMassInterp.get(leftBoundary);
         measBeamWidthMM = measBeamWidthAMU * massSpec.getEffectiveRadiusMagnetMM() / peakShapeOutputDataRecord.peakCenterMass();
 
         AbstractPlotBuilder[] linePlots = new LinePlotBuilder[2];
@@ -224,4 +232,5 @@ public class BeamDataOutputDriverExperiment {
     public static double getMeasBeamWidthMM() {
         return measBeamWidthMM;
     }
+
 }

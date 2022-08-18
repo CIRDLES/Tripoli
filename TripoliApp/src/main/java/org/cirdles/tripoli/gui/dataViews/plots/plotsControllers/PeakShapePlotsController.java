@@ -16,9 +16,9 @@ import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.BeamShapeLinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.GBeamLinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PeakCentresLinePlot;
+import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandler;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes.BeamDataOutputDriverExperiment;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
-import org.cirdles.tripoli.utilities.file.FileUtilities;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.GBeamLinePlotBuilder;
@@ -129,18 +129,16 @@ public class PeakShapePlotsController {
 
     public void processFilesAndShowPeakCentre(String groupValue) {
 
-
         double[] finalYAxis = new double[0];
         double[] finalXAxis = new double[0];
+
 //        PeakShapesService service;
-//        double[] testXAxis = new double[0];
-//        double[] testYAxis = new double[0];
 //        // Trying to get data from peakShapeTask
 //        for (int j = 0; j < fileGroups.size(); j++) {
 //            if (fileGroups.get(j).equalsIgnoreCase(groupValue)) {
 //                for (int h = 0; h < resourceGroups.get(j).size(); h++) {
-//                    testXAxis = new double[resourceGroups.get(j).size()];
-//                    testYAxis = new double[resourceGroups.get(j).size()];
+//                    final double[] testXAxis = new double[resourceGroups.get(j).size()];
+//                    final double[] testYAxis = new double[resourceGroups.get(j).size()];
 //
 //                    testXAxis[h] = h + 1;
 //                    for (int i = 0; i < resourceGroups.get(j).size(); i++) {
@@ -148,17 +146,15 @@ public class PeakShapePlotsController {
 //                        service = new PeakShapesService(resourceBrowserTarget.toPath());
 //                        service.start();
 //                        int finalI = i;
-//                        double[] finalTestYAxis = testYAxis;
 //                        int finalJ = j;
-//                        double[] finalTestXAxis = testXAxis;
 //                        PeakShapesService finalService = service;
 //                        service.setOnSucceeded(evt -> {
-//                            if (finalI < resourceGroups.get(finalJ).size()-2) {
+//                            if (finalI != resourceGroups.get(finalJ).size() - 1) {
 //                                AbstractPlotBuilder beamShapePlotBuilder = ((PeakShapesTask) finalService.getPeakShapesTask()).getBeamShapePlotBuilder();
 //                                AbstractPlotBuilder gBeamPlotBuilder = ((PeakShapesTask) finalService.getPeakShapesTask()).getGBeamPlotBuilder();
-//                                finalTestYAxis[finalI] = ((PeakShapesTask) finalService.getPeakShapesTask()).getPeakWidth();
+//                                testYAxis[finalI]  = ((PeakShapesTask) finalService.getPeakShapesTask()).getPeakWidth();
 //                            } else {
-//                                LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalTestXAxis, finalTestYAxis, "PeakCentre Plot");
+//                                LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(testXAxis, testYAxis, "PeakCentre Plot");
 //
 //                                AbstractDataView peakCentreLinePlot = new PeakCentresLinePlot(new Rectangle(peakCentrePlotScrollPane.getWidth(), peakCentrePlotScrollPane.getHeight()), peakCentrePlotBuilder);
 //
@@ -186,8 +182,9 @@ public class PeakShapePlotsController {
 //                        });
 //
 //                    }
-//
+//                    System.out.println(Arrays.toString(testXAxis));
 //                }
+//
 //            }
 //        }
         // Work in progress todo
@@ -200,12 +197,12 @@ public class PeakShapePlotsController {
                     resourceBrowserTarget = resourceGroups.get(i).get(k);
                     if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
                         try {
-                            AbstractPlotBuilder[] linePlots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
+                            BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
 //                            AbstractPlotBuilder beamShapePlotBuilder = linePlots[0];
 //                            AbstractPlotBuilder gBeamPlotBuilder = linePlots[1];
                             xAxis[k] = k + 1;
                             yAxis[k] = BeamDataOutputDriverExperiment.getMeasBeamWidthMM();
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
@@ -320,7 +317,7 @@ public class PeakShapePlotsController {
 
     @FXML
     public void browseResourceFileAction() {
-        resourceBrowserTarget = FileUtilities.selectPeakShapeResourceFolderForBrowsing(plottingWindow);
+        resourceBrowserTarget = FileHandler.selectPeakShapeResourceFolderForBrowsing(plottingWindow);
         populateListOfResources();
     }
 
