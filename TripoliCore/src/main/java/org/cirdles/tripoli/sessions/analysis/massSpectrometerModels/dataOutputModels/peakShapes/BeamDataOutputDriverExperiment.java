@@ -38,8 +38,6 @@ public class BeamDataOutputDriverExperiment {
             } catch (RecoverableCondition e) {
                 e.printStackTrace();
             }
-        }else {
-
         }
 
 

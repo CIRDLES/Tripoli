@@ -5,7 +5,7 @@ import javafx.stage.Window;
 
 import java.io.File;
 
-public class FileHandler {
+public class FileHandlerUtil {
 
     public static File selectPeakShapeResourceFolderForBrowsing(Window ownerWindow) {
         File resourceFile;
