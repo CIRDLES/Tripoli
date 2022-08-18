@@ -16,7 +16,8 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
-import jama.Matrix;
+// import jama.Matrix;
+import org.ojalgo.matrix.store.MatrixStore;
 
 /**
  * Matlab code >> here
@@ -54,18 +55,30 @@ import jama.Matrix;
  * @param nCycleArray
  */
 public record MassSpecOutputDataRecord(
-        Matrix rawDataColumn,
-        Matrix timeColumn,
-        Matrix timeIndColumn,
-        Matrix signalIndicesForRawDataColumn,
-        Matrix blockIndicesForRawDataColumn,
-        Matrix isotopeIndicesForRawDataColumn,
-        Matrix isotopeFlagsForRawDataColumn,
-        Matrix detectorIndicesForRawDataColumn,
-        Matrix detectorFlagsForRawDataColumn,
-        Matrix baseLineFlagsForRawDataColumn,
-        Matrix axialFlagsForRawDataColumn,
-        Matrix firstBlockInterpolations,
+        // Matrix rawDataColumn,
+        double[] rawDataColumn,
+        // Matrix timeColumn,
+        double[] timeColumn,
+        // Matrix timeIndColumn,
+        double[] timeIndColumn,
+        // Matrix signalIndicesForRawDataColumn,
+        double[] signalIndicesForRawDataColumn,
+        // Matrix blockIndicesForRawDataColumn,
+        double[] blockIndicesForRawDataColumn,
+        // Matrix isotopeIndicesForRawDataColumn,
+        double[] isotopeIndicesForRawDataColumn,
+        // Matrix isotopeFlagsForRawDataColumn,
+        double[][] isotopeFlagsForRawDataColumn,
+        // Matrix detectorIndicesForRawDataColumn,
+        double[] detectorIndicesForRawDataColumn,
+        // Matrix detectorFlagsForRawDataColumn,
+        double[][] detectorFlagsForRawDataColumn,
+        // Matrix baseLineFlagsForRawDataColumn,
+        double[] baseLineFlagsForRawDataColumn,
+        // Matrix axialFlagsForRawDataColumn,
+        double[] axialFlagsForRawDataColumn,
+        // Matrix firstBlockInterpolations,
+        MatrixStore<Double> firstBlockInterpolations,
         int faradayCount,
         int isotopeCount,
         int blockCount,

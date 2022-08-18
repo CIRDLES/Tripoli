@@ -75,7 +75,9 @@ class DataSourceProcessorOPPhoenixTest {
                 = DataSourceProcessor_OPPhoenix.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("KU_204_5_6_7_8_Daly_AllFaradayPb"));
         MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFile);
 
-        assert (massSpecOutputDataRecord.rawDataColumn().getRowDimension() == 162000);
-        assertEquals(-531920.15291, massSpecOutputDataRecord.rawDataColumn().get(26669, 0));
+        // assert (massSpecOutputDataRecord.rawDataColumn().getRowDimension() == 162000);
+        assert (massSpecOutputDataRecord.rawDataColumn().length == 162000);
+        // assertEquals(-531920.15291, massSpecOutputDataRecord.rawDataColumn().get(26669, 0));
+        assertEquals(-531920.15291, massSpecOutputDataRecord.rawDataColumn()[26669]);
     }
 }

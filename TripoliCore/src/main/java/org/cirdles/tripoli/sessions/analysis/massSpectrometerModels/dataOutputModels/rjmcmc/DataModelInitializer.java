@@ -16,7 +16,12 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
-import jama.Matrix;
+// import jama.Matrix;
+import org.ojalgo.RecoverableCondition;
+import org.ojalgo.matrix.store.MatrixStore;
+import org.ojalgo.matrix.store.PhysicalStore;
+import org.ojalgo.matrix.store.Primitive64Store;
+import org.ojalgo.matrix.task.InverterTask;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.util.ArrayList;
@@ -32,10 +37,16 @@ import static java.lang.StrictMath.log;
  */
 public class DataModelInitializer {
     public static DataModellerOutputRecord modellingTest(MassSpecOutputDataRecord massSpecOutputDataRecord) {
-        return initializeModelSynth(massSpecOutputDataRecord);
+        // return initializeModelSynth(massSpecOutputDataRecord);
+        try {
+            return initializeModelSynth(massSpecOutputDataRecord);
+        } catch (RecoverableCondition e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    private static DataModellerOutputRecord initializeModelSynth(MassSpecOutputDataRecord massSpecOutputDataRecord) {
+    private static DataModellerOutputRecord initializeModelSynth(MassSpecOutputDataRecord massSpecOutputDataRecord) throws RecoverableCondition {
         /*
             for m=1:d0.Nfar%+1
                 x0.BL(m,1) = mean(d0.data(d0.blflag & d0.det_ind(:,m)));
@@ -43,10 +54,13 @@ public class DataModelInitializer {
             end
          */
 
-        double[][] blMeansArray = new double[massSpecOutputDataRecord.faradayCount()][1];
-        double[][] blStdArray = new double[massSpecOutputDataRecord.faradayCount()][1];
+        // double[][] blMeansArray = new double[massSpecOutputDataRecord.faradayCount()][1];
+        double[] blMeansArray = new double[massSpecOutputDataRecord.faradayCount()];
+        // double[][] blStdArray = new double[massSpecOutputDataRecord.faradayCount()][1];
+        double[] blStdArray = new double[massSpecOutputDataRecord.faradayCount()];
         for (int faradayIndex = 0; faradayIndex < massSpecOutputDataRecord.faradayCount(); faradayIndex++) {
             DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics();
+            /*
             for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().getRowDimension(); row++) {
                 if ((massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().get(row, 0) == 1)
                         &&
@@ -54,8 +68,16 @@ public class DataModelInitializer {
                     descriptiveStatistics.addValue(massSpecOutputDataRecord.rawDataColumn().get(row, 0));
                 }
             }
-            blMeansArray[faradayIndex][0] = descriptiveStatistics.getMean();
-            blStdArray[faradayIndex][0] = descriptiveStatistics.getStandardDeviation();
+            */
+            for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
+                if ((massSpecOutputDataRecord.baseLineFlagsForRawDataColumn()[row] == 1)
+                        &&
+                        ((massSpecOutputDataRecord.detectorFlagsForRawDataColumn()[row][faradayIndex] == 1))) {
+                    descriptiveStatistics.addValue(massSpecOutputDataRecord.rawDataColumn()[row]);
+                }
+            }
+            blMeansArray[faradayIndex] = descriptiveStatistics.getMean();
+            blStdArray[faradayIndex] = descriptiveStatistics.getStandardDeviation();
         }
 
         /*
@@ -75,13 +97,14 @@ public class DataModelInitializer {
 //        double[][] maxtmpCountsArray = new double[massSpecOutputDataRecord.blockCount()][massSpecOutputDataRecord.isotopeCount()];
 //        double[][] mintmpCountsArray = new double[massSpecOutputDataRecord.blockCount()][massSpecOutputDataRecord.isotopeCount()];
         double[][] tmpFaradayMeanArray = new double[massSpecOutputDataRecord.isotopeCount()][1];
-
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 DescriptiveStatistics descriptiveStatisticsA = new DescriptiveStatistics();
                 DescriptiveStatistics descriptiveStatisticsB = new DescriptiveStatistics();
                 DescriptiveStatistics descriptiveStatisticsC = new DescriptiveStatistics();
 
+                /*
                 for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().getRowDimension(); row++) {
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn().get(row, isotopeIndex) == 1)
                             &&
@@ -106,6 +129,31 @@ public class DataModelInitializer {
                                         - blMeansArray[(int) (massSpecOutputDataRecord.detectorIndicesForRawDataColumn().get(row, 0) - 1.0)][0]);
                     }
                 }
+                */
+                for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
+                    if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
+                            &&
+                            (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1)) {
+                        descriptiveStatisticsA.addValue(massSpecOutputDataRecord.rawDataColumn()[row]);
+                    }
+
+                    if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
+                            &&
+                            (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1)
+                            &&
+                            (massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1))) {
+                        descriptiveStatisticsB.addValue(massSpecOutputDataRecord.rawDataColumn()[row]);
+                    }
+
+
+                    if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
+                            &&
+                            (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 0)) {
+                        descriptiveStatisticsC.addValue(
+                                massSpecOutputDataRecord.rawDataColumn()[row]
+                                        - blMeansArray[(int) (massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1.0)]);
+                    }
+                }
                 tmpCountsMeanArray[isotopeIndex][0] = descriptiveStatisticsA.getMean();
 //                maxtmpCountsArray[blockIndex][isotopeIndex] = descriptiveStatisticsB.getMax();
 //                mintmpCountsArray[blockIndex][isotopeIndex] = descriptiveStatisticsB.getMin();
@@ -124,9 +172,11 @@ public class DataModelInitializer {
         int imaxC = tmpCountsMeanArray.length - 1;
         int iden = massSpecOutputDataRecord.isotopeCount() - 1;
         double dfGain = tmpCountsMeanArray[imaxC][0] / tmpFaradayMeanArray[imaxC][0];
-        double[][] logRatios = new double[massSpecOutputDataRecord.isotopeCount()][1];
+        // double[][] logRatios = new double[massSpecOutputDataRecord.isotopeCount()][1];
+        double[] logRatios = new double[massSpecOutputDataRecord.isotopeCount()];
         for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
-            logRatios[isotopeIndex][0] = log(tmpCountsMeanArray[isotopeIndex][0] / tmpCountsMeanArray[iden][0]);
+            // logRatios[isotopeIndex][0] = log(tmpCountsMeanArray[isotopeIndex][0] / tmpCountsMeanArray[iden][0]);
+            logRatios[isotopeIndex] = log(tmpCountsMeanArray[isotopeIndex][0] / tmpCountsMeanArray[iden][0]);
         }
 
         /*
@@ -141,12 +191,16 @@ public class DataModelInitializer {
         end
          */
         // just playing with first block for now
-        Matrix IO = null;
+        // Matrix IO = null;
+        // MatrixStore<Double> IO = null;
+        double[] IO = null;
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
-            Matrix interpolatedKnotData = massSpecOutputDataRecord.firstBlockInterpolations();
+            // Matrix interpolatedKnotData = massSpecOutputDataRecord.firstBlockInterpolations();
+            MatrixStore<Double> interpolatedKnotData = massSpecOutputDataRecord.firstBlockInterpolations();
 //            double[][] dind = new double[massSpecOutputDataRecord.rawDataColumn().getRowDimension()][1];
             List<Double> dd = new ArrayList<>();
             List<Double> timeIndForSorting = new ArrayList<>();
+            /*
             for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().getRowDimension(); row++) {
                 if ((massSpecOutputDataRecord.axialFlagsForRawDataColumn().get(row, 0) == 1)
                         &&
@@ -156,6 +210,18 @@ public class DataModelInitializer {
                             / exp(logRatios[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn().get(row, 0) - 1][0]));
                     // convert to 0-based index
                     timeIndForSorting.add(massSpecOutputDataRecord.timeIndColumn().get(row, 0) - 1);
+                }
+            }
+            */
+            for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
+                if ((massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1)
+                        &&
+                        (massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1))) {
+//                    dind[row][0] = 1;
+                    dd.add(massSpecOutputDataRecord.rawDataColumn()[row]
+                            / exp(logRatios[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1]));
+                    // convert to 0-based index
+                    timeIndForSorting.add(massSpecOutputDataRecord.timeIndColumn()[row] - 1);
                 }
             }
             double[] ddArray = dd.stream().mapToDouble(d -> d).toArray();
@@ -171,9 +237,16 @@ public class DataModelInitializer {
                 ddSortedArray[i] = ddArray[dsortIndices[i]];
             }
 
-            Matrix ddMatrix = new Matrix(ddSortedArray, ddSortedArray.length);
-            IO = (interpolatedKnotData.transpose().times(interpolatedKnotData)).inverse()
-                    .times(interpolatedKnotData.transpose()).times(ddMatrix);
+            // Matrix ddMatrix = new Matrix(ddSortedArray, ddSortedArray.length);
+            // IO = (interpolatedKnotData.transpose().times(interpolatedKnotData)).inverse()
+            //         .times(interpolatedKnotData.transpose()).times(ddMatrix);
+
+            MatrixStore<Double> ddMatrix = storeFactory.columns(ddSortedArray);
+            MatrixStore<Double> tempMatrix = interpolatedKnotData.transpose().multiply(interpolatedKnotData);
+            MatrixStore<Double> tempMatrix2;
+            InverterTask<Double> inverter = InverterTask.PRIMITIVE.make(tempMatrix, false, false);
+            tempMatrix2 = inverter.invert(tempMatrix);
+            IO = tempMatrix2.multiply(interpolatedKnotData.transpose()).multiply(ddMatrix).toRawCopy1D();
         }
             /*
                 %%% MODEL DATA WITH INITIAL MODEL
@@ -195,6 +268,7 @@ public class DataModelInitializer {
                 end
              */
 
+        /*
         double[] dataArray = new double[massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().getRowDimension()];
         for (int faradayIndex = 0; faradayIndex < massSpecOutputDataRecord.faradayCount(); faradayIndex++) {
             for (int row = 0; row < massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().getRowDimension(); row++) {
@@ -205,7 +279,19 @@ public class DataModelInitializer {
                 }
             }
         }
+        */
+        double[] dataArray = new double[massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().length];
+        for (int faradayIndex = 0; faradayIndex < massSpecOutputDataRecord.faradayCount(); faradayIndex++) {
+            for (int row = 0; row < massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().length; row++) {
+                if ((massSpecOutputDataRecord.baseLineFlagsForRawDataColumn()[row] == 1)
+                        &&
+                        (massSpecOutputDataRecord.detectorFlagsForRawDataColumn()[row][faradayIndex] == 1)) {
+                    dataArray[row] = blMeansArray[faradayIndex];
+                }
+            }
+        }
 
+        /*
         Matrix[] intensityPerBlock = new Matrix[1];
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
             intensityPerBlock[blockIndex] = massSpecOutputDataRecord.firstBlockInterpolations().times(IO);
@@ -231,6 +317,35 @@ public class DataModelInitializer {
                 }
             }
         }
+        */
+        // ArrayList<MatrixStore<Double>> intensityPerBlock = new ArrayList<>(1);
+        ArrayList<double []> intensityPerBlock = new ArrayList<>(1);
+        for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
+            MatrixStore<Double> intensity = massSpecOutputDataRecord.firstBlockInterpolations().multiply(storeFactory.columns(IO));
+            intensityPerBlock.add(blockIndex, intensity.toRawCopy1D());
+            for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
+                for (int row = 0; row < massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().length; row++) {
+                    if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
+                            &&
+                            (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1)
+                            &&
+                            (massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1))) {
+                        dataArray[row] = exp(logRatios[isotopeIndex])
+                                * intensity.get((int) massSpecOutputDataRecord.timeIndColumn()[row] - 1, 0);
+                    }
+                    if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
+                            &&
+                            (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 0)
+                            &&
+                            (massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1))) {
+
+                        dataArray[row] = exp(logRatios[isotopeIndex])/ dfGain
+                                * intensity.get((int) massSpecOutputDataRecord.timeIndColumn()[row] - 1, 0)
+                                + blMeansArray[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1];
+                    }
+                }
+            }
+        }
 
         /*
             % Define initial sigmas based on baseline
@@ -249,6 +364,7 @@ public class DataModelInitializer {
         double[] sigmas = new double[massSpecOutputDataRecord.faradayCount() + 1 + massSpecOutputDataRecord.isotopeCount()];
         for (int faradayIndex = 0; faradayIndex < massSpecOutputDataRecord.faradayCount(); faradayIndex++) {
             DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics();
+            /*
             for (int row = 0; row < massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().getRowDimension(); row++) {
                 if ((massSpecOutputDataRecord.detectorIndicesForRawDataColumn().get(row, 0) == (faradayIndex + 1))
                         &&
@@ -256,12 +372,22 @@ public class DataModelInitializer {
                     descriptiveStatistics.addValue(massSpecOutputDataRecord.rawDataColumn().get(row, 0));
                 }
             }
+            */
+            for (int row = 0; row < massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().length; row++) {
+                if ((massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] == (faradayIndex + 1))
+                        &&
+                        (massSpecOutputDataRecord.baseLineFlagsForRawDataColumn()[row] == 1)) {
+                    descriptiveStatistics.addValue(massSpecOutputDataRecord.rawDataColumn()[row]);
+                }
+            }
             sigmas[faradayIndex] = descriptiveStatistics.getStandardDeviation();
         }
 
         for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
-            for (int row = 0; row < massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().getRowDimension(); row++) {
-                if (massSpecOutputDataRecord.isotopeIndicesForRawDataColumn().get(row, 0) == (isotopeIndex + 1)) {
+            // for (int row = 0; row < massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().getRowDimension(); row++) {
+            for (int row = 0; row < massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().length; row++) {
+                // if (massSpecOutputDataRecord.isotopeIndicesForRawDataColumn().get(row, 0) == (isotopeIndex + 1)) {
+                if (massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] == (isotopeIndex + 1)) {
                     sigmas[massSpecOutputDataRecord.faradayCount() + 1 + isotopeIndex] = 11.0;
                     break;
                 }
@@ -270,12 +396,17 @@ public class DataModelInitializer {
 
 
         return new DataModellerOutputRecord(
-                new Matrix(blMeansArray),
-                new Matrix(blStdArray),
+                // new Matrix(blMeansArray),
+                blMeansArray,
+                // new Matrix(blStdArray),
+                blStdArray,
                 dfGain,
-                new Matrix(logRatios),
-                new Matrix(sigmas, sigmas.length),
-                new Matrix(dataArray, dataArray.length),
+                // new Matrix(logRatios),
+                logRatios,
+                // new Matrix(sigmas, sigmas.length),
+                sigmas,
+                // new Matrix(dataArray, dataArray.length),
+                dataArray,
                 IO,
                 intensityPerBlock
         );
