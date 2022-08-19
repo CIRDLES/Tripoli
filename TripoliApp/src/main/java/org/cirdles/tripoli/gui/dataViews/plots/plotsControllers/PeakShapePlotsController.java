@@ -2,7 +2,6 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
@@ -39,6 +38,10 @@ public class PeakShapePlotsController {
     public static File resourceBrowserTarget;
     Map<String, List<File>> resourceGroups;
 
+    ListView<String> listViewOfGroupResourcesInFolder;
+
+    ListView<File> listViewOfResourcesInFolder;
+
     @FXML
     private ResourceBundle resources;
 
@@ -66,26 +69,20 @@ public class PeakShapePlotsController {
     private ScrollPane gBeamPlotScrollPane;
 
     @FXML
+    private AnchorPane eventAnchorPane;
+
+    @FXML
+    private ScrollPane eventScrollPane;
+
+    @FXML
     private TextArea eventLogTextArea;
 
     @FXML
     private ToolBar toolbar;
 
     @FXML
-    private Button demo2Button;
-
-    @FXML
     private Button browseResourceButton;
 
-    @FXML
-    void demo2ButtonAction(ActionEvent event) {
-        if (resourceBrowserTarget != null) {
-            processDataFileAndShowPlotsOfPeakShapes();
-            ((Button) event.getSource()).setDisable(true);
-        } else {
-            eventLogTextArea.setText("No file has been selected");
-        }
-    }
 
     @FXML
     void initialize() {
@@ -107,6 +104,11 @@ public class PeakShapePlotsController {
         resourceListAnchorPane.prefHeightProperty().bind(resourceListScrollPane.heightProperty());
         resourceListAnchorPane.prefWidthProperty().bind(resourceListScrollPane.widthProperty());
 
+        eventLogTextArea.prefHeightProperty().bind(eventAnchorPane.heightProperty());
+        eventLogTextArea.prefWidthProperty().bind(eventAnchorPane.widthProperty());
+        eventAnchorPane.prefHeightProperty().bind(eventScrollPane.heightProperty());
+        eventAnchorPane.prefWidthProperty().bind(eventScrollPane.widthProperty());
+
         peakCentrePlotScrollPane.prefHeightProperty().bind(plotsAnchorPane.heightProperty().subtract(300));
         peakCentrePlotScrollPane.prefWidthProperty().bind(masterVBox.widthProperty());
 
@@ -116,10 +118,10 @@ public class PeakShapePlotsController {
     @FXML
     public void browseResourceFileAction() {
         resourceBrowserTarget = FileHandlerUtil.selectPeakShapeResourceFolderForBrowsing(plottingWindow);
-        populateListOfResources();
+        populateListOfGroups();
     }
 
-    private void populateListOfResources() {
+    private void populateListOfGroups() {
 
         resourceFilesInFolder = new ArrayList<>();
         File[] allFiles;
@@ -130,7 +132,7 @@ public class PeakShapePlotsController {
                 try {
                     List<String> contentsByLine = new ArrayList<>(Files.readAllLines(file.toPath(), Charset.defaultCharset()));
                     if (contentsByLine.size() > 5 && (contentsByLine.get(4).startsWith("Peak Centre Mass"))) {
-                            resourceFilesInFolder.add(file);
+                        resourceFilesInFolder.add(file);
                     }
 
                 } catch (IOException e) {
@@ -143,7 +145,7 @@ public class PeakShapePlotsController {
 
 
         if (!resourceFilesInFolder.isEmpty()) {
-            ListView<String> listViewOfGroupResourcesInFolder = new ListView<>();
+            listViewOfGroupResourcesInFolder = new ListView<>();
             listViewOfGroupResourcesInFolder.setCellFactory(
                     (parameter)
                             -> new ResourceDisplayName()
@@ -182,7 +184,10 @@ public class PeakShapePlotsController {
             listViewOfGroupResourcesInFolder.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 // Files will be manipulated here when group is selected
                 processFilesAndShowPeakCentre(newValue);
-                demo2Button.setDisable(false);
+                populateListOfResources(newValue);
+                gBeamPlotScrollPane.setContent(null);
+                beamShapePlotScrollPane.setContent(null);
+                eventLogTextArea.textProperty().unbind();
             });
 
             listViewOfGroupResourcesInFolder.getSelectionModel().selectFirst();
@@ -194,10 +199,36 @@ public class PeakShapePlotsController {
         } else {
             eventLogTextArea.textProperty().unbind();
             eventLogTextArea.setText("No valid resources");
-            ListView<File> listViewOfResourcesInFolder = new ListView<>();
-            listViewOfResourcesInFolder.setCellFactory(param -> new ResourceDisplayName2());
+
+            resourceListAnchorPane.getChildren().remove(listViewOfGroupResourcesInFolder);
+            eventAnchorPane.getChildren().remove(listViewOfResourcesInFolder);
+
+            gBeamPlotScrollPane.setContent(null);
+            beamShapePlotScrollPane.setContent(null);
+            peakCentrePlotScrollPane.setContent(null);
+
         }
 
+    }
+
+    private void populateListOfResources(String groupValue) {
+        listViewOfResourcesInFolder = new ListView<>();
+        listViewOfResourcesInFolder.setCellFactory(param -> new ResourceDisplayName2());
+        eventLogTextArea.textProperty().unbind();
+
+        ObservableList<File> items = FXCollections.observableArrayList(resourceGroups.get(groupValue));
+        listViewOfResourcesInFolder.setItems(items);
+
+        listViewOfResourcesInFolder.setOnMouseClicked(click -> {
+            if (click.getClickCount() == 2) {
+                resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
+                processDataFileAndShowPlotsOfPeakShapes();
+            }
+        });
+
+        listViewOfResourcesInFolder.prefHeightProperty().bind(eventScrollPane.heightProperty());
+        listViewOfResourcesInFolder.prefWidthProperty().bind(eventScrollPane.widthProperty());
+        eventAnchorPane.getChildren().add(listViewOfResourcesInFolder);
     }
 
 

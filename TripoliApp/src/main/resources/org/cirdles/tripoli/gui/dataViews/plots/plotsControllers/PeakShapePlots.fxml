@@ -39,16 +39,23 @@
               <items>
                   <ScrollPane fx:id="resourceListScrollPane" prefHeight="200.0" prefWidth="200.0">
                      <content>
-                      <AnchorPane fx:id="resourceListAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="138.0" prefWidth="246.0" />
+                      <AnchorPane fx:id="resourceListAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="206.0" prefWidth="230.0" />
                      </content>
                   </ScrollPane>
-                      <TextArea fx:id="eventLogTextArea" editable="false" prefHeight="350.0" prefWidth="200.0" text="Details will appear here ..." />
+                  <ScrollPane fx:id="eventScrollPane" prefHeight="200.0" prefWidth="200.0">
+                    <content>
+                      <AnchorPane fx:id="eventAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="182.0" prefWidth="234.0">
+                           <children>
+                                  <TextArea fx:id="eventLogTextArea" editable="false" prefHeight="350.0" prefWidth="235.0" text="Details will appear here ..." />
+                           </children>
+                        </AnchorPane>
+                    </content>
+                  </ScrollPane>
               </items>
             </SplitPane>
                 <ToolBar fx:id="toolbar" prefHeight="15.0" prefWidth="500.0">
                     <items>
-                        <Button fx:id="demo2Button" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#demo2ButtonAction" text="Start Demo2 PeakShapes" />
-                  <Button fx:id="browseResourceButton" mnemonicParsing="false" onAction="#browseResourceFileAction" text="Choose Folder" />
+                  <Button fx:id="browseResourceButton" mnemonicParsing="false" onAction="#browseResourceFileAction" text="Choose Resource Folder" />
                     </items>
                 </ToolBar>
             </children>
