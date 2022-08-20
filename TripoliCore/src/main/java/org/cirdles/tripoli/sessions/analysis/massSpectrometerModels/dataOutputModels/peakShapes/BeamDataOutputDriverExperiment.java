@@ -1,7 +1,5 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes;
 
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.PeakShapeProcessor_OPPhoenix;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
@@ -23,9 +21,8 @@ import java.nio.file.Path;
 public class BeamDataOutputDriverExperiment {
 
 
-    private static double measBeamWidthAMU;
-
     private static final boolean doFullProcessing = true;
+    private static double measBeamWidthAMU;
 
     public static AbstractPlotBuilder[] modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException {
         PeakShapeProcessor_OPPhoenix peakShapeProcessor_opPhoenix
@@ -33,7 +30,7 @@ public class BeamDataOutputDriverExperiment {
         PeakShapeOutputDataRecord peakShapeOutputDataRecord = peakShapeProcessor_opPhoenix.prepareInputDataModelFromFile(dataFile);
         AbstractPlotBuilder[] peakShapeLinePlotBuilder = new LinePlotBuilder[0];
 
-        if (doFullProcessing){
+        if (doFullProcessing) {
             try {
                 peakShapeLinePlotBuilder = gatherBeamWidth(peakShapeOutputDataRecord, loggingCallback);
             } catch (RecoverableCondition e) {

@@ -39,7 +39,6 @@ public class PeakShapePlotsController {
     Map<String, List<File>> resourceGroups;
 
 
-
     @FXML
     private ResourceBundle resources;
 
@@ -145,7 +144,7 @@ public class PeakShapePlotsController {
 
 
         if (!resourceFilesInFolder.isEmpty()) {
-           ListView<String> listViewOfGroupResourcesInFolder = new ListView<>();
+            ListView<String> listViewOfGroupResourcesInFolder = new ListView<>();
             listViewOfGroupResourcesInFolder.setCellFactory(
                     (parameter)
                             -> new ResourceDisplayName()
@@ -218,8 +217,8 @@ public class PeakShapePlotsController {
         listViewOfResourcesInFolder.setCellFactory(param -> new ResourceDisplayName2());
         eventLogTextArea.textProperty().unbind();
 
-            ObservableList<File> items = FXCollections.observableArrayList(resourceGroups.get(groupValue));
-            listViewOfResourcesInFolder.setItems(items);
+        ObservableList<File> items = FXCollections.observableArrayList(resourceGroups.get(groupValue));
+        listViewOfResourcesInFolder.setItems(items);
 
 
         listViewOfResourcesInFolder.setOnMouseClicked(click -> {
