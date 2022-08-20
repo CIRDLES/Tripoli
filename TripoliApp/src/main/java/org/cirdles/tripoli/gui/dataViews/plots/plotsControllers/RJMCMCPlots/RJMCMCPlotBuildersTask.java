@@ -87,8 +87,8 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
 
         convergeRatioLineBuilder = plots[5];
 
-        observedDataLineBuilder = plots[6];
-        residualDataLineBuilder = plots[7];
+        observedDataLineBuilder = plots[10];
+        residualDataLineBuilder = plots[11];
         return "DONE";
     }
 

@@ -57,15 +57,6 @@
                         </HBox>
                      </content>
                   </Tab>
-                  <Tab closable="false" text="Converge_Ratio">
-                     <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                           <children>
-                              <ScrollPane fx:id="convergeRatioScrollPane" layoutX="-2.0" prefHeight="281.0" prefWidth="800.0" />
-                           </children>
-                        </AnchorPane>
-                     </content>
-                  </Tab>
                   <Tab closable="false" text="DataFit">
                      <content>
                         <HBox>
@@ -84,9 +75,31 @@
                         </HBox>
                      </content>
                   </Tab>
+                  <Tab closable="false" text="Converge_Ratio">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <ScrollPane fx:id="convergeRatioScrollPane" layoutX="-2.0" prefHeight="281.0" prefWidth="800.0" />
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </Tab>
                   <Tab closable="false" text="Converge_BL">
                     <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                        <HBox>
+                           <children>
+                              <GridPane fx:id="convergeBLGridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="282.0" prefWidth="500.0">
+                                 <columnConstraints>
+                                    <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" percentWidth="100.0" prefWidth="100.0" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+                                    <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+                                 </rowConstraints>
+                              </GridPane>
+                              <TextArea fx:id="convergeBLLegendTextBox" prefHeight="282.0" prefWidth="306.0" text="Plots values of baseline variable for each saved model in the ensemble. Number of panels should equal the number of Faradays, with labels corresponding to their names.&#10;&#10;&#10;Primarily used to check for convergence in these variables and quality of search.&#10;&#10;Could be plotted during MCMC process&#10;" wrapText="true" />
+                           </children>
+                        </HBox>
                     </content>
                   </Tab>
                   <Tab closable="false" text="Converge_ERR">

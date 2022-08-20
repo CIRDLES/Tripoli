@@ -846,23 +846,38 @@ public class DataModelDriverExperiment {
 
 
         // visualization - Ensembles tab
-        AbstractPlotBuilder[] plotBuilders = new AbstractPlotBuilder[10];
+        AbstractPlotBuilder[] plotBuilders = new AbstractPlotBuilder[15];
         plotBuilders[0] = HistogramBuilder.initializeHistogram(ensembleRatios, 50, "Histogram of ratios");
         plotBuilders[1] = HistogramBuilder.initializeHistogram(true, ensembleBaselines, 50, "Histogram of baseline");
         plotBuilders[2] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain, 50, "Histogram of Daly/Faraday Gain");
         plotBuilders[3] = HistogramBuilder.initializeHistogram(true, ensembleSignalnoise, 50, "Histogram of Signal Noise");
         plotBuilders[4] = LinePlotBuilder.initializeLinePlot(xDataIntensityMeans, yDataIntensityMeans, "Mean Intensity");
 
-        // visualization converge ratio tab
+        // visualization converge ratio and others tabs
         double[] convergeLogRatios = new double[ensembleRecordsList.size()];
         double[] convergeRatios = new double[ensembleRecordsList.size()];
-        double[] xDataconvergeRatios = new double[ensembleRecordsList.size()];
+        // todo: hardwired for 2 isotopes
+        double[] convergeBaselineFaradayL1 = new double[ensembleRecordsList.size()];
+        double[] convergeBaselineFaradayH1 = new double[ensembleRecordsList.size()];
+        double[] convergeErrWeightedMisfit = new double[ensembleRecordsList.size()];
+        double[] convergeErrRawMisfit = new double[ensembleRecordsList.size()];
+        double[] xDataconvergeSavedIterations = new double[ensembleRecordsList.size()];
         for (int index = 0; index < ensembleRecordsList.size(); index++) {
             convergeLogRatios[index] = ensembleRecordsList.get(index).logRatios()[0];
             convergeRatios[index] = exp(convergeLogRatios[index]);
-            xDataconvergeRatios[index] = index;
+            convergeBaselineFaradayL1[index] = ensembleRecordsList.get(index).baseLine()[0];
+            convergeBaselineFaradayH1[index] = ensembleRecordsList.get(index).baseLine()[1];
+            convergeErrWeightedMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorWeighted());
+            convergeErrRawMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorUnWeighted());
+            xDataconvergeSavedIterations[index] = index + 1;
         }
-        plotBuilders[5] = LinePlotBuilder.initializeLinePlot(xDataconvergeRatios, convergeRatios, "Converge Ratio");
+        plotBuilders[5] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeRatios, "Converge Ratio");
+        plotBuilders[6] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeBaselineFaradayL1, "Converge Baseline Faraday L1");
+        plotBuilders[7] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeBaselineFaradayH1, "Converge Baseline Faraday H1");
+        plotBuilders[8] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeErrWeightedMisfit, "Converge Weighted Misfit");
+        plotBuilders[9] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeErrRawMisfit, "Converge Raw Misfit");
+
+
 
 
         // visualization data fit
@@ -925,9 +940,9 @@ public class DataModelDriverExperiment {
             yDataResiduals[i] = dataOriginalCounts[i * plottingStep] - data[i * plottingStep];
             yDataSigmas[i] = dataCountsModelOneSigma[i * plottingStep];
         }
-        plotBuilders[6] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, "Observed Data");
+        plotBuilders[10] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, "Observed Data");
 
-        plotBuilders[7] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, "Residual Data");
+        plotBuilders[11] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, "Residual Data");
 
         // todo: missing additional elements of signalNoise (i.e., 0,11,11)
         System.err.println(logRatioMean + "         " + logRatioStdDev);

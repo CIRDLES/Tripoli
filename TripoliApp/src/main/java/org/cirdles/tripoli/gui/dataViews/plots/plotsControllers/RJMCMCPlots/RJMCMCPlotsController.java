@@ -62,6 +62,13 @@ public class RJMCMCPlotsController {
     private TextArea dataFitLegendTextBox;
 
     @FXML
+    private GridPane convergeBLGridPane;
+
+    @FXML
+    private TextArea convergeBLLegendTextBox;
+
+
+    @FXML
     void demo1ButtonAction(ActionEvent event) throws IOException {
         processDataFileAndShowPlotsOfRJMCMC();
         ((Button) event.getSource()).setDisable(true);
@@ -137,7 +144,7 @@ public class RJMCMCPlotsController {
                             ensembleGridPane.getHeight() / ensembleGridPane.getRowCount()),
                     (HistogramBuilder) signalNoiseHistogramBuilder);
 
-            AbstractDataView convergeRatioLinePlot = new BasicLinePlot(
+            AbstractDataView convergeRatioLinePlot = new BasicLinePlotLogX(
                     new Rectangle(convergeRatioScrollPane.getWidth(),
                             convergeRatioScrollPane.getHeight()),
                     (LinePlotBuilder) convergeRatioPlotBuilder);
