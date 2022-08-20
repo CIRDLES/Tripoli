@@ -22,7 +22,8 @@ import java.nio.file.Path;
 
 public class BeamDataOutputDriverExperiment {
 
-    private static double measBeamWidthMM;
+
+    private static double measBeamWidthAMU;
 
     private static final boolean doFullProcessing = true;
 
@@ -209,9 +210,8 @@ public class BeamDataOutputDriverExperiment {
 
         MatrixStore<Double> gBeam = trimGMatrix.multiply(beamShape);
 
-        MassSpectrometerModel massSpec = MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Phoenix");
-        double measBeamWidthAMU = beamMassInterp.get(rightBoundary) - beamMassInterp.get(leftBoundary);
-        measBeamWidthMM = measBeamWidthAMU * massSpec.getEffectiveRadiusMagnetMM() / peakShapeOutputDataRecord.peakCenterMass();
+        measBeamWidthAMU = beamMassInterp.get(rightBoundary) - beamMassInterp.get(leftBoundary);
+
 
         AbstractPlotBuilder[] linePlots = new LinePlotBuilder[2];
         // "beamShape"
@@ -227,8 +227,7 @@ public class BeamDataOutputDriverExperiment {
         return linePlots;
     }
 
-    public static double getMeasBeamWidthMM() {
-        return measBeamWidthMM;
+    public static double getMeasBeamWidthAMU() {
+        return measBeamWidthAMU;
     }
-
 }

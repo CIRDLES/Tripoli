@@ -54,7 +54,7 @@ public class PeakShapesTask extends Task<String> implements LoggingCallbackInter
         AbstractPlotBuilder[] linePlots = BeamDataOutputDriverExperiment.modelTest(dataFile, this);
         beamShapePlotBuilder = linePlots[0];
         gBeamPlotBuilder = linePlots[1];
-        peakWidth = BeamDataOutputDriverExperiment.getMeasBeamWidthMM();
+        peakWidth = BeamDataOutputDriverExperiment.getMeasBeamWidthAMU();
         return "DONE";
     }
 

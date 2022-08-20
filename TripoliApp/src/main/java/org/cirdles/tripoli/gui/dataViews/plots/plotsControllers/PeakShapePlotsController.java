@@ -38,9 +38,7 @@ public class PeakShapePlotsController {
     public static File resourceBrowserTarget;
     Map<String, List<File>> resourceGroups;
 
-    ListView<String> listViewOfGroupResourcesInFolder;
 
-    ListView<File> listViewOfResourcesInFolder;
 
     @FXML
     private ResourceBundle resources;
@@ -104,10 +102,12 @@ public class PeakShapePlotsController {
         resourceListAnchorPane.prefHeightProperty().bind(resourceListScrollPane.heightProperty());
         resourceListAnchorPane.prefWidthProperty().bind(resourceListScrollPane.widthProperty());
 
-        eventLogTextArea.prefHeightProperty().bind(eventAnchorPane.heightProperty());
-        eventLogTextArea.prefWidthProperty().bind(eventAnchorPane.widthProperty());
+
         eventAnchorPane.prefHeightProperty().bind(eventScrollPane.heightProperty());
         eventAnchorPane.prefWidthProperty().bind(eventScrollPane.widthProperty());
+        eventLogTextArea.prefHeightProperty().bind(eventAnchorPane.heightProperty());
+        eventLogTextArea.prefWidthProperty().bind(eventAnchorPane.widthProperty());
+
 
         peakCentrePlotScrollPane.prefHeightProperty().bind(plotsAnchorPane.heightProperty().subtract(300));
         peakCentrePlotScrollPane.prefWidthProperty().bind(masterVBox.widthProperty());
@@ -145,7 +145,7 @@ public class PeakShapePlotsController {
 
 
         if (!resourceFilesInFolder.isEmpty()) {
-            listViewOfGroupResourcesInFolder = new ListView<>();
+           ListView<String> listViewOfGroupResourcesInFolder = new ListView<>();
             listViewOfGroupResourcesInFolder.setCellFactory(
                     (parameter)
                             -> new ResourceDisplayName()
@@ -200,8 +200,10 @@ public class PeakShapePlotsController {
             eventLogTextArea.textProperty().unbind();
             eventLogTextArea.setText("No valid resources");
 
-            resourceListAnchorPane.getChildren().remove(listViewOfGroupResourcesInFolder);
-            eventAnchorPane.getChildren().remove(listViewOfResourcesInFolder);
+
+            resourceListAnchorPane.getChildren().removeAll();
+            eventAnchorPane.getChildren().removeAll();
+
 
             gBeamPlotScrollPane.setContent(null);
             beamShapePlotScrollPane.setContent(null);
@@ -212,12 +214,13 @@ public class PeakShapePlotsController {
     }
 
     private void populateListOfResources(String groupValue) {
-        listViewOfResourcesInFolder = new ListView<>();
+        ListView<File> listViewOfResourcesInFolder = new ListView<>();
         listViewOfResourcesInFolder.setCellFactory(param -> new ResourceDisplayName2());
         eventLogTextArea.textProperty().unbind();
 
-        ObservableList<File> items = FXCollections.observableArrayList(resourceGroups.get(groupValue));
-        listViewOfResourcesInFolder.setItems(items);
+            ObservableList<File> items = FXCollections.observableArrayList(resourceGroups.get(groupValue));
+            listViewOfResourcesInFolder.setItems(items);
+
 
         listViewOfResourcesInFolder.setOnMouseClicked(click -> {
             if (click.getClickCount() == 2) {
@@ -226,8 +229,8 @@ public class PeakShapePlotsController {
             }
         });
 
-        listViewOfResourcesInFolder.prefHeightProperty().bind(eventScrollPane.heightProperty());
-        listViewOfResourcesInFolder.prefWidthProperty().bind(eventScrollPane.widthProperty());
+        listViewOfResourcesInFolder.prefHeightProperty().bind(eventAnchorPane.heightProperty());
+        listViewOfResourcesInFolder.prefWidthProperty().bind(eventAnchorPane.widthProperty());
         eventAnchorPane.getChildren().add(listViewOfResourcesInFolder);
     }
 
@@ -302,7 +305,7 @@ public class PeakShapePlotsController {
                 try {
                     BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
                     xAxis[k] = k + 1;
-                    yAxis[k] = BeamDataOutputDriverExperiment.getMeasBeamWidthMM();
+                    yAxis[k] = BeamDataOutputDriverExperiment.getMeasBeamWidthAMU();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
