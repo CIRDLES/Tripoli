@@ -40,6 +40,12 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
     private AbstractPlotBuilder observedDataLineBuilder;
     private AbstractPlotBuilder residualDataLineBuilder;
 
+    private AbstractPlotBuilder convergeBLFaradayL1LineBuilder;
+    private AbstractPlotBuilder convergeBLFaradayH1LineBuilder;
+
+    private AbstractPlotBuilder convergeErrWeightedMisfitBuilder;
+    private AbstractPlotBuilder convergeErrRawMisfitBuiulder;
+
     public RJMCMCPlotBuildersTask(Path dataFile) {
         this.dataFile = dataFile;
     }
@@ -76,6 +82,22 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
         return residualDataLineBuilder;
     }
 
+    public AbstractPlotBuilder getConvergeBLFaradayL1LineBuilder() {
+        return convergeBLFaradayL1LineBuilder;
+    }
+
+    public AbstractPlotBuilder getConvergeBLFaradayH1LineBuilder() {
+        return convergeBLFaradayH1LineBuilder;
+    }
+
+    public AbstractPlotBuilder getConvergeErrWeightedMisfitBuilder() {
+        return convergeErrWeightedMisfitBuilder;
+    }
+
+    public AbstractPlotBuilder getConvergeErrRawMisfitBuiulder() {
+        return convergeErrRawMisfitBuiulder;
+    }
+
     @Override
     protected String call() throws Exception {
         AbstractPlotBuilder[] plots = DataModelDriverExperiment.driveModelTest(dataFile, this);
@@ -86,6 +108,12 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
         meanIntensityLineBuilder = plots[4];
 
         convergeRatioLineBuilder = plots[5];
+
+        convergeBLFaradayL1LineBuilder = plots[6];
+        convergeBLFaradayH1LineBuilder = plots[7];
+
+        convergeErrWeightedMisfitBuilder = plots[8];
+        convergeErrRawMisfitBuiulder = plots[9];
 
         observedDataLineBuilder = plots[10];
         residualDataLineBuilder = plots[11];

@@ -104,7 +104,20 @@
                   </Tab>
                   <Tab closable="false" text="Converge_ERR">
                      <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                        <HBox>
+                           <children>
+                              <GridPane fx:id="convergeErrGridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="282.0" prefWidth="500.0">
+                                 <columnConstraints>
+                                    <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" percentWidth="100.0" prefWidth="100.0" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+                                    <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+                                 </rowConstraints>
+                              </GridPane>
+                              <TextArea fx:id="convergeErrLegendTextBox" prefHeight="282.0" prefWidth="306.0" text="Plots values for misfit for each saved iteration.  &#10;&#10;Weighted misfit takes noise hyperparameters into account, so trend should remain relatively flat.&#10;&#10;Raw gives absolute, unweighted misfit, so better for showing improvement to data fit.&#10;&#10;Could be plotted during MCMC process" wrapText="true" />
+                           </children>
+                        </HBox>
                      </content>
                   </Tab>
                   <Tab closable="false" text="Converge_I">

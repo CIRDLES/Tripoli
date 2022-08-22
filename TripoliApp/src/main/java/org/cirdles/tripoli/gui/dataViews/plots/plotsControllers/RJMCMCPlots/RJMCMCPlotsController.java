@@ -67,6 +67,12 @@ public class RJMCMCPlotsController {
     @FXML
     private TextArea convergeBLLegendTextBox;
 
+    @FXML
+    private GridPane convergeErrGridPane;
+
+    @FXML
+    private TextArea convergeErrLegendTextBox;
+
 
     @FXML
     void demo1ButtonAction(ActionEvent event) throws IOException {
@@ -96,6 +102,11 @@ public class RJMCMCPlotsController {
         dataFitGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(dataFitLegendTextBox.getWidth()));
         dataFitGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(toolbar.getHeight()));
 
+        convergeBLGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeBLLegendTextBox.getWidth()));
+        convergeBLGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(toolbar.getHeight()));
+
+        convergeErrGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeErrLegendTextBox.getWidth()));
+        convergeErrGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(toolbar.getHeight()));
 
     }
 
@@ -117,6 +128,13 @@ public class RJMCMCPlotsController {
 
             AbstractPlotBuilder observedDataPlotBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getObservedDataLineBuilder();
             AbstractPlotBuilder residualDataPlotBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getResidualDataLineBuilder();
+
+            AbstractPlotBuilder convergeBLFaradayL1LineBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getConvergeBLFaradayL1LineBuilder();
+            AbstractPlotBuilder convergeBLFaradayH1LineBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getConvergeBLFaradayH1LineBuilder();
+
+            AbstractPlotBuilder convergeErrWeightedMisfitBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getConvergeErrWeightedMisfitBuilder();
+            AbstractPlotBuilder convergeErrRawMisfitBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getConvergeErrRawMisfitBuiulder();
+
 
             AbstractDataView ratiosHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth(),
@@ -159,6 +177,26 @@ public class RJMCMCPlotsController {
                             dataFitGridPane.getHeight() / dataFitGridPane.getRowCount()),
                     (ComboPlotBuilder) residualDataPlotBuilder);
 
+            AbstractDataView convergeBLFaradayL1LinePlot = new BasicLinePlotLogX(
+                    new Rectangle(convergeBLGridPane.getWidth(),
+                            convergeBLGridPane.getHeight() / convergeBLGridPane.getRowCount()),
+                    (LinePlotBuilder) convergeBLFaradayL1LineBuilder);
+
+            AbstractDataView convergeBLFaradayH1LinePlot = new BasicLinePlotLogX(
+                    new Rectangle(convergeBLGridPane.getWidth(),
+                            convergeBLGridPane.getHeight() / convergeBLGridPane.getRowCount()),
+                    (LinePlotBuilder) convergeBLFaradayH1LineBuilder);
+
+            AbstractDataView convergeErrWeightedMisfitPlot = new BasicLinePlotLogX(
+                    new Rectangle(convergeErrGridPane.getWidth(),
+                            convergeErrGridPane.getHeight() / convergeErrGridPane.getRowCount()),
+                    (LinePlotBuilder) convergeErrWeightedMisfitBuilder);
+
+            AbstractDataView convergeErrRawMisfitPlot = new BasicLinePlotLogX(
+                    new Rectangle(convergeErrGridPane.getWidth(),
+                            convergeErrGridPane.getHeight() / convergeErrGridPane.getRowCount()),
+                    (LinePlotBuilder) convergeErrRawMisfitBuilder);
+
 
             plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue.intValue() > 100) {
@@ -181,6 +219,17 @@ public class RJMCMCPlotsController {
                     observedDataLinePlot.repaint();
                     residualDataLinePlot.setMyWidth(newWidth);
                     residualDataLinePlot.repaint();
+
+                    convergeBLFaradayL1LinePlot.setMyWidth(newValue.intValue());
+                    convergeBLFaradayL1LinePlot.repaint();
+                    convergeBLFaradayH1LinePlot.setMyWidth(newValue.intValue());
+                    convergeBLFaradayH1LinePlot.repaint();
+
+                    convergeErrWeightedMisfitPlot.setMyWidth(newValue.intValue());
+                    convergeErrWeightedMisfitPlot.repaint();
+                    convergeErrRawMisfitPlot.setMyWidth(newValue.intValue());
+                    convergeErrRawMisfitPlot.repaint();
+
                 }
             });
 
@@ -204,6 +253,16 @@ public class RJMCMCPlotsController {
                     observedDataLinePlot.repaint();
                     residualDataLinePlot.setMyHeight(newValue.intValue() / dataFitGridPane.getRowCount() - 5);
                     residualDataLinePlot.repaint();
+
+                    convergeBLFaradayL1LinePlot.setMyHeight(newValue.intValue() / convergeBLGridPane.getRowCount() - 5);
+                    convergeBLFaradayL1LinePlot.repaint();
+                    convergeBLFaradayH1LinePlot.setMyHeight(newValue.intValue() / convergeBLGridPane.getRowCount() - 5);
+                    convergeBLFaradayH1LinePlot.repaint();
+
+                    convergeErrWeightedMisfitPlot.setMyHeight(newValue.intValue() / convergeErrGridPane.getRowCount() - 5);
+                    convergeErrWeightedMisfitPlot.repaint();
+                    convergeErrRawMisfitPlot.setMyHeight(newValue.intValue() / convergeErrGridPane.getRowCount() - 5);
+                    convergeErrRawMisfitPlot.repaint();
                 }
             });
 
@@ -222,11 +281,19 @@ public class RJMCMCPlotsController {
             convergeRatioScrollPane.setContent(convergeRatioLinePlot);
 
             observedDataLinePlot.preparePanel();
-            dataFitGridPane.add(observedDataLinePlot, 0,0);
+            dataFitGridPane.add(observedDataLinePlot, 0, 0);
             residualDataLinePlot.preparePanel();
-            dataFitGridPane.add(residualDataLinePlot, 0,1);
+            dataFitGridPane.add(residualDataLinePlot, 0, 1);
 
+            convergeBLFaradayL1LinePlot.preparePanel();
+            convergeBLGridPane.add(convergeBLFaradayL1LinePlot, 0, 0);
+            convergeBLFaradayH1LinePlot.preparePanel();
+            convergeBLGridPane.add(convergeBLFaradayH1LinePlot, 0, 1);
 
+            convergeErrWeightedMisfitPlot.preparePanel();
+            convergeErrGridPane.add(convergeErrWeightedMisfitPlot, 0, 0);
+            convergeErrRawMisfitPlot.preparePanel();
+            convergeErrGridPane.add(convergeErrRawMisfitPlot, 0, 1);
         });
 
     }
