@@ -28,6 +28,7 @@ import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
+import org.cirdles.tripoli.visualizationUtilities.linePlots.MultiLinePlotBuilder;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
@@ -862,6 +863,7 @@ public class DataModelDriverExperiment {
         double[] convergeErrWeightedMisfit = new double[ensembleRecordsList.size()];
         double[] convergeErrRawMisfit = new double[ensembleRecordsList.size()];
         double[] xDataconvergeSavedIterations = new double[ensembleRecordsList.size()];
+        double[][] convergeIntensities = new double[ensembleRecordsList.get(0).intensity().length][ensembleRecordsList.size()];
         for (int index = 0; index < ensembleRecordsList.size(); index++) {
             convergeLogRatios[index] = ensembleRecordsList.get(index).logRatios()[0];
             convergeRatios[index] = exp(convergeLogRatios[index]);
@@ -869,6 +871,10 @@ public class DataModelDriverExperiment {
             convergeBaselineFaradayH1[index] = ensembleRecordsList.get(index).baseLine()[1];
             convergeErrWeightedMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorWeighted());
             convergeErrRawMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorUnWeighted());
+            for (int intensityIndex = 0; intensityIndex < convergeIntensities.length; intensityIndex++){
+                convergeIntensities[intensityIndex][index] = ensembleRecordsList.get(index).intensity()[intensityIndex];
+            }
+
             xDataconvergeSavedIterations[index] = index + 1;
         }
         plotBuilders[5] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeRatios, "Converge Ratio");
@@ -876,8 +882,7 @@ public class DataModelDriverExperiment {
         plotBuilders[7] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeBaselineFaradayH1, "Converge Baseline Faraday H1");
         plotBuilders[8] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeErrWeightedMisfit, "Converge Weighted Misfit");
         plotBuilders[9] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeErrRawMisfit, "Converge Raw Misfit");
-
-
+        plotBuilders[10] = MultiLinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeIntensities, "Converge Intensity");
 
 
         // visualization data fit
@@ -940,9 +945,13 @@ public class DataModelDriverExperiment {
             yDataResiduals[i] = dataOriginalCounts[i * plottingStep] - data[i * plottingStep];
             yDataSigmas[i] = dataCountsModelOneSigma[i * plottingStep];
         }
-        plotBuilders[10] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, "Observed Data");
+        plotBuilders[11] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, "Observed Data");
 
-        plotBuilders[11] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, "Residual Data");
+        plotBuilders[12] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, "Residual Data");
+
+
+
+
 
         // todo: missing additional elements of signalNoise (i.e., 0,11,11)
         System.err.println(logRatioMean + "         " + logRatioStdDev);

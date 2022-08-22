@@ -14,6 +14,7 @@ import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
+import org.cirdles.tripoli.visualizationUtilities.linePlots.MultiLinePlotBuilder;
 
 import java.io.IOException;
 import java.net.URL;
@@ -54,6 +55,9 @@ public class RJMCMCPlotsController {
 
     @FXML
     private ScrollPane convergeRatioScrollPane;
+    
+    @FXML
+    private TextArea convergeRatioLegendTextBox;
 
     @FXML
     private GridPane dataFitGridPane;
@@ -72,6 +76,13 @@ public class RJMCMCPlotsController {
 
     @FXML
     private TextArea convergeErrLegendTextBox;
+
+    @FXML
+    private TextArea convergeIntensityLegendTextBox;
+
+    @FXML
+    private ScrollPane convergeIntensityScrollPane;
+
 
 
     @FXML
@@ -96,7 +107,7 @@ public class RJMCMCPlotsController {
         ensembleGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(ensembleLegendTextBox.getWidth()));
         ensembleGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(toolbar.getHeight()));
 
-        convergeRatioScrollPane.prefWidthProperty().bind(plotTabPane.widthProperty());
+        convergeRatioScrollPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeRatioLegendTextBox.getWidth()));
         convergeRatioScrollPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(toolbar.getHeight()));
 
         dataFitGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(dataFitLegendTextBox.getWidth()));
@@ -108,6 +119,9 @@ public class RJMCMCPlotsController {
         convergeErrGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeErrLegendTextBox.getWidth()));
         convergeErrGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(toolbar.getHeight()));
 
+        convergeIntensityScrollPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeIntensityLegendTextBox.getWidth()));
+        convergeIntensityScrollPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(toolbar.getHeight()));
+
     }
 
     public void processDataFileAndShowPlotsOfRJMCMC() throws IOException {
@@ -118,22 +132,26 @@ public class RJMCMCPlotsController {
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
         service.setOnSucceeded(evt -> {
-            AbstractPlotBuilder ratiosHistogramBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getRatiosHistogramBuilder();
-            AbstractPlotBuilder baselineHistogramBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getBaselineHistogramBuilder();
-            AbstractPlotBuilder dalyFaradayHistogramBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getDalyFaradayGainHistogramBuilder();
-            AbstractPlotBuilder signalNoiseHistogramBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getSignalNoiseHistogramBuilder();
-            AbstractPlotBuilder intensityLinePlotBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getMeanIntensityLineBuilder();
+            RJMCMCPlotBuildersTask plotBuildersTask = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask());
 
-            AbstractPlotBuilder convergeRatioPlotBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getConvergeRatioLineBuilder();
+            AbstractPlotBuilder ratiosHistogramBuilder = plotBuildersTask.getRatiosHistogramBuilder();
+            AbstractPlotBuilder baselineHistogramBuilder = plotBuildersTask.getBaselineHistogramBuilder();
+            AbstractPlotBuilder dalyFaradayHistogramBuilder = plotBuildersTask.getDalyFaradayGainHistogramBuilder();
+            AbstractPlotBuilder signalNoiseHistogramBuilder = plotBuildersTask.getSignalNoiseHistogramBuilder();
+            AbstractPlotBuilder intensityLinePlotBuilder = plotBuildersTask.getMeanIntensityLineBuilder();
 
-            AbstractPlotBuilder observedDataPlotBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getObservedDataLineBuilder();
-            AbstractPlotBuilder residualDataPlotBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getResidualDataLineBuilder();
+            AbstractPlotBuilder convergeRatioPlotBuilder = plotBuildersTask.getConvergeRatioLineBuilder();
 
-            AbstractPlotBuilder convergeBLFaradayL1LineBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getConvergeBLFaradayL1LineBuilder();
-            AbstractPlotBuilder convergeBLFaradayH1LineBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getConvergeBLFaradayH1LineBuilder();
+            AbstractPlotBuilder observedDataPlotBuilder = plotBuildersTask.getObservedDataLineBuilder();
+            AbstractPlotBuilder residualDataPlotBuilder = plotBuildersTask.getResidualDataLineBuilder();
 
-            AbstractPlotBuilder convergeErrWeightedMisfitBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getConvergeErrWeightedMisfitBuilder();
-            AbstractPlotBuilder convergeErrRawMisfitBuilder = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask()).getConvergeErrRawMisfitBuiulder();
+            AbstractPlotBuilder convergeBLFaradayL1LineBuilder = plotBuildersTask.getConvergeBLFaradayL1LineBuilder();
+            AbstractPlotBuilder convergeBLFaradayH1LineBuilder = plotBuildersTask.getConvergeBLFaradayH1LineBuilder();
+
+            AbstractPlotBuilder convergeErrWeightedMisfitBuilder = plotBuildersTask.getConvergeErrWeightedMisfitLineBuilder();
+            AbstractPlotBuilder convergeErrRawMisfitBuilder = plotBuildersTask.getConvergeErrRawMisfitLineBuilder();
+            
+            AbstractPlotBuilder convergeIntensityLinesBuilder = plotBuildersTask.getConvergeIntensityLinesBuilder();
 
 
             AbstractDataView ratiosHistogramPlot = new HistogramPlot(
@@ -197,6 +215,11 @@ public class RJMCMCPlotsController {
                             convergeErrGridPane.getHeight() / convergeErrGridPane.getRowCount()),
                     (LinePlotBuilder) convergeErrRawMisfitBuilder);
 
+            AbstractDataView convergeIntensityLinesPlot = new MultiLinePlotLogX(
+                    new Rectangle(convergeIntensityScrollPane.getWidth(),
+                            convergeIntensityScrollPane.getHeight()),
+                    (MultiLinePlotBuilder) convergeIntensityLinesBuilder);
+
 
             plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue.intValue() > 100) {
@@ -229,6 +252,9 @@ public class RJMCMCPlotsController {
                     convergeErrWeightedMisfitPlot.repaint();
                     convergeErrRawMisfitPlot.setMyWidth(newValue.intValue());
                     convergeErrRawMisfitPlot.repaint();
+
+                    convergeIntensityLinesPlot.setMyWidth(newValue.intValue());
+                    convergeIntensityLinesPlot.repaint();
 
                 }
             });
@@ -263,6 +289,9 @@ public class RJMCMCPlotsController {
                     convergeErrWeightedMisfitPlot.repaint();
                     convergeErrRawMisfitPlot.setMyHeight(newValue.intValue() / convergeErrGridPane.getRowCount() - 5);
                     convergeErrRawMisfitPlot.repaint();
+
+                    convergeIntensityLinesPlot.setMyHeight(newValue.intValue());
+                    convergeIntensityLinesPlot.repaint();
                 }
             });
 
@@ -294,6 +323,9 @@ public class RJMCMCPlotsController {
             convergeErrGridPane.add(convergeErrWeightedMisfitPlot, 0, 0);
             convergeErrRawMisfitPlot.preparePanel();
             convergeErrGridPane.add(convergeErrRawMisfitPlot, 0, 1);
+
+            convergeIntensityLinesPlot.preparePanel();
+            convergeIntensityScrollPane.setContent(convergeIntensityLinesPlot);
         });
 
     }

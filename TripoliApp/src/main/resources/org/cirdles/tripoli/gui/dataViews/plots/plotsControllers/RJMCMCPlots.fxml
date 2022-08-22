@@ -77,11 +77,12 @@
                   </Tab>
                   <Tab closable="false" text="Converge_Ratio">
                      <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                        <HBox>
                            <children>
-                              <ScrollPane fx:id="convergeRatioScrollPane" layoutX="-2.0" prefHeight="281.0" prefWidth="800.0" />
+                              <ScrollPane fx:id="convergeRatioScrollPane" prefHeight="281.0" prefWidth="800.0" />
+                              <TextArea fx:id="convergeRatioLegendTextBox" prefHeight="200.0" prefWidth="300.0" text="Plots values of log isotope ratio for each saved model in the ensemble. Number of panels should equal the number of numerator isotopes.&#10;&#10;Should probably be plotted in terms of ratio instead of log ratio!&#10;&#10;This particular figure shows search isn’t most efficient - proposal steps may be too small since line isn’t random. (Also indicated by high acceptance ratio).&#10;&#10;Should definitely be plotted during MCMC process&#10;" wrapText="true" />
                            </children>
-                        </AnchorPane>
+                        </HBox>
                      </content>
                   </Tab>
                   <Tab closable="false" text="Converge_BL">
@@ -122,7 +123,12 @@
                   </Tab>
                   <Tab closable="false" text="Converge_I">
                      <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                        <HBox>
+                           <children>
+                              <ScrollPane fx:id="convergeIntensityScrollPane" prefHeight="281.0" prefWidth="800.0" />
+                              <TextArea fx:id="convergeIntensityLegendTextBox" prefHeight="200.0" prefWidth="300.0" text="Shows development of intensity function knots at each saved model iteration. Colors indicate order of knots, with blue earlier and pink later.&#10;&#10;Each block will have similar figure.&#10;&#10;Used primarily to check convergence and search quality for intensity parameters.&#10;" wrapText="true" />
+                           </children>
+                        </HBox>
                      </content>
                   </Tab>
                   <Tab closable="false" text="Converge_Noise">

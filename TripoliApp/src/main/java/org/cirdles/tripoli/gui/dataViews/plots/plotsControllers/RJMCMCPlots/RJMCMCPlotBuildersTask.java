@@ -43,8 +43,10 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
     private AbstractPlotBuilder convergeBLFaradayL1LineBuilder;
     private AbstractPlotBuilder convergeBLFaradayH1LineBuilder;
 
-    private AbstractPlotBuilder convergeErrWeightedMisfitBuilder;
-    private AbstractPlotBuilder convergeErrRawMisfitBuiulder;
+    private AbstractPlotBuilder convergeErrWeightedMisfitLineBuilder;
+    private AbstractPlotBuilder convergeErrRawMisfitLineBuilder;
+
+    private AbstractPlotBuilder convergeIntensityLinesBuilder;
 
     public RJMCMCPlotBuildersTask(Path dataFile) {
         this.dataFile = dataFile;
@@ -90,12 +92,16 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
         return convergeBLFaradayH1LineBuilder;
     }
 
-    public AbstractPlotBuilder getConvergeErrWeightedMisfitBuilder() {
-        return convergeErrWeightedMisfitBuilder;
+    public AbstractPlotBuilder getConvergeErrWeightedMisfitLineBuilder() {
+        return convergeErrWeightedMisfitLineBuilder;
     }
 
-    public AbstractPlotBuilder getConvergeErrRawMisfitBuiulder() {
-        return convergeErrRawMisfitBuiulder;
+    public AbstractPlotBuilder getConvergeErrRawMisfitLineBuilder() {
+        return convergeErrRawMisfitLineBuilder;
+    }
+
+    public AbstractPlotBuilder getConvergeIntensityLinesBuilder() {
+        return convergeIntensityLinesBuilder;
     }
 
     @Override
@@ -112,11 +118,12 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
         convergeBLFaradayL1LineBuilder = plots[6];
         convergeBLFaradayH1LineBuilder = plots[7];
 
-        convergeErrWeightedMisfitBuilder = plots[8];
-        convergeErrRawMisfitBuiulder = plots[9];
+        convergeErrWeightedMisfitLineBuilder = plots[8];
+        convergeErrRawMisfitLineBuilder = plots[9];
+        convergeIntensityLinesBuilder = plots[10];
 
-        observedDataLineBuilder = plots[10];
-        residualDataLineBuilder = plots[11];
+        observedDataLineBuilder = plots[11];
+        residualDataLineBuilder = plots[12];
         return "DONE";
     }
 
