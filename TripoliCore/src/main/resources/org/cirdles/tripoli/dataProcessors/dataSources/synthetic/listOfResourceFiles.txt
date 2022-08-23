@@ -1,4 +1,0 @@
-README.txt
-SyntheticDataset_05.txt
-SyntheticDataset_01R.txt
-synthetic208PbIntensityfor2isotopes.csv.txt

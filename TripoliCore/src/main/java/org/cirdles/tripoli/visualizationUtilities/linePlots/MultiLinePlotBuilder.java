@@ -18,22 +18,22 @@ package org.cirdles.tripoli.visualizationUtilities.linePlots;
 
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 
-public class LinePlotBuilder extends AbstractPlotBuilder {
+public class MultiLinePlotBuilder extends AbstractPlotBuilder {
 
-    private final double[] xData;
-    private final double[] yData;
+    private double[] xData;
+    private double[][] yData;
 
-    protected LinePlotBuilder(double[] xData, double[] yData, String title) {
+    protected MultiLinePlotBuilder(double[] xData, double[][] yData, String title) {
         super(title);
         this.xData = xData;
         this.yData = yData;
     }
 
-    public static LinePlotBuilder initializeLinePlot(double[] xData, double[] yData, String title) {
-        return new LinePlotBuilder(xData, yData, title);
+    public static MultiLinePlotBuilder initializeLinePlot(double[] xData, double[][] yData, String title) {
+        return new MultiLinePlotBuilder(xData, yData, title);
     }
 
-    public double[] getyData() {
+    public double[][] getyData() {
         return yData;
     }
 

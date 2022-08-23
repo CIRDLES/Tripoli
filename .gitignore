@@ -72,7 +72,8 @@ TripoliResources/
 !TripoliCore/src/main/resources/org/cirdles/tripoli/schema/*.txt
 
 # data files
-!TripoliCore/src/main/resources/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/*.txt
+!TripoliCore/src/main/resources/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/*.txt
+!TripoliCore/src/main/resources/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/twoIsotopeSyntheticData/*.txt
 !TripoliCore/src/main/resources/org/cirdles/tripoli/dataProcessors/dataSources/peakShapes/*.txt
 
 # Developer docs

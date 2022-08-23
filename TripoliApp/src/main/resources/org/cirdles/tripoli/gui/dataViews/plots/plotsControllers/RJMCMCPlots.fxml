@@ -57,15 +57,6 @@
                         </HBox>
                      </content>
                   </Tab>
-                  <Tab closable="false" text="Converge_Ratio">
-                     <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                           <children>
-                              <ScrollPane fx:id="convergeRatioScrollPane" layoutX="-2.0" prefHeight="281.0" prefWidth="800.0" />
-                           </children>
-                        </AnchorPane>
-                     </content>
-                  </Tab>
                   <Tab closable="false" text="DataFit">
                      <content>
                         <HBox>
@@ -84,24 +75,78 @@
                         </HBox>
                      </content>
                   </Tab>
-                  <Tab closable="false" text="Converge_BL">
-                    <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                    </content>
-                  </Tab>
-                  <Tab closable="false" text="Converge_ERR">
+                  <Tab closable="false" text="Converge_Ratio">
                      <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                        <HBox>
+                           <children>
+                              <ScrollPane fx:id="convergeRatioScrollPane" prefHeight="281.0" prefWidth="800.0" />
+                              <TextArea fx:id="convergeRatioLegendTextBox" prefHeight="200.0" prefWidth="300.0" text="Plots values of log isotope ratio for each saved model in the ensemble. Number of panels should equal the number of numerator isotopes.&#10;&#10;Should probably be plotted in terms of ratio instead of log ratio!&#10;&#10;This particular figure shows search isn’t most efficient - proposal steps may be too small since line isn’t random. (Also indicated by high acceptance ratio).&#10;&#10;Should definitely be plotted during MCMC process&#10;" wrapText="true" />
+                           </children>
+                        </HBox>
                      </content>
                   </Tab>
-                  <Tab closable="false" text="Converge_I">
+                  <Tab closable="false" text="Converge_Baseline">
+                    <content>
+                        <HBox>
+                           <children>
+                              <GridPane fx:id="convergeBLGridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="282.0" prefWidth="500.0">
+                                 <columnConstraints>
+                                    <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" percentWidth="100.0" prefWidth="100.0" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+                                    <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+                                 </rowConstraints>
+                              </GridPane>
+                              <TextArea fx:id="convergeBLLegendTextBox" prefHeight="282.0" prefWidth="306.0" text="Plots values of baseline variable for each saved model in the ensemble. Number of panels should equal the number of Faradays, with labels corresponding to their names.&#10;&#10;&#10;Primarily used to check for convergence in these variables and quality of search.&#10;&#10;Could be plotted during MCMC process&#10;" wrapText="true" />
+                           </children>
+                        </HBox>
+                    </content>
+                  </Tab>
+                  <Tab closable="false" text="Converge_Error">
                      <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                        <HBox>
+                           <children>
+                              <GridPane fx:id="convergeErrGridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="282.0" prefWidth="500.0">
+                                 <columnConstraints>
+                                    <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" percentWidth="100.0" prefWidth="100.0" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+                                    <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+                                 </rowConstraints>
+                              </GridPane>
+                              <TextArea fx:id="convergeErrLegendTextBox" prefHeight="282.0" prefWidth="306.0" text="Plots values for misfit for each saved iteration.  &#10;&#10;Weighted misfit takes noise hyperparameters into account, so trend should remain relatively flat.&#10;&#10;Raw gives absolute, unweighted misfit, so better for showing improvement to data fit.&#10;&#10;Could be plotted during MCMC process" wrapText="true" />
+                           </children>
+                        </HBox>
+                     </content>
+                  </Tab>
+                  <Tab closable="false" text="Converge_Intensity">
+                     <content>
+                        <HBox>
+                           <children>
+                              <ScrollPane fx:id="convergeIntensityScrollPane" prefHeight="281.0" prefWidth="800.0" />
+                              <TextArea fx:id="convergeIntensityLegendTextBox" prefHeight="200.0" prefWidth="300.0" text="Shows development of intensity function knots at each saved model iteration. Colors indicate order of knots, with blue earlier and pink later.&#10;&#10;Each block will have similar figure.&#10;&#10;Used primarily to check convergence and search quality for intensity parameters.&#10;" wrapText="true" />
+                           </children>
+                        </HBox>
                      </content>
                   </Tab>
                   <Tab closable="false" text="Converge_Noise">
                      <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                        <HBox>
+                           <children>
+                              <GridPane fx:id="convergeNoiseGridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="282.0" prefWidth="500.0">
+                                 <columnConstraints>
+                                    <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" percentWidth="100.0" prefWidth="100.0" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+                                    <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+                                 </rowConstraints>
+                              </GridPane>
+                              <TextArea fx:id="convergeNoiseLegendTextBox" prefHeight="282.0" prefWidth="306.0" text="Plots values of noise hyperparameters for each saved model in the ensemble. Number of panels should equal the number of Faradays, with labels corresponding to their names. (NOTE: These labels are wrong - should say “noise” instead of “baseline”)&#10;&#10;No similar figure for Daly since it uses Johnson-Nyquist noise model.&#10;&#10;Primarily used to check for convergence in these variables and quality of search.&#10;" wrapText="true" />
+                           </children>
+                        </HBox>
                      </content>
                   </Tab>
                </tabs>

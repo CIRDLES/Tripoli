@@ -42,13 +42,18 @@ public class TripoliFileResources {
         if (!PARAMETER_MODELS_FOLDER.mkdir()) {
             throw new IOException();
         }
+        if (!SYNTHETIC_DATA_FOLDER.mkdir()) {
+            throw new IOException();
+        }
 
         retrieveResourceFiles(SCHEMA_FOLDER, "schema");
         retrieveResourceFiles(TRACER_MODELS_FOLDER, "parameterModels/tracerModels");
         retrieveResourceFiles(PHYSCONST_MODELS_FOLDER, "parameterModels/physicalConstantsModels");
         retrieveResourceFiles(REFMAT_MODELS_FOLDER, "parameterModels/referenceMaterialsModels");
 
-        retrieveResourceFiles(SYNTHETIC_DATA_FOLDER, "dataProcessors/dataSources/synthetic");
+        retrieveResourceFiles(SYNTHETIC_DATA_FOLDER_2ISOTOPE, "dataProcessors/dataSources/synthetic/twoIsotopeSyntheticData");
+        retrieveResourceFiles(SYNTHETIC_DATA_FOLDER_5ISOTOPE, "dataProcessors/dataSources/synthetic/fiveIsotopeSyntheticData");
+
         retrieveResourceFiles(NUCLIDESCHART_DATA_FOLDER, "species/nuclides");
         retrieveResourceFiles(PERIODICTABLE_DATA_FOLDER, "elements");
         retrieveResourceFiles(PEAK_CENTRES_FOLDER, "dataProcessors/dataSources/peakShapes");
