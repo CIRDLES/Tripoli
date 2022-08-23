@@ -1,6 +1,10 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
+import javafx.event.EventHandler;
+import javafx.scene.Cursor;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -8,7 +12,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
-public class PeakCentresLinePlot extends AbstractDataView {
+public class PeakCentresLinePlot extends AbstractDataView{
     private final LinePlotBuilder peakCentrePlotBuilder;
 
     /**
@@ -18,6 +22,9 @@ public class PeakCentresLinePlot extends AbstractDataView {
     public PeakCentresLinePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
         super(bounds, 50, 30);
         this.peakCentrePlotBuilder = linePlotBuilder;
+
+        this.setOnMousePressed(new MouseMovedHandler());
+        this.setOnMouseClicked(new MouseClickedEventHandler());
     }
 
     @Override
@@ -148,4 +155,43 @@ public class PeakCentresLinePlot extends AbstractDataView {
             }
         }
     }
+
+    // todo: fix index of mouse x
+    private int indexOfSpotFromMouseX(double x) {
+        double convertedX = convertMouseXToValue(x);
+        int index = -1;
+        for (int i = 0; i < yAxisData.length - 1; i++) {
+            if ((convertedX >= mapY(yAxisData[i])) && convertedX < mapY(yAxisData[i + 1])){
+                index = i;
+                break;
+            }
+        }
+
+        return index;
+    }
+
+    private class MouseMovedHandler implements EventHandler<MouseEvent> {
+
+        @Override
+        public void handle(MouseEvent event) {
+            if(mouseInHouse(event)){
+                ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.CROSSHAIR);
+            }else {
+                ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.DEFAULT);
+            }
+        }
+    }
+
+    private class MouseClickedEventHandler implements EventHandler<MouseEvent> {
+
+        @Override
+        public void handle(MouseEvent mouseEvent) {
+            if (mouseInHouse(mouseEvent)){
+                System.out.println(indexOfSpotFromMouseX(mouseEvent.getX()));
+            }else {
+                System.out.println(mouseEvent.getClickCount());
+            }
+        }
+    }
+
 }
