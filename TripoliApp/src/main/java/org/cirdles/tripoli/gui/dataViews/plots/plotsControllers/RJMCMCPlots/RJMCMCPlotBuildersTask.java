@@ -48,6 +48,9 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
 
     private AbstractPlotBuilder convergeIntensityLinesBuilder;
 
+    private AbstractPlotBuilder convergeNoiseFaradayL1LineBuilder;
+    private AbstractPlotBuilder convergeNoiseFaradayH1LineBuilder;
+
     public RJMCMCPlotBuildersTask(Path dataFile) {
         this.dataFile = dataFile;
     }
@@ -104,6 +107,14 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
         return convergeIntensityLinesBuilder;
     }
 
+    public AbstractPlotBuilder getConvergeNoiseFaradayL1LineBuilder() {
+        return convergeNoiseFaradayL1LineBuilder;
+    }
+
+    public AbstractPlotBuilder getConvergeNoiseFaradayH1LineBuilder() {
+        return convergeNoiseFaradayH1LineBuilder;
+    }
+
     @Override
     protected String call() throws Exception {
         AbstractPlotBuilder[] plots = DataModelDriverExperiment.driveModelTest(dataFile, this);
@@ -122,9 +133,13 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
         convergeErrRawMisfitLineBuilder = plots[9];
         convergeIntensityLinesBuilder = plots[10];
 
-        observedDataLineBuilder = plots[11];
-        residualDataLineBuilder = plots[12];
-        return "DONE";
+        convergeNoiseFaradayL1LineBuilder = plots[11];
+        convergeNoiseFaradayH1LineBuilder = plots[12];
+
+        observedDataLineBuilder = plots[13];
+        residualDataLineBuilder = plots[14];
+
+        return "DONE - view tabs for various plots";
     }
 
     @Override

@@ -85,7 +85,7 @@
                         </HBox>
                      </content>
                   </Tab>
-                  <Tab closable="false" text="Converge_BL">
+                  <Tab closable="false" text="Converge_Baseline">
                     <content>
                         <HBox>
                            <children>
@@ -103,7 +103,7 @@
                         </HBox>
                     </content>
                   </Tab>
-                  <Tab closable="false" text="Converge_ERR">
+                  <Tab closable="false" text="Converge_Error">
                      <content>
                         <HBox>
                            <children>
@@ -121,7 +121,7 @@
                         </HBox>
                      </content>
                   </Tab>
-                  <Tab closable="false" text="Converge_I">
+                  <Tab closable="false" text="Converge_Intensity">
                      <content>
                         <HBox>
                            <children>
@@ -133,7 +133,20 @@
                   </Tab>
                   <Tab closable="false" text="Converge_Noise">
                      <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                        <HBox>
+                           <children>
+                              <GridPane fx:id="convergeNoiseGridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="282.0" prefWidth="500.0">
+                                 <columnConstraints>
+                                    <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" percentWidth="100.0" prefWidth="100.0" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+                                    <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+                                 </rowConstraints>
+                              </GridPane>
+                              <TextArea fx:id="convergeNoiseLegendTextBox" prefHeight="282.0" prefWidth="306.0" text="Plots values of noise hyperparameters for each saved model in the ensemble. Number of panels should equal the number of Faradays, with labels corresponding to their names. (NOTE: These labels are wrong - should say “noise” instead of “baseline”)&#10;&#10;No similar figure for Daly since it uses Johnson-Nyquist noise model.&#10;&#10;Primarily used to check for convergence in these variables and quality of search.&#10;" wrapText="true" />
+                           </children>
+                        </HBox>
                      </content>
                   </Tab>
                </tabs>

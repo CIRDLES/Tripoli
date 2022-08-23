@@ -83,6 +83,13 @@ public class RJMCMCPlotsController {
     @FXML
     private ScrollPane convergeIntensityScrollPane;
 
+    @FXML
+    private GridPane convergeNoiseGridPane;
+
+    @FXML
+    private TextArea convergeNoiseLegendTextBox;
+
+
 
 
     @FXML
@@ -122,6 +129,9 @@ public class RJMCMCPlotsController {
         convergeIntensityScrollPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeIntensityLegendTextBox.getWidth()));
         convergeIntensityScrollPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(toolbar.getHeight()));
 
+        convergeNoiseGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeNoiseLegendTextBox.getWidth()));
+        convergeNoiseGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(toolbar.getHeight()));
+
     }
 
     public void processDataFileAndShowPlotsOfRJMCMC() throws IOException {
@@ -152,6 +162,9 @@ public class RJMCMCPlotsController {
             AbstractPlotBuilder convergeErrRawMisfitBuilder = plotBuildersTask.getConvergeErrRawMisfitLineBuilder();
             
             AbstractPlotBuilder convergeIntensityLinesBuilder = plotBuildersTask.getConvergeIntensityLinesBuilder();
+
+            AbstractPlotBuilder convergeNoiseFaradayL1LineBuilder = plotBuildersTask.getConvergeNoiseFaradayL1LineBuilder();
+            AbstractPlotBuilder convergeNoiseFaradayH1LineBuilder = plotBuildersTask.getConvergeNoiseFaradayH1LineBuilder();
 
 
             AbstractDataView ratiosHistogramPlot = new HistogramPlot(
@@ -220,6 +233,16 @@ public class RJMCMCPlotsController {
                             convergeIntensityScrollPane.getHeight()),
                     (MultiLinePlotBuilder) convergeIntensityLinesBuilder);
 
+            AbstractDataView convergeNoiseFaradayL1LinePlot = new BasicLinePlotLogX(
+                    new Rectangle(convergeNoiseGridPane.getWidth(),
+                            convergeNoiseGridPane.getHeight() / convergeNoiseGridPane.getRowCount()),
+                    (LinePlotBuilder) convergeNoiseFaradayL1LineBuilder);
+
+            AbstractDataView convergeNoiseFaradayH1LinePlot = new BasicLinePlotLogX(
+                    new Rectangle(convergeNoiseGridPane.getWidth(),
+                            convergeNoiseGridPane.getHeight() / convergeNoiseGridPane.getRowCount()),
+                    (LinePlotBuilder) convergeNoiseFaradayH1LineBuilder);
+
 
             plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue.intValue() > 100) {
@@ -255,6 +278,12 @@ public class RJMCMCPlotsController {
 
                     convergeIntensityLinesPlot.setMyWidth(newValue.intValue());
                     convergeIntensityLinesPlot.repaint();
+
+                    convergeNoiseFaradayL1LinePlot.setMyWidth(newValue.intValue());
+                    convergeNoiseFaradayL1LinePlot.repaint();
+                    convergeNoiseFaradayH1LinePlot.setMyWidth(newValue.intValue());
+                    convergeNoiseFaradayH1LinePlot.repaint();
+
 
                 }
             });
@@ -292,6 +321,11 @@ public class RJMCMCPlotsController {
 
                     convergeIntensityLinesPlot.setMyHeight(newValue.intValue());
                     convergeIntensityLinesPlot.repaint();
+
+                    convergeNoiseFaradayL1LinePlot.setMyHeight(newValue.intValue() / convergeNoiseGridPane.getRowCount() - 5);
+                    convergeNoiseFaradayL1LinePlot.repaint();
+                    convergeNoiseFaradayH1LinePlot.setMyHeight(newValue.intValue() / convergeNoiseGridPane.getRowCount() - 5);
+                    convergeNoiseFaradayH1LinePlot.repaint();
                 }
             });
 
@@ -326,6 +360,12 @@ public class RJMCMCPlotsController {
 
             convergeIntensityLinesPlot.preparePanel();
             convergeIntensityScrollPane.setContent(convergeIntensityLinesPlot);
+
+            convergeNoiseFaradayL1LinePlot.preparePanel();
+            convergeNoiseGridPane.add(convergeNoiseFaradayL1LinePlot, 0, 0);
+            convergeNoiseFaradayH1LinePlot.preparePanel();
+            convergeNoiseGridPane.add(convergeNoiseFaradayH1LinePlot, 0, 1);
+
         });
 
     }

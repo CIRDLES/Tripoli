@@ -52,7 +52,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
  */
 public class DataModelDriverExperiment {
 
-    private static final boolean doFullProcessing = false;
+    private static final boolean doFullProcessing = true;
 
     public static AbstractPlotBuilder[] driveModelTest(Path dataFilePath, LoggingCallbackInterface loggingCallback) throws IOException {
 
@@ -864,6 +864,8 @@ public class DataModelDriverExperiment {
         double[] convergeErrRawMisfit = new double[ensembleRecordsList.size()];
         double[] xDataconvergeSavedIterations = new double[ensembleRecordsList.size()];
         double[][] convergeIntensities = new double[ensembleRecordsList.get(0).intensity().length][ensembleRecordsList.size()];
+        double[] convergeNoiseFaradayL1 = new double[ensembleRecordsList.size()];
+        double[] convergeNoiseFaradayH1 = new double[ensembleRecordsList.size()];
         for (int index = 0; index < ensembleRecordsList.size(); index++) {
             convergeLogRatios[index] = ensembleRecordsList.get(index).logRatios()[0];
             convergeRatios[index] = exp(convergeLogRatios[index]);
@@ -874,7 +876,8 @@ public class DataModelDriverExperiment {
             for (int intensityIndex = 0; intensityIndex < convergeIntensities.length; intensityIndex++){
                 convergeIntensities[intensityIndex][index] = ensembleRecordsList.get(index).intensity()[intensityIndex];
             }
-
+            convergeNoiseFaradayL1[index] = ensembleRecordsList.get(index).signalNoise()[0];
+            convergeNoiseFaradayH1[index] = ensembleRecordsList.get(index).signalNoise()[1];
             xDataconvergeSavedIterations[index] = index + 1;
         }
         plotBuilders[5] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeRatios, "Converge Ratio");
@@ -883,6 +886,8 @@ public class DataModelDriverExperiment {
         plotBuilders[8] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeErrWeightedMisfit, "Converge Weighted Misfit");
         plotBuilders[9] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeErrRawMisfit, "Converge Raw Misfit");
         plotBuilders[10] = MultiLinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeIntensities, "Converge Intensity");
+        plotBuilders[11] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeNoiseFaradayL1, "Converge Noise Faraday L1");
+        plotBuilders[12] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeNoiseFaradayH1, "Converge Noise Faraday H1");
 
 
         // visualization data fit
@@ -945,9 +950,9 @@ public class DataModelDriverExperiment {
             yDataResiduals[i] = dataOriginalCounts[i * plottingStep] - data[i * plottingStep];
             yDataSigmas[i] = dataCountsModelOneSigma[i * plottingStep];
         }
-        plotBuilders[11] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, "Observed Data");
+        plotBuilders[13] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, "Observed Data");
 
-        plotBuilders[12] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, "Residual Data");
+        plotBuilders[14] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, "Residual Data");
 
 
 
