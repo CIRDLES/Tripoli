@@ -532,9 +532,9 @@ public class DataModelDriverExperiment {
 
             for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
                 double term1 = StrictMath.pow(dataModelUpdaterOutputRecord_x2.signalNoise()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1], 2);
-                 double term2 = dataModelUpdaterOutputRecord_x2.signalNoise()[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1 + massSpecOutputDataRecord.faradayCount() + 1];
+                double term2 = dataModelUpdaterOutputRecord_x2.signalNoise()[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1 + massSpecOutputDataRecord.faradayCount() + 1];
                 dSignalNoise2Array[row] = term1 + term2 * dnobl2[row];
-               double residualValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn()[row] - dataModelInit.dataArray()[row], 2);
+                double residualValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn()[row] - dataModelInit.dataArray()[row], 2);
                 E0 += residualValue;
 
                 double residualValue2 = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn()[row] - d2[row], 2);
@@ -873,7 +873,7 @@ public class DataModelDriverExperiment {
             convergeBaselineFaradayH1[index] = ensembleRecordsList.get(index).baseLine()[1];
             convergeErrWeightedMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorWeighted());
             convergeErrRawMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorUnWeighted());
-            for (int intensityIndex = 0; intensityIndex < convergeIntensities.length; intensityIndex++){
+            for (int intensityIndex = 0; intensityIndex < convergeIntensities.length; intensityIndex++) {
                 convergeIntensities[intensityIndex][index] = ensembleRecordsList.get(index).intensity()[intensityIndex];
             }
             convergeNoiseFaradayL1[index] = ensembleRecordsList.get(index).signalNoise()[0];
@@ -898,7 +898,7 @@ public class DataModelDriverExperiment {
         EnsembleRecord lastModelRecord = ensembleRecordsList.get(ensembleRecordsList.size() - 1);
 
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
-            ArrayList<double []> intensity = new ArrayList<>(1);
+            ArrayList<double[]> intensity = new ArrayList<>(1);
             intensity.add(0, lastDataModelInit.intensityPerBlock().get(0));
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
@@ -908,7 +908,7 @@ public class DataModelDriverExperiment {
                         double calcValue =
                                 exp(lastModelRecord.logRatios()[isotopeIndex])
                                         * intensity.get(0)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
-                        data[row] =  calcValue;
+                        data[row] = calcValue;
                         dataWithNoBaseline[row] = calcValue;
                     }
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
@@ -953,9 +953,6 @@ public class DataModelDriverExperiment {
         plotBuilders[13] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, "Observed Data");
 
         plotBuilders[14] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, "Residual Data");
-
-
-
 
 
         // todo: missing additional elements of signalNoise (i.e., 0,11,11)

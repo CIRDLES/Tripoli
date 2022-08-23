@@ -20,8 +20,8 @@ import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 
 public class LinePlotBuilder extends AbstractPlotBuilder {
 
-    private double[] xData;
-    private double[] yData;
+    private final double[] xData;
+    private final double[] yData;
 
     protected LinePlotBuilder(double[] xData, double[] yData, String title) {
         super(title);

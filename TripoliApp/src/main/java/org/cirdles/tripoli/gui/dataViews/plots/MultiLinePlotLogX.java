@@ -141,7 +141,7 @@ public class MultiLinePlotLogX extends AbstractDataView {
                                     mapY(ticsY[0].doubleValue()) + 5);
 
                             // bottom
-                            String xText = (new BigDecimal(Math.exp(ticsX[i].doubleValue()))).setScale(-1, RoundingMode.HALF_UP).toPlainString();
+                            String xText = (new BigDecimal(Double.toString(Math.exp(ticsX[i].doubleValue())))).setScale(-1, RoundingMode.HALF_UP).toPlainString();
                             g2d.fillText(xText,
                                     (float) mapX(ticsX[i].doubleValue()) - 5f,
                                     (float) mapY(ticsY[0].doubleValue()) + 15);
