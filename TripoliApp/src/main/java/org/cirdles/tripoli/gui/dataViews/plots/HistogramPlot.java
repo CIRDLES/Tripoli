@@ -36,7 +36,7 @@ public class HistogramPlot extends AbstractDataView {
      * @param bounds
      */
     public HistogramPlot(Rectangle bounds, HistogramBuilder histogramBuilder) {
-        super(bounds, 35, 5);
+        super(bounds, 50, 5);
         this.histogramBuilder = histogramBuilder;
     }
 
@@ -152,7 +152,7 @@ public class HistogramPlot extends AbstractDataView {
                     text.setText(ticsY[i].toString());
                     textWidth = (int) text.getLayoutBounds().getWidth();
                     g2d.fillText(text.getText(),//
-                            (float) mapX(minX) - textWidth + 5f,
+                            (float) mapX(minX) - textWidth - 5f,
                             (float) mapY(ticsY[i].doubleValue()) + verticalTextShift);
 
                     // right side

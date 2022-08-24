@@ -168,11 +168,8 @@ public class PeakCentresLinePlot extends AbstractDataView{
             }
 
 
-            if (index == -1) {
-                if ((StrictMath.abs(convertedX - xAxisData[xAxisData.length - 1]) < 0.25)) {
+            if (index == -1 && ((StrictMath.abs(convertedX - xAxisData[xAxisData.length - 1]) < 0.5)))
                     index = xAxisData.length - 1;
-                }
-            }
         }
 
         return index;
@@ -196,7 +193,7 @@ public class PeakCentresLinePlot extends AbstractDataView{
         public void handle(MouseEvent mouseEvent) {
             if (mouseInHouse(mouseEvent)){
                 indexOfSelectedSpot = indexOfSpotFromMouseX(mouseEvent.getX());
-                System.out.println(indexOfSpotFromMouseX(mouseEvent.getX()));
+                System.out.println(indexOfSelectedSpot);
             }else {
                 System.out.println(mouseEvent.getClickCount());
             }

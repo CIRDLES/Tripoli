@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -28,8 +28,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.cirdles.tripoli.gui.dataViews.plots.PeakShapePlotsWindow.plottingWindow;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.*;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow.plottingWindow;
 
 public class PeakShapePlotsController {
 

@@ -8,8 +8,11 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
-public class BasicLinePlot extends AbstractDataView {
+
+public class BasicLinePlotLogX extends AbstractDataView {
 
     private final LinePlotBuilder linePlotBuilder;
 
@@ -17,7 +20,7 @@ public class BasicLinePlot extends AbstractDataView {
      * @param bounds
      * @param linePlotBuilder
      */
-    public BasicLinePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
+    public BasicLinePlotLogX(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
         super(bounds, 50, 5);
         this.linePlotBuilder = linePlotBuilder;
     }
@@ -27,10 +30,10 @@ public class BasicLinePlot extends AbstractDataView {
         xAxisData = linePlotBuilder.getxData();
         yAxisData = linePlotBuilder.getyData();
 
-        minX = xAxisData[0];
-        maxX = xAxisData[xAxisData.length - 1];
+        minX = Math.log(xAxisData[0]);
+        maxX = Math.log(xAxisData[xAxisData.length - 1]);
 
-        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 40.0));
+        ticsX = TicGeneratorForAxes.generateTics(minX, maxX * 1.1, (int) (graphWidth / 100.0));
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.01);
         minX -= xMarginStretch;
         maxX += xMarginStretch;
@@ -75,10 +78,10 @@ public class BasicLinePlot extends AbstractDataView {
         // new line plot
         g2d.setStroke(Paint.valueOf("Black"));
         g2d.beginPath();
-        g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]));
+        g2d.moveTo(mapX(Math.log(xAxisData[0])), mapY(yAxisData[0]));
         for (int i = 0; i < xAxisData.length; i++) {
             // line tracing through points
-            g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
+            g2d.lineTo(mapX(Math.log(xAxisData[i])), mapY(yAxisData[i]));
         }
         g2d.stroke();
 
@@ -121,7 +124,7 @@ public class BasicLinePlot extends AbstractDataView {
                                     mapY(ticsY[0].doubleValue()) + 5);
 
                             // bottom
-                            String xText = ticsX[i].toPlainString();
+                            String xText = (new BigDecimal(Double.toString(Math.exp(ticsX[i].doubleValue())))).setScale(-1, RoundingMode.HALF_UP).toPlainString();
                             g2d.fillText(xText,
                                     (float) mapX(ticsX[i].doubleValue()) - 5f,
                                     (float) mapY(ticsY[0].doubleValue()) + 15);

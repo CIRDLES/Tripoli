@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -24,7 +24,7 @@ import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 
-import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.PeakShapePlotsController.resourceBrowserTarget;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsController.resourceBrowserTarget;
 
 /**
  * @author James F. Bowring
@@ -61,7 +61,7 @@ public class PeakShapePlotsWindow {
     public void loadPlotsWindow() {
         if (!plottingStage.isShowing()) {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("plotsControllers/PeakShapePlots.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/dataViews/plots/plotsControllers/PeakShapePlots.fxml"));
                 Scene scene = new Scene(loader.load());
                 plottingStage.setScene(scene);
 

@@ -40,6 +40,17 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
     private AbstractPlotBuilder observedDataLineBuilder;
     private AbstractPlotBuilder residualDataLineBuilder;
 
+    private AbstractPlotBuilder convergeBLFaradayL1LineBuilder;
+    private AbstractPlotBuilder convergeBLFaradayH1LineBuilder;
+
+    private AbstractPlotBuilder convergeErrWeightedMisfitLineBuilder;
+    private AbstractPlotBuilder convergeErrRawMisfitLineBuilder;
+
+    private AbstractPlotBuilder convergeIntensityLinesBuilder;
+
+    private AbstractPlotBuilder convergeNoiseFaradayL1LineBuilder;
+    private AbstractPlotBuilder convergeNoiseFaradayH1LineBuilder;
+
     public RJMCMCPlotBuildersTask(Path dataFile) {
         this.dataFile = dataFile;
     }
@@ -76,6 +87,34 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
         return residualDataLineBuilder;
     }
 
+    public AbstractPlotBuilder getConvergeBLFaradayL1LineBuilder() {
+        return convergeBLFaradayL1LineBuilder;
+    }
+
+    public AbstractPlotBuilder getConvergeBLFaradayH1LineBuilder() {
+        return convergeBLFaradayH1LineBuilder;
+    }
+
+    public AbstractPlotBuilder getConvergeErrWeightedMisfitLineBuilder() {
+        return convergeErrWeightedMisfitLineBuilder;
+    }
+
+    public AbstractPlotBuilder getConvergeErrRawMisfitLineBuilder() {
+        return convergeErrRawMisfitLineBuilder;
+    }
+
+    public AbstractPlotBuilder getConvergeIntensityLinesBuilder() {
+        return convergeIntensityLinesBuilder;
+    }
+
+    public AbstractPlotBuilder getConvergeNoiseFaradayL1LineBuilder() {
+        return convergeNoiseFaradayL1LineBuilder;
+    }
+
+    public AbstractPlotBuilder getConvergeNoiseFaradayH1LineBuilder() {
+        return convergeNoiseFaradayH1LineBuilder;
+    }
+
     @Override
     protected String call() throws Exception {
         AbstractPlotBuilder[] plots = DataModelDriverExperiment.driveModelTest(dataFile, this);
@@ -87,9 +126,20 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
 
         convergeRatioLineBuilder = plots[5];
 
-        observedDataLineBuilder = plots[6];
-        residualDataLineBuilder = plots[7];
-        return "DONE";
+        convergeBLFaradayL1LineBuilder = plots[6];
+        convergeBLFaradayH1LineBuilder = plots[7];
+
+        convergeErrWeightedMisfitLineBuilder = plots[8];
+        convergeErrRawMisfitLineBuilder = plots[9];
+        convergeIntensityLinesBuilder = plots[10];
+
+        convergeNoiseFaradayL1LineBuilder = plots[11];
+        convergeNoiseFaradayH1LineBuilder = plots[12];
+
+        observedDataLineBuilder = plots[13];
+        residualDataLineBuilder = plots[14];
+
+        return "DONE - view tabs for various plots";
     }
 
     @Override

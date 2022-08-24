@@ -28,6 +28,7 @@ import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
+import org.cirdles.tripoli.visualizationUtilities.linePlots.MultiLinePlotBuilder;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
@@ -112,7 +113,7 @@ public class DataModelDriverExperiment {
             prior.sigdaly = [0 0]; % Gaussian noise on Daly
             prior.sigpois = [0 10]; % Poisson noise on Daly
          */
-        int maxCount = 500;//2000;
+        int maxCount = 1000;//2000;
         boolean hierarchical = true;
         int stepCountForcedSave = 100;
 
@@ -531,9 +532,9 @@ public class DataModelDriverExperiment {
 
             for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
                 double term1 = StrictMath.pow(dataModelUpdaterOutputRecord_x2.signalNoise()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1], 2);
-                 double term2 = dataModelUpdaterOutputRecord_x2.signalNoise()[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1 + massSpecOutputDataRecord.faradayCount() + 1];
+                double term2 = dataModelUpdaterOutputRecord_x2.signalNoise()[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1 + massSpecOutputDataRecord.faradayCount() + 1];
                 dSignalNoise2Array[row] = term1 + term2 * dnobl2[row];
-               double residualValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn()[row] - dataModelInit.dataArray()[row], 2);
+                double residualValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn()[row] - dataModelInit.dataArray()[row], 2);
                 E0 += residualValue;
 
                 double residualValue2 = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn()[row] - d2[row], 2);
@@ -752,7 +753,7 @@ public class DataModelDriverExperiment {
             DFstd = std(ens_DF(:,burn:cnt),[],2);
 
          */
-        int burn = 100;//1000;
+        int burn = 500;//1000;
         int countOfEnsemblesUsed = ensembleRecordsList.size() - burn;
 
         // log ratios - only the first row
@@ -846,23 +847,47 @@ public class DataModelDriverExperiment {
 
 
         // visualization - Ensembles tab
-        AbstractPlotBuilder[] plotBuilders = new AbstractPlotBuilder[10];
+        AbstractPlotBuilder[] plotBuilders = new AbstractPlotBuilder[15];
         plotBuilders[0] = HistogramBuilder.initializeHistogram(ensembleRatios, 50, "Histogram of ratios");
         plotBuilders[1] = HistogramBuilder.initializeHistogram(true, ensembleBaselines, 50, "Histogram of baseline");
         plotBuilders[2] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain, 50, "Histogram of Daly/Faraday Gain");
         plotBuilders[3] = HistogramBuilder.initializeHistogram(true, ensembleSignalnoise, 50, "Histogram of Signal Noise");
         plotBuilders[4] = LinePlotBuilder.initializeLinePlot(xDataIntensityMeans, yDataIntensityMeans, "Mean Intensity");
 
-        // visualization converge ratio tab
+        // visualization converge ratio and others tabs
         double[] convergeLogRatios = new double[ensembleRecordsList.size()];
         double[] convergeRatios = new double[ensembleRecordsList.size()];
-        double[] xDataconvergeRatios = new double[ensembleRecordsList.size()];
+        // todo: hardwired for 2 isotopes
+        double[] convergeBaselineFaradayL1 = new double[ensembleRecordsList.size()];
+        double[] convergeBaselineFaradayH1 = new double[ensembleRecordsList.size()];
+        double[] convergeErrWeightedMisfit = new double[ensembleRecordsList.size()];
+        double[] convergeErrRawMisfit = new double[ensembleRecordsList.size()];
+        double[] xDataconvergeSavedIterations = new double[ensembleRecordsList.size()];
+        double[][] convergeIntensities = new double[ensembleRecordsList.get(0).intensity().length][ensembleRecordsList.size()];
+        double[] convergeNoiseFaradayL1 = new double[ensembleRecordsList.size()];
+        double[] convergeNoiseFaradayH1 = new double[ensembleRecordsList.size()];
         for (int index = 0; index < ensembleRecordsList.size(); index++) {
             convergeLogRatios[index] = ensembleRecordsList.get(index).logRatios()[0];
             convergeRatios[index] = exp(convergeLogRatios[index]);
-            xDataconvergeRatios[index] = index;
+            convergeBaselineFaradayL1[index] = ensembleRecordsList.get(index).baseLine()[0];
+            convergeBaselineFaradayH1[index] = ensembleRecordsList.get(index).baseLine()[1];
+            convergeErrWeightedMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorWeighted());
+            convergeErrRawMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorUnWeighted());
+            for (int intensityIndex = 0; intensityIndex < convergeIntensities.length; intensityIndex++) {
+                convergeIntensities[intensityIndex][index] = ensembleRecordsList.get(index).intensity()[intensityIndex];
+            }
+            convergeNoiseFaradayL1[index] = ensembleRecordsList.get(index).signalNoise()[0];
+            convergeNoiseFaradayH1[index] = ensembleRecordsList.get(index).signalNoise()[1];
+            xDataconvergeSavedIterations[index] = index + 1;
         }
-        plotBuilders[5] = LinePlotBuilder.initializeLinePlot(xDataconvergeRatios, convergeRatios, "Converge Ratio");
+        plotBuilders[5] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeRatios, "Converge Ratio");
+        plotBuilders[6] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeBaselineFaradayL1, "Converge Baseline Faraday L1");
+        plotBuilders[7] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeBaselineFaradayH1, "Converge Baseline Faraday H1");
+        plotBuilders[8] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeErrWeightedMisfit, "Converge Weighted Misfit");
+        plotBuilders[9] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeErrRawMisfit, "Converge Raw Misfit");
+        plotBuilders[10] = MultiLinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeIntensities, "Converge Intensity");
+        plotBuilders[11] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeNoiseFaradayL1, "Converge Noise Faraday L1");
+        plotBuilders[12] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeNoiseFaradayH1, "Converge Noise Faraday H1");
 
 
         // visualization data fit
@@ -873,7 +898,7 @@ public class DataModelDriverExperiment {
         EnsembleRecord lastModelRecord = ensembleRecordsList.get(ensembleRecordsList.size() - 1);
 
         for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
-            ArrayList<double []> intensity = new ArrayList<>(1);
+            ArrayList<double[]> intensity = new ArrayList<>(1);
             intensity.add(0, lastDataModelInit.intensityPerBlock().get(0));
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
@@ -883,7 +908,7 @@ public class DataModelDriverExperiment {
                         double calcValue =
                                 exp(lastModelRecord.logRatios()[isotopeIndex])
                                         * intensity.get(0)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
-                        data[row] =  calcValue;
+                        data[row] = calcValue;
                         dataWithNoBaseline[row] = calcValue;
                     }
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
@@ -925,9 +950,10 @@ public class DataModelDriverExperiment {
             yDataResiduals[i] = dataOriginalCounts[i * plottingStep] - data[i * plottingStep];
             yDataSigmas[i] = dataCountsModelOneSigma[i * plottingStep];
         }
-        plotBuilders[6] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, "Observed Data");
+        plotBuilders[13] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, "Observed Data");
 
-        plotBuilders[7] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, "Residual Data");
+        plotBuilders[14] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, "Residual Data");
+
 
         // todo: missing additional elements of signalNoise (i.e., 0,11,11)
         System.err.println(logRatioMean + "         " + logRatioStdDev);
