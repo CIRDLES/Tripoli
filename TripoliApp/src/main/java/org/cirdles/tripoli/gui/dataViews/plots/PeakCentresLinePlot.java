@@ -14,6 +14,7 @@ import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
 public class PeakCentresLinePlot extends AbstractDataView{
     private final LinePlotBuilder peakCentrePlotBuilder;
+    private int indexOfSelectedSpot;
 
     /**
      * @param bounds
@@ -23,7 +24,7 @@ public class PeakCentresLinePlot extends AbstractDataView{
         super(bounds, 50, 30);
         this.peakCentrePlotBuilder = linePlotBuilder;
 
-        this.setOnMousePressed(new MouseMovedHandler());
+        this.setOnMouseMoved(new MouseMovedHandler());
         this.setOnMouseClicked(new MouseClickedEventHandler());
     }
 
@@ -48,7 +49,7 @@ public class PeakCentresLinePlot extends AbstractDataView{
             maxY = StrictMath.max(maxY, yAxisData[i]);
         }
 
-        ticsY = TicGeneratorForAxes.generateTics(minY, maxY, (int) (graphHeight / 20.0));
+        ticsY = TicGeneratorForAxes.generateTics(minY, maxY, (int) (graphHeight / 25.0));
         if ((ticsY != null) && (ticsY.length > 1)) {
             // force y to tics
             minY = ticsY[0].doubleValue();
@@ -160,10 +161,17 @@ public class PeakCentresLinePlot extends AbstractDataView{
     private int indexOfSpotFromMouseX(double x) {
         double convertedX = convertMouseXToValue(x);
         int index = -1;
-        for (int i = 0; i < yAxisData.length - 1; i++) {
-            if ((convertedX >= mapY(yAxisData[i])) && convertedX < mapY(yAxisData[i + 1])){
+        for (int i = 0; i < xAxisData.length - 1; i++) {
+            if ((convertedX >= xAxisData[i] - 0.5) && convertedX < xAxisData[i + 1] - 0.5){
                 index = i;
                 break;
+            }
+
+
+            if (index == -1) {
+                if ((StrictMath.abs(convertedX - xAxisData[xAxisData.length - 1]) < 0.25)) {
+                    index = xAxisData.length - 1;
+                }
             }
         }
 
@@ -187,6 +195,7 @@ public class PeakCentresLinePlot extends AbstractDataView{
         @Override
         public void handle(MouseEvent mouseEvent) {
             if (mouseInHouse(mouseEvent)){
+                indexOfSelectedSpot = indexOfSpotFromMouseX(mouseEvent.getX());
                 System.out.println(indexOfSpotFromMouseX(mouseEvent.getX()));
             }else {
                 System.out.println(mouseEvent.getClickCount());
