@@ -16,8 +16,6 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
-// import jama.Matrix;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 

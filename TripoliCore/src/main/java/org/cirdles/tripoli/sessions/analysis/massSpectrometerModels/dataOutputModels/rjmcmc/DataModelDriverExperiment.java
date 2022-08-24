@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
 import org.apache.commons.lang3.time.StopWatch;
+import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_OPPhoenix;
@@ -29,9 +30,11 @@ import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.MultiLinePlotBuilder;
+import org.ojalgo.matrix.decomposition.Cholesky;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
+import org.ojalgo.structure.Access1D;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -43,6 +46,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static java.lang.Math.min;
+import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdater.updateMSv2;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdater.updateMeanCovMS;
@@ -321,10 +325,12 @@ public class DataModelDriverExperiment {
 
             % Size of model: # isotopes + # intensity knots + # baselines + # df gain
             Nmod = d0.Niso + sum(d0.Ncycle) + d0.Nfar + Ndf ;
-
+                sizeOfModel
             % Data and data covariance vectors
             xmean = zeros(Nmod,1);
+                xDataMean
             xcov = zeros(Nmod,Nmod);
+                xDataCovariance
 
             % Adaptive MCMC proposal term
             delx_adapt=zeros(Nmod,datsav);
@@ -490,11 +496,11 @@ public class DataModelDriverExperiment {
             prev = interval1 + prev;
 
             // todo: reminder only 1 block here
-            // todo: faster multiplication not working research further
+            // remove zeroes from firstblockinterpolations
             ArrayList<double[]> intensity2 = new ArrayList<>(1);
-            MatrixStore<Double> tempIntensity;//  = storeFactory.make(massSpecOutputDataRecord.firstBlockInterpolations().countRows(), dataModelUpdaterOutputRecord_x2.blockIntensities().length);
-            // tempIntensity.fillByMultiplying(massSpecOutputDataRecord.firstBlockInterpolations(), Access2D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()));
-            tempIntensity = massSpecOutputDataRecord.firstBlockInterpolations().multiply(storeFactory.columns(dataModelUpdaterOutputRecord_x2.blockIntensities()));
+            PhysicalStore<Double> tempIntensity  = storeFactory.make(massSpecOutputDataRecord.firstBlockInterpolations().countRows(),
+                    storeFactory.columns(dataModelUpdaterOutputRecord_x2.blockIntensities()).getColDim());
+            tempIntensity.fillByMultiplying(massSpecOutputDataRecord.firstBlockInterpolations(), Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()));
             intensity2.add(0, tempIntensity.toRawCopy1D());
 
             for (int row = (int) blockStartIndicesFaraday[0]; row <= (int) blockEndIndicesFaraday[0]; row++) {
@@ -536,7 +542,7 @@ public class DataModelDriverExperiment {
                 dSignalNoise2Array[row] = term1 + term2 * dnobl2[row];
                 double residualValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn()[row] - dataModelInit.dataArray()[row], 2);
                 E0 += residualValue;
-
+                // remove strictmath try regular
                 double residualValue2 = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn()[row] - d2[row], 2);
                 E02 += residualValue2;
 
@@ -544,7 +550,8 @@ public class DataModelDriverExperiment {
                     % Decide whether to accept or reject model
                     keep = AcceptItMS(oper,dE,psig,delx,prior,Dsig,Dsig2,d0);
                  */
-
+                // make variable for bool calculate before for loop, right after its declared
+                // bool noiseOperation
                 if (operation.toLowerCase(Locale.ROOT).startsWith("n")) {
                     E += residualValue / dSignalNoiseArray[row];
                     E2 += residualValue2 / dSignalNoise2Array[row];
@@ -652,12 +659,49 @@ public class DataModelDriverExperiment {
 
                 int covStart = 50;
                 if (counter >= covStart + 1) {
+                    /*
+                    % Iterative covariance
+                    [xmean,xcov] = UpdateMeanCovMS(x,xcov,xmean,ensemble,cnt-covstart,0);
+
+                    % Draw random numbers based on covariance for next update
+                    delx_adapt = mvnrnd(
+                    mean vector - zeros(Nmod,1),
+                        zeros(sizeOfModel,1)
+                    covariance matrix - 2.38^2*xcov/Nmod,
+
+                    n dimension of output matrix - datsav)';
+                        stepCountForcedSave
+                    */
                     DataModelUpdater.UpdatedCovariancesRecord updatedCovariancesRecord =
                             updateMeanCovMS(dataModelInit, xDataCovariance, xDataMean, ensembleRecordsList, counter - covStart, false);
                     xDataCovariance = updatedCovariancesRecord.dataCov();
                     xDataMean = updatedCovariancesRecord.dataMean();
 
                     //todo: delx_adapt, but it is not currently used
+                    //todo : continue research on ojalgo multivariate normal distribution
+                    /*
+                    MatrixStore<Double> temp = storeFactory.columns(xDataCovariance);
+                    MultivariateNormalDistribution mnd = new MultivariateNormalDistribution(
+                            new double[sizeOfModel],
+                            temp.multiply(pow(2.38,2.0)/ sizeOfModel).toRawCopy2D()
+                    );
+                    delx_adapt = storeFactory.columns(mnd.sample());
+                    */
+                    /*
+                    function [r,T] = mvnrnd(mu,sigma,cases,T)
+                        [n,d] = size(mu);
+                        sz = size(sigma);
+                        mu = mu';
+                        [n,d] = size(mu);
+                        n = cases;
+                        mu = repmat(mu,n,1);
+                        outtype = internal.stats.dominantType(mu, sigma); double
+                        [T,err] = cholcov(sigma);
+                        r = randn(n,size(T,1),'like',outtype) * T + mu;
+                        t = diag(sigma);
+                        r(:,t==0) = mu(:,t==0); % force exact mean when variance is 0
+                     */
+
                 }
 
                 if (modelIndex % (10 * stepCountForcedSave) == 0) {
