@@ -36,9 +36,8 @@ public class PeakShapePlotsController {
     public static List<File> resourceFilesInFolder;
 
     public static File resourceBrowserTarget;
-    Map<String, List<File>> resourceGroups;
-
-
+    public static String currentGroup;
+    static Map<String, List<File>> resourceGroups;
     @FXML
     private ResourceBundle resources;
 
@@ -80,6 +79,38 @@ public class PeakShapePlotsController {
     @FXML
     private Button browseResourceButton;
 
+    public static String getCurrentGroup() {
+        return currentGroup;
+    }
+
+    public void setCurrentGroup(String currentGroup) {
+        PeakShapePlotsController.currentGroup = currentGroup;
+    }
+
+    public static List<File> getResourceGroups(String group) {
+        return resourceGroups.get(group);
+    }
+
+//    private void populateListOfResources(String groupValue) {
+//        ListView<File> listViewOfResourcesInFolder = new ListView<>();
+//        listViewOfResourcesInFolder.setCellFactory(param -> new ResourceDisplayName2());
+//        eventLogTextArea.textProperty().unbind();
+//
+//        ObservableList<File> items = FXCollections.observableArrayList(resourceGroups.get(groupValue));
+//        listViewOfResourcesInFolder.setItems(items);
+//
+//
+//        listViewOfResourcesInFolder.setOnMouseClicked(click -> {
+//            if (click.getClickCount() == 2) {
+//                resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
+//                processDataFileAndShowPlotsOfPeakShapes();
+//            }
+//        });
+//
+//        listViewOfResourcesInFolder.prefHeightProperty().bind(eventAnchorPane.heightProperty());
+//        listViewOfResourcesInFolder.prefWidthProperty().bind(eventAnchorPane.widthProperty());
+//        eventAnchorPane.getChildren().add(listViewOfResourcesInFolder);
+//    }
 
     @FXML
     void initialize() {
@@ -183,17 +214,21 @@ public class PeakShapePlotsController {
             listViewOfGroupResourcesInFolder.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 // Files will be manipulated here when group is selected
                 processFilesAndShowPeakCentre(newValue);
-                populateListOfResources(newValue);
+//                populateListOfResources(newValue);
+                setCurrentGroup(newValue);
                 gBeamPlotScrollPane.setContent(null);
                 beamShapePlotScrollPane.setContent(null);
                 eventLogTextArea.textProperty().unbind();
+                eventLogTextArea.setText("Select File From Plot");
             });
 
             listViewOfGroupResourcesInFolder.getSelectionModel().selectFirst();
+            setCurrentGroup(listViewOfGroupResourcesInFolder.getSelectionModel().getSelectedItem());
 
             listViewOfGroupResourcesInFolder.prefHeightProperty().bind(resourceListAnchorPane.prefHeightProperty());
             listViewOfGroupResourcesInFolder.prefWidthProperty().bind(resourceListAnchorPane.prefWidthProperty());
             resourceListAnchorPane.getChildren().add(listViewOfGroupResourcesInFolder);
+            eventLogTextArea.setText("Select File From Plot");
 
         } else {
             eventLogTextArea.textProperty().unbind();
@@ -212,27 +247,18 @@ public class PeakShapePlotsController {
 
     }
 
-    private void populateListOfResources(String groupValue) {
-        ListView<File> listViewOfResourcesInFolder = new ListView<>();
-        listViewOfResourcesInFolder.setCellFactory(param -> new ResourceDisplayName2());
-        eventLogTextArea.textProperty().unbind();
-
-        ObservableList<File> items = FXCollections.observableArrayList(resourceGroups.get(groupValue));
-        listViewOfResourcesInFolder.setItems(items);
-
-
-        listViewOfResourcesInFolder.setOnMouseClicked(click -> {
-            if (click.getClickCount() == 2) {
-                resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
-                processDataFileAndShowPlotsOfPeakShapes();
-            }
-        });
-
-        listViewOfResourcesInFolder.prefHeightProperty().bind(eventAnchorPane.heightProperty());
-        listViewOfResourcesInFolder.prefWidthProperty().bind(eventAnchorPane.widthProperty());
-        eventAnchorPane.getChildren().add(listViewOfResourcesInFolder);
-    }
-
+//    static class ResourceDisplayName2 extends ListCell<File> {
+//
+//        @Override
+//        protected void updateItem(File resource, boolean empty) {
+//            super.updateItem(resource, empty);
+//            if (resource == null || empty) {
+//                setText(null);
+//            } else {
+//                setText(resource.getName());
+//            }
+//        }
+//    }
 
     public void processFilesAndShowPeakCentre(String groupValue) {
 
@@ -329,7 +355,13 @@ public class PeakShapePlotsController {
 
         peakCentreLinePlot.preparePanel();
         peakCentrePlotScrollPane.setContent(peakCentreLinePlot);
-        resourceBrowserTarget = null;
+
+        // Selects file from peakCentre plot
+        peakCentrePlotScrollPane.setOnMouseClicked(click -> {
+            peakCentreLinePlot.getOnMouseClicked();
+            processDataFileAndShowPlotsOfPeakShapes();
+        });
+
     }
 
     public void processDataFileAndShowPlotsOfPeakShapes() {
@@ -398,7 +430,6 @@ public class PeakShapePlotsController {
 
     }
 
-
     static class ResourceDisplayName extends ListCell<String> {
 
         @Override
@@ -412,16 +443,5 @@ public class PeakShapePlotsController {
         }
     }
 
-    static class ResourceDisplayName2 extends ListCell<File> {
 
-        @Override
-        protected void updateItem(File resource, boolean empty) {
-            super.updateItem(resource, empty);
-            if (resource == null || empty) {
-                setText(null);
-            } else {
-                setText(resource.getName());
-            }
-        }
-    }
 }

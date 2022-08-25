@@ -10,9 +10,10 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsController;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
-public class PeakCentresLinePlot extends AbstractDataView{
+public class PeakCentresLinePlot extends AbstractDataView {
     private final LinePlotBuilder peakCentrePlotBuilder;
     private int indexOfSelectedSpot;
 
@@ -30,6 +31,7 @@ public class PeakCentresLinePlot extends AbstractDataView{
 
     @Override
     public void preparePanel() {
+
         xAxisData = peakCentrePlotBuilder.getxData();
         yAxisData = peakCentrePlotBuilder.getyData();
 
@@ -98,7 +100,7 @@ public class PeakCentresLinePlot extends AbstractDataView{
         g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]));
         for (int i = 0; i < xAxisData.length; i++) {
             // line tracing through points
-            g2d.fillOval(mapX(xAxisData[i]) -2, mapY(yAxisData[i]) - 4, 7, 7);
+            g2d.fillOval(mapX(xAxisData[i]) - 2, mapY(yAxisData[i]) - 4, 7, 7);
         }
         g2d.stroke();
         g2d.beginPath();
@@ -157,19 +159,18 @@ public class PeakCentresLinePlot extends AbstractDataView{
         }
     }
 
-    // todo: fix index of mouse x
     private int indexOfSpotFromMouseX(double x) {
         double convertedX = convertMouseXToValue(x);
         int index = -1;
         for (int i = 0; i < xAxisData.length - 1; i++) {
-            if ((convertedX >= xAxisData[i] - 0.5) && convertedX < xAxisData[i + 1] - 0.5){
+            if ((convertedX >= xAxisData[i] - 0.5) && convertedX < xAxisData[i + 1] - 0.5) {
                 index = i;
                 break;
             }
 
 
             if (index == -1 && ((StrictMath.abs(convertedX - xAxisData[xAxisData.length - 1]) < 0.5)))
-                    index = xAxisData.length - 1;
+                index = xAxisData.length - 1;
         }
 
         return index;
@@ -179,9 +180,9 @@ public class PeakCentresLinePlot extends AbstractDataView{
 
         @Override
         public void handle(MouseEvent event) {
-            if(mouseInHouse(event)){
+            if (mouseInHouse(event)) {
                 ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.CROSSHAIR);
-            }else {
+            } else {
                 ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.DEFAULT);
             }
         }
@@ -191,10 +192,10 @@ public class PeakCentresLinePlot extends AbstractDataView{
 
         @Override
         public void handle(MouseEvent mouseEvent) {
-            if (mouseInHouse(mouseEvent)){
+            if (mouseInHouse(mouseEvent)) {
                 indexOfSelectedSpot = indexOfSpotFromMouseX(mouseEvent.getX());
-                System.out.println(indexOfSelectedSpot);
-            }else {
+                PeakShapePlotsController.resourceBrowserTarget = PeakShapePlotsController.getResourceGroups(PeakShapePlotsController.getCurrentGroup()).get(indexOfSelectedSpot);
+            } else {
                 System.out.println(mouseEvent.getClickCount());
             }
         }
