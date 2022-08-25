@@ -17,7 +17,6 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
 import org.apache.commons.lang3.time.StopWatch;
-import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_OPPhoenix;
@@ -34,6 +33,7 @@ import org.ojalgo.matrix.decomposition.Cholesky;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
+import org.ojalgo.random.Normal;
 import org.ojalgo.structure.Access1D;
 
 import java.io.IOException;
@@ -294,7 +294,7 @@ public class DataModelDriverExperiment {
         // for (int row = 0; row < massSpecOutputDataRecord.detectorIndicesForRawDataColumn().getRowDimension(); row++) {
         for (int row = 0; row < massSpecOutputDataRecord.detectorIndicesForRawDataColumn().length; row++) {
             double calculatedValue =
-                    StrictMath.sqrt(Math.pow(dataModelInit_X0.signalNoise()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1], 2)
+                    StrictMath.sqrt(pow(dataModelInit_X0.signalNoise()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1], 2)
                             // faradaycount plus 1 = number of detectors, and we subtract 1 for the 1-based matlab indices
                             + dataModelInit_X0.signalNoise()[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] + massSpecOutputDataRecord.faradayCount()]
                             * dataWithNoBaseline[row]);
@@ -677,31 +677,34 @@ public class DataModelDriverExperiment {
                     xDataCovariance = updatedCovariancesRecord.dataCov();
                     xDataMean = updatedCovariancesRecord.dataMean();
 
-                    //todo: delx_adapt, but it is not currently used
-                    //todo : continue research on ojalgo multivariate normal distribution
+                    //todo: delx_adapt
                     /*
-                    MatrixStore<Double> temp = storeFactory.columns(xDataCovariance);
-                    MultivariateNormalDistribution mnd = new MultivariateNormalDistribution(
-                            new double[sizeOfModel],
-                            temp.multiply(pow(2.38,2.0)/ sizeOfModel).toRawCopy2D()
-                    );
-                    delx_adapt = storeFactory.columns(mnd.sample());
-                    */
-                    /*
+                    mvnrnd(
+                    zeros(sizeOfModel,1)
+                    ,2.38^2*xDataCovariance/sizeOfModel
+                    ,stepCountForcedSave)'
+                    stepCountForcedSave = 100
+                    sizeOfModel = 21
+
                     function [r,T] = mvnrnd(mu,sigma,cases,T)
-                        [n,d] = size(mu);
-                        sz = size(sigma);
                         mu = mu';
-                        [n,d] = size(mu);
                         n = cases;
                         mu = repmat(mu,n,1);
-                        outtype = internal.stats.dominantType(mu, sigma); double
                         [T,err] = cholcov(sigma);
-                        r = randn(n,size(T,1),'like',outtype) * T + mu;
+                        r = randn(n,size(T,1)) * T + mu;
                         t = diag(sigma);
                         r(:,t==0) = mu(:,t==0); % force exact mean when variance is 0
                      */
+                    Cholesky<Double> cholesky = Cholesky.PRIMITIVE.make();
+                    Normal tmpNormDistribution = new Normal();
+                    Primitive64Store distribution = Primitive64Store.FACTORY.makeFilled(100, 21, tmpNormDistribution);
 
+                    cholesky.decompose(storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / sizeOfModel));
+                    PhysicalStore<Double> test = distribution.multiply(cholesky.getL()).copy();
+                    //MatrixStore<Double> tempCov = storeFactory.columns(xDataCovariance).diagonal();
+                    //test.fillColumn(1,tempCov);
+
+                    delx_adapt = test.transpose().copy();
                 }
 
                 if (modelIndex % (10 * stepCountForcedSave) == 0) {
