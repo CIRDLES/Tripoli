@@ -16,7 +16,6 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
-// import jama.Matrix;
 import org.ojalgo.RecoverableCondition;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
@@ -243,9 +242,8 @@ public class DataModelInitializer {
 
             MatrixStore<Double> ddMatrix = storeFactory.columns(ddSortedArray);
             MatrixStore<Double> tempMatrix = interpolatedKnotData.transpose().multiply(interpolatedKnotData);
-            MatrixStore<Double> tempMatrix2;
             InverterTask<Double> inverter = InverterTask.PRIMITIVE.make(tempMatrix, false, false);
-            tempMatrix2 = inverter.invert(tempMatrix);
+            MatrixStore<Double> tempMatrix2 = inverter.invert(tempMatrix);
             IO = tempMatrix2.multiply(interpolatedKnotData.transpose()).multiply(ddMatrix).toRawCopy1D();
         }
             /*

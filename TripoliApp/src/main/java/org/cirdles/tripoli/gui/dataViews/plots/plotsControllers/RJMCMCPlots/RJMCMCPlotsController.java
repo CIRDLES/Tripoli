@@ -2,7 +2,10 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.ToolBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -26,6 +29,7 @@ import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlo
 
 public class RJMCMCPlotsController {
 
+    private static final int TAB_HEIGHT = 35;
     @FXML
     private ResourceBundle resources;
 
@@ -54,8 +58,8 @@ public class RJMCMCPlotsController {
     private TextArea ensembleLegendTextBox;
 
     @FXML
-    private ScrollPane convergeRatioScrollPane;
-    
+    private AnchorPane convergeRatioAnchorPane;
+
     @FXML
     private TextArea convergeRatioLegendTextBox;
 
@@ -81,15 +85,13 @@ public class RJMCMCPlotsController {
     private TextArea convergeIntensityLegendTextBox;
 
     @FXML
-    private ScrollPane convergeIntensityScrollPane;
+    private AnchorPane convergeIntensityAnchorPane;
 
     @FXML
     private GridPane convergeNoiseGridPane;
 
     @FXML
     private TextArea convergeNoiseLegendTextBox;
-
-
 
 
     @FXML
@@ -102,35 +104,35 @@ public class RJMCMCPlotsController {
     void initialize() {
 
         masterVBox.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT);
-        toolbar.setPrefSize(PLOT_WINDOW_WIDTH, 20.0);
+        toolbar.setPrefSize(PLOT_WINDOW_WIDTH, 30.0);
 
 
         masterVBox.prefWidthProperty().bind(plotsAnchorPane.widthProperty());
         masterVBox.prefHeightProperty().bind(plotsAnchorPane.heightProperty());
 
         plotTabPane.prefWidthProperty().bind(masterVBox.widthProperty());
-        plotTabPane.prefHeightProperty().bind(masterVBox.heightProperty().subtract(toolbar.getHeight()));
+        plotTabPane.prefHeightProperty().bind(masterVBox.heightProperty());
 
         ensembleGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(ensembleLegendTextBox.getWidth()));
-        ensembleGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(toolbar.getHeight()));
+        ensembleGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
 
-        convergeRatioScrollPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeRatioLegendTextBox.getWidth()));
-        convergeRatioScrollPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(toolbar.getHeight()));
+        convergeRatioAnchorPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeRatioLegendTextBox.getWidth()));
+        convergeRatioAnchorPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
 
         dataFitGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(dataFitLegendTextBox.getWidth()));
-        dataFitGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(toolbar.getHeight()));
+        dataFitGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
 
         convergeBLGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeBLLegendTextBox.getWidth()));
-        convergeBLGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(toolbar.getHeight()));
+        convergeBLGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
 
         convergeErrGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeErrLegendTextBox.getWidth()));
-        convergeErrGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(toolbar.getHeight()));
+        convergeErrGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
 
-        convergeIntensityScrollPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeIntensityLegendTextBox.getWidth()));
-        convergeIntensityScrollPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(toolbar.getHeight()));
+        convergeIntensityAnchorPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeIntensityLegendTextBox.getWidth()));
+        convergeIntensityAnchorPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
 
         convergeNoiseGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeNoiseLegendTextBox.getWidth()));
-        convergeNoiseGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(toolbar.getHeight()));
+        convergeNoiseGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
 
     }
 
@@ -160,7 +162,7 @@ public class RJMCMCPlotsController {
 
             AbstractPlotBuilder convergeErrWeightedMisfitBuilder = plotBuildersTask.getConvergeErrWeightedMisfitLineBuilder();
             AbstractPlotBuilder convergeErrRawMisfitBuilder = plotBuildersTask.getConvergeErrRawMisfitLineBuilder();
-            
+
             AbstractPlotBuilder convergeIntensityLinesBuilder = plotBuildersTask.getConvergeIntensityLinesBuilder();
 
             AbstractPlotBuilder convergeNoiseFaradayL1LineBuilder = plotBuildersTask.getConvergeNoiseFaradayL1LineBuilder();
@@ -169,78 +171,80 @@ public class RJMCMCPlotsController {
 
             AbstractDataView ratiosHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth(),
-                            ensembleGridPane.getHeight() / ensembleGridPane.getRowCount()),
+                            (plotTabPane.getHeight() - TAB_HEIGHT) / ensembleGridPane.getRowCount()),
                     (HistogramBuilder) ratiosHistogramBuilder);
 
             AbstractDataView baselineHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth() / ensembleGridPane.getColumnCount(),
-                            ensembleGridPane.getHeight() / ensembleGridPane.getRowCount()),
+                            (plotTabPane.getHeight() - TAB_HEIGHT) / ensembleGridPane.getRowCount()),
                     (HistogramBuilder) baselineHistogramBuilder);
 
             AbstractDataView dalyFaradayHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth() / ensembleGridPane.getColumnCount(),
-                            ensembleGridPane.getHeight() / ensembleGridPane.getRowCount()),
+                            (plotTabPane.getHeight() - TAB_HEIGHT) / ensembleGridPane.getRowCount()),
                     (HistogramBuilder) dalyFaradayHistogramBuilder);
 
             AbstractDataView intensityLinePlot = new BasicLinePlot(
                     new Rectangle(ensembleGridPane.getWidth(),
-                            ensembleGridPane.getHeight() / ensembleGridPane.getRowCount()),
+                            (plotTabPane.getHeight() - TAB_HEIGHT) / ensembleGridPane.getRowCount()),
                     (LinePlotBuilder) intensityLinePlotBuilder
             );
 
             AbstractDataView signalNoiseHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth(),
-                            ensembleGridPane.getHeight() / ensembleGridPane.getRowCount()),
+                            (plotTabPane.getHeight() - TAB_HEIGHT) / ensembleGridPane.getRowCount()),
                     (HistogramBuilder) signalNoiseHistogramBuilder);
 
+
             AbstractDataView convergeRatioLinePlot = new BasicLinePlotLogX(
-                    new Rectangle(convergeRatioScrollPane.getWidth(),
-                            convergeRatioScrollPane.getHeight()),
+                    new Rectangle(convergeRatioAnchorPane.getWidth(),
+                            plotTabPane.getHeight() - TAB_HEIGHT),
                     (LinePlotBuilder) convergeRatioPlotBuilder);
+
 
             AbstractDataView observedDataLinePlot = new BasicScatterAndLinePlot(
                     new Rectangle(dataFitGridPane.getWidth(),
-                            dataFitGridPane.getHeight() / dataFitGridPane.getRowCount()),
+                            (plotTabPane.getHeight() - TAB_HEIGHT) / dataFitGridPane.getRowCount()),
                     (ComboPlotBuilder) observedDataPlotBuilder);
 
             AbstractDataView residualDataLinePlot = new BasicScatterAndLinePlot(
                     new Rectangle(dataFitGridPane.getWidth(),
-                            dataFitGridPane.getHeight() / dataFitGridPane.getRowCount()),
+                            (plotTabPane.getHeight() - TAB_HEIGHT) / dataFitGridPane.getRowCount()),
                     (ComboPlotBuilder) residualDataPlotBuilder);
 
             AbstractDataView convergeBLFaradayL1LinePlot = new BasicLinePlotLogX(
                     new Rectangle(convergeBLGridPane.getWidth(),
-                            convergeBLGridPane.getHeight() / convergeBLGridPane.getRowCount()),
+                            (plotTabPane.getHeight() - TAB_HEIGHT) / convergeBLGridPane.getRowCount()),
                     (LinePlotBuilder) convergeBLFaradayL1LineBuilder);
 
             AbstractDataView convergeBLFaradayH1LinePlot = new BasicLinePlotLogX(
                     new Rectangle(convergeBLGridPane.getWidth(),
-                            convergeBLGridPane.getHeight() / convergeBLGridPane.getRowCount()),
+                            (plotTabPane.getHeight() - TAB_HEIGHT) / convergeBLGridPane.getRowCount()),
                     (LinePlotBuilder) convergeBLFaradayH1LineBuilder);
 
             AbstractDataView convergeErrWeightedMisfitPlot = new BasicLinePlotLogX(
                     new Rectangle(convergeErrGridPane.getWidth(),
-                            convergeErrGridPane.getHeight() / convergeErrGridPane.getRowCount()),
+                            (plotTabPane.getHeight() - TAB_HEIGHT) / convergeErrGridPane.getRowCount()),
                     (LinePlotBuilder) convergeErrWeightedMisfitBuilder);
 
             AbstractDataView convergeErrRawMisfitPlot = new BasicLinePlotLogX(
                     new Rectangle(convergeErrGridPane.getWidth(),
-                            convergeErrGridPane.getHeight() / convergeErrGridPane.getRowCount()),
+                            (plotTabPane.getHeight() - TAB_HEIGHT) / convergeErrGridPane.getRowCount()),
                     (LinePlotBuilder) convergeErrRawMisfitBuilder);
 
             AbstractDataView convergeIntensityLinesPlot = new MultiLinePlotLogX(
-                    new Rectangle(convergeIntensityScrollPane.getWidth(),
-                            convergeIntensityScrollPane.getHeight()),
+                    new Rectangle(convergeIntensityAnchorPane.getWidth(),
+                            plotTabPane.getHeight() - TAB_HEIGHT),
                     (MultiLinePlotBuilder) convergeIntensityLinesBuilder);
 
             AbstractDataView convergeNoiseFaradayL1LinePlot = new BasicLinePlotLogX(
                     new Rectangle(convergeNoiseGridPane.getWidth(),
-                            convergeNoiseGridPane.getHeight() / convergeNoiseGridPane.getRowCount()),
+                            (plotTabPane.getHeight() - TAB_HEIGHT) / convergeNoiseGridPane.getRowCount()),
                     (LinePlotBuilder) convergeNoiseFaradayL1LineBuilder);
 
             AbstractDataView convergeNoiseFaradayH1LinePlot = new BasicLinePlotLogX(
                     new Rectangle(convergeNoiseGridPane.getWidth(),
-                            convergeNoiseGridPane.getHeight() / convergeNoiseGridPane.getRowCount()),
+                            (plotTabPane.getHeight() - TAB_HEIGHT) / convergeNoiseGridPane.getRowCount()),
                     (LinePlotBuilder) convergeNoiseFaradayH1LineBuilder);
 
 
@@ -258,7 +262,7 @@ public class RJMCMCPlotsController {
                     signalNoiseHistogramPlot.setMyWidth(newWidth);
                     signalNoiseHistogramPlot.repaint();
 
-                    convergeRatioLinePlot.setMyWidth(newValue.intValue());
+                    convergeRatioLinePlot.setMyWidth(newWidth);
                     convergeRatioLinePlot.repaint();
 
                     observedDataLinePlot.setMyWidth(newWidth);
@@ -266,22 +270,22 @@ public class RJMCMCPlotsController {
                     residualDataLinePlot.setMyWidth(newWidth);
                     residualDataLinePlot.repaint();
 
-                    convergeBLFaradayL1LinePlot.setMyWidth(newValue.intValue());
+                    convergeBLFaradayL1LinePlot.setMyWidth(newWidth);
                     convergeBLFaradayL1LinePlot.repaint();
                     convergeBLFaradayH1LinePlot.setMyWidth(newValue.intValue());
                     convergeBLFaradayH1LinePlot.repaint();
 
-                    convergeErrWeightedMisfitPlot.setMyWidth(newValue.intValue());
+                    convergeErrWeightedMisfitPlot.setMyWidth(newWidth);
                     convergeErrWeightedMisfitPlot.repaint();
-                    convergeErrRawMisfitPlot.setMyWidth(newValue.intValue());
+                    convergeErrRawMisfitPlot.setMyWidth(newWidth);
                     convergeErrRawMisfitPlot.repaint();
 
-                    convergeIntensityLinesPlot.setMyWidth(newValue.intValue());
+                    convergeIntensityLinesPlot.setMyWidth(newWidth);
                     convergeIntensityLinesPlot.repaint();
 
-                    convergeNoiseFaradayL1LinePlot.setMyWidth(newValue.intValue());
+                    convergeNoiseFaradayL1LinePlot.setMyWidth(newWidth);
                     convergeNoiseFaradayL1LinePlot.repaint();
-                    convergeNoiseFaradayH1LinePlot.setMyWidth(newValue.intValue());
+                    convergeNoiseFaradayH1LinePlot.setMyWidth(newWidth);
                     convergeNoiseFaradayH1LinePlot.repaint();
 
 
@@ -290,41 +294,41 @@ public class RJMCMCPlotsController {
 
             plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue.intValue() > 100) {
-                    ratiosHistogramPlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount() - 5);
+                    ratiosHistogramPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
                     ratiosHistogramPlot.repaint();
-                    baselineHistogramPlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount() - 5);
+                    baselineHistogramPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
                     baselineHistogramPlot.repaint();
-                    dalyFaradayHistogramPlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount() - 5);
+                    dalyFaradayHistogramPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
                     dalyFaradayHistogramPlot.repaint();
-                    intensityLinePlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount() - 5);
+                    intensityLinePlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
                     intensityLinePlot.repaint();
-                    signalNoiseHistogramPlot.setMyHeight(newValue.intValue() / ensembleGridPane.getRowCount() - 5);
+                    signalNoiseHistogramPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
                     signalNoiseHistogramPlot.repaint();
 
-                    convergeRatioLinePlot.setMyHeight(newValue.intValue());
+                    convergeRatioLinePlot.setMyHeight(newValue.intValue() - TAB_HEIGHT);
                     convergeRatioLinePlot.repaint();
 
-                    observedDataLinePlot.setMyHeight(newValue.intValue() / dataFitGridPane.getRowCount() - 5);
+                    observedDataLinePlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / dataFitGridPane.getRowCount());
                     observedDataLinePlot.repaint();
-                    residualDataLinePlot.setMyHeight(newValue.intValue() / dataFitGridPane.getRowCount() - 5);
+                    residualDataLinePlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / dataFitGridPane.getRowCount());
                     residualDataLinePlot.repaint();
 
-                    convergeBLFaradayL1LinePlot.setMyHeight(newValue.intValue() / convergeBLGridPane.getRowCount() - 5);
+                    convergeBLFaradayL1LinePlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / convergeBLGridPane.getRowCount());
                     convergeBLFaradayL1LinePlot.repaint();
-                    convergeBLFaradayH1LinePlot.setMyHeight(newValue.intValue() / convergeBLGridPane.getRowCount() - 5);
+                    convergeBLFaradayH1LinePlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / convergeBLGridPane.getRowCount());
                     convergeBLFaradayH1LinePlot.repaint();
 
-                    convergeErrWeightedMisfitPlot.setMyHeight(newValue.intValue() / convergeErrGridPane.getRowCount() - 5);
+                    convergeErrWeightedMisfitPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / convergeErrGridPane.getRowCount());
                     convergeErrWeightedMisfitPlot.repaint();
-                    convergeErrRawMisfitPlot.setMyHeight(newValue.intValue() / convergeErrGridPane.getRowCount() - 5);
+                    convergeErrRawMisfitPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / convergeErrGridPane.getRowCount());
                     convergeErrRawMisfitPlot.repaint();
 
-                    convergeIntensityLinesPlot.setMyHeight(newValue.intValue());
+                    convergeIntensityLinesPlot.setMyHeight(newValue.intValue() - TAB_HEIGHT);
                     convergeIntensityLinesPlot.repaint();
 
-                    convergeNoiseFaradayL1LinePlot.setMyHeight(newValue.intValue() / convergeNoiseGridPane.getRowCount() - 5);
+                    convergeNoiseFaradayL1LinePlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / convergeNoiseGridPane.getRowCount());
                     convergeNoiseFaradayL1LinePlot.repaint();
-                    convergeNoiseFaradayH1LinePlot.setMyHeight(newValue.intValue() / convergeNoiseGridPane.getRowCount() - 5);
+                    convergeNoiseFaradayH1LinePlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / convergeNoiseGridPane.getRowCount());
                     convergeNoiseFaradayH1LinePlot.repaint();
                 }
             });
@@ -341,7 +345,7 @@ public class RJMCMCPlotsController {
             ensembleGridPane.add(signalNoiseHistogramPlot, 0, 4, 2, 1);
 
             convergeRatioLinePlot.preparePanel();
-            convergeRatioScrollPane.setContent(convergeRatioLinePlot);
+            convergeRatioAnchorPane.getChildren().add(convergeRatioLinePlot);
 
             observedDataLinePlot.preparePanel();
             dataFitGridPane.add(observedDataLinePlot, 0, 0);
@@ -359,7 +363,7 @@ public class RJMCMCPlotsController {
             convergeErrGridPane.add(convergeErrRawMisfitPlot, 0, 1);
 
             convergeIntensityLinesPlot.preparePanel();
-            convergeIntensityScrollPane.setContent(convergeIntensityLinesPlot);
+            convergeIntensityAnchorPane.getChildren().add(convergeIntensityLinesPlot);
 
             convergeNoiseFaradayL1LinePlot.preparePanel();
             convergeNoiseGridPane.add(convergeNoiseFaradayL1LinePlot, 0, 0);

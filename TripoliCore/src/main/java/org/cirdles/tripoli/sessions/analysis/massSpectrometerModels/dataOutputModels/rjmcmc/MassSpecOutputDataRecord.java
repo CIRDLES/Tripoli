@@ -16,7 +16,6 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
-// import jama.Matrix;
 import org.ojalgo.matrix.store.MatrixStore;
 
 /**
