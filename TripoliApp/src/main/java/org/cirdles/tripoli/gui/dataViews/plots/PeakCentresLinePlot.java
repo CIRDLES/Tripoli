@@ -15,7 +15,7 @@ import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
 public class PeakCentresLinePlot extends AbstractDataView {
     private final LinePlotBuilder peakCentrePlotBuilder;
-    private int indexOfSelectedSpot;
+    public static int indexOfSelectedSpot;
 
     /**
      * @param bounds
@@ -27,6 +27,7 @@ public class PeakCentresLinePlot extends AbstractDataView {
 
         this.setOnMouseMoved(new MouseMovedHandler());
         this.setOnMouseClicked(new MouseClickedEventHandler());
+        indexOfSelectedSpot = -1;
     }
 
     @Override
@@ -51,13 +52,13 @@ public class PeakCentresLinePlot extends AbstractDataView {
             maxY = StrictMath.max(maxY, yAxisData[i]);
         }
 
-        ticsY = TicGeneratorForAxes.generateTics(minY, maxY, (int) (graphHeight / 25.0));
+        ticsY = TicGeneratorForAxes.generateTics(minY, maxY + 0.0005, (int) (graphHeight / 25.0));
         if ((ticsY != null) && (ticsY.length > 1)) {
             // force y to tics
             minY = ticsY[0].doubleValue();
             maxY = ticsY[ticsY.length - 1].doubleValue();
             // adjust margins
-            double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.05);
+            double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.1);
             minY -= yMarginStretch;
             maxY += yMarginStretch;
         }
@@ -176,6 +177,7 @@ public class PeakCentresLinePlot extends AbstractDataView {
         return index;
     }
 
+
     private class MouseMovedHandler implements EventHandler<MouseEvent> {
 
         @Override
@@ -194,6 +196,7 @@ public class PeakCentresLinePlot extends AbstractDataView {
         public void handle(MouseEvent mouseEvent) {
             if (mouseInHouse(mouseEvent)) {
                 indexOfSelectedSpot = indexOfSpotFromMouseX(mouseEvent.getX());
+                PeakShapePlotsController.currentGroupIndex = indexOfSelectedSpot;
                 PeakShapePlotsController.resourceBrowserTarget = PeakShapePlotsController.getResourceGroups(PeakShapePlotsController.getCurrentGroup()).get(indexOfSelectedSpot);
             } else {
                 System.out.println(mouseEvent.getClickCount());
