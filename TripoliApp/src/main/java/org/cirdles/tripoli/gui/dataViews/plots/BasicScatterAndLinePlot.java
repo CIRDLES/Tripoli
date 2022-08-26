@@ -4,7 +4,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.ComboPlotBuilder;
 
@@ -13,6 +12,7 @@ public class BasicScatterAndLinePlot extends AbstractDataView {
 
     private final ComboPlotBuilder comboPlotBuilder;
     private double[] yAxisData2;
+
     /**
      * @param bounds
      * @param comboPlotBuilder
@@ -44,7 +44,7 @@ public class BasicScatterAndLinePlot extends AbstractDataView {
             maxY = StrictMath.max(maxY, yAxisData[i]);
             minY = StrictMath.min(minY, yAxisData2[i]);
             maxY = StrictMath.max(maxY, yAxisData2[i]);
-            if (comboPlotBuilder.isyData2OneSigma()){
+            if (comboPlotBuilder.isyData2OneSigma()) {
                 minY = StrictMath.min(minY, -yAxisData2[i]);
             }
         }
@@ -73,15 +73,13 @@ public class BasicScatterAndLinePlot extends AbstractDataView {
         text.setFont(Font.font("SansSerif", 12));
         int textWidth = 0;
 
-        g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 12));
-        g2d.setFill(Paint.valueOf("BLUE"));
-        g2d.fillText(comboPlotBuilder.getTitle(), leftMargin + 25, 15);
+        showTitle(comboPlotBuilder.getTitle());
 
         // scatter plot
         g2d.setLineWidth(0.75);
         g2d.setStroke(Paint.valueOf("Black"));
         for (int i = 0; i < xAxisData.length; i++) {
-            g2d.strokeOval(mapX(xAxisData[i]) - 2f, mapY(yAxisData[i]) -2f, 4f, 4f);
+            g2d.strokeOval(mapX(xAxisData[i]) - 2f, mapY(yAxisData[i]) - 2f, 4f, 4f);
         }
 
         // new line plot from yAxisData2
@@ -94,7 +92,7 @@ public class BasicScatterAndLinePlot extends AbstractDataView {
         }
         g2d.stroke();
 
-        if (comboPlotBuilder.isyData2OneSigma()){
+        if (comboPlotBuilder.isyData2OneSigma()) {
             g2d.beginPath();
             g2d.moveTo(mapX(xAxisData[0]), mapY(-yAxisData2[0]));
             for (int i = 0; i < xAxisData.length; i++) {
@@ -121,16 +119,16 @@ public class BasicScatterAndLinePlot extends AbstractDataView {
             float verticalTextShift = 3.2f;
             g2d.setFont(Font.font("SansSerif", 10));
             if (ticsY != null) {
-                for (int i = 0; i < ticsY.length; i++) {
+                for (java.math.BigDecimal bigDecimal : ticsY) {
                     g2d.strokeLine(
-                            mapX(minX), mapY(ticsY[i].doubleValue()), mapX(maxX), mapY(ticsY[i].doubleValue()));
+                            mapX(minX), mapY(bigDecimal.doubleValue()), mapX(maxX), mapY(bigDecimal.doubleValue()));
 
                     // left side
-                    text.setText(ticsY[i].toString());
+                    text.setText(bigDecimal.toString());
                     textWidth = (int) text.getLayoutBounds().getWidth();
                     g2d.fillText(text.getText(),//
                             (float) mapX(minX) - textWidth + 5f,
-                            (float) mapY(ticsY[i].doubleValue()) + verticalTextShift);
+                            (float) mapY(bigDecimal.doubleValue()) + verticalTextShift);
 
                 }
                 // ticsX
@@ -149,7 +147,7 @@ public class BasicScatterAndLinePlot extends AbstractDataView {
                                     (float) mapX(ticsX[i].doubleValue()) - 5f,
                                     (float) mapY(ticsY[0].doubleValue()) + 15);
 
-                        } catch (Exception e) {
+                        } catch (Exception ignored) {
                         }
                     }
                 }
