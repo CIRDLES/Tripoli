@@ -59,7 +59,7 @@ public class PeakShapePlotsWindow {
     public void loadPlotsWindow() {
         if (!plottingStage.isShowing()) {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("plotsControllers/PeakShapePlots.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/dataViews/plots/plotsControllers/PeakShapePlots.fxml"));
                 Scene scene = new Scene(loader.load());
                 plottingStage.setScene(scene);
 
