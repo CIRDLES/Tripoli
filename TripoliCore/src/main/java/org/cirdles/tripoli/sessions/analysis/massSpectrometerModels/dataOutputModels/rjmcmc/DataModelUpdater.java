@@ -16,12 +16,10 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
-// import jama.Matrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.stat.correlation.Covariance;
 import org.ojalgo.data.DataProcessors;
-import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
@@ -50,9 +48,7 @@ public class DataModelUpdater {
             DataModellerOutputRecord dataModelInit,
             DataModelDriverExperiment.PsigRecord psigRecord,
             DataModelDriverExperiment.PriorRecord priorRecord,
-            // Matrix xDataCovariance,
             double[][] xDataCovariance,
-            // Matrix delx_adapt,
             double[] delx_adapt,
             boolean adaptiveFlag,
             boolean allFlag) {
@@ -76,7 +72,6 @@ public class DataModelUpdater {
         // int countOfIsotopes = dataModelInit.logratios().getRowDimension();
         int countOfIsotopes = dataModelInit.logratios().length;
         // int countOfBlocks = dataModelInit.blockIntensities().getColumnDimension();
-        // todo check if this should be 2d array
         int countOfBlocks = storeFactory.columns(dataModelInit.blockIntensities()).getColDim();
         int[] nCycle = new int[countOfBlocks];
         int sumOfCycleCounts = 0;
@@ -360,27 +355,24 @@ public class DataModelUpdater {
                     x2DFGain = xx[row];
                 }
             }
-            double[] x2LogRatioArray = x2LogRatioList.stream().mapToDouble(d -> d).toArray();
+            double[] x2LogRatio = x2LogRatioList.stream().mapToDouble(d -> d).toArray();
             // Matrix x2LogRatio = new Matrix(x2LogRatioArray, x2LogRatioArray.length);
-            // double[] x2BlockIntensitiesArray = x2BlockIntensitiesList.stream().mapToDouble(d -> d).toArray();
+            double[] x2BlockIntensities = x2BlockIntensitiesList.stream().mapToDouble(d -> d).toArray();
             // Matrix x2BlockIntensities = new Matrix(x2BlockIntensitiesArray, x2BlockIntensitiesArray.length);
-            MatrixStore<Double> x2BlockIntensities = storeFactory.column(x2BlockIntensitiesList.stream().mapToDouble(d -> d).toArray());
-            double[] x2BaselineMeansArray = x2BaselineMeansList.stream().mapToDouble(d -> d).toArray();
+            double[] x2BaselineMeans = x2BaselineMeansList.stream().mapToDouble(d -> d).toArray();
             // Matrix x2BaselineMeans = new Matrix(x2BaselineMeansArray, x2BaselineMeansArray.length);
 
             dataModelInit2 = new DataModellerOutputRecord(
-                    // x2BaselineMeans,
-                    x2BaselineMeansArray,
+                    x2BaselineMeans,
                     // (Matrix) dataModelInit.baselineStandardDeviations().clone(),
                     dataModelInit.baselineStandardDeviations(),
                     x2DFGain,
-                    // x2LogRatio,
-                    x2LogRatioArray,
+                    x2LogRatio,
                     // (Matrix) dataModelInit.signalNoise().clone(),
                     dataModelInit.signalNoise(),
                     // (Matrix) dataModelInit.dataArray().clone(),
                     dataModelInit.dataArray(),
-                    x2BlockIntensities.toRawCopy1D(),
+                    x2BlockIntensities,
                     dataModelInit.intensityPerBlock() // ?deep clone
             );
         }
@@ -389,9 +381,7 @@ public class DataModelUpdater {
 
     static UpdatedCovariancesRecord updateMeanCovMS(
             DataModellerOutputRecord dataModelInit,
-            // Matrix dataModelCov,
             double[][] dataModelCov,
-            // Matrix dataModelMean,
             double[] dataModelMean,
             List<DataModelDriverExperiment.EnsembleRecord> ensembleRecordsList,
             int countOfNewModels,
@@ -437,11 +427,11 @@ public class DataModelUpdater {
                 xcov = cov(enso(:,m:end)');
             end
          */
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         // int countOfIsotopes = dataModelInit.logratios().getRowDimension();
         int countOfIsotopes = dataModelInit.logratios().length;
         // int countOfBlocks = dataModelInit.blockIntensities().getColumnDimension();
-        // int countOfBlocks = dataModelInit.blockIntensities().length;
-        int countOfBlocks = 1;
+        int countOfBlocks = storeFactory.columns(dataModelInit.blockIntensities()).getColDim();
         int[] nCycle = new int[countOfBlocks];
         int sumOfCycleCounts = 0;
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
@@ -454,10 +444,7 @@ public class DataModelUpdater {
         int countOfNonFaradays = 1;
 
         int dataEntryCount = countOfIsotopes + sumOfCycleCounts + countOfFaradays + countOfNonFaradays;
-        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        // Matrix dataMean;
         double[] dataMean;
-        // Matrix dataCov;
         double[][] dataCov;
         if (iterFlag) {
             // currently iterFlag is always false
@@ -466,9 +453,7 @@ public class DataModelUpdater {
         } else {
 
             int modelCount = ensembleRecordsList.size() - countOfNewModels + 1;
-            // Matrix totalsByRow = new Matrix(dataEntryCount, 1);
             PhysicalStore<Double> totalsByRow = storeFactory.make(dataEntryCount,1);
-            // Matrix enso = new Matrix(dataEntryCount, modelCount);
             PhysicalStore<Double> enso = storeFactory.make(dataEntryCount,modelCount);
 
             /*
@@ -532,23 +517,15 @@ public class DataModelUpdater {
                 totalsByRow.set(i, 0, totalsByRow.get(i, 0) / modelCount);
             }
 
-            // dataMean = totalsByRow.transpose();
             dataMean = totalsByRow.transpose().toRawCopy1D();
 
-            // double[][] ensoTransposeArray = enso.transpose().getArray();
-            // Covariance cov = new Covariance(ensoTransposeArray);
-            // RealMatrix covMatrix = cov.getCovarianceMatrix();
-            // double[][] covarianceArray = covMatrix.getData();
-            // dataCov = new Matrix(covarianceArray);
             dataCov = DataProcessors.covariances(storeFactory, enso.transpose()).toRawCopy2D();
         }
         return new UpdatedCovariancesRecord(dataCov, dataMean);
     }
 
     public record UpdatedCovariancesRecord(
-            // Matrix dataCov,
             double[][] dataCov,
-            // Matrix dataMean
             double[] dataMean
     ) {
 

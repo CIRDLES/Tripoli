@@ -29,9 +29,12 @@ import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.MultiLinePlotBuilder;
+import org.ojalgo.matrix.decomposition.Cholesky;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
+import org.ojalgo.random.Normal;
+import org.ojalgo.structure.Access1D;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -43,6 +46,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static java.lang.Math.min;
+import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdater.updateMSv2;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdater.updateMeanCovMS;
@@ -52,7 +56,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
  */
 public class DataModelDriverExperiment {
 
-    private static final boolean doFullProcessing = true;
+    private static final boolean doFullProcessing = false;
 
     public static AbstractPlotBuilder[] driveModelTest(Path dataFilePath, LoggingCallbackInterface loggingCallback) throws IOException {
 
@@ -290,7 +294,7 @@ public class DataModelDriverExperiment {
         // for (int row = 0; row < massSpecOutputDataRecord.detectorIndicesForRawDataColumn().getRowDimension(); row++) {
         for (int row = 0; row < massSpecOutputDataRecord.detectorIndicesForRawDataColumn().length; row++) {
             double calculatedValue =
-                    StrictMath.sqrt(Math.pow(dataModelInit_X0.signalNoise()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1], 2)
+                    StrictMath.sqrt(pow(dataModelInit_X0.signalNoise()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1], 2)
                             // faradaycount plus 1 = number of detectors, and we subtract 1 for the 1-based matlab indices
                             + dataModelInit_X0.signalNoise()[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] + massSpecOutputDataRecord.faradayCount()]
                             * dataWithNoBaseline[row]);
@@ -321,10 +325,12 @@ public class DataModelDriverExperiment {
 
             % Size of model: # isotopes + # intensity knots + # baselines + # df gain
             Nmod = d0.Niso + sum(d0.Ncycle) + d0.Nfar + Ndf ;
-
+                sizeOfModel
             % Data and data covariance vectors
             xmean = zeros(Nmod,1);
+                xDataMean
             xcov = zeros(Nmod,Nmod);
+                xDataCovariance
 
             % Adaptive MCMC proposal term
             delx_adapt=zeros(Nmod,datsav);
@@ -490,11 +496,11 @@ public class DataModelDriverExperiment {
             prev = interval1 + prev;
 
             // todo: reminder only 1 block here
-            // todo: faster multiplication not working research further
+            // remove zeroes from firstblockinterpolations
             ArrayList<double[]> intensity2 = new ArrayList<>(1);
-            MatrixStore<Double> tempIntensity;//  = storeFactory.make(massSpecOutputDataRecord.firstBlockInterpolations().countRows(), dataModelUpdaterOutputRecord_x2.blockIntensities().length);
-            // tempIntensity.fillByMultiplying(massSpecOutputDataRecord.firstBlockInterpolations(), Access2D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()));
-            tempIntensity = massSpecOutputDataRecord.firstBlockInterpolations().multiply(storeFactory.columns(dataModelUpdaterOutputRecord_x2.blockIntensities()));
+            PhysicalStore<Double> tempIntensity  = storeFactory.make(massSpecOutputDataRecord.firstBlockInterpolations().countRows(),
+                    storeFactory.columns(dataModelUpdaterOutputRecord_x2.blockIntensities()).getColDim());
+            tempIntensity.fillByMultiplying(massSpecOutputDataRecord.firstBlockInterpolations(), Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()));
             intensity2.add(0, tempIntensity.toRawCopy1D());
 
             for (int row = (int) blockStartIndicesFaraday[0]; row <= (int) blockEndIndicesFaraday[0]; row++) {
@@ -536,7 +542,7 @@ public class DataModelDriverExperiment {
                 dSignalNoise2Array[row] = term1 + term2 * dnobl2[row];
                 double residualValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn()[row] - dataModelInit.dataArray()[row], 2);
                 E0 += residualValue;
-
+                // remove strictmath try regular
                 double residualValue2 = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn()[row] - d2[row], 2);
                 E02 += residualValue2;
 
@@ -544,7 +550,8 @@ public class DataModelDriverExperiment {
                     % Decide whether to accept or reject model
                     keep = AcceptItMS(oper,dE,psig,delx,prior,Dsig,Dsig2,d0);
                  */
-
+                // make variable for bool calculate before for loop, right after its declared
+                // bool noiseOperation
                 if (operation.toLowerCase(Locale.ROOT).startsWith("n")) {
                     E += residualValue / dSignalNoiseArray[row];
                     E2 += residualValue2 / dSignalNoise2Array[row];
@@ -652,12 +659,52 @@ public class DataModelDriverExperiment {
 
                 int covStart = 50;
                 if (counter >= covStart + 1) {
+                    /*
+                    % Iterative covariance
+                    [xmean,xcov] = UpdateMeanCovMS(x,xcov,xmean,ensemble,cnt-covstart,0);
+
+                    % Draw random numbers based on covariance for next update
+                    delx_adapt = mvnrnd(
+                    mean vector - zeros(Nmod,1),
+                        zeros(sizeOfModel,1)
+                    covariance matrix - 2.38^2*xcov/Nmod,
+
+                    n dimension of output matrix - datsav)';
+                        stepCountForcedSave
+                    */
                     DataModelUpdater.UpdatedCovariancesRecord updatedCovariancesRecord =
                             updateMeanCovMS(dataModelInit, xDataCovariance, xDataMean, ensembleRecordsList, counter - covStart, false);
                     xDataCovariance = updatedCovariancesRecord.dataCov();
                     xDataMean = updatedCovariancesRecord.dataMean();
 
-                    //todo: delx_adapt, but it is not currently used
+                    //todo: delx_adapt
+                    /*
+                    mvnrnd(
+                    zeros(sizeOfModel,1)
+                    ,2.38^2*xDataCovariance/sizeOfModel
+                    ,stepCountForcedSave)'
+                    stepCountForcedSave = 100
+                    sizeOfModel = 21
+
+                    function [r,T] = mvnrnd(mu,sigma,cases,T)
+                        mu = mu';
+                        n = cases;
+                        mu = repmat(mu,n,1);
+                        [T,err] = cholcov(sigma);
+                        r = randn(n,size(T,1)) * T + mu;
+                        t = diag(sigma);
+                        r(:,t==0) = mu(:,t==0); % force exact mean when variance is 0
+                     */
+                    Cholesky<Double> cholesky = Cholesky.PRIMITIVE.make();
+                    Normal tmpNormDistribution = new Normal();
+                    Primitive64Store distribution = Primitive64Store.FACTORY.makeFilled(100, 21, tmpNormDistribution);
+
+                    cholesky.decompose(storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / sizeOfModel));
+                    PhysicalStore<Double> test = distribution.multiply(cholesky.getL()).copy();
+                    //MatrixStore<Double> tempCov = storeFactory.columns(xDataCovariance).diagonal();
+                    //test.fillColumn(1,tempCov);
+
+                    delx_adapt = test.transpose().copy();
                 }
 
                 if (modelIndex % (10 * stepCountForcedSave) == 0) {
