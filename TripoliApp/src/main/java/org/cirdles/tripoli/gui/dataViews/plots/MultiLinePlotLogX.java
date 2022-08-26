@@ -11,6 +11,8 @@ import org.cirdles.tripoli.visualizationUtilities.linePlots.MultiLinePlotBuilder
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MultiLinePlotLogX extends AbstractDataView {
@@ -29,13 +31,21 @@ public class MultiLinePlotLogX extends AbstractDataView {
     @Override
     public void preparePanel() {
         xAxisData = multiLinePlotBuilder.getxData();
-//        yAxisData = multiLinePlotBuilder.getyData();
         yData = multiLinePlotBuilder.getyData();
 
         minX = Math.log(xAxisData[0]);
         maxX = Math.log(xAxisData[xAxisData.length - 1]);
 
-        ticsX = TicGeneratorForAxes.generateTics(minX, maxX * 1.1, (int) (graphWidth / 100.0));
+        // logarithmic ticsX
+        List<Double> xTicsList = new ArrayList<>();
+        int limitLog = (int) xAxisData[xAxisData.length - 1];
+        for (int logIndex = 1; logIndex <= limitLog; logIndex = logIndex * 10) {
+            xTicsList.add(Math.log(logIndex));
+        }
+        ticsX = new BigDecimal[xTicsList.size()];
+        for (int i = 0; i < xTicsList.size(); i++) {
+            ticsX[i] = new BigDecimal(Double.toString(xTicsList.get(i)));
+        }
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.01);
         minX -= xMarginStretch;
         maxX += xMarginStretch;
@@ -132,7 +142,7 @@ public class MultiLinePlotLogX extends AbstractDataView {
                 }
                 // ticsX
                 if (ticsX != null) {
-                    for (int i = 0; i < ticsX.length - 1; i++) {
+                    for (int i = 0; i < ticsX.length; i++) {
                         try {
                             g2d.strokeLine(
                                     mapX(ticsX[i].doubleValue()),
