@@ -67,9 +67,7 @@ public class BasicLinePlot extends AbstractDataView {
         text.setFont(Font.font("SansSerif", 12));
         int textWidth = 0;
 
-        g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 12));
-        g2d.setFill(Paint.valueOf("BLUE"));
-        g2d.fillText(linePlotBuilder.getTitle(), leftMargin + 25, 15);
+        showTitle(linePlotBuilder.getTitle());
 
         g2d.setLineWidth(2.0);
         // new line plot

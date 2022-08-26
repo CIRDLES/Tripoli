@@ -21,7 +21,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
 
@@ -46,7 +45,7 @@ public class HistogramPlot extends AbstractDataView {
         xAxisData = histogramBuilder.getHistograms()[0].binCenters();
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
-        if (histogramBuilder.getHistograms().length > 1){
+        if (histogramBuilder.getHistograms().length > 1) {
             // assume only 2 for now
             minX = Math.min(minX, histogramBuilder.getHistograms()[1].binCenters()[0]);
             maxX = Math.max(maxX, histogramBuilder.getHistograms()[1].binCenters()[histogramBuilder.getHistograms()[1].binCount() - 1]);
@@ -83,8 +82,8 @@ public class HistogramPlot extends AbstractDataView {
             minY = ticsY[0].doubleValue();
             maxY = ticsY[ticsY.length - 1].doubleValue();
             // adjust margins
-            double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.05);
-            minY -= yMarginStretch;
+            double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.1);
+            minY -= yMarginStretch * 2.0;
             maxY += yMarginStretch;
         }
 
@@ -102,11 +101,10 @@ public class HistogramPlot extends AbstractDataView {
         text.setFont(Font.font("SansSerif", 12));
         int textWidth = 0;
 
-        g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 12));
-        g2d.setFill(Paint.valueOf("BLUE"));
-        g2d.fillText(histogramBuilder.getTitle(), leftMargin + 25, topMargin + 15);
+        showTitle(histogramBuilder.getTitle());
 
         // plot bins
+        g2d.setFill(Paint.valueOf("BLUE"));
         g2d.setLineWidth(2.0);
         double binWidth = histogramBuilder.getHistograms()[0].binWidth();
         boolean doFrameBins = (mapX(xAxisData[1]) - mapX(xAxisData[0])) > 1.0;
@@ -132,34 +130,28 @@ public class HistogramPlot extends AbstractDataView {
                     mapY(ticsY[ticsY.length - 1].doubleValue()),
                     graphWidth,
                     StrictMath.abs(mapY(ticsY[ticsY.length - 1].doubleValue()) - mapY(ticsY[0].doubleValue())));
-            g2d.setFill(new Color(1, 1, 224 / 255, 0.1));
-            g2d.fillRect(
-                    mapX(minX),
-                    mapY(ticsY[ticsY.length - 1].doubleValue()),
-                    graphWidth,
-                    StrictMath.abs(mapY(ticsY[ticsY.length - 1].doubleValue()) - mapY(ticsY[0].doubleValue())));
             g2d.setFill(Paint.valueOf("BLACK"));
 
             // ticsY
             float verticalTextShift = 3.2f;
             g2d.setFont(Font.font("SansSerif", 10));
             if (ticsY != null) {
-                for (int i = 0; i < ticsY.length; i++) {
+                for (java.math.BigDecimal bigDecimal : ticsY) {
                     g2d.strokeLine(
-                            mapX(minX), mapY(ticsY[i].doubleValue()), mapX(maxX), mapY(ticsY[i].doubleValue()));
+                            mapX(minX), mapY(bigDecimal.doubleValue()), mapX(maxX), mapY(bigDecimal.doubleValue()));
 
                     // left side
-                    text.setText(ticsY[i].toString());
+                    text.setText(bigDecimal.toString());
                     textWidth = (int) text.getLayoutBounds().getWidth();
                     g2d.fillText(text.getText(),//
                             (float) mapX(minX) - textWidth - 5f,
-                            (float) mapY(ticsY[i].doubleValue()) + verticalTextShift);
+                            (float) mapY(bigDecimal.doubleValue()) + verticalTextShift);
 
                     // right side
-                    text.setText(ticsY[i].toString());
+                    text.setText(bigDecimal.toString());
                     g2d.fillText(text.getText(),//
                             (float) mapX(maxX) + 5f,
-                            (float) mapY(ticsY[i].doubleValue()) + verticalTextShift);
+                            (float) mapY(bigDecimal.doubleValue()) + verticalTextShift);
                 }
             }
             // ticsX
@@ -178,14 +170,14 @@ public class HistogramPlot extends AbstractDataView {
                                 (float) mapX(ticsX[i].doubleValue()) - 5f,
                                 (float) mapY(ticsY[0].doubleValue()) + 10);
 
-                    } catch (Exception e) {
+                    } catch (Exception ignored) {
                     }
                 }
             }
         }
     }
 
-    private void plotData(GraphicsContext g2d, double binWidth, boolean doFrameBins){
+    private void plotData(GraphicsContext g2d, double binWidth, boolean doFrameBins) {
         for (int i = 0; i < xAxisData.length; i++) {
             g2d.fillRect(
                     mapX(xAxisData[i] - binWidth / 2.0) + (doFrameBins ? 1.0 : 0.0),
