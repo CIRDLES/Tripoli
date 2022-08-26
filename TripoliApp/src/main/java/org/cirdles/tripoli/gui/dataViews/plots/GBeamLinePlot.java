@@ -69,11 +69,11 @@ public class GBeamLinePlot extends AbstractDataView {
         super.paint(g2d);
 
         Text text = new Text();
-        g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 12));
+        g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 15));
         int textWidth = 0;
 
         g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText(gBeamLinePlotBuilder.getTitle(), 20, 15);
+        g2d.fillText(gBeamLinePlotBuilder.getTitle(), 20, 20);
 
         g2d.setLineWidth(2.5);
 
