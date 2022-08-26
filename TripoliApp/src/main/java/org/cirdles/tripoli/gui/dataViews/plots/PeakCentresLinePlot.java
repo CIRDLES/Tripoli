@@ -73,7 +73,7 @@ public class PeakCentresLinePlot extends AbstractDataView {
     public void paint(GraphicsContext g2d) {
         super.paint(g2d);
 
-        if (!(yAxisData.length == 1)) {
+        if (yAxisData.length != 1) {
             Text text = new Text();
             g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 12));
             int textWidth = 0;
