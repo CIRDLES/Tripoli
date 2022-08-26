@@ -36,11 +36,19 @@ public class PeakShapePlotsController {
     public static List<File> resourceFilesInFolder;
 
     public static File resourceBrowserTarget;
+
     public static String currentGroup;
+
     public static int currentGroupIndex;
+
     static Map<String, List<File>> resourceGroups;
+
     ListView<String> listViewOfGroupResourcesInFolder;
+
     ListView<File> listViewOfResourcesInFolder;
+
+    AbstractDataView peakCentreLinePlot;
+
     @FXML
     private ResourceBundle resources;
 
@@ -94,27 +102,6 @@ public class PeakShapePlotsController {
         return resourceGroups.get(group);
     }
 
-
-    private void populateListOfResources(String groupValue) {
-        listViewOfResourcesInFolder = new ListView<>();
-        listViewOfResourcesInFolder.setCellFactory(param -> new ResourceDisplayName2());
-        eventLogTextArea.textProperty().unbind();
-
-        ObservableList<File> items = FXCollections.observableArrayList(resourceGroups.get(groupValue));
-        listViewOfResourcesInFolder.setItems(items);
-
-
-        listViewOfResourcesInFolder.setOnMouseClicked(click -> {
-            if (click.getClickCount() == 2) {
-                resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
-                processDataFileAndShowPlotsOfPeakShapes();
-            }
-        });
-
-        listViewOfResourcesInFolder.prefHeightProperty().bind(eventAnchorPane.heightProperty());
-        listViewOfResourcesInFolder.prefWidthProperty().bind(eventAnchorPane.widthProperty());
-        eventAnchorPane.getChildren().add(listViewOfResourcesInFolder);
-    }
 
     @FXML
     void initialize() {
@@ -251,6 +238,28 @@ public class PeakShapePlotsController {
 
     }
 
+    private void populateListOfResources(String groupValue) {
+        listViewOfResourcesInFolder = new ListView<>();
+        listViewOfResourcesInFolder.setCellFactory(param -> new ResourceDisplayName2());
+        eventLogTextArea.textProperty().unbind();
+
+        ObservableList<File> items = FXCollections.observableArrayList(resourceGroups.get(groupValue));
+        listViewOfResourcesInFolder.setItems(items);
+
+
+        listViewOfResourcesInFolder.setOnMouseClicked(click -> {
+            if (click.getClickCount() == 1) {
+                resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
+                peakCentreLinePlot.repaint();
+                processDataFileAndShowPlotsOfPeakShapes();
+            }
+        });
+
+        listViewOfResourcesInFolder.prefHeightProperty().bind(eventAnchorPane.heightProperty());
+        listViewOfResourcesInFolder.prefWidthProperty().bind(eventAnchorPane.widthProperty());
+        eventAnchorPane.getChildren().add(listViewOfResourcesInFolder);
+    }
+
     public void processFilesAndShowPeakCentre(String groupValue) {
 
         double[] finalYAxis;
@@ -332,7 +341,7 @@ public class PeakShapePlotsController {
 
         LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, "PeakCentre Plot");
 
-        AbstractDataView peakCentreLinePlot = new PeakCentresLinePlot(new Rectangle(peakCentrePlotScrollPane.getWidth(), peakCentrePlotScrollPane.getHeight()), peakCentrePlotBuilder);
+        peakCentreLinePlot = new PeakCentresLinePlot(new Rectangle(peakCentrePlotScrollPane.getWidth(), peakCentrePlotScrollPane.getHeight()), peakCentrePlotBuilder);
 
         peakCentrePlotScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
             peakCentreLinePlot.setMyWidth(newValue.intValue());
@@ -346,6 +355,7 @@ public class PeakShapePlotsController {
 
         peakCentreLinePlot.preparePanel();
         peakCentrePlotScrollPane.setContent(peakCentreLinePlot);
+
 
         // Selects file from peakCentre plot
         peakCentrePlotScrollPane.setOnMouseClicked(click -> {

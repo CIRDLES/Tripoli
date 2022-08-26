@@ -15,7 +15,7 @@ import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
 public class PeakCentresLinePlot extends AbstractDataView {
     private final LinePlotBuilder peakCentrePlotBuilder;
-    public static int indexOfSelectedSpot;
+    public int indexOfSelectedSpot;
 
     /**
      * @param bounds
@@ -27,7 +27,7 @@ public class PeakCentresLinePlot extends AbstractDataView {
 
         this.setOnMouseMoved(new MouseMovedHandler());
         this.setOnMouseClicked(new MouseClickedEventHandler());
-        indexOfSelectedSpot = -1;
+        this.indexOfSelectedSpot = -1;
     }
 
     @Override
@@ -73,90 +73,98 @@ public class PeakCentresLinePlot extends AbstractDataView {
     public void paint(GraphicsContext g2d) {
         super.paint(g2d);
 
-        Text text = new Text();
-        g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 12));
-        int textWidth = 0;
+        if (!(yAxisData.length == 1)) {
+            Text text = new Text();
+            g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 12));
+            int textWidth = 0;
 
-        g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText(peakCentrePlotBuilder.getTitle(), 20, 12);
+            g2d.setFill(Paint.valueOf("RED"));
+            g2d.fillText(peakCentrePlotBuilder.getTitle(), 20, 12);
 
-        g2d.setLineWidth(2.5);
+            g2d.setLineWidth(2.5);
 
-        g2d.beginPath();
-        g2d.setStroke(Paint.valueOf("Black"));
-        g2d.setLineDashes(0);
-        // x = magnetMass y = intensity
+            g2d.beginPath();
+            g2d.setStroke(Paint.valueOf("Black"));
+            g2d.setLineDashes(0);
+            // x = magnetMass y = intensity
 
-        for (int i = 0; i < xAxisData.length; i++) {
-            g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
-        }
+            for (int i = 0; i < xAxisData.length; i++) {
+                g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
+            }
 
-        g2d.stroke();
-        g2d.beginPath();
-        g2d.setLineWidth(2.5);
-        g2d.setLineDashes(4);
-        g2d.setStroke(Paint.valueOf("Red"));
+            g2d.stroke();
+            g2d.beginPath();
+            g2d.setLineWidth(2.5);
+            g2d.setLineDashes(4);
+            g2d.setStroke(Paint.valueOf("Red"));
 
-        // x = magnetMass y = G-Beam
-        g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]));
-        for (int i = 0; i < xAxisData.length; i++) {
-            // line tracing through points
-            g2d.fillOval(mapX(xAxisData[i]) - 2, mapY(yAxisData[i]) - 4, 7, 7);
-        }
-        g2d.stroke();
-        g2d.beginPath();
-        g2d.setLineDashes(0);
+            // x = Time y = Peak Widths
+            g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]));
+            for (int i = 0; i < xAxisData.length; i++) {
+                // line tracing through points
+                g2d.fillOval(mapX(xAxisData[i]) - 4, mapY(yAxisData[i]) - 4, 8, 8);
+            }
+            g2d.stroke();
+            g2d.beginPath();
+            g2d.setLineDashes(0);
 
-        g2d.stroke();
-        if (ticsY.length > 1) {
-            // border and fill
-            g2d.setLineWidth(0.5);
-            g2d.setStroke(Paint.valueOf("BLACK"));
-            g2d.strokeRect(
-                    mapX(minX),
-                    mapY(ticsY[ticsY.length - 1].doubleValue()),
-                    graphWidth,
-                    StrictMath.abs(mapY(ticsY[ticsY.length - 1].doubleValue()) - mapY(ticsY[0].doubleValue())));
+            g2d.stroke();
+            if (ticsY.length > 1) {
+                // border and fill
+                g2d.setLineWidth(0.5);
+                g2d.setStroke(Paint.valueOf("BLACK"));
+                g2d.strokeRect(
+                        mapX(minX),
+                        mapY(ticsY[ticsY.length - 1].doubleValue()),
+                        graphWidth,
+                        StrictMath.abs(mapY(ticsY[ticsY.length - 1].doubleValue()) - mapY(ticsY[0].doubleValue())));
 
-            g2d.setFill(Paint.valueOf("BLACK"));
+                g2d.setFill(Paint.valueOf("BLACK"));
 
-            // ticsY
-            float verticalTextShift = 3.2f;
-            g2d.setFont(Font.font("SansSerif", 10));
-            if (ticsY != null) {
-                for (int i = 0; i < ticsY.length; i++) {
-                    g2d.strokeLine(
-                            mapX(minX), mapY(ticsY[i].doubleValue()), mapX(maxX), mapY(ticsY[i].doubleValue()));
+                // ticsY
+                float verticalTextShift = 3.2f;
+                g2d.setFont(Font.font("SansSerif", 10));
+                if (ticsY != null) {
+                    for (int i = 0; i < ticsY.length; i++) {
+                        g2d.strokeLine(
+                                mapX(minX), mapY(ticsY[i].doubleValue()), mapX(maxX), mapY(ticsY[i].doubleValue()));
 
-                    // left side
-                    text.setText(ticsY[i].toString());
-                    textWidth = (int) text.getLayoutBounds().getWidth();
-                    g2d.fillText(text.getText(),//
-                            (float) mapX(minX) - textWidth + 5f,
-                            (float) mapY(ticsY[i].doubleValue()) + verticalTextShift);
+                        // left side
+                        text.setText(ticsY[i].toString());
+                        textWidth = (int) text.getLayoutBounds().getWidth();
+                        g2d.fillText(text.getText(),//
+                                (float) mapX(minX) - textWidth + 5f,
+                                (float) mapY(ticsY[i].doubleValue()) + verticalTextShift);
 
-                }
-                // ticsX
-                if (ticsX != null) {
-                    for (int i = 0; i < ticsX.length - 1; i++) {
-                        try {
-                            g2d.strokeLine(
-                                    mapX(ticsX[i].doubleValue()),
-                                    mapY(ticsY[0].doubleValue()),
-                                    mapX(ticsX[i].doubleValue()),
-                                    mapY(ticsY[0].doubleValue()) + 5);
+                    }
+                    // ticsX
+                    if (ticsX != null) {
+                        for (int i = 0; i < ticsX.length - 1; i++) {
+                            try {
+                                g2d.strokeLine(
+                                        mapX(ticsX[i].doubleValue()),
+                                        mapY(ticsY[0].doubleValue()),
+                                        mapX(ticsX[i].doubleValue()),
+                                        mapY(ticsY[0].doubleValue()) + 5);
 
-                            // bottom
-                            String xText = ticsX[i].toPlainString();
-                            g2d.fillText(xText,
-                                    (float) mapX(ticsX[i].doubleValue()) - 5f,
-                                    (float) mapY(ticsY[0].doubleValue()) + 15);
+                                // bottom
+                                String xText = ticsX[i].toPlainString();
+                                g2d.fillText(xText,
+                                        (float) mapX(ticsX[i].doubleValue()) - 5f,
+                                        (float) mapY(ticsY[0].doubleValue()) + 15);
 
-                        } catch (Exception e) {
+                            } catch (Exception e) {
+                            }
                         }
                     }
                 }
             }
+
+        } else {
+            g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 20));
+
+            g2d.setFill(Paint.valueOf("Black"));
+            g2d.fillText("Only one file", 20, 20);
         }
     }
 
@@ -191,14 +199,18 @@ public class PeakCentresLinePlot extends AbstractDataView {
     }
 
     private class MouseClickedEventHandler implements EventHandler<MouseEvent> {
-
         @Override
         public void handle(MouseEvent mouseEvent) {
             if (mouseInHouse(mouseEvent)) {
                 indexOfSelectedSpot = indexOfSpotFromMouseX(mouseEvent.getX());
                 PeakShapePlotsController.currentGroupIndex = indexOfSelectedSpot;
                 PeakShapePlotsController.resourceBrowserTarget = PeakShapePlotsController.getResourceGroups(PeakShapePlotsController.getCurrentGroup()).get(indexOfSelectedSpot);
-            } else {
+                repaint();
+                getGraphicsContext2D().setLineWidth(1.0);
+                getGraphicsContext2D().strokeOval(mapX(xAxisData[indexOfSelectedSpot]) - 6, mapY(yAxisData[indexOfSelectedSpot]) - 6, 12, 12);
+
+
+            } else{
                 System.out.println(mouseEvent.getClickCount());
             }
         }

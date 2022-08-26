@@ -55,7 +55,7 @@
             </SplitPane>
                 <ToolBar fx:id="toolbar" prefHeight="15.0" prefWidth="500.0">
                     <items>
-                  <Button fx:id="browseResourceButton" mnemonicParsing="false" onAction="#browseResourceFileAction" text="Choose Resource Folder" />
+                  <Button fx:id="browseResourceButton" mnemonicParsing="false" onAction="#browseResourceFileAction" text="Open Peak Centres Folder" />
                     </items>
                 </ToolBar>
             </children>
