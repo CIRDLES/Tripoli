@@ -16,6 +16,7 @@ public class BeamShapeLinePlot extends AbstractDataView {
     private int rightBoundary;
 
     /**
+     *
      * @param bounds
      * @param beamShapeLinePlotBuilder
      */
@@ -42,9 +43,9 @@ public class BeamShapeLinePlot extends AbstractDataView {
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 
-        for (int i = 0; i < yAxisData.length; i++) {
-            minY = StrictMath.min(minY, yAxisData[i]);
-            maxY = StrictMath.max(maxY, yAxisData[i]);
+        for (double yAxisDatum : yAxisData) {
+            minY = StrictMath.min(minY, yAxisDatum);
+            maxY = StrictMath.max(maxY, yAxisDatum);
         }
         ticsY = TicGeneratorForAxes.generateTics(minY, maxY, (int) (graphHeight / 20.0));
         if ((ticsY != null) && (ticsY.length > 1)) {
@@ -68,11 +69,12 @@ public class BeamShapeLinePlot extends AbstractDataView {
         super.paint(g2d);
 
         Text text = new Text();
-        g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 15));
+        g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 12));
         int textWidth = 0;
 
         g2d.setFill(Paint.valueOf("RED"));
         g2d.fillText(beamShapeLinePlotBuilder.getTitle(), 20, 20);
+        showTitle(beamShapeLinePlotBuilder.getTitle());
 
         g2d.setLineWidth(2.0);
         // new line graph
@@ -96,8 +98,8 @@ public class BeamShapeLinePlot extends AbstractDataView {
         g2d.stroke();
 
         g2d.setFill(Paint.valueOf("Red"));
-        g2d.fillOval(mapX(xAxisData[leftBoundary]), mapY(yAxisData[leftBoundary]) - 4, 7, 7);
-        g2d.fillOval(mapX(xAxisData[rightBoundary]), mapY(yAxisData[rightBoundary]) - 4, 7, 7);
+        g2d.fillOval(mapX(xAxisData[leftBoundary]) - 2, mapY(yAxisData[leftBoundary]) - 4, 7, 7);
+        g2d.fillOval(mapX(xAxisData[rightBoundary]) - 2, mapY(yAxisData[rightBoundary]) - 4, 7, 7);
 
         g2d.beginPath();
         g2d.setLineDashes(0);
@@ -119,16 +121,16 @@ public class BeamShapeLinePlot extends AbstractDataView {
             float verticalTextShift = 3.2f;
             g2d.setFont(Font.font("SansSerif", 10));
             if (ticsY != null) {
-                for (int i = 0; i < ticsY.length; i++) {
+                for (java.math.BigDecimal bigDecimal : ticsY) {
                     g2d.strokeLine(
-                            mapX(minX), mapY(ticsY[i].doubleValue()), mapX(maxX), mapY(ticsY[i].doubleValue()));
+                            mapX(minX), mapY(bigDecimal.doubleValue()), mapX(maxX), mapY(bigDecimal.doubleValue()));
 
                     // left side
-                    text.setText(ticsY[i].toString());
+                    text.setText(bigDecimal.toString());
                     textWidth = (int) text.getLayoutBounds().getWidth();
                     g2d.fillText(text.getText(),//
                             (float) mapX(minX) - textWidth + 5f,
-                            (float) mapY(ticsY[i].doubleValue()) + verticalTextShift);
+                            (float) mapY(bigDecimal.doubleValue()) + verticalTextShift);
 
                 }
                 // ticsX
@@ -147,7 +149,7 @@ public class BeamShapeLinePlot extends AbstractDataView {
                                     (float) mapX(ticsX[i].doubleValue()) - 5f,
                                     (float) mapY(ticsY[0].doubleValue()) + 15);
 
-                        } catch (Exception e) {
+                        } catch (Exception ignored) {
                         }
                     }
                 }
