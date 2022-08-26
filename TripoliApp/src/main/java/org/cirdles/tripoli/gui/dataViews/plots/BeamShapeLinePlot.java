@@ -74,7 +74,6 @@ public class BeamShapeLinePlot extends AbstractDataView {
 
         g2d.setFill(Paint.valueOf("RED"));
         g2d.fillText(beamShapeLinePlotBuilder.getTitle(), 20, 20);
-        showTitle(beamShapeLinePlotBuilder.getTitle());
 
         g2d.setLineWidth(2.0);
         // new line graph

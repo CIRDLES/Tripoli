@@ -74,7 +74,6 @@ public class GBeamLinePlot extends AbstractDataView {
 
         g2d.setFill(Paint.valueOf("RED"));
         g2d.fillText(gBeamLinePlotBuilder.getTitle(), 20, 20);
-        showTitle(gBeamLinePlotBuilder.getTitle());
 
         g2d.setLineWidth(2.5);
 
