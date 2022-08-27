@@ -19,11 +19,15 @@ import org.cirdles.tripoli.visualizationUtilities.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.MultiLinePlotBuilder;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ResourceBundle;
+import java.util.*;
 
+import static org.cirdles.tripoli.TripoliConstants.SYNTHETIC_DATA_FOLDER_2ISOTOPE;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.PLOT_WINDOW_WIDTH;
 
@@ -106,7 +110,6 @@ public class RJMCMCPlotsController {
         masterVBox.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT);
         toolbar.setPrefSize(PLOT_WINDOW_WIDTH, 30.0);
 
-
         masterVBox.prefWidthProperty().bind(plotsAnchorPane.widthProperty());
         masterVBox.prefHeightProperty().bind(plotsAnchorPane.heightProperty());
 
@@ -133,6 +136,24 @@ public class RJMCMCPlotsController {
 
         convergeNoiseGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeNoiseLegendTextBox.getWidth()));
         convergeNoiseGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
+
+        populateListOfSyntheticData2IsotopesFiles();
+    }
+
+    private void populateListOfSyntheticData2IsotopesFiles() {
+        List<File> filesInFolder = new ArrayList<>();
+        File[] allFiles;
+        for (File file : Objects.requireNonNull(SYNTHETIC_DATA_FOLDER_2ISOTOPE.listFiles((file, name) -> name.toLowerCase().endsWith(".txt")))) {
+            try {
+                List<String> contentsByLine = new ArrayList<>(Files.readAllLines(file.toPath(), Charset.defaultCharset()));
+                if (contentsByLine.size() > 5 && (contentsByLine.get(3).startsWith("Sample ID,SyntheticDataSet1"))) {
+                    filesInFolder.add(file);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        Collections.sort(filesInFolder);
 
     }
 
