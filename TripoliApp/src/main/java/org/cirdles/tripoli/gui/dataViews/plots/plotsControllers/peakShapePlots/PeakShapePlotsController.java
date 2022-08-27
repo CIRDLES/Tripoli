@@ -248,9 +248,13 @@ public class PeakShapePlotsController {
 
 
         listViewOfResourcesInFolder.setOnMouseClicked(click -> {
+            peakCentreLinePlot.repaint();
+            int index;
             if (click.getClickCount() == 1) {
                 resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
-                peakCentreLinePlot.repaint();
+                index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
+                peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
+                peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[index]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[index]) - 6, 12, 12);
                 processDataFileAndShowPlotsOfPeakShapes();
             }
         });
@@ -450,6 +454,7 @@ public class PeakShapePlotsController {
 
         @Override
         protected void updateItem(String resource, boolean empty) {
+
             super.updateItem(resource, empty);
             if (resource == null || empty) {
                 setText(null);

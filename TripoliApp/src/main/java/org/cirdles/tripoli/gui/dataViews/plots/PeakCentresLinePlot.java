@@ -39,7 +39,7 @@ public class PeakCentresLinePlot extends AbstractDataView {
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
 
-        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 50.0));
+        ticsX = TicGeneratorForAxes.generateTics(minX, maxX + 1, (int) (graphWidth / 50.0));
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.05);
         minX -= xMarginStretch;
         maxX += xMarginStretch;
@@ -210,7 +210,7 @@ public class PeakCentresLinePlot extends AbstractDataView {
                 getGraphicsContext2D().strokeOval(mapX(xAxisData[indexOfSelectedSpot]) - 6, mapY(yAxisData[indexOfSelectedSpot]) - 6, 12, 12);
 
 
-            } else{
+            } else {
                 System.out.println(mouseEvent.getClickCount());
             }
         }
