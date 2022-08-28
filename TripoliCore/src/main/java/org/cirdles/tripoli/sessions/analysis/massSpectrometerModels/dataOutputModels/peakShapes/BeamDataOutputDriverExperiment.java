@@ -1,7 +1,7 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes;
 
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.PeakShapeProcessor_OPPhoenix;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLab;
 import org.cirdles.tripoli.utilities.mathUtilities.SplineBasisModel;
@@ -20,21 +20,29 @@ import java.nio.file.Path;
 
 public class BeamDataOutputDriverExperiment {
 
+
+    private static final boolean doFullProcessing = true;
+    private static double measBeamWidthAMU;
+
     public static AbstractPlotBuilder[] modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException {
         PeakShapeProcessor_OPPhoenix peakShapeProcessor_opPhoenix
                 = PeakShapeProcessor_OPPhoenix.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
         PeakShapeOutputDataRecord peakShapeOutputDataRecord = peakShapeProcessor_opPhoenix.prepareInputDataModelFromFile(dataFile);
-        AbstractPlotBuilder[] gBeamLinePlotBuilder = new LinePlotBuilder[0];
-        try {
-            gBeamLinePlotBuilder = gatherBeamWidth(peakShapeOutputDataRecord, loggingCallback);
-        } catch (RecoverableCondition e) {
-            e.printStackTrace();
+        AbstractPlotBuilder[] peakShapeLinePlotBuilder = new LinePlotBuilder[0];
+
+        if (doFullProcessing) {
+            try {
+                peakShapeLinePlotBuilder = gatherBeamWidth(peakShapeOutputDataRecord, loggingCallback);
+            } catch (RecoverableCondition e) {
+                e.printStackTrace();
+            }
         }
 
-        return gBeamLinePlotBuilder;
+
+        return peakShapeLinePlotBuilder;
     }
 
-    static AbstractPlotBuilder[] gatherBeamWidth(PeakShapeOutputDataRecord peakShapeOutputDataRecord, LoggingCallbackInterface loggingCallback) throws RecoverableCondition {
+    public static AbstractPlotBuilder[] gatherBeamWidth(PeakShapeOutputDataRecord peakShapeOutputDataRecord, LoggingCallbackInterface loggingCallback) throws RecoverableCondition {
 
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         double maxBeamIndex;
@@ -199,6 +207,9 @@ public class BeamDataOutputDriverExperiment {
 
         MatrixStore<Double> gBeam = trimGMatrix.multiply(beamShape);
 
+        measBeamWidthAMU = beamMassInterp.get(rightBoundary) - beamMassInterp.get(leftBoundary);
+
+
         AbstractPlotBuilder[] linePlots = new LinePlotBuilder[2];
         // "beamShape"
         AbstractPlotBuilder beamShapeLinePlotBuilder
@@ -211,5 +222,9 @@ public class BeamDataOutputDriverExperiment {
         linePlots[1] = gBeamLinePlotBuilder;
 
         return linePlots;
+    }
+
+    public static double getMeasBeamWidthAMU() {
+        return measBeamWidthAMU;
     }
 }

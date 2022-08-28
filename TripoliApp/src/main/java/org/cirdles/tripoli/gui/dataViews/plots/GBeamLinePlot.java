@@ -19,7 +19,7 @@ public class GBeamLinePlot extends AbstractDataView {
      * @param gBeamLinePlotBuilder
      */
     public GBeamLinePlot(Rectangle bounds, GBeamLinePlotBuilder gBeamLinePlotBuilder) {
-        super(bounds, 100, 100);
+        super(bounds, 50, 35);
         this.gBeamLinePlotBuilder = gBeamLinePlotBuilder;
     }
 
@@ -69,10 +69,11 @@ public class GBeamLinePlot extends AbstractDataView {
         super.paint(g2d);
 
         Text text = new Text();
-        g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 15));
+        g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 12));
         int textWidth = 0;
 
-        showTitle(gBeamLinePlotBuilder.getTitle());
+        g2d.setFill(Paint.valueOf("RED"));
+        g2d.fillText(gBeamLinePlotBuilder.getTitle(), 20, 20);
 
         g2d.setLineWidth(2.5);
 

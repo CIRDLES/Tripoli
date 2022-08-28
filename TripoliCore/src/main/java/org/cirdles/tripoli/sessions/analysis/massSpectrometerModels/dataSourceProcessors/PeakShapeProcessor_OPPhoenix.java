@@ -17,9 +17,9 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
 
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes.PeakShapeOutputDataRecord;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
@@ -71,11 +71,11 @@ public class PeakShapeProcessor_OPPhoenix {
                     }
                 }
 
-                if (line.startsWith("#START")) {
-                    phase = 1;
-                } else if (phase == 1) {
+                if (phase == 1) {
                     phase = 2;
                 }
+            } else {
+                phase = 1;
             }
         }
 
