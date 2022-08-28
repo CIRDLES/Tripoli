@@ -56,7 +56,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
  */
 public class DataModelDriverExperiment {
 
-    private static final boolean doFullProcessing = false;
+    private static final boolean doFullProcessing = true;
 
     public static AbstractPlotBuilder[] driveModelTest(Path dataFilePath, LoggingCallbackInterface loggingCallback) throws IOException {
 
@@ -256,8 +256,8 @@ public class DataModelDriverExperiment {
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
                         double calcValue =
                                 // todo check here
-                                exp(dataModelInit_X0.logratios()[isotopeIndex]
-                                        * dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1]);
+                                exp(dataModelInit_X0.logratios()[isotopeIndex])
+                                        * dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
                         data[row] = calcValue;
                         dataWithNoBaseline[row] = calcValue;
                     }
@@ -678,6 +678,7 @@ public class DataModelDriverExperiment {
                     xDataMean = updatedCovariancesRecord.dataMean();
 
                     //todo: delx_adapt
+                    if (adaptiveFlag) {
                     /*
                     mvnrnd(
                     zeros(sizeOfModel,1)
@@ -695,16 +696,17 @@ public class DataModelDriverExperiment {
                         t = diag(sigma);
                         r(:,t==0) = mu(:,t==0); % force exact mean when variance is 0
                      */
-                    Cholesky<Double> cholesky = Cholesky.PRIMITIVE.make();
-                    Normal tmpNormDistribution = new Normal();
-                    Primitive64Store distribution = Primitive64Store.FACTORY.makeFilled(100, 21, tmpNormDistribution);
+                        Cholesky<Double> cholesky = Cholesky.PRIMITIVE.make();
+                        Normal tmpNormDistribution = new Normal();
+                        Primitive64Store distribution = Primitive64Store.FACTORY.makeFilled(100, 21, tmpNormDistribution);
 
-                    cholesky.decompose(storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / sizeOfModel));
-                    PhysicalStore<Double> test = distribution.multiply(cholesky.getL()).copy();
-                    //MatrixStore<Double> tempCov = storeFactory.columns(xDataCovariance).diagonal();
-                    //test.fillColumn(1,tempCov);
+                        cholesky.decompose(storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / sizeOfModel));
+                        PhysicalStore<Double> test = distribution.multiply(cholesky.getL()).copy();
+                        //MatrixStore<Double> tempCov = storeFactory.columns(xDataCovariance).diagonal();
+                        //test.fillColumn(1,tempCov);
 
-                    delx_adapt = test.transpose().copy();
+                        delx_adapt = test.transpose().copy();
+                    }
                 }
 
                 if (modelIndex % (10 * stepCountForcedSave) == 0) {

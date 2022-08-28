@@ -168,7 +168,16 @@ public class DataModelInitializer {
             end
          */
         // java array is 0-based
-        int imaxC = tmpCountsMeanArray.length - 1;
+
+        // find index of max
+        int imaxC = 0;
+        double maxTempCountsMean = Double.MIN_VALUE;
+        for (int i = 0; i < tmpCountsMeanArray.length; i ++){
+            if (tmpCountsMeanArray[i][0] > maxTempCountsMean){
+                maxTempCountsMean = tmpCountsMeanArray[i][0];
+                imaxC = i;
+            }
+        }
         int iden = massSpecOutputDataRecord.isotopeCount() - 1;
         double dfGain = tmpCountsMeanArray[imaxC][0] / tmpFaradayMeanArray[imaxC][0];
         // double[][] logRatios = new double[massSpecOutputDataRecord.isotopeCount()][1];
