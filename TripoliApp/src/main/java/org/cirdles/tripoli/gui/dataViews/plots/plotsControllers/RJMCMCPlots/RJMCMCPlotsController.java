@@ -1,7 +1,5 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -11,8 +9,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
-import org.cirdles.commons.util.ResourceExtractor;
-import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.*;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
