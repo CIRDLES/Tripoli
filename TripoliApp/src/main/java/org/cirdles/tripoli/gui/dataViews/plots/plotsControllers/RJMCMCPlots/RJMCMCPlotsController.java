@@ -171,12 +171,13 @@ public class RJMCMCPlotsController {
 
         ObservableList<File> items = FXCollections.observableArrayList(filesInFolder);
         listViewOfSyntheticFiles.setItems(items);
-        listViewOfSyntheticFiles.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<File>() {
-            @Override
-            public void changed(ObservableValue<? extends File> observable, File oldValue, File selectedFile) {
-                Path filePath = selectedFile.toPath();
-            }
-        });
+        // todo: complete listener
+//        listViewOfSyntheticFiles.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<File>() {
+//            @Override
+//            public void changed(ObservableValue<? extends File> observable, File oldValue, File selectedFile) {
+//                Path filePath = selectedFile.toPath();
+//            }
+//        });
 
         listViewOfSyntheticFiles.prefWidthProperty().bind(listOfFilesScrollPane.widthProperty());
         listViewOfSyntheticFiles.prefHeightProperty().bind(listOfFilesScrollPane.heightProperty());
