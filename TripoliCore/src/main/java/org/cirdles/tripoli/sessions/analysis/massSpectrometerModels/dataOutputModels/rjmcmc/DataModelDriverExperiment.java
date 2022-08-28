@@ -56,7 +56,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
  */
 public class DataModelDriverExperiment {
 
-    private static final boolean doFullProcessing = false;
+    private static final boolean doFullProcessing = true;
 
     public static AbstractPlotBuilder[] driveModelTest(Path dataFilePath, LoggingCallbackInterface loggingCallback) throws IOException {
 
@@ -256,8 +256,8 @@ public class DataModelDriverExperiment {
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
                         double calcValue =
                                 // todo check here
-                                exp(dataModelInit_X0.logratios()[isotopeIndex]
-                                        * dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1]);
+                                exp(dataModelInit_X0.logratios()[isotopeIndex])
+                                        * dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
                         data[row] = calcValue;
                         dataWithNoBaseline[row] = calcValue;
                     }

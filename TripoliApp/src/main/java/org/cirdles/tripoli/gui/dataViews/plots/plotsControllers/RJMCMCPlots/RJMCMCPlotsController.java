@@ -1,11 +1,12 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -41,25 +42,28 @@ public class RJMCMCPlotsController {
     private URL location;
 
     @FXML
-    private AnchorPane plotsAnchorPane;
+    private GridPane convergeBLGridPane;
 
     @FXML
-    private VBox masterVBox;
+    private TextArea convergeBLLegendTextBox;
 
     @FXML
-    private TextArea eventLogTextArea;
+    private GridPane convergeErrGridPane;
 
     @FXML
-    private ToolBar toolbar;
+    private TextArea convergeErrLegendTextBox;
 
     @FXML
-    private TabPane plotTabPane;
+    private AnchorPane convergeIntensityAnchorPane;
 
     @FXML
-    private GridPane ensembleGridPane;
+    private TextArea convergeIntensityLegendTextBox;
 
     @FXML
-    private TextArea ensembleLegendTextBox;
+    private GridPane convergeNoiseGridPane;
+
+    @FXML
+    private TextArea convergeNoiseLegendTextBox;
 
     @FXML
     private AnchorPane convergeRatioAnchorPane;
@@ -74,33 +78,38 @@ public class RJMCMCPlotsController {
     private TextArea dataFitLegendTextBox;
 
     @FXML
-    private GridPane convergeBLGridPane;
+    private GridPane ensembleGridPane;
 
     @FXML
-    private TextArea convergeBLLegendTextBox;
+    private TextArea ensembleLegendTextBox;
 
     @FXML
-    private GridPane convergeErrGridPane;
+    private TextArea eventLogTextArea;
 
     @FXML
-    private TextArea convergeErrLegendTextBox;
+    private ScrollPane listOfFilesScrollPane;
 
     @FXML
-    private TextArea convergeIntensityLegendTextBox;
+    private VBox masterVBox;
 
     @FXML
-    private AnchorPane convergeIntensityAnchorPane;
+    private TabPane plotTabPane;
 
     @FXML
-    private GridPane convergeNoiseGridPane;
+    private AnchorPane plotsAnchorPane;
 
     @FXML
-    private TextArea convergeNoiseLegendTextBox;
+    private Button processFileButton;
+
+    @FXML
+    private ToolBar toolbar;
+
+    private ListView<File> listViewOfSyntheticFiles = new ListView<>();
 
 
     @FXML
     void demo1ButtonAction(ActionEvent event) throws IOException {
-        processDataFileAndShowPlotsOfRJMCMC();
+        processDataFileAndShowPlotsOfRJMCMC(listViewOfSyntheticFiles.getSelectionModel().selectedItemProperty().getValue().toPath());
         ((Button) event.getSource()).setDisable(true);
     }
 
@@ -138,6 +147,8 @@ public class RJMCMCPlotsController {
         convergeNoiseGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
 
         populateListOfSyntheticData2IsotopesFiles();
+
+        processFileButton.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
     }
 
     private void populateListOfSyntheticData2IsotopesFiles() {
@@ -155,12 +166,27 @@ public class RJMCMCPlotsController {
         }
         Collections.sort(filesInFolder);
 
+        listViewOfSyntheticFiles = new ListView<>();
+        listViewOfSyntheticFiles.setCellFactory((parameter) -> new FileDisplayName());
+
+        ObservableList<File> items = FXCollections.observableArrayList(filesInFolder);
+        listViewOfSyntheticFiles.setItems(items);
+        listViewOfSyntheticFiles.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<File>() {
+            @Override
+            public void changed(ObservableValue<? extends File> observable, File oldValue, File selectedFile) {
+                Path filePath = selectedFile.toPath();
+            }
+        });
+
+        listViewOfSyntheticFiles.prefWidthProperty().bind(listOfFilesScrollPane.widthProperty());
+        listViewOfSyntheticFiles.prefHeightProperty().bind(listOfFilesScrollPane.heightProperty());
+        listOfFilesScrollPane.setContent(listViewOfSyntheticFiles);
     }
 
-    public void processDataFileAndShowPlotsOfRJMCMC() throws IOException {
-        org.cirdles.commons.util.ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
-        Path dataFile = RESOURCE_EXTRACTOR
-                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_05.txt").toPath();
+    public void processDataFileAndShowPlotsOfRJMCMC(Path dataFile) throws IOException {
+//        org.cirdles.commons.util.ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
+//        Path dataFile = RESOURCE_EXTRACTOR
+//                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_01.txt").toPath();
         final RJMCMCUpdatesService service = new RJMCMCUpdatesService(dataFile);
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
@@ -391,8 +417,23 @@ public class RJMCMCPlotsController {
             convergeNoiseFaradayH1LinePlot.preparePanel();
             convergeNoiseGridPane.add(convergeNoiseFaradayH1LinePlot, 0, 1);
 
+            processFileButton.setDisable(false);
+
         });
 
+    }
+
+    static class FileDisplayName extends ListCell<File> {
+
+        @Override
+        protected void updateItem(File file, boolean empty) {
+            super.updateItem(file, empty);
+            if (file == null || empty) {
+                setText(null);
+            } else {
+                setText(file.getName());
+            }
+        }
     }
 
 }
