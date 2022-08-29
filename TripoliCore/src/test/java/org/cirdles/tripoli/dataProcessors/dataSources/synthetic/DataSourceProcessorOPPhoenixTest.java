@@ -18,9 +18,9 @@ package org.cirdles.tripoli.dataProcessors.dataSources.synthetic;
 
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_OPPhoenix;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -75,9 +75,7 @@ class DataSourceProcessorOPPhoenixTest {
                 = DataSourceProcessor_OPPhoenix.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("KU_204_5_6_7_8_Daly_AllFaradayPb"));
         MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFile);
 
-        // assert (massSpecOutputDataRecord.rawDataColumn().getRowDimension() == 162000);
         assert (massSpecOutputDataRecord.rawDataColumn().length == 162000);
-        // assertEquals(-531920.15291, massSpecOutputDataRecord.rawDataColumn().get(26669, 0));
         assertEquals(-531920.15291, massSpecOutputDataRecord.rawDataColumn()[26669]);
     }
 }

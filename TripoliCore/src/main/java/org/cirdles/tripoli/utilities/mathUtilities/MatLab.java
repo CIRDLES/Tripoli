@@ -629,7 +629,7 @@ public class MatLab {
                     //Finished getting alpha. Onto step 10
                     x = (Primitive64Store) x.add(Z.subtract(x).multiply(alpha));
                     for (i = p.size() - 1; i >= 0; i--)
-                        if (Math.abs(x.get(p.get(i), 0)) < 1e-15)//Close enough to zero, no?
+                        if (Math.abs(x.get(p.get(i), 0)) < 1e-10)//Close enough to zero, no?
                             z.add(p.remove(i));
                 }
             }
@@ -641,7 +641,7 @@ public class MatLab {
         boolean result = true;
         int m = w.getRowDim();
         for (int i = 0; i < m; i++)
-            result &= w.get(i, 0) <= 1e-15;
+            result &= w.get(i, 0) <= 1e-10;
         return result;
     }
 

@@ -23,6 +23,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 import java.math.BigDecimal;
 
@@ -46,7 +48,7 @@ public abstract class AbstractDataView extends Canvas {
     protected double maxY;
     protected BigDecimal[] ticsX;
     protected BigDecimal[] ticsY;
-    protected BigDecimal[] ticsYII;
+    //    protected BigDecimal[] ticsYII;
     private double displayOffsetY = 0;
     private double displayOffsetX = 0;
 
@@ -92,6 +94,26 @@ public abstract class AbstractDataView extends Canvas {
         paint(this.getGraphicsContext2D());
     }
 
+    public void labelXAxis(String label) {
+        Paint savedPaint = getGraphicsContext2D().getFill();
+        getGraphicsContext2D().setFill(Paint.valueOf("BLACK"));
+        getGraphicsContext2D().setFont(Font.font("SansSerif", 16));
+        Text text = new Text();
+        text.setFont(Font.font("SansSerif", 16));
+        text.setText(label);
+        int textWidth = (int) text.getLayoutBounds().getWidth();
+        getGraphicsContext2D().fillText(text.getText(), leftMargin + (graphWidth - textWidth) / 2.0, graphHeight + topMargin);
+        getGraphicsContext2D().setFill(savedPaint);
+    }
+
+    public void showTitle(String title) {
+        Paint savedPaint = getGraphicsContext2D().getFill();
+        getGraphicsContext2D().setFont(Font.font("SansSerif", 14));
+        getGraphicsContext2D().setFill(Paint.valueOf("RED"));
+        getGraphicsContext2D().fillText(title, leftMargin + 25, topMargin + 12);
+        getGraphicsContext2D().setFill(savedPaint);
+    }
+
     private void drawBorder(GraphicsContext g2d) {
         // fill it in
         g2d.setFill(Paint.valueOf("WHITE"));
@@ -116,7 +138,7 @@ public abstract class AbstractDataView extends Canvas {
      * @param y
      * @return mapped y
      */
-    protected double mapY(double y) {
+    public double mapY(double y) {
         return (((getMaxY_Display() - y) / getRangeY_Display()) * graphHeight) + topMargin / 2.0;
     }
 
@@ -238,7 +260,7 @@ public abstract class AbstractDataView extends Canvas {
      * @return
      */
     protected double convertMouseYToValue(double y) {
-        return -1 * (((y - topMargin - 1) * getRangeY_Display() / graphHeight) //
+        return -1 * (((y - topMargin - 1) * getRangeY_Display() / graphHeight)
                 - getMaxY_Display());
     }
 
