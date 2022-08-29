@@ -534,12 +534,12 @@ public class DataModelDriverExperiment {
             prev = interval3 + prev;
 
             for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
-                double term1 = Math.pow(dataModelUpdaterOutputRecord_x2.signalNoise()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1], 2);
+                double term1 = pow(dataModelUpdaterOutputRecord_x2.signalNoise()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1], 2);
                 double term2 = dataModelUpdaterOutputRecord_x2.signalNoise()[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1 + massSpecOutputDataRecord.faradayCount() + 1];
                 dSignalNoise2Array[row] = term1 + term2 * dnobl2[row];
-                double residualValue = Math.pow(massSpecOutputDataRecord.rawDataColumn()[row] - dataModelInit.dataArray()[row], 2);
+                double residualValue = pow(massSpecOutputDataRecord.rawDataColumn()[row] - dataModelInit.dataArray()[row], 2);
                 E0 += residualValue;
-                double residualValue2 = Math.pow(massSpecOutputDataRecord.rawDataColumn()[row] - d2[row], 2);
+                double residualValue2 = pow(massSpecOutputDataRecord.rawDataColumn()[row] - d2[row], 2);
                 E02 += residualValue2;
 
                 /*
