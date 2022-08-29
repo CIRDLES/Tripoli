@@ -696,13 +696,14 @@ public class DataModelDriverExperiment {
                         t = diag(sigma);
                         r(:,t==0) = mu(:,t==0); % force exact mean when variance is 0
                      */
-                    Normal tmpNormDistribution = new Normal();
-                    Primitive64Store distribution = Primitive64Store.FACTORY.makeFilled(stepCountForcedSave, sizeOfModel, tmpNormDistribution);
+                        Normal tmpNormDistribution = new Normal();
+                        Primitive64Store distribution = Primitive64Store.FACTORY.makeFilled(stepCountForcedSave, sizeOfModel, tmpNormDistribution);
 
-                    Cholesky<Double> cholesky = Cholesky.PRIMITIVE.make();
-                    cholesky.decompose(storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / sizeOfModel));
+                        Cholesky<Double> cholesky = Cholesky.PRIMITIVE.make();
+                        cholesky.decompose(storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / sizeOfModel));
 
-                    delx_adapt = distribution.multiply(cholesky.getR()).transpose().copy();
+                        delx_adapt = distribution.multiply(cholesky.getR()).transpose().copy();
+                    }
                 }
 
                 if (modelIndex % (10 * stepCountForcedSave) == 0) {
