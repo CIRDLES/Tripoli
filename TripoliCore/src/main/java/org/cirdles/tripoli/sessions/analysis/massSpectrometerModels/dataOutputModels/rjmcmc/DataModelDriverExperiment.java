@@ -29,6 +29,7 @@ import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.MultiLinePlotBuilder;
+import org.ojalgo.RecoverableCondition;
 import org.ojalgo.matrix.decomposition.Cholesky;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
@@ -63,25 +64,29 @@ public class DataModelDriverExperiment {
         DataSourceProcessor_OPPhoenix dataSourceProcessorOPPhoenix
                 = DataSourceProcessor_OPPhoenix.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
         MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFilePath);
-        DataModellerOutputRecord dataModelInit = DataModelInitializer.modellingTest(massSpecOutputDataRecord);
 
         AbstractPlotBuilder[] plotBuilders;
+        DataModellerOutputRecord dataModelInit;
+        try {
+            dataModelInit = DataModelInitializer.modellingTest(massSpecOutputDataRecord);
 
-        List<EnsembleRecord> ensembleRecordsList = new ArrayList<>();
-        DataModellerOutputRecord lastDataModelInit = null;
-        if (doFullProcessing) {
-            plotBuilders = applyInversionWithRJMCMC(massSpecOutputDataRecord, dataModelInit, loggingCallback);
-        } else {
-            try {
-                EnsemblesStore ensemblesStore = (EnsemblesStore) TripoliSerializer.getSerializedObjectFromFile("EnsemblesStore.ser", true);
-                ensembleRecordsList = ensemblesStore.getEnsembles();
-                lastDataModelInit = ensemblesStore.getLastDataModelInit();
-            } catch (TripoliException e) {
-                e.printStackTrace();
+            List<EnsembleRecord> ensembleRecordsList = new ArrayList<>();
+            DataModellerOutputRecord lastDataModelInit = null;
+            if (doFullProcessing) {
+                plotBuilders = applyInversionWithRJMCMC(massSpecOutputDataRecord, dataModelInit, loggingCallback);
+            } else {
+                try {
+                    EnsemblesStore ensemblesStore = (EnsemblesStore) TripoliSerializer.getSerializedObjectFromFile("EnsemblesStore.ser", true);
+                    ensembleRecordsList = ensemblesStore.getEnsembles();
+                    lastDataModelInit = ensemblesStore.getLastDataModelInit();
+                } catch (TripoliException e) {
+                    e.printStackTrace();
+                }
+                plotBuilders = analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, lastDataModelInit);
             }
-            plotBuilders = analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, lastDataModelInit);
+        } catch (RecoverableCondition e) {
+            plotBuilders = new AbstractPlotBuilder[0];
         }
-
 
         return plotBuilders;
     }
@@ -256,8 +261,8 @@ public class DataModelDriverExperiment {
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
                         double calcValue =
                                 // todo check here
-                                exp(dataModelInit_X0.logratios()[isotopeIndex]
-                                        * dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1]);
+                                exp(dataModelInit_X0.logratios()[isotopeIndex])
+                                        * dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
                         data[row] = calcValue;
                         dataWithNoBaseline[row] = calcValue;
                     }
@@ -495,9 +500,9 @@ public class DataModelDriverExperiment {
             // todo: reminder only 1 block here
             // todo: remove zeroes from firstblockinterpolations
             ArrayList<double[]> intensity2 = new ArrayList<>(1);
-            PhysicalStore<Double> tempIntensity  = storeFactory.make(massSpecOutputDataRecord.firstBlockInterpolations().countRows(),
+            PhysicalStore<Double> tempIntensity = storeFactory.make(massSpecOutputDataRecord.allBlockInterpolations()[0].countRows(),
                     storeFactory.columns(dataModelUpdaterOutputRecord_x2.blockIntensities()).getColDim());
-            tempIntensity.fillByMultiplying(massSpecOutputDataRecord.firstBlockInterpolations(), Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()));
+            tempIntensity.fillByMultiplying(massSpecOutputDataRecord.allBlockInterpolations()[0], Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()));
             intensity2.add(0, tempIntensity.toRawCopy1D());
 
             for (int row = (int) blockStartIndicesFaraday[0]; row <= (int) blockEndIndicesFaraday[0]; row++) {
@@ -673,6 +678,7 @@ public class DataModelDriverExperiment {
                     xDataMean = updatedCovariancesRecord.dataMean();
 
                     //todo: delx_adapt
+                    if (adaptiveFlag) {
                     /*
                     mvnrnd(
                     zeros(sizeOfModel,1)
@@ -877,9 +883,9 @@ public class DataModelDriverExperiment {
         // calculate intensity means for plotting
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         MatrixStore<Double> intensityMeansMatrix = storeFactory.columns(intensityMeans);
-        MatrixStore<Double> yDataMatrix = massSpecOutputDataRecord.firstBlockInterpolations().multiply(intensityMeansMatrix).multiply((1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
+        MatrixStore<Double> yDataMatrix = massSpecOutputDataRecord.allBlockInterpolations()[0].multiply(intensityMeansMatrix).multiply((1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
         double[] yDataIntensityMeans = yDataMatrix.toRawCopy1D();
-        double[] xDataIntensityMeans = new double[massSpecOutputDataRecord.firstBlockInterpolations().getRowDim()];
+        double[] xDataIntensityMeans = new double[massSpecOutputDataRecord.allBlockInterpolations()[0].getRowDim()];
         for (int i = 0; i < xDataIntensityMeans.length; i++) {
             xDataIntensityMeans[i] = i;
         }

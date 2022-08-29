@@ -18,6 +18,7 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
@@ -79,7 +80,7 @@
                      <content>
                         <HBox>
                            <children>
-                              <ScrollPane fx:id="convergeRatioScrollPane" prefHeight="281.0" prefWidth="800.0" />
+                              <AnchorPane fx:id="convergeRatioAnchorPane" prefHeight="282.0" prefWidth="517.0" />
                               <TextArea fx:id="convergeRatioLegendTextBox" prefHeight="200.0" prefWidth="300.0" text="Plots values of log isotope ratio for each saved model in the ensemble. Number of panels should equal the number of numerator isotopes.&#10;&#10;Should probably be plotted in terms of ratio instead of log ratio!&#10;&#10;This particular figure shows search isn’t most efficient - proposal steps may be too small since line isn’t random. (Also indicated by high acceptance ratio).&#10;&#10;Should definitely be plotted during MCMC process&#10;" wrapText="true" />
                            </children>
                         </HBox>
@@ -125,7 +126,7 @@
                      <content>
                         <HBox>
                            <children>
-                              <ScrollPane fx:id="convergeIntensityScrollPane" prefHeight="281.0" prefWidth="800.0" />
+                              <AnchorPane fx:id="convergeIntensityAnchorPane" prefHeight="282.0" prefWidth="500.0" />
                               <TextArea fx:id="convergeIntensityLegendTextBox" prefHeight="200.0" prefWidth="300.0" text="Shows development of intensity function knots at each saved model iteration. Colors indicate order of knots, with blue earlier and pink later.&#10;&#10;Each block will have similar figure.&#10;&#10;Used primarily to check convergence and search quality for intensity parameters.&#10;" wrapText="true" />
                            </children>
                         </HBox>
@@ -151,10 +152,15 @@
                   </Tab>
                </tabs>
             </TabPane>
-                <TextArea fx:id="eventLogTextArea" editable="false" prefHeight="200.0" prefWidth="500.0" text="Event log  (eventually) appears here ..." />
+            <SplitPane dividerPositions="0.2136591478696742">
+               <items>
+                  <ScrollPane fx:id="listOfFilesScrollPane" prefHeight="236.0" prefWidth="246.0" />
+                      <TextArea fx:id="eventLogTextArea" editable="false" prefHeight="300.0" prefWidth="500.0" text="Event log  (eventually) appears here ...  note modelling  stps at 100000 iterations with no adaptaion yet." />
+               </items>
+            </SplitPane>
                 <ToolBar fx:id="toolbar" prefHeight="15.0" prefWidth="500.0">
                     <items>
-                        <Button mnemonicParsing="false" onAction="#demo1ButtonAction" text="Start Demo1 for isotopes 206Pb and 208Pb" />
+                        <Button fx:id="processFileButton" mnemonicParsing="false" onAction="#demo1ButtonAction" text="Process Selected File for RJMCMC" />
                     </items>
                 </ToolBar>
             </children>

@@ -47,7 +47,7 @@ import org.ojalgo.matrix.store.MatrixStore;
  * @param detectorFlagsForRawDataColumn
  * @param baseLineFlagsForRawDataColumn
  * @param axialFlagsForRawDataColumn
- * @param firstBlockInterpolations
+ * @param allBlockInterpolations
  * @param faradayCount
  * @param isotopeCount
  * @param blockCount
@@ -60,24 +60,15 @@ public record MassSpecOutputDataRecord(
         double[] timeColumn,
         // Matrix timeIndColumn,
         double[] timeIndColumn,
-        // Matrix signalIndicesForRawDataColumn,
         double[] signalIndicesForRawDataColumn,
-        // Matrix blockIndicesForRawDataColumn,
         double[] blockIndicesForRawDataColumn,
-        // Matrix isotopeIndicesForRawDataColumn,
         double[] isotopeIndicesForRawDataColumn,
-        // Matrix isotopeFlagsForRawDataColumn,
         double[][] isotopeFlagsForRawDataColumn,
-        // Matrix detectorIndicesForRawDataColumn,
         double[] detectorIndicesForRawDataColumn,
-        // Matrix detectorFlagsForRawDataColumn,
         double[][] detectorFlagsForRawDataColumn,
-        // Matrix baseLineFlagsForRawDataColumn,
         double[] baseLineFlagsForRawDataColumn,
-        // Matrix axialFlagsForRawDataColumn,
         double[] axialFlagsForRawDataColumn,
-        // Matrix firstBlockInterpolations,
-        MatrixStore<Double> firstBlockInterpolations,
+        MatrixStore<Double>[] allBlockInterpolations,
         int faradayCount,
         int isotopeCount,
         int blockCount,

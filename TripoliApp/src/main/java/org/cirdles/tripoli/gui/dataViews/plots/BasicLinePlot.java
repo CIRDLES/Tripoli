@@ -4,7 +4,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
@@ -67,9 +66,7 @@ public class BasicLinePlot extends AbstractDataView {
         text.setFont(Font.font("SansSerif", 12));
         int textWidth = 0;
 
-        g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 12));
-        g2d.setFill(Paint.valueOf("BLUE"));
-        g2d.fillText(linePlotBuilder.getTitle(), leftMargin + 25, 15);
+        showTitle(linePlotBuilder.getTitle());
 
         g2d.setLineWidth(2.0);
         // new line plot

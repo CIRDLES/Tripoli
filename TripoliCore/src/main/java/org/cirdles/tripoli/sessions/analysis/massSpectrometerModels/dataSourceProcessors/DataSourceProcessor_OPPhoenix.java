@@ -19,8 +19,8 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.MassSpecOutputDataRecord;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
@@ -172,51 +172,60 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         // the general approach for a block is to create a knot at the start of each cycle and
         // linearly interpolate between knots to create fractional placement of each recorded timestamp
         // which takes the form of (1 - fractional distance of time with knot range, fractional distance of time with knot range)
-        int blockIndex = 0;
-        // hard coded est of block length since only doing first block for now
 
-        // Matrix firstBlockInterpolationsMatrix = null;
-        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        MatrixStore<Double> firstBlockInterpolations = null;
-        double[][] interpMatArrayForBlock = new double[nCycle[0]][4000];
-        for (int cycleIndex = 1; cycleIndex < (nCycle[blockIndex]); cycleIndex++) {
-            int startOfCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex][2];
-
-            int startOfNextCycleIndex;
-            if ((cycleIndex == nCycle[blockIndex] - 1) && (nCycle.length == blockIndex + 1)) {
-                startOfNextCycleIndex = timeStamp.length;
-            } else {
-                startOfNextCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex + 1][2];
+        // determine max dimension of interpMatArrayForBlock rows
+        int maxDelta = Integer.MIN_VALUE;
+        for (int cycleByBlockIndex = nCycle[0] - 1; cycleByBlockIndex < startingIndicesOfCyclesByBlock.length; cycleByBlockIndex += nCycle[0]) {
+            int delta = startingIndicesOfCyclesByBlock[cycleByBlockIndex][2] - startingIndicesOfCyclesByBlock[cycleByBlockIndex - (nCycle[0] - 1)][2];
+            if (delta > maxDelta) {
+                maxDelta = delta;
             }
+        }
 
-            // detect last cycle because it uses its last entry as the upper limit
-            // whereas the matlab code uses the starting entry of the next cycle for all previous cycles
-            boolean lastCycle = false;
-            lastCycle = (cycleIndex == nCycle[blockIndex] - 1);
-            if (lastCycle) {
-                startOfNextCycleIndex--;
-            }
-            int countOfEntries = startingIndicesOfCyclesByBlock[cycleIndex][2] - startingIndicesOfCyclesByBlock[1][2];
+        @SuppressWarnings("unchecked")
+        MatrixStore<Double>[] allBlockInterpolations = new MatrixStore[nCycle.length];
+        for (int blockIndex = 0; blockIndex < nCycle.length; blockIndex++) {
+            PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+            allBlockInterpolations[blockIndex] = null;
+            double[][] interpMatArrayForBlock = new double[nCycle[blockIndex]][];
+            interpMatArrayForBlock[0] = new double[maxDelta];
+            for (int cycleIndex = 1; cycleIndex < (nCycle[blockIndex]); cycleIndex++) {
+                int startOfCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex][2];
+                int startOfNextCycleIndex;
+                if ((cycleIndex == nCycle[blockIndex] - 1) && (blockCount == 1)) {
+                    startOfNextCycleIndex = timeStamp.length;
+                } else {
+                    startOfNextCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex + 1][2];
+                }
 
-            double deltaTimeStamp = timeStamp[startOfNextCycleIndex] - timeStamp[startOfCycleIndex];
+                // detect last cycle because it uses its last entry as the upper limit
+                // whereas the matlab code uses the starting entry of the next cycle for all previous cycles
+                boolean lastCycle = (cycleIndex == nCycle[blockIndex] - 1);
+                if (lastCycle) {
+                    startOfNextCycleIndex--;
+                }
 
-            for (int timeIndex = startOfCycleIndex; timeIndex < startOfNextCycleIndex; timeIndex++) {
-                interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries] =
-                        (timeStamp[timeIndex] - timeStamp[startOfCycleIndex]) / deltaTimeStamp;
-                interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] =
-                        1.0 - interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries];
-            }
-            if (lastCycle) {
-                interpMatArrayForBlock[cycleIndex][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 1.0;
-                interpMatArrayForBlock[cycleIndex - 1][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 0.0;
+                int countOfEntries = startingIndicesOfCyclesByBlock[cycleIndex][2] - startingIndicesOfCyclesByBlock[1][2];
+                double deltaTimeStamp = timeStamp[startOfNextCycleIndex] - timeStamp[startOfCycleIndex];
+                interpMatArrayForBlock[cycleIndex] = new double[maxDelta];
 
-                // generate matrix and then transpose it to match matlab
-                // Matrix firstPass = new Matrix(interpMatArrayForBlock, cycleIndex + 1, countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
-                // firstBlockInterpolationsMatrix = firstPass.transpose();
-                MatrixStore<Double> firstPass = storeFactory.rows(interpMatArrayForBlock).limits(
-                        cycleIndex + 1,
-                        countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
-                firstBlockInterpolations = firstPass.transpose();
+                for (int timeIndex = startOfCycleIndex; timeIndex < startOfNextCycleIndex; timeIndex++) {
+                    interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries] =
+                            (timeStamp[timeIndex] - timeStamp[startOfCycleIndex]) / deltaTimeStamp;
+                    interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] =
+                            1.0 - interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries];
+                }
+
+                if (lastCycle) {
+                    interpMatArrayForBlock[cycleIndex][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 1.0;
+                    interpMatArrayForBlock[cycleIndex - 1][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 0.0;
+
+                    // generate matrix and then transpose it to match matlab
+                    MatrixStore<Double> firstPass = storeFactory.rows(interpMatArrayForBlock).limits(
+                            cycleIndex + 1,
+                            countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
+                    allBlockInterpolations[blockIndex] = firstPass.transpose();
+                }
             }
         }
 
@@ -303,21 +312,12 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
 
         // convert to arrays to  build parameters for MassSpecOutputDataRecord record
         double[] dataAccumulatorArray = dataAccumulatorList.stream().mapToDouble(d -> d).toArray();
-        // Matrix rawDataColumn = new Matrix(dataAccumulatorArray, dataAccumulatorArray.length);
-
         double[] timeAccumulatorArray = timeAccumulatorList.stream().mapToDouble(d -> d).toArray();
-        // Matrix timeColumn = new Matrix(timeAccumulatorArray, timeAccumulatorArray.length);
-
         double[] timeIndAccumulatorArray = timeIndAccumulatorList.stream().mapToDouble(d -> d).toArray();
-        // Matrix timeIndColumn = new Matrix(timeIndAccumulatorArray, timeIndAccumulatorArray.length);
-
         double[] blockIndicesForDataAccumulatorArray = blockIndicesForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
-        // Matrix blockIndicesForRawDataColumn = new Matrix(blockIndicesForDataAccumulatorArray, blockIndicesForDataAccumulatorArray.length);
-
         double[] isotopeIndicesForDataAccumulatorArray = isotopeIndicesForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
-        // Matrix isotopeIndicesForRawDataColumn = new Matrix(isotopeIndicesForDataAccumulatorArray, isotopeIndicesForDataAccumulatorArray.length);
-
         double[][] isotopeFlagsForDataAccumulatorArray = new double[isotopeFlagsForDataAccumulatorList.size()][];
+
         int i = 0;
         for (int[] isotopeFlags : isotopeFlagsForDataAccumulatorList) {
             isotopeFlagsForDataAccumulatorArray[i] = new double[isotopeFlags.length];
@@ -326,11 +326,8 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
             }
             i++;
         }
-        // Matrix isotopeFlagsForRawDataColumn = new Matrix(isotopeFlagsForDataAccumulatorArray);
 
         double[] detectorIndicesForDataAccumulatorArray = detectorIndicesForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
-        // Matrix detectorIndicesForRawDataColumn = new Matrix(detectorIndicesForDataAccumulatorArray, detectorIndicesForDataAccumulatorArray.length);
-
         double[][] detectorFlagsForDataAccumulatorArray = new double[detectorFlagsForDataAccumulatorList.size()][];
         i = 0;
         for (int[] detectorFlags : detectorFlagsForDataAccumulatorList) {
@@ -340,17 +337,12 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
             }
             i++;
         }
-        // Matrix detectorFlagsForRawDataColumn = new Matrix(detectorFlagsForDataAccumulatorArray);
 
         double[] baseLineFlagsForDataAccumulatorArray = baseLineFlagsForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
-        // Matrix baseLineFlagsForRawDataColumn = new Matrix(baseLineFlagsForDataAccumulatorArray, baseLineFlagsForDataAccumulatorArray.length);
-
         double[] axialFlagsForDataAccumulatorArray = axialFlagsForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
-        // Matrix axialFlagsForRawDataColumn = new Matrix(axialFlagsForDataAccumulatorArray, axialFlagsForDataAccumulatorArray.length);
-
         double[] signalIndicesForDataAccumulatorArray = signalIndexForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
-        // Matrix signalIndicesForRawDataColumn = new Matrix(signalIndicesForDataAccumulatorArray, signalIndicesForDataAccumulatorArray.length);
 
+        // this stuff might get used
 
 //        // Time_Far = repmat(Time,1,Nfar);
 //        double[][] timeFarArray = new double[faradayCount][timeStamp.length];
@@ -483,30 +475,18 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
          */
 
         return new MassSpecOutputDataRecord(
-                // rawDataColumn,
                 dataAccumulatorArray,
-                // timeColumn,
                 timeAccumulatorArray,
-                // timeIndColumn,
                 timeIndAccumulatorArray,
-                // signalIndicesForRawDataColumn,
                 signalIndicesForDataAccumulatorArray,
-                // blockIndicesForRawDataColumn,
                 blockIndicesForDataAccumulatorArray,
-                // isotopeIndicesForRawDataColumn,
                 isotopeIndicesForDataAccumulatorArray,
-                // isotopeFlagsForRawDataColumn,
                 isotopeFlagsForDataAccumulatorArray,
-                // detectorIndicesForRawDataColumn,
                 detectorIndicesForDataAccumulatorArray,
-                // detectorFlagsForRawDataColumn,
                 detectorFlagsForDataAccumulatorArray,
-                // baseLineFlagsForRawDataColumn,
                 baseLineFlagsForDataAccumulatorArray,
-                // axialFlagsForRawDataColumn,
                 axialFlagsForDataAccumulatorArray,
-                // firstBlockInterpolationsMatrix,
-                firstBlockInterpolations,
+                allBlockInterpolations,
                 faradayCount,
                 isotopeCount,
                 blockCount,

@@ -24,6 +24,8 @@ import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsController.resourceBrowserTarget;
+
 /**
  * @author James F. Bowring
  */
@@ -32,11 +34,10 @@ public class PeakShapePlotsWindow {
     public static final double PLOT_WINDOW_WIDTH = 900.0;
     public static final double PLOT_WINDOW_HEIGHT = 600.0;
     public static final double SCROLLBAR_THICKNESS = 15.0;
-
+    public static Window plottingWindow;
     private final double xOffset = 0;
     private final double yOffset = 0;
     public Stage plottingStage;
-    public Window plottingWindow;
     private Stage primaryStage;
 
     private PeakShapePlotsWindow() {
@@ -52,6 +53,7 @@ public class PeakShapePlotsWindow {
         plottingStage.setOnCloseRequest((WindowEvent e) -> {
             plottingStage.hide();
             plottingStage.setScene(null);
+            resourceBrowserTarget = null;
             e.consume();
         });
     }

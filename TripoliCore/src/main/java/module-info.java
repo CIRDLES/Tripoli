@@ -42,4 +42,5 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.visualizationUtilities.histograms;
     exports org.cirdles.tripoli.visualizationUtilities.linePlots;
     exports org.cirdles.tripoli.visualizationUtilities;
+    exports org.cirdles.tripoli.utilities;
 }

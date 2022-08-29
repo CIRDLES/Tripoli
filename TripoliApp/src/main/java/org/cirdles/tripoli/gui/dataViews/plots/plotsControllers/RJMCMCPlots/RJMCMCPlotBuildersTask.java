@@ -139,7 +139,7 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
         observedDataLineBuilder = plots[13];
         residualDataLineBuilder = plots[14];
 
-        return "DONE - view tabs for various plots";
+        return dataFile.getFileName() + "\n\n\tDONE - view tabs for various plots";
     }
 
     @Override
