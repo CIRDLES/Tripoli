@@ -330,12 +330,9 @@ public class DataModelDriverExperiment {
 
             % Size of model: # isotopes + # intensity knots + # baselines + # df gain
             Nmod = d0.Niso + sum(d0.Ncycle) + d0.Nfar + Ndf ;
-                sizeOfModel
             % Data and data covariance vectors
             xmean = zeros(Nmod,1);
-                xDataMean
             xcov = zeros(Nmod,Nmod);
-                xDataCovariance
 
             % Adaptive MCMC proposal term
             delx_adapt=zeros(Nmod,datsav);
@@ -439,7 +436,7 @@ public class DataModelDriverExperiment {
                     adaptiveFlag,
                     allFlag
             );
-
+            boolean noiseOperation = operation.toLowerCase(Locale.ROOT).startsWith("n");
 
             /*
             %% Create updated data based on new model
@@ -501,7 +498,7 @@ public class DataModelDriverExperiment {
             prev = interval1 + prev;
 
             // todo: reminder only 1 block here
-            // remove zeroes from firstblockinterpolations
+            // todo: remove zeroes from firstblockinterpolations
             ArrayList<double[]> intensity2 = new ArrayList<>(1);
             PhysicalStore<Double> tempIntensity = storeFactory.make(massSpecOutputDataRecord.allBlockInterpolations()[0].countRows(),
                     storeFactory.columns(dataModelUpdaterOutputRecord_x2.blockIntensities()).getColDim());
@@ -542,22 +539,20 @@ public class DataModelDriverExperiment {
             prev = interval3 + prev;
 
             for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
-                double term1 = StrictMath.pow(dataModelUpdaterOutputRecord_x2.signalNoise()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1], 2);
+                double term1 = pow(dataModelUpdaterOutputRecord_x2.signalNoise()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1], 2);
                 double term2 = dataModelUpdaterOutputRecord_x2.signalNoise()[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1 + massSpecOutputDataRecord.faradayCount() + 1];
                 dSignalNoise2Array[row] = term1 + term2 * dnobl2[row];
-                double residualValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn()[row] - dataModelInit.dataArray()[row], 2);
+                double residualValue = pow(massSpecOutputDataRecord.rawDataColumn()[row] - dataModelInit.dataArray()[row], 2);
                 E0 += residualValue;
-                // remove strictmath try regular
-                double residualValue2 = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn()[row] - d2[row], 2);
+                double residualValue2 = pow(massSpecOutputDataRecord.rawDataColumn()[row] - d2[row], 2);
                 E02 += residualValue2;
 
                 /*
                     % Decide whether to accept or reject model
                     keep = AcceptItMS(oper,dE,psig,delx,prior,Dsig,Dsig2,d0);
                  */
-                // make variable for bool calculate before for loop, right after its declared
-                // bool noiseOperation
-                if (operation.toLowerCase(Locale.ROOT).startsWith("n")) {
+                // todo: make variable for bool calculate before for loop, right after its declared
+                if (noiseOperation) {
                     E += residualValue / dSignalNoiseArray[row];
                     E2 += residualValue2 / dSignalNoise2Array[row];
                     sumLogDSignalNoise += -1.0 * Math.log(dSignalNoiseArray[row]);
@@ -571,7 +566,7 @@ public class DataModelDriverExperiment {
             long interval4 = System.nanoTime() - prev;
             prev = interval4 + prev;
 
-            if (operation.toLowerCase(Locale.ROOT).startsWith("n")) {
+            if (noiseOperation) {
                 dE = E2 - E;
                 double deltaLogNoise = sumLogDSignalNoise2 - sumLogDSignalNoise;
                 keep = min(1.0, exp(deltaLogNoise / 2.0 - (dE) / 2.0));//keep = min(1,exp(X/2-(dE)/2));
@@ -701,16 +696,13 @@ public class DataModelDriverExperiment {
                         t = diag(sigma);
                         r(:,t==0) = mu(:,t==0); % force exact mean when variance is 0
                      */
-                        Cholesky<Double> cholesky = Cholesky.PRIMITIVE.make();
                         Normal tmpNormDistribution = new Normal();
-                        Primitive64Store distribution = Primitive64Store.FACTORY.makeFilled(100, 21, tmpNormDistribution);
+                        Primitive64Store distribution = Primitive64Store.FACTORY.makeFilled(stepCountForcedSave, sizeOfModel, tmpNormDistribution);
 
+                        Cholesky<Double> cholesky = Cholesky.PRIMITIVE.make();
                         cholesky.decompose(storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / sizeOfModel));
-                        PhysicalStore<Double> test = distribution.multiply(cholesky.getL()).copy();
-                        //MatrixStore<Double> tempCov = storeFactory.columns(xDataCovariance).diagonal();
-                        //test.fillColumn(1,tempCov);
 
-                        delx_adapt = test.transpose().copy();
+                        delx_adapt = distribution.multiply(cholesky.getR()).transpose().copy();
                     }
                 }
 
