@@ -25,7 +25,7 @@ public class ComboPlotBuilder extends AbstractPlotBuilder {
     private final double[] yData2;
     private boolean yData2OneSigma;
 
-    protected ComboPlotBuilder(double[] xData, double[] yData, double[] yData2, boolean yData2OneSigma, String title ) {
+    protected ComboPlotBuilder(double[] xData, double[] yData, double[] yData2, boolean yData2OneSigma, String title) {
         super(title);
         this.xData = xData;
         this.yData = yData;

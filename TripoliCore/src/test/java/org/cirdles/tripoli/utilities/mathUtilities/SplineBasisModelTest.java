@@ -8,7 +8,7 @@ import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SplineBasisModelTest {
 

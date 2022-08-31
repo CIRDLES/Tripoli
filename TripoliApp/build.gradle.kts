@@ -43,7 +43,7 @@ dependencies {
 extraJavaModuleInfo {
     failOnMissingModuleInfo.set(false)
     automaticModule("commons-bc38781605.jar", "commons.bc38781605")
-   // automaticModule("org.ojalgo:ojalgo", "ojalgo")
+    // automaticModule("org.ojalgo:ojalgo", "ojalgo")
 }
 
 project(":TripoliApp") {
