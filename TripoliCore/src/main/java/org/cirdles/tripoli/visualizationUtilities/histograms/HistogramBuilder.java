@@ -40,9 +40,9 @@ public class HistogramBuilder extends AbstractPlotBuilder {
 
     public static HistogramBuilder initializeHistogram(boolean histogramPerVar, double[][] data, int binCount, String title) {
         HistogramBuilder histogramBuilder = new HistogramBuilder(title);
-        if (histogramPerVar){
+        if (histogramPerVar) {
             histogramBuilder.histograms = new HistogramRecord[data.length];
-            for (int row = 0; row < data.length; row ++){
+            for (int row = 0; row < data.length; row++) {
                 histogramBuilder.histograms[row] = histogramBuilder.generateHistogram(data[row], binCount);
             }
         } else {
