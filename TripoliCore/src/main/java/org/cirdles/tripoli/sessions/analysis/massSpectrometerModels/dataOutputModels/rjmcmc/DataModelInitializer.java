@@ -137,8 +137,8 @@ public class DataModelInitializer {
         end
          */
         // just playing with first block for now
-        double[] IO = null;
-        for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
+        double[][] IO = new double[massSpecOutputDataRecord.blockCount()][];
+        for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
             MatrixStore<Double> interpolatedKnotData = massSpecOutputDataRecord.allBlockInterpolations()[blockIndex];
             List<Double> dd = new ArrayList<>();
             List<Double> timeIndForSorting = new ArrayList<>();
@@ -170,7 +170,7 @@ public class DataModelInitializer {
             MatrixStore<Double> tempMatrix = interpolatedKnotData.transpose().multiply(interpolatedKnotData);
             InverterTask<Double> inverter = InverterTask.PRIMITIVE.make(tempMatrix, false, false);
             MatrixStore<Double> tempMatrix2 = inverter.invert(tempMatrix);
-            IO = tempMatrix2.multiply(interpolatedKnotData.transpose()).multiply(ddMatrix).toRawCopy1D();
+            IO[blockIndex] = tempMatrix2.multiply(interpolatedKnotData.transpose()).multiply(ddMatrix).toRawCopy1D();
         }
         /*
             %%% MODEL DATA WITH INITIAL MODEL
@@ -204,8 +204,8 @@ public class DataModelInitializer {
         }
 
         ArrayList<double[]> intensityPerBlock = new ArrayList<>(1);
-        for (int blockIndex = 0; blockIndex < 1; blockIndex++) {
-            MatrixStore<Double> intensity = massSpecOutputDataRecord.allBlockInterpolations()[blockIndex].multiply(storeFactory.columns(IO));
+        for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
+            MatrixStore<Double> intensity = massSpecOutputDataRecord.allBlockInterpolations()[blockIndex].multiply(storeFactory.columns(IO[blockIndex]));
             intensityPerBlock.add(blockIndex, intensity.toRawCopy1D());
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().length; row++) {

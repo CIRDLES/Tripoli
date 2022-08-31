@@ -27,11 +27,11 @@ public class BaselineMass implements SpeciesRecordInterface, Serializable {
 
     private final static String DEFAULT_NAME = "Placeholder";
     private final static double DEFAULT_ABUNDANCE = 0.0;
-    private double atomicMass;
+//    private double atomicMass;
 
-    public BaselineMass(double atomicMass) {
-        this.atomicMass = atomicMass;
-    }
+//    public BaselineMass(double atomicMass) {
+//        this.atomicMass = atomicMass;
+//    }
 
     @Override
     public String getMolecularFormula() {

@@ -18,6 +18,7 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 
 import java.nio.file.Path;
 
@@ -26,10 +27,13 @@ import java.nio.file.Path;
  */
 public class RJMCMCUpdatesService extends Service<String> {
     private Path dataFile;
+    private AnalysisMethod analysisMethod;
+
     private Task<String> plotBuilderTask;
 
-    public RJMCMCUpdatesService(Path dataFile) {
+    public RJMCMCUpdatesService(Path dataFile, AnalysisMethod analysisMethod) {
         this.dataFile = dataFile;
+        this.analysisMethod = analysisMethod;
     }
 
     public Task<String> getPlotBuildersTask() {
@@ -38,7 +42,7 @@ public class RJMCMCUpdatesService extends Service<String> {
 
     @Override
     protected Task<String> createTask() {
-        plotBuilderTask = new RJMCMCPlotBuildersTask(dataFile);
+        plotBuilderTask = new RJMCMCPlotBuildersTask(dataFile, analysisMethod);
         return plotBuilderTask;
     }
 }

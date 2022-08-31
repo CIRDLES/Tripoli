@@ -16,7 +16,6 @@ public class BeamShapeLinePlot extends AbstractDataView {
     private int rightBoundary;
 
     /**
-     *
      * @param bounds
      * @param beamShapeLinePlotBuilder
      */

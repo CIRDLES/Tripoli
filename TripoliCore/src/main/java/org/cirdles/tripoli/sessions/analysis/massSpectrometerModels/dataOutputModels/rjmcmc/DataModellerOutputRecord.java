@@ -20,20 +20,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public record DataModellerOutputRecord(
-        // Matrix baselineMeans,
         double[] baselineMeans,
-        // Matrix baselineStandardDeviations,
         double[] baselineStandardDeviations,
         double dfGain,
-        // Matrix logratios,
         double[] logratios,
-        // Matrix signalNoise,
         double[] signalNoise,
-        // Matrix dataArray,
         double[] dataArray,
-        // Matrix blockIntensities,
-        double [] blockIntensities,
-        // Matrix[] intensityPerBlock
-        ArrayList<double []> intensityPerBlock
+        double[][] blockIntensities,
+        ArrayList<double[]> intensityPerBlock
 ) implements Serializable {
 }

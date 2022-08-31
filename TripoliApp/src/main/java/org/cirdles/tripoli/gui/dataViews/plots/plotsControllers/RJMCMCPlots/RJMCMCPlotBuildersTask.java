@@ -18,6 +18,7 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
 
 import javafx.concurrent.Task;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelDriverExperiment;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 
@@ -28,6 +29,7 @@ import java.nio.file.Path;
  */
 public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface {
     private Path dataFile;
+    private AnalysisMethod analysisMethod;
     // ensemble plots
     private AbstractPlotBuilder ratiosHistogramBuilder;
     private AbstractPlotBuilder baselineHistogramBuilder;
@@ -51,8 +53,9 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
     private AbstractPlotBuilder convergeNoiseFaradayL1LineBuilder;
     private AbstractPlotBuilder convergeNoiseFaradayH1LineBuilder;
 
-    public RJMCMCPlotBuildersTask(Path dataFile) {
+    public RJMCMCPlotBuildersTask(Path dataFile, AnalysisMethod analysisMethod) {
         this.dataFile = dataFile;
+        this.analysisMethod = analysisMethod;
     }
 
     public AbstractPlotBuilder getRatiosHistogramBuilder() {
@@ -117,7 +120,7 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
 
     @Override
     protected String call() throws Exception {
-        AbstractPlotBuilder[] plots = DataModelDriverExperiment.driveModelTest(dataFile, this);
+        AbstractPlotBuilder[] plots = DataModelDriverExperiment.driveModelTest(dataFile, analysisMethod, this);
         ratiosHistogramBuilder = plots[0];
         baselineHistogramBuilder = plots[1];
         dalyFaradayGainHistogramBuilder = plots[2];

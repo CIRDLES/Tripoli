@@ -9,7 +9,11 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
+import org.cirdles.commons.util.ResourceExtractor;
+import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.*;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.ComboPlotBuilder;
@@ -105,7 +109,19 @@ public class RJMCMCPlotsController {
 
     @FXML
     void demo1ButtonAction(ActionEvent event) throws IOException {
-        processDataFileAndShowPlotsOfRJMCMC(listViewOfSyntheticFiles.getSelectionModel().selectedItemProperty().getValue().toPath());
+        processDataFileAndShowPlotsOfRJMCMC(
+                listViewOfSyntheticFiles.getSelectionModel().selectedItemProperty().getValue().toPath(),
+                AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
+
+        // Jim's playground for 5 isotopes
+//        ResourceExtractor RESOURCE_EXTRACTOR= new ResourceExtractor(Tripoli.class);
+//        Path dataFile = RESOURCE_EXTRACTOR
+//                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
+//        processDataFileAndShowPlotsOfRJMCMC(
+//                dataFile,
+//                AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("KU_204_5_6_7_8_Daly_AllFaradayPb"));
+
+
         ((Button) event.getSource()).setDisable(true);
     }
 
@@ -180,11 +196,11 @@ public class RJMCMCPlotsController {
         listOfFilesScrollPane.setContent(listViewOfSyntheticFiles);
     }
 
-    public void processDataFileAndShowPlotsOfRJMCMC(Path dataFile) throws IOException {
+    public void processDataFileAndShowPlotsOfRJMCMC(Path dataFile, AnalysisMethod analysisMethod) throws IOException {
 //        org.cirdles.commons.util.ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
 //        Path dataFile = RESOURCE_EXTRACTOR
 //                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_01.txt").toPath();
-        final RJMCMCUpdatesService service = new RJMCMCUpdatesService(dataFile);
+        final RJMCMCUpdatesService service = new RJMCMCUpdatesService(dataFile, analysisMethod);
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
         service.setOnSucceeded(evt -> {
