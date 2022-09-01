@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
@@ -205,8 +206,8 @@ public class PeakShapePlotsController {
             listViewOfGroupResourcesInFolder.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 // Files will be manipulated here when group is selected
                 processFilesAndShowPeakCentre(newValue);
-                populateListOfResources(newValue);
                 setCurrentGroup(newValue);
+                populateListOfResources(newValue);
                 gBeamPlotScrollPane.setContent(null);
                 beamShapePlotScrollPane.setContent(null);
                 eventLogTextArea.textProperty().unbind();
@@ -242,9 +243,17 @@ public class PeakShapePlotsController {
         listViewOfResourcesInFolder = new ListView<>();
         listViewOfResourcesInFolder.setCellFactory(param -> new ResourceDisplayName2());
         eventLogTextArea.textProperty().unbind();
+        int initialIndex;
 
         ObservableList<File> items = FXCollections.observableArrayList(resourceGroups.get(groupValue));
         listViewOfResourcesInFolder.setItems(items);
+
+        listViewOfResourcesInFolder.getSelectionModel().selectFirst();
+        resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
+        initialIndex = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
+        processDataFileAndShowPlotsOfPeakShapes();
+        peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
+        peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[initialIndex]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[initialIndex]) - 6, 12, 12);
 
 
         listViewOfResourcesInFolder.setOnMouseClicked(click -> {
@@ -258,6 +267,19 @@ public class PeakShapePlotsController {
                 processDataFileAndShowPlotsOfPeakShapes();
             }
         });
+
+        listViewOfResourcesInFolder.setOnKeyPressed(key -> {
+            peakCentreLinePlot.repaint();
+            int index;
+            if (key.getCode() == KeyCode.DOWN || key.getCode() == KeyCode.UP) {
+                resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
+                index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
+                processDataFileAndShowPlotsOfPeakShapes();
+                peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
+                peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[index]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[index]) - 6, 12, 12);
+            }
+        });
+
 
         listViewOfResourcesInFolder.prefHeightProperty().bind(eventAnchorPane.heightProperty());
         listViewOfResourcesInFolder.prefWidthProperty().bind(eventAnchorPane.widthProperty());
