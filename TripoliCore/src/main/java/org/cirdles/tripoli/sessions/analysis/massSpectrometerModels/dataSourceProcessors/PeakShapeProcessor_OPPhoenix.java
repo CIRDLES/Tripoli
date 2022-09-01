@@ -60,15 +60,16 @@ public class PeakShapeProcessor_OPPhoenix {
         for (String line : contentsByLine) {
             if (!line.isEmpty()) {
                 switch (phase) {
-                    case 0 -> headerLine.add(line.split("\\s*,\\s*"));
-                    case 1 -> columnNames.add(line.split("\\s*,\\s*"));
-                    case 2 -> {
+                    case 0:
+                        headerLine.add(line.split("\\s*,\\s*"));
+                    case 1:
+                        columnNames.add(line.split("\\s*,\\s*"));
+                    case 2:
                         String[] cols = line.split("\\s*,\\s*");
                         masses.add(Double.parseDouble(cols[0]));
                         intensity.add(Double.parseDouble(cols[1]));
-                    }
-                    default -> {
-                    }
+                    default:
+                        break;
                 }
 
                 if (phase == 1) {

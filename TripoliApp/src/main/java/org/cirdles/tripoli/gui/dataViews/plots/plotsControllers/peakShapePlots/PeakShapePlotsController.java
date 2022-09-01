@@ -269,63 +269,6 @@ public class PeakShapePlotsController {
         double[] finalYAxis;
         double[] finalXAxis;
 
-//        PeakShapesService service;
-//        // Trying to get data from peakShapeTask
-//        for (int j = 0; j < fileGroups.size(); j++) {
-//            if (fileGroups.get(j).equalsIgnoreCase(groupValue)) {
-//                for (int h = 0; h < resourceGroups.get(j).size(); h++) {
-//                    final double[] testXAxis = new double[resourceGroups.get(j).size()];
-//                    final double[] testYAxis = new double[resourceGroups.get(j).size()];
-//
-//                    testXAxis[h] = h + 1;
-//                    for (int i = 0; i < resourceGroups.get(j).size(); i++) {
-//                        resourceBrowserTarget = resourceGroups.get(j).get(i);
-//                        service = new PeakShapesService(resourceBrowserTarget.toPath());
-//                        service.start();
-//                        int finalI = i;
-//                        int finalJ = j;
-//                        PeakShapesService finalService = service;
-//                        service.setOnSucceeded(evt -> {
-//                            if (finalI != resourceGroups.get(finalJ).size() - 1) {
-//                                AbstractPlotBuilder beamShapePlotBuilder = ((PeakShapesTask) finalService.getPeakShapesTask()).getBeamShapePlotBuilder();
-//                                AbstractPlotBuilder gBeamPlotBuilder = ((PeakShapesTask) finalService.getPeakShapesTask()).getGBeamPlotBuilder();
-//                                testYAxis[finalI]  = ((PeakShapesTask) finalService.getPeakShapesTask()).getPeakWidth();
-//                            } else {
-//                                LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(testXAxis, testYAxis, "PeakCentre Plot");
-//
-//                                AbstractDataView peakCentreLinePlot = new PeakCentresLinePlot(new Rectangle(peakCentrePlotScrollPane.getWidth(), peakCentrePlotScrollPane.getHeight()), peakCentrePlotBuilder);
-//
-//                                peakCentrePlotScrollPane.widthProperty().addListener(new ChangeListener<Number>() {
-//                                    @Override
-//                                    public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-//                                        peakCentreLinePlot.setMyWidth(newValue.intValue());
-//                                        peakCentreLinePlot.repaint();
-//                                    }
-//                                });
-//
-//                                peakCentrePlotScrollPane.heightProperty().addListener(new ChangeListener<Number>() {
-//                                    @Override
-//                                    public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-//                                        peakCentreLinePlot.setMyHeight(newValue.intValue());
-//                                        peakCentreLinePlot.repaint();
-//                                    }
-//                                });
-//
-//                                peakCentreLinePlot.preparePanel();
-//                                peakCentrePlotScrollPane.setContent(peakCentreLinePlot);
-//                                resourceBrowserTarget = null;
-//                            }
-//
-//                        });
-//
-//                    }
-//                    System.out.println(Arrays.toString(testXAxis));
-//                }
-//
-//            }
-//        }
-
-        // Work in progress todo
         double[] xAxis = new double[resourceGroups.get(groupValue).size()];
         double[] yAxis = new double[resourceGroups.get(groupValue).size()];
         for (int k = 0; k < resourceGroups.get(groupValue).size(); k++) {
