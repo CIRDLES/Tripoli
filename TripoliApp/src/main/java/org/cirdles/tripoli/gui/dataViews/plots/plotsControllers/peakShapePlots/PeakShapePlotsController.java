@@ -203,20 +203,20 @@ public class PeakShapePlotsController {
             ObservableList<String> items = FXCollections.observableArrayList(resourceGroups.keySet().stream().toList());
             listViewOfGroupResourcesInFolder.setItems(items);
 
+
+
             listViewOfGroupResourcesInFolder.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 // Files will be manipulated here when group is selected
-                processFilesAndShowPeakCentre(newValue);
                 setCurrentGroup(newValue);
+                processFilesAndShowPeakCentre(newValue);
                 populateListOfResources(newValue);
-                gBeamPlotScrollPane.setContent(null);
-                beamShapePlotScrollPane.setContent(null);
                 eventLogTextArea.textProperty().unbind();
                 eventLogTextArea.setText("Select File From Plot");
             });
 
-            listViewOfGroupResourcesInFolder.getSelectionModel().selectFirst();
-            setCurrentGroup(listViewOfGroupResourcesInFolder.getSelectionModel().getSelectedItem());
 
+
+            listViewOfGroupResourcesInFolder.getSelectionModel().selectFirst();
             listViewOfGroupResourcesInFolder.prefHeightProperty().bind(resourceListAnchorPane.prefHeightProperty());
             listViewOfGroupResourcesInFolder.prefWidthProperty().bind(resourceListAnchorPane.prefWidthProperty());
             resourceListAnchorPane.getChildren().add(listViewOfGroupResourcesInFolder);
@@ -237,53 +237,6 @@ public class PeakShapePlotsController {
 
         }
 
-    }
-
-    private void populateListOfResources(String groupValue) {
-        listViewOfResourcesInFolder = new ListView<>();
-        listViewOfResourcesInFolder.setCellFactory(param -> new ResourceDisplayName2());
-        eventLogTextArea.textProperty().unbind();
-        int initialIndex;
-
-        ObservableList<File> items = FXCollections.observableArrayList(resourceGroups.get(groupValue));
-        listViewOfResourcesInFolder.setItems(items);
-
-        listViewOfResourcesInFolder.getSelectionModel().selectFirst();
-        resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
-        initialIndex = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
-        processDataFileAndShowPlotsOfPeakShapes();
-        peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
-        peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[initialIndex]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[initialIndex]) - 6, 12, 12);
-
-
-        listViewOfResourcesInFolder.setOnMouseClicked(click -> {
-            peakCentreLinePlot.repaint();
-            int index;
-            if (click.getClickCount() == 1) {
-                resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
-                index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
-                peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
-                peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[index]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[index]) - 6, 12, 12);
-                processDataFileAndShowPlotsOfPeakShapes();
-            }
-        });
-
-        listViewOfResourcesInFolder.setOnKeyPressed(key -> {
-            peakCentreLinePlot.repaint();
-            int index;
-            if (key.getCode() == KeyCode.DOWN || key.getCode() == KeyCode.UP) {
-                resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
-                index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
-                processDataFileAndShowPlotsOfPeakShapes();
-                peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
-                peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[index]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[index]) - 6, 12, 12);
-            }
-        });
-
-
-        listViewOfResourcesInFolder.prefHeightProperty().bind(eventAnchorPane.heightProperty());
-        listViewOfResourcesInFolder.prefWidthProperty().bind(eventAnchorPane.widthProperty());
-        eventAnchorPane.getChildren().add(listViewOfResourcesInFolder);
     }
 
     public void processFilesAndShowPeakCentre(String groupValue) {
@@ -336,20 +289,68 @@ public class PeakShapePlotsController {
 
     }
 
+    private void populateListOfResources(String groupValue) {
+        listViewOfResourcesInFolder = new ListView<>();
+        listViewOfResourcesInFolder.setCellFactory(param -> new ResourceDisplayName2());
+        eventLogTextArea.textProperty().unbind();
+        int initialIndex;
+
+        ObservableList<File> items = FXCollections.observableArrayList(resourceGroups.get(groupValue));
+        listViewOfResourcesInFolder.setItems(items);
+
+
+
+        listViewOfResourcesInFolder.setOnMouseClicked(click -> {
+            peakCentreLinePlot.repaint();
+            int index;
+            if (click.getClickCount() == 1) {
+                resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
+                index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
+                peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
+                peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[index]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[index]) - 6, 12, 12);
+                processDataFileAndShowPlotsOfPeakShapes();
+            }
+        });
+
+        listViewOfResourcesInFolder.setOnKeyPressed(key -> {
+            peakCentreLinePlot.repaint();
+            int index;
+            if (key.getCode() == KeyCode.DOWN || key.getCode() == KeyCode.UP) {
+                resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
+                index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
+                processDataFileAndShowPlotsOfPeakShapes();
+                peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
+                peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[index]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[index]) - 6, 12, 12);
+            }
+        });
+
+        listViewOfResourcesInFolder.getSelectionModel().selectFirst();
+        initialIndex = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
+        resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
+        peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
+        peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[initialIndex]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[initialIndex]) - 6, 12, 12);
+        processDataFileAndShowPlotsOfPeakShapes();
+
+        listViewOfResourcesInFolder.prefHeightProperty().bind(eventAnchorPane.heightProperty());
+        listViewOfResourcesInFolder.prefWidthProperty().bind(eventAnchorPane.widthProperty());
+        eventAnchorPane.getChildren().add(listViewOfResourcesInFolder);
+    }
+
+
+
     public void processDataFileAndShowPlotsOfPeakShapes() {
 
 
         if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
             final PeakShapesService service = new PeakShapesService(resourceBrowserTarget.toPath());
             eventLogTextArea.textProperty().bind(service.valueProperty());
-            service.start();
-            service.setOnSucceeded(evt -> {
-                AbstractPlotBuilder gBeamPlotBuilder = ((PeakShapesTask) service.getPeakShapesTask()).getGBeamPlotBuilder();
+            try {
+                AbstractPlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
 
                 AbstractDataView gBeamLinePlot = new GBeamLinePlot(
                         new Rectangle(gBeamPlotScrollPane.getWidth(),
                                 gBeamPlotScrollPane.getHeight()),
-                        (GBeamLinePlotBuilder) gBeamPlotBuilder
+                        (GBeamLinePlotBuilder) plots[1]
                 );
 
                 gBeamPlotScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
@@ -370,12 +371,11 @@ public class PeakShapePlotsController {
                 gBeamPlotScrollPane.setContent(gBeamLinePlot);
 
 
-                AbstractPlotBuilder beamShapePlotBuilder = ((PeakShapesTask) service.getPeakShapesTask()).getBeamShapePlotBuilder();
 
                 AbstractDataView beamShapeLinePlot = new BeamShapeLinePlot(
                         new Rectangle(beamShapePlotScrollPane.getWidth(),
                                 beamShapePlotScrollPane.getHeight()),
-                        (BeamShapeLinePlotBuilder) beamShapePlotBuilder
+                        (BeamShapeLinePlotBuilder) plots[0]
                 );
 
                 beamShapePlotScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
@@ -394,7 +394,66 @@ public class PeakShapePlotsController {
 
                 beamShapeLinePlot.preparePanel();
                 beamShapePlotScrollPane.setContent(beamShapeLinePlot);
-            });
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+
+
+
+//            service.start();
+//            service.setOnSucceeded(evt -> {
+//                AbstractPlotBuilder gBeamPlotBuilder = ((PeakShapesTask) service.getPeakShapesTask()).getGBeamPlotBuilder();
+//
+//                AbstractDataView gBeamLinePlot = new GBeamLinePlot(
+//                        new Rectangle(gBeamPlotScrollPane.getWidth(),
+//                                gBeamPlotScrollPane.getHeight()),
+//                        (GBeamLinePlotBuilder) gBeamPlotBuilder
+//                );
+//
+//                gBeamPlotScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+//                    if (newValue.intValue() > 100) {
+//                        gBeamLinePlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
+//                        gBeamLinePlot.repaint();
+//                    }
+//                });
+//
+//                gBeamPlotScrollPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+//                    if (newValue.intValue() > 100) {
+//                        gBeamLinePlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
+//                        gBeamLinePlot.repaint();
+//                    }
+//                });
+//
+//                gBeamLinePlot.preparePanel();
+//                gBeamPlotScrollPane.setContent(gBeamLinePlot);
+//
+//
+//                AbstractPlotBuilder beamShapePlotBuilder = ((PeakShapesTask) service.getPeakShapesTask()).getBeamShapePlotBuilder();
+//
+//                AbstractDataView beamShapeLinePlot = new BeamShapeLinePlot(
+//                        new Rectangle(beamShapePlotScrollPane.getWidth(),
+//                                beamShapePlotScrollPane.getHeight()),
+//                        (BeamShapeLinePlotBuilder) beamShapePlotBuilder
+//                );
+//
+//                beamShapePlotScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+//                    if (newValue.intValue() > 100) {
+//                        beamShapeLinePlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
+//                        beamShapeLinePlot.repaint();
+//                    }
+//                });
+//
+//                beamShapePlotScrollPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+//                    if (newValue.intValue() > 100) {
+//                        beamShapeLinePlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
+//                        beamShapeLinePlot.repaint();
+//                    }
+//                });
+//
+//                beamShapeLinePlot.preparePanel();
+//                beamShapePlotScrollPane.setContent(beamShapeLinePlot);
+//            });
         } else {
             eventLogTextArea.textProperty().unbind();
             eventLogTextArea.setText("Please Choose Folder");
