@@ -33,7 +33,7 @@ public class MassSpectrometerModel implements Serializable {
     @Serial
     private static final long serialVersionUID = 1402626964061990257L;
 
-    private String massSpectrometerName;
+    private final String massSpectrometerName;
     private DetectorSetup detectorSetup;
     private double collectorWidthMM;        //% collector aperture width (mm)
     private double theoreticalBeamWidthMM;  //% a priori estimate of beam width (mm)

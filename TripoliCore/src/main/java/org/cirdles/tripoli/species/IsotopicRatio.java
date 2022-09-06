@@ -14,8 +14,17 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.ogtripoli;
+package org.cirdles.tripoli.species;
 
-public interface OGTripoliMassSpecDataFileInterface {
-    boolean testFileValidity();
+/**
+ * @author James F. Bowring
+ */
+public class IsotopicRatio {
+    private SpeciesRecordInterface numerator;
+    private SpeciesRecordInterface denominator;
+
+    public IsotopicRatio(SpeciesRecordInterface numerator, SpeciesRecordInterface denominator) {
+        this.numerator = numerator;
+        this.denominator = denominator;
+    }
 }

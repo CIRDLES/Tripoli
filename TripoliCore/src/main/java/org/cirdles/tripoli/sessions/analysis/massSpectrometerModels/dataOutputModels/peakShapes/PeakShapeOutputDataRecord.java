@@ -17,7 +17,7 @@ import org.ojalgo.matrix.store.Primitive64Store;
  * @param beamWindow
  */
 public record PeakShapeOutputDataRecord(
-        Primitive64Store magnetMasses, // vector of masses for intensity measurements
+        Primitive64Store magnetMasses, // vector of masses for blockIntensities measurements
         Primitive64Store measuredPeakIntensities,    // vector of corresponding peak intensities
         double peakCenterMass,             // mass at center of peak from header
         double integrationPeriodMS,              // integration period of measurements in ms

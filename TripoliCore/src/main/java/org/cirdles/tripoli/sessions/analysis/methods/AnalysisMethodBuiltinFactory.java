@@ -22,6 +22,7 @@ import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineTable;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceTable;
+import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
 
@@ -51,6 +52,8 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         burdickBlSyntheticData.getSpeciesList().add(pb206);
         burdickBlSyntheticData.getSpeciesList().add(pb208);
 
+        burdickBlSyntheticData.getTripoliRatiosList().add(new IsotopicRatio(pb206, pb208));
+
         DetectorSetup detectorSetup = burdickBlSyntheticData.getMassSpectrometer().getDetectorSetup();
 
         BaselineCell baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Ax_Fara"), "Bl1");
@@ -72,6 +75,8 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
 
         sequenceCell = burdickBlSyntheticData.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S1");
         sequenceCell.addTargetSpecies(pb208);
+
+
     }
 
     static {
@@ -85,6 +90,11 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         ku_204_5_6_7_8_Daly_AllFaradayPb.getSpeciesList().add(pb206);
         ku_204_5_6_7_8_Daly_AllFaradayPb.getSpeciesList().add(pb207);
         ku_204_5_6_7_8_Daly_AllFaradayPb.getSpeciesList().add(pb208);
+
+        ku_204_5_6_7_8_Daly_AllFaradayPb.getTripoliRatiosList().add(new IsotopicRatio(pb204, pb208));
+        ku_204_5_6_7_8_Daly_AllFaradayPb.getTripoliRatiosList().add(new IsotopicRatio(pb205, pb208));
+        ku_204_5_6_7_8_Daly_AllFaradayPb.getTripoliRatiosList().add(new IsotopicRatio(pb207, pb208));
+        ku_204_5_6_7_8_Daly_AllFaradayPb.getTripoliRatiosList().add(new IsotopicRatio(pb207, pb208));
 
         DetectorSetup detectorSetup = ku_204_5_6_7_8_Daly_AllFaradayPb.getMassSpectrometer().getDetectorSetup();
         BaselineTable baselineTable = ku_204_5_6_7_8_Daly_AllFaradayPb.getBaselineTable();
