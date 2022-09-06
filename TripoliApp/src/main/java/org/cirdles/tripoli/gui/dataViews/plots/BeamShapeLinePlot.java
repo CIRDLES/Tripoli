@@ -96,8 +96,8 @@ public class BeamShapeLinePlot extends AbstractDataView {
         g2d.stroke();
 
         g2d.setFill(Paint.valueOf("Red"));
-        g2d.fillOval(mapX(xAxisData[leftBoundary]) - 2, mapY(yAxisData[leftBoundary]) - 4, 7, 7);
-        g2d.fillOval(mapX(xAxisData[rightBoundary]) - 2, mapY(yAxisData[rightBoundary]) - 4, 7, 7);
+        g2d.fillOval(mapX(xAxisData[leftBoundary]) - 3.5, mapY(yAxisData[leftBoundary]) - 3.5, 7, 7);
+        g2d.fillOval(mapX(xAxisData[rightBoundary]) - 3.5, mapY(yAxisData[rightBoundary]) - 3.5, 7, 7);
 
         g2d.beginPath();
         g2d.setLineDashes(0);
@@ -127,7 +127,7 @@ public class BeamShapeLinePlot extends AbstractDataView {
                     text.setText(bigDecimal.toString());
                     textWidth = (int) text.getLayoutBounds().getWidth();
                     g2d.fillText(text.getText(),//
-                            (float) mapX(minX) - textWidth + 5f,
+                            (float) mapX(minX) - textWidth - 5f,
                             (float) mapY(bigDecimal.doubleValue()) + verticalTextShift);
 
                 }

@@ -68,6 +68,8 @@ public class PeakShapeProcessor_OPPhoenix {
                         intensity.add(Double.parseDouble(cols[1]));
                     }
                     default -> {
+                        masses = null;
+                        intensity = null;
                     }
                 }
 
