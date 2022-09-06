@@ -111,14 +111,15 @@ public class HistogramPlot extends AbstractDataView {
         boolean doFrameBins = (mapX(xAxisData[1]) - mapX(xAxisData[0])) > 1.0;
         plotData(g2d, binWidth, doFrameBins);
 
+        //todo: make more robust
+        String[] colorArray = new String[]{"BLUE", "GREEN", "RED", "PURPLE", "BLUE", "GREEN", "RED", "PURPLE"};
         if (histogramBuilder.getHistograms().length > 1) {
-            g2d.setFill(Paint.valueOf("GREEN"));
-
             for (int histogramIndex = 0; histogramIndex < histogramBuilder.getHistograms().length; histogramIndex++) {
                 xAxisData = histogramBuilder.getHistograms()[histogramIndex].binCenters();
                 yAxisData = histogramBuilder.getHistograms()[histogramIndex].binCounts();
                 binWidth = histogramBuilder.getHistograms()[histogramIndex].binWidth();
                 doFrameBins = (mapX(xAxisData[1]) - mapX(xAxisData[0])) > 1.0;
+                g2d.setFill(Paint.valueOf(colorArray[histogramIndex]));
                 plotData(g2d, binWidth, doFrameBins);
             }
 

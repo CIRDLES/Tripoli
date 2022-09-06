@@ -111,7 +111,12 @@ public class DataModelDriverExperiment {
             Ndata=d0.Ndata; % Number of picks
             Nsig = d0.Nsig; % Number of noise variables
          */
+
         int maxCount = 1000;//2000;
+        if (dataModelInit_X0.logratios().length > 2){
+            maxCount = 500;
+        }
+
         boolean hierarchical = true;
         int stepCountForcedSave = 100;
 
