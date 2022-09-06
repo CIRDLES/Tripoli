@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.ComboPlotBuilder;
@@ -36,8 +37,12 @@ import static java.lang.StrictMath.exp;
  */
 public class DataModelPlot {
 
-    static AbstractPlotBuilder[] analysisAndPlotting(
-            MassSpecOutputDataRecord massSpecOutputDataRecord, List<EnsemblesStore.EnsembleRecord> ensembleRecordsList, DataModellerOutputRecord lastDataModelInit) {
+    public static AbstractPlotBuilder[] analysisAndPlotting(
+            MassSpecOutputDataRecord massSpecOutputDataRecord,
+            List<EnsemblesStore.EnsembleRecord> ensembleRecordsList,
+            DataModellerOutputRecord lastDataModelInit,
+            List<IsotopicRatio> isotopicRatioList) {
+
         /*
             %% Analysis and Plotting
 
@@ -58,27 +63,33 @@ public class DataModelPlot {
             DFstd = std(ens_DF(:,burn:cnt),[],2);
 
          */
-        int burn = 500;//1000;
+        int burn;// = 100;// 500;//1000;
+        burn = 450;//Math.min(100, ensembleRecordsList.size() - 50);
         int countOfEnsemblesUsed = ensembleRecordsList.size() - burn;
 
         // log ratios - only the first row
-        double[] ensembleLogRatios = new double[countOfEnsemblesUsed];
-        double[] ensembleRatios = new double[countOfEnsemblesUsed];
+        double[][] ensembleLogRatios = new double[isotopicRatioList.size()][countOfEnsemblesUsed];
+        double[][] ensembleRatios = new double[isotopicRatioList.size()][countOfEnsemblesUsed];
+        double[] logRatioMean = new double[isotopicRatioList.size()];
+        double[] logRatioStdDev = new double[isotopicRatioList.size()];
         DescriptiveStatistics descriptiveStatisticsLogRatios = new DescriptiveStatistics();
-        for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
-            ensembleLogRatios[index - burn] = ensembleRecordsList.get(index).logRatios()[0];
-            descriptiveStatisticsLogRatios.addValue(ensembleLogRatios[index - burn]);
-            ensembleRatios[index - burn] = exp(ensembleLogRatios[index - burn]);
+        for (int ratioIndex = 0; ratioIndex < isotopicRatioList.size(); ratioIndex ++) {
+            for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
+                ensembleLogRatios[ratioIndex][index - burn] = ensembleRecordsList.get(index).logRatios()[ratioIndex];
+                descriptiveStatisticsLogRatios.addValue(ensembleLogRatios[ratioIndex][index - burn]);
+                ensembleRatios[ratioIndex][index - burn] = exp(ensembleLogRatios[ratioIndex][index - burn]);
+            }
+            logRatioMean[ratioIndex] = descriptiveStatisticsLogRatios.getMean();
+            logRatioStdDev[ratioIndex] = descriptiveStatisticsLogRatios.getStandardDeviation();
         }
-        double logRatioMean = descriptiveStatisticsLogRatios.getMean();
-        double logRatioStdDev = descriptiveStatisticsLogRatios.getStandardDeviation();
 
-        // baseLines - first 2 rows
-        double[][] ensembleBaselines = new double[ensembleRecordsList.get(0).baseLine().length][countOfEnsemblesUsed];
-        double[] baselinesMeans = new double[massSpecOutputDataRecord.isotopeCount()];
-        double[] baselinesStdDev = new double[massSpecOutputDataRecord.isotopeCount()];
+        // baseLines
+        int baselineSize = ensembleRecordsList.get(0).baseLine().length;
+        double[][] ensembleBaselines = new double[baselineSize][countOfEnsemblesUsed];
+        double[] baselinesMeans = new double[baselineSize];
+        double[] baselinesStdDev = new double[baselineSize];
 
-        for (int row = 0; row < ensembleRecordsList.get(0).baseLine().length; row++) {
+        for (int row = 0; row < baselineSize; row++) {
             DescriptiveStatistics descriptiveStatisticsBaselines = new DescriptiveStatistics();
             for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
                 ensembleBaselines[row][index - burn] = ensembleRecordsList.get(index).baseLine()[row] / 6.24e7 * 1e6;
@@ -99,11 +110,12 @@ public class DataModelPlot {
         double dalyFaradayGainStdDev = descriptiveStatisticsDalyFaradayGain.getStandardDeviation();
 
         // signal noise
-        double[][] ensembleSignalnoise = new double[2][countOfEnsemblesUsed];
-        double[] signalNoiseMeans = new double[2];
-        double[] signalNoiseStdDev = new double[2];
+        int faradayCount = massSpecOutputDataRecord.faradayCount();
+        double[][] ensembleSignalnoise = new double[faradayCount][countOfEnsemblesUsed];
+        double[] signalNoiseMeans = new double[faradayCount];
+        double[] signalNoiseStdDev = new double[faradayCount];
 
-        for (int row = 0; row < massSpecOutputDataRecord.faradayCount(); row++) {
+        for (int row = 0; row < faradayCount; row++) {
             DescriptiveStatistics descriptiveStatisticsSignalNoise = new DescriptiveStatistics();
             for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
                 ensembleSignalnoise[row][index - burn] = ensembleRecordsList.get(index).signalNoise()[row];
@@ -124,41 +136,44 @@ public class DataModelPlot {
          */
 
         // Intensity
-        // meanof 16 items across 400
-        // todo handle blocks
-        int knotsCount = ensembleRecordsList.get(0).intensity()[0].length;
+        int knotsCount = ensembleRecordsList.get(0).blockIntensities()[0].length;
+        int blockCount = massSpecOutputDataRecord.blockCount();
         double[][] ensembleIntensity = new double[knotsCount][countOfEnsemblesUsed];
-        double[] intensityMeans = new double[knotsCount];
-        double[] intensityStdDevs = new double[knotsCount];
+        double[][] intensityMeans = new double[blockCount][knotsCount];
+        double[][] intensityStdDevs = new double[blockCount][knotsCount];
 
-        for (int knotIndex = 0; knotIndex < knotsCount; knotIndex++) {
-            DescriptiveStatistics descriptiveStatisticsIntensity = new DescriptiveStatistics();
-            for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
-                ensembleIntensity[knotIndex][index - burn] = ensembleRecordsList.get(index).intensity()[0][knotIndex];
-                descriptiveStatisticsIntensity.addValue(ensembleIntensity[knotIndex][index - burn]);
+        for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
+            for (int knotIndex = 0; knotIndex < knotsCount; knotIndex++) {
+                DescriptiveStatistics descriptiveStatisticsIntensity = new DescriptiveStatistics();
+                for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
+                    ensembleIntensity[knotIndex][index - burn] = ensembleRecordsList.get(index).blockIntensities()[blockIndex][knotIndex];
+                    descriptiveStatisticsIntensity.addValue(ensembleIntensity[knotIndex][index - burn]);
+                }
+                intensityMeans[blockIndex][knotIndex] = descriptiveStatisticsIntensity.getMean();
+                intensityStdDevs[blockIndex][knotIndex] = descriptiveStatisticsIntensity.getStandardDeviation();
             }
-            intensityMeans[knotIndex] = descriptiveStatisticsIntensity.getMean();
-            intensityStdDevs[knotIndex] = descriptiveStatisticsIntensity.getStandardDeviation();
         }
 
-        // calculate intensity means for plotting
-        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        MatrixStore<Double> intensityMeansMatrix = storeFactory.columns(intensityMeans);
-        MatrixStore<Double> yDataMatrix = massSpecOutputDataRecord.allBlockInterpolations()[0].multiply(intensityMeansMatrix).multiply((1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
-        double[] yDataIntensityMeans = yDataMatrix.toRawCopy1D();
+        // calculate blockIntensities means for plotting
+        double[][] yDataIntensityMeans = new double[blockCount][];
+        for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
+            PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+            MatrixStore<Double> intensityMeansMatrix = storeFactory.columns(intensityMeans[blockIndex]);
+            MatrixStore<Double> yDataMatrix = massSpecOutputDataRecord.allBlockInterpolations()[blockIndex].multiply(intensityMeansMatrix).multiply((1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
+            yDataIntensityMeans[blockIndex] = yDataMatrix.toRawCopy1D();
+        }
         double[] xDataIntensityMeans = new double[massSpecOutputDataRecord.allBlockInterpolations()[0].getRowDim()];
         for (int i = 0; i < xDataIntensityMeans.length; i++) {
             xDataIntensityMeans[i] = i;
         }
 
-
         // visualization - Ensembles tab
         AbstractPlotBuilder[] plotBuilders = new AbstractPlotBuilder[15];
-        plotBuilders[0] = HistogramBuilder.initializeHistogram(ensembleRatios, 50, "Histogram of ratios");
+        plotBuilders[0] = HistogramBuilder.initializeHistogram(true, ensembleRatios,  50, "Histogram of ratios");
         plotBuilders[1] = HistogramBuilder.initializeHistogram(true, ensembleBaselines, 50, "Histogram of baseline");
         plotBuilders[2] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain, 50, "Histogram of Daly/Faraday Gain");
         plotBuilders[3] = HistogramBuilder.initializeHistogram(true, ensembleSignalnoise, 50, "Histogram of Signal Noise");
-        plotBuilders[4] = LinePlotBuilder.initializeLinePlot(xDataIntensityMeans, yDataIntensityMeans, "Mean Intensity");
+        plotBuilders[4] = MultiLinePlotBuilder.initializeLinePlot(xDataIntensityMeans, yDataIntensityMeans, "Mean Intensity");
 
         // visualization converge ratio and others tabs
         double[] convergeLogRatios = new double[ensembleRecordsList.size()];
@@ -169,7 +184,7 @@ public class DataModelPlot {
         double[] convergeErrWeightedMisfit = new double[ensembleRecordsList.size()];
         double[] convergeErrRawMisfit = new double[ensembleRecordsList.size()];
         double[] xDataconvergeSavedIterations = new double[ensembleRecordsList.size()];
-        double[][] convergeIntensities = new double[ensembleRecordsList.get(0).intensity()[0].length][ensembleRecordsList.size()];
+        double[][] convergeIntensities = new double[ensembleRecordsList.get(0).blockIntensities()[0].length][ensembleRecordsList.size()];
         double[] convergeNoiseFaradayL1 = new double[ensembleRecordsList.size()];
         double[] convergeNoiseFaradayH1 = new double[ensembleRecordsList.size()];
         for (int index = 0; index < ensembleRecordsList.size(); index++) {
@@ -180,7 +195,7 @@ public class DataModelPlot {
             convergeErrWeightedMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorWeighted());
             convergeErrRawMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorUnWeighted());
             for (int intensityIndex = 0; intensityIndex < convergeIntensities.length; intensityIndex++) {
-                convergeIntensities[intensityIndex][index] = ensembleRecordsList.get(index).intensity()[0][intensityIndex];
+                convergeIntensities[intensityIndex][index] = ensembleRecordsList.get(index).blockIntensities()[0][intensityIndex];
             }
             convergeNoiseFaradayL1[index] = ensembleRecordsList.get(index).signalNoise()[0];
             convergeNoiseFaradayH1[index] = ensembleRecordsList.get(index).signalNoise()[1];
@@ -197,7 +212,6 @@ public class DataModelPlot {
 
 
         // visualization data fit
-        // only first block for now
         // todo: this is duplicated code from above in part
         double[] data = lastDataModelInit.dataArray();
         double[] dataWithNoBaseline = new double[lastDataModelInit.dataArray().length];

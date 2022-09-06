@@ -20,6 +20,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_OPPhoenix;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
@@ -52,7 +53,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
  */
 public class DataModelDriverExperiment {
 
-    private static final boolean doFullProcessing = true;
+    private static final boolean doFullProcessing = false;
 
     public static AbstractPlotBuilder[] driveModelTest(Path dataFilePath, AnalysisMethod analysisMethod, LoggingCallbackInterface loggingCallback) throws IOException {
 
@@ -68,7 +69,7 @@ public class DataModelDriverExperiment {
             List<EnsemblesStore.EnsembleRecord> ensembleRecordsList = new ArrayList<>();
             DataModellerOutputRecord lastDataModelInit = null;
             if (doFullProcessing) {
-                plotBuilders = applyInversionWithRJMCMC(massSpecOutputDataRecord, dataModelInit, loggingCallback);
+                plotBuilders = applyInversionWithRJMCMC(massSpecOutputDataRecord, dataModelInit, analysisMethod.getTripoliRatiosList(), loggingCallback);
             } else {
                 try {
                     EnsemblesStore ensemblesStore = (EnsemblesStore) TripoliSerializer.getSerializedObjectFromFile("EnsemblesStore.ser", true);
@@ -77,7 +78,8 @@ public class DataModelDriverExperiment {
                 } catch (TripoliException e) {
                     e.printStackTrace();
                 }
-                plotBuilders = DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, lastDataModelInit);
+
+                plotBuilders = DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, lastDataModelInit, analysisMethod.getTripoliRatiosList());
             }
         } catch (RecoverableCondition e) {
             plotBuilders = new AbstractPlotBuilder[0];
@@ -86,7 +88,11 @@ public class DataModelDriverExperiment {
         return plotBuilders;
     }
 
-    static AbstractPlotBuilder[] applyInversionWithRJMCMC(MassSpecOutputDataRecord massSpecOutputDataRecord, DataModellerOutputRecord dataModelInit_X0, LoggingCallbackInterface loggingCallback) {
+    static AbstractPlotBuilder[] applyInversionWithRJMCMC
+            (MassSpecOutputDataRecord massSpecOutputDataRecord,
+             DataModellerOutputRecord dataModelInit_X0,
+             List<IsotopicRatio> isotopicRatioList,
+             LoggingCallbackInterface loggingCallback) {
         /*
             % MCMC Parameters
             maxcnt = 2000;  % Maximum number of models to save
@@ -149,7 +155,7 @@ public class DataModelDriverExperiment {
         /*
         % Forward model isotope measurements
         for n = 1:d0.Nblock  % Iterate over blocks
-            % Calculate block intensity from intensity variables
+            % Calculate block blockIntensities from blockIntensities variables
             Intensity{n} = InterpMat{n}*x0.I{n};
             Intensity2{n} = Intensity{n};
 
@@ -245,7 +251,7 @@ public class DataModelDriverExperiment {
 
             Ndf = 1; % Number of DF gains = 1
 
-            % Size of model: # isotopes + # intensity knots + # baselines + # df gain
+            % Size of model: # isotopes + # blockIntensities knots + # baselines + # df gain
             Nmod = d0.Niso + sum(d0.Ncycle) + d0.Nfar + Ndf ;
             % Data and data covariance vectors
             xmean = zeros(Nmod,1);
@@ -414,26 +420,24 @@ public class DataModelDriverExperiment {
             long interval1 = System.nanoTime() - prev;
             prev = interval1 + prev;
 
-            // todo: reminder only 1 block here
-            // todo: remove zeroes from firstblockinterpolations
             ArrayList<double[]> intensity2 = new ArrayList<>(1);
-            PhysicalStore<Double> tempIntensity = storeFactory.make(massSpecOutputDataRecord.allBlockInterpolations()[0].countRows(),
-                    storeFactory.columns(dataModelUpdaterOutputRecord_x2.blockIntensities()).getColDim());
-            // todo: fix block indexing
-            tempIntensity.fillByMultiplying(massSpecOutputDataRecord.allBlockInterpolations()[0], Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()[0]));
-            intensity2.add(0, tempIntensity.toRawCopy1D());
+            for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
+                PhysicalStore<Double> tempIntensity = storeFactory.make(massSpecOutputDataRecord.allBlockInterpolations()[blockIndex].countRows(),
+                        storeFactory.columns(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]).getColDim());
+                tempIntensity.fillByMultiplying(massSpecOutputDataRecord.allBlockInterpolations()[blockIndex], Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]));
+                intensity2.add(tempIntensity.toRawCopy1D());
 
-            for (int row = (int) blockStartIndicesFaraday[0]; row <= (int) blockEndIndicesFaraday[0]; row++) {
-                tmpIArray[row] = intensity2.get(0)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
-            }
-            for (int row = (int) blockStartIndicesDaly[0]; row <= (int) blockEndIndicesDaly[0]; row++) {
-                tmpIArray[row] = intensity2.get(0)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                for (int row = (int) blockStartIndicesFaraday[blockIndex]; row <= (int) blockEndIndicesFaraday[blockIndex]; row++) {
+                    tmpIArray[row] = intensity2.get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                }
+                for (int row = (int) blockStartIndicesDaly[blockIndex]; row <= (int) blockEndIndicesDaly[blockIndex]; row++) {
+                    tmpIArray[row] = intensity2.get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                }
             }
 
             long interval2 = System.nanoTime() - prev;
             prev = interval2 + prev;
 
-            // todo: reminder only 1 block here
             double[] dnobl2 = new double[rowDimension];
             double[] d2 = new double[rowDimension];
 
@@ -692,7 +696,7 @@ public class DataModelDriverExperiment {
             e.printStackTrace();
         }
 
-        return DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, dataModelInit);
+        return DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, dataModelInit, isotopicRatioList);
     }
 
 }

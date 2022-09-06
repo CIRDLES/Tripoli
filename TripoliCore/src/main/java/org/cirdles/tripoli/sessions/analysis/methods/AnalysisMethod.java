@@ -19,6 +19,7 @@ package org.cirdles.tripoli.sessions.analysis.methods;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineTable;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceTable;
+import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.io.Serial;
@@ -38,6 +39,8 @@ public class AnalysisMethod implements Serializable {
     protected BaselineTable baselineTable;
     protected SequenceTable sequenceTable;
     private List<SpeciesRecordInterface> speciesList;
+    private List<IsotopicRatio> isotopicRatiosList;
+
 
     private AnalysisMethod(String methodName, MassSpectrometerModel massSpectrometer) {
         this(methodName, massSpectrometer, BaselineTable.createEmptyBaselineTable(), SequenceTable.createEmptySequenceTable());
@@ -49,6 +52,7 @@ public class AnalysisMethod implements Serializable {
         this.speciesList = new ArrayList<>();
         this.baselineTable = baselineTable;
         this.sequenceTable = sequenceTable;
+        this.isotopicRatiosList = new ArrayList<>();
     }
 
     public static AnalysisMethod initializeAnalysisMethod(String methodName, MassSpectrometerModel massSpectrometer) {
@@ -115,4 +119,13 @@ public class AnalysisMethod implements Serializable {
     public void setSequenceTable(SequenceTable sequenceTable) {
         this.sequenceTable = sequenceTable;
     }
+
+    public List<IsotopicRatio> getTripoliRatiosList() {
+        return isotopicRatiosList;
+    }
+
+    public void setTripoliRatiosList(List<IsotopicRatio> isotopicRatiosList) {
+        this.isotopicRatiosList = isotopicRatiosList;
+    }
+
 }

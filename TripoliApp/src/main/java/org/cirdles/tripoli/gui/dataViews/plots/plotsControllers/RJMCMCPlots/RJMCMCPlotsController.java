@@ -9,6 +9,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
+import org.cirdles.commons.util.ResourceExtractor;
+import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.*;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
@@ -100,27 +102,34 @@ public class RJMCMCPlotsController {
     private Button processFileButton;
 
     @FXML
+    private Button processFileButton2;
+
+    @FXML
     private ToolBar toolbar;
 
     private ListView<File> listViewOfSyntheticFiles = new ListView<>();
 
 
     @FXML
-    void demo1ButtonAction(ActionEvent event) throws IOException {
+    void demo1_2IsotopeButtonAction(ActionEvent event) throws IOException {
         processDataFileAndShowPlotsOfRJMCMC(
                 listViewOfSyntheticFiles.getSelectionModel().selectedItemProperty().getValue().toPath(),
                 AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
-
+        ((Button) event.getSource()).setDisable(true);
+        processFileButton2.setDisable(true);
+    }
+    @FXML
+    void demo1_5IsotopeButtonAction(ActionEvent event) throws IOException {
         // Jim's playground for 5 isotopes
-//        ResourceExtractor RESOURCE_EXTRACTOR= new ResourceExtractor(Tripoli.class);
-//        Path dataFile = RESOURCE_EXTRACTOR
-//                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
-//        processDataFileAndShowPlotsOfRJMCMC(
-//                dataFile,
-//                AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("KU_204_5_6_7_8_Daly_AllFaradayPb"));
-
+        ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
+        Path dataFile = RESOURCE_EXTRACTOR
+                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
+        processDataFileAndShowPlotsOfRJMCMC(
+                dataFile,
+                AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("KU_204_5_6_7_8_Daly_AllFaradayPb"));
 
         ((Button) event.getSource()).setDisable(true);
+        processFileButton.setDisable(true);
     }
 
     @FXML
@@ -159,6 +168,7 @@ public class RJMCMCPlotsController {
         populateListOfSyntheticData2IsotopesFiles();
 
         processFileButton.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
+        processFileButton2.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
     }
 
     private void populateListOfSyntheticData2IsotopesFiles() {
@@ -242,10 +252,10 @@ public class RJMCMCPlotsController {
                             (plotTabPane.getHeight() - TAB_HEIGHT) / ensembleGridPane.getRowCount()),
                     (HistogramBuilder) dalyFaradayHistogramBuilder);
 
-            AbstractDataView intensityLinePlot = new BasicLinePlot(
+            AbstractDataView intensityLinePlot = new MultiLineLinePlot(
                     new Rectangle(ensembleGridPane.getWidth(),
                             (plotTabPane.getHeight() - TAB_HEIGHT) / ensembleGridPane.getRowCount()),
-                    (LinePlotBuilder) intensityLinePlotBuilder
+                    (MultiLinePlotBuilder) intensityLinePlotBuilder
             );
 
             AbstractDataView signalNoiseHistogramPlot = new HistogramPlot(
@@ -400,7 +410,7 @@ public class RJMCMCPlotsController {
             intensityLinePlot.preparePanel();
             ensembleGridPane.add(intensityLinePlot, 0, 2, 2, 1);
             signalNoiseHistogramPlot.preparePanel();
-            ensembleGridPane.add(signalNoiseHistogramPlot, 0, 4, 2, 1);
+            ensembleGridPane.add(signalNoiseHistogramPlot, 0, 3, 2, 1);
 
             convergeRatioLinePlot.preparePanel();
             convergeRatioAnchorPane.getChildren().add(convergeRatioLinePlot);

@@ -86,7 +86,7 @@ public class PeakCentresLinePlot extends AbstractDataView {
             g2d.beginPath();
             g2d.setStroke(Paint.valueOf("Black"));
             g2d.setLineDashes(0);
-            // x = magnetMass y = intensity
+            // x = magnetMass y = blockIntensities
 
             for (int i = 0; i < xAxisData.length; i++) {
                 g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
