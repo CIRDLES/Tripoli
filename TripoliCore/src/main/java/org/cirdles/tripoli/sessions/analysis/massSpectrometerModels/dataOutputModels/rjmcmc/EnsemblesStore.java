@@ -24,8 +24,8 @@ import java.util.List;
  */
 public class EnsemblesStore implements Serializable {
 
-    private List<EnsembleRecord> ensembles;
-    private DataModellerOutputRecord lastDataModelInit;
+    private final List<EnsembleRecord> ensembles;
+    private final DataModellerOutputRecord lastDataModelInit;
 
     public EnsemblesStore(List<EnsembleRecord> ensembles, DataModellerOutputRecord lastDataModelInit) {
         this.ensembles = ensembles;
@@ -40,9 +40,9 @@ public class EnsemblesStore implements Serializable {
         return lastDataModelInit;
     }
 
-    record EnsembleRecord(
+    public record EnsembleRecord(
             double[] logRatios,
-            double[][] intensity,
+            double[][] blockIntensities,
             double[] baseLine,
             double dfGain,
             double[] signalNoise,

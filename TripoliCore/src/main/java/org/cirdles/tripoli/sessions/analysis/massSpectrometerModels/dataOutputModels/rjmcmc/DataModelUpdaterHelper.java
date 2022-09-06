@@ -26,7 +26,7 @@ import static java.lang.Math.min;
 public class DataModelUpdaterHelper {
 
     /*
-    % Range for ratios and intensity parameters
+    % Range for ratios and blockIntensities parameters
             prior.BL = [-1 1]*1e6;  % Faraday baseline
             prior.BLdaly = [0 0];   % Daly baseline (no baseline uncertainty)
             prior.lograt = [-20 20]; % Log ratio

@@ -17,5 +17,5 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.ogtripoli;
 
 public interface OGTripoliMassSpecDataFileInterface {
-    public boolean testFileValidity();
+    boolean testFileValidity();
 }

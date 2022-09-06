@@ -30,17 +30,7 @@ public class Session implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 6597752272434171800L;
-//        private void readObject ( ObjectInputStream stream ) throws IOException,
-//            ClassNotFoundException {
-//        stream.defaultReadObject();
-//
-//        ObjectStreamClass myObject = ObjectStreamClass.lookup(
-//                Class.forName( Session.class.getCanonicalName()) );
-//        long theSUID = myObject.getSerialVersionUID();
-//
-//        System.err.println( "Customized De-serialization of Session "
-//                + theSUID );
-//    }
+
 
     private String sessionName;
     private Map<String, Analysis> mapOfAnalyses;

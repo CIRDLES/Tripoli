@@ -35,8 +35,6 @@ class SessionTest {
         testSession.getMapOfAnalyses().put("testAnalysis", Analysis.initializeAnalysis("testAnalysis", analysisMethodsBuiltinMap.get("BurdickBlSyntheticData")));
         testSession.getMapOfAnalyses().put("testAnalysis2", Analysis.initializeAnalysis("testAnalysis", analysisMethodsBuiltinMap.get("BurdickBlSyntheticData")));
 
-//        testSession.getMapOfAnalyses().get("testAnalysis").
-
         TripoliSerializer.serializeObjectToFile(testSession, String.valueOf(testFilePath.getFileName()));
         Session testSession2 = (Session) TripoliSerializer.getSerializedObjectFromFile(String.valueOf(testFilePath.getFileName()), true);
 

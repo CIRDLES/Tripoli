@@ -1,5 +1,7 @@
 Contributors: 
-Jim Bowring,
-Noah McLean,
-Scott Burdick
-... you?
+ Jim Bowring,
+ Noah McLean,
+ Scott Burdick,
+ Ian Robinson,
+ Royal Boggs,
+ ... you?

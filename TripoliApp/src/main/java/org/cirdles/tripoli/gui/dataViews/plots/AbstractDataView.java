@@ -49,8 +49,9 @@ public abstract class AbstractDataView extends Canvas {
     protected BigDecimal[] ticsX;
     protected BigDecimal[] ticsY;
     //    protected BigDecimal[] ticsYII;
-    private double displayOffsetY = 0;
-    private double displayOffsetX = 0;
+    protected double displayOffsetY = 0;
+    protected double displayOffsetX = 0;
+    protected String xAxisLabel;
 
     private AbstractDataView() {
         super();
@@ -108,9 +109,9 @@ public abstract class AbstractDataView extends Canvas {
 
     public void showTitle(String title) {
         Paint savedPaint = getGraphicsContext2D().getFill();
-        getGraphicsContext2D().setFont(Font.font("SansSerif", 14));
+        getGraphicsContext2D().setFont(Font.font("SansSerif", 10));
         getGraphicsContext2D().setFill(Paint.valueOf("RED"));
-        getGraphicsContext2D().fillText(title, leftMargin + 25, topMargin + 12);
+        getGraphicsContext2D().fillText(title, leftMargin + 25, topMargin + 7);
         getGraphicsContext2D().setFill(savedPaint);
     }
 

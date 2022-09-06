@@ -18,13 +18,20 @@ package org.cirdles.tripoli.dataProcessors.dataSources.synthetic;
 
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelPlot;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModellerOutputRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.EnsemblesStore;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_OPPhoenix;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
+import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -77,5 +84,15 @@ class DataSourceProcessorOPPhoenixTest {
 
         assert (massSpecOutputDataRecord.rawDataColumn().length == 162000);
         assertEquals(-531920.15291, massSpecOutputDataRecord.rawDataColumn()[26669]);
+
+//        try {
+//            EnsemblesStore ensemblesStore = (EnsemblesStore) TripoliSerializer.getSerializedObjectFromFile("/Users/bowring/Development/Tripoli_ET/TripoliApp/EnsemblesStore.ser", true);
+//            List<EnsemblesStore.EnsembleRecord> ensembleRecordsList = ensemblesStore.getEnsembles();
+//            DataModellerOutputRecord lastDataModelInit = ensemblesStore.getLastDataModelInit();
+//            AbstractPlotBuilder[] plotBuilders = DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, lastDataModelInit);
+//        } catch (TripoliException e) {
+//            e.printStackTrace();
+//        }
+
     }
 }
