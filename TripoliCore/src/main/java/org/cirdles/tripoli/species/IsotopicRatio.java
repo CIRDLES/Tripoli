@@ -16,15 +16,32 @@
 
 package org.cirdles.tripoli.species;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * @author James F. Bowring
  */
-public class IsotopicRatio {
-    private SpeciesRecordInterface numerator;
-    private SpeciesRecordInterface denominator;
+public class IsotopicRatio implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 676151940943728743L;
+    private final SpeciesRecordInterface numerator;
+    private final SpeciesRecordInterface denominator;
 
     public IsotopicRatio(SpeciesRecordInterface numerator, SpeciesRecordInterface denominator) {
         this.numerator = numerator;
         this.denominator = denominator;
     }
+
+//    private void readObject(ObjectInputStream stream) throws IOException,
+//            ClassNotFoundException {
+//        stream.defaultReadObject();
+//
+//        ObjectStreamClass myObject = ObjectStreamClass.lookup(
+//                Class.forName(IsotopicRatio.class.getCanonicalName()));
+//        long theSUID = myObject.getSerialVersionUID();
+//
+//        System.err.println("Customized De-serialization of IsotopicRatio "
+//                + theSUID);
+//    }
 }
