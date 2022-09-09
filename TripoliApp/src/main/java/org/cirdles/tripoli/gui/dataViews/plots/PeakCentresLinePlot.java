@@ -2,8 +2,10 @@ package org.cirdles.tripoli.gui.dataViews.plots;
 
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
@@ -13,9 +15,13 @@ import javafx.scene.text.Text;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsController;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PeakCentresLinePlot extends AbstractDataView {
     private final LinePlotBuilder peakCentrePlotBuilder;
     public int indexOfSelectedSpot;
+    Map<Integer, String> tooltips = new HashMap<>();
 
     /**
      * @param bounds
@@ -25,9 +31,13 @@ public class PeakCentresLinePlot extends AbstractDataView {
         super(bounds, 50, 30);
         this.peakCentrePlotBuilder = linePlotBuilder;
 
+
+
+
         this.setOnMouseMoved(new MouseMovedHandler());
         this.setOnMouseClicked(new MouseClickedEventHandler());
         this.indexOfSelectedSpot = -1;
+
     }
 
     @Override
@@ -65,6 +75,11 @@ public class PeakCentresLinePlot extends AbstractDataView {
 
         setDisplayOffsetY(0.0);
         setDisplayOffsetX(0.0);
+
+        for (int i = 0; i < xAxisData.length; i++) {
+            tooltips.put((int) xAxisData[i] - 1, (xAxisData[i]) + "");
+        }
+
 
         this.repaint();
     }
@@ -133,7 +148,7 @@ public class PeakCentresLinePlot extends AbstractDataView {
                         text.setText(ticsY[i].toString());
                         textWidth = (int) text.getLayoutBounds().getWidth();
                         g2d.fillText(text.getText(),//
-                                (float) mapX(minX) - textWidth + 5f,
+                                (float) mapX(minX) - textWidth - 3f,
                                 (float) mapY(ticsY[i].doubleValue()) + verticalTextShift);
 
                     }
@@ -168,6 +183,17 @@ public class PeakCentresLinePlot extends AbstractDataView {
         }
     }
 
+    private void setToolTips(Node node, Map<Integer, String> toolTips) {
+        Tooltip tooltip = new Tooltip();
+        Tooltip.install(node, tooltip);
+        node.setOnMouseMoved(e -> toolTips.forEach((integer, String) -> {
+            if (integer.equals(indexOfSpotFromMouseX(e.getX()))) {
+                tooltip.setText(String);
+            }
+        }));
+        node.setOnMouseExited(e -> tooltip.hide());
+    }
+
     private int indexOfSpotFromMouseX(double x) {
         double convertedX = convertMouseXToValue(x);
         int index = -1;
@@ -190,8 +216,15 @@ public class PeakCentresLinePlot extends AbstractDataView {
 
         @Override
         public void handle(MouseEvent event) {
+
+            Node potNode;
+
             if (mouseInHouse(event)) {
                 ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.CROSSHAIR);
+                potNode = ((Canvas) event.getSource()).getParent().getScene().getRoot();
+                setToolTips(potNode, tooltips);
+
+
             } else {
                 ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.DEFAULT);
             }
@@ -202,6 +235,7 @@ public class PeakCentresLinePlot extends AbstractDataView {
         @Override
         public void handle(MouseEvent mouseEvent) {
             if (mouseInHouse(mouseEvent)) {
+
                 indexOfSelectedSpot = indexOfSpotFromMouseX(mouseEvent.getX());
                 PeakShapePlotsController.currentGroupIndex = indexOfSelectedSpot;
                 PeakShapePlotsController.resourceBrowserTarget = PeakShapePlotsController.getResourceGroups(PeakShapePlotsController.getCurrentGroup()).get(indexOfSelectedSpot);

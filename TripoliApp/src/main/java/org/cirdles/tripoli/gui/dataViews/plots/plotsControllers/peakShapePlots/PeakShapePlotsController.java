@@ -44,8 +44,6 @@ public class PeakShapePlotsController {
 
     static Map<String, List<File>> resourceGroups;
 
-    ListView<String> listViewOfGroupResourcesInFolder;
-
     ListView<File> listViewOfResourcesInFolder;
 
     AbstractDataView peakCentreLinePlot;
@@ -167,7 +165,7 @@ public class PeakShapePlotsController {
 
 
         if (!resourceFilesInFolder.isEmpty()) {
-            listViewOfGroupResourcesInFolder = new ListView<>();
+            ListView<String> listViewOfGroupResourcesInFolder = new ListView<>();
             listViewOfGroupResourcesInFolder.setCellFactory(
                     (parameter)
                             -> new ResourceDisplayName()
