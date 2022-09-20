@@ -691,7 +691,7 @@ public class DataModelDriverExperiment {
                             for(int row = 0; row < temp.length; row++){
                                 double maxValue = Double.MIN_VALUE;
                                 for(int col = 0; col < temp.length; col++){
-                                    maxValue = Math.max(temp[col][row], maxValue);
+                                    maxValue = max(temp[col][row], maxValue);
                                 }
                                 maxind[row] = maxValue;
                             }
