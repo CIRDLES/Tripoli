@@ -695,20 +695,20 @@ public class DataModelDriverExperiment {
                                 }
                                 maxind[row] = maxValue;
                             }
-                            System.err.println("\n" + Arrays.toString(maxind));
+                            // System.err.println("\n" + Arrays.toString(maxind));
                             // negloc = (U(maxind + (0:n:(m-1)*n)) < 0);
                             double [] tempnegloc = new double[21];
                             double [] negloc = new double[21];
                             for(int i = 0; i < tempnegloc.length; i++){
                                 tempnegloc[i] = (i * 21) + maxind[i];
                             }
-                            System.err.println("\n" + Arrays.toString(tempnegloc));
+                            // System.err.println("\n" + Arrays.toString(tempnegloc));
                             double [] temp2 = U.toRawCopy1D();
                             for(int i = 0; i < negloc.length; i++){
                                 negloc[i] = temp2[(int) tempnegloc[i]] > 0 ? 1 : 0;
                             }
 
-                            System.err.println("\n" + Arrays.toString(negloc));
+                            // System.err.println("\n" + Arrays.toString(negloc));
                             // D = diag(D);
                             MatrixStore<Double> DDiag = eigen.getD().diagonal();
                             // tol = eps(max(D)) * length(D);
@@ -729,9 +729,9 @@ public class DataModelDriverExperiment {
                                 p += D2[i] < 0 ? D2[i] : 0;
                             }
                             // if (p==0)
-                            // T = diag(sqrt(D)) * U(:,t)';
+                            //  T = diag(sqrt(D)) * U(:,t)';
                             // else
-                            // T = zeros(0,'like',Sigma);
+                            //  T = zeros(0,'like',Sigma);
                             PhysicalStore<Double> T;
                             if(p == 0){
                                 PhysicalStore<Double> Utemp = storeFactory.make(U.getRowDim(), U.getColDim());
@@ -754,7 +754,7 @@ public class DataModelDriverExperiment {
 
                         // end of cholcov()
                         // delx_adapt = mu.multiply(cholesky.getR()).transpose().copy();
-                        delx_adapt = mu.multiply(T.transpose()).copy();
+                        delx_adapt = mu.multiply(T).transpose().copy();
                     }
                 }
 
