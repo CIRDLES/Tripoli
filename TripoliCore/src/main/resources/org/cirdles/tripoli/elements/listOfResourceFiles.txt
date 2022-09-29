@@ -1,3 +1,0 @@
-README.txt
-PeriodicTableOfElements.csv
-PeriodicTableOfElementsOriginal.csv

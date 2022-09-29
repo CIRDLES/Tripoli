@@ -1,3 +1,0 @@
-README.txt
-https://raw.githubusercontent.com/EARTHTIME/Schema/master/TracerUPbModelXMLSchema.xsd
-https://raw.githubusercontent.com/EARTHTIME/Schema/master/ValueModelXMLSchema.xsd

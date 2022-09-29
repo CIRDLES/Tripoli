@@ -1,1 +1,0 @@
-This folder contains certified Tripoli tracer models XML files.

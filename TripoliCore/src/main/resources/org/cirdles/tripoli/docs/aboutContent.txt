@@ -1,3 +1,0 @@
-Tripoli is a collaborative development effort coordinated by the Cyber Infrastructure Research and Development Lab for the Earth Sciences (CIRDLES.org)
- at the College of Charleston, Charleston, SC with
- the University of Kansas and Wayne State University.
