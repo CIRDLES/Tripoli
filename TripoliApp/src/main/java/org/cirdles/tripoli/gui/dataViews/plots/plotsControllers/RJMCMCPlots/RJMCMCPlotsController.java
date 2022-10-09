@@ -191,6 +191,7 @@ public class RJMCMCPlotsController {
 
         ObservableList<File> items = FXCollections.observableArrayList(filesInFolder);
         listViewOfSyntheticFiles.setItems(items);
+        listViewOfSyntheticFiles.getSelectionModel().selectFirst();
         // todo: complete listener
 //        listViewOfSyntheticFiles.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<File>() {
 //            @Override
