@@ -57,17 +57,13 @@
                                 </HBox>
                             </content>
                         </Tab>
-                  <Tab text="Ensembles Test">
+                  <Tab fx:id="ensemblesTab" text="Ensembles Test">
                     <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                           <children>
-                              <TabPane fx:id="logRatioHistogramsTab" prefHeight="260.0" prefWidth="1000.0" tabClosingPolicy="UNAVAILABLE">
-                                <tabs>
-                                  <Tab text="Log Ratio Histograms" />
-                                </tabs>
-                              </TabPane>
-                           </children>
-                        </AnchorPane>
+                        <TabPane fx:id="ratioHistogramsTabPane" tabClosingPolicy="UNAVAILABLE">
+                          <tabs>
+                            <Tab text="Ratio Histograms" />
+                          </tabs>
+                        </TabPane>
                     </content>
                   </Tab>
                         <Tab closable="false" text="DataFit">

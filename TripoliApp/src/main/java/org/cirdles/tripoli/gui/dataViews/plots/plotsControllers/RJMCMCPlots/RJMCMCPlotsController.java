@@ -3,11 +3,11 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
@@ -16,6 +16,7 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
+import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramRecord;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.MultiLinePlotBuilder;
@@ -29,6 +30,8 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static org.cirdles.tripoli.TripoliConstants.SYNTHETIC_DATA_FOLDER_2ISOTOPE;
+import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHeight;
+import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.PLOT_WINDOW_WIDTH;
 
@@ -106,6 +109,10 @@ public class RJMCMCPlotsController {
 
     @FXML
     private ToolBar toolbar;
+    @FXML
+    private TabPane ratioHistogramsTabPane;
+
+
 
     private ListView<File> listViewOfSyntheticFiles = new ListView<>();
 
@@ -236,7 +243,6 @@ public class RJMCMCPlotsController {
 
             AbstractPlotBuilder convergeNoiseFaradayL1LineBuilder = plotBuildersTask.getConvergeNoiseFaradayL1LineBuilder();
             AbstractPlotBuilder convergeNoiseFaradayH1LineBuilder = plotBuildersTask.getConvergeNoiseFaradayH1LineBuilder();
-
 
             AbstractDataView ratiosHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth(),
@@ -440,6 +446,22 @@ public class RJMCMCPlotsController {
             convergeNoiseGridPane.add(convergeNoiseFaradayH1LinePlot, 0, 1);
 
             processFileButton.setDisable(false);
+
+            // ratio histograms revision
+            PlotWallPane plotWallPane = new PlotWallPane();
+            plotWallPane.buildToolBar();
+            plotWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("RED"),null,null)));
+            ratioHistogramsTabPane.getTabs().get(0).setContent(plotWallPane);
+
+            for (HistogramRecord plotRecord : ((HistogramBuilder) ratiosHistogramBuilder).getHistograms()) {
+                TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
+                HistogramSinglePlot ratiosHistogramSinglePlot = new HistogramSinglePlot(
+                        new Rectangle(minPlotWidth, minPlotHeight),
+                        plotRecord, "Histogram of Ratios", "Ratios", "Counts");
+                tripoliPlotPane.addPlot(ratiosHistogramSinglePlot);
+            }
+
+            plotWallPane.tilePlots();
 
         });
 
