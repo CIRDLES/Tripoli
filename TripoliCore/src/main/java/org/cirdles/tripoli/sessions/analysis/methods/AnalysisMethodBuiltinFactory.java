@@ -93,7 +93,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
 
         ku_204_5_6_7_8_Daly_AllFaradayPb.getTripoliRatiosList().add(new IsotopicRatio(pb204, pb208));
         ku_204_5_6_7_8_Daly_AllFaradayPb.getTripoliRatiosList().add(new IsotopicRatio(pb205, pb208));
-        ku_204_5_6_7_8_Daly_AllFaradayPb.getTripoliRatiosList().add(new IsotopicRatio(pb207, pb208));
+        ku_204_5_6_7_8_Daly_AllFaradayPb.getTripoliRatiosList().add(new IsotopicRatio(pb206, pb208));
         ku_204_5_6_7_8_Daly_AllFaradayPb.getTripoliRatiosList().add(new IsotopicRatio(pb207, pb208));
 
         DetectorSetup detectorSetup = ku_204_5_6_7_8_Daly_AllFaradayPb.getMassSpectrometer().getDetectorSetup();
