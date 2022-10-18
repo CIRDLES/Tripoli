@@ -222,7 +222,7 @@ public class RJMCMCPlotsController {
         service.setOnSucceeded(evt -> {
             RJMCMCPlotBuildersTask plotBuildersTask = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask());
 
-            AbstractPlotBuilder ratiosHistogramBuilder = plotBuildersTask.getRatiosHistogramBuilder();
+            AbstractPlotBuilder[] ratiosHistogramBuilder = plotBuildersTask.getRatiosHistogramBuilder();
             AbstractPlotBuilder baselineHistogramBuilder = plotBuildersTask.getBaselineHistogramBuilder();
             AbstractPlotBuilder dalyFaradayHistogramBuilder = plotBuildersTask.getDalyFaradayGainHistogramBuilder();
             AbstractPlotBuilder signalNoiseHistogramBuilder = plotBuildersTask.getSignalNoiseHistogramBuilder();
@@ -243,11 +243,6 @@ public class RJMCMCPlotsController {
 
             AbstractPlotBuilder convergeNoiseFaradayL1LineBuilder = plotBuildersTask.getConvergeNoiseFaradayL1LineBuilder();
             AbstractPlotBuilder convergeNoiseFaradayH1LineBuilder = plotBuildersTask.getConvergeNoiseFaradayH1LineBuilder();
-
-            AbstractDataView ratiosHistogramPlot = new HistogramPlot(
-                    new Rectangle(ensembleGridPane.getWidth(),
-                            (plotTabPane.getHeight() - TAB_HEIGHT) / ensembleGridPane.getRowCount()),
-                    (HistogramBuilder) ratiosHistogramBuilder);
 
             AbstractDataView baselineHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth() / ensembleGridPane.getColumnCount(),
@@ -326,8 +321,6 @@ public class RJMCMCPlotsController {
             plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue.intValue() > 100) {
                     double newWidth = newValue.intValue() - ensembleLegendTextBox.getWidth();
-                    ratiosHistogramPlot.setMyWidth(newWidth);
-                    ratiosHistogramPlot.repaint();
                     baselineHistogramPlot.setMyWidth(newWidth / ensembleGridPane.getColumnCount());
                     baselineHistogramPlot.repaint();
                     dalyFaradayHistogramPlot.setMyWidth(newWidth / ensembleGridPane.getColumnCount());
@@ -369,8 +362,6 @@ public class RJMCMCPlotsController {
 
             plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue.intValue() > 100) {
-                    ratiosHistogramPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
-                    ratiosHistogramPlot.repaint();
                     baselineHistogramPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
                     baselineHistogramPlot.repaint();
                     dalyFaradayHistogramPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
@@ -408,8 +399,6 @@ public class RJMCMCPlotsController {
                 }
             });
 
-            ratiosHistogramPlot.preparePanel();
-            ensembleGridPane.add(ratiosHistogramPlot, 0, 0, 2, 1);
             baselineHistogramPlot.preparePanel();
             ensembleGridPane.add(baselineHistogramPlot, 0, 1, 1, 1);
             dalyFaradayHistogramPlot.preparePanel();
@@ -450,14 +439,15 @@ public class RJMCMCPlotsController {
             // ratio histograms revision
             PlotWallPane plotWallPane = new PlotWallPane();
             plotWallPane.buildToolBar();
-            plotWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("RED"),null,null)));
+            plotWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"),null,null)));
             ratioHistogramsTabPane.getTabs().get(0).setContent(plotWallPane);
 
-            for (HistogramRecord plotRecord : ((HistogramBuilder) ratiosHistogramBuilder).getHistograms()) {
+            for (int i = 0; i < ratiosHistogramBuilder.length; i++){
+                HistogramRecord plotRecord = ((HistogramBuilder) ratiosHistogramBuilder[i]).getHistograms()[0];
                 TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
                 HistogramSinglePlot ratiosHistogramSinglePlot = new HistogramSinglePlot(
                         new Rectangle(minPlotWidth, minPlotHeight),
-                        plotRecord, "Histogram of Ratios", "Ratios", "Counts");
+                        plotRecord, plotRecord.title(), "Ratios", "Counts");
                 tripoliPlotPane.addPlot(ratiosHistogramSinglePlot);
             }
 

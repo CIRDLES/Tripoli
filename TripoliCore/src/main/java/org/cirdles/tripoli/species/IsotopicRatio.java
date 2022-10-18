@@ -34,7 +34,7 @@ public class IsotopicRatio implements Serializable {
     }
 
     public String prettyPrint(){
-        return numerator.getMolecularFormula() + " / " + denominator.getMolecularFormula();
+        return numerator.prettyPrintShortForm() + " / " + denominator.prettyPrintShortForm();
     }
 
 //    private void readObject(ObjectInputStream stream) throws IOException,

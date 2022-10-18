@@ -38,7 +38,7 @@ import static java.lang.StrictMath.pow;
  */
 public class DataModelPlot {
 
-    public static AbstractPlotBuilder[] analysisAndPlotting(
+    public static AbstractPlotBuilder[][] analysisAndPlotting(
             MassSpecOutputDataRecord massSpecOutputDataRecord,
             List<EnsemblesStore.EnsembleRecord> ensembleRecordsList,
             DataModellerOutputRecord lastDataModelInit,
@@ -169,17 +169,15 @@ public class DataModelPlot {
         }
 
         // visualization - Ensembles tab
-        AbstractPlotBuilder[] plotBuilders = new AbstractPlotBuilder[15];
-        // prepare titles for plots
-        String[] plotTitles = new String[ isotopicRatioList.size()];
-        for (int i = 0; i < plotTitles.length; i++){
-            plotTitles[i] = isotopicRatioList.get(i).prettyPrint();
+        AbstractPlotBuilder[][] plotBuilders = new AbstractPlotBuilder[15][1];
+        plotBuilders[0] = new AbstractPlotBuilder[isotopicRatioList.size()];
+        for (int i = 0; i < isotopicRatioList.size(); i++){
+            plotBuilders[0][i] = HistogramBuilder.initializeHistogram(ensembleRatios[i],  50, isotopicRatioList.get(i).prettyPrint());
         }
-        plotBuilders[0] = HistogramBuilder.initializeHistogram(true, ensembleRatios,  50, "Placeholder");
-        plotBuilders[1] = HistogramBuilder.initializeHistogram(true, ensembleBaselines, 50, "Histogram of baseline");
-        plotBuilders[2] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain, 50, "Histogram of Daly/Faraday Gain");
-        plotBuilders[3] = HistogramBuilder.initializeHistogram(true, ensembleSignalnoise, 50, "Histogram of Signal Noise");
-        plotBuilders[4] = MultiLinePlotBuilder.initializeLinePlot(xDataIntensityMeans, yDataIntensityMeans, "Mean Intensity");
+        plotBuilders[1][0] = HistogramBuilder.initializeHistogram(true, ensembleBaselines, 50, "Histogram of baseline");
+        plotBuilders[2][0] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain, 50, "Histogram of Daly/Faraday Gain");
+        plotBuilders[3][0] = HistogramBuilder.initializeHistogram(true, ensembleSignalnoise, 50, "Histogram of Signal Noise");
+        plotBuilders[4][0] = MultiLinePlotBuilder.initializeLinePlot(xDataIntensityMeans, yDataIntensityMeans, "Mean Intensity");
 
         // visualization converge ratio and others tabs
         double[] convergeLogRatios = new double[ensembleRecordsList.size()];
@@ -207,14 +205,14 @@ public class DataModelPlot {
             convergeNoiseFaradayH1[index] = ensembleRecordsList.get(index).signalNoise()[1];
             xDataconvergeSavedIterations[index] = index + 1;
         }
-        plotBuilders[5] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeRatios, "Converge Ratio");
-        plotBuilders[6] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeBaselineFaradayL1, "Converge Baseline Faraday L1");
-        plotBuilders[7] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeBaselineFaradayH1, "Converge Baseline Faraday H1");
-        plotBuilders[8] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeErrWeightedMisfit, "Converge Weighted Misfit");
-        plotBuilders[9] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeErrRawMisfit, "Converge Raw Misfit");
-        plotBuilders[10] = MultiLinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeIntensities, "Converge Intensity");
-        plotBuilders[11] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeNoiseFaradayL1, "Converge Noise Faraday L1");
-        plotBuilders[12] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeNoiseFaradayH1, "Converge Noise Faraday H1");
+        plotBuilders[5][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeRatios, "Converge Ratio");
+        plotBuilders[6][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeBaselineFaradayL1, "Converge Baseline Faraday L1");
+        plotBuilders[7][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeBaselineFaradayH1, "Converge Baseline Faraday H1");
+        plotBuilders[8][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeErrWeightedMisfit, "Converge Weighted Misfit");
+        plotBuilders[9][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeErrRawMisfit, "Converge Raw Misfit");
+        plotBuilders[10][0] = MultiLinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeIntensities, "Converge Intensity");
+        plotBuilders[11][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeNoiseFaradayL1, "Converge Noise Faraday L1");
+        plotBuilders[12][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeNoiseFaradayH1, "Converge Noise Faraday H1");
 
 
         // visualization data fit
@@ -276,9 +274,9 @@ public class DataModelPlot {
             yDataResiduals[i] = dataOriginalCounts[i * plottingStep] - data[i * plottingStep];
             yDataSigmas[i] = dataCountsModelOneSigma[i * plottingStep];
         }
-        plotBuilders[13] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, "Observed Data");
+        plotBuilders[13][0] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, "Observed Data");
 
-        plotBuilders[14] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, "Residual Data");
+        plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, "Residual Data");
 
 
         // todo: missing additional elements of signalNoise (i.e., 0,11,11)

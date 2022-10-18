@@ -34,7 +34,7 @@ public record NuclideRecord(
         double naturalAbundancePercent
 ) implements SpeciesRecordInterface, Serializable {
 
-    public String prettyPrint() {
+    public String prettyPrintLongForm() {
         DecimalFormat df = new DecimalFormat("###0.0000000#####           ");
         return elementSymbol +
                 "" + (protonsZ + neutronsN) +
@@ -43,6 +43,11 @@ public record NuclideRecord(
                 naturalAbundancePercent +
                 "\t 1/2Life: " +
                 (halfLifeAnnum > 0 ? halfLifeAnnum : (halfLifeAnnum < 0) ? "Stable" : "n/a");
+    }
+
+    public String prettyPrintShortForm() {
+        return elementSymbol +
+                "" + (protonsZ + neutronsN) ;
     }
 
     public int getMassNumber() {

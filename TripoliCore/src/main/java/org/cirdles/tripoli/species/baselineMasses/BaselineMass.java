@@ -47,4 +47,9 @@ public class BaselineMass implements SpeciesRecordInterface, Serializable {
     public double getNaturalAbundancePercent() {
         return DEFAULT_ABUNDANCE;
     }
+
+    @Override
+    public String prettyPrintShortForm() {
+        return "OOPS";
+    }
 }

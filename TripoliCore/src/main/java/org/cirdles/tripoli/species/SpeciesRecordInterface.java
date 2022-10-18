@@ -22,4 +22,6 @@ public interface SpeciesRecordInterface {
     double getAtomicMass();
 
     double getNaturalAbundancePercent();
+
+    public String prettyPrintShortForm();
 }

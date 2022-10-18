@@ -31,7 +31,7 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
     private Path dataFile;
     private AnalysisMethod analysisMethod;
     // ensemble plots
-    private AbstractPlotBuilder ratiosHistogramBuilder;
+    private AbstractPlotBuilder[] ratiosHistogramBuilder;
     private AbstractPlotBuilder baselineHistogramBuilder;
     private AbstractPlotBuilder dalyFaradayGainHistogramBuilder;
     private AbstractPlotBuilder signalNoiseHistogramBuilder;
@@ -58,7 +58,7 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
         this.analysisMethod = analysisMethod;
     }
 
-    public AbstractPlotBuilder getRatiosHistogramBuilder() {
+    public AbstractPlotBuilder[] getRatiosHistogramBuilder() {
         return ratiosHistogramBuilder;
     }
 
@@ -120,27 +120,27 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
 
     @Override
     protected String call() throws Exception {
-        AbstractPlotBuilder[] plots = DataModelDriverExperiment.driveModelTest(dataFile, analysisMethod, this);
+        AbstractPlotBuilder[][] plots = DataModelDriverExperiment.driveModelTest(dataFile, analysisMethod, this);
         ratiosHistogramBuilder = plots[0];
-        baselineHistogramBuilder = plots[1];
-        dalyFaradayGainHistogramBuilder = plots[2];
-        signalNoiseHistogramBuilder = plots[3];
-        meanIntensityLineBuilder = plots[4];
+        baselineHistogramBuilder = plots[1][0];
+        dalyFaradayGainHistogramBuilder = plots[2][0];
+        signalNoiseHistogramBuilder = plots[3][0];
+        meanIntensityLineBuilder = plots[4][0];
 
-        convergeRatioLineBuilder = plots[5];
+        convergeRatioLineBuilder = plots[5][0];
 
-        convergeBLFaradayL1LineBuilder = plots[6];
-        convergeBLFaradayH1LineBuilder = plots[7];
+        convergeBLFaradayL1LineBuilder = plots[6][0];
+        convergeBLFaradayH1LineBuilder = plots[7][0];
 
-        convergeErrWeightedMisfitLineBuilder = plots[8];
-        convergeErrRawMisfitLineBuilder = plots[9];
-        convergeIntensityLinesBuilder = plots[10];
+        convergeErrWeightedMisfitLineBuilder = plots[8][0];
+        convergeErrRawMisfitLineBuilder = plots[9][0];
+        convergeIntensityLinesBuilder = plots[10][0];
 
-        convergeNoiseFaradayL1LineBuilder = plots[11];
-        convergeNoiseFaradayH1LineBuilder = plots[12];
+        convergeNoiseFaradayL1LineBuilder = plots[11][0];
+        convergeNoiseFaradayH1LineBuilder = plots[12][0];
 
-        observedDataLineBuilder = plots[13];
-        residualDataLineBuilder = plots[14];
+        observedDataLineBuilder = plots[13][0];
+        residualDataLineBuilder = plots[14][0];
 
         return dataFile.getFileName() + "\n\n\tDONE - view tabs for various plots";
     }
