@@ -26,7 +26,10 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.ojalgo.RecoverableCondition;
+import org.ojalgo.function.PrimitiveFunction;
 import org.ojalgo.matrix.decomposition.Cholesky;
+import org.ojalgo.matrix.decomposition.Eigenvalue;
+import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 import org.ojalgo.random.Normal;
@@ -40,8 +43,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import static java.lang.Math.min;
-import static java.lang.Math.pow;
+import static java.lang.Math.*;
 import static java.lang.StrictMath.exp;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdater.updateMSv2;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdater.updateMeanCovMS;
@@ -112,7 +114,7 @@ public class DataModelDriverExperiment {
             Nsig = d0.Nsig; % Number of noise variables
          */
 
-        int maxCount = 1000;//2000;
+        int maxCount = 2000;
         if (dataModelInit_X0.logratios().length > 2){
             maxCount = 500;
         }
@@ -478,7 +480,6 @@ public class DataModelDriverExperiment {
                     % Decide whether to accept or reject model
                     keep = AcceptItMS(oper,dE,psig,delx,prior,Dsig,Dsig2,d0);
                  */
-                // todo: make variable for bool calculate before for loop, right after its declared
                 if (noiseOperation) {
                     E += residualValue / dSignalNoiseArray[row];
                     E2 += residualValue2 / dSignalNoise2Array[row];
@@ -606,30 +607,154 @@ public class DataModelDriverExperiment {
 
                     //todo: delx_adapt
                     if (adaptiveFlag) {
-                    /*
-                    mvnrnd(
-                    zeros(sizeOfModel,1)
-                    ,2.38^2*xDataCovariance/sizeOfModel
-                    ,stepCountForcedSave)'
-                    stepCountForcedSave = 100
-                    sizeOfModel = 21
+                        /*
+                        mvnrnd(
+                        zeros(sizeOfModel,1)
+                        ,2.38^2*xDataCovariance/sizeOfModel
+                        ,stepCountForcedSave)'
 
-                    function [r,T] = mvnrnd(mu,sigma,cases,T)
-                        mu = mu';
-                        n = cases;
-                        mu = repmat(mu,n,1);
-                        [T,err] = cholcov(sigma);
-                        r = randn(n,size(T,1)) * T + mu;
-                        t = diag(sigma);
-                        r(:,t==0) = mu(:,t==0); % force exact mean when variance is 0
-                     */
+                        stepCountForcedSave = 100
+                        sizeOfModel = 21
+
+                        function [r,T] = mvnrnd(mu,sigma,cases,T)
+                            % Special case: if mu is a column vector, then use sigma to try
+                            % to interpret it as a row vector.
+                            mu = mu';
+                            % mu is a single row, make cases copies
+                            n = cases;
+                            mu = repmat(mu,n,1);
+                            [T,err] = cholcov(sigma);
+                                function [T,p] = cholcov(Sigma,flag)
+                                    [n,m] = size(Sigma);
+                                    wassparse = issparse(Sigma);
+                                    tol = 10*eps(max(abs(diag(Sigma))));
+                                    if all(all(abs(Sigma - Sigma') < n*tol))
+                                        [T,p] = chol(Sigma);
+
+                                        if p > 0
+                                            % Test for positive definiteness
+                                            % Can get factors of the form Sigma==T'*T using the eigenvalue
+                                            % decomposition of a symmetric matrix, so long as the matrix
+                                            % is positive semi-definite.
+                                            [U,D] = eig(full((Sigma+Sigma')/2));
+
+                                            % Pick eigenvector direction so max abs coordinate is positive
+                                            [~,maxind] = max(abs(U),[],1);
+                                            negloc = (U(maxind + (0:n:(m-1)*n)) < 0);
+                                            U(:,negloc) = -U(:,negloc);
+
+                                            D = diag(D);
+                                            tol = eps(max(D)) * length(D);
+                                            t = (abs(D) > tol);
+                                            D = D(t);
+                                            p = sum(D<0); % number of negative eigenvalues
+
+                                            if (p==0)
+                                                T = diag(sqrt(D)) * U(:,t)';
+                                            else
+                                                T = zeros(0,'like',Sigma);
+                                            end
+                                        end
+                                    else
+                                        T = zeros(0,'like',Sigma);
+                                        p = nan('like',Sigma);
+                                    end
+
+                                    if wassparse
+                                        T = sparse(T);
+                                    end
+                            if isnan(err)
+                                error(message('stats:mvnrnd:BadCovariance2DSym'));
+                            elseif err ~= 0
+                                error(message('stats:mvnrnd:BadCovariance2DPos'));
+                            end
+                            r = randn(n,size(T,1)) * T + mu;
+                        end
+                        */
+                        MatrixStore<Double> sigma = storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / sizeOfModel);
                         Normal tmpNormDistribution = new Normal();
-                        Primitive64Store distribution = Primitive64Store.FACTORY.makeFilled(stepCountForcedSave, sizeOfModel, tmpNormDistribution);
+                        Primitive64Store mu = Primitive64Store.FACTORY.makeFilled(stepCountForcedSave, sizeOfModel, tmpNormDistribution);
 
-                        Cholesky<Double> cholesky = Cholesky.PRIMITIVE.make();
-                        cholesky.decompose(storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / sizeOfModel));
+                        // beginning of cholcov()
+                        Cholesky<Double> cholesky = Cholesky.PRIMITIVE.make(sigma);
+                        cholesky.decompose(sigma); // possibly wrong method
 
-                        delx_adapt = distribution.multiply(cholesky.getR()).transpose().copy();
+                        // if(!cholesky.isSPD()){
+                            // [U,D] = eig(full((Sigma+Sigma')/2));
+                            Eigenvalue<Double> eigen = Eigenvalue.PRIMITIVE.make();
+                            eigen.checkAndDecompose(sigma.add(sigma.transpose()).multiply(.5)); // todo research matlab full()
+                            PhysicalStore<Double> U = eigen.getV().copy();
+                            // MatrixStore<Double> D = eigen.getD();
+                            // [~,maxind] = max(abs(U),[],1);
+                            double[][] temp = U.onAll(PrimitiveFunction.getSet().abs()).toRawCopy2D();
+                            double [] maxind = new double[temp.length];
+                            for(int row = 0; row < temp.length; row++){
+                                double maxValue = Double.MIN_VALUE;
+                                for(int col = 0; col < temp.length; col++){
+                                    maxValue = max(temp[col][row], maxValue);
+                                }
+                                maxind[row] = maxValue;
+                            }
+                            // System.err.println("\n" + Arrays.toString(maxind));
+                            // negloc = (U(maxind + (0:n:(m-1)*n)) < 0);
+                            double [] tempnegloc = new double[21];
+                            double [] negloc = new double[21];
+                            for(int i = 0; i < tempnegloc.length; i++){
+                                tempnegloc[i] = (i * 21) + maxind[i];
+                            }
+                            // System.err.println("\n" + Arrays.toString(tempnegloc));
+                            double [] temp2 = U.toRawCopy1D();
+                            for(int i = 0; i < negloc.length; i++){
+                                negloc[i] = temp2[(int) tempnegloc[i]] > 0 ? 1 : 0;
+                            }
+
+                            // System.err.println("\n" + Arrays.toString(negloc));
+                            // D = diag(D);
+                            MatrixStore<Double> DDiag = eigen.getD().diagonal();
+                            // tol = eps(max(D)) * length(D);
+                            double tol = DDiag.get(DDiag.indexOfLargest()) * DDiag.getRowDim();
+                            // t = (abs(D) > tol);
+                            double[] t = new double[DDiag.getRowDim()];
+                            for(int i = 0; i < t.length; i++){
+                                t[i] = abs(DDiag.get(i)) > tol ? 1 : 0;
+                            }
+                            // D = D(t); todo array out of bounds danger weird matlab exception
+                            double[] D2 = new double[DDiag.getRowDim()];
+                            for(int i = 0; i < t.length; i++){
+                                D2[i] = t[i] == 1 ? DDiag.get(i) : 0;
+                            }
+                            // p = sum(D<0); % number of negative eigenvalues
+                            double p = 0;
+                            for(int i = 0; i < D2.length; i++){
+                                p += D2[i] < 0 ? D2[i] : 0;
+                            }
+                            // if (p==0)
+                            //  T = diag(sqrt(D)) * U(:,t)';
+                            // else
+                            //  T = zeros(0,'like',Sigma);
+                            PhysicalStore<Double> T;
+                            if(p == 0){
+                                PhysicalStore<Double> Utemp = storeFactory.make(U.getRowDim(), U.getColDim());
+                                int col = 0;
+                                for(int i = 0; i < t.length; i++){
+                                    if( t[i] == 1) {
+                                        for(int j = 0; j < U.getRowDim(); j++){
+                                            Utemp.set(col,j,U.get(i,j));
+                                        }
+                                        col++;
+                                    }
+                                }
+                                T = storeFactory.columns(d2).onAll(PrimitiveFunction.getSet().sqrt()).diagonal().multiply(Utemp.transpose()).copy();
+                            }
+                            else {
+                                // empty array is returned, P is used as error code
+                                T = storeFactory.makeZero(sigma.getColDim(), sigma.getRowDim()).copy();
+                            }
+                        // }
+
+                        // end of cholcov()
+                        // delx_adapt = mu.multiply(cholesky.getR()).transpose().copy();
+                        delx_adapt = mu.multiply(T).transpose().copy();
                     }
                 }
 
