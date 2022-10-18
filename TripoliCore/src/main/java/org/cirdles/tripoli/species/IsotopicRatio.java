@@ -33,6 +33,10 @@ public class IsotopicRatio implements Serializable {
         this.denominator = denominator;
     }
 
+    public String prettyPrint(){
+        return numerator.getMolecularFormula() + " / " + denominator.getMolecularFormula();
+    }
+
 //    private void readObject(ObjectInputStream stream) throws IOException,
 //            ClassNotFoundException {
 //        stream.defaultReadObject();

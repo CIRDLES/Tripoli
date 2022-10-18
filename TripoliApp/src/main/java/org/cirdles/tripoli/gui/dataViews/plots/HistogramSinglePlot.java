@@ -17,9 +17,7 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
-import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramRecord;
 
 /**
@@ -27,7 +25,7 @@ import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramRecord;
  */
 public class HistogramSinglePlot extends AbstractPlot {
 
-    private HistogramRecord histogramRecord;
+    private final HistogramRecord histogramRecord;
     private double binWidth;
     private boolean doFrameBins;
 
@@ -38,14 +36,9 @@ public class HistogramSinglePlot extends AbstractPlot {
 
     @Override
     public void preparePanel() {
-
         xAxisData = histogramRecord.binCenters();
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
-
-        double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.25);
-        minX -= xMarginStretch;
-        maxX += xMarginStretch;
 
         yAxisData = histogramRecord.binCounts();
         // special case histogram
@@ -56,14 +49,11 @@ public class HistogramSinglePlot extends AbstractPlot {
             maxY = StrictMath.max(maxY, yAxisDatum);
         }
 
-        double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.25);
-        maxY += yMarginStretch;
-
         displayOffsetX = 0.0;
         displayOffsetY = 0.0;
 
+        prepareExtents();
         calculateTics();
-
         this.repaint();
     }
 
@@ -72,11 +62,21 @@ public class HistogramSinglePlot extends AbstractPlot {
         super.paint(g2d);
 
         // plot bins
-        g2d.setFill(Paint.valueOf("BLUE"));
+        g2d.setFill(dataColor);
         g2d.setLineWidth(2.0);
         doFrameBins = (mapX(xAxisData[1]) - mapX(xAxisData[0])) > 1.0;
         binWidth = histogramRecord.binWidth();
         plotData(g2d);
+    }
+
+    public void prepareExtents() {
+        double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.25);
+        minX -= xMarginStretch;
+        maxX += xMarginStretch;
+
+        double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.25);
+        maxY += yMarginStretch;
+        // minY stays 0.0
     }
 
     @Override

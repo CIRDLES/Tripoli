@@ -25,11 +25,11 @@ import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -60,7 +60,7 @@ public abstract class AbstractPlot extends Canvas {
     protected ContextMenu plotContextMenu;
     protected double mouseStartX;
     protected double mouseStartY;
-        private final EventHandler<MouseEvent> mousePressedEventHandler = e -> {
+    private final EventHandler<MouseEvent> mousePressedEventHandler = e -> {
         if (mouseInHouse(e.getX(), e.getY())) {
             if (e.isPrimaryButtonDown()) {
                 mouseStartX = e.getX();
@@ -77,8 +77,6 @@ public abstract class AbstractPlot extends Canvas {
     protected String plotTitle;
     protected String plotAxisLabelX;
     protected String plotAxisLabelY;
-
-
     private final EventHandler<ScrollEvent> scrollEventEventHandler = new EventHandler<>() {
         @Override
         public void handle(ScrollEvent event) {
@@ -109,6 +107,7 @@ public abstract class AbstractPlot extends Canvas {
             repaint();
         }
     };
+    protected Color dataColor;
 
     private AbstractPlot() {
         super();
@@ -130,6 +129,7 @@ public abstract class AbstractPlot extends Canvas {
         this.plotTitle = plotTitle;
         this.plotAxisLabelX = plotAxisLabelX;
         this.plotAxisLabelY = plotAxisLabelY;
+        this.dataColor = Color.BLUE;
 
         this.xAxisData = new double[0];
         this.yAxisData = new double[0];
@@ -146,6 +146,14 @@ public abstract class AbstractPlot extends Canvas {
         this.setOnMouseClicked(new MouseClickEventHandler());
     }
 
+    public Color getDataColor() {
+        return dataColor;
+    }
+
+    public void setDataColor(Color dataColor) {
+        this.dataColor = dataColor;
+    }
+
     private void setupPlotContextMenu() {
         plotContextMenu = new ContextMenu();
         MenuItem plotContextMenuItem1 = new MenuItem("Restore plot");
@@ -158,7 +166,12 @@ public abstract class AbstractPlot extends Canvas {
             this.getParent().toFront();
         });
 
-        plotContextMenu.getItems().addAll(plotContextMenuItem1, plotContextMenuItem2);
+        MenuItem plotContextMenuItem3 = new MenuItem("Set data color");
+        plotContextMenuItem3.setOnAction((mouseEvent) -> {
+            ((TripoliPlotPane) this.getParent()).changeDataColor(this);
+        });
+
+        plotContextMenu.getItems().addAll(plotContextMenuItem1, plotContextMenuItem2, plotContextMenuItem3);
 
     }
 
@@ -191,15 +204,18 @@ public abstract class AbstractPlot extends Canvas {
     public void plotData(GraphicsContext g2d) {
     }
 
+    public void prepareExtents(){
+    }
+
     public void calculateTics() {
-        ticsX = TicGeneratorForAxes.generateTics(getMinX_Display(), getMaxX_Display(), (int) (plotWidth / 40.0));
+        ticsX = TicGeneratorForAxes.generateTics(getMinX_Display(), getMaxX_Display(), (int) (plotWidth / 50.0));
         if (ticsX.length == 0) {
             ticsX = new BigDecimal[2];
             ticsX[0] = new BigDecimal(minX);
             ticsX[ticsX.length - 1] = new BigDecimal(maxX);
         }
 
-        ticsY = TicGeneratorForAxes.generateTics(getMinY_Display(), getMaxY_Display(), (int) (plotHeight / 20.0));
+        ticsY = TicGeneratorForAxes.generateTics(getMinY_Display(), getMaxY_Display(), (int) (plotHeight / 25.0));
         if (ticsY.length == 0) {
             ticsY = new BigDecimal[2];
             ticsY[0] = new BigDecimal(minY);
@@ -227,7 +243,10 @@ public abstract class AbstractPlot extends Canvas {
                         g2d.strokeLine(
                                 leftMargin, mapY(bigDecimalTicY.doubleValue()), leftMargin + plotWidth, mapY(bigDecimalTicY.doubleValue()));
                         // left side
-                        text.setText(bigDecimalTicY.toString());
+                        Formatter fmt = new Formatter();
+                        fmt.format("%16.2g", bigDecimalTicY.doubleValue());
+                        String yText = fmt.toString().trim();
+                        text.setText(yText);
                         textWidth = (int) text.getLayoutBounds().getWidth();
                         g2d.fillText(text.getText(),//
                                 leftMargin - textWidth - 2.5f,
@@ -245,8 +264,9 @@ public abstract class AbstractPlot extends Canvas {
                                 mapX(ticsX[i].doubleValue()),
                                 topMargin + plotHeight + 3);
                         // bottom
+                        // http://www.java2s.com/Tutorials/Java/String/How_to_use_Java_Formatter_to_format_value_in_scientific_notation.htm#:~:text=%25e%20is%20for%20scientific%20notation,scientific%20notation%2C%20use%20%25e.
                         Formatter fmt = new Formatter();
-                        fmt.format("%16.2e", ticsX[i].doubleValue());
+                        fmt.format("%16.5g", ticsX[i].doubleValue());
                         String xText = fmt.toString().trim();
                         g2d.fillText(xText,
                                 (float) mapX(ticsX[i].doubleValue()) - 7f,
@@ -300,7 +320,7 @@ public abstract class AbstractPlot extends Canvas {
 
         // draw border
         g2d.setStroke(Paint.valueOf("BLACK"));
-        g2d.setLineWidth(1);
+        g2d.setLineWidth(2);
         g2d.strokeRect(1, 1, width - 1, height - 1);
     }
 
@@ -459,21 +479,15 @@ public abstract class AbstractPlot extends Canvas {
                 && (sceneX < (plotWidth + leftMargin - 2)));
     }
 
+    public void updatePlotSize(double width, double height) {
+        this.width = width;
+        this.height = height;
+        updatePlotSize();
+    }
+
     public void updatePlotSize() {
         this.plotWidth = (int) (width - leftMargin - 10.0);
         this.plotHeight = (int) (height - 2 * topMargin);
-    }
-
-    public void setMyWidth(double width) {
-        this.width = width;
-        setWidth(width);
-        updatePlotSize();
-    }
-
-    public void setMyHeight(double height) {
-        this.height = height;
-        setHeight(height);
-        updatePlotSize();
     }
 
     public void setWidthF(double width) {

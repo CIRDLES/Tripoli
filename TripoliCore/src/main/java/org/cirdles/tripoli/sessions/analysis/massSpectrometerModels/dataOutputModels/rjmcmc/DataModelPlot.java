@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.StrictMath.exp;
+import static java.lang.StrictMath.pow;
 
 /**
  * @author James F. Bowring
@@ -169,7 +170,12 @@ public class DataModelPlot {
 
         // visualization - Ensembles tab
         AbstractPlotBuilder[] plotBuilders = new AbstractPlotBuilder[15];
-        plotBuilders[0] = HistogramBuilder.initializeHistogram(true, ensembleRatios,  50, "Histogram of ratios");
+        // prepare titles for plots
+        String[] plotTitles = new String[ isotopicRatioList.size()];
+        for (int i = 0; i < plotTitles.length; i++){
+            plotTitles[i] = isotopicRatioList.get(i).prettyPrint();
+        }
+        plotBuilders[0] = HistogramBuilder.initializeHistogram(true, ensembleRatios,  50, "Placeholder");
         plotBuilders[1] = HistogramBuilder.initializeHistogram(true, ensembleBaselines, 50, "Histogram of baseline");
         plotBuilders[2] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain, 50, "Histogram of Daly/Faraday Gain");
         plotBuilders[3] = HistogramBuilder.initializeHistogram(true, ensembleSignalnoise, 50, "Histogram of Signal Noise");

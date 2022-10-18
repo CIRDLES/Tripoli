@@ -18,12 +18,9 @@ package org.cirdles.tripoli.gui.dataViews.plots;
 
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.*;
 
@@ -32,13 +29,13 @@ import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.*;
  */
 public class TripoliPlotPane extends Pane {
 
+    public static double minPlotWidth = 225.0;
+    public static double minPlotHeight = 200.0;
     static double mouseStartX;
     static double mouseStartY;
     static boolean onEdgeEast;
     static boolean onEdgeSouth;
     static boolean oneEdgesNorthWest;
-    public static double minPlotWidth = 225.0;
-    public static double minPlotHeight = 200.0;
     private final EventHandler<MouseEvent> mouseMovedEventHandler = e -> {
         Pane targetPane = (Pane) e.getSource();
         targetPane.setCursor(Cursor.DEFAULT);
@@ -74,19 +71,12 @@ public class TripoliPlotPane extends Pane {
             mouseStartX = e.getSceneX();
             mouseStartY = e.getSceneY();
         }
+        toFront();
     };
 
     private final EventHandler<MouseEvent> mouseReleasedEventHandler = e -> {
-        Pane targetPane = (Pane) e.getSource();
-
-        // snap to grid
-        targetPane.setLayoutX(targetPane.getLayoutX() - (targetPane.getLayoutX() % gridCellDim));
-        targetPane.setPrefWidth(targetPane.getPrefWidth() - (targetPane.getPrefWidth() % gridCellDim));
-        targetPane.setLayoutY(targetPane.getLayoutY() - (targetPane.getLayoutY() % gridCellDim));
-        targetPane.setPrefHeight(targetPane.getPrefHeight() - (targetPane.getPrefHeight() % gridCellDim));
-
+        snapToGrid();
     };
-
     private Pane plotWallPane;
     private final EventHandler<MouseEvent> mouseDraggedEventHandler = e -> {
         Pane targetPane = (Pane) e.getSource();
@@ -131,7 +121,6 @@ public class TripoliPlotPane extends Pane {
             //
         }
     };
-
     private TripoliPlotPane(Pane plotWallPane) {
         this.plotWallPane = plotWallPane;
     }
@@ -141,12 +130,21 @@ public class TripoliPlotPane extends Pane {
         tripoliPlotPane.setPrefSize(minPlotWidth, minPlotHeight);
         tripoliPlotPane.setLayoutX(40.0);
         tripoliPlotPane.setLayoutY(40.0);
-        tripoliPlotPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, null)));
         tripoliPlotPane.initializePlotPane();
 
         plotWallPane.getChildren().addAll(tripoliPlotPane);
 
         return tripoliPlotPane;
+    }
+
+    public void snapToGrid() {
+        setLayoutX(getLayoutX() - (getLayoutX() % gridCellDim));
+        setPrefWidth(getPrefWidth() - (getPrefWidth() % gridCellDim));
+        setLayoutY(getLayoutY() - (getLayoutY() % gridCellDim));
+        setPrefHeight(getPrefHeight() - (getPrefHeight() % gridCellDim));
+
+        ((AbstractPlot) getChildren().get(0)).updatePlotSize(getPrefWidth(), getPrefHeight());
+        ((AbstractPlot) getChildren().get(0)).calculateTics();
     }
 
     private void initializePlotPane() {
@@ -156,7 +154,7 @@ public class TripoliPlotPane extends Pane {
         this.addEventFilter(MouseEvent.MOUSE_RELEASED, mouseReleasedEventHandler);
     }
 
-    public void addPlot(AbstractPlot plot){
+    public void addPlot(AbstractPlot plot) {
         getChildren().add(plot);
 
         plot.setLayoutX(0.0);
@@ -182,4 +180,23 @@ public class TripoliPlotPane extends Pane {
         plot.repaint();
     }
 
+    public void changeDataColor(AbstractPlot plot) {
+        ColorPicker colorPicker = new ColorPicker();
+        colorPicker.setLayoutX(getPrefWidth() / 2.0 - 50.0);
+        colorPicker.setLayoutY(10.0);
+
+        colorPicker.setValue(plot.getDataColor());
+        getChildren().add(colorPicker);
+        colorPicker.setVisible(true);
+
+        colorPicker.setOnAction(t -> {
+            plot.setDataColor(colorPicker.getValue());
+            plot.repaint();
+            getChildren().remove(colorPicker);
+        });
+    }
+
+    public void restorePlot(){
+        ((AbstractPlot)getChildren().get(0)).refreshPanel(true, true);
+    }
 }

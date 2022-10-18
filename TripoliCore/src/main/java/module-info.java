@@ -23,6 +23,7 @@ module Tripoli.TripoliCore {
     requires com.google.common;
     requires commons.math3;
     requires commons.lang3;
+    requires javafx.graphics;
 
 
     exports org.cirdles.tripoli;
