@@ -1,12 +1,15 @@
 package org.cirdles.tripoli.visualizationUtilities.histograms;
 
 import java.io.Serializable;
+import javafx.scene.paint.Color;
 
 public record HistogramRecord(
         double[] data,
         int binCount,
         double[] binCounts,
         double binWidth,
-        double[] binCenters
+        double[] binCenters,
+        Color dataColor,
+        String title
 ) implements Serializable {
 }

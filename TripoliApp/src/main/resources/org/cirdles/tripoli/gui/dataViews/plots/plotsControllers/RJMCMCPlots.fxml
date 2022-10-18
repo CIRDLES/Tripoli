@@ -17,6 +17,7 @@
  -->
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
@@ -29,10 +30,11 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="plotsAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="538.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsController">
+<AnchorPane fx:id="plotsAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsController">
     <children>
-        <VBox fx:id="masterVBox" prefHeight="538.0" prefWidth="800.0">
+        <VBox fx:id="masterVBox" prefHeight="600.0" prefWidth="1000.0">
             <children>
                 <TabPane fx:id="plotTabPane" prefHeight="326.0" prefWidth="714.0" VBox.vgrow="ALWAYS">
                     <tabs>
@@ -40,7 +42,7 @@
                             <content>
                                 <HBox>
                                     <children>
-                                        <GridPane fx:id="ensembleGridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="282.0" prefWidth="500.0">
+                                        <GridPane fx:id="ensembleGridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="262.0" prefWidth="694.0">
                                             <columnConstraints>
                                                 <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" percentWidth="50.0" prefWidth="100.0" />
                                                 <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" percentWidth="50.0" prefWidth="100.0" />
@@ -51,12 +53,28 @@
                                                 <RowConstraints minHeight="10.0" percentHeight="25.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
                                                 <RowConstraints minHeight="10.0" percentHeight="25.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
                                             </rowConstraints>
+                                 <children>
+                                    <Label text="See next tab, Ensembles New">
+                                       <font>
+                                          <Font size="25.0" />
+                                       </font>
+                                    </Label>
+                                 </children>
                                         </GridPane>
                                         <TextArea fx:id="ensembleLegendTextBox" prefHeight="282.0" prefWidth="306.0" text="All ensemble results (after burn in period).  Red lines show true values for synthetic tests.&#10;&#10;Top: Histogram of ratio values.&#10;&#10;Row 2: Histogram of Faraday baselines; Histogram of Daly/Faraday gain&#10;&#10;Row 3: Mean intensity versus true intensity - histogram was too messy here so added figure below.&#10;&#10;Row 4: 2D histogram of difference between modeled and true intensity (only calculated for synthetic case).&#10;&#10;Row 5: Histogram of noise parameters" wrapText="true" />
                                     </children>
                                 </HBox>
                             </content>
                         </Tab>
+                  <Tab fx:id="ensemblesTab" text="Ensembles New">
+                    <content>
+                        <TabPane fx:id="ratioHistogramsTabPane" tabClosingPolicy="UNAVAILABLE">
+                          <tabs>
+                            <Tab text="Ratio Histograms" />
+                          </tabs>
+                        </TabPane>
+                    </content>
+                  </Tab>
                         <Tab closable="false" text="DataFit">
                             <content>
                                 <HBox>

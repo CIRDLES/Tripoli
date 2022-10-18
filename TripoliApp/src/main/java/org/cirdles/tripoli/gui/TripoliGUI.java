@@ -103,7 +103,7 @@ public class TripoliGUI extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws IOException, AWTException {
+    public void start(Stage primaryStage) throws IOException {
         TripoliGUI.primaryStage = primaryStage;
         Parent root = new AnchorPane();
         Scene scene = new Scene(root);

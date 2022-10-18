@@ -121,7 +121,7 @@ public class PeriodicTableController {
         List<SpeciesRecordInterface> nuclides = NuclidesFactory.nuclidesListByElementMap.get(((ElementRecord) button.getUserData()).symbol());
         StringBuilder stringBuilder = new StringBuilder();
         for (SpeciesRecordInterface species : nuclides) {
-            stringBuilder.append("\t").append(((NuclideRecord) species).prettyPrint()).append("\n");
+            stringBuilder.append("\t").append(((NuclideRecord) species).prettyPrintLongForm()).append("\n");
         }
         elementDetailsTextBox.setText(
                 ((ElementRecord) button.getUserData()).elementName()
