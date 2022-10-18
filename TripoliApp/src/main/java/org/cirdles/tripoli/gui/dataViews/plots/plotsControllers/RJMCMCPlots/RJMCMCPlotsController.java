@@ -3,7 +3,6 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -113,7 +112,6 @@ public class RJMCMCPlotsController {
     private TabPane ratioHistogramsTabPane;
 
 
-
     private ListView<File> listViewOfSyntheticFiles = new ListView<>();
 
 
@@ -125,6 +123,7 @@ public class RJMCMCPlotsController {
         ((Button) event.getSource()).setDisable(true);
         processFileButton2.setDisable(true);
     }
+
     @FXML
     void demo1_5IsotopeButtonAction(ActionEvent event) throws IOException {
         // Jim's playground for 5 isotopes
@@ -439,10 +438,10 @@ public class RJMCMCPlotsController {
             // ratio histograms revision
             PlotWallPane plotWallPane = new PlotWallPane();
             plotWallPane.buildToolBar();
-            plotWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"),null,null)));
+            plotWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
             ratioHistogramsTabPane.getTabs().get(0).setContent(plotWallPane);
 
-            for (int i = 0; i < ratiosHistogramBuilder.length; i++){
+            for (int i = 0; i < ratiosHistogramBuilder.length; i++) {
                 HistogramRecord plotRecord = ((HistogramBuilder) ratiosHistogramBuilder[i]).getHistograms()[0];
                 TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
                 HistogramSinglePlot ratiosHistogramSinglePlot = new HistogramSinglePlot(

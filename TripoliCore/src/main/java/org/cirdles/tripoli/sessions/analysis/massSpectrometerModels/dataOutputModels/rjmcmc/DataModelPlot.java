@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.StrictMath.exp;
-import static java.lang.StrictMath.pow;
 
 /**
  * @author James F. Bowring
@@ -74,7 +73,7 @@ public class DataModelPlot {
         double[] logRatioMean = new double[isotopicRatioList.size()];
         double[] logRatioStdDev = new double[isotopicRatioList.size()];
         DescriptiveStatistics descriptiveStatisticsLogRatios = new DescriptiveStatistics();
-        for (int ratioIndex = 0; ratioIndex < isotopicRatioList.size(); ratioIndex ++) {
+        for (int ratioIndex = 0; ratioIndex < isotopicRatioList.size(); ratioIndex++) {
             for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
                 ensembleLogRatios[ratioIndex][index - burn] = ensembleRecordsList.get(index).logRatios()[ratioIndex];
                 descriptiveStatisticsLogRatios.addValue(ensembleLogRatios[ratioIndex][index - burn]);
@@ -171,8 +170,8 @@ public class DataModelPlot {
         // visualization - Ensembles tab
         AbstractPlotBuilder[][] plotBuilders = new AbstractPlotBuilder[15][1];
         plotBuilders[0] = new AbstractPlotBuilder[isotopicRatioList.size()];
-        for (int i = 0; i < isotopicRatioList.size(); i++){
-            plotBuilders[0][i] = HistogramBuilder.initializeHistogram(ensembleRatios[i],  50, isotopicRatioList.get(i).prettyPrint());
+        for (int i = 0; i < isotopicRatioList.size(); i++) {
+            plotBuilders[0][i] = HistogramBuilder.initializeHistogram(ensembleRatios[i], 50, isotopicRatioList.get(i).prettyPrint());
         }
         plotBuilders[1][0] = HistogramBuilder.initializeHistogram(true, ensembleBaselines, 50, "Histogram of baseline");
         plotBuilders[2][0] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain, 50, "Histogram of Daly/Faraday Gain");

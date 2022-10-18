@@ -61,11 +61,9 @@ public abstract class AbstractPlot extends Canvas {
     protected double mouseStartX;
     protected double mouseStartY;
     private final EventHandler<MouseEvent> mousePressedEventHandler = e -> {
-        if (mouseInHouse(e.getX(), e.getY())) {
-            if (e.isPrimaryButtonDown()) {
+        if (mouseInHouse(e.getX(), e.getY()) && e.isPrimaryButtonDown()) {
                 mouseStartX = e.getX();
                 mouseStartY = e.getY();
-            }
         }
     };
     protected BigDecimal[] ticsX;
@@ -83,7 +81,7 @@ public abstract class AbstractPlot extends Canvas {
             if (mouseInHouse(event.getX(), event.getY())) {
                 zoomChunkX = Math.abs(zoomChunkX) * Math.signum(event.getDeltaY());
                 zoomChunkY = Math.abs(zoomChunkY) * Math.signum(event.getDeltaY());
-                if (getRangeX_Display() >= zoomChunkX) {
+                if (getDisplayRangeX() >= zoomChunkX) {
                     minX += zoomChunkX;
                     maxX -= zoomChunkX;
                     minY += zoomChunkY;
@@ -201,29 +199,28 @@ public abstract class AbstractPlot extends Canvas {
         paint(this.getGraphicsContext2D());
     }
 
-    public void plotData(GraphicsContext g2d) {
-    }
+    public abstract void plotData(GraphicsContext g2d);
 
     public void prepareExtents(){
     }
 
     public void calculateTics() {
-        ticsX = TicGeneratorForAxes.generateTics(getMinX_Display(), getMaxX_Display(), (int) (plotWidth / 50.0));
+        ticsX = TicGeneratorForAxes.generateTics(getDisplayMinX(), getDisplayMaxX(), (int) (plotWidth / 50.0));
         if (ticsX.length == 0) {
             ticsX = new BigDecimal[2];
-            ticsX[0] = new BigDecimal(minX);
-            ticsX[ticsX.length - 1] = new BigDecimal(maxX);
+            ticsX[0] = new BigDecimal(Double.toString(minX));
+            ticsX[ticsX.length - 1] = new BigDecimal(Double.toString(maxX));
         }
 
-        ticsY = TicGeneratorForAxes.generateTics(getMinY_Display(), getMaxY_Display(), (int) (plotHeight / 25.0));
+        ticsY = TicGeneratorForAxes.generateTics(getDisplayMinY(), getDisplayMaxY(), (int) (plotHeight / 25.0));
         if (ticsY.length == 0) {
             ticsY = new BigDecimal[2];
-            ticsY[0] = new BigDecimal(minY);
-            ticsY[ticsY.length - 1] = new BigDecimal(maxY);
+            ticsY[0] = new BigDecimal(Double.toString(minY));
+            ticsY[ticsY.length - 1] = new BigDecimal(Double.toString(maxY));
         }
 
-        zoomChunkX = getRangeX_Display() / 10.0;
-        zoomChunkY = getRangeY_Display() / 10.0;
+        zoomChunkX = getDisplayRangeX() / 10.0;
+        zoomChunkY = getDisplayRangeY() / 10.0;
     }
 
     private void drawAxes(GraphicsContext g2d) {
@@ -341,7 +338,7 @@ public abstract class AbstractPlot extends Canvas {
      * @return mapped x
      */
     public double mapX(double x) {
-        return (((x - getMinX_Display()) / getRangeX_Display()) * plotWidth) + leftMargin;
+        return (((x - getDisplayMinX()) / getDisplayRangeX()) * plotWidth) + leftMargin;
     }
 
     /**
@@ -349,7 +346,7 @@ public abstract class AbstractPlot extends Canvas {
      * @return mapped y
      */
     public double mapY(double y) {
-        return (((getMaxY_Display() - y) / getRangeY_Display()) * plotHeight) + topMargin;
+        return (((getDisplayMaxY() - y) / getDisplayRangeY()) * plotHeight) + topMargin;
     }
 
     /**
@@ -400,43 +397,43 @@ public abstract class AbstractPlot extends Canvas {
     /**
      * @return minimum displayed x
      */
-    public double getMinX_Display() {
+    public double getDisplayMinX() {
         return minX + displayOffsetX;
     }
 
     /**
      * @return maximum displayed x
      */
-    public double getMaxX_Display() {
+    public double getDisplayMaxX() {
         return maxX + displayOffsetX;
     }
 
     /**
      * @return minimum displayed y
      */
-    public double getMinY_Display() {
+    public double getDisplayMinY() {
         return minY + displayOffsetY;
     }
 
     /**
      * @return maximum displayed y
      */
-    public double getMaxY_Display() {
+    public double getDisplayMaxY() {
         return maxY + displayOffsetY;
     }
 
     /**
      * @return
      */
-    public double getRangeX_Display() {
-        return (getMaxX_Display() - getMinX_Display());
+    public double getDisplayRangeX() {
+        return (getDisplayMaxX() - getDisplayMinX());
     }
 
     /**
      * @return
      */
-    public double getRangeY_Display() {
-        return (getMaxY_Display() - getMinY_Display());
+    public double getDisplayRangeY() {
+        return (getDisplayMaxY() - getDisplayMinY());
     }
 
     /**
@@ -459,8 +456,8 @@ public abstract class AbstractPlot extends Canvas {
      */
     protected double convertMouseXToValue(double x) {
         return ((x - leftMargin + 2) / plotWidth) //
-                * getRangeX_Display()//
-                + getMinX_Display();
+                * getDisplayRangeX()//
+                + getDisplayMinX();
     }
 
     /**
@@ -468,8 +465,8 @@ public abstract class AbstractPlot extends Canvas {
      * @return
      */
     protected double convertMouseYToValue(double y) {
-        return -1 * (((y - topMargin - 1) * getRangeY_Display() / plotHeight)
-                - getMaxY_Display());
+        return -1 * (((y - topMargin - 1) * getDisplayRangeY() / plotHeight)
+                - getDisplayMaxY());
     }
 
     protected boolean mouseInHouse(double sceneX, double sceneY) {
@@ -506,8 +503,8 @@ public abstract class AbstractPlot extends Canvas {
 
             // new logic may 2021 (SQUID) to allow for multiple selections +++++++++++++++++++++++++++++++++++++++++++++
             // determine if left click or with cmd or with shift
-            boolean isShift = mouseEvent.isShiftDown();
-            boolean isControl = mouseEvent.isControlDown() || mouseEvent.isMetaDown();
+//            boolean isShift = mouseEvent.isShiftDown();
+//            boolean isControl = mouseEvent.isControlDown() || mouseEvent.isMetaDown();
             boolean isPrimary = mouseEvent.getButton().compareTo(MouseButton.PRIMARY) == 0;
 
             if (mouseInHouse(mouseEvent.getX(), mouseEvent.getY())) {

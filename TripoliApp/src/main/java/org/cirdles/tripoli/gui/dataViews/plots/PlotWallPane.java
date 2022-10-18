@@ -30,8 +30,6 @@ public class PlotWallPane extends Pane {
     static double gridCellDim = 5.0;
     static double toolBarHeight = 35.0;
 
-    private ToolBar toolBar;
-
     public void tilePlots() {
         // assume 2 x 4
         double widthTileCount = 3.0;
@@ -123,7 +121,7 @@ public class PlotWallPane extends Pane {
     }
 
     public void buildToolBar() {
-        toolBar = new ToolBar();
+        ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);
 
         Button button0 = new Button("Restore all Plots");
