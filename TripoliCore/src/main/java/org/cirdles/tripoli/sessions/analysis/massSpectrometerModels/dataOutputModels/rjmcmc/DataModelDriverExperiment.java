@@ -608,11 +608,7 @@ public class DataModelDriverExperiment {
                     //todo: delx_adapt
                     if (adaptiveFlag) {
                         /*
-                        mvnrnd(
-                        zeros(sizeOfModel,1)
-                        ,2.38^2*xDataCovariance/sizeOfModel
-                        ,stepCountForcedSave)'
-
+                        mvnrnd(zeros(sizeOfModel,1), 2.38^2*xDataCovariance/sizeOfModel, stepCountForcedSave)'
                         stepCountForcedSave = 100
                         sizeOfModel = 21
 
@@ -624,50 +620,6 @@ public class DataModelDriverExperiment {
                             n = cases;
                             mu = repmat(mu,n,1);
                             [T,err] = cholcov(sigma);
-                                function [T,p] = cholcov(Sigma,flag)
-                                    [n,m] = size(Sigma);
-                                    wassparse = issparse(Sigma);
-                                    tol = 10*eps(max(abs(diag(Sigma))));
-                                    if all(all(abs(Sigma - Sigma') < n*tol))
-                                        [T,p] = chol(Sigma);
-
-                                        if p > 0
-                                            % Test for positive definiteness
-                                            % Can get factors of the form Sigma==T'*T using the eigenvalue
-                                            % decomposition of a symmetric matrix, so long as the matrix
-                                            % is positive semi-definite.
-                                            [U,D] = eig(full((Sigma+Sigma')/2));
-
-                                            % Pick eigenvector direction so max abs coordinate is positive
-                                            [~,maxind] = max(abs(U),[],1);
-                                            negloc = (U(maxind + (0:n:(m-1)*n)) < 0);
-                                            U(:,negloc) = -U(:,negloc);
-
-                                            D = diag(D);
-                                            tol = eps(max(D)) * length(D);
-                                            t = (abs(D) > tol);
-                                            D = D(t);
-                                            p = sum(D<0); % number of negative eigenvalues
-
-                                            if (p==0)
-                                                T = diag(sqrt(D)) * U(:,t)';
-                                            else
-                                                T = zeros(0,'like',Sigma);
-                                            end
-                                        end
-                                    else
-                                        T = zeros(0,'like',Sigma);
-                                        p = nan('like',Sigma);
-                                    end
-
-                                    if wassparse
-                                        T = sparse(T);
-                                    end
-                            if isnan(err)
-                                error(message('stats:mvnrnd:BadCovariance2DSym'));
-                            elseif err ~= 0
-                                error(message('stats:mvnrnd:BadCovariance2DPos'));
-                            end
                             r = randn(n,size(T,1)) * T + mu;
                         end
                         */
@@ -675,85 +627,37 @@ public class DataModelDriverExperiment {
                         Normal tmpNormDistribution = new Normal();
                         Primitive64Store mu = Primitive64Store.FACTORY.makeFilled(stepCountForcedSave, sizeOfModel, tmpNormDistribution);
 
-                        // beginning of cholcov()
                         Cholesky<Double> cholesky = Cholesky.PRIMITIVE.make(sigma);
-                        cholesky.decompose(sigma); // possibly wrong method
+                        cholesky.decompose(sigma);
+                        PhysicalStore<Double> T = cholesky.getR().copy();
 
-                        // if(!cholesky.isSPD()){
-                            // [U,D] = eig(full((Sigma+Sigma')/2));
-                            Eigenvalue<Double> eigen = Eigenvalue.PRIMITIVE.make();
-                            eigen.checkAndDecompose(sigma.add(sigma.transpose()).multiply(.5)); // todo research matlab full()
-                            PhysicalStore<Double> U = eigen.getV().copy();
-                            // MatrixStore<Double> D = eigen.getD();
-                            // [~,maxind] = max(abs(U),[],1);
-                            double[][] temp = U.onAll(PrimitiveFunction.getSet().abs()).toRawCopy2D();
-                            double [] maxind = new double[temp.length];
-                            for(int row = 0; row < temp.length; row++){
-                                double maxValue = Double.MIN_VALUE;
-                                for(int col = 0; col < temp.length; col++){
-                                    maxValue = max(temp[col][row], maxValue);
-                                }
-                                maxind[row] = maxValue;
+                        // TODO Currently input sigma is never symmetric positive definite matrix therefore if statement
+                        // always triggers, when code is refactored to not have guaranteed row and columns of zeros
+                        // and therefore positive definite can be removed
+                        if(!cholesky.isSPD()) {
+                            double[][] tempSigma = sigma.toRawCopy2D();
+                            int rowLoc = 0;
+                            int colLoc = 0;
+
+                            for(int col = 0; col < sigma.getRowDim(); col++){
+                                if (tempSigma[0][col] == 0) rowLoc = col;
                             }
-                            // System.err.println("\n" + Arrays.toString(maxind));
-                            // negloc = (U(maxind + (0:n:(m-1)*n)) < 0);
-                            double [] tempnegloc = new double[21];
-                            double [] negloc = new double[21];
-                            for(int i = 0; i < tempnegloc.length; i++){
-                                tempnegloc[i] = (i * 21) + maxind[i];
+                            for(int row = 0; row < sigma.getRowDim(); row++){
+                                if (tempSigma[row][0] == 0) colLoc = row;
                             }
-                            // System.err.println("\n" + Arrays.toString(tempnegloc));
-                            double [] temp2 = U.toRawCopy1D();
-                            for(int i = 0; i < negloc.length; i++){
-                                negloc[i] = temp2[(int) tempnegloc[i]] > 0 ? 1 : 0;
+                            for(int row = 0; row < sigma.getRowDim(); row++){
+                               tempSigma[row][colLoc] += Double.MIN_VALUE;
                             }
 
-                            // System.err.println("\n" + Arrays.toString(negloc));
-                            // D = diag(D);
-                            MatrixStore<Double> DDiag = eigen.getD().diagonal();
-                            // tol = eps(max(D)) * length(D);
-                            double tol = DDiag.get(DDiag.indexOfLargest()) * DDiag.getRowDim();
-                            // t = (abs(D) > tol);
-                            double[] t = new double[DDiag.getRowDim()];
-                            for(int i = 0; i < t.length; i++){
-                                t[i] = abs(DDiag.get(i)) > tol ? 1 : 0;
+                            for(int col = 0; col < sigma.getRowDim(); col++){
+                                tempSigma[rowLoc][col] += Double.MIN_VALUE;
                             }
-                            // D = D(t); todo array out of bounds danger weird matlab exception
-                            double[] D2 = new double[DDiag.getRowDim()];
-                            for(int i = 0; i < t.length; i++){
-                                D2[i] = t[i] == 1 ? DDiag.get(i) : 0;
-                            }
-                            // p = sum(D<0); % number of negative eigenvalues
-                            double p = 0;
-                            for(int i = 0; i < D2.length; i++){
-                                p += D2[i] < 0 ? D2[i] : 0;
-                            }
-                            // if (p==0)
-                            //  T = diag(sqrt(D)) * U(:,t)';
-                            // else
-                            //  T = zeros(0,'like',Sigma);
-                            PhysicalStore<Double> T;
-                            if(p == 0){
-                                PhysicalStore<Double> Utemp = storeFactory.make(U.getRowDim(), U.getColDim());
-                                int col = 0;
-                                for(int i = 0; i < t.length; i++){
-                                    if( t[i] == 1) {
-                                        for(int j = 0; j < U.getRowDim(); j++){
-                                            Utemp.set(col,j,U.get(i,j));
-                                        }
-                                        col++;
-                                    }
-                                }
-                                T = storeFactory.columns(d2).onAll(PrimitiveFunction.getSet().sqrt()).diagonal().multiply(Utemp.transpose()).copy();
-                            }
-                            else {
-                                // empty array is returned, P is used as error code
-                                T = storeFactory.makeZero(sigma.getColDim(), sigma.getRowDim()).copy();
-                            }
-                        // }
 
-                        // end of cholcov()
-                        // delx_adapt = mu.multiply(cholesky.getR()).transpose().copy();
+                            cholesky.decompose(storeFactory.columns(tempSigma));
+                            T = cholesky.getR().copy();
+                        }
+
+                        // r = randn(n,size(T,1)) * T + mu;
                         delx_adapt = mu.multiply(T).transpose().copy();
                     }
                 }
