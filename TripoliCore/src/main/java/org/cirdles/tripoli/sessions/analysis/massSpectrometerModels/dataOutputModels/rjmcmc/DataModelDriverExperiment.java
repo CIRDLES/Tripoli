@@ -57,13 +57,13 @@ public class DataModelDriverExperiment {
 
     private static final boolean doFullProcessing = true;
 
-    public static AbstractPlotBuilder[] driveModelTest(Path dataFilePath, AnalysisMethod analysisMethod, LoggingCallbackInterface loggingCallback) throws IOException {
+    public static AbstractPlotBuilder[][] driveModelTest(Path dataFilePath, AnalysisMethod analysisMethod, LoggingCallbackInterface loggingCallback) throws IOException {
 
         DataSourceProcessor_OPPhoenix dataSourceProcessorOPPhoenix
                 = DataSourceProcessor_OPPhoenix.initializeWithAnalysisMethod(analysisMethod);
         MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFilePath);
 
-        AbstractPlotBuilder[] plotBuilders;
+        AbstractPlotBuilder[][] plotBuilders;
         DataModellerOutputRecord dataModelInit;
         try {
             dataModelInit = DataModelInitializer.modellingTest(massSpecOutputDataRecord);
@@ -84,13 +84,13 @@ public class DataModelDriverExperiment {
                 plotBuilders = DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, lastDataModelInit, analysisMethod.getTripoliRatiosList());
             }
         } catch (RecoverableCondition e) {
-            plotBuilders = new AbstractPlotBuilder[0];
+            plotBuilders = new AbstractPlotBuilder[0][0];
         }
 
         return plotBuilders;
     }
 
-    static AbstractPlotBuilder[] applyInversionWithRJMCMC
+    static AbstractPlotBuilder[][] applyInversionWithRJMCMC
             (MassSpecOutputDataRecord massSpecOutputDataRecord,
              DataModellerOutputRecord dataModelInit_X0,
              List<IsotopicRatio> isotopicRatioList,
