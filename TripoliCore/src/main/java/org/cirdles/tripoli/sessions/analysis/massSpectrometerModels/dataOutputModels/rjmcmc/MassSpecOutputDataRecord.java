@@ -54,11 +54,8 @@ import org.ojalgo.matrix.store.MatrixStore;
  * @param nCycleArray
  */
 public record MassSpecOutputDataRecord(
-        // Matrix rawDataColumn,
         double[] rawDataColumn,
-        // Matrix timeColumn,
         double[] timeColumn,
-        // Matrix timeIndColumn,
         double[] timeIndColumn,
         double[] signalIndicesForRawDataColumn,
         double[] blockIndicesForRawDataColumn,

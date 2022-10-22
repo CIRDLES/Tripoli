@@ -5,9 +5,8 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
@@ -16,6 +15,7 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
+import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramRecord;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.MultiLinePlotBuilder;
@@ -29,6 +29,8 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static org.cirdles.tripoli.TripoliConstants.SYNTHETIC_DATA_FOLDER_2ISOTOPE;
+import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHeight;
+import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.PLOT_WINDOW_WIDTH;
 
@@ -106,6 +108,9 @@ public class RJMCMCPlotsController {
 
     @FXML
     private ToolBar toolbar;
+    @FXML
+    private TabPane ratioHistogramsTabPane;
+
 
     private ListView<File> listViewOfSyntheticFiles = new ListView<>();
 
@@ -118,6 +123,7 @@ public class RJMCMCPlotsController {
         ((Button) event.getSource()).setDisable(true);
         processFileButton2.setDisable(true);
     }
+
     @FXML
     void demo1_5IsotopeButtonAction(ActionEvent event) throws IOException {
         // Jim's playground for 5 isotopes
@@ -191,6 +197,7 @@ public class RJMCMCPlotsController {
 
         ObservableList<File> items = FXCollections.observableArrayList(filesInFolder);
         listViewOfSyntheticFiles.setItems(items);
+        listViewOfSyntheticFiles.getSelectionModel().selectFirst();
         // todo: complete listener
 //        listViewOfSyntheticFiles.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<File>() {
 //            @Override
@@ -214,7 +221,7 @@ public class RJMCMCPlotsController {
         service.setOnSucceeded(evt -> {
             RJMCMCPlotBuildersTask plotBuildersTask = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask());
 
-            AbstractPlotBuilder ratiosHistogramBuilder = plotBuildersTask.getRatiosHistogramBuilder();
+            AbstractPlotBuilder[] ratiosHistogramBuilder = plotBuildersTask.getRatiosHistogramBuilder();
             AbstractPlotBuilder baselineHistogramBuilder = plotBuildersTask.getBaselineHistogramBuilder();
             AbstractPlotBuilder dalyFaradayHistogramBuilder = plotBuildersTask.getDalyFaradayGainHistogramBuilder();
             AbstractPlotBuilder signalNoiseHistogramBuilder = plotBuildersTask.getSignalNoiseHistogramBuilder();
@@ -235,12 +242,6 @@ public class RJMCMCPlotsController {
 
             AbstractPlotBuilder convergeNoiseFaradayL1LineBuilder = plotBuildersTask.getConvergeNoiseFaradayL1LineBuilder();
             AbstractPlotBuilder convergeNoiseFaradayH1LineBuilder = plotBuildersTask.getConvergeNoiseFaradayH1LineBuilder();
-
-
-            AbstractDataView ratiosHistogramPlot = new HistogramPlot(
-                    new Rectangle(ensembleGridPane.getWidth(),
-                            (plotTabPane.getHeight() - TAB_HEIGHT) / ensembleGridPane.getRowCount()),
-                    (HistogramBuilder) ratiosHistogramBuilder);
 
             AbstractDataView baselineHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth() / ensembleGridPane.getColumnCount(),
@@ -319,8 +320,6 @@ public class RJMCMCPlotsController {
             plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue.intValue() > 100) {
                     double newWidth = newValue.intValue() - ensembleLegendTextBox.getWidth();
-                    ratiosHistogramPlot.setMyWidth(newWidth);
-                    ratiosHistogramPlot.repaint();
                     baselineHistogramPlot.setMyWidth(newWidth / ensembleGridPane.getColumnCount());
                     baselineHistogramPlot.repaint();
                     dalyFaradayHistogramPlot.setMyWidth(newWidth / ensembleGridPane.getColumnCount());
@@ -362,8 +361,6 @@ public class RJMCMCPlotsController {
 
             plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue.intValue() > 100) {
-                    ratiosHistogramPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
-                    ratiosHistogramPlot.repaint();
                     baselineHistogramPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
                     baselineHistogramPlot.repaint();
                     dalyFaradayHistogramPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
@@ -401,8 +398,6 @@ public class RJMCMCPlotsController {
                 }
             });
 
-            ratiosHistogramPlot.preparePanel();
-            ensembleGridPane.add(ratiosHistogramPlot, 0, 0, 2, 1);
             baselineHistogramPlot.preparePanel();
             ensembleGridPane.add(baselineHistogramPlot, 0, 1, 1, 1);
             dalyFaradayHistogramPlot.preparePanel();
@@ -439,6 +434,23 @@ public class RJMCMCPlotsController {
             convergeNoiseGridPane.add(convergeNoiseFaradayH1LinePlot, 0, 1);
 
             processFileButton.setDisable(false);
+
+            // ratio histograms revision
+            PlotWallPane plotWallPane = new PlotWallPane();
+            plotWallPane.buildToolBar();
+            plotWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+            ratioHistogramsTabPane.getTabs().get(0).setContent(plotWallPane);
+
+            for (int i = 0; i < ratiosHistogramBuilder.length; i++) {
+                HistogramRecord plotRecord = ((HistogramBuilder) ratiosHistogramBuilder[i]).getHistograms()[0];
+                TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
+                HistogramSinglePlot ratiosHistogramSinglePlot = new HistogramSinglePlot(
+                        new Rectangle(minPlotWidth, minPlotHeight),
+                        plotRecord, plotRecord.title(), "Ratios", "Counts");
+                tripoliPlotPane.addPlot(ratiosHistogramSinglePlot);
+            }
+
+            plotWallPane.tilePlots();
 
         });
 

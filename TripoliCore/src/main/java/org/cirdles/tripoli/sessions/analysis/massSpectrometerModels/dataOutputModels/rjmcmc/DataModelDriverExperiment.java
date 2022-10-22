@@ -26,7 +26,10 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.ojalgo.RecoverableCondition;
+import org.ojalgo.function.PrimitiveFunction;
 import org.ojalgo.matrix.decomposition.Cholesky;
+import org.ojalgo.matrix.decomposition.Eigenvalue;
+import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 import org.ojalgo.random.Normal;
@@ -40,8 +43,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import static java.lang.Math.min;
-import static java.lang.Math.pow;
+import static java.lang.Math.*;
 import static java.lang.StrictMath.exp;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdater.updateMSv2;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdater.updateMeanCovMS;
@@ -55,13 +57,13 @@ public class DataModelDriverExperiment {
 
     private static final boolean doFullProcessing = true;
 
-    public static AbstractPlotBuilder[] driveModelTest(Path dataFilePath, AnalysisMethod analysisMethod, LoggingCallbackInterface loggingCallback) throws IOException {
+    public static AbstractPlotBuilder[][] driveModelTest(Path dataFilePath, AnalysisMethod analysisMethod, LoggingCallbackInterface loggingCallback) throws IOException {
 
         DataSourceProcessor_OPPhoenix dataSourceProcessorOPPhoenix
                 = DataSourceProcessor_OPPhoenix.initializeWithAnalysisMethod(analysisMethod);
         MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFilePath);
 
-        AbstractPlotBuilder[] plotBuilders;
+        AbstractPlotBuilder[][] plotBuilders;
         DataModellerOutputRecord dataModelInit;
         try {
             dataModelInit = DataModelInitializer.modellingTest(massSpecOutputDataRecord);
@@ -82,13 +84,13 @@ public class DataModelDriverExperiment {
                 plotBuilders = DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, lastDataModelInit, analysisMethod.getTripoliRatiosList());
             }
         } catch (RecoverableCondition e) {
-            plotBuilders = new AbstractPlotBuilder[0];
+            plotBuilders = new AbstractPlotBuilder[0][0];
         }
 
         return plotBuilders;
     }
 
-    static AbstractPlotBuilder[] applyInversionWithRJMCMC
+    static AbstractPlotBuilder[][] applyInversionWithRJMCMC
             (MassSpecOutputDataRecord massSpecOutputDataRecord,
              DataModellerOutputRecord dataModelInit_X0,
              List<IsotopicRatio> isotopicRatioList,
@@ -112,7 +114,7 @@ public class DataModelDriverExperiment {
             Nsig = d0.Nsig; % Number of noise variables
          */
 
-        int maxCount = 1000;//2000;
+        int maxCount = 2000;
         if (dataModelInit_X0.logratios().length > 2){
             maxCount = 500;
         }
@@ -478,7 +480,6 @@ public class DataModelDriverExperiment {
                     % Decide whether to accept or reject model
                     keep = AcceptItMS(oper,dE,psig,delx,prior,Dsig,Dsig2,d0);
                  */
-                // todo: make variable for bool calculate before for loop, right after its declared
                 if (noiseOperation) {
                     E += residualValue / dSignalNoiseArray[row];
                     E2 += residualValue2 / dSignalNoise2Array[row];
@@ -606,30 +607,58 @@ public class DataModelDriverExperiment {
 
                     //todo: delx_adapt
                     if (adaptiveFlag) {
-                    /*
-                    mvnrnd(
-                    zeros(sizeOfModel,1)
-                    ,2.38^2*xDataCovariance/sizeOfModel
-                    ,stepCountForcedSave)'
-                    stepCountForcedSave = 100
-                    sizeOfModel = 21
+                        /*
+                        mvnrnd(zeros(sizeOfModel,1), 2.38^2*xDataCovariance/sizeOfModel, stepCountForcedSave)'
+                        stepCountForcedSave = 100
+                        sizeOfModel = 21
 
-                    function [r,T] = mvnrnd(mu,sigma,cases,T)
-                        mu = mu';
-                        n = cases;
-                        mu = repmat(mu,n,1);
-                        [T,err] = cholcov(sigma);
-                        r = randn(n,size(T,1)) * T + mu;
-                        t = diag(sigma);
-                        r(:,t==0) = mu(:,t==0); % force exact mean when variance is 0
-                     */
+                        function [r,T] = mvnrnd(mu,sigma,cases,T)
+                            % Special case: if mu is a column vector, then use sigma to try
+                            % to interpret it as a row vector.
+                            mu = mu';
+                            % mu is a single row, make cases copies
+                            n = cases;
+                            mu = repmat(mu,n,1);
+                            [T,err] = cholcov(sigma);
+                            r = randn(n,size(T,1)) * T + mu;
+                        end
+                        */
+                        MatrixStore<Double> sigma = storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / sizeOfModel);
                         Normal tmpNormDistribution = new Normal();
-                        Primitive64Store distribution = Primitive64Store.FACTORY.makeFilled(stepCountForcedSave, sizeOfModel, tmpNormDistribution);
+                        Primitive64Store mu = Primitive64Store.FACTORY.makeFilled(stepCountForcedSave, sizeOfModel, tmpNormDistribution);
 
-                        Cholesky<Double> cholesky = Cholesky.PRIMITIVE.make();
-                        cholesky.decompose(storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / sizeOfModel));
+                        Cholesky<Double> cholesky = Cholesky.PRIMITIVE.make(sigma);
+                        cholesky.decompose(sigma);
+                        PhysicalStore<Double> T = cholesky.getR().copy();
 
-                        delx_adapt = distribution.multiply(cholesky.getR()).transpose().copy();
+                        // TODO Currently input sigma is never symmetric positive definite matrix therefore if statement
+                        // always triggers, when code is refactored to not have guaranteed row and columns of zeros
+                        // and therefore positive definite can be removed
+                        if(!cholesky.isSPD()) {
+                            double[][] tempSigma = sigma.toRawCopy2D();
+                            int rowLoc = 0;
+                            int colLoc = 0;
+
+                            for(int col = 0; col < sigma.getRowDim(); col++){
+                                if (tempSigma[0][col] == 0) rowLoc = col;
+                            }
+                            for(int row = 0; row < sigma.getRowDim(); row++){
+                                if (tempSigma[row][0] == 0) colLoc = row;
+                            }
+                            for(int row = 0; row < sigma.getRowDim(); row++){
+                               tempSigma[row][colLoc] += Double.MIN_VALUE;
+                            }
+
+                            for(int col = 0; col < sigma.getRowDim(); col++){
+                                tempSigma[rowLoc][col] += Double.MIN_VALUE;
+                            }
+
+                            cholesky.decompose(storeFactory.columns(tempSigma));
+                            T = cholesky.getR().copy();
+                        }
+
+                        // r = randn(n,size(T,1)) * T + mu;
+                        delx_adapt = mu.multiply(T).transpose().copy();
                     }
                 }
 
