@@ -1,12 +1,21 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
+import javafx.event.EventHandler;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.BeamShapeLinePlotBuilder;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class BeamShapeLinePlot extends AbstractDataView {
@@ -15,6 +24,9 @@ public class BeamShapeLinePlot extends AbstractDataView {
     private int leftBoundary;
     private int rightBoundary;
 
+
+    Map<Integer, String> tooltips = new HashMap<>();
+
     /**
      * @param bounds
      * @param beamShapeLinePlotBuilder
@@ -22,6 +34,8 @@ public class BeamShapeLinePlot extends AbstractDataView {
     public BeamShapeLinePlot(Rectangle bounds, BeamShapeLinePlotBuilder beamShapeLinePlotBuilder) {
         super(bounds, 50, 35);
         this.beamShapeLinePlotBuilder = beamShapeLinePlotBuilder;
+
+        this.setOnMouseMoved(new MouseMovedHandler());
     }
 
     @Override
@@ -59,6 +73,10 @@ public class BeamShapeLinePlot extends AbstractDataView {
 
         setDisplayOffsetY(0.0);
         setDisplayOffsetX(0.0);
+
+        for (int i = 0; i < xAxisData.length; i++) {
+            tooltips.put(i, (xAxisData[i]) + "");
+        }
 
         this.repaint();
     }
@@ -151,6 +169,56 @@ public class BeamShapeLinePlot extends AbstractDataView {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private void setToolTips(Node node) {
+        Tooltip tooltip = new Tooltip();
+        Tooltip.install(node, tooltip);
+        node.setOnMouseMoved(e -> {
+            if (indexOfSpotFromMouseX(e.getX()) >= (leftBoundary - 20) && indexOfSpotFromMouseX(e.getX()) <= (leftBoundary + 50)) {
+                tooltip.setText(yAxisData[leftBoundary] + "");
+            } else if (indexOfSpotFromMouseX(e.getX()) >= (rightBoundary - 20) && indexOfSpotFromMouseX(e.getX()) <= (rightBoundary + 50)) {
+                tooltip.setText(yAxisData[rightBoundary] + "");
+            }else {
+                tooltip.hide();
+            }
+        });
+        node.setOnMouseExited(e -> tooltip.hide());
+    }
+
+    private int indexOfSpotFromMouseX(double x) {
+        double convertedX = convertMouseXToValue(x);
+        int index = -1;
+        for (int i = 0; i < xAxisData.length - 1; i++) {
+            if ((convertedX >= xAxisData[i] - 0.0005) && convertedX < xAxisData[i + 1] - 0.0005) {
+                index = i;
+                break;
+            }
+
+
+            if (index == -1 && ((StrictMath.abs(convertedX - xAxisData[xAxisData.length - 1]) < 0.005)))
+                index = xAxisData.length - 1;
+        }
+
+        return index;
+    }
+
+    private class MouseMovedHandler implements EventHandler<MouseEvent> {
+
+        @Override
+        public void handle(MouseEvent event) {
+
+            Node potNode;
+
+            if (mouseInHouse(event)) {
+                ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.CROSSHAIR);
+                potNode = ((Canvas) event.getSource()).getParent();
+                setToolTips(potNode);
+
+            } else {
+                ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.DEFAULT);
             }
         }
     }

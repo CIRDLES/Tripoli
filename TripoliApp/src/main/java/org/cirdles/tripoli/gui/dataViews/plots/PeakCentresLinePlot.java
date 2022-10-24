@@ -183,16 +183,16 @@ public class PeakCentresLinePlot extends AbstractDataView {
         }
     }
 
-    private void setToolTips(Node node, Map<Integer, String> toolTips) {
-        Tooltip tooltip = new Tooltip();
-        Tooltip.install(node, tooltip);
-        node.setOnMouseMoved(e -> toolTips.forEach((integer, String) -> {
-            if (integer.equals(indexOfSpotFromMouseX(e.getX()))) {
-                tooltip.setText(String);
-            }
-        }));
-        node.setOnMouseExited(e -> tooltip.hide());
-    }
+//    private void setToolTips(Node node, Map<Integer, String> toolTips) {
+//        Tooltip tooltip = new Tooltip();
+//        Tooltip.install(node, tooltip);
+//        node.setOnMouseMoved(e -> toolTips.forEach((integer, String) -> {
+//            if (integer.equals(indexOfSpotFromMouseX(e.getX()))) {
+//                tooltip.setText(String);
+//            }
+//        }));
+//        node.setOnMouseExited(e -> tooltip.hide());
+//    }
 
     private int indexOfSpotFromMouseX(double x) {
         double convertedX = convertMouseXToValue(x);
@@ -217,12 +217,9 @@ public class PeakCentresLinePlot extends AbstractDataView {
         @Override
         public void handle(MouseEvent event) {
 
-            Node potNode;
-
             if (mouseInHouse(event)) {
                 ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.CROSSHAIR);
-                potNode = ((Canvas) event.getSource()).getParent().getScene().getRoot();
-                setToolTips(potNode, tooltips);
+                //setToolTips(potNode, tooltips);
 
 
             } else {
