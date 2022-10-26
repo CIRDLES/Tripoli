@@ -249,8 +249,7 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         timeAccumulatorList.addAll(sequenceFaradayAccumulator.timeAccumulatorList());
         timeAccumulatorList.addAll(sequenceIonCounterAccumulator.timeAccumulatorList());
 
-        // this only works for single block
-        // TODO: fix
+        // TODO: fix this only works for single block Confirm this is done
         List<Integer> timeIndAccumulatorList = new ArrayList<>();
         timeIndAccumulatorList.addAll(baselineFaradayAccumulator.timeIndAccumulatorList());
         timeIndAccumulatorList.addAll(sequenceFaradayAccumulator.timeIndAccumulatorList());

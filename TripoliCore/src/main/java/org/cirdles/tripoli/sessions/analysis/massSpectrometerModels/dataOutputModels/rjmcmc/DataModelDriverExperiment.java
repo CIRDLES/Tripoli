@@ -26,9 +26,7 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.ojalgo.RecoverableCondition;
-import org.ojalgo.function.PrimitiveFunction;
 import org.ojalgo.matrix.decomposition.Cholesky;
-import org.ojalgo.matrix.decomposition.Eigenvalue;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
@@ -43,7 +41,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import static java.lang.Math.*;
+import static java.lang.Math.min;
+import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdater.updateMSv2;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdater.updateMeanCovMS;
@@ -115,7 +114,7 @@ public class DataModelDriverExperiment {
          */
 
         int maxCount = 2000;
-        if (dataModelInit_X0.logratios().length > 2){
+        if (dataModelInit_X0.logratios().length > 2) {
             maxCount = 500;
         }
 
@@ -181,7 +180,6 @@ public class DataModelDriverExperiment {
         end
         */
 
-        // only using first block
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
@@ -189,19 +187,31 @@ public class DataModelDriverExperiment {
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
                             && (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1)
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
-                        double calcValue =
-                                // todo check here
-                                exp(dataModelInit_X0.logratios()[isotopeIndex])
-                                        * dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                        double calcValue;
+                        // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
+                        if (isotopeIndex < dataModelInit_X0.logratios().length) {
+                            calcValue =
+                                    exp(dataModelInit_X0.logratios()[isotopeIndex])
+                                            * dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                        } else {
+                            calcValue = dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                        }
                         data[row] = calcValue;
                         dataWithNoBaseline[row] = calcValue;
                     }
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
                             && (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 0)
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
-                        double calcValue =
-                                exp(dataModelInit_X0.logratios()[isotopeIndex]) / dataModelInit_X0.dfGain()
-                                        * dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                        double calcValue;
+                        // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
+                        if (isotopeIndex < dataModelInit_X0.logratios().length) {
+                            calcValue =
+                                    exp(dataModelInit_X0.logratios()[isotopeIndex]) / dataModelInit_X0.dfGain()
+                                            * dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                        } else {
+                            calcValue = 1.0 / dataModelInit_X0.dfGain()
+                                    * dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                        }
                         dataWithNoBaseline[row] = calcValue;
                         data[row] =
                                 calcValue + dataModelInit_X0.baselineMeans()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1];
@@ -421,7 +431,12 @@ public class DataModelDriverExperiment {
                 if (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 0) {
                     tmpDFArray[row] = 1.0 / dataModelUpdaterOutputRecord_x2.dfGain();
                 }
-                tmpLRArray[row] = exp(dataModelUpdaterOutputRecord_x2.logratios()[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1]);
+                // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
+                if (massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1 < dataModelUpdaterOutputRecord_x2.logratios().length) {
+                    tmpLRArray[row] = exp(dataModelUpdaterOutputRecord_x2.logratios()[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1]);
+                } else {
+                    tmpLRArray[row] = 1.0;
+                }
             }
 
             long interval1 = System.nanoTime() - prev;
@@ -634,22 +649,22 @@ public class DataModelDriverExperiment {
                         // TODO Currently input sigma is never symmetric positive definite matrix therefore if statement
                         // always triggers, when code is refactored to not have guaranteed row and columns of zeros
                         // and therefore positive definite can be removed
-                        if(!cholesky.isSPD()) {
+                        if (!cholesky.isSPD()) {
                             double[][] tempSigma = sigma.toRawCopy2D();
                             int rowLoc = 0;
                             int colLoc = 0;
 
-                            for(int col = 0; col < sigma.getRowDim(); col++){
+                            for (int col = 0; col < sigma.getRowDim(); col++) {
                                 if (tempSigma[0][col] == 0) rowLoc = col;
                             }
-                            for(int row = 0; row < sigma.getRowDim(); row++){
+                            for (int row = 0; row < sigma.getRowDim(); row++) {
                                 if (tempSigma[row][0] == 0) colLoc = row;
                             }
-                            for(int row = 0; row < sigma.getRowDim(); row++){
-                               tempSigma[row][colLoc] += Double.MIN_VALUE;
+                            for (int row = 0; row < sigma.getRowDim(); row++) {
+                                tempSigma[row][colLoc] += Double.MIN_VALUE;
                             }
 
-                            for(int col = 0; col < sigma.getRowDim(); col++){
+                            for (int col = 0; col < sigma.getRowDim(); col++) {
                                 tempSigma[rowLoc][col] += Double.MIN_VALUE;
                             }
 
