@@ -118,7 +118,6 @@ public class DataModelDriverExperiment {
             maxCount = 500;
         }
 
-        List<IsotopicRatio> isotopicRatioList = analysisMethod.getTripoliRatiosList();
         boolean hierarchical = true;
         int stepCountForcedSave = 100;
 
