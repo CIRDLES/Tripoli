@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -31,10 +31,10 @@ import java.util.*;
 import static org.cirdles.tripoli.TripoliConstants.SYNTHETIC_DATA_FOLDER_2ISOTOPE;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHeight;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
-import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
-import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.PLOT_WINDOW_WIDTH;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
 
-public class RJMCMCPlotsController {
+public class MCMCPlotsController {
 
     private static final int TAB_HEIGHT = 35;
     @FXML
@@ -117,7 +117,7 @@ public class RJMCMCPlotsController {
 
     @FXML
     void demo1_2IsotopeButtonAction(ActionEvent event) throws IOException {
-        processDataFileAndShowPlotsOfRJMCMC(
+        processDataFileAndShowPlotsOfMCMC(
                 listViewOfSyntheticFiles.getSelectionModel().selectedItemProperty().getValue().toPath(),
                 AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
         ((Button) event.getSource()).setDisable(true);
@@ -130,7 +130,7 @@ public class RJMCMCPlotsController {
         ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
         Path dataFile = RESOURCE_EXTRACTOR
                 .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
-        processDataFileAndShowPlotsOfRJMCMC(
+        processDataFileAndShowPlotsOfMCMC(
                 dataFile,
                 AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("KU_204_5_6_7_8_Daly_AllFaradayPb"));
 
@@ -211,15 +211,15 @@ public class RJMCMCPlotsController {
         listOfFilesScrollPane.setContent(listViewOfSyntheticFiles);
     }
 
-    public void processDataFileAndShowPlotsOfRJMCMC(Path dataFile, AnalysisMethod analysisMethod) throws IOException {
+    public void processDataFileAndShowPlotsOfMCMC(Path dataFile, AnalysisMethod analysisMethod) throws IOException {
 //        org.cirdles.commons.util.ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
 //        Path dataFile = RESOURCE_EXTRACTOR
 //                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_01.txt").toPath();
-        final RJMCMCUpdatesService service = new RJMCMCUpdatesService(dataFile, analysisMethod);
+        final MCMCUpdatesService service = new MCMCUpdatesService(dataFile, analysisMethod);
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
         service.setOnSucceeded(evt -> {
-            RJMCMCPlotBuildersTask plotBuildersTask = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask());
+            MCMCPlotBuildersTask plotBuildersTask = ((MCMCPlotBuildersTask) service.getPlotBuildersTask());
 
             AbstractPlotBuilder[] ratiosHistogramBuilder = plotBuildersTask.getRatiosHistogramBuilder();
             AbstractPlotBuilder[] baselineHistogramBuilder = plotBuildersTask.getBaselineHistogramBuilder();

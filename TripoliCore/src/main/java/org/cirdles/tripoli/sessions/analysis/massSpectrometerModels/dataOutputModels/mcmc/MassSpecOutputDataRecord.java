@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc;
 
 import org.ojalgo.matrix.store.MatrixStore;
 
@@ -30,7 +30,7 @@ import org.ojalgo.matrix.store.MatrixStore;
  * d0.det_vec >> detectorIndicesForRawDataColumn (detectors are indexed from 1 through all Faraday and the last is the Axial (Daly)))
  * d0.det_ind >> detectorFlagsForRawDataColumn (each Faraday has a column and the last column is for Daly; 1 flags detector used)
  * d0.blflag >> baseLineFlagsForRawDataColumn (contains 1 for baseline, 0 for sequence)
- * d0.axflag >> axialFlagsForRawDataColumn (contains 1 for data from DALY detector, 0 otherwise)
+ * d0.axflag >> ionCounterFlagsForRawDataColumn (contains 1 for data from DALY detector, 0 otherwise)
  * d0.InterpMat >> firstBlockInterpolationsMatrix  (matlab actually puts matrices into cells)
  * d0.Nfar >> faradayCount
  * d0.Niso >> isotopeCount
@@ -46,7 +46,7 @@ import org.ojalgo.matrix.store.MatrixStore;
  * @param detectorIndicesForRawDataColumn
  * @param detectorFlagsForRawDataColumn
  * @param baseLineFlagsForRawDataColumn
- * @param axialFlagsForRawDataColumn
+ * @param ionCounterFlagsForRawDataColumn
  * @param allBlockInterpolations
  * @param faradayCount
  * @param isotopeCount
@@ -64,7 +64,7 @@ public record MassSpecOutputDataRecord(
         double[] detectorIndicesForRawDataColumn,
         double[][] detectorFlagsForRawDataColumn,
         double[] baseLineFlagsForRawDataColumn,
-        double[] axialFlagsForRawDataColumn,
+        double[] ionCounterFlagsForRawDataColumn,
         MatrixStore<Double>[] allBlockInterpolations,
         int faradayCount,
         int isotopeCount,

@@ -38,7 +38,7 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.species;
     exports org.cirdles.tripoli.elements;
     exports org.cirdles.tripoli.utilities.callbacks;
-    exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
+    exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes;
     exports org.cirdles.tripoli.visualizationUtilities.histograms;
     exports org.cirdles.tripoli.visualizationUtilities.linePlots;

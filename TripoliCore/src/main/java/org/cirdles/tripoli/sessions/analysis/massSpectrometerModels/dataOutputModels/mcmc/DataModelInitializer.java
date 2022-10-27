@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.ojalgo.RecoverableCondition;
@@ -48,7 +48,7 @@ public class DataModelInitializer {
          */
 
         double[] blMeansArray = new double[massSpecOutputDataRecord.faradayCount()];
-        double[] blStdArray = new double[massSpecOutputDataRecord.faradayCount()];
+        double[] blStandardDeviationArray = new double[massSpecOutputDataRecord.faradayCount()];
         for (int faradayIndex = 0; faradayIndex < massSpecOutputDataRecord.faradayCount(); faradayIndex++) {
             DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics();
             for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
@@ -59,7 +59,7 @@ public class DataModelInitializer {
                 }
             }
             blMeansArray[faradayIndex] = descriptiveStatistics.getMean();
-            blStdArray[faradayIndex] = descriptiveStatistics.getStandardDeviation();
+            blStandardDeviationArray[faradayIndex] = descriptiveStatistics.getStandardDeviation();
         }
 
         /*
@@ -82,13 +82,13 @@ public class DataModelInitializer {
             for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
                 if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
                         &&
-                        (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1)) {
+                        (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 1)) {
                     descriptiveStatisticsCounts.addValue(massSpecOutputDataRecord.rawDataColumn()[row]);
                 }
 
                 if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
                         &&
-                        (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 0)) {
+                        (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 0)) {
                     descriptiveStatisticsFaraday.addValue(
                             massSpecOutputDataRecord.rawDataColumn()[row]
                                     - blMeansArray[(int) (massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1.0)]);
@@ -144,7 +144,7 @@ public class DataModelInitializer {
             List<Double> timeIndForSorting = new ArrayList<>();
 
             for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
-                if ((massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1)
+                if ((massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 1)
                         &&
                         (massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1))) {
                     // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
@@ -217,7 +217,7 @@ public class DataModelInitializer {
                 for (int row = 0; row < massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().length; row++) {
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
                             &&
-                            (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1)
+                            (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 1)
                             &&
                             (massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1))) {
                         // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
@@ -230,7 +230,7 @@ public class DataModelInitializer {
                     }
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
                             &&
-                            (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 0)
+                            (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 0)
                             &&
                             (massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1))) {
                         // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
@@ -287,7 +287,7 @@ public class DataModelInitializer {
 
         return new DataModellerOutputRecord(
                 blMeansArray,
-                blStdArray,
+                blStandardDeviationArray,
                 dfGain,
                 logRatios,
                 sigmas,

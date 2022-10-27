@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
@@ -31,7 +31,6 @@ import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static java.lang.StrictMath.exp;
 
@@ -241,7 +240,7 @@ public class DataModelPlot {
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount() - 1; isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
-                            && (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1)
+                            && (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 1)
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
                         double calcValue =
                                 exp(lastModelRecord.logRatios()[isotopeIndex])
@@ -250,7 +249,7 @@ public class DataModelPlot {
                         dataWithNoBaseline[row] = calcValue;
                     }
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
-                            && (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 0)
+                            && (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 0)
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
                         double calcValue =
                                 exp(lastModelRecord.logRatios()[isotopeIndex]) / lastModelRecord.dfGain()

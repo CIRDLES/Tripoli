@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
 
 import javafx.concurrent.Task;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelDriverExperiment;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.DataModelDriverExperiment;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
@@ -27,7 +27,7 @@ import java.nio.file.Path;
 /**
  * @author James F. Bowring
  */
-public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface {
+public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface {
     private Path dataFile;
     private AnalysisMethod analysisMethod;
     // ensemble plots
@@ -53,7 +53,7 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
     private AbstractPlotBuilder convergeNoiseFaradayL1LineBuilder;
     private AbstractPlotBuilder convergeNoiseFaradayH1LineBuilder;
 
-    public RJMCMCPlotBuildersTask(Path dataFile, AnalysisMethod analysisMethod) {
+    public MCMCPlotBuildersTask(Path dataFile, AnalysisMethod analysisMethod) {
         this.dataFile = dataFile;
         this.analysisMethod = analysisMethod;
     }

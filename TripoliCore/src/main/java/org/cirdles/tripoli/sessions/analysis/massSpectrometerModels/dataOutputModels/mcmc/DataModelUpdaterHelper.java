@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 

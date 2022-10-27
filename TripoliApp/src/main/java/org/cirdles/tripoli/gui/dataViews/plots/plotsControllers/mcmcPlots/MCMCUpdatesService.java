@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -25,13 +25,13 @@ import java.nio.file.Path;
 /**
  * @author James F. Bowring
  */
-public class RJMCMCUpdatesService extends Service<String> {
+public class MCMCUpdatesService extends Service<String> {
     private Path dataFile;
     private AnalysisMethod analysisMethod;
 
     private Task<String> plotBuilderTask;
 
-    public RJMCMCUpdatesService(Path dataFile, AnalysisMethod analysisMethod) {
+    public MCMCUpdatesService(Path dataFile, AnalysisMethod analysisMethod) {
         this.dataFile = dataFile;
         this.analysisMethod = analysisMethod;
     }
@@ -42,7 +42,7 @@ public class RJMCMCUpdatesService extends Service<String> {
 
     @Override
     protected Task<String> createTask() {
-        plotBuilderTask = new RJMCMCPlotBuildersTask(dataFile, analysisMethod);
+        plotBuilderTask = new MCMCPlotBuildersTask(dataFile, analysisMethod);
         return plotBuilderTask;
     }
 }
