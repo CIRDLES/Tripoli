@@ -198,6 +198,7 @@ public class DataModelPlot {
             convergeErrWeightedMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorWeighted());
             convergeErrRawMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorUnWeighted());
             for (int intensityIndex = 0; intensityIndex < convergeIntensities.length; intensityIndex++) {
+                // todo: fix this block indexing issue
                 convergeIntensities[intensityIndex][index] = ensembleRecordsList.get(index).blockIntensities()[0][intensityIndex];
             }
             convergeNoiseFaradayL1[index] = ensembleRecordsList.get(index).signalNoise()[0];
@@ -223,7 +224,8 @@ public class DataModelPlot {
         for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
             ArrayList<double[]> intensity = new ArrayList<>(1);
             intensity.add(0, lastDataModelInit.intensityPerBlock().get(blockIndex));
-            for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
+            // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
+            for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount() - 1; isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
                             && (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1)

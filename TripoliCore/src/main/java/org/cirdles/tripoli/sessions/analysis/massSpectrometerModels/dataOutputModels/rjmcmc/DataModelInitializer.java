@@ -120,8 +120,9 @@ public class DataModelInitializer {
 
         int iden = massSpecOutputDataRecord.isotopeCount() - 1;
         double dfGain = countsMeanArray[imaxC][0] / faradayMeanArray[imaxC][0];
-        double[] logRatios = new double[massSpecOutputDataRecord.isotopeCount()];
-        for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
+        // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
+        double[] logRatios = new double[massSpecOutputDataRecord.isotopeCount() - 1];
+        for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount() - 1; isotopeIndex++) {
             logRatios[isotopeIndex] = log(countsMeanArray[isotopeIndex][0] / countsMeanArray[iden][0]);
         }
 
@@ -136,7 +137,6 @@ public class DataModelInitializer {
             x0.I{m} = I0;
         end
          */
-        // just playing with first block for now
         double[][] IO = new double[massSpecOutputDataRecord.blockCount()][];
         for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
             MatrixStore<Double> interpolatedKnotData = massSpecOutputDataRecord.allBlockInterpolations()[blockIndex];
@@ -147,8 +147,14 @@ public class DataModelInitializer {
                 if ((massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1)
                         &&
                         (massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1))) {
-                    dd.add(massSpecOutputDataRecord.rawDataColumn()[row]
-                            / exp(logRatios[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1]));
+                    // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
+                    if (massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1 < logRatios.length) {
+                        dd.add(massSpecOutputDataRecord.rawDataColumn()[row]
+                                / exp(logRatios[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1]));
+                    } else {
+                        // this used to be the iden/iden ratio, which we eliminated, was 1.0 anyway
+                        dd.add(massSpecOutputDataRecord.rawDataColumn()[row]);
+                    }
                     // convert to 0-based index
                     timeIndForSorting.add(massSpecOutputDataRecord.timeIndColumn()[row] - 1);
                 }
@@ -214,18 +220,29 @@ public class DataModelInitializer {
                             (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1)
                             &&
                             (massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1))) {
-                        dataArray[row] = exp(logRatios[isotopeIndex])
-                                * intensity.get((int) massSpecOutputDataRecord.timeIndColumn()[row] - 1, 0);
+                        // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
+                        if (isotopeIndex < logRatios.length - 1) {
+                            dataArray[row] = exp(logRatios[isotopeIndex])
+                                    * intensity.get((int) massSpecOutputDataRecord.timeIndColumn()[row] - 1, 0);
+                        } else {
+                            dataArray[row] = intensity.get((int) massSpecOutputDataRecord.timeIndColumn()[row] - 1, 0);
+                        }
                     }
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
                             &&
                             (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 0)
                             &&
                             (massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1))) {
-
-                        dataArray[row] = exp(logRatios[isotopeIndex]) / dfGain
-                                * intensity.get((int) massSpecOutputDataRecord.timeIndColumn()[row] - 1, 0)
-                                + blMeansArray[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1];
+                        // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
+                        if (isotopeIndex < logRatios.length - 1) {
+                            dataArray[row] = exp(logRatios[isotopeIndex]) / dfGain
+                                    * intensity.get((int) massSpecOutputDataRecord.timeIndColumn()[row] - 1, 0)
+                                    + blMeansArray[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1];
+                        } else {
+                            dataArray[row] = 1.0 / dfGain
+                                    * intensity.get((int) massSpecOutputDataRecord.timeIndColumn()[row] - 1, 0)
+                                    + blMeansArray[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1];
+                        }
                     }
                 }
             }
