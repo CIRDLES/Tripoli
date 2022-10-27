@@ -78,4 +78,12 @@ public class SequenceTable implements Serializable {
     public void setMapOfDetectorsToSequenceCells(Map<Detector, List<SequenceCell>> mapOfDetectorsToSequenceCells) {
         this.mapOfDetectorsToSequenceCells = mapOfDetectorsToSequenceCells;
     }
+
+    public List<Detector> findFaradayDetectorsUsed(){
+        List<Detector> faradayDetectorsUsed = new ArrayList<>();
+        for (Detector detector : mapOfDetectorsToSequenceCells.keySet()){
+            if (detector.isFaraday()){faradayDetectorsUsed.add(detector);}
+        }
+        return  faradayDetectorsUsed;
+    }
 }

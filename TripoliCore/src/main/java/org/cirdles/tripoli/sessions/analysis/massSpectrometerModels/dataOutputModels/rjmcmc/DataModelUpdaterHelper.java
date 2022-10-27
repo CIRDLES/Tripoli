@@ -94,6 +94,7 @@ public class DataModelUpdaterHelper {
         double psigBaselineFaraday = maxValue / 10.0;
         double psigBaselineDaly = 1.0e-1;
         double psigLogRatio = 0.0005 * 0.2;
+        // TODO: Confirm this should be called percent
         double psigIntensityPercent = (priorRecord.maxIntensity() - priorRecord.minIntensity()) / 100.0;
         double psigDFgain = 0.001;
         double psigSignalNoiseFaraday = maxValue;

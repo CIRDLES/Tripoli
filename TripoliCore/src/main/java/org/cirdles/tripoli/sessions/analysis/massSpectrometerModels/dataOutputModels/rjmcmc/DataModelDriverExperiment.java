@@ -70,7 +70,7 @@ public class DataModelDriverExperiment {
             List<EnsemblesStore.EnsembleRecord> ensembleRecordsList = new ArrayList<>();
             DataModellerOutputRecord lastDataModelInit = null;
             if (doFullProcessing) {
-                plotBuilders = applyInversionWithRJMCMC(massSpecOutputDataRecord, dataModelInit, analysisMethod.getTripoliRatiosList(), loggingCallback);
+                plotBuilders = applyInversionWithRJMCMC(massSpecOutputDataRecord, dataModelInit, analysisMethod, loggingCallback);
             } else {
                 try {
                     EnsemblesStore ensemblesStore = (EnsemblesStore) TripoliSerializer.getSerializedObjectFromFile("EnsemblesStore.ser", true);
@@ -80,7 +80,7 @@ public class DataModelDriverExperiment {
                     e.printStackTrace();
                 }
 
-                plotBuilders = DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, lastDataModelInit, analysisMethod.getTripoliRatiosList());
+                plotBuilders = DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, lastDataModelInit, analysisMethod);
             }
         } catch (RecoverableCondition e) {
             plotBuilders = new AbstractPlotBuilder[0][0];
@@ -92,7 +92,7 @@ public class DataModelDriverExperiment {
     static AbstractPlotBuilder[][] applyInversionWithRJMCMC
             (MassSpecOutputDataRecord massSpecOutputDataRecord,
              DataModellerOutputRecord dataModelInit_X0,
-             List<IsotopicRatio> isotopicRatioList,
+             AnalysisMethod analysisMethod,
              LoggingCallbackInterface loggingCallback) {
         /*
             % MCMC Parameters
@@ -118,6 +118,7 @@ public class DataModelDriverExperiment {
             maxCount = 500;
         }
 
+        List<IsotopicRatio> isotopicRatioList = analysisMethod.getTripoliRatiosList();
         boolean hierarchical = true;
         int stepCountForcedSave = 100;
 
@@ -745,7 +746,7 @@ public class DataModelDriverExperiment {
             e.printStackTrace();
         }
 
-        return DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, dataModelInit, isotopicRatioList);
+        return DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, dataModelInit, analysisMethod);
     }
 
 }

@@ -222,7 +222,7 @@ public class RJMCMCPlotsController {
             RJMCMCPlotBuildersTask plotBuildersTask = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask());
 
             AbstractPlotBuilder[] ratiosHistogramBuilder = plotBuildersTask.getRatiosHistogramBuilder();
-            AbstractPlotBuilder baselineHistogramBuilder = plotBuildersTask.getBaselineHistogramBuilder();
+            AbstractPlotBuilder[] baselineHistogramBuilder = plotBuildersTask.getBaselineHistogramBuilder();
             AbstractPlotBuilder dalyFaradayHistogramBuilder = plotBuildersTask.getDalyFaradayGainHistogramBuilder();
             AbstractPlotBuilder signalNoiseHistogramBuilder = plotBuildersTask.getSignalNoiseHistogramBuilder();
             AbstractPlotBuilder intensityLinePlotBuilder = plotBuildersTask.getMeanIntensityLineBuilder();
@@ -243,10 +243,10 @@ public class RJMCMCPlotsController {
             AbstractPlotBuilder convergeNoiseFaradayL1LineBuilder = plotBuildersTask.getConvergeNoiseFaradayL1LineBuilder();
             AbstractPlotBuilder convergeNoiseFaradayH1LineBuilder = plotBuildersTask.getConvergeNoiseFaradayH1LineBuilder();
 
-            AbstractDataView baselineHistogramPlot = new HistogramPlot(
-                    new Rectangle(ensembleGridPane.getWidth() / ensembleGridPane.getColumnCount(),
-                            (plotTabPane.getHeight() - TAB_HEIGHT) / ensembleGridPane.getRowCount()),
-                    (HistogramBuilder) baselineHistogramBuilder);
+//            AbstractDataView baselineHistogramPlot = new HistogramPlot(
+//                    new Rectangle(ensembleGridPane.getWidth() / ensembleGridPane.getColumnCount(),
+//                            (plotTabPane.getHeight() - TAB_HEIGHT) / ensembleGridPane.getRowCount()),
+//                    (HistogramBuilder) baselineHistogramBuilder);
 
             AbstractDataView dalyFaradayHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth() / ensembleGridPane.getColumnCount(),
@@ -320,8 +320,8 @@ public class RJMCMCPlotsController {
             plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue.intValue() > 100) {
                     double newWidth = newValue.intValue() - ensembleLegendTextBox.getWidth();
-                    baselineHistogramPlot.setMyWidth(newWidth / ensembleGridPane.getColumnCount());
-                    baselineHistogramPlot.repaint();
+//                    baselineHistogramPlot.setMyWidth(newWidth / ensembleGridPane.getColumnCount());
+//                    baselineHistogramPlot.repaint();
                     dalyFaradayHistogramPlot.setMyWidth(newWidth / ensembleGridPane.getColumnCount());
                     dalyFaradayHistogramPlot.repaint();
                     intensityLinePlot.setMyWidth(newWidth);
@@ -361,8 +361,8 @@ public class RJMCMCPlotsController {
 
             plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue.intValue() > 100) {
-                    baselineHistogramPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
-                    baselineHistogramPlot.repaint();
+//                    baselineHistogramPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
+//                    baselineHistogramPlot.repaint();
                     dalyFaradayHistogramPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
                     dalyFaradayHistogramPlot.repaint();
                     intensityLinePlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
@@ -398,8 +398,8 @@ public class RJMCMCPlotsController {
                 }
             });
 
-            baselineHistogramPlot.preparePanel();
-            ensembleGridPane.add(baselineHistogramPlot, 0, 1, 1, 1);
+//            baselineHistogramPlot.preparePanel();
+//            ensembleGridPane.add(baselineHistogramPlot, 0, 1, 1, 1);
             dalyFaradayHistogramPlot.preparePanel();
             ensembleGridPane.add(dalyFaradayHistogramPlot, 1, 1, 1, 1);
             intensityLinePlot.preparePanel();
@@ -446,8 +446,17 @@ public class RJMCMCPlotsController {
                 TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
                 HistogramSinglePlot ratiosHistogramSinglePlot = new HistogramSinglePlot(
                         new Rectangle(minPlotWidth, minPlotHeight),
-                        plotRecord, plotRecord.title(), "Ratios", "Counts");
+                        plotRecord, plotRecord.title(), "Ratios", "Frequency");
                 tripoliPlotPane.addPlot(ratiosHistogramSinglePlot);
+            }
+
+            for (int i = 0; i < baselineHistogramBuilder.length; i++) {
+                HistogramRecord plotRecord = ((HistogramBuilder) baselineHistogramBuilder[i]).getHistograms()[0];
+                TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
+                HistogramSinglePlot baselineHistogramSinglePlot = new HistogramSinglePlot(
+                        new Rectangle(minPlotWidth, minPlotHeight),
+                        plotRecord, plotRecord.title(), "Baseline Counts", "Frequency");
+                tripoliPlotPane.addPlot(baselineHistogramSinglePlot);
             }
 
             plotWallPane.tilePlots();

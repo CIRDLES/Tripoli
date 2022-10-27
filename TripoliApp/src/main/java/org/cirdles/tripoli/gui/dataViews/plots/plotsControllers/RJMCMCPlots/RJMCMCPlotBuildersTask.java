@@ -32,7 +32,7 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
     private AnalysisMethod analysisMethod;
     // ensemble plots
     private AbstractPlotBuilder[] ratiosHistogramBuilder;
-    private AbstractPlotBuilder baselineHistogramBuilder;
+    private AbstractPlotBuilder[] baselineHistogramBuilder;
     private AbstractPlotBuilder dalyFaradayGainHistogramBuilder;
     private AbstractPlotBuilder signalNoiseHistogramBuilder;
     private AbstractPlotBuilder meanIntensityLineBuilder;
@@ -62,7 +62,7 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
         return ratiosHistogramBuilder;
     }
 
-    public AbstractPlotBuilder getBaselineHistogramBuilder() {
+    public AbstractPlotBuilder[] getBaselineHistogramBuilder() {
         return baselineHistogramBuilder;
     }
 
@@ -122,7 +122,7 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
     protected String call() throws Exception {
         AbstractPlotBuilder[][] plots = DataModelDriverExperiment.driveModelTest(dataFile, analysisMethod, this);
         ratiosHistogramBuilder = plots[0];
-        baselineHistogramBuilder = plots[1][0];
+        baselineHistogramBuilder = plots[1];
         dalyFaradayGainHistogramBuilder = plots[2][0];
         signalNoiseHistogramBuilder = plots[3][0];
         meanIntensityLineBuilder = plots[4][0];
