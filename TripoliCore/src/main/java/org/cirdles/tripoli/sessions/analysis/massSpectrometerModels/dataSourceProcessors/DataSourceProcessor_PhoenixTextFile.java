@@ -19,7 +19,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.MassSpecOutputDataRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
@@ -34,15 +34,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 
-public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterface {
+public class DataSourceProcessor_PhoenixTextFile implements DataSourceProcessorInterface {
     private final AnalysisMethod analysisMethod;
 
-    private DataSourceProcessor_OPPhoenix(AnalysisMethod analysisMethod) {
+    private DataSourceProcessor_PhoenixTextFile(AnalysisMethod analysisMethod) {
         this.analysisMethod = analysisMethod;
     }
 
-    public static DataSourceProcessor_OPPhoenix initializeWithAnalysisMethod(AnalysisMethod analysisMethod) {
-        return new DataSourceProcessor_OPPhoenix(analysisMethod);
+    public static DataSourceProcessor_PhoenixTextFile initializeWithAnalysisMethod(AnalysisMethod analysisMethod) {
+        return new DataSourceProcessor_PhoenixTextFile(analysisMethod);
     }
 
     @Override
@@ -235,9 +235,9 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         // start with Baseline table
         AccumulatedData baselineFaradayAccumulator = accumulateBaselineDataPerSequenceTableSpecs(sequenceIDs, detectorData, analysisMethod, true);
         // now sequence table Faraday
-        AccumulatedData sequenceFaradayAccumulator = accumulateDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, blockListWithoutDuplicates, detectorData, timeStamp, analysisMethod, true);
+        AccumulatedData sequenceFaradayAccumulator = accumulateOnPeakDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, blockListWithoutDuplicates, detectorData, timeStamp, analysisMethod, true);
         // now sequence table NOT Faraday (ion counter)
-        AccumulatedData sequenceIonCounterAccumulator = accumulateDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, blockListWithoutDuplicates, detectorData, timeStamp, analysisMethod, false);
+        AccumulatedData sequenceIonCounterAccumulator = accumulateOnPeakDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, blockListWithoutDuplicates, detectorData, timeStamp, analysisMethod, false);
 
         List<Double> dataAccumulatorList = new ArrayList<>();
         dataAccumulatorList.addAll(baselineFaradayAccumulator.dataAccumulatorList());
@@ -249,7 +249,6 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         timeAccumulatorList.addAll(sequenceFaradayAccumulator.timeAccumulatorList());
         timeAccumulatorList.addAll(sequenceIonCounterAccumulator.timeAccumulatorList());
 
-        // TODO: fix this only works for single block Confirm this is done
         List<Integer> timeIndAccumulatorList = new ArrayList<>();
         timeIndAccumulatorList.addAll(baselineFaradayAccumulator.timeIndAccumulatorList());
         timeIndAccumulatorList.addAll(sequenceFaradayAccumulator.timeIndAccumulatorList());
@@ -285,10 +284,10 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         baseLineFlagsForDataAccumulatorList.addAll(sequenceFaradayAccumulator.baseLineFlagsForDataAccumulatorList());
         baseLineFlagsForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.baseLineFlagsForDataAccumulatorList());
 
-        List<Integer> axialFlagsForDataAccumulatorList = new ArrayList<>();
-        axialFlagsForDataAccumulatorList.addAll(baselineFaradayAccumulator.axialFlagsForDataAccumulatorList());
-        axialFlagsForDataAccumulatorList.addAll(sequenceFaradayAccumulator.axialFlagsForDataAccumulatorList());
-        axialFlagsForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.axialFlagsForDataAccumulatorList());
+        List<Integer> ionCounterFlagsForDataAccumulatorList = new ArrayList<>();
+        ionCounterFlagsForDataAccumulatorList.addAll(baselineFaradayAccumulator.ionCounterFlagsForDataAccumulatorList());
+        ionCounterFlagsForDataAccumulatorList.addAll(sequenceFaradayAccumulator.ionCounterFlagsForDataAccumulatorList());
+        ionCounterFlagsForDataAccumulatorList.addAll(sequenceIonCounterAccumulator.ionCounterFlagsForDataAccumulatorList());
 
         List<Integer> signalIndexForDataAccumulatorList = new ArrayList<>();
         signalIndexForDataAccumulatorList.addAll(baselineFaradayAccumulator.signalIndexForDataAccumulatorList());
@@ -338,7 +337,7 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
         }
 
         double[] baseLineFlagsForDataAccumulatorArray = baseLineFlagsForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
-        double[] axialFlagsForDataAccumulatorArray = axialFlagsForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
+        double[] ionCounterFlagsForDataAccumulatorArray = ionCounterFlagsForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
         double[] signalIndicesForDataAccumulatorArray = signalIndexForDataAccumulatorList.stream().mapToDouble(d -> d).toArray();
 
         // this stuff might get used
@@ -466,7 +465,7 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
             d0.det_vec >> detectorIndicesForRawDataColumn (detectors are indexed from 1 through all Faraday and the last is the Axial (Daly)))
             d0.det_ind >> detectorFlagsForRawDataColumn (each Faraday has a column and the last column is for Daly; 1 flags detector used)
             d0.blflag >> baseLineFlagsForRawDataColumn (contains 1 for baseline, 0 for sequence)
-            d0.axflag >> axialFlagsForRawDataColumn (contains 1 for data from DALY detector, 0 otherwise)
+            d0.axflag >> ionCounterFlagsForRawDataColumn (contains 1 for data from DALY detector, 0 otherwise)
             d0.InterpMat >> firstBlockInterpolationsMatrix  (matlab actually puts matrices into cells)
             d0.Nfar >> faradayCount
             d0.Niso >> isotopeCount
@@ -484,7 +483,7 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
                 detectorIndicesForDataAccumulatorArray,
                 detectorFlagsForDataAccumulatorArray,
                 baseLineFlagsForDataAccumulatorArray,
-                axialFlagsForDataAccumulatorArray,
+                ionCounterFlagsForDataAccumulatorArray,
                 allBlockInterpolations,
                 faradayCount,
                 isotopeCount,

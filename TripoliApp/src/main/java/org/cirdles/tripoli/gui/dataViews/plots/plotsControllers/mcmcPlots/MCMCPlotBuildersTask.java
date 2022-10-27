@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
 
 import javafx.concurrent.Task;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelDriverExperiment;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.DataModelDriverExperiment;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
@@ -27,12 +27,12 @@ import java.nio.file.Path;
 /**
  * @author James F. Bowring
  */
-public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface {
+public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface {
     private Path dataFile;
     private AnalysisMethod analysisMethod;
     // ensemble plots
     private AbstractPlotBuilder[] ratiosHistogramBuilder;
-    private AbstractPlotBuilder baselineHistogramBuilder;
+    private AbstractPlotBuilder[] baselineHistogramBuilder;
     private AbstractPlotBuilder dalyFaradayGainHistogramBuilder;
     private AbstractPlotBuilder signalNoiseHistogramBuilder;
     private AbstractPlotBuilder meanIntensityLineBuilder;
@@ -53,7 +53,7 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
     private AbstractPlotBuilder convergeNoiseFaradayL1LineBuilder;
     private AbstractPlotBuilder convergeNoiseFaradayH1LineBuilder;
 
-    public RJMCMCPlotBuildersTask(Path dataFile, AnalysisMethod analysisMethod) {
+    public MCMCPlotBuildersTask(Path dataFile, AnalysisMethod analysisMethod) {
         this.dataFile = dataFile;
         this.analysisMethod = analysisMethod;
     }
@@ -62,7 +62,7 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
         return ratiosHistogramBuilder;
     }
 
-    public AbstractPlotBuilder getBaselineHistogramBuilder() {
+    public AbstractPlotBuilder[] getBaselineHistogramBuilder() {
         return baselineHistogramBuilder;
     }
 
@@ -122,7 +122,7 @@ public class RJMCMCPlotBuildersTask extends Task<String> implements LoggingCallb
     protected String call() throws Exception {
         AbstractPlotBuilder[][] plots = DataModelDriverExperiment.driveModelTest(dataFile, analysisMethod, this);
         ratiosHistogramBuilder = plots[0];
-        baselineHistogramBuilder = plots[1][0];
+        baselineHistogramBuilder = plots[1];
         dalyFaradayGainHistogramBuilder = plots[2][0];
         signalNoiseHistogramBuilder = plots[3][0];
         meanIntensityLineBuilder = plots[4][0];

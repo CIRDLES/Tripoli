@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.random.RandomDataGenerator;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_OPPhoenix;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_PhoenixTextFile;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
@@ -44,10 +44,10 @@ import java.util.Locale;
 import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdater.updateMSv2;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdater.updateMeanCovMS;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdaterHelper.buildPriorRecord;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdaterHelper.buildPsigRecord;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.DataModelUpdater.updateMSv2;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.DataModelUpdater.updateMeanCovMS;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.DataModelUpdaterHelper.buildPriorRecord;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.DataModelUpdaterHelper.buildPsigRecord;
 
 /**
  * @author James F. Bowring
@@ -58,8 +58,8 @@ public class DataModelDriverExperiment {
 
     public static AbstractPlotBuilder[][] driveModelTest(Path dataFilePath, AnalysisMethod analysisMethod, LoggingCallbackInterface loggingCallback) throws IOException {
 
-        DataSourceProcessor_OPPhoenix dataSourceProcessorOPPhoenix
-                = DataSourceProcessor_OPPhoenix.initializeWithAnalysisMethod(analysisMethod);
+        DataSourceProcessor_PhoenixTextFile dataSourceProcessorOPPhoenix
+                = DataSourceProcessor_PhoenixTextFile.initializeWithAnalysisMethod(analysisMethod);
         MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFilePath);
 
         AbstractPlotBuilder[][] plotBuilders;
@@ -70,7 +70,7 @@ public class DataModelDriverExperiment {
             List<EnsemblesStore.EnsembleRecord> ensembleRecordsList = new ArrayList<>();
             DataModellerOutputRecord lastDataModelInit = null;
             if (doFullProcessing) {
-                plotBuilders = applyInversionWithRJMCMC(massSpecOutputDataRecord, dataModelInit, analysisMethod.getTripoliRatiosList(), loggingCallback);
+                plotBuilders = applyInversionWithAdaptiveMCMC(massSpecOutputDataRecord, dataModelInit, analysisMethod, loggingCallback);
             } else {
                 try {
                     EnsemblesStore ensemblesStore = (EnsemblesStore) TripoliSerializer.getSerializedObjectFromFile("EnsemblesStore.ser", true);
@@ -80,7 +80,7 @@ public class DataModelDriverExperiment {
                     e.printStackTrace();
                 }
 
-                plotBuilders = DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, lastDataModelInit, analysisMethod.getTripoliRatiosList());
+                plotBuilders = DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, lastDataModelInit, analysisMethod);
             }
         } catch (RecoverableCondition e) {
             plotBuilders = new AbstractPlotBuilder[0][0];
@@ -89,10 +89,10 @@ public class DataModelDriverExperiment {
         return plotBuilders;
     }
 
-    static AbstractPlotBuilder[][] applyInversionWithRJMCMC
+    static AbstractPlotBuilder[][] applyInversionWithAdaptiveMCMC
             (MassSpecOutputDataRecord massSpecOutputDataRecord,
              DataModellerOutputRecord dataModelInit_X0,
-             List<IsotopicRatio> isotopicRatioList,
+             AnalysisMethod analysisMethod,
              LoggingCallbackInterface loggingCallback) {
         /*
             % MCMC Parameters
@@ -123,8 +123,8 @@ public class DataModelDriverExperiment {
 
         double[] baselineMultiplier = new double[massSpecOutputDataRecord.rawDataColumn().length];
         Arrays.fill(baselineMultiplier, 1.0);
-        for (int row = 0; row < massSpecOutputDataRecord.axialFlagsForRawDataColumn().length; row++) {
-            if (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1) {
+        for (int row = 0; row < massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn().length; row++) {
+            if (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 1) {
                 baselineMultiplier[row] = 0.1;
             }
         }
@@ -185,7 +185,7 @@ public class DataModelDriverExperiment {
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
-                            && (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1)
+                            && (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 1)
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
                         double calcValue;
                         // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
@@ -200,7 +200,7 @@ public class DataModelDriverExperiment {
                         dataWithNoBaseline[row] = calcValue;
                     }
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
-                            && (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 0)
+                            && (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 0)
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
                         double calcValue;
                         // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
@@ -316,13 +316,13 @@ public class DataModelDriverExperiment {
         double[] blockEndIndicesDaly = new double[massSpecOutputDataRecord.blockCount()];
         for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
             blockStartIndicesFaraday[blockIndex] =
-                    DataModelUpdaterHelper.findFirstOrLast(true, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 0, massSpecOutputDataRecord.axialFlagsForRawDataColumn());
+                    DataModelUpdaterHelper.findFirstOrLast(true, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 0, massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn());
             blockEndIndicesFaraday[blockIndex] =
-                    DataModelUpdaterHelper.findFirstOrLast(false, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 0, massSpecOutputDataRecord.axialFlagsForRawDataColumn());
+                    DataModelUpdaterHelper.findFirstOrLast(false, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 0, massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn());
             blockStartIndicesDaly[blockIndex] =
-                    DataModelUpdaterHelper.findFirstOrLast(true, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 1, massSpecOutputDataRecord.axialFlagsForRawDataColumn());
+                    DataModelUpdaterHelper.findFirstOrLast(true, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 1, massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn());
             blockEndIndicesDaly[blockIndex] =
-                    DataModelUpdaterHelper.findFirstOrLast(false, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 1, massSpecOutputDataRecord.axialFlagsForRawDataColumn());
+                    DataModelUpdaterHelper.findFirstOrLast(false, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 1, massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn());
         }
 
         DataModellerOutputRecord dataModelInit = new DataModellerOutputRecord(
@@ -428,7 +428,7 @@ public class DataModelDriverExperiment {
             double[] tmpIArray = new double[rowDimension];
             for (int row = 0; row < rowDimension; row++) {
                 tmpBLArray[row] = tmpBLindArray[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1];
-                if (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 0) {
+                if (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 0) {
                     tmpDFArray[row] = 1.0 / dataModelUpdaterOutputRecord_x2.dfGain();
                 }
                 // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
@@ -745,7 +745,7 @@ public class DataModelDriverExperiment {
             e.printStackTrace();
         }
 
-        return DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, dataModelInit, isotopicRatioList);
+        return DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, dataModelInit, analysisMethod);
     }
 
 }

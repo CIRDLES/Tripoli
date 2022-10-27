@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.ojalgo.data.DataProcessors;
@@ -84,7 +84,7 @@ public class DataModelUpdater {
         double[] ps0DiagArray = new double[countOfRows];
         double[] priorMinArray = new double[countOfRows];
         double[] priorMaxArray = new double[countOfRows];
-//TODO: rework this for n isotopes
+
         for (int logRatioIndex = 0; logRatioIndex < countOfLogRatios; logRatioIndex++) {
             ps0DiagArray[logRatioIndex] = psigRecord.psigLogRatio();
             priorMinArray[logRatioIndex] = priorRecord.priorLogRatio()[0][0];
@@ -97,7 +97,7 @@ public class DataModelUpdater {
             priorMaxArray[cycleIndex + countOfLogRatios] = priorRecord.priorIntensity()[0][1];
         }
 
-        for (int faradayIndex = 0; faradayIndex < countOfLogRatios; faradayIndex++) {
+        for (int faradayIndex = 0; faradayIndex < countOfFaradays; faradayIndex++) {
             ps0DiagArray[faradayIndex + countOfLogRatios + sumOfCycleCounts] = psigRecord.psigBaselineFaraday();
             priorMinArray[faradayIndex + countOfLogRatios + sumOfCycleCounts] = priorRecord.priorBaselineFaraday()[0][0];
             priorMaxArray[faradayIndex + countOfLogRatios + sumOfCycleCounts] = priorRecord.priorBaselineFaraday()[0][1];
