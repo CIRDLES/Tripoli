@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc;
 
+import javafx.scene.paint.Color;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
@@ -177,17 +178,26 @@ public class DataModelPlot {
 
         plotBuilders[0] = new AbstractPlotBuilder[ensembleRatios.length];
         for (int i = 0; i < ensembleRatios.length; i++) {
-            plotBuilders[0][i] = HistogramBuilder.initializeHistogram(ensembleRatios[i], 50, isotopicRatioList.get(i).prettyPrint());
+            plotBuilders[0][i] = HistogramBuilder.initializeHistogram(ensembleRatios[i],
+                    50, isotopicRatioList.get(i).prettyPrint(), "Ratios", "Frequency", Color.BLUE);
         }
 
         plotBuilders[1] = new AbstractPlotBuilder[ensembleBaselines.length];
         List<Detector> faradayDetectorsUsed = analysisMethod.getSequenceTable().findFaradayDetectorsUsed();
         for (int i = 0; i < ensembleBaselines.length; i++) {
-            plotBuilders[1][i] = HistogramBuilder.initializeHistogram(ensembleBaselines[i], 50, "Histogram of baseline of " + faradayDetectorsUsed.get(i).getDetectorName());
+            plotBuilders[1][i] = HistogramBuilder.initializeHistogram(ensembleBaselines[i],
+                    50, faradayDetectorsUsed.get(i).getDetectorName() + " Baseline", "Baseline Counts", "Frequency", Color.BLUE);
         }
 
-        plotBuilders[2][0] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain, 50, "Histogram of Daly/Faraday Gain");
-        plotBuilders[3][0] = HistogramBuilder.initializeHistogram(true, ensembleSignalnoise, 50, "Histogram of Signal Noise");
+        plotBuilders[2][0] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain,
+                50, "Daly/Faraday Gain", "Gain", "Frequency", Color.BLUE);
+
+        plotBuilders[3] = new AbstractPlotBuilder[ensembleSignalnoise.length];
+        for (int i = 0; i < ensembleSignalnoise.length; i++) {
+            plotBuilders[3][i] = HistogramBuilder.initializeHistogram(ensembleSignalnoise[i],
+                    50, faradayDetectorsUsed.get(i).getDetectorName() + " Signal Noise", "Noise hyperparameter", "Frequency", Color.GREEN);
+        }
+
         plotBuilders[4][0] = MultiLinePlotBuilder.initializeLinePlot(xDataIntensityMeans, yDataIntensityMeans, "Mean Intensity");
 
         // visualization converge ratio and others tabs

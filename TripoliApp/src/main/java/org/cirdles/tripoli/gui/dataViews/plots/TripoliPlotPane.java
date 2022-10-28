@@ -67,9 +67,12 @@ public class TripoliPlotPane extends Pane {
     };
 
     private final EventHandler<MouseEvent> mouseClickedEventHandler = e -> {
-        if (e.isPrimaryButtonDown()) {
+        if (e.isPrimaryButtonDown() && e.getClickCount() == 1) {
             mouseStartX = e.getSceneX();
             mouseStartY = e.getSceneY();
+        }
+        if (e.isPrimaryButtonDown() && e.getClickCount() == 2) {
+            toggleFullSize();
         }
         toFront();
     };
@@ -78,6 +81,13 @@ public class TripoliPlotPane extends Pane {
         snapToGrid();
     };
     private Pane plotWallPane;
+    private record PlotLocation(
+            double x,
+            double y,
+            double w,
+            double h
+    ){}
+    private PlotLocation plotLocation = null;
     private final EventHandler<MouseEvent> mouseDraggedEventHandler = e -> {
         Pane targetPane = (Pane) e.getSource();
         double deltaX = e.getSceneX() - mouseStartX;
@@ -135,6 +145,24 @@ public class TripoliPlotPane extends Pane {
         plotWallPane.getChildren().addAll(tripoliPlotPane);
 
         return tripoliPlotPane;
+    }
+
+    private void toggleFullSize(){
+        if (plotLocation == null){
+            plotLocation = new PlotLocation(getLayoutX(), getLayoutY(), getPrefWidth(), getPrefHeight());
+            setLayoutX(gridCellDim);
+            setPrefWidth(plotWallPane.getWidth() - 2 * gridCellDim);
+            setLayoutY(gridCellDim);
+            setPrefHeight(plotWallPane.getHeight() - 2 * gridCellDim);
+        } else {
+            setLayoutX(plotLocation.x());
+            setPrefWidth(plotLocation.w());
+            setLayoutY(plotLocation.y());
+            setPrefHeight(plotLocation.h());
+            plotLocation = null;
+        }
+        ((AbstractPlot) getChildren().get(0)).updatePlotSize(getPrefWidth(), getPrefHeight());
+        ((AbstractPlot) getChildren().get(0)).calculateTics();
     }
 
     public void snapToGrid() {

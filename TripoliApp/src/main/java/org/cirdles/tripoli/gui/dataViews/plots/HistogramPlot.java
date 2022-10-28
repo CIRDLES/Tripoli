@@ -41,36 +41,22 @@ public class HistogramPlot extends AbstractDataView {
     @Override
     public void preparePanel() {
 
-        xAxisData = histogramBuilder.getHistograms()[0].binCenters();
+        xAxisData = histogramBuilder.getHistogram().binCenters();
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
-        if (histogramBuilder.getHistograms().length > 1) {
-            for (int histogramIndex = 0; histogramIndex < histogramBuilder.getHistograms().length; histogramIndex++) {
-                minX = Math.min(minX, histogramBuilder.getHistograms()[histogramIndex].binCenters()[0]);
-                maxX = Math.max(maxX, histogramBuilder.getHistograms()[histogramIndex].binCenters()[histogramBuilder.getHistograms()[histogramIndex].binCount() - 1]);
-            }
-        }
 
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.25);
         minX -= xMarginStretch;
         maxX += xMarginStretch;
         ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 40.0));
 
-        yAxisData = histogramBuilder.getHistograms()[0].binCounts();
+        yAxisData = histogramBuilder.getHistogram().binCounts();
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 
         for (double yAxisDatum : yAxisData) {
             minY = StrictMath.min(minY, yAxisDatum);
             maxY = StrictMath.max(maxY, yAxisDatum);
-        }
-        if (histogramBuilder.getHistograms().length > 1) {
-            for (int histogramIndex = 0; histogramIndex < histogramBuilder.getHistograms().length; histogramIndex++) {
-                for (double yAxisDatum : histogramBuilder.getHistograms()[histogramIndex].binCounts()) {
-                    minY = StrictMath.min(minY, yAxisDatum);
-                    maxY = StrictMath.max(maxY, yAxisDatum);
-                }
-            }
         }
 
         // customized for histogram
@@ -107,25 +93,9 @@ public class HistogramPlot extends AbstractDataView {
         // plot bins
         g2d.setFill(Paint.valueOf("BLUE"));
         g2d.setLineWidth(2.0);
-        double binWidth = histogramBuilder.getHistograms()[0].binWidth();
+        double binWidth = histogramBuilder.getHistogram().binWidth();
         boolean doFrameBins = (mapX(xAxisData[1]) - mapX(xAxisData[0])) > 1.0;
         plotData(g2d, binWidth, doFrameBins);
-
-        //todo: make more robust
-        String[] colorArray = new String[]{"BLUE", "GREEN", "RED", "PURPLE", "BLUE", "GREEN", "RED", "PURPLE"};
-        if (histogramBuilder.getHistograms().length > 1) {
-            for (int histogramIndex = 0; histogramIndex < histogramBuilder.getHistograms().length; histogramIndex++) {
-                xAxisData = histogramBuilder.getHistograms()[histogramIndex].binCenters();
-                yAxisData = histogramBuilder.getHistograms()[histogramIndex].binCounts();
-                binWidth = histogramBuilder.getHistograms()[histogramIndex].binWidth();
-                doFrameBins = (mapX(xAxisData[1]) - mapX(xAxisData[0])) > 1.0;
-                g2d.setFill(Paint.valueOf(colorArray[histogramIndex]));
-                plotData(g2d, binWidth, doFrameBins);
-            }
-
-            xAxisData = histogramBuilder.getHistograms()[0].binCenters();
-            yAxisData = histogramBuilder.getHistograms()[0].binCounts();
-        }
 
         if (ticsY.length > 1) {
             // border and fill

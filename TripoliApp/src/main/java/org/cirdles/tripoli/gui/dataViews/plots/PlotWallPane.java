@@ -26,9 +26,9 @@ import javafx.scene.layout.Pane;
  */
 public class PlotWallPane extends Pane {
 
-    static double menuOffset = 64;
-    static double gridCellDim = 5.0;
-    static double toolBarHeight = 35.0;
+    public static double menuOffset = 64;
+    public static double gridCellDim = 5.0;
+    public static double toolBarHeight = 35.0;
 
     public void tilePlots() {
         // assume 2 x 4

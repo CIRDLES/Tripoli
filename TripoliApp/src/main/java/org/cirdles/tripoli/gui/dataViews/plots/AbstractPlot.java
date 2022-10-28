@@ -241,7 +241,7 @@ public abstract class AbstractPlot extends Canvas {
                                 leftMargin, mapY(bigDecimalTicY.doubleValue()), leftMargin + plotWidth, mapY(bigDecimalTicY.doubleValue()));
                         // left side
                         Formatter fmt = new Formatter();
-                        fmt.format("%16.2g", bigDecimalTicY.doubleValue());
+                        fmt.format("%16.3g", bigDecimalTicY.doubleValue());
                         String yText = fmt.toString().trim();
                         text.setText(yText);
                         textWidth = (int) text.getLayoutBounds().getWidth();
@@ -287,9 +287,9 @@ public abstract class AbstractPlot extends Canvas {
     private void labelAxisX(GraphicsContext g2d) {
         Paint savedPaint = g2d.getFill();
         g2d.setFill(Paint.valueOf("BLACK"));
-        g2d.setFont(Font.font("SansSerif", 12));
+        g2d.setFont(Font.font("SansSerif", 11));
         Text text = new Text();
-        text.setFont(Font.font("SansSerif", 12));
+        text.setFont(Font.font("SansSerif", 11));
         text.setText(plotAxisLabelX);
         int textWidth = (int) text.getLayoutBounds().getWidth();
         g2d.fillText(text.getText(), leftMargin + (plotWidth - textWidth) / 2.0, plotHeight + 2.0 * topMargin - 2.0);
@@ -299,9 +299,9 @@ public abstract class AbstractPlot extends Canvas {
     private void labelAxisY(GraphicsContext g2d) {
         Paint savedPaint = g2d.getFill();
         g2d.setFill(Paint.valueOf("BLACK"));
-        g2d.setFont(Font.font("SansSerif", 12));
+        g2d.setFont(Font.font("SansSerif", 11));
         Text text = new Text();
-        text.setFont(Font.font("SansSerif", 12));
+        text.setFont(Font.font("SansSerif", 11));
         text.setText(plotAxisLabelY);
         int textWidth = (int) text.getLayoutBounds().getWidth();
         g2d.rotate(-90.0);

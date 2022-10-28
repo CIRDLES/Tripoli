@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramRecord;
 
@@ -29,9 +30,13 @@ public class HistogramSinglePlot extends AbstractPlot {
     private double binWidth;
     private boolean doFrameBins;
 
-    public HistogramSinglePlot(Rectangle bounds, HistogramRecord histogramRecord, String plotTitle, String plotAxisLabelX, String plotAxisLabelY) {
-        super(bounds, 35, 25, plotTitle, plotAxisLabelX, plotAxisLabelY);
+    private HistogramSinglePlot(Rectangle bounds, HistogramRecord histogramRecord) {
+        super(bounds, 40, 25, histogramRecord.title(), histogramRecord.xAxisLabel(), histogramRecord.yAxisLabel());
         this.histogramRecord = histogramRecord;
+    }
+
+    public static AbstractPlot generatePlot(Rectangle bounds, HistogramRecord histogramRecord){
+        return new HistogramSinglePlot(bounds, histogramRecord);
     }
 
     @Override
@@ -51,6 +56,8 @@ public class HistogramSinglePlot extends AbstractPlot {
 
         displayOffsetX = 0.0;
         displayOffsetY = 0.0;
+
+        dataColor = histogramRecord.dataColor();
 
         prepareExtents();
         calculateTics();

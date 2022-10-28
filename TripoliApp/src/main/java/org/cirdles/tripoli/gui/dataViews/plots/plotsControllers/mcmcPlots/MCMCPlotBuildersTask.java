@@ -33,8 +33,8 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     // ensemble plots
     private AbstractPlotBuilder[] ratiosHistogramBuilder;
     private AbstractPlotBuilder[] baselineHistogramBuilder;
-    private AbstractPlotBuilder dalyFaradayGainHistogramBuilder;
-    private AbstractPlotBuilder signalNoiseHistogramBuilder;
+    private AbstractPlotBuilder[] dalyFaradayGainHistogramBuilder;
+    private AbstractPlotBuilder[] signalNoiseHistogramBuilder;
     private AbstractPlotBuilder meanIntensityLineBuilder;
 
     private AbstractPlotBuilder convergeRatioLineBuilder;
@@ -66,11 +66,11 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         return baselineHistogramBuilder;
     }
 
-    public AbstractPlotBuilder getDalyFaradayGainHistogramBuilder() {
+    public AbstractPlotBuilder[] getDalyFaradayGainHistogramBuilder() {
         return dalyFaradayGainHistogramBuilder;
     }
 
-    public AbstractPlotBuilder getSignalNoiseHistogramBuilder() {
+    public AbstractPlotBuilder[] getSignalNoiseHistogramBuilder() {
         return signalNoiseHistogramBuilder;
     }
 
@@ -123,8 +123,8 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         AbstractPlotBuilder[][] plots = DataModelDriverExperiment.driveModelTest(dataFile, analysisMethod, this);
         ratiosHistogramBuilder = plots[0];
         baselineHistogramBuilder = plots[1];
-        dalyFaradayGainHistogramBuilder = plots[2][0];
-        signalNoiseHistogramBuilder = plots[3][0];
+        dalyFaradayGainHistogramBuilder = plots[2];
+        signalNoiseHistogramBuilder = plots[3];
         meanIntensityLineBuilder = plots[4][0];
 
         convergeRatioLineBuilder = plots[5][0];

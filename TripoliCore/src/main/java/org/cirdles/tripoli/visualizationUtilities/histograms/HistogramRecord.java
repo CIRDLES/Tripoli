@@ -10,6 +10,8 @@ public record HistogramRecord(
         double binWidth,
         double[] binCenters,
         Color dataColor,
-        String title
+        String title,
+        String xAxisLabel,
+        String yAxisLabel
 ) implements Serializable {
 }

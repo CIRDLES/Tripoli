@@ -25,40 +25,20 @@ import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
  */
 public class HistogramBuilder extends AbstractPlotBuilder {
 
-    private HistogramRecord[] histograms;
+    private HistogramRecord histogram;
 
     private HistogramBuilder(String title) {
         super(title);
-        histograms = new HistogramRecord[0];
+        histogram = null;
     }
 
-    public static HistogramBuilder initializeHistogram(double[] data, int binCount, String title) {
+    public static HistogramBuilder initializeHistogram(double[] data, int binCount, String title, String xAxisLabel, String yAxisLabel, Color dataColor) {
         HistogramBuilder histogramBuilder = new HistogramBuilder(title);
-        histogramBuilder.histograms = new HistogramRecord[1];
-        histogramBuilder.histograms[0] = histogramBuilder.generateHistogram(data, binCount, title);
+        histogramBuilder.histogram = histogramBuilder.generateHistogram(data, binCount, title, xAxisLabel, yAxisLabel, dataColor);
         return histogramBuilder;
     }
 
-    public static HistogramBuilder initializeHistogram(boolean histogramPerVar, double[][] data, int binCount, String title) {
-        HistogramBuilder histogramBuilder = new HistogramBuilder(title);
-        if (histogramPerVar) {
-            histogramBuilder.histograms = new HistogramRecord[data.length];
-            for (int row = 0; row < data.length; row++) {
-                histogramBuilder.histograms[row] = histogramBuilder.generateHistogram(data[row], binCount, title);
-            }
-        } else {
-            double[] allData = new double[data[0].length * data.length];
-            histogramBuilder.histograms = new HistogramRecord[1];
-            for (int row = 0; row < data.length; row++) {
-                System.arraycopy(data[row], 0, allData, row * data[0].length, data[0].length);
-            }
-            histogramBuilder.histograms[0] = histogramBuilder.generateHistogram(allData, binCount, title);
-        }
-
-        return histogramBuilder;
-    }
-
-    private HistogramRecord generateHistogram(double[] data, int binCount, String title) {
+    private HistogramRecord generateHistogram(double[] data, int binCount, String title, String xAxisLabel, String yAxisLabel, Color dataColor) {
         DescriptiveStatistics descriptiveStatisticsRatios = new DescriptiveStatistics();
         for (int index = 0; index < data.length; index++) {
             descriptiveStatisticsRatios.addValue(data[index]);
@@ -92,12 +72,14 @@ public class HistogramBuilder extends AbstractPlotBuilder {
                 binCounts,
                 binWidth,
                 binCenters,
-                Color.BLUE,
-                title
+                dataColor,
+                title,
+                xAxisLabel,
+                yAxisLabel
         );
     }
 
-    public HistogramRecord[] getHistograms() {
-        return histograms;
+    public HistogramRecord getHistogram() {
+        return histogram;
     }
 }
