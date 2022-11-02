@@ -56,6 +56,8 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
 public class DataModelDriverExperiment {
 
     private static final boolean doFullProcessing = true;
+    // todo flag for linear or spline
+    private static final boolean splineVsLinear = true;
 
     public static AbstractPlotBuilder[][] driveModelTest(Path dataFilePath, AnalysisMethod analysisMethod, LoggingCallbackInterface loggingCallback) throws IOException {
 
@@ -353,7 +355,7 @@ public class DataModelDriverExperiment {
             long prev = System.nanoTime();
             String operation = DataModelUpdaterHelper.randomOperMS(hierarchical);
             // todo: handle adaptiveFlag case
-            boolean adaptiveFlag = (counter >= 100000);
+            boolean adaptiveFlag = (counter >= 10000);
             boolean allFlag = adaptiveFlag;
             int columnChoice = modelIndex % stepCountForcedSave;
             DataModellerOutputRecord dataModelUpdaterOutputRecord_x2 = updateMSv2(
@@ -429,9 +431,9 @@ public class DataModelDriverExperiment {
 
             ArrayList<double[]> intensity2 = new ArrayList<>(1);
             for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
-                PhysicalStore<Double> tempIntensity = storeFactory.make(massSpecOutputDataRecord.allBlockInterpolations()[blockIndex].countRows(),
+                PhysicalStore<Double> tempIntensity = storeFactory.make(massSpecOutputDataRecord.allBlockInterpolations().get(blockIndex).countRows(),
                         storeFactory.columns(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]).getColDim());
-                tempIntensity.fillByMultiplying(massSpecOutputDataRecord.allBlockInterpolations()[blockIndex], Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]));
+                tempIntensity.fillByMultiplying(massSpecOutputDataRecord.allBlockInterpolations().get(blockIndex), Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]));
                 intensity2.add(tempIntensity.toRawCopy1D());
 
                 for (int row = (int) blockStartIndicesFaraday[blockIndex]; row <= (int) blockEndIndicesFaraday[blockIndex]; row++) {

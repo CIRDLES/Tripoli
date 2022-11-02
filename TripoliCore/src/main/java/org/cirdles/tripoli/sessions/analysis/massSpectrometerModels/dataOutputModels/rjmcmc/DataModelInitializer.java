@@ -139,7 +139,7 @@ public class DataModelInitializer {
         // just playing with first block for now
         double[][] IO = new double[massSpecOutputDataRecord.blockCount()][];
         for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
-            MatrixStore<Double> interpolatedKnotData = massSpecOutputDataRecord.allBlockInterpolations()[blockIndex];
+            MatrixStore<Double> interpolatedKnotData = massSpecOutputDataRecord.allBlockInterpolations().get(blockIndex);
             List<Double> dd = new ArrayList<>();
             List<Double> timeIndForSorting = new ArrayList<>();
 
@@ -205,7 +205,7 @@ public class DataModelInitializer {
 
         ArrayList<double[]> intensityPerBlock = new ArrayList<>(1);
         for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
-            MatrixStore<Double> intensity = massSpecOutputDataRecord.allBlockInterpolations()[blockIndex].multiply(storeFactory.columns(IO[blockIndex]));
+            MatrixStore<Double> intensity = massSpecOutputDataRecord.allBlockInterpolations().get(blockIndex).multiply(storeFactory.columns(IO[blockIndex]));
             intensityPerBlock.add(blockIndex, intensity.toRawCopy1D());
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.baseLineFlagsForRawDataColumn().length; row++) {

@@ -19,6 +19,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
+import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.ojalgo.matrix.store.MatrixStore;
@@ -182,49 +183,98 @@ public class DataSourceProcessor_OPPhoenix implements DataSourceProcessorInterfa
             }
         }
 
-        @SuppressWarnings("unchecked")
-        MatrixStore<Double>[] allBlockInterpolations = new MatrixStore[nCycle.length];
-        for (int blockIndex = 0; blockIndex < nCycle.length; blockIndex++) {
-            PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-            allBlockInterpolations[blockIndex] = null;
-            double[][] interpMatArrayForBlock = new double[nCycle[blockIndex]][];
-            interpMatArrayForBlock[0] = new double[maxDelta];
-            for (int cycleIndex = 1; cycleIndex < (nCycle[blockIndex]); cycleIndex++) {
-                int startOfCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex][2];
-                int startOfNextCycleIndex;
-                if ((cycleIndex == nCycle[blockIndex] - 1) && (blockCount == 1)) {
-                    startOfNextCycleIndex = timeStamp.length;
-                } else {
-                    startOfNextCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex + 1][2];
+        boolean linearVsSpline = true;
+        ArrayList<MatrixStore<Double>> allBlockInterpolations = new ArrayList<>(nCycle.length);
+        if (linearVsSpline){
+            for (int blockIndex = 0; blockIndex < nCycle.length; blockIndex++) {
+                PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+                allBlockInterpolations.add(blockIndex, null);
+                double[][] interpMatArrayForBlock = new double[nCycle[blockIndex]][];
+                interpMatArrayForBlock[0] = new double[maxDelta];
+                for (int cycleIndex = 1; cycleIndex < (nCycle[blockIndex]); cycleIndex++) {
+                    int startOfCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex][2];
+                    int startOfNextCycleIndex;
+                    if ((cycleIndex == nCycle[blockIndex] - 1) && (blockCount == 1)) {
+                        startOfNextCycleIndex = timeStamp.length;
+                    } else {
+                        startOfNextCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex + 1][2];
+                    }
+
+                    // detect last cycle because it uses its last entry as the upper limit
+                    // whereas the matlab code uses the starting entry of the next cycle for all previous cycles
+                    boolean lastCycle = (cycleIndex == nCycle[blockIndex] - 1);
+                    if (lastCycle) {
+                        startOfNextCycleIndex--;
+                    }
+
+                    int countOfEntries = startingIndicesOfCyclesByBlock[cycleIndex][2] - startingIndicesOfCyclesByBlock[1][2];
+                    double deltaTimeStamp = timeStamp[startOfNextCycleIndex] - timeStamp[startOfCycleIndex];
+                    interpMatArrayForBlock[cycleIndex] = new double[maxDelta];
+
+                    for (int timeIndex = startOfCycleIndex; timeIndex < startOfNextCycleIndex; timeIndex++) {
+                        interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries] =
+                                (timeStamp[timeIndex] - timeStamp[startOfCycleIndex]) / deltaTimeStamp;
+                        interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] =
+                                1.0 - interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries];
+                    }
+
+                    if (lastCycle) {
+                        interpMatArrayForBlock[cycleIndex][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 1.0;
+                        interpMatArrayForBlock[cycleIndex - 1][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 0.0;
+
+                        // generate matrix and then transpose it to match matlab
+                        MatrixStore<Double> firstPass = storeFactory.rows(interpMatArrayForBlock).limits(
+                                cycleIndex + 1,
+                                countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
+                        allBlockInterpolations.set(blockIndex, firstPass.transpose());
+                    }
                 }
+            }
+        }
+        else {
+            for (int blockIndex = 0; blockIndex < nCycle.length; blockIndex++) {
+                PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+                SplineInterpolator interpolator = new SplineInterpolator();
+                allBlockInterpolations.add(blockIndex, null);
+                double[][] interpMatArrayForBlock = new double[nCycle[blockIndex]][];
+                interpMatArrayForBlock[0] = new double[maxDelta];
+                for (int cycleIndex = 1; cycleIndex < (nCycle[blockIndex]); cycleIndex++) {
+                    int startOfCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex][2];
+                    int startOfNextCycleIndex;
+                    if ((cycleIndex == nCycle[blockIndex] - 1) && (blockCount == 1)) {
+                        startOfNextCycleIndex = timeStamp.length;
+                    } else {
+                        startOfNextCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex + 1][2];
+                    }
 
-                // detect last cycle because it uses its last entry as the upper limit
-                // whereas the matlab code uses the starting entry of the next cycle for all previous cycles
-                boolean lastCycle = (cycleIndex == nCycle[blockIndex] - 1);
-                if (lastCycle) {
-                    startOfNextCycleIndex--;
-                }
+                    // detect last cycle because it uses its last entry as the upper limit
+                    // whereas the matlab code uses the starting entry of the next cycle for all previous cycles
+                    boolean lastCycle = (cycleIndex == nCycle[blockIndex] - 1);
+                    if (lastCycle) {
+                        startOfNextCycleIndex--;
+                    }
 
-                int countOfEntries = startingIndicesOfCyclesByBlock[cycleIndex][2] - startingIndicesOfCyclesByBlock[1][2];
-                double deltaTimeStamp = timeStamp[startOfNextCycleIndex] - timeStamp[startOfCycleIndex];
-                interpMatArrayForBlock[cycleIndex] = new double[maxDelta];
+                    int countOfEntries = startingIndicesOfCyclesByBlock[cycleIndex][2] - startingIndicesOfCyclesByBlock[1][2];
+                    double deltaTimeStamp = timeStamp[startOfNextCycleIndex] - timeStamp[startOfCycleIndex];
+                    interpMatArrayForBlock[cycleIndex] = new double[maxDelta];
 
-                for (int timeIndex = startOfCycleIndex; timeIndex < startOfNextCycleIndex; timeIndex++) {
-                    interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries] =
-                            (timeStamp[timeIndex] - timeStamp[startOfCycleIndex]) / deltaTimeStamp;
-                    interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] =
-                            1.0 - interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries];
-                }
+                    for (int timeIndex = startOfCycleIndex; timeIndex < startOfNextCycleIndex; timeIndex++) {
+                        interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries] =
+                                (timeStamp[timeIndex] - timeStamp[startOfCycleIndex]) / deltaTimeStamp;
+                        interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] =
+                                1.0 - interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries];
+                    }
 
-                if (lastCycle) {
-                    interpMatArrayForBlock[cycleIndex][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 1.0;
-                    interpMatArrayForBlock[cycleIndex - 1][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 0.0;
+                    if (lastCycle) {
+                        interpMatArrayForBlock[cycleIndex][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 1.0;
+                        interpMatArrayForBlock[cycleIndex - 1][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 0.0;
 
-                    // generate matrix and then transpose it to match matlab
-                    MatrixStore<Double> firstPass = storeFactory.rows(interpMatArrayForBlock).limits(
-                            cycleIndex + 1,
-                            countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
-                    allBlockInterpolations[blockIndex] = firstPass.transpose();
+                        // generate matrix and then transpose it to match matlab
+                        MatrixStore<Double> firstPass = storeFactory.rows(interpMatArrayForBlock).limits(
+                                cycleIndex + 1,
+                                countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
+                        allBlockInterpolations.set(blockIndex, firstPass.transpose());
+                    }
                 }
             }
         }
