@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.random.RandomDataGenerator;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_OPPhoenix;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_PhoenixTextFile;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
@@ -26,9 +26,7 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.ojalgo.RecoverableCondition;
-import org.ojalgo.function.PrimitiveFunction;
 import org.ojalgo.matrix.decomposition.Cholesky;
-import org.ojalgo.matrix.decomposition.Eigenvalue;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
@@ -43,12 +41,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import static java.lang.Math.*;
+import static java.lang.Math.min;
+import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdater.updateMSv2;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdater.updateMeanCovMS;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdaterHelper.buildPriorRecord;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.DataModelUpdaterHelper.buildPsigRecord;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.DataModelUpdater.updateMSv2;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.DataModelUpdater.updateMeanCovMS;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.DataModelUpdaterHelper.buildPriorRecord;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.DataModelUpdaterHelper.buildPsigRecord;
 
 /**
  * @author James F. Bowring
@@ -61,8 +60,8 @@ public class DataModelDriverExperiment {
 
     public static AbstractPlotBuilder[][] driveModelTest(Path dataFilePath, AnalysisMethod analysisMethod, LoggingCallbackInterface loggingCallback) throws IOException {
 
-        DataSourceProcessor_OPPhoenix dataSourceProcessorOPPhoenix
-                = DataSourceProcessor_OPPhoenix.initializeWithAnalysisMethod(analysisMethod);
+        DataSourceProcessor_PhoenixTextFile dataSourceProcessorOPPhoenix
+                = DataSourceProcessor_PhoenixTextFile.initializeWithAnalysisMethod(analysisMethod);
         MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFilePath);
 
         AbstractPlotBuilder[][] plotBuilders;
@@ -73,7 +72,7 @@ public class DataModelDriverExperiment {
             List<EnsemblesStore.EnsembleRecord> ensembleRecordsList = new ArrayList<>();
             DataModellerOutputRecord lastDataModelInit = null;
             if (doFullProcessing) {
-                plotBuilders = applyInversionWithRJMCMC(massSpecOutputDataRecord, dataModelInit, analysisMethod.getTripoliRatiosList(), loggingCallback);
+                plotBuilders = applyInversionWithAdaptiveMCMC(massSpecOutputDataRecord, dataModelInit, analysisMethod, loggingCallback);
             } else {
                 try {
                     EnsemblesStore ensemblesStore = (EnsemblesStore) TripoliSerializer.getSerializedObjectFromFile("EnsemblesStore.ser", true);
@@ -83,7 +82,7 @@ public class DataModelDriverExperiment {
                     e.printStackTrace();
                 }
 
-                plotBuilders = DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, lastDataModelInit, analysisMethod.getTripoliRatiosList());
+                plotBuilders = DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, lastDataModelInit, analysisMethod);
             }
         } catch (RecoverableCondition e) {
             plotBuilders = new AbstractPlotBuilder[0][0];
@@ -92,10 +91,10 @@ public class DataModelDriverExperiment {
         return plotBuilders;
     }
 
-    static AbstractPlotBuilder[][] applyInversionWithRJMCMC
+    static AbstractPlotBuilder[][] applyInversionWithAdaptiveMCMC
             (MassSpecOutputDataRecord massSpecOutputDataRecord,
              DataModellerOutputRecord dataModelInit_X0,
-             List<IsotopicRatio> isotopicRatioList,
+             AnalysisMethod analysisMethod,
              LoggingCallbackInterface loggingCallback) {
         /*
             % MCMC Parameters
@@ -117,7 +116,7 @@ public class DataModelDriverExperiment {
          */
 
         int maxCount = 2000;
-        if (dataModelInit_X0.logratios().length > 2){
+        if (dataModelInit_X0.logratios().length > 2) {
             maxCount = 500;
         }
 
@@ -126,8 +125,8 @@ public class DataModelDriverExperiment {
 
         double[] baselineMultiplier = new double[massSpecOutputDataRecord.rawDataColumn().length];
         Arrays.fill(baselineMultiplier, 1.0);
-        for (int row = 0; row < massSpecOutputDataRecord.axialFlagsForRawDataColumn().length; row++) {
-            if (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1) {
+        for (int row = 0; row < massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn().length; row++) {
+            if (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 1) {
                 baselineMultiplier[row] = 0.1;
             }
         }
@@ -183,27 +182,38 @@ public class DataModelDriverExperiment {
         end
         */
 
-        // only using first block
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
-                            && (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1)
+                            && (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 1)
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
-                        double calcValue =
-                                // todo check here
-                                exp(dataModelInit_X0.logratios()[isotopeIndex])
-                                        * dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                        double calcValue;
+                        // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
+                        if (isotopeIndex < dataModelInit_X0.logratios().length) {
+                            calcValue =
+                                    exp(dataModelInit_X0.logratios()[isotopeIndex])
+                                            * dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                        } else {
+                            calcValue = dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                        }
                         data[row] = calcValue;
                         dataWithNoBaseline[row] = calcValue;
                     }
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
-                            && (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 0)
+                            && (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 0)
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
-                        double calcValue =
-                                exp(dataModelInit_X0.logratios()[isotopeIndex]) / dataModelInit_X0.dfGain()
-                                        * dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                        double calcValue;
+                        // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
+                        if (isotopeIndex < dataModelInit_X0.logratios().length) {
+                            calcValue =
+                                    exp(dataModelInit_X0.logratios()[isotopeIndex]) / dataModelInit_X0.dfGain()
+                                            * dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                        } else {
+                            calcValue = 1.0 / dataModelInit_X0.dfGain()
+                                    * dataModelInit_X0.intensityPerBlock().get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                        }
                         dataWithNoBaseline[row] = calcValue;
                         data[row] =
                                 calcValue + dataModelInit_X0.baselineMeans()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1];
@@ -308,13 +318,13 @@ public class DataModelDriverExperiment {
         double[] blockEndIndicesDaly = new double[massSpecOutputDataRecord.blockCount()];
         for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
             blockStartIndicesFaraday[blockIndex] =
-                    DataModelUpdaterHelper.findFirstOrLast(true, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 0, massSpecOutputDataRecord.axialFlagsForRawDataColumn());
+                    DataModelUpdaterHelper.findFirstOrLast(true, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 0, massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn());
             blockEndIndicesFaraday[blockIndex] =
-                    DataModelUpdaterHelper.findFirstOrLast(false, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 0, massSpecOutputDataRecord.axialFlagsForRawDataColumn());
+                    DataModelUpdaterHelper.findFirstOrLast(false, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 0, massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn());
             blockStartIndicesDaly[blockIndex] =
-                    DataModelUpdaterHelper.findFirstOrLast(true, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 1, massSpecOutputDataRecord.axialFlagsForRawDataColumn());
+                    DataModelUpdaterHelper.findFirstOrLast(true, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 1, massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn());
             blockEndIndicesDaly[blockIndex] =
-                    DataModelUpdaterHelper.findFirstOrLast(false, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 1, massSpecOutputDataRecord.axialFlagsForRawDataColumn());
+                    DataModelUpdaterHelper.findFirstOrLast(false, blockIndex + 1, massSpecOutputDataRecord.blockIndicesForRawDataColumn(), 1, massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn());
         }
 
         DataModellerOutputRecord dataModelInit = new DataModellerOutputRecord(
@@ -420,10 +430,15 @@ public class DataModelDriverExperiment {
             double[] tmpIArray = new double[rowDimension];
             for (int row = 0; row < rowDimension; row++) {
                 tmpBLArray[row] = tmpBLindArray[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1];
-                if (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 0) {
+                if (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 0) {
                     tmpDFArray[row] = 1.0 / dataModelUpdaterOutputRecord_x2.dfGain();
                 }
-                tmpLRArray[row] = exp(dataModelUpdaterOutputRecord_x2.logratios()[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1]);
+                // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
+                if (massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1 < dataModelUpdaterOutputRecord_x2.logratios().length) {
+                    tmpLRArray[row] = exp(dataModelUpdaterOutputRecord_x2.logratios()[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1]);
+                } else {
+                    tmpLRArray[row] = 1.0;
+                }
             }
 
             long interval1 = System.nanoTime() - prev;
@@ -610,11 +625,7 @@ public class DataModelDriverExperiment {
                     //todo: delx_adapt
                     if (adaptiveFlag) {
                         /*
-                        mvnrnd(
-                        zeros(sizeOfModel,1)
-                        ,2.38^2*xDataCovariance/sizeOfModel
-                        ,stepCountForcedSave)'
-
+                        mvnrnd(zeros(sizeOfModel,1), 2.38^2*xDataCovariance/sizeOfModel, stepCountForcedSave)'
                         stepCountForcedSave = 100
                         sizeOfModel = 21
 
@@ -626,50 +637,6 @@ public class DataModelDriverExperiment {
                             n = cases;
                             mu = repmat(mu,n,1);
                             [T,err] = cholcov(sigma);
-                                function [T,p] = cholcov(Sigma,flag)
-                                    [n,m] = size(Sigma);
-                                    wassparse = issparse(Sigma);
-                                    tol = 10*eps(max(abs(diag(Sigma))));
-                                    if all(all(abs(Sigma - Sigma') < n*tol))
-                                        [T,p] = chol(Sigma);
-
-                                        if p > 0
-                                            % Test for positive definiteness
-                                            % Can get factors of the form Sigma==T'*T using the eigenvalue
-                                            % decomposition of a symmetric matrix, so long as the matrix
-                                            % is positive semi-definite.
-                                            [U,D] = eig(full((Sigma+Sigma')/2));
-
-                                            % Pick eigenvector direction so max abs coordinate is positive
-                                            [~,maxind] = max(abs(U),[],1);
-                                            negloc = (U(maxind + (0:n:(m-1)*n)) < 0);
-                                            U(:,negloc) = -U(:,negloc);
-
-                                            D = diag(D);
-                                            tol = eps(max(D)) * length(D);
-                                            t = (abs(D) > tol);
-                                            D = D(t);
-                                            p = sum(D<0); % number of negative eigenvalues
-
-                                            if (p==0)
-                                                T = diag(sqrt(D)) * U(:,t)';
-                                            else
-                                                T = zeros(0,'like',Sigma);
-                                            end
-                                        end
-                                    else
-                                        T = zeros(0,'like',Sigma);
-                                        p = nan('like',Sigma);
-                                    end
-
-                                    if wassparse
-                                        T = sparse(T);
-                                    end
-                            if isnan(err)
-                                error(message('stats:mvnrnd:BadCovariance2DSym'));
-                            elseif err ~= 0
-                                error(message('stats:mvnrnd:BadCovariance2DPos'));
-                            end
                             r = randn(n,size(T,1)) * T + mu;
                         end
                         */
@@ -677,85 +644,37 @@ public class DataModelDriverExperiment {
                         Normal tmpNormDistribution = new Normal();
                         Primitive64Store mu = Primitive64Store.FACTORY.makeFilled(stepCountForcedSave, sizeOfModel, tmpNormDistribution);
 
-                        // beginning of cholcov()
                         Cholesky<Double> cholesky = Cholesky.PRIMITIVE.make(sigma);
-                        cholesky.decompose(sigma); // possibly wrong method
+                        cholesky.decompose(sigma);
+                        PhysicalStore<Double> T = cholesky.getR().copy();
 
-                        // if(!cholesky.isSPD()){
-                            // [U,D] = eig(full((Sigma+Sigma')/2));
-                            Eigenvalue<Double> eigen = Eigenvalue.PRIMITIVE.make();
-                            eigen.checkAndDecompose(sigma.add(sigma.transpose()).multiply(.5)); // todo research matlab full()
-                            PhysicalStore<Double> U = eigen.getV().copy();
-                            // MatrixStore<Double> D = eigen.getD();
-                            // [~,maxind] = max(abs(U),[],1);
-                            double[][] temp = U.onAll(PrimitiveFunction.getSet().abs()).toRawCopy2D();
-                            double [] maxind = new double[temp.length];
-                            for(int row = 0; row < temp.length; row++){
-                                double maxValue = Double.MIN_VALUE;
-                                for(int col = 0; col < temp.length; col++){
-                                    maxValue = max(temp[col][row], maxValue);
-                                }
-                                maxind[row] = maxValue;
+                        // TODO Currently input sigma is never symmetric positive definite matrix therefore if statement
+                        // always triggers, when code is refactored to not have guaranteed row and columns of zeros
+                        // and therefore positive definite can be removed
+                        if (!cholesky.isSPD()) {
+                            double[][] tempSigma = sigma.toRawCopy2D();
+                            int rowLoc = 0;
+                            int colLoc = 0;
+
+                            for (int col = 0; col < sigma.getRowDim(); col++) {
+                                if (tempSigma[0][col] == 0) rowLoc = col;
                             }
-                            // System.err.println("\n" + Arrays.toString(maxind));
-                            // negloc = (U(maxind + (0:n:(m-1)*n)) < 0);
-                            double [] tempnegloc = new double[21];
-                            double [] negloc = new double[21];
-                            for(int i = 0; i < tempnegloc.length; i++){
-                                tempnegloc[i] = (i * 21) + maxind[i];
+                            for (int row = 0; row < sigma.getRowDim(); row++) {
+                                if (tempSigma[row][0] == 0) colLoc = row;
                             }
-                            // System.err.println("\n" + Arrays.toString(tempnegloc));
-                            double [] temp2 = U.toRawCopy1D();
-                            for(int i = 0; i < negloc.length; i++){
-                                negloc[i] = temp2[(int) tempnegloc[i]] > 0 ? 1 : 0;
+                            for (int row = 0; row < sigma.getRowDim(); row++) {
+                                tempSigma[row][colLoc] += Double.MIN_VALUE;
                             }
 
-                            // System.err.println("\n" + Arrays.toString(negloc));
-                            // D = diag(D);
-                            MatrixStore<Double> DDiag = eigen.getD().diagonal();
-                            // tol = eps(max(D)) * length(D);
-                            double tol = DDiag.get(DDiag.indexOfLargest()) * DDiag.getRowDim();
-                            // t = (abs(D) > tol);
-                            double[] t = new double[DDiag.getRowDim()];
-                            for(int i = 0; i < t.length; i++){
-                                t[i] = abs(DDiag.get(i)) > tol ? 1 : 0;
+                            for (int col = 0; col < sigma.getRowDim(); col++) {
+                                tempSigma[rowLoc][col] += Double.MIN_VALUE;
                             }
-                            // D = D(t); todo array out of bounds danger weird matlab exception
-                            double[] D2 = new double[DDiag.getRowDim()];
-                            for(int i = 0; i < t.length; i++){
-                                D2[i] = t[i] == 1 ? DDiag.get(i) : 0;
-                            }
-                            // p = sum(D<0); % number of negative eigenvalues
-                            double p = 0;
-                            for(int i = 0; i < D2.length; i++){
-                                p += D2[i] < 0 ? D2[i] : 0;
-                            }
-                            // if (p==0)
-                            //  T = diag(sqrt(D)) * U(:,t)';
-                            // else
-                            //  T = zeros(0,'like',Sigma);
-                            PhysicalStore<Double> T;
-                            if(p == 0){
-                                PhysicalStore<Double> Utemp = storeFactory.make(U.getRowDim(), U.getColDim());
-                                int col = 0;
-                                for(int i = 0; i < t.length; i++){
-                                    if( t[i] == 1) {
-                                        for(int j = 0; j < U.getRowDim(); j++){
-                                            Utemp.set(col,j,U.get(i,j));
-                                        }
-                                        col++;
-                                    }
-                                }
-                                T = storeFactory.columns(d2).onAll(PrimitiveFunction.getSet().sqrt()).diagonal().multiply(Utemp.transpose()).copy();
-                            }
-                            else {
-                                // empty array is returned, P is used as error code
-                                T = storeFactory.makeZero(sigma.getColDim(), sigma.getRowDim()).copy();
-                            }
-                        // }
 
-                        // end of cholcov()
-                        // delx_adapt = mu.multiply(cholesky.getR()).transpose().copy();
+                            cholesky.decompose(storeFactory.columns(tempSigma));
+                            T = cholesky.getR().copy();
+                        }
+
+                        // r = randn(n,size(T,1)) * T + mu;
                         delx_adapt = mu.multiply(T).transpose().copy();
                     }
                 }
@@ -828,7 +747,7 @@ public class DataModelDriverExperiment {
             e.printStackTrace();
         }
 
-        return DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, dataModelInit, isotopicRatioList);
+        return DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, dataModelInit, analysisMethod);
     }
 
 }

@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
@@ -41,7 +43,9 @@ public class DataModelPlot {
             MassSpecOutputDataRecord massSpecOutputDataRecord,
             List<EnsemblesStore.EnsembleRecord> ensembleRecordsList,
             DataModellerOutputRecord lastDataModelInit,
-            List<IsotopicRatio> isotopicRatioList) {
+            AnalysisMethod analysisMethod
+            ) {
+        List<IsotopicRatio> isotopicRatioList = analysisMethod.getTripoliRatiosList();
 
         /*
             %% Analysis and Plotting
@@ -92,7 +96,8 @@ public class DataModelPlot {
         for (int row = 0; row < baselineSize; row++) {
             DescriptiveStatistics descriptiveStatisticsBaselines = new DescriptiveStatistics();
             for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
-                ensembleBaselines[row][index - burn] = ensembleRecordsList.get(index).baseLine()[row] / 6.24e7 * 1e6;
+                // todo: fix magic number
+                ensembleBaselines[row][index - burn] = ensembleRecordsList.get(index).baseLine()[row];//TODO: Decide / 6.24e7 * 1e6;
                 descriptiveStatisticsBaselines.addValue(ensembleBaselines[row][index - burn]);
             }
             baselinesMeans[row] = descriptiveStatisticsBaselines.getMean();
@@ -169,11 +174,18 @@ public class DataModelPlot {
 
         // visualization - Ensembles tab
         AbstractPlotBuilder[][] plotBuilders = new AbstractPlotBuilder[15][1];
-        plotBuilders[0] = new AbstractPlotBuilder[isotopicRatioList.size()];
-        for (int i = 0; i < isotopicRatioList.size(); i++) {
+
+        plotBuilders[0] = new AbstractPlotBuilder[ensembleRatios.length];
+        for (int i = 0; i < ensembleRatios.length; i++) {
             plotBuilders[0][i] = HistogramBuilder.initializeHistogram(ensembleRatios[i], 50, isotopicRatioList.get(i).prettyPrint());
         }
-        plotBuilders[1][0] = HistogramBuilder.initializeHistogram(true, ensembleBaselines, 50, "Histogram of baseline");
+
+        plotBuilders[1] = new AbstractPlotBuilder[ensembleBaselines.length];
+        List<Detector> faradayDetectorsUsed = analysisMethod.getSequenceTable().findFaradayDetectorsUsed();
+        for (int i = 0; i < ensembleBaselines.length; i++) {
+            plotBuilders[1][i] = HistogramBuilder.initializeHistogram(ensembleBaselines[i], 50, "Histogram of baseline of " + faradayDetectorsUsed.get(i).getDetectorName());
+        }
+
         plotBuilders[2][0] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain, 50, "Histogram of Daly/Faraday Gain");
         plotBuilders[3][0] = HistogramBuilder.initializeHistogram(true, ensembleSignalnoise, 50, "Histogram of Signal Noise");
         plotBuilders[4][0] = MultiLinePlotBuilder.initializeLinePlot(xDataIntensityMeans, yDataIntensityMeans, "Mean Intensity");
@@ -198,6 +210,7 @@ public class DataModelPlot {
             convergeErrWeightedMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorWeighted());
             convergeErrRawMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorUnWeighted());
             for (int intensityIndex = 0; intensityIndex < convergeIntensities.length; intensityIndex++) {
+                // todo: fix this block indexing issue
                 convergeIntensities[intensityIndex][index] = ensembleRecordsList.get(index).blockIntensities()[0][intensityIndex];
             }
             convergeNoiseFaradayL1[index] = ensembleRecordsList.get(index).signalNoise()[0];
@@ -223,10 +236,11 @@ public class DataModelPlot {
         for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
             ArrayList<double[]> intensity = new ArrayList<>(1);
             intensity.add(0, lastDataModelInit.intensityPerBlock().get(blockIndex));
-            for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount(); isotopeIndex++) {
+            // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
+            for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount() - 1; isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
-                            && (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 1)
+                            && (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 1)
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
                         double calcValue =
                                 exp(lastModelRecord.logRatios()[isotopeIndex])
@@ -235,7 +249,7 @@ public class DataModelPlot {
                         dataWithNoBaseline[row] = calcValue;
                     }
                     if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
-                            && (massSpecOutputDataRecord.axialFlagsForRawDataColumn()[row] == 0)
+                            && (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 0)
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
                         double calcValue =
                                 exp(lastModelRecord.logRatios()[isotopeIndex]) / lastModelRecord.dfGain()

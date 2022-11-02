@@ -32,7 +32,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="plotsAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsController">
+<AnchorPane fx:id="plotsAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController">
     <children>
         <VBox fx:id="masterVBox" prefHeight="600.0" prefWidth="1000.0">
             <children>
@@ -177,8 +177,8 @@
                 </SplitPane>
                 <ToolBar fx:id="toolbar" prefHeight="15.0" prefWidth="500.0">
                     <items>
-                        <Button fx:id="processFileButton" mnemonicParsing="false" onAction="#demo1_2IsotopeButtonAction" text="Process Selected 2-Isotope File for RJMCMC" />
-                  <Button fx:id="processFileButton2" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#demo1_5IsotopeButtonAction" text="Process Our only 5-Isotope File for RJMCMC" />
+                        <Button fx:id="processFileButton" mnemonicParsing="false" onAction="#demo1_2IsotopeButtonAction" text="Process Selected 2-Isotope File for MCMC" />
+                  <Button fx:id="processFileButton2" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#demo1_5IsotopeButtonAction" text="Process Our only 5-Isotope File for MCMC" />
                     </items>
                 </ToolBar>
             </children>

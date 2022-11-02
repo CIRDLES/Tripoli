@@ -16,7 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.MassSpecOutputDataRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
@@ -45,7 +45,7 @@ public interface DataSourceProcessorInterface {
         List<Integer> detectorIndicesForDataAccumulatorList = new ArrayList<>();
         List<int[]> detectorFlagsForDataAccumulatorList = new ArrayList<>();
         List<Integer> baseLineFlagsForDataAccumulatorList = new ArrayList<>();
-        List<Integer> axialFlagsForDataAccumulatorList = new ArrayList<>();
+        List<Integer> ionCounterFlagsForDataAccumulatorList = new ArrayList<>();
         List<Integer> signalIndexForDataAccumulatorList = new ArrayList<>();
 
         // matlab matrices Far_ind and Ax_ind NOT USED FOR BASELINE
@@ -87,7 +87,7 @@ public interface DataSourceProcessorInterface {
 
                         baseLineFlagsForDataAccumulatorList.add(1);
 
-                        axialFlagsForDataAccumulatorList.add(0);
+                        ionCounterFlagsForDataAccumulatorList.add(0);
                         signalIndexForDataAccumulatorList.add(signalIndex);
                     }
                 }
@@ -105,12 +105,12 @@ public interface DataSourceProcessorInterface {
                 detectorIndicesForDataAccumulatorList,
                 detectorFlagsForDataAccumulatorList,
                 baseLineFlagsForDataAccumulatorList,
-                axialFlagsForDataAccumulatorList,
+                ionCounterFlagsForDataAccumulatorList,
                 signalIndexForDataAccumulatorList,
                 isotopeIndicesPerFaradayOrAxial);
     }
 
-    default AccumulatedData accumulateDataPerSequenceTableSpecs(
+    default AccumulatedData accumulateOnPeakDataPerSequenceTableSpecs(
             String[] sequenceIDs, int[] blockNumbers, List<Integer> blockListWithoutDuplicates, double[][] detectorData, double[] timeStamp, AnalysisMethod analysisMethod, boolean faraday) {
         SequenceTable tableSpecs = analysisMethod.getSequenceTable();
         List<SpeciesRecordInterface> speciesList = analysisMethod.getSpeciesList();
@@ -123,7 +123,7 @@ public interface DataSourceProcessorInterface {
         List<Integer> detectorIndicesForDataAccumulatorList = new ArrayList<>();
         List<int[]> detectorFlagsForDataAccumulatorList = new ArrayList<>();
         List<Integer> baseLineFlagsForDataAccumulatorList = new ArrayList<>();
-        List<Integer> axialFlagsForDataAccumulatorList = new ArrayList<>();
+        List<Integer> ionCounterFlagsForDataAccumulatorList = new ArrayList<>();
         List<Integer> signalIndexForDataAccumulatorList = new ArrayList<>();
 
         // this map is in ascending detector order
@@ -186,7 +186,7 @@ public interface DataSourceProcessorInterface {
 
                                     baseLineFlagsForDataAccumulatorList.add(0);
 
-                                    axialFlagsForDataAccumulatorList.add(faraday ? 0 : 1);
+                                    ionCounterFlagsForDataAccumulatorList.add(faraday ? 0 : 1);
 
                                     isotopeIndicesPerFaradayOrAxial[detectorDataRowIndex][detectorIndex] = speciesList.indexOf(species) + 1;
                                     signalIndexForDataAccumulatorList.add(speciesList.indexOf(species) + 1);
@@ -215,7 +215,7 @@ public interface DataSourceProcessorInterface {
                 detectorIndicesForDataAccumulatorList,
                 detectorFlagsForDataAccumulatorList,
                 baseLineFlagsForDataAccumulatorList,
-                axialFlagsForDataAccumulatorList,
+                ionCounterFlagsForDataAccumulatorList,
                 signalIndexForDataAccumulatorList,
                 isotopeIndicesPerFaradayOrAxial);
     }
@@ -230,7 +230,7 @@ public interface DataSourceProcessorInterface {
             List<Integer> detectorIndicesForDataAccumulatorList,
             List<int[]> detectorFlagsForDataAccumulatorList,
             List<Integer> baseLineFlagsForDataAccumulatorList,
-            List<Integer> axialFlagsForDataAccumulatorList,
+            List<Integer> ionCounterFlagsForDataAccumulatorList,
             List<Integer> signalIndexForDataAccumulatorList,
             double[][] isotopeIndicesPerFaradayOrAxial
     ) {

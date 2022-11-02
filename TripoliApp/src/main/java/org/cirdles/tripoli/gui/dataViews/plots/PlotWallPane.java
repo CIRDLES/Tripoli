@@ -32,8 +32,8 @@ public class PlotWallPane extends Pane {
 
     public void tilePlots() {
         // assume 2 x 4
-        double widthTileCount = 3.0;
-        double heightTileCount = 2.0;
+        double widthTileCount = 4.0;
+        double heightTileCount = 3.0;
 
         double displayWidth = ((getParent().getBoundsInParent().getWidth() - gridCellDim * 2.0) / widthTileCount);
         double tileWidth = displayWidth - displayWidth % gridCellDim;
@@ -79,7 +79,7 @@ public class PlotWallPane extends Pane {
     }
 
     public void cascadePlots() {
-        double cascadeLap = 50.0;
+        double cascadeLap = 25.0;
         double displayWidth = (getParent().getBoundsInParent().getWidth() - gridCellDim * 2.0 - cascadeLap * getCountOfPlots());
         double tileWidth = displayWidth;
 
