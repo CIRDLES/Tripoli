@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc;
 
 import org.apache.commons.lang3.time.StopWatch;
+import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_PhoenixTextFile;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
@@ -363,7 +364,7 @@ public class DataModelDriverExperiment {
             long prev = System.nanoTime();
             String operation = DataModelUpdaterHelper.randomOperMS(hierarchical);
             // todo: handle adaptiveFlag case
-            boolean adaptiveFlag = (counter >= 100000);
+            boolean adaptiveFlag = (counter >= 100);
             boolean allFlag = adaptiveFlag;
             int columnChoice = modelIndex % stepCountForcedSave;
             DataModellerOutputRecord dataModelUpdaterOutputRecord_x2 = updateMSv2(
@@ -626,54 +627,16 @@ public class DataModelDriverExperiment {
                         mvnrnd(zeros(sizeOfModel,1), 2.38^2*xDataCovariance/sizeOfModel, stepCountForcedSave)'
                         stepCountForcedSave = 100
                         sizeOfModel = 21
-
-                        function [r,T] = mvnrnd(mu,sigma,cases,T)
-                            % Special case: if mu is a column vector, then use sigma to try
-                            % to interpret it as a row vector.
-                            mu = mu';
-                            % mu is a single row, make cases copies
-                            n = cases;
-                            mu = repmat(mu,n,1);
-                            [T,err] = cholcov(sigma);
-                            r = randn(n,size(T,1)) * T + mu;
-                        end
                         */
-                        MatrixStore<Double> sigma = storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / sizeOfModel);
-                        Normal tmpNormDistribution = new Normal();
-                        Primitive64Store mu = Primitive64Store.FACTORY.makeFilled(stepCountForcedSave, sizeOfModel, tmpNormDistribution);
 
-                        Cholesky<Double> cholesky = Cholesky.PRIMITIVE.make(sigma);
-                        cholesky.decompose(sigma);
-                        PhysicalStore<Double> T = cholesky.getR().copy();
-
-                        // TODO Currently input sigma is never symmetric positive definite matrix therefore if statement
-                        // always triggers, when code is refactored to not have guaranteed row and columns of zeros
-                        // and therefore positive definite can be removed
-                        if (!cholesky.isSPD()) {
-                            double[][] tempSigma = sigma.toRawCopy2D();
-                            int rowLoc = 0;
-                            int colLoc = 0;
-
-                            for (int col = 0; col < sigma.getRowDim(); col++) {
-                                if (tempSigma[0][col] == 0) rowLoc = col;
-                            }
-                            for (int row = 0; row < sigma.getRowDim(); row++) {
-                                if (tempSigma[row][0] == 0) colLoc = row;
-                            }
-                            for (int row = 0; row < sigma.getRowDim(); row++) {
-                                tempSigma[row][colLoc] += Double.MIN_VALUE;
-                            }
-
-                            for (int col = 0; col < sigma.getRowDim(); col++) {
-                                tempSigma[rowLoc][col] += Double.MIN_VALUE;
-                            }
-
-                            cholesky.decompose(storeFactory.columns(tempSigma));
-                            T = cholesky.getR().copy();
+                        double[] zeroMean = new double[sizeOfModel-1];
+                        MultivariateNormalDistribution mnd = new MultivariateNormalDistribution(zeroMean, storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / (sizeOfModel-1)).toRawCopy2D());
+                        double[][] samples = new double[sizeOfModel-1][];
+                        for (int i = 0; i < sizeOfModel-1; i++) {
+                             samples[i] = mnd.sample();
                         }
-
-                        // r = randn(n,size(T,1)) * T + mu;
-                        delx_adapt = mu.multiply(T).transpose().copy();
+                        // double[][] samples = mnd.sample(sizeOfModel-1);
+                        delx_adapt = storeFactory.columns(samples).transpose().copy();
                     }
                 }
 
