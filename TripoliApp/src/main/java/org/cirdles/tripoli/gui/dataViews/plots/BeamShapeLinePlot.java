@@ -24,6 +24,8 @@ public class BeamShapeLinePlot extends AbstractDataView {
     private int leftBoundary;
     private int rightBoundary;
 
+    private Tooltip tooltip;
+
 
     Map<Integer, String> tooltips = new HashMap<>();
 
@@ -36,6 +38,8 @@ public class BeamShapeLinePlot extends AbstractDataView {
         this.beamShapeLinePlotBuilder = beamShapeLinePlotBuilder;
 
         this.setOnMouseMoved(new MouseMovedHandler());
+        tooltip = new Tooltip();
+        Tooltip.install(this, tooltip);
     }
 
     @Override
@@ -74,9 +78,10 @@ public class BeamShapeLinePlot extends AbstractDataView {
         setDisplayOffsetY(0.0);
         setDisplayOffsetX(0.0);
 
-        for (int i = 0; i < xAxisData.length; i++) {
-            tooltips.put(i, (xAxisData[i]) + "");
-        }
+        double[] xBoundary;
+        double[] yBoundary;
+
+
 
         this.repaint();
     }
@@ -173,37 +178,37 @@ public class BeamShapeLinePlot extends AbstractDataView {
         }
     }
 
-    private void setToolTips(Node node) {
-        Tooltip tooltip = new Tooltip();
-        Tooltip.install(node, tooltip);
-        node.setOnMouseMoved(e -> {
-            if (indexOfSpotFromMouseX(e.getX()) >= (leftBoundary - 20) && indexOfSpotFromMouseX(e.getX()) <= (leftBoundary + 50)) {
-                tooltip.setText(yAxisData[leftBoundary] + "");
-            } else if (indexOfSpotFromMouseX(e.getX()) >= (rightBoundary - 20) && indexOfSpotFromMouseX(e.getX()) <= (rightBoundary + 50)) {
-                tooltip.setText(yAxisData[rightBoundary] + "");
-            }else {
-                tooltip.hide();
-            }
-        });
-        node.setOnMouseExited(e -> tooltip.hide());
-    }
-
-    private int indexOfSpotFromMouseX(double x) {
-        double convertedX = convertMouseXToValue(x);
-        int index = -1;
-        for (int i = 0; i < xAxisData.length - 1; i++) {
-            if ((convertedX >= xAxisData[i] - 0.0005) && convertedX < xAxisData[i + 1] - 0.0005) {
-                index = i;
-                break;
-            }
-
-
-            if (index == -1 && ((StrictMath.abs(convertedX - xAxisData[xAxisData.length - 1]) < 0.005)))
-                index = xAxisData.length - 1;
-        }
-
-        return index;
-    }
+//    private void setToolTips(Node node) {
+//        Tooltip tooltip = new Tooltip();
+//        Tooltip.install(node, tooltip);
+//        node.setOnMouseMoved(e -> {
+//            if (indexOfSpotFromMouseX(e.getX()) >= (leftBoundary - 20) && indexOfSpotFromMouseX(e.getX()) <= (leftBoundary + 50)) {
+//                tooltip.setText(yAxisData[leftBoundary] + "");
+//            } else if (indexOfSpotFromMouseX(e.getX()) >= (rightBoundary - 20) && indexOfSpotFromMouseX(e.getX()) <= (rightBoundary + 50)) {
+//                tooltip.setText(yAxisData[rightBoundary] + "");
+//            }else {
+//                tooltip.hide();
+//            }
+//        });
+//        node.setOnMouseExited(e -> tooltip.hide());
+//    }
+//
+//    private int indexOfSpotFromMouseX(double x) {
+//        double convertedX = convertMouseXToValue(x);
+//        int index = -1;
+//        for (int i = 0; i < xAxisData.length - 1; i++) {
+//            if ((convertedX >= xAxisData[i] - 0.0005) && convertedX < xAxisData[i + 1] - 0.0005) {
+//                index = i;
+//                break;
+//            }
+//
+//
+//            if (index == -1 && ((StrictMath.abs(convertedX - xAxisData[xAxisData.length - 1]) < 0.005)))
+//                index = xAxisData.length - 1;
+//        }
+//
+//        return index;
+//    }
 
     private class MouseMovedHandler implements EventHandler<MouseEvent> {
 
@@ -215,10 +220,23 @@ public class BeamShapeLinePlot extends AbstractDataView {
             if (mouseInHouse(event)) {
                 ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.CROSSHAIR);
                 potNode = ((Canvas) event.getSource()).getParent();
-                setToolTips(potNode);
+                // setToolTips(potNode);
+
+                // currently only works with x value
+                for (int i = 0; i < getxAxisData().length; i++) {
+                    if ((getxAxisData()[i] >= convertMouseXToValue(event.getX()) - 0.00005 && getxAxisData()[i] <= convertMouseXToValue(event.getX()) + 0.00005)  ){
+
+                        //System.out.println(convertMouseXToValue(event.getX()) + ", " + getyAxisData()[i]);
+                        tooltip.setText(convertMouseXToValue(event.getX()) + ", " + getyAxisData()[i]);
+                        tooltip.setAnchorX(event.getSceneX());
+                        tooltip.show(potNode, event.getScreenX(), event.getScreenY());
+                    }
+                }
+
 
             } else {
                 ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.DEFAULT);
+                tooltip.hide();
             }
         }
     }
