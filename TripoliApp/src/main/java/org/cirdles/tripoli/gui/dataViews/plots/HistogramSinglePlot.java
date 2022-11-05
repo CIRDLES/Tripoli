@@ -18,6 +18,7 @@ package org.cirdles.tripoli.gui.dataViews.plots;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramRecord;
 
@@ -28,14 +29,22 @@ public class HistogramSinglePlot extends AbstractPlot {
 
     private final HistogramRecord histogramRecord;
     private double binWidth;
-    private boolean doFrameBins;
 
     private HistogramSinglePlot(Rectangle bounds, HistogramRecord histogramRecord) {
-        super(bounds, 40, 25, histogramRecord.title(), histogramRecord.xAxisLabel(), histogramRecord.yAxisLabel());
+        super(bounds,
+                40, 25,
+                histogramRecord.title()
+                        + "  " + "X\u0305" + "=" + String.format("%8.3g", histogramRecord.mean()).trim()
+                        + "\u00B1" + String.format("%8.3g", histogramRecord.standardDeviation()).trim(),
+                histogramRecord.xAxisLabel(),
+                histogramRecord.yAxisLabel());
         this.histogramRecord = histogramRecord;
+        // these can be changed by user in plot
+        this.binWidth = histogramRecord.binWidth();
+        this.dataColor = histogramRecord.dataColor();
     }
 
-    public static AbstractPlot generatePlot(Rectangle bounds, HistogramRecord histogramRecord){
+    public static AbstractPlot generatePlot(Rectangle bounds, HistogramRecord histogramRecord) {
         return new HistogramSinglePlot(bounds, histogramRecord);
     }
 
@@ -57,8 +66,6 @@ public class HistogramSinglePlot extends AbstractPlot {
         displayOffsetX = 0.0;
         displayOffsetY = 0.0;
 
-        dataColor = histogramRecord.dataColor();
-
         prepareExtents();
         calculateTics();
         this.repaint();
@@ -67,27 +74,28 @@ public class HistogramSinglePlot extends AbstractPlot {
     @Override
     public void paint(GraphicsContext g2d) {
         super.paint(g2d);
-
-        // plot bins
-        g2d.setFill(dataColor);
-        g2d.setLineWidth(2.0);
-        doFrameBins = (mapX(xAxisData[1]) - mapX(xAxisData[0])) > 1.0;
-        binWidth = histogramRecord.binWidth();
-        plotData(g2d);
     }
 
     public void prepareExtents() {
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.25);
+        if (xMarginStretch == 0.0) {
+            xMarginStretch = maxX * 0.01;
+        }
         minX -= xMarginStretch;
         maxX += xMarginStretch;
 
-        double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.25);
+        double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.10);
         maxY += yMarginStretch;
         // minY stays 0.0
     }
 
     @Override
     public void plotData(GraphicsContext g2d) {
+        // plot bins
+        g2d.setFill(dataColor);
+        g2d.setLineWidth(2.0);
+        boolean doFrameBins = (mapX(xAxisData[1]) - mapX(xAxisData[0])) > 1.0;
+
         for (int i = 0; i < xAxisData.length; i++) {
             double plottedBinWidth = mapX(xAxisData[1]) - mapX(xAxisData[0]);
             if (mapX(xAxisData[i] + binWidth / 2.0) > (leftMargin + plotWidth)) {
@@ -106,5 +114,41 @@ public class HistogramSinglePlot extends AbstractPlot {
                                         Math.min(mapY(0.0) - mapY(yAxisData[i]), topMargin + plotHeight - mapY(yAxisData[i])))));
             }
         }
+    }
+
+    public void plotStats(GraphicsContext g2d){
+
+        Paint saveFill = g2d.getFill();
+        g2d.setFill(Color.rgb(255, 251, 194));
+        g2d.setGlobalAlpha(0.6);
+        double mean = histogramRecord.mean();
+        double stdDev = histogramRecord.standardDeviation();
+        double twoSigmaWidth = 2.0 * stdDev;
+        double plottedTwoSigmaWidth = mapX(mean + stdDev) - mapX(mean - stdDev);
+        if (mapX(mean + twoSigmaWidth / 2.0) > (leftMargin + plotWidth)) {
+            plottedTwoSigmaWidth = leftMargin + plotWidth - (mapX(mean - twoSigmaWidth / 2.0));
+        }
+        if (mapX(mean - twoSigmaWidth / 2.0) < (leftMargin)) {
+            plottedTwoSigmaWidth = mapX(mean + twoSigmaWidth / 2.0) - leftMargin;
+        }
+        if (mapY(maxY) <= (topMargin + plotHeight)) {
+            g2d.fillRect(
+                    Math.max(mapX(mean - twoSigmaWidth / 2.0), leftMargin),
+                    Math.max(mapY(maxY), topMargin),
+                    plottedTwoSigmaWidth,
+                    Math.min(plotHeight,
+                            Math.min(mapY(0.0) - topMargin,
+                                    Math.min(mapY(0.0) - mapY(maxY), topMargin + plotHeight - mapY(maxY)))));
+        }
+        g2d.setFill(saveFill);
+        g2d.setGlobalAlpha(1.0);
+
+        Paint saveStroke = g2d.getStroke();
+        double saveLineWidth = g2d.getLineWidth();
+        g2d.setLineWidth(1.0);
+        g2d.setStroke(Paint.valueOf("Black"));
+        g2d.strokeLine(mapX(histogramRecord.mean()), mapY(Math.max(0.0, minY)), mapX(histogramRecord.mean()), mapY(maxY));
+        g2d.setStroke(saveStroke);
+        g2d.setLineWidth(saveLineWidth);
     }
 }

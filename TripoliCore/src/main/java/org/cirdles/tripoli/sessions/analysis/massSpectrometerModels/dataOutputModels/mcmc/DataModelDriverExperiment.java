@@ -54,7 +54,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
  */
 public class DataModelDriverExperiment {
 
-    private static final boolean doFullProcessing = true;
+    private static final boolean doFullProcessing = false;
 
     public static AbstractPlotBuilder[][] driveModelTest(Path dataFilePath, AnalysisMethod analysisMethod, LoggingCallbackInterface loggingCallback) throws IOException {
 
@@ -288,7 +288,7 @@ public class DataModelDriverExperiment {
         for (int i = 0; i < massSpecOutputDataRecord.nCycleArray().length; i++) {
             sumNCycle = sumNCycle + massSpecOutputDataRecord.nCycleArray()[i];
         }
-        int sizeOfModel = massSpecOutputDataRecord.isotopeCount() + sumNCycle + massSpecOutputDataRecord.faradayCount() + countOfDFGains;
+        int sizeOfModel = massSpecOutputDataRecord.isotopeCount() - 1 + sumNCycle + massSpecOutputDataRecord.faradayCount() + countOfDFGains;
         double[] xDataMean = new double[sizeOfModel];
         double[][] xDataCovariance = new double[sizeOfModel][sizeOfModel];
         PhysicalStore<Double> delx_adapt = storeFactory.make(sizeOfModel, stepCountForcedSave);

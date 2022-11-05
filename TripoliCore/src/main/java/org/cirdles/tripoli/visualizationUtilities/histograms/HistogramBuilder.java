@@ -68,6 +68,8 @@ public class HistogramBuilder extends AbstractPlotBuilder {
 
         return new HistogramRecord(
                 data,
+                descriptiveStatisticsRatios.getMean(),
+                descriptiveStatisticsRatios.getStandardDeviation(),
                 binCount,
                 binCounts,
                 binWidth,

@@ -5,6 +5,8 @@ import javafx.scene.paint.Color;
 
 public record HistogramRecord(
         double[] data,
+        double mean,
+        double standardDeviation,
         int binCount,
         double[] binCounts,
         double binWidth,

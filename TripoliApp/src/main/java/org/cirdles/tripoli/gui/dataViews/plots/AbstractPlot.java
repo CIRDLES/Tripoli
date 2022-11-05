@@ -75,6 +75,7 @@ public abstract class AbstractPlot extends Canvas {
     protected String plotTitle;
     protected String plotAxisLabelX;
     protected String plotAxisLabelY;
+    protected boolean showStats;
     private final EventHandler<ScrollEvent> scrollEventEventHandler = new EventHandler<>() {
         @Override
         public void handle(ScrollEvent event) {
@@ -133,6 +134,7 @@ public abstract class AbstractPlot extends Canvas {
         this.yAxisData = new double[0];
         this.ticsX = new BigDecimal[0];
         this.ticsY = new BigDecimal[0];
+        this.showStats = false;
 
         updatePlotSize();
 
@@ -169,7 +171,12 @@ public abstract class AbstractPlot extends Canvas {
             ((TripoliPlotPane) this.getParent()).changeDataColor(this);
         });
 
-        plotContextMenu.getItems().addAll(plotContextMenuItem1, plotContextMenuItem2, plotContextMenuItem3);
+        MenuItem plotContextMenuItem4 = new MenuItem("Toggle stats");
+        plotContextMenuItem4.setOnAction((mouseEvent) -> {
+            ((TripoliPlotPane) this.getParent()).toggleShowStats(this);
+        });
+
+        plotContextMenu.getItems().addAll(plotContextMenuItem1, plotContextMenuItem2, plotContextMenuItem3, plotContextMenuItem4);
 
     }
 
@@ -189,6 +196,8 @@ public abstract class AbstractPlot extends Canvas {
 
         drawBorder(g2d);
         drawPlotLimits(g2d);
+        plotData(g2d);
+        if (showStats){plotStats(g2d);}
         drawAxes(g2d);
         labelAxisX(g2d);
         labelAxisY(g2d);
@@ -200,6 +209,7 @@ public abstract class AbstractPlot extends Canvas {
     }
 
     public abstract void plotData(GraphicsContext g2d);
+    public abstract void plotStats(GraphicsContext g2d);
 
     public void prepareExtents(){
     }
@@ -212,7 +222,7 @@ public abstract class AbstractPlot extends Canvas {
             ticsX[ticsX.length - 1] = new BigDecimal(Double.toString(maxX));
         }
 
-        ticsY = TicGeneratorForAxes.generateTics(getDisplayMinY(), getDisplayMaxY(), (int) (plotHeight / 25.0));
+        ticsY = TicGeneratorForAxes.generateTics(getDisplayMinY(), getDisplayMaxY(), (int) (plotHeight / 15.0));
         if (ticsY.length == 0) {
             ticsY = new BigDecimal[2];
             ticsY[0] = new BigDecimal(Double.toString(minY));
@@ -241,7 +251,7 @@ public abstract class AbstractPlot extends Canvas {
                                 leftMargin, mapY(bigDecimalTicY.doubleValue()), leftMargin + plotWidth, mapY(bigDecimalTicY.doubleValue()));
                         // left side
                         Formatter fmt = new Formatter();
-                        fmt.format("%16.3g", bigDecimalTicY.doubleValue());
+                        fmt.format("%8.3g", bigDecimalTicY.doubleValue());
                         String yText = fmt.toString().trim();
                         text.setText(yText);
                         textWidth = (int) text.getLayoutBounds().getWidth();
@@ -263,7 +273,7 @@ public abstract class AbstractPlot extends Canvas {
                         // bottom
                         // http://www.java2s.com/Tutorials/Java/String/How_to_use_Java_Formatter_to_format_value_in_scientific_notation.htm#:~:text=%25e%20is%20for%20scientific%20notation,scientific%20notation%2C%20use%20%25e.
                         Formatter fmt = new Formatter();
-                        fmt.format("%16.5g", ticsX[i].doubleValue());
+                        fmt.format("%8.5g", ticsX[i].doubleValue());
                         String xText = fmt.toString().trim();
                         g2d.fillText(xText,
                                 (float) mapX(ticsX[i].doubleValue()) - 7f,
@@ -278,9 +288,9 @@ public abstract class AbstractPlot extends Canvas {
 
     public void showTitle(GraphicsContext g2d) {
         Paint savedPaint = g2d.getFill();
-        g2d.setFont(Font.font("SansSerif", 12));
+        g2d.setFont(Font.font("SansSerif", 11));
         g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText(plotTitle, leftMargin + 10, topMargin - 5);
+        g2d.fillText(plotTitle, leftMargin, topMargin - 5);
         g2d.setFill(savedPaint);
     }
 
@@ -448,6 +458,10 @@ public abstract class AbstractPlot extends Canvas {
      */
     public double[] getxAxisData() {
         return xAxisData.clone();
+    }
+
+    public void toggleShowStats() {
+        this.showStats = !this.showStats;
     }
 
     /**

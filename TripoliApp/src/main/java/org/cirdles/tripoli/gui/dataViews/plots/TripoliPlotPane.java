@@ -125,11 +125,15 @@ public class TripoliPlotPane extends Pane {
 
         mouseStartX = e.getSceneX();
         mouseStartY = e.getSceneY();
-        try {
-            ((AbstractPlot) targetPane.getChildren().get(0)).repaint();
-        } catch (Exception ex) {
-            //
-        }
+
+        ((AbstractPlot) getChildren().get(0)).updatePlotSize(getPrefWidth(), getPrefHeight());
+        ((AbstractPlot) getChildren().get(0)).calculateTics();
+
+//        try {
+//            ((AbstractPlot) targetPane.getChildren().get(0)).repaint();
+//        } catch (Exception ex) {
+//            //
+//        }
     };
     private TripoliPlotPane(Pane plotWallPane) {
         this.plotWallPane = plotWallPane;
@@ -222,6 +226,11 @@ public class TripoliPlotPane extends Pane {
             plot.repaint();
             getChildren().remove(colorPicker);
         });
+    }
+
+    public void toggleShowStats(AbstractPlot plot){
+        plot.toggleShowStats();
+        plot.repaint();
     }
 
     public void restorePlot(){
