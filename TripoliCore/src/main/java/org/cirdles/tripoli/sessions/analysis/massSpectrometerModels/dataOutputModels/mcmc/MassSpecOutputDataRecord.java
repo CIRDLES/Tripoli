@@ -66,6 +66,7 @@ public record MassSpecOutputDataRecord(
         double[] baseLineFlagsForRawDataColumn,
         double[] ionCounterFlagsForRawDataColumn,
         MatrixStore<Double>[] allBlockInterpolations,
+        int[][] indicesOfKnotsByBlock,
         int faradayCount,
         int isotopeCount,
         int blockCount,

@@ -16,15 +16,17 @@
 
 package org.cirdles.tripoli.visualizationUtilities.linePlots;
 
+import javafx.scene.paint.Color;
+
 /**
  * @author James F. Bowring
  */
 public class BeamShapeLinePlotBuilder extends LinePlotBuilder {
-    private int leftBoundary;
-    private int rightBoundary;
+    private final int leftBoundary;
+    private final int rightBoundary;
 
     private BeamShapeLinePlotBuilder(double[] xData, double[] yData, int leftBoundary, int rightBoundary) {
-        super(xData, yData, "Line Plot of Beam Shape");
+        super(xData, yData, "Line Plot of Beam Shape", "X", "Y", Color.BLUE);
         this.leftBoundary = leftBoundary;
         this.rightBoundary = rightBoundary;
     }

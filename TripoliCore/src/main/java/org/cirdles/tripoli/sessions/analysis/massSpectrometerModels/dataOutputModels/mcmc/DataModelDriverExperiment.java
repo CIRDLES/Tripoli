@@ -20,7 +20,6 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_PhoenixTextFile;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
-import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
@@ -115,7 +114,7 @@ public class DataModelDriverExperiment {
 
         int maxCount = 2000;
         if (dataModelInit_X0.logratios().length > 2) {
-            maxCount = 500;
+            maxCount = 1000;
         }
 
         boolean hierarchical = true;

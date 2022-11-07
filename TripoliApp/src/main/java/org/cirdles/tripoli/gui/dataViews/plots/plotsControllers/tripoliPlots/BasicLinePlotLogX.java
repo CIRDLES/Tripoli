@@ -1,14 +1,21 @@
-package org.cirdles.tripoli.gui.dataViews.plots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
+import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 
-public class BasicLinePlot extends AbstractDataView {
+
+public class BasicLinePlotLogX extends AbstractDataView {
 
     private final LinePlotBuilder linePlotBuilder;
 
@@ -16,7 +23,7 @@ public class BasicLinePlot extends AbstractDataView {
      * @param bounds
      * @param linePlotBuilder
      */
-    public BasicLinePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
+    public BasicLinePlotLogX(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
         super(bounds, 50, 5);
         this.linePlotBuilder = linePlotBuilder;
     }
@@ -26,10 +33,20 @@ public class BasicLinePlot extends AbstractDataView {
         xAxisData = linePlotBuilder.getxData();
         yAxisData = linePlotBuilder.getyData();
 
-        minX = xAxisData[0];
-        maxX = xAxisData[xAxisData.length - 1];
+        minX = Math.log(xAxisData[0]);
+        maxX = Math.log(xAxisData[xAxisData.length - 1]);
 
-        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 40.0));
+        // logarithmic ticsX
+        List<Double> xTicsList = new ArrayList<>();
+        int limitLog = (int) xAxisData[xAxisData.length - 1];
+        for (int logIndex = 1; logIndex <= limitLog; logIndex = logIndex * 10) {
+            xTicsList.add(Math.log(logIndex));
+        }
+        ticsX = new BigDecimal[xTicsList.size()];
+        for (int i = 0; i < xTicsList.size(); i++) {
+            ticsX[i] = new BigDecimal(Double.toString(xTicsList.get(i)));
+        }
+
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.01);
         minX -= xMarginStretch;
         maxX += xMarginStretch;
@@ -37,9 +54,9 @@ public class BasicLinePlot extends AbstractDataView {
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 
-        for (int i = 0; i < yAxisData.length; i++) {
-            minY = StrictMath.min(minY, yAxisData[i]);
-            maxY = StrictMath.max(maxY, yAxisData[i]);
+        for (double yAxisDatum : yAxisData) {
+            minY = StrictMath.min(minY, yAxisDatum);
+            maxY = StrictMath.max(maxY, yAxisDatum);
         }
         ticsY = TicGeneratorForAxes.generateTics(minY, maxY, (int) (graphHeight / 15.0));
         if ((ticsY != null) && (ticsY.length > 1)) {
@@ -66,16 +83,17 @@ public class BasicLinePlot extends AbstractDataView {
         text.setFont(Font.font("SansSerif", 12));
         int textWidth = 0;
 
+        labelXAxis("Log of Saved Iteration Count");
         showTitle(linePlotBuilder.getTitle());
 
         g2d.setLineWidth(2.0);
         // new line plot
         g2d.setStroke(Paint.valueOf("Black"));
         g2d.beginPath();
-        g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]));
+        g2d.moveTo(mapX(Math.log(xAxisData[0])), mapY(yAxisData[0]));
         for (int i = 0; i < xAxisData.length; i++) {
             // line tracing through points
-            g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
+            g2d.lineTo(mapX(Math.log(xAxisData[i])), mapY(yAxisData[i]));
         }
         g2d.stroke();
 
@@ -95,35 +113,35 @@ public class BasicLinePlot extends AbstractDataView {
             float verticalTextShift = 3.2f;
             g2d.setFont(Font.font("SansSerif", 10));
             if (ticsY != null) {
-                for (int i = 0; i < ticsY.length; i++) {
+                for (BigDecimal bigDecimal : ticsY) {
                     g2d.strokeLine(
-                            mapX(minX), mapY(ticsY[i].doubleValue()), mapX(maxX), mapY(ticsY[i].doubleValue()));
+                            mapX(minX), mapY(bigDecimal.doubleValue()), mapX(maxX), mapY(bigDecimal.doubleValue()));
 
                     // left side
-                    text.setText(ticsY[i].toString());
+                    text.setText(bigDecimal.toString());
                     textWidth = (int) text.getLayoutBounds().getWidth();
                     g2d.fillText(text.getText(),//
                             (float) mapX(minX) - textWidth - 5f,
-                            (float) mapY(ticsY[i].doubleValue()) + verticalTextShift);
+                            (float) mapY(bigDecimal.doubleValue()) + verticalTextShift);
 
                 }
                 // ticsX
                 if (ticsX != null) {
-                    for (int i = 0; i < ticsX.length - 1; i++) {
+                    for (BigDecimal bigDecimal : ticsX) {
                         try {
                             g2d.strokeLine(
-                                    mapX(ticsX[i].doubleValue()),
+                                    mapX(bigDecimal.doubleValue()),
                                     mapY(ticsY[0].doubleValue()),
-                                    mapX(ticsX[i].doubleValue()),
+                                    mapX(bigDecimal.doubleValue()),
                                     mapY(ticsY[0].doubleValue()) + 5);
 
                             // bottom
-                            String xText = ticsX[i].toPlainString();
+                            String xText = (new BigDecimal(Double.toString(Math.exp(bigDecimal.doubleValue())))).setScale(-1, RoundingMode.HALF_UP).toPlainString();
                             g2d.fillText(xText,
-                                    (float) mapX(ticsX[i].doubleValue()) - 5f,
+                                    (float) mapX(bigDecimal.doubleValue()) - 5f,
                                     (float) mapY(ticsY[0].doubleValue()) + 15);
 
-                        } catch (Exception e) {
+                        } catch (Exception ignored) {
                         }
                     }
                 }

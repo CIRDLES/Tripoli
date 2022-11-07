@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -26,8 +26,8 @@ import java.nio.file.Path;
  * @author James F. Bowring
  */
 public class MCMCUpdatesService extends Service<String> {
-    private Path dataFile;
-    private AnalysisMethod analysisMethod;
+    private final Path dataFile;
+    private final AnalysisMethod analysisMethod;
 
     private Task<String> plotBuilderTask;
 

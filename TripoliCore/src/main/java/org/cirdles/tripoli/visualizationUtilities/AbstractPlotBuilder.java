@@ -16,18 +16,54 @@
 
 package org.cirdles.tripoli.visualizationUtilities;
 
+import javafx.scene.paint.Color;
+
 /**
  * @author James F. Bowring
  */
 public class AbstractPlotBuilder {
 
     protected String title;
+    protected String xAxisLabel;
+    protected String yAxisLabel;
+    protected Color dataColor;
 
-    public AbstractPlotBuilder(String title) {
+    public AbstractPlotBuilder(String title, String xAxisLabel, String yAxisLabel, Color dataColor) {
         this.title = title;
+        this.xAxisLabel = xAxisLabel;
+        this.yAxisLabel = yAxisLabel;
+        this.dataColor = dataColor;
     }
 
     public String getTitle() {
         return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getxAxisLabel() {
+        return xAxisLabel;
+    }
+
+    public void setxAxisLabel(String xAxisLabel) {
+        this.xAxisLabel = xAxisLabel;
+    }
+
+    public String getyAxisLabel() {
+        return yAxisLabel;
+    }
+
+    public void setyAxisLabel(String yAxisLabel) {
+        this.yAxisLabel = yAxisLabel;
+    }
+
+    public Color getDataColor() {
+        return dataColor;
+    }
+
+    public void setDataColor(Color dataColor) {
+        this.dataColor = dataColor;
     }
 }

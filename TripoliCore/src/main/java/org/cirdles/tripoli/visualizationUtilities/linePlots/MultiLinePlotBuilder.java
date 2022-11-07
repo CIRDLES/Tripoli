@@ -16,21 +16,26 @@
 
 package org.cirdles.tripoli.visualizationUtilities.linePlots;
 
+import javafx.scene.paint.Color;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 
 public class MultiLinePlotBuilder extends AbstractPlotBuilder {
 
-    private double[] xData;
-    private double[][] yData;
+    private final double[] xData;
+    private final double[][] yData;
 
-    protected MultiLinePlotBuilder(double[] xData, double[][] yData, String title) {
-        super(title);
+    private MultiLinePlotBuilder(double[] xData, double[][] yData, String title, String xAxisLabel, String yAxisLabel, Color dataColor) {
+        super(title, xAxisLabel, yAxisLabel, dataColor);
         this.xData = xData;
         this.yData = yData;
     }
 
     public static MultiLinePlotBuilder initializeLinePlot(double[] xData, double[][] yData, String title) {
-        return new MultiLinePlotBuilder(xData, yData, title);
+        return new MultiLinePlotBuilder(xData, yData, title, "X", "Y", Color.BLUE);
+    }
+
+    public static MultiLinePlotBuilder initializeLinePlot(double[] xData, double[][] yData, String title, String xAxisLabel, String yAxisLabel, Color dataColor) {
+        return new MultiLinePlotBuilder(xData, yData, title, xAxisLabel, yAxisLabel, dataColor);
     }
 
     public double[][] getyData() {

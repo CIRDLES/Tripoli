@@ -1,7 +1,8 @@
 package org.cirdles.tripoli.visualizationUtilities.histograms;
 
-import java.io.Serializable;
 import javafx.scene.paint.Color;
+
+import java.io.Serializable;
 
 public record HistogramRecord(
         double[] data,

@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.visualizationUtilities.linePlots;
 
+import javafx.scene.paint.Color;
 import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 
 public class LinePlotBuilder extends AbstractPlotBuilder {
@@ -23,14 +24,14 @@ public class LinePlotBuilder extends AbstractPlotBuilder {
     private final double[] xData;
     private final double[] yData;
 
-    protected LinePlotBuilder(double[] xData, double[] yData, String title) {
-        super(title);
+    protected LinePlotBuilder(double[] xData, double[] yData, String title, String xAxisLabel, String yAxisLabel, Color dataColor) {
+        super(title, xAxisLabel, yAxisLabel, dataColor);
         this.xData = xData;
         this.yData = yData;
     }
 
     public static LinePlotBuilder initializeLinePlot(double[] xData, double[] yData, String title) {
-        return new LinePlotBuilder(xData, yData, title);
+        return new LinePlotBuilder(xData, yData, title, "X", "Y", Color.BLUE);
     }
 
     public double[] getyData() {

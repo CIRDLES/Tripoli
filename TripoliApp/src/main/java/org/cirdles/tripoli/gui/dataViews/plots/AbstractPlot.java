@@ -62,8 +62,8 @@ public abstract class AbstractPlot extends Canvas {
     protected double mouseStartY;
     private final EventHandler<MouseEvent> mousePressedEventHandler = e -> {
         if (mouseInHouse(e.getX(), e.getY()) && e.isPrimaryButtonDown()) {
-                mouseStartX = e.getX();
-                mouseStartY = e.getY();
+            mouseStartX = e.getX();
+            mouseStartY = e.getY();
         }
     };
     protected BigDecimal[] ticsX;
@@ -173,7 +173,7 @@ public abstract class AbstractPlot extends Canvas {
 
         MenuItem plotContextMenuItem4 = new MenuItem("Toggle stats");
         plotContextMenuItem4.setOnAction((mouseEvent) -> {
-            ((TripoliPlotPane) this.getParent()).toggleShowStats(this);
+            ((TripoliPlotPane) this.getParent()).toggleShowStats();
         });
 
         plotContextMenu.getItems().addAll(plotContextMenuItem1, plotContextMenuItem2, plotContextMenuItem3, plotContextMenuItem4);
@@ -197,7 +197,9 @@ public abstract class AbstractPlot extends Canvas {
         drawBorder(g2d);
         drawPlotLimits(g2d);
         plotData(g2d);
-        if (showStats){plotStats(g2d);}
+        if (showStats) {
+            plotStats(g2d);
+        }
         drawAxes(g2d);
         labelAxisX(g2d);
         labelAxisY(g2d);
@@ -209,9 +211,10 @@ public abstract class AbstractPlot extends Canvas {
     }
 
     public abstract void plotData(GraphicsContext g2d);
+
     public abstract void plotStats(GraphicsContext g2d);
 
-    public void prepareExtents(){
+    public void prepareExtents() {
     }
 
     public void calculateTics() {
@@ -229,12 +232,13 @@ public abstract class AbstractPlot extends Canvas {
             ticsY[ticsY.length - 1] = new BigDecimal(Double.toString(maxY));
         }
 
-        zoomChunkX = getDisplayRangeX() / 10.0;
-        zoomChunkY = getDisplayRangeY() / 10.0;
+        zoomChunkX = getDisplayRangeX() / 100.0;
+        zoomChunkY = getDisplayRangeY() / 100.0;
     }
 
     private void drawAxes(GraphicsContext g2d) {
         g2d.setFill(Paint.valueOf("BLACK"));
+        g2d.setStroke(Paint.valueOf("BLACK"));
         g2d.setLineWidth(0.75);
         Text text = new Text();
         text.setFont(Font.font("SansSerif", 11));
@@ -290,7 +294,7 @@ public abstract class AbstractPlot extends Canvas {
         Paint savedPaint = g2d.getFill();
         g2d.setFont(Font.font("SansSerif", 11));
         g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText(plotTitle, leftMargin, topMargin - 5);
+        g2d.fillText(plotTitle, leftMargin - 15, topMargin - 5);
         g2d.setFill(savedPaint);
     }
 
@@ -357,6 +361,10 @@ public abstract class AbstractPlot extends Canvas {
      */
     public double mapY(double y) {
         return (((getDisplayMaxY() - y) / getDisplayRangeY()) * plotHeight) + topMargin;
+    }
+
+    public boolean pointInPlot(double x, double y) {
+        return ((mapX(x) > leftMargin) && (mapX(x) < (leftMargin + plotWidth)) && (mapY(y) > topMargin) && (mapY(y) < (topMargin + plotHeight)));
     }
 
     /**

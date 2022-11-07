@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots;
 
 import javafx.concurrent.Task;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.DataModelDriverExperiment;
@@ -28,16 +28,16 @@ import java.nio.file.Path;
  * @author James F. Bowring
  */
 public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface {
-    private Path dataFile;
-    private AnalysisMethod analysisMethod;
+    private final Path dataFile;
+    private final AnalysisMethod analysisMethod;
     // ensemble plots
     private AbstractPlotBuilder[] ratiosHistogramBuilder;
     private AbstractPlotBuilder[] baselineHistogramBuilder;
     private AbstractPlotBuilder[] dalyFaradayGainHistogramBuilder;
     private AbstractPlotBuilder[] signalNoiseHistogramBuilder;
-    private AbstractPlotBuilder meanIntensityLineBuilder;
+    private AbstractPlotBuilder[] meanIntensityLineBuilder;
 
-    private AbstractPlotBuilder convergeRatioLineBuilder;
+    private AbstractPlotBuilder[] convergeRatioLineBuilder;
 
     private AbstractPlotBuilder observedDataLineBuilder;
     private AbstractPlotBuilder residualDataLineBuilder;
@@ -74,11 +74,11 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         return signalNoiseHistogramBuilder;
     }
 
-    public AbstractPlotBuilder getMeanIntensityLineBuilder() {
+    public AbstractPlotBuilder[] getMeanIntensityLineBuilder() {
         return meanIntensityLineBuilder;
     }
 
-    public AbstractPlotBuilder getConvergeRatioLineBuilder() {
+    public AbstractPlotBuilder[] getConvergeRatioLineBuilder() {
         return convergeRatioLineBuilder;
     }
 
@@ -125,9 +125,9 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         baselineHistogramBuilder = plots[1];
         dalyFaradayGainHistogramBuilder = plots[2];
         signalNoiseHistogramBuilder = plots[3];
-        meanIntensityLineBuilder = plots[4][0];
+        meanIntensityLineBuilder = plots[4];
 
-        convergeRatioLineBuilder = plots[5][0];
+        convergeRatioLineBuilder = plots[5];
 
         convergeBLFaradayL1LineBuilder = plots[6][0];
         convergeBLFaradayH1LineBuilder = plots[7][0];

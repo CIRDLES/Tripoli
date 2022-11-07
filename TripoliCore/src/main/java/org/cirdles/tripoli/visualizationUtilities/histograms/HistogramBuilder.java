@@ -27,18 +27,18 @@ public class HistogramBuilder extends AbstractPlotBuilder {
 
     private HistogramRecord histogram;
 
-    private HistogramBuilder(String title) {
-        super(title);
+    private HistogramBuilder(String title, String xAxisLabel, String yAxisLabel, Color dataColor) {
+        super(title, xAxisLabel, yAxisLabel, dataColor);
         histogram = null;
     }
 
     public static HistogramBuilder initializeHistogram(double[] data, int binCount, String title, String xAxisLabel, String yAxisLabel, Color dataColor) {
-        HistogramBuilder histogramBuilder = new HistogramBuilder(title);
-        histogramBuilder.histogram = histogramBuilder.generateHistogram(data, binCount, title, xAxisLabel, yAxisLabel, dataColor);
+        HistogramBuilder histogramBuilder = new HistogramBuilder(title, xAxisLabel, yAxisLabel, dataColor);
+        histogramBuilder.histogram = histogramBuilder.generateHistogram(data, binCount);
         return histogramBuilder;
     }
 
-    private HistogramRecord generateHistogram(double[] data, int binCount, String title, String xAxisLabel, String yAxisLabel, Color dataColor) {
+    private HistogramRecord generateHistogram(double[] data, int binCount) {
         DescriptiveStatistics descriptiveStatisticsRatios = new DescriptiveStatistics();
         for (int index = 0; index < data.length; index++) {
             descriptiveStatisticsRatios.addValue(data[index]);

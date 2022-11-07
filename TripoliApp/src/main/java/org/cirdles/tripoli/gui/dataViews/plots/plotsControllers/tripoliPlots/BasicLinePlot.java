@@ -1,30 +1,32 @@
-package org.cirdles.tripoli.gui.dataViews.plots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
+import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
 
-public class BasicScatterPlot extends AbstractDataView {
+public class BasicLinePlot extends AbstractDataView {
 
-    private final LinePlotBuilder intensityLinePlotBuilder;
+    private final LinePlotBuilder linePlotBuilder;
 
     /**
      * @param bounds
-     * @param intensityLinePlotBuilder
+     * @param linePlotBuilder
      */
-    public BasicScatterPlot(Rectangle bounds, LinePlotBuilder intensityLinePlotBuilder) {
+    public BasicLinePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
         super(bounds, 50, 5);
-        this.intensityLinePlotBuilder = intensityLinePlotBuilder;
+        this.linePlotBuilder = linePlotBuilder;
     }
 
     @Override
     public void preparePanel() {
-        xAxisData = intensityLinePlotBuilder.getxData();
-        yAxisData = intensityLinePlotBuilder.getyData();
+        xAxisData = linePlotBuilder.getxData();
+        yAxisData = linePlotBuilder.getyData();
 
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
@@ -37,9 +39,9 @@ public class BasicScatterPlot extends AbstractDataView {
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 
-        for (double yAxisDatum : yAxisData) {
-            minY = StrictMath.min(minY, yAxisDatum);
-            maxY = StrictMath.max(maxY, yAxisDatum);
+        for (int i = 0; i < yAxisData.length; i++) {
+            minY = StrictMath.min(minY, yAxisData[i]);
+            maxY = StrictMath.max(maxY, yAxisData[i]);
         }
         ticsY = TicGeneratorForAxes.generateTics(minY, maxY, (int) (graphHeight / 15.0));
         if ((ticsY != null) && (ticsY.length > 1)) {
@@ -66,15 +68,18 @@ public class BasicScatterPlot extends AbstractDataView {
         text.setFont(Font.font("SansSerif", 12));
         int textWidth = 0;
 
-        showTitle(intensityLinePlotBuilder.getTitle());
+        showTitle(linePlotBuilder.getTitle());
 
-        g2d.setLineWidth(0.5);
-        // scatter plot
+        g2d.setLineWidth(2.0);
+        // new line plot
         g2d.setStroke(Paint.valueOf("Black"));
+        g2d.beginPath();
+        g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]));
         for (int i = 0; i < xAxisData.length; i++) {
-            g2d.strokeOval(mapX(xAxisData[i]) - 2f, mapY(yAxisData[i]) - 2f, 4f, 4f);
+            // line tracing through points
+            g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
         }
-
+        g2d.stroke();
 
         if (ticsY.length > 1) {
             // border and fill
@@ -92,16 +97,16 @@ public class BasicScatterPlot extends AbstractDataView {
             float verticalTextShift = 3.2f;
             g2d.setFont(Font.font("SansSerif", 10));
             if (ticsY != null) {
-                for (java.math.BigDecimal bigDecimal : ticsY) {
+                for (int i = 0; i < ticsY.length; i++) {
                     g2d.strokeLine(
-                            mapX(minX), mapY(bigDecimal.doubleValue()), mapX(maxX), mapY(bigDecimal.doubleValue()));
+                            mapX(minX), mapY(ticsY[i].doubleValue()), mapX(maxX), mapY(ticsY[i].doubleValue()));
 
                     // left side
-                    text.setText(bigDecimal.toString());
+                    text.setText(ticsY[i].toString());
                     textWidth = (int) text.getLayoutBounds().getWidth();
                     g2d.fillText(text.getText(),//
-                            (float) mapX(minX) - textWidth + 5f,
-                            (float) mapY(bigDecimal.doubleValue()) + verticalTextShift);
+                            (float) mapX(minX) - textWidth - 5f,
+                            (float) mapY(ticsY[i].doubleValue()) + verticalTextShift);
 
                 }
                 // ticsX
@@ -120,7 +125,7 @@ public class BasicScatterPlot extends AbstractDataView {
                                     (float) mapX(ticsX[i].doubleValue()) - 5f,
                                     (float) mapY(ticsY[0].doubleValue()) + 15);
 
-                        } catch (Exception ignored) {
+                        } catch (Exception e) {
                         }
                     }
                 }

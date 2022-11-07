@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramRecord;
 
 /**
@@ -28,7 +30,7 @@ import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramRecord;
 public class HistogramSinglePlot extends AbstractPlot {
 
     private final HistogramRecord histogramRecord;
-    private double binWidth;
+    private final double binWidth;
 
     private HistogramSinglePlot(Rectangle bounds, HistogramRecord histogramRecord) {
         super(bounds,
@@ -116,7 +118,7 @@ public class HistogramSinglePlot extends AbstractPlot {
         }
     }
 
-    public void plotStats(GraphicsContext g2d){
+    public void plotStats(GraphicsContext g2d) {
 
         Paint saveFill = g2d.getFill();
         g2d.setFill(Color.rgb(255, 251, 194));

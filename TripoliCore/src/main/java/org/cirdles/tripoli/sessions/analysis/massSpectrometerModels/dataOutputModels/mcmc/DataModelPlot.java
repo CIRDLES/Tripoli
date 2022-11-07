@@ -45,7 +45,7 @@ public class DataModelPlot {
             List<EnsemblesStore.EnsembleRecord> ensembleRecordsList,
             DataModellerOutputRecord lastDataModelInit,
             AnalysisMethod analysisMethod
-            ) {
+    ) {
         List<IsotopicRatio> isotopicRatioList = analysisMethod.getTripoliRatiosList();
 
         /*
@@ -72,17 +72,17 @@ public class DataModelPlot {
         burn = 450;//Math.min(100, ensembleRecordsList.size() - 50);
         int countOfEnsemblesUsed = ensembleRecordsList.size() - burn;
 
-        // log ratios - only the first row
-        double[][] ensembleLogRatios = new double[isotopicRatioList.size()][countOfEnsemblesUsed];
+        // log ratios
+        double[][] ensembleSetOfLogRatios = new double[isotopicRatioList.size()][countOfEnsemblesUsed];
         double[][] ensembleRatios = new double[isotopicRatioList.size()][countOfEnsemblesUsed];
         double[] logRatioMean = new double[isotopicRatioList.size()];
         double[] logRatioStdDev = new double[isotopicRatioList.size()];
         DescriptiveStatistics descriptiveStatisticsLogRatios = new DescriptiveStatistics();
         for (int ratioIndex = 0; ratioIndex < isotopicRatioList.size(); ratioIndex++) {
             for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
-                ensembleLogRatios[ratioIndex][index - burn] = ensembleRecordsList.get(index).logRatios()[ratioIndex];
-                descriptiveStatisticsLogRatios.addValue(ensembleLogRatios[ratioIndex][index - burn]);
-                ensembleRatios[ratioIndex][index - burn] = exp(ensembleLogRatios[ratioIndex][index - burn]);
+                ensembleSetOfLogRatios[ratioIndex][index - burn] = ensembleRecordsList.get(index).logRatios()[ratioIndex];
+                descriptiveStatisticsLogRatios.addValue(ensembleSetOfLogRatios[ratioIndex][index - burn]);
+                ensembleRatios[ratioIndex][index - burn] = exp(ensembleSetOfLogRatios[ratioIndex][index - burn]);
             }
             logRatioMean[ratioIndex] = descriptiveStatisticsLogRatios.getMean();
             logRatioStdDev[ratioIndex] = descriptiveStatisticsLogRatios.getStandardDeviation();
@@ -165,7 +165,7 @@ public class DataModelPlot {
         for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
             PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
             MatrixStore<Double> intensityMeansMatrix = storeFactory.columns(intensityMeans[blockIndex]);
-            MatrixStore<Double> yDataMatrix = massSpecOutputDataRecord.allBlockInterpolations()[blockIndex].multiply(intensityMeansMatrix).multiply((1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
+            MatrixStore<Double> yDataMatrix = massSpecOutputDataRecord.allBlockInterpolations()[blockIndex].multiply(intensityMeansMatrix).multiply(1.0 / dalyFaradayGainMean);//(1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
             yDataIntensityMeans[blockIndex] = yDataMatrix.toRawCopy1D();
         }
         double[] xDataIntensityMeans = new double[massSpecOutputDataRecord.allBlockInterpolations()[0].getRowDim()];
@@ -198,7 +198,8 @@ public class DataModelPlot {
                     25, faradayDetectorsUsed.get(i).getDetectorName() + " Signal Noise", "Noise hyperparameter", "Frequency", Color.GREEN);
         }
 
-        plotBuilders[4][0] = MultiLinePlotBuilder.initializeLinePlot(xDataIntensityMeans, yDataIntensityMeans, "Mean Intensity");
+        plotBuilders[4][0] = MultiLinePlotBuilder.initializeLinePlot(
+                xDataIntensityMeans, yDataIntensityMeans, "Mean Intensity", "Time Index", "Intensity (counts)", Color.CRIMSON);
 
         // visualization converge ratio and others tabs
         double[] convergeLogRatios = new double[ensembleRecordsList.size()];
@@ -227,7 +228,23 @@ public class DataModelPlot {
             convergeNoiseFaradayH1[index] = ensembleRecordsList.get(index).signalNoise()[1];
             xDataconvergeSavedIterations[index] = index + 1;
         }
-        plotBuilders[5][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeRatios, "Converge Ratio");
+
+        double[][] convergeSetOfLogRatios = new double[isotopicRatioList.size()][ensembleRecordsList.size()];
+        for (int ratioIndex = 0; ratioIndex < isotopicRatioList.size(); ratioIndex++) {
+            for (int ensembleIndex = 0; ensembleIndex < ensembleRecordsList.size(); ensembleIndex++) {
+                convergeSetOfLogRatios[ratioIndex][ensembleIndex] = ensembleRecordsList.get(ensembleIndex).logRatios()[ratioIndex];
+            }
+        }
+        plotBuilders[5] = new AbstractPlotBuilder[convergeSetOfLogRatios.length];
+        for (int i = 0; i < convergeSetOfLogRatios.length; i++) {
+            plotBuilders[5][i] = LinePlotBuilder.initializeLinePlot(
+                    xDataconvergeSavedIterations, convergeSetOfLogRatios[i],
+                    isotopicRatioList.get(i).prettyPrint());//, "Ratios", "Frequency", Color.BLUE);
+        }
+
+        //plotBuilders[5][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeLogRatios, "Converge Ratio");
+
+
         plotBuilders[6][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeBaselineFaradayL1, "Converge Baseline Faraday L1");
         plotBuilders[7][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeBaselineFaradayH1, "Converge Baseline Faraday H1");
         plotBuilders[8][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeErrWeightedMisfit, "Converge Weighted Misfit");

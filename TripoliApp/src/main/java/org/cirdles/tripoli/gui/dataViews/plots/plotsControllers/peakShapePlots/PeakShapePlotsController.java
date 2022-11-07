@@ -9,9 +9,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
-import org.cirdles.tripoli.gui.dataViews.plots.BeamShapeLinePlot;
-import org.cirdles.tripoli.gui.dataViews.plots.GBeamLinePlot;
-import org.cirdles.tripoli.gui.dataViews.plots.PeakCentresLinePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.BeamShapeLinePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.GBeamLinePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.PeakCentresLinePlot;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes.BeamDataOutputDriverExperiment;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
@@ -29,7 +29,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.*;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsWindow.*;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow.plottingWindow;
 
 public class PeakShapePlotsController {
@@ -204,7 +204,6 @@ public class PeakShapePlotsController {
             listViewOfGroupResourcesInFolder.setItems(items);
 
 
-
             listViewOfGroupResourcesInFolder.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 // Files will be manipulated here when group is selected
                 setCurrentGroup(newValue);
@@ -213,7 +212,6 @@ public class PeakShapePlotsController {
                 eventLogTextArea.textProperty().unbind();
                 eventLogTextArea.setText("Select File From Plot");
             });
-
 
 
             listViewOfGroupResourcesInFolder.getSelectionModel().selectFirst();
@@ -299,7 +297,6 @@ public class PeakShapePlotsController {
         listViewOfResourcesInFolder.setItems(items);
 
 
-
         listViewOfResourcesInFolder.setOnMouseClicked(click -> {
             peakCentreLinePlot.repaint();
             int index;
@@ -337,7 +334,6 @@ public class PeakShapePlotsController {
     }
 
 
-
     public void processDataFileAndShowPlotsOfPeakShapes() {
 
 
@@ -371,7 +367,6 @@ public class PeakShapePlotsController {
                 gBeamPlotScrollPane.setContent(gBeamLinePlot);
 
 
-
                 AbstractDataView beamShapeLinePlot = new BeamShapeLinePlot(
                         new Rectangle(beamShapePlotScrollPane.getWidth(),
                                 beamShapePlotScrollPane.getHeight()),
@@ -394,11 +389,9 @@ public class PeakShapePlotsController {
 
                 beamShapeLinePlot.preparePanel();
                 beamShapePlotScrollPane.setContent(beamShapeLinePlot);
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-
-
 
 
 //            service.start();

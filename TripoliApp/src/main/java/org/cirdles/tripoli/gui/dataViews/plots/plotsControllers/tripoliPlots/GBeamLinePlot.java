@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.gui.dataViews.plots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
@@ -6,46 +6,49 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.BeamShapeLinePlotBuilder;
+import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
+import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
+import org.cirdles.tripoli.visualizationUtilities.linePlots.GBeamLinePlotBuilder;
 
+public class GBeamLinePlot extends AbstractDataView {
 
-public class BeamShapeLinePlot extends AbstractDataView {
-
-    private final BeamShapeLinePlotBuilder beamShapeLinePlotBuilder;
-    private int leftBoundary;
-    private int rightBoundary;
+    private final GBeamLinePlotBuilder gBeamLinePlotBuilder;
+    private double[] xMass;
+    private double[] yIntensity;
 
     /**
      * @param bounds
-     * @param beamShapeLinePlotBuilder
+     * @param gBeamLinePlotBuilder
      */
-    public BeamShapeLinePlot(Rectangle bounds, BeamShapeLinePlotBuilder beamShapeLinePlotBuilder) {
+    public GBeamLinePlot(Rectangle bounds, GBeamLinePlotBuilder gBeamLinePlotBuilder) {
         super(bounds, 50, 35);
-        this.beamShapeLinePlotBuilder = beamShapeLinePlotBuilder;
+        this.gBeamLinePlotBuilder = gBeamLinePlotBuilder;
     }
 
     @Override
     public void preparePanel() {
-        xAxisData = beamShapeLinePlotBuilder.getxData();
-        yAxisData = beamShapeLinePlotBuilder.getyData();
-        leftBoundary = beamShapeLinePlotBuilder.getLeftBoundary();
-        rightBoundary = beamShapeLinePlotBuilder.getRightBoundary();
+        xAxisData = gBeamLinePlotBuilder.getxData();
+        yAxisData = gBeamLinePlotBuilder.getyData();
+        xMass = gBeamLinePlotBuilder.getMassData();
+        yIntensity = gBeamLinePlotBuilder.getIntensityData();
 
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
 
-        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 35.0));
+        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 50.0));
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.05);
         minX -= xMarginStretch;
         maxX += xMarginStretch;
 
+
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 
-        for (double yAxisDatum : yAxisData) {
-            minY = StrictMath.min(minY, yAxisDatum);
-            maxY = StrictMath.max(maxY, yAxisDatum);
+        for (double v : yIntensity) {
+            minY = StrictMath.min(minY, v);
+            maxY = StrictMath.max(maxY, v);
         }
+
         ticsY = TicGeneratorForAxes.generateTics(minY, maxY, (int) (graphHeight / 20.0));
         if ((ticsY != null) && (ticsY.length > 1)) {
             // force y to tics
@@ -72,33 +75,32 @@ public class BeamShapeLinePlot extends AbstractDataView {
         int textWidth = 0;
 
         g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText(beamShapeLinePlotBuilder.getTitle(), 20, 20);
+        g2d.fillText(gBeamLinePlotBuilder.getTitle(), 20, 20);
 
-        g2d.setLineWidth(2.0);
-        // new line graph
-        g2d.setStroke(Paint.valueOf("Black"));
+        g2d.setLineWidth(2.5);
+
         g2d.beginPath();
+        g2d.setStroke(Paint.valueOf("Blue"));
+        g2d.setLineDashes(0);
+        // x = magnetMass y = blockIntensities
+
+        for (int i = 0; i < xMass.length; i++) {
+            g2d.lineTo(mapX(xMass[i]), mapY(yIntensity[i]));
+        }
+
+        g2d.stroke();
+        g2d.beginPath();
+        g2d.setLineWidth(2.5);
+        g2d.setLineDashes(4);
+        g2d.setStroke(Paint.valueOf("Red"));
+
+        // x = magnetMass y = G-Beam
         g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]));
         for (int i = 0; i < xAxisData.length; i++) {
             // line tracing through points
             g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
         }
-
         g2d.stroke();
-        g2d.beginPath();
-        g2d.setLineDashes(8);
-        g2d.setStroke(Paint.valueOf("Blue"));
-        for (int i = leftBoundary; i <= rightBoundary; i++) {
-            // line tracing through points
-
-            g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData[leftBoundary]));
-        }
-        g2d.stroke();
-
-        g2d.setFill(Paint.valueOf("Red"));
-        g2d.fillOval(mapX(xAxisData[leftBoundary]) - 3.5, mapY(yAxisData[leftBoundary]) - 3.5, 7, 7);
-        g2d.fillOval(mapX(xAxisData[rightBoundary]) - 3.5, mapY(yAxisData[rightBoundary]) - 3.5, 7, 7);
-
         g2d.beginPath();
         g2d.setLineDashes(0);
 

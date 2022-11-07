@@ -21,38 +21,43 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.Pane;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * @author James F. Bowring
  */
 public class PlotWallPane extends Pane {
 
     public static double menuOffset = 64;
-    public static double gridCellDim = 5.0;
+    public static double gridCellDim = 2.0;
     public static double toolBarHeight = 35.0;
 
     public void tilePlots() {
-        // assume 2 x 4
-        double widthTileCount = 4.0;
-        double heightTileCount = 3.0;
+        List<Node> plotPanes = getChildren()
+                .stream()
+                .filter(plot -> plot instanceof TripoliPlotPane)
+                .collect(Collectors.toList());
+
+        double widthTileCount = 5.0;
+        double heightTileCount = Math.ceil(plotPanes.size() / widthTileCount);
 
         double displayWidth = ((getParent().getBoundsInParent().getWidth() - gridCellDim * 2.0) / widthTileCount);
         double tileWidth = displayWidth - displayWidth % gridCellDim;
 
-        double displayHeight = ((getParent().getBoundsInParent().getHeight() - menuOffset - toolBarHeight - gridCellDim * 2.0) / heightTileCount);
+        double displayHeight = ((getParent().getBoundsInParent().getHeight() - toolBarHeight - gridCellDim * heightTileCount) / heightTileCount);
         double tileHeight = displayHeight - displayHeight % gridCellDim;
 
         int plotIndex = 0;
-        for (Node plot : getChildren()) {
-            if (plot instanceof TripoliPlotPane) {
-                plot.setLayoutY(gridCellDim + toolBarHeight + tileHeight * Math.floor(plotIndex / widthTileCount));
-                ((Pane) plot).setPrefHeight(tileHeight);
-                plot.setLayoutX(gridCellDim + tileWidth * (plotIndex % widthTileCount));
-                ((Pane) plot).setPrefWidth(tileWidth);
+        for (Node plot : plotPanes) {
+            plot.setLayoutY(gridCellDim + toolBarHeight + tileHeight * Math.floor(plotIndex / widthTileCount));
+            ((Pane) plot).setPrefHeight(tileHeight);
+            plot.setLayoutX(gridCellDim + tileWidth * (plotIndex % widthTileCount));
+            ((Pane) plot).setPrefWidth(tileWidth);
 
-                ((TripoliPlotPane) plot).snapToGrid();
+            ((TripoliPlotPane) plot).snapToGrid();
 
-                plotIndex++;
-            }
+            plotIndex++;
         }
     }
 
@@ -60,7 +65,7 @@ public class PlotWallPane extends Pane {
         double displayWidth = (getParent().getBoundsInParent().getWidth() - gridCellDim * 2.0);
         double tileWidth = displayWidth;
 
-        double displayHeight = ((getParent().getBoundsInParent().getHeight() - toolBarHeight - gridCellDim * 2.0) / getCountOfPlots());
+        double displayHeight = ((getParent().getBoundsInParent().getHeight() - toolBarHeight) / getCountOfPlots());
         double tileHeight = displayHeight - displayHeight % gridCellDim;
 
         int plotIndex = 0;
@@ -79,12 +84,13 @@ public class PlotWallPane extends Pane {
     }
 
     public void cascadePlots() {
-        double cascadeLap = 25.0;
-        double displayWidth = (getParent().getBoundsInParent().getWidth() - gridCellDim * 2.0 - cascadeLap * getCountOfPlots());
-        double tileWidth = displayWidth;
 
-        double displayHeight = getParent().getBoundsInParent().getHeight() - toolBarHeight - gridCellDim * 2.0 - cascadeLap * getCountOfPlots();
-        double tileHeight = displayHeight;
+        double cascadeLap = 20.0;
+        double displayWidth = getParent().getBoundsInParent().getWidth() - cascadeLap * (getCountOfPlots() - 1);
+        double tileWidth = displayWidth - gridCellDim;
+
+        double displayHeight = getParent().getBoundsInParent().getHeight() - toolBarHeight - cascadeLap * (getCountOfPlots() - 1);
+        double tileHeight = displayHeight - gridCellDim;
 
         int plotIndex = 0;
         for (Node plotPane : getChildren()) {
@@ -107,17 +113,22 @@ public class PlotWallPane extends Pane {
                 ((TripoliPlotPane) plotPane).restorePlot();
             }
         }
+    }
 
+    public void toggleShowStatsAllPlots() {
+        for (Node plotPane : getChildren()) {
+            if (plotPane instanceof TripoliPlotPane) {
+                ((TripoliPlotPane) plotPane).toggleShowStats();
+            }
+        }
     }
 
     private int getCountOfPlots() {
-        int count = 0;
-        for (Node plot : getChildren()) {
-            if (plot instanceof TripoliPlotPane) {
-                count++;
-            }
-        }
-        return count;
+        List<Node> plots = getChildren()
+                .stream()
+                .filter(plot -> plot instanceof TripoliPlotPane)
+                .collect(Collectors.toList());
+        return plots.size();
     }
 
     public void buildToolBar() {
@@ -136,7 +147,10 @@ public class PlotWallPane extends Pane {
         Button button3 = new Button("Cascade Plots");
         button3.setOnAction(event -> cascadePlots());
 
-        toolBar.getItems().addAll(button0, button1, button2, button3);
+        Button button4 = new Button("Toggle Stats all Plots");
+        button4.setOnAction(event -> toggleShowStatsAllPlots());
+
+        toolBar.getItems().addAll(button0, button4, button1, button2, button3);
         getChildren().addAll(toolBar);
     }
 }

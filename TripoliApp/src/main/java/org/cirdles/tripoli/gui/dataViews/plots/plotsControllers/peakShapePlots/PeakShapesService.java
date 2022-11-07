@@ -25,7 +25,7 @@ import java.nio.file.Path;
  * @author James F. Bowring
  */
 public class PeakShapesService extends Service<String> {
-    private Path dataFile;
+    private final Path dataFile;
     private Task<String> peakShapesTask;
 
     public PeakShapesService(Path dataFile) {

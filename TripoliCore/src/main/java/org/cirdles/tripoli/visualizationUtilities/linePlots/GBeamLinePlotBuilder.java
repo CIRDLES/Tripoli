@@ -16,15 +16,17 @@
 
 package org.cirdles.tripoli.visualizationUtilities.linePlots;
 
+import javafx.scene.paint.Color;
+
 /**
  * @author James F. Bowring
  */
 public class GBeamLinePlotBuilder extends LinePlotBuilder {
-    private double[] massData;
-    private double[] intensityData;
+    private final double[] massData;
+    private final double[] intensityData;
 
     private GBeamLinePlotBuilder(double[] xData, double[] yData, double[] massData, double[] intensityData) {
-        super(xData, yData, "Line Plot of G-Beam");
+        super(xData, yData, "Line Plot of G-Beam", "X", "Y", Color.BLUE);
         this.massData = massData;
         this.intensityData = intensityData;
     }
