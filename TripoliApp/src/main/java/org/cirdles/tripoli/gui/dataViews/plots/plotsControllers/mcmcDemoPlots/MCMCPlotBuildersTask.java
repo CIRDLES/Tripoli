@@ -42,16 +42,14 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     private AbstractPlotBuilder observedDataLineBuilder;
     private AbstractPlotBuilder residualDataLineBuilder;
 
-    private AbstractPlotBuilder convergeBLFaradayL1LineBuilder;
-    private AbstractPlotBuilder convergeBLFaradayH1LineBuilder;
+    private AbstractPlotBuilder[] convergeBLFaradayLineBuilder;
 
     private AbstractPlotBuilder convergeErrWeightedMisfitLineBuilder;
     private AbstractPlotBuilder convergeErrRawMisfitLineBuilder;
 
     private AbstractPlotBuilder convergeIntensityLinesBuilder;
 
-    private AbstractPlotBuilder convergeNoiseFaradayL1LineBuilder;
-    private AbstractPlotBuilder convergeNoiseFaradayH1LineBuilder;
+    private AbstractPlotBuilder[] convergeNoiseFaradayLineBuilder;
 
     public MCMCPlotBuildersTask(Path dataFile, AnalysisMethod analysisMethod) {
         this.dataFile = dataFile;
@@ -90,12 +88,8 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         return residualDataLineBuilder;
     }
 
-    public AbstractPlotBuilder getConvergeBLFaradayL1LineBuilder() {
-        return convergeBLFaradayL1LineBuilder;
-    }
-
-    public AbstractPlotBuilder getConvergeBLFaradayH1LineBuilder() {
-        return convergeBLFaradayH1LineBuilder;
+    public AbstractPlotBuilder[] getConvergeBLFaradayLineBuilder() {
+        return convergeBLFaradayLineBuilder;
     }
 
     public AbstractPlotBuilder getConvergeErrWeightedMisfitLineBuilder() {
@@ -110,12 +104,8 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         return convergeIntensityLinesBuilder;
     }
 
-    public AbstractPlotBuilder getConvergeNoiseFaradayL1LineBuilder() {
-        return convergeNoiseFaradayL1LineBuilder;
-    }
-
-    public AbstractPlotBuilder getConvergeNoiseFaradayH1LineBuilder() {
-        return convergeNoiseFaradayH1LineBuilder;
+    public AbstractPlotBuilder[] getConvergeNoiseFaradayLineBuilder() {
+        return convergeNoiseFaradayLineBuilder;
     }
 
     @Override
@@ -129,15 +119,13 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
         convergeRatioLineBuilder = plots[5];
 
-        convergeBLFaradayL1LineBuilder = plots[6][0];
-        convergeBLFaradayH1LineBuilder = plots[7][0];
+        convergeBLFaradayLineBuilder = plots[6];
 
         convergeErrWeightedMisfitLineBuilder = plots[8][0];
         convergeErrRawMisfitLineBuilder = plots[9][0];
         convergeIntensityLinesBuilder = plots[10][0];
 
-        convergeNoiseFaradayL1LineBuilder = plots[11][0];
-        convergeNoiseFaradayH1LineBuilder = plots[12][0];
+        convergeNoiseFaradayLineBuilder = plots[11];
 
         observedDataLineBuilder = plots[13][0];
         residualDataLineBuilder = plots[14][0];

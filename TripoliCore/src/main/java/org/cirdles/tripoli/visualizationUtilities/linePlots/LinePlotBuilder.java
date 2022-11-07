@@ -30,8 +30,8 @@ public class LinePlotBuilder extends AbstractPlotBuilder {
         this.yData = yData;
     }
 
-    public static LinePlotBuilder initializeLinePlot(double[] xData, double[] yData, String title) {
-        return new LinePlotBuilder(xData, yData, title, "X", "Y", Color.BLUE);
+    public static LinePlotBuilder initializeLinePlot(double[] xData, double[] yData, String title, String xAxisLabel, String yAxisLabel, Color dataColor) {
+        return new LinePlotBuilder(xData, yData, title, xAxisLabel, yAxisLabel, dataColor);
     }
 
     public double[] getyData() {

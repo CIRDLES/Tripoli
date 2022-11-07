@@ -89,7 +89,7 @@ public class DataModelPlot {
         }
 
         // baseLines
-        int baselineSize = ensembleRecordsList.get(0).baseLine().length;
+        int baselineSize = massSpecOutputDataRecord.faradayCount();
         double[][] ensembleBaselines = new double[baselineSize][countOfEnsemblesUsed];
         double[] baselinesMeans = new double[baselineSize];
         double[] baselinesStdDev = new double[baselineSize];
@@ -202,11 +202,11 @@ public class DataModelPlot {
                 xDataIntensityMeans, yDataIntensityMeans, "Mean Intensity", "Time Index", "Intensity (counts)", Color.CRIMSON);
 
         // visualization converge ratio and others tabs
-        double[] convergeLogRatios = new double[ensembleRecordsList.size()];
-        double[] convergeRatios = new double[ensembleRecordsList.size()];
-        // todo: hardwired for 2 isotopes
-        double[] convergeBaselineFaradayL1 = new double[ensembleRecordsList.size()];
-        double[] convergeBaselineFaradayH1 = new double[ensembleRecordsList.size()];
+//        double[] convergeLogRatios = new double[ensembleRecordsList.size()];
+//        double[] convergeRatios = new double[ensembleRecordsList.size()];
+//        // todo: hardwired for 2 isotopes
+//        double[] convergeBaselineFaradayL1 = new double[ensembleRecordsList.size()];
+//        double[] convergeBaselineFaradayH1 = new double[ensembleRecordsList.size()];
         double[] convergeErrWeightedMisfit = new double[ensembleRecordsList.size()];
         double[] convergeErrRawMisfit = new double[ensembleRecordsList.size()];
         double[] xDataconvergeSavedIterations = new double[ensembleRecordsList.size()];
@@ -214,10 +214,10 @@ public class DataModelPlot {
         double[] convergeNoiseFaradayL1 = new double[ensembleRecordsList.size()];
         double[] convergeNoiseFaradayH1 = new double[ensembleRecordsList.size()];
         for (int index = 0; index < ensembleRecordsList.size(); index++) {
-            convergeLogRatios[index] = ensembleRecordsList.get(index).logRatios()[0];
-            convergeRatios[index] = exp(convergeLogRatios[index]);
-            convergeBaselineFaradayL1[index] = ensembleRecordsList.get(index).baseLine()[0];
-            convergeBaselineFaradayH1[index] = ensembleRecordsList.get(index).baseLine()[1];
+//            convergeLogRatios[index] = ensembleRecordsList.get(index).logRatios()[0];
+//            convergeRatios[index] = exp(convergeLogRatios[index]);
+//            convergeBaselineFaradayL1[index] = ensembleRecordsList.get(index).baseLine()[0];
+//            convergeBaselineFaradayH1[index] = ensembleRecordsList.get(index).baseLine()[1];
             convergeErrWeightedMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorWeighted());
             convergeErrRawMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorUnWeighted());
             for (int intensityIndex = 0; intensityIndex < convergeIntensities.length; intensityIndex++) {
@@ -229,29 +229,48 @@ public class DataModelPlot {
             xDataconvergeSavedIterations[index] = index + 1;
         }
 
+        // new converge plots
         double[][] convergeSetOfLogRatios = new double[isotopicRatioList.size()][ensembleRecordsList.size()];
-        for (int ratioIndex = 0; ratioIndex < isotopicRatioList.size(); ratioIndex++) {
-            for (int ensembleIndex = 0; ensembleIndex < ensembleRecordsList.size(); ensembleIndex++) {
-                convergeSetOfLogRatios[ratioIndex][ensembleIndex] = ensembleRecordsList.get(ensembleIndex).logRatios()[ratioIndex];
+        double[][] convergeSetOfBaselines = new double[baselineSize][ensembleRecordsList.size()];
+        double[][] convergeSetOfFaradayNoise = new double[baselineSize][ensembleRecordsList.size()];
+        for (int ensembleIndex = 0; ensembleIndex < ensembleRecordsList.size(); ensembleIndex++) {
+            for (int ratioIndex = 0; ratioIndex < isotopicRatioList.size(); ratioIndex++) {
+               convergeSetOfLogRatios[ratioIndex][ensembleIndex] = ensembleRecordsList.get(ensembleIndex).logRatios()[ratioIndex];
+            }
+            for (int faradayIndex = 0; faradayIndex < baselineSize; faradayIndex++) {
+                convergeSetOfBaselines[faradayIndex][ensembleIndex] = ensembleRecordsList.get(ensembleIndex).baseLine()[faradayIndex];
+                convergeSetOfFaradayNoise[faradayIndex][ensembleIndex] = ensembleRecordsList.get(ensembleIndex).signalNoise()[faradayIndex];
             }
         }
+
         plotBuilders[5] = new AbstractPlotBuilder[convergeSetOfLogRatios.length];
         for (int i = 0; i < convergeSetOfLogRatios.length; i++) {
             plotBuilders[5][i] = LinePlotBuilder.initializeLinePlot(
                     xDataconvergeSavedIterations, convergeSetOfLogRatios[i],
-                    isotopicRatioList.get(i).prettyPrint());//, "Ratios", "Frequency", Color.BLUE);
+                    isotopicRatioList.get(i).prettyPrint(), "Saved iterations", "Log Ratio", Color.BLACK);
         }
 
-        //plotBuilders[5][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeLogRatios, "Converge Ratio");
+        plotBuilders[6] = new AbstractPlotBuilder[convergeSetOfBaselines.length];
+        for (int i = 0; i < convergeSetOfBaselines.length; i++) {
+            plotBuilders[6][i] = LinePlotBuilder.initializeLinePlot(
+                    xDataconvergeSavedIterations, convergeSetOfBaselines[i],
+                    faradayDetectorsUsed.get(i).getDetectorName() + " Baseline", "Saved iterations", "Baseline Counts", Color.BLACK);
+        }
+
+        plotBuilders[11] = new AbstractPlotBuilder[convergeSetOfFaradayNoise.length];
+        for (int i = 0; i < convergeSetOfFaradayNoise.length; i++) {
+            plotBuilders[11][i] = LinePlotBuilder.initializeLinePlot(
+                    xDataconvergeSavedIterations, convergeSetOfFaradayNoise[i],
+                    faradayDetectorsUsed.get(i).getDetectorName() + " Noise", "Saved iterations", "Noise", Color.BLACK);
+        }
 
 
-        plotBuilders[6][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeBaselineFaradayL1, "Converge Baseline Faraday L1");
-        plotBuilders[7][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeBaselineFaradayH1, "Converge Baseline Faraday H1");
-        plotBuilders[8][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeErrWeightedMisfit, "Converge Weighted Misfit");
-        plotBuilders[9][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeErrRawMisfit, "Converge Raw Misfit");
-        plotBuilders[10][0] = MultiLinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeIntensities, "Converge Intensity");
-        plotBuilders[11][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeNoiseFaradayL1, "Converge Noise Faraday L1");
-        plotBuilders[12][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeNoiseFaradayH1, "Converge Noise Faraday H1");
+        plotBuilders[8][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeErrWeightedMisfit, "Converge Weighted Misfit", "", "", Color.BLACK);
+        plotBuilders[9][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeErrRawMisfit, "Converge Raw Misfit", "", "", Color.BLACK);
+        plotBuilders[10][0] = MultiLinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeIntensities, "Converge Intensity", "", "", Color.BLACK);
+        ;
+//        plotBuilders[11][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeNoiseFaradayL1, "Converge Noise Faraday L1","","",Color.BLACK);
+//        plotBuilders[12][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeNoiseFaradayH1, "Converge Noise Faraday H1","","",Color.BLACK);
 
 
         // visualization data fit

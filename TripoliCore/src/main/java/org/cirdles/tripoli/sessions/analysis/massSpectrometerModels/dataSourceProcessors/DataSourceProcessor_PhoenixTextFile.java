@@ -217,14 +217,14 @@ public class DataSourceProcessor_PhoenixTextFile implements DataSourceProcessorI
                             (timeStamp[timeIndex] - timeStamp[startOfCycleIndex]) / deltaTimeStamp;
                     interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] =
                             1.0 - interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries];
-                    if ( interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] == 1.0){
-                        indicesOfKnotsByBlock[blockIndex][knotIndex++]  =  (timeIndex - startOfCycleIndex + countOfEntries);
+                    if (interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] == 1.0) {
+                        indicesOfKnotsByBlock[blockIndex][knotIndex++] = (timeIndex - startOfCycleIndex + countOfEntries);
                     }
                 }
 
                 if (lastCycle) {
                     interpMatArrayForBlock[cycleIndex][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 1.0;
-                    indicesOfKnotsByBlock[blockIndex][knotIndex]  = countOfEntries + startOfNextCycleIndex - startOfCycleIndex;
+                    indicesOfKnotsByBlock[blockIndex][knotIndex] = countOfEntries + startOfNextCycleIndex - startOfCycleIndex;
                     interpMatArrayForBlock[cycleIndex - 1][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 0.0;
 
                     // generate matrix and then transpose it to match matlab
