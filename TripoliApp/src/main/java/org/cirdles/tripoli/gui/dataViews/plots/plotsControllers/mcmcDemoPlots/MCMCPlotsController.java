@@ -48,12 +48,6 @@ public class MCMCPlotsController {
     private URL location;
 
     @FXML
-    private GridPane convergeBLGridPane;
-
-    @FXML
-    private TextArea convergeBLLegendTextBox;
-
-    @FXML
     private GridPane convergeErrGridPane;
 
     @FXML
@@ -64,18 +58,6 @@ public class MCMCPlotsController {
 
     @FXML
     private TextArea convergeIntensityLegendTextBox;
-
-    @FXML
-    private GridPane convergeNoiseGridPane;
-
-    @FXML
-    private TextArea convergeNoiseLegendTextBox;
-
-    @FXML
-    private AnchorPane convergeRatioAnchorPane;
-
-    @FXML
-    private TextArea convergeRatioLegendTextBox;
 
     @FXML
     private GridPane dataFitGridPane;
@@ -106,9 +88,11 @@ public class MCMCPlotsController {
 
     @FXML
     private ToolBar toolbar;
-    @FXML
-    private TabPane ratioHistogramsTabPane;
 
+    @FXML
+    private AnchorPane convergePlotsAnchorPane;
+    @FXML
+    private AnchorPane ensemblePlotsAnchorPane;
 
     private ListView<File> listViewOfSyntheticFiles = new ListView<>();
 
@@ -148,23 +132,14 @@ public class MCMCPlotsController {
         plotTabPane.prefWidthProperty().bind(masterVBox.widthProperty());
         plotTabPane.prefHeightProperty().bind(masterVBox.heightProperty());
 
-        convergeRatioAnchorPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeRatioLegendTextBox.getWidth()));
-        convergeRatioAnchorPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
-
         dataFitGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(dataFitLegendTextBox.getWidth()));
         dataFitGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
-
-        convergeBLGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeBLLegendTextBox.getWidth()));
-        convergeBLGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
 
         convergeErrGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeErrLegendTextBox.getWidth()));
         convergeErrGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
 
         convergeIntensityAnchorPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeIntensityLegendTextBox.getWidth()));
         convergeIntensityAnchorPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
-
-        convergeNoiseGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeNoiseLegendTextBox.getWidth()));
-        convergeNoiseGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
 
         populateListOfSyntheticData2IsotopesFiles();
 
@@ -193,23 +168,12 @@ public class MCMCPlotsController {
         ObservableList<File> items = FXCollections.observableArrayList(filesInFolder);
         listViewOfSyntheticFiles.setItems(items);
         listViewOfSyntheticFiles.getSelectionModel().selectFirst();
-        // todo: complete listener
-//        listViewOfSyntheticFiles.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<File>() {
-//            @Override
-//            public void changed(ObservableValue<? extends File> observable, File oldValue, File selectedFile) {
-//                Path filePath = selectedFile.toPath();
-//            }
-//        });
-
         listViewOfSyntheticFiles.prefWidthProperty().bind(listOfFilesScrollPane.widthProperty());
         listViewOfSyntheticFiles.prefHeightProperty().bind(listOfFilesScrollPane.heightProperty());
         listOfFilesScrollPane.setContent(listViewOfSyntheticFiles);
     }
 
     public void processDataFileAndShowPlotsOfMCMC(Path dataFile, AnalysisMethod analysisMethod) throws IOException {
-//        org.cirdles.commons.util.ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
-//        Path dataFile = RESOURCE_EXTRACTOR
-//                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_01.txt").toPath();
         final MCMCUpdatesService service = new MCMCUpdatesService(dataFile, analysisMethod);
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
@@ -223,18 +187,17 @@ public class MCMCPlotsController {
             AbstractPlotBuilder[] intensityLinePlotBuilder = plotBuildersTask.getMeanIntensityLineBuilder();
 
             AbstractPlotBuilder[] convergeRatioPlotBuilder = plotBuildersTask.getConvergeRatioLineBuilder();
+            AbstractPlotBuilder[] convergeBLFaradayLineBuilder = plotBuildersTask.getConvergeBLFaradayLineBuilder();
+            AbstractPlotBuilder[] convergeNoiseFaradayLineBuilder = plotBuildersTask.getConvergeNoiseFaradayLineBuilder();
 
             AbstractPlotBuilder observedDataPlotBuilder = plotBuildersTask.getObservedDataLineBuilder();
             AbstractPlotBuilder residualDataPlotBuilder = plotBuildersTask.getResidualDataLineBuilder();
-
-            AbstractPlotBuilder[] convergeBLFaradayLineBuilder = plotBuildersTask.getConvergeBLFaradayLineBuilder();
 
             AbstractPlotBuilder convergeErrWeightedMisfitBuilder = plotBuildersTask.getConvergeErrWeightedMisfitLineBuilder();
             AbstractPlotBuilder convergeErrRawMisfitBuilder = plotBuildersTask.getConvergeErrRawMisfitLineBuilder();
 
             AbstractPlotBuilder convergeIntensityLinesBuilder = plotBuildersTask.getConvergeIntensityLinesBuilder();
 
-            AbstractPlotBuilder[] convergeNoiseFaradayLineBuilder = plotBuildersTask.getConvergeNoiseFaradayLineBuilder();
 
             AbstractDataView observedDataLinePlot = new BasicScatterAndLinePlot(
                     new Rectangle(dataFitGridPane.getWidth(),
@@ -314,25 +277,30 @@ public class MCMCPlotsController {
 
             processFileButton.setDisable(false);
 
-            // ratio histograms revision +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            PlotWallPane plotWallPane = new PlotWallPane();
-            plotWallPane.buildToolBar();
-            plotWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-            ratioHistogramsTabPane.getTabs().get(0).setContent(plotWallPane);
+            // plotting revision +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            PlotWallPane ensemblePlotsWallPane = new PlotWallPane();
+            ensemblePlotsWallPane.buildToolBar();
+            ensemblePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+            ensemblePlotsAnchorPane.getChildren().add(ensemblePlotsWallPane);
+            produceTripoliHistogramPlots(ratiosHistogramBuilder, ensemblePlotsWallPane);
+            produceTripoliHistogramPlots(baselineHistogramBuilder, ensemblePlotsWallPane);
+            produceTripoliHistogramPlots(dalyFaradayHistogramBuilder, ensemblePlotsWallPane);
+            produceTripoliHistogramPlots(signalNoiseHistogramBuilder, ensemblePlotsWallPane);
 
-            produceTripoliHistogramPlots(ratiosHistogramBuilder, plotWallPane);
-            produceTripoliHistogramPlots(baselineHistogramBuilder, plotWallPane);
-            produceTripoliHistogramPlots(dalyFaradayHistogramBuilder, plotWallPane);
-            produceTripoliHistogramPlots(signalNoiseHistogramBuilder, plotWallPane);
-            produceTripoliLinePlots(convergeRatioPlotBuilder, plotWallPane);
-            produceTripoliLinePlots(convergeBLFaradayLineBuilder, plotWallPane);
-            produceTripoliLinePlots(convergeNoiseFaradayLineBuilder, plotWallPane);
+            PlotWallPane convergePlotsWallPane = new PlotWallPane();
+            convergePlotsWallPane.buildToolBar();
+            convergePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+            convergePlotsAnchorPane.getChildren().add(convergePlotsWallPane);
+            produceTripoliLinePlots(convergeRatioPlotBuilder, convergePlotsWallPane);
+            produceTripoliLinePlots(convergeBLFaradayLineBuilder, convergePlotsWallPane);
+            produceTripoliLinePlots(convergeNoiseFaradayLineBuilder, convergePlotsWallPane);
+            convergePlotsWallPane.tilePlots();
 
-            TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
+            TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(ensemblePlotsWallPane);
             AbstractPlot plot = MultiLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (MultiLinePlotBuilder) intensityLinePlotBuilder[0]);
             tripoliPlotPane.addPlot(plot);
 
-            plotWallPane.tilePlots();
+            ensemblePlotsWallPane.tilePlots();
         });
     }
 

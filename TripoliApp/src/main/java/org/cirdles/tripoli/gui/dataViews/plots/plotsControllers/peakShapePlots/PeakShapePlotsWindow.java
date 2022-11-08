@@ -35,8 +35,6 @@ public class PeakShapePlotsWindow {
     public static final double PLOT_WINDOW_HEIGHT = 600.0;
     public static final double SCROLLBAR_THICKNESS = 15.0;
     public static Window plottingWindow;
-    //    private final double xOffset = 0;
-//    private final double yOffset = 0;
     public Stage plottingStage;
     private Stage primaryStage;
 

@@ -60,12 +60,6 @@ public abstract class AbstractPlot extends Canvas {
     protected ContextMenu plotContextMenu;
     protected double mouseStartX;
     protected double mouseStartY;
-    private final EventHandler<MouseEvent> mousePressedEventHandler = e -> {
-        if (mouseInHouse(e.getX(), e.getY()) && e.isPrimaryButtonDown()) {
-            mouseStartX = e.getX();
-            mouseStartY = e.getY();
-        }
-    };
     protected BigDecimal[] ticsX;
     protected BigDecimal[] ticsY;
     protected double displayOffsetX = 0.0;
@@ -76,36 +70,6 @@ public abstract class AbstractPlot extends Canvas {
     protected String plotAxisLabelX;
     protected String plotAxisLabelY;
     protected boolean showStats;
-    private final EventHandler<ScrollEvent> scrollEventEventHandler = new EventHandler<>() {
-        @Override
-        public void handle(ScrollEvent event) {
-            if (mouseInHouse(event.getX(), event.getY())) {
-                zoomChunkX = Math.abs(zoomChunkX) * Math.signum(event.getDeltaY());
-                zoomChunkY = Math.abs(zoomChunkY) * Math.signum(event.getDeltaY());
-                if (getDisplayRangeX() >= zoomChunkX) {
-                    minX += zoomChunkX;
-                    maxX -= zoomChunkX;
-                    minY += zoomChunkY;
-                    maxY -= zoomChunkY;
-
-                    calculateTics();
-                    repaint();
-                }
-            }
-        }
-    };
-    private final EventHandler<MouseEvent> mouseDraggedEventHandler = e -> {
-        if (mouseInHouse(e.getX(), e.getY())) {
-            displayOffsetX = displayOffsetX + (convertMouseXToValue(mouseStartX) - convertMouseXToValue(e.getX()));
-            mouseStartX = e.getX();
-
-            displayOffsetY = displayOffsetY + (convertMouseYToValue(mouseStartY) - convertMouseYToValue(e.getY()));
-            mouseStartY = e.getY();
-
-            calculateTics();
-            repaint();
-        }
-    };
     protected Color dataColor;
 
     private AbstractPlot() {
@@ -140,8 +104,44 @@ public abstract class AbstractPlot extends Canvas {
 
         setupPlotContextMenu();
 
+        EventHandler<ScrollEvent> scrollEventEventHandler = new EventHandler<>() {
+            @Override
+            public void handle(ScrollEvent event) {
+                if (mouseInHouse(event.getX(), event.getY())) {
+                    zoomChunkX = Math.abs(zoomChunkX) * Math.signum(event.getDeltaY());
+                    zoomChunkY = Math.abs(zoomChunkY) * Math.signum(event.getDeltaY());
+                    if (getDisplayRangeX() >= zoomChunkX) {
+                        minX += zoomChunkX;
+                        maxX -= zoomChunkX;
+                        minY += zoomChunkY;
+                        maxY -= zoomChunkY;
+
+                        calculateTics();
+                        repaint();
+                    }
+                }
+            }
+        };
         this.addEventFilter(ScrollEvent.SCROLL, scrollEventEventHandler);
+        EventHandler<MouseEvent> mouseDraggedEventHandler = e -> {
+            if (mouseInHouse(e.getX(), e.getY())) {
+                displayOffsetX = displayOffsetX + (convertMouseXToValue(mouseStartX) - convertMouseXToValue(e.getX()));
+                mouseStartX = e.getX();
+
+                displayOffsetY = displayOffsetY + (convertMouseYToValue(mouseStartY) - convertMouseYToValue(e.getY()));
+                mouseStartY = e.getY();
+
+                calculateTics();
+                repaint();
+            }
+        };
         this.addEventFilter(MouseEvent.MOUSE_DRAGGED, mouseDraggedEventHandler);
+        EventHandler<MouseEvent> mousePressedEventHandler = e -> {
+            if (mouseInHouse(e.getX(), e.getY()) && e.isPrimaryButtonDown()) {
+                mouseStartX = e.getX();
+                mouseStartY = e.getY();
+            }
+        };
         this.addEventFilter(MouseEvent.MOUSE_PRESSED, mousePressedEventHandler);
         this.setOnMouseClicked(new MouseClickEventHandler());
     }
@@ -294,7 +294,7 @@ public abstract class AbstractPlot extends Canvas {
         Paint savedPaint = g2d.getFill();
         g2d.setFont(Font.font("SansSerif", 11));
         g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText(plotTitle, leftMargin - 15, topMargin - 5);
+        g2d.fillText(plotTitle, leftMargin - 20, topMargin - 5);
         g2d.setFill(savedPaint);
     }
 
@@ -522,11 +522,6 @@ public abstract class AbstractPlot extends Canvas {
         @Override
         public void handle(MouseEvent mouseEvent) {
             plotContextMenu.hide();
-
-            // new logic may 2021 (SQUID) to allow for multiple selections +++++++++++++++++++++++++++++++++++++++++++++
-            // determine if left click or with cmd or with shift
-//            boolean isShift = mouseEvent.isShiftDown();
-//            boolean isControl = mouseEvent.isControlDown() || mouseEvent.isMetaDown();
             boolean isPrimary = mouseEvent.getButton().compareTo(MouseButton.PRIMARY) == 0;
 
             if (mouseInHouse(mouseEvent.getX(), mouseEvent.getY())) {

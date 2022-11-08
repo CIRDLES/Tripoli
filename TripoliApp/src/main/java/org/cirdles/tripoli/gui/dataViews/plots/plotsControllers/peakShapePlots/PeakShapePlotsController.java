@@ -393,61 +393,6 @@ public class PeakShapePlotsController {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-
-//            service.start();
-//            service.setOnSucceeded(evt -> {
-//                AbstractPlotBuilder gBeamPlotBuilder = ((PeakShapesTask) service.getPeakShapesTask()).getGBeamPlotBuilder();
-//
-//                AbstractDataView gBeamLinePlot = new GBeamLinePlot(
-//                        new Rectangle(gBeamPlotScrollPane.getWidth(),
-//                                gBeamPlotScrollPane.getHeight()),
-//                        (GBeamLinePlotBuilder) gBeamPlotBuilder
-//                );
-//
-//                gBeamPlotScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
-//                    if (newValue.intValue() > 100) {
-//                        gBeamLinePlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
-//                        gBeamLinePlot.repaint();
-//                    }
-//                });
-//
-//                gBeamPlotScrollPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-//                    if (newValue.intValue() > 100) {
-//                        gBeamLinePlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
-//                        gBeamLinePlot.repaint();
-//                    }
-//                });
-//
-//                gBeamLinePlot.preparePanel();
-//                gBeamPlotScrollPane.setContent(gBeamLinePlot);
-//
-//
-//                AbstractPlotBuilder beamShapePlotBuilder = ((PeakShapesTask) service.getPeakShapesTask()).getBeamShapePlotBuilder();
-//
-//                AbstractDataView beamShapeLinePlot = new BeamShapeLinePlot(
-//                        new Rectangle(beamShapePlotScrollPane.getWidth(),
-//                                beamShapePlotScrollPane.getHeight()),
-//                        (BeamShapeLinePlotBuilder) beamShapePlotBuilder
-//                );
-//
-//                beamShapePlotScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
-//                    if (newValue.intValue() > 100) {
-//                        beamShapeLinePlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
-//                        beamShapeLinePlot.repaint();
-//                    }
-//                });
-//
-//                beamShapePlotScrollPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-//                    if (newValue.intValue() > 100) {
-//                        beamShapeLinePlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
-//                        beamShapeLinePlot.repaint();
-//                    }
-//                });
-//
-//                beamShapeLinePlot.preparePanel();
-//                beamShapePlotScrollPane.setContent(beamShapeLinePlot);
-//            });
         } else {
             eventLogTextArea.textProperty().unbind();
             eventLogTextArea.setText("Please Choose Folder");

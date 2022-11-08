@@ -29,9 +29,9 @@ import java.util.stream.Collectors;
  */
 public class PlotWallPane extends Pane {
 
-    public static double menuOffset = 64;
-    public static double gridCellDim = 2.0;
-    public static double toolBarHeight = 35.0;
+    public static final double menuOffset = 30.0;
+    public static final double gridCellDim = 2.0;
+    public static final double toolBarHeight = 35.0;
 
     public void tilePlots() {
         List<Node> plotPanes = getChildren()
@@ -62,8 +62,7 @@ public class PlotWallPane extends Pane {
     }
 
     public void stackPlots() {
-        double displayWidth = (getParent().getBoundsInParent().getWidth() - gridCellDim * 2.0);
-        double tileWidth = displayWidth;
+        double tileWidth = (getParent().getBoundsInParent().getWidth() - gridCellDim * 2.0);
 
         double displayHeight = ((getParent().getBoundsInParent().getHeight() - toolBarHeight) / getCountOfPlots());
         double tileHeight = displayHeight - displayHeight % gridCellDim;
