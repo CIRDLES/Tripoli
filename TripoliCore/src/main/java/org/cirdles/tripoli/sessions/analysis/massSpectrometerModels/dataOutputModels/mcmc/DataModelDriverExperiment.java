@@ -364,7 +364,7 @@ public class DataModelDriverExperiment {
             long prev = System.nanoTime();
             String operation = DataModelUpdaterHelper.randomOperMS(hierarchical);
             // todo: handle adaptiveFlag case
-            boolean adaptiveFlag = (counter >= 100);
+            boolean adaptiveFlag = (counter >= 10000);
             boolean allFlag = adaptiveFlag;
             int columnChoice = modelIndex % stepCountForcedSave;
             DataModellerOutputRecord dataModelUpdaterOutputRecord_x2 = updateMSv2(
@@ -630,13 +630,14 @@ public class DataModelDriverExperiment {
                         */
 
                         double[] zeroMean = new double[sizeOfModel-1];
+                        // size of model incorrect size
                         MultivariateNormalDistribution mnd = new MultivariateNormalDistribution(zeroMean, storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / (sizeOfModel-1)).toRawCopy2D());
-                        double[][] samples = new double[sizeOfModel-1][];
-                        for (int i = 0; i < sizeOfModel-1; i++) {
+                        double[][] samples = new double[stepCountForcedSave][];
+                        for (int i = 0; i < stepCountForcedSave; i++) {
                              samples[i] = mnd.sample();
                         }
-                        // double[][] samples = mnd.sample(sizeOfModel-1);
-                        delx_adapt = storeFactory.columns(samples).transpose().copy();
+                        // final result is nto transposed to return correct shape
+                        delx_adapt = storeFactory.columns(samples).copy();
                     }
                 }
 
