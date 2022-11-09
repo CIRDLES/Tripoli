@@ -22,7 +22,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import org.cirdles.tripoli.Tripoli;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
 
@@ -37,7 +37,7 @@ import static org.cirdles.tripoli.gui.utilities.BrowserControl.urlEncode;
 public class TripoliGUIController {
 
     public static String projectFileName;
-    public static RJMCMCPlotsWindow RJMCMCPlotsWindow;
+    public static MCMCPlotsWindow MCMCPlotsWindow;
 
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -93,8 +93,8 @@ public class TripoliGUIController {
 
     @FXML
     void showDemo1(ActionEvent event) {
-        RJMCMCPlotsWindow RJMCMCPlotsWindow = new RJMCMCPlotsWindow(TripoliGUI.primaryStage);
-        RJMCMCPlotsWindow.loadPlotsWindow();
+        MCMCPlotsWindow MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
+        MCMCPlotsWindow.loadPlotsWindow();
     }
 
     @FXML
@@ -110,7 +110,7 @@ public class TripoliGUIController {
         versionLabel.setText("v" + Tripoli.VERSION);
         versionBuildDate.setText(Tripoli.RELEASE_DATE);
 
-        RJMCMCPlotsWindow = new RJMCMCPlotsWindow(TripoliGUI.primaryStage);
+        MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
     }
 
 

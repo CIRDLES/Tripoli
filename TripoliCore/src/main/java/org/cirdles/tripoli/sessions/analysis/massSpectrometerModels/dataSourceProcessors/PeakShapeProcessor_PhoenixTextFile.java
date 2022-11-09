@@ -34,15 +34,15 @@ import java.util.List;
  * @author Ian Robinson
  * @author James F. Bowring
  */
-public class PeakShapeProcessor_OPPhoenix {
+public class PeakShapeProcessor_PhoenixTextFile {
     private final AnalysisMethod analysisMethod;
 
-    private PeakShapeProcessor_OPPhoenix(AnalysisMethod analysisMethod) {
+    private PeakShapeProcessor_PhoenixTextFile(AnalysisMethod analysisMethod) {
         this.analysisMethod = analysisMethod;
     }
 
-    public static PeakShapeProcessor_OPPhoenix initializeWithAnalysisMethod(AnalysisMethod analysisMethod) {
-        return new PeakShapeProcessor_OPPhoenix(analysisMethod);
+    public static PeakShapeProcessor_PhoenixTextFile initializeWithAnalysisMethod(AnalysisMethod analysisMethod) {
+        return new PeakShapeProcessor_PhoenixTextFile(analysisMethod);
     }
 
     public PeakShapeOutputDataRecord prepareInputDataModelFromFile(Path inputDataFile) throws IOException {

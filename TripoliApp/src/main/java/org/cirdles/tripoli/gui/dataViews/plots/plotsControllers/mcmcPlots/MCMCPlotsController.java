@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -31,10 +31,10 @@ import java.util.*;
 import static org.cirdles.tripoli.TripoliConstants.SYNTHETIC_DATA_FOLDER_2ISOTOPE;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHeight;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
-import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
-import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow.PLOT_WINDOW_WIDTH;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
 
-public class RJMCMCPlotsController {
+public class MCMCPlotsController {
 
     private static final int TAB_HEIGHT = 35;
     @FXML
@@ -117,7 +117,7 @@ public class RJMCMCPlotsController {
 
     @FXML
     void demo1_2IsotopeButtonAction(ActionEvent event) throws IOException {
-        processDataFileAndShowPlotsOfRJMCMC(
+        processDataFileAndShowPlotsOfMCMC(
                 listViewOfSyntheticFiles.getSelectionModel().selectedItemProperty().getValue().toPath(),
                 AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
         ((Button) event.getSource()).setDisable(true);
@@ -130,7 +130,7 @@ public class RJMCMCPlotsController {
         ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
         Path dataFile = RESOURCE_EXTRACTOR
                 .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
-        processDataFileAndShowPlotsOfRJMCMC(
+        processDataFileAndShowPlotsOfMCMC(
                 dataFile,
                 AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("KU_204_5_6_7_8_Daly_AllFaradayPb"));
 
@@ -211,18 +211,18 @@ public class RJMCMCPlotsController {
         listOfFilesScrollPane.setContent(listViewOfSyntheticFiles);
     }
 
-    public void processDataFileAndShowPlotsOfRJMCMC(Path dataFile, AnalysisMethod analysisMethod) throws IOException {
+    public void processDataFileAndShowPlotsOfMCMC(Path dataFile, AnalysisMethod analysisMethod) throws IOException {
 //        org.cirdles.commons.util.ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
 //        Path dataFile = RESOURCE_EXTRACTOR
 //                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_01.txt").toPath();
-        final RJMCMCUpdatesService service = new RJMCMCUpdatesService(dataFile, analysisMethod);
+        final MCMCUpdatesService service = new MCMCUpdatesService(dataFile, analysisMethod);
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
         service.setOnSucceeded(evt -> {
-            RJMCMCPlotBuildersTask plotBuildersTask = ((RJMCMCPlotBuildersTask) service.getPlotBuildersTask());
+            MCMCPlotBuildersTask plotBuildersTask = ((MCMCPlotBuildersTask) service.getPlotBuildersTask());
 
             AbstractPlotBuilder[] ratiosHistogramBuilder = plotBuildersTask.getRatiosHistogramBuilder();
-            AbstractPlotBuilder baselineHistogramBuilder = plotBuildersTask.getBaselineHistogramBuilder();
+            AbstractPlotBuilder[] baselineHistogramBuilder = plotBuildersTask.getBaselineHistogramBuilder();
             AbstractPlotBuilder dalyFaradayHistogramBuilder = plotBuildersTask.getDalyFaradayGainHistogramBuilder();
             AbstractPlotBuilder signalNoiseHistogramBuilder = plotBuildersTask.getSignalNoiseHistogramBuilder();
             AbstractPlotBuilder intensityLinePlotBuilder = plotBuildersTask.getMeanIntensityLineBuilder();
@@ -243,10 +243,10 @@ public class RJMCMCPlotsController {
             AbstractPlotBuilder convergeNoiseFaradayL1LineBuilder = plotBuildersTask.getConvergeNoiseFaradayL1LineBuilder();
             AbstractPlotBuilder convergeNoiseFaradayH1LineBuilder = plotBuildersTask.getConvergeNoiseFaradayH1LineBuilder();
 
-            AbstractDataView baselineHistogramPlot = new HistogramPlot(
-                    new Rectangle(ensembleGridPane.getWidth() / ensembleGridPane.getColumnCount(),
-                            (plotTabPane.getHeight() - TAB_HEIGHT) / ensembleGridPane.getRowCount()),
-                    (HistogramBuilder) baselineHistogramBuilder);
+//            AbstractDataView baselineHistogramPlot = new HistogramPlot(
+//                    new Rectangle(ensembleGridPane.getWidth() / ensembleGridPane.getColumnCount(),
+//                            (plotTabPane.getHeight() - TAB_HEIGHT) / ensembleGridPane.getRowCount()),
+//                    (HistogramBuilder) baselineHistogramBuilder);
 
             AbstractDataView dalyFaradayHistogramPlot = new HistogramPlot(
                     new Rectangle(ensembleGridPane.getWidth() / ensembleGridPane.getColumnCount(),
@@ -320,8 +320,8 @@ public class RJMCMCPlotsController {
             plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue.intValue() > 100) {
                     double newWidth = newValue.intValue() - ensembleLegendTextBox.getWidth();
-                    baselineHistogramPlot.setMyWidth(newWidth / ensembleGridPane.getColumnCount());
-                    baselineHistogramPlot.repaint();
+//                    baselineHistogramPlot.setMyWidth(newWidth / ensembleGridPane.getColumnCount());
+//                    baselineHistogramPlot.repaint();
                     dalyFaradayHistogramPlot.setMyWidth(newWidth / ensembleGridPane.getColumnCount());
                     dalyFaradayHistogramPlot.repaint();
                     intensityLinePlot.setMyWidth(newWidth);
@@ -361,8 +361,8 @@ public class RJMCMCPlotsController {
 
             plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue.intValue() > 100) {
-                    baselineHistogramPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
-                    baselineHistogramPlot.repaint();
+//                    baselineHistogramPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
+//                    baselineHistogramPlot.repaint();
                     dalyFaradayHistogramPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
                     dalyFaradayHistogramPlot.repaint();
                     intensityLinePlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / ensembleGridPane.getRowCount());
@@ -398,8 +398,8 @@ public class RJMCMCPlotsController {
                 }
             });
 
-            baselineHistogramPlot.preparePanel();
-            ensembleGridPane.add(baselineHistogramPlot, 0, 1, 1, 1);
+//            baselineHistogramPlot.preparePanel();
+//            ensembleGridPane.add(baselineHistogramPlot, 0, 1, 1, 1);
             dalyFaradayHistogramPlot.preparePanel();
             ensembleGridPane.add(dalyFaradayHistogramPlot, 1, 1, 1, 1);
             intensityLinePlot.preparePanel();
@@ -446,8 +446,17 @@ public class RJMCMCPlotsController {
                 TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
                 HistogramSinglePlot ratiosHistogramSinglePlot = new HistogramSinglePlot(
                         new Rectangle(minPlotWidth, minPlotHeight),
-                        plotRecord, plotRecord.title(), "Ratios", "Counts");
+                        plotRecord, plotRecord.title(), "Ratios", "Frequency");
                 tripoliPlotPane.addPlot(ratiosHistogramSinglePlot);
+            }
+
+            for (int i = 0; i < baselineHistogramBuilder.length; i++) {
+                HistogramRecord plotRecord = ((HistogramBuilder) baselineHistogramBuilder[i]).getHistograms()[0];
+                TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
+                HistogramSinglePlot baselineHistogramSinglePlot = new HistogramSinglePlot(
+                        new Rectangle(minPlotWidth, minPlotHeight),
+                        plotRecord, plotRecord.title(), "Baseline Counts", "Frequency");
+                tripoliPlotPane.addPlot(baselineHistogramSinglePlot);
             }
 
             plotWallPane.tilePlots();

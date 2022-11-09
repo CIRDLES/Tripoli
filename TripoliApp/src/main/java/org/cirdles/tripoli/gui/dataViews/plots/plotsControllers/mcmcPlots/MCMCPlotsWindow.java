@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -27,7 +27,7 @@ import java.io.IOException;
 /**
  * @author James F. Bowring
  */
-public class RJMCMCPlotsWindow {
+public class MCMCPlotsWindow {
 
     public static final double PLOT_WINDOW_WIDTH = 1000.0;
     public static final double PLOT_WINDOW_HEIGHT = 800.0;
@@ -39,15 +39,15 @@ public class RJMCMCPlotsWindow {
     public Window plottingWindow;
     private Stage primaryStage;
 
-    private RJMCMCPlotsWindow() {
+    private MCMCPlotsWindow() {
     }
 
-    public RJMCMCPlotsWindow(Stage primaryStage) {
+    public MCMCPlotsWindow(Stage primaryStage) {
         this.primaryStage = primaryStage;
         plottingStage = new Stage();
         plottingStage.setMinWidth(PLOT_WINDOW_WIDTH);
         plottingStage.setMinHeight(PLOT_WINDOW_HEIGHT);
-        plottingStage.setTitle("Tripoli Demo1 of RJMCMC");
+        plottingStage.setTitle("Tripoli Demo1 of MCMC");
 
         plottingStage.setOnCloseRequest((WindowEvent e) -> {
             plottingStage.hide();
@@ -59,7 +59,7 @@ public class RJMCMCPlotsWindow {
     public void loadPlotsWindow() {
         if (!plottingStage.isShowing()) {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/dataViews/plots/plotsControllers/RJMCMCPlots.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/dataViews/plots/plotsControllers/MCMCPlots.fxml"));
                 Scene scene = new Scene(loader.load());
                 plottingStage.setScene(scene);
 
