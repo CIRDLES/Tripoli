@@ -621,7 +621,6 @@ public class DataModelDriverExperiment {
                     xDataCovariance = updatedCovariancesRecord.dataCov();
                     xDataMean = updatedCovariancesRecord.dataMean();
 
-                    //todo: delx_adapt
                     if (adaptiveFlag) {
                         /*
                         mvnrnd(zeros(sizeOfModel,1), 2.38^2*xDataCovariance/sizeOfModel, stepCountForcedSave)'
@@ -630,13 +629,13 @@ public class DataModelDriverExperiment {
                         */
 
                         double[] zeroMean = new double[sizeOfModel-1];
-                        // size of model incorrect size
+                        //todo: size of model incorrect size messes with integration of delx_adapt
                         MultivariateNormalDistribution mnd = new MultivariateNormalDistribution(zeroMean, storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / (sizeOfModel-1)).toRawCopy2D());
                         double[][] samples = new double[stepCountForcedSave][];
                         for (int i = 0; i < stepCountForcedSave; i++) {
                              samples[i] = mnd.sample();
                         }
-                        // final result is nto transposed to return correct shape
+                        // final result is not transposed to return correct shape
                         delx_adapt = storeFactory.columns(samples).copy();
                     }
                 }
