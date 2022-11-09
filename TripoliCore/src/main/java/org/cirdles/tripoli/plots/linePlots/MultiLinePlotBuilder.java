@@ -14,27 +14,30 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.visualizationUtilities.linePlots;
+package org.cirdles.tripoli.plots.linePlots;
 
-import javafx.scene.paint.Color;
-import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.AbstractPlotBuilder;
 
-public class LinePlotBuilder extends AbstractPlotBuilder {
+public class MultiLinePlotBuilder extends AbstractPlotBuilder {
 
     private final double[] xData;
-    private final double[] yData;
+    private final double[][] yData;
 
-    protected LinePlotBuilder(double[] xData, double[] yData, String title, String xAxisLabel, String yAxisLabel, Color dataColor) {
-        super(title, xAxisLabel, yAxisLabel, dataColor);
+    private MultiLinePlotBuilder(double[] xData, double[][] yData, String title, String xAxisLabel, String yAxisLabel) {
+        super(title, xAxisLabel, yAxisLabel);
         this.xData = xData;
         this.yData = yData;
     }
 
-    public static LinePlotBuilder initializeLinePlot(double[] xData, double[] yData, String title, String xAxisLabel, String yAxisLabel, Color dataColor) {
-        return new LinePlotBuilder(xData, yData, title, xAxisLabel, yAxisLabel, dataColor);
+    public static MultiLinePlotBuilder initializeLinePlot(double[] xData, double[][] yData, String title) {
+        return new MultiLinePlotBuilder(xData, yData, title, "X", "Y");
     }
 
-    public double[] getyData() {
+    public static MultiLinePlotBuilder initializeLinePlot(double[] xData, double[][] yData, String title, String xAxisLabel, String yAxisLabel) {
+        return new MultiLinePlotBuilder(xData, yData, title, xAxisLabel, yAxisLabel);
+    }
+
+    public double[][] getyData() {
         return yData;
     }
 

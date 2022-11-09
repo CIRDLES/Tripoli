@@ -8,7 +8,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.MultiLinePlotBuilder;
+import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

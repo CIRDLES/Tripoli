@@ -5,7 +5,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
+import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 
 public class LinePlot extends AbstractPlot {
     private final LinePlotBuilder linePlotBuilder;
@@ -20,7 +20,6 @@ public class LinePlot extends AbstractPlot {
                 linePlotBuilder.getxAxisLabel(),
                 linePlotBuilder.getyAxisLabel());
         this.linePlotBuilder = linePlotBuilder;
-        this.dataColor = linePlotBuilder.getDataColor();
     }
 
     public static AbstractPlot generatePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
@@ -72,7 +71,7 @@ public class LinePlot extends AbstractPlot {
     public void plotData(GraphicsContext g2d) {
         g2d.setLineWidth(2.0);
         // new line plot
-        g2d.setStroke(Paint.valueOf("Black"));
+        g2d.setStroke(dataColor.color());
         g2d.beginPath();
         g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]));
         for (int i = 0; i < xAxisData.length; i++) {

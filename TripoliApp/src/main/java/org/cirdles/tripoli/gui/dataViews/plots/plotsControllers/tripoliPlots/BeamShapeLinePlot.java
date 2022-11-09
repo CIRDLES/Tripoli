@@ -8,7 +8,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.BeamShapeLinePlotBuilder;
+import org.cirdles.tripoli.plots.linePlots.BeamShapeLinePlotBuilder;
 
 
 public class BeamShapeLinePlot extends AbstractDataView {

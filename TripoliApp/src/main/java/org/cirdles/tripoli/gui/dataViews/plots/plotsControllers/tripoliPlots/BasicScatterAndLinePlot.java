@@ -7,7 +7,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.ComboPlotBuilder;
+import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
 
 
 public class BasicScatterAndLinePlot extends AbstractDataView {

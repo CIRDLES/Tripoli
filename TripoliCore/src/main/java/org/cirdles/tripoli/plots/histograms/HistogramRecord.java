@@ -1,6 +1,4 @@
-package org.cirdles.tripoli.visualizationUtilities.histograms;
-
-import javafx.scene.paint.Color;
+package org.cirdles.tripoli.plots.histograms;
 
 import java.io.Serializable;
 
@@ -12,7 +10,6 @@ public record HistogramRecord(
         double[] binCounts,
         double binWidth,
         double[] binCenters,
-        Color dataColor,
         String title,
         String xAxisLabel,
         String yAxisLabel

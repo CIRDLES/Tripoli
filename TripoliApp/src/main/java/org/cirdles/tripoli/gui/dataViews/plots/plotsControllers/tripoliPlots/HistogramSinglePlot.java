@@ -22,7 +22,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramRecord;
+import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 
 /**
  * @author James F. Bowring
@@ -43,7 +43,6 @@ public class HistogramSinglePlot extends AbstractPlot {
         this.histogramRecord = histogramRecord;
         // these can be changed by user in plot
         this.binWidth = histogramRecord.binWidth();
-        this.dataColor = histogramRecord.dataColor();
     }
 
     public static AbstractPlot generatePlot(Rectangle bounds, HistogramRecord histogramRecord) {
@@ -94,7 +93,7 @@ public class HistogramSinglePlot extends AbstractPlot {
     @Override
     public void plotData(GraphicsContext g2d) {
         // plot bins
-        g2d.setFill(dataColor);
+        g2d.setFill(dataColor.color());
         g2d.setLineWidth(2.0);
         boolean doFrameBins = (mapX(xAxisData[1]) - mapX(xAxisData[0])) > 1.0;
 

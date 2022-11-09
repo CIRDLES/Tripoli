@@ -47,8 +47,8 @@ import static org.cirdles.tripoli.TripoliConstants.TRIPOLI_LOGO_SANS_TEXT_URL;
  * @author James F. Bowring
  */
 public class PeriodicTableController {
-    public static Window periodicTableWindow;
     public static final Stage primaryLocalStage = new Stage();
+    public static Window periodicTableWindow;
     private static String buttonStyle;
 
     @FXML

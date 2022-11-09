@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.visualizationUtilities;
-
-import javafx.scene.paint.Color;
+package org.cirdles.tripoli.plots;
 
 /**
  * @author James F. Bowring
@@ -26,13 +24,11 @@ public class AbstractPlotBuilder {
     protected String title;
     protected String xAxisLabel;
     protected String yAxisLabel;
-    protected Color dataColor;
 
-    public AbstractPlotBuilder(String title, String xAxisLabel, String yAxisLabel, Color dataColor) {
+    public AbstractPlotBuilder(String title, String xAxisLabel, String yAxisLabel) {
         this.title = title;
         this.xAxisLabel = xAxisLabel;
         this.yAxisLabel = yAxisLabel;
-        this.dataColor = dataColor;
     }
 
     public String getTitle() {
@@ -57,13 +53,5 @@ public class AbstractPlotBuilder {
 
     public void setyAxisLabel(String yAxisLabel) {
         this.yAxisLabel = yAxisLabel;
-    }
-
-    public Color getDataColor() {
-        return dataColor;
-    }
-
-    public void setDataColor(Color dataColor) {
-        this.dataColor = dataColor;
     }
 }

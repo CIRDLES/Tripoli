@@ -13,7 +13,7 @@ import javafx.scene.text.Text;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsController;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
+import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 
 public class PeakCentresLinePlot extends AbstractDataView {
     private final LinePlotBuilder peakCentrePlotBuilder;

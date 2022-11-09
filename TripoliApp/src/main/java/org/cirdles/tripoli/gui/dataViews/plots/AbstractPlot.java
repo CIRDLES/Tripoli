@@ -34,6 +34,8 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import org.cirdles.tripoli.Tripoli;
+import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
 import java.math.BigDecimal;
 import java.util.Formatter;
@@ -70,7 +72,7 @@ public abstract class AbstractPlot extends Canvas {
     protected String plotAxisLabelX;
     protected String plotAxisLabelY;
     protected boolean showStats;
-    protected Color dataColor;
+    protected TripoliColor dataColor;
 
     private AbstractPlot() {
         super();
@@ -92,7 +94,7 @@ public abstract class AbstractPlot extends Canvas {
         this.plotTitle = plotTitle;
         this.plotAxisLabelX = plotAxisLabelX;
         this.plotAxisLabelY = plotAxisLabelY;
-        this.dataColor = Color.BLUE;
+        this.dataColor = TripoliColor.create(Color.BLUE);
 
         this.xAxisData = new double[0];
         this.yAxisData = new double[0];
@@ -146,11 +148,11 @@ public abstract class AbstractPlot extends Canvas {
         this.setOnMouseClicked(new MouseClickEventHandler());
     }
 
-    public Color getDataColor() {
+    public TripoliColor getDataColor() {
         return dataColor;
     }
 
-    public void setDataColor(Color dataColor) {
+    public void setDataColor(TripoliColor dataColor) {
         this.dataColor = dataColor;
     }
 

@@ -21,6 +21,7 @@ import javafx.scene.Cursor;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.*;
 
@@ -204,12 +205,12 @@ public class TripoliPlotPane extends Pane {
         colorPicker.setLayoutX(getPrefWidth() / 2.0 - 50.0);
         colorPicker.setLayoutY(10.0);
 
-        colorPicker.setValue(plot.getDataColor());
+        colorPicker.setValue(plot.getDataColor().color());
         getChildren().add(colorPicker);
         colorPicker.setVisible(true);
 
         colorPicker.setOnAction(t -> {
-            plot.setDataColor(colorPicker.getValue());
+            plot.setDataColor(TripoliColor.create(colorPicker.getValue()));
             plot.repaint();
             getChildren().remove(colorPicker);
         });

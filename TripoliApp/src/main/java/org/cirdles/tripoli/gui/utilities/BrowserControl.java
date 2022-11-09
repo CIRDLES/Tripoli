@@ -57,15 +57,15 @@ public class BrowserControl {
         showURI(location, TripoliGUI.primaryStageWindow);
     }
 
-    public static String urlEncode(String text) {
+    public static String urlEncode(final String text) {
         return URLEncoder.encode(text, StandardCharsets.UTF_8);
     }
 
-    public static String getOperatingSystem() {
+    private static String getOperatingSystem() {
         return System.getProperty("os.name");
     }
 
-    public static boolean isLinuxOrUnixOperatingSystem() {
+    private static boolean isLinuxOrUnixOperatingSystem() {
         return getOperatingSystem().toLowerCase().matches(".*(nix|nux).*");
     }
 

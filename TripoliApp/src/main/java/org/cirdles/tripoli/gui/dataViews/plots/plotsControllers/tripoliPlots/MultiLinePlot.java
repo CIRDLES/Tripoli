@@ -4,7 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.MultiLinePlotBuilder;
+import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
 
 
 public class MultiLinePlot extends AbstractPlot {
@@ -22,7 +22,6 @@ public class MultiLinePlot extends AbstractPlot {
                 multiLinePlotBuilder.getxAxisLabel(),
                 multiLinePlotBuilder.getyAxisLabel());
         this.multiLinePlotBuilder = multiLinePlotBuilder;
-        this.dataColor = multiLinePlotBuilder.getDataColor();
     }
 
     public static AbstractPlot generatePlot(Rectangle bounds, MultiLinePlotBuilder multiLinePlotBuilder) {
@@ -76,7 +75,7 @@ public class MultiLinePlot extends AbstractPlot {
     public void plotData(GraphicsContext g2d) {
         // new line plots
         g2d.setLineWidth(1.0);
-        g2d.setStroke(dataColor);
+        g2d.setStroke(dataColor.color());
         for (int lineIndex = 0; lineIndex < yData.length; lineIndex++) {
             g2d.setLineDashes(8);
             g2d.beginPath();

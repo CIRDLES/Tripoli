@@ -17,10 +17,10 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots;
 
 import javafx.concurrent.Task;
+import org.cirdles.tripoli.plots.AbstractPlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.DataModelDriverExperiment;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
-import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 
 import java.nio.file.Path;
 
@@ -44,8 +44,8 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
     private AbstractPlotBuilder[] convergeBLFaradayLineBuilder;
 
-    private AbstractPlotBuilder convergeErrWeightedMisfitLineBuilder;
-    private AbstractPlotBuilder convergeErrRawMisfitLineBuilder;
+    private AbstractPlotBuilder[] convergeErrWeightedMisfitLineBuilder;
+    private AbstractPlotBuilder[] convergeErrRawMisfitLineBuilder;
 
     private AbstractPlotBuilder convergeIntensityLinesBuilder;
 
@@ -92,11 +92,11 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         return convergeBLFaradayLineBuilder;
     }
 
-    public AbstractPlotBuilder getConvergeErrWeightedMisfitLineBuilder() {
+    public AbstractPlotBuilder[] getConvergeErrWeightedMisfitLineBuilder() {
         return convergeErrWeightedMisfitLineBuilder;
     }
 
-    public AbstractPlotBuilder getConvergeErrRawMisfitLineBuilder() {
+    public AbstractPlotBuilder[] getConvergeErrRawMisfitLineBuilder() {
         return convergeErrRawMisfitLineBuilder;
     }
 
@@ -121,8 +121,8 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
         convergeBLFaradayLineBuilder = plots[6];
 
-        convergeErrWeightedMisfitLineBuilder = plots[8][0];
-        convergeErrRawMisfitLineBuilder = plots[9][0];
+        convergeErrWeightedMisfitLineBuilder = plots[8];
+        convergeErrRawMisfitLineBuilder = plots[9];
         convergeIntensityLinesBuilder = plots[10][0];
 
         convergeNoiseFaradayLineBuilder = plots[11];

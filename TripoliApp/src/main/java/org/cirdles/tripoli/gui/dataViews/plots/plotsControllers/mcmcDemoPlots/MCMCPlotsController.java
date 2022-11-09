@@ -15,14 +15,14 @@ import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.*;
+import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.histograms.HistogramBuilder;
+import org.cirdles.tripoli.plots.histograms.HistogramRecord;
+import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
+import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
+import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
-import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
-import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramBuilder;
-import org.cirdles.tripoli.visualizationUtilities.histograms.HistogramRecord;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.ComboPlotBuilder;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.MultiLinePlotBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -189,15 +189,14 @@ public class MCMCPlotsController {
             AbstractPlotBuilder[] convergeRatioPlotBuilder = plotBuildersTask.getConvergeRatioLineBuilder();
             AbstractPlotBuilder[] convergeBLFaradayLineBuilder = plotBuildersTask.getConvergeBLFaradayLineBuilder();
             AbstractPlotBuilder[] convergeNoiseFaradayLineBuilder = plotBuildersTask.getConvergeNoiseFaradayLineBuilder();
+            AbstractPlotBuilder[] convergeErrWeightedMisfitBuilder = plotBuildersTask.getConvergeErrWeightedMisfitLineBuilder();
+            AbstractPlotBuilder[] convergeErrRawMisfitBuilder = plotBuildersTask.getConvergeErrRawMisfitLineBuilder();
+
 
             AbstractPlotBuilder observedDataPlotBuilder = plotBuildersTask.getObservedDataLineBuilder();
             AbstractPlotBuilder residualDataPlotBuilder = plotBuildersTask.getResidualDataLineBuilder();
 
-            AbstractPlotBuilder convergeErrWeightedMisfitBuilder = plotBuildersTask.getConvergeErrWeightedMisfitLineBuilder();
-            AbstractPlotBuilder convergeErrRawMisfitBuilder = plotBuildersTask.getConvergeErrRawMisfitLineBuilder();
-
             AbstractPlotBuilder convergeIntensityLinesBuilder = plotBuildersTask.getConvergeIntensityLinesBuilder();
-
 
             AbstractDataView observedDataLinePlot = new BasicScatterAndLinePlot(
                     new Rectangle(dataFitGridPane.getWidth(),
@@ -208,16 +207,6 @@ public class MCMCPlotsController {
                     new Rectangle(dataFitGridPane.getWidth(),
                             (plotTabPane.getHeight() - TAB_HEIGHT) / dataFitGridPane.getRowCount()),
                     (ComboPlotBuilder) residualDataPlotBuilder);
-
-            AbstractDataView convergeErrWeightedMisfitPlot = new BasicLinePlotLogX(
-                    new Rectangle(convergeErrGridPane.getWidth(),
-                            (plotTabPane.getHeight() - TAB_HEIGHT) / convergeErrGridPane.getRowCount()),
-                    (LinePlotBuilder) convergeErrWeightedMisfitBuilder);
-
-            AbstractDataView convergeErrRawMisfitPlot = new BasicLinePlotLogX(
-                    new Rectangle(convergeErrGridPane.getWidth(),
-                            (plotTabPane.getHeight() - TAB_HEIGHT) / convergeErrGridPane.getRowCount()),
-                    (LinePlotBuilder) convergeErrRawMisfitBuilder);
 
             AbstractDataView convergeIntensityLinesPlot = new MultiLinePlotLogX(
                     new Rectangle(convergeIntensityAnchorPane.getWidth(),
@@ -232,12 +221,6 @@ public class MCMCPlotsController {
                     observedDataLinePlot.repaint();
                     residualDataLinePlot.setMyWidth(newWidth);
                     residualDataLinePlot.repaint();
-
-                    convergeErrWeightedMisfitPlot.setMyWidth(newWidth);
-                    convergeErrWeightedMisfitPlot.repaint();
-                    convergeErrRawMisfitPlot.setMyWidth(newWidth);
-                    convergeErrRawMisfitPlot.repaint();
-
                     convergeIntensityLinesPlot.setMyWidth(newWidth);
                     convergeIntensityLinesPlot.repaint();
 
@@ -252,11 +235,6 @@ public class MCMCPlotsController {
                     residualDataLinePlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / dataFitGridPane.getRowCount());
                     residualDataLinePlot.repaint();
 
-                    convergeErrWeightedMisfitPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / convergeErrGridPane.getRowCount());
-                    convergeErrWeightedMisfitPlot.repaint();
-                    convergeErrRawMisfitPlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / convergeErrGridPane.getRowCount());
-                    convergeErrRawMisfitPlot.repaint();
-
                     convergeIntensityLinesPlot.setMyHeight(newValue.intValue() - TAB_HEIGHT);
                     convergeIntensityLinesPlot.repaint();
                 }
@@ -266,11 +244,6 @@ public class MCMCPlotsController {
             dataFitGridPane.add(observedDataLinePlot, 0, 0);
             residualDataLinePlot.preparePanel();
             dataFitGridPane.add(residualDataLinePlot, 0, 1);
-
-            convergeErrWeightedMisfitPlot.preparePanel();
-            convergeErrGridPane.add(convergeErrWeightedMisfitPlot, 0, 0);
-            convergeErrRawMisfitPlot.preparePanel();
-            convergeErrGridPane.add(convergeErrRawMisfitPlot, 0, 1);
 
             convergeIntensityLinesPlot.preparePanel();
             convergeIntensityAnchorPane.getChildren().add(convergeIntensityLinesPlot);
@@ -294,6 +267,8 @@ public class MCMCPlotsController {
             produceTripoliLinePlots(convergeRatioPlotBuilder, convergePlotsWallPane);
             produceTripoliLinePlots(convergeBLFaradayLineBuilder, convergePlotsWallPane);
             produceTripoliLinePlots(convergeNoiseFaradayLineBuilder, convergePlotsWallPane);
+            produceTripoliLinePlots(convergeErrRawMisfitBuilder, convergePlotsWallPane);
+            produceTripoliLinePlots(convergeErrWeightedMisfitBuilder, convergePlotsWallPane);
             convergePlotsWallPane.tilePlots();
 
             TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(ensemblePlotsWallPane);

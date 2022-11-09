@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.visualizationUtilities.histograms;
+package org.cirdles.tripoli.plots.histograms;
 
-import javafx.scene.paint.Color;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.AbstractPlotBuilder;
 
 /**
  * @author James F. Bowring
@@ -27,13 +26,13 @@ public class HistogramBuilder extends AbstractPlotBuilder {
 
     private HistogramRecord histogram;
 
-    private HistogramBuilder(String title, String xAxisLabel, String yAxisLabel, Color dataColor) {
-        super(title, xAxisLabel, yAxisLabel, dataColor);
+    private HistogramBuilder(String title, String xAxisLabel, String yAxisLabel) {
+        super(title, xAxisLabel, yAxisLabel);
         histogram = null;
     }
 
-    public static HistogramBuilder initializeHistogram(double[] data, int binCount, String title, String xAxisLabel, String yAxisLabel, Color dataColor) {
-        HistogramBuilder histogramBuilder = new HistogramBuilder(title, xAxisLabel, yAxisLabel, dataColor);
+    public static HistogramBuilder initializeHistogram(double[] data, int binCount, String title, String xAxisLabel, String yAxisLabel) {
+        HistogramBuilder histogramBuilder = new HistogramBuilder(title, xAxisLabel, yAxisLabel);
         histogramBuilder.histogram = histogramBuilder.generateHistogram(data, binCount);
         return histogramBuilder;
     }
@@ -74,7 +73,6 @@ public class HistogramBuilder extends AbstractPlotBuilder {
                 binCounts,
                 binWidth,
                 binCenters,
-                dataColor,
                 title,
                 xAxisLabel,
                 yAxisLabel

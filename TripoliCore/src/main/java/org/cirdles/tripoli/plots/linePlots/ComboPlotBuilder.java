@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.visualizationUtilities.linePlots;
+package org.cirdles.tripoli.plots.linePlots;
 
-import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.AbstractPlotBuilder;
 
 public class ComboPlotBuilder extends AbstractPlotBuilder {
 
@@ -26,7 +26,7 @@ public class ComboPlotBuilder extends AbstractPlotBuilder {
     private final boolean yData2OneSigma;
 
     protected ComboPlotBuilder(double[] xData, double[] yData, double[] yData2, boolean yData2OneSigma, String title) {
-        super(title, "", "", null);
+        super(title, "", "");
         this.xData = xData;
         this.yData = yData;
         this.yData2 = yData2;
