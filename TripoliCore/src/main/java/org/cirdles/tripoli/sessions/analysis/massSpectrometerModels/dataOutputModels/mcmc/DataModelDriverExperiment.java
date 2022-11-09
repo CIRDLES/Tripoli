@@ -292,7 +292,7 @@ public class DataModelDriverExperiment {
         int sizeOfModel = massSpecOutputDataRecord.isotopeCount() + sumNCycle + massSpecOutputDataRecord.faradayCount() + countOfDFGains - 1;
         double[] xDataMean = new double[sizeOfModel];
         double[][] xDataCovariance = new double[sizeOfModel][sizeOfModel];
-        PhysicalStore<Double> delx_adapt = storeFactory.make(sizeOfModel, stepCountForcedSave);
+        double [][] delx_adapt = new double[sizeOfModel][stepCountForcedSave];
 
         for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
             if (massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] == 0) {
@@ -367,13 +367,14 @@ public class DataModelDriverExperiment {
             boolean adaptiveFlag = (counter >= 100);
             boolean allFlag = adaptiveFlag;
             int columnChoice = modelIndex % stepCountForcedSave;
+            double[] delx_adapt_slice = storeFactory.rows(delx_adapt).sliceColumn(columnChoice).toRawCopy1D();
             DataModellerOutputRecord dataModelUpdaterOutputRecord_x2 = updateMSv2(
                     operation,
                     dataModelInit,
                     psigRecord,
                     priorRecord,
                     xDataCovariance,
-                    delx_adapt.sliceColumn(columnChoice).select(delx_adapt.getRowDim() - 1).toRawCopy1D(),
+                    delx_adapt_slice,
                     adaptiveFlag,
                     allFlag
             );
@@ -634,8 +635,7 @@ public class DataModelDriverExperiment {
                         for (int i = 0; i < stepCountForcedSave; i++) {
                              samples[i] = mnd.sample();
                         }
-                        // final result is not transposed to return correct shape
-                        delx_adapt = storeFactory.columns(samples).copy();
+                        delx_adapt = storeFactory.rows(samples).transpose().toRawCopy2D();
                     }
                 }
 

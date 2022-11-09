@@ -255,7 +255,7 @@ public class DataModelUpdater {
             }
         } else {
             // VARY ALL AT A TIME
-            PhysicalStore<Double> delx = storeFactory.column(delx_adapt.clone());
+            PhysicalStore<Double> delx = storeFactory.columns(delx_adapt.clone());
             PhysicalStore<Double> xxStore = storeFactory.column(xx0.clone());
             xx = xxStore.add(delx).toRawCopy1D();
             for (int row = 0; row < xx.length; row++) {
