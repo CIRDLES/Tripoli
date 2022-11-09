@@ -289,7 +289,7 @@ public class DataModelDriverExperiment {
         for (int i = 0; i < massSpecOutputDataRecord.nCycleArray().length; i++) {
             sumNCycle = sumNCycle + massSpecOutputDataRecord.nCycleArray()[i];
         }
-        int sizeOfModel = massSpecOutputDataRecord.isotopeCount() + sumNCycle + massSpecOutputDataRecord.faradayCount() + countOfDFGains;
+        int sizeOfModel = massSpecOutputDataRecord.isotopeCount() + sumNCycle + massSpecOutputDataRecord.faradayCount() + countOfDFGains - 1;
         double[] xDataMean = new double[sizeOfModel];
         double[][] xDataCovariance = new double[sizeOfModel][sizeOfModel];
         PhysicalStore<Double> delx_adapt = storeFactory.make(sizeOfModel, stepCountForcedSave);
@@ -364,7 +364,7 @@ public class DataModelDriverExperiment {
             long prev = System.nanoTime();
             String operation = DataModelUpdaterHelper.randomOperMS(hierarchical);
             // todo: handle adaptiveFlag case
-            boolean adaptiveFlag = (counter >= 10000);
+            boolean adaptiveFlag = (counter >= 100);
             boolean allFlag = adaptiveFlag;
             int columnChoice = modelIndex % stepCountForcedSave;
             DataModellerOutputRecord dataModelUpdaterOutputRecord_x2 = updateMSv2(
@@ -628,9 +628,8 @@ public class DataModelDriverExperiment {
                         sizeOfModel = 21
                         */
 
-                        double[] zeroMean = new double[sizeOfModel-1];
-                        //todo: size of model incorrect size messes with integration of delx_adapt
-                        MultivariateNormalDistribution mnd = new MultivariateNormalDistribution(zeroMean, storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / (sizeOfModel-1)).toRawCopy2D());
+                        double[] zeroMean = new double[sizeOfModel];
+                        MultivariateNormalDistribution mnd = new MultivariateNormalDistribution(zeroMean, storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / (sizeOfModel)).toRawCopy2D());
                         double[][] samples = new double[stepCountForcedSave][];
                         for (int i = 0; i < stepCountForcedSave; i++) {
                              samples[i] = mnd.sample();
