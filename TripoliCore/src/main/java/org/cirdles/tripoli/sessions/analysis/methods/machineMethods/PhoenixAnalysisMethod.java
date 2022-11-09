@@ -1,20 +1,16 @@
-
 package org.cirdles.tripoli.sessions.analysis.methods.machineMethods;
+
+import jakarta.xml.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
 
 
 /**
  * <p>Java class for anonymous complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
@@ -234,16 +230,14 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "header",
-    "settings",
-    "baseline",
-    "onpeak",
-    "equilibration"
+        "header",
+        "settings",
+        "baseline",
+        "onpeak",
+        "equilibration"
 })
 @XmlRootElement(name = "ANALYSIS_METHOD")
 public class PhoenixAnalysisMethod {
@@ -261,11 +255,9 @@ public class PhoenixAnalysisMethod {
 
     /**
      * Gets the value of the header property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link PhoenixAnalysisMethod.HEADER }
-     *     
+     *
+     * @return possible object is
+     * {@link PhoenixAnalysisMethod.HEADER }
      */
     public PhoenixAnalysisMethod.HEADER getHEADER() {
         return header;
@@ -273,11 +265,9 @@ public class PhoenixAnalysisMethod {
 
     /**
      * Sets the value of the header property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link PhoenixAnalysisMethod.HEADER }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link PhoenixAnalysisMethod.HEADER }
      */
     public void setHEADER(PhoenixAnalysisMethod.HEADER value) {
         this.header = value;
@@ -285,11 +275,9 @@ public class PhoenixAnalysisMethod {
 
     /**
      * Gets the value of the settings property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link PhoenixAnalysisMethod.SETTINGS }
-     *     
+     *
+     * @return possible object is
+     * {@link PhoenixAnalysisMethod.SETTINGS }
      */
     public PhoenixAnalysisMethod.SETTINGS getSETTINGS() {
         return settings;
@@ -297,11 +285,9 @@ public class PhoenixAnalysisMethod {
 
     /**
      * Sets the value of the settings property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link PhoenixAnalysisMethod.SETTINGS }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link PhoenixAnalysisMethod.SETTINGS }
      */
     public void setSETTINGS(PhoenixAnalysisMethod.SETTINGS value) {
         this.settings = value;
@@ -309,11 +295,9 @@ public class PhoenixAnalysisMethod {
 
     /**
      * Gets the value of the baseline property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link PhoenixAnalysisMethod.BASELINE }
-     *     
+     *
+     * @return possible object is
+     * {@link PhoenixAnalysisMethod.BASELINE }
      */
     public PhoenixAnalysisMethod.BASELINE getBASELINE() {
         return baseline;
@@ -321,11 +305,9 @@ public class PhoenixAnalysisMethod {
 
     /**
      * Sets the value of the baseline property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link PhoenixAnalysisMethod.BASELINE }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link PhoenixAnalysisMethod.BASELINE }
      */
     public void setBASELINE(PhoenixAnalysisMethod.BASELINE value) {
         this.baseline = value;
@@ -333,25 +315,23 @@ public class PhoenixAnalysisMethod {
 
     /**
      * Gets the value of the onpeak property.
-     * 
+     *
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the Jakarta XML Binding object.
      * This is why there is not a <CODE>set</CODE> method for the onpeak property.
-     * 
+     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getONPEAK().add(newItem);
      * </pre>
-     * 
-     * 
+     *
+     *
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link PhoenixAnalysisMethod.ONPEAK }
-     * 
-     * 
      */
     public List<PhoenixAnalysisMethod.ONPEAK> getONPEAK() {
         if (onpeak == null) {
@@ -362,11 +342,9 @@ public class PhoenixAnalysisMethod {
 
     /**
      * Gets the value of the equilibration property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link PhoenixAnalysisMethod.EQUILIBRATION }
-     *     
+     *
+     * @return possible object is
+     * {@link PhoenixAnalysisMethod.EQUILIBRATION }
      */
     public PhoenixAnalysisMethod.EQUILIBRATION getEQUILIBRATION() {
         return equilibration;
@@ -374,11 +352,9 @@ public class PhoenixAnalysisMethod {
 
     /**
      * Sets the value of the equilibration property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link PhoenixAnalysisMethod.EQUILIBRATION }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link PhoenixAnalysisMethod.EQUILIBRATION }
      */
     public void setEQUILIBRATION(PhoenixAnalysisMethod.EQUILIBRATION value) {
         this.equilibration = value;
@@ -387,9 +363,9 @@ public class PhoenixAnalysisMethod {
 
     /**
      * <p>Java class for anonymous complex type.
-     * 
+     *
      * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
+     *
      * <pre>
      * &lt;complexType&gt;
      *   &lt;complexContent&gt;
@@ -412,23 +388,21 @@ public class PhoenixAnalysisMethod {
      *   &lt;/complexContent&gt;
      * &lt;/complexType&gt;
      * </pre>
-     * 
-     * 
      */
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlType(name = "", propOrder = {
-        "sequence",
-        "enabled",
-        "massID",
-        "axMass",
-        "integPeriod",
-        "integTime",
-        "pkcParentID",
-        "blReferences",
-        "magnetSettleTime",
-        "axMassOffset",
-        "curveFit",
-        "traceColour"
+            "sequence",
+            "enabled",
+            "massID",
+            "axMass",
+            "integPeriod",
+            "integTime",
+            "pkcParentID",
+            "blReferences",
+            "magnetSettleTime",
+            "axMassOffset",
+            "curveFit",
+            "traceColour"
     })
     public static class BASELINE {
 
@@ -459,11 +433,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the sequence property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getSequence() {
             return sequence;
@@ -471,11 +443,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the sequence property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setSequence(String value) {
             this.sequence = value;
@@ -483,11 +453,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the enabled property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getEnabled() {
             return enabled;
@@ -495,11 +463,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the enabled property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setEnabled(String value) {
             this.enabled = value;
@@ -507,11 +473,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the massID property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getMassID() {
             return massID;
@@ -519,11 +483,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the massID property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setMassID(String value) {
             this.massID = value;
@@ -531,11 +493,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the axMass property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getAxMass() {
             return axMass;
@@ -543,11 +503,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the axMass property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setAxMass(String value) {
             this.axMass = value;
@@ -555,11 +513,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the integPeriod property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getIntegPeriod() {
             return integPeriod;
@@ -567,11 +523,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the integPeriod property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setIntegPeriod(String value) {
             this.integPeriod = value;
@@ -579,11 +533,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the integTime property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getIntegTime() {
             return integTime;
@@ -591,11 +543,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the integTime property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setIntegTime(String value) {
             this.integTime = value;
@@ -603,11 +553,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the pkcParentID property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getPKCParentID() {
             return pkcParentID;
@@ -615,11 +563,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the pkcParentID property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setPKCParentID(String value) {
             this.pkcParentID = value;
@@ -627,11 +573,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the blReferences property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getBLReferences() {
             return blReferences;
@@ -639,11 +583,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the blReferences property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setBLReferences(String value) {
             this.blReferences = value;
@@ -651,11 +593,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the magnetSettleTime property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getMagnetSettleTime() {
             return magnetSettleTime;
@@ -663,11 +603,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the magnetSettleTime property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setMagnetSettleTime(String value) {
             this.magnetSettleTime = value;
@@ -675,11 +613,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the axMassOffset property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getAxMassOffset() {
             return axMassOffset;
@@ -687,11 +623,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the axMassOffset property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setAxMassOffset(String value) {
             this.axMassOffset = value;
@@ -699,11 +633,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the curveFit property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getCurveFit() {
             return curveFit;
@@ -711,11 +643,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the curveFit property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setCurveFit(String value) {
             this.curveFit = value;
@@ -723,11 +653,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the traceColour property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getTraceColour() {
             return traceColour;
@@ -735,11 +663,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the traceColour property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setTraceColour(String value) {
             this.traceColour = value;
@@ -750,9 +676,9 @@ public class PhoenixAnalysisMethod {
 
     /**
      * <p>Java class for anonymous complex type.
-     * 
+     *
      * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
+     *
      * <pre>
      * &lt;complexType&gt;
      *   &lt;complexContent&gt;
@@ -770,18 +696,16 @@ public class PhoenixAnalysisMethod {
      *   &lt;/complexContent&gt;
      * &lt;/complexType&gt;
      * </pre>
-     * 
-     * 
      */
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlType(name = "", propOrder = {
-        "enabled",
-        "collector",
-        "axMass",
-        "massID",
-        "duration",
-        "integPeriod",
-        "storeToDB"
+            "enabled",
+            "collector",
+            "axMass",
+            "massID",
+            "duration",
+            "integPeriod",
+            "storeToDB"
     })
     public static class EQUILIBRATION {
 
@@ -802,11 +726,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the enabled property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getEnabled() {
             return enabled;
@@ -814,11 +736,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the enabled property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setEnabled(String value) {
             this.enabled = value;
@@ -826,11 +746,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the collector property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getCollector() {
             return collector;
@@ -838,11 +756,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the collector property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setCollector(String value) {
             this.collector = value;
@@ -850,11 +766,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the axMass property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getAxMass() {
             return axMass;
@@ -862,11 +776,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the axMass property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setAxMass(String value) {
             this.axMass = value;
@@ -874,11 +786,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the massID property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getMassID() {
             return massID;
@@ -886,11 +796,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the massID property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setMassID(String value) {
             this.massID = value;
@@ -898,11 +806,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the duration property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getDuration() {
             return duration;
@@ -910,11 +816,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the duration property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setDuration(String value) {
             this.duration = value;
@@ -922,11 +826,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the integPeriod property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getIntegPeriod() {
             return integPeriod;
@@ -934,11 +836,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the integPeriod property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setIntegPeriod(String value) {
             this.integPeriod = value;
@@ -946,11 +846,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the storeToDB property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getStoreToDB() {
             return storeToDB;
@@ -958,11 +856,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the storeToDB property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setStoreToDB(String value) {
             this.storeToDB = value;
@@ -973,9 +869,9 @@ public class PhoenixAnalysisMethod {
 
     /**
      * <p>Java class for anonymous complex type.
-     * 
+     *
      * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
+     *
      * <pre>
      * &lt;complexType&gt;
      *   &lt;complexContent&gt;
@@ -991,16 +887,14 @@ public class PhoenixAnalysisMethod {
      *   &lt;/complexContent&gt;
      * &lt;/complexType&gt;
      * </pre>
-     * 
-     * 
      */
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlType(name = "", propOrder = {
-        "filename",
-        "dateModified",
-        "dateCreated",
-        "createdBy",
-        "modifiedBy"
+            "filename",
+            "dateModified",
+            "dateCreated",
+            "createdBy",
+            "modifiedBy"
     })
     public static class HEADER {
 
@@ -1017,11 +911,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the filename property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getFilename() {
             return filename;
@@ -1029,11 +921,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the filename property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setFilename(String value) {
             this.filename = value;
@@ -1041,11 +931,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the dateModified property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getDateModified() {
             return dateModified;
@@ -1053,11 +941,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the dateModified property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setDateModified(String value) {
             this.dateModified = value;
@@ -1065,11 +951,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the dateCreated property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getDateCreated() {
             return dateCreated;
@@ -1077,11 +961,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the dateCreated property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setDateCreated(String value) {
             this.dateCreated = value;
@@ -1089,11 +971,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the createdBy property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getCreatedBy() {
             return createdBy;
@@ -1101,11 +981,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the createdBy property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setCreatedBy(String value) {
             this.createdBy = value;
@@ -1113,11 +991,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the modifiedBy property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getModifiedBy() {
             return modifiedBy;
@@ -1125,11 +1001,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the modifiedBy property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setModifiedBy(String value) {
             this.modifiedBy = value;
@@ -1140,9 +1014,9 @@ public class PhoenixAnalysisMethod {
 
     /**
      * <p>Java class for anonymous complex type.
-     * 
+     *
      * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
+     *
      * <pre>
      * &lt;complexType&gt;
      *   &lt;complexContent&gt;
@@ -1256,28 +1130,26 @@ public class PhoenixAnalysisMethod {
      *   &lt;/complexContent&gt;
      * &lt;/complexType&gt;
      * </pre>
-     * 
-     * 
      */
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlType(name = "", propOrder = {
-        "sequence",
-        "enabled",
-        "massID",
-        "massIDCollector",
-        "axMass",
-        "integPeriod",
-        "integTime",
-        "peakCentre",
-        "pkcCollector",
-        "pkcMethod",
-        "pkcParentID",
-        "blReferences",
-        "collectorArray",
-        "magnetSettleTime",
-        "axMassOffset",
-        "curveFit",
-        "traceColour"
+            "sequence",
+            "enabled",
+            "massID",
+            "massIDCollector",
+            "axMass",
+            "integPeriod",
+            "integTime",
+            "peakCentre",
+            "pkcCollector",
+            "pkcMethod",
+            "pkcParentID",
+            "blReferences",
+            "collectorArray",
+            "magnetSettleTime",
+            "axMassOffset",
+            "curveFit",
+            "traceColour"
     })
     public static class ONPEAK {
 
@@ -1318,11 +1190,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the sequence property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getSequence() {
             return sequence;
@@ -1330,11 +1200,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the sequence property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setSequence(String value) {
             this.sequence = value;
@@ -1342,11 +1210,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the enabled property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getEnabled() {
             return enabled;
@@ -1354,11 +1220,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the enabled property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setEnabled(String value) {
             this.enabled = value;
@@ -1366,11 +1230,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the massID property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getMassID() {
             return massID;
@@ -1378,11 +1240,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the massID property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setMassID(String value) {
             this.massID = value;
@@ -1390,11 +1250,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the massIDCollector property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getMassIDCollector() {
             return massIDCollector;
@@ -1402,11 +1260,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the massIDCollector property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setMassIDCollector(String value) {
             this.massIDCollector = value;
@@ -1414,11 +1270,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the axMass property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getAxMass() {
             return axMass;
@@ -1426,11 +1280,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the axMass property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setAxMass(String value) {
             this.axMass = value;
@@ -1438,11 +1290,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the integPeriod property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getIntegPeriod() {
             return integPeriod;
@@ -1450,11 +1300,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the integPeriod property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setIntegPeriod(String value) {
             this.integPeriod = value;
@@ -1462,11 +1310,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the integTime property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getIntegTime() {
             return integTime;
@@ -1474,11 +1320,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the integTime property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setIntegTime(String value) {
             this.integTime = value;
@@ -1486,11 +1330,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the peakCentre property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getPeakCentre() {
             return peakCentre;
@@ -1498,11 +1340,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the peakCentre property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setPeakCentre(String value) {
             this.peakCentre = value;
@@ -1510,11 +1350,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the pkcCollector property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getPKCCollector() {
             return pkcCollector;
@@ -1522,11 +1360,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the pkcCollector property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setPKCCollector(String value) {
             this.pkcCollector = value;
@@ -1534,11 +1370,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the pkcMethod property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getPKCMethod() {
             return pkcMethod;
@@ -1546,11 +1380,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the pkcMethod property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setPKCMethod(String value) {
             this.pkcMethod = value;
@@ -1558,11 +1390,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the pkcParentID property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getPKCParentID() {
             return pkcParentID;
@@ -1570,11 +1400,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the pkcParentID property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setPKCParentID(String value) {
             this.pkcParentID = value;
@@ -1582,11 +1410,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the blReferences property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getBLReferences() {
             return blReferences;
@@ -1594,11 +1420,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the blReferences property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setBLReferences(String value) {
             this.blReferences = value;
@@ -1606,11 +1430,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the collectorArray property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getCollectorArray() {
             return collectorArray;
@@ -1618,11 +1440,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the collectorArray property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setCollectorArray(String value) {
             this.collectorArray = value;
@@ -1630,11 +1450,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the magnetSettleTime property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getMagnetSettleTime() {
             return magnetSettleTime;
@@ -1642,11 +1460,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the magnetSettleTime property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setMagnetSettleTime(String value) {
             this.magnetSettleTime = value;
@@ -1654,11 +1470,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the axMassOffset property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getAxMassOffset() {
             return axMassOffset;
@@ -1666,11 +1480,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the axMassOffset property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setAxMassOffset(String value) {
             this.axMassOffset = value;
@@ -1678,11 +1490,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the curveFit property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getCurveFit() {
             return curveFit;
@@ -1690,11 +1500,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the curveFit property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setCurveFit(String value) {
             this.curveFit = value;
@@ -1702,11 +1510,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the traceColour property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getTraceColour() {
             return traceColour;
@@ -1714,11 +1520,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the traceColour property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setTraceColour(String value) {
             this.traceColour = value;
@@ -1729,9 +1533,9 @@ public class PhoenixAnalysisMethod {
 
     /**
      * <p>Java class for anonymous complex type.
-     * 
+     *
      * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
+     *
      * <pre>
      * &lt;complexType&gt;
      *   &lt;complexContent&gt;
@@ -1774,43 +1578,41 @@ public class PhoenixAnalysisMethod {
      *   &lt;/complexContent&gt;
      * &lt;/complexType&gt;
      * </pre>
-     * 
-     * 
      */
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlType(name = "", propOrder = {
-        "intersperseBaselines",
-        "baselineFrequency",
-        "pkcCycleInterval",
-        "totalBlocks",
-        "totalCycles",
-        "calculateRatios",
-        "initialBLMagnetDelay",
-        "deflectBeamProtection",
-        "performBeamInterpCycles",
-        "performInterBlocks",
-        "axialColl",
-        "activeSEMCollectors",
-        "magnetFlybackSettleTime",
-        "correctForBaselines",
-        "correctForDeadtimes",
-        "isoWorksMethod",
-        "rejectionSigma",
-        "rejectionPercentage",
-        "activeSubChannel",
-        "processingUnits",
-        "tfeEnabled",
-        "tfeMonitorPeak",
-        "tfeIntensityThreshold",
-        "tfeIntervalPeakCentring",
-        "tfePeakCentringInterval",
-        "tfePeakCentringMonitorThreshold",
-        "exportIsotopePoints",
-        "exportASCFile",
-        "exportASCOptions",
-        "exportASCActiveColl",
-        "exportTXTEveryCYCLE",
-        "exportTripoliLiveData"
+            "intersperseBaselines",
+            "baselineFrequency",
+            "pkcCycleInterval",
+            "totalBlocks",
+            "totalCycles",
+            "calculateRatios",
+            "initialBLMagnetDelay",
+            "deflectBeamProtection",
+            "performBeamInterpCycles",
+            "performInterBlocks",
+            "axialColl",
+            "activeSEMCollectors",
+            "magnetFlybackSettleTime",
+            "correctForBaselines",
+            "correctForDeadtimes",
+            "isoWorksMethod",
+            "rejectionSigma",
+            "rejectionPercentage",
+            "activeSubChannel",
+            "processingUnits",
+            "tfeEnabled",
+            "tfeMonitorPeak",
+            "tfeIntensityThreshold",
+            "tfeIntervalPeakCentring",
+            "tfePeakCentringInterval",
+            "tfePeakCentringMonitorThreshold",
+            "exportIsotopePoints",
+            "exportASCFile",
+            "exportASCOptions",
+            "exportASCActiveColl",
+            "exportTXTEveryCYCLE",
+            "exportTripoliLiveData"
     })
     public static class SETTINGS {
 
@@ -1881,11 +1683,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the intersperseBaselines property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getIntersperseBaselines() {
             return intersperseBaselines;
@@ -1893,11 +1693,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the intersperseBaselines property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setIntersperseBaselines(String value) {
             this.intersperseBaselines = value;
@@ -1905,11 +1703,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the baselineFrequency property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getBaselineFrequency() {
             return baselineFrequency;
@@ -1917,11 +1713,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the baselineFrequency property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setBaselineFrequency(String value) {
             this.baselineFrequency = value;
@@ -1929,11 +1723,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the pkcCycleInterval property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getPKCCycleInterval() {
             return pkcCycleInterval;
@@ -1941,11 +1733,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the pkcCycleInterval property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setPKCCycleInterval(String value) {
             this.pkcCycleInterval = value;
@@ -1953,11 +1743,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the totalBlocks property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getTotalBlocks() {
             return totalBlocks;
@@ -1965,11 +1753,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the totalBlocks property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setTotalBlocks(String value) {
             this.totalBlocks = value;
@@ -1977,11 +1763,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the totalCycles property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getTotalCycles() {
             return totalCycles;
@@ -1989,11 +1773,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the totalCycles property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setTotalCycles(String value) {
             this.totalCycles = value;
@@ -2001,11 +1783,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the calculateRatios property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getCalculateRatios() {
             return calculateRatios;
@@ -2013,11 +1793,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the calculateRatios property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setCalculateRatios(String value) {
             this.calculateRatios = value;
@@ -2025,11 +1803,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the initialBLMagnetDelay property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getInitialBLMagnetDelay() {
             return initialBLMagnetDelay;
@@ -2037,11 +1813,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the initialBLMagnetDelay property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setInitialBLMagnetDelay(String value) {
             this.initialBLMagnetDelay = value;
@@ -2049,11 +1823,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the deflectBeamProtection property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getDeflectBeamProtection() {
             return deflectBeamProtection;
@@ -2061,11 +1833,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the deflectBeamProtection property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setDeflectBeamProtection(String value) {
             this.deflectBeamProtection = value;
@@ -2073,11 +1843,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the performBeamInterpCycles property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getPerformBeamInterpCycles() {
             return performBeamInterpCycles;
@@ -2085,11 +1853,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the performBeamInterpCycles property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setPerformBeamInterpCycles(String value) {
             this.performBeamInterpCycles = value;
@@ -2097,11 +1863,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the performInterBlocks property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getPerformInterBlocks() {
             return performInterBlocks;
@@ -2109,11 +1873,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the performInterBlocks property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setPerformInterBlocks(String value) {
             this.performInterBlocks = value;
@@ -2121,11 +1883,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the axialColl property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getAxialColl() {
             return axialColl;
@@ -2133,11 +1893,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the axialColl property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setAxialColl(String value) {
             this.axialColl = value;
@@ -2145,11 +1903,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the activeSEMCollectors property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getActiveSEMCollectors() {
             return activeSEMCollectors;
@@ -2157,11 +1913,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the activeSEMCollectors property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setActiveSEMCollectors(String value) {
             this.activeSEMCollectors = value;
@@ -2169,11 +1923,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the magnetFlybackSettleTime property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getMagnetFlybackSettleTime() {
             return magnetFlybackSettleTime;
@@ -2181,11 +1933,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the magnetFlybackSettleTime property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setMagnetFlybackSettleTime(String value) {
             this.magnetFlybackSettleTime = value;
@@ -2193,11 +1943,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the correctForBaselines property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getCorrectForBaselines() {
             return correctForBaselines;
@@ -2205,11 +1953,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the correctForBaselines property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setCorrectForBaselines(String value) {
             this.correctForBaselines = value;
@@ -2217,11 +1963,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the correctForDeadtimes property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getCorrectForDeadtimes() {
             return correctForDeadtimes;
@@ -2229,11 +1973,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the correctForDeadtimes property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setCorrectForDeadtimes(String value) {
             this.correctForDeadtimes = value;
@@ -2241,11 +1983,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the isoWorksMethod property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getIsoWorksMethod() {
             return isoWorksMethod;
@@ -2253,11 +1993,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the isoWorksMethod property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setIsoWorksMethod(String value) {
             this.isoWorksMethod = value;
@@ -2265,11 +2003,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the rejectionSigma property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getRejectionSigma() {
             return rejectionSigma;
@@ -2277,11 +2013,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the rejectionSigma property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setRejectionSigma(String value) {
             this.rejectionSigma = value;
@@ -2289,11 +2023,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the rejectionPercentage property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getRejectionPercentage() {
             return rejectionPercentage;
@@ -2301,11 +2033,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the rejectionPercentage property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setRejectionPercentage(String value) {
             this.rejectionPercentage = value;
@@ -2313,11 +2043,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the activeSubChannel property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getActiveSubChannel() {
             return activeSubChannel;
@@ -2325,11 +2053,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the activeSubChannel property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setActiveSubChannel(String value) {
             this.activeSubChannel = value;
@@ -2337,11 +2063,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the processingUnits property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getProcessingUnits() {
             return processingUnits;
@@ -2349,11 +2073,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the processingUnits property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setProcessingUnits(String value) {
             this.processingUnits = value;
@@ -2361,11 +2083,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the tfeEnabled property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getTFEEnabled() {
             return tfeEnabled;
@@ -2373,11 +2093,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the tfeEnabled property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setTFEEnabled(String value) {
             this.tfeEnabled = value;
@@ -2385,11 +2103,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the tfeMonitorPeak property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getTFEMonitorPeak() {
             return tfeMonitorPeak;
@@ -2397,11 +2113,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the tfeMonitorPeak property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setTFEMonitorPeak(String value) {
             this.tfeMonitorPeak = value;
@@ -2409,11 +2123,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the tfeIntensityThreshold property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getTFEIntensityThreshold() {
             return tfeIntensityThreshold;
@@ -2421,11 +2133,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the tfeIntensityThreshold property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setTFEIntensityThreshold(String value) {
             this.tfeIntensityThreshold = value;
@@ -2433,11 +2143,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the tfeIntervalPeakCentring property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getTFEIntervalPeakCentring() {
             return tfeIntervalPeakCentring;
@@ -2445,11 +2153,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the tfeIntervalPeakCentring property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setTFEIntervalPeakCentring(String value) {
             this.tfeIntervalPeakCentring = value;
@@ -2457,11 +2163,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the tfePeakCentringInterval property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getTFEPeakCentringInterval() {
             return tfePeakCentringInterval;
@@ -2469,11 +2173,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the tfePeakCentringInterval property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setTFEPeakCentringInterval(String value) {
             this.tfePeakCentringInterval = value;
@@ -2481,11 +2183,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the tfePeakCentringMonitorThreshold property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getTFEPeakCentringMonitorThreshold() {
             return tfePeakCentringMonitorThreshold;
@@ -2493,11 +2193,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the tfePeakCentringMonitorThreshold property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setTFEPeakCentringMonitorThreshold(String value) {
             this.tfePeakCentringMonitorThreshold = value;
@@ -2505,11 +2203,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the exportIsotopePoints property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getExportIsotopePoints() {
             return exportIsotopePoints;
@@ -2517,11 +2213,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the exportIsotopePoints property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setExportIsotopePoints(String value) {
             this.exportIsotopePoints = value;
@@ -2529,11 +2223,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the exportASCFile property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getExportASCFile() {
             return exportASCFile;
@@ -2541,11 +2233,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the exportASCFile property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setExportASCFile(String value) {
             this.exportASCFile = value;
@@ -2553,11 +2243,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the exportASCOptions property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getExportASCOptions() {
             return exportASCOptions;
@@ -2565,11 +2253,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the exportASCOptions property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setExportASCOptions(String value) {
             this.exportASCOptions = value;
@@ -2577,11 +2263,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the exportASCActiveColl property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getExportASCActiveColl() {
             return exportASCActiveColl;
@@ -2589,11 +2273,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the exportASCActiveColl property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setExportASCActiveColl(String value) {
             this.exportASCActiveColl = value;
@@ -2601,11 +2283,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the exportTXTEveryCYCLE property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getExportTXTEveryCYCLE() {
             return exportTXTEveryCYCLE;
@@ -2613,11 +2293,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the exportTXTEveryCYCLE property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setExportTXTEveryCYCLE(String value) {
             this.exportTXTEveryCYCLE = value;
@@ -2625,11 +2303,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Gets the value of the exportTripoliLiveData property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
+         *
+         * @return possible object is
+         * {@link String }
          */
         public String getExportTripoliLiveData() {
             return exportTripoliLiveData;
@@ -2637,11 +2313,9 @@ public class PhoenixAnalysisMethod {
 
         /**
          * Sets the value of the exportTripoliLiveData property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
+         *
+         * @param value allowed object is
+         *              {@link String }
          */
         public void setExportTripoliLiveData(String value) {
             this.exportTripoliLiveData = value;

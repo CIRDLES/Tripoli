@@ -54,49 +54,9 @@ dependencies {
     implementation("com.thoughtworks.xstream:xstream:1.4.19") //group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.19'
 
 
-
-
-//////    implementation( "com.sun.activation:javax.activation:1.2.0")
-////    // https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime
-//    implementation("org.glassfish.jaxb:jaxb-runtime:4.0.1")
-////
-////
-////    implementation( "javax.xml.bind:jaxb-api:2.3.1")
-////    // https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-impl
-////
-////   // implementation("com.sun.xml.bind:jaxb-impl:3.0.2-b01")//
-////
-//
-//    //implementation( "com.sun.activation:javax.activation:1.2.0")
-//    implementation( "javax.xml.bind:jaxb-api:2.3.1")
-//
-//    // https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-impl
-////    implementation("com.sun.xml.bind:jaxb-impl:3.0.0")
-//    // https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api
-//    implementation("jakarta.xml.bind:jakarta.xml.bind-api:3.0.0")//
-
-
-
-
-//    implementation( "com.sun.activation:javax.activation:1.2.0")
-//    // https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api
+    // https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api
     implementation("javax.xml.bind:jaxb-api:2.3.1")
-//    // https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-core
-//    implementation("com.sun.xml.bind:jaxb-core:4.0.1")
-////    // https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-impl
-////    implementation("com.sun.xml.bind:jaxb-impl:4.0.1")
-//
-//    // https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api
-//    implementation("jakarta.xml.bind:jakarta.xml.bind-api:3.0.0")
-//    implementation("org.glassfish.jaxb:jaxb-runtime:3.0.0")
-//    //implementation( "com.sun.activation:jakarta.activation:2.0.1")
-//    // https://mvnrepository.com/artifact/javax.activation/activation
-//    implementation("javax.activation:activation:1.1.1")
-//
-//// https://mvnrepository.com/artifact/jakarta.activation/jakarta.activation-api
-//    implementation("jakarta.activation:jakarta.activation-api:2.1.0")
-
-
+    implementation("org.glassfish.jaxb:jaxb-runtime:3.0.0")
 
     // https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
@@ -104,7 +64,6 @@ dependencies {
     implementation("com.sun.xml.bind:jaxb-impl:3.0.2-b01")
     // https://mvnrepository.com/artifact/org.eclipse.persistence/org.eclipse.persistence.moxy
     implementation("org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.3")
-
 
 
     // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core

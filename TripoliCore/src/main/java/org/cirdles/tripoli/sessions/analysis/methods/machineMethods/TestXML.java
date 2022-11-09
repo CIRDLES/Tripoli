@@ -16,8 +16,6 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods.machineMethods;
 
-
-
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
@@ -30,7 +28,7 @@ import java.nio.file.Paths;
  */
 public class TestXML {
 
-    public static void main (String[] args) throws JAXBException {
+    public static void main(String[] args) throws JAXBException {
 
         Path phoenixAnalysisMethodDataFilePath = Paths.get("Pb 4-5-6-7-8 Daly 10-5-5-5-2 sec.TIMSAM.xml");
 
