@@ -30,20 +30,43 @@ public final class MassSpectrometerBuiltinModelFactory {
     public static Map<String, MassSpectrometerModel> massSpectrometersBuiltinMap = new LinkedHashMap<>();
 
     static {
-        MassSpectrometerModel phoenix = MassSpectrometerModel.initializeMassSpectrometer("Phoenix");
-        massSpectrometersBuiltinMap.put(phoenix.getMassSpectrometerName(), phoenix);
+        MassSpectrometerModel phoenixSynthetic = MassSpectrometerModel.initializeMassSpectrometer("PhoenixSynthetic");
+        massSpectrometersBuiltinMap.put(phoenixSynthetic.getMassSpectrometerName(), phoenixSynthetic);
 
         DetectorSetup detectorSetup = DetectorSetup.initializeDetectorSetup();
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L5", 0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L4", 1));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L3", 2));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L2", 3));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "Ax_Fara", 4));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.DALY, "Axial", 5));
+        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "Ax", 4));
+        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.DALY, "PM", 5));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H1", 6));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H2", 7));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H3", 8));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H4", 9));
+
+        phoenixSynthetic.setDetectorSetup(detectorSetup);
+        phoenixSynthetic.setCollectorWidthMM(0.95135);
+        phoenixSynthetic.setEffectiveRadiusMagnetMM(540.0);
+        phoenixSynthetic.setTheoreticalBeamWidthMM(0.35);
+    }
+
+    static {
+        MassSpectrometerModel phoenix = MassSpectrometerModel.initializeMassSpectrometer("Phoenix");
+        massSpectrometersBuiltinMap.put(phoenix.getMassSpectrometerName(), phoenix);
+
+        DetectorSetup detectorSetup = DetectorSetup.initializeDetectorSetup();
+        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.DALY, "PM", 0));
+        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.SEM, "RS", 1));
+        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L5", 2));
+        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L4", 3));
+        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L3", 4));
+        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L2", 5));
+        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "Ax", 6));
+        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H1", 7));
+        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H2", 8));
+        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H3", 9));
+        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H4", 10));
 
         phoenix.setDetectorSetup(detectorSetup);
         phoenix.setCollectorWidthMM(0.95135);

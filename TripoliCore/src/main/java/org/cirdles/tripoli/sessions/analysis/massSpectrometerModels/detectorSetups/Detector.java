@@ -16,19 +16,20 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups;
 
-import java.io.Serializable;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author James F. Bowring
  */
-public class Detector implements Serializable {
+public class Detector implements Comparable {
 
-    private DetectorTypeEnum detectorType;
-    private String detectorName;
+    private final DetectorTypeEnum detectorType;
+    private final String detectorName;
     // 0-based index of detector order, used for reading data column
-    private int ordinalIndex;
+    private final int ordinalIndex;
 
     private Detector() {
+        this(null, "NONE", -1);
     }
 
     private Detector(DetectorTypeEnum detectorType, String detectorName, int ordinalIndex) {
@@ -42,31 +43,21 @@ public class Detector implements Serializable {
     }
 
     public boolean isFaraday() {
-        return detectorType.equals(DetectorTypeEnum.FARADAY);
-    }
-
-    public DetectorTypeEnum getDetectorType() {
-        return detectorType;
-    }
-
-    public void setDetectorType(DetectorTypeEnum detectorType) {
-        this.detectorType = detectorType;
+        return detectorType == DetectorTypeEnum.FARADAY;
     }
 
     public String getDetectorName() {
         return detectorName;
     }
 
-    public void setDetectorName(String detectorName) {
-        this.detectorName = detectorName;
-    }
-
     public int getOrdinalIndex() {
         return ordinalIndex;
     }
 
-    public void setOrdinalIndex(int ordinalIndex) {
-        this.ordinalIndex = ordinalIndex;
+    @Override
+    public int compareTo(@NotNull Object object) throws ClassCastException {
+        int ordinal = ((Detector)object).getOrdinalIndex();
+        return Integer.compare(this.getOrdinalIndex(), ordinal);
     }
 
     public enum DetectorTypeEnum {

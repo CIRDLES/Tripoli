@@ -120,6 +120,7 @@ public class HistogramSinglePlot extends AbstractPlot {
     public void plotStats(GraphicsContext g2d) {
 
         Paint saveFill = g2d.getFill();
+        // copied from OGTripoli for giggles
         g2d.setFill(Color.rgb(255, 251, 194));
         g2d.setGlobalAlpha(0.6);
         double mean = histogramRecord.mean();
@@ -148,7 +149,7 @@ public class HistogramSinglePlot extends AbstractPlot {
         double saveLineWidth = g2d.getLineWidth();
         g2d.setLineWidth(1.0);
         g2d.setStroke(Paint.valueOf("Black"));
-        g2d.strokeLine(mapX(histogramRecord.mean()), mapY(Math.max(0.0, minY)), mapX(histogramRecord.mean()), mapY(maxY));
+        g2d.strokeLine(mapX(histogramRecord.mean()), Math.min(mapY(0.0), mapY(minY)), mapX(histogramRecord.mean()), Math.max(mapY(maxY), topMargin));
         g2d.setStroke(saveStroke);
         g2d.setLineWidth(saveLineWidth);
     }

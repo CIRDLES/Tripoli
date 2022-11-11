@@ -20,10 +20,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author James F. Bowring
@@ -36,7 +33,7 @@ public class SequenceTable implements Serializable {
     private Map<Detector, List<SequenceCell>> mapOfDetectorsToSequenceCells;
 
     private SequenceTable() {
-        mapOfDetectorsToSequenceCells = new LinkedHashMap<>();
+        mapOfDetectorsToSequenceCells = new TreeMap<>();
     }
 
     public static SequenceTable createEmptySequenceTable() {

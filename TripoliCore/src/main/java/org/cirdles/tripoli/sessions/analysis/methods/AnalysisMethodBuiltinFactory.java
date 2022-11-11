@@ -46,7 +46,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
     static {
         AnalysisMethod burdickBlSyntheticData = AnalysisMethod.initializeAnalysisMethod(
                 "BurdickBlSyntheticData",
-                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("Phoenix"));
+                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("PhoenixSynthetic"));
         analysisMethodsBuiltinMap.put(burdickBlSyntheticData.getMethodName(), burdickBlSyntheticData);
 
         burdickBlSyntheticData.addSpeciesToSpeciesList(pb206);
@@ -56,21 +56,21 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
 
         DetectorSetup detectorSetup = burdickBlSyntheticData.getMassSpectrometer().getDetectorSetup();
 
-        BaselineCell baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Ax_Fara"), "Bl1");
+        BaselineCell baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "Bl1");
         baselineCell.setCellMass(203.5);
 
-        baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "Bl1");
+        baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "Bl1");
         baselineCell.setCellMass(205.5);
 
         baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "Bl1");
         baselineCell.setCellMass(207.5);
 
-        SequenceCell sequenceCell = burdickBlSyntheticData.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax_Fara"), "S2");
+        SequenceCell sequenceCell = burdickBlSyntheticData.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S2");
         sequenceCell.addTargetSpecies(pb206);
 
-        sequenceCell = burdickBlSyntheticData.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S1");
+        sequenceCell = burdickBlSyntheticData.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S1");
         sequenceCell.addTargetSpecies(pb206);
-        sequenceCell = burdickBlSyntheticData.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S2");
+        sequenceCell = burdickBlSyntheticData.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S2");
         sequenceCell.addTargetSpecies(pb208);
 
         sequenceCell = burdickBlSyntheticData.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S1");
@@ -82,7 +82,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
     static {
         AnalysisMethod ku_204_5_6_7_8_Daly_AllFaradayPb = AnalysisMethod.initializeAnalysisMethod(
                 "KU_204_5_6_7_8_Daly_AllFaradayPb",
-                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("Phoenix"));
+                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("PhoenixSynthetic"));
         analysisMethodsBuiltinMap.put(ku_204_5_6_7_8_Daly_AllFaradayPb.getMethodName(), ku_204_5_6_7_8_Daly_AllFaradayPb);
 
         ku_204_5_6_7_8_Daly_AllFaradayPb.addSpeciesToSpeciesList(pb204);
@@ -99,7 +99,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         DetectorSetup detectorSetup = ku_204_5_6_7_8_Daly_AllFaradayPb.getMassSpectrometer().getDetectorSetup();
         BaselineTable baselineTable = ku_204_5_6_7_8_Daly_AllFaradayPb.getBaselineTable();
 
-        BaselineCell baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "Bl1");
+        BaselineCell baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "Bl1");
         baselineCell.setCellMass(203.5);
 
         baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "Bl1");
@@ -131,24 +131,24 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L2"), "S5");
         sequenceCell.addTargetSpecies(pb206);
 
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax_Fara"), "S2");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S2");
         sequenceCell.addTargetSpecies(pb204);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax_Fara"), "S3");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S3");
         sequenceCell.addTargetSpecies(pb205);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax_Fara"), "S4");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S4");
         sequenceCell.addTargetSpecies(pb206);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax_Fara"), "S5");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S5");
         sequenceCell.addTargetSpecies(pb207);
 
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S1");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S1");
         sequenceCell.addTargetSpecies(pb204);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S2");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S2");
         sequenceCell.addTargetSpecies(pb205);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S3");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S3");
         sequenceCell.addTargetSpecies(pb206);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S4");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S4");
         sequenceCell.addTargetSpecies(pb207);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Axial"), "S5");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S5");
         sequenceCell.addTargetSpecies(pb208);
 
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S1");
@@ -179,7 +179,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
     static {
         AnalysisMethod ku_PbDaly204_5_6_7_8 = AnalysisMethod.initializeAnalysisMethod(
                 "KU_PbDaly204_5_6_7_8",
-                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("Phoenix"));
+                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("PhoenixSynthetic"));
         analysisMethodsBuiltinMap.put(ku_PbDaly204_5_6_7_8.getMethodName(), ku_PbDaly204_5_6_7_8);
     }
 
@@ -187,7 +187,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
     static {
         AnalysisMethod ku_UoxideStaticFaraday = AnalysisMethod.initializeAnalysisMethod(
                 "KU_UoxideStaticFaraday",
-                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("Phoenix"));
+                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("PhoenixSynthetic"));
         analysisMethodsBuiltinMap.put(ku_UoxideStaticFaraday.getMethodName(), ku_UoxideStaticFaraday);
     }
 
