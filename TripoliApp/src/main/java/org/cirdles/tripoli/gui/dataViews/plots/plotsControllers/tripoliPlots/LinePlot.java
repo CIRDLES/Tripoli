@@ -1,7 +1,6 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;

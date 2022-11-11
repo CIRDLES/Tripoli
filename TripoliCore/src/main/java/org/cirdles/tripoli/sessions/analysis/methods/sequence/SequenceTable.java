@@ -20,7 +20,10 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author James F. Bowring

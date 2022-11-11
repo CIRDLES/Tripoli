@@ -18,10 +18,12 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSet
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
+
 /**
  * @author James F. Bowring
  */
-public class Detector implements Comparable {
+public class Detector implements Comparable, Serializable {
 
     private final DetectorTypeEnum detectorType;
     private final String detectorName;
@@ -56,7 +58,7 @@ public class Detector implements Comparable {
 
     @Override
     public int compareTo(@NotNull Object object) throws ClassCastException {
-        int ordinal = ((Detector)object).getOrdinalIndex();
+        int ordinal = ((Detector) object).getOrdinalIndex();
         return Integer.compare(this.getOrdinalIndex(), ordinal);
     }
 

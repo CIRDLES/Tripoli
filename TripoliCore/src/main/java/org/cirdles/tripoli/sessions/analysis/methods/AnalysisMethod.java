@@ -124,9 +124,9 @@ public class AnalysisMethod implements Serializable {
                 .forEach(e -> {
                     retVal.append(e.getKey().getDetectorName()).append(" ");
                     boolean offset = false;
-                    for (SequenceCell sequenceCell : e.getValue()){
+                    for (SequenceCell sequenceCell : e.getValue()) {
                         int sequenceNumber = Integer.parseInt(sequenceCell.getSequenceName().substring(2));
-                        if(!offset){
+                        if (!offset) {
                             retVal.append("                                                                           ", 0, (sequenceNumber - 1) * 10);
                             offset = true;
                         }

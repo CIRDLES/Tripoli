@@ -34,7 +34,6 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
 import java.math.BigDecimal;
