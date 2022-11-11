@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.gui;
 
+import jakarta.xml.bind.JAXBException;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,6 +26,7 @@ import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -113,5 +115,9 @@ public class TripoliGUIController {
         MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
     }
 
+    @FXML
+    void TESTING(ActionEvent event) throws JAXBException {
+        AnalysisMethod.TEST();
+    }
 
 }

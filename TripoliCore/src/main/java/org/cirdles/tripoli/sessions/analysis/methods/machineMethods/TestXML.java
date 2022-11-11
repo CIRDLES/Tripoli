@@ -30,7 +30,7 @@ public class TestXML {
 
     public static void main(String[] args) throws JAXBException {
 
-        Path phoenixAnalysisMethodDataFilePath = Paths.get("Pb 4-5-6-7-8 Daly 10-5-5-5-2 sec.TIMSAM.xml");
+        Path phoenixAnalysisMethodDataFilePath = Paths.get("Sm147to150_S6_v2.TIMSAM");//"Pb 4-5-6-7-8 Daly 10-5-5-5-2 sec.TIMSAM.xml");
 
         JAXBContext jaxbContext = JAXBContext.newInstance(PhoenixAnalysisMethod.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();

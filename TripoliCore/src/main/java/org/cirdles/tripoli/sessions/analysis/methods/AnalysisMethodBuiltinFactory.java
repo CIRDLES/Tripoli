@@ -46,11 +46,11 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
     static {
         AnalysisMethod burdickBlSyntheticData = AnalysisMethod.initializeAnalysisMethod(
                 "BurdickBlSyntheticData",
-                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Phoenix"));
+                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("Phoenix"));
         analysisMethodsBuiltinMap.put(burdickBlSyntheticData.getMethodName(), burdickBlSyntheticData);
 
-        burdickBlSyntheticData.getSpeciesList().add(pb206);
-        burdickBlSyntheticData.getSpeciesList().add(pb208);
+        burdickBlSyntheticData.addSpeciesToSpeciesList(pb206);
+        burdickBlSyntheticData.addSpeciesToSpeciesList(pb208);
 
         burdickBlSyntheticData.getTripoliRatiosList().add(new IsotopicRatio(pb206, pb208));
 
@@ -82,14 +82,14 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
     static {
         AnalysisMethod ku_204_5_6_7_8_Daly_AllFaradayPb = AnalysisMethod.initializeAnalysisMethod(
                 "KU_204_5_6_7_8_Daly_AllFaradayPb",
-                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Phoenix"));
+                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("Phoenix"));
         analysisMethodsBuiltinMap.put(ku_204_5_6_7_8_Daly_AllFaradayPb.getMethodName(), ku_204_5_6_7_8_Daly_AllFaradayPb);
 
-        ku_204_5_6_7_8_Daly_AllFaradayPb.getSpeciesList().add(pb204);
-        ku_204_5_6_7_8_Daly_AllFaradayPb.getSpeciesList().add(pb205);
-        ku_204_5_6_7_8_Daly_AllFaradayPb.getSpeciesList().add(pb206);
-        ku_204_5_6_7_8_Daly_AllFaradayPb.getSpeciesList().add(pb207);
-        ku_204_5_6_7_8_Daly_AllFaradayPb.getSpeciesList().add(pb208);
+        ku_204_5_6_7_8_Daly_AllFaradayPb.addSpeciesToSpeciesList(pb204);
+        ku_204_5_6_7_8_Daly_AllFaradayPb.addSpeciesToSpeciesList(pb205);
+        ku_204_5_6_7_8_Daly_AllFaradayPb.addSpeciesToSpeciesList(pb206);
+        ku_204_5_6_7_8_Daly_AllFaradayPb.addSpeciesToSpeciesList(pb207);
+        ku_204_5_6_7_8_Daly_AllFaradayPb.addSpeciesToSpeciesList(pb208);
 
         ku_204_5_6_7_8_Daly_AllFaradayPb.getTripoliRatiosList().add(new IsotopicRatio(pb204, pb208));
         ku_204_5_6_7_8_Daly_AllFaradayPb.getTripoliRatiosList().add(new IsotopicRatio(pb205, pb208));
@@ -179,7 +179,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
     static {
         AnalysisMethod ku_PbDaly204_5_6_7_8 = AnalysisMethod.initializeAnalysisMethod(
                 "KU_PbDaly204_5_6_7_8",
-                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Phoenix"));
+                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("Phoenix"));
         analysisMethodsBuiltinMap.put(ku_PbDaly204_5_6_7_8.getMethodName(), ku_PbDaly204_5_6_7_8);
     }
 
@@ -187,7 +187,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
     static {
         AnalysisMethod ku_UoxideStaticFaraday = AnalysisMethod.initializeAnalysisMethod(
                 "KU_UoxideStaticFaraday",
-                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Phoenix"));
+                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("Phoenix"));
         analysisMethodsBuiltinMap.put(ku_UoxideStaticFaraday.getMethodName(), ku_UoxideStaticFaraday);
     }
 

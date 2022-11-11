@@ -16,14 +16,22 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods;
 
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineTable;
+import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.PhoenixAnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceTable;
 import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,6 +67,46 @@ public class AnalysisMethod implements Serializable {
         return new AnalysisMethod(methodName, massSpectrometer);
     }
 
+    public static AnalysisMethod createAnalysisMethodFromPhoenixAnalysisMethod(PhoenixAnalysisMethod phoenixAnalysisMethod){
+        AnalysisMethod analysisMethod = new AnalysisMethod(
+                phoenixAnalysisMethod.getHEADER().getFilename(),
+                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("Phoenix"));
+
+        List<PhoenixAnalysisMethod.ONPEAK> onPeakSequences = phoenixAnalysisMethod.getONPEAK();
+        for (PhoenixAnalysisMethod.ONPEAK onpeakSequence : onPeakSequences) {
+            String sequenceNumber = onpeakSequence.getSequence();
+            // <CollectorArray>147Sm:H1S1,148Sm:H2S1,149Sm:H3S1,150Sm:H4S1</CollectorArray>
+            String[] collectorArray = onpeakSequence.getCollectorArray()
+                    .trim()
+                    .replace("<CollectorArray>", "")
+                    .replace("</CollectorArray>", "")
+                    .split(",");
+            for (String cellSpec : collectorArray){
+                String[] cellSpecs = cellSpec.split(":");
+                int indexOfElementNameStart = cellSpecs[0].split("\\d\\D\\D")[0].length() + 1;
+                int massNumber = Integer.parseInt(cellSpecs[0].substring(0, indexOfElementNameStart));
+                String elementName = cellSpecs[0].substring(indexOfElementNameStart);
+                SpeciesRecordInterface species = NuclidesFactory.retrieveSpecies(elementName, massNumber);
+                analysisMethod.addSpeciesToSpeciesList(species);
+            }
+
+        }
+
+
+        return analysisMethod;
+    }
+
+    public static void TEST() throws JAXBException {
+
+        Path phoenixAnalysisMethodDataFilePath = Paths.get("Sm147to150_S6_v2.TIMSAM");//"Pb 4-5-6-7-8 Daly 10-5-5-5-2 sec.TIMSAM.xml");
+
+        JAXBContext jaxbContext = JAXBContext.newInstance(PhoenixAnalysisMethod.class);
+        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+        PhoenixAnalysisMethod phoenixAnalysisMethod = (PhoenixAnalysisMethod) jaxbUnmarshaller.unmarshal(phoenixAnalysisMethodDataFilePath.toFile());
+
+        AnalysisMethod am = AnalysisMethod.createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod);
+        System.out.println(phoenixAnalysisMethod.getHEADER().getFilename());
+    }
     @Override
     public boolean equals(Object otherObject) {
         boolean retVal = true;
@@ -102,6 +150,15 @@ public class AnalysisMethod implements Serializable {
 
     public void setSpeciesList(List<SpeciesRecordInterface> speciesList) {
         this.speciesList = speciesList;
+    }
+
+    public void addSpeciesToSpeciesList(SpeciesRecordInterface species){
+        if (speciesList == null){
+            speciesList = new ArrayList<>();
+        }
+        if (!speciesList.contains(species)) {
+            speciesList.add(species);
+        }
     }
 
     public BaselineTable getBaselineTable() {

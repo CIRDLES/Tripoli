@@ -30,8 +30,8 @@ public final class MassSpectrometerBuiltinModelFactory {
     public static Map<String, MassSpectrometerModel> massSpectrometersBuiltinMap = new LinkedHashMap<>();
 
     static {
-        MassSpectrometerModel op_Phoenix = MassSpectrometerModel.initializeMassSpectrometer("OP_Phoenix");
-        massSpectrometersBuiltinMap.put(op_Phoenix.getMassSpectrometerName(), op_Phoenix);
+        MassSpectrometerModel phoenix = MassSpectrometerModel.initializeMassSpectrometer("Phoenix");
+        massSpectrometersBuiltinMap.put(phoenix.getMassSpectrometerName(), phoenix);
 
         DetectorSetup detectorSetup = DetectorSetup.initializeDetectorSetup();
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L5", 0));
@@ -44,10 +44,11 @@ public final class MassSpectrometerBuiltinModelFactory {
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H2", 7));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H3", 8));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H4", 9));
-        op_Phoenix.setDetectorSetup(detectorSetup);
-        op_Phoenix.setCollectorWidthMM(0.95135);
-        op_Phoenix.setEffectiveRadiusMagnetMM(540.0);
-        op_Phoenix.setTheoreticalBeamWidthMM(0.35);
+
+        phoenix.setDetectorSetup(detectorSetup);
+        phoenix.setCollectorWidthMM(0.95135);
+        phoenix.setEffectiveRadiusMagnetMM(540.0);
+        phoenix.setTheoreticalBeamWidthMM(0.35);
     }
 
     static {
