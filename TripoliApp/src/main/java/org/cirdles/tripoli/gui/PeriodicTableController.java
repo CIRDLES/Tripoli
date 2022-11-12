@@ -107,10 +107,12 @@ public class PeriodicTableController {
             }
             periodicTableWindow = primaryLocalStage.getScene().getWindow();
 
-
             primaryLocalStage.show();
         }
         primaryLocalStage.requestFocus();
+        // center on app window
+        periodicTableWindow.setX(TripoliGUI.primaryStage.getX() + (TripoliGUI.primaryStage.getWidth() - primaryLocalStage.getWidth()) / 2);
+        periodicTableWindow.setY(TripoliGUI.primaryStage.getY() + (TripoliGUI.primaryStage.getHeight() - primaryLocalStage.getHeight()) / 2);
 
     }
 

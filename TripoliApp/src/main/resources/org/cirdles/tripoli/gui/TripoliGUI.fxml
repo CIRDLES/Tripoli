@@ -36,26 +36,26 @@
                 <items>
                     <MenuItem fx:id="sessionManagerMenuItem" mnemonicParsing="false" onAction="#sessionManagerMenuItemAction" text="Manage Session" />
                     <SeparatorMenuItem mnemonicParsing="false" />
-                    <MenuItem mnemonicParsing="false" onAction="#newSessionAction" text="New Session" />
+                    <MenuItem fx:id="newSessionMenuItem" mnemonicParsing="false" onAction="#newSessionMenuItemAction" text="New Session" />
                     <SeparatorMenuItem mnemonicParsing="false" />
-                    <MenuItem mnemonicParsing="false" text="Open Session" />
-                    <MenuItem mnemonicParsing="false" text="Open Recent Session" />
-                    <MenuItem mnemonicParsing="false" text="Open Demonstration Session" />
+                    <MenuItem mnemonicParsing="false" onAction="#openSessionMenuItemAction" text="Open Session" />
+                    <MenuItem mnemonicParsing="false" onAction="#openRecentSessionMenuItemAction" text="Open Recent Session" />
+                    <MenuItem mnemonicParsing="false" onAction="#openDemonstrationSessionMenuItemAction" text="Open Demonstration Session" />
                     <SeparatorMenuItem mnemonicParsing="false" />
-                    <MenuItem mnemonicParsing="false" text="Save  Session" />
-                    <MenuItem mnemonicParsing="false" text="Save  Session as ..." />
+                    <MenuItem fx:id="saveSessionMenuItem" mnemonicParsing="false" onAction="#saveSessionMenuItemAction" text="Save  Session" />
+                    <MenuItem fx:id="saveSessionAsMenuItem" mnemonicParsing="false" onAction="#saveSessionAsMenuItemAction" text="Save  Session as ..." />
                     <SeparatorMenuItem mnemonicParsing="false" />
-                    <MenuItem fx:id="closeTripoliSessionMenuItem" mnemonicParsing="false" onAction="#closeTripoliSessionMenuItemAction" text="Close  Session" />
+                    <MenuItem fx:id="closeSessionMenuItem" mnemonicParsing="false" onAction="#closeSessionMenuItemAction" text="Close  Session" />
                     <SeparatorMenuItem mnemonicParsing="false" />
                     <MenuItem mnemonicParsing="false" onAction="#quitAction" text="Quit" />
                 </items>
             </Menu>
-            <Menu mnemonicParsing="false" text="Analyses">
+            <Menu fx:id="analysisMenu" mnemonicParsing="false" text="Analyses">
                 <items>
-                    <MenuItem mnemonicParsing="false" text="Manage Analyses" />
+                    <MenuItem mnemonicParsing="false" text="Add Analysis" />
                 </items>
             </Menu>
-            <Menu mnemonicParsing="false" text="Methods">
+            <Menu fx:id="methodsMenu" mnemonicParsing="false" text="Methods">
                 <items>
                     <MenuItem mnemonicParsing="false" onAction="#TESTING" text="View Current Method" />
                     <Menu mnemonicParsing="false" text="New Method from ...">
@@ -71,7 +71,7 @@
                     </Menu>
                 </items>
             </Menu>
-            <Menu mnemonicParsing="false" text="Parameters">
+            <Menu fx:id="parametersMenu" mnemonicParsing="false" text="Parameters">
                 <items>
                     <MenuItem mnemonicParsing="false" text="Tracer Models" />
                 </items>

@@ -59,19 +59,13 @@ public final class TripoliAboutWindow {
             aboutWindow.initOwner(primaryStage.getScene().getWindow());
             aboutWindow.initModality(Modality.NONE);
 
-            aboutPage.setOnMousePressed(new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent event) {
-                    xOffset = event.getSceneX();
-                    yOffset = event.getSceneY();
-                }
+            aboutPage.setOnMousePressed(event -> {
+                xOffset = event.getSceneX();
+                yOffset = event.getSceneY();
             });
-            aboutPage.setOnMouseDragged(new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent event) {
-                    aboutWindow.setX(event.getScreenX() - xOffset);
-                    aboutWindow.setY(event.getScreenY() - yOffset);
-                }
+            aboutPage.setOnMouseDragged(event -> {
+                aboutWindow.setX(event.getScreenX() - xOffset);
+                aboutWindow.setY(event.getScreenY() - yOffset);
             });
 
             // Close window if main window gains focus.

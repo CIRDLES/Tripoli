@@ -24,6 +24,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -47,13 +48,14 @@ public class TripoliGUIController implements Initializable {
     public static String sessionFileName;
     public static MCMCPlotsWindow MCMCPlotsWindow;
     private static GridPane sessionManagerUI;
+    public Menu analysisMenu;
+    public Menu methodsMenu;
+    public Menu parametersMenu;
 
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
     @FXML // URL location of the FXML file that was given to the FXMLLoader
     private URL location;
-    @FXML
-    private AnchorPane splashAnchor;
     @FXML // fx:id="versionBuildDate"
     private Label versionBuildDate; // Value injected by FXMLLoader
     @FXML // fx:id="versionLabel"
@@ -61,7 +63,15 @@ public class TripoliGUIController implements Initializable {
     @FXML
     private MenuItem sessionManagerMenuItem;
     @FXML
-    private MenuItem closeTripoliSessionMenuItem;
+    private MenuItem newSessionMenuItem;
+    @FXML
+    private MenuItem saveSessionMenuItem;
+    @FXML
+    private MenuItem saveSessionAsMenuItem;
+    @FXML
+    private MenuItem closeSessionMenuItem;
+    @FXML
+    private AnchorPane splashAnchor;
 
     /**
      * @param location  The location used to resolve relative paths for the root object, or
@@ -75,22 +85,21 @@ public class TripoliGUIController implements Initializable {
         versionBuildDate.setText(Tripoli.RELEASE_DATE);
 
         MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
+
+        sessionManagerMenuItem.setDisable(true);
+        newSessionMenuItem.setDisable(false);
+        saveSessionMenuItem.setDisable(true);
+        saveSessionAsMenuItem.setDisable(true);
+        closeSessionMenuItem.setDisable(true);
+
+        analysisMenu.setDisable(true);
+
+        methodsMenu.setDisable(true);
+
+        parametersMenu.setDisable(true);
+
     }
 
-    private void launchSessionManager() throws IOException {
-        removeAllManagers();
-
-        sessionManagerUI = FXMLLoader.load(getClass().getResource("SessionManager.fxml"));
-        sessionManagerUI.setId("SessionManager");
-
-        AnchorPane.setLeftAnchor(sessionManagerUI, 0.0);
-        AnchorPane.setRightAnchor(sessionManagerUI, 0.0);
-        AnchorPane.setTopAnchor(sessionManagerUI, 0.0);
-        AnchorPane.setBottomAnchor(sessionManagerUI, 0.0);
-
-        splashAnchor.getChildren().add(sessionManagerUI);
-        sessionManagerUI.setVisible(true);
-    }
 
     private void removeAllManagers() {
         for (Node manager : splashAnchor.getChildren()) {
@@ -106,29 +115,60 @@ public class TripoliGUIController implements Initializable {
     }
 
     //  ++++++++++++++++++++++++++++++++++++++++++++++++++++ sessions ++++++++++++++++++++++++++++++++++++++++++++++++
-    @FXML
-    void sessionManagerMenuItemAction(ActionEvent event) throws IOException {
-        launchSessionManager();
+    private void launchSessionManager() throws IOException {
+        removeAllManagers();
+
+        sessionManagerUI = FXMLLoader.load(getClass().getResource("SessionManager.fxml"));
+        sessionManagerUI.setId("SessionManager");
+
+        AnchorPane.setLeftAnchor(sessionManagerUI, 0.0);
+        AnchorPane.setRightAnchor(sessionManagerUI, 0.0);
+        AnchorPane.setTopAnchor(sessionManagerUI, 0.0);
+        AnchorPane.setBottomAnchor(sessionManagerUI, 0.0);
+
+        splashAnchor.getChildren().add(sessionManagerUI);
+        sessionManagerUI.setVisible(true);
     }
 
     @FXML
-    void closeTripoliSessionMenuItemAction(ActionEvent event) {
+    void sessionManagerMenuItemAction(ActionEvent event){
+
+    }
+
+    public void newSessionMenuItemAction()  throws IOException {
+        launchSessionManager();
+    }
+
+    public void openSessionMenuItemAction(ActionEvent actionEvent) {
+    }
+
+    public void openRecentSessionMenuItemAction(ActionEvent actionEvent) {
+    }
+
+    public void openDemonstrationSessionMenuItemAction(ActionEvent actionEvent) {
+    }
+
+    public void saveSessionMenuItemAction(ActionEvent actionEvent) {
+    }
+
+    public void saveSessionAsMenuItemAction(ActionEvent actionEvent) {
+    }
+
+    @FXML
+    void closeSessionMenuItemAction(ActionEvent event) {
         //TODO:        confirmSaveOnProjectClose();
         removeAllManagers();
         TripoliGUI.updateStageTitle("");
         //TODO:        menuHighlighter.deHighlight();
     }
 
-    @FXML
-    private void newSessionAction(ActionEvent event) {
-
-    }
 
     @FXML
     private void quitAction(ActionEvent event) {
         // TODO: checks for save status etc.
         Platform.exit();
     }
+
     // ++++++++++++++++++++++++++++++++++++++++++++++++++ end sessions ++++++++++++++++++++++++++++++++++++++++++++++++++
     @FXML
     private void showTripoliAbout(ActionEvent event) {
