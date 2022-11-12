@@ -47,10 +47,10 @@ public class TripoliGUI extends Application {
     protected static TripoliAboutWindow tripoliAboutWindow;
 
     public static void updateStageTitle(String fileName) {
-        String fileSpec = "[Project File: NONE]";
+        String fileSpec = "[Session File: NONE]";
         fileSpec = fileName.length() > 0 ? fileSpec.replace("NONE", fileName) : fileSpec;
         primaryStage.setTitle("Tripoli  " + fileSpec);
-        TripoliGUIController.projectFileName = fileName;
+        TripoliGUIController.sessionFileName = fileName;
     }
 
     public static void main(String[] args) {
