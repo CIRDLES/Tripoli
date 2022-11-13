@@ -364,7 +364,7 @@ public class DataModelDriverExperiment {
             long prev = System.nanoTime();
             String operation = DataModelUpdaterHelper.randomOperMS(hierarchical);
             // todo: handle adaptiveFlag case
-            boolean adaptiveFlag = (counter >= 100);
+            boolean adaptiveFlag = (counter >= 10000);
             boolean allFlag = adaptiveFlag;
             int columnChoice = modelIndex % stepCountForcedSave;
             double[] delx_adapt_slice = storeFactory.rows(delx_adapt).sliceColumn(columnChoice).toRawCopy1D();
