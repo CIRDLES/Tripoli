@@ -624,13 +624,13 @@ public class DataModelDriverExperiment {
 
                     if (adaptiveFlag) {
                         /*
-                        mvnrnd(zeros(sizeOfModel,1), 2.38^2*xDataCovariance/sizeOfModel, stepCountForcedSave)'
+                        delx_adapt =  mvnrnd(zeros(sizeOfModel,1), 2.38^2*xDataCovariance/sizeOfModel, stepCountForcedSave)'
                         stepCountForcedSave = 100
-                        sizeOfModel = 21
+                        sizeOfModel = 20
                         */
 
                         double[] zeroMean = new double[sizeOfModel];
-                        MultivariateNormalDistribution mnd = new MultivariateNormalDistribution(zeroMean, storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / (sizeOfModel)).toRawCopy2D());
+                        MultivariateNormalDistribution mnd = new MultivariateNormalDistribution(zeroMean, storeFactory.rows(xDataCovariance).multiply(pow(2.38, 2) / (sizeOfModel)).toRawCopy2D());
                         double[][] samples = new double[stepCountForcedSave][];
                         for (int i = 0; i < stepCountForcedSave; i++) {
                              samples[i] = mnd.sample();

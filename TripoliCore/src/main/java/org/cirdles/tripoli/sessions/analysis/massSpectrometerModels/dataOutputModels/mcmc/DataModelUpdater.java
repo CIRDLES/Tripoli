@@ -255,9 +255,10 @@ public class DataModelUpdater {
             }
         } else {
             // VARY ALL AT A TIME
-            PhysicalStore<Double> delx = storeFactory.columns(delx_adapt.clone());
-            PhysicalStore<Double> xxStore = storeFactory.column(xx0.clone());
-            xx = xxStore.add(delx).toRawCopy1D();
+            // PhysicalStore<Double> delx = storeFactory.columns(delx_adapt.clone());
+            // PhysicalStore<Double> xxStore = storeFactory.column(xx0.clone());
+            // xx = xxStore.add(delx).toRawCopy1D();
+            xx = storeFactory.column(xx0.clone()).add(storeFactory.columns(delx_adapt.clone())).toRawCopy1D();
             for (int row = 0; row < xx.length; row++) {
                 if ((xx[row] > priorMaxArray[row] || (xx[row] < priorMinArray[row]))) {
                     xx[row] = xx0[row];
