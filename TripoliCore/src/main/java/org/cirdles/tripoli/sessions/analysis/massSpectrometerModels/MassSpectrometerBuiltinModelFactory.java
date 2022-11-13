@@ -18,19 +18,24 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels;
 
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
+import org.jetbrains.annotations.NonNls;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author James F. Bowring
  */
 public final class MassSpectrometerBuiltinModelFactory {
 
-    public static Map<String, MassSpectrometerModel> massSpectrometersBuiltinMap = new LinkedHashMap<>();
+    @NonNls
+    public static final String PHOENIX_SYNTHETIC = "PhoenixSynthetic";
+    @NonNls
+    public static final String PHOENIX = "Phoenix";
+    public static Map<String, MassSpectrometerModel> massSpectrometersBuiltinMap = new TreeMap<>();
 
     static {
-        MassSpectrometerModel phoenixSynthetic = MassSpectrometerModel.initializeMassSpectrometer("PhoenixSynthetic");
+        MassSpectrometerModel phoenixSynthetic = MassSpectrometerModel.initializeMassSpectrometer(PHOENIX_SYNTHETIC);
         massSpectrometersBuiltinMap.put(phoenixSynthetic.getMassSpectrometerName(), phoenixSynthetic);
 
         DetectorSetup detectorSetup = DetectorSetup.initializeDetectorSetup();
@@ -52,7 +57,7 @@ public final class MassSpectrometerBuiltinModelFactory {
     }
 
     static {
-        MassSpectrometerModel phoenix = MassSpectrometerModel.initializeMassSpectrometer("Phoenix");
+        MassSpectrometerModel phoenix = MassSpectrometerModel.initializeMassSpectrometer(PHOENIX);
         massSpectrometersBuiltinMap.put(phoenix.getMassSpectrometerName(), phoenix);
 
         DetectorSetup detectorSetup = DetectorSetup.initializeDetectorSetup();

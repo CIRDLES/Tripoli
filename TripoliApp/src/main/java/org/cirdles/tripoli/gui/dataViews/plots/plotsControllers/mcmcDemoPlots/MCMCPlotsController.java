@@ -101,7 +101,7 @@ public class MCMCPlotsController {
     void demo1_2IsotopeButtonAction(ActionEvent event) throws IOException {
         processDataFileAndShowPlotsOfMCMC(
                 listViewOfSyntheticFiles.getSelectionModel().selectedItemProperty().getValue().toPath(),
-                AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
+                AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA));
         ((Button) event.getSource()).setDisable(true);
         processFileButton2.setDisable(true);
     }
@@ -114,7 +114,7 @@ public class MCMCPlotsController {
                 .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
         processDataFileAndShowPlotsOfMCMC(
                 dataFile,
-                AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("KU_204_5_6_7_8_Daly_AllFaradayPb"));
+                AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB));
 
         ((Button) event.getSource()).setDisable(true);
         processFileButton.setDisable(true);
@@ -173,8 +173,8 @@ public class MCMCPlotsController {
         listOfFilesScrollPane.setContent(listViewOfSyntheticFiles);
     }
 
-    public void processDataFileAndShowPlotsOfMCMC(Path dataFile, AnalysisMethod analysisMethod) throws IOException {
-        final MCMCUpdatesService service = new MCMCUpdatesService(dataFile, analysisMethod);
+    public void processDataFileAndShowPlotsOfMCMC(Path dataFile, AnalysisMethod analysisMethod) {
+        MCMCUpdatesService service = new MCMCUpdatesService(dataFile, analysisMethod);
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
         service.setOnSucceeded(evt -> {

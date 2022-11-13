@@ -50,7 +50,6 @@ public class TripoliGUI extends Application {
         String fileSpec = "[Session File: NONE]";
         fileSpec = fileName.length() > 0 ? fileSpec.replace("NONE", fileName) : fileSpec;
         primaryStage.setTitle("Tripoli  " + fileSpec);
-        TripoliGUIController.sessionFileName = fileName;
     }
 
     public static void main(String[] args) {

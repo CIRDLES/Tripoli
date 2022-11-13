@@ -18,6 +18,8 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputM
 
 import org.ojalgo.matrix.store.MatrixStore;
 
+import java.io.Serializable;
+
 /**
  * Matlab code >> here
  * d0.data >> rawDataColumn
@@ -71,6 +73,6 @@ public record MassSpecOutputDataRecord(
         int isotopeCount,
         int blockCount,
         int[] nCycleArray
-) {
+) implements Serializable {
 
 }

@@ -74,7 +74,7 @@ public class AnalysisMethod implements Serializable {
     public static AnalysisMethod createAnalysisMethodFromPhoenixAnalysisMethod(PhoenixAnalysisMethod phoenixAnalysisMethod) {
         AnalysisMethod analysisMethod = new AnalysisMethod(
                 phoenixAnalysisMethod.getHEADER().getFilename(),
-                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("Phoenix"));
+                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get(MassSpectrometerBuiltinModelFactory.PHOENIX));
 
         List<PhoenixAnalysisMethod.ONPEAK> onPeakSequences = phoenixAnalysisMethod.getONPEAK();
         for (PhoenixAnalysisMethod.ONPEAK onpeakSequence : onPeakSequences) {

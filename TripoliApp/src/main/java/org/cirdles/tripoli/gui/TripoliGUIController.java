@@ -32,6 +32,8 @@ import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
+import org.cirdles.tripoli.sessions.Session;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.SessionBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 
 import java.io.IOException;
@@ -39,13 +41,14 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import static org.cirdles.tripoli.gui.utilities.BrowserControl.urlEncode;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.SessionBuiltinFactory.TRIPOLI_DEMONSTRATION_SESSION;
 
 /**
  * @author James F. Bowring
  */
 public class TripoliGUIController implements Initializable {
 
-    public static String sessionFileName;
+    public static Session tripoliSession;
     public static MCMCPlotsWindow MCMCPlotsWindow;
     private static GridPane sessionManagerUI;
     public Menu analysisMenu;
@@ -86,6 +89,12 @@ public class TripoliGUIController implements Initializable {
 
         MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
 
+        showStartingMenus();
+
+    }
+
+
+    private void showStartingMenus(){
         sessionManagerMenuItem.setDisable(true);
         newSessionMenuItem.setDisable(false);
         saveSessionMenuItem.setDisable(true);
@@ -97,7 +106,6 @@ public class TripoliGUIController implements Initializable {
         methodsMenu.setDisable(true);
 
         parametersMenu.setDisable(true);
-
     }
 
 
@@ -128,24 +136,32 @@ public class TripoliGUIController implements Initializable {
 
         splashAnchor.getChildren().add(sessionManagerUI);
         sessionManagerUI.setVisible(true);
+
+        closeSessionMenuItem.setDisable(false);
+        analysisMenu.setDisable(false);
     }
 
     @FXML
-    void sessionManagerMenuItemAction(ActionEvent event){
+    void sessionManagerMenuItemAction(){
 
     }
 
-    public void newSessionMenuItemAction()  throws IOException {
+    public void newSessionMenuItemAction() throws IOException, JAXBException {
+        tripoliSession = Session.initializeDefaultSession();
         launchSessionManager();
+        AnalysisMethod.TEST();
     }
 
-    public void openSessionMenuItemAction(ActionEvent actionEvent) {
+    public void openSessionMenuItemAction() {
     }
 
-    public void openRecentSessionMenuItemAction(ActionEvent actionEvent) {
+    public void openRecentSessionMenuItemAction() {
     }
 
-    public void openDemonstrationSessionMenuItemAction(ActionEvent actionEvent) {
+    public void openDemonstrationSessionMenuItemAction(ActionEvent actionEvent) throws IOException {
+        tripoliSession = SessionBuiltinFactory.sessionsBuiltinMap.get(TRIPOLI_DEMONSTRATION_SESSION);
+        launchSessionManager();
+
     }
 
     public void saveSessionMenuItemAction(ActionEvent actionEvent) {
@@ -159,7 +175,9 @@ public class TripoliGUIController implements Initializable {
         //TODO:        confirmSaveOnProjectClose();
         removeAllManagers();
         TripoliGUI.updateStageTitle("");
+        tripoliSession = null;
         //TODO:        menuHighlighter.deHighlight();
+        showStartingMenus();
     }
 
 
@@ -217,7 +235,7 @@ public class TripoliGUIController implements Initializable {
 
     @FXML
     private void TESTING(ActionEvent event) throws JAXBException {
-        AnalysisMethod.TEST();
+
     }
 
 

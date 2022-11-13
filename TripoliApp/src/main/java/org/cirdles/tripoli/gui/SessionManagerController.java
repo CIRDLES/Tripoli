@@ -21,38 +21,50 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import org.cirdles.tripoli.sessions.Session;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliSession;
 
 /**
  * @author James F. Bowring
  */
 public class SessionManagerController implements Initializable {
 
-        @FXML
-        private TextField analystNameText;
+    @FXML
+    private TextField analystNameText;
 
-        @FXML
-        private TextField sessionNameText;
+    @FXML
+    private TextField sessionNameText;
 
-        @FXML
-        private TextArea sessionNotesText;
+    @FXML
+    private TextArea sessionNotesText;
 
-        @FXML
-        private Label summaryStatsLabel;
+    @FXML
+    private Label summaryStatsLabel;
 
-        @FXML
-        private TextField tripoliFileNameText;
+    @FXML
+    private TextField tripoliFileNameText;
 
-        /**
-         * @param location  The location used to resolve relative paths for the root object, or
-         *                  {@code null} if the location is not known.
-         * @param resources The resources used to localize the root object, or {@code null} if
-         *                  the root object was not localized.
-         */
-        @Override
-        public void initialize(URL location, ResourceBundle resources) {
-
+    /**
+     * @param location  The location used to resolve relative paths for the root object, or
+     *                  {@code null} if the location is not known.
+     * @param resources The resources used to localize the root object, or {@code null} if
+     *                  the root object was not localized.
+     */
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        if (null == tripoliSession) {
+            tripoliSession = Session.initializeDefaultSession();
         }
+
+        populateSessionPane();
+    }
+
+    private void populateSessionPane() {
+        sessionNameText.setEditable(tripoliSession.isImmutable());
+        sessionNameText.setText(tripoliSession.getSessionName());
+    }
 }

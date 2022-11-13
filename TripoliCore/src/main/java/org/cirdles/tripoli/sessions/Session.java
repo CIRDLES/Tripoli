@@ -20,8 +20,8 @@ import org.cirdles.tripoli.sessions.analysis.Analysis;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author James F. Bowring
@@ -31,25 +31,36 @@ public class Session implements Serializable {
     @Serial
     private static final long serialVersionUID = 6597752272434171800L;
 
-
     private String sessionName;
     private Map<String, Analysis> mapOfAnalyses;
+    private boolean mutable;
 
     private Session() {
         this("Default Session");
     }
 
     private Session(String sessionName) {
-        this(sessionName, new LinkedHashMap<>());
+        this(sessionName, new TreeMap<>());
     }
 
     private Session(String sessionName, Map<String, Analysis> mapOfAnalyses) {
         this.sessionName = sessionName;
         this.mapOfAnalyses = mapOfAnalyses;
+        this.mutable = true;
     }
 
     public static Session initializeDefaultSession() {
         return new Session();
+    }
+
+    public static Session initializeSession(String sessionName) {
+        return new Session(sessionName);
+    }
+
+    public void addAnalysis(Analysis analysis) {
+        if (!mapOfAnalyses.containsKey(analysis.getAnalysisName())) {
+            mapOfAnalyses.put(analysis.getAnalysisName(), analysis);
+        }
     }
 
     public String getSessionName() {
@@ -66,5 +77,13 @@ public class Session implements Serializable {
 
     public void setMapOfAnalyses(Map<String, Analysis> mapOfAnalyses) {
         this.mapOfAnalyses = mapOfAnalyses;
+    }
+
+    public boolean isMutable() {
+        return mutable;
+    }
+
+    public void setMutable(boolean mutable) {
+        this.mutable = mutable;
     }
 }

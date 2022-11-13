@@ -49,7 +49,7 @@
         <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" styleClass="backgroundCalamari" text="Session File:" GridPane.rowIndex="2" />
         <TextField fx:id="tripoliFileNameText" editable="false" prefHeight="27.0" prefWidth="323.0" promptText="name and location of session '.tripoli' file will appear here" style="-fx-font-family: SansSerif; -fx-font-size: 13;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
          <TextArea fx:id="sessionNotesText" prefHeight="259.0" prefWidth="1111.0" promptText="Type here" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-      <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Session:" GridPane.rowIndex="3" />
+      <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Session Analyses:" GridPane.rowIndex="3" />
            <Label fx:id="summaryStatsLabel" alignment="TOP_LEFT" prefHeight="180.0" prefWidth="1120.0" text="Summary of analyses" GridPane.columnIndex="1" GridPane.rowIndex="3" />
          <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Notes:" GridPane.rowIndex="4" />
     </children>
