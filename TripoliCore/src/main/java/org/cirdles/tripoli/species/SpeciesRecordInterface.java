@@ -23,5 +23,5 @@ public interface SpeciesRecordInterface {
 
     double getNaturalAbundancePercent();
 
-    public String prettyPrintShortForm();
+    String prettyPrintShortForm();
 }

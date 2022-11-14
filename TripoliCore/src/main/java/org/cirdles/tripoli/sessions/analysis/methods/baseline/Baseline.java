@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 import java.io.Serializable;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author James F. Bowring
@@ -39,7 +39,7 @@ public class Baseline implements Serializable {
 
     private Baseline(String baselineName) {
         this.baselineName = baselineName;
-        baselineCellsMap = new LinkedHashMap<>();
+        baselineCellsMap = new TreeMap<>();
     }
 
     @Contract(value = "_ -> new", pure = true)

@@ -236,11 +236,10 @@ public abstract class AbstractRatiosDataModel implements
         if (this == model) {
             return true;
         }
-        if (!(model instanceof AbstractRatiosDataModel)) {
+        if (!(model instanceof AbstractRatiosDataModel myModel)) {
             return false;
         }
 
-        AbstractRatiosDataModel myModel = (AbstractRatiosDataModel) model;
         return (this.getNameAndVersion().trim().compareToIgnoreCase( //
                 myModel.getNameAndVersion().trim()) == 0);
     }
@@ -448,14 +447,14 @@ public abstract class AbstractRatiosDataModel implements
             buildRhosMap();
         }
 
-        rhosUnct.replaceAll((n, v) -> new BigDecimal(((CorrelationMatrixModel) dataCorrelationsVarUnct).getCorrelationCell(n)));
+        rhosUnct.replaceAll((n, v) -> BigDecimal.valueOf(((CorrelationMatrixModel) dataCorrelationsVarUnct).getCorrelationCell(n)));
 
         // sept 2014 backwards compat
         if (rhosSysUnct == null) {
             buildRhosSysUnctMap();
         }
 
-        rhosSysUnct.replaceAll((n, v) -> new BigDecimal(((CorrelationMatrixModel) dataCorrelationsSysUnct).getCorrelationCell(n)));
+        rhosSysUnct.replaceAll((n, v) -> BigDecimal.valueOf(((CorrelationMatrixModel) dataCorrelationsSysUnct).getCorrelationCell(n)));
     }
 
     /**
