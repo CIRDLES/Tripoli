@@ -161,8 +161,8 @@ public class DataModelPlot {
 
         // calculate blockIntensities means for plotting
         double[][] yDataIntensityMeans = new double[blockCount][];
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
-            PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
             MatrixStore<Double> intensityMeansMatrix = storeFactory.columns(intensityMeans[blockIndex]);
             MatrixStore<Double> yDataMatrix = massSpecOutputDataRecord.allBlockInterpolations()[blockIndex].multiply(intensityMeansMatrix).multiply(1.0 / dalyFaradayGainMean);//(1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
             yDataIntensityMeans[blockIndex] = yDataMatrix.toRawCopy1D();
