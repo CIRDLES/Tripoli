@@ -17,8 +17,8 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups;
 
 import java.io.Serializable;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class DetectorSetup implements Serializable {
     /* Notes
@@ -34,7 +34,7 @@ public class DetectorSetup implements Serializable {
     private Map<String, Detector> mapOfDetectors;
 
     private DetectorSetup() {
-        mapOfDetectors = new LinkedHashMap<>();
+        mapOfDetectors = new TreeMap<>();
     }
 
     public static DetectorSetup initializeDetectorSetup() {

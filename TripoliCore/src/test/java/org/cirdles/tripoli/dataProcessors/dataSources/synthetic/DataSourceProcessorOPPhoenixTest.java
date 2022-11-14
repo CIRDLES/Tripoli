@@ -61,8 +61,8 @@ class DataSourceProcessorOPPhoenixTest {
 //        DataModellerOutputRecord dataModelInit = driveModelTest(dataFile);
 //        HistogramBuilder histogram = driveModelTest(dataFile, null);
 //
-//        assertEquals(dataModelInit.blockIntensities().get(0, 0), 87806.56134575832);
-// todo fix all this testing details
+//       assertEquals(dataModelInit.blockIntensities().get(0, 0), 87806.56134575832);
+// TODO fix all this testing details
     }
 
     @Test
@@ -72,7 +72,7 @@ class DataSourceProcessorOPPhoenixTest {
         Path dataFile = RESOURCE_EXTRACTOR
                 .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
         DataSourceProcessor_PhoenixTextFile dataSourceProcessorOPPhoenix
-                = DataSourceProcessor_PhoenixTextFile.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("KU_204_5_6_7_8_Daly_AllFaradayPb"));
+                = DataSourceProcessor_PhoenixTextFile.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB));
         MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFile);
 
         assert (massSpecOutputDataRecord.rawDataColumn().length == 162000);

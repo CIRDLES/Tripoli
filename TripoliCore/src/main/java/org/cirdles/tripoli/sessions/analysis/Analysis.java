@@ -16,10 +16,13 @@
 
 package org.cirdles.tripoli.sessions.analysis;
 
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.sessions.analysis.samples.Sample;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.nio.file.Path;
 
 /**
  * @author James F. Bowring
@@ -30,17 +33,23 @@ public class Analysis implements Serializable {
 
     private String analysisName;
     private AnalysisMethod analysisMethod;
+    private Sample analysisSample;
+    private Path dataFilePath;
+    private MassSpecOutputDataRecord massSpecOutputDataRecord;
 
     private Analysis() {
     }
 
-    private Analysis(String analysisName, AnalysisMethod analysisMethod) {
+    private Analysis(String analysisName, AnalysisMethod analysisMethod, Sample analysisSample) {
         this.analysisName = analysisName;
         this.analysisMethod = analysisMethod;
+        this.analysisSample = analysisSample;
+        this.dataFilePath = null;
+        this.massSpecOutputDataRecord = null;
     }
 
-    public static Analysis initializeAnalysis(String analysisName, AnalysisMethod analysisMethod) {
-        return new Analysis(analysisName, analysisMethod);
+    public static Analysis initializeAnalysis(String analysisName, AnalysisMethod analysisMethod, Sample analysisSample) {
+        return new Analysis(analysisName, analysisMethod, analysisSample);
     }
 
     public String getAnalysisName() {
@@ -57,5 +66,21 @@ public class Analysis implements Serializable {
 
     public void setMethod(AnalysisMethod analysisMethod) {
         this.analysisMethod = analysisMethod;
+    }
+
+    public Path getDataFilePath() {
+        return dataFilePath;
+    }
+
+    public void setDataFilePath(Path dataFilePath) {
+        this.dataFilePath = dataFilePath;
+    }
+
+    public MassSpecOutputDataRecord getMassSpecOutputDataRecord() {
+        return massSpecOutputDataRecord;
+    }
+
+    public void setMassSpecOutputDataRecord(MassSpecOutputDataRecord massSpecOutputDataRecord) {
+        this.massSpecOutputDataRecord = massSpecOutputDataRecord;
     }
 }

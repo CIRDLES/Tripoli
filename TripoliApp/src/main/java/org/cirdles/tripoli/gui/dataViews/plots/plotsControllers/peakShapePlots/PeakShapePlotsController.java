@@ -9,16 +9,16 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
-import org.cirdles.tripoli.gui.dataViews.plots.BeamShapeLinePlot;
-import org.cirdles.tripoli.gui.dataViews.plots.GBeamLinePlot;
-import org.cirdles.tripoli.gui.dataViews.plots.PeakCentresLinePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.BeamShapeLinePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.GBeamLinePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.PeakCentresLinePlot;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
+import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.linePlots.BeamShapeLinePlotBuilder;
+import org.cirdles.tripoli.plots.linePlots.GBeamLinePlotBuilder;
+import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes.BeamDataOutputDriverExperiment;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
-import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.BeamShapeLinePlotBuilder;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.GBeamLinePlotBuilder;
-import org.cirdles.tripoli.visualizationUtilities.linePlots.LinePlotBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.*;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsWindow.*;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow.plottingWindow;
 
 public class PeakShapePlotsController {
@@ -204,7 +204,6 @@ public class PeakShapePlotsController {
             listViewOfGroupResourcesInFolder.setItems(items);
 
 
-
             listViewOfGroupResourcesInFolder.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 // Files will be manipulated here when group is selected
                 setCurrentGroup(newValue);
@@ -213,7 +212,6 @@ public class PeakShapePlotsController {
                 eventLogTextArea.textProperty().unbind();
                 eventLogTextArea.setText("Select File From Plot");
             });
-
 
 
             listViewOfGroupResourcesInFolder.getSelectionModel().selectFirst();
@@ -261,7 +259,7 @@ public class PeakShapePlotsController {
         finalYAxis = yAxis;
         finalXAxis = xAxis;
 
-        LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, "PeakCentre Plot");
+        LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, "PeakCentre Plot", "", "");
 
         peakCentreLinePlot = new PeakCentresLinePlot(new Rectangle(peakCentrePlotScrollPane.getWidth(), peakCentrePlotScrollPane.getHeight()), peakCentrePlotBuilder);
 
@@ -297,7 +295,6 @@ public class PeakShapePlotsController {
 
         ObservableList<File> items = FXCollections.observableArrayList(resourceGroups.get(groupValue));
         listViewOfResourcesInFolder.setItems(items);
-
 
 
         listViewOfResourcesInFolder.setOnMouseClicked(click -> {
@@ -337,7 +334,6 @@ public class PeakShapePlotsController {
     }
 
 
-
     public void processDataFileAndShowPlotsOfPeakShapes() {
 
 
@@ -371,7 +367,6 @@ public class PeakShapePlotsController {
                 gBeamPlotScrollPane.setContent(gBeamLinePlot);
 
 
-
                 AbstractDataView beamShapeLinePlot = new BeamShapeLinePlot(
                         new Rectangle(beamShapePlotScrollPane.getWidth(),
                                 beamShapePlotScrollPane.getHeight()),
@@ -394,66 +389,9 @@ public class PeakShapePlotsController {
 
                 beamShapeLinePlot.preparePanel();
                 beamShapePlotScrollPane.setContent(beamShapeLinePlot);
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-
-
-
-
-//            service.start();
-//            service.setOnSucceeded(evt -> {
-//                AbstractPlotBuilder gBeamPlotBuilder = ((PeakShapesTask) service.getPeakShapesTask()).getGBeamPlotBuilder();
-//
-//                AbstractDataView gBeamLinePlot = new GBeamLinePlot(
-//                        new Rectangle(gBeamPlotScrollPane.getWidth(),
-//                                gBeamPlotScrollPane.getHeight()),
-//                        (GBeamLinePlotBuilder) gBeamPlotBuilder
-//                );
-//
-//                gBeamPlotScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
-//                    if (newValue.intValue() > 100) {
-//                        gBeamLinePlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
-//                        gBeamLinePlot.repaint();
-//                    }
-//                });
-//
-//                gBeamPlotScrollPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-//                    if (newValue.intValue() > 100) {
-//                        gBeamLinePlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
-//                        gBeamLinePlot.repaint();
-//                    }
-//                });
-//
-//                gBeamLinePlot.preparePanel();
-//                gBeamPlotScrollPane.setContent(gBeamLinePlot);
-//
-//
-//                AbstractPlotBuilder beamShapePlotBuilder = ((PeakShapesTask) service.getPeakShapesTask()).getBeamShapePlotBuilder();
-//
-//                AbstractDataView beamShapeLinePlot = new BeamShapeLinePlot(
-//                        new Rectangle(beamShapePlotScrollPane.getWidth(),
-//                                beamShapePlotScrollPane.getHeight()),
-//                        (BeamShapeLinePlotBuilder) beamShapePlotBuilder
-//                );
-//
-//                beamShapePlotScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
-//                    if (newValue.intValue() > 100) {
-//                        beamShapeLinePlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
-//                        beamShapeLinePlot.repaint();
-//                    }
-//                });
-//
-//                beamShapePlotScrollPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-//                    if (newValue.intValue() > 100) {
-//                        beamShapeLinePlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
-//                        beamShapeLinePlot.repaint();
-//                    }
-//                });
-//
-//                beamShapeLinePlot.preparePanel();
-//                beamShapePlotScrollPane.setContent(beamShapeLinePlot);
-//            });
         } else {
             eventLogTextArea.textProperty().unbind();
             eventLogTextArea.setText("Please Choose Folder");

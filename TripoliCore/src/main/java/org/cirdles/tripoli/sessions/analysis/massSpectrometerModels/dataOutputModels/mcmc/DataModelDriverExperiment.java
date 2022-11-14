@@ -19,13 +19,12 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputM
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
+import org.cirdles.tripoli.plots.AbstractPlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_PhoenixTextFile;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
-import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
-import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.ojalgo.RecoverableCondition;
 import org.ojalgo.matrix.decomposition.Cholesky;
 import org.ojalgo.matrix.store.MatrixStore;
@@ -55,7 +54,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
  */
 public class DataModelDriverExperiment {
 
-    private static final boolean doFullProcessing = true;
+    private static final boolean doFullProcessing = false;
 
     public static AbstractPlotBuilder[][] driveModelTest(Path dataFilePath, AnalysisMethod analysisMethod, LoggingCallbackInterface loggingCallback) throws IOException {
 
@@ -116,7 +115,7 @@ public class DataModelDriverExperiment {
 
         int maxCount = 2000;
         if (dataModelInit_X0.logratios().length > 2) {
-            maxCount = 500;
+            maxCount = 1000;
         }
 
         boolean hierarchical = true;
@@ -289,7 +288,9 @@ public class DataModelDriverExperiment {
         for (int i = 0; i < massSpecOutputDataRecord.nCycleArray().length; i++) {
             sumNCycle = sumNCycle + massSpecOutputDataRecord.nCycleArray()[i];
         }
-        int sizeOfModel = massSpecOutputDataRecord.isotopeCount() + sumNCycle + massSpecOutputDataRecord.faradayCount() + countOfDFGains - 1;
+
+        int sizeOfModel = massSpecOutputDataRecord.isotopeCount() - 1 + sumNCycle + massSpecOutputDataRecord.faradayCount() + countOfDFGains;
+
         double[] xDataMean = new double[sizeOfModel];
         double[][] xDataCovariance = new double[sizeOfModel][sizeOfModel];
         double [][] delx_adapt = new double[sizeOfModel][stepCountForcedSave];
