@@ -158,20 +158,20 @@ public class TripoliGUIController implements Initializable {
     public void openRecentSessionMenuItemAction() {
     }
 
-    public void openDemonstrationSessionMenuItemAction(ActionEvent actionEvent) throws IOException {
+    public void openDemonstrationSessionMenuItemAction() throws IOException {
         tripoliSession = SessionBuiltinFactory.sessionsBuiltinMap.get(TRIPOLI_DEMONSTRATION_SESSION);
         launchSessionManager();
 
     }
 
-    public void saveSessionMenuItemAction(ActionEvent actionEvent) {
+    public void saveSessionMenuItemAction() {
     }
 
-    public void saveSessionAsMenuItemAction(ActionEvent actionEvent) {
+    public void saveSessionAsMenuItemAction() {
     }
 
     @FXML
-    void closeSessionMenuItemAction(ActionEvent event) {
+    void closeSessionMenuItemAction() {
         //TODO:        confirmSaveOnProjectClose();
         removeAllManagers();
         TripoliGUI.updateStageTitle("");
@@ -182,19 +182,19 @@ public class TripoliGUIController implements Initializable {
 
 
     @FXML
-    private void quitAction(ActionEvent event) {
+    private void quitAction() {
         // TODO: checks for save status etc.
         Platform.exit();
     }
 
     // ++++++++++++++++++++++++++++++++++++++++++++++++++ end sessions ++++++++++++++++++++++++++++++++++++++++++++++++++
     @FXML
-    private void showTripoliAbout(ActionEvent event) {
+    private void showTripoliAbout() {
         TripoliGUI.tripoliAboutWindow.loadAboutWindow();
     }
 
     @FXML
-    private void showTripoliContributeIssue(ActionEvent event) {
+    private void showTripoliContributeIssue() {
         String version = "Tripoli Version: " + Tripoli.VERSION;
         String javaVersion = "Java Version: " + System.getProperties().getProperty("java.version");
         String javaFXVersion = "JavaFX Version: " + System.getProperties().getProperty("javafx.runtime.version");
@@ -210,31 +210,31 @@ public class TripoliGUIController implements Initializable {
     }
 
     @FXML
-    private void showTripoliGitHubRepo(ActionEvent event) {
+    private void showTripoliGitHubRepo() {
         BrowserControl.showURI("https://github.com/CIRDLES/Tripoli");
     }
 
     @FXML
-    private void showPeriodicTable(ActionEvent event) {
+    private void showPeriodicTable() {
         var periodicTableController = new PeriodicTableController();
         periodicTableController.launch();
     }
 
     @FXML
-    private void showDemo1(ActionEvent event) {
+    private void showDemo1() {
         MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
         MCMCPlotsWindow.loadPlotsWindow();
     }
 
     @FXML
-    private void showDemo2(ActionEvent event) {
+    private void showDemo2() {
         PeakShapePlotsWindow peakShapePlotsWindow = new PeakShapePlotsWindow(TripoliGUI.primaryStage);
         peakShapePlotsWindow.loadPlotsWindow();
     }
 
 
     @FXML
-    private void TESTING(ActionEvent event) throws JAXBException {
+    private void TESTING() throws JAXBException {
 
     }
 
