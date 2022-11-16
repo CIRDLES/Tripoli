@@ -38,6 +38,7 @@ dependencies {
     //implementation("org.ojalgo:ojalgo:51.4.0")
 
     implementation("eu.hansolo.fx:charts:17.1.13")
+
 }
 
 extraJavaModuleInfo {

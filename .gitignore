@@ -52,6 +52,7 @@ test_*
 *.png
 *.svg
 TripoliResources/
+*.TIMSAM
 
 
 

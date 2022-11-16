@@ -249,11 +249,9 @@ public abstract class AbstractDataView extends Canvas {
      * @return
      */
     protected double convertMouseXToValue(double x) {
-        double convertedX = ((x - leftMargin + 2) / (double) graphWidth) //
+        return ((x - leftMargin + 2) / (double) graphWidth) //
                 * getRangeX_Display()//
                 + getMinX_Display();
-
-        return convertedX;
     }
 
     /**

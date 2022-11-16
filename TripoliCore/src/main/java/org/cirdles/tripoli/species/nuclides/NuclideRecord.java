@@ -46,8 +46,7 @@ public record NuclideRecord(
     }
 
     public String prettyPrintShortForm() {
-        return elementSymbol +
-                "" + (protonsZ + neutronsN) ;
+        return "" + (protonsZ + neutronsN) + elementSymbol;
     }
 
     public int getMassNumber() {

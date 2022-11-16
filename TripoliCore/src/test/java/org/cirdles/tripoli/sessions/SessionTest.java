@@ -2,6 +2,8 @@ package org.cirdles.tripoli.sessions;
 
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
+import org.cirdles.tripoli.sessions.analysis.samples.Sample;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.junit.jupiter.api.AfterEach;
@@ -32,8 +34,11 @@ class SessionTest {
     @Test
     void initializeDefaultSession() throws TripoliException {
         Session testSession = Session.initializeDefaultSession();
-        testSession.getMapOfAnalyses().put("testAnalysis", Analysis.initializeAnalysis("testAnalysis", analysisMethodsBuiltinMap.get("BurdickBlSyntheticData")));
-        testSession.getMapOfAnalyses().put("testAnalysis2", Analysis.initializeAnalysis("testAnalysis", analysisMethodsBuiltinMap.get("BurdickBlSyntheticData")));
+
+        testSession.getMapOfAnalyses().put("testAnalysis",
+                Analysis.initializeAnalysis("testAnalysis", analysisMethodsBuiltinMap.get(AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA), new Sample()));
+        testSession.getMapOfAnalyses().put("testAnalysis2",
+                Analysis.initializeAnalysis("testAnalysis", analysisMethodsBuiltinMap.get(AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA), new Sample()));
 
         TripoliSerializer.serializeObjectToFile(testSession, String.valueOf(testFilePath.getFileName()));
         Session testSession2 = (Session) TripoliSerializer.getSerializedObjectFromFile(String.valueOf(testFilePath.getFileName()), true);

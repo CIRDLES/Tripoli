@@ -185,13 +185,16 @@ public class DataSourceProcessor_PhoenixTextFile implements DataSourceProcessorI
         }
 
         boolean linearVsSpline = true;
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         ArrayList<MatrixStore<Double>> allBlockInterpolations = new ArrayList<>(nCycle.length);
-        if (linearVsSpline){
-            for (int blockIndex = 0; blockIndex < nCycle.length; blockIndex++) {
-                PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-                allBlockInterpolations.add(blockIndex, null);
+        int[][] indicesOfKnotsByBlock = new int[blockCount][];
+        if (linearVsSpline) {
+            for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
+                allBlockInterpolations.set(blockIndex, null);
                 double[][] interpMatArrayForBlock = new double[nCycle[blockIndex]][];
                 interpMatArrayForBlock[0] = new double[maxDelta];
+                int knotIndex = 0;
+                indicesOfKnotsByBlock[blockIndex] = new int[nCycle[blockIndex]];
                 for (int cycleIndex = 1; cycleIndex < (nCycle[blockIndex]); cycleIndex++) {
                     int startOfCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex][2];
                     int startOfNextCycleIndex;
@@ -217,10 +220,14 @@ public class DataSourceProcessor_PhoenixTextFile implements DataSourceProcessorI
                                 (timeStamp[timeIndex] - timeStamp[startOfCycleIndex]) / deltaTimeStamp;
                         interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] =
                                 1.0 - interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries];
+                        if (interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] == 1.0) {
+                            indicesOfKnotsByBlock[blockIndex][knotIndex++] = (timeIndex - startOfCycleIndex + countOfEntries);
+                        }
                     }
 
                     if (lastCycle) {
                         interpMatArrayForBlock[cycleIndex][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 1.0;
+                        indicesOfKnotsByBlock[blockIndex][knotIndex] = countOfEntries + startOfNextCycleIndex - startOfCycleIndex;
                         interpMatArrayForBlock[cycleIndex - 1][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 0.0;
 
                         // generate matrix and then transpose it to match matlab
@@ -233,12 +240,12 @@ public class DataSourceProcessor_PhoenixTextFile implements DataSourceProcessorI
             }
         }
         else {
-            for (int blockIndex = 0; blockIndex < nCycle.length; blockIndex++) {
-                PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-                SplineInterpolator interpolator = new SplineInterpolator();
-                allBlockInterpolations.add(blockIndex, null);
+            for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
+                allBlockInterpolations.set(blockIndex, null);
                 double[][] interpMatArrayForBlock = new double[nCycle[blockIndex]][];
                 interpMatArrayForBlock[0] = new double[maxDelta];
+                int knotIndex = 0;
+                indicesOfKnotsByBlock[blockIndex] = new int[nCycle[blockIndex]];
                 for (int cycleIndex = 1; cycleIndex < (nCycle[blockIndex]); cycleIndex++) {
                     int startOfCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex][2];
                     int startOfNextCycleIndex;
@@ -264,10 +271,14 @@ public class DataSourceProcessor_PhoenixTextFile implements DataSourceProcessorI
                                 (timeStamp[timeIndex] - timeStamp[startOfCycleIndex]) / deltaTimeStamp;
                         interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] =
                                 1.0 - interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries];
+                        if (interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] == 1.0) {
+                            indicesOfKnotsByBlock[blockIndex][knotIndex++] = (timeIndex - startOfCycleIndex + countOfEntries);
+                        }
                     }
 
                     if (lastCycle) {
                         interpMatArrayForBlock[cycleIndex][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 1.0;
+                        indicesOfKnotsByBlock[blockIndex][knotIndex] = countOfEntries + startOfNextCycleIndex - startOfCycleIndex;
                         interpMatArrayForBlock[cycleIndex - 1][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 0.0;
 
                         // generate matrix and then transpose it to match matlab
@@ -536,6 +547,7 @@ public class DataSourceProcessor_PhoenixTextFile implements DataSourceProcessorI
                 baseLineFlagsForDataAccumulatorArray,
                 ionCounterFlagsForDataAccumulatorArray,
                 allBlockInterpolations,
+                indicesOfKnotsByBlock,
                 faradayCount,
                 isotopeCount,
                 blockCount,

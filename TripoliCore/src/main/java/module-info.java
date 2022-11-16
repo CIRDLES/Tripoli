@@ -23,7 +23,7 @@ module Tripoli.TripoliCore {
     requires com.google.common;
     requires commons.math3;
     requires commons.lang3;
-    requires javafx.graphics;
+    requires jakarta.xml.bind;
 
 
     exports org.cirdles.tripoli;
@@ -40,8 +40,12 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.utilities.callbacks;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes;
-    exports org.cirdles.tripoli.visualizationUtilities.histograms;
-    exports org.cirdles.tripoli.visualizationUtilities.linePlots;
-    exports org.cirdles.tripoli.visualizationUtilities;
+    exports org.cirdles.tripoli.plots.histograms;
+    exports org.cirdles.tripoli.plots.linePlots;
+    exports org.cirdles.tripoli.plots;
     exports org.cirdles.tripoli.utilities;
+
+    opens org.cirdles.tripoli.sessions.analysis.methods.machineMethods to jakarta.xml.bind;
+    exports org.cirdles.tripoli.sessions;
+    exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels;
 }

@@ -33,7 +33,7 @@ public class IsotopicRatio implements Serializable {
         this.denominator = denominator;
     }
 
-    public String prettyPrint(){
+    public String prettyPrint() {
         return numerator.prettyPrintShortForm() + " / " + denominator.prettyPrintShortForm();
     }
 

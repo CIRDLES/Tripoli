@@ -17,14 +17,14 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc;
 
 import org.apache.commons.lang3.time.StopWatch;
+import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
+import org.cirdles.tripoli.plots.AbstractPlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_PhoenixTextFile;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
-import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
-import org.cirdles.tripoli.visualizationUtilities.AbstractPlotBuilder;
 import org.ojalgo.RecoverableCondition;
 import org.ojalgo.matrix.decomposition.Cholesky;
 import org.ojalgo.matrix.store.MatrixStore;
@@ -54,9 +54,10 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
  */
 public class DataModelDriverExperiment {
 
-    private static final boolean doFullProcessing = true;
+    private static final boolean doFullProcessing = false;
     // todo flag for linear or spline
     private static final boolean splineVsLinear = true;
+
 
     public static AbstractPlotBuilder[][] driveModelTest(Path dataFilePath, AnalysisMethod analysisMethod, LoggingCallbackInterface loggingCallback) throws IOException {
 
@@ -117,7 +118,7 @@ public class DataModelDriverExperiment {
 
         int maxCount = 2000;
         if (dataModelInit_X0.logratios().length > 2) {
-            maxCount = 500;
+            maxCount = 1000;
         }
 
         boolean hierarchical = true;
@@ -290,10 +291,12 @@ public class DataModelDriverExperiment {
         for (int i = 0; i < massSpecOutputDataRecord.nCycleArray().length; i++) {
             sumNCycle = sumNCycle + massSpecOutputDataRecord.nCycleArray()[i];
         }
-        int sizeOfModel = massSpecOutputDataRecord.isotopeCount() + sumNCycle + massSpecOutputDataRecord.faradayCount() + countOfDFGains;
+
+        int sizeOfModel = massSpecOutputDataRecord.isotopeCount() - 1 + sumNCycle + massSpecOutputDataRecord.faradayCount() + countOfDFGains;
+
         double[] xDataMean = new double[sizeOfModel];
         double[][] xDataCovariance = new double[sizeOfModel][sizeOfModel];
-        PhysicalStore<Double> delx_adapt = storeFactory.make(sizeOfModel, stepCountForcedSave);
+        double [][] delx_adapt = new double[sizeOfModel][stepCountForcedSave];
 
         for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
             if (massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] == 0) {
@@ -368,13 +371,14 @@ public class DataModelDriverExperiment {
             boolean adaptiveFlag = (counter >= 10000);
             boolean allFlag = adaptiveFlag;
             int columnChoice = modelIndex % stepCountForcedSave;
+            double[] delx_adapt_slice = storeFactory.rows(delx_adapt).sliceColumn(columnChoice).toRawCopy1D();
             DataModellerOutputRecord dataModelUpdaterOutputRecord_x2 = updateMSv2(
                     operation,
                     dataModelInit,
                     psigRecord,
                     priorRecord,
                     xDataCovariance,
-                    delx_adapt.sliceColumn(columnChoice).select(delx_adapt.getRowDim() - 1).toRawCopy1D(),
+                    delx_adapt_slice,
                     adaptiveFlag,
                     allFlag
             );
@@ -622,60 +626,20 @@ public class DataModelDriverExperiment {
                     xDataCovariance = updatedCovariancesRecord.dataCov();
                     xDataMean = updatedCovariancesRecord.dataMean();
 
-                    //todo: delx_adapt
                     if (adaptiveFlag) {
                         /*
-                        mvnrnd(zeros(sizeOfModel,1), 2.38^2*xDataCovariance/sizeOfModel, stepCountForcedSave)'
+                        delx_adapt =  mvnrnd(zeros(sizeOfModel,1), 2.38^2*xDataCovariance/sizeOfModel, stepCountForcedSave)'
                         stepCountForcedSave = 100
-                        sizeOfModel = 21
-
-                        function [r,T] = mvnrnd(mu,sigma,cases,T)
-                            % Special case: if mu is a column vector, then use sigma to try
-                            % to interpret it as a row vector.
-                            mu = mu';
-                            % mu is a single row, make cases copies
-                            n = cases;
-                            mu = repmat(mu,n,1);
-                            [T,err] = cholcov(sigma);
-                            r = randn(n,size(T,1)) * T + mu;
-                        end
+                        sizeOfModel = 20
                         */
-                        MatrixStore<Double> sigma = storeFactory.columns(xDataCovariance).multiply(pow(2.38, 2) / sizeOfModel);
-                        Normal tmpNormDistribution = new Normal();
-                        Primitive64Store mu = Primitive64Store.FACTORY.makeFilled(stepCountForcedSave, sizeOfModel, tmpNormDistribution);
 
-                        Cholesky<Double> cholesky = Cholesky.PRIMITIVE.make(sigma);
-                        cholesky.decompose(sigma);
-                        PhysicalStore<Double> T = cholesky.getR().copy();
-
-                        // TODO Currently input sigma is never symmetric positive definite matrix therefore if statement
-                        // always triggers, when code is refactored to not have guaranteed row and columns of zeros
-                        // and therefore positive definite can be removed
-                        if (!cholesky.isSPD()) {
-                            double[][] tempSigma = sigma.toRawCopy2D();
-                            int rowLoc = 0;
-                            int colLoc = 0;
-
-                            for (int col = 0; col < sigma.getRowDim(); col++) {
-                                if (tempSigma[0][col] == 0) rowLoc = col;
-                            }
-                            for (int row = 0; row < sigma.getRowDim(); row++) {
-                                if (tempSigma[row][0] == 0) colLoc = row;
-                            }
-                            for (int row = 0; row < sigma.getRowDim(); row++) {
-                                tempSigma[row][colLoc] += Double.MIN_VALUE;
-                            }
-
-                            for (int col = 0; col < sigma.getRowDim(); col++) {
-                                tempSigma[rowLoc][col] += Double.MIN_VALUE;
-                            }
-
-                            cholesky.decompose(storeFactory.columns(tempSigma));
-                            T = cholesky.getR().copy();
+                        double[] zeroMean = new double[sizeOfModel];
+                        MultivariateNormalDistribution mnd = new MultivariateNormalDistribution(zeroMean, storeFactory.rows(xDataCovariance).multiply(pow(2.38, 2) / (sizeOfModel)).toRawCopy2D());
+                        double[][] samples = new double[stepCountForcedSave][];
+                        for (int i = 0; i < stepCountForcedSave; i++) {
+                             samples[i] = mnd.sample();
                         }
-
-                        // r = randn(n,size(T,1)) * T + mu;
-                        delx_adapt = mu.multiply(T).transpose().copy();
+                        delx_adapt = storeFactory.rows(samples).transpose().toRawCopy2D();
                     }
                 }
 

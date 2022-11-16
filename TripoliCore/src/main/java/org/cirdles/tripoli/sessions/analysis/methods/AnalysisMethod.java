@@ -16,16 +16,28 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods;
 
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineTable;
+import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.PhoenixAnalysisMethod;
+import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceTable;
 import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author James F. Bowring
@@ -34,10 +46,10 @@ public class AnalysisMethod implements Serializable {
     @Serial
     private static final long serialVersionUID = -642166785514147638L;
 
-    protected String methodName;
-    protected MassSpectrometerModel massSpectrometer;
-    protected BaselineTable baselineTable;
-    protected SequenceTable sequenceTable;
+    private String methodName;
+    private MassSpectrometerModel massSpectrometer;
+    private BaselineTable baselineTable;
+    private SequenceTable sequenceTable;
     private List<SpeciesRecordInterface> speciesList;
     private List<IsotopicRatio> isotopicRatiosList;
 
@@ -57,6 +69,74 @@ public class AnalysisMethod implements Serializable {
 
     public static AnalysisMethod initializeAnalysisMethod(String methodName, MassSpectrometerModel massSpectrometer) {
         return new AnalysisMethod(methodName, massSpectrometer);
+    }
+
+    public static AnalysisMethod createAnalysisMethodFromPhoenixAnalysisMethod(PhoenixAnalysisMethod phoenixAnalysisMethod) {
+        AnalysisMethod analysisMethod = new AnalysisMethod(
+                phoenixAnalysisMethod.getHEADER().getFilename(),
+                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get(MassSpectrometerBuiltinModelFactory.PHOENIX));
+
+        List<PhoenixAnalysisMethod.ONPEAK> onPeakSequences = phoenixAnalysisMethod.getONPEAK();
+        for (PhoenixAnalysisMethod.ONPEAK onpeakSequence : onPeakSequences) {
+            String sequenceNumber = onpeakSequence.getSequence();
+            // <CollectorArray>147Sm:H1S1,148Sm:H2S1,149Sm:H3S1,150Sm:H4S1</CollectorArray>
+            String[] collectorArray = onpeakSequence.getCollectorArray()
+                    .trim()
+                    .replace("<CollectorArray>", "")
+                    .replace("</CollectorArray>", "")
+                    .split(",");
+            for (String cellSpec : collectorArray) {
+                String[] cellSpecs = cellSpec.split(":");
+                int indexOfElementNameStart = cellSpecs[0].split("\\d\\D\\D")[0].length() + 1;
+                int massNumber = Integer.parseInt(cellSpecs[0].substring(0, indexOfElementNameStart));
+                String elementName = cellSpecs[0].substring(indexOfElementNameStart);
+                SpeciesRecordInterface species = NuclidesFactory.retrieveSpecies(elementName, massNumber);
+                analysisMethod.addSpeciesToSpeciesList(species);
+
+                String collectorName = cellSpecs[1].split("S")[0];
+                DetectorSetup detectorSetup = analysisMethod.massSpectrometer.getDetectorSetup();
+                Detector detector = detectorSetup.getMapOfDetectors().get(collectorName);
+                SequenceCell sequenceCell = analysisMethod.sequenceTable.accessSequenceCellForDetector(detector, "OP" + sequenceNumber);
+                sequenceCell.addTargetSpecies(species);
+            }
+
+        }
+
+
+        return analysisMethod;
+    }
+
+    public static void TEST() throws JAXBException {
+        Path phoenixAnalysisMethodDataFilePath = Paths.get("Sm147to150_S6_v2.TIMSAM");
+
+        JAXBContext jaxbContext = JAXBContext.newInstance(PhoenixAnalysisMethod.class);
+        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+        PhoenixAnalysisMethod phoenixAnalysisMethod = (PhoenixAnalysisMethod) jaxbUnmarshaller.unmarshal(phoenixAnalysisMethodDataFilePath.toFile());
+
+        AnalysisMethod am = AnalysisMethod.createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod);
+        System.out.println(am.prettyPrintSequenceTable());
+    }
+
+    private String prettyPrintSequenceTable() {
+        StringBuilder retVal = new StringBuilder();
+        Map<Detector, List<SequenceCell>> detectors = sequenceTable.getMapOfDetectorsToSequenceCells();
+        detectors.entrySet().stream()
+                .forEach(e -> {
+                    retVal.append(e.getKey().getDetectorName()).append(" ");
+                    boolean offset = false;
+                    for (SequenceCell sequenceCell : e.getValue()) {
+                        int sequenceNumber = Integer.parseInt(sequenceCell.getSequenceName().substring(2));
+                        if (!offset) {
+                            retVal.append("                                                                           ", 0, (sequenceNumber - 1) * 10);
+                            offset = true;
+                        }
+                        retVal.append(sequenceCell.getSequenceName()).append(":").append(sequenceCell.getTargetSpecies().prettyPrintShortForm()).append(" ");
+                    }
+
+                    retVal.append("\n");
+                });
+
+        return retVal.toString();
     }
 
     @Override
@@ -102,6 +182,15 @@ public class AnalysisMethod implements Serializable {
 
     public void setSpeciesList(List<SpeciesRecordInterface> speciesList) {
         this.speciesList = speciesList;
+    }
+
+    public void addSpeciesToSpeciesList(SpeciesRecordInterface species) {
+        if (speciesList == null) {
+            speciesList = new ArrayList<>();
+        }
+        if (!speciesList.contains(species)) {
+            speciesList.add(species);
+        }
     }
 
     public BaselineTable getBaselineTable() {

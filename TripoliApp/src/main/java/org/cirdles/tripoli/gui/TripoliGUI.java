@@ -32,7 +32,6 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
-import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -48,10 +47,9 @@ public class TripoliGUI extends Application {
     protected static TripoliAboutWindow tripoliAboutWindow;
 
     public static void updateStageTitle(String fileName) {
-        String fileSpec = "[Project File: NONE]";
+        String fileSpec = "[Session File: NONE]";
         fileSpec = fileName.length() > 0 ? fileSpec.replace("NONE", fileName) : fileSpec;
         primaryStage.setTitle("Tripoli  " + fileSpec);
-        TripoliGUIController.projectFileName = fileName;
     }
 
     public static void main(String[] args) {
@@ -71,14 +69,13 @@ public class TripoliGUI extends Application {
 //    |_____| [___]   [___]| ;.__/  '.__.'[___][___]
 //                        [__|
 
-        StringBuilder logo = new StringBuilder();
-        logo.append("        _________          _                  __    _   \n");
-        logo.append("       |  _   _  |        (_)                [  |  (_)  \n");
-        logo.append("       |_/ | | \\_|_ .--.  __  _ .--.    .--.  | |  __   \n");
-        logo.append("           | |   [ `/'`\\][  |[ '/'`\\ \\/ .'`\\ \\| | [  |  \n");
-        logo.append("          _| |_   | |     | | | \\__/ || \\__. || |  | |  \n");
-        logo.append("         |_____| [___]   [___]| ;.__/  '.__.'[___][___] \n");
-        logo.append("                             [__|                       \n");
+        String logo = "        _________          _                  __    _   \n" +
+                "       |  _   _  |        (_)                [  |  (_)  \n" +
+                "       |_/ | | \\_|_ .--.  __  _ .--.    .--.  | |  __   \n" +
+                "           | |   [ `/'`\\][  |[ '/'`\\ \\/ .'`\\ \\| | [  |  \n" +
+                "          _| |_   | |     | | | \\__/ || \\__. || |  | |  \n" +
+                "         |_____| [___]   [___]| ;.__/  '.__.'[___][___] \n" +
+                "                             [__|                       \n";
         System.out.println(logo);
 
 
