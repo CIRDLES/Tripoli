@@ -56,7 +56,7 @@ public class DataModelDriverExperiment {
 
     private static final boolean doFullProcessing = false;
     // todo flag for linear or spline
-    private static final boolean splineVsLinear = true;
+    // private static final boolean splineVsLinear = true;
 
 
     public static AbstractPlotBuilder[][] driveModelTest(Path dataFilePath, AnalysisMethod analysisMethod, LoggingCallbackInterface loggingCallback) throws IOException {

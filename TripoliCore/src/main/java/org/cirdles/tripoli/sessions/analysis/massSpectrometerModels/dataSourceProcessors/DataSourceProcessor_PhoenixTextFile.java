@@ -23,6 +23,8 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputMo
 import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
 // import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.rjmcmc.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.utilities.mathUtilities.MatLab;
+import org.cirdles.tripoli.utilities.mathUtilities.SplineBasisModel;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
@@ -190,7 +192,7 @@ public class DataSourceProcessor_PhoenixTextFile implements DataSourceProcessorI
         int[][] indicesOfKnotsByBlock = new int[blockCount][];
         if (linearVsSpline) {
             for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
-                allBlockInterpolations.set(blockIndex, null);
+                allBlockInterpolations.add(blockIndex, null);
                 double[][] interpMatArrayForBlock = new double[nCycle[blockIndex]][];
                 interpMatArrayForBlock[0] = new double[maxDelta];
                 int knotIndex = 0;
@@ -241,7 +243,7 @@ public class DataSourceProcessor_PhoenixTextFile implements DataSourceProcessorI
         }
         else {
             for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
-                allBlockInterpolations.set(blockIndex, null);
+                allBlockInterpolations.add(blockIndex, null);
                 double[][] interpMatArrayForBlock = new double[nCycle[blockIndex]][];
                 interpMatArrayForBlock[0] = new double[maxDelta];
                 int knotIndex = 0;
@@ -263,14 +265,19 @@ public class DataSourceProcessor_PhoenixTextFile implements DataSourceProcessorI
                     }
 
                     int countOfEntries = startingIndicesOfCyclesByBlock[cycleIndex][2] - startingIndicesOfCyclesByBlock[1][2];
-                    double deltaTimeStamp = timeStamp[startOfNextCycleIndex] - timeStamp[startOfCycleIndex];
+                    // double deltaTimeStamp = timeStamp[startOfNextCycleIndex] - timeStamp[startOfCycleIndex];
                     interpMatArrayForBlock[cycleIndex] = new double[maxDelta];
 
                     for (int timeIndex = startOfCycleIndex; timeIndex < startOfNextCycleIndex; timeIndex++) {
+                        double [] dataSliceTemp = Arrays.copyOfRange(timeStamp, timeIndex, startOfCycleIndex);
+                        interpMatArrayForBlock[cycleIndex] =
+                                SplineBasisModel.bBase(storeFactory.row(dataSliceTemp), Double.MIN_VALUE, Double.MAX_VALUE, 13, 3).toRawCopy1D();
+                        /*
                         interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries] =
                                 (timeStamp[timeIndex] - timeStamp[startOfCycleIndex]) / deltaTimeStamp;
                         interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] =
                                 1.0 - interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries];
+                        */
                         if (interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] == 1.0) {
                             indicesOfKnotsByBlock[blockIndex][knotIndex++] = (timeIndex - startOfCycleIndex + countOfEntries);
                         }
