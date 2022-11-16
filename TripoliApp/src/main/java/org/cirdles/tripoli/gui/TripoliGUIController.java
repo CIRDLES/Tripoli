@@ -16,57 +16,185 @@
 
 package org.cirdles.tripoli.gui;
 
+import jakarta.xml.bind.JAXBException;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import org.cirdles.tripoli.Tripoli;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.RJMCMCPlots.RJMCMCPlotsWindow;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
+import org.cirdles.tripoli.sessions.Session;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.SessionBuiltinFactory;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 import static org.cirdles.tripoli.gui.utilities.BrowserControl.urlEncode;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.SessionBuiltinFactory.TRIPOLI_DEMONSTRATION_SESSION;
 
 /**
  * @author James F. Bowring
  */
-public class TripoliGUIController {
+public class TripoliGUIController implements Initializable {
 
-    public static String projectFileName;
-    public static RJMCMCPlotsWindow RJMCMCPlotsWindow;
+    public static Session tripoliSession;
+    public static MCMCPlotsWindow MCMCPlotsWindow;
+    private static GridPane sessionManagerUI;
+    public Menu analysisMenu;
+    public Menu methodsMenu;
+    public Menu parametersMenu;
 
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
-
     @FXML // URL location of the FXML file that was given to the FXMLLoader
     private URL location;
-
+    @FXML // fx:id="versionBuildDate"
+    private Label versionBuildDate; // Value injected by FXMLLoader
+    @FXML // fx:id="versionLabel"
+    private Label versionLabel; // Value injected by FXMLLoader
+    @FXML
+    private MenuItem sessionManagerMenuItem;
+    @FXML
+    private MenuItem newSessionMenuItem;
+    @FXML
+    private MenuItem saveSessionMenuItem;
+    @FXML
+    private MenuItem saveSessionAsMenuItem;
+    @FXML
+    private MenuItem closeSessionMenuItem;
     @FXML
     private AnchorPane splashAnchor;
 
-    @FXML // fx:id="versionBuildDate"
-    private Label versionBuildDate; // Value injected by FXMLLoader
+    /**
+     * @param location  The location used to resolve relative paths for the root object, or
+     *                  {@code null} if the location is not known.
+     * @param resources The resources used to localize the root object, or {@code null} if
+     *                  the root object was not localized.
+     */
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        versionLabel.setText("v" + Tripoli.VERSION);
+        versionBuildDate.setText(Tripoli.RELEASE_DATE);
 
-    @FXML // fx:id="versionLabel"
-    private Label versionLabel; // Value injected by FXMLLoader
+        MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
 
-    @FXML
-    void showTripoliAbout(ActionEvent event) {
-        TripoliGUI.tripoliAboutWindow.loadAboutWindow();
+        showStartingMenus();
+
+    }
+
+
+    private void showStartingMenus(){
+        sessionManagerMenuItem.setDisable(true);
+        newSessionMenuItem.setDisable(false);
+        saveSessionMenuItem.setDisable(true);
+        saveSessionAsMenuItem.setDisable(true);
+        closeSessionMenuItem.setDisable(true);
+
+        analysisMenu.setDisable(true);
+
+        methodsMenu.setDisable(true);
+
+        parametersMenu.setDisable(true);
+    }
+
+
+    private void removeAllManagers() {
+        for (Node manager : splashAnchor.getChildren()) {
+            manager.setVisible(false);
+        }
+
+        // prevent stacking of panes
+        splashAnchor.getChildren().remove(sessionManagerUI);
+
+        // logo
+        splashAnchor.getChildren().get(0).setVisible(true);
+
+    }
+
+    //  ++++++++++++++++++++++++++++++++++++++++++++++++++++ sessions ++++++++++++++++++++++++++++++++++++++++++++++++
+    private void launchSessionManager() throws IOException {
+        removeAllManagers();
+
+        sessionManagerUI = FXMLLoader.load(getClass().getResource("SessionManager.fxml"));
+        sessionManagerUI.setId("SessionManager");
+
+        AnchorPane.setLeftAnchor(sessionManagerUI, 0.0);
+        AnchorPane.setRightAnchor(sessionManagerUI, 0.0);
+        AnchorPane.setTopAnchor(sessionManagerUI, 0.0);
+        AnchorPane.setBottomAnchor(sessionManagerUI, 0.0);
+
+        splashAnchor.getChildren().add(sessionManagerUI);
+        sessionManagerUI.setVisible(true);
+
+        closeSessionMenuItem.setDisable(false);
+        analysisMenu.setDisable(false);
     }
 
     @FXML
-    private void quitAction(ActionEvent event) {
+    void sessionManagerMenuItemAction(){
+
+    }
+
+    public void newSessionMenuItemAction() throws IOException, JAXBException {
+        tripoliSession = Session.initializeDefaultSession();
+        launchSessionManager();
+        AnalysisMethod.TEST();
+    }
+
+    public void openSessionMenuItemAction() {
+    }
+
+    public void openRecentSessionMenuItemAction() {
+    }
+
+    public void openDemonstrationSessionMenuItemAction() throws IOException {
+        tripoliSession = SessionBuiltinFactory.sessionsBuiltinMap.get(TRIPOLI_DEMONSTRATION_SESSION);
+        launchSessionManager();
+
+    }
+
+    public void saveSessionMenuItemAction() {
+    }
+
+    public void saveSessionAsMenuItemAction() {
+    }
+
+    @FXML
+    void closeSessionMenuItemAction() {
+        //TODO:        confirmSaveOnProjectClose();
+        removeAllManagers();
+        TripoliGUI.updateStageTitle("");
+        tripoliSession = null;
+        //TODO:        menuHighlighter.deHighlight();
+        showStartingMenus();
+    }
+
+
+    @FXML
+    private void quitAction() {
         // TODO: checks for save status etc.
         Platform.exit();
     }
 
+    // ++++++++++++++++++++++++++++++++++++++++++++++++++ end sessions ++++++++++++++++++++++++++++++++++++++++++++++++++
     @FXML
-    void showTripoliContributeIssue(ActionEvent event) {
+    private void showTripoliAbout() {
+        TripoliGUI.tripoliAboutWindow.loadAboutWindow();
+    }
+
+    @FXML
+    private void showTripoliContributeIssue() {
         String version = "Tripoli Version: " + Tripoli.VERSION;
         String javaVersion = "Java Version: " + System.getProperties().getProperty("java.version");
         String javaFXVersion = "JavaFX Version: " + System.getProperties().getProperty("javafx.runtime.version");
@@ -82,35 +210,32 @@ public class TripoliGUIController {
     }
 
     @FXML
-    void showTripoliGitHubRepo(ActionEvent event) {
+    private void showTripoliGitHubRepo() {
         BrowserControl.showURI("https://github.com/CIRDLES/Tripoli");
     }
 
     @FXML
-    void showPeriodicTable(ActionEvent event) {
-        (new PeriodicTableController()).launch();
+    private void showPeriodicTable() {
+        var periodicTableController = new PeriodicTableController();
+        periodicTableController.launch();
     }
 
     @FXML
-    void showDemo1(ActionEvent event) {
-        RJMCMCPlotsWindow RJMCMCPlotsWindow = new RJMCMCPlotsWindow(TripoliGUI.primaryStage);
-        RJMCMCPlotsWindow.loadPlotsWindow();
+    private void showDemo1() {
+        MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
+        MCMCPlotsWindow.loadPlotsWindow();
     }
 
     @FXML
-    void showDemo2(ActionEvent event) {
+    private void showDemo2() {
         PeakShapePlotsWindow peakShapePlotsWindow = new PeakShapePlotsWindow(TripoliGUI.primaryStage);
         peakShapePlotsWindow.loadPlotsWindow();
     }
 
 
     @FXML
-        // This method is called by the FXMLLoader when initialization is complete
-    void initialize() {
-        versionLabel.setText("v" + Tripoli.VERSION);
-        versionBuildDate.setText(Tripoli.RELEASE_DATE);
+    private void TESTING() throws JAXBException {
 
-        RJMCMCPlotsWindow = new RJMCMCPlotsWindow(TripoliGUI.primaryStage);
     }
 
 

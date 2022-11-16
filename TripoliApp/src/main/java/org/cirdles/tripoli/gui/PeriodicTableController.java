@@ -47,8 +47,8 @@ import static org.cirdles.tripoli.TripoliConstants.TRIPOLI_LOGO_SANS_TEXT_URL;
  * @author James F. Bowring
  */
 public class PeriodicTableController {
+    public static final Stage primaryLocalStage = new Stage();
     public static Window periodicTableWindow;
-    public static Stage primaryLocalStage = new Stage();
     private static String buttonStyle;
 
     @FXML
@@ -107,10 +107,12 @@ public class PeriodicTableController {
             }
             periodicTableWindow = primaryLocalStage.getScene().getWindow();
 
-
             primaryLocalStage.show();
         }
         primaryLocalStage.requestFocus();
+        // center on app window
+        periodicTableWindow.setX(TripoliGUI.primaryStage.getX() + (TripoliGUI.primaryStage.getWidth() - primaryLocalStage.getWidth()) / 2);
+        periodicTableWindow.setY(TripoliGUI.primaryStage.getY() + (TripoliGUI.primaryStage.getHeight() - primaryLocalStage.getHeight()) / 2);
 
     }
 

@@ -33,9 +33,9 @@ public class SequenceCell implements Serializable {
     private List<SpeciesRecordInterface> includedSpecies;
 
     private SequenceCell(String sequenceName) {
-        this.cellMass = 0.0;
-        this.targetSpecies = null;
-        this.includedSpecies = new ArrayList<>();
+        cellMass = 0.0;
+        targetSpecies = null;
+        includedSpecies = new ArrayList<>();
         this.sequenceName = sequenceName;
     }
 

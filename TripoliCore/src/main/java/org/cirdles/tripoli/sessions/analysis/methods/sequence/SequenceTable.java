@@ -21,9 +21,9 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author James F. Bowring
@@ -36,7 +36,7 @@ public class SequenceTable implements Serializable {
     private Map<Detector, List<SequenceCell>> mapOfDetectorsToSequenceCells;
 
     private SequenceTable() {
-        mapOfDetectorsToSequenceCells = new LinkedHashMap<>();
+        mapOfDetectorsToSequenceCells = new TreeMap<>();
     }
 
     public static SequenceTable createEmptySequenceTable() {
@@ -77,5 +77,15 @@ public class SequenceTable implements Serializable {
 
     public void setMapOfDetectorsToSequenceCells(Map<Detector, List<SequenceCell>> mapOfDetectorsToSequenceCells) {
         this.mapOfDetectorsToSequenceCells = mapOfDetectorsToSequenceCells;
+    }
+
+    public List<Detector> findFaradayDetectorsUsed() {
+        List<Detector> faradayDetectorsUsed = new ArrayList<>();
+        for (Detector detector : mapOfDetectorsToSequenceCells.keySet()) {
+            if (detector.isFaraday()) {
+                faradayDetectorsUsed.add(detector);
+            }
+        }
+        return faradayDetectorsUsed;
     }
 }

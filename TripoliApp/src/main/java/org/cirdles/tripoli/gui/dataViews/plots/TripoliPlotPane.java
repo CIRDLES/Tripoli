@@ -21,6 +21,7 @@ import javafx.scene.Cursor;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.*;
 
@@ -65,15 +66,6 @@ public class TripoliPlotPane extends Pane {
             targetPane.setCursor(Cursor.OPEN_HAND);
         }
     };
-
-    private final EventHandler<MouseEvent> mouseClickedEventHandler = e -> {
-        if (e.isPrimaryButtonDown()) {
-            mouseStartX = e.getSceneX();
-            mouseStartY = e.getSceneY();
-        }
-        toFront();
-    };
-
     private final EventHandler<MouseEvent> mouseReleasedEventHandler = e -> {
         snapToGrid();
     };
@@ -115,12 +107,22 @@ public class TripoliPlotPane extends Pane {
 
         mouseStartX = e.getSceneX();
         mouseStartY = e.getSceneY();
-        try {
-            ((AbstractPlot) targetPane.getChildren().get(0)).repaint();
-        } catch (Exception ex) {
-            //
-        }
+
+        ((AbstractPlot) getChildren().get(0)).updatePlotSize(getPrefWidth(), getPrefHeight());
+        ((AbstractPlot) getChildren().get(0)).calculateTics();
     };
+    private PlotLocation plotLocation = null;
+    private final EventHandler<MouseEvent> mouseClickedEventHandler = e -> {
+        if (e.isPrimaryButtonDown() && e.getClickCount() == 1) {
+            mouseStartX = e.getSceneX();
+            mouseStartY = e.getSceneY();
+        }
+        if (e.isPrimaryButtonDown() && e.getClickCount() == 2) {
+            toggleFullSize();
+        }
+        toFront();
+    };
+
     private TripoliPlotPane(Pane plotWallPane) {
         this.plotWallPane = plotWallPane;
     }
@@ -135,6 +137,24 @@ public class TripoliPlotPane extends Pane {
         plotWallPane.getChildren().addAll(tripoliPlotPane);
 
         return tripoliPlotPane;
+    }
+
+    private void toggleFullSize() {
+        if (plotLocation == null) {
+            plotLocation = new PlotLocation(getLayoutX(), getLayoutY(), getPrefWidth(), getPrefHeight());
+            setLayoutX(gridCellDim);
+            setPrefWidth(plotWallPane.getWidth() - 2 * gridCellDim);
+            setLayoutY(gridCellDim);
+            setPrefHeight(plotWallPane.getHeight() - 2 * gridCellDim);
+        } else {
+            setLayoutX(plotLocation.x());
+            setPrefWidth(plotLocation.w());
+            setLayoutY(plotLocation.y());
+            setPrefHeight(plotLocation.h());
+            plotLocation = null;
+        }
+        ((AbstractPlot) getChildren().get(0)).updatePlotSize(getPrefWidth(), getPrefHeight());
+        ((AbstractPlot) getChildren().get(0)).calculateTics();
     }
 
     public void snapToGrid() {
@@ -185,18 +205,31 @@ public class TripoliPlotPane extends Pane {
         colorPicker.setLayoutX(getPrefWidth() / 2.0 - 50.0);
         colorPicker.setLayoutY(10.0);
 
-        colorPicker.setValue(plot.getDataColor());
+        colorPicker.setValue(plot.getDataColor().color());
         getChildren().add(colorPicker);
         colorPicker.setVisible(true);
 
         colorPicker.setOnAction(t -> {
-            plot.setDataColor(colorPicker.getValue());
+            plot.setDataColor(TripoliColor.create(colorPicker.getValue()));
             plot.repaint();
             getChildren().remove(colorPicker);
         });
     }
 
-    public void restorePlot(){
-        ((AbstractPlot)getChildren().get(0)).refreshPanel(true, true);
+    public void toggleShowStats() {
+        ((AbstractPlot) getChildren().get(0)).toggleShowStats();
+        ((AbstractPlot) getChildren().get(0)).repaint();
+    }
+
+    public void restorePlot() {
+        ((AbstractPlot) getChildren().get(0)).refreshPanel(true, true);
+    }
+
+    private record PlotLocation(
+            double x,
+            double y,
+            double w,
+            double h
+    ) {
     }
 }

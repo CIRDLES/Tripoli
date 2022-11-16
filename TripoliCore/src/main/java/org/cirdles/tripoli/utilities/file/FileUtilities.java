@@ -46,7 +46,7 @@ public class FileUtilities {
 
     public static boolean isFileClosedUnix(File file) {
         try {
-            Process plsof = new ProcessBuilder(new String[]{"lsof", "|", "grep", file.getAbsolutePath()}).start();
+            Process plsof = new ProcessBuilder("lsof", "|", "grep", file.getAbsolutePath()).start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(plsof.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
