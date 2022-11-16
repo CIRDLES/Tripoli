@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels;
+package org.cirdles.tripoli.sessions;
 
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
-import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.samples.Sample;
 
@@ -39,20 +39,24 @@ public final class SessionBuiltinFactory {
     public static String TRIPOLI_DEMONSTRATION_SESSION = "Tripoli Demonstration Session";
 
     private static ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
+
     static {
         Session tripoliDemonstrationSession = Session.initializeSession(TRIPOLI_DEMONSTRATION_SESSION);
+        tripoliDemonstrationSession.setAnalystName("Team Tripoli");
         tripoliDemonstrationSession.setMutable(false);
         sessionsBuiltinMap.put(tripoliDemonstrationSession.getSessionName(), tripoliDemonstrationSession);
 
-        Sample twoIsotopeSample_01 = new Sample();
-        Analysis twoIsotopes_01 = Analysis.initializeAnalysis("Two Isotope Demo_01", AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(BURDICK_BL_SYNTHETIC_DATA), twoIsotopeSample_01);
+        AnalysisMethod twoIsotopeSyntheticAnalysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(BURDICK_BL_SYNTHETIC_DATA);
+        Sample twoIsotopeSample_01 = new Sample("TwoIsotopeSample_Pb207_Pb208_01");
+        Analysis twoIsotopes_01 = Analysis.initializeAnalysis("Two Isotope Demo_01", twoIsotopeSyntheticAnalysisMethod, twoIsotopeSample_01);
         Path dataFilePath = RESOURCE_EXTRACTOR
                 .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_01.txt").toPath();
         twoIsotopes_01.setDataFilePath(dataFilePath);
         tripoliDemonstrationSession.addAnalysis(twoIsotopes_01);
 
-        Sample fiveIsotopeSample_01 = new Sample();
-        Analysis fiveIsotopes_01 = Analysis.initializeAnalysis("Five Isotope Demo_01", AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB), fiveIsotopeSample_01);
+        AnalysisMethod fiveIsotopeSyntheticAnalysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
+        Sample fiveIsotopeSample_01 = new Sample("FiveIsotopeSample_Pb204_Pb205_Pb206_Pb207_Pb208_01");
+        Analysis fiveIsotopes_01 = Analysis.initializeAnalysis("Five Isotope Demo_01", fiveIsotopeSyntheticAnalysisMethod, fiveIsotopeSample_01);
         dataFilePath = RESOURCE_EXTRACTOR
                 .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
         fiveIsotopes_01.setDataFilePath(dataFilePath);

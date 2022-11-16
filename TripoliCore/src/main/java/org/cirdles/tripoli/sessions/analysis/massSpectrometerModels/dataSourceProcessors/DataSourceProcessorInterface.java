@@ -33,7 +33,7 @@ import java.util.Map;
 public interface DataSourceProcessorInterface {
     MassSpecOutputDataRecord prepareInputDataModelFromFile(Path inputDataFile) throws IOException;
 
-    default AccumulatedData accumulateBaselineDataPerSequenceTableSpecs(
+    default AccumulatedSyntheticData accumulateBaselineDataPerSequenceTableSpecs(
             String[] sequenceIDs, double[][] detectorData, AnalysisMethod analysisMethod, boolean faraday) {
         SequenceTable tableSpecs = analysisMethod.getSequenceTable();
         List<Double> dataAccumulatorList = new ArrayList<>();
@@ -95,7 +95,7 @@ public interface DataSourceProcessorInterface {
                 signalIndex++;
             }
         }
-        return new AccumulatedData(
+        return new AccumulatedSyntheticData(
                 dataAccumulatorList,
                 timeAccumulatorList,
                 timeIndAccumulatorList,
@@ -110,7 +110,7 @@ public interface DataSourceProcessorInterface {
                 isotopeIndicesPerFaradayOrAxial);
     }
 
-    default AccumulatedData accumulateOnPeakDataPerSequenceTableSpecs(
+    default AccumulatedSyntheticData accumulateOnPeakDataPerSequenceTableSpecs(
             String[] sequenceIDs, int[] blockNumbers, List<Integer> blockListWithoutDuplicates, double[][] detectorData, double[] timeStamp, AnalysisMethod analysisMethod, boolean faraday) {
         SequenceTable tableSpecs = analysisMethod.getSequenceTable();
         List<SpeciesRecordInterface> speciesList = analysisMethod.getSpeciesList();
@@ -205,7 +205,7 @@ public interface DataSourceProcessorInterface {
             }
 
         }
-        return new AccumulatedData(
+        return new AccumulatedSyntheticData(
                 dataAccumulatorList,
                 timeAccumulatorList,
                 timeIndAccumulatorList,
@@ -220,7 +220,7 @@ public interface DataSourceProcessorInterface {
                 isotopeIndicesPerFaradayOrAxial);
     }
 
-    record AccumulatedData(
+    record AccumulatedSyntheticData(
             List<Double> dataAccumulatorList,
             List<Double> timeAccumulatorList,
             List<Integer> timeIndAccumulatorList,

@@ -14,19 +14,10 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.samples;
-
-import java.io.Serializable;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.faradayOnlyData;
 
 /**
  * @author James F. Bowring
  */
-public class Sample implements Serializable {
-
-    String sampleName;
-
-    public Sample(String sampleName) {
-        this.sampleName = sampleName;
-    }
-
+public class FaradayDataSourceProcessor_Phoenix {
 }

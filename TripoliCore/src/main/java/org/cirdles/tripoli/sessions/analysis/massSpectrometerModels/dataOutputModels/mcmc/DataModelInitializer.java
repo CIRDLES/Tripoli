@@ -144,7 +144,7 @@ public class DataModelInitializer {
             List<Double> timeIndForSorting = new ArrayList<>();
 
             for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
-                if ((massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 1)
+                if ((massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 1.0)
                         &&
                         (massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1))) {
                     // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1

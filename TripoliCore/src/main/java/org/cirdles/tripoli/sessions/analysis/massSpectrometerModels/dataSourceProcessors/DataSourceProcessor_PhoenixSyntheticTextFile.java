@@ -34,15 +34,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 
-public class DataSourceProcessor_PhoenixTextFile implements DataSourceProcessorInterface {
+public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceProcessorInterface {
     private final AnalysisMethod analysisMethod;
 
-    private DataSourceProcessor_PhoenixTextFile(AnalysisMethod analysisMethod) {
+    private DataSourceProcessor_PhoenixSyntheticTextFile(AnalysisMethod analysisMethod) {
         this.analysisMethod = analysisMethod;
     }
 
-    public static DataSourceProcessor_PhoenixTextFile initializeWithAnalysisMethod(AnalysisMethod analysisMethod) {
-        return new DataSourceProcessor_PhoenixTextFile(analysisMethod);
+    public static DataSourceProcessor_PhoenixSyntheticTextFile initializeWithAnalysisMethod(AnalysisMethod analysisMethod) {
+        return new DataSourceProcessor_PhoenixSyntheticTextFile(analysisMethod);
     }
 
     @Override
@@ -240,11 +240,11 @@ public class DataSourceProcessor_PhoenixTextFile implements DataSourceProcessorI
         int isotopeCount = analysisMethod.getSpeciesList().size();
 
         // start with Baseline table
-        AccumulatedData baselineFaradayAccumulator = accumulateBaselineDataPerSequenceTableSpecs(sequenceIDs, detectorData, analysisMethod, true);
+        AccumulatedSyntheticData baselineFaradayAccumulator = accumulateBaselineDataPerSequenceTableSpecs(sequenceIDs, detectorData, analysisMethod, true);
         // now sequence table Faraday
-        AccumulatedData sequenceFaradayAccumulator = accumulateOnPeakDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, blockListWithoutDuplicates, detectorData, timeStamp, analysisMethod, true);
+        AccumulatedSyntheticData sequenceFaradayAccumulator = accumulateOnPeakDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, blockListWithoutDuplicates, detectorData, timeStamp, analysisMethod, true);
         // now sequence table NOT Faraday (ion counter)
-        AccumulatedData sequenceIonCounterAccumulator = accumulateOnPeakDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, blockListWithoutDuplicates, detectorData, timeStamp, analysisMethod, false);
+        AccumulatedSyntheticData sequenceIonCounterAccumulator = accumulateOnPeakDataPerSequenceTableSpecs(sequenceIDs, blockNumbers, blockListWithoutDuplicates, detectorData, timeStamp, analysisMethod, false);
 
         List<Double> dataAccumulatorList = new ArrayList<>();
         dataAccumulatorList.addAll(baselineFaradayAccumulator.dataAccumulatorList());

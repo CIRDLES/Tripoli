@@ -20,17 +20,14 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_PhoenixTextFile;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_PhoenixSyntheticTextFile;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.ojalgo.RecoverableCondition;
-import org.ojalgo.matrix.decomposition.Cholesky;
-import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
-import org.ojalgo.random.Normal;
 import org.ojalgo.structure.Access1D;
 
 import java.io.IOException;
@@ -55,11 +52,12 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
 public class DataModelDriverExperiment {
 
     private static final boolean doFullProcessing = false;
+    public static boolean ALLOW_EXECUTION = true;
 
     public static AbstractPlotBuilder[][] driveModelTest(Path dataFilePath, AnalysisMethod analysisMethod, LoggingCallbackInterface loggingCallback) throws IOException {
 
-        DataSourceProcessor_PhoenixTextFile dataSourceProcessorOPPhoenix
-                = DataSourceProcessor_PhoenixTextFile.initializeWithAnalysisMethod(analysisMethod);
+        DataSourceProcessor_PhoenixSyntheticTextFile dataSourceProcessorOPPhoenix
+                = DataSourceProcessor_PhoenixSyntheticTextFile.initializeWithAnalysisMethod(analysisMethod);
         MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFilePath);
 
         AbstractPlotBuilder[][] plotBuilders;
@@ -115,7 +113,7 @@ public class DataModelDriverExperiment {
 
         int maxCount = 2000;
         if (dataModelInit_X0.logratios().length > 2) {
-            maxCount = 1000;
+            maxCount = 500;
         }
 
         boolean hierarchical = true;
@@ -293,7 +291,7 @@ public class DataModelDriverExperiment {
 
         double[] xDataMean = new double[sizeOfModel];
         double[][] xDataCovariance = new double[sizeOfModel][sizeOfModel];
-        double [][] delx_adapt = new double[sizeOfModel][stepCountForcedSave];
+        double[][] delx_adapt = new double[sizeOfModel][stepCountForcedSave];
 
         for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
             if (massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] == 0) {
@@ -362,24 +360,25 @@ public class DataModelDriverExperiment {
         org.apache.commons.lang3.time.StopWatch watch = new StopWatch();
         watch.start();
         for (int modelIndex = 1; modelIndex <= maxCount * stepCountForcedSave; modelIndex++) {//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            long prev = System.nanoTime();
-            String operation = DataModelUpdaterHelper.randomOperMS(hierarchical);
-            // todo: handle adaptiveFlag case
-            boolean adaptiveFlag = (counter >= 10000);
-            boolean allFlag = adaptiveFlag;
-            int columnChoice = modelIndex % stepCountForcedSave;
-            double[] delx_adapt_slice = storeFactory.rows(delx_adapt).sliceColumn(columnChoice).toRawCopy1D();
-            DataModellerOutputRecord dataModelUpdaterOutputRecord_x2 = updateMSv2(
-                    operation,
-                    dataModelInit,
-                    psigRecord,
-                    priorRecord,
-                    xDataCovariance,
-                    delx_adapt_slice,
-                    adaptiveFlag,
-                    allFlag
-            );
-            boolean noiseOperation = operation.toLowerCase(Locale.ROOT).startsWith("n");
+            if (ALLOW_EXECUTION) {
+                long prev = System.nanoTime();
+                String operation = DataModelUpdaterHelper.randomOperMS(hierarchical);
+                // todo: handle adaptiveFlag case
+                boolean adaptiveFlag = (counter >= 100000);
+                boolean allFlag = adaptiveFlag;
+                int columnChoice = modelIndex % stepCountForcedSave;
+                double[] delx_adapt_slice = storeFactory.rows(delx_adapt).sliceColumn(columnChoice).toRawCopy1D();
+                DataModellerOutputRecord dataModelUpdaterOutputRecord_x2 = updateMSv2(
+                        operation,
+                        dataModelInit,
+                        psigRecord,
+                        priorRecord,
+                        xDataCovariance,
+                        delx_adapt_slice,
+                        adaptiveFlag,
+                        allFlag
+                );
+                boolean noiseOperation = operation.toLowerCase(Locale.ROOT).startsWith("n");
 
             /*
             %% Create updated data based on new model
@@ -418,108 +417,108 @@ public class DataModelDriverExperiment {
                     dE=temp^-1*(E2-E); % Change in misfit
                 end
              */
-            int tempering = 1;
-            double[] tmpBLindArray = new double[dataModelUpdaterOutputRecord_x2.baselineMeans().length + 1];
-            System.arraycopy(dataModelUpdaterOutputRecord_x2.baselineMeans(),
-                    0, tmpBLindArray, 0, tmpBLindArray.length - 1);
+                int tempering = 1;
+                double[] tmpBLindArray = new double[dataModelUpdaterOutputRecord_x2.baselineMeans().length + 1];
+                System.arraycopy(dataModelUpdaterOutputRecord_x2.baselineMeans(),
+                        0, tmpBLindArray, 0, tmpBLindArray.length - 1);
 
-            int rowDimension = massSpecOutputDataRecord.detectorIndicesForRawDataColumn().length;
-            double[] tmpBLArray = new double[rowDimension];
-            double[] tmpDFArray = new double[rowDimension];
-            Arrays.fill(tmpDFArray, 1.0);
-            double[] tmpLRArray = new double[rowDimension];
-            double[] tmpIArray = new double[rowDimension];
-            for (int row = 0; row < rowDimension; row++) {
-                tmpBLArray[row] = tmpBLindArray[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1];
-                if (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 0) {
-                    tmpDFArray[row] = 1.0 / dataModelUpdaterOutputRecord_x2.dfGain();
+                int rowDimension = massSpecOutputDataRecord.detectorIndicesForRawDataColumn().length;
+                double[] tmpBLArray = new double[rowDimension];
+                double[] tmpDFArray = new double[rowDimension];
+                Arrays.fill(tmpDFArray, 1.0);
+                double[] tmpLRArray = new double[rowDimension];
+                double[] tmpIArray = new double[rowDimension];
+                for (int row = 0; row < rowDimension; row++) {
+                    tmpBLArray[row] = tmpBLindArray[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1];
+                    if (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 0) {
+                        tmpDFArray[row] = 1.0 / dataModelUpdaterOutputRecord_x2.dfGain();
+                    }
+                    // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
+                    if (massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1 < dataModelUpdaterOutputRecord_x2.logratios().length) {
+                        tmpLRArray[row] = exp(dataModelUpdaterOutputRecord_x2.logratios()[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1]);
+                    } else {
+                        tmpLRArray[row] = 1.0;
+                    }
                 }
-                // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
-                if (massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1 < dataModelUpdaterOutputRecord_x2.logratios().length) {
-                    tmpLRArray[row] = exp(dataModelUpdaterOutputRecord_x2.logratios()[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1]);
-                } else {
-                    tmpLRArray[row] = 1.0;
+
+                long interval1 = System.nanoTime() - prev;
+                prev = interval1 + prev;
+
+                ArrayList<double[]> intensity2 = new ArrayList<>(1);
+                for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
+                    PhysicalStore<Double> tempIntensity = storeFactory.make(massSpecOutputDataRecord.allBlockInterpolations()[blockIndex].countRows(),
+                            storeFactory.columns(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]).getColDim());
+                    tempIntensity.fillByMultiplying(massSpecOutputDataRecord.allBlockInterpolations()[blockIndex], Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]));
+                    intensity2.add(tempIntensity.toRawCopy1D());
+
+                    for (int row = (int) blockStartIndicesFaraday[blockIndex]; row <= (int) blockEndIndicesFaraday[blockIndex]; row++) {
+                        tmpIArray[row] = intensity2.get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                    }
+                    for (int row = (int) blockStartIndicesDaly[blockIndex]; row <= (int) blockEndIndicesDaly[blockIndex]; row++) {
+                        tmpIArray[row] = intensity2.get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                    }
                 }
-            }
 
-            long interval1 = System.nanoTime() - prev;
-            prev = interval1 + prev;
+                long interval2 = System.nanoTime() - prev;
+                prev = interval2 + prev;
 
-            ArrayList<double[]> intensity2 = new ArrayList<>(1);
-            for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
-                PhysicalStore<Double> tempIntensity = storeFactory.make(massSpecOutputDataRecord.allBlockInterpolations()[blockIndex].countRows(),
-                        storeFactory.columns(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]).getColDim());
-                tempIntensity.fillByMultiplying(massSpecOutputDataRecord.allBlockInterpolations()[blockIndex], Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]));
-                intensity2.add(tempIntensity.toRawCopy1D());
+                double[] dnobl2 = new double[rowDimension];
+                double[] d2 = new double[rowDimension];
 
-                for (int row = (int) blockStartIndicesFaraday[blockIndex]; row <= (int) blockEndIndicesFaraday[blockIndex]; row++) {
-                    tmpIArray[row] = intensity2.get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+                for (int row = 0; row < rowDimension; row++) {
+                    double value = tmpDFArray[row] * tmpLRArray[row] * tmpIArray[row];
+                    dnobl2[row] = value;
+                    d2[row] = value + tmpBLArray[row];
                 }
-                for (int row = (int) blockStartIndicesDaly[blockIndex]; row <= (int) blockEndIndicesDaly[blockIndex]; row++) {
-                    tmpIArray[row] = intensity2.get(blockIndex)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
-                }
-            }
 
-            long interval2 = System.nanoTime() - prev;
-            prev = interval2 + prev;
-
-            double[] dnobl2 = new double[rowDimension];
-            double[] d2 = new double[rowDimension];
-
-            for (int row = 0; row < rowDimension; row++) {
-                double value = tmpDFArray[row] * tmpLRArray[row] * tmpIArray[row];
-                dnobl2[row] = value;
-                d2[row] = value + tmpBLArray[row];
-            }
-
-            double[] dSignalNoise2Array = new double[massSpecOutputDataRecord.rawDataColumn().length];
-            double E02 = 0.0;
+                double[] dSignalNoise2Array = new double[massSpecOutputDataRecord.rawDataColumn().length];
+                double E02 = 0.0;
 //            double E0 = 0.0;
-            double E = 0.0;
-            double E2 = 0.0;
-            double dE;
-            double sumLogDSignalNoise = 0.0;
-            double sumLogDSignalNoise2 = 0.0;
-            double keep;
+                double E = 0.0;
+                double E2 = 0.0;
+                double dE;
+                double sumLogDSignalNoise = 0.0;
+                double sumLogDSignalNoise2 = 0.0;
+                double keep;
 
-            long interval3 = System.nanoTime() - prev;
-            prev = interval3 + prev;
+                long interval3 = System.nanoTime() - prev;
+                prev = interval3 + prev;
 
-            for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
-                double term1 = pow(dataModelUpdaterOutputRecord_x2.signalNoise()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1], 2);
-                double term2 = dataModelUpdaterOutputRecord_x2.signalNoise()[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1 + massSpecOutputDataRecord.faradayCount() + 1];
-                dSignalNoise2Array[row] = term1 + term2 * dnobl2[row];
-                double residualValue = pow(massSpecOutputDataRecord.rawDataColumn()[row] - dataModelInit.dataArray()[row], 2);
+                for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
+                    double term1 = pow(dataModelUpdaterOutputRecord_x2.signalNoise()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1], 2);
+                    double term2 = dataModelUpdaterOutputRecord_x2.signalNoise()[(int) massSpecOutputDataRecord.isotopeIndicesForRawDataColumn()[row] - 1 + massSpecOutputDataRecord.faradayCount() + 1];
+                    dSignalNoise2Array[row] = term1 + term2 * dnobl2[row];
+                    double residualValue = pow(massSpecOutputDataRecord.rawDataColumn()[row] - dataModelInit.dataArray()[row], 2);
 //                E0 += residualValue;
-                double residualValue2 = pow(massSpecOutputDataRecord.rawDataColumn()[row] - d2[row], 2);
-                E02 += residualValue2;
+                    double residualValue2 = pow(massSpecOutputDataRecord.rawDataColumn()[row] - d2[row], 2);
+                    E02 += residualValue2;
 
                 /*
                     % Decide whether to accept or reject model
                     keep = AcceptItMS(oper,dE,psig,delx,prior,Dsig,Dsig2,d0);
                  */
+                    if (noiseOperation) {
+                        E += residualValue / dSignalNoiseArray[row];
+                        E2 += residualValue2 / dSignalNoise2Array[row];
+                        sumLogDSignalNoise += -1.0 * Math.log(dSignalNoiseArray[row]);
+                        sumLogDSignalNoise2 += -1.0 * Math.log(dSignalNoise2Array[row]);
+                    } else {
+                        E += residualValue * baselineMultiplier[row] / dSignalNoiseArray[row];
+                        E2 += residualValue2 * baselineMultiplier[row] / dSignalNoise2Array[row];
+                    }
+                } //rows loop
+
+                long interval4 = System.nanoTime() - prev;
+                prev = interval4 + prev;
+
                 if (noiseOperation) {
-                    E += residualValue / dSignalNoiseArray[row];
-                    E2 += residualValue2 / dSignalNoise2Array[row];
-                    sumLogDSignalNoise += -1.0 * Math.log(dSignalNoiseArray[row]);
-                    sumLogDSignalNoise2 += -1.0 * Math.log(dSignalNoise2Array[row]);
+                    dE = E2 - E;
+                    double deltaLogNoise = sumLogDSignalNoise2 - sumLogDSignalNoise;
+                    keep = min(1.0, exp(deltaLogNoise / 2.0 - (dE) / 2.0));//keep = min(1,exp(X/2-(dE)/2));
                 } else {
-                    E += residualValue * baselineMultiplier[row] / dSignalNoiseArray[row];
-                    E2 += residualValue2 * baselineMultiplier[row] / dSignalNoise2Array[row];
+                    dE = 1.0 / tempering * (E2 - E);
+                    keep = min(1, exp(-(dE) / 2.0));
                 }
-            } //rows loop
-
-            long interval4 = System.nanoTime() - prev;
-            prev = interval4 + prev;
-
-            if (noiseOperation) {
-                dE = E2 - E;
-                double deltaLogNoise = sumLogDSignalNoise2 - sumLogDSignalNoise;
-                keep = min(1.0, exp(deltaLogNoise / 2.0 - (dE) / 2.0));//keep = min(1,exp(X/2-(dE)/2));
-            } else {
-                dE = 1.0 / tempering * (E2 - E);
-                keep = min(1, exp(-(dE) / 2.0));
-            }
             /*
                 % Update kept variables for display
                 kept(OpNumMS(oper),2) = kept(OpNumMS(oper),2)+1;
@@ -541,36 +540,36 @@ public class DataModelDriverExperiment {
                 end
              */
 
-            int operationIndex = DataModelUpdater.operations.indexOf(operation);
-            keptUpdates[operationIndex][1] = keptUpdates[operationIndex][1] + 1;
-            keptUpdates[operationIndex][3] = keptUpdates[operationIndex][3] + 1;
+                int operationIndex = DataModelUpdater.operations.indexOf(operation);
+                keptUpdates[operationIndex][1] = keptUpdates[operationIndex][1] + 1;
+                keptUpdates[operationIndex][3] = keptUpdates[operationIndex][3] + 1;
 
-            RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
-            randomDataGenerator.reSeedSecure();
+                RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
+                randomDataGenerator.reSeedSecure();
 
-            if (keep >= randomDataGenerator.nextUniform(0, 1)) {
-                E = E2;
-                initialModelErrorUnWeighted_E0 = E02;
+                if (keep >= randomDataGenerator.nextUniform(0, 1)) {
+                    E = E2;
+                    initialModelErrorUnWeighted_E0 = E02;
 
-                dataModelInit = new DataModellerOutputRecord(
-                        dataModelUpdaterOutputRecord_x2.baselineMeans(),
-                        dataModelUpdaterOutputRecord_x2.baselineStandardDeviations(),
-                        dataModelUpdaterOutputRecord_x2.dfGain(),
-                        dataModelUpdaterOutputRecord_x2.logratios(),
-                        dataModelUpdaterOutputRecord_x2.signalNoise(),
-                        d2.clone(),
-                        dataModelUpdaterOutputRecord_x2.blockIntensities(),
-                        intensity2
-                );
-                dSignalNoiseArray = dSignalNoise2Array.clone();
+                    dataModelInit = new DataModellerOutputRecord(
+                            dataModelUpdaterOutputRecord_x2.baselineMeans(),
+                            dataModelUpdaterOutputRecord_x2.baselineStandardDeviations(),
+                            dataModelUpdaterOutputRecord_x2.dfGain(),
+                            dataModelUpdaterOutputRecord_x2.logratios(),
+                            dataModelUpdaterOutputRecord_x2.signalNoise(),
+                            d2.clone(),
+                            dataModelUpdaterOutputRecord_x2.blockIntensities(),
+                            intensity2
+                    );
+                    dSignalNoiseArray = dSignalNoise2Array.clone();
 
-                keptUpdates[operationIndex][0] = keptUpdates[operationIndex][0] + 1;
-                keptUpdates[operationIndex][2] = keptUpdates[operationIndex][2] + 1;
-            }
+                    keptUpdates[operationIndex][0] = keptUpdates[operationIndex][0] + 1;
+                    keptUpdates[operationIndex][2] = keptUpdates[operationIndex][2] + 1;
+                }
 
-            long interval5 = System.nanoTime() - prev;
+                long interval5 = System.nanoTime() - prev;
 
-            if (modelIndex % (stepCountForcedSave) == 0) {
+                if (modelIndex % (stepCountForcedSave) == 0) {
                 /*
                     cnt=cnt+1; % Increment counter
                     ensemble(cnt).lograt=x.lograt; % Log ratios
@@ -592,19 +591,19 @@ public class DataModelDriverExperiment {
                         delx_adapt = mvnrnd(zeros(Nmod,1),2.38^2*xcov/Nmod,datsav)';
                     end
                  */
-                counter++;
-                ensembleRecordsList.add(new EnsemblesStore.EnsembleRecord(
-                        dataModelInit.logratios(),
-                        dataModelInit.blockIntensities(),
-                        dataModelInit.baselineMeans(),
-                        dataModelInit.dfGain(),
-                        dataModelInit.signalNoise(),
-                        E,
-                        initialModelErrorUnWeighted_E0
-                ));
+                    counter++;
+                    ensembleRecordsList.add(new EnsemblesStore.EnsembleRecord(
+                            dataModelInit.logratios(),
+                            dataModelInit.blockIntensities(),
+                            dataModelInit.baselineMeans(),
+                            dataModelInit.dfGain(),
+                            dataModelInit.signalNoise(),
+                            E,
+                            initialModelErrorUnWeighted_E0
+                    ));
 
-                int covStart = 50;
-                if (counter >= covStart + 1) {
+                    int covStart = 50;
+                    if (counter >= covStart + 1) {
                     /*
                     % Iterative covariance
                     [xmean,xcov] = UpdateMeanCovMS(x,xcov,xmean,ensemble,cnt-covstart,0);
@@ -618,94 +617,100 @@ public class DataModelDriverExperiment {
                     n dimension of output matrix - datsav)';
                         stepCountForcedSave
                     */
-                    DataModelUpdater.UpdatedCovariancesRecord updatedCovariancesRecord =
-                            updateMeanCovMS(dataModelInit, xDataCovariance, xDataMean, ensembleRecordsList, counter - covStart, false);
-                    xDataCovariance = updatedCovariancesRecord.dataCov();
-                    xDataMean = updatedCovariancesRecord.dataMean();
+                        DataModelUpdater.UpdatedCovariancesRecord updatedCovariancesRecord =
+                                updateMeanCovMS(dataModelInit, xDataCovariance, xDataMean, ensembleRecordsList, counter - covStart, false);
+                        xDataCovariance = updatedCovariancesRecord.dataCov();
+                        xDataMean = updatedCovariancesRecord.dataMean();
 
-                    if (adaptiveFlag) {
+                        if (adaptiveFlag) {
                         /*
                         delx_adapt =  mvnrnd(zeros(sizeOfModel,1), 2.38^2*xDataCovariance/sizeOfModel, stepCountForcedSave)'
                         stepCountForcedSave = 100
                         sizeOfModel = 20
                         */
 
-                        double[] zeroMean = new double[sizeOfModel];
-                        MultivariateNormalDistribution mnd = new MultivariateNormalDistribution(zeroMean, storeFactory.rows(xDataCovariance).multiply(pow(2.38, 2) / (sizeOfModel)).toRawCopy2D());
-                        double[][] samples = new double[stepCountForcedSave][];
-                        for (int i = 0; i < stepCountForcedSave; i++) {
-                             samples[i] = mnd.sample();
+                            double[] zeroMean = new double[sizeOfModel];
+                            MultivariateNormalDistribution mnd = new MultivariateNormalDistribution(zeroMean, storeFactory.rows(xDataCovariance).multiply(pow(2.38, 2) / (sizeOfModel)).toRawCopy2D());
+                            double[][] samples = new double[stepCountForcedSave][];
+                            for (int i = 0; i < stepCountForcedSave; i++) {
+                                samples[i] = mnd.sample();
+                            }
+                            delx_adapt = storeFactory.rows(samples).transpose().toRawCopy2D();
                         }
-                        delx_adapt = storeFactory.rows(samples).transpose().toRawCopy2D();
-                    }
-                }
-
-                if (modelIndex % (10 * stepCountForcedSave) == 0) {
-                    String loggingSnippet =
-                            "%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
-                                    + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
-                                    + "\nError function = "
-                                    + statsFormat.format(StrictMath.sqrt(initialModelErrorUnWeighted_E0 / massSpecOutputDataRecord.detectorIndicesForRawDataColumn().length))
-
-                                    + "\nChange Log Ratio: "
-                                    + keptUpdates[0][0]
-                                    + " of "
-                                    + keptUpdates[0][1]
-                                    + " accepted (" + statsFormat.format(100.0 * keptUpdates[0][2] / keptUpdates[0][3]) + "% total)"
-
-                                    + "\nChange Intensity: "
-                                    + keptUpdates[1][0]
-                                    + " of "
-                                    + keptUpdates[1][1]
-                                    + " accepted (" + statsFormat.format(100.0 * keptUpdates[1][2] / keptUpdates[1][3]) + "% total)"
-
-                                    + "\nChange DF Gain: "
-                                    + keptUpdates[2][0]
-                                    + " of "
-                                    + keptUpdates[2][1]
-                                    + " accepted (" + statsFormat.format(100.0 * keptUpdates[2][2] / keptUpdates[2][3]) + "% total)"
-
-                                    + "\nChange Baseline: "
-                                    + keptUpdates[3][0]
-                                    + " of "
-                                    + keptUpdates[3][1]
-                                    + " accepted (" + statsFormat.format(100.0 * keptUpdates[3][2] / keptUpdates[3][3]) + "% total)"
-
-                                    + (hierarchical ?
-                                    ("\nNoise: "
-                                            + keptUpdates[4][0]
-                                            + " of "
-                                            + keptUpdates[4][1]
-                                            + " accepted (" + statsFormat.format(100.0 * keptUpdates[4][2] / keptUpdates[4][3]) + "% total)")
-                                            + ("\nIntervals: in microseconds, each from prev or zero time till new interval"
-                                            + " Interval1 " + (interval1 / 1000)
-                                            + " Interval2 " + (interval2 / 1000)
-                                            + " Interval3 " + (interval3 / 1000)
-                                            + " Interval4 " + (interval4 / 1000)
-                                            + " Interval5 " + (interval5 / 1000)
-                                    )
-                                    : "");
-
-                    System.err.println("\n" + loggingSnippet);
-                    loggingCallback.receiveLoggingSnippet(loggingSnippet);
-
-                    for (int i = 0; i < 5; i++) {
-                        keptUpdates[i][0] = 0;
-                        keptUpdates[i][1] = 0;
                     }
 
-                    watch.reset();
-                    watch.start();
+                    if (modelIndex % (10 * stepCountForcedSave) == 0) {
+                        String loggingSnippet =
+                                "%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
+                                        + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
+                                        + "\nError function = "
+                                        + statsFormat.format(StrictMath.sqrt(initialModelErrorUnWeighted_E0 / massSpecOutputDataRecord.detectorIndicesForRawDataColumn().length))
+
+                                        + "\nChange Log Ratio: "
+                                        + keptUpdates[0][0]
+                                        + " of "
+                                        + keptUpdates[0][1]
+                                        + " accepted (" + statsFormat.format(100.0 * keptUpdates[0][2] / keptUpdates[0][3]) + "% total)"
+
+                                        + "\nChange Intensity: "
+                                        + keptUpdates[1][0]
+                                        + " of "
+                                        + keptUpdates[1][1]
+                                        + " accepted (" + statsFormat.format(100.0 * keptUpdates[1][2] / keptUpdates[1][3]) + "% total)"
+
+                                        + "\nChange DF Gain: "
+                                        + keptUpdates[2][0]
+                                        + " of "
+                                        + keptUpdates[2][1]
+                                        + " accepted (" + statsFormat.format(100.0 * keptUpdates[2][2] / keptUpdates[2][3]) + "% total)"
+
+                                        + "\nChange Baseline: "
+                                        + keptUpdates[3][0]
+                                        + " of "
+                                        + keptUpdates[3][1]
+                                        + " accepted (" + statsFormat.format(100.0 * keptUpdates[3][2] / keptUpdates[3][3]) + "% total)"
+
+                                        + (hierarchical ?
+                                        ("\nNoise: "
+                                                + keptUpdates[4][0]
+                                                + " of "
+                                                + keptUpdates[4][1]
+                                                + " accepted (" + statsFormat.format(100.0 * keptUpdates[4][2] / keptUpdates[4][3]) + "% total)")
+                                                + ("\nIntervals: in microseconds, each from prev or zero time till new interval"
+                                                + " Interval1 " + (interval1 / 1000)
+                                                + " Interval2 " + (interval2 / 1000)
+                                                + " Interval3 " + (interval3 / 1000)
+                                                + " Interval4 " + (interval4 / 1000)
+                                                + " Interval5 " + (interval5 / 1000)
+                                        )
+                                        : "");
+
+                        System.err.println("\n" + loggingSnippet);
+                        loggingCallback.receiveLoggingSnippet(loggingSnippet);
+
+                        for (int i = 0; i < 5; i++) {
+                            keptUpdates[i][0] = 0;
+                            keptUpdates[i][1] = 0;
+                        }
+
+                        watch.reset();
+                        watch.start();
+                    }
                 }
+            } else {
+                loggingCallback.receiveLoggingSnippet("Cancelled by user.");
+                break;
             }
         } // end model loop
 
-        // experiment with serializing results during development
-        EnsemblesStore ensemblesStore = new EnsemblesStore(ensembleRecordsList, dataModelInit);
-        try {
-            TripoliSerializer.serializeObjectToFile(ensemblesStore, "EnsemblesStore.ser");
-        } catch (TripoliException e) {
-            e.printStackTrace();
+        if (ALLOW_EXECUTION) {
+            // experiment with serializing results during development
+            EnsemblesStore ensemblesStore = new EnsemblesStore(ensembleRecordsList, dataModelInit);
+            try {
+                TripoliSerializer.serializeObjectToFile(ensemblesStore, "EnsemblesStore.ser");
+            } catch (TripoliException e) {
+                e.printStackTrace();
+            }
         }
 
         return DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, dataModelInit, analysisMethod);

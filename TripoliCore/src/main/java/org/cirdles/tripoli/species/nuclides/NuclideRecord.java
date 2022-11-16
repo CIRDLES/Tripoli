@@ -36,8 +36,7 @@ public record NuclideRecord(
 
     public String prettyPrintLongForm() {
         DecimalFormat df = new DecimalFormat("###0.0000000#####           ");
-        return elementSymbol +
-                "" + (protonsZ + neutronsN) +
+        return prettyPrintShortForm() +
                 ": " + df.format(atomicMass) +
                 "\t %abundance: " +
                 naturalAbundancePercent +

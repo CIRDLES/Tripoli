@@ -19,7 +19,7 @@ package org.cirdles.tripoli.dataProcessors.dataSources.synthetic;
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.MassSpecOutputDataRecord;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_PhoenixTextFile;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_PhoenixSyntheticTextFile;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.junit.jupiter.api.*;
 
@@ -48,8 +48,8 @@ class DataSourceProcessorOPPhoenixTest {
         System.err.println("Testing Synthetic Data 2 isotopes.");
         Path dataFile = RESOURCE_EXTRACTOR
                 .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_05.txt").toPath();
-//        DataSourceProcessor_PhoenixTextFile dataSourceProcessorOPPhoenix
-//                = DataSourceProcessor_PhoenixTextFile.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
+//        DataSourceProcessor_PhoenixSyntheticTextFile dataSourceProcessorOPPhoenix
+//                = DataSourceProcessor_PhoenixSyntheticTextFile.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
 //        MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFile);
 //
 //        double[] testArray = new double[]{1, 2, 3, 4, 5};
@@ -71,8 +71,8 @@ class DataSourceProcessorOPPhoenixTest {
         System.err.println("Testing Synthetic Data 5 isotopes.");
         Path dataFile = RESOURCE_EXTRACTOR
                 .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
-        DataSourceProcessor_PhoenixTextFile dataSourceProcessorOPPhoenix
-                = DataSourceProcessor_PhoenixTextFile.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB));
+        DataSourceProcessor_PhoenixSyntheticTextFile dataSourceProcessorOPPhoenix
+                = DataSourceProcessor_PhoenixSyntheticTextFile.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB));
         MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFile);
 
         assert (massSpecOutputDataRecord.rawDataColumn().length == 162000);
