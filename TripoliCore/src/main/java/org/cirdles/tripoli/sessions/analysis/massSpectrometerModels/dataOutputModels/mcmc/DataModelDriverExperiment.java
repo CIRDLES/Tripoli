@@ -51,7 +51,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
  */
 public class DataModelDriverExperiment {
 
-    private static final boolean doFullProcessing = false;
+    private static final boolean doFullProcessing = true;
     public static boolean ALLOW_EXECUTION = true;
 
     public static AbstractPlotBuilder[][] driveModelTest(Path dataFilePath, AnalysisMethod analysisMethod, LoggingCallbackInterface loggingCallback) throws IOException {
@@ -112,9 +112,9 @@ public class DataModelDriverExperiment {
          */
 
         int maxCount = 2000;
-        if (dataModelInit_X0.logratios().length > 2) {
-            maxCount = 500;
-        }
+//        if (dataModelInit_X0.logratios().length > 2) {
+//            maxCount = 500;
+//        }
 
         boolean hierarchical = true;
         int stepCountForcedSave = 100;
@@ -364,7 +364,7 @@ public class DataModelDriverExperiment {
                 long prev = System.nanoTime();
                 String operation = DataModelUpdaterHelper.randomOperMS(hierarchical);
                 // todo: handle adaptiveFlag case
-                boolean adaptiveFlag = (counter >= 100000);
+                boolean adaptiveFlag = (counter >= 200);
                 boolean allFlag = adaptiveFlag;
                 int columnChoice = modelIndex % stepCountForcedSave;
                 double[] delx_adapt_slice = storeFactory.rows(delx_adapt).sliceColumn(columnChoice).toRawCopy1D();
@@ -630,7 +630,8 @@ public class DataModelDriverExperiment {
                         */
 
                             double[] zeroMean = new double[sizeOfModel];
-                            MultivariateNormalDistribution mnd = new MultivariateNormalDistribution(zeroMean, storeFactory.rows(xDataCovariance).multiply(pow(2.38, 2) / (sizeOfModel)).toRawCopy2D());
+                            MultivariateNormalDistribution mnd =
+                                    new MultivariateNormalDistribution(zeroMean, storeFactory.rows(xDataCovariance).multiply(pow(2.38, 2) / (sizeOfModel)).toRawCopy2D());
                             double[][] samples = new double[stepCountForcedSave][];
                             for (int i = 0; i < stepCountForcedSave; i++) {
                                 samples[i] = mnd.sample();

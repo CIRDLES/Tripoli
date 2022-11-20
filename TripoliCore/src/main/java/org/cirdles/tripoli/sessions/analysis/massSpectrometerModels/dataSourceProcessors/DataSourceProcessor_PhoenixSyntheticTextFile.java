@@ -19,6 +19,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.ojalgo.matrix.store.MatrixStore;
@@ -45,6 +46,56 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
         return new DataSourceProcessor_PhoenixSyntheticTextFile(analysisMethod);
     }
 
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+        Path dataFile = Path.of(ClassLoader.getSystemClassLoader().getResource(
+                "org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_05.txt").getPath());
+        extractMetaAndBlockDataFromFileVersion_1_0_0(dataFile, null);
+    }
+
+    public static void extractMetaAndBlockDataFromFileVersion_1_0_0(Path inputDataFile, MassSpecExtractedData massSpecExtractedData) throws IOException {
+
+        List<String> contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
+        // test for version 1.00
+        if (contentsByLine.get(0).trim().compareToIgnoreCase("Version,1.00") != 0) {
+            throw new IOException("Wrong version of data file.");
+        } else {
+            List<String[]> headerByLineSplit = new ArrayList<>();
+            List<String[]> columnNamesSplit = new ArrayList<>();
+            List<String> sequenceIDByLineSplit = new ArrayList<>();
+            List<String> blockNumberByLineSplit = new ArrayList<>();
+            List<String> cycleNumberByLineSplit = new ArrayList<>();
+            List<String> integrationNumberByLineSplit = new ArrayList<>();
+            List<String> timeStampByLineSplit = new ArrayList<>();
+            List<String> massByLineSplit = new ArrayList<>();
+            List<String[]> detectorDataByLineSplit = new ArrayList<>();
+
+            int phase = 0;
+            for (String line : contentsByLine) {
+                switch (phase) {
+                    case 0 -> headerByLineSplit.add(line.split(","));
+                    case 1 -> columnNamesSplit.add(line.split(","));
+                    case 2 -> {
+                        String[] lineSplit = line.split(",");
+                        if (lineSplit[1].compareTo("1") == 0) {
+                            sequenceIDByLineSplit.add(lineSplit[0]);
+                            blockNumberByLineSplit.add("1");//lineSplit[1]);
+                            cycleNumberByLineSplit.add(lineSplit[2]);
+                            integrationNumberByLineSplit.add(lineSplit[3]);
+                            timeStampByLineSplit.add(lineSplit[4]);
+                            massByLineSplit.add(lineSplit[5]);
+                            detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 6, lineSplit.length));
+                        }
+                    }
+                }
+                if (line.startsWith("#START")) {
+                    phase = 1;
+                } else if (phase == 1) {
+                    phase = 2;
+                }
+            }
+        }
+    }
+
     @Override
     public MassSpecOutputDataRecord prepareInputDataModelFromFile(Path inputDataFile) throws IOException {
 
@@ -67,15 +118,18 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
 //                    case 0 -> headerByLineSplit.add(line.split(","));
 //                    case 1 -> columnNamesSplit.add(line.split(","));
 //                    case 2 -> {
-                String[] lineSplit = line.split(",");
-                sequenceIDByLineSplit.add(lineSplit[0]);
-                blockNumberByLineSplit.add(lineSplit[1]);
-                cycleNumberByLineSplit.add(lineSplit[2]);
-                integrationNumberByLineSplit.add(lineSplit[3]);
-                timeStampByLineSplit.add(lineSplit[4]);
-                massByLineSplit.add(lineSplit[5]);
 
-                detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 6, lineSplit.length));
+                String[] lineSplit = line.split(",");
+                if (lineSplit[1].compareTo("1") == 0) {
+                    sequenceIDByLineSplit.add(lineSplit[0]);
+                    blockNumberByLineSplit.add("1");//lineSplit[1]);
+                    cycleNumberByLineSplit.add(lineSplit[2]);
+                    integrationNumberByLineSplit.add(lineSplit[3]);
+                    timeStampByLineSplit.add(lineSplit[4]);
+                    massByLineSplit.add(lineSplit[5]);
+
+                    detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 6, lineSplit.length));
+                }
 //                    }
             }
             if (line.startsWith("#START")) {

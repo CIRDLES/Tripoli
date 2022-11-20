@@ -51,12 +51,12 @@ public class TripoliFileResources {
         retrieveResourceFiles(PHYSCONST_MODELS_FOLDER, "parameterModels/physicalConstantsModels");
         retrieveResourceFiles(REFMAT_MODELS_FOLDER, "parameterModels/referenceMaterialsModels");
 
-        retrieveResourceFiles(SYNTHETIC_DATA_FOLDER_2ISOTOPE, "dataProcessors/dataSources/synthetic/twoIsotopeSyntheticData");
-        retrieveResourceFiles(SYNTHETIC_DATA_FOLDER_5ISOTOPE, "dataProcessors/dataSources/synthetic/fiveIsotopeSyntheticData");
+        retrieveResourceFiles(SYNTHETIC_DATA_FOLDER_2ISOTOPE, "dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData");
+        retrieveResourceFiles(SYNTHETIC_DATA_FOLDER_5ISOTOPE, "dataSourceProcessors/dataSources/synthetic/fiveIsotopeSyntheticData");
 
         retrieveResourceFiles(NUCLIDESCHART_DATA_FOLDER, "species/nuclides");
         retrieveResourceFiles(PERIODICTABLE_DATA_FOLDER, "elements");
-        retrieveResourceFiles(PEAK_CENTRES_FOLDER, "dataProcessors/dataSources/peakShapes");
+        retrieveResourceFiles(PEAK_CENTRES_FOLDER, "dataSourceProcessors/dataSources/peakShapes");
 
         System.out.println("Tripoli Resources loaded");
     }

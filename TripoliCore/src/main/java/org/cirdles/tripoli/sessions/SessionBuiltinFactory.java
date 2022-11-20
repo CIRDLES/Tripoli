@@ -50,7 +50,7 @@ public final class SessionBuiltinFactory {
         Sample twoIsotopeSample_01 = new Sample("TwoIsotopeSample_Pb207_Pb208_01");
         Analysis twoIsotopes_01 = Analysis.initializeAnalysis("Two Isotope Demo_01", twoIsotopeSyntheticAnalysisMethod, twoIsotopeSample_01);
         Path dataFilePath = RESOURCE_EXTRACTOR
-                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_01.txt").toPath();
+                .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_01.txt").toPath();
         twoIsotopes_01.setDataFilePath(dataFilePath);
         tripoliDemonstrationSession.addAnalysis(twoIsotopes_01);
 
@@ -58,7 +58,7 @@ public final class SessionBuiltinFactory {
         Sample fiveIsotopeSample_01 = new Sample("FiveIsotopeSample_Pb204_Pb205_Pb206_Pb207_Pb208_01");
         Analysis fiveIsotopes_01 = Analysis.initializeAnalysis("Five Isotope Demo_01", fiveIsotopeSyntheticAnalysisMethod, fiveIsotopeSample_01);
         dataFilePath = RESOURCE_EXTRACTOR
-                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
+                .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
         fiveIsotopes_01.setDataFilePath(dataFilePath);
         tripoliDemonstrationSession.addAnalysis(fiveIsotopes_01);
 
