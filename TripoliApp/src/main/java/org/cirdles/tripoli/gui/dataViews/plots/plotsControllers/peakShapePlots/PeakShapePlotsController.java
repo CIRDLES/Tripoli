@@ -2,8 +2,13 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
@@ -20,12 +25,14 @@ import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes.BeamDataOutputDriverExperiment;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,6 +48,10 @@ public class PeakShapePlotsController {
     public static String currentGroup;
 
     public static int currentGroupIndex;
+
+    public static List<RenderedImage> beamImageSet;
+
+    public static List<RenderedImage> gBeamImageSet;
 
     static Map<String, List<File>> resourceGroups;
 
@@ -239,6 +250,8 @@ public class PeakShapePlotsController {
 
         double[] finalYAxis;
         double[] finalXAxis;
+        beamImageSet = new ArrayList<>();
+        gBeamImageSet = new ArrayList<>();
 
         double[] xAxis = new double[resourceGroups.get(groupValue).size()];
         double[] yAxis = new double[resourceGroups.get(groupValue).size()];
@@ -246,9 +259,32 @@ public class PeakShapePlotsController {
             resourceBrowserTarget = resourceGroups.get(groupValue).get(k);
             if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
                 try {
-                    BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
+                    AbstractPlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
                     xAxis[k] = k + 1;
                     yAxis[k] = BeamDataOutputDriverExperiment.getMeasBeamWidthAMU();
+                    AbstractDataView gBeamLinePlot = new GBeamLinePlot(
+                            new Rectangle(gBeamPlotScrollPane.getWidth(),
+                                    gBeamPlotScrollPane.getHeight()),
+                            (GBeamLinePlotBuilder) plots[1]
+                    );
+
+                    AbstractDataView beamShapeLinePlot = new BeamShapeLinePlot(
+                            new Rectangle(beamShapePlotScrollPane.getWidth(),
+                                    beamShapePlotScrollPane.getHeight()),
+                            (BeamShapeLinePlotBuilder) plots[0]
+                    );
+
+                    gBeamLinePlot.preparePanel();
+                    beamShapeLinePlot.preparePanel();
+
+                    WritableImage writableImage1 = new WritableImage((int)beamShapeLinePlot.getWidth(), (int)beamShapeLinePlot.getHeight());
+                    WritableImage writableImage2 = new WritableImage((int)gBeamLinePlot.getWidth(), (int)gBeamLinePlot.getHeight());
+                    beamShapeLinePlot.snapshot(null, writableImage1);
+                    gBeamLinePlot.snapshot(null, writableImage2);
+                    RenderedImage renderedImage1 = SwingFXUtils.fromFXImage(writableImage1, null);
+                    RenderedImage renderedImage2 = SwingFXUtils.fromFXImage(writableImage2, null);
+                    beamImageSet.add(renderedImage1);
+                    gBeamImageSet.add(renderedImage2);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -386,6 +422,12 @@ public class PeakShapePlotsController {
                 });
 
                 beamShapeLinePlot.preparePanel();
+                beamShapeLinePlot.getGraphicsContext2D();
+
+
+
+
+
                 beamShapePlotScrollPane.setContent(beamShapeLinePlot);
             } catch (Exception e) {
                 e.printStackTrace();
