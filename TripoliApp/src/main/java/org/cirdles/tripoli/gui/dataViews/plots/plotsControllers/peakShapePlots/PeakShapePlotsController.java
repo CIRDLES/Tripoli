@@ -277,12 +277,16 @@ public class PeakShapePlotsController {
                     gBeamLinePlot.preparePanel();
                     beamShapeLinePlot.preparePanel();
 
+                    // Creates a rendered image of the beam shape and g-beam line plots
                     WritableImage writableImage1 = new WritableImage((int)beamShapeLinePlot.getWidth(), (int)beamShapeLinePlot.getHeight());
-                    WritableImage writableImage2 = new WritableImage((int)gBeamLinePlot.getWidth(), (int)gBeamLinePlot.getHeight());
                     beamShapeLinePlot.snapshot(null, writableImage1);
-                    gBeamLinePlot.snapshot(null, writableImage2);
                     RenderedImage renderedImage1 = SwingFXUtils.fromFXImage(writableImage1, null);
+
+                    WritableImage writableImage2 = new WritableImage((int)gBeamLinePlot.getWidth(), (int)gBeamLinePlot.getHeight());
+                    gBeamLinePlot.snapshot(null, writableImage2);
                     RenderedImage renderedImage2 = SwingFXUtils.fromFXImage(writableImage2, null);
+
+                    // adds the rendered images to a list that will be used later
                     beamImageSet.add(renderedImage1);
                     gBeamImageSet.add(renderedImage2);
                 } catch (Exception e) {
