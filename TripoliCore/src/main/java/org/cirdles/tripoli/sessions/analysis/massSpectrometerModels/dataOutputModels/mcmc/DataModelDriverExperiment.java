@@ -26,12 +26,10 @@ import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.ojalgo.RecoverableCondition;
-import org.ojalgo.matrix.decomposition.Cholesky;
-import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
-import org.ojalgo.random.Normal;
 import org.ojalgo.structure.Access1D;
+import org.ojalgo.structure.Access2D;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -54,7 +52,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataO
  */
 public class DataModelDriverExperiment {
 
-    private static final boolean doFullProcessing = false;
+    private static final boolean doFullProcessing = true;
 
     public static AbstractPlotBuilder[][] driveModelTest(Path dataFilePath, AnalysisMethod analysisMethod, LoggingCallbackInterface loggingCallback) throws IOException {
 
@@ -368,7 +366,7 @@ public class DataModelDriverExperiment {
             boolean adaptiveFlag = (counter >= 10000);
             boolean allFlag = adaptiveFlag;
             int columnChoice = modelIndex % stepCountForcedSave;
-            double[] delx_adapt_slice = storeFactory.rows(delx_adapt).sliceColumn(columnChoice).toRawCopy1D();
+            double[] delx_adapt_slice = storeFactory.copy(Access2D.wrap(delx_adapt)).sliceColumn(columnChoice).toRawCopy1D();
             DataModellerOutputRecord dataModelUpdaterOutputRecord_x2 = updateMSv2(
                     operation,
                     dataModelInit,
@@ -631,12 +629,12 @@ public class DataModelDriverExperiment {
                         */
 
                         double[] zeroMean = new double[sizeOfModel];
-                        MultivariateNormalDistribution mnd = new MultivariateNormalDistribution(zeroMean, storeFactory.rows(xDataCovariance).multiply(pow(2.38, 2) / (sizeOfModel)).toRawCopy2D());
+                        MultivariateNormalDistribution mnd = new MultivariateNormalDistribution(zeroMean, storeFactory.copy(Access2D.wrap(xDataCovariance)).multiply(pow(2.38, 2) / (sizeOfModel)).toRawCopy2D());
                         double[][] samples = new double[stepCountForcedSave][];
                         for (int i = 0; i < stepCountForcedSave; i++) {
                              samples[i] = mnd.sample();
                         }
-                        delx_adapt = storeFactory.rows(samples).transpose().toRawCopy2D();
+                        delx_adapt = storeFactory.copy(Access2D.wrap(samples)).transpose().toRawCopy2D();
                     }
                 }
 
