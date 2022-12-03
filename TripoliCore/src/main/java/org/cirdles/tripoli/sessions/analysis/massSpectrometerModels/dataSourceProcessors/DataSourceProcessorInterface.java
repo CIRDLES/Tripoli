@@ -16,7 +16,6 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;

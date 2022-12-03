@@ -18,7 +18,7 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots;
 
 import javafx.concurrent.Task;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.DataModelDriverExperiment;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.DataModelDriverExperiment;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 

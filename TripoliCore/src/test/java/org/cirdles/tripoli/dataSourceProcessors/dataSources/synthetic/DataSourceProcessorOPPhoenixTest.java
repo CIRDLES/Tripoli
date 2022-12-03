@@ -18,7 +18,7 @@ package org.cirdles.tripoli.dataSourceProcessors.dataSources.synthetic;
 
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.MassSpecOutputDataRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_PhoenixSyntheticTextFile;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.junit.jupiter.api.*;

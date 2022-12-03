@@ -21,7 +21,7 @@ import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc.DataModelDriverExperiment;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.DataModelDriverExperiment;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 
