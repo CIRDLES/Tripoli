@@ -24,6 +24,7 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
+import org.ojalgo.structure.Access2D;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -185,8 +186,8 @@ public class DataSourceProcessor_PhoenixTextFile implements DataSourceProcessorI
         int[][] indicesOfKnotsByBlock = new int[blockCount][];
         @SuppressWarnings("unchecked")
         MatrixStore<Double>[] allBlockInterpolations = new MatrixStore[nCycle.length];
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
-            PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
             allBlockInterpolations[blockIndex] = null;
             double[][] interpMatArrayForBlock = new double[nCycle[blockIndex]][];
             interpMatArrayForBlock[0] = new double[maxDelta];
@@ -228,7 +229,7 @@ public class DataSourceProcessor_PhoenixTextFile implements DataSourceProcessorI
                     interpMatArrayForBlock[cycleIndex - 1][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 0.0;
 
                     // generate matrix and then transpose it to match matlab
-                    MatrixStore<Double> firstPass = storeFactory.rows(interpMatArrayForBlock).limits(
+                    MatrixStore<Double> firstPass = storeFactory.copy(Access2D.wrap(interpMatArrayForBlock)).limits(
                             cycleIndex + 1,
                             countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
                     allBlockInterpolations[blockIndex] = firstPass.transpose();
