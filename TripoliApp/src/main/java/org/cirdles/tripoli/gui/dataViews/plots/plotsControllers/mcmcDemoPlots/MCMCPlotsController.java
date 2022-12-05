@@ -21,6 +21,7 @@ import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.DataModelDriverExperiment;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 
@@ -41,6 +42,8 @@ import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoP
 public class MCMCPlotsController {
 
     private static final int TAB_HEIGHT = 35;
+    private MCMCUpdatesService service;
+
     @FXML
     private ResourceBundle resources;
 
@@ -98,7 +101,8 @@ public class MCMCPlotsController {
 
 
     @FXML
-    void demo1_2IsotopeButtonAction(ActionEvent event) throws IOException {
+    void demo1_2IsotopeButtonAction(ActionEvent event) {
+        DataModelDriverExperiment.ALLOW_EXECUTION = true;
         processDataFileAndShowPlotsOfMCMC(
                 listViewOfSyntheticFiles.getSelectionModel().selectedItemProperty().getValue().toPath(),
                 AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA));
@@ -107,11 +111,12 @@ public class MCMCPlotsController {
     }
 
     @FXML
-    void demo1_5IsotopeButtonAction(ActionEvent event) throws IOException {
+    void demo1_5IsotopeButtonAction(ActionEvent event) {
         // Jim's playground for 5 isotopes
+        DataModelDriverExperiment.ALLOW_EXECUTION = true;
         ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
         Path dataFile = RESOURCE_EXTRACTOR
-                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
+                .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
         processDataFileAndShowPlotsOfMCMC(
                 dataFile,
                 AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB));
@@ -120,6 +125,15 @@ public class MCMCPlotsController {
         processFileButton.setDisable(true);
     }
 
+
+    @FXML
+    void testAction(ActionEvent event) {
+        DataModelDriverExperiment.ALLOW_EXECUTION = false;
+        service.cancel();
+        processFileButton.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
+        processFileButton2.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
+
+    }
     @FXML
     void initialize() {
 
@@ -174,7 +188,7 @@ public class MCMCPlotsController {
     }
 
     public void processDataFileAndShowPlotsOfMCMC(Path dataFile, AnalysisMethod analysisMethod) {
-        MCMCUpdatesService service = new MCMCUpdatesService(dataFile, analysisMethod);
+        service = new MCMCUpdatesService(dataFile, analysisMethod);
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
         service.setOnSucceeded(evt -> {

@@ -17,7 +17,7 @@ import org.cirdles.tripoli.plots.AbstractPlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.GBeamLinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes.BeamDataOutputDriverExperiment;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.BeamDataOutputDriverExperiment;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
 import java.io.File;

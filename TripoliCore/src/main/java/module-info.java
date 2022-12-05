@@ -38,8 +38,8 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.species;
     exports org.cirdles.tripoli.elements;
     exports org.cirdles.tripoli.utilities.callbacks;
-    exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.mcmc;
-    exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes;
+    exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
+    exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes;
     exports org.cirdles.tripoli.plots.histograms;
     exports org.cirdles.tripoli.plots.linePlots;
     exports org.cirdles.tripoli.plots;
