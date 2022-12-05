@@ -59,7 +59,8 @@ tasks.create("fatAppJar", Jar::class) {
         put("Main-Class", mainClassName)
     }
 
-    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+    doFirst {from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })}
+    exclude("META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA")
     with(tasks.jar.get())
 
 }
