@@ -2,12 +2,9 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
@@ -25,14 +22,12 @@ import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes.BeamDataOutputDriverExperiment;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
-import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,9 +44,11 @@ public class PeakShapePlotsController {
 
     public static int currentGroupIndex;
 
-    public static List<RenderedImage> beamImageSet;
+    public static int remSize;
 
-    public static List<RenderedImage> gBeamImageSet;
+    public static List<ImageView> beamImageSet;
+
+    public static List<ImageView> gBeamImageSet;
 
     static Map<String, List<File>> resourceGroups;
 
@@ -111,7 +108,6 @@ public class PeakShapePlotsController {
     public static List<File> getResourceGroups(String group) {
         return resourceGroups.get(group);
     }
-
 
     @FXML
     void initialize() {
@@ -253,6 +249,11 @@ public class PeakShapePlotsController {
         beamImageSet = new ArrayList<>();
         gBeamImageSet = new ArrayList<>();
 
+        if (plotsAnchorPane.getChildren().size() > 1) {
+            plotsAnchorPane.getChildren().remove(1, remSize);
+        }
+        remSize = 1;
+
         double[] xAxis = new double[resourceGroups.get(groupValue).size()];
         double[] yAxis = new double[resourceGroups.get(groupValue).size()];
         for (int k = 0; k < resourceGroups.get(groupValue).size(); k++) {
@@ -278,17 +279,25 @@ public class PeakShapePlotsController {
                     beamShapeLinePlot.preparePanel();
 
                     // Creates a rendered image of the beam shape and g-beam line plots
-                    WritableImage writableImage1 = new WritableImage((int)beamShapeLinePlot.getWidth(), (int)beamShapeLinePlot.getHeight());
+                    WritableImage writableImage1 = new WritableImage((int) beamShapeLinePlot.getWidth(), (int) beamShapeLinePlot.getHeight());
                     beamShapeLinePlot.snapshot(null, writableImage1);
-                    RenderedImage renderedImage1 = SwingFXUtils.fromFXImage(writableImage1, null);
+                    ImageView image1 = new ImageView(writableImage1);
+                    image1.setFitWidth(95);
+                    image1.setFitHeight(51);
+                    //image1.setPreserveRatio(true);
+                    //RenderedImage renderedImage1 = SwingFXUtils.fromFXImage(image1.snapshot(null, null), null);
 
-                    WritableImage writableImage2 = new WritableImage((int)gBeamLinePlot.getWidth(), (int)gBeamLinePlot.getHeight());
+                    WritableImage writableImage2 = new WritableImage((int) gBeamLinePlot.getWidth(), (int) gBeamLinePlot.getHeight());
                     gBeamLinePlot.snapshot(null, writableImage2);
-                    RenderedImage renderedImage2 = SwingFXUtils.fromFXImage(writableImage2, null);
+                    ImageView image2 = new ImageView(writableImage2);
+                    image2.setFitWidth(95);
+                    image2.setFitHeight(51);
+                    //image2.setPreserveRatio(true);
+                    //RenderedImage renderedImage2 = SwingFXUtils.fromFXImage(image2.snapshot(null, null), null);
 
                     // adds the rendered images to a list that will be used later
-                    beamImageSet.add(renderedImage1);
-                    gBeamImageSet.add(renderedImage2);
+                    beamImageSet.add(image1);
+                    gBeamImageSet.add(image2);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -313,6 +322,26 @@ public class PeakShapePlotsController {
 
         peakCentreLinePlot.preparePanel();
         peakCentrePlotScrollPane.setContent(peakCentreLinePlot);
+        int size = 1;
+        for (int i = 0; i < gBeamImageSet.size(); i++) {
+            plotsAnchorPane.getChildren().add(gBeamImageSet.get(i));
+            ImageView pos = (ImageView) plotsAnchorPane.getChildren().get(i + 1);
+            pos.setX(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[i]) - 35);
+            pos.setY(210);
+            pos.setVisible(false);
+            size++;
+            remSize++;
+
+
+        }
+        for (int i = 0; i < beamImageSet.size(); i++) {
+            plotsAnchorPane.getChildren().add(beamImageSet.get(i));
+            ImageView pos = (ImageView) plotsAnchorPane.getChildren().get(size + i);
+            pos.setX(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[i]) - 35);
+            pos.setY(250);
+            pos.setVisible(false);
+            remSize++;
+        }
 
 
         // Selects file from peakCentre plot
@@ -323,6 +352,38 @@ public class PeakShapePlotsController {
             listViewOfResourcesInFolder.getSelectionModel().select(currentGroupIndex);
         });
 
+        int finalSize = size;
+
+        peakCentrePlotScrollPane.setOnMouseMoved(mouse -> {
+
+
+            int index = (int) peakCentreLinePlot.convertMouseXToValue(mouse.getX());
+            int previous = 1;
+
+
+            if (peakCentreLinePlot.mouseInHouse(mouse) && index >= 1 && mouse.getY() > 10) {
+                for (int i = 0; i < peakCentreLinePlot.getxAxisData().length; i++) {
+                    ImageView pos1 = (ImageView) plotsAnchorPane.getChildren().get(finalSize + (i));
+                    pos1.setVisible(false);
+                    ImageView pos2 = (ImageView) plotsAnchorPane.getChildren().get(i + 1);
+                    pos2.setVisible(false);
+                    if (peakCentreLinePlot.getxAxisData()[i] == index) {
+                        pos1 = (ImageView) plotsAnchorPane.getChildren().get(finalSize + (index - 1));
+                        pos1.setVisible(true);
+                        pos2 = (ImageView) plotsAnchorPane.getChildren().get(index);
+                        pos2.setVisible(true);
+                    }
+
+                }
+
+
+            } else {
+                for (int i = 1; i < plotsAnchorPane.getChildren().size(); i++) {
+                    plotsAnchorPane.getChildren().get(i).setVisible(false);
+                }
+            }
+
+        });
     }
 
     private void populateListOfResources(String groupValue) {
@@ -429,10 +490,8 @@ public class PeakShapePlotsController {
                 beamShapeLinePlot.getGraphicsContext2D();
 
 
-
-
-
                 beamShapePlotScrollPane.setContent(beamShapeLinePlot);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }

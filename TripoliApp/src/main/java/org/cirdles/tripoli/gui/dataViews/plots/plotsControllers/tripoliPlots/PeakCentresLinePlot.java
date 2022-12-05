@@ -32,8 +32,6 @@ public class PeakCentresLinePlot extends AbstractDataView {
         this.peakCentrePlotBuilder = linePlotBuilder;
 
 
-
-
         this.setOnMouseMoved(new MouseMovedHandler());
         this.setOnMouseClicked(new MouseClickedEventHandler());
         this.indexOfSelectedSpot = -1;
@@ -219,9 +217,6 @@ public class PeakCentresLinePlot extends AbstractDataView {
 
             if (mouseInHouse(event)) {
                 ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.CROSSHAIR);
-                //setToolTips(potNode, tooltips);
-
-
             } else {
                 ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.DEFAULT);
             }
