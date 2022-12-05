@@ -358,7 +358,6 @@ public class PeakShapePlotsController {
 
 
             int index = (int) peakCentreLinePlot.convertMouseXToValue(mouse.getX());
-            int previous = 1;
 
 
             if (peakCentreLinePlot.mouseInHouse(mouse) && index >= 1 && mouse.getY() > 10) {
