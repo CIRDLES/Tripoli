@@ -18,7 +18,6 @@ package org.cirdles.tripoli.gui;
 
 import jakarta.xml.bind.JAXBException;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -33,7 +32,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MC
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.sessions.Session;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.SessionBuiltinFactory;
+import org.cirdles.tripoli.sessions.SessionBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 
 import java.io.IOException;
@@ -41,7 +40,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import static org.cirdles.tripoli.gui.utilities.BrowserControl.urlEncode;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.SessionBuiltinFactory.TRIPOLI_DEMONSTRATION_SESSION;
+import static org.cirdles.tripoli.sessions.SessionBuiltinFactory.TRIPOLI_DEMONSTRATION_SESSION;
 
 /**
  * @author James F. Bowring
@@ -149,7 +148,7 @@ public class TripoliGUIController implements Initializable {
     public void newSessionMenuItemAction() throws IOException, JAXBException {
         tripoliSession = Session.initializeDefaultSession();
         launchSessionManager();
-        AnalysisMethod.TEST();
+        AnalysisMethod.test();
     }
 
     public void openSessionMenuItemAction() {

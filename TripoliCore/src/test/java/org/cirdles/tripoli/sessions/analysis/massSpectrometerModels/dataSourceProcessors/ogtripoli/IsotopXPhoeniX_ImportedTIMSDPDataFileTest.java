@@ -27,7 +27,7 @@ class IsotopXPhoeniX_ImportedTIMSDPDataFileTest {
     @Test
     void readDataFileExample() throws IOException {
         Path timsdpFilePath = RESOURCE_EXTRACTOR
-                .extractResourceAsFile("/org/cirdles/tripoli/dataProcessors/dataSources/ogTripoli/isotopxPhoenix/timsDP/SmKU1A-A2-427.TIMSDP").toPath();
+                .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/ogTripoli/isotopxPhoenix/timsDP/SmKU1A-A2-427.TIMSDP").toPath();
         IsotopXPhoeniX_ImportedTIMSDPDataFile isotopXPhoeniX_ImportedTIMSDPDataFile = initializeIsotopXPhoeniX_ImportedTIMSDPDataFile(timsdpFilePath);
 
         isotopXPhoeniX_ImportedTIMSDPDataFile.readDataFile();

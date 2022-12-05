@@ -16,12 +16,21 @@
  * limitations under the License.
  -->
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:id="plotsAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity"
-            minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0"
-            xmlns="http://javafx.com/javafx/17"
-            fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsController">
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane fx:id="plotsAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsController">
     <children>
         <VBox fx:id="masterVBox" prefHeight="600.0" prefWidth="1000.0">
             <children>
@@ -29,35 +38,28 @@
                     <tabs>
                         <Tab fx:id="ensemblesTab" closable="false" text="Ensembles">
                             <content>
-                                <AnchorPane fx:id="ensemblePlotsAnchorPane" prefHeight="200.0" prefWidth="200.0"/>
+                                <AnchorPane fx:id="ensemblePlotsAnchorPane" prefHeight="200.0" prefWidth="200.0" />
                             </content>
                         </Tab>
                         <Tab closable="false" text="Convergences">
                             <content>
-                                <AnchorPane fx:id="convergePlotsAnchorPane" minHeight="0.0" minWidth="0.0"
-                                            prefHeight="180.0" prefWidth="200.0"/>
+                                <AnchorPane fx:id="convergePlotsAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                             </content>
                         </Tab>
                         <Tab closable="false" text="DataFit">
                             <content>
                                 <HBox>
                                     <children>
-                                        <GridPane fx:id="dataFitGridPane" alignment="CENTER" gridLinesVisible="true"
-                                                  prefHeight="282.0" prefWidth="500.0">
+                                        <GridPane fx:id="dataFitGridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="282.0" prefWidth="500.0">
                                             <columnConstraints>
-                                                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0"
-                                                                   percentWidth="100.0" prefWidth="100.0"/>
+                                                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" percentWidth="100.0" prefWidth="100.0" />
                                             </columnConstraints>
                                             <rowConstraints>
-                                                <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0"
-                                                                valignment="CENTER" vgrow="ALWAYS"/>
-                                                <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0"
-                                                                valignment="CENTER" vgrow="ALWAYS"/>
+                                                <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+                                                <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
                                             </rowConstraints>
                                         </GridPane>
-                                        <TextArea fx:id="dataFitLegendTextBox" prefHeight="282.0" prefWidth="306.0"
-                                                  text="Top: Observed data (scattered) with best (or final) modeled data (red line)&#10;&#10;Bottom: Residual difference between observed and modeled data (scattered), with mean residual (dotted red) and 2 standard deviations (solid red). Hopefully mean is close to zero, stdev brackets residual!"
-                                                  wrapText="true"/>
+                                        <TextArea fx:id="dataFitLegendTextBox" prefHeight="282.0" prefWidth="306.0" text="Top: Observed data (scattered) with best (or final) modeled data (red line)&#10;&#10;Bottom: Residual difference between observed and modeled data (scattered), with mean residual (dotted red) and 2 standard deviations (solid red). Hopefully mean is close to zero, stdev brackets residual!" wrapText="true" />
                                     </children>
                                 </HBox>
                             </content>
@@ -66,22 +68,16 @@
                             <content>
                                 <HBox>
                                     <children>
-                                        <GridPane fx:id="convergeErrGridPane" alignment="CENTER" gridLinesVisible="true"
-                                                  prefHeight="282.0" prefWidth="500.0">
+                                        <GridPane fx:id="convergeErrGridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="282.0" prefWidth="500.0">
                                             <columnConstraints>
-                                                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0"
-                                                                   percentWidth="100.0" prefWidth="100.0"/>
+                                                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" percentWidth="100.0" prefWidth="100.0" />
                                             </columnConstraints>
                                             <rowConstraints>
-                                                <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0"
-                                                                valignment="CENTER" vgrow="ALWAYS"/>
-                                                <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0"
-                                                                valignment="CENTER" vgrow="ALWAYS"/>
+                                                <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+                                                <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
                                             </rowConstraints>
                                         </GridPane>
-                                        <TextArea fx:id="convergeErrLegendTextBox" prefHeight="282.0" prefWidth="306.0"
-                                                  text="Plots values for misfit for each saved iteration.  &#10;&#10;Weighted misfit takes noise hyperparameters into account, so trend should remain relatively flat.&#10;&#10;Raw gives absolute, unweighted misfit, so better for showing improvement to data fit.&#10;&#10;Could be plotted during MCMC process"
-                                                  wrapText="true"/>
+                                        <TextArea fx:id="convergeErrLegendTextBox" prefHeight="282.0" prefWidth="306.0" text="Plots values for misfit for each saved iteration.  &#10;&#10;Weighted misfit takes noise hyperparameters into account, so trend should remain relatively flat.&#10;&#10;Raw gives absolute, unweighted misfit, so better for showing improvement to data fit.&#10;&#10;Could be plotted during MCMC process" wrapText="true" />
                                     </children>
                                 </HBox>
                             </content>
@@ -90,12 +86,8 @@
                             <content>
                                 <HBox>
                                     <children>
-                                        <AnchorPane fx:id="convergeIntensityAnchorPane" prefHeight="282.0"
-                                                    prefWidth="500.0"/>
-                                        <TextArea fx:id="convergeIntensityLegendTextBox" prefHeight="200.0"
-                                                  prefWidth="300.0"
-                                                  text="Shows development of intensity function knots at each saved model iteration. Colors indicate order of knots, with blue earlier and pink later.&#10;&#10;Each block will have similar figure.&#10;&#10;Used primarily to check convergence and search quality for intensity parameters.&#10;"
-                                                  wrapText="true"/>
+                                        <AnchorPane fx:id="convergeIntensityAnchorPane" prefHeight="282.0" prefWidth="500.0" />
+                                        <TextArea fx:id="convergeIntensityLegendTextBox" prefHeight="200.0" prefWidth="300.0" text="Shows development of intensity function knots at each saved model iteration. Colors indicate order of knots, with blue earlier and pink later.&#10;&#10;Each block will have similar figure.&#10;&#10;Used primarily to check convergence and search quality for intensity parameters.&#10;" wrapText="true" />
                                     </children>
                                 </HBox>
                             </content>
@@ -104,17 +96,15 @@
                 </TabPane>
                 <SplitPane dividerPositions="0.2136591478696742">
                     <items>
-                        <ScrollPane fx:id="listOfFilesScrollPane" prefHeight="236.0" prefWidth="246.0"/>
-                        <TextArea fx:id="eventLogTextArea" editable="false" prefHeight="300.0" prefWidth="500.0"
-                                  text="Event log  (eventually) appears here ...  note modelling  stps at 100000 iterations with no adaptaion yet."/>
+                        <ScrollPane fx:id="listOfFilesScrollPane" prefHeight="236.0" prefWidth="246.0" />
+                        <TextArea fx:id="eventLogTextArea" editable="false" prefHeight="300.0" prefWidth="500.0" text="Event log  (eventually) appears here ...  note modelling  stps at 100000 iterations with no adaptaion yet." />
                     </items>
                 </SplitPane>
                 <ToolBar fx:id="toolbar" prefHeight="15.0" prefWidth="500.0">
                     <items>
-                        <Button fx:id="processFileButton" mnemonicParsing="false" onAction="#demo1_2IsotopeButtonAction"
-                                text="Process Selected 2-Isotope File for MCMC"/>
-                        <Button fx:id="processFileButton2" layoutX="10.0" layoutY="10.0" mnemonicParsing="false"
-                                onAction="#demo1_5IsotopeButtonAction" text="Process Our only 5-Isotope File for MCMC"/>
+                        <Button fx:id="processFileButton" mnemonicParsing="false" onAction="#demo1_2IsotopeButtonAction" text="Process Selected 2-Isotope File for MCMC" />
+                        <Button fx:id="processFileButton2" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#demo1_5IsotopeButtonAction" text="Process Our only 5-Isotope File for MCMC" />
+                  <Button mnemonicParsing="false" onAction="#testAction" text="test" />
                     </items>
                 </ToolBar>
             </children>

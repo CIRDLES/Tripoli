@@ -1,1 +1,0 @@
-This folder contains example peak shape files for testing and demonstration.

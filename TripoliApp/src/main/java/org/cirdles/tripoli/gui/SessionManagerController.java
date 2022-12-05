@@ -66,5 +66,9 @@ public class SessionManagerController implements Initializable {
     private void populateSessionPane() {
         sessionNameText.setEditable(tripoliSession.isMutable());
         sessionNameText.setText(tripoliSession.getSessionName());
+
+        analystNameText.setEditable(tripoliSession.isMutable());
+        analystNameText.setText(tripoliSession.getAnalystName());
+
     }
 }
