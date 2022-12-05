@@ -16,6 +16,8 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.DataPrepForMCMC;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -35,13 +37,18 @@ public class PhoenixMassSpec {
     public static void main(String[] args) throws IOException {
         Path dataFile = Path.of(ClassLoader.getSystemClassLoader().getResource(
 //                "org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_01.txt").getPath());
-//                "org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").getPath());
-                "org/cirdles/tripoli/dataSourceProcessors/dataSources/testDataFiles/NBS981_2022-05-15_Pb-1598.TXT").getPath());
+                "org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").getPath());
+//                "org/cirdles/tripoli/dataSourceProcessors/dataSources/testDataFiles/NBS981_2022-05-15_Pb-1598.TXT").getPath());
+//        "org/cirdles/tripoli/dataSourceProcessors/dataSources/testDataFiles/SmKU1A-A2-427.TXT").getPath());
+
+
 
         MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
 
-//        extractMetaAndBlockDataFromFileVersion_1_0(dataFile, massSpecExtractedData);
-        extractMetaAndBlockDataFromFileVersion_1_2(dataFile, massSpecExtractedData);
+        extractMetaAndBlockDataFromFileVersion_1_0(dataFile, massSpecExtractedData);
+//        extractMetaAndBlockDataFromFileVersion_1_2(dataFile, massSpecExtractedData);
+
+        DataPrepForMCMC.prepareSingleBlockDataForMCMC(1,massSpecExtractedData);
     }
 
     public static void extractMetaAndBlockDataFromFileVersion_1_0(Path inputDataFile, MassSpecExtractedData massSpecExtractedData) throws IOException {
@@ -53,65 +60,51 @@ public class PhoenixMassSpec {
         } else {
             List<String[]> headerByLineSplit = new ArrayList<>();
             List<String[]> columnNamesSplit = new ArrayList<>();
-
-            List<String> sequenceIDByLineSplit = new ArrayList<>();
-            List<String> cycleNumberByLineSplit = new ArrayList<>();
-            List<String> integrationNumberByLineSplit = new ArrayList<>();
-            List<String> timeStampByLineSplit = new ArrayList<>();
-            List<String> massByLineSplit = new ArrayList<>();
-            List<String[]> detectorDataByLineSplit = new ArrayList<>();
+            List<String> dataByBlock = new ArrayList<>();
 
             int phase = 0;
             int currentBlockNumber = 1;
             contentsByLine.add("#END,0,");
             for (String line : contentsByLine) {
-                switch (phase) {
-                    case 0 -> headerByLineSplit.add(line.split(","));
-                    case 1 -> columnNamesSplit.add(line.split(","));
-                    case 2 -> {
-                        String[] lineSplit = line.split(",");
-                        // each block gets treated as a singleton block #1
-                        int blockNumber = Integer.parseInt(lineSplit[1].trim());
-                        if (blockNumber != currentBlockNumber) {
-                            // check for valid block and save off block and prepare for next block
-                            if (0 < Integer.parseInt(cycleNumberByLineSplit.get(cycleNumberByLineSplit.size() - 1))) {
-                                MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord = buildSingleBlockRecord(
-                                        currentBlockNumber,
-                                        sequenceIDByLineSplit,
-                                        cycleNumberByLineSplit,
-                                        integrationNumberByLineSplit,
-                                        timeStampByLineSplit,
-                                        massByLineSplit,
-                                        detectorDataByLineSplit);
-                                massSpecExtractedData.addBlockRecord(massSpecOutputSingleBlockRecord);
-                                currentBlockNumber = blockNumber;
+                if (!line.trim().isBlank()) {
+                    if (line.startsWith("#START")) {
+                        phase = 1;
+                    } else if (line.startsWith("#END")) {
+                        phase = 4;
+                    }
 
-                                sequenceIDByLineSplit.clear();
-                                cycleNumberByLineSplit.clear();
-                                integrationNumberByLineSplit.clear();
-                                timeStampByLineSplit.clear();
-                                massByLineSplit.clear();
-                                detectorDataByLineSplit.clear();
-                            }
+                    switch (phase) {
+                        case 0 -> headerByLineSplit.add(line.split(","));
+                        case 1 -> phase = 2;
+                        case 2 -> {
+                            columnNamesSplit.add(line.split(","));
+                            phase = 3;
                         }
-                        if (0 != lineSplit[0].compareToIgnoreCase("#END")) {
-                            sequenceIDByLineSplit.add(lineSplit[0]);
-                            cycleNumberByLineSplit.add(lineSplit[2]);
-                            integrationNumberByLineSplit.add(lineSplit[3]);
-                            timeStampByLineSplit.add(lineSplit[4]);
-                            massByLineSplit.add(lineSplit[5]);
-                            detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 6, lineSplit.length));
+                        case 3 -> {
+                            String[] lineSplit = line.split(",");
+                            // each block gets treated as a singleton block #1
+                            int blockNumber = Integer.parseInt(lineSplit[1].trim());
+                            if (blockNumber != currentBlockNumber) {
+                                //  save off block and prepare for next block
+                                massSpecExtractedData.addBlockRecord(
+                                        parseAndBuildSingleBlockRecord(1, currentBlockNumber, dataByBlock));
+                                dataByBlock = new ArrayList<>();
+                                currentBlockNumber = blockNumber;
+                            }
+                            dataByBlock.add(line);
+                        }
+                        case 4 -> {
+                            // test if complete block by checking last entry's cycle number != 0
+                            boolean isComplete = Integer.parseInt(dataByBlock.get(dataByBlock.size() - 1).split(",")[2].trim()) > 0;
+                            if (isComplete) {
+                                massSpecExtractedData.addBlockRecord(
+                                        parseAndBuildSingleBlockRecord(1, currentBlockNumber, dataByBlock));
+                            }
                         }
                     }
                 }
-                if (line.startsWith("#START")) {
-                    phase = 1;
-                } else if (1 == phase) {
-                    phase = 2;
-                }
             }
         }
-
     }
 
     public static void extractMetaAndBlockDataFromFileVersion_1_2(Path inputDataFile, MassSpecExtractedData massSpecExtractedData) throws IOException {
@@ -153,16 +146,16 @@ public class PhoenixMassSpec {
                         case 6 -> phase = 7;
                         case 7 -> phase = 8;
 
-                        case 5,8 -> {
+                        case 5, 8 -> {
                             String[] lineSplit = line.split(",");
                             // each block gets treated as a singleton block #1
                             int blockNumber = Integer.parseInt(lineSplit[1].trim());
                             if (blockNumber != currentBlockNumber) {
                                 //  save off block and prepare for next block new for BL and add to for OPeak
-                                if (phase == 8){
+                                if (8 == phase) {
                                     dataByBlocks.get(currentBlockNumber - 1).addAll(dataByBlock);
                                     massSpecExtractedData.addBlockRecord(
-                                            parseAndBuildSingleBlockRecord(currentBlockNumber, dataByBlocks.get(currentBlockNumber - 1)));
+                                            parseAndBuildSingleBlockRecord(2, currentBlockNumber, dataByBlocks.get(currentBlockNumber - 1)));
                                 } else {
                                     dataByBlocks.add(dataByBlock);
                                 }
@@ -172,22 +165,22 @@ public class PhoenixMassSpec {
                             dataByBlock.add(line);
                         }
                     }
-                } else if ((phase == 5) && !dataByBlock.isEmpty()){
+                } else if ((5 == phase) && !dataByBlock.isEmpty()) {
                     // clean up last block
                     dataByBlocks.add(dataByBlock);
                     dataByBlock = new ArrayList<>();
                     currentBlockNumber = 1;
-                } else if ((phase == 8) && !dataByBlock.isEmpty()){
+                } else if ((8 == phase) && !dataByBlock.isEmpty()) {
                     // clean up last block
                     dataByBlocks.get(currentBlockNumber - 1).addAll(dataByBlock);
                     massSpecExtractedData.addBlockRecord(
-                            parseAndBuildSingleBlockRecord(currentBlockNumber, dataByBlocks.get(currentBlockNumber - 1)));
+                            parseAndBuildSingleBlockRecord(2, currentBlockNumber, dataByBlocks.get(currentBlockNumber - 1)));
                 }
             }
         }
     }
 
-    private static MassSpecOutputSingleBlockRecord parseAndBuildSingleBlockRecord(int blockNumber, List<String> blockData){
+    private static MassSpecOutputSingleBlockRecord parseAndBuildSingleBlockRecord(int version, int blockNumber, List<String> blockData) {
         List<String> sequenceIDByLineSplit = new ArrayList<>();
         List<String> cycleNumberByLineSplit = new ArrayList<>();
         List<String> integrationNumberByLineSplit = new ArrayList<>();
@@ -195,16 +188,18 @@ public class PhoenixMassSpec {
         List<String> massByLineSplit = new ArrayList<>();
         List<String[]> detectorDataByLineSplit = new ArrayList<>();
 
-        // ID,Block,Cycle,Integ,PeakID,AxMass,Time,PM,RS,L5,L4,L3,L2,Ax,H1,H2,H3,H4
-        for (String line : blockData){
+        // version 1:  ID,Block,Cycle,Integ,Time,Mass,Low5,Low4,Low3,Low2,Ax Fara,Axial,High1,High2,High3,High4
+        // version 2:  ID,Block,Cycle,Integ,PeakID,AxMass,Time,PM,RS,L5,L4,L3,L2,Ax,H1,H2,H3,H4
+        for (String line : blockData) {
             String[] lineSplit = line.split(",");
             sequenceIDByLineSplit.add(lineSplit[0].trim());
             cycleNumberByLineSplit.add(lineSplit[2].trim());
             integrationNumberByLineSplit.add(lineSplit[3].trim());
-            timeStampByLineSplit.add(lineSplit[6].trim());
+            timeStampByLineSplit.add(lineSplit[(1 == version) ? 4 : 6].trim());
             massByLineSplit.add(lineSplit[5].trim());
-            detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 7, lineSplit.length));
+            detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, ((1 == version) ? 6 : 7), lineSplit.length));
         }
+
         return buildSingleBlockRecord(
                 blockNumber,
                 sequenceIDByLineSplit,
@@ -214,6 +209,7 @@ public class PhoenixMassSpec {
                 massByLineSplit,
                 detectorDataByLineSplit);
     }
+
     private static MassSpecOutputSingleBlockRecord buildSingleBlockRecord(
             int blockNumber,
             List<String> sequenceIDByLineSplit,
@@ -281,17 +277,17 @@ public class PhoenixMassSpec {
         int currentRecordNumber = 0;
         int row;
         boolean cycleStartRecorded = false;
-        int[][] onPeakStartingIndicesOfCycles = new int[nCycle][2];
+        int[] onPeakStartingIndicesOfCycles = new int[nCycle];
         for (row = 0; row < onPeakCycleNumbers.length; row++) {
             if (!cycleStartRecorded) {
-                onPeakStartingIndicesOfCycles[currentRecordNumber] = new int[]{currentCycleNumber, currentIndex};
+                onPeakStartingIndicesOfCycles[currentRecordNumber] = currentIndex;
                 cycleStartRecorded = true;
             }
             if (onPeakCycleNumbers[row] > currentCycleNumber) {
                 currentRecordNumber++;
                 currentCycleNumber++;
                 currentIndex = row;
-                onPeakStartingIndicesOfCycles[currentRecordNumber] = new int[]{currentCycleNumber, currentIndex};
+                onPeakStartingIndicesOfCycles[currentRecordNumber] = currentIndex;
             }
         }
 

@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
+import org.apache.commons.math3.stat.correlation.Covariance;
 import org.ojalgo.data.DataProcessors;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
@@ -379,6 +380,7 @@ public class DataModelUpdater {
         int dataEntryCount = countOfLogRatios + sumOfCycleCounts + countOfFaradays + countOfNonFaradays;
         double[] dataMean;
         double[][] dataCov;
+        Covariance cov2= new    Covariance();
         if (iterFlag) {
             // todo: currently iterFlag is always false
             dataMean = null;
@@ -399,6 +401,22 @@ public class DataModelUpdater {
 
 
         } else {
+            /*
+                cnt = length(ensemble);
+                enso = [ensemble.lograt];
+                for ii = 1:Nblock
+                    for n = 1:cnt;
+                        ens_I{ii}(:,n) =[ensemble(n).I{ii}];
+                    end
+                    enso = [enso; ens_I{ii}];
+                end
+                enso = [enso; [ensemble.BL]];
+                enso = [enso; [ensemble.DFgain]];
+
+                %xcov = cov(enso(:,ceil(end/2):end)');
+                xmean = mean(enso(:,m:end)');
+                xcov = cov(enso(:,m:end)');
+             */
             int modelCount = ensembleRecordsList.size() - countOfNewModels + 1;
             PhysicalStore<Double> totalsByRow = storeFactory.make(dataEntryCount, 1);
             PhysicalStore<Double> enso = storeFactory.make(dataEntryCount, modelCount);
@@ -435,9 +453,11 @@ public class DataModelUpdater {
 
             dataMean = totalsByRow.transpose().toRawCopy1D();
 
-            dataCov = DataProcessors.covariances(storeFactory, enso.transpose()).toRawCopy2D();
+//            dataCov = DataProcessors.covariances(storeFactory, enso.transpose()).toRawCopy2D();
+            cov2 = new    Covariance(enso.transpose().toRawCopy2D());
         }
-        return new UpdatedCovariancesRecord(dataCov, dataMean);
+        return new UpdatedCovariancesRecord(cov2.getCovarianceMatrix().getData(), dataMean);
+//        return new UpdatedCovariancesRecord(dataCov, dataMean);
     }
 
     public record UpdatedCovariancesRecord(

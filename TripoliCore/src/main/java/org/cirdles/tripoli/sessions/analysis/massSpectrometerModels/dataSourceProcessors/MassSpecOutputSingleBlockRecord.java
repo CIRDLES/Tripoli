@@ -48,7 +48,7 @@ public record MassSpecOutputSingleBlockRecord(
         int[] onPeakIntegrationNumbers,
         double[] onPeakTimeStamps,
         double[] onPeakMasses,
-        int[][] onPeakStartingIndicesOfCycles
+        int[] onPeakStartingIndicesOfCycles
 ) implements Serializable {
 
 }

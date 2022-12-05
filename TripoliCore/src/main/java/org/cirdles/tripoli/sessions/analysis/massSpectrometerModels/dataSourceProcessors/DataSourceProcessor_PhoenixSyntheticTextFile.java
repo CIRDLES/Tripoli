@@ -62,13 +62,8 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
         int phase = 0;
         for (String line : contentsByLine) {
             if (!line.isEmpty() && (phase == 2)) {
-//                switch (phase) {
-//                    case 0 -> headerByLineSplit.add(line.split(","));
-//                    case 1 -> columnNamesSplit.add(line.split(","));
-//                    case 2 -> {
 
                 String[] lineSplit = line.split(",");
-//                if (lineSplit[1].compareTo("1") == 0) {
                     sequenceIDByLineSplit.add(lineSplit[0]);
                     blockNumberByLineSplit.add(lineSplit[1]);
                     cycleNumberByLineSplit.add(lineSplit[2]);
@@ -77,15 +72,12 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
                     massByLineSplit.add(lineSplit[5]);
 
                     detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 6, lineSplit.length));
-//                }
-//                    }
             }
             if (line.startsWith("#START")) {
                 phase = 1;
             } else if (phase == 1) {
                 phase = 2;
             }
-//            }
         }
         String[] sequenceIDs = sequenceIDByLineSplit.toArray(new String[0]);
         int[] blockNumbers = convertListOfNumbersAsStringsToIntegerArray(blockNumberByLineSplit);
