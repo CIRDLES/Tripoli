@@ -42,13 +42,12 @@ public class PhoenixMassSpec {
 //        "org/cirdles/tripoli/dataSourceProcessors/dataSources/testDataFiles/SmKU1A-A2-427.TXT").getPath());
 
 
-
         MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
 
         extractMetaAndBlockDataFromFileVersion_1_0(dataFile, massSpecExtractedData);
 //        extractMetaAndBlockDataFromFileVersion_1_2(dataFile, massSpecExtractedData);
 
-        DataPrepForMCMC.prepareSingleBlockDataForMCMC(1,massSpecExtractedData);
+        DataPrepForMCMC.prepareSingleBlockDataForMCMC(1, massSpecExtractedData);
     }
 
     public static void extractMetaAndBlockDataFromFileVersion_1_0(Path inputDataFile, MassSpecExtractedData massSpecExtractedData) throws IOException {

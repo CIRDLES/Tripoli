@@ -48,4 +48,5 @@ module Tripoli.TripoliCore {
     opens org.cirdles.tripoli.sessions.analysis.methods.machineMethods to jakarta.xml.bind;
     exports org.cirdles.tripoli.sessions;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels;
+    exports org.cirdles.tripoli.utilities.file;
 }

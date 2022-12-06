@@ -23,6 +23,7 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
+import org.ojalgo.structure.Access2D;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -64,14 +65,14 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
             if (!line.isEmpty() && (phase == 2)) {
 
                 String[] lineSplit = line.split(",");
-                    sequenceIDByLineSplit.add(lineSplit[0]);
-                    blockNumberByLineSplit.add(lineSplit[1]);
-                    cycleNumberByLineSplit.add(lineSplit[2]);
-                    integrationNumberByLineSplit.add(lineSplit[3]);
-                    timeStampByLineSplit.add(lineSplit[4]);
-                    massByLineSplit.add(lineSplit[5]);
+                sequenceIDByLineSplit.add(lineSplit[0]);
+                blockNumberByLineSplit.add(lineSplit[1]);
+                cycleNumberByLineSplit.add(lineSplit[2]);
+                integrationNumberByLineSplit.add(lineSplit[3]);
+                timeStampByLineSplit.add(lineSplit[4]);
+                massByLineSplit.add(lineSplit[5]);
 
-                    detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 6, lineSplit.length));
+                detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 6, lineSplit.length));
             }
             if (line.startsWith("#START")) {
                 phase = 1;
@@ -223,7 +224,7 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
                     interpMatArrayForBlock[cycleIndex - 1][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 0.0;
 
                     // generate matrix and then transpose it to match matlab
-                    MatrixStore<Double> firstPass = storeFactory.rows(interpMatArrayForBlock).limits(
+                    MatrixStore<Double> firstPass = storeFactory.copy(Access2D.wrap(interpMatArrayForBlock)).limits(
                             cycleIndex + 1,
                             countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
                     allBlockInterpolations[blockIndex] = firstPass.transpose();

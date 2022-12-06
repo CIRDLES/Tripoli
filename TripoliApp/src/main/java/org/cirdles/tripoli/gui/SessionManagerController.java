@@ -18,7 +18,6 @@ package org.cirdles.tripoli.gui;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import org.cirdles.tripoli.sessions.Session;
@@ -33,18 +32,15 @@ import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliSession;
  */
 public class SessionManagerController implements Initializable {
 
+
+    @FXML
+    public TextArea sessionAnalysesTextArea;
     @FXML
     private TextField analystNameText;
-
     @FXML
     private TextField sessionNameText;
-
     @FXML
     private TextArea sessionNotesText;
-
-    @FXML
-    private Label summaryStatsLabel;
-
     @FXML
     private TextField tripoliFileNameText;
 
@@ -61,6 +57,7 @@ public class SessionManagerController implements Initializable {
         }
 
         populateSessionPane();
+        setupListeners();
     }
 
     private void populateSessionPane() {
@@ -70,5 +67,13 @@ public class SessionManagerController implements Initializable {
         analystNameText.setEditable(tripoliSession.isMutable());
         analystNameText.setText(tripoliSession.getAnalystName());
 
+    }
+
+    private void setupListeners() {
+        sessionNameText.textProperty().addListener((observable, oldValue, newValue) -> tripoliSession.setSessionName(newValue));
+
+        analystNameText.textProperty().addListener((observable, oldValue, newValue) -> tripoliSession.setAnalystName(newValue));
+
+        sessionNotesText.textProperty().addListener((observable, oldValue, newValue) -> tripoliSession.setSessionNotes(newValue));
     }
 }

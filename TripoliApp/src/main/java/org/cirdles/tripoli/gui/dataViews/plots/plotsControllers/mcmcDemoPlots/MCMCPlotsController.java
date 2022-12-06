@@ -134,6 +134,7 @@ public class MCMCPlotsController {
         processFileButton2.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
 
     }
+
     @FXML
     void initialize() {
 

@@ -15,11 +15,8 @@ public class MassSpecExtractedData implements Serializable {
         this.blocksData = new TreeMap<>();
     }
 
-    public void addBlockRecord(MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord){
+    public void addBlockRecord(MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord) {
         blocksData.put(massSpecOutputSingleBlockRecord.blockNumber(), massSpecOutputSingleBlockRecord);
-    }
-    public record MassSpecExtractedHeader() {
-
     }
 
     public MassSpecExtractedHeader getHeader() {
@@ -36,5 +33,9 @@ public class MassSpecExtractedData implements Serializable {
 
     public void setBlocksData(Map<Integer, MassSpecOutputSingleBlockRecord> blocksData) {
         this.blocksData = blocksData;
+    }
+
+    public record MassSpecExtractedHeader() {
+
     }
 }

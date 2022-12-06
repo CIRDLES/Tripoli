@@ -31,13 +31,16 @@ public class Session implements Serializable {
     @Serial
     private static final long serialVersionUID = 6597752272434171800L;
 
+    private static boolean sessionChanged;
     private String sessionName;
     private String analystName;
+    private String sessionNotes;
     private Map<String, Analysis> mapOfAnalyses;
     private boolean mutable;
 
+
     private Session() {
-        this("Default Session");
+        this("New Session");
     }
 
     private Session(String sessionName) {
@@ -47,8 +50,11 @@ public class Session implements Serializable {
     private Session(String sessionName, Map<String, Analysis> mapOfAnalyses) {
         this.sessionName = sessionName;
         this.mapOfAnalyses = mapOfAnalyses;
+
         this.analystName = "None";
+        this.sessionNotes = "None";
         this.mutable = true;
+        this.sessionChanged = false;
     }
 
     public static Session initializeDefaultSession() {
@@ -57,6 +63,14 @@ public class Session implements Serializable {
 
     public static Session initializeSession(String sessionName) {
         return new Session(sessionName);
+    }
+
+    public static boolean isSessionChanged() {
+        return sessionChanged;
+    }
+
+    public static void setSessionChanged(boolean sessionChanged) {
+        sessionChanged = sessionChanged;
     }
 
     public void addAnalysis(Analysis analysis) {
@@ -87,6 +101,14 @@ public class Session implements Serializable {
 
     public void setMapOfAnalyses(Map<String, Analysis> mapOfAnalyses) {
         this.mapOfAnalyses = mapOfAnalyses;
+    }
+
+    public String getSessionNotes() {
+        return sessionNotes;
+    }
+
+    public void setSessionNotes(String sessionNotes) {
+        this.sessionNotes = sessionNotes;
     }
 
     public boolean isMutable() {
