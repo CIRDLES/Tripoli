@@ -145,7 +145,12 @@ public class PeakShapePlotsController {
     @FXML
     public void browseResourceFileAction() {
         resourceBrowserTarget = FileHandlerUtil.selectPeakShapeResourceFolderForBrowsing(plottingWindow);
-        populateListOfGroups();
+        if(resourceBrowserTarget == null){
+            System.out.println("File not chosen");
+        }else {
+            populateListOfGroups();
+        }
+
     }
 
     private void populateListOfGroups() {
