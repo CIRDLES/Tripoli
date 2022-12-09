@@ -16,12 +16,14 @@
 
 package org.cirdles.tripoli.sessions;
 
-import org.cirdles.tripoli.sessions.analysis.Analysis;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.TreeMap;
+
+import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
 
 /**
  * @author James F. Bowring
@@ -34,8 +36,9 @@ public class Session implements Serializable {
     private static boolean sessionChanged;
     private String sessionName;
     private String analystName;
+    private String sessionFilePathAsString;
     private String sessionNotes;
-    private Map<String, Analysis> mapOfAnalyses;
+    private Map<String, AnalysisInterface> mapOfAnalyses;
     private boolean mutable;
 
 
@@ -47,12 +50,13 @@ public class Session implements Serializable {
         this(sessionName, new TreeMap<>());
     }
 
-    private Session(String sessionName, Map<String, Analysis> mapOfAnalyses) {
+    private Session(String sessionName, Map<String, AnalysisInterface> mapOfAnalyses) {
         this.sessionName = sessionName;
         this.mapOfAnalyses = mapOfAnalyses;
 
-        this.analystName = "None";
-        this.sessionNotes = "None";
+        this.analystName = MISSING_STRING_FIELD;
+        this.sessionNotes = MISSING_STRING_FIELD;
+        this.sessionFilePathAsString = "";
         this.mutable = true;
         this.sessionChanged = false;
     }
@@ -73,7 +77,7 @@ public class Session implements Serializable {
         sessionChanged = sessionChanged;
     }
 
-    public void addAnalysis(Analysis analysis) {
+    public void addAnalysis(AnalysisInterface analysis) {
         if (!mapOfAnalyses.containsKey(analysis.getAnalysisName())) {
             mapOfAnalyses.put(analysis.getAnalysisName(), analysis);
         }
@@ -95,11 +99,19 @@ public class Session implements Serializable {
         this.analystName = analystName;
     }
 
-    public Map<String, Analysis> getMapOfAnalyses() {
+    public String getSessionFilePathAsString() {
+        return sessionFilePathAsString;
+    }
+
+    public void setSessionFilePathAsString(String sessionFilePathAsString) {
+        this.sessionFilePathAsString = sessionFilePathAsString;
+    }
+
+    public Map<String, AnalysisInterface> getMapOfAnalyses() {
         return mapOfAnalyses;
     }
 
-    public void setMapOfAnalyses(Map<String, Analysis> mapOfAnalyses) {
+    public void setMapOfAnalyses(Map<String, AnalysisInterface> mapOfAnalyses) {
         this.mapOfAnalyses = mapOfAnalyses;
     }
 

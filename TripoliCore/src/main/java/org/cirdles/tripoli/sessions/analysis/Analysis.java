@@ -22,64 +22,96 @@ import org.cirdles.tripoli.sessions.analysis.samples.Sample;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.nio.file.Path;
+
+import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
+import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
 
 /**
  * @author James F. Bowring
  */
-public class Analysis implements Serializable {
+public class Analysis implements Serializable, AnalysisInterface {
     @Serial
     private static final long serialVersionUID = 5737165372498262402L;
 
     private String analysisName;
     private AnalysisMethod analysisMethod;
     private Sample analysisSample;
-    private Path dataFilePath;
+    private String analysisSampleDescription;
+
+    // note: path is not serializable
+    private String dataFilePathString;
     private MassSpecOutputDataRecord massSpecOutputDataRecord;
 
     private Analysis() {
     }
 
-    private Analysis(String analysisName, AnalysisMethod analysisMethod, Sample analysisSample) {
+    Analysis(String analysisName, AnalysisMethod analysisMethod, Sample analysisSample) {
         this.analysisName = analysisName;
         this.analysisMethod = analysisMethod;
         this.analysisSample = analysisSample;
-        this.dataFilePath = null;
+        this.analysisSampleDescription = MISSING_STRING_FIELD;
+        this.dataFilePathString = "";
         this.massSpecOutputDataRecord = null;
     }
 
-    public static Analysis initializeAnalysis(String analysisName, AnalysisMethod analysisMethod, Sample analysisSample) {
-        return new Analysis(analysisName, analysisMethod, analysisSample);
+    public final String prettyPrintAnalysisSummary() {
+        return new StringBuilder().append(analysisName)
+                .append(SPACES_100, 0, 40 - analysisName.length())
+                .append(analysisMethod.prettyPrintMethodSummary()).toString();
     }
 
+    @Override
     public String getAnalysisName() {
         return analysisName;
     }
 
+    @Override
     public void setAnalysisName(String analysisName) {
         this.analysisName = analysisName;
     }
 
+    public Sample getAnalysisSample() {
+        return analysisSample;
+    }
+
+    public void setAnalysisSample(Sample analysisSample) {
+        this.analysisSample = analysisSample;
+    }
+
+    public String getAnalysisSampleDescription() {
+        return analysisSampleDescription;
+    }
+
+    public void setAnalysisSampleDescription(String analysisSampleDescription) {
+        this.analysisSampleDescription = analysisSampleDescription;
+    }
+
+    @Override
     public AnalysisMethod getMethod() {
         return analysisMethod;
     }
 
+    @Override
     public void setMethod(AnalysisMethod analysisMethod) {
         this.analysisMethod = analysisMethod;
     }
 
-    public Path getDataFilePath() {
-        return dataFilePath;
+    @Override
+    public String getDataFilePath() {
+        return dataFilePathString;
     }
 
-    public void setDataFilePath(Path dataFilePath) {
-        this.dataFilePath = dataFilePath;
+    @Override
+    public void setDataFilePath(String dataFilePathString) {
+        this.dataFilePathString = dataFilePathString;
     }
 
+    @Override
     public MassSpecOutputDataRecord getMassSpecOutputDataRecord() {
         return massSpecOutputDataRecord;
     }
 
+    @Override
     public void setMassSpecOutputDataRecord(MassSpecOutputDataRecord massSpecOutputDataRecord) {
         this.massSpecOutputDataRecord = massSpecOutputDataRecord;
     }

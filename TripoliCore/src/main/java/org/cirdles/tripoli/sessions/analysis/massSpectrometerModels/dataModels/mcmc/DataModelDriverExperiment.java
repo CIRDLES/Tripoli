@@ -55,7 +55,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public enum DataModelDriverExperiment {
     ;
 
-    private static final boolean doFullProcessing = true;
+    private static final boolean doFullProcessing = false;
     public static boolean ALLOW_EXECUTION = true;
 
     public static AbstractPlotBuilder[][] driveModelTest(Path dataFilePath, AnalysisMethod analysisMethod, LoggingCallbackInterface loggingCallback) throws IOException {

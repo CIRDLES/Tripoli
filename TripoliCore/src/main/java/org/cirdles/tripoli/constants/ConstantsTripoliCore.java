@@ -14,26 +14,16 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.samples;
+package org.cirdles.tripoli.constants;
 
-import java.io.Serializable;
+import java.nio.CharBuffer;
 
 /**
  * @author James F. Bowring
  */
-public class Sample implements Serializable {
+public class ConstantsTripoliCore {
 
-    String sampleName;
+    public final static String SPACES_100 = CharBuffer.allocate(100).toString().replace('\0', ' ');
 
-    public Sample(String sampleName) {
-        this.sampleName = sampleName;
-    }
-
-    public String getSampleName() {
-        return sampleName;
-    }
-
-    public void setSampleName(String sampleName) {
-        this.sampleName = sampleName;
-    }
+    public final static String MISSING_STRING_FIELD = "MISSING";
 }

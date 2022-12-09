@@ -49,4 +49,7 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.sessions;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels;
     exports org.cirdles.tripoli.utilities.file;
+    exports org.cirdles.tripoli.sessions.analysis;
+    exports org.cirdles.tripoli.constants;
+    exports org.cirdles.tripoli.sessions.analysis.samples;
 }

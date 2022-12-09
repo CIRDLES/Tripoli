@@ -18,6 +18,7 @@ package org.cirdles.tripoli.gui;
 
 import jakarta.xml.bind.JAXBException;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -57,6 +58,8 @@ public class TripoliGUIController implements Initializable {
     public static String sessionFileName;
     @FXML
     private static GridPane sessionManagerUI;
+    @FXML
+    private static GridPane analysesManagerUI;
     @FXML
     public MenuItem openSessionMenuItem;
     @FXML // ResourceBundle that was given to the FXMLLoader
@@ -129,6 +132,7 @@ public class TripoliGUIController implements Initializable {
 
         // prevent stacking of panes
         splashAnchor.getChildren().remove(sessionManagerUI);
+        splashAnchor.getChildren().remove(analysesManagerUI);
 
         // logo
         splashAnchor.getChildren().get(0).setVisible(true);
@@ -150,14 +154,15 @@ public class TripoliGUIController implements Initializable {
         splashAnchor.getChildren().add(sessionManagerUI);
         sessionManagerUI.setVisible(true);
 
+        sessionManagerMenuItem.setDisable(false);
         saveSessionAsMenuItem.setDisable(false);
         closeSessionMenuItem.setDisable(false);
         analysisMenu.setDisable(false);
     }
 
     @FXML
-    void sessionManagerMenuItemAction() {
-
+    void sessionManagerMenuItemAction() throws IOException {
+        launchSessionManager();
     }
 
     public void newSessionMenuItemAction() throws IOException, JAXBException {
@@ -172,12 +177,12 @@ public class TripoliGUIController implements Initializable {
 
         try {
             sessionFileName = FileHandlerUtil.selectSessionFile(TripoliGUI.primaryStageWindow);
-            openProject(sessionFileName);
+            openSession(sessionFileName);
         } catch (IOException | TripoliException iOException) {
         }
     }
 
-    private void openProject(String aSessionFileName) throws IOException, TripoliException {
+    private void openSession(String aSessionFileName) throws IOException, TripoliException {
         if (!"".equals(aSessionFileName)) {
             sessionFileName = aSessionFileName;
             confirmSaveOnProjectClose();
@@ -289,6 +294,30 @@ public class TripoliGUIController implements Initializable {
     }
 
     // ++++++++++++++++++++++++++++++++++++++++++++++++++ end sessions ++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    // ++++++++++++++++++++++++++++++++++++++++++++++++++ analyses ++++++++++++++++++++++++++++++++++++++++++++++++++
+    private void launchAnalysesManager() throws IOException {
+        removeAllManagers();
+
+        analysesManagerUI = FXMLLoader.load(getClass().getResource("AnalysesManager.fxml"));
+        analysesManagerUI.setId("AnalysesManager");
+
+        AnchorPane.setLeftAnchor(analysesManagerUI, 0.0);
+        AnchorPane.setRightAnchor(analysesManagerUI, 0.0);
+        AnchorPane.setTopAnchor(analysesManagerUI, 0.0);
+        AnchorPane.setBottomAnchor(analysesManagerUI, 0.0);
+
+        splashAnchor.getChildren().add(analysesManagerUI);
+        analysesManagerUI.setVisible(true);
+
+        analysisMenu.setDisable(false);
+    }
+
+    public void manageAnalysesMenuItemAction(ActionEvent actionEvent) throws IOException {
+        launchAnalysesManager();
+    }
+
+    // ++++++++++++++++++++++++++++++++++++++++++++++++++ end analyses ++++++++++++++++++++++++++++++++++++++++++++++++++
     @FXML
     private void showTripoliAbout() {
         TripoliGUI.tripoliAboutWindow.loadAboutWindow();
@@ -331,12 +360,6 @@ public class TripoliGUIController implements Initializable {
     private void showDemo2() {
         PeakShapePlotsWindow peakShapePlotsWindow = new PeakShapePlotsWindow(TripoliGUI.primaryStage);
         peakShapePlotsWindow.loadPlotsWindow();
-    }
-
-
-    @FXML
-    private void TESTING() throws JAXBException {
-
     }
 
 

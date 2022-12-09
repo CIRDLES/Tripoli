@@ -37,6 +37,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
+
 /**
  * @author James F. Bowring
  */
@@ -59,10 +61,10 @@ public class AnalysisMethod implements Serializable {
     private AnalysisMethod(String methodName, MassSpectrometerModel massSpectrometer, BaselineTable baselineTable, SequenceTable sequenceTable) {
         this.methodName = methodName;
         this.massSpectrometer = massSpectrometer;
-        this.speciesList = new ArrayList<>();
+        speciesList = new ArrayList<>();
         this.baselineTable = baselineTable;
         this.sequenceTable = sequenceTable;
-        this.isotopicRatiosList = new ArrayList<>();
+        isotopicRatiosList = new ArrayList<>();
     }
 
     public static AnalysisMethod initializeAnalysisMethod(String methodName, MassSpectrometerModel massSpectrometer) {
@@ -131,7 +133,7 @@ public class AnalysisMethod implements Serializable {
                     for (SequenceCell sequenceCell : e.getValue()) {
                         int sequenceNumber = Integer.parseInt(sequenceCell.getSequenceName().substring(2));
                         if (!offset) {
-                            retVal.append("                                                                           ", 0, (sequenceNumber - 1) * 10);
+                            retVal.append(SPACES_100, 0, (sequenceNumber - 1) * 10);
                             offset = true;
                         }
                         retVal.append(sequenceCell.getSequenceName()).append(":").append(sequenceCell.getTargetSpecies().prettyPrintShortForm()).append(" ");
@@ -143,12 +145,22 @@ public class AnalysisMethod implements Serializable {
         return retVal.toString();
     }
 
+    public String prettyPrintMethodSummary() {
+        StringBuilder retVal = new StringBuilder();
+        retVal.append("Method: ").append(methodName).append(SPACES_100, 0, 40 - methodName.length()).append("  Species: ");
+        for (SpeciesRecordInterface species : speciesList) {
+            retVal.append(species.prettyPrintShortForm() + " ");
+        }
+
+        return retVal.toString();
+    }
+
     @Override
     public boolean equals(Object otherObject) {
         boolean retVal = true;
         if (otherObject != this) {
             if (otherObject instanceof AnalysisMethod otherAnalysisMethod) {
-                retVal = this.getMethodName().compareToIgnoreCase(otherAnalysisMethod.getMethodName()) == 0;
+                retVal = 0 == this.getMethodName().compareToIgnoreCase(otherAnalysisMethod.getMethodName());
             } else {
                 retVal = false;
             }
@@ -159,8 +171,8 @@ public class AnalysisMethod implements Serializable {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 31 * hash + (methodName == null ? 0 : methodName.hashCode());
-        hash = 31 * hash + (massSpectrometer == null ? 0 : massSpectrometer.hashCode());
+        hash = 31 * hash + (null == methodName ? 0 : methodName.hashCode());
+        hash = 31 * hash + (null == massSpectrometer ? 0 : massSpectrometer.hashCode());
         return hash;
     }
 
@@ -189,7 +201,7 @@ public class AnalysisMethod implements Serializable {
     }
 
     public void addSpeciesToSpeciesList(SpeciesRecordInterface species) {
-        if (speciesList == null) {
+        if (null == speciesList) {
             speciesList = new ArrayList<>();
         }
         if (!speciesList.contains(species)) {
@@ -226,7 +238,7 @@ public class AnalysisMethod implements Serializable {
     }
 
     public void addRatioToIsotopicRatiosList(IsotopicRatio isotopicRatio) {
-        if (isotopicRatiosList == null) {
+        if (null == isotopicRatiosList) {
             isotopicRatiosList = new ArrayList<>();
         }
         if (!isotopicRatiosList.contains(isotopicRatio)) {
