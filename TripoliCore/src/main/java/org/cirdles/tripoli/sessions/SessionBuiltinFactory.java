@@ -24,10 +24,13 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.samples.Sample;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static org.cirdles.tripoli.TripoliConstants.SYNTHETIC_DATA_FOLDER_2ISOTOPE;
+import static org.cirdles.tripoli.TripoliConstants.SYNTHETIC_DATA_FOLDER_5ISOTOPE;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB;
 
@@ -50,16 +53,14 @@ public final class SessionBuiltinFactory {
         AnalysisMethod twoIsotopeSyntheticAnalysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(BURDICK_BL_SYNTHETIC_DATA);
         Sample twoIsotopeSample_01 = new Sample("Two Isotopes of Pb 01");
         Analysis twoIsotopes_01 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_01", twoIsotopeSyntheticAnalysisMethod, twoIsotopeSample_01);
-        Path dataFilePath = RESOURCE_EXTRACTOR
-                .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_01.txt").toPath();
+        Path dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_01.txt");
         twoIsotopes_01.setDataFilePath(dataFilePath.toString());
         tripoliDemonstrationSession.addAnalysis(twoIsotopes_01);
 
         AnalysisMethod fiveIsotopeSyntheticAnalysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
         Sample fiveIsotopeSample_01 = new Sample("Five Isotopes of Pb 01");
         Analysis fiveIsotopes_01 = AnalysisInterface.initializeAnalysis("Five Isotope Demo_01", fiveIsotopeSyntheticAnalysisMethod, fiveIsotopeSample_01);
-        dataFilePath = RESOURCE_EXTRACTOR
-                .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
+        dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_5ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_01R.txt");
         fiveIsotopes_01.setDataFilePath(dataFilePath.toString());
         tripoliDemonstrationSession.addAnalysis(fiveIsotopes_01);
     }

@@ -18,6 +18,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.DataPrepForMCMC;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -27,6 +28,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.cirdles.tripoli.TripoliConstants.SYNTHETIC_DATA_FOLDER_2ISOTOPE;
+
 /**
  * @author James F. Bowring
  */
@@ -35,12 +38,12 @@ public class PhoenixMassSpec {
     }
 
     public static void main(String[] args) throws IOException {
-        Path dataFile = Path.of(ClassLoader.getSystemClassLoader().getResource(
+//        Path dataFile = Path.of(ClassLoader.getSystemClassLoader().getResource(
 //                "org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_01.txt").getPath());
-                "org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").getPath());
+//                "org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").getPath());
 //                "org/cirdles/tripoli/dataSourceProcessors/dataSources/testDataFiles/NBS981_2022-05-15_Pb-1598.TXT").getPath());
 //        "org/cirdles/tripoli/dataSourceProcessors/dataSources/testDataFiles/SmKU1A-A2-427.TXT").getPath());
-
+        Path dataFile = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_01.txt");
 
         MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
 
