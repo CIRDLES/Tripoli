@@ -35,9 +35,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author James F. Bowring
@@ -87,17 +85,23 @@ public class AnalysisMethod implements Serializable {
                     .split(",");
             for (String cellSpec : collectorArray) {
                 String[] cellSpecs = cellSpec.split(":");
+
                 int indexOfElementNameStart = cellSpecs[0].split("\\d\\D\\D")[0].length() + 1;
                 int massNumber = Integer.parseInt(cellSpecs[0].substring(0, indexOfElementNameStart));
                 String elementName = cellSpecs[0].substring(indexOfElementNameStart);
                 SpeciesRecordInterface species = NuclidesFactory.retrieveSpecies(elementName, massNumber);
                 analysisMethod.addSpeciesToSpeciesList(species);
+                analysisMethod.sortSpeciesListByAbundance();
+                analysisMethod.createBaseListOfRatios();
 
                 String collectorName = cellSpecs[1].split("S")[0];
                 DetectorSetup detectorSetup = analysisMethod.massSpectrometer.getDetectorSetup();
                 Detector detector = detectorSetup.getMapOfDetectors().get(collectorName);
                 SequenceCell sequenceCell = analysisMethod.sequenceTable.accessSequenceCellForDetector(detector, "OP" + sequenceNumber);
                 sequenceCell.addTargetSpecies(species);
+
+                // TODO: baselines
+
             }
 
         }
@@ -106,14 +110,14 @@ public class AnalysisMethod implements Serializable {
         return analysisMethod;
     }
 
-    public static void TEST() throws JAXBException {
+    public static void test() throws JAXBException {
         Path phoenixAnalysisMethodDataFilePath = Paths.get("Sm147to150_S6_v2.TIMSAM");
 
         JAXBContext jaxbContext = JAXBContext.newInstance(PhoenixAnalysisMethod.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         PhoenixAnalysisMethod phoenixAnalysisMethod = (PhoenixAnalysisMethod) jaxbUnmarshaller.unmarshal(phoenixAnalysisMethodDataFilePath.toFile());
 
-        AnalysisMethod am = AnalysisMethod.createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod);
+        AnalysisMethod am = createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod);
         System.out.println(am.prettyPrintSequenceTable());
     }
 
@@ -193,6 +197,10 @@ public class AnalysisMethod implements Serializable {
         }
     }
 
+    public void sortSpeciesListByAbundance() {
+        Collections.sort(speciesList, Comparator.comparing(s -> s.getNaturalAbundancePercent()));
+    }
+
     public BaselineTable getBaselineTable() {
         return baselineTable;
     }
@@ -215,6 +223,26 @@ public class AnalysisMethod implements Serializable {
 
     public void setTripoliRatiosList(List<IsotopicRatio> isotopicRatiosList) {
         this.isotopicRatiosList = isotopicRatiosList;
+    }
+
+    public void addRatioToIsotopicRatiosList(IsotopicRatio isotopicRatio) {
+        if (isotopicRatiosList == null) {
+            isotopicRatiosList = new ArrayList<>();
+        }
+        if (!isotopicRatiosList.contains(isotopicRatio)) {
+            isotopicRatiosList.add(isotopicRatio);
+        }
+    }
+
+    /**
+     * Creates a ratio of each species except the last one divided by the last one in specieslist
+     */
+    public void createBaseListOfRatios() {
+        isotopicRatiosList = new ArrayList<>();
+        SpeciesRecordInterface highestAbundanceSpecies = speciesList.get(speciesList.size() - 1);
+        for (int speciesIndex = 0; speciesIndex < speciesList.size() - 1; speciesIndex++) {
+            addRatioToIsotopicRatiosList(new IsotopicRatio(speciesList.get(speciesIndex), highestAbundanceSpecies));
+        }
     }
 
 }

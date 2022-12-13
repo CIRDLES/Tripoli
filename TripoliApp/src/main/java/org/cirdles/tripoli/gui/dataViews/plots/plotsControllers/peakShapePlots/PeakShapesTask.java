@@ -18,7 +18,7 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots;
 
 import javafx.concurrent.Task;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataOutputModels.peakShapes.BeamDataOutputDriverExperiment;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.BeamDataOutputDriverExperiment;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 
 import java.nio.file.Path;

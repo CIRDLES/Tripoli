@@ -22,4 +22,11 @@ import java.io.Serializable;
  * @author James F. Bowring
  */
 public class Sample implements Serializable {
+
+    String sampleName;
+
+    public Sample(String sampleName) {
+        this.sampleName = sampleName;
+    }
+
 }
