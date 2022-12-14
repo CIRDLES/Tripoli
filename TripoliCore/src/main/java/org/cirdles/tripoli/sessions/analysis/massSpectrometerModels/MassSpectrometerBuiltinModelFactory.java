@@ -43,25 +43,25 @@ public final class MassSpectrometerBuiltinModelFactory {
 
         DetectorSetup detectorSetup = DetectorSetup.initializeDetectorSetup();
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L5", 0,
-                RESISTANCE, 0.0, 0.0, 1.0, 0.0));
+                RESISTANCE, 10e11, 0.0, 1.0, 0.0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L4", 1,
-                RESISTANCE, 0.0, 0.0, 1.0, 0.0));
+                RESISTANCE, 10e11, 0.0, 1.0, 0.0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L3", 2,
-                RESISTANCE, 0.0, 0.0, 1.0, 0.0));
+                RESISTANCE, 10e11, 0.0, 1.0, 0.0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L2", 3,
-                RESISTANCE, 0.0, 0.0, 1.0, 0.0));
+                RESISTANCE, 10e11, 0.0, 1.0, 0.0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "Ax", 4,
-                RESISTANCE, 0.0, 0.0, 1.0, 0.0));
+                RESISTANCE, 10e11, 0.0, 1.0, 0.0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.DALYDETECTOR, "PM", 5,
                 VIRTUAL, 0.0, 0.0, 1.0, 0.0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H1", 6,
-                RESISTANCE, 0.0, 0.0, 1.0, 0.0));
+                RESISTANCE, 10e11, 0.0, 1.0, 0.0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H2", 7,
-                RESISTANCE, 0.0, 0.0, 1.0, 0.0));
+                RESISTANCE, 10e11, 0.0, 1.0, 0.0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H3", 8,
-                RESISTANCE, 0.0, 0.0, 1.0, 0.0));
+                RESISTANCE, 10e11, 0.0, 1.0, 0.0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H4", 9,
-                RESISTANCE, 0.0, 0.0, 1.0, 0.0));
+                RESISTANCE, 10e11, 0.0, 1.0, 0.0));
 
         phoenixSynthetic.setDetectorSetup(detectorSetup);
         phoenixSynthetic.setCollectorWidthMM(0.95135);
@@ -75,27 +75,27 @@ public final class MassSpectrometerBuiltinModelFactory {
 
         DetectorSetup detectorSetup = DetectorSetup.initializeDetectorSetup();
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.DALYDETECTOR, "PM", 0,
-                VIRTUAL, 0.0, 0.0, 1.0, 0.0));
+                VIRTUAL, 1e+11, 0.0, 1.0, 30.1));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.SEM, "RS", 1,
-                VIRTUAL, 0.0, 0.0, 1.0, 0.0));
+                VIRTUAL, 1e+11, 0.0, 1.0, 0.0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L5", 2,
-                RESISTANCE, 0.0, 0.0, 1.0, 0.0));
+                RESISTANCE, 1e+12, 0.0, 1.0, 0.0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L4", 3,
-                RESISTANCE, 0.0, 0.0, 1.0, 0.0));
+                RESISTANCE, 1e+12, 0.0, 1.0, 0.0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L3", 4,
-                RESISTANCE, 0.0, 0.0, 1.0, 0.0));
+                RESISTANCE, 1e+12, 0.0, 1.0, 0.0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L2", 5,
-                RESISTANCE, 0.0, 0.0, 1.0, 0.0));
+                RESISTANCE, 1e+12, 0.0, 1.0, 0.0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "Ax", 6,
-                RESISTANCE, 0.0, 0.0, 1.0, 0.0));
+                RESISTANCE, 1e+12, 0.0, 1.0, 0.0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H1", 7,
-                RESISTANCE, 0.0, 0.0, 1.0, 0.0));
+                RESISTANCE, 1e+12, 0.0, 1.0, 0.0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H2", 8,
-                RESISTANCE, 0.0, 0.0, 1.0, 0.0));
+                RESISTANCE, 1e+12, 0.0, 1.0, 0.0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H3", 9,
-                RESISTANCE, 0.0, 0.0, 1.0, 0.0));
+                RESISTANCE, 1e+12, 0.0, 1.0, 0.0));
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H4", 10,
-                RESISTANCE, 0.0, 0.0, 1.0, 0.0));
+                RESISTANCE, 1e+12, 0.0, 1.0, 0.0));
 
         phoenix.setDetectorSetup(detectorSetup);
         phoenix.setCollectorWidthMM(0.95135);

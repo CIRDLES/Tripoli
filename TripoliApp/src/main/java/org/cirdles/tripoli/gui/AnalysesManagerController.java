@@ -14,6 +14,7 @@ import javafx.scene.layout.RowConstraints;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 
 import java.net.URL;
@@ -127,6 +128,7 @@ public class AnalysesManagerController implements Initializable {
         methodGridPane.getColumnConstraints().get(0).setPrefWidth(25);
 
         Map<Detector, List<SequenceCell>> mapOfDetectorsToSequenceCell = analysis.getMethod().getSequenceTable().getMapOfDetectorsToSequenceCells();
+        Map<Detector, List<BaselineCell>> mapOfDetectorsToBaselineCell = analysis.getMethod().getBaselineTable().getMapOfDetectorsToBaselineCells();
 
         for (int col = 0; col < detectorCount + 1; col++) {
             populateDetectorDetailRow(methodGridPane, (0 < col) ? detectorsInOrderList.get(col - 1).getDetectorName() : "spec\u2193/detector\u2192", col, 0);
@@ -141,7 +143,16 @@ public class AnalysesManagerController implements Initializable {
             }
 
             if (methodGridPane.equals(baselineTableGridPane)) {
-                populateDetectorDetailRow(methodGridPane, (0 < col) ? detectorsInOrderList.get(col - 1).getDetectorType().getName() : "type", col, 1);
+                if (col < detectorCount) {
+                    List<BaselineCell> detectorBaselineCells = mapOfDetectorsToBaselineCell.get(detectorsInOrderList.get(col));
+                    if (detectorBaselineCells != null) {
+                        for (BaselineCell baselineCell : detectorBaselineCells) {
+                            int sequenceNumber = baselineCell.getBaselineIndex();
+                            populateDetectorDetailRow(methodGridPane, "" + baselineCell.getCellMass(), col + 1, sequenceNumber);
+                            populateDetectorDetailRow(methodGridPane, baselineCell.getBaselineName(), 0, sequenceNumber);
+                        }
+                    }
+                }
             }
 
             if (methodGridPane.equals(sequenceTableGridPane)) {
@@ -150,12 +161,11 @@ public class AnalysesManagerController implements Initializable {
                     if (detectorSequenceCells != null) {
                         for (SequenceCell sequenceCell : detectorSequenceCells) {
                             int sequenceNumber = sequenceCell.getSequenceIndex();
-                            populateDetectorDetailRow(methodGridPane, (0 < col) ? "" + sequenceCell.getCellMass() : sequenceCell.getSequenceName(), col, sequenceNumber);
-                          //  populateDetectorDetailRow(methodGridPane, sequenceCell.getSequenceName(), 0, sequenceNumber);
+                            populateDetectorDetailRow(methodGridPane, sequenceCell.getTargetSpecies().prettyPrintShortForm(), col + 1, sequenceNumber);
+                            populateDetectorDetailRow(methodGridPane, sequenceCell.getSequenceName(), 0, sequenceNumber);
                         }
                     }
                 }
-
             }
         }
 
