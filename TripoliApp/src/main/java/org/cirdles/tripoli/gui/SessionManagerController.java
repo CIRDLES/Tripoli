@@ -93,7 +93,7 @@ public class SessionManagerController implements Initializable {
             if (MouseButton.PRIMARY == event.getButton()) {
                 if (2 == event.getClickCount() && event.getTarget().toString().lastIndexOf("null") == -1) {
                     AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
-                    AnalysesManagerController.anaylysis = analysisSelected;
+                    AnalysesManagerController.analysis = analysisSelected;
                     MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
                             .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
                     menuItemAnalysesManager.fire();

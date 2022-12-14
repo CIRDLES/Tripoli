@@ -247,7 +247,7 @@ public class PhoenixAnalysisMethod {
     @XmlElement(name = "SETTINGS", required = true)
     protected PhoenixAnalysisMethod.SETTINGS settings;
     @XmlElement(name = "BASELINE", required = true)
-    protected PhoenixAnalysisMethod.BASELINE baseline;
+    protected List<PhoenixAnalysisMethod.BASELINE> baseline;
     @XmlElement(name = "ONPEAK")
     protected List<PhoenixAnalysisMethod.ONPEAK> onpeak;
     @XmlElement(name = "EQUILIBRATION", required = true)
@@ -299,18 +299,11 @@ public class PhoenixAnalysisMethod {
      * @return possible object is
      * {@link PhoenixAnalysisMethod.BASELINE }
      */
-    public PhoenixAnalysisMethod.BASELINE getBASELINE() {
-        return baseline;
-    }
-
-    /**
-     * Sets the value of the baseline property.
-     *
-     * @param value allowed object is
-     *              {@link PhoenixAnalysisMethod.BASELINE }
-     */
-    public void setBASELINE(PhoenixAnalysisMethod.BASELINE value) {
-        this.baseline = value;
+    public List<PhoenixAnalysisMethod.BASELINE> getBASELINE() {
+        if (baseline == null) {
+            baseline = new ArrayList<PhoenixAnalysisMethod.BASELINE>();
+        }
+        return this.baseline;
     }
 
     /**

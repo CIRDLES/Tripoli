@@ -70,15 +70,18 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "Bl1");
         baselineCell.setCellMass(207.5);
 
-        SequenceCell sequenceCell = burdickBlSyntheticData.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S2");
+        SequenceTable sequenceTable = burdickBlSyntheticData.getSequenceTable();
+        sequenceTable.setSequenceCount(2);
+
+        SequenceCell sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S2", 2);
         sequenceCell.addTargetSpecies(pb206);
 
-        sequenceCell = burdickBlSyntheticData.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S1");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S1", 1);
         sequenceCell.addTargetSpecies(pb206);
-        sequenceCell = burdickBlSyntheticData.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S2");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S2", 2);
         sequenceCell.addTargetSpecies(pb208);
 
-        sequenceCell = burdickBlSyntheticData.getSequenceTable().accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S1");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S1", 1);
         sequenceCell.addTargetSpecies(pb208);
 
 
@@ -120,64 +123,65 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         baselineCell.setCellMass(207.5);
 
         SequenceTable sequenceTable = ku_204_5_6_7_8_Daly_AllFaradayPb.getSequenceTable();
+        sequenceTable.setSequenceCount(5);
 
-        SequenceCell sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L4"), "S5");
+        SequenceCell sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L4"), "S5", 5);
         sequenceCell.addTargetSpecies(pb204);
 
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L3"), "S4");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L3"), "S4", 4);
         sequenceCell.addTargetSpecies(pb204);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L3"), "S5");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L3"), "S5", 5);
         sequenceCell.addTargetSpecies(pb205);
 
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L2"), "S3");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L2"), "S3", 3);
         sequenceCell.addTargetSpecies(pb204);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L2"), "S4");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L2"), "S4", 4);
         sequenceCell.addTargetSpecies(pb205);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L2"), "S5");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L2"), "S5", 5);
         sequenceCell.addTargetSpecies(pb206);
 
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S2");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S2", 2);
         sequenceCell.addTargetSpecies(pb204);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S3");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S3", 3);
         sequenceCell.addTargetSpecies(pb205);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S4");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S4", 4);
         sequenceCell.addTargetSpecies(pb206);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S5");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S5", 5);
         sequenceCell.addTargetSpecies(pb207);
 
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S1");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S1", 1);
         sequenceCell.addTargetSpecies(pb204);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S2");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S2", 2);
         sequenceCell.addTargetSpecies(pb205);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S3");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S3", 3);
         sequenceCell.addTargetSpecies(pb206);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S4");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S4", 4);
         sequenceCell.addTargetSpecies(pb207);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S5");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S5", 5);
         sequenceCell.addTargetSpecies(pb208);
 
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S1");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S1", 1);
         sequenceCell.addTargetSpecies(pb205);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S2");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S2", 2);
         sequenceCell.addTargetSpecies(pb206);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S3");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S3", 3);
         sequenceCell.addTargetSpecies(pb207);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S4");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S4", 4);
         sequenceCell.addTargetSpecies(pb208);
 
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H2"), "S1");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H2"), "S1", 1);
         sequenceCell.addTargetSpecies(pb206);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H2"), "S2");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H2"), "S2", 2);
         sequenceCell.addTargetSpecies(pb207);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H2"), "S3");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H2"), "S3", 3);
         sequenceCell.addTargetSpecies(pb208);
 
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H3"), "S1");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H3"), "S1", 1);
         sequenceCell.addTargetSpecies(pb207);
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H3"), "S2");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H3"), "S2", 2);
         sequenceCell.addTargetSpecies(pb208);
 
-        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H4"), "S1");
+        sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H4"), "S1", 1);
         sequenceCell.addTargetSpecies(pb208);
     }
 

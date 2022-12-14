@@ -35,6 +35,7 @@ public class SequenceTable implements Serializable {
     // DetectorName maps to map of sequencename to sequencecell
     private Map<Detector, List<SequenceCell>> mapOfDetectorsToSequenceCells;
 
+    private int sequenceCount;
     private SequenceTable() {
         mapOfDetectorsToSequenceCells = new TreeMap<>();
     }
@@ -53,9 +54,9 @@ public class SequenceTable implements Serializable {
         return sequenceTable;
     }
 
-    public SequenceCell accessSequenceCellForDetector(Detector detector, String sequenceName) {
+    public SequenceCell accessSequenceCellForDetector(Detector detector, String sequenceName, int sequenceIndex) {
         List<SequenceCell> targetList = mapOfDetectorsToSequenceCells.get(detector);
-        SequenceCell sequenceCell = SequenceCell.initializeSequenceCell(sequenceName);
+        SequenceCell sequenceCell = SequenceCell.initializeSequenceCell(sequenceName, sequenceIndex);
         if (targetList == null) {
             targetList = new ArrayList<>();
             targetList.add(sequenceCell);
@@ -77,6 +78,14 @@ public class SequenceTable implements Serializable {
 
     public void setMapOfDetectorsToSequenceCells(Map<Detector, List<SequenceCell>> mapOfDetectorsToSequenceCells) {
         this.mapOfDetectorsToSequenceCells = mapOfDetectorsToSequenceCells;
+    }
+
+    public int getSequenceCount() {
+        return sequenceCount;
+    }
+
+    public void setSequenceCount(int sequenceCount) {
+        this.sequenceCount = sequenceCount;
     }
 
     public List<Detector> findFaradayDetectorsUsed() {

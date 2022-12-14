@@ -468,7 +468,7 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
             d0.det_vec >> detectorIndicesForRawDataColumn (detectors are indexed from 1 through all Faraday and the last is the Axial (Daly)))
             d0.det_ind >> detectorFlagsForRawDataColumn (each Faraday has a column and the last column is for Daly; 1 flags detector used)
             d0.blflag >> baseLineFlagsForRawDataColumn (contains 1 for baseline, 0 for sequence)
-            d0.axflag >> ionCounterFlagsForRawDataColumn (contains 1 for data from DALY detector, 0 otherwise)
+            d0.axflag >> ionCounterFlagsForRawDataColumn (contains 1 for data from DALYDETECTOR detector, 0 otherwise)
             d0.InterpMat >> firstBlockInterpolationsMatrix  (matlab actually puts matrices into cells)
             d0.Nfar >> faradayCount
             d0.Niso >> isotopeCount

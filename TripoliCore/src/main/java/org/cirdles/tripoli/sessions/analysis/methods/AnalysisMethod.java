@@ -77,6 +77,7 @@ public class AnalysisMethod implements Serializable {
                 MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get(MassSpectrometerBuiltinModelFactory.PHOENIX));
 
         List<PhoenixAnalysisMethod.ONPEAK> onPeakSequences = phoenixAnalysisMethod.getONPEAK();
+        analysisMethod.sequenceTable.setSequenceCount(onPeakSequences.size());
         for (PhoenixAnalysisMethod.ONPEAK onpeakSequence : onPeakSequences) {
             String sequenceNumber = onpeakSequence.getSequence();
             // <CollectorArray>147Sm:H1S1,148Sm:H2S1,149Sm:H3S1,150Sm:H4S1</CollectorArray>
@@ -99,7 +100,7 @@ public class AnalysisMethod implements Serializable {
                 String collectorName = cellSpecs[1].split("S")[0];
                 DetectorSetup detectorSetup = analysisMethod.massSpectrometer.getDetectorSetup();
                 Detector detector = detectorSetup.getMapOfDetectors().get(collectorName);
-                SequenceCell sequenceCell = analysisMethod.sequenceTable.accessSequenceCellForDetector(detector, "OP" + sequenceNumber);
+                SequenceCell sequenceCell = analysisMethod.sequenceTable.accessSequenceCellForDetector(detector, "OP" + sequenceNumber, Integer.parseInt(sequenceNumber));
                 sequenceCell.addTargetSpecies(species);
 
                 // TODO: baselines
@@ -125,13 +126,13 @@ public class AnalysisMethod implements Serializable {
 
     private String prettyPrintSequenceTable() {
         StringBuilder retVal = new StringBuilder();
-        Map<Detector, List<SequenceCell>> detectors = sequenceTable.getMapOfDetectorsToSequenceCells();
-        detectors.entrySet().stream()
+        Map<Detector, List<SequenceCell>> detectorToSequenceCell = sequenceTable.getMapOfDetectorsToSequenceCells();
+        detectorToSequenceCell.entrySet().stream()
                 .forEach(e -> {
                     retVal.append(e.getKey().getDetectorName()).append(" ");
                     boolean offset = false;
                     for (SequenceCell sequenceCell : e.getValue()) {
-                        int sequenceNumber = Integer.parseInt(sequenceCell.getSequenceName().substring(2));
+                        int sequenceNumber = sequenceCell.getSequenceIndex();
                         if (!offset) {
                             retVal.append(SPACES_100, 0, (sequenceNumber - 1) * 10);
                             offset = true;
