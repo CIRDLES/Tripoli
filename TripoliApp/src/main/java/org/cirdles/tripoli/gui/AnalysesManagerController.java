@@ -92,7 +92,9 @@ public class AnalysesManagerController implements Initializable {
         dataFilePathNameTextField.setEditable(false);
         dataFilePathNameTextField.setText(analysis.getDataFilePath());
 
-        populateAnalysisMethodGridPane();
+        if (analysis.getMethod() != null) {
+            populateAnalysisMethodGridPane();
+        }
     }
 
     private void populateAnalysisMethodGridPane() {

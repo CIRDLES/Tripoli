@@ -168,7 +168,6 @@ public class TripoliGUIController implements Initializable {
     public void newSessionMenuItemAction() throws IOException, JAXBException {
         tripoliSession = Session.initializeDefaultSession();
         launchSessionManager();
-        AnalysisMethod.test();
     }
 
     public void openSessionMenuItemAction() throws IOException {

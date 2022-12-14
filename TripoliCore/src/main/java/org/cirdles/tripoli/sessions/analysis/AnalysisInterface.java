@@ -9,6 +9,10 @@ public interface AnalysisInterface {
         return new Analysis(analysisName, analysisMethod, analysisSample);
     }
 
+    static Analysis initializeNewAnalysis() {
+        return new Analysis("New Analysis", null, new Sample(""));
+    }
+
     String getAnalysisName();
 
     void setAnalysisName(String analysisName);

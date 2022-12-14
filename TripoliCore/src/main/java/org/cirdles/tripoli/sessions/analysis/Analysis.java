@@ -45,7 +45,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private Analysis() {
     }
 
-    Analysis(String analysisName, AnalysisMethod analysisMethod, Sample analysisSample) {
+    protected Analysis(String analysisName, AnalysisMethod analysisMethod, Sample analysisSample) {
         this.analysisName = analysisName;
         this.analysisMethod = analysisMethod;
         this.analysisSample = analysisSample;
@@ -57,7 +57,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     public final String prettyPrintAnalysisSummary() {
         return new StringBuilder().append(analysisName)
                 .append(SPACES_100, 0, 40 - analysisName.length())
-                .append(analysisMethod.prettyPrintMethodSummary()).toString();
+                .append(analysisMethod == null ? "NO Method" : analysisMethod.prettyPrintMethodSummary()).toString();
     }
 
     @Override

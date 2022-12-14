@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.gui;
 
+import jakarta.xml.bind.JAXBException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -64,7 +65,11 @@ public class SessionManagerController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         if (null == tripoliSession) {
-            tripoliSession = Session.initializeDefaultSession();
+            try {
+                tripoliSession = Session.initializeDefaultSession();
+            } catch (JAXBException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         sessionGridPane.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_SESSION_LINEN));

@@ -1,5 +1,6 @@
 package org.cirdles.tripoli.sessions;
 
+import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
@@ -32,7 +33,7 @@ class SessionTest {
     }
 
     @Test
-    void initializeDefaultSession() throws TripoliException {
+    void initializeDefaultSessionTest() throws TripoliException, JAXBException {
         Session testSession = Session.initializeDefaultSession();
 
         testSession.getMapOfAnalyses().put("testAnalysis",
