@@ -4,7 +4,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
@@ -16,19 +15,24 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_ANALYSIS_YELLOW;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColorToHex;
+import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectDataFile;
 
 public class AnalysesManagerController implements Initializable {
 
     public static AnalysisInterface analysis;
-
-
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -43,17 +47,20 @@ public class AnalysesManagerController implements Initializable {
     private TextField analystNameTextField;
     @FXML
     private TextField labNameTextField;
+    @FXML
+    private TextArea metaDataTextArea;
+    @FXML
+    private TextArea dataSummaryTextArea;
 
     @FXML
-    private ScrollPane detectorDetailsScrollPane;
+    private TextArea aboutAnalysisTextArea;
     @FXML
     private GridPane analysisDetectorsGridPane;
     @FXML
     private GridPane sequenceTableGridPane;
     @FXML
     private GridPane baselineTableGridPane;
-    @FXML
-    private TextArea aboutAnalysisTextArea;
+
     private Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
 
     private void populateDetectorDetailRow(GridPane target, String entry, int colIndex, int rowIndex) {
@@ -80,21 +87,34 @@ public class AnalysesManagerController implements Initializable {
     }
 
     private void populateAnalysisManagerGridPane() {
-        analysisNameTextField.setEditable(false);
+        analysisNameTextField.setEditable(analysis.isMutable());
         analysisNameTextField.setText(analysis.getAnalysisName());
 
-        sampleTextField.setEditable(false);
+        analystNameTextField.setEditable(analysis.isMutable());
+        analystNameTextField.setText(analysis.getAnalystName());
+
+        labNameTextField.setEditable(analysis.isMutable());
+        labNameTextField.setText(analysis.getLabName());
+
+        sampleTextField.setEditable(analysis.isMutable());
         sampleTextField.setText(analysis.getAnalysisSample().getSampleName());
 
-        sampleDescriptionTextField.setEditable(false);
+        sampleDescriptionTextField.setEditable(analysis.isMutable());
         sampleDescriptionTextField.setText(analysis.getAnalysisSampleDescription());
 
         dataFilePathNameTextField.setEditable(false);
-        dataFilePathNameTextField.setText(analysis.getDataFilePath());
+        dataFilePathNameTextField.setText(analysis.getDataFilePathString());
 
+        if (analysis.getDataFilePathString().compareToIgnoreCase(MISSING_STRING_FIELD) != 0) {
+            populateAnalysisDataFields();
+        }
         if (analysis.getMethod() != null) {
             populateAnalysisMethodGridPane();
         }
+    }
+
+    private void populateAnalysisDataFields(){
+        metaDataTextArea.setText(analysis.prettyPrintAnalysisMetaData());
     }
 
     private void populateAnalysisMethodGridPane() {
@@ -111,7 +131,6 @@ public class AnalysesManagerController implements Initializable {
 
         setUpGridPaneRows(sequenceTableGridPane, analysisMethod.getSequenceTable().getSequenceCount() + 1, detectorsInOrderList.size() + 1);
         prepareAnalysisMethodGridPanes(sequenceTableGridPane, detectorsInOrderList);
-
     }
 
     private void prepareAnalysisMethodGridPanes(GridPane methodGridPane, List<Detector> detectorsInOrderList) {
@@ -174,7 +193,7 @@ public class AnalysesManagerController implements Initializable {
         methodGridPane.requestLayout();
     }
 
-    private void setUpGridPaneRows(GridPane methodGridPane, int rowCount, int colCount){
+    private void setUpGridPaneRows(GridPane methodGridPane, int rowCount, int colCount) {
         boolean[][] cellUse = new boolean[rowCount][colCount];
         mapOfGridPanesToCellUse.put(methodGridPane.getId(), cellUse);
 
@@ -185,6 +204,14 @@ public class AnalysesManagerController implements Initializable {
             } else {
                 methodGridPane.getRowConstraints().add(new RowConstraints(25));
             }
+        }
+    }
+
+    public void selectDataFileButtonAction() throws TripoliException, IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        File selectedFile = selectDataFile(TripoliGUI.primaryStage);
+        if (selectedFile != null) {
+            analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
+            populateAnalysisManagerGridPane();
         }
     }
 }

@@ -10,6 +10,9 @@ import org.cirdles.tripoli.utilities.file.SessionFileUtilities;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Locale;
+
+import static org.cirdles.tripoli.utilities.file.FileNameFixer.fixFileName;
 
 public class FileHandlerUtil {
 
@@ -23,7 +26,7 @@ public class FileHandlerUtil {
         fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Tripoli Session files", "*.tripoli"));
 //        File initDirectory = new File(squidPersistentState.getMRUProjectFolderPath());
 //        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
-        fileChooser.setInitialFileName(session.getSessionName() + ".tripoli");
+        fileChooser.setInitialFileName(fixFileName(session.getSessionName()) + ".tripoli");
 
         File sessionFileNew = fileChooser.showSaveDialog(ownerWindow);
 
@@ -58,6 +61,28 @@ public class FileHandlerUtil {
             retVal = sessionFileNew.getCanonicalPath();
         }
 
+        return retVal;
+    }
+
+    public static File selectDataFile(Window ownerWindow)
+            throws TripoliException {
+        File retVal = null;
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Data text file");
+        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Data txt files", "*.txt"));
+//        File initDirectory = new File(squidPersistentState.getMRUPrawnFileFolderPath());
+//        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
+
+        File dataFile = fileChooser.showOpenDialog(ownerWindow);
+
+        if (dataFile != null) {
+            if (dataFile.getName().toLowerCase(Locale.US).endsWith(".txt")) {
+                retVal = dataFile;
+            } else {
+                throw new TripoliException("Filename does not end with '.txt'");
+            }
+        }
         return retVal;
     }
 

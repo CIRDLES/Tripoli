@@ -54,14 +54,14 @@ public final class SessionBuiltinFactory {
         Sample twoIsotopeSample_01 = new Sample("Two Isotopes of Pb 01");
         Analysis twoIsotopes_01 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_01", twoIsotopeSyntheticAnalysisMethod, twoIsotopeSample_01);
         Path dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_01.txt");
-        twoIsotopes_01.setDataFilePath(dataFilePath.toString());
+        twoIsotopes_01.setDataFilePathString(dataFilePath.toString());
         tripoliDemonstrationSession.addAnalysis(twoIsotopes_01);
 
         AnalysisMethod fiveIsotopeSyntheticAnalysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
         Sample fiveIsotopeSample_01 = new Sample("Five Isotopes of Pb 01");
         Analysis fiveIsotopes_01 = AnalysisInterface.initializeAnalysis("Five Isotope Demo_01", fiveIsotopeSyntheticAnalysisMethod, fiveIsotopeSample_01);
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_5ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_01R.txt");
-        fiveIsotopes_01.setDataFilePath(dataFilePath.toString());
+        fiveIsotopes_01.setDataFilePathString(dataFilePath.toString());
         tripoliDemonstrationSession.addAnalysis(fiveIsotopes_01);
     }
 }

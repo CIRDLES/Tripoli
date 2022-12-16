@@ -30,8 +30,7 @@ public enum DetectorEnumTypeA {
     H1("H1", 6),
     H2("H2", 7),
     H3("H3", 8),
-    H4("H4", 9),
-    ;
+    H4("H4", 9);
 
     private final String name;
     private final int amplifierIndex;

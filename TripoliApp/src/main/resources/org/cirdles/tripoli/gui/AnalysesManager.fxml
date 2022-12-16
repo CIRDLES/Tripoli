@@ -50,11 +50,11 @@
         <Insets bottom="15.0" left="20.0" right="20.0" top="1.0" />
     </padding>
     <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="1" GridPane.hgrow="NEVER" GridPane.rowIndex="1">
-        <TextField fx:id="analysisNameTextField" editable="false" prefHeight="26.0" prefWidth="501.0" promptText="Analysis name" />
-      <Label alignment="CENTER" prefHeight="17.0" prefWidth="73.0" style="-fx-text-fill: #3c77c9;" text="Analyst:" />
-      <TextField fx:id="analystNameTextField" editable="false" prefHeight="26.0" prefWidth="210.0" promptText="Analyst's Name" />
-      <Label alignment="CENTER" prefHeight="17.0" prefWidth="86.0" style="-fx-text-fill: #3c77c9;" text="Lab Name:" />
-      <TextField fx:id="labNameTextField" editable="false" prefHeight="26.0" prefWidth="219.0" promptText="Lab Name:" />
+        <TextField fx:id="analysisNameTextField" prefHeight="26.0" prefWidth="501.0" promptText="Analysis name" />
+        <Label alignment="CENTER" prefHeight="17.0" prefWidth="73.0" style="-fx-text-fill: #3c77c9;" text="Analyst:" />
+        <TextField fx:id="analystNameTextField" prefHeight="26.0" prefWidth="210.0" promptText="Analyst's Name" />
+        <Label alignment="CENTER" prefHeight="17.0" prefWidth="86.0" style="-fx-text-fill: #3c77c9;" text="Lab Name:" />
+        <TextField fx:id="labNameTextField" prefHeight="26.0" prefWidth="219.0" promptText="Lab Name:" />
     </HBox>
     <VBox GridPane.rowIndex="4" GridPane.rowSpan="2">
         <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Meta Data:" />
@@ -62,28 +62,28 @@
     <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Analysis Name:" GridPane.rowIndex="1" />
     <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Sample &amp; Description:" GridPane.rowIndex="2" />
     <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.hgrow="NEVER" GridPane.rowIndex="2">
-        <TextField fx:id="sampleTextField" editable="false" prefHeight="263.0" prefWidth="270.0" promptText="Sample" style="-fx-font-size: 12;" />
+        <TextField fx:id="sampleTextField" prefHeight="263.0" prefWidth="270.0" promptText="Sample" style="-fx-font-size: 12;" />
         <Label alignment="CENTER" prefHeight="17.0" prefWidth="82.0" style="-fx-text-fill: #3c77c9;" text="Description:" HBox.hgrow="NEVER">
             <opaqueInsets>
                 <Insets />
             </opaqueInsets>
         </Label>
-        <TextField fx:id="sampleDescriptionTextField" editable="false" prefHeight="23.0" prefWidth="714.0" promptText="Sample Description:" style="-fx-font-size: 12;" />
+        <TextField fx:id="sampleDescriptionTextField" prefHeight="23.0" prefWidth="714.0" promptText="Sample Description:" style="-fx-font-size: 12;" />
     </HBox>
     <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Data File Path Name:" GridPane.rowIndex="3" />
     <TextField fx:id="dataFilePathNameTextField" editable="false" prefHeight="26.0" prefWidth="1064.0" promptText="Data File Path Name" GridPane.columnIndex="1" GridPane.hgrow="NEVER" GridPane.rowIndex="3" />
     <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Actions:" GridPane.rowIndex="7" />
     <ToolBar maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="1085.0" style="-fx-background-color: transparent;" GridPane.columnIndex="1" GridPane.rowIndex="7">
-        <Button mnemonicParsing="false" text="Button" />
+        <Button mnemonicParsing="false" onAction="#selectDataFileButtonAction" text="Select Data File" />
     </ToolBar>
     <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Analysis Method:" GridPane.rowIndex="6" />
     <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Data Summary:" GridPane.rowIndex="5" />
     <TabPane style="-fx-border-color: BLACK;" tabMaxHeight="20.0" tabMinHeight="20.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
         <Tab closable="false" text="About">
-            <TextArea fx:id="aboutAnalysisTextArea" prefHeight="200.0" prefWidth="200.0" />
+            <TextArea fx:id="aboutAnalysisTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" text="No analysis method" />
         </Tab>
         <Tab closable="false" text="Detector Details">
-            <ScrollPane fx:id="detectorDetailsScrollPane" fitToWidth="true" hbarPolicy="NEVER">
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
                 <GridPane fx:id="analysisDetectorsGridPane" gridLinesVisible="true" style="-fx-background-color: WHITE;">
                     <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" />
@@ -119,4 +119,6 @@
             </ScrollPane>
         </Tab>
     </TabPane>
+    <TextArea fx:id="metaDataTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" style="-fx-font-family: Monospaced; -fx-font-weight: BOLD;" text="No meta data" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+    <TextArea fx:id="dataSummaryTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" text="No data" GridPane.columnIndex="1" GridPane.rowIndex="5" />
 </GridPane>

@@ -50,7 +50,7 @@
         </Menu>
         <Menu fx:id="analysisMenu" mnemonicParsing="false" text="Analyses">
             <MenuItem mnemonicParsing="false" onAction="#manageAnalysesMenuItemAction" text="Manage Analyses"/>
-            <MenuItem mnemonicParsing="false" text="New Analysis"/>
+            <MenuItem mnemonicParsing="false" onAction="#newAnalysisMenuItemOnAction" text="New Analysis"/>
             <MenuItem mnemonicParsing="false" text="Import Analysis"/>
             <MenuItem mnemonicParsing="false" text="Export Analysis"/>
         </Menu>

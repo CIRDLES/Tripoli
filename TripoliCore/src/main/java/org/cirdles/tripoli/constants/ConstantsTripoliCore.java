@@ -26,4 +26,5 @@ public class ConstantsTripoliCore {
     public final static String SPACES_100 = CharBuffer.allocate(100).toString().replace('\0', ' ');
 
     public final static String MISSING_STRING_FIELD = "MISSING";
+
 }

@@ -36,6 +36,7 @@ public class SequenceTable implements Serializable {
     private Map<Detector, List<SequenceCell>> mapOfDetectorsToSequenceCells;
 
     private int sequenceCount;
+
     private SequenceTable() {
         mapOfDetectorsToSequenceCells = new TreeMap<>();
     }

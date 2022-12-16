@@ -141,7 +141,6 @@ public class Detector implements Comparable, Serializable {
         CDD("CDD", "Ion Counter, Compact Discrete Dynode Detector");
 
 
-
         final String name;
         final String otherNames;
 
@@ -149,6 +148,7 @@ public class Detector implements Comparable, Serializable {
             this.name = name;
             this.otherNames = otherNames;
         }
+
         public String getName() {
             return name;
         }
@@ -164,6 +164,7 @@ public class Detector implements Comparable, Serializable {
         AmplifierTypeEnum(String name) {
             this.name = name;
         }
+
         public String getName() {
             return name;
         }

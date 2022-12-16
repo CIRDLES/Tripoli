@@ -34,7 +34,6 @@ import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.SessionBuiltinFactory;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.jetbrains.annotations.Nullable;
@@ -235,6 +234,8 @@ public class TripoliGUIController implements Initializable {
         try {
             File sessionFile = FileHandlerUtil.saveSessionFile(tripoliSession, TripoliGUI.primaryStageWindow);
             if (sessionFile != null) {
+                sessionFileName = sessionFile.getPath();
+                tripoliSession.setSessionFilePathAsString(sessionFileName);
                 saveSessionMenuItem.setDisable(false);
 //                squidPersistentState.updateProjectListMRU(projectFile);
                 TripoliGUI.updateStageTitle(sessionFile.getAbsolutePath());
@@ -362,4 +363,6 @@ public class TripoliGUIController implements Initializable {
     }
 
 
+    public void newAnalysisMenuItemOnAction() {
+    }
 }
