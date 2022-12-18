@@ -1,5 +1,7 @@
 package org.cirdles.tripoli.gui;
 
+import jakarta.xml.bind.JAXBException;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
@@ -14,6 +16,7 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
+import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethodUtils;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
@@ -115,6 +118,7 @@ public class AnalysesManagerController implements Initializable {
 
     private void populateAnalysisDataFields(){
         metaDataTextArea.setText(analysis.prettyPrintAnalysisMetaData());
+        dataSummaryTextArea.setText(analysis.prettyPrintAnalysisDataSummary());
     }
 
     private void populateAnalysisMethodGridPane() {
@@ -213,5 +217,11 @@ public class AnalysesManagerController implements Initializable {
             analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
             populateAnalysisManagerGridPane();
         }
+    }
+
+    public void selectMethodFileButtonAction() throws JAXBException{
+       // PhoenixAnalysisMethodUtils.test();
+        AnalysisMethod.test();
+        AnalysisMethod.test2();
     }
 }

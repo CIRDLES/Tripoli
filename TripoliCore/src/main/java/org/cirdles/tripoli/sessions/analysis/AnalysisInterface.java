@@ -67,6 +67,7 @@ public interface AnalysisInterface {
 
     String prettyPrintAnalysisSummary();
     public String prettyPrintAnalysisMetaData();
+    public String prettyPrintAnalysisDataSummary();
 
     AnalysisMethod getMethod();
 

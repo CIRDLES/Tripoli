@@ -66,6 +66,7 @@ public class PhoenixMassSpec {
                         case 1 -> phase = 2;
                         case 2 -> {
                             columnNamesSplit.add(line.split(","));
+                            massSpecExtractedData.populateColumnNamesList(columnNamesSplit);
                             phase = 3;
                         }
                         case 3 -> {
@@ -140,6 +141,7 @@ public class PhoenixMassSpec {
                         case 3 -> phase = 4;
                         case 4 -> {
                             columnNamesSplit.add(line.split(","));
+                            massSpecExtractedData.populateColumnNamesList(columnNamesSplit);
                             phase = 5;
                         }
                         case 6 -> phase = 7;

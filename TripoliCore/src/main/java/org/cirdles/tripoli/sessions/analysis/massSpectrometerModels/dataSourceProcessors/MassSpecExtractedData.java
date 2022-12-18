@@ -10,11 +10,13 @@ import java.util.TreeMap;
 public class MassSpecExtractedData implements Serializable {
 
     private MassSpecExtractedHeader header;
+    private String[] columnHeaders;
 
     private Map<Integer, MassSpecOutputSingleBlockRecord> blocksData;
 
     public MassSpecExtractedData() {
         populateHeader(new ArrayList<>());
+        populateColumnNamesList(new ArrayList<>());
         this.blocksData = new TreeMap<>();
     }
 
@@ -50,12 +52,28 @@ public class MassSpecExtractedData implements Serializable {
         );
     }
 
+    public void populateColumnNamesList(List<String[]> columnNames){
+        if (columnNames.isEmpty()) {
+            columnHeaders = new String[0];
+        } else {
+            columnHeaders = columnNames.get(0);
+        }
+    }
+
     public MassSpecExtractedHeader getHeader() {
         return header;
     }
 
     public void setHeader(MassSpecExtractedHeader header) {
         this.header = header;
+    }
+
+    public String[] getColumnHeaders() {
+        return columnHeaders;
+    }
+
+    public void setColumnHeaders(String[] columnHeaders) {
+        this.columnHeaders = columnHeaders;
     }
 
     public Map<Integer, MassSpecOutputSingleBlockRecord> getBlocksData() {

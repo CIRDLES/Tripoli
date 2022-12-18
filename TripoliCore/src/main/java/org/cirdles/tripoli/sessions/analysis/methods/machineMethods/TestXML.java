@@ -19,6 +19,7 @@ package org.cirdles.tripoli.sessions.analysis.methods.machineMethods;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
+import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,6 +36,6 @@ public class TestXML {
         JAXBContext jaxbContext = JAXBContext.newInstance(PhoenixAnalysisMethod.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         PhoenixAnalysisMethod phoenixAnalysisMethod = (PhoenixAnalysisMethod) jaxbUnmarshaller.unmarshal(phoenixAnalysisMethodDataFilePath.toFile());
-        System.out.println(phoenixAnalysisMethod.getHEADER().filename);
+        System.out.println(phoenixAnalysisMethod.getHEADER().getFilename());
     }
 }

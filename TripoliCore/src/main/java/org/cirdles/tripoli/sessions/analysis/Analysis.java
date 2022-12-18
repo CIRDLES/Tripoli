@@ -28,7 +28,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
-import java.util.Formatter;
+import java.util.*;
 
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
@@ -79,8 +79,6 @@ public class Analysis implements Serializable, AnalysisInterface {
             Class<?> clazz = massSpectrometerContext.getClazz();
             Method method = clazz.getMethod(massSpectrometerContext.getMethodName(), Path.class);
             massSpecExtractedData = (MassSpecExtractedData) method.invoke(null, dataFilePath);
-
-            System.out.println(massSpecExtractedData.getBlocksData().size());
         } else {
             massSpecExtractedData = new MassSpecExtractedData();
         }
@@ -95,20 +93,48 @@ public class Analysis implements Serializable, AnalysisInterface {
     public final String prettyPrintAnalysisMetaData(){
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("%30s", "Mass Spectrometer: ")).append(String.format("%-40s", massSpectrometerContext.getName()));
-        if (massSpectrometerContext.compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
+        if (0 == massSpectrometerContext.compareTo(MassSpectrometerContextEnum.UNKNOWN)) {
+            sb.append("\n\n\n\t\t\t\t   >>>  Unable to parse data file.  <<<");
+        } else {
             sb.append(String.format("%30s", "Software Version: ")).append(massSpecExtractedData.getHeader().softwareVersion())
                     .append("\n").append(String.format("%30s", "File Name: ")).append(String.format("%-40s", massSpecExtractedData.getHeader().filename()))
                     .append(String.format("%30s", "Corrected?: ")).append(massSpecExtractedData.getHeader().isCorrected())
                     .append("\n").append(String.format("%30s", "Method Name: ")).append(String.format("%-40s", massSpecExtractedData.getHeader().methodName()))
                     .append(String.format("%30s", "BChannels?: ")).append(massSpecExtractedData.getHeader().hasBChannels())
                     .append("\n").append(String.format("%30s", "Time Zero: ")).append(String.format("%-40s", massSpecExtractedData.getHeader().localDateTimeZero()));
-        } else {
-            sb.append("\n\n\n\t\t\t\t   >>>  Unable to parse data file.  <<<");
         }
 
         return sb.toString();
     }
 
+    public final String prettyPrintAnalysisDataSummary(){
+        StringBuilder sb = new StringBuilder();
+        if (massSpecExtractedData.getBlocksData().isEmpty()){
+            sb.append("No data extracted.");
+        } else {
+            sb.append(String.format("%30s", "Column headers: "));
+            for (String header : massSpecExtractedData.getColumnHeaders()) {
+                sb.append(header + " ");
+            }
+            sb.append("\n");
+            sb.append(String.format("%30s", "Block count: "))
+                    .append(String.format("%-3s", massSpecExtractedData.getBlocksData().size()))
+                    .append(String.format("%-55s", "each with count of integrations for Baseline = " + massSpecExtractedData.getBlocksData().get(1).baselineIDs().length))
+                    .append(String.format("%-30s", "and Onpeak = " + massSpecExtractedData.getBlocksData().get(1).onPeakIDs().length));
+            sb.append(String.format("\n%30s", "Baseline sequences: "));
+            Set<String> baselineNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksData().get(1).baselineIDs()));
+            for (String baselineName : baselineNames) {
+                sb.append(baselineName + " ");
+            }
+            sb.append(String.format("\n%30s", "Onpeak sequences: "));
+            Set<String> onPeakNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksData().get(1).onPeakIDs()));
+            for (String onPeakName : onPeakNames) {
+                sb.append(onPeakName + " ");
+            }
+        }
+
+        return sb.toString();
+    }
 
     @Override
     public String getAnalysisName() {

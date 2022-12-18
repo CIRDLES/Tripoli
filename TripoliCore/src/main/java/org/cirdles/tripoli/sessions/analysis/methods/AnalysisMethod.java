@@ -18,19 +18,21 @@ package org.cirdles.tripoli.sessions.analysis.methods;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineTable;
-import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.PhoenixAnalysisMethod;
+import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceTable;
 import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
 
+import java.io.File;
 import java.io.Serial;
 import java.io.Serializable;
 import java.nio.file.Path;
@@ -38,6 +40,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
+import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA;
 
 /**
  * @author James F. Bowring
@@ -124,6 +127,19 @@ public class AnalysisMethod implements Serializable {
         System.out.println(am.prettyPrintSequenceTable());
     }
 
+    public static void test2() throws JAXBException{
+        AnalysisMethod analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(BURDICK_BL_SYNTHETIC_DATA);
+            writeRawDataFileAsXML(analysisMethod, "TESTY.xml");
+    }
+
+    public static void writeRawDataFileAsXML(AnalysisMethod analysisMethod, String fileName) throws JAXBException{
+        JAXBContext jaxbContext = JAXBContext.newInstance(AnalysisMethod.class);
+        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        File outputAnalysisMethodFileFile = new File(fileName);
+        jaxbMarshaller.marshal(analysisMethod, outputAnalysisMethodFileFile);
+    }
+
     private String prettyPrintSequenceTable() {
         StringBuilder retVal = new StringBuilder();
         Map<Detector, List<SequenceCell>> detectorToSequenceCell = sequenceTable.getMapOfDetectorsToSequenceCells();
@@ -161,7 +177,7 @@ public class AnalysisMethod implements Serializable {
         boolean retVal = true;
         if (otherObject != this) {
             if (otherObject instanceof AnalysisMethod otherAnalysisMethod) {
-                retVal = 0 == this.getMethodName().compareToIgnoreCase(otherAnalysisMethod.getMethodName());
+                retVal = 0 == methodName.compareToIgnoreCase(otherAnalysisMethod.methodName);
             } else {
                 retVal = false;
             }

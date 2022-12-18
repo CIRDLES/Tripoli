@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.sessions.analysis.methods.machineMethods;
+package org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec;
 
 import jakarta.xml.bind.annotation.XmlRegistry;
 
