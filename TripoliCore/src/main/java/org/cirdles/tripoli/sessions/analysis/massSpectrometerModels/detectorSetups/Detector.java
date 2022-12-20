@@ -19,7 +19,9 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSet
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 /**
  * @author James F. Bowring
@@ -141,6 +143,14 @@ public class Detector implements Comparable, Serializable {
         CDD("CDD", "Ion Counter, Compact Discrete Dynode Detector");
 
 
+        public static Map<String, Detector.DetectorTypeEnum> mapOfNamesToDetectorType = new TreeMap<>();
+
+        static {
+            mapOfNamesToDetectorType.put("F", FARADAY);
+            mapOfNamesToDetectorType.put("PM", DALYDETECTOR);
+            mapOfNamesToDetectorType.put("EM", SEM);
+        }
+
         final String name;
         final String otherNames;
 
@@ -152,12 +162,24 @@ public class Detector implements Comparable, Serializable {
         public String getName() {
             return name;
         }
+
+        public DetectorTypeEnum lookupCode(String code) {
+            return mapOfNamesToDetectorType.get(code);
+        }
     }
 
     public enum AmplifierTypeEnum {
         RESISTANCE("Resistance"),
         CAPACITANCE("Capacitance"), // aka ATONA
         VIRTUAL("VIRTUAL");
+
+        public static Map<String, Detector.AmplifierTypeEnum> mapOfDetectorTypetoAmplifierType = new TreeMap<>();
+
+        static {
+            mapOfDetectorTypetoAmplifierType.put("F", RESISTANCE);
+            mapOfDetectorTypetoAmplifierType.put("PM", VIRTUAL);
+            mapOfDetectorTypetoAmplifierType.put("EM", VIRTUAL);
+        }
 
         final String name;
 

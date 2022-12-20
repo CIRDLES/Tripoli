@@ -16,10 +16,15 @@
 
 package org.cirdles.tripoli.sessions.analysis;
 
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.samples.Sample;
 
 import java.io.IOException;
@@ -28,7 +33,9 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
@@ -49,8 +56,8 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     // note: path is not serializable
     private String dataFilePathString;
-    private MassSpectrometerContextEnum massSpectrometerContext;
-    private MassSpecOutputDataRecord massSpecOutputDataRecord;
+    private MassSpectrometerModel massSpectrometerModel;
+    private MassSpecOutputDataRecord massSpecOutputDataRecord;// TODO remove when out of useby synthetic files experiment
     private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
 
@@ -65,7 +72,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         labName = MISSING_STRING_FIELD;
         analysisSampleDescription = MISSING_STRING_FIELD;
         dataFilePathString = MISSING_STRING_FIELD;
-        massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
+        massSpectrometerModel = null;
         massSpecOutputDataRecord = null;
         massSpecExtractedData = new MassSpecExtractedData();
         mutable = true;
@@ -74,7 +81,8 @@ public class Analysis implements Serializable, AnalysisInterface {
     public void extractMassSpecDataFromPath(Path dataFilePath)
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
         dataFilePathString = dataFilePath.toString();
-        massSpectrometerContext = AnalysisInterface.determineMassSpectrometerContextFromDataFile(dataFilePath);
+        MassSpectrometerContextEnum massSpectrometerContext = AnalysisInterface.determineMassSpectrometerContextFromDataFile(dataFilePath);
+        massSpectrometerModel = MassSpectrometerModel.initializeMassSpectrometer(massSpectrometerContext);
         if (0 != massSpectrometerContext.compareTo(MassSpectrometerContextEnum.UNKNOWN)) {
             Class<?> clazz = massSpectrometerContext.getClazz();
             Method method = clazz.getMethod(massSpectrometerContext.getMethodName(), Path.class);
@@ -84,16 +92,23 @@ public class Analysis implements Serializable, AnalysisInterface {
         }
     }
 
+    public void extractAnalysisMethodfromPath(Path phoenixAnalysisMethodDataFilePath) throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(PhoenixAnalysisMethod.class);
+        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+        PhoenixAnalysisMethod phoenixAnalysisMethod = (PhoenixAnalysisMethod) jaxbUnmarshaller.unmarshal(phoenixAnalysisMethodDataFilePath.toFile());
+        analysisMethod = AnalysisMethod.createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod, this);
+    }
+
     public final String prettyPrintAnalysisSummary() {
         return analysisName +
                 SPACES_100.substring(0, 40 - analysisName.length()) +
                 (null == analysisMethod ? "NO Method" : analysisMethod.prettyPrintMethodSummary());
     }
 
-    public final String prettyPrintAnalysisMetaData(){
+    public final String prettyPrintAnalysisMetaData() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%30s", "Mass Spectrometer: ")).append(String.format("%-40s", massSpectrometerContext.getName()));
-        if (0 == massSpectrometerContext.compareTo(MassSpectrometerContextEnum.UNKNOWN)) {
+        sb.append(String.format("%30s", "Mass Spectrometer: ")).append(String.format("%-40s", massSpectrometerModel.getMassSpectrometerName()));
+        if (0 == massSpectrometerModel.getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN)) {
             sb.append("\n\n\n\t\t\t\t   >>>  Unable to parse data file.  <<<");
         } else {
             sb.append(String.format("%30s", "Software Version: ")).append(massSpecExtractedData.getHeader().softwareVersion())
@@ -107,9 +122,9 @@ public class Analysis implements Serializable, AnalysisInterface {
         return sb.toString();
     }
 
-    public final String prettyPrintAnalysisDataSummary(){
+    public final String prettyPrintAnalysisDataSummary() {
         StringBuilder sb = new StringBuilder();
-        if (massSpecExtractedData.getBlocksData().isEmpty()){
+        if (massSpecExtractedData.getBlocksData().isEmpty()) {
             sb.append("No data extracted.");
         } else {
             sb.append(String.format("%30s", "Column headers: "));
@@ -222,12 +237,12 @@ public class Analysis implements Serializable, AnalysisInterface {
         this.dataFilePathString = dataFilePathString;
     }
 
-    public MassSpectrometerContextEnum getMassSpectrometerContext() {
-        return massSpectrometerContext;
+    public MassSpectrometerModel getMassSpectrometerModel() {
+        return massSpectrometerModel;
     }
 
-    public void setMassSpectrometerContext(MassSpectrometerContextEnum massSpectrometerContext) {
-        this.massSpectrometerContext = massSpectrometerContext;
+    public void setMassSpectrometerModel(MassSpectrometerModel massSpectrometerModel) {
+        this.massSpectrometerModel = massSpectrometerModel;
     }
 
     public boolean isMutable() {

@@ -185,32 +185,32 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         sequenceCell.addTargetSpecies(pb208);
     }
 
-    static {
-        AnalysisMethod ku_PbDaly204_5_6_7_8 = AnalysisMethod.initializeAnalysisMethod(
-                "KU_PbDaly204_5_6_7_8",
-                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get(MassSpectrometerBuiltinModelFactory.PHOENIX_SYNTHETIC));
-        analysisMethodsBuiltinMap.put(ku_PbDaly204_5_6_7_8.getMethodName(), ku_PbDaly204_5_6_7_8);
-    }
+//    static {
+//        AnalysisMethod ku_PbDaly204_5_6_7_8 = AnalysisMethod.initializeAnalysisMethod(
+//                "KU_PbDaly204_5_6_7_8",
+//                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get(MassSpectrometerBuiltinModelFactory.PHOENIX_SYNTHETIC));
+//        analysisMethodsBuiltinMap.put(ku_PbDaly204_5_6_7_8.getMethodName(), ku_PbDaly204_5_6_7_8);
+//    }
+//
+//
+//    static {
+//        AnalysisMethod ku_UoxideStaticFaraday = AnalysisMethod.initializeAnalysisMethod(
+//                "KU_UoxideStaticFaraday",
+//                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get(MassSpectrometerBuiltinModelFactory.PHOENIX_SYNTHETIC));
+//        analysisMethodsBuiltinMap.put(ku_UoxideStaticFaraday.getMethodName(), ku_UoxideStaticFaraday);
+//    }
 
-
-    static {
-        AnalysisMethod ku_UoxideStaticFaraday = AnalysisMethod.initializeAnalysisMethod(
-                "KU_UoxideStaticFaraday",
-                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get(MassSpectrometerBuiltinModelFactory.PHOENIX_SYNTHETIC));
-        analysisMethodsBuiltinMap.put(ku_UoxideStaticFaraday.getMethodName(), ku_UoxideStaticFaraday);
-    }
-
-    static {
-        AnalysisMethod garconDynNd1 = AnalysisMethod.initializeAnalysisMethod(
-                "GarconDynNd1",
-                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Triton"));
-        analysisMethodsBuiltinMap.put(garconDynNd1.getMethodName(), garconDynNd1);
-    }
-
-    static {
-        AnalysisMethod garconDynNd2 = AnalysisMethod.initializeAnalysisMethod(
-                "GarconDynNd2",
-                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Triton"));
-        analysisMethodsBuiltinMap.put(garconDynNd2.getMethodName(), garconDynNd2);
-    }
+//    static {
+//        AnalysisMethod garconDynNd1 = AnalysisMethod.initializeAnalysisMethod(
+//                "GarconDynNd1",
+//                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Triton"));
+//        analysisMethodsBuiltinMap.put(garconDynNd1.getMethodName(), garconDynNd1);
+//    }
+//
+//    static {
+//        AnalysisMethod garconDynNd2 = AnalysisMethod.initializeAnalysisMethod(
+//                "GarconDynNd2",
+//                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Triton"));
+//        analysisMethodsBuiltinMap.put(garconDynNd2.getMethodName(), garconDynNd2);
+//    }
 }

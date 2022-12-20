@@ -127,6 +127,7 @@ public class PhoenixMassSpec {
                         massSpecExtractedData.populateHeader(headerByLineSplit);
                         phase = 1;
                     } else if (line.startsWith("#BASELINES")) {
+                        massSpecExtractedData.populateDetectors(collectorsByLineSplit);
                         phase = 3;
                     } else if (line.startsWith("#ONPEAK")) {
                         phase = 6;

@@ -1,6 +1,8 @@
 package org.cirdles.tripoli.sessions.analysis;
 
+import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
@@ -45,6 +47,8 @@ public interface AnalysisInterface {
 
     public void extractMassSpecDataFromPath(Path dataFilePath) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException;
 
+    public void extractAnalysisMethodfromPath(Path phoenixAnalysisMethodDataFilePath) throws JAXBException;
+
     String getAnalysisName();
 
     void setAnalysisName(String analysisName);
@@ -66,7 +70,9 @@ public interface AnalysisInterface {
     void setAnalysisSampleDescription(String analysisSampleDescription);
 
     String prettyPrintAnalysisSummary();
+
     public String prettyPrintAnalysisMetaData();
+
     public String prettyPrintAnalysisDataSummary();
 
     AnalysisMethod getMethod();
@@ -88,8 +94,11 @@ public interface AnalysisInterface {
     String getDataFilePathString();
 
     void setDataFilePathString(String dataFilePathString);
-    public MassSpectrometerContextEnum getMassSpectrometerContext() ;
-    public void setMassSpectrometerContext(MassSpectrometerContextEnum massSpectrometerContext) ;
+
+    public MassSpectrometerModel getMassSpectrometerModel();
+
+    public void setMassSpectrometerModel(MassSpectrometerModel massSpectrometerModel);
+
     boolean isMutable();
 
     void setMutable(boolean mutable);

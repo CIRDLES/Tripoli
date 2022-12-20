@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels;
 
+import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 import org.jetbrains.annotations.NonNls;
@@ -32,13 +33,11 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detec
 public final class MassSpectrometerBuiltinModelFactory {
 
     @NonNls
-    public static final String PHOENIX_SYNTHETIC = "PhoenixSynthetic";
-    @NonNls
-    public static final String PHOENIX = "Phoenix";
+    public static final String PHOENIX_SYNTHETIC = "Phoenix_Synthetic";
     public static Map<String, MassSpectrometerModel> massSpectrometersBuiltinMap = new TreeMap<>();
 
     static {
-        MassSpectrometerModel phoenixSynthetic = MassSpectrometerModel.initializeMassSpectrometer(PHOENIX_SYNTHETIC);
+        MassSpectrometerModel phoenixSynthetic = MassSpectrometerModel.initializeMassSpectrometer(MassSpectrometerContextEnum.PHOENIX_SYNTHETIC);
         massSpectrometersBuiltinMap.put(phoenixSynthetic.getMassSpectrometerName(), phoenixSynthetic);
 
         DetectorSetup detectorSetup = DetectorSetup.initializeDetectorSetup();
@@ -67,49 +66,5 @@ public final class MassSpectrometerBuiltinModelFactory {
         phoenixSynthetic.setCollectorWidthMM(0.95135);
         phoenixSynthetic.setEffectiveRadiusMagnetMM(540.0);
         phoenixSynthetic.setTheoreticalBeamWidthMM(0.35);
-    }
-
-    static {
-        MassSpectrometerModel phoenix = MassSpectrometerModel.initializeMassSpectrometer(PHOENIX);
-        massSpectrometersBuiltinMap.put(phoenix.getMassSpectrometerName(), phoenix);
-
-        DetectorSetup detectorSetup = DetectorSetup.initializeDetectorSetup();
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.DALYDETECTOR, "PM", 0,
-                VIRTUAL, 1e+11, 0.0, 1.0, 30.1));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.SEM, "RS", 1,
-                VIRTUAL, 1e+11, 0.0, 1.0, 0.0));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L5", 2,
-                RESISTANCE, 1e+12, 0.0, 1.0, 0.0));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L4", 3,
-                RESISTANCE, 1e+12, 0.0, 1.0, 0.0));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L3", 4,
-                RESISTANCE, 1e+12, 0.0, 1.0, 0.0));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L2", 5,
-                RESISTANCE, 1e+12, 0.0, 1.0, 0.0));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "Ax", 6,
-                RESISTANCE, 1e+12, 0.0, 1.0, 0.0));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H1", 7,
-                RESISTANCE, 1e+12, 0.0, 1.0, 0.0));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H2", 8,
-                RESISTANCE, 1e+12, 0.0, 1.0, 0.0));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H3", 9,
-                RESISTANCE, 1e+12, 0.0, 1.0, 0.0));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H4", 10,
-                RESISTANCE, 1e+12, 0.0, 1.0, 0.0));
-
-        phoenix.setDetectorSetup(detectorSetup);
-        phoenix.setCollectorWidthMM(0.95135);
-        phoenix.setEffectiveRadiusMagnetMM(540.0);
-        phoenix.setTheoreticalBeamWidthMM(0.35);
-    }
-
-    static {
-        MassSpectrometerModel bl_Phoenix = MassSpectrometerModel.initializeMassSpectrometer("BL_Phoenix");
-        massSpectrometersBuiltinMap.put(bl_Phoenix.getMassSpectrometerName(), bl_Phoenix);
-    }
-
-    static {
-        MassSpectrometerModel op_Triton = MassSpectrometerModel.initializeMassSpectrometer("OP_Triton");
-        massSpectrometersBuiltinMap.put(op_Triton.getMassSpectrometerName(), op_Triton);
     }
 }

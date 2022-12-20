@@ -16,11 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods;
 
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Marshaller;
-import jakarta.xml.bind.Unmarshaller;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
@@ -32,15 +28,11 @@ import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
 
-import java.io.File;
 import java.io.Serial;
 import java.io.Serializable;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
-import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA;
 
 /**
  * @author James F. Bowring
@@ -74,13 +66,14 @@ public class AnalysisMethod implements Serializable {
         return new AnalysisMethod(methodName, massSpectrometer);
     }
 
-    public static AnalysisMethod createAnalysisMethodFromPhoenixAnalysisMethod(PhoenixAnalysisMethod phoenixAnalysisMethod) {
+    public static AnalysisMethod createAnalysisMethodFromPhoenixAnalysisMethod(PhoenixAnalysisMethod phoenixAnalysisMethod, AnalysisInterface analysis) {
         AnalysisMethod analysisMethod = new AnalysisMethod(
                 phoenixAnalysisMethod.getHEADER().getFilename(),
-                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get(MassSpectrometerBuiltinModelFactory.PHOENIX));
+                analysis.getMassSpectrometerModel());
 
         List<PhoenixAnalysisMethod.ONPEAK> onPeakSequences = phoenixAnalysisMethod.getONPEAK();
         analysisMethod.sequenceTable.setSequenceCount(onPeakSequences.size());
+        DetectorSetup detectorSetup = analysis.getMassSpecExtractedData().getDetectorSetup();
         for (PhoenixAnalysisMethod.ONPEAK onpeakSequence : onPeakSequences) {
             String sequenceNumber = onpeakSequence.getSequence();
             // <CollectorArray>147Sm:H1S1,148Sm:H2S1,149Sm:H3S1,150Sm:H4S1</CollectorArray>
@@ -101,7 +94,6 @@ public class AnalysisMethod implements Serializable {
                 analysisMethod.createBaseListOfRatios();
 
                 String collectorName = cellSpecs[1].split("S")[0];
-                DetectorSetup detectorSetup = analysisMethod.massSpectrometer.getDetectorSetup();
                 Detector detector = detectorSetup.getMapOfDetectors().get(collectorName);
                 SequenceCell sequenceCell = analysisMethod.sequenceTable.accessSequenceCellForDetector(detector, "OP" + sequenceNumber, Integer.parseInt(sequenceNumber));
                 sequenceCell.addTargetSpecies(species);
@@ -114,30 +106,6 @@ public class AnalysisMethod implements Serializable {
 
 
         return analysisMethod;
-    }
-
-    public static void test() throws JAXBException {
-        Path phoenixAnalysisMethodDataFilePath = Paths.get("Sm147to150_S6_v2.TIMSAM");
-
-        JAXBContext jaxbContext = JAXBContext.newInstance(PhoenixAnalysisMethod.class);
-        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-        PhoenixAnalysisMethod phoenixAnalysisMethod = (PhoenixAnalysisMethod) jaxbUnmarshaller.unmarshal(phoenixAnalysisMethodDataFilePath.toFile());
-
-        AnalysisMethod am = createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod);
-        System.out.println(am.prettyPrintSequenceTable());
-    }
-
-    public static void test2() throws JAXBException{
-        AnalysisMethod analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(BURDICK_BL_SYNTHETIC_DATA);
-            writeRawDataFileAsXML(analysisMethod, "TESTY.xml");
-    }
-
-    public static void writeRawDataFileAsXML(AnalysisMethod analysisMethod, String fileName) throws JAXBException{
-        JAXBContext jaxbContext = JAXBContext.newInstance(AnalysisMethod.class);
-        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        File outputAnalysisMethodFileFile = new File(fileName);
-        jaxbMarshaller.marshal(analysisMethod, outputAnalysisMethodFileFile);
     }
 
     private String prettyPrintSequenceTable() {

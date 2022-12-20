@@ -55,7 +55,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public enum DataModelDriverExperiment {
     ;
 
-    private static final boolean doFullProcessing = false;
+    private static final boolean doFullProcessing = true;
     public static boolean ALLOW_EXECUTION = true;
 
     public static AbstractPlotBuilder[][] driveModelTest(Path dataFilePath, AnalysisMethod analysisMethod, LoggingCallbackInterface loggingCallback) throws IOException {
@@ -368,7 +368,7 @@ public enum DataModelDriverExperiment {
                 long prev = System.nanoTime();
                 String operation = DataModelUpdaterHelper.randomOperMS(hierarchical);
                 // todo: handle adaptiveFlag case
-                boolean adaptiveFlag = (500 <= counter);
+                boolean adaptiveFlag = (500000 <= counter); // abandon for now
                 boolean allFlag = adaptiveFlag;
                 int columnChoice = modelIndex % stepCountForcedSave;
                 double[] delx_adapt_slice = storeFactory.copy(Access2D.wrap(delx_adapt)).sliceColumn(columnChoice).toRawCopy1D();

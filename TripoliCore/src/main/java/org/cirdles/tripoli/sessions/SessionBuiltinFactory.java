@@ -55,6 +55,8 @@ public final class SessionBuiltinFactory {
         Analysis twoIsotopes_01 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_01", twoIsotopeSyntheticAnalysisMethod, twoIsotopeSample_01);
         Path dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_01.txt");
         twoIsotopes_01.setDataFilePathString(dataFilePath.toString());
+        twoIsotopes_01.setMassSpectrometerModel(twoIsotopeSyntheticAnalysisMethod.getMassSpectrometer());
+        twoIsotopes_01.getMassSpecExtractedData().setDetectorSetup(twoIsotopes_01.getMassSpectrometerModel().getDetectorSetup());
         tripoliDemonstrationSession.addAnalysis(twoIsotopes_01);
 
         AnalysisMethod fiveIsotopeSyntheticAnalysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
@@ -62,6 +64,8 @@ public final class SessionBuiltinFactory {
         Analysis fiveIsotopes_01 = AnalysisInterface.initializeAnalysis("Five Isotope Demo_01", fiveIsotopeSyntheticAnalysisMethod, fiveIsotopeSample_01);
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_5ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_01R.txt");
         fiveIsotopes_01.setDataFilePathString(dataFilePath.toString());
+        fiveIsotopes_01.setMassSpectrometerModel(fiveIsotopeSyntheticAnalysisMethod.getMassSpectrometer());
+        fiveIsotopes_01.getMassSpecExtractedData().setDetectorSetup(fiveIsotopes_01.getMassSpectrometerModel().getDetectorSetup());
         tripoliDemonstrationSession.addAnalysis(fiveIsotopes_01);
     }
 }

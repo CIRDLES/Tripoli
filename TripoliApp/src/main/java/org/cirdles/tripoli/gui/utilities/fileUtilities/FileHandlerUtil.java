@@ -10,6 +10,11 @@ import org.cirdles.tripoli.utilities.file.SessionFileUtilities;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import static org.cirdles.tripoli.utilities.file.FileNameFixer.fixFileName;
@@ -81,6 +86,30 @@ public class FileHandlerUtil {
                 retVal = dataFile;
             } else {
                 throw new TripoliException("Filename does not end with '.txt'");
+            }
+        }
+        return retVal;
+    }
+
+    public static File selectMethodFile(Window ownerWindow)
+            throws TripoliException, IOException {
+        File retVal = null;
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Analysis Method '.xml' file");
+        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Analysis Method '.xml' files", "*.txt,*.xml,*.TIMSAM"));
+//        File initDirectory = new File(squidPersistentState.getMRUPrawnFileFolderPath());
+//        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
+
+        File dataFile = fileChooser.showOpenDialog(ownerWindow);
+
+        if (dataFile != null) {
+            // <?xml version="1.0" standalone="yes"?>
+            List<String> contentsByLine = new ArrayList<>(Files.readAllLines(Path.of(dataFile.toURI()), Charset.defaultCharset()));
+            if (contentsByLine.get(0).startsWith("<?xml version=")) {
+                retVal = dataFile;
+            } else {
+                throw new TripoliException("File does not contain correct xml");
             }
         }
         return retVal;

@@ -181,7 +181,7 @@ public class TripoliGUIController implements Initializable {
     }
 
     private void openSession(String aSessionFileName) throws IOException, TripoliException {
-        if (!"".equals(aSessionFileName)) {
+        if (!"" .equals(aSessionFileName)) {
             sessionFileName = aSessionFileName;
             confirmSaveOnProjectClose();
             tripoliSession = (Session) TripoliSerializer.getSerializedObjectFromFile(sessionFileName, true);

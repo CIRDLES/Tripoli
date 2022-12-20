@@ -1,10 +1,10 @@
 package org.cirdles.tripoli.gui;
 
 import jakarta.xml.bind.JAXBException;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -16,7 +16,6 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
-import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethodUtils;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
@@ -32,6 +31,7 @@ import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_ANALYSIS_YELLOW;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColorToHex;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectDataFile;
+import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectMethodFile;
 
 public class AnalysesManagerController implements Initializable {
 
@@ -116,7 +116,7 @@ public class AnalysesManagerController implements Initializable {
         }
     }
 
-    private void populateAnalysisDataFields(){
+    private void populateAnalysisDataFields() {
         metaDataTextArea.setText(analysis.prettyPrintAnalysisMetaData());
         dataSummaryTextArea.setText(analysis.prettyPrintAnalysisDataSummary());
     }
@@ -124,7 +124,7 @@ public class AnalysesManagerController implements Initializable {
     private void populateAnalysisMethodGridPane() {
         // column 0 of GridPanes is reserved for row labels
         AnalysisMethod analysisMethod = analysis.getMethod();
-        Map<String, Detector> mapOfDetectors = analysisMethod.getMassSpectrometer().getDetectorSetup().getMapOfDetectors();
+        Map<String, Detector> mapOfDetectors = analysis.getMassSpecExtractedData().getDetectorSetup().getMapOfDetectors();//         analysisMethod.getMassSpectrometer().getDetectorSetup().getMapOfDetectors();
         List<Detector> detectorsInOrderList = mapOfDetectors.values().stream().sorted(Comparator.comparing(Detector::getOrdinalIndex)).collect(Collectors.toList());
 
         setUpGridPaneRows(analysisDetectorsGridPane, 7, detectorsInOrderList.size() + 1);
@@ -198,6 +198,19 @@ public class AnalysesManagerController implements Initializable {
     }
 
     private void setUpGridPaneRows(GridPane methodGridPane, int rowCount, int colCount) {
+        while (methodGridPane.getRowConstraints().size() > 1) {
+            methodGridPane.getRowConstraints().remove(1);
+        }
+        List<Node> removals = new ArrayList<>();
+        for (Node child : methodGridPane.getChildren()) {
+            if (child instanceof Label) {
+                removals.add(child);
+            }
+        }
+        for (Node child : removals) {
+            methodGridPane.getChildren().remove(child);
+        }
+
         boolean[][] cellUse = new boolean[rowCount][colCount];
         mapOfGridPanesToCellUse.put(methodGridPane.getId(), cellUse);
 
@@ -219,9 +232,12 @@ public class AnalysesManagerController implements Initializable {
         }
     }
 
-    public void selectMethodFileButtonAction() throws JAXBException{
-       // PhoenixAnalysisMethodUtils.test();
-        AnalysisMethod.test();
-        AnalysisMethod.test2();
+    public void selectMethodFileButtonAction() throws JAXBException, TripoliException, IOException {
+        File selectedFile = selectMethodFile(TripoliGUI.primaryStage);
+        if (selectedFile != null) {
+            analysis.extractAnalysisMethodfromPath(Path.of(selectedFile.toURI()));
+            populateAnalysisManagerGridPane();
+        }
+
     }
 }
