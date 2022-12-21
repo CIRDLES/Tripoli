@@ -16,7 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels;
 
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
+import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -32,9 +32,8 @@ public class MassSpectrometerModel implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1402626964061990257L;
-
     private final String massSpectrometerName;
-    private DetectorSetup detectorSetup;
+    private MassSpectrometerContextEnum massSpectrometerContext;
     private double collectorWidthMM;        //% collector aperture width (mm)
     private double theoreticalBeamWidthMM;  //% a priori estimate of beam width (mm)
     private double effectiveRadiusMagnetMM;
@@ -44,31 +43,29 @@ public class MassSpectrometerModel implements Serializable {
     }
 
     private MassSpectrometerModel(String massSpectrometerName) {
-        this(massSpectrometerName, DetectorSetup.initializeDetectorSetup());
-    }
-
-    private MassSpectrometerModel(String massSpectrometerName, DetectorSetup detectorSetup) {
         this.massSpectrometerName = massSpectrometerName;
-        this.detectorSetup = detectorSetup;
+        this.massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
         this.collectorWidthMM = 0.0;
         this.theoreticalBeamWidthMM = 0.0;
         this.effectiveRadiusMagnetMM = 0.0;
     }
 
-    public static MassSpectrometerModel initializeMassSpectrometer(String name) {
-        return new MassSpectrometerModel(name);
+    public static MassSpectrometerModel initializeMassSpectrometer(MassSpectrometerContextEnum massSpectrometerContext) {
+        MassSpectrometerModel massSpectrometerModel = new MassSpectrometerModel(massSpectrometerContext.getName());
+        massSpectrometerModel.setMassSpectrometerContext(massSpectrometerContext);
+        return massSpectrometerModel;
     }
 
     public String getMassSpectrometerName() {
         return massSpectrometerName;
     }
 
-    public DetectorSetup getDetectorSetup() {
-        return detectorSetup;
+    public MassSpectrometerContextEnum getMassSpectrometerContext() {
+        return massSpectrometerContext;
     }
 
-    public void setDetectorSetup(DetectorSetup detectorSetup) {
-        this.detectorSetup = detectorSetup;
+    public void setMassSpectrometerContext(MassSpectrometerContextEnum massSpectrometerContext) {
+        this.massSpectrometerContext = massSpectrometerContext;
     }
 
     public double getCollectorWidthMM() {

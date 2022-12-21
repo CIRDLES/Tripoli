@@ -16,8 +16,6 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.DataPrepForMCMC;
-
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -31,28 +29,17 @@ import java.util.stream.Collectors;
  * @author James F. Bowring
  */
 public class PhoenixMassSpec {
-    public PhoenixMassSpec() {
-    }
 
-    public static void main(String[] args) throws IOException {
-        Path dataFile = Path.of(ClassLoader.getSystemClassLoader().getResource(
-//                "org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_01.txt").getPath());
-                "org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").getPath());
-//                "org/cirdles/tripoli/dataSourceProcessors/dataSources/testDataFiles/NBS981_2022-05-15_Pb-1598.TXT").getPath());
-//        "org/cirdles/tripoli/dataSourceProcessors/dataSources/testDataFiles/SmKU1A-A2-427.TXT").getPath());
-
-
-
+    /**
+     * Called by reflection from Analysis.extractMassSpecDataFromPath
+     *
+     * @param inputDataFile
+     * @return
+     * @throws IOException
+     */
+    @SuppressWarnings("unused")
+    public static MassSpecExtractedData extractMetaAndBlockDataFromFileVersion_1_0(Path inputDataFile) throws IOException {
         MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
-
-        extractMetaAndBlockDataFromFileVersion_1_0(dataFile, massSpecExtractedData);
-//        extractMetaAndBlockDataFromFileVersion_1_2(dataFile, massSpecExtractedData);
-
-        DataPrepForMCMC.prepareSingleBlockDataForMCMC(1,massSpecExtractedData);
-    }
-
-    public static void extractMetaAndBlockDataFromFileVersion_1_0(Path inputDataFile, MassSpecExtractedData massSpecExtractedData) throws IOException {
-
         List<String> contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
         // test for version 1.00
         if (0 != contentsByLine.get(0).trim().compareToIgnoreCase("Version,1.00")) {
@@ -68,6 +55,7 @@ public class PhoenixMassSpec {
             for (String line : contentsByLine) {
                 if (!line.trim().isBlank()) {
                     if (line.startsWith("#START")) {
+                        massSpecExtractedData.populateHeader(headerByLineSplit);
                         phase = 1;
                     } else if (line.startsWith("#END")) {
                         phase = 4;
@@ -78,6 +66,7 @@ public class PhoenixMassSpec {
                         case 1 -> phase = 2;
                         case 2 -> {
                             columnNamesSplit.add(line.split(","));
+                            massSpecExtractedData.populateColumnNamesList(columnNamesSplit);
                             phase = 3;
                         }
                         case 3 -> {
@@ -105,9 +94,19 @@ public class PhoenixMassSpec {
                 }
             }
         }
+        return massSpecExtractedData;
     }
 
-    public static void extractMetaAndBlockDataFromFileVersion_1_2(Path inputDataFile, MassSpecExtractedData massSpecExtractedData) throws IOException {
+    /**
+     * Called by reflection from Analysis.extractMassSpecDataFromPath
+     *
+     * @param inputDataFile
+     * @return
+     * @throws IOException
+     */
+    @SuppressWarnings("unused")
+    public static MassSpecExtractedData extractMetaAndBlockDataFromFileVersion_1_2(Path inputDataFile) throws IOException {
+        MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
         List<String> contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
         // test for version 1.20
         if (!contentsByLine.get(2).trim().startsWith("Version,1.2.")) {
@@ -125,8 +124,10 @@ public class PhoenixMassSpec {
             for (String line : contentsByLine) {
                 if (!line.trim().isBlank()) {
                     if (line.startsWith("#COLLECTORS")) {
+                        massSpecExtractedData.populateHeader(headerByLineSplit);
                         phase = 1;
                     } else if (line.startsWith("#BASELINES")) {
+                        massSpecExtractedData.populateDetectors(collectorsByLineSplit);
                         phase = 3;
                     } else if (line.startsWith("#ONPEAK")) {
                         phase = 6;
@@ -141,6 +142,7 @@ public class PhoenixMassSpec {
                         case 3 -> phase = 4;
                         case 4 -> {
                             columnNamesSplit.add(line.split(","));
+                            massSpecExtractedData.populateColumnNamesList(columnNamesSplit);
                             phase = 5;
                         }
                         case 6 -> phase = 7;
@@ -178,6 +180,7 @@ public class PhoenixMassSpec {
                 }
             }
         }
+        return massSpecExtractedData;
     }
 
     private static MassSpecOutputSingleBlockRecord parseAndBuildSingleBlockRecord(int version, int blockNumber, List<String> blockData) {

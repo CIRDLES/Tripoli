@@ -54,9 +54,9 @@ public class BaselineTable implements Serializable {
         return baselineTable;
     }
 
-    public BaselineCell accessBaselineCellForDetector(Detector detector, String baselineName) {
+    public BaselineCell accessBaselineCellForDetector(Detector detector, String baselineName, int baselineIndex) {
         List<BaselineCell> targetList = mapOfDetectorsToBaselineCells.get(detector);
-        BaselineCell baselineCell = BaselineCell.initializeBaselineCell(baselineName);
+        BaselineCell baselineCell = BaselineCell.initializeBaselineCell(baselineName, baselineIndex);
         if (targetList == null) {
             targetList = new ArrayList<>();
             targetList.add(baselineCell);

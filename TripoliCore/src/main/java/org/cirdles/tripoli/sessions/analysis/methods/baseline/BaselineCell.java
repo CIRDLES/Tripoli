@@ -26,15 +26,17 @@ import java.io.Serializable;
 public class BaselineCell implements Serializable {
 
     private String baselineName;
+    private int baselineIndex;
     private double cellMass;
 
-    public BaselineCell(String baselineName) {
+    public BaselineCell(String baselineName, int baselineIndex) {
         this.baselineName = baselineName;
+        this.baselineIndex = baselineIndex;
         this.cellMass = 0.0;
     }
 
-    public static BaselineCell initializeBaselineCell(String baselineName) {
-        return new BaselineCell(baselineName);
+    public static BaselineCell initializeBaselineCell(String baselineName, int baselineIndex) {
+        return new BaselineCell(baselineName, baselineIndex);
     }
 
     @Override
@@ -63,6 +65,14 @@ public class BaselineCell implements Serializable {
 
     public void setBaselineName(String baselineName) {
         this.baselineName = baselineName;
+    }
+
+    public int getBaselineIndex() {
+        return baselineIndex;
+    }
+
+    public void setBaselineIndex(int baselineIndex) {
+        this.baselineIndex = baselineIndex;
     }
 
     public double getCellMass() {
