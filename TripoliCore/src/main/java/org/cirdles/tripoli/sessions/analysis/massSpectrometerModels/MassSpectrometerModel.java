@@ -35,7 +35,6 @@ public class MassSpectrometerModel implements Serializable {
     private static final long serialVersionUID = 1402626964061990257L;
     private final String massSpectrometerName;
     private MassSpectrometerContextEnum massSpectrometerContext;
-    private DetectorSetup detectorSetup;
     private double collectorWidthMM;        //% collector aperture width (mm)
     private double theoreticalBeamWidthMM;  //% a priori estimate of beam width (mm)
     private double effectiveRadiusMagnetMM;
@@ -45,13 +44,8 @@ public class MassSpectrometerModel implements Serializable {
     }
 
     private MassSpectrometerModel(String massSpectrometerName) {
-        this(massSpectrometerName, DetectorSetup.initializeDetectorSetup());
-    }
-
-    private MassSpectrometerModel(String massSpectrometerName, DetectorSetup detectorSetup) {
         this.massSpectrometerName = massSpectrometerName;
         this.massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
-        this.detectorSetup = detectorSetup;
         this.collectorWidthMM = 0.0;
         this.theoreticalBeamWidthMM = 0.0;
         this.effectiveRadiusMagnetMM = 0.0;
@@ -73,14 +67,6 @@ public class MassSpectrometerModel implements Serializable {
 
     public void setMassSpectrometerContext(MassSpectrometerContextEnum massSpectrometerContext) {
         this.massSpectrometerContext = massSpectrometerContext;
-    }
-
-    public DetectorSetup getDetectorSetup() {
-        return detectorSetup;
-    }
-
-    public void setDetectorSetup(DetectorSetup detectorSetup) {
-        this.detectorSetup = detectorSetup;
     }
 
     public double getCollectorWidthMM() {

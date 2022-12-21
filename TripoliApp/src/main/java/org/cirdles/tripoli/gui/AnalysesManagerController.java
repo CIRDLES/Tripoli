@@ -111,7 +111,7 @@ public class AnalysesManagerController implements Initializable {
         if (analysis.getDataFilePathString().compareToIgnoreCase(MISSING_STRING_FIELD) != 0) {
             populateAnalysisDataFields();
         }
-        if (analysis.getMethod() != null) {
+        if (!analysis.getMassSpecExtractedData().getDetectorSetup().getMapOfDetectors().isEmpty()) {
             populateAnalysisMethodGridPane();
         }
     }
@@ -124,7 +124,7 @@ public class AnalysesManagerController implements Initializable {
     private void populateAnalysisMethodGridPane() {
         // column 0 of GridPanes is reserved for row labels
         AnalysisMethod analysisMethod = analysis.getMethod();
-        Map<String, Detector> mapOfDetectors = analysis.getMassSpecExtractedData().getDetectorSetup().getMapOfDetectors();//         analysisMethod.getMassSpectrometer().getDetectorSetup().getMapOfDetectors();
+        Map<String, Detector> mapOfDetectors = analysis.getMassSpecExtractedData().getDetectorSetup().getMapOfDetectors();
         List<Detector> detectorsInOrderList = mapOfDetectors.values().stream().sorted(Comparator.comparing(Detector::getOrdinalIndex)).collect(Collectors.toList());
 
         setUpGridPaneRows(analysisDetectorsGridPane, 7, detectorsInOrderList.size() + 1);
@@ -152,9 +152,12 @@ public class AnalysesManagerController implements Initializable {
         }
         methodGridPane.getColumnConstraints().get(0).setPrefWidth(25);
 
-        Map<Detector, List<SequenceCell>> mapOfDetectorsToSequenceCell = analysis.getMethod().getSequenceTable().getMapOfDetectorsToSequenceCells();
-        Map<Detector, List<BaselineCell>> mapOfDetectorsToBaselineCell = analysis.getMethod().getBaselineTable().getMapOfDetectorsToBaselineCells();
-
+        Map<Detector, List<SequenceCell>> mapOfDetectorsToSequenceCell = new TreeMap<>();
+        Map<Detector, List<BaselineCell>> mapOfDetectorsToBaselineCell = new TreeMap<>();
+        if (analysis.getMethod() != null) {
+            mapOfDetectorsToSequenceCell = analysis.getMethod().getSequenceTable().getMapOfDetectorsToSequenceCells();
+            mapOfDetectorsToBaselineCell = analysis.getMethod().getBaselineTable().getMapOfDetectorsToBaselineCells();
+        }
         for (int col = 0; col < detectorCount + 1; col++) {
             populateDetectorDetailRow(methodGridPane, (0 < col) ? detectorsInOrderList.get(col - 1).getDetectorName() : "spec\u2193/detector\u2192", col, 0);
 

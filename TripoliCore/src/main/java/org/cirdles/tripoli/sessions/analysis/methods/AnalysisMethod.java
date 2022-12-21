@@ -17,7 +17,6 @@
 package org.cirdles.tripoli.sessions.analysis.methods;
 
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineTable;
@@ -42,34 +41,31 @@ public class AnalysisMethod implements Serializable {
     private static final long serialVersionUID = -642166785514147638L;
 
     private String methodName;
-    private MassSpectrometerModel massSpectrometer;
     private BaselineTable baselineTable;
     private SequenceTable sequenceTable;
     private List<SpeciesRecordInterface> speciesList;
     private List<IsotopicRatio> isotopicRatiosList;
 
 
-    private AnalysisMethod(String methodName, MassSpectrometerModel massSpectrometer) {
-        this(methodName, massSpectrometer, BaselineTable.createEmptyBaselineTable(), SequenceTable.createEmptySequenceTable());
+    private AnalysisMethod(String methodName) {
+        this(methodName, BaselineTable.createEmptyBaselineTable(), SequenceTable.createEmptySequenceTable());
     }
 
-    private AnalysisMethod(String methodName, MassSpectrometerModel massSpectrometer, BaselineTable baselineTable, SequenceTable sequenceTable) {
+    private AnalysisMethod(String methodName,  BaselineTable baselineTable, SequenceTable sequenceTable) {
         this.methodName = methodName;
-        this.massSpectrometer = massSpectrometer;
         speciesList = new ArrayList<>();
         this.baselineTable = baselineTable;
         this.sequenceTable = sequenceTable;
         isotopicRatiosList = new ArrayList<>();
     }
 
-    public static AnalysisMethod initializeAnalysisMethod(String methodName, MassSpectrometerModel massSpectrometer) {
-        return new AnalysisMethod(methodName, massSpectrometer);
+    public static AnalysisMethod initializeAnalysisMethod(String methodName) {
+        return new AnalysisMethod(methodName);
     }
 
     public static AnalysisMethod createAnalysisMethodFromPhoenixAnalysisMethod(PhoenixAnalysisMethod phoenixAnalysisMethod, AnalysisInterface analysis) {
         AnalysisMethod analysisMethod = new AnalysisMethod(
-                phoenixAnalysisMethod.getHEADER().getFilename(),
-                analysis.getMassSpectrometerModel());
+                phoenixAnalysisMethod.getHEADER().getFilename());
 
         List<PhoenixAnalysisMethod.ONPEAK> onPeakSequences = phoenixAnalysisMethod.getONPEAK();
         analysisMethod.sequenceTable.setSequenceCount(onPeakSequences.size());
@@ -157,7 +153,6 @@ public class AnalysisMethod implements Serializable {
     public int hashCode() {
         int hash = 7;
         hash = 31 * hash + (null == methodName ? 0 : methodName.hashCode());
-        hash = 31 * hash + (null == massSpectrometer ? 0 : massSpectrometer.hashCode());
         return hash;
     }
 
@@ -167,14 +162,6 @@ public class AnalysisMethod implements Serializable {
 
     public void setMethodName(String methodName) {
         this.methodName = methodName;
-    }
-
-    public MassSpectrometerModel getMassSpectrometer() {
-        return massSpectrometer;
-    }
-
-    public void setMassSpectrometer(MassSpectrometerModel massSpectrometer) {
-        this.massSpectrometer = massSpectrometer;
     }
 
     public List<SpeciesRecordInterface> getSpeciesList() {

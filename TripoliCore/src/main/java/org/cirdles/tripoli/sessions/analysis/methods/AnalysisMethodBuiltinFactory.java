@@ -16,7 +16,9 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods;
 
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory;
+import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineTable;
@@ -28,15 +30,18 @@ import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+
+import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_SYNTHETIC;
 
 /**
  * @author James F. Bowring
  */
 public final class AnalysisMethodBuiltinFactory implements Serializable {
 
-    public static final Map<String, AnalysisMethod> analysisMethodsBuiltinMap = new TreeMap<>();
+    public static  Map<String, AnalysisMethod> analysisMethodsBuiltinMap = new TreeMap<>();
 
     public static final SpeciesRecordInterface pb204 = NuclidesFactory.retrieveSpecies("Pb", 204);
     public static final SpeciesRecordInterface pb205 = NuclidesFactory.retrieveSpecies("Pb", 205);
@@ -49,9 +54,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
     public static final String KU_204_5_6_7_8_DALY_ALL_FARADAY_PB = "KU_204_5_6_7_8_Daly_AllFaradayPb";
 
     static {
-        AnalysisMethod burdickBlSyntheticData = AnalysisMethod.initializeAnalysisMethod(
-                BURDICK_BL_SYNTHETIC_DATA,
-                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get(MassSpectrometerBuiltinModelFactory.PHOENIX_SYNTHETIC));
+        AnalysisMethod burdickBlSyntheticData = AnalysisMethod.initializeAnalysisMethod(BURDICK_BL_SYNTHETIC_DATA);
         analysisMethodsBuiltinMap.put(burdickBlSyntheticData.getMethodName(), burdickBlSyntheticData);
 
         burdickBlSyntheticData.addSpeciesToSpeciesList(pb206);
@@ -59,7 +62,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
 
         burdickBlSyntheticData.addRatioToIsotopicRatiosList(new IsotopicRatio(pb206, pb208));
 
-        DetectorSetup detectorSetup = burdickBlSyntheticData.getMassSpectrometer().getDetectorSetup();
+        DetectorSetup detectorSetup = DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_SYNTHETIC.getName());
 
         BaselineCell baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "Bl1", 1);
         baselineCell.setCellMass(203.5);
@@ -88,9 +91,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
     }
 
     static {
-        AnalysisMethod ku_204_5_6_7_8_Daly_AllFaradayPb = AnalysisMethod.initializeAnalysisMethod(
-                KU_204_5_6_7_8_DALY_ALL_FARADAY_PB,
-                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get(MassSpectrometerBuiltinModelFactory.PHOENIX_SYNTHETIC));
+        AnalysisMethod ku_204_5_6_7_8_Daly_AllFaradayPb = AnalysisMethod.initializeAnalysisMethod(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
         analysisMethodsBuiltinMap.put(ku_204_5_6_7_8_Daly_AllFaradayPb.getMethodName(), ku_204_5_6_7_8_Daly_AllFaradayPb);
 
         ku_204_5_6_7_8_Daly_AllFaradayPb.addSpeciesToSpeciesList(pb204);
@@ -104,7 +105,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         ku_204_5_6_7_8_Daly_AllFaradayPb.addRatioToIsotopicRatiosList(new IsotopicRatio(pb206, pb208));
         ku_204_5_6_7_8_Daly_AllFaradayPb.addRatioToIsotopicRatiosList(new IsotopicRatio(pb207, pb208));
 
-        DetectorSetup detectorSetup = ku_204_5_6_7_8_Daly_AllFaradayPb.getMassSpectrometer().getDetectorSetup();
+        DetectorSetup detectorSetup = DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_SYNTHETIC.getName());
         BaselineTable baselineTable = ku_204_5_6_7_8_Daly_AllFaradayPb.getBaselineTable();
 
         BaselineCell baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "Bl1", 1);
@@ -188,7 +189,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
 //    static {
 //        AnalysisMethod ku_PbDaly204_5_6_7_8 = AnalysisMethod.initializeAnalysisMethod(
 //                "KU_PbDaly204_5_6_7_8",
-//                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get(MassSpectrometerBuiltinModelFactory.PHOENIX_SYNTHETIC));
+//                DetectorSetupBuiltinModelFactory.massSpectrometersBuiltinMap.get(DetectorSetupBuiltinModelFactory.PHOENIX_SYNTHETIC));
 //        analysisMethodsBuiltinMap.put(ku_PbDaly204_5_6_7_8.getMethodName(), ku_PbDaly204_5_6_7_8);
 //    }
 //
@@ -196,21 +197,21 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
 //    static {
 //        AnalysisMethod ku_UoxideStaticFaraday = AnalysisMethod.initializeAnalysisMethod(
 //                "KU_UoxideStaticFaraday",
-//                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get(MassSpectrometerBuiltinModelFactory.PHOENIX_SYNTHETIC));
+//                DetectorSetupBuiltinModelFactory.massSpectrometersBuiltinMap.get(DetectorSetupBuiltinModelFactory.PHOENIX_SYNTHETIC));
 //        analysisMethodsBuiltinMap.put(ku_UoxideStaticFaraday.getMethodName(), ku_UoxideStaticFaraday);
 //    }
 
 //    static {
 //        AnalysisMethod garconDynNd1 = AnalysisMethod.initializeAnalysisMethod(
 //                "GarconDynNd1",
-//                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Triton"));
+//                DetectorSetupBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Triton"));
 //        analysisMethodsBuiltinMap.put(garconDynNd1.getMethodName(), garconDynNd1);
 //    }
 //
 //    static {
 //        AnalysisMethod garconDynNd2 = AnalysisMethod.initializeAnalysisMethod(
 //                "GarconDynNd2",
-//                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Triton"));
+//                DetectorSetupBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Triton"));
 //        analysisMethodsBuiltinMap.put(garconDynNd2.getMethodName(), garconDynNd2);
 //    }
 }

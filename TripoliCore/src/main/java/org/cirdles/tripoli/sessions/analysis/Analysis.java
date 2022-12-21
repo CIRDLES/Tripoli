@@ -39,6 +39,7 @@ import java.util.TreeSet;
 
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory.massSpectrometerModelBuiltinMap;
 
 /**
  * @author James F. Bowring
@@ -57,7 +58,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     // note: path is not serializable
     private String dataFilePathString;
     private MassSpectrometerModel massSpectrometerModel;
-    private MassSpecOutputDataRecord massSpecOutputDataRecord;// TODO remove when out of useby synthetic files experiment
+    private MassSpecOutputDataRecord massSpecOutputDataRecord;// TODO remove when out of use by synthetic files experiment
     private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
 
@@ -82,7 +83,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
         dataFilePathString = dataFilePath.toString();
         MassSpectrometerContextEnum massSpectrometerContext = AnalysisInterface.determineMassSpectrometerContextFromDataFile(dataFilePath);
-        massSpectrometerModel = MassSpectrometerModel.initializeMassSpectrometer(massSpectrometerContext);
+        massSpectrometerModel = massSpectrometerModelBuiltinMap.get(massSpectrometerContext.getMassSpectrometerName());
         if (0 != massSpectrometerContext.compareTo(MassSpectrometerContextEnum.UNKNOWN)) {
             Class<?> clazz = massSpectrometerContext.getClazz();
             Method method = clazz.getMethod(massSpectrometerContext.getMethodName(), Path.class);

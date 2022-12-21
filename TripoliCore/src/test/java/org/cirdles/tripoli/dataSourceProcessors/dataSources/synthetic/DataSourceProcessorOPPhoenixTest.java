@@ -43,7 +43,7 @@ class DataSourceProcessorOPPhoenixTest {
 //        Path dataFile = RESOURCE_EXTRACTOR
 //                .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_05.txt").toPath();
 //        DataSourceProcessor_PhoenixSyntheticTextFile dataSourceProcessorOPPhoenix
-//                = DataSourceProcessor_PhoenixSyntheticTextFile.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
+//                = DataSourceProcessor_PhoenixSyntheticTextFile.initializeWithMassSpectrometer(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
 //        MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFile);
 //
 //        double[] testArray = new double[]{1, 2, 3, 4, 5};
@@ -66,7 +66,7 @@ class DataSourceProcessorOPPhoenixTest {
 //        Path dataFile = RESOURCE_EXTRACTOR
 //                .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
 //        DataSourceProcessor_PhoenixSyntheticTextFile dataSourceProcessorOPPhoenix
-//                = DataSourceProcessor_PhoenixSyntheticTextFile.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB));
+//                = DataSourceProcessor_PhoenixSyntheticTextFile.initializeWithMassSpectrometer(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB));
 //        MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFile);
 
 //        assert (massSpecOutputDataRecord.rawDataColumn().length == 162000);

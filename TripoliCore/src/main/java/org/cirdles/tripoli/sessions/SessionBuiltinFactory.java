@@ -20,6 +20,7 @@ import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.samples.Sample;
@@ -31,6 +32,8 @@ import java.util.TreeMap;
 
 import static org.cirdles.tripoli.TripoliConstants.SYNTHETIC_DATA_FOLDER_2ISOTOPE;
 import static org.cirdles.tripoli.TripoliConstants.SYNTHETIC_DATA_FOLDER_5ISOTOPE;
+import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_SYNTHETIC;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory.massSpectrometerModelBuiltinMap;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB;
 
@@ -55,8 +58,8 @@ public final class SessionBuiltinFactory {
         Analysis twoIsotopes_01 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_01", twoIsotopeSyntheticAnalysisMethod, twoIsotopeSample_01);
         Path dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_01.txt");
         twoIsotopes_01.setDataFilePathString(dataFilePath.toString());
-        twoIsotopes_01.setMassSpectrometerModel(twoIsotopeSyntheticAnalysisMethod.getMassSpectrometer());
-        twoIsotopes_01.getMassSpecExtractedData().setDetectorSetup(twoIsotopes_01.getMassSpectrometerModel().getDetectorSetup());
+        twoIsotopes_01.setMassSpectrometerModel(massSpectrometerModelBuiltinMap.get(PHOENIX_SYNTHETIC.getMassSpectrometerName()));
+        twoIsotopes_01.getMassSpecExtractedData().setDetectorSetup(DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_SYNTHETIC.getName()));
         tripoliDemonstrationSession.addAnalysis(twoIsotopes_01);
 
         AnalysisMethod fiveIsotopeSyntheticAnalysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
@@ -64,8 +67,8 @@ public final class SessionBuiltinFactory {
         Analysis fiveIsotopes_01 = AnalysisInterface.initializeAnalysis("Five Isotope Demo_01", fiveIsotopeSyntheticAnalysisMethod, fiveIsotopeSample_01);
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_5ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_01R.txt");
         fiveIsotopes_01.setDataFilePathString(dataFilePath.toString());
-        fiveIsotopes_01.setMassSpectrometerModel(fiveIsotopeSyntheticAnalysisMethod.getMassSpectrometer());
-        fiveIsotopes_01.getMassSpecExtractedData().setDetectorSetup(fiveIsotopes_01.getMassSpectrometerModel().getDetectorSetup());
+        fiveIsotopes_01.setMassSpectrometerModel(massSpectrometerModelBuiltinMap.get(PHOENIX_SYNTHETIC.getMassSpectrometerName()));
+        fiveIsotopes_01.getMassSpecExtractedData().setDetectorSetup(DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_SYNTHETIC.getName()));
         tripoliDemonstrationSession.addAnalysis(fiveIsotopes_01);
     }
 }

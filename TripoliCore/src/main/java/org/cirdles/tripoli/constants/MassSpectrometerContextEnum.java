@@ -25,22 +25,24 @@ import java.util.List;
  * @author James F. Bowring
  */
 public enum MassSpectrometerContextEnum {
-    PHOENIX("Phoenix",
+    PHOENIX("Phoenix","Phoenix",
             "#HEADER, Analysis, Version, Filename, MethodName, MethodPath, IsoWorksMethod, FolderPath",
             PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_2"),
-    PHOENIX_SYNTHETIC("Phoenix_Synthetic",
+    PHOENIX_SYNTHETIC("Phoenix_Synthetic","Phoenix",
             "Version, Filename, Sample, Sample, Sample, Analysis, User, Method",
             PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_0"),
-    UNKNOWN("UNKNOWN", "",
+    UNKNOWN("UNKNOWN", "UNKNOWN", "",
             null, "");
 
     private final String name;
+    private final String massSpectrometerName;
     private final String keyWordsList;
     private final Class<?> clazz;
     private final String methodName;
 
-    MassSpectrometerContextEnum(String name, String keyWordsList, Class<?> clazz, String methodName) {
+    MassSpectrometerContextEnum(String name, String massSpectrometerName, String keyWordsList, Class<?> clazz, String methodName) {
         this.name = name;
+        this.massSpectrometerName = massSpectrometerName;
         this.keyWordsList = keyWordsList;
         this.clazz = clazz;
         this.methodName = methodName;
@@ -48,6 +50,10 @@ public enum MassSpectrometerContextEnum {
 
     public String getName() {
         return name;
+    }
+
+    public String getMassSpectrometerName() {
+        return massSpectrometerName;
     }
 
     public List<String> getKeyWordsList() {

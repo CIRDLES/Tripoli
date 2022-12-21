@@ -16,55 +16,28 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels;
 
-import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
-import org.jetbrains.annotations.NonNls;
-
 import java.util.Map;
 import java.util.TreeMap;
 
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector.AmplifierTypeEnum.RESISTANCE;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector.AmplifierTypeEnum.VIRTUAL;
+import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX;
+import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
 
 /**
  * @author James F. Bowring
  */
 public final class MassSpectrometerBuiltinModelFactory {
 
-    @NonNls
-    public static final String PHOENIX_SYNTHETIC = "Phoenix_Synthetic";
-    public static Map<String, MassSpectrometerModel> massSpectrometersBuiltinMap = new TreeMap<>();
+    public static Map<String, MassSpectrometerModel> massSpectrometerModelBuiltinMap = new TreeMap<>();
 
     static {
-        MassSpectrometerModel phoenixSynthetic = MassSpectrometerModel.initializeMassSpectrometer(MassSpectrometerContextEnum.PHOENIX_SYNTHETIC);
-        massSpectrometersBuiltinMap.put(phoenixSynthetic.getMassSpectrometerName(), phoenixSynthetic);
 
-        DetectorSetup detectorSetup = DetectorSetup.initializeDetectorSetup();
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L5", 0,
-                RESISTANCE, 10e11, 0.0, 1.0, 0.0));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L4", 1,
-                RESISTANCE, 10e11, 0.0, 1.0, 0.0));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L3", 2,
-                RESISTANCE, 10e11, 0.0, 1.0, 0.0));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L2", 3,
-                RESISTANCE, 10e11, 0.0, 1.0, 0.0));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "Ax", 4,
-                RESISTANCE, 10e11, 0.0, 1.0, 0.0));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.DALYDETECTOR, "PM", 5,
-                VIRTUAL, 0.0, 0.0, 1.0, 0.0));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H1", 6,
-                RESISTANCE, 10e11, 0.0, 1.0, 0.0));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H2", 7,
-                RESISTANCE, 10e11, 0.0, 1.0, 0.0));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H3", 8,
-                RESISTANCE, 10e11, 0.0, 1.0, 0.0));
-        detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "H4", 9,
-                RESISTANCE, 10e11, 0.0, 1.0, 0.0));
+        MassSpectrometerModel massSpectrometerModelPhoenix = MassSpectrometerModel.initializeMassSpectrometer(PHOENIX);
+        massSpectrometerModelPhoenix.setCollectorWidthMM(0.95135);
+        massSpectrometerModelPhoenix.setEffectiveRadiusMagnetMM(540.0);
+        massSpectrometerModelPhoenix.setTheoreticalBeamWidthMM(0.35);
+        massSpectrometerModelBuiltinMap.put(PHOENIX.getMassSpectrometerName(), massSpectrometerModelPhoenix);
 
-        phoenixSynthetic.setDetectorSetup(detectorSetup);
-        phoenixSynthetic.setCollectorWidthMM(0.95135);
-        phoenixSynthetic.setEffectiveRadiusMagnetMM(540.0);
-        phoenixSynthetic.setTheoreticalBeamWidthMM(0.35);
+        MassSpectrometerModel massSpectrometerModelUnknown = MassSpectrometerModel.initializeMassSpectrometer(UNKNOWN);
+        massSpectrometerModelBuiltinMap.put(UNKNOWN.getMassSpectrometerName(), massSpectrometerModelUnknown);
     }
 }
