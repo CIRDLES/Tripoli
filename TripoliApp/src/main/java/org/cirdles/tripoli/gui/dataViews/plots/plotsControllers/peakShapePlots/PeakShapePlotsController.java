@@ -332,7 +332,6 @@ public class PeakShapePlotsController {
             plotsAnchorPane.getChildren().add(gBeamImageSet.get(i));
             ImageView pos = (ImageView) plotsAnchorPane.getChildren().get(i + 1);
             pos.setX(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[i]) - 35);
-            double height = peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 160;
             if( (peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 160) < 220){
                 pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i])  + 300);
             }else {
