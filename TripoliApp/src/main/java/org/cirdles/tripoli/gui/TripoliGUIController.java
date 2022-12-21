@@ -93,7 +93,7 @@ public class TripoliGUIController implements Initializable {
     }
 
 
-    private void showStartingMenus(){
+    private void showStartingMenus() {
         sessionManagerMenuItem.setDisable(true);
         newSessionMenuItem.setDisable(false);
         saveSessionMenuItem.setDisable(true);
@@ -141,7 +141,7 @@ public class TripoliGUIController implements Initializable {
     }
 
     @FXML
-    void sessionManagerMenuItemAction(){
+    void sessionManagerMenuItemAction() {
 
     }
 

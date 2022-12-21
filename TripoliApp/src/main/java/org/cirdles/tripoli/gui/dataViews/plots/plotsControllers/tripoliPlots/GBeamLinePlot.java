@@ -1,6 +1,12 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots;
 
+import javafx.event.EventHandler;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -16,6 +22,8 @@ public class GBeamLinePlot extends AbstractDataView {
     private double[] xMass;
     private double[] yIntensity;
 
+    private Tooltip tooltip;
+
     /**
      * @param bounds
      * @param gBeamLinePlotBuilder
@@ -23,6 +31,10 @@ public class GBeamLinePlot extends AbstractDataView {
     public GBeamLinePlot(Rectangle bounds, GBeamLinePlotBuilder gBeamLinePlotBuilder) {
         super(bounds, 50, 35);
         this.gBeamLinePlotBuilder = gBeamLinePlotBuilder;
+
+        this.setOnMouseMoved(new MouseMovedHandler());
+        tooltip = new Tooltip();
+        Tooltip.install(this, tooltip);
     }
 
     @Override
@@ -153,6 +165,37 @@ public class GBeamLinePlot extends AbstractDataView {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private class MouseMovedHandler implements EventHandler<MouseEvent> {
+
+        @Override
+        public void handle(MouseEvent event) {
+
+            Node potNode;
+
+            if (mouseInHouse(event)) {
+                ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.CROSSHAIR);
+                potNode = ((Canvas) event.getSource()).getParent();
+                // setToolTips(potNode);
+
+                // currently only works with x value
+                for (int i = 0; i < getxAxisData().length; i++) {
+                    if ((getxAxisData()[i] >= convertMouseXToValue(event.getX()) - 0.0005 && getxAxisData()[i] <= convertMouseXToValue(event.getX()) + 0.0005)) {
+                        String x = String.format("%.2f", getxAxisData()[i]) ;
+                        String y = String.format("%.2f", getyAxisData()[i]) ;
+                        tooltip.setText(x + ", " + y);
+                        tooltip.setAnchorX(event.getSceneX());
+                        tooltip.show(potNode, event.getScreenX(), event.getScreenY());
+                    }
+                }
+
+
+            } else {
+                ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.DEFAULT);
+                tooltip.hide();
             }
         }
     }

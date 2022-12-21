@@ -145,9 +145,9 @@ public class PeakShapePlotsController {
     @FXML
     public void browseResourceFileAction() {
         resourceBrowserTarget = FileHandlerUtil.selectPeakShapeResourceFolderForBrowsing(plottingWindow);
-        if(resourceBrowserTarget == null){
+        if (resourceBrowserTarget == null) {
             System.out.println("File not chosen");
-        }else {
+        } else {
             populateListOfGroups();
         }
 
@@ -287,16 +287,16 @@ public class PeakShapePlotsController {
                     WritableImage writableImage1 = new WritableImage((int) beamShapeLinePlot.getWidth(), (int) beamShapeLinePlot.getHeight());
                     beamShapeLinePlot.snapshot(null, writableImage1);
                     ImageView image1 = new ImageView(writableImage1);
-                    image1.setFitWidth(95);
-                    image1.setFitHeight(51);
+                    image1.setFitWidth(85);
+                    image1.setFitHeight(46);
                     //image1.setPreserveRatio(true);
                     //RenderedImage renderedImage1 = SwingFXUtils.fromFXImage(image1.snapshot(null, null), null);
 
                     WritableImage writableImage2 = new WritableImage((int) gBeamLinePlot.getWidth(), (int) gBeamLinePlot.getHeight());
                     gBeamLinePlot.snapshot(null, writableImage2);
                     ImageView image2 = new ImageView(writableImage2);
-                    image2.setFitWidth(95);
-                    image2.setFitHeight(51);
+                    image2.setFitWidth(85);
+                    image2.setFitHeight(46);
                     //image2.setPreserveRatio(true);
                     //RenderedImage renderedImage2 = SwingFXUtils.fromFXImage(image2.snapshot(null, null), null);
 
@@ -332,7 +332,13 @@ public class PeakShapePlotsController {
             plotsAnchorPane.getChildren().add(gBeamImageSet.get(i));
             ImageView pos = (ImageView) plotsAnchorPane.getChildren().get(i + 1);
             pos.setX(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[i]) - 35);
-            pos.setY(210);
+            double height = peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 160;
+            if( (peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 160) < 220){
+                pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i])  + 300);
+            }else {
+                pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i])  + 160);
+            }
+
             pos.setVisible(false);
             size++;
             remSize++;
@@ -343,7 +349,11 @@ public class PeakShapePlotsController {
             plotsAnchorPane.getChildren().add(beamImageSet.get(i));
             ImageView pos = (ImageView) plotsAnchorPane.getChildren().get(size + i);
             pos.setX(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[i]) - 35);
-            pos.setY(250);
+            if((peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 160) < 220){
+                pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i])  + 260);
+            }else {
+                pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i])  + 200);
+            }
             pos.setVisible(false);
             remSize++;
         }
