@@ -5,9 +5,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -36,6 +34,8 @@ import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.se
 public class AnalysesManagerController implements Initializable {
 
     public static AnalysisInterface analysis;
+    public Tab detectorDetailTab;
+    public TabPane analysiMethodTabPane;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -130,10 +130,10 @@ public class AnalysesManagerController implements Initializable {
         setUpGridPaneRows(analysisDetectorsGridPane, 7, detectorsInOrderList.size() + 1);
         prepareAnalysisMethodGridPanes(analysisDetectorsGridPane, detectorsInOrderList);
 
-        setUpGridPaneRows(baselineTableGridPane, 4, detectorsInOrderList.size() + 1);
+        setUpGridPaneRows(baselineTableGridPane, (analysisMethod == null) ? 1 : analysisMethod.getBaselineTable().getSequenceCount() + 1, detectorsInOrderList.size() + 1);
         prepareAnalysisMethodGridPanes(baselineTableGridPane, detectorsInOrderList);
 
-        setUpGridPaneRows(sequenceTableGridPane, analysisMethod.getSequenceTable().getSequenceCount() + 1, detectorsInOrderList.size() + 1);
+        setUpGridPaneRows(sequenceTableGridPane,  (analysisMethod == null) ? 1 : analysisMethod.getSequenceTable().getSequenceCount() + 1, detectorsInOrderList.size() + 1);
         prepareAnalysisMethodGridPanes(sequenceTableGridPane, detectorsInOrderList);
     }
 
@@ -230,6 +230,7 @@ public class AnalysesManagerController implements Initializable {
         if (selectedFile != null) {
             analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
             populateAnalysisManagerGridPane();
+            analysiMethodTabPane.getSelectionModel().select(detectorDetailTab);
         }
     }
 

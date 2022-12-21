@@ -60,6 +60,9 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
 
         DetectorSetup detectorSetup = DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_SYNTHETIC.getName());
 
+        BaselineTable baselineTable = burdickBlSyntheticData.getBaselineTable();
+        baselineTable.setSequenceCount(1);
+
         BaselineCell baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "Bl1", 1);
         baselineCell.setCellMass(203.5);
 
@@ -103,6 +106,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
 
         DetectorSetup detectorSetup = DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_SYNTHETIC.getName());
         BaselineTable baselineTable = ku_204_5_6_7_8_Daly_AllFaradayPb.getBaselineTable();
+        baselineTable.setSequenceCount(1);
 
         BaselineCell baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "Bl1", 1);
         baselineCell.setCellMass(203.5);

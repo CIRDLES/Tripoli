@@ -33,8 +33,10 @@ public class BaselineTable implements Serializable {
     @Serial
     private static final long serialVersionUID = 6152558186543823004L;
 
-    // DetectorName maps to map of sequencename to sequencecell
+    // DetectorName maps to map of baseline name to sequencecell
     private Map<Detector, List<BaselineCell>> mapOfDetectorsToBaselineCells;
+
+    private int sequenceCount;
 
     private BaselineTable() {
         this.mapOfDetectorsToBaselineCells = new TreeMap<>();
@@ -78,5 +80,13 @@ public class BaselineTable implements Serializable {
 
     public void setMapOfDetectorsToBaselineCells(Map<Detector, List<BaselineCell>> mapOfDetectorsToBaselineCells) {
         this.mapOfDetectorsToBaselineCells = mapOfDetectorsToBaselineCells;
+    }
+
+    public int getSequenceCount() {
+        return sequenceCount;
+    }
+
+    public void setSequenceCount(int sequenceCount) {
+        this.sequenceCount = sequenceCount;
     }
 }
