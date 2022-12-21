@@ -68,7 +68,7 @@ public class SessionManagerController implements Initializable {
             try {
                 tripoliSession = Session.initializeDefaultSession();
             } catch (JAXBException e) {
-                throw new RuntimeException(e);
+                //
             }
         }
 

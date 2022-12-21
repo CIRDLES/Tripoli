@@ -16,10 +16,8 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods;
 
-import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineTable;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
@@ -30,7 +28,6 @@ import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -41,8 +38,6 @@ import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_
  */
 public final class AnalysisMethodBuiltinFactory implements Serializable {
 
-    public static  Map<String, AnalysisMethod> analysisMethodsBuiltinMap = new TreeMap<>();
-
     public static final SpeciesRecordInterface pb204 = NuclidesFactory.retrieveSpecies("Pb", 204);
     public static final SpeciesRecordInterface pb205 = NuclidesFactory.retrieveSpecies("Pb", 205);
     public static final SpeciesRecordInterface pb206 = NuclidesFactory.retrieveSpecies("Pb", 206);
@@ -52,6 +47,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
     public static final String BURDICK_BL_SYNTHETIC_DATA = "BurdickBlSyntheticData";
     @NonNls
     public static final String KU_204_5_6_7_8_DALY_ALL_FARADAY_PB = "KU_204_5_6_7_8_Daly_AllFaradayPb";
+    public static Map<String, AnalysisMethod> analysisMethodsBuiltinMap = new TreeMap<>();
 
     static {
         AnalysisMethod burdickBlSyntheticData = AnalysisMethod.initializeAnalysisMethod(BURDICK_BL_SYNTHETIC_DATA);

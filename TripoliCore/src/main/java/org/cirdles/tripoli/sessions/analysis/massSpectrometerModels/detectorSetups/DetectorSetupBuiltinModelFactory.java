@@ -16,11 +16,6 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups;
 
-import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
-import org.jetbrains.annotations.NonNls;
-
 import java.util.Map;
 import java.util.TreeMap;
 

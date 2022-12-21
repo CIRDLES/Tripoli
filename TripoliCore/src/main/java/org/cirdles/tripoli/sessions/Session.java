@@ -60,7 +60,7 @@ public class Session implements Serializable {
         this.sessionNotes = MISSING_STRING_FIELD;
         this.sessionFilePathAsString = "";
         this.mutable = true;
-        this.sessionChanged = false;
+        sessionChanged = false;
     }
 
     public static Session initializeDefaultSession() throws JAXBException {
@@ -85,8 +85,8 @@ public class Session implements Serializable {
         return sessionChanged;
     }
 
-    public static void setSessionChanged(boolean sessionChanged) {
-        sessionChanged = sessionChanged;
+    public static void setSessionChanged(boolean mySessionChanged) {
+        sessionChanged = mySessionChanged;
     }
 
     public void addAnalysis(AnalysisInterface analysis) {

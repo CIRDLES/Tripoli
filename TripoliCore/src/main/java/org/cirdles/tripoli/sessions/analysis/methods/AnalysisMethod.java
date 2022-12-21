@@ -51,7 +51,7 @@ public class AnalysisMethod implements Serializable {
         this(methodName, BaselineTable.createEmptyBaselineTable(), SequenceTable.createEmptySequenceTable());
     }
 
-    private AnalysisMethod(String methodName,  BaselineTable baselineTable, SequenceTable sequenceTable) {
+    private AnalysisMethod(String methodName, BaselineTable baselineTable, SequenceTable sequenceTable) {
         this.methodName = methodName;
         speciesList = new ArrayList<>();
         this.baselineTable = baselineTable;

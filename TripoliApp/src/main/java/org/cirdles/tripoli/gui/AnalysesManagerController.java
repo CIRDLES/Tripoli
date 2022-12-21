@@ -170,15 +170,13 @@ public class AnalysesManagerController implements Initializable {
                 populateDetectorDetailRow(methodGridPane, (0 < col) ? String.valueOf(detectorsInOrderList.get(col - 1).getDetectorDeadTime()) : "dead time", col, 6);
             }
 
-            if (methodGridPane.equals(baselineTableGridPane)) {
-                if (col < detectorCount) {
-                    List<BaselineCell> detectorBaselineCells = mapOfDetectorsToBaselineCell.get(detectorsInOrderList.get(col));
-                    if (detectorBaselineCells != null) {
-                        for (BaselineCell baselineCell : detectorBaselineCells) {
-                            int sequenceNumber = baselineCell.getBaselineIndex();
-                            populateDetectorDetailRow(methodGridPane, "" + baselineCell.getCellMass(), col + 1, sequenceNumber);
-                            populateDetectorDetailRow(methodGridPane, baselineCell.getBaselineName(), 0, sequenceNumber);
-                        }
+            if (methodGridPane.equals(baselineTableGridPane) && (col < detectorCount)) {
+                List<BaselineCell> detectorBaselineCells = mapOfDetectorsToBaselineCell.get(detectorsInOrderList.get(col));
+                if (detectorBaselineCells != null) {
+                    for (BaselineCell baselineCell : detectorBaselineCells) {
+                        int sequenceNumber = baselineCell.getBaselineIndex();
+                        populateDetectorDetailRow(methodGridPane, "" + baselineCell.getCellMass(), col + 1, sequenceNumber);
+                        populateDetectorDetailRow(methodGridPane, baselineCell.getBaselineName(), 0, sequenceNumber);
                     }
                 }
             }

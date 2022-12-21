@@ -25,10 +25,10 @@ import java.util.List;
  * @author James F. Bowring
  */
 public enum MassSpectrometerContextEnum {
-    PHOENIX("Phoenix","Phoenix",
+    PHOENIX("Phoenix", "Phoenix",
             "#HEADER, Analysis, Version, Filename, MethodName, MethodPath, IsoWorksMethod, FolderPath",
             PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_2"),
-    PHOENIX_SYNTHETIC("Phoenix_Synthetic","Phoenix",
+    PHOENIX_SYNTHETIC("Phoenix_Synthetic", "Phoenix",
             "Version, Filename, Sample, Sample, Sample, Analysis, User, Method",
             PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_0"),
     UNKNOWN("UNKNOWN", "UNKNOWN", "",
