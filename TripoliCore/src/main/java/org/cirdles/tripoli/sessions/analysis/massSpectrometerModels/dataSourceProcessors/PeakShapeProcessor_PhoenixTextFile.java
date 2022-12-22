@@ -19,7 +19,6 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.PeakShapeOutputDataRecord;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
@@ -35,14 +34,14 @@ import java.util.List;
  * @author James F. Bowring
  */
 public class PeakShapeProcessor_PhoenixTextFile {
-    private final AnalysisMethod analysisMethod;
+    private final MassSpectrometerModel massSpectrometerModel;
 
-    private PeakShapeProcessor_PhoenixTextFile(AnalysisMethod analysisMethod) {
-        this.analysisMethod = analysisMethod;
+    private PeakShapeProcessor_PhoenixTextFile(MassSpectrometerModel massSpectrometerModel) {
+        this.massSpectrometerModel = massSpectrometerModel;
     }
 
-    public static PeakShapeProcessor_PhoenixTextFile initializeWithAnalysisMethod(AnalysisMethod analysisMethod) {
-        return new PeakShapeProcessor_PhoenixTextFile(analysisMethod);
+    public static PeakShapeProcessor_PhoenixTextFile initializeWithMassSpectrometer(MassSpectrometerModel massSpectrometerModel) {
+        return new PeakShapeProcessor_PhoenixTextFile(massSpectrometerModel);
     }
 
     public PeakShapeOutputDataRecord prepareInputDataModelFromFile(Path inputDataFile) throws IOException {
@@ -92,9 +91,8 @@ public class PeakShapeProcessor_PhoenixTextFile {
         double[] mPeakIntensity = intensity.stream().mapToDouble(d -> d).toArray();
         Primitive64Store measuredPeakIntensities = storeFactory.columns(mPeakIntensity);
 
-        MassSpectrometerModel massSpec = analysisMethod.getMassSpectrometer();
-        double collectorWidthAMU = peakCenterMass / massSpec.getEffectiveRadiusMagnetMM() * massSpec.getCollectorWidthMM();
-        double theoreticalBeamWidthAMU = peakCenterMass / massSpec.getEffectiveRadiusMagnetMM() * massSpec.getTheoreticalBeamWidthMM();
+        double collectorWidthAMU = peakCenterMass / massSpectrometerModel.getEffectiveRadiusMagnetMM() * massSpectrometerModel.getCollectorWidthMM();
+        double theoreticalBeamWidthAMU = peakCenterMass / massSpectrometerModel.getEffectiveRadiusMagnetMM() * massSpectrometerModel.getTheoreticalBeamWidthMM();
 
         // collectorLimits is a matrix with two columns and the same
         // number of rows as magnet masses.  Each row contains the mass

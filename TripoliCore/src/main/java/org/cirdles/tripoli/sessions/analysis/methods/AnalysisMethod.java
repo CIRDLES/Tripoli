@@ -16,15 +16,11 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods;
 
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Unmarshaller;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineTable;
-import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.PhoenixAnalysisMethod;
+import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceTable;
 import org.cirdles.tripoli.species.IsotopicRatio;
@@ -33,9 +29,9 @@ import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
+
+import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
 
 /**
  * @author James F. Bowring
@@ -45,36 +41,35 @@ public class AnalysisMethod implements Serializable {
     private static final long serialVersionUID = -642166785514147638L;
 
     private String methodName;
-    private MassSpectrometerModel massSpectrometer;
     private BaselineTable baselineTable;
     private SequenceTable sequenceTable;
     private List<SpeciesRecordInterface> speciesList;
     private List<IsotopicRatio> isotopicRatiosList;
 
 
-    private AnalysisMethod(String methodName, MassSpectrometerModel massSpectrometer) {
-        this(methodName, massSpectrometer, BaselineTable.createEmptyBaselineTable(), SequenceTable.createEmptySequenceTable());
+    private AnalysisMethod(String methodName) {
+        this(methodName, BaselineTable.createEmptyBaselineTable(), SequenceTable.createEmptySequenceTable());
     }
 
-    private AnalysisMethod(String methodName, MassSpectrometerModel massSpectrometer, BaselineTable baselineTable, SequenceTable sequenceTable) {
+    private AnalysisMethod(String methodName, BaselineTable baselineTable, SequenceTable sequenceTable) {
         this.methodName = methodName;
-        this.massSpectrometer = massSpectrometer;
-        this.speciesList = new ArrayList<>();
+        speciesList = new ArrayList<>();
         this.baselineTable = baselineTable;
         this.sequenceTable = sequenceTable;
-        this.isotopicRatiosList = new ArrayList<>();
+        isotopicRatiosList = new ArrayList<>();
     }
 
-    public static AnalysisMethod initializeAnalysisMethod(String methodName, MassSpectrometerModel massSpectrometer) {
-        return new AnalysisMethod(methodName, massSpectrometer);
+    public static AnalysisMethod initializeAnalysisMethod(String methodName) {
+        return new AnalysisMethod(methodName);
     }
 
-    public static AnalysisMethod createAnalysisMethodFromPhoenixAnalysisMethod(PhoenixAnalysisMethod phoenixAnalysisMethod) {
+    public static AnalysisMethod createAnalysisMethodFromPhoenixAnalysisMethod(PhoenixAnalysisMethod phoenixAnalysisMethod, AnalysisInterface analysis) {
         AnalysisMethod analysisMethod = new AnalysisMethod(
-                phoenixAnalysisMethod.getHEADER().getFilename(),
-                MassSpectrometerBuiltinModelFactory.massSpectrometersBuiltinMap.get(MassSpectrometerBuiltinModelFactory.PHOENIX));
+                phoenixAnalysisMethod.getHEADER().getFilename());
 
         List<PhoenixAnalysisMethod.ONPEAK> onPeakSequences = phoenixAnalysisMethod.getONPEAK();
+        analysisMethod.sequenceTable.setSequenceCount(onPeakSequences.size());
+        DetectorSetup detectorSetup = analysis.getMassSpecExtractedData().getDetectorSetup();
         for (PhoenixAnalysisMethod.ONPEAK onpeakSequence : onPeakSequences) {
             String sequenceNumber = onpeakSequence.getSequence();
             // <CollectorArray>147Sm:H1S1,148Sm:H2S1,149Sm:H3S1,150Sm:H4S1</CollectorArray>
@@ -95,9 +90,8 @@ public class AnalysisMethod implements Serializable {
                 analysisMethod.createBaseListOfRatios();
 
                 String collectorName = cellSpecs[1].split("S")[0];
-                DetectorSetup detectorSetup = analysisMethod.massSpectrometer.getDetectorSetup();
                 Detector detector = detectorSetup.getMapOfDetectors().get(collectorName);
-                SequenceCell sequenceCell = analysisMethod.sequenceTable.accessSequenceCellForDetector(detector, "OP" + sequenceNumber);
+                SequenceCell sequenceCell = analysisMethod.sequenceTable.accessSequenceCellForDetector(detector, "OP" + sequenceNumber, Integer.parseInt(sequenceNumber));
                 sequenceCell.addTargetSpecies(species);
 
                 // TODO: baselines
@@ -110,28 +104,17 @@ public class AnalysisMethod implements Serializable {
         return analysisMethod;
     }
 
-    public static void test() throws JAXBException {
-        Path phoenixAnalysisMethodDataFilePath = Paths.get("Sm147to150_S6_v2.TIMSAM");
-
-        JAXBContext jaxbContext = JAXBContext.newInstance(PhoenixAnalysisMethod.class);
-        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-        PhoenixAnalysisMethod phoenixAnalysisMethod = (PhoenixAnalysisMethod) jaxbUnmarshaller.unmarshal(phoenixAnalysisMethodDataFilePath.toFile());
-
-        AnalysisMethod am = createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod);
-        System.out.println(am.prettyPrintSequenceTable());
-    }
-
     private String prettyPrintSequenceTable() {
         StringBuilder retVal = new StringBuilder();
-        Map<Detector, List<SequenceCell>> detectors = sequenceTable.getMapOfDetectorsToSequenceCells();
-        detectors.entrySet().stream()
+        Map<Detector, List<SequenceCell>> detectorToSequenceCell = sequenceTable.getMapOfDetectorsToSequenceCells();
+        detectorToSequenceCell.entrySet().stream()
                 .forEach(e -> {
                     retVal.append(e.getKey().getDetectorName()).append(" ");
                     boolean offset = false;
                     for (SequenceCell sequenceCell : e.getValue()) {
-                        int sequenceNumber = Integer.parseInt(sequenceCell.getSequenceName().substring(2));
+                        int sequenceNumber = sequenceCell.getSequenceIndex();
                         if (!offset) {
-                            retVal.append("                                                                           ", 0, (sequenceNumber - 1) * 10);
+                            retVal.append(SPACES_100, 0, (sequenceNumber - 1) * 10);
                             offset = true;
                         }
                         retVal.append(sequenceCell.getSequenceName()).append(":").append(sequenceCell.getTargetSpecies().prettyPrintShortForm()).append(" ");
@@ -143,12 +126,22 @@ public class AnalysisMethod implements Serializable {
         return retVal.toString();
     }
 
+    public String prettyPrintMethodSummary() {
+        StringBuilder retVal = new StringBuilder();
+        retVal.append("Method: ").append(methodName).append(SPACES_100, 0, 40 - methodName.length()).append("  Species: ");
+        for (SpeciesRecordInterface species : speciesList) {
+            retVal.append(species.prettyPrintShortForm() + " ");
+        }
+
+        return retVal.toString();
+    }
+
     @Override
     public boolean equals(Object otherObject) {
         boolean retVal = true;
         if (otherObject != this) {
             if (otherObject instanceof AnalysisMethod otherAnalysisMethod) {
-                retVal = this.getMethodName().compareToIgnoreCase(otherAnalysisMethod.getMethodName()) == 0;
+                retVal = 0 == methodName.compareToIgnoreCase(otherAnalysisMethod.methodName);
             } else {
                 retVal = false;
             }
@@ -159,8 +152,7 @@ public class AnalysisMethod implements Serializable {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 31 * hash + (methodName == null ? 0 : methodName.hashCode());
-        hash = 31 * hash + (massSpectrometer == null ? 0 : massSpectrometer.hashCode());
+        hash = 31 * hash + (null == methodName ? 0 : methodName.hashCode());
         return hash;
     }
 
@@ -172,14 +164,6 @@ public class AnalysisMethod implements Serializable {
         this.methodName = methodName;
     }
 
-    public MassSpectrometerModel getMassSpectrometer() {
-        return massSpectrometer;
-    }
-
-    public void setMassSpectrometer(MassSpectrometerModel massSpectrometer) {
-        this.massSpectrometer = massSpectrometer;
-    }
-
     public List<SpeciesRecordInterface> getSpeciesList() {
         return speciesList;
     }
@@ -189,7 +173,7 @@ public class AnalysisMethod implements Serializable {
     }
 
     public void addSpeciesToSpeciesList(SpeciesRecordInterface species) {
-        if (speciesList == null) {
+        if (null == speciesList) {
             speciesList = new ArrayList<>();
         }
         if (!speciesList.contains(species)) {
@@ -226,7 +210,7 @@ public class AnalysisMethod implements Serializable {
     }
 
     public void addRatioToIsotopicRatiosList(IsotopicRatio isotopicRatio) {
-        if (isotopicRatiosList == null) {
+        if (null == isotopicRatiosList) {
             isotopicRatiosList = new ArrayList<>();
         }
         if (!isotopicRatiosList.contains(isotopicRatio)) {

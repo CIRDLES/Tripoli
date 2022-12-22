@@ -24,6 +24,7 @@ module Tripoli.TripoliCore {
     requires commons.math3;
     requires commons.lang3;
     requires jakarta.xml.bind;
+    requires java.xml.bind;
 
 
     exports org.cirdles.tripoli;
@@ -48,4 +49,11 @@ module Tripoli.TripoliCore {
     opens org.cirdles.tripoli.sessions.analysis.methods.machineMethods to jakarta.xml.bind;
     exports org.cirdles.tripoli.sessions;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels;
+    exports org.cirdles.tripoli.utilities.file;
+    exports org.cirdles.tripoli.sessions.analysis;
+    exports org.cirdles.tripoli.constants;
+    exports org.cirdles.tripoli.sessions.analysis.samples;
+    exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups;
+    opens org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec to jakarta.xml.bind;
+    exports org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec;
 }
