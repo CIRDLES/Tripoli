@@ -29,4 +29,11 @@ public class Sample implements Serializable {
         this.sampleName = sampleName;
     }
 
+    public String getSampleName() {
+        return sampleName;
+    }
+
+    public void setSampleName(String sampleName) {
+        this.sampleName = sampleName;
+    }
 }

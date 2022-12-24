@@ -16,12 +16,16 @@
 
 package org.cirdles.tripoli.sessions;
 
-import org.cirdles.tripoli.sessions.analysis.Analysis;
+import jakarta.xml.bind.JAXBException;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.TreeMap;
+
+import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
+import static org.cirdles.tripoli.sessions.analysis.AnalysisInterface.initializeNewAnalysis;
 
 /**
  * @author James F. Bowring
@@ -31,35 +35,61 @@ public class Session implements Serializable {
     @Serial
     private static final long serialVersionUID = 6597752272434171800L;
 
+    private static boolean sessionChanged;
     private String sessionName;
     private String analystName;
-    private Map<String, Analysis> mapOfAnalyses;
+    private String sessionFilePathAsString;
+    private String sessionNotes;
+    private Map<String, AnalysisInterface> mapOfAnalyses;
     private boolean mutable;
 
+
     private Session() {
-        this("Default Session");
+        this("New Session");
     }
 
     private Session(String sessionName) {
         this(sessionName, new TreeMap<>());
     }
 
-    private Session(String sessionName, Map<String, Analysis> mapOfAnalyses) {
+    private Session(String sessionName, Map<String, AnalysisInterface> mapOfAnalyses) {
         this.sessionName = sessionName;
         this.mapOfAnalyses = mapOfAnalyses;
-        this.analystName = "None";
+
+        this.analystName = MISSING_STRING_FIELD;
+        this.sessionNotes = MISSING_STRING_FIELD;
+        this.sessionFilePathAsString = "";
         this.mutable = true;
+        sessionChanged = false;
     }
 
-    public static Session initializeDefaultSession() {
-        return new Session();
+    public static Session initializeDefaultSession() throws JAXBException {
+        Session session = new Session();
+//        Path phoenixAnalysisMethodDataFilePath = Paths.get("Sm147to150_S6_v2.TIMSAM");
+//
+//        JAXBContext jaxbContext = JAXBContext.newInstance(PhoenixAnalysisMethod.class);
+//        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+//        PhoenixAnalysisMethod phoenixAnalysisMethod = (PhoenixAnalysisMethod) jaxbUnmarshaller.unmarshal(phoenixAnalysisMethodDataFilePath.toFile());
+//
+//        session.addAnalysis(initializeAnalysis("Test Analysis", createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod), new Sample("")));
+        session.addAnalysis(initializeNewAnalysis());
+        return session;
     }
 
     public static Session initializeSession(String sessionName) {
-        return new Session(sessionName);
+        Session session = new Session(sessionName);
+        return session;
     }
 
-    public void addAnalysis(Analysis analysis) {
+    public static boolean isSessionChanged() {
+        return sessionChanged;
+    }
+
+    public static void setSessionChanged(boolean mySessionChanged) {
+        sessionChanged = mySessionChanged;
+    }
+
+    public void addAnalysis(AnalysisInterface analysis) {
         if (!mapOfAnalyses.containsKey(analysis.getAnalysisName())) {
             mapOfAnalyses.put(analysis.getAnalysisName(), analysis);
         }
@@ -81,12 +111,28 @@ public class Session implements Serializable {
         this.analystName = analystName;
     }
 
-    public Map<String, Analysis> getMapOfAnalyses() {
+    public String getSessionFilePathAsString() {
+        return sessionFilePathAsString;
+    }
+
+    public void setSessionFilePathAsString(String sessionFilePathAsString) {
+        this.sessionFilePathAsString = sessionFilePathAsString;
+    }
+
+    public Map<String, AnalysisInterface> getMapOfAnalyses() {
         return mapOfAnalyses;
     }
 
-    public void setMapOfAnalyses(Map<String, Analysis> mapOfAnalyses) {
+    public void setMapOfAnalyses(Map<String, AnalysisInterface> mapOfAnalyses) {
         this.mapOfAnalyses = mapOfAnalyses;
+    }
+
+    public String getSessionNotes() {
+        return sessionNotes;
+    }
+
+    public void setSessionNotes(String sessionNotes) {
+        this.sessionNotes = sessionNotes;
     }
 
     public boolean isMutable() {

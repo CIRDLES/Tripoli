@@ -18,13 +18,9 @@ package org.cirdles.tripoli.dataSourceProcessors.dataSources.synthetic;
 
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputDataRecord;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.DataSourceProcessor_PhoenixSyntheticTextFile;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
-import java.nio.file.Path;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DataSourceProcessorOPPhoenixTest {
@@ -44,10 +40,10 @@ class DataSourceProcessorOPPhoenixTest {
     @Order(1)
     void prepareInputDataModelFromFileTwoIsotopes() throws IOException {
         System.err.println("Testing Synthetic Data 2 isotopes.");
-        Path dataFile = RESOURCE_EXTRACTOR
-                .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_05.txt").toPath();
+//        Path dataFile = RESOURCE_EXTRACTOR
+//                .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_05.txt").toPath();
 //        DataSourceProcessor_PhoenixSyntheticTextFile dataSourceProcessorOPPhoenix
-//                = DataSourceProcessor_PhoenixSyntheticTextFile.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
+//                = DataSourceProcessor_PhoenixSyntheticTextFile.initializeWithMassSpectrometer(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get("BurdickBlSyntheticData"));
 //        MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFile);
 //
 //        double[] testArray = new double[]{1, 2, 3, 4, 5};
@@ -67,11 +63,11 @@ class DataSourceProcessorOPPhoenixTest {
     @Order(2)
     void prepareInputDataModelFromFileFiveIsotopes() throws IOException {
         System.err.println("Testing Synthetic Data 5 isotopes.");
-        Path dataFile = RESOURCE_EXTRACTOR
-                .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
-        DataSourceProcessor_PhoenixSyntheticTextFile dataSourceProcessorOPPhoenix
-                = DataSourceProcessor_PhoenixSyntheticTextFile.initializeWithAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB));
-        MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFile);
+//        Path dataFile = RESOURCE_EXTRACTOR
+//                .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
+//        DataSourceProcessor_PhoenixSyntheticTextFile dataSourceProcessorOPPhoenix
+//                = DataSourceProcessor_PhoenixSyntheticTextFile.initializeWithMassSpectrometer(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB));
+//        MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFile);
 
 //        assert (massSpecOutputDataRecord.rawDataColumn().length == 162000);
 //        assertEquals(-531920.15291, massSpecOutputDataRecord.rawDataColumn()[26669]);

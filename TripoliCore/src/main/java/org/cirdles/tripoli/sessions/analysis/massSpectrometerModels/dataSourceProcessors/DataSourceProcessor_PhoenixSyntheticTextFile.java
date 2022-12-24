@@ -24,6 +24,7 @@ import org.cirdles.tripoli.utilities.mathUtilities.SplineBasisModel;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
+import org.ojalgo.structure.Access2D;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -65,14 +66,14 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
             if (!line.isEmpty() && (phase == 2)) {
 
                 String[] lineSplit = line.split(",");
-                    sequenceIDByLineSplit.add(lineSplit[0]);
-                    blockNumberByLineSplit.add(lineSplit[1]);
-                    cycleNumberByLineSplit.add(lineSplit[2]);
-                    integrationNumberByLineSplit.add(lineSplit[3]);
-                    timeStampByLineSplit.add(lineSplit[4]);
-                    massByLineSplit.add(lineSplit[5]);
+                sequenceIDByLineSplit.add(lineSplit[0]);
+                blockNumberByLineSplit.add(lineSplit[1]);
+                cycleNumberByLineSplit.add(lineSplit[2]);
+                integrationNumberByLineSplit.add(lineSplit[3]);
+                timeStampByLineSplit.add(lineSplit[4]);
+                massByLineSplit.add(lineSplit[5]);
 
-                    detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 6, lineSplit.length));
+                detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 6, lineSplit.length));
             }
             if (line.startsWith("#START")) {
                 phase = 1;
@@ -526,7 +527,7 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
             d0.det_vec >> detectorIndicesForRawDataColumn (detectors are indexed from 1 through all Faraday and the last is the Axial (Daly)))
             d0.det_ind >> detectorFlagsForRawDataColumn (each Faraday has a column and the last column is for Daly; 1 flags detector used)
             d0.blflag >> baseLineFlagsForRawDataColumn (contains 1 for baseline, 0 for sequence)
-            d0.axflag >> ionCounterFlagsForRawDataColumn (contains 1 for data from DALY detector, 0 otherwise)
+            d0.axflag >> ionCounterFlagsForRawDataColumn (contains 1 for data from DALYDETECTOR detector, 0 otherwise)
             d0.InterpMat >> firstBlockInterpolationsMatrix  (matlab actually puts matrices into cells)
             d0.Nfar >> faradayCount
             d0.Niso >> isotopeCount

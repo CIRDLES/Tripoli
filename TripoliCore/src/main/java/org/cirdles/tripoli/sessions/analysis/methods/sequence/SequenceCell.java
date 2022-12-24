@@ -28,19 +28,21 @@ import java.util.List;
 public class SequenceCell implements Serializable {
 
     private String sequenceName;
+    private int sequenceIndex;
     private double cellMass;
     private SpeciesRecordInterface targetSpecies;
     private List<SpeciesRecordInterface> includedSpecies;
 
-    private SequenceCell(String sequenceName) {
+    private SequenceCell(String sequenceName, int sequenceIndex) {
         cellMass = 0.0;
         targetSpecies = null;
         includedSpecies = new ArrayList<>();
         this.sequenceName = sequenceName;
+        this.sequenceIndex = sequenceIndex;
     }
 
-    public static SequenceCell initializeSequenceCell(String sequenceName) {
-        return new SequenceCell(sequenceName);
+    public static SequenceCell initializeSequenceCell(String sequenceName, int sequenceIndex) {
+        return new SequenceCell(sequenceName, sequenceIndex);
     }
 
     public void addTargetSpecies(SpeciesRecordInterface species) {
@@ -79,6 +81,14 @@ public class SequenceCell implements Serializable {
 
     public void setSequenceName(String sequenceName) {
         this.sequenceName = sequenceName;
+    }
+
+    public int getSequenceIndex() {
+        return sequenceIndex;
+    }
+
+    public void setSequenceIndex(int sequenceIndex) {
+        this.sequenceIndex = sequenceIndex;
     }
 
     public double getCellMass() {
