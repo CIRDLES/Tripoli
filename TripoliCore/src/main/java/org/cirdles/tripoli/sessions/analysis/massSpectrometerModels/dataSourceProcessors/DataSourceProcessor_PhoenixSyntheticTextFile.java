@@ -19,21 +19,18 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
+import org.apache.commons.lang3.ArrayUtils;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.mathUtilities.SplineBasisModel;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
-import org.ojalgo.structure.Access2D;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceProcessorInterface {
     private final AnalysisMethod analysisMethod;
@@ -179,7 +176,7 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
             }
         }
 
-        boolean linearVsSpline = true;
+        boolean linearVsSpline = false;
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         ArrayList<MatrixStore<Double>> allBlockInterpolations = new ArrayList<>(nCycle.length);
         int[][] indicesOfKnotsByBlock = new int[blockCount][];
@@ -239,8 +236,9 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
                 allBlockInterpolations.add(blockIndex, null);
                 double[][] interpMatArrayForBlock = new double[nCycle[blockIndex]][];
                 interpMatArrayForBlock[0] = new double[maxDelta];
-                int knotIndex = 0;
+                // int knotIndex = 0;
                 indicesOfKnotsByBlock[blockIndex] = new int[nCycle[blockIndex]];
+                double [] testList = new double[0];
                 for (int cycleIndex = 1; cycleIndex < (nCycle[blockIndex]); cycleIndex++) {
                     int startOfCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex][2];
                     int startOfNextCycleIndex;
@@ -252,45 +250,43 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
 
                     // detect last cycle because it uses its last entry as the upper limit
                     // whereas the matlab code uses the starting entry of the next cycle for all previous cycles
-                    boolean lastCycle = (cycleIndex == nCycle[blockIndex] - 1);
-                    if (lastCycle) {
-                        startOfNextCycleIndex--;
-                    }
+//                    boolean lastCycle = (cycleIndex == nCycle[blockIndex] - 1);
+//                    if (lastCycle) {
+//                        startOfNextCycleIndex--;
+//                    }
 
-                    int countOfEntries = startingIndicesOfCyclesByBlock[cycleIndex][2] - startingIndicesOfCyclesByBlock[1][2];
-                    // double deltaTimeStamp = timeStamp[startOfNextCycleIndex] - timeStamp[startOfCycleIndex];
-                    interpMatArrayForBlock[cycleIndex] = new double[maxDelta];
+                    // int countOfEntries = startingIndicesOfCyclesByBlock[cycleIndex][2] - startingIndicesOfCyclesByBlock[1][2];
+                    // interpMatArrayForBlock[cycleIndex] = new double[maxDelta];
 
-                    for (int timeIndex = startOfCycleIndex; timeIndex < startOfNextCycleIndex; timeIndex++) {
-                        double [] dataSliceTemp = Arrays.copyOfRange(timeStamp, timeIndex, startOfCycleIndex);
-                        interpMatArrayForBlock[cycleIndex] =
-                                SplineBasisModel.bBase(storeFactory.row(dataSliceTemp), Double.MIN_VALUE, Double.MAX_VALUE, 13, 3).toRawCopy1D();
-                        /*
-                        interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries] =
-                                (timeStamp[timeIndex] - timeStamp[startOfCycleIndex]) / deltaTimeStamp;
-                        interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] =
-                                1.0 - interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries];
-                        */
-                        if (interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] == 1.0) {
-                            indicesOfKnotsByBlock[blockIndex][knotIndex++] = (timeIndex - startOfCycleIndex + countOfEntries);
-                        }
-                    }
+                    // MatrixStore<Double> dataSliceTemp = storeFactory.copy(Access2D.wrap(new double[][]{Arrays.copyOfRange(timeStamp, startOfCycleIndex, startOfNextCycleIndex)}));
+                    testList = (double []) ArrayUtils.addAll(testList,Arrays.copyOfRange(timeStamp, startOfCycleIndex, startOfNextCycleIndex));
+                    // Primitive64Store test = SplineBasisModel.bBase(dataSliceTemp, arrayMin, arrayMax, 13, 3);
 
-                    if (lastCycle) {
-                        interpMatArrayForBlock[cycleIndex][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 1.0;
-                        indicesOfKnotsByBlock[blockIndex][knotIndex] = countOfEntries + startOfNextCycleIndex - startOfCycleIndex;
-                        interpMatArrayForBlock[cycleIndex - 1][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 0.0;
-
-                        // generate matrix and then transpose it to match matlab
-                        MatrixStore<Double> firstPass = storeFactory.rows(interpMatArrayForBlock).limits(
-                                cycleIndex + 1,
-                                countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
-                        allBlockInterpolations.set(blockIndex, firstPass.transpose());
+//                    if (lastCycle) {
+//                        testList = (double [][]) ArrayUtils.addAll(testList, new double[][]{Arrays.copyOfRange(timeStamp, startOfCycleIndex, startOfNextCycleIndex)});
+//                    }
+                }
+                
+                MatrixStore<Double> dataSliceTemp = storeFactory.rows(testList);
+                double arrayMin = dataSliceTemp.get(0);
+                double arrayMax = dataSliceTemp.get(0);
+                for (double i : dataSliceTemp.toRawCopy1D()) {
+                    if (i > arrayMax) {
+                        arrayMax = i;
+                    } else if (i < arrayMin) {
+                        arrayMin = i;
                     }
                 }
+                Primitive64Store test = SplineBasisModel.bBase(dataSliceTemp, arrayMin, arrayMax, 13, 3);
+
+                // generate matrix and then transpose it to match matlab
+//                MatrixStore<Double> firstPass = storeFactory.rows(interpMatArrayForBlock).limits(
+//                        indicesOfKnotsByBlock.length,
+//                        countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1); // 1500
+                allBlockInterpolations.set(blockIndex, test);
+
             }
         }
-
         int faradayCount = analysisMethod.getSequenceTable().getMapOfDetectorsToSequenceCells().keySet().size() - 1;
         int isotopeCount = analysisMethod.getSpeciesList().size();
 

@@ -453,9 +453,9 @@ public enum DataModelDriverExperiment {
 
                 ArrayList<double[]> intensity2 = new ArrayList<>(1);
                 for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
-                    PhysicalStore<Double> tempIntensity = storeFactory.make(massSpecOutputDataRecord.allBlockInterpolations()[blockIndex].countRows(),
+                    PhysicalStore<Double> tempIntensity = storeFactory.make(massSpecOutputDataRecord.allBlockInterpolations().get(blockIndex).countRows(),
                             storeFactory.columns(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]).getColDim());
-                    tempIntensity.fillByMultiplying(massSpecOutputDataRecord.allBlockInterpolations()[blockIndex], Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]));
+                    tempIntensity.fillByMultiplying(massSpecOutputDataRecord.allBlockInterpolations().get(blockIndex), Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]));
                     intensity2.add(tempIntensity.toRawCopy1D());
 
                     for (int row = (int) blockStartIndicesFaraday[blockIndex]; row <= (int) blockEndIndicesFaraday[blockIndex]; row++) {
