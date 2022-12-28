@@ -20,21 +20,15 @@ package org.cirdles.tripoli.plots.linePlots;
  * @author James F. Bowring
  */
 public class GBeamLinePlotBuilder extends LinePlotBuilder {
-    private final double[] massData;
     private final double[] intensityData;
 
-    private GBeamLinePlotBuilder(double[] xData, double[] yData, double[] massData, double[] intensityData) {
-        super(xData, yData, "Line Plot of G-Beam", "X", "Y");
-        this.massData = massData;
+    private GBeamLinePlotBuilder(double[] xData, double[] yData, double[] intensityData) {
+        super(xData, yData, "Line Plot of G-Beam", "Mass (amu)", "Peak Intensity");
         this.intensityData = intensityData;
     }
 
-    public static GBeamLinePlotBuilder initializeGBeamLinePlot(double[] xData, double[] yData, double[] massData, double[] intensityData) {
-        return new GBeamLinePlotBuilder(xData, yData, massData, intensityData);
-    }
-
-    public double[] getMassData() {
-        return massData;
+    public static GBeamLinePlotBuilder initializeGBeamLinePlot(double[] xData, double[] yData, double[] intensityData) {
+        return new GBeamLinePlotBuilder(xData, yData, intensityData);
     }
 
     public double[] getIntensityData() {

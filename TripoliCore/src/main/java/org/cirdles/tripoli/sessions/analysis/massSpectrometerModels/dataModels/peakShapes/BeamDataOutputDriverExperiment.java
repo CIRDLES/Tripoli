@@ -132,7 +132,6 @@ public class BeamDataOutputDriverExperiment {
         Primitive64Store magnetMasses = storeFactory.rows(trimMagnetMasses);
         Primitive64Store measuredPeakIntensities = storeFactory.rows(trimPeakIntensity);
 
-        double[] massData = magnetMasses.transpose().toRawCopy2D()[0];
         double[] intensityData = measuredPeakIntensities.transpose().toRawCopy2D()[0];
 
 
@@ -218,7 +217,7 @@ public class BeamDataOutputDriverExperiment {
                 = BeamShapeLinePlotBuilder.initializeBeamShapeLinePlot(beamMassInterp.toRawCopy2D()[0], beamShape.transpose().toRawCopy2D()[0], leftBoundary, rightBoundary);
 
         AbstractPlotBuilder gBeamLinePlotBuilder
-                = GBeamLinePlotBuilder.initializeGBeamLinePlot(magnetMasses.transpose().toRawCopy2D()[0], gBeam.transpose().toRawCopy2D()[0], massData, intensityData);
+                = GBeamLinePlotBuilder.initializeGBeamLinePlot(magnetMasses.transpose().toRawCopy2D()[0], gBeam.transpose().toRawCopy2D()[0], intensityData);
 
         linePlots[0] = beamShapeLinePlotBuilder;
         linePlots[1] = gBeamLinePlotBuilder;

@@ -188,11 +188,11 @@ public class BeamShapeLinePlot extends AbstractDataView {
                 // currently only works with x value
                 for (int i = 0; i < getxAxisData().length; i++) {
                     if ((getxAxisData()[i] >= convertMouseXToValue(event.getX()) - 0.00005 && getxAxisData()[i] <= convertMouseXToValue(event.getX()) + 0.00005)) {
-                        String x = String.format("%.2f", getxAxisData()[i]);
+                        String x = String.format("%.3f", getxAxisData()[i]);
                         String y = String.format("%.2f", getyAxisData()[i]);
-                        tooltip.setText(x + ", " + y);
+                        tooltip.setText("x=" + x + ", y=" + y);
                         tooltip.setAnchorX(event.getSceneX());
-                        tooltip.show(potNode, event.getScreenX(), event.getScreenY());
+                        tooltip.show(potNode, event.getScreenX() + 15, event.getScreenY() + 15);
                     }
                 }
 

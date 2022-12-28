@@ -8,11 +8,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.BeamShapeLinePlot;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.GBeamLinePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.BeamShapeLinePlotTest;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.GBeamLinePlotTest;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.PeakCentresLinePlot;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
@@ -24,17 +26,17 @@ import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsWindow.*;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow.plottingWindow;
 
-public class PeakShapePlotsController {
+public class PeakShapeDemoPlotsController {
 
     public static List<File> resourceFilesInFolder;
 
@@ -55,12 +57,6 @@ public class PeakShapePlotsController {
     ListView<File> listViewOfResourcesInFolder;
 
     AbstractDataView peakCentreLinePlot;
-
-    @FXML
-    private ResourceBundle resources;
-
-    @FXML
-    private URL location;
     @FXML
     private ScrollPane resourceListScrollPane;
 
@@ -71,16 +67,19 @@ public class PeakShapePlotsController {
     private AnchorPane plotsAnchorPane;
 
     @FXML
+    private AnchorPane plotPane;
+
+    @FXML
     private VBox masterVBox;
 
     @FXML
-    private ScrollPane beamShapePlotScrollPane;
+    private ToolBar toolbar;
 
     @FXML
-    private ScrollPane peakCentrePlotScrollPane;
+    private GridPane beamPlotsGridPane;
 
     @FXML
-    private ScrollPane gBeamPlotScrollPane;
+    private GridPane peakCentreGridPane;
 
     @FXML
     private AnchorPane eventAnchorPane;
@@ -91,18 +90,13 @@ public class PeakShapePlotsController {
     @FXML
     private TextArea eventLogTextArea;
 
-    @FXML
-    private ToolBar toolbar;
-
-    @FXML
-    private Button browseResourceButton;
 
     public static String getCurrentGroup() {
         return currentGroup;
     }
 
     public void setCurrentGroup(String currentGroup) {
-        PeakShapePlotsController.currentGroup = currentGroup;
+        PeakShapeDemoPlotsController.currentGroup = currentGroup;
     }
 
     public static List<File> getResourceGroups(String group) {
@@ -111,19 +105,19 @@ public class PeakShapePlotsController {
 
     @FXML
     void initialize() {
-
         masterVBox.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT);
-        toolbar.setPrefSize(PLOT_WINDOW_WIDTH, 20.0);
-
-        gBeamPlotScrollPane.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT - toolbar.getHeight());
-        gBeamPlotScrollPane.setPrefViewportWidth(PLOT_WINDOW_WIDTH - SCROLLBAR_THICKNESS);
-        gBeamPlotScrollPane.setPrefViewportHeight(gBeamPlotScrollPane.getPrefHeight() - SCROLLBAR_THICKNESS);
+        toolbar.setPrefSize(PLOT_WINDOW_WIDTH, 30.0);
 
         masterVBox.prefWidthProperty().bind(plotsAnchorPane.widthProperty());
         masterVBox.prefHeightProperty().bind(plotsAnchorPane.heightProperty());
 
-        gBeamPlotScrollPane.prefWidthProperty().bind(masterVBox.widthProperty());
-        gBeamPlotScrollPane.prefHeightProperty().bind(masterVBox.heightProperty().subtract(toolbar.getHeight()));
+        plotPane.prefWidthProperty().bind(masterVBox.widthProperty());
+        plotPane.prefHeightProperty().bind(masterVBox.heightProperty());
+
+        beamPlotsGridPane.prefWidthProperty().bind(plotPane.widthProperty());
+
+        peakCentreGridPane.prefHeightProperty().bind(plotsAnchorPane.heightProperty().subtract(350));
+        peakCentreGridPane.prefWidthProperty().bind(masterVBox.widthProperty());
 
 
         resourceListAnchorPane.prefHeightProperty().bind(resourceListScrollPane.heightProperty());
@@ -136,11 +130,8 @@ public class PeakShapePlotsController {
         eventLogTextArea.prefWidthProperty().bind(eventAnchorPane.widthProperty());
 
 
-        peakCentrePlotScrollPane.prefHeightProperty().bind(plotsAnchorPane.heightProperty().subtract(300));
-        peakCentrePlotScrollPane.prefWidthProperty().bind(masterVBox.widthProperty());
-
-
     }
+
 
     @FXML
     public void browseResourceFileAction() {
@@ -180,7 +171,7 @@ public class PeakShapePlotsController {
             ListView<String> listViewOfGroupResourcesInFolder = new ListView<>();
             listViewOfGroupResourcesInFolder.setCellFactory(
                     (parameter)
-                            -> new ResourceDisplayName()
+                            -> new PeakShapePlotsController.ResourceDisplayName()
             );
             allFiles = resourceFilesInFolder.toArray(new File[0]);
             eventLogTextArea.textProperty().unbind();
@@ -239,9 +230,8 @@ public class PeakShapePlotsController {
             eventAnchorPane.getChildren().removeAll();
 
 
-            gBeamPlotScrollPane.setContent(null);
-            beamShapePlotScrollPane.setContent(null);
-            peakCentrePlotScrollPane.setContent(null);
+            beamPlotsGridPane.getChildren().removeAll();
+            peakCentreGridPane.getChildren().removeAll();
 
         }
 
@@ -268,15 +258,15 @@ public class PeakShapePlotsController {
                     AbstractPlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
                     xAxis[k] = k + 1;
                     yAxis[k] = BeamDataOutputDriverExperiment.getMeasBeamWidthAMU();
-                    AbstractDataView gBeamLinePlot = new GBeamLinePlot(
-                            new Rectangle(gBeamPlotScrollPane.getWidth(),
-                                    gBeamPlotScrollPane.getHeight()),
+                    AbstractPlot gBeamLinePlot = new GBeamLinePlotTest(
+                            new Rectangle(beamPlotsGridPane.getCellBounds(0, 0).getWidth(),
+                                    beamPlotsGridPane.getCellBounds(0, 0).getHeight()),
                             (GBeamLinePlotBuilder) plots[1]
                     );
 
-                    AbstractDataView beamShapeLinePlot = new BeamShapeLinePlot(
-                            new Rectangle(beamShapePlotScrollPane.getWidth(),
-                                    beamShapePlotScrollPane.getHeight()),
+                    AbstractPlot beamShapeLinePlot = new BeamShapeLinePlotTest(
+                            new Rectangle(beamPlotsGridPane.getCellBounds(1, 0).getWidth(),
+                                    beamPlotsGridPane.getCellBounds(1, 0).getHeight()),
                             (BeamShapeLinePlotBuilder) plots[0]
                     );
 
@@ -289,16 +279,12 @@ public class PeakShapePlotsController {
                     ImageView image1 = new ImageView(writableImage1);
                     image1.setFitWidth(85);
                     image1.setFitHeight(46);
-                    //image1.setPreserveRatio(true);
-                    //RenderedImage renderedImage1 = SwingFXUtils.fromFXImage(image1.snapshot(null, null), null);
 
                     WritableImage writableImage2 = new WritableImage((int) gBeamLinePlot.getWidth(), (int) gBeamLinePlot.getHeight());
                     gBeamLinePlot.snapshot(null, writableImage2);
                     ImageView image2 = new ImageView(writableImage2);
                     image2.setFitWidth(85);
                     image2.setFitHeight(46);
-                    //image2.setPreserveRatio(true);
-                    //RenderedImage renderedImage2 = SwingFXUtils.fromFXImage(image2.snapshot(null, null), null);
 
                     // adds the rendered images to a list that will be used later
                     beamImageSet.add(image1);
@@ -313,20 +299,20 @@ public class PeakShapePlotsController {
 
         LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, "PeakCentre Plot", "", "");
 
-        peakCentreLinePlot = new PeakCentresLinePlot(new Rectangle(peakCentrePlotScrollPane.getWidth(), peakCentrePlotScrollPane.getHeight()), peakCentrePlotBuilder);
+        peakCentreLinePlot = new PeakCentresLinePlot(new Rectangle(peakCentreGridPane.getCellBounds(0, 0).getWidth(), peakCentreGridPane.getCellBounds(0, 0).getHeight()), peakCentrePlotBuilder);
 
-        peakCentrePlotScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+        peakCentreGridPane.widthProperty().addListener((observable, oldValue, newValue) -> {
             peakCentreLinePlot.setMyWidth(newValue.intValue());
             peakCentreLinePlot.repaint();
         });
 
-        peakCentrePlotScrollPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+        peakCentreGridPane.heightProperty().addListener((observable, oldValue, newValue) -> {
             peakCentreLinePlot.setMyHeight(newValue.intValue());
             peakCentreLinePlot.repaint();
         });
 
         peakCentreLinePlot.preparePanel();
-        peakCentrePlotScrollPane.setContent(peakCentreLinePlot);
+        peakCentreGridPane.add(peakCentreLinePlot, 0, 0);
         int size = 1;
         for (int i = 0; i < gBeamImageSet.size(); i++) {
             plotsAnchorPane.getChildren().add(gBeamImageSet.get(i));
@@ -335,7 +321,7 @@ public class PeakShapePlotsController {
             if ((peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 160) < 220) {
                 pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 300);
             } else {
-                pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 160);
+                pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 155);
             }
 
             pos.setVisible(false);
@@ -351,7 +337,7 @@ public class PeakShapePlotsController {
             if ((peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 160) < 220) {
                 pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 260);
             } else {
-                pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 200);
+                pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 195);
             }
             pos.setVisible(false);
             remSize++;
@@ -359,7 +345,7 @@ public class PeakShapePlotsController {
 
 
         // Selects file from peakCentre plot
-        peakCentrePlotScrollPane.setOnMouseClicked(click -> {
+        peakCentreGridPane.setOnMouseClicked(click -> {
             peakCentreLinePlot.getOnMouseClicked();
             processDataFileAndShowPlotsOfPeakShapes();
 
@@ -368,7 +354,7 @@ public class PeakShapePlotsController {
 
         int finalSize = size;
 
-        peakCentrePlotScrollPane.setOnMouseMoved(mouse -> {
+        peakCentreGridPane.setOnMouseMoved(mouse -> {
 
 
             int index = (int) peakCentreLinePlot.convertMouseXToValue(mouse.getX());
@@ -401,7 +387,7 @@ public class PeakShapePlotsController {
 
     private void populateListOfResources(String groupValue) {
         listViewOfResourcesInFolder = new ListView<>();
-        listViewOfResourcesInFolder.setCellFactory(param -> new ResourceDisplayName2());
+        listViewOfResourcesInFolder.setCellFactory(param -> new PeakShapePlotsController.ResourceDisplayName2());
         eventLogTextArea.textProperty().unbind();
         int initialIndex;
 
@@ -455,55 +441,43 @@ public class PeakShapePlotsController {
             try {
                 AbstractPlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
 
-                AbstractDataView gBeamLinePlot = new GBeamLinePlot(
-                        new Rectangle(gBeamPlotScrollPane.getWidth(),
-                                gBeamPlotScrollPane.getHeight()),
+                AbstractPlot gBeamLinePlot = new GBeamLinePlotTest(
+                        new Rectangle(beamPlotsGridPane.getCellBounds(0, 0).getWidth(),
+                                beamPlotsGridPane.getCellBounds(0, 0).getHeight()),
                         (GBeamLinePlotBuilder) plots[1]
                 );
 
-                gBeamPlotScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+                AbstractPlot beamShapeLinePlot = new BeamShapeLinePlotTest(
+                        new Rectangle(beamPlotsGridPane.getCellBounds(1, 0).getWidth(),
+                                beamPlotsGridPane.getCellBounds(1, 0).getHeight()),
+                        (BeamShapeLinePlotBuilder) plots[0]
+                );
+
+
+                beamPlotsGridPane.widthProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue.intValue() > 100) {
-                        gBeamLinePlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
+                        gBeamLinePlot.setWidthF(newValue.intValue());
                         gBeamLinePlot.repaint();
+                        beamShapeLinePlot.setWidthF(newValue.intValue());
+                        beamShapeLinePlot.repaint();
                     }
                 });
 
-                gBeamPlotScrollPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+                beamPlotsGridPane.heightProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue.intValue() > 100) {
-                        gBeamLinePlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
+                        gBeamLinePlot.setHeightF(newValue.intValue());
                         gBeamLinePlot.repaint();
+                        beamShapeLinePlot.setHeightF(newValue.intValue());
+                        beamShapeLinePlot.repaint();
                     }
                 });
 
                 gBeamLinePlot.preparePanel();
-                gBeamPlotScrollPane.setContent(gBeamLinePlot);
+                beamPlotsGridPane.add(gBeamLinePlot, 0, 0);
 
-
-                AbstractDataView beamShapeLinePlot = new BeamShapeLinePlot(
-                        new Rectangle(beamShapePlotScrollPane.getWidth(),
-                                beamShapePlotScrollPane.getHeight()),
-                        (BeamShapeLinePlotBuilder) plots[0]
-                );
-
-                beamShapePlotScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
-                    if (newValue.intValue() > 100) {
-                        beamShapeLinePlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
-                        beamShapeLinePlot.repaint();
-                    }
-                });
-
-                beamShapePlotScrollPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    if (newValue.intValue() > 100) {
-                        beamShapeLinePlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
-                        beamShapeLinePlot.repaint();
-                    }
-                });
 
                 beamShapeLinePlot.preparePanel();
-                beamShapeLinePlot.getGraphicsContext2D();
-
-
-                beamShapePlotScrollPane.setContent(beamShapeLinePlot);
+                beamPlotsGridPane.add(beamShapeLinePlot, 1, 0);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -541,6 +515,4 @@ public class PeakShapePlotsController {
             }
         }
     }
-
-
 }

@@ -12,7 +12,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsController;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapeDemoPlotsController;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 
 import java.util.HashMap;
@@ -181,16 +181,6 @@ public class PeakCentresLinePlot extends AbstractDataView {
         }
     }
 
-//    private void setToolTips(Node node, Map<Integer, String> toolTips) {
-//        Tooltip tooltip = new Tooltip();
-//        Tooltip.install(node, tooltip);
-//        node.setOnMouseMoved(e -> toolTips.forEach((integer, String) -> {
-//            if (integer.equals(indexOfSpotFromMouseX(e.getX()))) {
-//                tooltip.setText(String);
-//            }
-//        }));
-//        node.setOnMouseExited(e -> tooltip.hide());
-//    }
 
     private int indexOfSpotFromMouseX(double x) {
         double convertedX = convertMouseXToValue(x);
@@ -229,8 +219,8 @@ public class PeakCentresLinePlot extends AbstractDataView {
             if (mouseInHouse(mouseEvent)) {
 
                 indexOfSelectedSpot = indexOfSpotFromMouseX(mouseEvent.getX());
-                PeakShapePlotsController.currentGroupIndex = indexOfSelectedSpot;
-                PeakShapePlotsController.resourceBrowserTarget = PeakShapePlotsController.getResourceGroups(PeakShapePlotsController.getCurrentGroup()).get(indexOfSelectedSpot);
+                PeakShapeDemoPlotsController.currentGroupIndex = indexOfSelectedSpot;
+                PeakShapeDemoPlotsController.resourceBrowserTarget = PeakShapeDemoPlotsController.getResourceGroups(PeakShapeDemoPlotsController.getCurrentGroup()).get(indexOfSelectedSpot);
                 repaint();
                 getGraphicsContext2D().setLineWidth(1.0);
                 getGraphicsContext2D().strokeOval(mapX(xAxisData[indexOfSelectedSpot]) - 6, mapY(yAxisData[indexOfSelectedSpot]) - 6, 12, 12);

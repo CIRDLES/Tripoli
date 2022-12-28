@@ -120,7 +120,7 @@ tasks.withType(JavaCompile::class) {
 tasks.register("CreateFolder") {
     doLast {
         sourceSets["main"].allSource.srcDirs.forEach { srcDir: File ->
-            if (!srcDir.isDirectory()) {
+            if (!srcDir.isDirectory) {
                 println("Create source folder: $srcDir")
                 srcDir.mkdirs()
             }

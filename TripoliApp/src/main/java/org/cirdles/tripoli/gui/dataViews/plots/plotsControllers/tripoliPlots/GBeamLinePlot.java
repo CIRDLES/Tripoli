@@ -19,10 +19,8 @@ import org.cirdles.tripoli.plots.linePlots.GBeamLinePlotBuilder;
 public class GBeamLinePlot extends AbstractDataView {
 
     private final GBeamLinePlotBuilder gBeamLinePlotBuilder;
-    private double[] xMass;
+    private final Tooltip tooltip;
     private double[] yIntensity;
-
-    private Tooltip tooltip;
 
     /**
      * @param bounds
@@ -41,7 +39,6 @@ public class GBeamLinePlot extends AbstractDataView {
     public void preparePanel() {
         xAxisData = gBeamLinePlotBuilder.getxData();
         yAxisData = gBeamLinePlotBuilder.getyData();
-        xMass = gBeamLinePlotBuilder.getMassData();
         yIntensity = gBeamLinePlotBuilder.getIntensityData();
 
         minX = xAxisData[0];
@@ -96,8 +93,8 @@ public class GBeamLinePlot extends AbstractDataView {
         g2d.setLineDashes(0);
         // x = magnetMass y = blockIntensities
 
-        for (int i = 0; i < xMass.length; i++) {
-            g2d.lineTo(mapX(xMass[i]), mapY(yIntensity[i]));
+        for (int i = 0; i < xAxisData.length; i++) {
+            g2d.lineTo(mapX(xAxisData[i]), mapY(yIntensity[i]));
         }
 
         g2d.stroke();
@@ -184,11 +181,11 @@ public class GBeamLinePlot extends AbstractDataView {
                 // currently only works with x value
                 for (int i = 0; i < getxAxisData().length; i++) {
                     if ((getxAxisData()[i] >= convertMouseXToValue(event.getX()) - 0.0005 && getxAxisData()[i] <= convertMouseXToValue(event.getX()) + 0.0005)) {
-                        String x = String.format("%.2f", getxAxisData()[i]) ;
-                        String y = String.format("%.2f", getyAxisData()[i]) ;
-                        tooltip.setText(x + ", " + y);
+                        String x = String.format("%.2f", getxAxisData()[i]);
+                        String y = String.format("%.2f", getyAxisData()[i]);
+                        tooltip.setText("x=" + x + ", y=" + y);
                         tooltip.setAnchorX(event.getSceneX());
-                        tooltip.show(potNode, event.getScreenX(), event.getScreenY());
+                        tooltip.show(potNode, event.getScreenX() + 15, event.getScreenY() + 15);
                     }
                 }
 
