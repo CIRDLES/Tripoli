@@ -45,7 +45,7 @@ public interface AnalysisInterface {
         return retVal;
     }
 
-    public void extractMassSpecDataFromPath(Path dataFilePath) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException;
+    public MassSpectrometerContextEnum extractMassSpecDataFromPath(Path dataFilePath) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException;
 
     public void extractAnalysisMethodfromPath(Path phoenixAnalysisMethodDataFilePath) throws JAXBException;
 

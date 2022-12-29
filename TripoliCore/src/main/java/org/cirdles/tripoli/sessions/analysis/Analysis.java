@@ -79,7 +79,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         mutable = true;
     }
 
-    public void extractMassSpecDataFromPath(Path dataFilePath)
+    public MassSpectrometerContextEnum extractMassSpecDataFromPath(Path dataFilePath)
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
         dataFilePathString = dataFilePath.toString();
         MassSpectrometerContextEnum massSpectrometerContext = AnalysisInterface.determineMassSpectrometerContextFromDataFile(dataFilePath);
@@ -91,6 +91,8 @@ public class Analysis implements Serializable, AnalysisInterface {
         } else {
             massSpecExtractedData = new MassSpecExtractedData();
         }
+
+        return massSpectrometerContext;
     }
 
     public void extractAnalysisMethodfromPath(Path phoenixAnalysisMethodDataFilePath) throws JAXBException {

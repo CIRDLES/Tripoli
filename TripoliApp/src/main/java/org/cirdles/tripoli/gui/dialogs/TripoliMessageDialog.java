@@ -44,8 +44,10 @@ public class TripoliMessageDialog extends Alert {
         setHeaderText(headerText);
         initStyle(StageStyle.DECORATED);
         int countOfNewLines = 1;
-        for (int i = 0; i < message.length(); i++) {
-            countOfNewLines = countOfNewLines + ((message.charAt(i) == '\n') ? 1 : 0);
+        if (message != null){
+            for (int i = 0; i < message.length(); i++) {
+                countOfNewLines = countOfNewLines + ((message.charAt(i) == '\n') ? 1 : 0);
+            }
         }
         getDialogPane().setPrefSize(750, 150 + countOfNewLines * 20);
         getDialogPane().setStyle(getDialogPane().getStyle() + ";-fx-font-family: SansSerif Bold;-fx-font-size: 15");

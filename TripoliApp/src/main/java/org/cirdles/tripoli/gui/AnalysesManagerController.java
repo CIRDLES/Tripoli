@@ -10,6 +10,8 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
+import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
@@ -225,12 +227,17 @@ public class AnalysesManagerController implements Initializable {
         }
     }
 
-    public void selectDataFileButtonAction() throws TripoliException, IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
-        File selectedFile = selectDataFile(TripoliGUI.primaryStage);
-        if (selectedFile != null) {
-            analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
-            populateAnalysisManagerGridPane();
-            analysiMethodTabPane.getSelectionModel().select(detectorDetailTab);
+    public void selectDataFileButtonAction()  {
+        MassSpectrometerContextEnum massSpectrometerContextEnum = MassSpectrometerContextEnum.UNKNOWN;
+        try {
+            File selectedFile = selectDataFile(TripoliGUI.primaryStage);
+            if (selectedFile != null) {
+                massSpectrometerContextEnum = analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
+                populateAnalysisManagerGridPane();
+                analysiMethodTabPane.getSelectionModel().select(detectorDetailTab);
+            }
+        } catch (TripoliException | NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException e) {
+            TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
         }
     }
 
