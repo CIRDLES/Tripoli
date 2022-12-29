@@ -23,7 +23,6 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassS
 public class BeamDataOutputDriverExperiment {
 
 
-    private static final boolean doFullProcessing = true;
     private static double measBeamWidthAMU;
 
     public static AbstractPlotBuilder[] modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException {
@@ -32,12 +31,11 @@ public class BeamDataOutputDriverExperiment {
         PeakShapeOutputDataRecord peakShapeOutputDataRecord = peakShapeProcessor_PhoenixTextFile.prepareInputDataModelFromFile(dataFile);
         AbstractPlotBuilder[] peakShapeLinePlotBuilder = new LinePlotBuilder[0];
 
-        if (doFullProcessing) {
-            try {
-                peakShapeLinePlotBuilder = gatherBeamWidth(peakShapeOutputDataRecord, loggingCallback);
-            } catch (RecoverableCondition e) {
-                e.printStackTrace();
-            }
+
+        try {
+            peakShapeLinePlotBuilder = gatherBeamWidth(peakShapeOutputDataRecord, loggingCallback);
+        } catch (RecoverableCondition e) {
+            e.printStackTrace();
         }
 
 

@@ -13,8 +13,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.BeamShapeLinePlotTest;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.GBeamLinePlotTest;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.BeamShapeLinePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.GBeamLinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.PeakCentresLinePlot;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
@@ -115,14 +115,14 @@ public class PeakShapeDemoPlotsController {
         plotPane.prefHeightProperty().bind(masterVBox.heightProperty());
 
         beamPlotsGridPane.prefWidthProperty().bind(plotPane.widthProperty());
+        beamPlotsGridPane.prefHeightProperty().bind(plotPane.heightProperty().add(50));
 
-        peakCentreGridPane.prefHeightProperty().bind(plotsAnchorPane.heightProperty().subtract(350));
-        peakCentreGridPane.prefWidthProperty().bind(masterVBox.widthProperty());
+        peakCentreGridPane.prefWidthProperty().bind(plotPane.widthProperty());
+        peakCentreGridPane.prefHeightProperty().bind(plotPane.heightProperty());
 
 
-        resourceListAnchorPane.prefHeightProperty().bind(resourceListScrollPane.heightProperty());
         resourceListAnchorPane.prefWidthProperty().bind(resourceListScrollPane.widthProperty());
-
+        resourceListAnchorPane.prefHeightProperty().bind(resourceListScrollPane.heightProperty());
 
         eventAnchorPane.prefHeightProperty().bind(eventScrollPane.heightProperty());
         eventAnchorPane.prefWidthProperty().bind(eventScrollPane.widthProperty());
@@ -171,7 +171,7 @@ public class PeakShapeDemoPlotsController {
             ListView<String> listViewOfGroupResourcesInFolder = new ListView<>();
             listViewOfGroupResourcesInFolder.setCellFactory(
                     (parameter)
-                            -> new PeakShapePlotsController.ResourceDisplayName()
+                            -> new PeakShapeDemoPlotsController.ResourceDisplayName()
             );
             allFiles = resourceFilesInFolder.toArray(new File[0]);
             eventLogTextArea.textProperty().unbind();
@@ -258,13 +258,13 @@ public class PeakShapeDemoPlotsController {
                     AbstractPlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
                     xAxis[k] = k + 1;
                     yAxis[k] = BeamDataOutputDriverExperiment.getMeasBeamWidthAMU();
-                    AbstractPlot gBeamLinePlot = new GBeamLinePlotTest(
+                    AbstractPlot gBeamLinePlot = new GBeamLinePlot(
                             new Rectangle(beamPlotsGridPane.getCellBounds(0, 0).getWidth(),
                                     beamPlotsGridPane.getCellBounds(0, 0).getHeight()),
                             (GBeamLinePlotBuilder) plots[1]
                     );
 
-                    AbstractPlot beamShapeLinePlot = new BeamShapeLinePlotTest(
+                    AbstractPlot beamShapeLinePlot = new BeamShapeLinePlot(
                             new Rectangle(beamPlotsGridPane.getCellBounds(1, 0).getWidth(),
                                     beamPlotsGridPane.getCellBounds(1, 0).getHeight()),
                             (BeamShapeLinePlotBuilder) plots[0]
@@ -387,7 +387,7 @@ public class PeakShapeDemoPlotsController {
 
     private void populateListOfResources(String groupValue) {
         listViewOfResourcesInFolder = new ListView<>();
-        listViewOfResourcesInFolder.setCellFactory(param -> new PeakShapePlotsController.ResourceDisplayName2());
+        listViewOfResourcesInFolder.setCellFactory(param -> new PeakShapeDemoPlotsController.ResourceDisplayName2());
         eventLogTextArea.textProperty().unbind();
         int initialIndex;
 
@@ -441,13 +441,13 @@ public class PeakShapeDemoPlotsController {
             try {
                 AbstractPlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
 
-                AbstractPlot gBeamLinePlot = new GBeamLinePlotTest(
+                AbstractPlot gBeamLinePlot = new GBeamLinePlot(
                         new Rectangle(beamPlotsGridPane.getCellBounds(0, 0).getWidth(),
                                 beamPlotsGridPane.getCellBounds(0, 0).getHeight()),
                         (GBeamLinePlotBuilder) plots[1]
                 );
 
-                AbstractPlot beamShapeLinePlot = new BeamShapeLinePlotTest(
+                AbstractPlot beamShapeLinePlot = new BeamShapeLinePlot(
                         new Rectangle(beamPlotsGridPane.getCellBounds(1, 0).getWidth(),
                                 beamPlotsGridPane.getCellBounds(1, 0).getHeight()),
                         (BeamShapeLinePlotBuilder) plots[0]

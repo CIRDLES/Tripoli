@@ -28,7 +28,7 @@ public class PeakCentresLinePlot extends AbstractDataView {
      * @param linePlotBuilder
      */
     public PeakCentresLinePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
-        super(bounds, 50, 30);
+        super(bounds, 50, 15);
         this.peakCentrePlotBuilder = linePlotBuilder;
 
 
