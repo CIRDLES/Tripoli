@@ -188,13 +188,17 @@ public class BeamShapeLinePlot extends AbstractPlot {
                 potNode = ((Canvas) event.getSource()).getParent();
 
                 // currently only works with x value
-                for (int i = 0; i < getxAxisData().length; i++) {
-                    if ((getxAxisData()[i] >= convertMouseXToValue(event.getX()) - 0.00005 && getxAxisData()[i] <= convertMouseXToValue(event.getX()) + 0.00005)) {
-                        String x = String.format("%.3f", getxAxisData()[i]);
-                        String y = String.format("%.2f", getyAxisData()[i]);
-                        tooltip.setText("(x=" + x + ", y=" + y + ")");
-                        tooltip.setAnchorX(event.getSceneX());
-                        tooltip.show(potNode, event.getScreenX() + 15, event.getScreenY() + 15);
+                for (int i = 0; i < getxAxisData().length - 1; i++) {
+                    double diff = Math.abs(getxAxisData()[i] - getxAxisData()[i + 1]);
+                    if ((getxAxisData()[i] >= convertMouseXToValue(event.getX()) - diff && getxAxisData()[i] <= convertMouseXToValue(event.getX()) + diff)) {
+                        double diffY = Math.abs(getyAxisData()[i] - getyAxisData()[i + 1]);
+                        if ((getyAxisData()[i] >= convertMouseYToValue(event.getY()) - diffY && getyAxisData()[i] <= convertMouseYToValue(event.getY()) + diffY)) {
+                            String x = String.format("%.3f", getxAxisData()[i]);
+                            String y = String.format("%.2f", getyAxisData()[i]);
+                            tooltip.setText("(x=" + x + ", y=" + y + ")");
+                            tooltip.setAnchorX(event.getSceneX());
+                            tooltip.show(potNode, event.getScreenX() + 15, event.getScreenY() + 15);
+                        }
                     }
                 }
 
