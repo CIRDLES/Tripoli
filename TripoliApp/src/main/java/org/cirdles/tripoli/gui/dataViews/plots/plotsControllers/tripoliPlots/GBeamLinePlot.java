@@ -170,14 +170,26 @@ public class GBeamLinePlot extends AbstractPlot {
             if (mouseInHouse(event.getX(), event.getY())) {
                 ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.CROSSHAIR);
                 potNode = ((Canvas) event.getSource()).getParent();
+                int maxIndex = 0;
+                double maxVal = 0;
 
                 // currently only works with x value
                 for (int i = 0; i < getxAxisData().length - 1; i++) {
                     double diffX = Math.abs(getxAxisData()[i] - getxAxisData()[i + 1]);
+                    if(getyAxisData()[i] > maxVal){
+                        maxVal = getyAxisData()[i];
+                        maxIndex = i;
+                    }
                     if ((getxAxisData()[i] >= convertMouseXToValue(event.getX()) - diffX && getxAxisData()[i] <= convertMouseXToValue(event.getX()) + diffX)) {
                         double diffY = Math.abs(getyAxisData()[i] - getyAxisData()[i + 1]);
                         if ((getyAxisData()[i] >= convertMouseYToValue(event.getY()) - diffY && getyAxisData()[i] <= convertMouseYToValue(event.getY()) + diffY)) {
                             String x = String.format("%.2f", getxAxisData()[i]);
+                            String y = String.format("%.2f", getyAxisData()[i]);
+                            tooltip.setText("(x=" + x + ", y=" + y + ")");
+                            tooltip.setAnchorX(event.getSceneX());
+                            tooltip.show(potNode, event.getScreenX() + 15, event.getScreenY() + 15);
+                        }else if (convertMouseYToValue(event.getY()) - maxY/100 <= getyAxisData()[maxIndex] && convertMouseYToValue(event.getY()) + maxY/100 >= getyAxisData()[maxIndex]){
+                            String x = String.format("%.3f", getxAxisData()[i]);
                             String y = String.format("%.2f", getyAxisData()[i]);
                             tooltip.setText("(x=" + x + ", y=" + y + ")");
                             tooltip.setAnchorX(event.getSceneX());
