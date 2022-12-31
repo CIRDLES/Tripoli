@@ -143,6 +143,14 @@ public class GBeamLinePlot extends AbstractPlot {
 
     }
 
+    private void showToolTip(Node node, MouseEvent event, double xPos, double yPos) {
+        String x = String.format("%.3f", xPos);
+        String y = String.format("%.2f", yPos);
+        tooltip.setText("(x=" + x + ", y=" + y + ")");
+        tooltip.setAnchorX(event.getSceneX());
+        tooltip.show(node, event.getScreenX() + 15, event.getScreenY() + 15);
+    }
+
     private class MouseClickEventHandler implements EventHandler<MouseEvent> {
 
         @Override
@@ -176,24 +184,17 @@ public class GBeamLinePlot extends AbstractPlot {
                 // currently only works with x value
                 for (int i = 0; i < getxAxisData().length - 1; i++) {
                     double diffX = Math.abs(getxAxisData()[i] - getxAxisData()[i + 1]);
-                    if(getyAxisData()[i] > maxVal){
+                    if (getyAxisData()[i] > maxVal) {
                         maxVal = getyAxisData()[i];
                         maxIndex = i;
                     }
+                    // Displays toolTip of x and y positions on the G-Beam line plot
                     if ((getxAxisData()[i] >= convertMouseXToValue(event.getX()) - diffX && getxAxisData()[i] <= convertMouseXToValue(event.getX()) + diffX)) {
                         double diffY = Math.abs(getyAxisData()[i] - getyAxisData()[i + 1]);
                         if ((getyAxisData()[i] >= convertMouseYToValue(event.getY()) - diffY && getyAxisData()[i] <= convertMouseYToValue(event.getY()) + diffY)) {
-                            String x = String.format("%.2f", getxAxisData()[i]);
-                            String y = String.format("%.2f", getyAxisData()[i]);
-                            tooltip.setText("(x=" + x + ", y=" + y + ")");
-                            tooltip.setAnchorX(event.getSceneX());
-                            tooltip.show(potNode, event.getScreenX() + 15, event.getScreenY() + 15);
-                        }else if (convertMouseYToValue(event.getY()) - maxY/100 <= getyAxisData()[maxIndex] && convertMouseYToValue(event.getY()) + maxY/100 >= getyAxisData()[maxIndex]){
-                            String x = String.format("%.3f", getxAxisData()[i]);
-                            String y = String.format("%.2f", getyAxisData()[i]);
-                            tooltip.setText("(x=" + x + ", y=" + y + ")");
-                            tooltip.setAnchorX(event.getSceneX());
-                            tooltip.show(potNode, event.getScreenX() + 15, event.getScreenY() + 15);
+                            showToolTip(potNode, event, getxAxisData()[i], getyAxisData()[i]);
+                        } else if (convertMouseYToValue(event.getY()) - maxY / 100 <= getyAxisData()[maxIndex] && convertMouseYToValue(event.getY()) + maxY / 100 >= getyAxisData()[maxIndex]) {
+                            showToolTip(potNode, event, getxAxisData()[i], getyAxisData()[i]);
                         }
                     }
                 }

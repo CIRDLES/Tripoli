@@ -355,10 +355,7 @@ public class PeakShapeDemoPlotsController {
         int finalSize = size;
 
         peakCentreGridPane.setOnMouseMoved(mouse -> {
-
-
             int index = (int) peakCentreLinePlot.convertMouseXToValue(mouse.getX());
-
 
             if (peakCentreLinePlot.mouseInHouse(mouse) && index >= 1 && mouse.getY() > 10) {
                 for (int i = 0; i < peakCentreLinePlot.getxAxisData().length; i++) {
@@ -374,7 +371,6 @@ public class PeakShapeDemoPlotsController {
                     }
 
                 }
-
 
             } else {
                 for (int i = 1; i < plotsAnchorPane.getChildren().size(); i++) {

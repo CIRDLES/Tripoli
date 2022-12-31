@@ -158,6 +158,14 @@ public class BeamShapeLinePlot extends AbstractPlot {
 
     }
 
+    private void showToolTip(Node node, MouseEvent event, double xPos, double yPos) {
+        String x = String.format("%.3f", xPos);
+        String y = String.format("%.2f", yPos);
+        tooltip.setText("(x=" + x + ", y=" + y + ")");
+        tooltip.setAnchorX(event.getSceneX());
+        tooltip.show(node, event.getScreenX() + 15, event.getScreenY() + 15);
+    }
+
     private class MouseClickEventHandler implements EventHandler<MouseEvent> {
 
         @Override
@@ -187,17 +195,13 @@ public class BeamShapeLinePlot extends AbstractPlot {
                 ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.CROSSHAIR);
                 potNode = ((Canvas) event.getSource()).getParent();
 
-                // currently only works with x value
+                // Displays toolTip of x and y positions on the Beam Shape line plot
                 for (int i = 0; i < getxAxisData().length - 1; i++) {
                     double diff = Math.abs(getxAxisData()[i] - getxAxisData()[i + 1]);
                     if ((getxAxisData()[i] >= convertMouseXToValue(event.getX()) - diff && getxAxisData()[i] <= convertMouseXToValue(event.getX()) + diff)) {
                         double diffY = Math.abs(getyAxisData()[i] - getyAxisData()[i + 1]);
                         if ((getyAxisData()[i] >= convertMouseYToValue(event.getY()) - diffY && getyAxisData()[i] <= convertMouseYToValue(event.getY()) + diffY)) {
-                            String x = String.format("%.3f", getxAxisData()[i]);
-                            String y = String.format("%.2f", getyAxisData()[i]);
-                            tooltip.setText("(x=" + x + ", y=" + y + ")");
-                            tooltip.setAnchorX(event.getSceneX());
-                            tooltip.show(potNode, event.getScreenX() + 15, event.getScreenY() + 15);
+                            showToolTip(potNode, event, getxAxisData()[i], getyAxisData()[i]);
                         }
                     }
                 }
