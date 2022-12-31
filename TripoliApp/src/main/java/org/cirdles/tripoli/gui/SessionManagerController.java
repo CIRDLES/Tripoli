@@ -107,6 +107,7 @@ public class SessionManagerController implements Initializable {
         });
         if (0 < items.size()) {
             listViewOfAnalyses.getSelectionModel().selectFirst();
+            AnalysesManagerController.analysis = listViewOfAnalyses.getSelectionModel().getSelectedItem();
         }
     }
 

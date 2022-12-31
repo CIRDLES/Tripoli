@@ -16,7 +16,6 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods;
 
-import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
@@ -148,8 +147,10 @@ public class AnalysisMethod implements Serializable {
 
     public String prettyPrintMethodSummary(boolean onTwoLines) {
         StringBuilder retVal = new StringBuilder();
-        retVal.append("Method: ").append(methodName).append(SPACES_100, 0, 40 - methodName.length()).append(onTwoLines? "\nSpecies: " : "  Species: ");
-        for (SpeciesRecordInterface species : speciesList) {
+        retVal.append("Method: ").append(methodName).append(SPACES_100, 0, 65 - methodName.length()).append(onTwoLines? "\nSpecies: " : "  Species: ");
+        List<SpeciesRecordInterface> speciesAlphabetic = new ArrayList<>(speciesList);
+        Collections.sort(speciesAlphabetic, Comparator.comparing(s -> s.getAtomicMass()));
+        for (SpeciesRecordInterface species : speciesAlphabetic) {
             retVal.append(species.prettyPrintShortForm() + " ");
         }
 

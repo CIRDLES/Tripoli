@@ -85,7 +85,6 @@ public class AnalysesManagerController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
         analysisManagerGridPane.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_YELLOW));
         setupListeners();
         populateAnalysisManagerGridPane();

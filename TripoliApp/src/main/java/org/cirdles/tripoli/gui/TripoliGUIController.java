@@ -314,7 +314,7 @@ public class TripoliGUIController implements Initializable {
         analysisMenu.setDisable(false);
     }
 
-    public void manageAnalysesMenuItemAction(ActionEvent actionEvent) throws IOException {
+    public void manageAnalysisMenuItemAction(ActionEvent actionEvent) throws IOException {
         launchAnalysesManager();
     }
 

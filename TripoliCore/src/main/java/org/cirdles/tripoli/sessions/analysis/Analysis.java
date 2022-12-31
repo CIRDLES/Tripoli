@@ -127,7 +127,7 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public final String prettyPrintAnalysisSummary() {
         return analysisName +
-                SPACES_100.substring(0, 40 - analysisName.length()) +
+                SPACES_100.substring(0, 30 - analysisName.length()) +
                 (null == analysisMethod ? "NO Method" : analysisMethod.prettyPrintMethodSummary(false));
     }
 
