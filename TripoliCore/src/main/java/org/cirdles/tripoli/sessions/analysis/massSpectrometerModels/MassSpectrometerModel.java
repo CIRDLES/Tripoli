@@ -33,7 +33,6 @@ public class MassSpectrometerModel implements Serializable {
     @Serial
     private static final long serialVersionUID = 1402626964061990257L;
     private final String massSpectrometerName;
-    private MassSpectrometerContextEnum massSpectrometerContext;
     private double collectorWidthMM;        //% collector aperture width (mm)
     private double theoreticalBeamWidthMM;  //% a priori estimate of beam width (mm)
     private double effectiveRadiusMagnetMM;
@@ -44,28 +43,18 @@ public class MassSpectrometerModel implements Serializable {
 
     private MassSpectrometerModel(String massSpectrometerName) {
         this.massSpectrometerName = massSpectrometerName;
-        this.massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
         this.collectorWidthMM = 0.0;
         this.theoreticalBeamWidthMM = 0.0;
         this.effectiveRadiusMagnetMM = 0.0;
     }
 
     public static MassSpectrometerModel initializeMassSpectrometer(MassSpectrometerContextEnum massSpectrometerContext) {
-        MassSpectrometerModel massSpectrometerModel = new MassSpectrometerModel(massSpectrometerContext.getName());
-        massSpectrometerModel.setMassSpectrometerContext(massSpectrometerContext);
+        MassSpectrometerModel massSpectrometerModel = new MassSpectrometerModel(massSpectrometerContext.getMassSpectrometerName());
         return massSpectrometerModel;
     }
 
     public String getMassSpectrometerName() {
         return massSpectrometerName;
-    }
-
-    public MassSpectrometerContextEnum getMassSpectrometerContext() {
-        return massSpectrometerContext;
-    }
-
-    public void setMassSpectrometerContext(MassSpectrometerContextEnum massSpectrometerContext) {
-        this.massSpectrometerContext = massSpectrometerContext;
     }
 
     public double getCollectorWidthMM() {

@@ -181,7 +181,7 @@ public class TripoliGUIController implements Initializable {
     }
 
     private void openSession(String aSessionFileName) throws IOException, TripoliException {
-        if (!"" .equals(aSessionFileName)) {
+        if (!"".equals(aSessionFileName)) {
             sessionFileName = aSessionFileName;
             confirmSaveOnProjectClose();
             tripoliSession = (Session) TripoliSerializer.getSerializedObjectFromFile(sessionFileName, true);
@@ -274,7 +274,7 @@ public class TripoliGUIController implements Initializable {
                 if (t.equals(ButtonType.YES)) {
                     try {
                         //File projectFile =
-                                FileHandlerUtil.saveSessionFile(tripoliSession, TripoliGUI.primaryStageWindow);
+                        FileHandlerUtil.saveSessionFile(tripoliSession, TripoliGUI.primaryStageWindow);
                     } catch (IOException iOException) {
                         TripoliMessageDialog.showWarningDialog("Squid3 cannot access the target file.\n",
                                 null);

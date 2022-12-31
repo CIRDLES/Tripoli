@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.sessions.analysis.methods;
 
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineTable;
@@ -63,13 +64,13 @@ public class AnalysisMethod implements Serializable {
         return new AnalysisMethod(methodName);
     }
 
-    public static AnalysisMethod createAnalysisMethodFromPhoenixAnalysisMethod(PhoenixAnalysisMethod phoenixAnalysisMethod, AnalysisInterface analysis) {
+    public static AnalysisMethod createAnalysisMethodFromPhoenixAnalysisMethod(PhoenixAnalysisMethod phoenixAnalysisMethod, DetectorSetup detectorSetup) {
         AnalysisMethod analysisMethod = new AnalysisMethod(
                 phoenixAnalysisMethod.getHEADER().getFilename());
 
         List<PhoenixAnalysisMethod.ONPEAK> onPeakSequences = phoenixAnalysisMethod.getONPEAK();
         analysisMethod.sequenceTable.setSequenceCount(onPeakSequences.size());
-        DetectorSetup detectorSetup = analysis.getMassSpecExtractedData().getDetectorSetup();
+
         for (PhoenixAnalysisMethod.ONPEAK onpeakSequence : onPeakSequences) {
             String sequenceNumber = onpeakSequence.getSequence();
             // <CollectorArray>147Sm:H1S1,148Sm:H2S1,149Sm:H3S1,150Sm:H4S1</CollectorArray>
@@ -104,6 +105,25 @@ public class AnalysisMethod implements Serializable {
         return analysisMethod;
     }
 
+    public static String compareAnalysisMethodToDataFileSpecs(AnalysisMethod analysisMethod,  MassSpecExtractedData massSpecExtractedData){
+        String retVal = "";
+        if (0 != analysisMethod.methodName.compareToIgnoreCase(massSpecExtractedData.getHeader().methodName())) {
+            retVal += "Method name: " + analysisMethod.methodName + " differs from data file's method name. \n";
+        }
+
+        Set<String> baselineNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksData().get(1).baselineIDs()));
+        if (analysisMethod.baselineTable.getSequenceCount() != baselineNames.size()){
+            retVal+= "Baseline table has " + analysisMethod.baselineTable.getSequenceCount() + " sequences. \n";
+        }
+
+        Set<String> onPeakNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksData().get(1).onPeakIDs()));
+        if (analysisMethod.sequenceTable.getSequenceCount() != onPeakNames.size()){
+            retVal+= "Sequence table has " + analysisMethod.sequenceTable.getSequenceCount() + " sequences. \n";
+        }
+
+        return retVal;
+    }
+
     private String prettyPrintSequenceTable() {
         StringBuilder retVal = new StringBuilder();
         Map<Detector, List<SequenceCell>> detectorToSequenceCell = sequenceTable.getMapOfDetectorsToSequenceCells();
@@ -126,9 +146,9 @@ public class AnalysisMethod implements Serializable {
         return retVal.toString();
     }
 
-    public String prettyPrintMethodSummary() {
+    public String prettyPrintMethodSummary(boolean onTwoLines) {
         StringBuilder retVal = new StringBuilder();
-        retVal.append("Method: ").append(methodName).append(SPACES_100, 0, 40 - methodName.length()).append("  Species: ");
+        retVal.append("Method: ").append(methodName).append(SPACES_100, 0, 40 - methodName.length()).append(onTwoLines? "\nSpecies: " : "  Species: ");
         for (SpeciesRecordInterface species : speciesList) {
             retVal.append(species.prettyPrintShortForm() + " ");
         }

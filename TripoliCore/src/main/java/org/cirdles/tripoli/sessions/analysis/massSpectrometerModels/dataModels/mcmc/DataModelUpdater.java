@@ -457,8 +457,8 @@ public class DataModelUpdater {
             cov2 = new Covariance(enso.transpose().toRawCopy2D());
             Matrix a = new Matrix(cov2.getCovarianceMatrix().getData());
             if (0.0 == a.det()) {
-                for (int i = 0; i < a.getRowDimension(); i ++){
-                    if (a.get(i,i) == 0.0){
+                for (int i = 0; i < a.getRowDimension(); i++) {
+                    if (a.get(i, i) == 0.0) {
                         System.out.print("  >" + i);
                     }
                 }

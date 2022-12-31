@@ -2,11 +2,10 @@ package org.cirdles.tripoli.sessions.analysis;
 
 import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
-import org.cirdles.tripoli.sessions.analysis.samples.Sample;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -19,12 +18,12 @@ import java.util.List;
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
 
 public interface AnalysisInterface {
-    static Analysis initializeAnalysis(String analysisName, AnalysisMethod analysisMethod, Sample analysisSample) {
-        return new Analysis(analysisName, analysisMethod, analysisSample);
+    static Analysis initializeAnalysis(String analysisName, AnalysisMethod analysisMethod, String analysisSampleName) {
+        return new Analysis(analysisName, analysisMethod, analysisSampleName);
     }
 
     static Analysis initializeNewAnalysis() {
-        return new Analysis("New Analysis", null, new Sample(MISSING_STRING_FIELD));
+        return new Analysis("New Analysis", null, MISSING_STRING_FIELD);
     }
 
     static MassSpectrometerContextEnum determineMassSpectrometerContextFromDataFile(Path dataFilePath) throws IOException {
@@ -45,9 +44,9 @@ public interface AnalysisInterface {
         return retVal;
     }
 
-    public MassSpectrometerContextEnum extractMassSpecDataFromPath(Path dataFilePath) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException;
+    public void extractMassSpecDataFromPath(Path dataFilePath) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, JAXBException, TripoliException;
 
-    public void extractAnalysisMethodfromPath(Path phoenixAnalysisMethodDataFilePath) throws JAXBException;
+    public AnalysisMethod extractAnalysisMethodfromPath(Path phoenixAnalysisMethodDataFilePath) throws JAXBException;
 
     String getAnalysisName();
 
@@ -61,9 +60,9 @@ public interface AnalysisInterface {
 
     void setLabName(String labName);
 
-    Sample getAnalysisSample();
+    String getAnalysisSampleName();
 
-    void setAnalysisSample(Sample analysisSample);
+    void setAnalysisSampleName(String analysisSampleName);
 
     String getAnalysisSampleDescription();
 
@@ -94,10 +93,6 @@ public interface AnalysisInterface {
     String getDataFilePathString();
 
     void setDataFilePathString(String dataFilePathString);
-
-    public MassSpectrometerModel getMassSpectrometerModel();
-
-    public void setMassSpectrometerModel(MassSpectrometerModel massSpectrometerModel);
 
     boolean isMutable();
 

@@ -10,7 +10,6 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
-import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
@@ -30,8 +29,10 @@ import java.util.stream.Collectors;
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_ANALYSIS_YELLOW;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColorToHex;
+import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDialog;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectDataFile;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectMethodFile;
+import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compareAnalysisMethodToDataFileSpecs;
 
 public class AnalysesManagerController implements Initializable {
 
@@ -43,7 +44,7 @@ public class AnalysesManagerController implements Initializable {
     @FXML
     private TextField analysisNameTextField;
     @FXML
-    private TextField sampleTextField;
+    private TextField sampleNameTextField;
     @FXML
     private TextField sampleDescriptionTextField;
     @FXML
@@ -56,7 +57,6 @@ public class AnalysesManagerController implements Initializable {
     private TextArea metaDataTextArea;
     @FXML
     private TextArea dataSummaryTextArea;
-
     @FXML
     private TextArea aboutAnalysisTextArea;
     @FXML
@@ -66,7 +66,7 @@ public class AnalysesManagerController implements Initializable {
     @FXML
     private GridPane baselineTableGridPane;
 
-    private Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
+    private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
 
     private void populateDetectorDetailRow(GridPane target, String entry, int colIndex, int rowIndex) {
         if (!mapOfGridPanesToCellUse.get(target.getId())[rowIndex][colIndex]) {
@@ -87,8 +87,31 @@ public class AnalysesManagerController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
         analysisManagerGridPane.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_YELLOW));
-
+        setupListeners();
         populateAnalysisManagerGridPane();
+    }
+
+    private void setupListeners() {
+        analysisNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            assert null != analysis;
+            analysis.setAnalysisName(newValue.isBlank() ? MISSING_STRING_FIELD : newValue);
+        });
+        analystNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            assert null != analysis;
+            analysis.setAnalystName(newValue.isBlank() ? MISSING_STRING_FIELD : newValue);
+        });
+        labNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            assert null != analysis;
+            analysis.setLabName(newValue.isBlank() ? MISSING_STRING_FIELD : newValue);
+        });
+        sampleNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            assert null != analysis;
+            analysis.setAnalysisSampleName(newValue.isBlank() ? MISSING_STRING_FIELD : newValue);
+        });
+        sampleDescriptionTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            assert null != analysis;
+            analysis.setAnalysisSampleDescription(newValue.isBlank() ? MISSING_STRING_FIELD : newValue);
+        });
     }
 
     private void populateAnalysisManagerGridPane() {
@@ -101,8 +124,8 @@ public class AnalysesManagerController implements Initializable {
         labNameTextField.setEditable(analysis.isMutable());
         labNameTextField.setText(analysis.getLabName());
 
-        sampleTextField.setEditable(analysis.isMutable());
-        sampleTextField.setText(analysis.getAnalysisSample().getSampleName());
+        sampleNameTextField.setEditable(analysis.isMutable());
+        sampleNameTextField.setText(analysis.getAnalysisSampleName());
 
         sampleDescriptionTextField.setEditable(analysis.isMutable());
         sampleDescriptionTextField.setText(analysis.getAnalysisSampleDescription());
@@ -110,12 +133,11 @@ public class AnalysesManagerController implements Initializable {
         dataFilePathNameTextField.setEditable(false);
         dataFilePathNameTextField.setText(analysis.getDataFilePathString());
 
-        if (analysis.getDataFilePathString().compareToIgnoreCase(MISSING_STRING_FIELD) != 0) {
+        if (0 != analysis.getDataFilePathString().compareToIgnoreCase(MISSING_STRING_FIELD)) {
             populateAnalysisDataFields();
         }
-        if (!analysis.getMassSpecExtractedData().getDetectorSetup().getMapOfDetectors().isEmpty()) {
-            populateAnalysisMethodGridPane();
-        }
+
+        populateAnalysisMethodGridPane();
     }
 
     private void populateAnalysisDataFields() {
@@ -132,14 +154,19 @@ public class AnalysesManagerController implements Initializable {
         setUpGridPaneRows(analysisDetectorsGridPane, 7, detectorsInOrderList.size() + 1);
         prepareAnalysisMethodGridPanes(analysisDetectorsGridPane, detectorsInOrderList);
 
-        setUpGridPaneRows(baselineTableGridPane, (analysisMethod == null) ? 1 : analysisMethod.getBaselineTable().getSequenceCount() + 1, detectorsInOrderList.size() + 1);
+        aboutAnalysisTextArea.setText((null == analysisMethod) ? "No analysis method loaded" : analysisMethod.prettyPrintMethodSummary(true));
+
+        setUpGridPaneRows(baselineTableGridPane, (null == analysisMethod) ? 1 : analysisMethod.getBaselineTable().getSequenceCount() + 1, detectorsInOrderList.size() + 1);
         prepareAnalysisMethodGridPanes(baselineTableGridPane, detectorsInOrderList);
 
-        setUpGridPaneRows(sequenceTableGridPane,  (analysisMethod == null) ? 1 : analysisMethod.getSequenceTable().getSequenceCount() + 1, detectorsInOrderList.size() + 1);
+        setUpGridPaneRows(sequenceTableGridPane, (null == analysisMethod) ? 1 : analysisMethod.getSequenceTable().getSequenceCount() + 1, detectorsInOrderList.size() + 1);
         prepareAnalysisMethodGridPanes(sequenceTableGridPane, detectorsInOrderList);
     }
 
     private void prepareAnalysisMethodGridPanes(GridPane methodGridPane, List<Detector> detectorsInOrderList) {
+        while (1 < methodGridPane.getColumnConstraints().size()) {
+            methodGridPane.getColumnConstraints().remove(1);
+        }
         int startingColumnCount = methodGridPane.getColumnConstraints().size();
         int detectorCount = detectorsInOrderList.size();
         for (int col = 0; col < detectorCount + 1; col++) {
@@ -156,7 +183,7 @@ public class AnalysesManagerController implements Initializable {
 
         Map<Detector, List<SequenceCell>> mapOfDetectorsToSequenceCell = new TreeMap<>();
         Map<Detector, List<BaselineCell>> mapOfDetectorsToBaselineCell = new TreeMap<>();
-        if (analysis.getMethod() != null) {
+        if (null != analysis.getMethod()) {
             mapOfDetectorsToSequenceCell = analysis.getMethod().getSequenceTable().getMapOfDetectorsToSequenceCells();
             mapOfDetectorsToBaselineCell = analysis.getMethod().getBaselineTable().getMapOfDetectorsToBaselineCells();
         }
@@ -174,10 +201,10 @@ public class AnalysesManagerController implements Initializable {
 
             if (methodGridPane.equals(baselineTableGridPane) && (col < detectorCount)) {
                 List<BaselineCell> detectorBaselineCells = mapOfDetectorsToBaselineCell.get(detectorsInOrderList.get(col));
-                if (detectorBaselineCells != null) {
+                if (null != detectorBaselineCells) {
                     for (BaselineCell baselineCell : detectorBaselineCells) {
                         int sequenceNumber = baselineCell.getBaselineIndex();
-                        populateDetectorDetailRow(methodGridPane, "" + baselineCell.getCellMass(), col + 1, sequenceNumber);
+                        populateDetectorDetailRow(methodGridPane, String.valueOf(baselineCell.getCellMass()), col + 1, sequenceNumber);
                         populateDetectorDetailRow(methodGridPane, baselineCell.getBaselineName(), 0, sequenceNumber);
                     }
                 }
@@ -186,7 +213,7 @@ public class AnalysesManagerController implements Initializable {
             if (methodGridPane.equals(sequenceTableGridPane)) {
                 if (col < detectorCount) {
                     List<SequenceCell> detectorSequenceCells = mapOfDetectorsToSequenceCell.get(detectorsInOrderList.get(col));
-                    if (detectorSequenceCells != null) {
+                    if (null != detectorSequenceCells) {
                         for (SequenceCell sequenceCell : detectorSequenceCells) {
                             int sequenceNumber = sequenceCell.getSequenceIndex();
                             populateDetectorDetailRow(methodGridPane, sequenceCell.getTargetSpecies().prettyPrintShortForm(), col + 1, sequenceNumber);
@@ -201,7 +228,7 @@ public class AnalysesManagerController implements Initializable {
     }
 
     private void setUpGridPaneRows(GridPane methodGridPane, int rowCount, int colCount) {
-        while (methodGridPane.getRowConstraints().size() > 1) {
+        while (1 < methodGridPane.getRowConstraints().size()) {
             methodGridPane.getRowConstraints().remove(1);
         }
         List<Node> removals = new ArrayList<>();
@@ -227,26 +254,47 @@ public class AnalysesManagerController implements Initializable {
         }
     }
 
-    public void selectDataFileButtonAction()  {
-        MassSpectrometerContextEnum massSpectrometerContextEnum = MassSpectrometerContextEnum.UNKNOWN;
+    @FXML
+    private void selectDataFileButtonAction() {
         try {
             File selectedFile = selectDataFile(TripoliGUI.primaryStage);
-            if (selectedFile != null) {
-                massSpectrometerContextEnum = analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
+            if (null != selectedFile) {
+                analysis.setAnalysisMethod(null);
+                try {
+                    analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
+                } catch (TripoliException e) {
+                    TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
+                }
                 populateAnalysisManagerGridPane();
-                analysiMethodTabPane.getSelectionModel().select(detectorDetailTab);
             }
-        } catch (TripoliException | NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException e) {
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |
+                 JAXBException | TripoliException e) {
             TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
         }
     }
 
-    public void selectMethodFileButtonAction() throws JAXBException, TripoliException, IOException {
-        File selectedFile = selectMethodFile(TripoliGUI.primaryStage);
-        if (selectedFile != null) {
-            analysis.extractAnalysisMethodfromPath(Path.of(selectedFile.toURI()));
-            populateAnalysisManagerGridPane();
+    @FXML
+    private void selectMethodFileButtonAction() {
+        try {
+            File selectedFile = selectMethodFile(TripoliGUI.primaryStage);
+            if (null != selectedFile) {
+                if (selectedFile.exists()) {
+                    AnalysisMethod analysisMethod = analysis.extractAnalysisMethodfromPath(Path.of(selectedFile.toURI()));
+                    String compareInfo = compareAnalysisMethodToDataFileSpecs(analysisMethod, analysis.getMassSpecExtractedData());
+                    if (compareInfo.isBlank()) {
+                        analysis.setMethod(analysisMethod);
+                    } else {
+                        boolean choice = showChoiceDialog(
+                                "The chosen analysis method does not meet the specifications in the data file.\n\n"
+                                        + compareInfo
+                                        + "\n\nProceed?", TripoliGUI.primaryStage);
+                        if (choice) analysis.setMethod(analysisMethod);
+                    }
+                }
+            }
+        } catch (TripoliException | IOException | JAXBException e) {
+            TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
         }
-
+        populateAnalysisManagerGridPane();
     }
 }
