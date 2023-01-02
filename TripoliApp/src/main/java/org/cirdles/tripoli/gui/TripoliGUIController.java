@@ -276,7 +276,7 @@ public class TripoliGUIController implements Initializable {
                         //File projectFile =
                         FileHandlerUtil.saveSessionFile(tripoliSession, TripoliGUI.primaryStageWindow);
                     } catch (IOException iOException) {
-                        TripoliMessageDialog.showWarningDialog("Squid3 cannot access the target file.\n",
+                        TripoliMessageDialog.showWarningDialog("Tripoli cannot access the target file.\n",
                                 null);
                     }
                 }

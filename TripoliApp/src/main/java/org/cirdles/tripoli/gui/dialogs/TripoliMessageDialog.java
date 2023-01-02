@@ -79,7 +79,7 @@ public class TripoliMessageDialog extends Alert {
         Alert alert = new TripoliMessageDialog(
                 Alert.AlertType.CONFIRMATION,
                 message,
-                "Squid3 informs you:", owner);
+                "Tripoli informs you:", owner);
         alert.getButtonTypes().setAll(ButtonType.NO, ButtonType.OK);
         Optional<ButtonType> result = alert.showAndWait();
 

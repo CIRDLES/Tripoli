@@ -81,9 +81,17 @@ public class AnalysisMethod implements Serializable {
             for (String cellSpec : collectorArray) {
                 String[] cellSpecs = cellSpec.split(":");
 
+                int massNumber;
+                String elementName;
                 int indexOfElementNameStart = cellSpecs[0].split("\\d\\D\\D")[0].length() + 1;
-                int massNumber = Integer.parseInt(cellSpecs[0].substring(0, indexOfElementNameStart));
-                String elementName = cellSpecs[0].substring(indexOfElementNameStart);
+                // this handles the case where isotopes are written Pb206 instead of the preferred 206Pb
+                if (indexOfElementNameStart > cellSpecs[0].length()){
+                    massNumber = Integer.parseInt(cellSpecs[0].split(".\\D")[1]);
+                    elementName = cellSpecs[0].split("\\d")[0];
+                } else {
+                    massNumber = Integer.parseInt(cellSpecs[0].substring(0, indexOfElementNameStart));
+                    elementName = cellSpecs[0].substring(indexOfElementNameStart);
+                }
                 SpeciesRecordInterface species = NuclidesFactory.retrieveSpecies(elementName, massNumber);
                 analysisMethod.addSpeciesToSpeciesList(species);
                 analysisMethod.sortSpeciesListByAbundance();
@@ -93,12 +101,17 @@ public class AnalysisMethod implements Serializable {
                 Detector detector = detectorSetup.getMapOfDetectors().get(collectorName);
                 SequenceCell sequenceCell = analysisMethod.sequenceTable.accessSequenceCellForDetector(detector, "OP" + sequenceNumber, Integer.parseInt(sequenceNumber));
                 sequenceCell.addTargetSpecies(species);
-
-                // TODO: baselines
-
             }
-
         }
+
+        // TODO: baselines
+//        List<PhoenixAnalysisMethod.BASELINE> onBaselineSequences = phoenixAnalysisMethod.getBASELINE();
+//        analysisMethod.baselineTable.setSequenceCount(onBaselineSequences.size());
+//
+//        for (PhoenixAnalysisMethod.BASELINE baselineSequence : onBaselineSequences) {
+//            String sequenceNumber = baselineSequence.getSequence();
+//        }
+
 
 
         return analysisMethod;
