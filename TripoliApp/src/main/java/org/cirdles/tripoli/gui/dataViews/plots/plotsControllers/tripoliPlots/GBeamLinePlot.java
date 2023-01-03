@@ -181,19 +181,22 @@ public class GBeamLinePlot extends AbstractPlot {
                 int maxIndex = 0;
                 double maxVal = 0;
 
-                // currently only works with x value
+                // Displays toolTip of x and y positions on the G-Beam line plot
                 for (int i = 0; i < getxAxisData().length - 1; i++) {
                     double diffX = Math.abs(getxAxisData()[i] - getxAxisData()[i + 1]);
+
                     if (getyAxisData()[i] > maxVal) {
                         maxVal = getyAxisData()[i];
                         maxIndex = i;
                     }
-                    // Displays toolTip of x and y positions on the G-Beam line plot
+
                     if ((getxAxisData()[i] >= convertMouseXToValue(event.getX()) - diffX && getxAxisData()[i] <= convertMouseXToValue(event.getX()) + diffX)) {
                         double diffY = Math.abs(getyAxisData()[i] - getyAxisData()[i + 1]);
                         if ((getyAxisData()[i] >= convertMouseYToValue(event.getY()) - diffY && getyAxisData()[i] <= convertMouseYToValue(event.getY()) + diffY)) {
                             showToolTip(potNode, event, getxAxisData()[i], getyAxisData()[i]);
                         } else if (convertMouseYToValue(event.getY()) - maxY / 100 <= getyAxisData()[maxIndex] && convertMouseYToValue(event.getY()) + maxY / 100 >= getyAxisData()[maxIndex]) {
+                            showToolTip(potNode, event, getxAxisData()[i], getyAxisData()[i]);
+                        } else if (convertMouseYToValue(event.getY()) - maxY / 100 <= getyAxisData()[0] && convertMouseYToValue(event.getY()) + maxY / 100 >= getyAxisData()[0]) {
                             showToolTip(potNode, event, getxAxisData()[i], getyAxisData()[i]);
                         }
                     }

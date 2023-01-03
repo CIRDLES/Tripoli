@@ -194,13 +194,23 @@ public class BeamShapeLinePlot extends AbstractPlot {
             if (mouseInHouse(event.getX(), event.getY())) {
                 ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.CROSSHAIR);
                 potNode = ((Canvas) event.getSource()).getParent();
+                int minIndex = 0;
+                double minVal = Integer.MAX_VALUE;
+
 
                 // Displays toolTip of x and y positions on the Beam Shape line plot
-                for (int i = 0; i < getxAxisData().length - 1; i++) {
-                    double diff = Math.abs(getxAxisData()[i] - getxAxisData()[i + 1]);
+                for (int i = 1; i < getxAxisData().length; i++) {
+                    double diff = Math.abs(getxAxisData()[i - 1] - getxAxisData()[i]);
+
+                    if (getyAxisData()[i] < minVal) {
+                        minVal = getyAxisData()[i];
+                        minIndex = i;
+                    }
                     if ((getxAxisData()[i] >= convertMouseXToValue(event.getX()) - diff && getxAxisData()[i] <= convertMouseXToValue(event.getX()) + diff)) {
-                        double diffY = Math.abs(getyAxisData()[i] - getyAxisData()[i + 1]);
+                        double diffY = Math.abs(getyAxisData()[i - 1] - getyAxisData()[i]);
                         if ((getyAxisData()[i] >= convertMouseYToValue(event.getY()) - diffY && getyAxisData()[i] <= convertMouseYToValue(event.getY()) + diffY)) {
+                            showToolTip(potNode, event, getxAxisData()[i], getyAxisData()[i]);
+                        } else if (convertMouseYToValue(event.getY()) - maxY / 200 <= getyAxisData()[minIndex] && convertMouseYToValue(event.getY()) + maxY / 200 >= getyAxisData()[minIndex]) {
                             showToolTip(potNode, event, getxAxisData()[i], getyAxisData()[i]);
                         }
                     }
