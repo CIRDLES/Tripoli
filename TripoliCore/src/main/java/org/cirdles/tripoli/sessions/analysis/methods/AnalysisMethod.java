@@ -121,7 +121,7 @@ public class AnalysisMethod implements Serializable {
                     // TODO: upgrade from using massOffsetFromStationary = [-4 -3 -2 -1 0 1 2 3 4];
                     if (detector.equals(axialDetector)){
                         // rule per Noah - if <BLReference> empty or == "MASS", use <AxMass>, else mass from <BLReference>
-                        double massOffset = baselineCell
+//                        double massOffset = baselineCell
                         baselineCell.setCellMass(111);
                     }
                 }
