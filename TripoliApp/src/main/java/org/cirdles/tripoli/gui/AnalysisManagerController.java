@@ -34,9 +34,10 @@ import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.se
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectMethodFile;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compareAnalysisMethodToDataFileSpecs;
 
-public class AnalysesManagerController implements Initializable {
+public class AnalysisManagerController implements Initializable {
 
     public static AnalysisInterface analysis;
+    private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
     public Tab detectorDetailTab;
     public TabPane analysiMethodTabPane;
     @FXML
@@ -65,8 +66,6 @@ public class AnalysesManagerController implements Initializable {
     private GridPane sequenceTableGridPane;
     @FXML
     private GridPane baselineTableGridPane;
-
-    private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
 
     private void populateDetectorDetailRow(GridPane target, String entry, int colIndex, int rowIndex) {
         if (!mapOfGridPanesToCellUse.get(target.getId())[rowIndex][colIndex]) {
@@ -168,7 +167,7 @@ public class AnalysesManagerController implements Initializable {
         }
         int startingColumnCount = methodGridPane.getColumnConstraints().size();
         int detectorCount = detectorsInOrderList.size();
-        for (int col = 0; col < detectorCount + 1; col++) {
+        for (int col = 0; col < detectorCount + (methodGridPane.equals(sequenceTableGridPane) ? 2 : 1); col++) {
             if (col >= startingColumnCount) {
                 ColumnConstraints column = new ColumnConstraints();
                 column.setPrefWidth(0);
@@ -210,6 +209,9 @@ public class AnalysesManagerController implements Initializable {
             }
 
             if (methodGridPane.equals(sequenceTableGridPane)) {
+                if (col == 0) {
+                    populateDetectorDetailRow(methodGridPane, "cross ref", detectorCount + 1, 0);
+                }
                 if (col < detectorCount) {
                     List<SequenceCell> detectorSequenceCells = mapOfDetectorsToSequenceCell.get(detectorsInOrderList.get(col));
                     if (null != detectorSequenceCells) {
@@ -217,6 +219,7 @@ public class AnalysesManagerController implements Initializable {
                             int sequenceNumber = sequenceCell.getSequenceIndex();
                             populateDetectorDetailRow(methodGridPane, sequenceCell.getTargetSpecies().prettyPrintShortForm(), col + 1, sequenceNumber);
                             populateDetectorDetailRow(methodGridPane, sequenceCell.getSequenceName(), 0, sequenceNumber);
+                            populateDetectorDetailRow(methodGridPane, sequenceCell.prettyPrintBaseLineRefs(), detectorCount + 1, sequenceNumber);
                         }
                     }
                 }
@@ -240,7 +243,7 @@ public class AnalysesManagerController implements Initializable {
             methodGridPane.getChildren().remove(child);
         }
 
-        boolean[][] cellUse = new boolean[rowCount][colCount];
+        boolean[][] cellUse = new boolean[rowCount][colCount + 1]; // assignments
         mapOfGridPanesToCellUse.put(methodGridPane.getId(), cellUse);
 
         int startingCount = methodGridPane.getRowConstraints().size();

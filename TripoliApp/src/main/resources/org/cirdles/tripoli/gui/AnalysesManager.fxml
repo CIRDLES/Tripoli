@@ -31,7 +31,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<GridPane fx:id="analysisManagerGridPane" hgap="15.0" minWidth="250.0" prefHeight="640.0" prefWidth="1250.0" style="-fx-background-color: #fbf6d5;" vgap="10.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.AnalysesManagerController">
+<GridPane fx:id="analysisManagerGridPane" hgap="15.0" minWidth="250.0" prefHeight="640.0" prefWidth="1250.0" style="-fx-background-color: #fbf6d5;" vgap="10.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.AnalysisManagerController">
     <columnConstraints>
         <ColumnConstraints halignment="RIGHT" hgrow="NEVER" maxWidth="130.0" minWidth="130.0" prefWidth="130.0" />
         <ColumnConstraints hgrow="ALWAYS" />

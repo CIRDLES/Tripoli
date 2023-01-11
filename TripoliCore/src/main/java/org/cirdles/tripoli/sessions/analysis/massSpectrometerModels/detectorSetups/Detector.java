@@ -18,6 +18,9 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSet
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamClass;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
@@ -27,6 +30,8 @@ import java.util.TreeMap;
  * @author James F. Bowring
  */
 public class Detector implements Comparable, Serializable {
+
+    private static final long serialVersionUID = 1072543836339368734L;
 
     private final DetectorTypeEnum detectorType;
     private final String detectorName;

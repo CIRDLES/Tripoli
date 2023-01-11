@@ -16,9 +16,11 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
+import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineTable;
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
@@ -67,70 +69,87 @@ public class AnalysisMethod implements Serializable {
         AnalysisMethod analysisMethod = new AnalysisMethod(
                 phoenixAnalysisMethod.getHEADER().getFilename());
 
+        // first build baseline table
+        List<PhoenixAnalysisMethod.BASELINE> baselineSequences = phoenixAnalysisMethod.getBASELINE();
+        analysisMethod.getBaselineTable().setSequenceCount(baselineSequences.size());
+
+        // determine whether AxialCollector is Ax or PM in order to determine mass entries in baselineTable
+        Detector axialDetector = null;
+        String axialCollectorName = phoenixAnalysisMethod.getSETTINGS().getAxialColl();
+        if (axialCollectorName.startsWith("A")) {
+            axialDetector = detectorSetup.getMapOfDetectors().get("Ax");
+        } else {
+            axialDetector = detectorSetup.getMapOfDetectors().get("PM");
+        }
+
         List<PhoenixAnalysisMethod.ONPEAK> onPeakSequences = phoenixAnalysisMethod.getONPEAK();
-        analysisMethod.sequenceTable.setSequenceCount(onPeakSequences.size());
+        analysisMethod.getSequenceTable().setSequenceCount(onPeakSequences.size());
 
         for (PhoenixAnalysisMethod.ONPEAK onpeakSequence : onPeakSequences) {
             String sequenceNumber = onpeakSequence.getSequence();
             // <CollectorArray>147Sm:H1S1,148Sm:H2S1,149Sm:H3S1,150Sm:H4S1</CollectorArray>
-            String[] collectorArray = onpeakSequence.getCollectorArray()
-                    .trim()
-                    .replace("<CollectorArray>", "")
-                    .replace("</CollectorArray>", "")
-                    .split(",");
+            String[] collectorArray = onpeakSequence.getCollectorArray().trim().split(",");
             for (String cellSpec : collectorArray) {
                 String[] cellSpecs = cellSpec.split(":");
-
                 int massNumber;
                 String elementName;
-                int indexOfElementNameStart = cellSpecs[0].split("\\d\\D\\D")[0].length() + 1;
-                // this handles the case where isotopes are written Pb206 instead of the preferred 206Pb
-                if (indexOfElementNameStart > cellSpecs[0].length()){
-                    massNumber = Integer.parseInt(cellSpecs[0].split(".\\D")[1]);
-                    elementName = cellSpecs[0].split("\\d")[0];
-                } else {
+                // determine whether isotopes are written Pb206 instead of the preferred 206Pb
+                if (NumberUtils.isCreatable(cellSpecs[0].substring(0, 1))) {
+                    int indexOfElementNameStart = cellSpecs[0].split("\\d\\D")[0].length() + 1;
                     massNumber = Integer.parseInt(cellSpecs[0].substring(0, indexOfElementNameStart));
                     elementName = cellSpecs[0].substring(indexOfElementNameStart);
+                } else {
+                    String[] cellSpecsSub = cellSpecs[0].split("\\D");
+                    massNumber = Integer.parseInt(cellSpecsSub[cellSpecsSub.length - 1]);
+                    elementName = cellSpecs[0].split("\\d")[0];
                 }
+
                 SpeciesRecordInterface species = NuclidesFactory.retrieveSpecies(elementName, massNumber);
                 analysisMethod.addSpeciesToSpeciesList(species);
                 analysisMethod.sortSpeciesListByAbundance();
                 analysisMethod.createBaseListOfRatios();
 
-                String collectorName = cellSpecs[1].split("S")[0];
-                Detector detector = detectorSetup.getMapOfDetectors().get(collectorName);
-                SequenceCell sequenceCell = analysisMethod.sequenceTable.accessSequenceCellForDetector(detector, "OP" + sequenceNumber, Integer.parseInt(sequenceNumber));
+                String detectorName = cellSpecs[1].split("S")[0];
+                Detector detector = detectorSetup.getMapOfDetectors().get(detectorName);
+                String[] baselineReferencesArray = onpeakSequence.getBLReferences().trim().split(",");
+                List<String> baselineRefsList = new ArrayList<>();
+                for (String baselineRef : baselineReferencesArray) {
+                    baselineRefsList.add(baselineRef.trim());
+                    BaselineCell baselineCell = analysisMethod.getBaselineTable().accessBaselineCellForDetector(
+                            detector, baselineRef.trim(), Integer.parseInt(baselineRef.trim().split(".\\D")[1]));
+                    // determine mass
+                    // TODO: upgrade from using massOffsetFromStationary = [-4 -3 -2 -1 0 1 2 3 4];
+                    if (detector.equals(axialDetector)){
+                        // rule per Noah - if <BLReference> empty or == "MASS", use <AxMass>, else mass from <BLReference>
+                        double massOffset = baselineCell
+                        baselineCell.setCellMass(111);
+                    }
+                }
+                SequenceCell sequenceCell = analysisMethod.getSequenceTable().accessSequenceCellForDetector(
+                        detector, "OP" + sequenceNumber, Integer.parseInt(sequenceNumber), baselineRefsList);
                 sequenceCell.addTargetSpecies(species);
+
+
             }
         }
-
-        // TODO: baselines
-//        List<PhoenixAnalysisMethod.BASELINE> onBaselineSequences = phoenixAnalysisMethod.getBASELINE();
-//        analysisMethod.baselineTable.setSequenceCount(onBaselineSequences.size());
-//
-//        for (PhoenixAnalysisMethod.BASELINE baselineSequence : onBaselineSequences) {
-//            String sequenceNumber = baselineSequence.getSequence();
-//        }
-
-
 
         return analysisMethod;
     }
 
-    public static String compareAnalysisMethodToDataFileSpecs(AnalysisMethod analysisMethod,  MassSpecExtractedData massSpecExtractedData){
+    public static String compareAnalysisMethodToDataFileSpecs(AnalysisMethod analysisMethod, MassSpecExtractedData massSpecExtractedData) {
         String retVal = "";
         if (0 != analysisMethod.methodName.compareToIgnoreCase(massSpecExtractedData.getHeader().methodName())) {
             retVal += "Method name: " + analysisMethod.methodName + " differs from data file's method name. \n";
         }
 
         Set<String> baselineNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksData().get(1).baselineIDs()));
-        if (analysisMethod.baselineTable.getSequenceCount() != baselineNames.size()){
-            retVal+= "Baseline table has " + analysisMethod.baselineTable.getSequenceCount() + " sequences. \n";
+        if (analysisMethod.baselineTable.getSequenceCount() != baselineNames.size()) {
+            retVal += "Baseline table has " + analysisMethod.baselineTable.getSequenceCount() + " sequences. \n";
         }
 
         Set<String> onPeakNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksData().get(1).onPeakIDs()));
-        if (analysisMethod.sequenceTable.getSequenceCount() != onPeakNames.size()){
-            retVal+= "Sequence table has " + analysisMethod.sequenceTable.getSequenceCount() + " sequences. \n";
+        if (analysisMethod.sequenceTable.getSequenceCount() != onPeakNames.size()) {
+            retVal += "Sequence table has " + analysisMethod.sequenceTable.getSequenceCount() + " sequences. \n";
         }
 
         return retVal;
@@ -160,7 +179,7 @@ public class AnalysisMethod implements Serializable {
 
     public String prettyPrintMethodSummary(boolean onTwoLines) {
         StringBuilder retVal = new StringBuilder();
-        retVal.append("Method: ").append(methodName).append(SPACES_100, 0, 65 - methodName.length()).append(onTwoLines? "\nSpecies: " : "  Species: ");
+        retVal.append("Method: ").append(methodName).append(SPACES_100, 0, 65 - methodName.length()).append(onTwoLines ? "\nSpecies: " : "  Species: ");
         List<SpeciesRecordInterface> speciesAlphabetic = new ArrayList<>(speciesList);
         Collections.sort(speciesAlphabetic, Comparator.comparing(s -> s.getAtomicMass()));
         for (SpeciesRecordInterface species : speciesAlphabetic) {

@@ -59,7 +59,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private String analysisSampleName;
     private String analysisSampleDescription;
 
-    // note: path is not serializable
+    // note: Path is not serializable
     private String dataFilePathString;
     private MassSpecOutputDataRecord massSpecOutputDataRecord;// TODO remove when out of use by synthetic files experiment
     private MassSpecExtractedData massSpecExtractedData;

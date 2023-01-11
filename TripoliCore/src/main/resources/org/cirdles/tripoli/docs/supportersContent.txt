@@ -1,3 +1,3 @@
-Supporters: 
-We have been awarded a 3-year NSF grant: https://cirdles.org/Tripoli/nsf_award_abstract.html.
+Supporters:
+  We have a 3-year NSF grant: cirdles.org/Tripoli/nsf_award_abstract.html.
   The College of Charleston supports CIRDLES.org with funding for undergraduates.

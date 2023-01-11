@@ -21,39 +21,3 @@
 @supports (font-variation-settings: normal) {
     :root { font-family: 'Inter var', sans-serif; }
 }
-
-.project-Title {
-    -fx-font-size: 30;
-}
-
-.main-Pain {
-    -fx-background-color: -main-bg-color;
-    -fx-border-width: 5px;
-    -fx-border-color: -main-border-color;
-}
-
-.main-Text-Color {
-    -fx-text-fill: -main-text-color;
-}
-
-.description-Text {
-    -fx-font-size: 12px ;
-    -fx-text-fill: -main-text-color;
-}
-
-.logo {
-    -fx-scale-x: .69;
-    -fx-scale-y: .69;
-}
-
-.links {
-    -fx-text-fill: -main-link-color;
-}
-
-* {
-    -main-bg-color: #faf0e6; /*LINEN*/
-    -main-text-color: black; /**/
-    -main-border-color: black;
-    -main-accent-color: #ffffff;
-    -main-link-color: blue; /**/
-}
