@@ -68,7 +68,7 @@ public record MassSpecOutputDataRecord(
         double[] baseLineFlagsForRawDataColumn,
         double[] ionCounterFlagsForRawDataColumn,
         java.util.ArrayList<MatrixStore<Double>> allBlockInterpolations,
-        int[][] indicesOfKnotsByBlock,
+        Integer[][] indicesOfKnotsByBlock,
         int faradayCount,
         int isotopeCount,
         int blockCount,
