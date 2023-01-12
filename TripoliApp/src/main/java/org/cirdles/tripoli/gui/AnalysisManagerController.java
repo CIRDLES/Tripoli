@@ -279,19 +279,17 @@ public class AnalysisManagerController implements Initializable {
     private void selectMethodFileButtonAction() {
         try {
             File selectedFile = selectMethodFile(TripoliGUI.primaryStage);
-            if (null != selectedFile) {
-                if (selectedFile.exists()) {
-                    AnalysisMethod analysisMethod = analysis.extractAnalysisMethodfromPath(Path.of(selectedFile.toURI()));
-                    String compareInfo = compareAnalysisMethodToDataFileSpecs(analysisMethod, analysis.getMassSpecExtractedData());
-                    if (compareInfo.isBlank()) {
-                        analysis.setMethod(analysisMethod);
-                    } else {
-                        boolean choice = showChoiceDialog(
-                                "The chosen analysis method does not meet the specifications in the data file.\n\n"
-                                        + compareInfo
-                                        + "\n\nProceed?", TripoliGUI.primaryStage);
-                        if (choice) analysis.setMethod(analysisMethod);
-                    }
+            if ((null != selectedFile) && (selectedFile.exists())) {
+                AnalysisMethod analysisMethod = analysis.extractAnalysisMethodfromPath(Path.of(selectedFile.toURI()));
+                String compareInfo = compareAnalysisMethodToDataFileSpecs(analysisMethod, analysis.getMassSpecExtractedData());
+                if (compareInfo.isBlank()) {
+                    analysis.setMethod(analysisMethod);
+                } else {
+                    boolean choice = showChoiceDialog(
+                            "The chosen analysis method does not meet the specifications in the data file.\n\n"
+                                    + compareInfo
+                                    + "\n\nProceed?", TripoliGUI.primaryStage);
+                    if (choice) analysis.setMethod(analysisMethod);
                 }
             }
         } catch (TripoliException | IOException | JAXBException e) {

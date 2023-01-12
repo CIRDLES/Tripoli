@@ -42,6 +42,7 @@ import java.util.TreeSet;
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_SYNTHETIC;
+import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB;
 
@@ -85,7 +86,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, JAXBException, TripoliException {
         dataFilePathString = dataFilePath.toString();
         MassSpectrometerContextEnum massSpectrometerContext = AnalysisInterface.determineMassSpectrometerContextFromDataFile(dataFilePath);
-        if (0 != massSpectrometerContext.compareTo(MassSpectrometerContextEnum.UNKNOWN)) {
+        if (0 != massSpectrometerContext.compareTo(UNKNOWN)) {
             Class<?> clazz = massSpectrometerContext.getClazz();
             Method method = clazz.getMethod(massSpectrometerContext.getMethodName(), Path.class);
             massSpecExtractedData = (MassSpecExtractedData) method.invoke(null, dataFilePath);
@@ -95,7 +96,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         massSpecExtractedData.setMassSpectrometerContext(massSpectrometerContext);
 
         // TODO: remove this temp hack for synthetic demos
-        if (massSpectrometerContext.compareTo(MassSpectrometerContextEnum.PHOENIX_SYNTHETIC) == 0) {
+        if (massSpectrometerContext.compareTo(PHOENIX_SYNTHETIC) == 0) {
             massSpecExtractedData.setDetectorSetup(DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_SYNTHETIC.getName()));
             if (massSpecExtractedData.getHeader().methodName().toUpperCase().contains("SYNTHETIC")) {
                 setAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(BURDICK_BL_SYNTHETIC_DATA));
@@ -136,7 +137,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         sb.append(String.format("%30s", "Mass Spectrometer: "))
                 .append(String.format("%-15s", massSpecExtractedData.getMassSpectrometerContext().getMassSpectrometerName()))
                 .append(String.format("%-30s", "Context: " + massSpecExtractedData.getMassSpectrometerContext().getName()));
-        if (0 == massSpecExtractedData.getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN)) {
+        if (0 == massSpecExtractedData.getMassSpectrometerContext().compareTo(UNKNOWN)) {
             sb.append("\n\n\n\t\t\t\t   >>>  Unable to parse data file.  <<<");
         } else {
             sb.append(String.format("%30s", "Software Version: ")).append(massSpecExtractedData.getHeader().softwareVersion())
