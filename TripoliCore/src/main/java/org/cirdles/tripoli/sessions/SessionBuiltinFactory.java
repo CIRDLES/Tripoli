@@ -21,9 +21,6 @@ import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.File;
@@ -35,9 +32,6 @@ import java.util.TreeMap;
 
 import static org.cirdles.tripoli.TripoliConstants.SYNTHETIC_DATA_FOLDER_2ISOTOPE;
 import static org.cirdles.tripoli.TripoliConstants.SYNTHETIC_DATA_FOLDER_5ISOTOPE;
-import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_SYNTHETIC;
-import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA;
-import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB;
 
 /**
  * @author James F. Bowring
@@ -60,8 +54,8 @@ public final class SessionBuiltinFactory {
         try {
             twoIsotopes_01.extractMassSpecDataFromPath(dataFilePath);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |
-                    JAXBException | TripoliException e) {
-                // do nothing
+                 JAXBException | TripoliException e) {
+            // do nothing
         }
         tripoliDemonstrationSession.addAnalysis(twoIsotopes_01);
 

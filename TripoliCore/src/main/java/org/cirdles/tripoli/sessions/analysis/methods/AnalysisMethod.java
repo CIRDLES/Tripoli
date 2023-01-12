@@ -32,6 +32,7 @@ import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
 
@@ -71,7 +72,7 @@ public class AnalysisMethod implements Serializable {
 
         // first build baseline table
         List<PhoenixAnalysisMethod.BASELINE> baselineSequences = phoenixAnalysisMethod.getBASELINE();
-        analysisMethod.getBaselineTable().setSequenceCount(baselineSequences.size());
+        analysisMethod.baselineTable.setSequenceCount(baselineSequences.size());
 
         // determine whether AxialCollector is Ax or PM in order to determine mass entries in baselineTable
         Detector axialDetector = null;
@@ -83,7 +84,7 @@ public class AnalysisMethod implements Serializable {
         }
 
         List<PhoenixAnalysisMethod.ONPEAK> onPeakSequences = phoenixAnalysisMethod.getONPEAK();
-        analysisMethod.getSequenceTable().setSequenceCount(onPeakSequences.size());
+        analysisMethod.sequenceTable.setSequenceCount(onPeakSequences.size());
 
         for (PhoenixAnalysisMethod.ONPEAK onpeakSequence : onPeakSequences) {
             String sequenceNumber = onpeakSequence.getSequence();
@@ -114,23 +115,54 @@ public class AnalysisMethod implements Serializable {
                 String[] baselineReferencesArray = onpeakSequence.getBLReferences().trim().split(",");
                 List<String> baselineRefsList = new ArrayList<>();
                 for (String baselineRef : baselineReferencesArray) {
-                    baselineRefsList.add(baselineRef.trim());
-                    BaselineCell baselineCell = analysisMethod.getBaselineTable().accessBaselineCellForDetector(
-                            detector, baselineRef.trim(), Integer.parseInt(baselineRef.trim().split(".\\D")[1]));
-                    // determine mass
-                    // TODO: upgrade from using massOffsetFromStationary = [-4 -3 -2 -1 0 1 2 3 4];
-                    if (detector.equals(axialDetector)){
-                        // rule per Noah - if <BLReference> empty or == "MASS", use <AxMass>, else mass from <BLReference>
-//                        double massOffset = baselineCell
-                        baselineCell.setCellMass(111);
+                    if (!baselineRef.isBlank()) {
+                        baselineRefsList.add(baselineRef.trim());
+                        int baselineSequenceNumber = Integer.parseInt(baselineRef.trim().split(".\\D")[1]);
+                        BaselineCell baselineCell = analysisMethod.baselineTable.accessBaselineCellForDetector(
+                                detector, baselineRef.trim(), baselineSequenceNumber);
+                        // determine mass
+                        // TODO: upgrade from using massOffsetFromStationary = [-4 -3 -2 -1 0 1 2 3 4];
+                        if (detector.equals(axialDetector)) {
+                            // rule per Noah - if <BLReference> empty or == "MASS", use <AxMass>, else mass from <BLReference>
+                            double axMassOffset = Double.parseDouble(baselineSequences.get(baselineSequenceNumber - 1).getAxMassOffset());
+                            String baselineRefs = baselineSequences.get(baselineSequenceNumber - 1).getBLReferences();
+                            if (baselineRefs.isBlank() || 0 == baselineRefs.compareToIgnoreCase("MASS")) {
+                                double axMass = Double.parseDouble(baselineSequences.get(baselineSequenceNumber - 1).getAxMass());
+                                baselineCell.setCellMass(axMass + axMassOffset);
+                            } else {
+                                double axMass = Double.parseDouble(baselineRefs.split("(?<=\\d)(?=\\D)|(?=\\d)(?<=\\D)")[0]);
+                                baselineCell.setCellMass(axMass + axMassOffset);
+                            }
+                        }
                     }
                 }
-                SequenceCell sequenceCell = analysisMethod.getSequenceTable().accessSequenceCellForDetector(
+                SequenceCell sequenceCell = analysisMethod.sequenceTable.accessSequenceCellForDetector(
                         detector, "OP" + sequenceNumber, Integer.parseInt(sequenceNumber), baselineRefsList);
                 sequenceCell.addTargetSpecies(species);
 
-
             }
+        }
+
+        // post-process baselineTable to populate with masses
+        // TODO: make deltas more robust - Noah will have matlab code
+        Map<Detector, List<BaselineCell>> mapOfDetectorsToBaselineCells = analysisMethod.baselineTable.getMapOfDetectorsToBaselineCells();
+        List<BaselineCell> axialBaselineCells = mapOfDetectorsToBaselineCells.get(axialDetector);
+        // this index is used for either Ax or PM when calculating masses
+        int ordinalIndexOfAxial = detectorSetup.getMapOfDetectors().get("Ax").getOrdinalIndex();
+        for (Detector detector : mapOfDetectorsToBaselineCells.keySet()) {
+            if (!detector.equals(axialDetector)) {
+                int ordinalIndex = detector.getOrdinalIndex();
+                List<BaselineCell> baselineCells = mapOfDetectorsToBaselineCells.get(detector);
+                for (BaselineCell baselineCell : baselineCells) {
+                    int baselineCellIndex = baselineCell.getBaselineIndex();
+                    List<BaselineCell> axialBaseLineCellListOfOne = axialBaselineCells
+                            .stream()
+                            .filter(c -> c.getBaselineIndex() == baselineCellIndex)
+                            .collect(Collectors.toList());
+                    baselineCell.setCellMass((ordinalIndex - ordinalIndexOfAxial) + axialBaseLineCellListOfOne.get(0).getCellMass());
+                }
+            }
+
         }
 
         return analysisMethod;

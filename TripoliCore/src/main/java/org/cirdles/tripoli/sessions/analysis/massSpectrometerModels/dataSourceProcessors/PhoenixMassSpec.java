@@ -111,7 +111,7 @@ public class PhoenixMassSpec {
         MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
         List<String> contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
         // test for version 1.20
-        if ((!contentsByLine.get(2).trim().startsWith("Version,1.2."))  && (!contentsByLine.get(2).trim().startsWith("Version,2."))) {
+        if ((!contentsByLine.get(2).trim().startsWith("Version,1.2.")) && (!contentsByLine.get(2).trim().startsWith("Version,2."))) {
             throw new IOException("Expecting Version 1.2.n of data file.");
         } else {
             // first pass is to assemble data by blocks
@@ -177,7 +177,7 @@ public class PhoenixMassSpec {
                 } else if ((8 == phase) && !dataByBlock.isEmpty()) {
                     // clean up last block
                     // check for missing baseline action
-                    if (dataByBlocks.isEmpty()){
+                    if (dataByBlocks.isEmpty()) {
                         dataByBlocks.add(dataByBlock);
                     } else {
                         dataByBlocks.get(currentBlockNumber - 1).addAll(dataByBlock);

@@ -17,7 +17,12 @@
 /* Inter introduced by JetBrains in 2023
     https://rsms.me/inter/
  */
-:root { font-family: 'Inter', sans-serif; }
+:root {
+    font-family: 'Inter', sans-serif;
+}
+
 @supports (font-variation-settings: normal) {
-    :root { font-family: 'Inter var', sans-serif; }
+    :root {
+        font-family: 'Inter var', sans-serif;
+    }
 }

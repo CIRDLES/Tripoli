@@ -112,7 +112,7 @@ public class Analysis implements Serializable, AnalysisInterface {
                 } else {
                     throw new TripoliException(
                             "Method File not found: " + massSpecExtractedData.getHeader().methodName()
-                    + "\n\n at location: " + Path.of(dataFilePathString).getParent().getParent().toString() + File.separator + "Methods");
+                                    + "\n\n at location: " + Path.of(dataFilePathString).getParent().getParent().toString() + File.separator + "Methods");
                 }
             }
         }

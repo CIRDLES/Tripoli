@@ -16,7 +16,8 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods.baseline;
 
-import java.io.*;
+import java.io.Serial;
+import java.io.Serializable;
 
 /**
  * @author James F. Bowring
@@ -28,7 +29,7 @@ public class BaselineCell implements Serializable {
     @Serial
     private static final long serialVersionUID = 6371757007810524402L;
 
-//    private void readObject ( ObjectInputStream stream ) throws IOException,
+    //    private void readObject ( ObjectInputStream stream ) throws IOException,
 //            ClassNotFoundException {
 //        stream.defaultReadObject();
 //

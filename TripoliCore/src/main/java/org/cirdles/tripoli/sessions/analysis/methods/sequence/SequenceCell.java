@@ -18,7 +18,8 @@ package org.cirdles.tripoli.sessions.analysis.methods.sequence;
 
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
-import java.io.*;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -127,9 +128,9 @@ public class SequenceCell implements Serializable {
         this.baselineReferences = baselineReferences;
     }
 
-    public String prettyPrintBaseLineRefs(){
+    public String prettyPrintBaseLineRefs() {
         String retVal = "";
-        for (String blref : baselineReferences){
+        for (String blref : baselineReferences) {
             retVal += blref + " ";
         }
         return retVal;
