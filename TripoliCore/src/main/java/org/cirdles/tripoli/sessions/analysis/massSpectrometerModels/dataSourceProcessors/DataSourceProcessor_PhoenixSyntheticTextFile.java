@@ -19,20 +19,18 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
+import org.apache.commons.lang3.ArrayUtils;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.utilities.mathUtilities.SplineBasisModel;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
-import org.ojalgo.structure.Access2D;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceProcessorInterface {
     private final AnalysisMethod analysisMethod;
@@ -169,67 +167,16 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
         // linearly interpolate between knots to create fractional placement of each recorded timestamp
         // which takes the form of (1 - fractional distance of time with knot range, fractional distance of time with knot range)
 
-        // determine max dimension of interpMatArrayForBlock rows
-        int maxDelta = Integer.MIN_VALUE;
-        for (int cycleByBlockIndex = nCycle[0] - 1; cycleByBlockIndex < startingIndicesOfCyclesByBlock.length; cycleByBlockIndex += nCycle[0]) {
-            int delta = startingIndicesOfCyclesByBlock[cycleByBlockIndex][2] - startingIndicesOfCyclesByBlock[cycleByBlockIndex - (nCycle[0] - 1)][2];
-            if (delta > maxDelta) {
-                maxDelta = delta;
-            }
+        // todo possible refactor of method, recommend audit of method as well
+        ArrayList<MatrixStore<Double>> allBlockInterpolations = new ArrayList<>(nCycle.length);
+        Integer[][] indicesOfKnotsByBlock = new Integer[blockCount][1];
+        // when boolean is true runs linear version
+        boolean linearVsSpline = true;
+        if (linearVsSpline) {
+            bbaseTimeStampData(timeStamp, allBlockInterpolations, indicesOfKnotsByBlock, startingIndicesOfCyclesByBlock, nCycle, blockCount, 15, 1);
         }
-
-        int[][] indicesOfKnotsByBlock = new int[blockCount][];
-        @SuppressWarnings("unchecked")
-        MatrixStore<Double>[] allBlockInterpolations = new MatrixStore[nCycle.length];
-        for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
-            PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-            allBlockInterpolations[blockIndex] = null;
-            double[][] interpMatArrayForBlock = new double[nCycle[blockIndex]][];
-            interpMatArrayForBlock[0] = new double[maxDelta];
-            int knotIndex = 0;
-            indicesOfKnotsByBlock[blockIndex] = new int[nCycle[blockIndex]];
-            for (int cycleIndex = 1; cycleIndex < (nCycle[blockIndex]); cycleIndex++) {
-                int startOfCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex][2];
-                int startOfNextCycleIndex;
-                if ((cycleIndex == nCycle[blockIndex] - 1) && (blockCount == 1)) {
-                    startOfNextCycleIndex = timeStamp.length;
-                } else {
-                    startOfNextCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex + 1][2];
-                }
-
-                // detect last cycle because it uses its last entry as the upper limit
-                // whereas the matlab code uses the starting entry of the next cycle for all previous cycles
-                boolean lastCycle = (cycleIndex == nCycle[blockIndex] - 1);
-                if (lastCycle) {
-                    startOfNextCycleIndex--;
-                }
-
-                int countOfEntries = startingIndicesOfCyclesByBlock[cycleIndex][2] - startingIndicesOfCyclesByBlock[1][2];
-                double deltaTimeStamp = timeStamp[startOfNextCycleIndex] - timeStamp[startOfCycleIndex];
-                interpMatArrayForBlock[cycleIndex] = new double[maxDelta];
-
-                for (int timeIndex = startOfCycleIndex; timeIndex < startOfNextCycleIndex; timeIndex++) {
-                    interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries] =
-                            (timeStamp[timeIndex] - timeStamp[startOfCycleIndex]) / deltaTimeStamp;
-                    interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] =
-                            1.0 - interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries];
-                    if (interpMatArrayForBlock[cycleIndex - 1][(timeIndex - startOfCycleIndex) + countOfEntries] == 1.0) {
-                        indicesOfKnotsByBlock[blockIndex][knotIndex++] = (timeIndex - startOfCycleIndex + countOfEntries);
-                    }
-                }
-
-                if (lastCycle) {
-                    interpMatArrayForBlock[cycleIndex][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 1.0;
-                    indicesOfKnotsByBlock[blockIndex][knotIndex] = countOfEntries + startOfNextCycleIndex - startOfCycleIndex;
-                    interpMatArrayForBlock[cycleIndex - 1][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 0.0;
-
-                    // generate matrix and then transpose it to match matlab
-                    MatrixStore<Double> firstPass = storeFactory.copy(Access2D.wrap(interpMatArrayForBlock)).limits(
-                            cycleIndex + 1,
-                            countOfEntries + startOfNextCycleIndex - startOfCycleIndex + 1);
-                    allBlockInterpolations[blockIndex] = firstPass.transpose();
-                }
-            }
+        else {
+            bbaseTimeStampData(timeStamp, allBlockInterpolations, indicesOfKnotsByBlock, startingIndicesOfCyclesByBlock, nCycle, blockCount, 13, 3);
         }
 
         int faradayCount = analysisMethod.getSequenceTable().getMapOfDetectorsToSequenceCells().keySet().size() - 1;
@@ -517,5 +464,43 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
         }
 
         return retVal;
+    }
+
+    private int bbaseTimeStampData(double[] timeStamp,ArrayList<MatrixStore<Double>> allBlockInterpolations, Integer[][] indicesOfKnotsByBlock, int[][] startingIndicesOfCyclesByBlock, int[] nCycle, int blockCount, int numSegments, int basisDegree ) {
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+        for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
+            allBlockInterpolations.add(blockIndex, null);
+            indicesOfKnotsByBlock[blockIndex] = new Integer[nCycle[blockIndex]];
+            double [] bbaseData = new double[0];
+            int knotIndex = 1;
+            for (int cycleIndex = 1; cycleIndex < (nCycle[blockIndex]); cycleIndex++) {
+                int startOfCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex][2];
+                int startOfNextCycleIndex;
+                if ((cycleIndex == nCycle[blockIndex] - 1) && (blockCount == 1)) {
+                    startOfNextCycleIndex = timeStamp.length;
+                } else {
+                    startOfNextCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex + 1][2];
+                }
+                int countOfEntries = startingIndicesOfCyclesByBlock[cycleIndex][2] - startingIndicesOfCyclesByBlock[1][2];
+                indicesOfKnotsByBlock[blockIndex][knotIndex++] = countOfEntries + startOfNextCycleIndex - startOfCycleIndex;
+
+                // todo check last cycle input
+                bbaseData = ArrayUtils.addAll(bbaseData,Arrays.copyOfRange(timeStamp, startOfCycleIndex, startOfNextCycleIndex));
+            }
+
+            MatrixStore<Double> bbaseDataStore = storeFactory.rows(bbaseData);
+            double arrayMin = bbaseDataStore.get(0);
+            double arrayMax = bbaseDataStore.get(0);
+            for (double i : bbaseDataStore.toRawCopy1D()) {
+                if (i > arrayMax) {
+                    arrayMax = i;
+                } else if (i < arrayMin) {
+                    arrayMin = i;
+                }
+            }
+            Primitive64Store bBaseOutput = SplineBasisModel.bBase(bbaseDataStore, arrayMin, arrayMax, numSegments, basisDegree);
+                allBlockInterpolations.set(blockIndex, bBaseOutput);
+        }
+        return 0;
     }
 }
