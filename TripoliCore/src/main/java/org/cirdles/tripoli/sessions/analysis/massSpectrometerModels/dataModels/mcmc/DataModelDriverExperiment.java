@@ -57,6 +57,8 @@ public enum DataModelDriverExperiment {
 
     private static final boolean doFullProcessing = false;
     public static boolean ALLOW_EXECUTION = true;
+    // todo flag for linear or spline
+    // private static final boolean splineVsLinear = true;
 
     public static AbstractPlotBuilder[][] driveModelTest(Path dataFilePath, AnalysisMethod analysisMethod, LoggingCallbackInterface loggingCallback) throws IOException {
 
@@ -451,9 +453,9 @@ public enum DataModelDriverExperiment {
 
                 ArrayList<double[]> intensity2 = new ArrayList<>(1);
                 for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
-                    PhysicalStore<Double> tempIntensity = storeFactory.make(massSpecOutputDataRecord.allBlockInterpolations()[blockIndex].countRows(),
+                    PhysicalStore<Double> tempIntensity = storeFactory.make(massSpecOutputDataRecord.allBlockInterpolations().get(blockIndex).countRows(),
                             storeFactory.columns(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]).getColDim());
-                    tempIntensity.fillByMultiplying(massSpecOutputDataRecord.allBlockInterpolations()[blockIndex], Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]));
+                    tempIntensity.fillByMultiplying(massSpecOutputDataRecord.allBlockInterpolations().get(blockIndex), Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]));
                     intensity2.add(tempIntensity.toRawCopy1D());
 
                     for (int row = (int) blockStartIndicesFaraday[blockIndex]; row <= (int) blockEndIndicesFaraday[blockIndex]; row++) {
@@ -467,6 +469,12 @@ public enum DataModelDriverExperiment {
                 long interval2 = System.nanoTime() - prev;
                 prev = interval2 + prev;
 
+//            ArrayList<double[]> intensity2 = new ArrayList<>(1);
+//            for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
+//                PhysicalStore<Double> tempIntensity = storeFactory.make(massSpecOutputDataRecord.allBlockInterpolations().get(blockIndex).countRows(),
+//                        storeFactory.columns(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]).getColDim());
+//                tempIntensity.fillByMultiplying(massSpecOutputDataRecord.allBlockInterpolations().get(blockIndex), Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]));
+//                intensity2.add(tempIntensity.toRawCopy1D());
                 double[] dnobl2 = new double[rowDimension];
                 double[] d2 = new double[rowDimension];
 
