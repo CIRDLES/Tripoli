@@ -48,8 +48,8 @@
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem mnemonicParsing="false" onAction="#quitAction" text="Quit"/>
         </Menu>
-        <Menu fx:id="analysisMenu" mnemonicParsing="false" text="Analyses">
-            <MenuItem mnemonicParsing="false" onAction="#manageAnalysesMenuItemAction" text="Manage Analyses"/>
+        <Menu fx:id="analysisMenu" mnemonicParsing="false" text="Analysis">
+            <MenuItem mnemonicParsing="false" onAction="#manageAnalysisMenuItemAction" text="Manage Analysis"/>
             <MenuItem mnemonicParsing="false" onAction="#newAnalysisMenuItemOnAction" text="New Analysis"/>
             <MenuItem mnemonicParsing="false" text="Import Analysis"/>
             <MenuItem mnemonicParsing="false" text="Export Analysis"/>

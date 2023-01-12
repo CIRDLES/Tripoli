@@ -1,5 +1,6 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
+import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 
@@ -10,12 +11,14 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class MassSpecExtractedData implements Serializable {
+    private MassSpectrometerContextEnum massSpectrometerContext;
     private MassSpecExtractedHeader header;
     private String[] columnHeaders;
     private DetectorSetup detectorSetup;
     private Map<Integer, MassSpecOutputSingleBlockRecord> blocksData;
 
     public MassSpecExtractedData() {
+        this.massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
         populateHeader(new ArrayList<>());
         populateColumnNamesList(new ArrayList<>());
         populateDetectors(new ArrayList<>());
@@ -79,6 +82,14 @@ public class MassSpecExtractedData implements Serializable {
                     Double.parseDouble(detectorData.get(detectorIndex)[5]));
             detectorSetup.addDetector(detector);
         }
+    }
+
+    public MassSpectrometerContextEnum getMassSpectrometerContext() {
+        return massSpectrometerContext;
+    }
+
+    public void setMassSpectrometerContext(MassSpectrometerContextEnum massSpectrometerContext) {
+        this.massSpectrometerContext = massSpectrometerContext;
     }
 
     public MassSpecExtractedHeader getHeader() {

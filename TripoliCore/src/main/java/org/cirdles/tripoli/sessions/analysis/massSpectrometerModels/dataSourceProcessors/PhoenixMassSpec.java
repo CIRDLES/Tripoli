@@ -47,6 +47,7 @@ public class PhoenixMassSpec {
         } else {
             List<String[]> headerByLineSplit = new ArrayList<>();
             List<String[]> columnNamesSplit = new ArrayList<>();
+            List<String[]> detectorsByLineSplit = new ArrayList<>();
             List<String> dataByBlock = new ArrayList<>();
 
             int phase = 0;
@@ -56,6 +57,7 @@ public class PhoenixMassSpec {
                 if (!line.trim().isBlank()) {
                     if (line.startsWith("#START")) {
                         massSpecExtractedData.populateHeader(headerByLineSplit);
+                        massSpecExtractedData.populateDetectors(detectorsByLineSplit);
                         phase = 1;
                     } else if (line.startsWith("#END")) {
                         phase = 4;
@@ -109,12 +111,12 @@ public class PhoenixMassSpec {
         MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
         List<String> contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
         // test for version 1.20
-        if (!contentsByLine.get(2).trim().startsWith("Version,1.2.")) {
+        if ((!contentsByLine.get(2).trim().startsWith("Version,1.2.")) && (!contentsByLine.get(2).trim().startsWith("Version,2."))) {
             throw new IOException("Expecting Version 1.2.n of data file.");
         } else {
             // first pass is to assemble data by blocks
             List<String[]> headerByLineSplit = new ArrayList<>();
-            List<String[]> collectorsByLineSplit = new ArrayList<>();
+            List<String[]> detectorsByLineSplit = new ArrayList<>();
             List<String[]> columnNamesSplit = new ArrayList<>();
             List<List<String>> dataByBlocks = new ArrayList<>();
             List<String> dataByBlock = new ArrayList<>();
@@ -127,7 +129,7 @@ public class PhoenixMassSpec {
                         massSpecExtractedData.populateHeader(headerByLineSplit);
                         phase = 1;
                     } else if (line.startsWith("#BASELINES")) {
-                        massSpecExtractedData.populateDetectors(collectorsByLineSplit);
+                        massSpecExtractedData.populateDetectors(detectorsByLineSplit);
                         phase = 3;
                     } else if (line.startsWith("#ONPEAK")) {
                         phase = 6;
@@ -138,7 +140,7 @@ public class PhoenixMassSpec {
                     switch (phase) {
                         case 0 -> headerByLineSplit.add(line.split(","));
                         case 1 -> phase = 2;
-                        case 2 -> collectorsByLineSplit.add(line.split(","));
+                        case 2 -> detectorsByLineSplit.add(line.split(","));
                         case 3 -> phase = 4;
                         case 4 -> {
                             columnNamesSplit.add(line.split(","));
@@ -174,7 +176,12 @@ public class PhoenixMassSpec {
                     currentBlockNumber = 1;
                 } else if ((8 == phase) && !dataByBlock.isEmpty()) {
                     // clean up last block
-                    dataByBlocks.get(currentBlockNumber - 1).addAll(dataByBlock);
+                    // check for missing baseline action
+                    if (dataByBlocks.isEmpty()) {
+                        dataByBlocks.add(dataByBlock);
+                    } else {
+                        dataByBlocks.get(currentBlockNumber - 1).addAll(dataByBlock);
+                    }
                     massSpecExtractedData.addBlockRecord(
                             parseAndBuildSingleBlockRecord(2, currentBlockNumber, dataByBlocks.get(currentBlockNumber - 1)));
                 }

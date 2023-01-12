@@ -55,7 +55,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public enum DataModelDriverExperiment {
     ;
 
-    private static final boolean doFullProcessing = true;
+    private static final boolean doFullProcessing = false;
     public static boolean ALLOW_EXECUTION = true;
     // todo flag for linear or spline
     // private static final boolean splineVsLinear = true;
@@ -658,7 +658,7 @@ public enum DataModelDriverExperiment {
                                 }
                                 delx_adapt = storeFactory.copy(Access2D.wrap(samples)).transpose().toRawCopy2D();
                             } else {
-                                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Bad matrix");
+                                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Bad matrix at model " + counter);
                             }
                         }
                     }
