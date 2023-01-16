@@ -33,7 +33,7 @@ public class BaselineTable implements Serializable {
     @Serial
     private static final long serialVersionUID = 6152558186543823004L;
 
-    // DetectorName maps to map of baseline name to sequencecell
+    // DetectorName maps to map of baseline name to baselineCells
     private Map<Detector, List<BaselineCell>> mapOfDetectorsToBaselineCells;
 
     private int sequenceCount;
@@ -61,7 +61,7 @@ public class BaselineTable implements Serializable {
         }
         List<BaselineCell> targetCellList = targetList
                 .stream()
-                .filter(cell -> ((cell.getBaselineName().compareToIgnoreCase(baselineName) == 0))).toList();
+                .filter(cell -> ((cell.getBaselineID().compareToIgnoreCase(baselineName) == 0))).toList();
 
         return targetCellList.get(0);
     }

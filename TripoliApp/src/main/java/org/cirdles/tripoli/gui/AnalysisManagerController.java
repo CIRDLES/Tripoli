@@ -1,7 +1,6 @@
 package org.cirdles.tripoli.gui;
 
 import jakarta.xml.bind.JAXBException;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
@@ -203,9 +202,9 @@ public class AnalysisManagerController implements Initializable {
                 List<BaselineCell> detectorBaselineCells = mapOfDetectorsToBaselineCell.get(detectorsInOrderList.get(col));
                 if (null != detectorBaselineCells) {
                     for (BaselineCell baselineCell : detectorBaselineCells) {
-                        int sequenceNumber = baselineCell.getBaselineIndex();
+                        int sequenceNumber = baselineCell.getBaselineSequence();
                         populateDetectorDetailRow(methodGridPane, String.valueOf(baselineCell.getCellMass()), col + 1, sequenceNumber);
-                        populateDetectorDetailRow(methodGridPane, baselineCell.getBaselineName(), 0, sequenceNumber);
+                        populateDetectorDetailRow(methodGridPane, baselineCell.getBaselineID(), 0, sequenceNumber);
                     }
                 }
             }
@@ -218,9 +217,9 @@ public class AnalysisManagerController implements Initializable {
                     List<SequenceCell> detectorSequenceCells = mapOfDetectorsToSequenceCell.get(detectorsInOrderList.get(col));
                     if (null != detectorSequenceCells) {
                         for (SequenceCell sequenceCell : detectorSequenceCells) {
-                            int sequenceNumber = sequenceCell.getSequenceIndex();
+                            int sequenceNumber = sequenceCell.getOnPeakSequence();
                             populateDetectorDetailRow(methodGridPane, sequenceCell.getTargetSpecies().prettyPrintShortForm(), col + 1, sequenceNumber);
-                            populateDetectorDetailRow(methodGridPane, sequenceCell.getSequenceName(), 0, sequenceNumber);
+                            populateDetectorDetailRow(methodGridPane, sequenceCell.getSequenceId(), 0, sequenceNumber);
                             populateDetectorDetailRow(methodGridPane, sequenceCell.prettyPrintBaseLineRefs(), detectorCount + 1, sequenceNumber);
                         }
                     }
@@ -300,7 +299,7 @@ public class AnalysisManagerController implements Initializable {
         populateAnalysisManagerGridPane();
     }
 
-    public void initializeMonteCarloTechniqueAction() {
-        prepareSingleBlockDataForMCMC(1, analysis.getMassSpecExtractedData());
+    public void initializeMonteCarloTechniqueAction() throws TripoliException {
+        prepareSingleBlockDataForMCMC(1, analysis.getMassSpecExtractedData(), analysis.getAnalysisMethod());
     }
 }

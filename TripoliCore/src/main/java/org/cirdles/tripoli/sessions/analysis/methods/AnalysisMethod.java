@@ -154,10 +154,10 @@ public class AnalysisMethod implements Serializable {
                 int ordinalIndex = detector.getOrdinalIndex();
                 List<BaselineCell> baselineCells = mapOfDetectorsToBaselineCells.get(detector);
                 for (BaselineCell baselineCell : baselineCells) {
-                    int baselineCellIndex = baselineCell.getBaselineIndex();
+                    int baselineCellIndex = baselineCell.getBaselineSequence();
                     List<BaselineCell> axialBaseLineCellListOfOne = axialBaselineCells
                             .stream()
-                            .filter(c -> c.getBaselineIndex() == baselineCellIndex)
+                            .filter(c -> c.getBaselineSequence() == baselineCellIndex)
                             .collect(Collectors.toList());
                     baselineCell.setCellMass((ordinalIndex - ordinalIndexOfAxial) + axialBaseLineCellListOfOne.get(0).getCellMass());
                 }
@@ -195,12 +195,12 @@ public class AnalysisMethod implements Serializable {
                     retVal.append(e.getKey().getDetectorName()).append(" ");
                     boolean offset = false;
                     for (SequenceCell sequenceCell : e.getValue()) {
-                        int sequenceNumber = sequenceCell.getSequenceIndex();
+                        int sequenceNumber = sequenceCell.getOnPeakSequence();
                         if (!offset) {
                             retVal.append(SPACES_100, 0, (sequenceNumber - 1) * 10);
                             offset = true;
                         }
-                        retVal.append(sequenceCell.getSequenceName()).append(":").append(sequenceCell.getTargetSpecies().prettyPrintShortForm()).append(" ");
+                        retVal.append(sequenceCell.getSequenceId()).append(":").append(sequenceCell.getTargetSpecies().prettyPrintShortForm()).append(" ");
                     }
 
                     retVal.append("\n");

@@ -149,7 +149,7 @@ public interface DataSourceProcessorInterface {
                         for (SequenceCell sequenceCell : detectorCellsByMass) {
                             int detectorDataColumnIndex = detector.getOrdinalIndex();
                             int lastBaseLineIndex = 0;
-                            String sequenceName = sequenceCell.getSequenceName();
+                            String sequenceName = sequenceCell.getSequenceId();
                             for (int detectorDataRowIndex = 0; detectorDataRowIndex < sequenceIDs.length; detectorDataRowIndex++) {
                                 if ((sequenceIDs[detectorDataRowIndex].toUpperCase(Locale.ROOT).compareTo(sequenceName.toUpperCase(Locale.ROOT)) == 0)
                                         && blockNumbers[detectorDataRowIndex] == blockNumber) {

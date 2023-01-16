@@ -106,7 +106,7 @@ public class FileHandlerUtil {
         if (dataFile != null) {
             // <?xml version="1.0" standalone="yes"?>
             List<String> contentsByLine = new ArrayList<>(Files.readAllLines(Path.of(dataFile.toURI()), Charset.defaultCharset()));
-            if (contentsByLine.get(0).startsWith("<?xml version=") && (contentsByLine.get(0).startsWith("<ANALYSIS_METHOD>"))) {
+            if (contentsByLine.get(0).startsWith("<?xml version=") && (contentsByLine.get(1).startsWith("<ANALYSIS_METHOD>"))) {
                 retVal = dataFile;
             } else {
                 throw new TripoliException("File does not contain correct xml for a method specification.");

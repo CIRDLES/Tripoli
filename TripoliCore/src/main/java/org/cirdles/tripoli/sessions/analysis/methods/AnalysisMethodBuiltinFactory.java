@@ -65,13 +65,13 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         BaselineTable baselineTable = burdickBlSyntheticData.getBaselineTable();
         baselineTable.setSequenceCount(1);
 
-        BaselineCell baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "Bl1", 1);
+        BaselineCell baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "BL1", 1);
         baselineCell.setCellMass(203.5);
 
-        baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "Bl1", 1);
+        baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "BL1", 1);
         baselineCell.setCellMass(205.5);
 
-        baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "Bl1", 1);
+        baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "BL1", 1);
         baselineCell.setCellMass(207.5);
 
         SequenceTable sequenceTable = burdickBlSyntheticData.getSequenceTable();
@@ -113,19 +113,19 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         BaselineTable baselineTable = ku_204_5_6_7_8_Daly_AllFaradayPb.getBaselineTable();
         baselineTable.setSequenceCount(1);
 
-        BaselineCell baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "Bl1", 1);
+        BaselineCell baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "BL1", 1);
         baselineCell.setCellMass(203.5);
 
-        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "Bl1", 1);
+        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "BL1", 1);
         baselineCell.setCellMass(204.5);
 
-        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H2"), "Bl1", 1);
+        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H2"), "BL1", 1);
         baselineCell.setCellMass(205.5);
 
-        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H3"), "Bl1", 1);
+        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H3"), "BL1", 1);
         baselineCell.setCellMass(206.5);
 
-        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H4"), "Bl1", 1);
+        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H4"), "BL1", 1);
         baselineCell.setCellMass(207.5);
 
         SequenceTable sequenceTable = ku_204_5_6_7_8_Daly_AllFaradayPb.getSequenceTable();

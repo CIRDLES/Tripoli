@@ -69,7 +69,7 @@ public class SequenceTable implements Serializable {
         }
         List<SequenceCell> targetCellList = targetList
                 .stream()
-                .filter(cell -> ((cell.getSequenceName().compareToIgnoreCase(sequenceName) == 0))).toList();
+                .filter(cell -> ((cell.getSequenceId().compareToIgnoreCase(sequenceName) == 0))).toList();
 
         return targetCellList.get(0);
     }
