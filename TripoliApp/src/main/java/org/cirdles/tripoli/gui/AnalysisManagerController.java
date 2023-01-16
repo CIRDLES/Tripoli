@@ -32,7 +32,7 @@ import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColor
 import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDialog;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectDataFile;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectMethodFile;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.DataPrepForMCMC.prepareSingleBlockDataForMCMC;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.DataPrepForMCMC.prepareSingleBlockDataForMCMC;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compareAnalysisMethodToDataFileSpecs;
 
 public class AnalysisManagerController implements Initializable {

@@ -113,7 +113,24 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         BaselineTable baselineTable = ku_204_5_6_7_8_Daly_AllFaradayPb.getBaselineTable();
         baselineTable.setSequenceCount(1);
 
-        BaselineCell baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "BL1", 1);
+        BaselineCell baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("L4"), "BL1", 1);
+        baselineCell.setCellMass(199.5);
+
+        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("L3"), "BL1", 1);
+        baselineCell.setCellMass(200.5);
+
+        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("L2"), "BL1", 1);
+        baselineCell.setCellMass(201.5);
+
+        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "BL1", 1);
+        baselineCell.setCellMass(202.5);
+
+
+
+
+
+
+        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "BL1", 1);
         baselineCell.setCellMass(203.5);
 
         baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "BL1", 1);

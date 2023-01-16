@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
@@ -34,6 +34,7 @@ import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 import org.ojalgo.matrix.task.InverterTask;
 
+import java.io.Serializable;
 import java.util.*;
 
 import static java.lang.StrictMath.exp;
@@ -67,7 +68,7 @@ public enum DataPrepForMCMC {
 
         int intensityIndex = 0;
         for (Integer detectorOrdinalIndex : detectorOrdinalIndicesAccumulatorList) {
-            if (!mapFaradayDetectorIndicesToStatistics.keySet().contains(detectorOrdinalIndex)) {
+            if (!mapFaradayDetectorIndicesToStatistics.containsKey(detectorOrdinalIndex)) {
                 mapFaradayDetectorIndicesToStatistics.put(detectorOrdinalIndex, new DescriptiveStatistics());
             }
             mapFaradayDetectorIndicesToStatistics.get(detectorOrdinalIndex).addValue(intensityAccumulatorList.get(intensityIndex));
@@ -82,16 +83,6 @@ public enum DataPrepForMCMC {
             baselineStandardDeviationArray[faradayIndex] = mapFaradayDetectorIndicesToStatistics.get(detectorOrdinalIndex).getStandardDeviation();
             mapDetectorOrdinalToFaradayIndex.put(detectorOrdinalIndex, faradayIndex);
             faradayIndex++;
-        }
-
-        // initialize model data vector
-        double[] dataArray = new double[totalIntensityCount];
-        // populate baseline entries
-        int dataArrayIndex = 0;
-        for (Integer detectorOrdinalIndex : detectorOrdinalIndicesAccumulatorList){
-            faradayIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndex);
-            dataArray[dataArrayIndex] = baselineMeansArray[faradayIndex];
-            dataArrayIndex ++;
         }
 
         // OnPeak statistics by faraday ********************************************************************************
@@ -111,7 +102,7 @@ public enum DataPrepForMCMC {
 
         intensityIndex = 0;
         for (Integer isotopeOrdinalIndex : isotopeOrdinalIndicesAccumulatorList) {
-            if (!mapFaradayIsotopeIndicesToStatistics.keySet().contains(isotopeOrdinalIndex)) {
+            if (!mapFaradayIsotopeIndicesToStatistics.containsKey(isotopeOrdinalIndex)) {
                 mapFaradayIsotopeIndicesToStatistics.put(isotopeOrdinalIndex, new DescriptiveStatistics());
             }
             mapFaradayIsotopeIndicesToStatistics.get(isotopeOrdinalIndex).addValue(
@@ -127,23 +118,6 @@ public enum DataPrepForMCMC {
             isotopeIndex++;
         }
 
-//        // populate onPeak Faraday entries
-//        for (Integer isotopeOrdinalIndex : isotopeOrdinalIndicesAccumulatorList){
-//
-//            if (isotopeIndex < logRatios.length - 1) {
-//                dataArray[row] = exp(logRatios[isotopeIndex]) / dfGain
-//                        * intensity.get((int) massSpecOutputDataRecord.timeIndColumn()[row] - 1, 0)
-//                        + blMeansArray[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1];
-//            } else {
-//                dataArray[row] = 1.0 / dfGain
-//                        * intensity.get((int) massSpecOutputDataRecord.timeIndColumn()[row] - 1, 0)
-//                        + blMeansArray[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1];
-//            }
-//
-//            dataArray[dataArrayIndex] = baselineMeansArray[faradayIndex];
-//            dataArrayIndex ++;
-//        }
-
         // OnPeak statistics by photomultiplier ************************************************************************
         AccumulatedMCMCData onPeakPhotoMultiplierDataSetMCMC = accumulatedsingleBlockDataForMCMC.onPeakPhotoMultiplierDataSetMCMC();
         isotopeOrdinalIndicesAccumulatorList = onPeakPhotoMultiplierDataSetMCMC.isotopeOrdinalIndicesAccumulatorList();
@@ -152,7 +126,7 @@ public enum DataPrepForMCMC {
 
         intensityIndex = 0;
         for (Integer isotopeOrdinalIndex : isotopeOrdinalIndicesAccumulatorList) {
-            if (!mapPhotoMultiplierIsotopeIndicesToStatistics.keySet().contains(isotopeOrdinalIndex)) {
+            if (!mapPhotoMultiplierIsotopeIndicesToStatistics.containsKey(isotopeOrdinalIndex)) {
                 mapPhotoMultiplierIsotopeIndicesToStatistics.put(isotopeOrdinalIndex, new DescriptiveStatistics());
             }
             mapPhotoMultiplierIsotopeIndicesToStatistics.get(isotopeOrdinalIndex).addValue(
@@ -212,7 +186,7 @@ public enum DataPrepForMCMC {
         for (int row = 0; row < intensityAccumulatorList.size(); row++) {
             if (isotopeOrdinalIndicesAccumulatorList.get(row) - 1 < logRatios.length) {
                 dd.add(intensityAccumulatorList.get(row)
-                        / exp(logRatios[(int) isotopeOrdinalIndicesAccumulatorList.get(row) - 1]));
+                        / exp(logRatios[isotopeOrdinalIndicesAccumulatorList.get(row) - 1]));
             } else {
                 // this used to be the iden/iden ratio, which we eliminated, was 1.0 anyway
                 dd.add(intensityAccumulatorList.get(row));
@@ -221,7 +195,7 @@ public enum DataPrepForMCMC {
         double[] ddArray = dd.stream().mapToDouble(d -> d).toArray();
 
         // get indices used in sorting per Matlab [~,dsort]=sort(d0.time_ind(dind));
-        double[] timeIndForSortingArray = onPeakPhotoMultiplierDataSetMCMC.timeAccumulatorList.stream().mapToDouble(d -> d).toArray();
+        double[] timeIndForSortingArray = onPeakPhotoMultiplierDataSetMCMC.timeIndexAccumulatorList().stream().mapToDouble(d -> d).toArray();
         ArrayIndexComparator comparator = new ArrayIndexComparator(timeIndForSortingArray);
         Integer[] dsortIndices = comparator.createIndexArray();
         Arrays.sort(dsortIndices, comparator);
@@ -259,35 +233,129 @@ public enum DataPrepForMCMC {
             end
          */
 
+        // initialize model data vector
+        double[] dataArray = new double[totalIntensityCount];
 
+        // populate dataArray with baseline entries
+        detectorOrdinalIndicesAccumulatorList = baselineDataSetMCMC.detectorOrdinalIndicesAccumulatorList();
+        for (int dataArrayIndex = 0; dataArrayIndex < baselineCount; dataArrayIndex++) {
+            faradayIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(dataArrayIndex));
+            dataArray[dataArrayIndex] = baselineMeansArray[faradayIndex];
+        }
+
+        MatrixStore<Double> intensity = accumulatedsingleBlockDataForMCMC.blockKnotInterpolationStore().multiply(storeFactory.columns(IO));
+
+        // populate dataArray with onpeak faraday entries
+        isotopeOrdinalIndicesAccumulatorList = onPeakFaradayDataSetMCMC.isotopeOrdinalIndicesAccumulatorList();
+        detectorOrdinalIndicesAccumulatorList = onPeakFaradayDataSetMCMC.detectorOrdinalIndicesAccumulatorList();
+        List<Integer> timeIndexAccumulatorList = onPeakFaradayDataSetMCMC.timeIndexAccumulatorList();
+        for (int dataArrayIndex = baselineCount; dataArrayIndex < baselineCount + onPeakFaradayCount; dataArrayIndex++) {
+            int sourceIndex = timeIndexAccumulatorList.get(dataArrayIndex - baselineCount);
+            isotopeIndex = isotopeOrdinalIndicesAccumulatorList.get(sourceIndex) - 1;
+            faradayIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(sourceIndex));
+            if (isotopeIndex < logRatios.length) {
+                dataArray[dataArrayIndex] = exp(logRatios[isotopeIndex]) / dfGain * intensity.get(sourceIndex, 0) + baselineMeansArray[faradayIndex];
+            } else {
+                dataArray[dataArrayIndex] = 1.0 / dfGain * intensity.get(sourceIndex, 0) + baselineMeansArray[faradayIndex];
+            }
+        }
+
+        // populate dataArray with onpeak photomultiplier entries
+        isotopeOrdinalIndicesAccumulatorList = onPeakPhotoMultiplierDataSetMCMC.isotopeOrdinalIndicesAccumulatorList();
+        timeIndexAccumulatorList = onPeakPhotoMultiplierDataSetMCMC.timeIndexAccumulatorList();
+        for (int dataArrayIndex = baselineCount + onPeakFaradayCount; dataArrayIndex < baselineCount + onPeakFaradayCount + onPeakPhotoMultCount; dataArrayIndex++) {
+            int sourceIndex = timeIndexAccumulatorList.get(dataArrayIndex - baselineCount - onPeakFaradayCount);
+            isotopeIndex = isotopeOrdinalIndicesAccumulatorList.get(sourceIndex) - 1;
+            if (isotopeIndex < logRatios.length) {
+                dataArray[dataArrayIndex] = exp(logRatios[isotopeIndex]) * intensity.get(sourceIndex, 0);
+            } else {
+                dataArray[dataArrayIndex] = intensity.get(sourceIndex, 0);
+            }
+        }
+
+        /*
+            % Define initial sigmas based on baseline
+            for m = 1:d0.Nfar%+1
+                itmp = d0.det_vec==m & d0.blflag==1;
+                x0.sig(m,1) = 1*std(d0.data(itmp));
+            end
+
+            x0.sig(d0.Nfar+1,1) = 0;
+
+            for m = 1: d0.Niso;
+                itmp = d0.iso_vec==m ;
+                x0.sig(d0.Ndet + m,1) = 1.1*10;
+            end
+         */
+
+        int faradayCount = mapDetectorOrdinalToFaradayIndex.size();
+        int isotopeCount = logRatios.length + 1;
+        double[] sigmas = new double[faradayCount + 1 + isotopeCount];
+        for (faradayIndex = 0; faradayIndex < faradayCount; faradayIndex++) {
+            sigmas[faradayIndex] = baselineStandardDeviationArray[faradayIndex];
+        }
+        // photomultiplier
+        sigmas[faradayIndex + 1] = 0.0;
+
+        for (isotopeIndex = 0; isotopeIndex < isotopeCount; isotopeIndex++) {
+            sigmas[faradayCount + 1 + isotopeIndex] = 11.0;
+        }
 
 
     }
 
-    static class ArrayIndexComparator implements Comparator<Integer> {
-        private final double[] array;
+    private static Primitive64Store generateLinearKnotsMatrixReplicaOfBurdickMatLab(MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord) {
+        // build InterpMat for block using linear approach
+        // the general approach for a block is to create a knot at the start of each cycle and
+        // linearly interpolate between knots to create fractional placement of each recorded timestamp
+        // which takes the form of (1 - fractional distance of time with knot range, fractional distance of time with knot range)
 
-        public ArrayIndexComparator(double[] array) {
-            this.array = array;
-        }
+        int[] onPeakStartingIndicesOfCycles = massSpecOutputSingleBlockRecord.onPeakStartingIndicesOfCycles();
+        int cycleCount = onPeakStartingIndicesOfCycles.length;
+        int knotCount = cycleCount + 1;
+        int onPeakDataEntriesCount = massSpecOutputSingleBlockRecord.onPeakCycleNumbers().length;
 
-        public Integer[] createIndexArray() {
-            Integer[] indexes = new Integer[array.length];
-            for (int i = 0; i < array.length; i++) {
-                indexes[i] = i; // Autoboxing
+        double[][] interpMatArrayForBlock = new double[knotCount][onPeakDataEntriesCount];
+        for (int cycleIndex = 0; cycleIndex < cycleCount; cycleIndex++) {
+            boolean lastCycle = false;
+            int startOfCycleIndex = onPeakStartingIndicesOfCycles[cycleIndex];
+            int startOfNextCycleIndex;
+            if (cycleIndex == cycleCount - 1) {
+                // last cycle
+                startOfNextCycleIndex = onPeakDataEntriesCount - 1;
+                lastCycle = true;
+            } else {
+                startOfNextCycleIndex = onPeakStartingIndicesOfCycles[cycleIndex + 1];
             }
-            return indexes;
-        }
 
-        @Override
-        public int compare(Integer index1, Integer index2) {
-            return Double.compare(array[index1], array[index2]);
+            double[] timeStamp = massSpecOutputSingleBlockRecord.onPeakTimeStamps();
+            int countOfEntries = onPeakStartingIndicesOfCycles[cycleIndex] - onPeakStartingIndicesOfCycles[0];
+            double deltaTimeStamp = timeStamp[startOfNextCycleIndex] - timeStamp[startOfCycleIndex];
+
+            for (int timeIndex = startOfCycleIndex; timeIndex < startOfNextCycleIndex; timeIndex++) {
+                interpMatArrayForBlock[cycleIndex][(timeIndex - startOfCycleIndex) + countOfEntries] =
+                        1.0 - (timeStamp[timeIndex] - timeStamp[startOfCycleIndex]) / deltaTimeStamp;
+                interpMatArrayForBlock[cycleIndex + 1][(timeIndex - startOfCycleIndex) + countOfEntries] =
+                        (timeStamp[timeIndex] - timeStamp[startOfCycleIndex]) / deltaTimeStamp;
+            }
+
+            if (lastCycle) {
+                interpMatArrayForBlock[cycleIndex][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 0.0;
+                interpMatArrayForBlock[cycleIndex + 1][countOfEntries + startOfNextCycleIndex - startOfCycleIndex] = 1.0;
+            }
         }
+        // generate matrix and then transpose it to match matlab
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+        storeFactory.rows(interpMatArrayForBlock).limits(knotCount, onPeakDataEntriesCount).transpose().toRawCopy2D();
+
+        return Primitive64Store.FACTORY.rows(storeFactory.rows(interpMatArrayForBlock).limits(knotCount, onPeakDataEntriesCount).transpose().toRawCopy2D());
     }
 
     public static AccumulatedsingleBlockDataForMCMC prepareSingleBlockDataForMCMC(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) throws TripoliException {
         MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord = massSpecExtractedData.getBlocksData().get(blockNumber);
-        Primitive64Store blockKnotInterpolationStore = generateKnotsMatrixForBlock(massSpecOutputSingleBlockRecord, 1);
+//        Primitive64Store blockKnotInterpolationStore = generateKnotsMatrixForBlock(massSpecOutputSingleBlockRecord, 1);
+        // TODO: the following line invokes a replication of the linear knots from Burdick's matlab code
+        Primitive64Store blockKnotInterpolationStore = generateLinearKnotsMatrixReplicaOfBurdickMatLab(massSpecOutputSingleBlockRecord);
         AccumulatedMCMCData baselineDataSetMCMC = accumulateBaselineDataPerBaselineTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod);
         AccumulatedMCMCData onPeakFaradayDataSetMCMC = accumulateOnPeakDataPerSequenceTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod, true);
         AccumulatedMCMCData onPeakPhotoMultiplierDataSetMCMC = accumulateOnPeakDataPerSequenceTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod, false);
@@ -327,12 +395,13 @@ public enum DataPrepForMCMC {
             MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord, AnalysisMethod analysisMethod) {
 
         BaselineTable baselineTable = analysisMethod.getBaselineTable();
+        // TODO: Find out why the 5-isotope example baseline table does not have all entries, meaning need to us sequenceTable
+        SequenceTable sequenceTable = analysisMethod.getSequenceTable();
         List<Integer> indexAccumulatorList = new ArrayList<>();
         List<Integer> detectorOrdinalIndicesAccumulatorList = new ArrayList<>();
         List<Double> intensityAccumulatorList = new ArrayList<>();
         List<Double> timeAccumulatorList = new ArrayList<>();
-        List<String> baselineSequenceAccumulatorList = new ArrayList<>();
-        List<String> onPeakSequenceAccumulatorList = new ArrayList<>();
+        List<Integer> timeIndexAccumulatorList = new ArrayList<>();
         List<Integer> isotopeOrdinalIndicesAccumulatorList = new ArrayList<>();
 
         double[][] baselineIntensities = massSpecOutputSingleBlockRecord.baselineIntensities();
@@ -353,8 +422,7 @@ public enum DataPrepForMCMC {
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
                         intensityAccumulatorList.add(baselineIntensities[index][detectorDataColumnIndex]);
                         timeAccumulatorList.add(0.0);
-                        baselineSequenceAccumulatorList.add(baselineID);
-                        onPeakSequenceAccumulatorList.add("");
+                        timeIndexAccumulatorList.add(index);
                         isotopeOrdinalIndicesAccumulatorList.add(0);
                     }
                 }
@@ -366,8 +434,7 @@ public enum DataPrepForMCMC {
                 detectorOrdinalIndicesAccumulatorList,
                 intensityAccumulatorList,
                 timeAccumulatorList,
-                baselineSequenceAccumulatorList,
-                onPeakSequenceAccumulatorList,
+                timeIndexAccumulatorList,
                 isotopeOrdinalIndicesAccumulatorList);
     }
 
@@ -381,8 +448,7 @@ public enum DataPrepForMCMC {
         List<Integer> detectorOrdinalIndicesAccumulatorList = new ArrayList<>();
         List<Double> intensityAccumulatorList = new ArrayList<>();
         List<Double> timeAccumulatorList = new ArrayList<>();
-        List<String> baselineSequenceAccumulatorList = new ArrayList<>();
-        List<String> onPeakSequenceAccumulatorList = new ArrayList<>();
+        List<Integer> timeIndexAccumulatorList = new ArrayList<>();
         List<Integer> isotopeOrdinalIndicesAccumulatorList = new ArrayList<>();
 
         double[][] onPeakIntensities = massSpecOutputSingleBlockRecord.onPeakIntensities();
@@ -406,8 +472,7 @@ public enum DataPrepForMCMC {
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
                         intensityAccumulatorList.add(onPeakIntensities[index][detectorDataColumnIndex]);
                         timeAccumulatorList.add(onPeakTimeStamps[index]);
-                        baselineSequenceAccumulatorList.add("");
-                        onPeakSequenceAccumulatorList.add(onPeakID);
+                        timeIndexAccumulatorList.add(index);
                         isotopeOrdinalIndicesAccumulatorList.add(speciesOrdinalIndex);
                     }
                 }
@@ -419,9 +484,29 @@ public enum DataPrepForMCMC {
                 detectorOrdinalIndicesAccumulatorList,
                 intensityAccumulatorList,
                 timeAccumulatorList,
-                baselineSequenceAccumulatorList,
-                onPeakSequenceAccumulatorList,
+                timeIndexAccumulatorList,
                 isotopeOrdinalIndicesAccumulatorList);
+    }
+
+    static class ArrayIndexComparator implements Comparator<Integer>, Serializable {
+        private final double[] array;
+
+        public ArrayIndexComparator(double[] array) {
+            this.array = array;
+        }
+
+        public Integer[] createIndexArray() {
+            Integer[] indexes = new Integer[array.length];
+            for (int i = 0; i < array.length; i++) {
+                indexes[i] = i; // Autoboxing
+            }
+            return indexes;
+        }
+
+        @Override
+        public int compare(Integer index1, Integer index2) {
+            return Double.compare(array[index1], array[index2]);
+        }
     }
 
     record AccumulatedsingleBlockDataForMCMC(
@@ -437,8 +522,7 @@ public enum DataPrepForMCMC {
             List<Integer> detectorOrdinalIndicesAccumulatorList,
             List<Double> intensityAccumulatorList,
             List<Double> timeAccumulatorList,
-            List<String> baselineSequenceAccumulatorList,
-            List<String> onPeakSequenceAccumulatorList,
+            List<Integer> timeIndexAccumulatorList,
             List<Integer> isotopeOrdinalIndicesAccumulatorList
     ) {
     }
