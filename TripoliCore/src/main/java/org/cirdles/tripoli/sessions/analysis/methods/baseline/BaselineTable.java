@@ -39,7 +39,7 @@ public class BaselineTable implements Serializable {
     private int sequenceCount;
 
     private BaselineTable() {
-        this.mapOfDetectorsToBaselineCells = new TreeMap<>();
+        mapOfDetectorsToBaselineCells = new TreeMap<>();
     }
 
     public static BaselineTable createEmptyBaselineTable() {
@@ -51,7 +51,7 @@ public class BaselineTable implements Serializable {
     public BaselineCell accessBaselineCellForDetector(Detector detector, String baselineName, int baselineIndex) {
         List<BaselineCell> targetList = mapOfDetectorsToBaselineCells.get(detector);
         BaselineCell baselineCell = BaselineCell.initializeBaselineCell(baselineName, baselineIndex);
-        if (targetList == null) {
+        if (null == targetList) {
             targetList = new ArrayList<>();
             targetList.add(baselineCell);
             mapOfDetectorsToBaselineCells.put(detector, targetList);
@@ -61,7 +61,7 @@ public class BaselineTable implements Serializable {
         }
         List<BaselineCell> targetCellList = targetList
                 .stream()
-                .filter(cell -> ((cell.getBaselineID().compareToIgnoreCase(baselineName) == 0))).toList();
+                .filter(cell -> ((0 == cell.getBaselineID().compareToIgnoreCase(baselineName)))).toList();
 
         return targetCellList.get(0);
     }

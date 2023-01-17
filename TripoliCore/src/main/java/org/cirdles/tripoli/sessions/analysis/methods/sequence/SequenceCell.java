@@ -63,7 +63,7 @@ public class SequenceCell implements Serializable {
         boolean retVal = true;
         if (otherObject != this) {
             if (otherObject instanceof SequenceCell otherSequenceCell) {
-                retVal = this.getSequenceId().compareToIgnoreCase(otherSequenceCell.getSequenceId()) == 0;
+                retVal = 0 == this.getSequenceId().compareToIgnoreCase(otherSequenceCell.getSequenceId());
             } else {
                 retVal = false;
             }
@@ -74,8 +74,8 @@ public class SequenceCell implements Serializable {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 31 * hash + (sequenceId == null ? 0 : sequenceId.hashCode());
-        hash = 31 * hash + (targetSpecies == null ? 0 : targetSpecies.hashCode());
+        hash = 31 * hash + (null == sequenceId ? 0 : sequenceId.hashCode());
+        hash = 31 * hash + (null == targetSpecies ? 0 : targetSpecies.hashCode());
         return hash;
     }
 

@@ -96,18 +96,18 @@ public class Analysis implements Serializable, AnalysisInterface {
         massSpecExtractedData.setMassSpectrometerContext(massSpectrometerContext);
 
         // TODO: remove this temp hack for synthetic demos
-        if (massSpectrometerContext.compareTo(PHOENIX_SYNTHETIC) == 0) {
+        if (0 == massSpectrometerContext.compareTo(PHOENIX_SYNTHETIC)) {
             massSpecExtractedData.setDetectorSetup(DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_SYNTHETIC.getName()));
             if (massSpecExtractedData.getHeader().methodName().toUpperCase().contains("SYNTHETIC")) {
-                setAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(BURDICK_BL_SYNTHETIC_DATA));
+                analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(BURDICK_BL_SYNTHETIC_DATA);
             } else {
-                setAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB));
+                analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
             }
         } else {
             // attempt to load specified method
             File selectedFile = new File(Path.of(dataFilePathString).getParent().getParent().toString()
                     + File.separator + "Methods" + File.separator + massSpecExtractedData.getHeader().methodName());
-            if (selectedFile != null) {
+            if (null != selectedFile) {
                 if (selectedFile.exists()) {
                     analysisMethod = extractAnalysisMethodfromPath(Path.of(selectedFile.toURI()));
                 } else {

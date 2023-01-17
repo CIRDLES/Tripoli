@@ -23,7 +23,8 @@ import static java.lang.Math.min;
 /**
  * @author James F. Bowring
  */
-public class DataModelUpdaterHelper {
+public enum DataModelUpdaterHelper {
+    ;
 
     /*
     % Range for ratios and blockIntensities parameters
@@ -38,9 +39,9 @@ public class DataModelUpdaterHelper {
             prior.sigpois = [0 10]; % Poisson noise on Daly
      */
     public static PriorRecord buildPriorRecord(double[][] blockIntensities) {
-        double[][] priorBaselineFaraday = new double[][]{{-1.0e6, 1.0e6}};
-        double[][] priorBaselineDaly = new double[][]{{0.0, 0.0}};
-        double[][] priorLogRatio = new double[][]{{-20.0, 20.0}};
+        double[][] priorBaselineFaraday = {{-1.0e6, 1.0e6}};
+        double[][] priorBaselineDaly = {{0.0, 0.0}};
+        double[][] priorLogRatio = {{-20.0, 20.0}};
         double maxIntensity = Double.MIN_VALUE;
         double minIntensity = Double.MAX_VALUE;
 
@@ -51,11 +52,11 @@ public class DataModelUpdaterHelper {
             }
         }
 
-        double[][] priorIntensity = new double[][]{{0.0, 1.5 * maxIntensity}};
-        double[][] priorDFgain = new double[][]{{0.8, 1.0}};
-        double[][] priorSignalNoiseFaraday = new double[][]{{0.0, 1.0e6}};
-        double[][] priorSignalNoiseDaly = new double[][]{{0.0, 0.0}};
-        double[][] priorPoissonNoiseDaly = new double[][]{{0.0, 10.0}};
+        double[][] priorIntensity = {{0.0, 1.5 * maxIntensity}};
+        double[][] priorDFgain = {{0.8, 1.0}};
+        double[][] priorSignalNoiseFaraday = {{0.0, 1.0e6}};
+        double[][] priorSignalNoiseDaly = {{0.0, 0.0}};
+        double[][] priorPoissonNoiseDaly = {{0.0, 10.0}};
 
         return new PriorRecord(
                 priorBaselineFaraday,
@@ -133,8 +134,8 @@ public class DataModelUpdaterHelper {
      * @return Rnadom operation by name
      */
     static String randomOperMS(boolean hierFlag) {
-        Object[][] notHier = new Object[][]{{40, 60, 80, 100}, {"changeI", "changer", "changebl", "changedfg"}};
-        Object[][] hier = new Object[][]{{60, 80, 90, 100, 120}, {"changeI", "changer", "changebl", "changedfg", "noise"}};
+        Object[][] notHier = {{40, 60, 80, 100}, {"changeI", "changer", "changebl", "changedfg"}};
+        Object[][] hier = {{60, 80, 90, 100, 120}, {"changeI", "changer", "changebl", "changedfg", "noise"}};
 //        Object[][] hier = new Object[][]{{400, 440, 520, 540, 600}, {"changeI", "changer", "changebl", "changedfg", "noise"}};
 
         RandomDataGenerator randomDataGenerator = new RandomDataGenerator();

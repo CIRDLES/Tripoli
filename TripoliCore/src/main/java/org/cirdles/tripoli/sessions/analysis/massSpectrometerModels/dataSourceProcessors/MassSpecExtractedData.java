@@ -18,11 +18,11 @@ public class MassSpecExtractedData implements Serializable {
     private Map<Integer, MassSpecOutputSingleBlockRecord> blocksData;
 
     public MassSpecExtractedData() {
-        this.massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
+        massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
         populateHeader(new ArrayList<>());
         populateColumnNamesList(new ArrayList<>());
         populateDetectors(new ArrayList<>());
-        this.blocksData = new TreeMap<>();
+        blocksData = new TreeMap<>();
     }
 
     public void addBlockRecord(MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord) {
@@ -49,7 +49,7 @@ public class MassSpecExtractedData implements Serializable {
                 case "TIMEZERO" -> localDateTimeZero = ss[1].trim();
             }
         }
-        this.header = new MassSpecExtractedHeader(
+        header = new MassSpecExtractedHeader(
                 softwareVersion,
                 filename,
                 methodName,

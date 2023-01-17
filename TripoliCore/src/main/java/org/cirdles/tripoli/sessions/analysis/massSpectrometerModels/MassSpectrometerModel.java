@@ -43,9 +43,9 @@ public class MassSpectrometerModel implements Serializable {
 
     private MassSpectrometerModel(String massSpectrometerName) {
         this.massSpectrometerName = massSpectrometerName;
-        this.collectorWidthMM = 0.0;
-        this.theoreticalBeamWidthMM = 0.0;
-        this.effectiveRadiusMagnetMM = 0.0;
+        collectorWidthMM = 0.0;
+        theoreticalBeamWidthMM = 0.0;
+        effectiveRadiusMagnetMM = 0.0;
     }
 
     public static MassSpectrometerModel initializeMassSpectrometer(MassSpectrometerContextEnum massSpectrometerContext) {

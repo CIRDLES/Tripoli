@@ -59,7 +59,7 @@ public class SequenceTable implements Serializable {
         List<SequenceCell> targetList = mapOfDetectorsToSequenceCells.get(detector);
         SequenceCell sequenceCell = SequenceCell.initializeSequenceCell(sequenceName, sequenceIndex);
         sequenceCell.setBaselineReferences(baselineRefsList);
-        if (targetList == null) {
+        if (null == targetList) {
             targetList = new ArrayList<>();
             targetList.add(sequenceCell);
             mapOfDetectorsToSequenceCells.put(detector, targetList);
@@ -69,7 +69,7 @@ public class SequenceTable implements Serializable {
         }
         List<SequenceCell> targetCellList = targetList
                 .stream()
-                .filter(cell -> ((cell.getSequenceId().compareToIgnoreCase(sequenceName) == 0))).toList();
+                .filter(cell -> ((0 == cell.getSequenceId().compareToIgnoreCase(sequenceName)))).toList();
 
         return targetCellList.get(0);
     }

@@ -41,8 +41,8 @@ public enum DetectorEnumTypeA {
     }
 
     public static DetectorEnumTypeA getByName(String name) {
-        for (DetectorEnumTypeA detector : DetectorEnumTypeA.values()) {
-            if (detector.name.compareTo(name) == 0) {
+        for (DetectorEnumTypeA detector : values()) {
+            if (0 == detector.name.compareTo(name)) {
                 return detector;
             }
         }
@@ -58,6 +58,6 @@ public enum DetectorEnumTypeA {
     }
 
     public boolean isFaraday() {
-        return amplifierIndex > -1;
+        return -1 < amplifierIndex;
     }
 }

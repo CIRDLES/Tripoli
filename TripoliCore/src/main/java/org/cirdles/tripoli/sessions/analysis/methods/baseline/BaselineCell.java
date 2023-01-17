@@ -47,7 +47,7 @@ public class BaselineCell implements Serializable {
     public BaselineCell(String baselineID, int baselineSequence) {
         this.baselineID = baselineID;
         this.baselineSequence = baselineSequence;
-        this.cellMass = 0.0;
+        cellMass = 0.0;
     }
 
     public static BaselineCell initializeBaselineCell(String baselineID, int baselineSequence) {
@@ -59,7 +59,7 @@ public class BaselineCell implements Serializable {
         boolean retVal = true;
         if (otherObject != this) {
             if (otherObject instanceof BaselineCell otherBaselineCell) {
-                retVal = this.getBaselineID().compareToIgnoreCase(otherBaselineCell.getBaselineID()) == 0;
+                retVal = 0 == this.getBaselineID().compareToIgnoreCase(otherBaselineCell.getBaselineID());
             } else {
                 retVal = false;
             }
@@ -70,7 +70,7 @@ public class BaselineCell implements Serializable {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 31 * hash + (baselineID == null ? 0 : baselineID.hashCode());
+        hash = 31 * hash + (null == baselineID ? 0 : baselineID.hashCode());
         return hash;
     }
 

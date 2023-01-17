@@ -30,7 +30,10 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ListIterator;
 
 public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceProcessorInterface {
     private final AnalysisMethod analysisMethod;
@@ -60,7 +63,7 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
 
         int phase = 0;
         for (String line : contentsByLine) {
-            if (!line.isEmpty() && (phase == 2)) {
+            if (!line.isEmpty() && (2 == phase)) {
 
                 String[] lineSplit = line.split(",");
                 sequenceIDByLineSplit.add(lineSplit[0]);
@@ -74,7 +77,7 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
             }
             if (line.startsWith("#START")) {
                 phase = 1;
-            } else if (phase == 1) {
+            } else if (1 == phase) {
                 phase = 2;
             }
         }
@@ -110,7 +113,7 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
         // extract cycles per block
         int[] nCycle = new int[blockCount];
         int totalCycles = 0;
-        if (blockCount == 1) {
+        if (1 == blockCount) {
             nCycle[0] = cycleNumbers[cycleNumbers.length - 1] + 1;
             totalCycles = nCycle[0];
         } else {
@@ -174,8 +177,7 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
         boolean linearVsSpline = true;
         if (linearVsSpline) {
             bbaseTimeStampData(timeStamp, allBlockInterpolations, indicesOfKnotsByBlock, startingIndicesOfCyclesByBlock, nCycle, blockCount, 15, 1);
-        }
-        else {
+        } else {
             bbaseTimeStampData(timeStamp, allBlockInterpolations, indicesOfKnotsByBlock, startingIndicesOfCyclesByBlock, nCycle, blockCount, 13, 3);
         }
 
@@ -244,16 +246,16 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
         // add baseline highest signal index to Faraday items
         int lastSignalIndexUsed = signalIndexForDataAccumulatorList.get(signalIndexForDataAccumulatorList.size() - 1);
         List<Integer> faradaySignalIndices = sequenceFaradayAccumulator.signalIndexForDataAccumulatorList();
-        for (final ListIterator<Integer> iterator = faradaySignalIndices.listIterator(); iterator.hasNext(); ) {
-            final Integer element = iterator.next();
+        for (ListIterator<Integer> iterator = faradaySignalIndices.listIterator(); iterator.hasNext(); ) {
+            Integer element = iterator.next();
             iterator.set(element + lastSignalIndexUsed);
         }
         signalIndexForDataAccumulatorList.addAll(faradaySignalIndices);
         // add faraday highest signal index to Axial items
         lastSignalIndexUsed = signalIndexForDataAccumulatorList.get(signalIndexForDataAccumulatorList.size() - 1);
         List<Integer> axialSignalIndices = sequenceIonCounterAccumulator.signalIndexForDataAccumulatorList();
-        for (final ListIterator<Integer> iterator = axialSignalIndices.listIterator(); iterator.hasNext(); ) {
-            final Integer element = iterator.next();
+        for (ListIterator<Integer> iterator = axialSignalIndices.listIterator(); iterator.hasNext(); ) {
+            Integer element = iterator.next();
             iterator.set(element + lastSignalIndexUsed);
         }
         signalIndexForDataAccumulatorList.addAll(axialSignalIndices);
@@ -466,26 +468,27 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
         return retVal;
     }
 
-    private int bbaseTimeStampData(double[] timeStamp,ArrayList<MatrixStore<Double>> allBlockInterpolations, Integer[][] indicesOfKnotsByBlock, int[][] startingIndicesOfCyclesByBlock, int[] nCycle, int blockCount, int numSegments, int basisDegree ) {
+    private int bbaseTimeStampData(double[] timeStamp, ArrayList<MatrixStore<Double>> allBlockInterpolations, Integer[][] indicesOfKnotsByBlock, int[][] startingIndicesOfCyclesByBlock, int[] nCycle, int blockCount, int numSegments, int basisDegree) {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
             allBlockInterpolations.add(blockIndex, null);
             indicesOfKnotsByBlock[blockIndex] = new Integer[nCycle[blockIndex]];
-            double [] bbaseData = new double[0];
+            double[] bbaseData = new double[0];
             int knotIndex = 1;
             for (int cycleIndex = 1; cycleIndex < (nCycle[blockIndex]); cycleIndex++) {
                 int startOfCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex][2];
                 int startOfNextCycleIndex;
-                if ((cycleIndex == nCycle[blockIndex] - 1) && (blockCount == 1)) {
+                if ((cycleIndex == nCycle[blockIndex] - 1) && (1 == blockCount)) {
                     startOfNextCycleIndex = timeStamp.length;
                 } else {
                     startOfNextCycleIndex = startingIndicesOfCyclesByBlock[cycleIndex + 1][2];
                 }
                 int countOfEntries = startingIndicesOfCyclesByBlock[cycleIndex][2] - startingIndicesOfCyclesByBlock[1][2];
-                indicesOfKnotsByBlock[blockIndex][knotIndex++] = countOfEntries + startOfNextCycleIndex - startOfCycleIndex;
+                indicesOfKnotsByBlock[blockIndex][knotIndex] = countOfEntries + startOfNextCycleIndex - startOfCycleIndex;
+                knotIndex++;
 
                 // todo check last cycle input
-                bbaseData = ArrayUtils.addAll(bbaseData,Arrays.copyOfRange(timeStamp, startOfCycleIndex, startOfNextCycleIndex));
+                bbaseData = ArrayUtils.addAll(bbaseData, Arrays.copyOfRange(timeStamp, startOfCycleIndex, startOfNextCycleIndex));
             }
 
             MatrixStore<Double> bbaseDataStore = storeFactory.rows(bbaseData);
@@ -499,7 +502,7 @@ public class DataSourceProcessor_PhoenixSyntheticTextFile implements DataSourceP
                 }
             }
             Primitive64Store bBaseOutput = SplineBasisModel.bBase(bbaseDataStore, arrayMin, arrayMax, numSegments, basisDegree);
-                allBlockInterpolations.set(blockIndex, bBaseOutput);
+            allBlockInterpolations.set(blockIndex, bBaseOutput);
         }
         return 0;
     }

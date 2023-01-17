@@ -38,7 +38,8 @@ import static java.lang.StrictMath.exp;
 /**
  * @author James F. Bowring
  */
-public class DataModelPlot {
+public enum DataModelPlot {
+    ;
 
     public static AbstractPlotBuilder[][] analysisAndPlotting(
             MassSpecOutputDataRecord massSpecOutputDataRecord,
@@ -293,8 +294,8 @@ public class DataModelPlot {
             // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount() - 1; isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
-                    if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
-                            && (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 1)
+                    if ((1 == massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex])
+                            && (1 == massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row])
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
                         double calcValue =
                                 exp(lastModelRecord.logRatios()[isotopeIndex])
@@ -302,8 +303,8 @@ public class DataModelPlot {
                         data[row] = calcValue;
                         dataWithNoBaseline[row] = calcValue;
                     }
-                    if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
-                            && (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 0)
+                    if ((1 == massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex])
+                            && (0 == massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row])
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
                         double calcValue =
                                 exp(lastModelRecord.logRatios()[isotopeIndex]) / lastModelRecord.dfGain()

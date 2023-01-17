@@ -26,7 +26,8 @@ import java.util.stream.Collectors;
 /**
  * @author James F. Bowring
  */
-public class PhoenixMassSpec {
+public enum PhoenixMassSpec {
+    ;
 
     /**
      * Called by reflection from Analysis.extractMassSpecDataFromPath
@@ -84,7 +85,7 @@ public class PhoenixMassSpec {
                         }
                         case 4 -> {
                             // test if complete block by checking last entry's cycle number != 0
-                            boolean isComplete = Integer.parseInt(dataByBlock.get(dataByBlock.size() - 1).split(",")[2].trim()) > 0;
+                            boolean isComplete = 0 < Integer.parseInt(dataByBlock.get(dataByBlock.size() - 1).split(",")[2].trim());
                             if (isComplete) {
                                 massSpecExtractedData.addBlockRecord(
                                         parseAndBuildSingleBlockRecord(1, currentBlockNumber, dataByBlock));
@@ -360,10 +361,10 @@ public class PhoenixMassSpec {
         );
     }
 
-    private static Map<String, List<Integer>> buildMapOfIdsToIndices(String[] ids){
+    private static Map<String, List<Integer>> buildMapOfIdsToIndices(String[] ids) {
         Map<String, List<Integer>> mapOfIdsToIndices = new TreeMap<>();
-        for (int index = 0; index < ids.length; index++){
-            if (mapOfIdsToIndices.containsKey(ids[index])){
+        for (int index = 0; index < ids.length; index++) {
+            if (mapOfIdsToIndices.containsKey(ids[index])) {
                 mapOfIdsToIndices.get(ids[index]).add(index);
             } else {
                 mapOfIdsToIndices.put(ids[index], new ArrayList<>());

@@ -32,7 +32,7 @@ import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColor
 import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDialog;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectDataFile;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectMethodFile;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.DataPrepForMCMC.prepareSingleBlockDataForMCMC;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.SingleBlockModelDriver.buildAndRunModelForSingleBlock;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compareAnalysisMethodToDataFileSpecs;
 
 public class AnalysisManagerController implements Initializable {
@@ -210,7 +210,7 @@ public class AnalysisManagerController implements Initializable {
             }
 
             if (methodGridPane.equals(sequenceTableGridPane)) {
-                if (col == 0) {
+                if (0 == col) {
                     populateDetectorDetailRow(methodGridPane, "cross ref", detectorCount + 1, 0);
                 }
                 if (col < detectorCount) {
@@ -300,6 +300,6 @@ public class AnalysisManagerController implements Initializable {
     }
 
     public void initializeMonteCarloTechniqueAction() throws TripoliException {
-        prepareSingleBlockDataForMCMC(1, analysis.getMassSpecExtractedData(), analysis.getAnalysisMethod());
+        buildAndRunModelForSingleBlock(1, analysis.getMassSpecExtractedData(), analysis.getAnalysisMethod());
     }
 }

@@ -29,7 +29,8 @@ import java.util.List;
 /**
  * @author James F. Bowring
  */
-public class DataModelUpdater {
+public enum DataModelUpdater {
+    ;
 
     public static List<String> operations = new ArrayList<>();
 
@@ -277,7 +278,7 @@ public class DataModelUpdater {
             double x2DFGain = 0.0;
 
             for (int row = 0; row < xx.length; row++) {
-                if (xInd[row] == 1) {
+                if (1 == xInd[row]) {
                     x2LogRatioList.add(xx[row]);
                 }
                 for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
@@ -458,7 +459,7 @@ public class DataModelUpdater {
             Matrix a = new Matrix(cov2.getCovarianceMatrix().getData());
             if (0.0 == a.det()) {
                 for (int i = 0; i < a.getRowDimension(); i++) {
-                    if (a.get(i, i) == 0.0) {
+                    if (0.0 == a.get(i, i)) {
                         System.out.print("  >" + i);
                     }
                 }
