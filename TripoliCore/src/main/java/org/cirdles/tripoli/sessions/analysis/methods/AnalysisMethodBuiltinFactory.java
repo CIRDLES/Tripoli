@@ -28,7 +28,10 @@ import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_SYNTHETIC;
 

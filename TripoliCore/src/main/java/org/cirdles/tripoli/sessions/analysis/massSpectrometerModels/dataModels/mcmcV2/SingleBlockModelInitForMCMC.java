@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 import org.ojalgo.RecoverableCondition;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
@@ -26,6 +27,7 @@ import org.ojalgo.matrix.task.InverterTask;
 import java.io.Serializable;
 import java.util.*;
 
+import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
 import static java.lang.StrictMath.log;
 
@@ -222,14 +224,34 @@ enum SingleBlockModelInitForMCMC {
             end
          */
 
-        // initialize model data vector
+        int faradayCount = mapDetectorOrdinalToFaradayIndex.size();
+        int isotopeCount = logRatios.length + 1;
+        double[] signalNoise = new double[faradayCount + 1 + isotopeCount];
+        for (faradayIndex = 0; faradayIndex < faradayCount; faradayIndex++) {
+            signalNoise[faradayIndex] = baselineStandardDeviationsArray[faradayIndex];
+        }
+        // photomultiplier
+        signalNoise[faradayIndex + 1] = 0.0;
+
+        for (isotopeIndex = 0; isotopeIndex < isotopeCount; isotopeIndex++) {
+            signalNoise[faradayCount + 1 + isotopeIndex] = 11.0;
+        }
+
+        // initialize model data vectors
         double[] dataArray = new double[totalIntensityCount];
+        double[] dataWithNoBaselineArray = new double[dataArray.length];
+        double[] dSignalNoiseArray = new double[dataArray.length];
 
         // populate dataArray with baseline entries
+        isotopeOrdinalIndicesAccumulatorList = baselineDataSetMCMC.isotopeOrdinalIndicesAccumulatorList();
         detectorOrdinalIndicesAccumulatorList = baselineDataSetMCMC.detectorOrdinalIndicesAccumulatorList();
         for (int dataArrayIndex = 0; dataArrayIndex < baselineCount; dataArrayIndex++) {
+            isotopeIndex = isotopeOrdinalIndicesAccumulatorList.get(dataArrayIndex) - 1;
             faradayIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(dataArrayIndex));
             dataArray[dataArrayIndex] = baselineMeansArray[faradayIndex];
+            // NOTE: no baseline component here
+            double calculatedValue = StrictMath.sqrt(pow(signalNoise[faradayIndex], 2));
+            dSignalNoiseArray[dataArrayIndex] = calculatedValue;
         }
 
         MatrixStore<Double> intensities = singleBlockDataSetRecord.blockKnotInterpolationStore().multiply(storeFactory.columns(I0));
@@ -247,19 +269,35 @@ enum SingleBlockModelInitForMCMC {
             } else {
                 dataArray[dataArrayIndex] = 1.0 / detectorFaradayGain * intensities.get(sourceIndex, 0) + baselineMeansArray[faradayIndex];
             }
+            dataWithNoBaselineArray[dataArrayIndex] = dataArray[dataArrayIndex] - baselineMeansArray[faradayIndex];
+
+            double calculatedValue =  StrictMath.sqrt(pow(signalNoise[faradayIndex], 2)
+                            + signalNoise[isotopeIndex + faradayCount + 1]
+                            * dataWithNoBaselineArray[dataArrayIndex]);
+            dSignalNoiseArray[dataArrayIndex] = calculatedValue;
         }
 
         // populate dataArray with onpeak photomultiplier entries
         isotopeOrdinalIndicesAccumulatorList = onPeakPhotoMultiplierDataSetMCMC.isotopeOrdinalIndicesAccumulatorList();
+        detectorOrdinalIndicesAccumulatorList = onPeakPhotoMultiplierDataSetMCMC.detectorOrdinalIndicesAccumulatorList();
+        // NOTE: onpeak photomultiplier only has one detector and it goes last
+        mapDetectorOrdinalToFaradayIndex.put(detectorOrdinalIndicesAccumulatorList.get(0), mapDetectorOrdinalToFaradayIndex.size());
         timeIndexAccumulatorList = onPeakPhotoMultiplierDataSetMCMC.timeIndexAccumulatorList();
         for (int dataArrayIndex = baselineCount + onPeakFaradayCount; dataArrayIndex < baselineCount + onPeakFaradayCount + onPeakPhotoMultCount; dataArrayIndex++) {
             int sourceIndex = timeIndexAccumulatorList.get(dataArrayIndex - baselineCount - onPeakFaradayCount);
             isotopeIndex = isotopeOrdinalIndicesAccumulatorList.get(sourceIndex) - 1;
+            faradayIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(sourceIndex));
             if (isotopeIndex < logRatios.length) {
                 dataArray[dataArrayIndex] = exp(logRatios[isotopeIndex]) * intensities.get(sourceIndex, 0);
             } else {
                 dataArray[dataArrayIndex] = intensities.get(sourceIndex, 0);
             }
+            dataWithNoBaselineArray[dataArrayIndex] = dataArray[dataArrayIndex];
+
+            double calculatedValue =  StrictMath.sqrt(pow(signalNoise[faradayIndex], 2)
+                    + signalNoise[isotopeIndex + faradayCount + 1]
+                    * dataWithNoBaselineArray[dataArrayIndex]);
+            dSignalNoiseArray[dataArrayIndex] = calculatedValue;
         }
 
         /*
@@ -277,18 +315,6 @@ enum SingleBlockModelInitForMCMC {
             end
          */
 
-        int faradayCount = mapDetectorOrdinalToFaradayIndex.size();
-        int isotopeCount = logRatios.length + 1;
-        double[] signalNoise = new double[faradayCount + 1 + isotopeCount];
-        for (faradayIndex = 0; faradayIndex < faradayCount; faradayIndex++) {
-            signalNoise[faradayIndex] = baselineStandardDeviationsArray[faradayIndex];
-        }
-        // photomultiplier
-        signalNoise[faradayIndex + 1] = 0.0;
-
-        for (isotopeIndex = 0; isotopeIndex < isotopeCount; isotopeIndex++) {
-            signalNoise[faradayCount + 1 + isotopeIndex] = 11.0;
-        }
 
         return new SingleBlockModelRecord(
                 baselineMeansArray,
@@ -297,8 +323,12 @@ enum SingleBlockModelInitForMCMC {
                 logRatios,
                 signalNoise,
                 dataArray,
+                dataWithNoBaselineArray,
+                dSignalNoiseArray,
                 I0,
-                intensities);
+                intensities,
+                faradayCount,
+                isotopeCount);
     }
 
     private static class ArrayIndexComparator implements Comparator<Integer>, Serializable {

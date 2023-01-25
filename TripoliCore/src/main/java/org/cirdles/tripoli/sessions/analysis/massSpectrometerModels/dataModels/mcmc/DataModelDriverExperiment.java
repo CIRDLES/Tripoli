@@ -55,7 +55,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public enum DataModelDriverExperiment {
     ;
 
-    private static final boolean doFullProcessing = false;
+    private static final boolean doFullProcessing = true;
     public static boolean ALLOW_EXECUTION = true;
     // todo flag for linear or spline
     // private static final boolean splineVsLinear = true;
@@ -256,6 +256,8 @@ public enum DataModelDriverExperiment {
         double initialModelErrorUnWeighted_E0 = 0.0;
 
         for (int row = 0; row < dSignalNoiseArray.length; row++) {
+            System.out.println("" + row + ", " + massSpecOutputDataRecord.rawDataColumn()[row]+ ", " + data[row]+ ", " + (massSpecOutputDataRecord.rawDataColumn()[row] - data[row]));
+
             double calculatedValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn()[row] - data[row], 2);
 //            residualTmpArray[row] = calculatedValue;
             initialModelErrorWeighted_E = initialModelErrorWeighted_E + (calculatedValue * baselineMultiplier[row] / dSignalNoiseArray[row]);

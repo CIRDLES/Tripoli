@@ -35,12 +35,17 @@ public enum SingleBlockModelDriver {
 
     public static void buildAndRunModelForSingleBlock(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) throws TripoliException {
         SingleBlockDataSetRecord singleBlockDataSetRecord = prepareSingleBlockDataForMCMC(blockNumber, massSpecExtractedData, analysisMethod);
-        SingleBlockModelRecord singleBlockModelRecord = null;
+        SingleBlockModelRecord singleBlockInitialModelRecord = null;
         try {
-            singleBlockModelRecord = initializeModelForSingleBlockMCMC(singleBlockDataSetRecord);
+            singleBlockInitialModelRecord = initializeModelForSingleBlockMCMC(singleBlockDataSetRecord);
         } catch (RecoverableCondition e) {
             throw new TripoliException("Ojalgo RecoverableCondition");
         }
+
+        if (singleBlockInitialModelRecord != null) {
+            MCMCProcess mcmcProcess = MCMCProcess.initializeMCMCProcess(singleBlockDataSetRecord, singleBlockInitialModelRecord);
+        }
+
     }
 
     private static SingleBlockDataSetRecord prepareSingleBlockDataForMCMC(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) {

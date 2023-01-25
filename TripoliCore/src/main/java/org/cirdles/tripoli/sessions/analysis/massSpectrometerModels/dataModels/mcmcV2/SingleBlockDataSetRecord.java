@@ -16,9 +16,11 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,6 +32,24 @@ record SingleBlockDataSetRecord(
         SingleBlockDataRecord onPeakPhotoMultiplierDataSetMCMC,
         Primitive64Store blockKnotInterpolationStore
 ) implements Serializable {
+    int getCountOfBaselineIntensities() {
+        return baselineDataSetMCMC().intensityAccumulatorList().size();
+    }
+
+    int getCountOfOnPeakFaradayIntensities() {
+        return onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
+    }
+
+    double[] getBlockIntensityArray() {
+        List<Double> blockIntensityList = new ArrayList<>();
+        blockIntensityList.addAll(baselineDataSetMCMC().intensityAccumulatorList());
+        blockIntensityList.addAll(onPeakFaradayDataSetMCMC().intensityAccumulatorList());
+        blockIntensityList.addAll(onPeakPhotoMultiplierDataSetMCMC().intensityAccumulatorList());
+
+        Double[] blockIntensityArray = blockIntensityList.toArray(new Double[0]);
+        return ArrayUtils.toPrimitive(blockIntensityArray);
+    }
+
     /**
      * @author James F. Bowring
      */
@@ -42,4 +62,6 @@ record SingleBlockDataSetRecord(
             List<Integer> isotopeOrdinalIndicesAccumulatorList
     ) implements Serializable {
     }
+
+
 }

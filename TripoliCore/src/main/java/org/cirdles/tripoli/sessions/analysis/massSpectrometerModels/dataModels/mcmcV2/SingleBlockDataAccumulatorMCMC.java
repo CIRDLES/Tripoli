@@ -40,7 +40,7 @@ public enum SingleBlockDataAccumulatorMCMC {
             MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord, AnalysisMethod analysisMethod) {
 
         BaselineTable baselineTable = analysisMethod.getBaselineTable();
-        // TODO: Find out why the 5-isotope example baseline table does not have all entries, meaning need to us sequenceTable
+        // TODO: Find out why the 5-isotope example baseline table does not have all entries, meaning need to use sequenceTable
         SequenceTable sequenceTable = analysisMethod.getSequenceTable();
         List<Integer> indexAccumulatorList = new ArrayList<>();
         List<Integer> detectorOrdinalIndicesAccumulatorList = new ArrayList<>();

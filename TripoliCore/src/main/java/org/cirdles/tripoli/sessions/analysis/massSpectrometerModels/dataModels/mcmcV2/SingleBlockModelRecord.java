@@ -12,7 +12,11 @@ public record SingleBlockModelRecord(
         double[] logRatios,
         double[] signalNoise,
         double[] dataArray,
+        double[] dataWithNoBaselineArray,
+        double[] dSignalNoiseArray,
         double[] I0,
-        MatrixStore<Double> intensities
+        MatrixStore<Double> intensities,
+        int faradayCount,
+        int isotopeCount
 ) implements Serializable {
 }
