@@ -41,8 +41,6 @@ public enum SingleBlockDataAccumulatorMCMC {
 
         BaselineTable baselineTable = analysisMethod.getBaselineTable();
         // TODO: Find out why the 5-isotope example baseline table does not have all entries, meaning need to use sequenceTable
-        SequenceTable sequenceTable = analysisMethod.getSequenceTable();
-        List<Integer> indexAccumulatorList = new ArrayList<>();
         List<Integer> detectorOrdinalIndicesAccumulatorList = new ArrayList<>();
         List<Double> intensityAccumulatorList = new ArrayList<>();
         List<Double> timeAccumulatorList = new ArrayList<>();
@@ -63,7 +61,6 @@ public enum SingleBlockDataAccumulatorMCMC {
                     List<Integer> baselineIndices = mapOfBaselineIdsToIndices.get(baselineID);
                     Collections.sort(baselineIndices);
                     for (Integer index : baselineIndices) {
-                        indexAccumulatorList.add(index);
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
                         intensityAccumulatorList.add(baselineIntensities[index][detectorDataColumnIndex]);
                         timeAccumulatorList.add(0.0);
@@ -75,7 +72,6 @@ public enum SingleBlockDataAccumulatorMCMC {
         }
 
         return new SingleBlockDataSetRecord.SingleBlockDataRecord(
-                indexAccumulatorList,
                 detectorOrdinalIndicesAccumulatorList,
                 intensityAccumulatorList,
                 timeAccumulatorList,
@@ -89,7 +85,6 @@ public enum SingleBlockDataAccumulatorMCMC {
         SequenceTable sequenceTable = analysisMethod.getSequenceTable();
         List<SpeciesRecordInterface> speciesList = analysisMethod.getSpeciesList();
 
-        List<Integer> indexAccumulatorList = new ArrayList<>();
         List<Integer> detectorOrdinalIndicesAccumulatorList = new ArrayList<>();
         List<Double> intensityAccumulatorList = new ArrayList<>();
         List<Double> timeAccumulatorList = new ArrayList<>();
@@ -113,11 +108,10 @@ public enum SingleBlockDataAccumulatorMCMC {
                     List<Integer> onPeakIndices = mapOfOnPeakIdsToIndices.get(onPeakID);
                     Collections.sort(onPeakIndices);
                     for (Integer index : onPeakIndices) {
-                        indexAccumulatorList.add(index);
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
                         intensityAccumulatorList.add(onPeakIntensities[index][detectorDataColumnIndex]);
                         timeAccumulatorList.add(onPeakTimeStamps[index]);
-                        timeIndexAccumulatorList.add(index);
+                        timeIndexAccumulatorList.add(index);//TODO: check if needed in addition to indexAccumulatorList
                         isotopeOrdinalIndicesAccumulatorList.add(speciesOrdinalIndex);
                     }
                 }
@@ -125,7 +119,6 @@ public enum SingleBlockDataAccumulatorMCMC {
         }
 
         return new SingleBlockDataSetRecord.SingleBlockDataRecord(
-                indexAccumulatorList,
                 detectorOrdinalIndicesAccumulatorList,
                 intensityAccumulatorList,
                 timeAccumulatorList,

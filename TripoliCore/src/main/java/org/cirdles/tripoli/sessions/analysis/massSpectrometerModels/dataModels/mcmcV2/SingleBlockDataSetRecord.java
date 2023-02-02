@@ -54,7 +54,6 @@ record SingleBlockDataSetRecord(
      * @author James F. Bowring
      */
     record SingleBlockDataRecord(
-            List<Integer> indexAccumulatorList,
             List<Integer> detectorOrdinalIndicesAccumulatorList,
             List<Double> intensityAccumulatorList,
             List<Double> timeAccumulatorList,
