@@ -16,8 +16,6 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2;
 
-import org.apache.commons.math3.random.RandomDataGenerator;
-
 import static java.lang.Math.min;
 
 /**
@@ -46,8 +44,8 @@ public enum ProposedModelParameters {
         double minIntensity = Double.MAX_VALUE;
 
         for (int row = 0; row < blockIntensities.length; row++) {
-                maxIntensity = Math.max(blockIntensities[row], maxIntensity);
-                minIntensity = min(blockIntensities[row], minIntensity);
+            maxIntensity = Math.max(blockIntensities[row], maxIntensity);
+            minIntensity = min(blockIntensities[row], minIntensity);
         }
 
         double[][] priorIntensity = {{0.0, 1.5 * maxIntensity}};
@@ -138,7 +136,6 @@ public enum ProposedModelParameters {
     ) {
 
     }
-
 
 
 }

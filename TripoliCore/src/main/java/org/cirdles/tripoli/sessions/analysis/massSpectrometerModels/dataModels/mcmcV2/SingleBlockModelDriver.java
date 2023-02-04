@@ -42,8 +42,8 @@ public enum SingleBlockModelDriver {
             throw new TripoliException("Ojalgo RecoverableCondition");
         }
 
-        if (singleBlockInitialModelRecord != null) {
-            MCMCProcess mcmcProcess = MCMCProcess.createMCMCProcess(analysisMethod,  singleBlockDataSetRecord, singleBlockInitialModelRecord);
+        if (null != singleBlockInitialModelRecord) {
+            MCMCProcess mcmcProcess = MCMCProcess.createMCMCProcess(analysisMethod, singleBlockDataSetRecord, singleBlockInitialModelRecord);
             mcmcProcess.initializeMCMCProcess();
             mcmcProcess.applyInversionWithAdaptiveMCMC();
         }
