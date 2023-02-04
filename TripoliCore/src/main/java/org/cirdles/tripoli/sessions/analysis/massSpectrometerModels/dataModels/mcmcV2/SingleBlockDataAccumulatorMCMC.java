@@ -65,7 +65,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                         intensityAccumulatorList.add(baselineIntensities[index][detectorDataColumnIndex]);
                         timeAccumulatorList.add(0.0);
                         timeIndexAccumulatorList.add(index);
-                        isotopeOrdinalIndicesAccumulatorList.add(0);
+                        isotopeOrdinalIndicesAccumulatorList.add(analysisMethod.getSpeciesList().size());
                     }
                 }
             }
@@ -111,7 +111,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
                         intensityAccumulatorList.add(onPeakIntensities[index][detectorDataColumnIndex]);
                         timeAccumulatorList.add(onPeakTimeStamps[index]);
-                        timeIndexAccumulatorList.add(index);//TODO: check if needed in addition to indexAccumulatorList
+                        timeIndexAccumulatorList.add(index);
                         isotopeOrdinalIndicesAccumulatorList.add(speciesOrdinalIndex);
                     }
                 }

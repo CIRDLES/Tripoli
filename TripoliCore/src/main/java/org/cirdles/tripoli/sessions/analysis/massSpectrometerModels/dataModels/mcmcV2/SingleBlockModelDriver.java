@@ -35,7 +35,7 @@ public enum SingleBlockModelDriver {
 
     public static void buildAndRunModelForSingleBlock(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) throws TripoliException {
         SingleBlockDataSetRecord singleBlockDataSetRecord = prepareSingleBlockDataForMCMC(blockNumber, massSpecExtractedData, analysisMethod);
-        SingleBlockModelRecord singleBlockInitialModelRecord = null;
+        SingleBlockModelRecord singleBlockInitialModelRecord;
         try {
             singleBlockInitialModelRecord = initializeModelForSingleBlockMCMC(singleBlockDataSetRecord);
         } catch (RecoverableCondition e) {
@@ -43,7 +43,9 @@ public enum SingleBlockModelDriver {
         }
 
         if (singleBlockInitialModelRecord != null) {
-            MCMCProcess mcmcProcess = MCMCProcess.initializeMCMCProcess(singleBlockDataSetRecord, singleBlockInitialModelRecord);
+            MCMCProcess mcmcProcess = MCMCProcess.createMCMCProcess(analysisMethod,  singleBlockDataSetRecord, singleBlockInitialModelRecord);
+            mcmcProcess.initializeMCMCProcess();
+            mcmcProcess.applyInversionWithAdaptiveMCMC();
         }
 
     }

@@ -250,17 +250,13 @@ public enum DataModelDriverExperiment {
             dSignalNoiseArray[row] = calculatedValue;
         }
 
-        // not used double[] residualTmpArray = new double[dSignalNoiseArray.length];
+        // not used double[] residualTmpArray = new double[dataSignalNoiseArray.length];
         // not used?? Matrix residualTmp2 = new Matrix(dSignalNoise.getRowDimension(), 1);
         double initialModelErrorWeighted_E = 0.0;
         double initialModelErrorUnWeighted_E0 = 0.0;
 
         for (int row = 0; row < dSignalNoiseArray.length; row++) {
-            System.out.println(
-                    "" + row + ", " + massSpecOutputDataRecord.rawDataColumn()[row]+ ", " + data[row]+ ", " + (massSpecOutputDataRecord.rawDataColumn()[row] - data[row]));
-
             double calculatedValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn()[row] - data[row], 2);
-//            residualTmpArray[row] = calculatedValue;
             initialModelErrorWeighted_E = initialModelErrorWeighted_E + (calculatedValue * baselineMultiplier[row] / dSignalNoiseArray[row]);
             initialModelErrorUnWeighted_E0 = initialModelErrorUnWeighted_E0 + calculatedValue;
         }
@@ -458,7 +454,8 @@ public enum DataModelDriverExperiment {
                 for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
                     PhysicalStore<Double> tempIntensity = storeFactory.make(massSpecOutputDataRecord.allBlockInterpolations().get(blockIndex).countRows(),
                             storeFactory.columns(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]).getColDim());
-                    tempIntensity.fillByMultiplying(massSpecOutputDataRecord.allBlockInterpolations().get(blockIndex), Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]));
+                    tempIntensity.fillByMultiplying(massSpecOutputDataRecord.allBlockInterpolations().get(blockIndex),
+                            Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]));
                     intensity2.add(tempIntensity.toRawCopy1D());
 
                     for (int row = (int) blockStartIndicesFaraday[blockIndex]; row <= (int) blockEndIndicesFaraday[blockIndex]; row++) {

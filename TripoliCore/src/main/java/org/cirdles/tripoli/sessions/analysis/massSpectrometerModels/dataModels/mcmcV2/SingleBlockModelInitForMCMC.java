@@ -225,21 +225,21 @@ enum SingleBlockModelInitForMCMC {
 
         int faradayCount = mapDetectorOrdinalToFaradayIndex.size();
         int isotopeCount = logRatios.length + 1;
-        double[] signalNoise = new double[faradayCount + 1 + isotopeCount];
+        double[] signalNoiseSigma = new double[faradayCount + 1 + isotopeCount];
         for (faradayIndex = 0; faradayIndex < faradayCount; faradayIndex++) {
-            signalNoise[faradayIndex] = baselineStandardDeviationsArray[faradayIndex];
+            signalNoiseSigma[faradayIndex] = baselineStandardDeviationsArray[faradayIndex];
         }
         // photomultiplier is last detector in array
-        signalNoise[faradayIndex + 1] = 0.0;
+        signalNoiseSigma[faradayIndex + 1] = 0.0;
 
         for (isotopeIndex = 0; isotopeIndex < isotopeCount; isotopeIndex++) {
-            signalNoise[faradayCount + 1 + isotopeIndex] = 11.0;
+            signalNoiseSigma[faradayCount + 1 + isotopeIndex] = 11.0;
         }
 
         // initialize model data vectors
         double[] dataArray = new double[totalIntensityCount];
         double[] dataWithNoBaselineArray = new double[dataArray.length];
-        double[] dSignalNoiseArray = new double[dataArray.length];
+        double[] dataSignalNoiseArray = new double[dataArray.length];
 
         // populate dataArray with baseline entries
         detectorOrdinalIndicesAccumulatorList = baselineDataSetMCMC.detectorOrdinalIndicesAccumulatorList();
@@ -247,8 +247,8 @@ enum SingleBlockModelInitForMCMC {
             faradayIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(dataArrayIndex));
             dataArray[dataArrayIndex] = baselineMeansArray[faradayIndex];
             // NOTE: no baseline component here
-            double calculatedValue = StrictMath.sqrt(pow(signalNoise[faradayIndex], 2));
-            dSignalNoiseArray[dataArrayIndex] = calculatedValue;
+            double calculatedValue = StrictMath.sqrt(pow(signalNoiseSigma[faradayIndex], 2));
+            dataSignalNoiseArray[dataArrayIndex] = calculatedValue;
         }
 
         MatrixStore<Double> intensities = singleBlockDataSetRecord.blockKnotInterpolationStore().multiply(storeFactory.columns(I0));
@@ -268,10 +268,10 @@ enum SingleBlockModelInitForMCMC {
             }
             dataWithNoBaselineArray[dataArrayIndex] = dataArray[dataArrayIndex] - baselineMeansArray[faradayIndex];
 
-            double calculatedValue = StrictMath.sqrt(pow(signalNoise[faradayIndex], 2)
-                    + signalNoise[isotopeIndex + faradayCount + 1]
+            double calculatedValue = StrictMath.sqrt(pow(signalNoiseSigma[faradayIndex], 2)
+                    + signalNoiseSigma[isotopeIndex + faradayCount + 1]
                     * dataWithNoBaselineArray[dataArrayIndex]);
-            dSignalNoiseArray[dataArrayIndex] = calculatedValue;
+            dataSignalNoiseArray[dataArrayIndex] = calculatedValue;
         }
 
         // populate dataArray with onpeak photomultiplier entries
@@ -291,10 +291,10 @@ enum SingleBlockModelInitForMCMC {
             }
             dataWithNoBaselineArray[dataArrayIndex] = dataArray[dataArrayIndex];
 
-            double calculatedValue = StrictMath.sqrt(StrictMath.pow(signalNoise[faradayIndex], 2)
-                    + signalNoise[isotopeIndex + faradayCount + 1]
+            double calculatedValue = StrictMath.sqrt(StrictMath.pow(signalNoiseSigma[faradayIndex], 2)
+                    + signalNoiseSigma[isotopeIndex + faradayCount + 1]
                     * dataWithNoBaselineArray[dataArrayIndex]);
-            dSignalNoiseArray[dataArrayIndex] = calculatedValue;
+            dataSignalNoiseArray[dataArrayIndex] = calculatedValue;
         }
 
         /*
@@ -317,11 +317,12 @@ enum SingleBlockModelInitForMCMC {
                 baselineMeansArray,
                 baselineStandardDeviationsArray,
                 detectorFaradayGain,
+                mapDetectorOrdinalToFaradayIndex,
                 logRatios,
-                signalNoise,
+                signalNoiseSigma,
                 dataArray,
                 dataWithNoBaselineArray,
-                dSignalNoiseArray,
+                dataSignalNoiseArray,
                 I0,
                 intensities,
                 faradayCount,

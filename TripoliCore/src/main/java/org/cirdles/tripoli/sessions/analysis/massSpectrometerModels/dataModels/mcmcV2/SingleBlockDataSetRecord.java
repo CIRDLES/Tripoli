@@ -50,6 +50,36 @@ record SingleBlockDataSetRecord(
         return ArrayUtils.toPrimitive(blockIntensityArray);
     }
 
+    int[] getBlockDetectorOrdinalIndicesArray() {
+        List<Integer> blockDetectorOrdinalIndicesList = new ArrayList<>();
+        blockDetectorOrdinalIndicesList.addAll(baselineDataSetMCMC().detectorOrdinalIndicesAccumulatorList());
+        blockDetectorOrdinalIndicesList.addAll(onPeakFaradayDataSetMCMC().detectorOrdinalIndicesAccumulatorList());
+        blockDetectorOrdinalIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC().detectorOrdinalIndicesAccumulatorList());
+
+        Integer[] blockDetectorOrdinalIndicesArray = blockDetectorOrdinalIndicesList.toArray(new Integer[0]);
+        return ArrayUtils.toPrimitive(blockDetectorOrdinalIndicesArray);
+    }
+
+    int[] getBlockIsotopeOrdinalIndicesArray() {
+        List<Integer> blockIsotopeOrdinalIndicesList = new ArrayList<>();
+        blockIsotopeOrdinalIndicesList.addAll(baselineDataSetMCMC().isotopeOrdinalIndicesAccumulatorList());
+        blockIsotopeOrdinalIndicesList.addAll(onPeakFaradayDataSetMCMC().isotopeOrdinalIndicesAccumulatorList());
+        blockIsotopeOrdinalIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC().isotopeOrdinalIndicesAccumulatorList());
+
+        Integer[] blockIsotopeOrdinalIndicesArray = blockIsotopeOrdinalIndicesList.toArray(new Integer[0]);
+        return ArrayUtils.toPrimitive(blockIsotopeOrdinalIndicesArray);
+    }
+
+    int[] getBlockTimeIndicesArray() {
+        List<Integer> blockTimeIndicesList = new ArrayList<>();
+        blockTimeIndicesList.addAll(baselineDataSetMCMC().timeIndexAccumulatorList());
+        blockTimeIndicesList.addAll(onPeakFaradayDataSetMCMC().timeIndexAccumulatorList());
+        blockTimeIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC().timeIndexAccumulatorList());
+
+        Integer[] blockTimeIndicesArray = blockTimeIndicesList.toArray(new Integer[0]);
+        return ArrayUtils.toPrimitive(blockTimeIndicesArray);
+    }
+
     /**
      * @author James F. Bowring
      */
