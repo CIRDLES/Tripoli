@@ -117,7 +117,7 @@ public enum DataModelDriverExperiment {
             Nsig = d0.Nsig; % Number of noise variables
          */
 
-        int maxCount = 2000;
+        int maxCount = 1000;
 //        if (dataModelInit_X0.logratios().length > 2) {
 //            maxCount = 1000;
 //        }
@@ -364,6 +364,7 @@ public enum DataModelDriverExperiment {
         DecimalFormat statsFormat = new DecimalFormat("#0.000");
         org.apache.commons.lang3.time.StopWatch watch = new StopWatch();
         watch.start();
+
         for (int modelIndex = 1; modelIndex <= maxCount * stepCountForcedSave; modelIndex++) {//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             if (ALLOW_EXECUTION) {
                 long prev = System.nanoTime();

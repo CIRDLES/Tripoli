@@ -457,13 +457,13 @@ public enum DataModelUpdater {
 //            dataCov = DataProcessors.covariances(storeFactory, enso.transpose()).toRawCopy2D();
             cov2 = new Covariance(enso.transpose().toRawCopy2D());
             Matrix a = new Matrix(cov2.getCovarianceMatrix().getData());
-            if (0.0 == a.det()) {
-                for (int i = 0; i < a.getRowDimension(); i++) {
-                    if (0.0 == a.get(i, i)) {
-                        System.out.print("  >" + i);
-                    }
-                }
-            }
+//            if (0.0 == a.det()) {
+//                for (int i = 0; i < a.getRowDimension(); i++) {
+//                    if (0.0 == a.get(i, i)) {
+//                        System.out.print("  >" + i);
+//                    }
+//                }
+//            }
         }
         return new UpdatedCovariancesRecord(cov2.getCovarianceMatrix().getData(), dataMean);
 //        return new UpdatedCovariancesRecord(dataCov, dataMean);

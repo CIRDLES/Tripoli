@@ -16,8 +16,6 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2;
 
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.DataModellerOutputRecord;
-
 import java.io.Serializable;
 import java.util.List;
 
@@ -27,9 +25,9 @@ import java.util.List;
 public class EnsemblesStoreV2 implements Serializable {
 
     private final List<EnsembleRecord> ensembles;
-    private final DataModellerOutputRecord lastDataModelInit;
+    private final SingleBlockModelRecord lastDataModelInit;
 
-    public EnsemblesStoreV2(List<EnsembleRecord> ensembles, DataModellerOutputRecord lastDataModelInit) {
+    public EnsemblesStoreV2(List<EnsembleRecord> ensembles, SingleBlockModelRecord lastDataModelInit) {
         this.ensembles = ensembles;
         this.lastDataModelInit = lastDataModelInit;
     }
@@ -38,7 +36,7 @@ public class EnsemblesStoreV2 implements Serializable {
         return ensembles;
     }
 
-    public DataModellerOutputRecord getLastDataModelInit() {
+    public SingleBlockModelRecord getLastDataModelInit() {
         return lastDataModelInit;
     }
 

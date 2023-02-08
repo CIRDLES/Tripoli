@@ -21,7 +21,6 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.DataModelUpdater;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
@@ -36,8 +35,7 @@ import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.ProposedModelParameters.buildProposalRangesRecord;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.ProposedModelParameters.buildProposalSigmasRecord;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.SingleBlockModelUpdater.updateMSv2;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.SingleBlockModelUpdater.updateMeanCovMS;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.SingleBlockModelUpdater.*;
 
 /**
  * @author James F. Bowring
@@ -60,10 +58,10 @@ public class MCMCProcess {
     private ProposedModelParameters.ProposalSigmasRecord proposalSigmasRecord;
     private double[] dataArray;
     private double[] dataWithNoBaselineArray;
-    private double[] dSignalNoiseArray;
+    private double[] dataSignalNoiseArray;
     private double initialModelErrorWeighted_E;
     private double initialModelErrorUnWeighted_E0;
-    private double[][] keptUpdates;
+    private int[][] keptUpdates;
     private int sizeOfModel;
     private int startingIndexOfFaradayData;
     private int startingIndexOfPhotoMultiplierData;
@@ -138,7 +136,7 @@ public class MCMCProcess {
             baselineMultiplier[row] = 0.1;
         }
 
-        keptUpdates = new double[5][4];
+        keptUpdates = new int[5][4];
         ensembleRecordsList = new ArrayList<>();
         int countOfDFGains = 1;
         int countOfCycles = singleBlockDataSetRecord.blockKnotInterpolationStore().getColDim();
@@ -155,7 +153,6 @@ public class MCMCProcess {
                 buildProposalSigmasRecord(singleBlockInitialModelRecord_X0.baselineStandardDeviationsArray(), proposalRangesRecord);
 
         buildForwardModel();
-
 
     }
 
@@ -195,7 +192,7 @@ public class MCMCProcess {
         // NOTE: these already populated in the initial model singleBlockInitialModelRecord_X0
         dataArray = singleBlockInitialModelRecord_X0.dataArray().clone();
         dataWithNoBaselineArray = singleBlockInitialModelRecord_X0.dataWithNoBaselineArray().clone();
-        dSignalNoiseArray = singleBlockInitialModelRecord_X0.dataSignalNoiseArray();
+        dataSignalNoiseArray = singleBlockInitialModelRecord_X0.dataSignalNoiseArray();
 
         /*
             % New data covariance vector
@@ -216,9 +213,9 @@ public class MCMCProcess {
         initialModelErrorWeighted_E = 0.0;
         initialModelErrorUnWeighted_E0 = 0.0;
 
-        for (int row = 0; row < dSignalNoiseArray.length; row++) {
+        for (int row = 0; row < dataSignalNoiseArray.length; row++) {
             double calculatedValue = StrictMath.pow(singleBlockDataSetRecord.getBlockIntensityArray()[row] - dataArray[row], 2);
-            initialModelErrorWeighted_E = initialModelErrorWeighted_E + (calculatedValue * baselineMultiplier[row] / dSignalNoiseArray[row]);
+            initialModelErrorWeighted_E = initialModelErrorWeighted_E + (calculatedValue * baselineMultiplier[row] / dataSignalNoiseArray[row]);
             initialModelErrorUnWeighted_E0 = initialModelErrorUnWeighted_E0 + calculatedValue;
         }
     }
@@ -248,21 +245,26 @@ public class MCMCProcess {
                 [x2,delx] = UpdateMSv2(oper,x,psig,prior,ensemble,xcov,delx_adapt(:,mod(m,datsav)+1),adaptflag,allflag);
          */
 
+        RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
+        randomDataGenerator.reSeedSecure();
+
         DecimalFormat statsFormat = new DecimalFormat("#0.000");
         org.apache.commons.lang3.time.StopWatch watch = new StopWatch();
         watch.start();
         int counter = 0;
+        int[] operationOrder = preOrderOpsMS(singleBlockInitialModelRecord_initial, maxIterationCount * stepCountForcedSave);
+
         for (int modelIndex = 1; modelIndex <= maxIterationCount * stepCountForcedSave; modelIndex++) {//*****************
             long prev = System.nanoTime();
-            String operation = SingleBlockModelUpdater.randomOperation(hierarchical);
+            String operation = randomOperMS_Preorder(operationOrder[modelIndex - 1]);
             // todo: handle adaptiveFlag case
             boolean adaptiveFlag = (500000 <= counter); // abandon for now
             boolean allFlag = adaptiveFlag;
             int columnChoice = modelIndex % stepCountForcedSave;
             double[] delx_adapt_slice = storeFactory.copy(Access2D.wrap(delx_adapt)).sliceColumn(columnChoice).toRawCopy1D();
 
-            SingleBlockModelRecord dataModelUpdaterOutputRecord_x2 = updateMSv2(
-                    operation,
+            SingleBlockModelRecord dataModelUpdaterOutputRecord_x2 = updateMSv2Preorder(
+                    operationOrder[modelIndex - 1],
                     singleBlockInitialModelRecord_initial,
                     proposalSigmasRecord,
                     proposalRangesRecord,
@@ -296,12 +298,16 @@ public class MCMCProcess {
 
             int countOfIntegrations = dataModelUpdaterOutputRecord_x2.dataArray().length;
             double[] updatedBaseLineArray = new double[countOfIntegrations];
+
             double[] updatedDetectorFaradayArray = new double[countOfIntegrations];
             Arrays.fill(updatedDetectorFaradayArray, 1.0);
+
             double[] updatedLogRatioArray = new double[countOfIntegrations];
             double[] updatedIntensitiesArray = new double[countOfIntegrations];
+
             int[] detectorOrdinalIndices = singleBlockDataSetRecord.getBlockDetectorOrdinalIndicesArray();
             Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex = dataModelUpdaterOutputRecord_x2.mapDetectorOrdinalToFaradayIndex();
+
             int[] isotopeOrdinalIndicesArray = singleBlockDataSetRecord.getBlockIsotopeOrdinalIndicesArray();
             double[] logRatios = dataModelUpdaterOutputRecord_x2.logRatios();
             double detectorFaradayGain = dataModelUpdaterOutputRecord_x2.detectorFaradayGain();
@@ -324,6 +330,7 @@ public class MCMCProcess {
             prev = interval1 + prev;
 
             MatrixStore<Double> intensity2 = singleBlockDataSetRecord.blockKnotInterpolationStore().multiply(storeFactory.columns(dataModelUpdaterOutputRecord_x2.I0()));
+
             double[] intensity2Array = intensity2.toRawCopy1D();
             int[] timeIndicesArray = singleBlockDataSetRecord.getBlockTimeIndicesArray();
             for (int row = startingIndexOfFaradayData; row < countOfIntegrations; row++) {
@@ -364,7 +371,7 @@ public class MCMCProcess {
                 dataArray2[row] = value + updatedBaseLineArray[row];
             }
 
-            double[] dSignalNoise2Array = new double[countOfIntegrations];
+            double[] dataSignalNoise2Array = new double[countOfIntegrations];
             double E02 = 0.0;
             double E = 0.0;
             double E2 = 0.0;
@@ -383,7 +390,7 @@ public class MCMCProcess {
                 int detectorIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndices[row]);
                 double term1 = StrictMath.pow(signalNoiseSigma[detectorIndex], 2);
                 double term2 = signalNoiseSigma[isotopeOrdinalIndices[row] - 1 + faradayCount + 1];
-                dSignalNoise2Array[row] = term1 + term2 * dataWithNoBaselineArray2[row];
+                dataSignalNoise2Array[row] = term1 + term2 * dataWithNoBaselineArray2[row];
                 double residualValue = pow(intensitiesArray[row] - dataArray[row], 2);
                 double residualValue2 = pow(intensitiesArray[row] - dataArray2[row], 2);
                 E02 += residualValue2;
@@ -393,13 +400,13 @@ public class MCMCProcess {
                     keep = AcceptItMS(oper,dE,psig,delx,prior,Dsig,Dsig2,d0);
                  */
                 if (noiseOperation) {
-                    E += residualValue / dSignalNoiseArray[row];
-                    E2 += residualValue2 / dSignalNoise2Array[row];
-                    sumLogDSignalNoise += -1.0 * Math.log(dSignalNoiseArray[row]);
-                    sumLogDSignalNoise2 += -1.0 * Math.log(dSignalNoise2Array[row]);
+                    E += residualValue / dataSignalNoiseArray[row];
+                    E2 += residualValue2 / dataSignalNoise2Array[row];
+                    sumLogDSignalNoise += -1.0 * Math.log(dataSignalNoiseArray[row]);
+                    sumLogDSignalNoise2 += -1.0 * Math.log(dataSignalNoise2Array[row]);
                 } else {
-                    E += residualValue * baselineMultiplier[row] / dSignalNoiseArray[row];
-                    E2 += residualValue2 * baselineMultiplier[row] / dSignalNoise2Array[row];
+                    E += residualValue * baselineMultiplier[row] / dataSignalNoiseArray[row];
+                    E2 += residualValue2 * baselineMultiplier[row] / dataSignalNoise2Array[row];
                 }
             } //rows loop
 
@@ -412,7 +419,7 @@ public class MCMCProcess {
                 keep = min(1.0, exp(deltaLogNoise / 2.0 - (dE) / 2.0));//keep = min(1,exp(X/2-(dE)/2));
             } else {
                 dE = 1.0 / tempering * (E2 - E);
-                keep = min(1, exp(-(dE) / 2.0));
+                keep = min(1.0, exp(-(dE) / 2.0));
             }
 
             /*
@@ -436,12 +443,10 @@ public class MCMCProcess {
                 end
              */
 
-            int operationIndex = DataModelUpdater.operations.indexOf(operation);
+            int operationIndex = operations.indexOf(operation);
             keptUpdates[operationIndex][1] = keptUpdates[operationIndex][1] + 1;
             keptUpdates[operationIndex][3] = keptUpdates[operationIndex][3] + 1;
 
-            RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
-            randomDataGenerator.reSeedSecure();
 
             if (keep >= randomDataGenerator.nextUniform(0, 1)) {
                 E = E2;
@@ -456,13 +461,13 @@ public class MCMCProcess {
                         dataModelUpdaterOutputRecord_x2.signalNoiseSigma(),
                         dataArray2.clone(),
                         dataWithNoBaselineArray2.clone(),
-                        dSignalNoise2Array.clone(),
+                        dataSignalNoise2Array.clone(),
                         dataModelUpdaterOutputRecord_x2.I0(),
                         intensity2,
                         dataModelUpdaterOutputRecord_x2.faradayCount(),
                         dataModelUpdaterOutputRecord_x2.isotopeCount()
                 );
-                dSignalNoiseArray = dSignalNoise2Array.clone();
+                dataSignalNoiseArray = dataSignalNoise2Array.clone();
 
                 keptUpdates[operationIndex][0] = keptUpdates[operationIndex][0] + 1;
                 keptUpdates[operationIndex][2] = keptUpdates[operationIndex][2] + 1;
