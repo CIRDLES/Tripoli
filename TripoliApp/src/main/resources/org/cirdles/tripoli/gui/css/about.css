@@ -14,9 +14,21 @@
 *  limitations under the License.
 */
 
+/* Inter introduced by JetBrains in 2023
+    https://rsms.me/inter/
+ */
+:root {
+    font-family: 'Inter', sans-serif;
+}
+
+@supports (font-variation-settings: normal) {
+    :root {
+        font-family: 'Inter var', sans-serif;
+    }
+}
 
 .project-Title {
-    -fx-font: 30px "SansSerif";
+    -fx-font-size: 30;
 }
 
 .main-Pain {
@@ -29,18 +41,9 @@
     -fx-text-fill: -main-text-color;
 }
 
-.scroll_Pain {
-    -fx-background-color: -main-bg-color;
-    -fx-font-fill: -main-Text-Color;
-}
-
 .description-Text {
-    -fx-font: 13px "SansSerif";
+    -fx-font-size: 12px;
     -fx-text-fill: -main-text-color;
-}
-
-.bars {
-    -fx-stroke: -main-accent-color;
 }
 
 .logo {

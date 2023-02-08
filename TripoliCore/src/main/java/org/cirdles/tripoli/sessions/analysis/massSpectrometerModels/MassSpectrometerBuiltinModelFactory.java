@@ -30,7 +30,6 @@ public final class MassSpectrometerBuiltinModelFactory {
     public static Map<String, MassSpectrometerModel> massSpectrometerModelBuiltinMap = new TreeMap<>();
 
     static {
-
         MassSpectrometerModel massSpectrometerModelPhoenix = MassSpectrometerModel.initializeMassSpectrometer(PHOENIX);
         massSpectrometerModelPhoenix.setCollectorWidthMM(0.95135);
         massSpectrometerModelPhoenix.setEffectiveRadiusMagnetMM(540.0);

@@ -55,9 +55,10 @@ public class SequenceTable implements Serializable {
         return sequenceTable;
     }
 
-    public SequenceCell accessSequenceCellForDetector(Detector detector, String sequenceName, int sequenceIndex) {
+    public SequenceCell accessSequenceCellForDetector(Detector detector, String sequenceName, int sequenceIndex, List<String> baselineRefsList) {
         List<SequenceCell> targetList = mapOfDetectorsToSequenceCells.get(detector);
         SequenceCell sequenceCell = SequenceCell.initializeSequenceCell(sequenceName, sequenceIndex);
+        sequenceCell.setBaselineReferences(baselineRefsList);
         if (targetList == null) {
             targetList = new ArrayList<>();
             targetList.add(sequenceCell);

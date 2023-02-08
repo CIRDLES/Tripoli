@@ -28,6 +28,8 @@ import java.util.TreeMap;
  */
 public class Detector implements Comparable, Serializable {
 
+    private static final long serialVersionUID = 1072543836339368734L;
+
     private final DetectorTypeEnum detectorType;
     private final String detectorName;
     // 0-based index of detector order, used for reading data column

@@ -20,13 +20,15 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerModel;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputDataRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
-import org.cirdles.tripoli.sessions.analysis.samples.Sample;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serial;
 import java.io.Serializable;
@@ -39,7 +41,10 @@ import java.util.TreeSet;
 
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory.massSpectrometerModelBuiltinMap;
+import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_SYNTHETIC;
+import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
+import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA;
+import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB;
 
 /**
  * @author James F. Bowring
@@ -52,12 +57,11 @@ public class Analysis implements Serializable, AnalysisInterface {
     private String analystName;
     private String labName;
     private AnalysisMethod analysisMethod;
-    private Sample analysisSample;
+    private String analysisSampleName;
     private String analysisSampleDescription;
 
-    // note: path is not serializable
+    // note: Path is not serializable
     private String dataFilePathString;
-    private MassSpectrometerModel massSpectrometerModel;
     private MassSpecOutputDataRecord massSpecOutputDataRecord;// TODO remove when out of use by synthetic files experiment
     private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
@@ -65,59 +69,83 @@ public class Analysis implements Serializable, AnalysisInterface {
     private Analysis() {
     }
 
-    protected Analysis(String analysisName, AnalysisMethod analysisMethod, Sample analysisSample) {
+    protected Analysis(String analysisName, AnalysisMethod analysisMethod, String analysisSampleName) {
         this.analysisName = analysisName;
         this.analysisMethod = analysisMethod;
-        this.analysisSample = analysisSample;
+        this.analysisSampleName = analysisSampleName;
         analystName = MISSING_STRING_FIELD;
         labName = MISSING_STRING_FIELD;
         analysisSampleDescription = MISSING_STRING_FIELD;
         dataFilePathString = MISSING_STRING_FIELD;
-        massSpectrometerModel = null;
-        massSpecOutputDataRecord = null;
+        massSpecOutputDataRecord = null; // TODO: remove after transition to new architecture
         massSpecExtractedData = new MassSpecExtractedData();
         mutable = true;
     }
 
     public void extractMassSpecDataFromPath(Path dataFilePath)
-            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, JAXBException, TripoliException {
         dataFilePathString = dataFilePath.toString();
         MassSpectrometerContextEnum massSpectrometerContext = AnalysisInterface.determineMassSpectrometerContextFromDataFile(dataFilePath);
-        massSpectrometerModel = massSpectrometerModelBuiltinMap.get(massSpectrometerContext.getMassSpectrometerName());
-        if (0 != massSpectrometerContext.compareTo(MassSpectrometerContextEnum.UNKNOWN)) {
+        if (0 != massSpectrometerContext.compareTo(UNKNOWN)) {
             Class<?> clazz = massSpectrometerContext.getClazz();
             Method method = clazz.getMethod(massSpectrometerContext.getMethodName(), Path.class);
             massSpecExtractedData = (MassSpecExtractedData) method.invoke(null, dataFilePath);
         } else {
             massSpecExtractedData = new MassSpecExtractedData();
         }
+        massSpecExtractedData.setMassSpectrometerContext(massSpectrometerContext);
+
+        // TODO: remove this temp hack for synthetic demos
+        if (massSpectrometerContext.compareTo(PHOENIX_SYNTHETIC) == 0) {
+            massSpecExtractedData.setDetectorSetup(DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_SYNTHETIC.getName()));
+            if (massSpecExtractedData.getHeader().methodName().toUpperCase().contains("SYNTHETIC")) {
+                setAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(BURDICK_BL_SYNTHETIC_DATA));
+            } else {
+                setAnalysisMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB));
+            }
+        } else {
+            // attempt to load specified method
+            File selectedFile = new File(Path.of(dataFilePathString).getParent().getParent().toString()
+                    + File.separator + "Methods" + File.separator + massSpecExtractedData.getHeader().methodName());
+            if (selectedFile != null) {
+                if (selectedFile.exists()) {
+                    analysisMethod = extractAnalysisMethodfromPath(Path.of(selectedFile.toURI()));
+                } else {
+                    throw new TripoliException(
+                            "Method File not found: " + massSpecExtractedData.getHeader().methodName()
+                                    + "\n\n at location: " + Path.of(dataFilePathString).getParent().getParent().toString() + File.separator + "Methods");
+                }
+            }
+        }
     }
 
-    public void extractAnalysisMethodfromPath(Path phoenixAnalysisMethodDataFilePath) throws JAXBException {
+    public AnalysisMethod extractAnalysisMethodfromPath(Path phoenixAnalysisMethodDataFilePath) throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(PhoenixAnalysisMethod.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         PhoenixAnalysisMethod phoenixAnalysisMethod = (PhoenixAnalysisMethod) jaxbUnmarshaller.unmarshal(phoenixAnalysisMethodDataFilePath.toFile());
-        analysisMethod = AnalysisMethod.createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod, this);
+        return AnalysisMethod.createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod, massSpecExtractedData.getDetectorSetup());
     }
 
     public final String prettyPrintAnalysisSummary() {
         return analysisName +
-                SPACES_100.substring(0, 40 - analysisName.length()) +
-                (null == analysisMethod ? "NO Method" : analysisMethod.prettyPrintMethodSummary());
+                SPACES_100.substring(0, 30 - analysisName.length()) +
+                (null == analysisMethod ? "NO Method" : analysisMethod.prettyPrintMethodSummary(false));
     }
 
     public final String prettyPrintAnalysisMetaData() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%30s", "Mass Spectrometer: ")).append(String.format("%-40s", massSpectrometerModel.getMassSpectrometerName()));
-        if (0 == massSpectrometerModel.getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN)) {
+        sb.append(String.format("%30s", "Mass Spectrometer: "))
+                .append(String.format("%-15s", massSpecExtractedData.getMassSpectrometerContext().getMassSpectrometerName()))
+                .append(String.format("%-30s", "Context: " + massSpecExtractedData.getMassSpectrometerContext().getName()));
+        if (0 == massSpecExtractedData.getMassSpectrometerContext().compareTo(UNKNOWN)) {
             sb.append("\n\n\n\t\t\t\t   >>>  Unable to parse data file.  <<<");
         } else {
             sb.append(String.format("%30s", "Software Version: ")).append(massSpecExtractedData.getHeader().softwareVersion())
-                    .append("\n").append(String.format("%30s", "File Name: ")).append(String.format("%-40s", massSpecExtractedData.getHeader().filename()))
+                    .append("\n").append(String.format("%30s", "File Name: ")).append(String.format("%-45s", massSpecExtractedData.getHeader().filename()))
                     .append(String.format("%30s", "Corrected?: ")).append(massSpecExtractedData.getHeader().isCorrected())
-                    .append("\n").append(String.format("%30s", "Method Name: ")).append(String.format("%-40s", massSpecExtractedData.getHeader().methodName()))
+                    .append("\n").append(String.format("%30s", "Method Name: ")).append(String.format("%-45s", massSpecExtractedData.getHeader().methodName()))
                     .append(String.format("%30s", "BChannels?: ")).append(massSpecExtractedData.getHeader().hasBChannels())
-                    .append("\n").append(String.format("%30s", "Time Zero: ")).append(String.format("%-40s", massSpecExtractedData.getHeader().localDateTimeZero()));
+                    .append("\n").append(String.format("%30s", "Time Zero: ")).append(String.format("%-45s", massSpecExtractedData.getHeader().localDateTimeZero()));
         }
 
         return sb.toString();
@@ -178,12 +206,12 @@ public class Analysis implements Serializable, AnalysisInterface {
         this.labName = labName;
     }
 
-    public Sample getAnalysisSample() {
-        return analysisSample;
+    public String getAnalysisSampleName() {
+        return analysisSampleName;
     }
 
-    public void setAnalysisSample(Sample analysisSample) {
-        this.analysisSample = analysisSample;
+    public void setAnalysisSampleName(String analysisSampleName) {
+        this.analysisSampleName = analysisSampleName;
     }
 
     public String getAnalysisSampleDescription() {
@@ -236,14 +264,6 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public void setDataFilePathString(String dataFilePathString) {
         this.dataFilePathString = dataFilePathString;
-    }
-
-    public MassSpectrometerModel getMassSpectrometerModel() {
-        return massSpectrometerModel;
-    }
-
-    public void setMassSpectrometerModel(MassSpectrometerModel massSpectrometerModel) {
-        this.massSpectrometerModel = massSpectrometerModel;
     }
 
     public boolean isMutable() {
