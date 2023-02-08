@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
+import jama.Matrix;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.stat.correlation.Covariance;
 import org.ojalgo.matrix.store.PhysicalStore;
@@ -454,6 +455,14 @@ public class DataModelUpdater {
 
 //            dataCov = DataProcessors.covariances(storeFactory, enso.transpose()).toRawCopy2D();
             cov2 = new Covariance(enso.transpose().toRawCopy2D());
+            Matrix a = new Matrix(cov2.getCovarianceMatrix().getData());
+            if (0.0 == a.det()) {
+                for (int i = 0; i < a.getRowDimension(); i++) {
+                    if (a.get(i, i) == 0.0) {
+                        System.out.print("  >" + i);
+                    }
+                }
+            }
         }
         return new UpdatedCovariancesRecord(cov2.getCovarianceMatrix().getData(), dataMean);
 //        return new UpdatedCovariancesRecord(dataCov, dataMean);

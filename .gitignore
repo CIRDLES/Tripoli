@@ -54,7 +54,7 @@ test_*
 TripoliResources/
 *.TIMSAM
 
-
+META-INF/
 
 # Resources
 !TripoliApp/src/main/resources/org/cirdles/tripoli/gui/css/*.css

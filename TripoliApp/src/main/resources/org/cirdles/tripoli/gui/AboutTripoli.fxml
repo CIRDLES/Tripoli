@@ -20,8 +20,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.Pane?>
 <?import java.lang.String?>
-<Pane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-      minWidth="-Infinity"
+<Pane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
       prefHeight="700.0" prefWidth="550.0" styleClass="main-Pain" stylesheets="@css/about.css"
       xmlns="http://javafx.com/javafx/17" fx:controller="org.cirdles.tripoli.gui.AboutTripoliController">
     <children>

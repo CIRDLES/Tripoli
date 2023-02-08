@@ -33,22 +33,16 @@ public class BaselineTable implements Serializable {
     @Serial
     private static final long serialVersionUID = 6152558186543823004L;
 
-    // DetectorName maps to map of sequencename to sequencecell
+    // DetectorName maps to map of baseline name to sequencecell
     private Map<Detector, List<BaselineCell>> mapOfDetectorsToBaselineCells;
+
+    private int sequenceCount;
 
     private BaselineTable() {
         this.mapOfDetectorsToBaselineCells = new TreeMap<>();
     }
 
     public static BaselineTable createEmptyBaselineTable() {
-        /* Notes:
-        Each row is a sequence (S1, S2, S3)
-        Each column is a detector from the detector setup.
-        Each cell is a user-input mass (double precision, units of u aka Dalton).
-                    User input could be manually typed or filled from a dropdown menu of “Isotopes of Interest”.
-        To determine which species (isotopologues, isobars) are going into that collector, use a formula based on the MassSpec Model (™)
-
-         */
         BaselineTable baselineTable = new BaselineTable();
 
         return baselineTable;
@@ -78,5 +72,13 @@ public class BaselineTable implements Serializable {
 
     public void setMapOfDetectorsToBaselineCells(Map<Detector, List<BaselineCell>> mapOfDetectorsToBaselineCells) {
         this.mapOfDetectorsToBaselineCells = mapOfDetectorsToBaselineCells;
+    }
+
+    public int getSequenceCount() {
+        return sequenceCount;
+    }
+
+    public void setSequenceCount(int sequenceCount) {
+        this.sequenceCount = sequenceCount;
     }
 }

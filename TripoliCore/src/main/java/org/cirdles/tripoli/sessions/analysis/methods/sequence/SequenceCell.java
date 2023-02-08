@@ -18,6 +18,7 @@ package org.cirdles.tripoli.sessions.analysis.methods.sequence;
 
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,11 +28,14 @@ import java.util.List;
  */
 public class SequenceCell implements Serializable {
 
+    @Serial
+    private static final long serialVersionUID = -8315387553980986168L;
     private String sequenceName;
     private int sequenceIndex;
     private double cellMass;
     private SpeciesRecordInterface targetSpecies;
     private List<SpeciesRecordInterface> includedSpecies;
+    private List<String> baselineReferences;
 
     private SequenceCell(String sequenceName, int sequenceIndex) {
         cellMass = 0.0;
@@ -39,6 +43,7 @@ public class SequenceCell implements Serializable {
         includedSpecies = new ArrayList<>();
         this.sequenceName = sequenceName;
         this.sequenceIndex = sequenceIndex;
+        baselineReferences = new ArrayList<>();
     }
 
     public static SequenceCell initializeSequenceCell(String sequenceName, int sequenceIndex) {
@@ -113,5 +118,21 @@ public class SequenceCell implements Serializable {
 
     public void setIncludedSpecies(List<SpeciesRecordInterface> includedSpecies) {
         this.includedSpecies = includedSpecies;
+    }
+
+    public List<String> getBaselineReferences() {
+        return baselineReferences;
+    }
+
+    public void setBaselineReferences(List<String> baselineReferences) {
+        this.baselineReferences = baselineReferences;
+    }
+
+    public String prettyPrintBaseLineRefs() {
+        String retVal = "";
+        for (String blref : baselineReferences) {
+            retVal += blref + " ";
+        }
+        return retVal;
     }
 }

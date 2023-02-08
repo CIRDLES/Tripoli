@@ -24,6 +24,7 @@ import javafx.stage.Window;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
@@ -44,8 +45,10 @@ public class TripoliMessageDialog extends Alert {
         setHeaderText(headerText);
         initStyle(StageStyle.DECORATED);
         int countOfNewLines = 1;
-        for (int i = 0; i < message.length(); i++) {
-            countOfNewLines = countOfNewLines + ((message.charAt(i) == '\n') ? 1 : 0);
+        if (message != null) {
+            for (int i = 0; i < message.length(); i++) {
+                countOfNewLines = countOfNewLines + ((message.charAt(i) == '\n') ? 1 : 0);
+            }
         }
         getDialogPane().setPrefSize(750, 150 + countOfNewLines * 20);
         getDialogPane().setStyle(getDialogPane().getStyle() + ";-fx-font-family: SansSerif Bold;-fx-font-size: 15");
@@ -70,6 +73,17 @@ public class TripoliMessageDialog extends Alert {
                 message,
                 "Tripoli informs you:", owner);
         alert.showAndWait();
+    }
+
+    public static boolean showChoiceDialog(String message, Window owner) {
+        Alert alert = new TripoliMessageDialog(
+                Alert.AlertType.CONFIRMATION,
+                message,
+                "Tripoli informs you:", owner);
+        alert.getButtonTypes().setAll(ButtonType.NO, ButtonType.OK);
+        Optional<ButtonType> result = alert.showAndWait();
+
+        return (result.get() == ButtonType.OK);
     }
 
     public static void showSavedAsDialog(File file, Window owner) {
