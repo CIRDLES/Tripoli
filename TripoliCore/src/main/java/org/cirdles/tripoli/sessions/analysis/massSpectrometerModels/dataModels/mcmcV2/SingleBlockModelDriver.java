@@ -16,10 +16,12 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2;
 
+import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
+import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.mathUtilities.SplineBasisModel;
 import org.ojalgo.RecoverableCondition;
@@ -34,7 +36,11 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public enum SingleBlockModelDriver {
     ;
 
-    public static void buildAndRunModelForSingleBlock(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) throws TripoliException {
+    public static AbstractPlotBuilder[][] buildAndRunModelForSingleBlock(int blockNumber, AnalysisInterface analysis, LoggingCallbackInterface loggingCallback) throws TripoliException {
+        MassSpecExtractedData massSpecExtractedData = analysis.getMassSpecExtractedData();
+        AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
+        AbstractPlotBuilder[][] plotBuilder = new AbstractPlotBuilder[0][0];
+
         SingleBlockDataSetRecord singleBlockDataSetRecord = prepareSingleBlockDataForMCMC(blockNumber, massSpecExtractedData, analysisMethod);
         SingleBlockModelRecord singleBlockInitialModelRecord;
         try {
@@ -46,16 +52,17 @@ public enum SingleBlockModelDriver {
         if (null != singleBlockInitialModelRecord) {
             MCMCProcess mcmcProcess = MCMCProcess.createMCMCProcess(analysisMethod, singleBlockDataSetRecord, singleBlockInitialModelRecord);
             mcmcProcess.initializeMCMCProcess();
-            mcmcProcess.applyInversionWithAdaptiveMCMC();
+            plotBuilder = mcmcProcess.applyInversionWithAdaptiveMCMC(loggingCallback);
         }
 
+        return plotBuilder;
     }
 
     private static SingleBlockDataSetRecord prepareSingleBlockDataForMCMC(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) {
         MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord = massSpecExtractedData.getBlocksData().get(blockNumber);
-//        Primitive64Store blockKnotInterpolationStore = generateKnotsMatrixForBlock(massSpecOutputSingleBlockRecord, 1);
+        Primitive64Store blockKnotInterpolationStore = generateKnotsMatrixForBlock(massSpecOutputSingleBlockRecord, 1);
         // TODO: the following line invokes a replication of the linear knots from Burdick's matlab code
-        Primitive64Store blockKnotInterpolationStore = generateLinearKnotsMatrixReplicaOfBurdickMatLab(massSpecOutputSingleBlockRecord);
+//        Primitive64Store blockKnotInterpolationStore = generateLinearKnotsMatrixReplicaOfBurdickMatLab(massSpecOutputSingleBlockRecord);
         SingleBlockDataSetRecord.SingleBlockDataRecord baselineDataSetMCMC = SingleBlockDataAccumulatorMCMC.accumulateBaselineDataPerBaselineTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod);
         SingleBlockDataSetRecord.SingleBlockDataRecord onPeakFaradayDataSetMCMC = SingleBlockDataAccumulatorMCMC.accumulateOnPeakDataPerSequenceTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod, true);
         SingleBlockDataSetRecord.SingleBlockDataRecord onPeakPhotoMultiplierDataSetMCMC = SingleBlockDataAccumulatorMCMC.accumulateOnPeakDataPerSequenceTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod, false);

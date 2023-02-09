@@ -140,19 +140,31 @@ enum SingleBlockModelInitForMCMC {
             end
         */
         // find index of photoMultiplierMeansArray max value
-        int maxCountIndex = -1;
+        int maxCountPhotoMultiplierIndex = -1;
         double maxCountsMean = Double.MIN_VALUE;
         for (int i = 0; i < photoMultiplierMeansArray.length; i++) {
             if (photoMultiplierMeansArray[i] > maxCountsMean) {
-                maxCountsMean = photoMultiplierMeansArray[i];
-                maxCountIndex = i;
+                maxCountPhotoMultiplierIndex = i;
             }
         }
+
+        // per Noah 9 Feb 2023
+        // find index of Faraday max value
+        int maxCountFaradayIndex = -1;
+        maxCountsMean = Double.MIN_VALUE;
+        for (int i = 0; i < faradayMeansArray.length; i++) {
+            if (faradayMeansArray[i] > maxCountsMean) {
+                maxCountFaradayIndex = i;
+            }
+        }
+
+
+        //TODO: confirm this
 
         // NOTE: the speciesList has been sorted by increasing abundances in the original analysisMethod setup
         //  the ratios are between each species and the most abundant species, with one less ratio than species
         int indexOfMostAbundantIsotope = mapPhotoMultiplierIsotopeIndicesToStatistics.size() - 1;
-        double detectorFaradayGain = photoMultiplierMeansArray[maxCountIndex] / faradayMeansArray[maxCountIndex];
+        double detectorFaradayGain = photoMultiplierMeansArray[maxCountPhotoMultiplierIndex] / faradayMeansArray[maxCountFaradayIndex];
         double[] logRatios = new double[mapPhotoMultiplierIsotopeIndicesToStatistics.size() - 1];
         for (int logRatioIndex = 0; logRatioIndex < logRatios.length; logRatioIndex++) {
             logRatios[logRatioIndex] = log(photoMultiplierMeansArray[logRatioIndex] / photoMultiplierMeansArray[indexOfMostAbundantIsotope]);

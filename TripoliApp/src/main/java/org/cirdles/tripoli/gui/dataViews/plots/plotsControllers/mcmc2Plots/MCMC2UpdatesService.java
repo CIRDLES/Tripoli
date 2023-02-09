@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmc2Plots;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmc2Plots.PlotBuildersTaskInterface;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotBuildersTask;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 
 import java.nio.file.Path;
@@ -26,15 +27,13 @@ import java.nio.file.Path;
 /**
  * @author James F. Bowring
  */
-public class MCMCUpdatesService extends Service<String> {
-    private final Path dataFile;
-    private final AnalysisMethod analysisMethod;
+public class MCMC2UpdatesService extends Service<String> {
+    private final AnalysisInterface analysis;
 
     private Task<String> plotBuilderTask;
 
-    public MCMCUpdatesService(Path dataFile, AnalysisMethod analysisMethod) {
-        this.dataFile = dataFile;
-        this.analysisMethod = analysisMethod;
+    public MCMC2UpdatesService(AnalysisInterface analysis) {
+        this.analysis = analysis;
     }
 
     public Task<String> getPlotBuildersTask() {
@@ -43,7 +42,7 @@ public class MCMCUpdatesService extends Service<String> {
 
     @Override
     protected Task<String> createTask() {
-        plotBuilderTask = new MCMCPlotBuildersTask(dataFile, analysisMethod);
-        return (MCMCPlotBuildersTask)plotBuilderTask;
+        plotBuilderTask = new MCMC2PlotBuildersTask(analysis);
+        return plotBuilderTask;
     }
 }

@@ -10,6 +10,8 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsController;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
@@ -67,6 +69,8 @@ public class AnalysisManagerController implements Initializable {
     private GridPane sequenceTableGridPane;
     @FXML
     private GridPane baselineTableGridPane;
+
+    public static MCMCPlotsWindow MCMCPlotsWindow;
 
     private void populateDetectorDetailRow(GridPane target, String entry, int colIndex, int rowIndex) {
         if (!mapOfGridPanesToCellUse.get(target.getId())[rowIndex][colIndex]) {
@@ -300,6 +304,9 @@ public class AnalysisManagerController implements Initializable {
     }
 
     public void initializeMonteCarloTechniqueAction() throws TripoliException {
-        buildAndRunModelForSingleBlock(1, analysis.getMassSpecExtractedData(), analysis.getAnalysisMethod());
+        MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
+        MCMCPlotsWindow.loadPlotsWindow();
+        MCMCPlotsController.analysis = analysis;
+
     }
 }

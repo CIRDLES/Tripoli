@@ -68,6 +68,7 @@ public class MCMCPlotsWindow {
             }
             plottingWindow = plottingStage.getScene().getWindow();
             plottingStage.show();
+
         }
 
         // center on app window

@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmc2Plots;
 
 import javafx.concurrent.Task;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmc2Plots.PlotBuildersTaskInterface;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.DataModelDriverExperiment;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 
 import java.nio.file.Path;
 
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.SingleBlockModelDriver.buildAndRunModelForSingleBlock;
+
 /**
  * @author James F. Bowring
  */
-public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface, PlotBuildersTaskInterface {
-    private final Path dataFile;
-    private final AnalysisMethod analysisMethod;
+public class MCMC2PlotBuildersTask extends Task<String> implements LoggingCallbackInterface, PlotBuildersTaskInterface {
+    private final AnalysisInterface analysis;
     // ensemble plots
     private AbstractPlotBuilder[] ratiosHistogramBuilder;
     private AbstractPlotBuilder[] baselineHistogramBuilder;
@@ -52,66 +53,78 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
     private AbstractPlotBuilder[] convergeNoiseFaradayLineBuilder;
 
-    public MCMCPlotBuildersTask(Path dataFile, AnalysisMethod analysisMethod) {
-        this.dataFile = dataFile;
-        this.analysisMethod = analysisMethod;
+    public MCMC2PlotBuildersTask(AnalysisInterface analysis) {
+        this.analysis = analysis;
     }
 
+    @Override
     public AbstractPlotBuilder[] getRatiosHistogramBuilder() {
         return ratiosHistogramBuilder;
     }
 
+    @Override
     public AbstractPlotBuilder[] getBaselineHistogramBuilder() {
         return baselineHistogramBuilder;
     }
 
+    @Override
     public AbstractPlotBuilder[] getDalyFaradayGainHistogramBuilder() {
         return dalyFaradayGainHistogramBuilder;
     }
 
+    @Override
     public AbstractPlotBuilder[] getSignalNoiseHistogramBuilder() {
         return signalNoiseHistogramBuilder;
     }
 
+    @Override
     public AbstractPlotBuilder[] getMeanIntensityLineBuilder() {
         return meanIntensityLineBuilder;
     }
 
+    @Override
     public AbstractPlotBuilder[] getConvergeRatioLineBuilder() {
         return convergeRatioLineBuilder;
     }
 
+    @Override
     public AbstractPlotBuilder getObservedDataLineBuilder() {
         return observedDataLineBuilder;
     }
 
+    @Override
     public AbstractPlotBuilder getResidualDataLineBuilder() {
         return residualDataLineBuilder;
     }
 
+    @Override
     public AbstractPlotBuilder[] getConvergeBLFaradayLineBuilder() {
         return convergeBLFaradayLineBuilder;
     }
 
+    @Override
     public AbstractPlotBuilder[] getConvergeErrWeightedMisfitLineBuilder() {
         return convergeErrWeightedMisfitLineBuilder;
     }
 
+    @Override
     public AbstractPlotBuilder[] getConvergeErrRawMisfitLineBuilder() {
         return convergeErrRawMisfitLineBuilder;
     }
 
+    @Override
     public AbstractPlotBuilder getConvergeIntensityLinesBuilder() {
         return convergeIntensityLinesBuilder;
     }
 
+    @Override
     public AbstractPlotBuilder[] getConvergeNoiseFaradayLineBuilder() {
         return convergeNoiseFaradayLineBuilder;
     }
 
     @Override
     public String call() throws Exception {
-        AbstractPlotBuilder[][] plots = DataModelDriverExperiment.driveModelTest(dataFile, analysisMethod, this);
+        AbstractPlotBuilder[][] plots =  buildAndRunModelForSingleBlock(1, analysis, this);
         ratiosHistogramBuilder = plots[0];
         baselineHistogramBuilder = plots[1];
         dalyFaradayGainHistogramBuilder = plots[2];
@@ -131,7 +144,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         observedDataLineBuilder = plots[13][0];
         residualDataLineBuilder = plots[14][0];
 
-        return dataFile.getFileName() + "\n\n\tDONE - view tabs for various plots";
+        return analysis.getDataFilePathString() + "\n\n\tDONE - view tabs for various plots";
     }
 
     @Override

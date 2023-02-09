@@ -21,7 +21,9 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.DataModelPlot;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
@@ -220,8 +222,7 @@ public class MCMCProcess {
         }
     }
 
-    public AbstractPlotBuilder[][] applyInversionWithAdaptiveMCMC() {
-//            LoggingCallbackInterface loggingCallback) {
+    public AbstractPlotBuilder[][] applyInversionWithAdaptiveMCMC( LoggingCallbackInterface loggingCallback) {
 
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         SingleBlockModelRecord singleBlockInitialModelRecord_initial = singleBlockInitialModelRecord_X0.clone();
@@ -604,7 +605,7 @@ public class MCMCProcess {
                                 : "");
 
                 System.err.println("\n" + loggingSnippet);
-//                loggingCallback.receiveLoggingSnippet(loggingSnippet);
+                loggingCallback.receiveLoggingSnippet(loggingSnippet);
 
                 for (int i = 0; 5 > i; i++) {
                     keptUpdates[i][0] = 0;
@@ -616,6 +617,6 @@ public class MCMCProcess {
             }
 
         }
-        return null;
+        return SingleBlockDataModelPlot.analysisAndPlotting(singleBlockDataSetRecord,  ensembleRecordsList, singleBlockInitialModelRecord_initial, analysisMethod);
     }
 }
