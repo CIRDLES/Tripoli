@@ -43,7 +43,7 @@ public enum DataModelUpdater {
     }
 
     // function  [x2,delx,xcov] = UpdateMSv2(oper,x,psig,prior,ensemble,xcov,delx_adapt,adaptflag,allflag)
-    static DataModellerOutputRecord updateMSv2(
+    public static DataModellerOutputRecord updateMSv2(
             String operation,
             DataModellerOutputRecord dataModelInit,
             DataModelUpdaterHelper.PsigRecord psigRecord,

@@ -18,7 +18,6 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmc2Plots.PlotBuildersTaskInterface;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 
 import java.nio.file.Path;
@@ -44,6 +43,6 @@ public class MCMCUpdatesService extends Service<String> {
     @Override
     protected Task<String> createTask() {
         plotBuilderTask = new MCMCPlotBuildersTask(dataFile, analysisMethod);
-        return (MCMCPlotBuildersTask)plotBuilderTask;
+        return (MCMCPlotBuildersTask) plotBuilderTask;
     }
 }

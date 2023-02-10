@@ -19,13 +19,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramBuilder;
-import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
-import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.DataModellerOutputRecord;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.species.IsotopicRatio;
@@ -33,7 +27,6 @@ import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.StrictMath.exp;
@@ -48,8 +41,7 @@ public enum SingleBlockDataModelPlot {
             SingleBlockDataSetRecord singleBlockDataSetRecord,
             List<EnsemblesStoreV2.EnsembleRecord> ensembleRecordsList,
             SingleBlockModelRecord singleBlockInitialModelRecordInitial,
-            AnalysisMethod analysisMethod)
-    {
+            AnalysisMethod analysisMethod) {
         List<IsotopicRatio> isotopicRatioList = analysisMethod.getTripoliRatiosList();
 
         /*
@@ -151,22 +143,22 @@ public enum SingleBlockDataModelPlot {
         double[] intensityMeans = new double[knotsCount];
         double[] intensityStdDevs = new double[knotsCount];
 
-            for (int knotIndex = 0; knotIndex < knotsCount; knotIndex++) {
-                DescriptiveStatistics descriptiveStatisticsIntensity = new DescriptiveStatistics();
-                for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
-                    ensembleIntensity[knotIndex][index - burn] = ensembleRecordsList.get(index).intensities()[knotIndex];
-                    descriptiveStatisticsIntensity.addValue(ensembleIntensity[knotIndex][index - burn]);
-                }
-                intensityMeans[knotIndex] = descriptiveStatisticsIntensity.getMean();
-                intensityStdDevs[knotIndex] = descriptiveStatisticsIntensity.getStandardDeviation();
+        for (int knotIndex = 0; knotIndex < knotsCount; knotIndex++) {
+            DescriptiveStatistics descriptiveStatisticsIntensity = new DescriptiveStatistics();
+            for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
+                ensembleIntensity[knotIndex][index - burn] = ensembleRecordsList.get(index).intensities()[knotIndex];
+                descriptiveStatisticsIntensity.addValue(ensembleIntensity[knotIndex][index - burn]);
             }
+            intensityMeans[knotIndex] = descriptiveStatisticsIntensity.getMean();
+            intensityStdDevs[knotIndex] = descriptiveStatisticsIntensity.getStandardDeviation();
+        }
 
         // calculate blockIntensities means for plotting
         double[][] yDataIntensityMeans = new double[1][];
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-            MatrixStore<Double> intensityMeansMatrix = storeFactory.columns(intensityMeans);
-            MatrixStore<Double> yDataMatrix = singleBlockDataSetRecord.blockKnotInterpolationStore().multiply(intensityMeansMatrix).multiply(1.0 / dalyFaradayGainMean);//(1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
-            yDataIntensityMeans[0] = yDataMatrix.toRawCopy1D();
+        MatrixStore<Double> intensityMeansMatrix = storeFactory.columns(intensityMeans);
+        MatrixStore<Double> yDataMatrix = singleBlockDataSetRecord.blockKnotInterpolationStore().multiply(intensityMeansMatrix).multiply(1.0 / dalyFaradayGainMean);//(1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
+        yDataIntensityMeans[0] = yDataMatrix.toRawCopy1D();
         double[] xDataIntensityMeans = new double[singleBlockDataSetRecord.blockKnotInterpolationStore().getRowDim()];
         for (int i = 0; i < xDataIntensityMeans.length; i++) {
             xDataIntensityMeans[i] = i;

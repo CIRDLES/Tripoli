@@ -34,12 +34,12 @@ import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColor
 import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDialog;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectDataFile;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectMethodFile;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.SingleBlockModelDriver.buildAndRunModelForSingleBlock;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compareAnalysisMethodToDataFileSpecs;
 
 public class AnalysisManagerController implements Initializable {
 
     public static AnalysisInterface analysis;
+    public static MCMCPlotsWindow MCMCPlotsWindow;
     private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
     public Tab detectorDetailTab;
     public TabPane analysiMethodTabPane;
@@ -69,8 +69,6 @@ public class AnalysisManagerController implements Initializable {
     private GridPane sequenceTableGridPane;
     @FXML
     private GridPane baselineTableGridPane;
-
-    public static MCMCPlotsWindow MCMCPlotsWindow;
 
     private void populateDetectorDetailRow(GridPane target, String entry, int colIndex, int rowIndex) {
         if (!mapOfGridPanesToCellUse.get(target.getId())[rowIndex][colIndex]) {

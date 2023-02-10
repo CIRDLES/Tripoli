@@ -10,16 +10,16 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
-import org.cirdles.commons.util.ResourceExtractor;
-import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmc2Plots.MCMC2PlotBuildersTask;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmc2Plots.MCMC2UpdatesService;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmc2Plots.PlotBuildersTaskInterface;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.*;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.BasicScatterAndLinePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.HistogramSinglePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.LinePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.MultiLinePlotLogX;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
@@ -30,7 +30,6 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.DataModelDriverExperiment;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
-import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,15 +44,12 @@ import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHei
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.SingleBlockModelDriver.buildAndRunModelForSingleBlock;
 
 public class MCMCPlotsController {
 
     private static final int TAB_HEIGHT = 35;
-    private Service service;
-
     public static AnalysisInterface analysis;
-
+    private Service service;
     @FXML
     private ResourceBundle resources;
 
@@ -121,22 +117,6 @@ public class MCMCPlotsController {
     }
 
     @FXML
-    void demo1_5IsotopeButtonAction(ActionEvent event) {
-        // Jim's playground for 5 isotopes
-        DataModelDriverExperiment.ALLOW_EXECUTION = true;
-        ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
-        Path dataFile = RESOURCE_EXTRACTOR
-                .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
-        processDataFileAndShowPlotsOfMCMC(
-                dataFile,
-                AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB));
-
-        ((Button) event.getSource()).setDisable(true);
-        processFileButton.setDisable(true);
-    }
-
-
-    @FXML
     void testAction(ActionEvent event) {
         DataModelDriverExperiment.ALLOW_EXECUTION = false;
         service.cancel();
@@ -173,7 +153,6 @@ public class MCMCPlotsController {
         populateListOfSyntheticData2IsotopesFiles();
 
         processFileButton.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
-        processFileButton2.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
     }
 
     private void populateListOfSyntheticData2IsotopesFiles() {
@@ -207,7 +186,7 @@ public class MCMCPlotsController {
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
         service.setOnSucceeded(evt -> {
-            Task<String> plotBuildersTask = ((MCMCUpdatesService)service).getPlotBuildersTask();
+            Task<String> plotBuildersTask = ((MCMCUpdatesService) service).getPlotBuildersTask();
 
             plotEngine(plotBuildersTask);
         });
@@ -218,15 +197,15 @@ public class MCMCPlotsController {
         eventLogTextArea.textProperty().bind(service.valueProperty());
         service.start();
         service.setOnSucceeded(evt -> {
-            Task<String> plotBuildersTask = ((MCMC2UpdatesService)service).getPlotBuildersTask();
+            Task<String> plotBuildersTask = ((MCMC2UpdatesService) service).getPlotBuildersTask();
 
             plotEngine(plotBuildersTask);
         });
     }
 
 
-    private void plotEngine(Task<String> plotBuildersTaska){
-        PlotBuildersTaskInterface plotBuildersTask = (PlotBuildersTaskInterface)plotBuildersTaska;
+    private void plotEngine(Task<String> plotBuildersTaska) {
+        PlotBuildersTaskInterface plotBuildersTask = (PlotBuildersTaskInterface) plotBuildersTaska;
         AbstractPlotBuilder[] ratiosHistogramBuilder = plotBuildersTask.getRatiosHistogramBuilder();
         AbstractPlotBuilder[] baselineHistogramBuilder = plotBuildersTask.getBaselineHistogramBuilder();
         AbstractPlotBuilder[] dalyFaradayHistogramBuilder = plotBuildersTask.getDalyFaradayGainHistogramBuilder();
@@ -341,7 +320,6 @@ public class MCMCPlotsController {
             tripoliPlotPane.addPlot(plot);
         }
     }
-
 
 
     static class FileDisplayName extends ListCell<File> {

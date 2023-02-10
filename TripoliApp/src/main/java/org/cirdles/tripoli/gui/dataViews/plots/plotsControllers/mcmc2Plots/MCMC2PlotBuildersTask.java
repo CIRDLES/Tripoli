@@ -19,11 +19,7 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmc2Plots;
 import javafx.concurrent.Task;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.DataModelDriverExperiment;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
-
-import java.nio.file.Path;
 
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.SingleBlockModelDriver.buildAndRunModelForSingleBlock;
 
@@ -124,7 +120,7 @@ public class MCMC2PlotBuildersTask extends Task<String> implements LoggingCallba
 
     @Override
     public String call() throws Exception {
-        AbstractPlotBuilder[][] plots =  buildAndRunModelForSingleBlock(1, analysis, this);
+        AbstractPlotBuilder[][] plots = buildAndRunModelForSingleBlock(1, analysis, this);
         ratiosHistogramBuilder = plots[0];
         baselineHistogramBuilder = plots[1];
         dalyFaradayGainHistogramBuilder = plots[2];

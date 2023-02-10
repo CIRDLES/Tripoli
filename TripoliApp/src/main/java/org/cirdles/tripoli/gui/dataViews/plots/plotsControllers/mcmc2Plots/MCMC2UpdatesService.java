@@ -18,11 +18,7 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmc2Plots;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotBuildersTask;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
-
-import java.nio.file.Path;
 
 /**
  * @author James F. Bowring

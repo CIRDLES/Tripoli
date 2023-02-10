@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2;
 
+import com.google.common.collect.Sets;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.ojalgo.RecoverableCondition;
 import org.ojalgo.matrix.store.MatrixStore;
@@ -101,12 +102,6 @@ enum SingleBlockModelInitForMCMC {
             intensityIndex++;
         }
 
-        double[] faradayMeansArray = new double[mapFaradayIsotopeIndicesToStatistics.keySet().size()];
-        int isotopeIndex = 0;
-        for (Integer isotopeOrdinalIndex : mapFaradayIsotopeIndicesToStatistics.keySet()) {
-            faradayMeansArray[isotopeIndex] = mapFaradayIsotopeIndicesToStatistics.get(isotopeOrdinalIndex).getMean();
-            isotopeIndex++;
-        }
 
         // OnPeak statistics by photomultiplier ************************************************************************
         SingleBlockDataSetRecord.SingleBlockDataRecord onPeakPhotoMultiplierDataSetMCMC = singleBlockDataSetRecord.onPeakPhotoMultiplierDataSetMCMC();
@@ -124,42 +119,37 @@ enum SingleBlockModelInitForMCMC {
             intensityIndex++;
         }
 
-        double[] photoMultiplierMeansArray = new double[mapPhotoMultiplierIsotopeIndicesToStatistics.keySet().size()];
-        isotopeIndex = 0;
-        for (Integer isotopeOrdinalIndex : mapPhotoMultiplierIsotopeIndicesToStatistics.keySet()) {
-            photoMultiplierMeansArray[isotopeIndex] = mapPhotoMultiplierIsotopeIndicesToStatistics.get(isotopeOrdinalIndex).getMean();
+        // Updated by Noah 9 Feb 2023
+        // find intersection of species in PhotoMultiplier and Faraday cases
+        Set<Integer> commonSpeciesOrdinalIndices = Sets.intersection(mapPhotoMultiplierIsotopeIndicesToStatistics.keySet(), mapFaradayIsotopeIndicesToStatistics.keySet());
+
+        double[] faradayMeansArray = new double[mapFaradayIsotopeIndicesToStatistics.keySet().size()];
+        int isotopeIndex = 0;
+        int maxCountFaradayIndex = -1;
+        double maxFaradayCountsMean = Double.MIN_VALUE;
+        for (Integer isotopeOrdinalIndex : mapFaradayIsotopeIndicesToStatistics.keySet()) {
+            faradayMeansArray[isotopeIndex] = mapFaradayIsotopeIndicesToStatistics.get(isotopeOrdinalIndex).getMean();
+            if (commonSpeciesOrdinalIndices.contains(isotopeOrdinalIndex)) {
+                if (faradayMeansArray[isotopeIndex] > maxFaradayCountsMean) {
+                    maxCountFaradayIndex = isotopeIndex;
+                }
+            }
             isotopeIndex++;
         }
 
-        /*
-            [~,imaxC] = max(tmpCounts);
-            iden = d0.Niso;
-            x0.DFgain = tmpCounts(imaxC)/tmpFar(imaxC);
-            for m=1:d0.Niso
-                x0.lograt(m,1) = log(tmpCounts(m)/tmpCounts(iden));
-            end
-        */
-        // find index of photoMultiplierMeansArray max value
+        double[] photoMultiplierMeansArray = new double[mapPhotoMultiplierIsotopeIndicesToStatistics.keySet().size()];
+        isotopeIndex = 0;
         int maxCountPhotoMultiplierIndex = -1;
-        double maxCountsMean = Double.MIN_VALUE;
-        for (int i = 0; i < photoMultiplierMeansArray.length; i++) {
-            if (photoMultiplierMeansArray[i] > maxCountsMean) {
-                maxCountPhotoMultiplierIndex = i;
+        double maxPhotoMultiplierCountsMean = Double.MIN_VALUE;
+        for (Integer isotopeOrdinalIndex : mapPhotoMultiplierIsotopeIndicesToStatistics.keySet()) {
+            photoMultiplierMeansArray[isotopeIndex] = mapPhotoMultiplierIsotopeIndicesToStatistics.get(isotopeOrdinalIndex).getMean();
+            if (commonSpeciesOrdinalIndices.contains(isotopeOrdinalIndex)) {
+                if (photoMultiplierMeansArray[isotopeIndex] > maxPhotoMultiplierCountsMean) {
+                    maxCountPhotoMultiplierIndex = isotopeIndex;
+                }
             }
+            isotopeIndex++;
         }
-
-        // per Noah 9 Feb 2023
-        // find index of Faraday max value
-        int maxCountFaradayIndex = -1;
-        maxCountsMean = Double.MIN_VALUE;
-        for (int i = 0; i < faradayMeansArray.length; i++) {
-            if (faradayMeansArray[i] > maxCountsMean) {
-                maxCountFaradayIndex = i;
-            }
-        }
-
-
-        //TODO: confirm this
 
         // NOTE: the speciesList has been sorted by increasing abundances in the original analysisMethod setup
         //  the ratios are between each species and the most abundant species, with one less ratio than species
@@ -169,7 +159,6 @@ enum SingleBlockModelInitForMCMC {
         for (int logRatioIndex = 0; logRatioIndex < logRatios.length; logRatioIndex++) {
             logRatios[logRatioIndex] = log(photoMultiplierMeansArray[logRatioIndex] / photoMultiplierMeansArray[indexOfMostAbundantIsotope]);
         }
-
 
         /*
         for m=1:d0.Nblock

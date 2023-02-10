@@ -21,7 +21,6 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.DataModelPlot;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.ojalgo.matrix.store.MatrixStore;
@@ -222,7 +221,7 @@ public class MCMCProcess {
         }
     }
 
-    public AbstractPlotBuilder[][] applyInversionWithAdaptiveMCMC( LoggingCallbackInterface loggingCallback) {
+    public AbstractPlotBuilder[][] applyInversionWithAdaptiveMCMC(LoggingCallbackInterface loggingCallback) {
 
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         SingleBlockModelRecord singleBlockInitialModelRecord_initial = singleBlockInitialModelRecord_X0.clone();
@@ -254,16 +253,32 @@ public class MCMCProcess {
         watch.start();
         int counter = 0;
         int[] operationOrder = preOrderOpsMS(singleBlockInitialModelRecord_initial, maxIterationCount * stepCountForcedSave);
+        buildPriorLimits(proposalSigmasRecord, proposalRangesRecord);
 
         for (int modelIndex = 1; modelIndex <= maxIterationCount * stepCountForcedSave; modelIndex++) {//*****************
             long prev = System.nanoTime();
-            String operation = randomOperMS_Preorder(operationOrder[modelIndex - 1]);
+
             // todo: handle adaptiveFlag case
             boolean adaptiveFlag = (500000 <= counter); // abandon for now
             boolean allFlag = adaptiveFlag;
             int columnChoice = modelIndex % stepCountForcedSave;
             double[] delx_adapt_slice = storeFactory.copy(Access2D.wrap(delx_adapt)).sliceColumn(columnChoice).toRawCopy1D();
 
+            // original way
+//            String operation = SingleBlockModelUpdater.randomOperation(hierarchical);
+//            SingleBlockModelRecord dataModelUpdaterOutputRecord_x2 = updateMSv2(
+//                    operation,
+//                    singleBlockInitialModelRecord_initial,
+//                    proposalSigmasRecord,
+//                    proposalRangesRecord,
+//                    xDataCovariance,
+//                    delx_adapt_slice,
+//                    adaptiveFlag,
+//                    allFlag
+//            );
+
+            // Scott's new way Feb 2023
+            String operation = randomOperMS_Preorder(operationOrder[modelIndex - 1]);
             SingleBlockModelRecord dataModelUpdaterOutputRecord_x2 = updateMSv2Preorder(
                     operationOrder[modelIndex - 1],
                     singleBlockInitialModelRecord_initial,
@@ -617,6 +632,6 @@ public class MCMCProcess {
             }
 
         }
-        return SingleBlockDataModelPlot.analysisAndPlotting(singleBlockDataSetRecord,  ensembleRecordsList, singleBlockInitialModelRecord_initial, analysisMethod);
+        return SingleBlockDataModelPlot.analysisAndPlotting(singleBlockDataSetRecord, ensembleRecordsList, singleBlockInitialModelRecord_initial, analysisMethod);
     }
 }

@@ -52,7 +52,6 @@ public class TripoliFileResources {
         retrieveResourceFiles(REFMAT_MODELS_FOLDER, "parameterModels/referenceMaterialsModels");
 
         retrieveResourceFiles(SYNTHETIC_DATA_FOLDER_2ISOTOPE, "dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData");
-        retrieveResourceFiles(SYNTHETIC_DATA_FOLDER_5ISOTOPE, "dataSourceProcessors/dataSources/synthetic/fiveIsotopeSyntheticData");
 
         retrieveResourceFiles(NUCLIDESCHART_DATA_FOLDER, "species/nuclides");
         retrieveResourceFiles(PERIODICTABLE_DATA_FOLDER, "elements");
