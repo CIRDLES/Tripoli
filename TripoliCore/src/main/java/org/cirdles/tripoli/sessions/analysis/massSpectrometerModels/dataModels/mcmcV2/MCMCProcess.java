@@ -561,7 +561,6 @@ public class MCMCProcess {
                         Matrix a = new Matrix(xDataCovariance);
 
                         if (0.0 != a.det()) {
-                            Matrix ai = a.inverse();
 
                             MultivariateNormalDistribution mnd =
                                     new MultivariateNormalDistribution(zeroMean, storeFactory.copy(Access2D.wrap(xDataCovariance)).multiply(pow(2.38, 2) / (sizeOfModel)).toRawCopy2D());
