@@ -252,7 +252,7 @@ public class MCMCProcess {
         randomDataGenerator.reSeedSecure();
 
         DecimalFormat statsFormat = new DecimalFormat("#0.000000");
-        org.apache.commons.lang3.time.StopWatch watch = new StopWatch();
+        StopWatch watch = new StopWatch();
         watch.start();
         int counter = 0;
         int[] operationOrder = preOrderOpsMS(singleBlockInitialModelRecord_initial, maxIterationCount * stepCountForcedSave);
@@ -544,7 +544,7 @@ public class MCMCProcess {
             n dimension of output matrix - datsav)';
                 stepCountForcedSave
             */
-                    SingleBlockModelUpdater.UpdatedCovariancesRecord updatedCovariancesRecord =
+                    UpdatedCovariancesRecord updatedCovariancesRecord =
                             updateMeanCovMS(singleBlockInitialModelRecord_initial, xDataCovariance, xDataMean, ensembleRecordsList, counter - covStart, false);
                     xDataCovariance = updatedCovariancesRecord.dataCov();
                     xDataMean = updatedCovariancesRecord.dataMean();
@@ -562,7 +562,6 @@ public class MCMCProcess {
 
                         if (0.0 != a.det()) {
                             Matrix ai = a.inverse();
-                            Matrix aia = a.times(ai);
 
                             MultivariateNormalDistribution mnd =
                                     new MultivariateNormalDistribution(zeroMean, storeFactory.copy(Access2D.wrap(xDataCovariance)).multiply(pow(2.38, 2) / (sizeOfModel)).toRawCopy2D());

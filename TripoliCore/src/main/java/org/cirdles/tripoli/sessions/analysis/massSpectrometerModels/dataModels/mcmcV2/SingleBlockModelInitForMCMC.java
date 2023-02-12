@@ -130,10 +130,10 @@ enum SingleBlockModelInitForMCMC {
         double maxFaradayCountsMean = Double.MIN_VALUE;
         for (Integer isotopeOrdinalIndex : mapFaradayIsotopeIndicesToStatistics.keySet()) {
             faradayMeansArray[isotopeIndex] = mapFaradayIsotopeIndicesToStatistics.get(isotopeOrdinalIndex).getMean();
-            if (commonSpeciesOrdinalIndices.contains(isotopeOrdinalIndex)) {
-                if (faradayMeansArray[isotopeIndex] > maxFaradayCountsMean) {
-                    maxCountFaradayIndex = isotopeIndex;
-                }
+            if (commonSpeciesOrdinalIndices.contains(isotopeOrdinalIndex)
+                    &&
+                    (faradayMeansArray[isotopeIndex] > maxFaradayCountsMean)) {
+                maxCountFaradayIndex = isotopeIndex;
             }
             isotopeIndex++;
         }
@@ -144,10 +144,9 @@ enum SingleBlockModelInitForMCMC {
         double maxPhotoMultiplierCountsMean = Double.MIN_VALUE;
         for (Integer isotopeOrdinalIndex : mapPhotoMultiplierIsotopeIndicesToStatistics.keySet()) {
             photoMultiplierMeansArray[isotopeIndex] = mapPhotoMultiplierIsotopeIndicesToStatistics.get(isotopeOrdinalIndex).getMean();
-            if (commonSpeciesOrdinalIndices.contains(isotopeOrdinalIndex)) {
-                if (photoMultiplierMeansArray[isotopeIndex] > maxPhotoMultiplierCountsMean) {
-                    maxCountPhotoMultiplierIndex = isotopeIndex;
-                }
+            if (commonSpeciesOrdinalIndices.contains(isotopeOrdinalIndex) &&
+                    (photoMultiplierMeansArray[isotopeIndex] > maxPhotoMultiplierCountsMean)) {
+                maxCountPhotoMultiplierIndex = isotopeIndex;
             }
             isotopeIndex++;
         }

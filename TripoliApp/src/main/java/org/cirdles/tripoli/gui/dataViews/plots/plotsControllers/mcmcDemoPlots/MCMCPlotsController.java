@@ -10,28 +10,24 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
-import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmc2Plots.MCMC2UpdatesService;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmc2Plots.PlotBuildersTaskInterface;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.BasicScatterAndLinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.HistogramSinglePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.LinePlot;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.MultiLinePlotLogX;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
-import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
-import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.MCMCProcess;
 
-import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHeight;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
@@ -127,7 +123,7 @@ public class MCMCPlotsController {
     private void populateListOfAvailableBlocks() {
         int blockCount = analysis.getMassSpecExtractedData().getBlocksData().size();
         List<String> blocksByName = new ArrayList<>();
-        for (int i = 0; i < blockCount; i++){
+        for (int i = 0; i < blockCount; i++) {
             blocksByName.add("Block # " + (i + 1));
         }
 
@@ -148,7 +144,7 @@ public class MCMCPlotsController {
         eventLogTextArea.setText("");
         eventLogTextArea.accessibleTextProperty().bind(service.valueProperty());
         eventLogTextArea.accessibleTextProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
+            if (null != newValue) {
                 eventLogTextArea.setText(eventLogTextArea.getText() + "\n" + newValue);
                 eventLogTextArea.selectEnd();
                 eventLogTextArea.deselect();
@@ -295,7 +291,7 @@ public class MCMCPlotsController {
         @Override
         protected void updateItem(String blockID, boolean empty) {
             super.updateItem(blockID, empty);
-            if (blockID == null || empty) {
+            if (null == blockID || empty) {
                 setText(null);
             } else {
                 setText(blockID);

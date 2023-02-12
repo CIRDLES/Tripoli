@@ -338,10 +338,10 @@ public enum SingleBlockDataModelPlot {
 //
 //
 //        // todo: missing additional elements of signalNoiseSigma (i.e., 0,11,11)
-//        System.err.println(logRatioMean + "         " + logRatioStdDev);
-//        System.err.println(baselinesMeans[0] + "         " + baselinesMeans[1] + "    " + baselinesStdDev[0] + "     " + baselinesStdDev[1]);
-//        System.err.println(dalyFaradayGainMean + "    " + dalyFaradayGainStdDev);
-//        System.err.println(signalNoiseMeans[0] + "         " + signalNoiseMeans[1] + "    " + signalNoiseStdDev[0] + "     " + signalNoiseStdDev[1]);
+        System.err.println(logRatioMean + "         " + logRatioStdDev);
+        System.err.println(baselinesMeans[0] + "         " + baselinesMeans[1] + "    " + baselinesStdDev[0] + "     " + baselinesStdDev[1]);
+        System.err.println(dalyFaradayGainMean + "    " + dalyFaradayGainStdDev);
+        System.err.println(signalNoiseMeans[0] + "         " + signalNoiseMeans[1] + "    " + signalNoiseStdDev[0] + "     " + signalNoiseStdDev[1]);
 
 
         return plotBuilders;
