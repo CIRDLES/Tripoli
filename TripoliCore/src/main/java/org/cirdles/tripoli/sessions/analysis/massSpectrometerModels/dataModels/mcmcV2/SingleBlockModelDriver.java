@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2;
 
+import com.google.common.primitives.Doubles;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
@@ -27,6 +28,9 @@ import org.cirdles.tripoli.utilities.mathUtilities.SplineBasisModel;
 import org.ojalgo.RecoverableCondition;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.SingleBlockModelInitForMCMC.initializeModelForSingleBlockMCMC;
 
@@ -67,8 +71,33 @@ public enum SingleBlockModelDriver {
         SingleBlockDataSetRecord.SingleBlockDataRecord onPeakFaradayDataSetMCMC = SingleBlockDataAccumulatorMCMC.accumulateOnPeakDataPerSequenceTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod, true);
         SingleBlockDataSetRecord.SingleBlockDataRecord onPeakPhotoMultiplierDataSetMCMC = SingleBlockDataAccumulatorMCMC.accumulateOnPeakDataPerSequenceTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod, false);
 
+        List<Double> blockIntensityList = new ArrayList<>();
+        blockIntensityList.addAll(baselineDataSetMCMC.intensityAccumulatorList());
+        blockIntensityList.addAll(onPeakFaradayDataSetMCMC.intensityAccumulatorList());
+        blockIntensityList.addAll(onPeakPhotoMultiplierDataSetMCMC.intensityAccumulatorList());
+        double[] blockIntensityArray = Doubles.toArray(blockIntensityList);
+
+        List<Integer> blockDetectorOrdinalIndicesList = new ArrayList<>();
+        blockDetectorOrdinalIndicesList.addAll(baselineDataSetMCMC.detectorOrdinalIndicesAccumulatorList());
+        blockDetectorOrdinalIndicesList.addAll(onPeakFaradayDataSetMCMC.detectorOrdinalIndicesAccumulatorList());
+        blockDetectorOrdinalIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC.detectorOrdinalIndicesAccumulatorList());
+        int[] blockDetectorOrdinalIndicesArray = blockDetectorOrdinalIndicesList.stream().mapToInt(i -> i).toArray();
+
+        List<Integer> blockIsotopeOrdinalIndicesList = new ArrayList<>();
+        blockIsotopeOrdinalIndicesList.addAll(baselineDataSetMCMC.isotopeOrdinalIndicesAccumulatorList());
+        blockIsotopeOrdinalIndicesList.addAll(onPeakFaradayDataSetMCMC.isotopeOrdinalIndicesAccumulatorList());
+        blockIsotopeOrdinalIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC.isotopeOrdinalIndicesAccumulatorList());
+        int[] blockIsotopeOrdinalIndicesArray = blockIsotopeOrdinalIndicesList.stream().mapToInt(i -> i).toArray();
+
+        List<Integer> blockTimeIndicesList = new ArrayList<>();
+        blockTimeIndicesList.addAll(baselineDataSetMCMC.timeIndexAccumulatorList());
+        blockTimeIndicesList.addAll(onPeakFaradayDataSetMCMC.timeIndexAccumulatorList());
+        blockTimeIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC.timeIndexAccumulatorList());
+        int[] blockTimeIndicesArray = blockTimeIndicesList.stream().mapToInt(i -> i).toArray();
+
         SingleBlockDataSetRecord singleBlockDataSetRecord =
-                new SingleBlockDataSetRecord(baselineDataSetMCMC, onPeakFaradayDataSetMCMC, onPeakPhotoMultiplierDataSetMCMC, blockKnotInterpolationStore);
+                new SingleBlockDataSetRecord(baselineDataSetMCMC, onPeakFaradayDataSetMCMC, onPeakPhotoMultiplierDataSetMCMC, blockKnotInterpolationStore,
+                        blockIntensityArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeIndicesArray);
 
         return singleBlockDataSetRecord;
     }

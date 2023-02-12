@@ -30,6 +30,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.cirdles.tripoli.constants.ConstantsTripoliCore.ONE_JOULE;
+
 /**
  * @author James F. Bowring
  */
@@ -62,7 +64,13 @@ public enum SingleBlockDataAccumulatorMCMC {
                     Collections.sort(baselineIndices);
                     for (Integer index : baselineIndices) {
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
-                        intensityAccumulatorList.add(baselineIntensities[index][detectorDataColumnIndex]);
+                        double intensity = baselineIntensities[index][detectorDataColumnIndex];
+                        double amplifierResistance = detector.getAmplifierResistanceInOhms();
+                        if (Math.abs(intensity) > 1.0) {
+                            // convert all counts to volts to bring all files into alignment
+                            intensity = intensity / (ONE_JOULE / amplifierResistance);//joule-electron volt relationship
+                        }
+                        intensityAccumulatorList.add(intensity);
                         timeAccumulatorList.add(0.0);
                         timeIndexAccumulatorList.add(index);
                         isotopeOrdinalIndicesAccumulatorList.add(analysisMethod.getSpeciesList().size());
@@ -109,7 +117,13 @@ public enum SingleBlockDataAccumulatorMCMC {
                     Collections.sort(onPeakIndices);
                     for (Integer index : onPeakIndices) {
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
-                        intensityAccumulatorList.add(onPeakIntensities[index][detectorDataColumnIndex]);
+                        double intensity = onPeakIntensities[index][detectorDataColumnIndex];
+                        double amplifierResistance = detector.getAmplifierResistanceInOhms();
+                        if (Math.abs(intensity) > 1.0) {
+                            // convert all counts to volts to bring all files into alignment
+                            intensity = intensity / (ONE_JOULE / amplifierResistance);//joule-electron volt relationship
+                        }
+                        intensityAccumulatorList.add(intensity);
                         timeAccumulatorList.add(onPeakTimeStamps[index]);
                         timeIndexAccumulatorList.add(index);
                         isotopeOrdinalIndicesAccumulatorList.add(speciesOrdinalIndex);

@@ -336,7 +336,7 @@ public enum SingleBlockModelUpdater {
         parametersModel_xx0[countOfTotalModelParameters - 1] = singleBlockInitialModelRecord_initial.detectorFaradayGain();
         parametersModelTypeFlags[countOfTotalModelParameters - 1] = 4;
 
-        SingleBlockModelRecord singleBlockInitialModelRecord_initial2 = null;
+        SingleBlockModelRecord singleBlockInitialModelRecord_initial2;
         RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
         randomDataGenerator.reSeedSecure();
 
@@ -354,6 +354,9 @@ public enum SingleBlockModelUpdater {
                 }
 
                 double changed = parametersModel_updated[operationIndex] + deltaX;
+                if (operationIndex == 21) {
+//                    System.out.println("GAIN");
+                }
                 if ((changed <= priorMaxArray[operationIndex] && (changed >= priorMinArray[operationIndex]))) {
                     parametersModel_updated[operationIndex] = changed;
                 }

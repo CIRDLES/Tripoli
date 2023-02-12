@@ -28,6 +28,7 @@ import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.DataModelDriverExperiment;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.MCMCProcess;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 
@@ -49,7 +50,7 @@ public class MCMCPlotsController {
 
     private static final int TAB_HEIGHT = 35;
     public static AnalysisInterface analysis;
-    private Service service;
+    private Service<String> service;
     @FXML
     private ResourceBundle resources;
 
@@ -116,16 +117,8 @@ public class MCMCPlotsController {
         processFileButton2.setDisable(true);
     }
 
-    @FXML
-    void testAction(ActionEvent event) {
-        DataModelDriverExperiment.ALLOW_EXECUTION = false;
-        service.cancel();
-        processFileButton.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
-        processFileButton2.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
-
-    }
-
     public void plotIncomingAction() {
+        MCMCProcess.ALLOW_EXECUTION = true;
         processDataFileAndShowPlotsOfMCMC2(analysis);
     }
 
@@ -183,24 +176,45 @@ public class MCMCPlotsController {
 
     public void processDataFileAndShowPlotsOfMCMC(Path dataFile, AnalysisMethod analysisMethod) {
         service = new MCMCUpdatesService(dataFile, analysisMethod);
-        eventLogTextArea.textProperty().bind(service.valueProperty());
+        eventLogTextArea.setText("");
+        eventLogTextArea.accessibleTextProperty().unbind();
+        eventLogTextArea.setAccessibleText("");
+        eventLogTextArea.accessibleTextProperty().bind(service.valueProperty());
+        eventLogTextArea.accessibleTextProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                eventLogTextArea.setText(eventLogTextArea.getText() + "\n" + newValue);
+                eventLogTextArea.selectEnd();
+                eventLogTextArea.deselect();
+            }
+        });
         service.start();
         service.setOnSucceeded(evt -> {
             Task<String> plotBuildersTask = ((MCMCUpdatesService) service).getPlotBuildersTask();
 
             plotEngine(plotBuildersTask);
         });
+        DataModelDriverExperiment.ALLOW_EXECUTION = true;
     }
 
     public void processDataFileAndShowPlotsOfMCMC2(AnalysisInterface analysis) {
         service = new MCMC2UpdatesService(analysis);
-        eventLogTextArea.textProperty().bind(service.valueProperty());
+        eventLogTextArea.setText("");
+        eventLogTextArea.accessibleTextProperty().bind(service.valueProperty());
+        eventLogTextArea.accessibleTextProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                eventLogTextArea.setText(eventLogTextArea.getText() + "\n" + newValue);
+                eventLogTextArea.selectEnd();
+                eventLogTextArea.deselect();
+            }
+        });
+
         service.start();
         service.setOnSucceeded(evt -> {
             Task<String> plotBuildersTask = ((MCMC2UpdatesService) service).getPlotBuildersTask();
-
             plotEngine(plotBuildersTask);
         });
+
+        MCMCProcess.ALLOW_EXECUTION = true;
     }
 
 
@@ -318,6 +332,25 @@ public class MCMCPlotsController {
             TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
             AbstractPlot plot = LinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (LinePlotBuilder) plotBuilder[i]);
             tripoliPlotPane.addPlot(plot);
+        }
+    }
+
+    public void stopProcess1(ActionEvent actionEvent) {
+        DataModelDriverExperiment.ALLOW_EXECUTION = false;
+        ((MCMCPlotBuildersTask) ((MCMCUpdatesService) service).getPlotBuildersTask()).setAmNewest(false);
+        service.cancel();
+
+        processFileButton.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
+        processFileButton2.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
+    }
+
+    public void stopProcess2(ActionEvent actionEvent) {
+        MCMCProcess.ALLOW_EXECUTION = false;
+        ((MCMCUpdatesService) service).getPlotBuildersTask().cancel();
+        if (((MCMCUpdatesService) service).getPlotBuildersTask().isCancelled()) {
+            service.cancel();
+            processFileButton.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
+            processFileButton2.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
         }
     }
 

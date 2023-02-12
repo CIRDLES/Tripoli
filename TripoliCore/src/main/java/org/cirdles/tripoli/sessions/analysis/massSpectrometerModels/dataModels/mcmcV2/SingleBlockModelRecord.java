@@ -16,8 +16,6 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2;
 
-import org.ojalgo.matrix.store.MatrixStore;
-
 import java.io.Serializable;
 import java.util.Map;
 
@@ -32,7 +30,7 @@ public record SingleBlockModelRecord(
         double[] dataWithNoBaselineArray,
         double[] dataSignalNoiseArray,
         double[] I0,
-        MatrixStore<Double> intensities,
+        double[] intensities,
         int faradayCount,
         int isotopeCount
 ) implements Serializable {
@@ -48,7 +46,7 @@ public record SingleBlockModelRecord(
                 dataWithNoBaselineArray.clone(),
                 dataSignalNoiseArray.clone(),
                 I0.clone(),
-                intensities.copy(),
+                intensities.clone(),
                 faradayCount,
                 isotopeCount
         );

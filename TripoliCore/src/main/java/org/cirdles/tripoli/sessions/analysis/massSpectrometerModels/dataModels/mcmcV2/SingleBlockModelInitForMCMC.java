@@ -30,6 +30,7 @@ import java.util.*;
 import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
 import static java.lang.StrictMath.log;
+import static org.cirdles.tripoli.utilities.comparators.SerializableIntegerComparator.SERIALIZABLE_COMPARATOR;
 
 /**
  * @author James F. Bowring
@@ -54,8 +55,8 @@ enum SingleBlockModelInitForMCMC {
         SingleBlockDataSetRecord.SingleBlockDataRecord baselineDataSetMCMC = singleBlockDataSetRecord.baselineDataSetMCMC();
         List<Integer> detectorOrdinalIndicesAccumulatorList = baselineDataSetMCMC.detectorOrdinalIndicesAccumulatorList();
         List<Double> intensityAccumulatorList = baselineDataSetMCMC.intensityAccumulatorList();
-        Map<Integer, DescriptiveStatistics> mapFaradayDetectorIndicesToStatistics = new TreeMap<>();
-        Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex = new TreeMap<>();
+        Map<Integer, DescriptiveStatistics> mapFaradayDetectorIndicesToStatistics = new TreeMap<>(SERIALIZABLE_COMPARATOR);
+        Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex = new TreeMap<>(SERIALIZABLE_COMPARATOR);
 
         int intensityIndex = 0;
         for (Integer detectorOrdinalIndex : detectorOrdinalIndicesAccumulatorList) {
@@ -89,7 +90,7 @@ enum SingleBlockModelInitForMCMC {
         List<Integer> isotopeOrdinalIndicesAccumulatorList = onPeakFaradayDataSetMCMC.isotopeOrdinalIndicesAccumulatorList();
         detectorOrdinalIndicesAccumulatorList = onPeakFaradayDataSetMCMC.detectorOrdinalIndicesAccumulatorList();
         intensityAccumulatorList = onPeakFaradayDataSetMCMC.intensityAccumulatorList();
-        Map<Integer, DescriptiveStatistics> mapFaradayIsotopeIndicesToStatistics = new TreeMap<>();
+        Map<Integer, DescriptiveStatistics> mapFaradayIsotopeIndicesToStatistics = new TreeMap<>(SERIALIZABLE_COMPARATOR);
 
         intensityIndex = 0;
         for (Integer isotopeOrdinalIndex : isotopeOrdinalIndicesAccumulatorList) {
@@ -107,7 +108,7 @@ enum SingleBlockModelInitForMCMC {
         SingleBlockDataSetRecord.SingleBlockDataRecord onPeakPhotoMultiplierDataSetMCMC = singleBlockDataSetRecord.onPeakPhotoMultiplierDataSetMCMC();
         isotopeOrdinalIndicesAccumulatorList = onPeakPhotoMultiplierDataSetMCMC.isotopeOrdinalIndicesAccumulatorList();
         intensityAccumulatorList = onPeakPhotoMultiplierDataSetMCMC.intensityAccumulatorList();
-        Map<Integer, DescriptiveStatistics> mapPhotoMultiplierIsotopeIndicesToStatistics = new TreeMap<>();
+        Map<Integer, DescriptiveStatistics> mapPhotoMultiplierIsotopeIndicesToStatistics = new TreeMap<>(SERIALIZABLE_COMPARATOR);
 
         intensityIndex = 0;
         for (Integer isotopeOrdinalIndex : isotopeOrdinalIndicesAccumulatorList) {
@@ -325,7 +326,7 @@ enum SingleBlockModelInitForMCMC {
                 dataWithNoBaselineArray,
                 dataSignalNoiseArray,
                 I0,
-                intensities,
+                intensities.toRawCopy1D(),
                 faradayCount,
                 isotopeCount);
     }

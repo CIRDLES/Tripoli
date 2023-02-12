@@ -99,4 +99,20 @@ public class SequenceTable implements Serializable {
         }
         return faradayDetectorsUsed;
     }
+
+    /**
+     * There is only one photoMultiplier
+     *
+     * @return
+     */
+    public Detector findPhotoMultiplierDetectorUsed() {
+        Detector photoMultiplierDetectorsUsed = null;
+        for (Detector detector : mapOfDetectorsToSequenceCells.keySet()) {
+            if (!detector.isFaraday()) {
+                photoMultiplierDetectorsUsed = detector;
+                break;
+            }
+        }
+        return photoMultiplierDetectorsUsed;
+    }
 }

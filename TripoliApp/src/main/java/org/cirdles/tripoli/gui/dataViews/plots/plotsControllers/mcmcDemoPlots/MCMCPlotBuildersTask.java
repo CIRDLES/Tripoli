@@ -31,6 +31,7 @@ import java.nio.file.Path;
 public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface, PlotBuildersTaskInterface {
     private final Path dataFile;
     private final AnalysisMethod analysisMethod;
+    private boolean amNewest;
     // ensemble plots
     private AbstractPlotBuilder[] ratiosHistogramBuilder;
     private AbstractPlotBuilder[] baselineHistogramBuilder;
@@ -55,6 +56,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     public MCMCPlotBuildersTask(Path dataFile, AnalysisMethod analysisMethod) {
         this.dataFile = dataFile;
         this.analysisMethod = analysisMethod;
+        this.amNewest = true;
     }
 
     public AbstractPlotBuilder[] getRatiosHistogramBuilder() {
@@ -136,6 +138,12 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
     @Override
     public void receiveLoggingSnippet(String loggingSnippet) {
-        updateValue(loggingSnippet);
+        if (amNewest) {
+            updateValue(loggingSnippet);
+        }
+    }
+
+    public void setAmNewest(boolean amNewest) {
+        this.amNewest = amNewest;
     }
 }

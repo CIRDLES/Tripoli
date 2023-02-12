@@ -364,7 +364,7 @@ public enum DataModelDriverExperiment {
         DecimalFormat statsFormat = new DecimalFormat("#0.000");
         org.apache.commons.lang3.time.StopWatch watch = new StopWatch();
         watch.start();
-
+        String loggingSnippet = "";
         for (int modelIndex = 1; modelIndex <= maxCount * stepCountForcedSave; modelIndex++) {//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             if (ALLOW_EXECUTION) {
                 long prev = System.nanoTime();
@@ -665,7 +665,7 @@ public enum DataModelDriverExperiment {
                     }
 
                     if (0 == modelIndex % (10 * stepCountForcedSave)) {
-                        String loggingSnippet =
+                        loggingSnippet =
                                 "%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
                                         + " ADAPTIVE = " + adaptiveFlag
                                         + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
@@ -709,10 +709,12 @@ public enum DataModelDriverExperiment {
                                                 + " Interval4 " + (interval4 / 1000)
                                                 + " Interval5 " + (interval5 / 1000)
                                         )
-                                        : "");
+                                        : "")
+                                        + "\n";
 
-                        System.err.println("\n" + loggingSnippet);
+                        System.err.println(loggingSnippet);
                         loggingCallback.receiveLoggingSnippet(loggingSnippet);
+                        loggingSnippet = "";
 
                         for (int i = 0; 5 > i; i++) {
                             keptUpdates[i][0] = 0;
@@ -724,7 +726,7 @@ public enum DataModelDriverExperiment {
                     }
                 }
             } else {
-                loggingCallback.receiveLoggingSnippet("Cancelled by user.");
+                //loggingCallback.receiveLoggingSnippet("Cancelled by user.");
                 break;
             }
         } // end model loop

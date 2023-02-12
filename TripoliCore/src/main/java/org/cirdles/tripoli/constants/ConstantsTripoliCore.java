@@ -26,4 +26,6 @@ public class ConstantsTripoliCore {
 
     public final static String MISSING_STRING_FIELD = "MISSING";
 
+    public final static double ONE_JOULE = 6.24150934e18;
+
 }

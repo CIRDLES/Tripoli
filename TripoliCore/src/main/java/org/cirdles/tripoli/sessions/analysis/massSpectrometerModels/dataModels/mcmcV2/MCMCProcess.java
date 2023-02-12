@@ -23,6 +23,8 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
@@ -43,6 +45,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
  */
 public class MCMCProcess {
 
+    public static boolean ALLOW_EXECUTION = true;
     private final SingleBlockModelRecord singleBlockInitialModelRecord_X0;
     private final AnalysisMethod analysisMethod;
     private final SingleBlockDataSetRecord singleBlockDataSetRecord;
@@ -149,7 +152,7 @@ public class MCMCProcess {
         delx_adapt = new double[sizeOfModel][stepCountForcedSave];
 
         proposalRangesRecord =
-                buildProposalRangesRecord(singleBlockInitialModelRecord_X0.intensities().toRawCopy1D());
+                buildProposalRangesRecord(singleBlockInitialModelRecord_X0.intensities());
         proposalSigmasRecord =
                 buildProposalSigmasRecord(singleBlockInitialModelRecord_X0.baselineStandardDeviationsArray(), proposalRangesRecord);
 
@@ -215,7 +218,7 @@ public class MCMCProcess {
         initialModelErrorUnWeighted_E0 = 0.0;
 
         for (int row = 0; row < dataSignalNoiseArray.length; row++) {
-            double calculatedValue = StrictMath.pow(singleBlockDataSetRecord.getBlockIntensityArray()[row] - dataArray[row], 2);
+            double calculatedValue = StrictMath.pow(singleBlockDataSetRecord.blockIntensityArray()[row] - dataArray[row], 2);
             initialModelErrorWeighted_E = initialModelErrorWeighted_E + (calculatedValue * baselineMultiplier[row] / dataSignalNoiseArray[row]);
             initialModelErrorUnWeighted_E0 = initialModelErrorUnWeighted_E0 + calculatedValue;
         }
@@ -248,23 +251,30 @@ public class MCMCProcess {
         RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
         randomDataGenerator.reSeedSecure();
 
-        DecimalFormat statsFormat = new DecimalFormat("#0.000");
+        DecimalFormat statsFormat = new DecimalFormat("#0.000000");
         org.apache.commons.lang3.time.StopWatch watch = new StopWatch();
         watch.start();
         int counter = 0;
         int[] operationOrder = preOrderOpsMS(singleBlockInitialModelRecord_initial, maxIterationCount * stepCountForcedSave);
         buildPriorLimits(proposalSigmasRecord, proposalRangesRecord);
 
+        int countOfData = singleBlockInitialModelRecord_initial.dataArray().length;
+        int[] detectorOrdinalIndices = singleBlockDataSetRecord.blockDetectorOrdinalIndicesArray();
+        Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex = singleBlockInitialModelRecord_initial.mapDetectorOrdinalToFaradayIndex();
+        int[] isotopeOrdinalIndicesArray = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
+
+        String loggingSnippet = "";
         for (int modelIndex = 1; modelIndex <= maxIterationCount * stepCountForcedSave; modelIndex++) {//*****************
-            long prev = System.nanoTime();
+            if (ALLOW_EXECUTION) {
+                long prev = System.nanoTime();
 
-            // todo: handle adaptiveFlag case
-            boolean adaptiveFlag = (500000 <= counter); // abandon for now
-            boolean allFlag = adaptiveFlag;
-            int columnChoice = modelIndex % stepCountForcedSave;
-            double[] delx_adapt_slice = storeFactory.copy(Access2D.wrap(delx_adapt)).sliceColumn(columnChoice).toRawCopy1D();
+                // todo: handle adaptiveFlag case
+                boolean adaptiveFlag = (500000 <= counter); // abandon for now
+                boolean allFlag = adaptiveFlag;
+                int columnChoice = modelIndex % stepCountForcedSave;
+                double[] delx_adapt_slice = storeFactory.copy(Access2D.wrap(delx_adapt)).sliceColumn(columnChoice).toRawCopy1D();
 
-            // original way
+                // original way
 //            String operation = SingleBlockModelUpdater.randomOperation(hierarchical);
 //            SingleBlockModelRecord dataModelUpdaterOutputRecord_x2 = updateMSv2(
 //                    operation,
@@ -277,19 +287,20 @@ public class MCMCProcess {
 //                    allFlag
 //            );
 
-            // Scott's new way Feb 2023
-            String operation = randomOperMS_Preorder(operationOrder[modelIndex - 1]);
-            SingleBlockModelRecord dataModelUpdaterOutputRecord_x2 = updateMSv2Preorder(
-                    operationOrder[modelIndex - 1],
-                    singleBlockInitialModelRecord_initial,
-                    proposalSigmasRecord,
-                    proposalRangesRecord,
-                    xDataCovariance,
-                    delx_adapt_slice,
-                    adaptiveFlag,
-                    allFlag
-            );
-            boolean noiseOperation = operation.toLowerCase(Locale.ROOT).startsWith("n");
+                // Scott's new way Feb 2023
+                String operation = randomOperMS_Preorder(operationOrder[modelIndex - 1]);
+                SingleBlockModelRecord dataModelUpdaterOutputRecord_x2 = updateMSv2Preorder(
+                        operationOrder[modelIndex - 1],
+                        singleBlockInitialModelRecord_initial,
+                        proposalSigmasRecord,
+                        proposalRangesRecord,
+                        xDataCovariance,
+                        delx_adapt_slice,
+                        adaptiveFlag,
+                        allFlag
+                );
+
+                boolean noiseOperation = operation.toLowerCase(Locale.ROOT).startsWith("n");
 
             /*
             %% Create updated data based on new model
@@ -308,53 +319,48 @@ public class MCMCProcess {
                 end
              */
 
-            double[] baseLineMeansArray = dataModelUpdaterOutputRecord_x2.baselineMeansArray();
-            double[] updatedBaseLineMeansArray = new double[baseLineMeansArray.length + 1];
-            System.arraycopy(baseLineMeansArray, 0, updatedBaseLineMeansArray, 0, updatedBaseLineMeansArray.length - 1);
+                double[] baseLineMeansArray = dataModelUpdaterOutputRecord_x2.baselineMeansArray();
+                double[] updatedBaseLineMeansArray = new double[baseLineMeansArray.length + 1];
+                System.arraycopy(baseLineMeansArray, 0, updatedBaseLineMeansArray, 0, updatedBaseLineMeansArray.length - 1);
 
-            int countOfIntegrations = dataModelUpdaterOutputRecord_x2.dataArray().length;
-            double[] updatedBaseLineArray = new double[countOfIntegrations];
+                double[] updatedBaseLineArray = new double[countOfData];
 
-            double[] updatedDetectorFaradayArray = new double[countOfIntegrations];
-            Arrays.fill(updatedDetectorFaradayArray, 1.0);
+                double[] updatedDetectorFaradayArray = new double[countOfData];
+                Arrays.fill(updatedDetectorFaradayArray, 1.0);
 
-            double[] updatedLogRatioArray = new double[countOfIntegrations];
-            double[] updatedIntensitiesArray = new double[countOfIntegrations];
+                double[] updatedLogRatioArray = new double[countOfData];
+                double[] updatedIntensitiesArray = new double[countOfData];
 
-            int[] detectorOrdinalIndices = singleBlockDataSetRecord.getBlockDetectorOrdinalIndicesArray();
-            Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex = dataModelUpdaterOutputRecord_x2.mapDetectorOrdinalToFaradayIndex();
+                double[] logRatios = dataModelUpdaterOutputRecord_x2.logRatios();
+                double detectorFaradayGain = dataModelUpdaterOutputRecord_x2.detectorFaradayGain();
 
-            int[] isotopeOrdinalIndicesArray = singleBlockDataSetRecord.getBlockIsotopeOrdinalIndicesArray();
-            double[] logRatios = dataModelUpdaterOutputRecord_x2.logRatios();
-            double detectorFaradayGain = dataModelUpdaterOutputRecord_x2.detectorFaradayGain();
-
-            for (int row = 0; row < countOfIntegrations; row++) {
-                int detectorIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndices[row]);
-                updatedBaseLineArray[row] = updatedBaseLineMeansArray[detectorIndex];
-                if ((row >= startingIndexOfFaradayData) && (row < startingIndexOfPhotoMultiplierData)) {
-                    updatedDetectorFaradayArray[row] = 1.0 / detectorFaradayGain;
+                for (int row = 0; row < countOfData; row++) {
+                    int detectorIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndices[row]);
+                    updatedBaseLineArray[row] = updatedBaseLineMeansArray[detectorIndex];
+                    if ((row >= startingIndexOfFaradayData) && (row < startingIndexOfPhotoMultiplierData)) {
+                        updatedDetectorFaradayArray[row] = 1.0 / detectorFaradayGain;
+                    }
+                    // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
+                    if (isotopeOrdinalIndicesArray[row] - 1 < logRatios.length) {
+                        updatedLogRatioArray[row] = exp(logRatios[isotopeOrdinalIndicesArray[row] - 1]);
+                    } else {
+                        updatedLogRatioArray[row] = 1.0;
+                    }
                 }
-                // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
-                if (isotopeOrdinalIndicesArray[row] - 1 < logRatios.length) {
-                    updatedLogRatioArray[row] = exp(logRatios[isotopeOrdinalIndicesArray[row] - 1]);
-                } else {
-                    updatedLogRatioArray[row] = 1.0;
+
+                long interval1 = System.nanoTime() - prev;
+                prev = interval1 + prev;
+
+                MatrixStore<Double> intensity2 = singleBlockDataSetRecord.blockKnotInterpolationStore().multiply(storeFactory.columns(dataModelUpdaterOutputRecord_x2.I0()));
+
+                double[] intensity2Array = intensity2.toRawCopy1D();
+                int[] timeIndicesArray = singleBlockDataSetRecord.blockTimeIndicesArray();
+                for (int row = startingIndexOfFaradayData; row < countOfData; row++) {
+                    updatedIntensitiesArray[row] = intensity2Array[timeIndicesArray[row]];
                 }
-            }
 
-            long interval1 = System.nanoTime() - prev;
-            prev = interval1 + prev;
-
-            MatrixStore<Double> intensity2 = singleBlockDataSetRecord.blockKnotInterpolationStore().multiply(storeFactory.columns(dataModelUpdaterOutputRecord_x2.I0()));
-
-            double[] intensity2Array = intensity2.toRawCopy1D();
-            int[] timeIndicesArray = singleBlockDataSetRecord.getBlockTimeIndicesArray();
-            for (int row = startingIndexOfFaradayData; row < countOfIntegrations; row++) {
-                updatedIntensitiesArray[row] = intensity2Array[timeIndicesArray[row]];
-            }
-
-            long interval2 = System.nanoTime() - prev;
-            prev = interval2 + prev;
+                long interval2 = System.nanoTime() - prev;
+                prev = interval2 + prev;
 
             /*
                 dnobl2 = tmpDF.*tmpLR.*tmpI;
@@ -378,65 +384,65 @@ public class MCMCProcess {
                     dE=temp^-1*(E2-E); % Change in misfit
                 end
              */
-            double[] dataWithNoBaselineArray2 = new double[countOfIntegrations];
-            double[] dataArray2 = new double[countOfIntegrations];
+                double[] dataWithNoBaselineArray2 = new double[countOfData];
+                double[] dataArray2 = new double[countOfData];
 
-            for (int row = 0; row < countOfIntegrations; row++) {
-                double value = updatedDetectorFaradayArray[row] * updatedLogRatioArray[row] * updatedIntensitiesArray[row];
-                dataWithNoBaselineArray2[row] = value;
-                dataArray2[row] = value + updatedBaseLineArray[row];
-            }
+                for (int row = 0; row < countOfData; row++) {
+                    double value = updatedDetectorFaradayArray[row] * updatedLogRatioArray[row] * updatedIntensitiesArray[row];
+                    dataWithNoBaselineArray2[row] = value;
+                    dataArray2[row] = value + updatedBaseLineArray[row];
+                }
 
-            double[] dataSignalNoise2Array = new double[countOfIntegrations];
-            double E02 = 0.0;
-            double E = 0.0;
-            double E2 = 0.0;
-            double dE;
-            double sumLogDSignalNoise = 0.0;
-            double sumLogDSignalNoise2 = 0.0;
-            double keep;
+                double[] dataSignalNoise2Array = new double[countOfData];
+                double E02 = 0.0;
+                double E = 0.0;
+                double E2 = 0.0;
+                double dE;
+                double sumLogDSignalNoise = 0.0;
+                double sumLogDSignalNoise2 = 0.0;
+                double keep;
 
-            long interval3 = System.nanoTime() - prev;
-            prev = interval3 + prev;
+                long interval3 = System.nanoTime() - prev;
+                prev = interval3 + prev;
 
-            int[] isotopeOrdinalIndices = singleBlockDataSetRecord.getBlockIsotopeOrdinalIndicesArray();
-            double[] intensitiesArray = singleBlockDataSetRecord.getBlockIntensityArray();
-            double[] signalNoiseSigma = dataModelUpdaterOutputRecord_x2.signalNoiseSigma();
-            for (int row = 0; row < countOfIntegrations; row++) {
-                int detectorIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndices[row]);
-                double term1 = StrictMath.pow(signalNoiseSigma[detectorIndex], 2);
-                double term2 = signalNoiseSigma[isotopeOrdinalIndices[row] - 1 + faradayCount + 1];
-                dataSignalNoise2Array[row] = term1 + term2 * dataWithNoBaselineArray2[row];
-                double residualValue = pow(intensitiesArray[row] - dataArray[row], 2);
-                double residualValue2 = pow(intensitiesArray[row] - dataArray2[row], 2);
-                E02 += residualValue2;
+                int[] isotopeOrdinalIndices = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
+                double[] intensitiesArray = singleBlockDataSetRecord.blockIntensityArray();
+                double[] signalNoiseSigma = dataModelUpdaterOutputRecord_x2.signalNoiseSigma();
+                for (int row = 0; row < countOfData; row++) {
+                    int detectorIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndices[row]);
+                    double term1 = StrictMath.pow(signalNoiseSigma[detectorIndex], 2);
+                    double term2 = signalNoiseSigma[isotopeOrdinalIndices[row] - 1 + faradayCount + 1];
+                    dataSignalNoise2Array[row] = term1 + term2 * dataWithNoBaselineArray2[row];
+                    double residualValue = pow(intensitiesArray[row] - dataArray[row], 2);
+                    double residualValue2 = pow(intensitiesArray[row] - dataArray2[row], 2);
+                    E02 += residualValue2;
 
                 /*
                     % Decide whether to accept or reject model
                     keep = AcceptItMS(oper,dE,psig,delx,prior,Dsig,Dsig2,d0);
                  */
+                    if (noiseOperation) {
+                        E += residualValue / dataSignalNoiseArray[row];
+                        E2 += residualValue2 / dataSignalNoise2Array[row];
+                        sumLogDSignalNoise += -1.0 * Math.log(dataSignalNoiseArray[row]);
+                        sumLogDSignalNoise2 += -1.0 * Math.log(dataSignalNoise2Array[row]);
+                    } else {
+                        E += residualValue * baselineMultiplier[row] / dataSignalNoiseArray[row];
+                        E2 += residualValue2 * baselineMultiplier[row] / dataSignalNoise2Array[row];
+                    }
+                } //rows loop
+
+                long interval4 = System.nanoTime() - prev;
+                prev = interval4 + prev;
+
                 if (noiseOperation) {
-                    E += residualValue / dataSignalNoiseArray[row];
-                    E2 += residualValue2 / dataSignalNoise2Array[row];
-                    sumLogDSignalNoise += -1.0 * Math.log(dataSignalNoiseArray[row]);
-                    sumLogDSignalNoise2 += -1.0 * Math.log(dataSignalNoise2Array[row]);
+                    dE = E2 - E;
+                    double deltaLogNoise = sumLogDSignalNoise2 - sumLogDSignalNoise;
+                    keep = min(1.0, exp(deltaLogNoise / 2.0 - (dE) / 2.0));//keep = min(1,exp(X/2-(dE)/2));
                 } else {
-                    E += residualValue * baselineMultiplier[row] / dataSignalNoiseArray[row];
-                    E2 += residualValue2 * baselineMultiplier[row] / dataSignalNoise2Array[row];
+                    dE = 1.0 / tempering * (E2 - E);
+                    keep = min(1.0, exp(-(dE) / 2.0));
                 }
-            } //rows loop
-
-            long interval4 = System.nanoTime() - prev;
-            prev = interval4 + prev;
-
-            if (noiseOperation) {
-                dE = E2 - E;
-                double deltaLogNoise = sumLogDSignalNoise2 - sumLogDSignalNoise;
-                keep = min(1.0, exp(deltaLogNoise / 2.0 - (dE) / 2.0));//keep = min(1,exp(X/2-(dE)/2));
-            } else {
-                dE = 1.0 / tempering * (E2 - E);
-                keep = min(1.0, exp(-(dE) / 2.0));
-            }
 
             /*
                 % Update kept variables for display
@@ -459,39 +465,38 @@ public class MCMCProcess {
                 end
              */
 
-            int operationIndex = operations.indexOf(operation);
-            keptUpdates[operationIndex][1] = keptUpdates[operationIndex][1] + 1;
-            keptUpdates[operationIndex][3] = keptUpdates[operationIndex][3] + 1;
+                int operationIndex = operations.indexOf(operation);
+                keptUpdates[operationIndex][1] = keptUpdates[operationIndex][1] + 1;
+                keptUpdates[operationIndex][3] = keptUpdates[operationIndex][3] + 1;
 
+                if (keep >= randomDataGenerator.nextUniform(0, 1)) {
+                    E = E2;
+                    initialModelErrorUnWeighted_E0 = E02;
 
-            if (keep >= randomDataGenerator.nextUniform(0, 1)) {
-                E = E2;
-                initialModelErrorUnWeighted_E0 = E02;
+                    singleBlockInitialModelRecord_initial = new SingleBlockModelRecord(
+                            dataModelUpdaterOutputRecord_x2.baselineMeansArray(),
+                            dataModelUpdaterOutputRecord_x2.baselineStandardDeviationsArray(),
+                            dataModelUpdaterOutputRecord_x2.detectorFaradayGain(),
+                            dataModelUpdaterOutputRecord_x2.mapDetectorOrdinalToFaradayIndex(),
+                            dataModelUpdaterOutputRecord_x2.logRatios(),
+                            dataModelUpdaterOutputRecord_x2.signalNoiseSigma(),
+                            dataArray2.clone(),
+                            dataWithNoBaselineArray2.clone(),
+                            dataSignalNoise2Array.clone(),
+                            dataModelUpdaterOutputRecord_x2.I0(),
+                            intensity2.toRawCopy1D(),
+                            dataModelUpdaterOutputRecord_x2.faradayCount(),
+                            dataModelUpdaterOutputRecord_x2.isotopeCount()
+                    );
+                    dataSignalNoiseArray = dataSignalNoise2Array.clone();
 
-                singleBlockInitialModelRecord_initial = new SingleBlockModelRecord(
-                        dataModelUpdaterOutputRecord_x2.baselineMeansArray(),
-                        dataModelUpdaterOutputRecord_x2.baselineStandardDeviationsArray(),
-                        dataModelUpdaterOutputRecord_x2.detectorFaradayGain(),
-                        dataModelUpdaterOutputRecord_x2.mapDetectorOrdinalToFaradayIndex(),
-                        dataModelUpdaterOutputRecord_x2.logRatios(),
-                        dataModelUpdaterOutputRecord_x2.signalNoiseSigma(),
-                        dataArray2.clone(),
-                        dataWithNoBaselineArray2.clone(),
-                        dataSignalNoise2Array.clone(),
-                        dataModelUpdaterOutputRecord_x2.I0(),
-                        intensity2,
-                        dataModelUpdaterOutputRecord_x2.faradayCount(),
-                        dataModelUpdaterOutputRecord_x2.isotopeCount()
-                );
-                dataSignalNoiseArray = dataSignalNoise2Array.clone();
+                    keptUpdates[operationIndex][0] = keptUpdates[operationIndex][0] + 1;
+                    keptUpdates[operationIndex][2] = keptUpdates[operationIndex][2] + 1;
+                }
 
-                keptUpdates[operationIndex][0] = keptUpdates[operationIndex][0] + 1;
-                keptUpdates[operationIndex][2] = keptUpdates[operationIndex][2] + 1;
-            }
+                long interval5 = System.nanoTime() - prev;
 
-            long interval5 = System.nanoTime() - prev;
-
-            if (0 == modelIndex % (stepCountForcedSave)) {
+                if (0 == modelIndex % (stepCountForcedSave)) {
                 /*
                     cnt=cnt+1; % Increment counter
                     ensemble(cnt).lograt=x.lograt; % Log ratios
@@ -513,19 +518,19 @@ public class MCMCProcess {
                         delx_adapt = mvnrnd(zeros(Nmod,1),2.38^2*xcov/Nmod,datsav)';
                     end
                  */
-                counter++;
-                ensembleRecordsList.add(new EnsemblesStoreV2.EnsembleRecord(
-                        singleBlockInitialModelRecord_initial.logRatios(),
-                        singleBlockInitialModelRecord_initial.intensities().toRawCopy1D(),
-                        singleBlockInitialModelRecord_initial.baselineMeansArray(),
-                        singleBlockInitialModelRecord_initial.detectorFaradayGain(),
-                        singleBlockInitialModelRecord_initial.signalNoiseSigma(),
-                        E,
-                        initialModelErrorUnWeighted_E0));
-            }
+                    counter++;
+                    ensembleRecordsList.add(new EnsemblesStoreV2.EnsembleRecord(
+                            singleBlockInitialModelRecord_initial.logRatios(),
+                            singleBlockInitialModelRecord_initial.intensities(),
+                            singleBlockInitialModelRecord_initial.baselineMeansArray(),
+                            singleBlockInitialModelRecord_initial.detectorFaradayGain(),
+                            singleBlockInitialModelRecord_initial.signalNoiseSigma(),
+                            E,
+                            initialModelErrorUnWeighted_E0));
+                }
 
-            int covStart = 50;
-            if (counter >= covStart + 1) {
+                int covStart = 50;
+                if (counter >= covStart + 1) {
             /*
             % Iterative covariance
             [xmean,xcov] = UpdateMeanCovMS(x,xcov,xmean,ensemble,cnt-covstart,0);
@@ -539,98 +544,111 @@ public class MCMCProcess {
             n dimension of output matrix - datsav)';
                 stepCountForcedSave
             */
-                SingleBlockModelUpdater.UpdatedCovariancesRecord updatedCovariancesRecord =
-                        updateMeanCovMS(singleBlockInitialModelRecord_initial, xDataCovariance, xDataMean, ensembleRecordsList, counter - covStart, false);
-                xDataCovariance = updatedCovariancesRecord.dataCov();
-                xDataMean = updatedCovariancesRecord.dataMean();
+                    SingleBlockModelUpdater.UpdatedCovariancesRecord updatedCovariancesRecord =
+                            updateMeanCovMS(singleBlockInitialModelRecord_initial, xDataCovariance, xDataMean, ensembleRecordsList, counter - covStart, false);
+                    xDataCovariance = updatedCovariancesRecord.dataCov();
+                    xDataMean = updatedCovariancesRecord.dataMean();
 
-                if (adaptiveFlag) {
+                    if (adaptiveFlag) {
                     /*
                         delx_adapt =  mvnrnd(zeros(sizeOfModel,1), 2.38^2*xDataCovariance/sizeOfModel, stepCountForcedSave)'
                         stepCountForcedSave = 100
                         sizeOfModel = 20
                         */
 
-                    double[] zeroMean = new double[sizeOfModel];
+                        double[] zeroMean = new double[sizeOfModel];
 
-                    Matrix a = new Matrix(xDataCovariance);
+                        Matrix a = new Matrix(xDataCovariance);
 
-                    if (0.0 != a.det()) {
-                        Matrix ai = a.inverse();
-                        Matrix aia = a.times(ai);
+                        if (0.0 != a.det()) {
+                            Matrix ai = a.inverse();
+                            Matrix aia = a.times(ai);
 
-                        MultivariateNormalDistribution mnd =
-                                new MultivariateNormalDistribution(zeroMean, storeFactory.copy(Access2D.wrap(xDataCovariance)).multiply(pow(2.38, 2) / (sizeOfModel)).toRawCopy2D());
-                        double[][] samples = new double[stepCountForcedSave][];
-                        for (int i = 0; i < stepCountForcedSave; i++) {
-                            samples[i] = mnd.sample();
+                            MultivariateNormalDistribution mnd =
+                                    new MultivariateNormalDistribution(zeroMean, storeFactory.copy(Access2D.wrap(xDataCovariance)).multiply(pow(2.38, 2) / (sizeOfModel)).toRawCopy2D());
+                            double[][] samples = new double[stepCountForcedSave][];
+                            for (int i = 0; i < stepCountForcedSave; i++) {
+                                samples[i] = mnd.sample();
+                            }
+                            delx_adapt = storeFactory.copy(Access2D.wrap(samples)).transpose().toRawCopy2D();
+                        } else {
+                            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Bad matrix at model " + counter);
                         }
-                        delx_adapt = storeFactory.copy(Access2D.wrap(samples)).transpose().toRawCopy2D();
-                    } else {
-                        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Bad matrix at model " + counter);
                     }
                 }
-            }
 
-            if (0 == modelIndex % (10 * stepCountForcedSave)) {
-                String loggingSnippet =
-                        "%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
-                                + " ADAPTIVE = " + adaptiveFlag
-                                + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
-                                + "\nError function = "
-                                + statsFormat.format(StrictMath.sqrt(initialModelErrorUnWeighted_E0 / countOfIntegrations))
+                if (0 == modelIndex % (10 * stepCountForcedSave)) {
+                    loggingSnippet =
+                            "%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
+                                    + " ADAPTIVE = " + adaptiveFlag
+                                    + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
+                                    + "\nError function = "
+                                    + statsFormat.format(StrictMath.sqrt(initialModelErrorUnWeighted_E0 / countOfData))
 
-                                + "\nChange Log Ratio: "
-                                + keptUpdates[0][0]
-                                + " of "
-                                + keptUpdates[0][1]
-                                + " accepted (" + statsFormat.format(100.0 * keptUpdates[0][2] / keptUpdates[0][3]) + "% total)"
+                                    + "\nChange Log Ratio: "
+                                    + keptUpdates[0][0]
+                                    + " of "
+                                    + keptUpdates[0][1]
+                                    + " accepted (" + statsFormat.format(100.0 * keptUpdates[0][2] / keptUpdates[0][3]) + "% total)"
 
-                                + "\nChange Intensity: "
-                                + keptUpdates[1][0]
-                                + " of "
-                                + keptUpdates[1][1]
-                                + " accepted (" + statsFormat.format(100.0 * keptUpdates[1][2] / keptUpdates[1][3]) + "% total)"
+                                    + "\nChange Intensity: "
+                                    + keptUpdates[1][0]
+                                    + " of "
+                                    + keptUpdates[1][1]
+                                    + " accepted (" + statsFormat.format(100.0 * keptUpdates[1][2] / keptUpdates[1][3]) + "% total)"
 
-                                + "\nChange DF Gain: "
-                                + keptUpdates[2][0]
-                                + " of "
-                                + keptUpdates[2][1]
-                                + " accepted (" + statsFormat.format(100.0 * keptUpdates[2][2] / keptUpdates[2][3]) + "% total)"
+                                    + "\nChange DF Gain: "
+                                    + keptUpdates[2][0]
+                                    + " of "
+                                    + keptUpdates[2][1]
+                                    + " accepted (" + statsFormat.format(100.0 * keptUpdates[2][2] / keptUpdates[2][3]) + "% total)"
 
-                                + "\nChange Baseline: "
-                                + keptUpdates[3][0]
-                                + " of "
-                                + keptUpdates[3][1]
-                                + " accepted (" + statsFormat.format(100.0 * keptUpdates[3][2] / keptUpdates[3][3]) + "% total)"
+                                    + "\nChange Baseline: "
+                                    + keptUpdates[3][0]
+                                    + " of "
+                                    + keptUpdates[3][1]
+                                    + " accepted (" + statsFormat.format(100.0 * keptUpdates[3][2] / keptUpdates[3][3]) + "% total)"
 
-                                + (hierarchical ?
-                                ("\nNoise: "
-                                        + keptUpdates[4][0]
-                                        + " of "
-                                        + keptUpdates[4][1]
-                                        + " accepted (" + statsFormat.format(100.0 * keptUpdates[4][2] / keptUpdates[4][3]) + "% total)")
-                                        + ("\nIntervals: in microseconds, each from prev or zero time till new interval"
-                                        + " Interval1 " + (interval1 / 1000)
-                                        + " Interval2 " + (interval2 / 1000)
-                                        + " Interval3 " + (interval3 / 1000)
-                                        + " Interval4 " + (interval4 / 1000)
-                                        + " Interval5 " + (interval5 / 1000)
-                                )
-                                : "");
+                                    + (hierarchical ?
+                                    ("\nNoise: "
+                                            + keptUpdates[4][0]
+                                            + " of "
+                                            + keptUpdates[4][1]
+                                            + " accepted (" + statsFormat.format(100.0 * keptUpdates[4][2] / keptUpdates[4][3]) + "% total)")
+                                            + ("\nIntervals: in microseconds, each from prev or zero time till new interval"
+                                            + " Interval1 " + (interval1 / 1000)
+                                            + " Interval2 " + (interval2 / 1000)
+                                            + " Interval3 " + (interval3 / 1000)
+                                            + " Interval4 " + (interval4 / 1000)
+                                            + " Interval5 " + (interval5 / 1000)
+                                    )
+                                    : "")
+                                    + "\n";
 
-                System.err.println("\n" + loggingSnippet);
-                loggingCallback.receiveLoggingSnippet(loggingSnippet);
+                    System.err.println("\n" + loggingSnippet);
+                    loggingCallback.receiveLoggingSnippet(loggingSnippet);
 
-                for (int i = 0; 5 > i; i++) {
-                    keptUpdates[i][0] = 0;
-                    keptUpdates[i][1] = 0;
+                    for (int i = 0; 5 > i; i++) {
+                        keptUpdates[i][0] = 0;
+                        keptUpdates[i][1] = 0;
+                    }
+
+                    watch.reset();
+                    watch.start();
                 }
-
-                watch.reset();
-                watch.start();
+            } else {
+                //loggingCallback.receiveLoggingSnippet("\n\nCancelled by user.");
+                break;
             }
-
+        }// end model loop
+        if (ALLOW_EXECUTION) {
+            // experiment with serializing results during development
+            EnsemblesStoreV2 ensemblesStore = new EnsemblesStoreV2(ensembleRecordsList, singleBlockInitialModelRecord_initial);
+            try {
+                TripoliSerializer.serializeObjectToFile(ensemblesStore, "EnsemblesStore.ser");
+            } catch (TripoliException e) {
+                e.printStackTrace();
+            }
         }
         return SingleBlockDataModelPlot.analysisAndPlotting(singleBlockDataSetRecord, ensembleRecordsList, singleBlockInitialModelRecord_initial, analysisMethod);
     }

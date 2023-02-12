@@ -16,11 +16,9 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,7 +28,12 @@ record SingleBlockDataSetRecord(
         SingleBlockDataRecord baselineDataSetMCMC,
         SingleBlockDataRecord onPeakFaradayDataSetMCMC,
         SingleBlockDataRecord onPeakPhotoMultiplierDataSetMCMC,
-        Primitive64Store blockKnotInterpolationStore
+        Primitive64Store blockKnotInterpolationStore,
+        double[] blockIntensityArray,
+        int[] blockDetectorOrdinalIndicesArray,
+        int[] blockIsotopeOrdinalIndicesArray,
+        int[] blockTimeIndicesArray
+
 ) implements Serializable {
     int getCountOfBaselineIntensities() {
         return baselineDataSetMCMC().intensityAccumulatorList().size();
@@ -38,46 +41,6 @@ record SingleBlockDataSetRecord(
 
     int getCountOfOnPeakFaradayIntensities() {
         return onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
-    }
-
-    double[] getBlockIntensityArray() {
-        List<Double> blockIntensityList = new ArrayList<>();
-        blockIntensityList.addAll(baselineDataSetMCMC().intensityAccumulatorList());
-        blockIntensityList.addAll(onPeakFaradayDataSetMCMC().intensityAccumulatorList());
-        blockIntensityList.addAll(onPeakPhotoMultiplierDataSetMCMC().intensityAccumulatorList());
-
-        Double[] blockIntensityArray = blockIntensityList.toArray(new Double[0]);
-        return ArrayUtils.toPrimitive(blockIntensityArray);
-    }
-
-    int[] getBlockDetectorOrdinalIndicesArray() {
-        List<Integer> blockDetectorOrdinalIndicesList = new ArrayList<>();
-        blockDetectorOrdinalIndicesList.addAll(baselineDataSetMCMC().detectorOrdinalIndicesAccumulatorList());
-        blockDetectorOrdinalIndicesList.addAll(onPeakFaradayDataSetMCMC().detectorOrdinalIndicesAccumulatorList());
-        blockDetectorOrdinalIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC().detectorOrdinalIndicesAccumulatorList());
-
-        Integer[] blockDetectorOrdinalIndicesArray = blockDetectorOrdinalIndicesList.toArray(new Integer[0]);
-        return ArrayUtils.toPrimitive(blockDetectorOrdinalIndicesArray);
-    }
-
-    int[] getBlockIsotopeOrdinalIndicesArray() {
-        List<Integer> blockIsotopeOrdinalIndicesList = new ArrayList<>();
-        blockIsotopeOrdinalIndicesList.addAll(baselineDataSetMCMC().isotopeOrdinalIndicesAccumulatorList());
-        blockIsotopeOrdinalIndicesList.addAll(onPeakFaradayDataSetMCMC().isotopeOrdinalIndicesAccumulatorList());
-        blockIsotopeOrdinalIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC().isotopeOrdinalIndicesAccumulatorList());
-
-        Integer[] blockIsotopeOrdinalIndicesArray = blockIsotopeOrdinalIndicesList.toArray(new Integer[0]);
-        return ArrayUtils.toPrimitive(blockIsotopeOrdinalIndicesArray);
-    }
-
-    int[] getBlockTimeIndicesArray() {
-        List<Integer> blockTimeIndicesList = new ArrayList<>();
-        blockTimeIndicesList.addAll(baselineDataSetMCMC().timeIndexAccumulatorList());
-        blockTimeIndicesList.addAll(onPeakFaradayDataSetMCMC().timeIndexAccumulatorList());
-        blockTimeIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC().timeIndexAccumulatorList());
-
-        Integer[] blockTimeIndicesArray = blockTimeIndicesList.toArray(new Integer[0]);
-        return ArrayUtils.toPrimitive(blockTimeIndicesArray);
     }
 
     /**

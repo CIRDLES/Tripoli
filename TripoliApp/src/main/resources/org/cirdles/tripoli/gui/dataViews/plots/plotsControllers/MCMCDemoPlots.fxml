@@ -29,16 +29,16 @@
                     <tabs>
                         <Tab fx:id="ensemblesTab" closable="false" text="Ensembles">
                             <content>
-                                <AnchorPane fx:id="ensemblePlotsAnchorPane" prefHeight="200.0" prefWidth="200.0"/>
+                                <AnchorPane fx:id="ensemblePlotsAnchorPane" prefWidth="200.0"/>
                             </content>
                         </Tab>
-                        <Tab closable="false" text="Convergences">
+                        <Tab closable="false" disable="true" text="Convergences">
                             <content>
                                 <AnchorPane fx:id="convergePlotsAnchorPane" minHeight="0.0" minWidth="0.0"
                                             prefHeight="180.0" prefWidth="200.0"/>
                             </content>
                         </Tab>
-                        <Tab closable="false" text="DataFit">
+                        <Tab closable="false" disable="true" text="DataFit">
                             <content>
                                 <HBox>
                                     <children>
@@ -62,7 +62,7 @@
                                 </HBox>
                             </content>
                         </Tab>
-                        <Tab closable="false" text="Converge_Error">
+                        <Tab closable="false" disable="true" text="Converge_Error">
                             <content>
                                 <HBox>
                                     <children>
@@ -86,7 +86,7 @@
                                 </HBox>
                             </content>
                         </Tab>
-                        <Tab closable="false" text="Converge_Intensity">
+                        <Tab closable="false" disable="true" text="Converge_Intensity">
                             <content>
                                 <HBox>
                                     <children>
@@ -102,20 +102,23 @@
                         </Tab>
                     </tabs>
                 </TabPane>
-                <SplitPane dividerPositions="0.2136591478696742">
+                <SplitPane dividerPositions="0.15" minHeight="225.0" prefHeight="225.0">
                     <items>
                         <ScrollPane fx:id="listOfFilesScrollPane" prefHeight="236.0" prefWidth="246.0"/>
                         <TextArea fx:id="eventLogTextArea" editable="false" prefHeight="300.0" prefWidth="500.0"
-                                  text="Event log  (eventually) appears here ...  note modelling  stps at 100000 iterations with no adaptaion yet."/>
+                                  text="Event log  (eventually) appears here ...  note modelling  stops at 100000 iterations with no adaptation yet."/>
                     </items>
                 </SplitPane>
                 <ToolBar fx:id="toolbar" prefHeight="15.0" prefWidth="500.0">
                     <items>
                         <Button fx:id="processFileButton" mnemonicParsing="false" onAction="#demo1_2IsotopeButtonAction"
-                                text="Process Selected 2-Isotope File for MCMC"/>
-                        <Button mnemonicParsing="false" onAction="#testAction" text="test"/>
-                        <Button layoutX="515.0" layoutY="10.0" mnemonicParsing="false" onAction="#plotIncomingAction"
-                                text="plot incoming"/>
+                                text="Process Selected 2-Isotope File "/>
+                        <Button mnemonicParsing="false" onAction="#stopProcess1" text="&lt;&lt; stop process"/>
+                        <Button fx:id="processFileButton2" layoutX="515.0" layoutY="10.0" mnemonicParsing="false"
+                                onAction="#plotIncomingAction" style="-fx-text-fill: RED;"
+                                text="Process selected analysis from Analysis Manager"/>
+                        <Button layoutX="207.0" layoutY="10.0" mnemonicParsing="false" onAction="#stopProcess2"
+                                text="&lt;&lt; stop process"/>
                     </items>
                 </ToolBar>
             </children>

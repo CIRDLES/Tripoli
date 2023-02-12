@@ -129,7 +129,5 @@ public final class SessionBuiltinFactory {
         tripoliDemonstrationSession.addAnalysis(twoIsotopes_08);
 
 
-
-
     }
 }

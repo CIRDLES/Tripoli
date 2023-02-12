@@ -44,7 +44,8 @@ public final class TripoliSerializer {
             objectOutputStream = new ObjectOutputStream(fos);
             objectOutputStream.writeObject(serializableObject);
         } catch (IOException ex) {
-            throw new TripoliException("Cannot serialize object of " + serializableObject.getClass().getSimpleName() + " to: " + fileName);
+            throw new TripoliException("Cannot serialize object of " + serializableObject.getClass().getSimpleName() + " to: " + fileName
+                    + " because: " + ex.getMessage());
 
         } finally {
             if (objectOutputStream != null) {
