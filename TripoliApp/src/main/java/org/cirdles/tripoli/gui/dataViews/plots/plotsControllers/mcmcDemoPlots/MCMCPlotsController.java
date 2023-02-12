@@ -27,20 +27,12 @@ import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.DataModelDriverExperiment;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.MCMCProcess;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 
-import static org.cirdles.tripoli.TripoliConstants.SYNTHETIC_DATA_FOLDER_2ISOTOPE;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHeight;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
@@ -91,9 +83,6 @@ public class MCMCPlotsController {
     private AnchorPane plotsAnchorPane;
 
     @FXML
-    private Button processFileButton;
-
-    @FXML
     private Button processFileButton2;
 
     @FXML
@@ -104,18 +93,7 @@ public class MCMCPlotsController {
     @FXML
     private AnchorPane ensemblePlotsAnchorPane;
 
-    private ListView<File> listViewOfSyntheticFiles = new ListView<>();
-
-
-    @FXML
-    void demo1_2IsotopeButtonAction(ActionEvent event) {
-        DataModelDriverExperiment.ALLOW_EXECUTION = true;
-        processDataFileAndShowPlotsOfMCMC(
-                listViewOfSyntheticFiles.getSelectionModel().selectedItemProperty().getValue().toPath(),
-                AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA));
-        ((Button) event.getSource()).setDisable(true);
-        processFileButton2.setDisable(true);
-    }
+    private ListView<String> listViewOfBlocks = new ListView<>();
 
     public void plotIncomingAction() {
         MCMCProcess.ALLOW_EXECUTION = true;
@@ -143,61 +121,30 @@ public class MCMCPlotsController {
         convergeIntensityAnchorPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeIntensityLegendTextBox.getWidth()));
         convergeIntensityAnchorPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
 
-        populateListOfSyntheticData2IsotopesFiles();
-
-        processFileButton.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
+        populateListOfAvailableBlocks();
     }
 
-    private void populateListOfSyntheticData2IsotopesFiles() {
-        List<File> filesInFolder = new ArrayList<>();
-        File[] allFiles;
-        for (File file : Objects.requireNonNull(SYNTHETIC_DATA_FOLDER_2ISOTOPE.listFiles((file, name) -> name.toLowerCase().endsWith(".txt")))) {
-            try {
-                List<String> contentsByLine = new ArrayList<>(Files.readAllLines(file.toPath(), Charset.defaultCharset()));
-                if (contentsByLine.size() > 5 && (contentsByLine.get(3).startsWith("Sample ID,SyntheticDataSet1"))) {
-                    filesInFolder.add(file);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    private void populateListOfAvailableBlocks() {
+        int blockCount = analysis.getMassSpecExtractedData().getBlocksData().size();
+        List<String> blocksByName = new ArrayList<>();
+        for (int i = 0; i < blockCount; i++){
+            blocksByName.add("Block # " + (i + 1));
         }
-        Collections.sort(filesInFolder);
 
-        listViewOfSyntheticFiles = new ListView<>();
-        listViewOfSyntheticFiles.setCellFactory((parameter) -> new FileDisplayName());
+        listViewOfBlocks = new ListView<>();
+        listViewOfBlocks.setCellFactory((parameter) -> new BlockDisplayName());
 
-        ObservableList<File> items = FXCollections.observableArrayList(filesInFolder);
-        listViewOfSyntheticFiles.setItems(items);
-        listViewOfSyntheticFiles.getSelectionModel().selectFirst();
-        listViewOfSyntheticFiles.prefWidthProperty().bind(listOfFilesScrollPane.widthProperty());
-        listViewOfSyntheticFiles.prefHeightProperty().bind(listOfFilesScrollPane.heightProperty());
-        listOfFilesScrollPane.setContent(listViewOfSyntheticFiles);
-    }
-
-    public void processDataFileAndShowPlotsOfMCMC(Path dataFile, AnalysisMethod analysisMethod) {
-        service = new MCMCUpdatesService(dataFile, analysisMethod);
-        eventLogTextArea.setText("");
-        eventLogTextArea.accessibleTextProperty().unbind();
-        eventLogTextArea.setAccessibleText("");
-        eventLogTextArea.accessibleTextProperty().bind(service.valueProperty());
-        eventLogTextArea.accessibleTextProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                eventLogTextArea.setText(eventLogTextArea.getText() + "\n" + newValue);
-                eventLogTextArea.selectEnd();
-                eventLogTextArea.deselect();
-            }
-        });
-        service.start();
-        service.setOnSucceeded(evt -> {
-            Task<String> plotBuildersTask = ((MCMCUpdatesService) service).getPlotBuildersTask();
-
-            plotEngine(plotBuildersTask);
-        });
-        DataModelDriverExperiment.ALLOW_EXECUTION = true;
+        ObservableList<String> items = FXCollections.observableArrayList(blocksByName);
+        listViewOfBlocks.setItems(items);
+        listViewOfBlocks.getSelectionModel().selectFirst();
+        listViewOfBlocks.prefWidthProperty().bind(listOfFilesScrollPane.widthProperty());
+        listViewOfBlocks.prefHeightProperty().bind(listOfFilesScrollPane.heightProperty());
+        listOfFilesScrollPane.setContent(listViewOfBlocks);
     }
 
     public void processDataFileAndShowPlotsOfMCMC2(AnalysisInterface analysis) {
-        service = new MCMC2UpdatesService(analysis);
+        int blockNumber = listViewOfBlocks.getSelectionModel().getSelectedIndex() + 1;
+        service = new MCMC2UpdatesService(analysis, blockNumber);
         eventLogTextArea.setText("");
         eventLogTextArea.accessibleTextProperty().bind(service.valueProperty());
         eventLogTextArea.accessibleTextProperty().addListener((observable, oldValue, newValue) -> {
@@ -207,7 +154,7 @@ public class MCMCPlotsController {
                 eventLogTextArea.deselect();
             }
         });
-
+        processFileButton2.setDisable(true);
         service.start();
         service.setOnSucceeded(evt -> {
             Task<String> plotBuildersTask = ((MCMC2UpdatesService) service).getPlotBuildersTask();
@@ -233,52 +180,52 @@ public class MCMCPlotsController {
         AbstractPlotBuilder[] convergeErrRawMisfitBuilder = plotBuildersTask.getConvergeErrRawMisfitLineBuilder();
 
 
-        AbstractPlotBuilder observedDataPlotBuilder = plotBuildersTask.getObservedDataLineBuilder();
-        AbstractPlotBuilder residualDataPlotBuilder = plotBuildersTask.getResidualDataLineBuilder();
-
-        AbstractPlotBuilder convergeIntensityLinesBuilder = plotBuildersTask.getConvergeIntensityLinesBuilder();
-
-        AbstractDataView observedDataLinePlot = new BasicScatterAndLinePlot(
-                new Rectangle(dataFitGridPane.getWidth(),
-                        (plotTabPane.getHeight() - TAB_HEIGHT) / dataFitGridPane.getRowCount()),
-                (ComboPlotBuilder) observedDataPlotBuilder);
-
-        AbstractDataView residualDataLinePlot = new BasicScatterAndLinePlot(
-                new Rectangle(dataFitGridPane.getWidth(),
-                        (plotTabPane.getHeight() - TAB_HEIGHT) / dataFitGridPane.getRowCount()),
-                (ComboPlotBuilder) residualDataPlotBuilder);
-
-        AbstractDataView convergeIntensityLinesPlot = new MultiLinePlotLogX(
-                new Rectangle(convergeIntensityAnchorPane.getWidth(),
-                        plotTabPane.getHeight() - TAB_HEIGHT),
-                (MultiLinePlotBuilder) convergeIntensityLinesBuilder);
-
-        plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.intValue() > 100) {
-                double newWidth = newValue.intValue();
-
-                observedDataLinePlot.setMyWidth(newWidth);
-                observedDataLinePlot.repaint();
-                residualDataLinePlot.setMyWidth(newWidth);
-                residualDataLinePlot.repaint();
-                convergeIntensityLinesPlot.setMyWidth(newWidth);
-                convergeIntensityLinesPlot.repaint();
-
-            }
-        });
-
-        plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.intValue() > 100) {
-
-                observedDataLinePlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / dataFitGridPane.getRowCount());
-                observedDataLinePlot.repaint();
-                residualDataLinePlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / dataFitGridPane.getRowCount());
-                residualDataLinePlot.repaint();
-
-                convergeIntensityLinesPlot.setMyHeight(newValue.intValue() - TAB_HEIGHT);
-                convergeIntensityLinesPlot.repaint();
-            }
-        });
+////        AbstractPlotBuilder observedDataPlotBuilder = plotBuildersTask.getObservedDataLineBuilder();
+////        AbstractPlotBuilder residualDataPlotBuilder = plotBuildersTask.getResidualDataLineBuilder();
+////
+////        AbstractPlotBuilder convergeIntensityLinesBuilder = plotBuildersTask.getConvergeIntensityLinesBuilder();
+////
+////        AbstractDataView observedDataLinePlot = new BasicScatterAndLinePlot(
+////                new Rectangle(dataFitGridPane.getWidth(),
+////                        (plotTabPane.getHeight() - TAB_HEIGHT) / dataFitGridPane.getRowCount()),
+////                (ComboPlotBuilder) observedDataPlotBuilder);
+////
+////        AbstractDataView residualDataLinePlot = new BasicScatterAndLinePlot(
+////                new Rectangle(dataFitGridPane.getWidth(),
+////                        (plotTabPane.getHeight() - TAB_HEIGHT) / dataFitGridPane.getRowCount()),
+////                (ComboPlotBuilder) residualDataPlotBuilder);
+////
+////        AbstractDataView convergeIntensityLinesPlot = new MultiLinePlotLogX(
+////                new Rectangle(convergeIntensityAnchorPane.getWidth(),
+////                        plotTabPane.getHeight() - TAB_HEIGHT),
+////                (MultiLinePlotBuilder) convergeIntensityLinesBuilder);
+////
+////        plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+////            if (newValue.intValue() > 100) {
+////                double newWidth = newValue.intValue();
+////
+////                observedDataLinePlot.setMyWidth(newWidth);
+////                observedDataLinePlot.repaint();
+////                residualDataLinePlot.setMyWidth(newWidth);
+////                residualDataLinePlot.repaint();
+////                convergeIntensityLinesPlot.setMyWidth(newWidth);
+////                convergeIntensityLinesPlot.repaint();
+////
+////            }
+//        });
+//
+//        plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+//            if (newValue.intValue() > 100) {
+//
+//                observedDataLinePlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / dataFitGridPane.getRowCount());
+//                observedDataLinePlot.repaint();
+//                residualDataLinePlot.setMyHeight((newValue.intValue() - TAB_HEIGHT) / dataFitGridPane.getRowCount());
+//                residualDataLinePlot.repaint();
+//
+//                convergeIntensityLinesPlot.setMyHeight(newValue.intValue() - TAB_HEIGHT);
+//                convergeIntensityLinesPlot.repaint();
+//            }
+//        });
 
 //        observedDataLinePlot.preparePanel();
 //        dataFitGridPane.add(observedDataLinePlot, 0, 0);
@@ -335,34 +282,23 @@ public class MCMCPlotsController {
         }
     }
 
-    public void stopProcess1(ActionEvent actionEvent) {
-        DataModelDriverExperiment.ALLOW_EXECUTION = false;
-        ((MCMCPlotBuildersTask) ((MCMCUpdatesService) service).getPlotBuildersTask()).setAmNewest(false);
-        service.cancel();
-
-        processFileButton.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
-        processFileButton2.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
-    }
-
     public void stopProcess2(ActionEvent actionEvent) {
         MCMCProcess.ALLOW_EXECUTION = false;
         ((MCMCUpdatesService) service).getPlotBuildersTask().cancel();
         if (((MCMCUpdatesService) service).getPlotBuildersTask().isCancelled()) {
             service.cancel();
-            processFileButton.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
-            processFileButton2.setDisable(listViewOfSyntheticFiles.getItems().isEmpty());
         }
     }
 
 
-    static class FileDisplayName extends ListCell<File> {
+    static class BlockDisplayName extends ListCell<String> {
         @Override
-        protected void updateItem(File file, boolean empty) {
-            super.updateItem(file, empty);
-            if (file == null || empty) {
+        protected void updateItem(String blockID, boolean empty) {
+            super.updateItem(blockID, empty);
+            if (blockID == null || empty) {
                 setText(null);
             } else {
-                setText(file.getName());
+                setText(blockID);
             }
         }
     }

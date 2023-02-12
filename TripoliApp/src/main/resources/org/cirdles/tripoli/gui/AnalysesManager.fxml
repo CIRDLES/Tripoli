@@ -77,7 +77,7 @@
         <Button layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectMethodFileButtonAction"
                 text="Select and load Method File"/>
         <Button layoutX="165.0" layoutY="7.0" mnemonicParsing="false" onAction="#initializeMonteCarloTechniqueAction"
-                style="-fx-text-fill: RED;" text="Run Monte Carlo Technique on Block #1 and plot some results"/>
+                style="-fx-text-fill: RED;" text="Run Monte Carlo Technique on an analysis block and plot some results"/>
     </ToolBar>
     <Label prefHeight="58.0" prefWidth="114.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;"
            text="Analysis Method with Detector Details from Data File:" textAlignment="RIGHT" wrapText="true"

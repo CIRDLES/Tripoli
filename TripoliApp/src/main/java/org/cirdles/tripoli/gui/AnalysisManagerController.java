@@ -303,8 +303,7 @@ public class AnalysisManagerController implements Initializable {
 
     public void initializeMonteCarloTechniqueAction() throws TripoliException {
         MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
-        MCMCPlotsWindow.loadPlotsWindow();
         MCMCPlotsController.analysis = analysis;
-
+        MCMCPlotsWindow.loadPlotsWindow();
     }
 }

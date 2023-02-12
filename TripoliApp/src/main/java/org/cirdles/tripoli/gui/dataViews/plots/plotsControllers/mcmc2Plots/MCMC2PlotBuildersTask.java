@@ -28,6 +28,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
  */
 public class MCMC2PlotBuildersTask extends Task<String> implements LoggingCallbackInterface, PlotBuildersTaskInterface {
     private final AnalysisInterface analysis;
+    private int blockNumber;
     // ensemble plots
     private AbstractPlotBuilder[] ratiosHistogramBuilder;
     private AbstractPlotBuilder[] baselineHistogramBuilder;
@@ -49,8 +50,9 @@ public class MCMC2PlotBuildersTask extends Task<String> implements LoggingCallba
 
     private AbstractPlotBuilder[] convergeNoiseFaradayLineBuilder;
 
-    public MCMC2PlotBuildersTask(AnalysisInterface analysis) {
+    public MCMC2PlotBuildersTask(AnalysisInterface analysis, int blockNumber) {
         this.analysis = analysis;
+        this.blockNumber = blockNumber;
     }
 
     @Override
@@ -120,7 +122,7 @@ public class MCMC2PlotBuildersTask extends Task<String> implements LoggingCallba
 
     @Override
     public String call() throws Exception {
-        AbstractPlotBuilder[][] plots = buildAndRunModelForSingleBlock(1, analysis, this);
+        AbstractPlotBuilder[][] plots = buildAndRunModelForSingleBlock(blockNumber, analysis, this);
         ratiosHistogramBuilder = plots[0];
         baselineHistogramBuilder = plots[1];
         dalyFaradayGainHistogramBuilder = plots[2];

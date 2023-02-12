@@ -25,11 +25,13 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
  */
 public class MCMC2UpdatesService extends Service<String> {
     private final AnalysisInterface analysis;
+    private int blockNumber;
 
     private Task<String> plotBuilderTask;
 
-    public MCMC2UpdatesService(AnalysisInterface analysis) {
+    public MCMC2UpdatesService(AnalysisInterface analysis, int blockNumber) {
         this.analysis = analysis;
+        this.blockNumber = blockNumber;
     }
 
     public Task<String> getPlotBuildersTask() {
@@ -38,7 +40,7 @@ public class MCMC2UpdatesService extends Service<String> {
 
     @Override
     protected Task<String> createTask() {
-        plotBuilderTask = new MCMC2PlotBuildersTask(analysis);
+        plotBuilderTask = new MCMC2PlotBuildersTask(analysis, blockNumber);
         return plotBuilderTask;
     }
 }
