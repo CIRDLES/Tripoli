@@ -25,7 +25,8 @@ import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
 /**
  * @author James F. Bowring
  */
-public final class MassSpectrometerBuiltinModelFactory {
+public enum MassSpectrometerBuiltinModelFactory {
+    ;
 
     public static Map<String, MassSpectrometerModel> massSpectrometerModelBuiltinMap = new TreeMap<>();
 

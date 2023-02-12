@@ -29,7 +29,8 @@ import java.util.List;
 /**
  * @author James F. Bowring
  */
-public class DataModelUpdater {
+public enum DataModelUpdater {
+    ;
 
     public static List<String> operations = new ArrayList<>();
 
@@ -42,7 +43,7 @@ public class DataModelUpdater {
     }
 
     // function  [x2,delx,xcov] = UpdateMSv2(oper,x,psig,prior,ensemble,xcov,delx_adapt,adaptflag,allflag)
-    static DataModellerOutputRecord updateMSv2(
+    public static DataModellerOutputRecord updateMSv2(
             String operation,
             DataModellerOutputRecord dataModelInit,
             DataModelUpdaterHelper.PsigRecord psigRecord,
@@ -277,7 +278,7 @@ public class DataModelUpdater {
             double x2DFGain = 0.0;
 
             for (int row = 0; row < xx.length; row++) {
-                if (xInd[row] == 1) {
+                if (1 == xInd[row]) {
                     x2LogRatioList.add(xx[row]);
                 }
                 for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
@@ -456,13 +457,13 @@ public class DataModelUpdater {
 //            dataCov = DataProcessors.covariances(storeFactory, enso.transpose()).toRawCopy2D();
             cov2 = new Covariance(enso.transpose().toRawCopy2D());
             Matrix a = new Matrix(cov2.getCovarianceMatrix().getData());
-            if (0.0 == a.det()) {
-                for (int i = 0; i < a.getRowDimension(); i++) {
-                    if (a.get(i, i) == 0.0) {
-                        System.out.print("  >" + i);
-                    }
-                }
-            }
+//            if (0.0 == a.det()) {
+//                for (int i = 0; i < a.getRowDimension(); i++) {
+//                    if (0.0 == a.get(i, i)) {
+//                        System.out.print("  >" + i);
+//                    }
+//                }
+//            }
         }
         return new UpdatedCovariancesRecord(cov2.getCovarianceMatrix().getData(), dataMean);
 //        return new UpdatedCovariancesRecord(dataCov, dataMean);

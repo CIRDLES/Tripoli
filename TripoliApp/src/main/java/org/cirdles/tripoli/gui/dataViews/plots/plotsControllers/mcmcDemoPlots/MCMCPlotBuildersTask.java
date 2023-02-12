@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots;
 
 import javafx.concurrent.Task;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmc2Plots.PlotBuildersTaskInterface;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.DataModelDriverExperiment;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
@@ -27,9 +28,10 @@ import java.nio.file.Path;
 /**
  * @author James F. Bowring
  */
-public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface {
+public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface, PlotBuildersTaskInterface {
     private final Path dataFile;
     private final AnalysisMethod analysisMethod;
+    private boolean amNewest;
     // ensemble plots
     private AbstractPlotBuilder[] ratiosHistogramBuilder;
     private AbstractPlotBuilder[] baselineHistogramBuilder;
@@ -54,6 +56,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     public MCMCPlotBuildersTask(Path dataFile, AnalysisMethod analysisMethod) {
         this.dataFile = dataFile;
         this.analysisMethod = analysisMethod;
+        this.amNewest = true;
     }
 
     public AbstractPlotBuilder[] getRatiosHistogramBuilder() {
@@ -109,7 +112,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     }
 
     @Override
-    protected String call() throws Exception {
+    public String call() throws Exception {
         AbstractPlotBuilder[][] plots = DataModelDriverExperiment.driveModelTest(dataFile, analysisMethod, this);
         ratiosHistogramBuilder = plots[0];
         baselineHistogramBuilder = plots[1];
@@ -135,6 +138,12 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
     @Override
     public void receiveLoggingSnippet(String loggingSnippet) {
-        updateValue(loggingSnippet);
+        if (amNewest) {
+            updateValue(loggingSnippet);
+        }
+    }
+
+    public void setAmNewest(boolean amNewest) {
+        this.amNewest = amNewest;
     }
 }

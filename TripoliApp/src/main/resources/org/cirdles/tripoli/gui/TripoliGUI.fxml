@@ -78,8 +78,9 @@
                       text="Contribute an Issue on Github"/>
         </Menu>
         <Menu mnemonicParsing="false" text="Demos">
-            <MenuItem mnemonicParsing="false" onAction="#showDemo1" text="Demo1: RJ MMC for 2-isotope analysis"/>
-            <MenuItem mnemonicParsing="false" onAction="#showDemo2" text="Demo2: PeakShapes"/>
+            <MenuItem mnemonicParsing="false" onAction="#showDemo1" text="Demo1: RJ MMC for 2-isotope analysis"
+                      visible="false"/>
+            <MenuItem mnemonicParsing="false" onAction="#showDemo2" text="Demo: PeakShapes"/>
         </Menu>
     </MenuBar>
     <AnchorPane fx:id="splashAnchor" prefHeight="673.0" prefWidth="900.0" style="-fx-background-color: #faf0e6;"

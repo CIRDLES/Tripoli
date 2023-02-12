@@ -40,18 +40,18 @@ public class BaselineCell implements Serializable {
 //        System.err.println( "Customized De-serialization of BaselineCell "
 //                + theSUID );
 //    }
-    private String baselineName;
-    private int baselineIndex;
+    private String baselineID;
+    private int baselineSequence;
     private double cellMass;
 
-    public BaselineCell(String baselineName, int baselineIndex) {
-        this.baselineName = baselineName;
-        this.baselineIndex = baselineIndex;
-        this.cellMass = 0.0;
+    public BaselineCell(String baselineID, int baselineSequence) {
+        this.baselineID = baselineID;
+        this.baselineSequence = baselineSequence;
+        cellMass = 0.0;
     }
 
-    public static BaselineCell initializeBaselineCell(String baselineName, int baselineIndex) {
-        return new BaselineCell(baselineName, baselineIndex);
+    public static BaselineCell initializeBaselineCell(String baselineID, int baselineSequence) {
+        return new BaselineCell(baselineID, baselineSequence);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class BaselineCell implements Serializable {
         boolean retVal = true;
         if (otherObject != this) {
             if (otherObject instanceof BaselineCell otherBaselineCell) {
-                retVal = this.getBaselineName().compareToIgnoreCase(otherBaselineCell.getBaselineName()) == 0;
+                retVal = 0 == this.getBaselineID().compareToIgnoreCase(otherBaselineCell.getBaselineID());
             } else {
                 retVal = false;
             }
@@ -70,24 +70,24 @@ public class BaselineCell implements Serializable {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 31 * hash + (baselineName == null ? 0 : baselineName.hashCode());
+        hash = 31 * hash + (null == baselineID ? 0 : baselineID.hashCode());
         return hash;
     }
 
-    public String getBaselineName() {
-        return baselineName;
+    public String getBaselineID() {
+        return baselineID;
     }
 
-    public void setBaselineName(String baselineName) {
-        this.baselineName = baselineName;
+    public void setBaselineID(String baselineID) {
+        this.baselineID = baselineID;
     }
 
-    public int getBaselineIndex() {
-        return baselineIndex;
+    public int getBaselineSequence() {
+        return baselineSequence;
     }
 
-    public void setBaselineIndex(int baselineIndex) {
-        this.baselineIndex = baselineIndex;
+    public void setBaselineSequence(int baselineSequence) {
+        this.baselineSequence = baselineSequence;
     }
 
     public double getCellMass() {

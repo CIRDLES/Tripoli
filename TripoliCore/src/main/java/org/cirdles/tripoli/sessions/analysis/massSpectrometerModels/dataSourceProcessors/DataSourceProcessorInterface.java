@@ -59,7 +59,7 @@ public interface DataSourceProcessorInterface {
                 int detectorDataColumnIndex = detector.getOrdinalIndex();
                 String baselineName = "Bl1";
                 for (int detectorDataRowIndex = 0; detectorDataRowIndex < sequenceIDs.length; detectorDataRowIndex++) {
-                    if (sequenceIDs[detectorDataRowIndex].toUpperCase(Locale.ROOT).compareTo(baselineName.toUpperCase(Locale.ROOT)) == 0) {
+                    if (0 == sequenceIDs[detectorDataRowIndex].toUpperCase(Locale.ROOT).compareTo(baselineName.toUpperCase(Locale.ROOT))) {
                         dataAccumulatorList.add(detectorData[detectorDataRowIndex][detectorDataColumnIndex]);
                         timeAccumulatorList.add(0.0);
                         timeIndAccumulatorList.add(0);
@@ -149,9 +149,9 @@ public interface DataSourceProcessorInterface {
                         for (SequenceCell sequenceCell : detectorCellsByMass) {
                             int detectorDataColumnIndex = detector.getOrdinalIndex();
                             int lastBaseLineIndex = 0;
-                            String sequenceName = sequenceCell.getSequenceName();
+                            String sequenceName = sequenceCell.getSequenceId();
                             for (int detectorDataRowIndex = 0; detectorDataRowIndex < sequenceIDs.length; detectorDataRowIndex++) {
-                                if ((sequenceIDs[detectorDataRowIndex].toUpperCase(Locale.ROOT).compareTo(sequenceName.toUpperCase(Locale.ROOT)) == 0)
+                                if ((0 == sequenceIDs[detectorDataRowIndex].toUpperCase(Locale.ROOT).compareTo(sequenceName.toUpperCase(Locale.ROOT)))
                                         && blockNumbers[detectorDataRowIndex] == blockNumber) {
                                     dataAccumulatorList.add(detectorData[detectorDataRowIndex][detectorDataColumnIndex]);
                                     timeAccumulatorList.add(timeStamp[detectorDataRowIndex]);
@@ -190,7 +190,7 @@ public interface DataSourceProcessorInterface {
                                     isotopeIndicesPerFaradayOrAxial[detectorDataRowIndex][detectorIndex] = speciesList.indexOf(species) + 1;
                                     signalIndexForDataAccumulatorList.add(speciesList.indexOf(species) + 1);
 
-                                } else if ((sequenceIDs[detectorDataRowIndex].toUpperCase(Locale.ROOT).compareTo("BL1") == 0)
+                                } else if ((0 == sequenceIDs[detectorDataRowIndex].toUpperCase(Locale.ROOT).compareTo("BL1"))
                                         && blockNumbers[detectorDataRowIndex] == blockNumber) {
                                     lastBaseLineIndex = detectorDataRowIndex;
                                 }

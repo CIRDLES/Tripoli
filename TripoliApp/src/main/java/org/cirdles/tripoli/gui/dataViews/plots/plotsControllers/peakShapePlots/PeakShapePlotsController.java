@@ -237,7 +237,7 @@ public class PeakShapePlotsController {
 
     }
 
-    public void processFilesAndShowPeakCentre(String groupValue) {
+    public String processFilesAndShowPeakCentre(String groupValue) {
 
         double[] finalYAxis;
         double[] finalXAxis;
@@ -284,7 +284,7 @@ public class PeakShapePlotsController {
 
             listViewOfResourcesInFolder.getSelectionModel().select(currentGroupIndex);
         });
-
+        return "";
     }
 
     private void populateListOfResources(String groupValue) {

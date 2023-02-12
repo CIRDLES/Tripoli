@@ -44,9 +44,9 @@ public interface AnalysisInterface {
         return retVal;
     }
 
-    public void extractMassSpecDataFromPath(Path dataFilePath) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, JAXBException, TripoliException;
+    void extractMassSpecDataFromPath(Path dataFilePath) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, JAXBException, TripoliException;
 
-    public AnalysisMethod extractAnalysisMethodfromPath(Path phoenixAnalysisMethodDataFilePath) throws JAXBException;
+    AnalysisMethod extractAnalysisMethodfromPath(Path phoenixAnalysisMethodDataFilePath) throws JAXBException;
 
     String getAnalysisName();
 
@@ -70,9 +70,9 @@ public interface AnalysisInterface {
 
     String prettyPrintAnalysisSummary();
 
-    public String prettyPrintAnalysisMetaData();
+    String prettyPrintAnalysisMetaData();
 
-    public String prettyPrintAnalysisDataSummary();
+    String prettyPrintAnalysisDataSummary();
 
     AnalysisMethod getMethod();
 
@@ -82,9 +82,9 @@ public interface AnalysisInterface {
 
     void setMassSpecOutputDataRecord(MassSpecOutputDataRecord massSpecOutputDataRecord);
 
-    public MassSpecExtractedData getMassSpecExtractedData();
+    MassSpecExtractedData getMassSpecExtractedData();
 
-    public void setMassSpecExtractedData(MassSpecExtractedData massSpecExtractedData);
+    void setMassSpecExtractedData(MassSpecExtractedData massSpecExtractedData);
 
     AnalysisMethod getAnalysisMethod();
 

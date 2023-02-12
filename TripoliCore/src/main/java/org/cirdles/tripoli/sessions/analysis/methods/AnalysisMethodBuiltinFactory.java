@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NonNls;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -65,13 +65,13 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         BaselineTable baselineTable = burdickBlSyntheticData.getBaselineTable();
         baselineTable.setSequenceCount(1);
 
-        BaselineCell baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "Bl1", 1);
+        BaselineCell baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "BL1", 1);
         baselineCell.setCellMass(203.5);
 
-        baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "Bl1", 1);
+        baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "BL1", 1);
         baselineCell.setCellMass(205.5);
 
-        baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "Bl1", 1);
+        baselineCell = burdickBlSyntheticData.getBaselineTable().accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "BL1", 1);
         baselineCell.setCellMass(207.5);
 
         SequenceTable sequenceTable = burdickBlSyntheticData.getSequenceTable();
@@ -79,14 +79,14 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
 
         SequenceCell sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S2", 2, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb206);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
 
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S1", 1, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb206);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S2", 2, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb208);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
 
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S1", 1, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb208);
@@ -113,19 +113,32 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         BaselineTable baselineTable = ku_204_5_6_7_8_Daly_AllFaradayPb.getBaselineTable();
         baselineTable.setSequenceCount(1);
 
-        BaselineCell baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "Bl1", 1);
+        BaselineCell baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("L4"), "BL1", 1);
+        baselineCell.setCellMass(199.5);
+
+        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("L3"), "BL1", 1);
+        baselineCell.setCellMass(200.5);
+
+        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("L2"), "BL1", 1);
+        baselineCell.setCellMass(201.5);
+
+        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "BL1", 1);
+        baselineCell.setCellMass(202.5);
+
+
+        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "BL1", 1);
         baselineCell.setCellMass(203.5);
 
-        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "Bl1", 1);
+        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "BL1", 1);
         baselineCell.setCellMass(204.5);
 
-        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H2"), "Bl1", 1);
+        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H2"), "BL1", 1);
         baselineCell.setCellMass(205.5);
 
-        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H3"), "Bl1", 1);
+        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H3"), "BL1", 1);
         baselineCell.setCellMass(206.5);
 
-        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H4"), "Bl1", 1);
+        baselineCell = baselineTable.accessBaselineCellForDetector(detectorSetup.getMapOfDetectors().get("H4"), "BL1", 1);
         baselineCell.setCellMass(207.5);
 
         SequenceTable sequenceTable = ku_204_5_6_7_8_Daly_AllFaradayPb.getSequenceTable();
@@ -133,87 +146,87 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
 
         SequenceCell sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L4"), "S5", 5, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb204);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
 
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L3"), "S4", 4, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb204);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L3"), "S5", 5, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb205);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
 
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L2"), "S3", 3, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb204);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L2"), "S4", 4, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb205);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("L2"), "S5", 5, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb206);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
 
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S2", 2, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb204);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S3", 3, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb205);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S4", 4, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb206);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("Ax"), "S5", 5, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb207);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
 
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S1", 1, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb204);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S2", 2, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb205);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S3", 3, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb206);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S4", 4, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb207);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("PM"), "S5", 5, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb208);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
 
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S1", 1, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb205);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S2", 2, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb206);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S3", 3, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb207);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S4", 4, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb208);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
 
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H2"), "S1", 1, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb206);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H2"), "S2", 2, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb207);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H2"), "S3", 3, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb208);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
 
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H3"), "S1", 1, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb207);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H3"), "S2", 2, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb208);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
 
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H4"), "S1", 1, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb208);
-        sequenceCell.setBaselineReferences(new ArrayList<>(Arrays.asList("BL1")));
+        sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
     }
 
 //    static {

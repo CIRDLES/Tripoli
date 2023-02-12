@@ -59,27 +59,5 @@ class DataSourceProcessorOPPhoenixTest {
 // TODO fix all this testing details
     }
 
-    @Test
-    @Order(2)
-    void prepareInputDataModelFromFileFiveIsotopes() throws IOException {
-        System.err.println("Testing Synthetic Data 5 isotopes.");
-//        Path dataFile = RESOURCE_EXTRACTOR
-//                .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/SyntheticDataset_01R.txt").toPath();
-//        DataSourceProcessor_PhoenixSyntheticTextFile dataSourceProcessorOPPhoenix
-//                = DataSourceProcessor_PhoenixSyntheticTextFile.initializeWithMassSpectrometer(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB));
-//        MassSpecOutputDataRecord massSpecOutputDataRecord = dataSourceProcessorOPPhoenix.prepareInputDataModelFromFile(dataFile);
 
-//        assert (massSpecOutputDataRecord.rawDataColumn().length == 162000);
-//        assertEquals(-531920.15291, massSpecOutputDataRecord.rawDataColumn()[26669]);
-
-//        try {
-//            EnsemblesStore ensemblesStore = (EnsemblesStore) TripoliSerializer.getSerializedObjectFromFile("/Users/bowring/Development/Tripoli_ET/TripoliApp/EnsemblesStore.ser", true);
-//            List<EnsemblesStore.EnsembleRecord> ensembleRecordsList = ensemblesStore.getEnsembles();
-//            DataModellerOutputRecord lastDataModelInit = ensemblesStore.getLastDataModelInit();
-//            AbstractPlotBuilder[] plotBuilders = DataModelPlot.analysisAndPlotting(massSpecOutputDataRecord, ensembleRecordsList, lastDataModelInit);
-//        } catch (TripoliException e) {
-//            e.printStackTrace();
-//        }
-// TODO fix all this testing details
-    }
 }

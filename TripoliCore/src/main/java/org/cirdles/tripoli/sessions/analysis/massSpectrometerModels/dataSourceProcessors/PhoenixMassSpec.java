@@ -20,15 +20,14 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * @author James F. Bowring
  */
-public class PhoenixMassSpec {
+public enum PhoenixMassSpec {
+    ;
 
     /**
      * Called by reflection from Analysis.extractMassSpecDataFromPath
@@ -86,7 +85,7 @@ public class PhoenixMassSpec {
                         }
                         case 4 -> {
                             // test if complete block by checking last entry's cycle number != 0
-                            boolean isComplete = Integer.parseInt(dataByBlock.get(dataByBlock.size() - 1).split(",")[2].trim()) > 0;
+                            boolean isComplete = 0 < Integer.parseInt(dataByBlock.get(dataByBlock.size() - 1).split(",")[2].trim());
                             if (isComplete) {
                                 massSpecExtractedData.addBlockRecord(
                                         parseAndBuildSingleBlockRecord(1, currentBlockNumber, dataByBlock));
@@ -111,7 +110,7 @@ public class PhoenixMassSpec {
         MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
         List<String> contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
         // test for version 1.20
-        if ((!contentsByLine.get(2).trim().startsWith("Version,1.2.")) && (!contentsByLine.get(2).trim().startsWith("Version,2."))) {
+        if ((!contentsByLine.get(2).trim().startsWith("Version,1.")) && (!contentsByLine.get(2).trim().startsWith("Version,2."))) {
             throw new IOException("Expecting Version 1.2.n of data file.");
         } else {
             // first pass is to assemble data by blocks
@@ -230,7 +229,6 @@ public class PhoenixMassSpec {
             List<String[]> detectorDataByLineSplit) {
 
         // process sequenceIDByLineSplit to learn break between Baselines and Onpeaks
-        int startingBaselineIndex = 0;
         int startingOnPeakIndex = 0;
         for (int lineIndex = 0; lineIndex < sequenceIDByLineSplit.size(); lineIndex++) {
             if (!sequenceIDByLineSplit.get(lineIndex).startsWith("B")) {
@@ -242,6 +240,10 @@ public class PhoenixMassSpec {
         List<List<String>> splitIDs = splitStringListIntoBaselineAndOnPeak(sequenceIDByLineSplit, startingOnPeakIndex);
         String[] baselineIDs = splitIDs.get(0).toArray(new String[0]);
         String[] onPeakIDs = splitIDs.get(1).toArray(new String[0]);
+
+        // build maps of IDs to indices
+        Map<String, List<Integer>> mapOfBaselineIDsToIndices = buildMapOfIdsToIndices(baselineIDs);
+        Map<String, List<Integer>> mapOfOnPeakIDsToIndices = buildMapOfIdsToIndices(onPeakIDs);
 
         List<List<String>> splitCycleNums = splitStringListIntoBaselineAndOnPeak(cycleNumberByLineSplit, startingOnPeakIndex);
         int[] baselineCycleNumbers = convertListOfNumbersAsStringsToIntegerArray(splitCycleNums.get(0));
@@ -260,18 +262,18 @@ public class PhoenixMassSpec {
         double[] onPeakMasses = convertListOfNumbersAsStringsToDoubleArray(splitMasses.get(1));
 
         List<List<String[]>> splitDetectorData = splitStringArrayListIntoBaselineAndOnPeak(detectorDataByLineSplit, startingOnPeakIndex);
-        double[][] baselineDetectorData = new double[splitDetectorData.get(0).size()][];
+        double[][] baselineIntensities = new double[splitDetectorData.get(0).size()][];
         int index = 0;
         for (String[] numbersAsStrings : splitDetectorData.get(0)) {
-            baselineDetectorData[index] = Arrays.stream(numbersAsStrings)
+            baselineIntensities[index] = Arrays.stream(numbersAsStrings)
                     .mapToDouble(Double::parseDouble)
                     .toArray();
             index++;
         }
-        double[][] onPeakDetectorData = new double[splitDetectorData.get(1).size()][];
+        double[][] onPeakIntensities = new double[splitDetectorData.get(1).size()][];
         index = 0;
         for (String[] numbersAsStrings : splitDetectorData.get(1)) {
-            onPeakDetectorData[index] = Arrays.stream(numbersAsStrings)
+            onPeakIntensities[index] = Arrays.stream(numbersAsStrings)
                     .mapToDouble(Double::parseDouble)
                     .toArray();
             index++;
@@ -303,14 +305,16 @@ public class PhoenixMassSpec {
 
         return new MassSpecOutputSingleBlockRecord(
                 blockNumber,
-                baselineDetectorData,
+                baselineIntensities,
                 baselineIDs,
+                mapOfBaselineIDsToIndices,
                 baselineCycleNumbers,
                 baselineIntegrationNumbers,
                 baselineTimeStamps,
                 baselineMasses,
-                onPeakDetectorData,
+                onPeakIntensities,
                 onPeakIDs,
+                mapOfOnPeakIDsToIndices,
                 onPeakCycleNumbers,
                 onPeakIntegrationNumbers,
                 onPeakTimeStamps,
@@ -355,5 +359,18 @@ public class PhoenixMassSpec {
                         .collect(Collectors.partitioningBy(s -> sourceList.indexOf(s) >= splitIndex))
                         .values()
         );
+    }
+
+    private static Map<String, List<Integer>> buildMapOfIdsToIndices(String[] ids) {
+        Map<String, List<Integer>> mapOfIdsToIndices = new TreeMap<>();
+        for (int index = 0; index < ids.length; index++) {
+            if (mapOfIdsToIndices.containsKey(ids[index])) {
+                mapOfIdsToIndices.get(ids[index]).add(index);
+            } else {
+                mapOfIdsToIndices.put(ids[index], new ArrayList<>());
+                mapOfIdsToIndices.get(ids[index]).add(index);
+            }
+        }
+        return mapOfIdsToIndices;
     }
 }

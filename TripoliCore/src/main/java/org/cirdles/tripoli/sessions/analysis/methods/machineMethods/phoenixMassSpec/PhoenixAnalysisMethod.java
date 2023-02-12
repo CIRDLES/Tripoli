@@ -270,7 +270,7 @@ public class PhoenixAnalysisMethod {
      *              {@link PhoenixAnalysisMethod.HEADER }
      */
     public void setHEADER(PhoenixAnalysisMethod.HEADER value) {
-        this.header = value;
+        header = value;
     }
 
     /**
@@ -290,7 +290,7 @@ public class PhoenixAnalysisMethod {
      *              {@link PhoenixAnalysisMethod.SETTINGS }
      */
     public void setSETTINGS(PhoenixAnalysisMethod.SETTINGS value) {
-        this.settings = value;
+        settings = value;
     }
 
     /**
@@ -300,10 +300,10 @@ public class PhoenixAnalysisMethod {
      * {@link PhoenixAnalysisMethod.BASELINE }
      */
     public List<PhoenixAnalysisMethod.BASELINE> getBASELINE() {
-        if (baseline == null) {
+        if (null == baseline) {
             baseline = new ArrayList<PhoenixAnalysisMethod.BASELINE>();
         }
-        return this.baseline;
+        return baseline;
     }
 
     /**
@@ -313,7 +313,7 @@ public class PhoenixAnalysisMethod {
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the Jakarta XML Binding object.
-     * This is why there is not a <CODE>set</CODE> method for the onpeak property.
+     * This is why there is not a {@code set} method for the onpeak property.
      *
      * <p>
      * For example, to add a new item, do as follows:
@@ -327,10 +327,10 @@ public class PhoenixAnalysisMethod {
      * {@link PhoenixAnalysisMethod.ONPEAK }
      */
     public List<PhoenixAnalysisMethod.ONPEAK> getONPEAK() {
-        if (onpeak == null) {
+        if (null == onpeak) {
             onpeak = new ArrayList<PhoenixAnalysisMethod.ONPEAK>();
         }
-        return this.onpeak;
+        return onpeak;
     }
 
     /**
@@ -350,7 +350,7 @@ public class PhoenixAnalysisMethod {
      *              {@link PhoenixAnalysisMethod.EQUILIBRATION }
      */
     public void setEQUILIBRATION(PhoenixAnalysisMethod.EQUILIBRATION value) {
-        this.equilibration = value;
+        equilibration = value;
     }
 
 
@@ -441,7 +441,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setSequence(String value) {
-            this.sequence = value;
+            sequence = value;
         }
 
         /**
@@ -461,7 +461,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setEnabled(String value) {
-            this.enabled = value;
+            enabled = value;
         }
 
         /**
@@ -481,7 +481,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setMassID(String value) {
-            this.massID = value;
+            massID = value;
         }
 
         /**
@@ -501,7 +501,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setAxMass(String value) {
-            this.axMass = value;
+            axMass = value;
         }
 
         /**
@@ -521,7 +521,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setIntegPeriod(String value) {
-            this.integPeriod = value;
+            integPeriod = value;
         }
 
         /**
@@ -541,7 +541,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setIntegTime(String value) {
-            this.integTime = value;
+            integTime = value;
         }
 
         /**
@@ -561,7 +561,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setPKCParentID(String value) {
-            this.pkcParentID = value;
+            pkcParentID = value;
         }
 
         /**
@@ -581,7 +581,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setBLReferences(String value) {
-            this.blReferences = value;
+            blReferences = value;
         }
 
         /**
@@ -601,7 +601,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setMagnetSettleTime(String value) {
-            this.magnetSettleTime = value;
+            magnetSettleTime = value;
         }
 
         /**
@@ -621,7 +621,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setAxMassOffset(String value) {
-            this.axMassOffset = value;
+            axMassOffset = value;
         }
 
         /**
@@ -641,7 +641,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setCurveFit(String value) {
-            this.curveFit = value;
+            curveFit = value;
         }
 
         /**
@@ -661,7 +661,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setTraceColour(String value) {
-            this.traceColour = value;
+            traceColour = value;
         }
 
     }
@@ -734,7 +734,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setEnabled(String value) {
-            this.enabled = value;
+            enabled = value;
         }
 
         /**
@@ -754,7 +754,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setCollector(String value) {
-            this.collector = value;
+            collector = value;
         }
 
         /**
@@ -774,7 +774,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setAxMass(String value) {
-            this.axMass = value;
+            axMass = value;
         }
 
         /**
@@ -794,7 +794,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setMassID(String value) {
-            this.massID = value;
+            massID = value;
         }
 
         /**
@@ -814,7 +814,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setDuration(String value) {
-            this.duration = value;
+            duration = value;
         }
 
         /**
@@ -834,7 +834,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setIntegPeriod(String value) {
-            this.integPeriod = value;
+            integPeriod = value;
         }
 
         /**
@@ -854,7 +854,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setStoreToDB(String value) {
-            this.storeToDB = value;
+            storeToDB = value;
         }
 
     }
@@ -919,7 +919,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setFilename(String value) {
-            this.filename = value;
+            filename = value;
         }
 
         /**
@@ -939,7 +939,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setDateModified(String value) {
-            this.dateModified = value;
+            dateModified = value;
         }
 
         /**
@@ -959,7 +959,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setDateCreated(String value) {
-            this.dateCreated = value;
+            dateCreated = value;
         }
 
         /**
@@ -979,7 +979,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setCreatedBy(String value) {
-            this.createdBy = value;
+            createdBy = value;
         }
 
         /**
@@ -999,7 +999,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setModifiedBy(String value) {
-            this.modifiedBy = value;
+            modifiedBy = value;
         }
 
     }
@@ -1198,7 +1198,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setSequence(String value) {
-            this.sequence = value;
+            sequence = value;
         }
 
         /**
@@ -1218,7 +1218,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setEnabled(String value) {
-            this.enabled = value;
+            enabled = value;
         }
 
         /**
@@ -1238,7 +1238,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setMassID(String value) {
-            this.massID = value;
+            massID = value;
         }
 
         /**
@@ -1258,7 +1258,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setMassIDCollector(String value) {
-            this.massIDCollector = value;
+            massIDCollector = value;
         }
 
         /**
@@ -1278,7 +1278,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setAxMass(String value) {
-            this.axMass = value;
+            axMass = value;
         }
 
         /**
@@ -1298,7 +1298,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setIntegPeriod(String value) {
-            this.integPeriod = value;
+            integPeriod = value;
         }
 
         /**
@@ -1318,7 +1318,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setIntegTime(String value) {
-            this.integTime = value;
+            integTime = value;
         }
 
         /**
@@ -1338,7 +1338,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setPeakCentre(String value) {
-            this.peakCentre = value;
+            peakCentre = value;
         }
 
         /**
@@ -1358,7 +1358,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setPKCCollector(String value) {
-            this.pkcCollector = value;
+            pkcCollector = value;
         }
 
         /**
@@ -1378,7 +1378,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setPKCMethod(String value) {
-            this.pkcMethod = value;
+            pkcMethod = value;
         }
 
         /**
@@ -1398,7 +1398,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setPKCParentID(String value) {
-            this.pkcParentID = value;
+            pkcParentID = value;
         }
 
         /**
@@ -1418,7 +1418,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setBLReferences(String value) {
-            this.blReferences = value;
+            blReferences = value;
         }
 
         /**
@@ -1438,7 +1438,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setCollectorArray(String value) {
-            this.collectorArray = value;
+            collectorArray = value;
         }
 
         /**
@@ -1458,7 +1458,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setMagnetSettleTime(String value) {
-            this.magnetSettleTime = value;
+            magnetSettleTime = value;
         }
 
         /**
@@ -1478,7 +1478,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setAxMassOffset(String value) {
-            this.axMassOffset = value;
+            axMassOffset = value;
         }
 
         /**
@@ -1498,7 +1498,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setCurveFit(String value) {
-            this.curveFit = value;
+            curveFit = value;
         }
 
         /**
@@ -1518,7 +1518,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setTraceColour(String value) {
-            this.traceColour = value;
+            traceColour = value;
         }
 
     }
@@ -1691,7 +1691,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setIntersperseBaselines(String value) {
-            this.intersperseBaselines = value;
+            intersperseBaselines = value;
         }
 
         /**
@@ -1711,7 +1711,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setBaselineFrequency(String value) {
-            this.baselineFrequency = value;
+            baselineFrequency = value;
         }
 
         /**
@@ -1731,7 +1731,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setPKCCycleInterval(String value) {
-            this.pkcCycleInterval = value;
+            pkcCycleInterval = value;
         }
 
         /**
@@ -1751,7 +1751,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setTotalBlocks(String value) {
-            this.totalBlocks = value;
+            totalBlocks = value;
         }
 
         /**
@@ -1771,7 +1771,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setTotalCycles(String value) {
-            this.totalCycles = value;
+            totalCycles = value;
         }
 
         /**
@@ -1791,7 +1791,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setCalculateRatios(String value) {
-            this.calculateRatios = value;
+            calculateRatios = value;
         }
 
         /**
@@ -1811,7 +1811,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setInitialBLMagnetDelay(String value) {
-            this.initialBLMagnetDelay = value;
+            initialBLMagnetDelay = value;
         }
 
         /**
@@ -1831,7 +1831,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setDeflectBeamProtection(String value) {
-            this.deflectBeamProtection = value;
+            deflectBeamProtection = value;
         }
 
         /**
@@ -1851,7 +1851,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setPerformBeamInterpCycles(String value) {
-            this.performBeamInterpCycles = value;
+            performBeamInterpCycles = value;
         }
 
         /**
@@ -1871,7 +1871,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setPerformInterBlocks(String value) {
-            this.performInterBlocks = value;
+            performInterBlocks = value;
         }
 
         /**
@@ -1891,7 +1891,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setAxialColl(String value) {
-            this.axialColl = value;
+            axialColl = value;
         }
 
         /**
@@ -1911,7 +1911,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setActiveSEMCollectors(String value) {
-            this.activeSEMCollectors = value;
+            activeSEMCollectors = value;
         }
 
         /**
@@ -1931,7 +1931,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setMagnetFlybackSettleTime(String value) {
-            this.magnetFlybackSettleTime = value;
+            magnetFlybackSettleTime = value;
         }
 
         /**
@@ -1951,7 +1951,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setCorrectForBaselines(String value) {
-            this.correctForBaselines = value;
+            correctForBaselines = value;
         }
 
         /**
@@ -1971,7 +1971,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setCorrectForDeadtimes(String value) {
-            this.correctForDeadtimes = value;
+            correctForDeadtimes = value;
         }
 
         /**
@@ -1991,7 +1991,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setIsoWorksMethod(String value) {
-            this.isoWorksMethod = value;
+            isoWorksMethod = value;
         }
 
         /**
@@ -2011,7 +2011,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setRejectionSigma(String value) {
-            this.rejectionSigma = value;
+            rejectionSigma = value;
         }
 
         /**
@@ -2031,7 +2031,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setRejectionPercentage(String value) {
-            this.rejectionPercentage = value;
+            rejectionPercentage = value;
         }
 
         /**
@@ -2051,7 +2051,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setActiveSubChannel(String value) {
-            this.activeSubChannel = value;
+            activeSubChannel = value;
         }
 
         /**
@@ -2071,7 +2071,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setProcessingUnits(String value) {
-            this.processingUnits = value;
+            processingUnits = value;
         }
 
         /**
@@ -2091,7 +2091,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setTFEEnabled(String value) {
-            this.tfeEnabled = value;
+            tfeEnabled = value;
         }
 
         /**
@@ -2111,7 +2111,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setTFEMonitorPeak(String value) {
-            this.tfeMonitorPeak = value;
+            tfeMonitorPeak = value;
         }
 
         /**
@@ -2131,7 +2131,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setTFEIntensityThreshold(String value) {
-            this.tfeIntensityThreshold = value;
+            tfeIntensityThreshold = value;
         }
 
         /**
@@ -2151,7 +2151,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setTFEIntervalPeakCentring(String value) {
-            this.tfeIntervalPeakCentring = value;
+            tfeIntervalPeakCentring = value;
         }
 
         /**
@@ -2171,7 +2171,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setTFEPeakCentringInterval(String value) {
-            this.tfePeakCentringInterval = value;
+            tfePeakCentringInterval = value;
         }
 
         /**
@@ -2191,7 +2191,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setTFEPeakCentringMonitorThreshold(String value) {
-            this.tfePeakCentringMonitorThreshold = value;
+            tfePeakCentringMonitorThreshold = value;
         }
 
         /**
@@ -2211,7 +2211,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setExportIsotopePoints(String value) {
-            this.exportIsotopePoints = value;
+            exportIsotopePoints = value;
         }
 
         /**
@@ -2231,7 +2231,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setExportASCFile(String value) {
-            this.exportASCFile = value;
+            exportASCFile = value;
         }
 
         /**
@@ -2251,7 +2251,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setExportASCOptions(String value) {
-            this.exportASCOptions = value;
+            exportASCOptions = value;
         }
 
         /**
@@ -2271,7 +2271,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setExportASCActiveColl(String value) {
-            this.exportASCActiveColl = value;
+            exportASCActiveColl = value;
         }
 
         /**
@@ -2291,7 +2291,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setExportTXTEveryCYCLE(String value) {
-            this.exportTXTEveryCYCLE = value;
+            exportTXTEveryCYCLE = value;
         }
 
         /**
@@ -2311,7 +2311,7 @@ public class PhoenixAnalysisMethod {
          *              {@link String }
          */
         public void setExportTripoliLiveData(String value) {
-            this.exportTripoliLiveData = value;
+            exportTripoliLiveData = value;
         }
 
     }

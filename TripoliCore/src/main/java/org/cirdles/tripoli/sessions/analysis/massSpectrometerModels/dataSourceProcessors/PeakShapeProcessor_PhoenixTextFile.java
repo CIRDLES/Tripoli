@@ -72,7 +72,7 @@ public class PeakShapeProcessor_PhoenixTextFile {
                     }
                 }
 
-                if (phase == 1) {
+                if (1 == phase) {
                     phase = 2;
                 }
             } else {

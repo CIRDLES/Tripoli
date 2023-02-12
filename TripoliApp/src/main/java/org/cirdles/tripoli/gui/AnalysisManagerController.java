@@ -10,6 +10,8 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsController;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
@@ -37,6 +39,7 @@ import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compa
 public class AnalysisManagerController implements Initializable {
 
     public static AnalysisInterface analysis;
+    public static MCMCPlotsWindow MCMCPlotsWindow;
     private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
     public Tab detectorDetailTab;
     public TabPane analysiMethodTabPane;
@@ -201,24 +204,24 @@ public class AnalysisManagerController implements Initializable {
                 List<BaselineCell> detectorBaselineCells = mapOfDetectorsToBaselineCell.get(detectorsInOrderList.get(col));
                 if (null != detectorBaselineCells) {
                     for (BaselineCell baselineCell : detectorBaselineCells) {
-                        int sequenceNumber = baselineCell.getBaselineIndex();
+                        int sequenceNumber = baselineCell.getBaselineSequence();
                         populateDetectorDetailRow(methodGridPane, String.valueOf(baselineCell.getCellMass()), col + 1, sequenceNumber);
-                        populateDetectorDetailRow(methodGridPane, baselineCell.getBaselineName(), 0, sequenceNumber);
+                        populateDetectorDetailRow(methodGridPane, baselineCell.getBaselineID(), 0, sequenceNumber);
                     }
                 }
             }
 
             if (methodGridPane.equals(sequenceTableGridPane)) {
-                if (col == 0) {
+                if (0 == col) {
                     populateDetectorDetailRow(methodGridPane, "cross ref", detectorCount + 1, 0);
                 }
                 if (col < detectorCount) {
                     List<SequenceCell> detectorSequenceCells = mapOfDetectorsToSequenceCell.get(detectorsInOrderList.get(col));
                     if (null != detectorSequenceCells) {
                         for (SequenceCell sequenceCell : detectorSequenceCells) {
-                            int sequenceNumber = sequenceCell.getSequenceIndex();
+                            int sequenceNumber = sequenceCell.getOnPeakSequence();
                             populateDetectorDetailRow(methodGridPane, sequenceCell.getTargetSpecies().prettyPrintShortForm(), col + 1, sequenceNumber);
-                            populateDetectorDetailRow(methodGridPane, sequenceCell.getSequenceName(), 0, sequenceNumber);
+                            populateDetectorDetailRow(methodGridPane, sequenceCell.getSequenceId(), 0, sequenceNumber);
                             populateDetectorDetailRow(methodGridPane, sequenceCell.prettyPrintBaseLineRefs(), detectorCount + 1, sequenceNumber);
                         }
                     }
@@ -296,5 +299,11 @@ public class AnalysisManagerController implements Initializable {
             TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
         }
         populateAnalysisManagerGridPane();
+    }
+
+    public void initializeMonteCarloTechniqueAction() throws TripoliException {
+        MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
+        MCMCPlotsController.analysis = analysis;
+        MCMCPlotsWindow.loadPlotsWindow();
     }
 }

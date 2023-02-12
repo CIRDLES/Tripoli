@@ -30,24 +30,24 @@ public class SequenceCell implements Serializable {
 
     @Serial
     private static final long serialVersionUID = -8315387553980986168L;
-    private String sequenceName;
-    private int sequenceIndex;
+    private String sequenceId;
+    private int onPeakSequence;
     private double cellMass;
     private SpeciesRecordInterface targetSpecies;
     private List<SpeciesRecordInterface> includedSpecies;
     private List<String> baselineReferences;
 
-    private SequenceCell(String sequenceName, int sequenceIndex) {
+    private SequenceCell(String sequenceId, int onPeakSequence) {
         cellMass = 0.0;
         targetSpecies = null;
         includedSpecies = new ArrayList<>();
-        this.sequenceName = sequenceName;
-        this.sequenceIndex = sequenceIndex;
+        this.sequenceId = sequenceId;
+        this.onPeakSequence = onPeakSequence;
         baselineReferences = new ArrayList<>();
     }
 
-    public static SequenceCell initializeSequenceCell(String sequenceName, int sequenceIndex) {
-        return new SequenceCell(sequenceName, sequenceIndex);
+    public static SequenceCell initializeSequenceCell(String sequenceId, int onPeakSequence) {
+        return new SequenceCell(sequenceId, onPeakSequence);
     }
 
     public void addTargetSpecies(SpeciesRecordInterface species) {
@@ -63,7 +63,7 @@ public class SequenceCell implements Serializable {
         boolean retVal = true;
         if (otherObject != this) {
             if (otherObject instanceof SequenceCell otherSequenceCell) {
-                retVal = this.getSequenceName().compareToIgnoreCase(otherSequenceCell.getSequenceName()) == 0;
+                retVal = 0 == this.getSequenceId().compareToIgnoreCase(otherSequenceCell.getSequenceId());
             } else {
                 retVal = false;
             }
@@ -74,26 +74,26 @@ public class SequenceCell implements Serializable {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 31 * hash + (sequenceName == null ? 0 : sequenceName.hashCode());
-        hash = 31 * hash + (targetSpecies == null ? 0 : targetSpecies.hashCode());
+        hash = 31 * hash + (null == sequenceId ? 0 : sequenceId.hashCode());
+        hash = 31 * hash + (null == targetSpecies ? 0 : targetSpecies.hashCode());
         return hash;
     }
 
 
-    public String getSequenceName() {
-        return sequenceName;
+    public String getSequenceId() {
+        return sequenceId;
     }
 
-    public void setSequenceName(String sequenceName) {
-        this.sequenceName = sequenceName;
+    public void setSequenceId(String sequenceId) {
+        this.sequenceId = sequenceId;
     }
 
-    public int getSequenceIndex() {
-        return sequenceIndex;
+    public int getOnPeakSequence() {
+        return onPeakSequence;
     }
 
-    public void setSequenceIndex(int sequenceIndex) {
-        this.sequenceIndex = sequenceIndex;
+    public void setOnPeakSequence(int onPeakSequence) {
+        this.onPeakSequence = onPeakSequence;
     }
 
     public double getCellMass() {
