@@ -68,7 +68,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
                         if (Math.abs(intensity) > 1.0) {
                             // convert all counts to volts to bring all files into alignment
-                            intensity = intensity / (ONE_JOULE / amplifierResistance);//joule-electron volt relationship
+                            intensity = intensity / (ONE_JOULE / amplifierResistance);
                         }
                         intensityAccumulatorList.add(intensity);
                         timeAccumulatorList.add(0.0);
@@ -121,7 +121,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
                         if (Math.abs(intensity) > 1.0) {
                             // convert all counts to volts to bring all files into alignment
-                            intensity = intensity / (ONE_JOULE / amplifierResistance);//joule-electron volt relationship
+                            intensity = intensity / (ONE_JOULE / amplifierResistance);
                         }
                         intensityAccumulatorList.add(intensity);
                         timeAccumulatorList.add(onPeakTimeStamps[index]);
