@@ -133,6 +133,7 @@ enum SingleBlockModelInitForMCMC {
             if (commonSpeciesOrdinalIndices.contains(isotopeOrdinalIndex)
                     &&
                     (faradayMeansArray[isotopeIndex] > maxFaradayCountsMean)) {
+                maxFaradayCountsMean = faradayMeansArray[isotopeIndex];
                 maxCountFaradayIndex = isotopeIndex;
             }
             isotopeIndex++;
@@ -146,6 +147,7 @@ enum SingleBlockModelInitForMCMC {
             photoMultiplierMeansArray[isotopeIndex] = mapPhotoMultiplierIsotopeIndicesToStatistics.get(isotopeOrdinalIndex).getMean();
             if (commonSpeciesOrdinalIndices.contains(isotopeOrdinalIndex) &&
                     (photoMultiplierMeansArray[isotopeIndex] > maxPhotoMultiplierCountsMean)) {
+                maxPhotoMultiplierCountsMean = photoMultiplierMeansArray[isotopeIndex];
                 maxCountPhotoMultiplierIndex = isotopeIndex;
             }
             isotopeIndex++;
