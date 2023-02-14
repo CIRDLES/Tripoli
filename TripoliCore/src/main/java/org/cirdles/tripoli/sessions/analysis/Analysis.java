@@ -123,7 +123,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         JAXBContext jaxbContext = JAXBContext.newInstance(PhoenixAnalysisMethod.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         PhoenixAnalysisMethod phoenixAnalysisMethod = (PhoenixAnalysisMethod) jaxbUnmarshaller.unmarshal(phoenixAnalysisMethodDataFilePath.toFile());
-        return AnalysisMethod.createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod, massSpecExtractedData.getDetectorSetup());
+        return AnalysisMethod.createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod, massSpecExtractedData.getDetectorSetup(), massSpecExtractedData.getMassSpectrometerContext());
     }
 
     public final String prettyPrintAnalysisSummary() {

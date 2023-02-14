@@ -29,6 +29,6 @@ public class ConstantsTripoliCore {
     // https://physics.nist.gov/cgi-bin/cuu/Value?jev|search_for=joule
     // joule-electron volt relationship
     // 6.241509074e18 eV
-    public final static double ONE_JOULE = 6.24150934e18;
+    public final static double ONE_COULOMB = 6.24150934e18;
 
 }
