@@ -55,24 +55,24 @@ enum SingleBlockModelInitForMCMC {
         SingleBlockDataSetRecord.SingleBlockDataRecord baselineDataSetMCMC = singleBlockDataSetRecord.baselineDataSetMCMC();
         List<Integer> detectorOrdinalIndicesAccumulatorList = baselineDataSetMCMC.detectorOrdinalIndicesAccumulatorList();
         List<Double> intensityAccumulatorList = baselineDataSetMCMC.intensityAccumulatorList();
-        Map<Integer, DescriptiveStatistics> mapFaradayDetectorIndicesToStatistics = new TreeMap<>(SERIALIZABLE_COMPARATOR);
+        Map<Integer, DescriptiveStatistics> mapBaselineDetectorIndicesToStatistics = new TreeMap<>(SERIALIZABLE_COMPARATOR);
         Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex = new TreeMap<>(SERIALIZABLE_COMPARATOR);
 
         int intensityIndex = 0;
         for (Integer detectorOrdinalIndex : detectorOrdinalIndicesAccumulatorList) {
-            if (!mapFaradayDetectorIndicesToStatistics.containsKey(detectorOrdinalIndex)) {
-                mapFaradayDetectorIndicesToStatistics.put(detectorOrdinalIndex, new DescriptiveStatistics());
+            if (!mapBaselineDetectorIndicesToStatistics.containsKey(detectorOrdinalIndex)) {
+                mapBaselineDetectorIndicesToStatistics.put(detectorOrdinalIndex, new DescriptiveStatistics());
             }
-            mapFaradayDetectorIndicesToStatistics.get(detectorOrdinalIndex).addValue(intensityAccumulatorList.get(intensityIndex));
+            mapBaselineDetectorIndicesToStatistics.get(detectorOrdinalIndex).addValue(intensityAccumulatorList.get(intensityIndex));
             intensityIndex++;
         }
 
-        double[] baselineMeansArray = new double[mapFaradayDetectorIndicesToStatistics.keySet().size()];
+        double[] baselineMeansArray = new double[mapBaselineDetectorIndicesToStatistics.keySet().size()];
         double[] baselineStandardDeviationsArray = new double[baselineMeansArray.length];
         int faradayIndex = 0;
-        for (Integer detectorOrdinalIndex : mapFaradayDetectorIndicesToStatistics.keySet()) {
-            baselineMeansArray[faradayIndex] = mapFaradayDetectorIndicesToStatistics.get(detectorOrdinalIndex).getMean();
-            baselineStandardDeviationsArray[faradayIndex] = mapFaradayDetectorIndicesToStatistics.get(detectorOrdinalIndex).getStandardDeviation();
+        for (Integer detectorOrdinalIndex : mapBaselineDetectorIndicesToStatistics.keySet()) {
+            baselineMeansArray[faradayIndex] = mapBaselineDetectorIndicesToStatistics.get(detectorOrdinalIndex).getMean();
+            baselineStandardDeviationsArray[faradayIndex] = mapBaselineDetectorIndicesToStatistics.get(detectorOrdinalIndex).getStandardDeviation();
             mapDetectorOrdinalToFaradayIndex.put(detectorOrdinalIndex, faradayIndex);
             faradayIndex++;
         }

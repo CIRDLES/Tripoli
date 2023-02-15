@@ -26,9 +26,11 @@ public class ConstantsTripoliCore {
 
     public final static String MISSING_STRING_FIELD = "MISSING";
 
-    // https://physics.nist.gov/cgi-bin/cuu/Value?jev|search_for=joule
-    // joule-electron volt relationship
-    // 6.241509074e18 eV
-    public final static double ONE_COULOMB = 6.24150934e18;
+    /**
+     * elementary charge e is exactly 1.602176634×10−19 coulomb (C).
+     * see: https://en.wikipedia.org/wiki/2019_redefinition_of_the_SI_base_units
+     */
+    public final static double ELEMENTARY_CHARGE_E = 1.602176634e-19;
+    public final static double ONE_COULOMB = 1.0 / ELEMENTARY_CHARGE_E; // s.b. 6.2415091e18 == 6.2415090744607631E18
 
 }
