@@ -27,7 +27,8 @@ import java.nio.file.Paths;
 /**
  * @author James F. Bowring
  */
-public class TestXML {
+public enum TestXML {
+    ;
 
     public static void main(String[] args) throws JAXBException {
 

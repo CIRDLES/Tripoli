@@ -17,16 +17,18 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @param blockNumber
- * @param baselineDetectorData
+ * @param baselineIntensities
  * @param baselineIDs
  * @param baselineCycleNumbers
  * @param baselineIntegrationNumbers
  * @param baselineTimeStamps
  * @param baselineMasses
- * @param onPeakDetectorData
+ * @param onPeakIntensities
  * @param onPeakIDs
  * @param onPeakCycleNumbers
  * @param onPeakIntegrationNumbers
@@ -36,14 +38,16 @@ import java.io.Serializable;
  */
 public record MassSpecOutputSingleBlockRecord(
         int blockNumber,
-        double[][] baselineDetectorData,
+        double[][] baselineIntensities,
         String[] baselineIDs,
+        Map<String, List<Integer>> mapOfBaselineIdsToIndices,
         int[] baselineCycleNumbers,
         int[] baselineIntegrationNumbers,
         double[] baselineTimeStamps,
         double[] baselineMasses,
-        double[][] onPeakDetectorData,
+        double[][] onPeakIntensities,
         String[] onPeakIDs,
+        Map<String, List<Integer>> mapOfOnPeakIdsToIndices,
         int[] onPeakCycleNumbers,
         int[] onPeakIntegrationNumbers,
         double[] onPeakTimeStamps,

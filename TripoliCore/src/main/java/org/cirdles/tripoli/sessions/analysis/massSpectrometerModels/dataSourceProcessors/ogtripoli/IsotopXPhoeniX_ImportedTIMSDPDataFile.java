@@ -55,7 +55,7 @@ public class IsotopXPhoeniX_ImportedTIMSDPDataFile implements OGTripoliMassSpecD
      */
     @Override
     public boolean testFileValidity() {
-        return (contentsByLine.get(0).indexOf("#HEADER") > -1);
+        return (-1 < contentsByLine.get(0).indexOf("#HEADER"));
     }
 
 //    /// <summary>

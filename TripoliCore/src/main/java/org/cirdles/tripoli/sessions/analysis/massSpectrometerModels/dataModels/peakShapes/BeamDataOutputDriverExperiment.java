@@ -20,7 +20,8 @@ import java.nio.file.Path;
 
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory.massSpectrometerModelBuiltinMap;
 
-public class BeamDataOutputDriverExperiment {
+public enum BeamDataOutputDriverExperiment {
+    ;
 
 
     private static double measBeamWidthAMU;
@@ -72,7 +73,7 @@ public class BeamDataOutputDriverExperiment {
             Primitive64Store massesInCollector = MatLab.arrayMultiply(term1, term2);
             Primitive64Store firstMassIndexInside;
             Primitive64Store lastMassIndexInside;
-            if (!(MatLab.find(massesInCollector, 1, "first").get(0, 0) == 0 && MatLab.find(massesInCollector, 1, "last").get(0, 0) == 0)) {
+            if (!(0 == MatLab.find(massesInCollector, 1, "first").get(0, 0) && 0 == MatLab.find(massesInCollector, 1, "last").get(0, 0))) {
                 firstMassIndexInside = MatLab.find(massesInCollector, 1, "first");
                 lastMassIndexInside = MatLab.find(massesInCollector, 1, "last");
                 for (int i = (int) (firstMassIndexInside.get(0, 0) + 1); i < (int) (lastMassIndexInside.get(0, 0) + 0); i++) {
@@ -91,7 +92,7 @@ public class BeamDataOutputDriverExperiment {
         Primitive64Store hasModelBeam = MatLab.any(gMatrix, 2);
         for (int i = 0; i < hasModelBeam.getRowDim(); i++) {
             for (int j = 0; j < hasModelBeam.getColDim(); j++) {
-                if (hasModelBeam.get(i, 0) == 1) {
+                if (1 == hasModelBeam.get(i, 0)) {
                     newDataSet++;
                 }
             }
@@ -100,7 +101,7 @@ public class BeamDataOutputDriverExperiment {
         double[][] gMatrixTrim = new double[newDataSet][gMatrix.getColDim()];
         int j = 0;
         for (int i = 0; i < gMatrix.getRowDim(); i++) {
-            if (hasModelBeam.get(i, 0) > 0) {
+            if (0 < hasModelBeam.get(i, 0)) {
                 gMatrixTrim[j] = gMatrix.toRawCopy2D()[i];
                 j++;
             }
@@ -111,7 +112,7 @@ public class BeamDataOutputDriverExperiment {
         int h = 0;
 
         for (int i = 0; i < peakShapeOutputDataRecord.magnetMasses().getRowDim(); i++) {
-            if (hasModelBeam.get(i, 0) > 0) {
+            if (0 < hasModelBeam.get(i, 0)) {
                 trimMagnetMasses[h] = peakShapeOutputDataRecord.magnetMasses().toRawCopy2D()[i];
 
                 h++;
@@ -121,7 +122,7 @@ public class BeamDataOutputDriverExperiment {
         double[][] trimPeakIntensity = new double[newDataSet][peakShapeOutputDataRecord.magnetMasses().getRowDim()];
         int k = 0;
         for (int i = 0; i < peakShapeOutputDataRecord.measuredPeakIntensities().getRowDim(); i++) {
-            if (hasModelBeam.get(i, 0) > 0) {
+            if (0 < hasModelBeam.get(i, 0)) {
                 trimPeakIntensity[k] = peakShapeOutputDataRecord.measuredPeakIntensities().toRawCopy2D()[i];
                 k++;
             }

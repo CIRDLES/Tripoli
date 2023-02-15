@@ -73,7 +73,6 @@ META-INF/
 !TripoliCore/src/main/resources/org/cirdles/tripoli/schema/*.txt
 
 # data files
-!TripoliCore/src/main/resources/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/fiveIsotopeSyntheticData/*.txt
 !TripoliCore/src/main/resources/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData/*.txt
 !TripoliCore/src/main/resources/org/cirdles/tripoli/dataSourceProcessors/dataSources/testDataFiles/*.txt
 !TripoliCore/src/main/resources/org/cirdles/tripoli/dataSourceProcessors/dataSources/peakShapes/*.txt

@@ -55,7 +55,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public enum DataModelDriverExperiment {
     ;
 
-    private static final boolean doFullProcessing = false;
+    private static final boolean doFullProcessing = true;
     public static boolean ALLOW_EXECUTION = true;
     // todo flag for linear or spline
     // private static final boolean splineVsLinear = true;
@@ -117,7 +117,7 @@ public enum DataModelDriverExperiment {
             Nsig = d0.Nsig; % Number of noise variables
          */
 
-        int maxCount = 2000;
+        int maxCount = 1000;
 //        if (dataModelInit_X0.logratios().length > 2) {
 //            maxCount = 1000;
 //        }
@@ -250,14 +250,13 @@ public enum DataModelDriverExperiment {
             dSignalNoiseArray[row] = calculatedValue;
         }
 
-        // not used double[] residualTmpArray = new double[dSignalNoiseArray.length];
+        // not used double[] residualTmpArray = new double[dataSignalNoiseArray.length];
         // not used?? Matrix residualTmp2 = new Matrix(dSignalNoise.getRowDimension(), 1);
         double initialModelErrorWeighted_E = 0.0;
         double initialModelErrorUnWeighted_E0 = 0.0;
 
         for (int row = 0; row < dSignalNoiseArray.length; row++) {
             double calculatedValue = StrictMath.pow(massSpecOutputDataRecord.rawDataColumn()[row] - data[row], 2);
-//            residualTmpArray[row] = calculatedValue;
             initialModelErrorWeighted_E = initialModelErrorWeighted_E + (calculatedValue * baselineMultiplier[row] / dSignalNoiseArray[row]);
             initialModelErrorUnWeighted_E0 = initialModelErrorUnWeighted_E0 + calculatedValue;
         }
@@ -365,6 +364,7 @@ public enum DataModelDriverExperiment {
         DecimalFormat statsFormat = new DecimalFormat("#0.000");
         org.apache.commons.lang3.time.StopWatch watch = new StopWatch();
         watch.start();
+        String loggingSnippet = "";
         for (int modelIndex = 1; modelIndex <= maxCount * stepCountForcedSave; modelIndex++) {//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             if (ALLOW_EXECUTION) {
                 long prev = System.nanoTime();
@@ -455,7 +455,8 @@ public enum DataModelDriverExperiment {
                 for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
                     PhysicalStore<Double> tempIntensity = storeFactory.make(massSpecOutputDataRecord.allBlockInterpolations().get(blockIndex).countRows(),
                             storeFactory.columns(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]).getColDim());
-                    tempIntensity.fillByMultiplying(massSpecOutputDataRecord.allBlockInterpolations().get(blockIndex), Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]));
+                    tempIntensity.fillByMultiplying(massSpecOutputDataRecord.allBlockInterpolations().get(blockIndex),
+                            Access1D.wrap(dataModelUpdaterOutputRecord_x2.blockIntensities()[blockIndex]));
                     intensity2.add(tempIntensity.toRawCopy1D());
 
                     for (int row = (int) blockStartIndicesFaraday[blockIndex]; row <= (int) blockEndIndicesFaraday[blockIndex]; row++) {
@@ -664,7 +665,7 @@ public enum DataModelDriverExperiment {
                     }
 
                     if (0 == modelIndex % (10 * stepCountForcedSave)) {
-                        String loggingSnippet =
+                        loggingSnippet =
                                 "%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
                                         + " ADAPTIVE = " + adaptiveFlag
                                         + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
@@ -708,10 +709,12 @@ public enum DataModelDriverExperiment {
                                                 + " Interval4 " + (interval4 / 1000)
                                                 + " Interval5 " + (interval5 / 1000)
                                         )
-                                        : "");
+                                        : "")
+                                        + "\n";
 
-                        System.err.println("\n" + loggingSnippet);
+                        System.err.println(loggingSnippet);
                         loggingCallback.receiveLoggingSnippet(loggingSnippet);
+                        loggingSnippet = "";
 
                         for (int i = 0; 5 > i; i++) {
                             keptUpdates[i][0] = 0;
@@ -723,7 +726,7 @@ public enum DataModelDriverExperiment {
                     }
                 }
             } else {
-                loggingCallback.receiveLoggingSnippet("Cancelled by user.");
+                //loggingCallback.receiveLoggingSnippet("Cancelled by user.");
                 break;
             }
         } // end model loop

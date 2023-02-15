@@ -1,1 +1,0 @@
-This folder contains synthetic data files for testing and demonstration for 5-isotope systems.

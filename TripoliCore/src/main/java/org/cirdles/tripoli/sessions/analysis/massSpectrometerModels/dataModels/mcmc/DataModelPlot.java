@@ -38,7 +38,8 @@ import static java.lang.StrictMath.exp;
 /**
  * @author James F. Bowring
  */
-public class DataModelPlot {
+public enum DataModelPlot {
+    ;
 
     public static AbstractPlotBuilder[][] analysisAndPlotting(
             MassSpecOutputDataRecord massSpecOutputDataRecord,
@@ -223,8 +224,8 @@ public class DataModelPlot {
                 // todo: fix this block indexing issue
                 convergeIntensities[intensityIndex][index] = ensembleRecordsList.get(index).blockIntensities()[0][intensityIndex];
             }
-//            convergeNoiseFaradayL1[index] = ensembleRecordsList.get(index).signalNoise()[0];
-//            convergeNoiseFaradayH1[index] = ensembleRecordsList.get(index).signalNoise()[1];
+//            convergeNoiseFaradayL1[index] = ensembleRecordsList.get(index).signalNoiseSigma()[0];
+//            convergeNoiseFaradayH1[index] = ensembleRecordsList.get(index).signalNoiseSigma()[1];
 //            xDataconvergeSavedIterations[index] = index + 1;
         }
 
@@ -293,8 +294,8 @@ public class DataModelPlot {
             // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
             for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount() - 1; isotopeIndex++) {
                 for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
-                    if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
-                            && (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 1)
+                    if ((1 == massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex])
+                            && (1 == massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row])
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
                         double calcValue =
                                 exp(lastModelRecord.logRatios()[isotopeIndex])
@@ -302,8 +303,8 @@ public class DataModelPlot {
                         data[row] = calcValue;
                         dataWithNoBaseline[row] = calcValue;
                     }
-                    if ((massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex] == 1)
-                            && (massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row] == 0)
+                    if ((1 == massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex])
+                            && (0 == massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row])
                             && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
                         double calcValue =
                                 exp(lastModelRecord.logRatios()[isotopeIndex]) / lastModelRecord.dfGain()
@@ -346,7 +347,7 @@ public class DataModelPlot {
         plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, "Residual Data");
 
 
-        // todo: missing additional elements of signalNoise (i.e., 0,11,11)
+        // todo: missing additional elements of signalNoiseSigma (i.e., 0,11,11)
         System.err.println(logRatioMean + "         " + logRatioStdDev);
         System.err.println(baselinesMeans[0] + "         " + baselinesMeans[1] + "    " + baselinesStdDev[0] + "     " + baselinesStdDev[1]);
         System.err.println(dalyFaradayGainMean + "    " + dalyFaradayGainStdDev);

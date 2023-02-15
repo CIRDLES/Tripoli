@@ -43,6 +43,6 @@ public class MCMCUpdatesService extends Service<String> {
     @Override
     protected Task<String> createTask() {
         plotBuilderTask = new MCMCPlotBuildersTask(dataFile, analysisMethod);
-        return plotBuilderTask;
+        return (MCMCPlotBuildersTask) plotBuilderTask;
     }
 }

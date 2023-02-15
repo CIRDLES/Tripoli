@@ -61,7 +61,7 @@ public class Detector implements Comparable, Serializable {
     }
 
     public boolean isFaraday() {
-        return detectorType == DetectorTypeEnum.FARADAY;
+        return DetectorTypeEnum.FARADAY == detectorType;
     }
 
     public String getDetectorName() {
@@ -131,8 +131,8 @@ public class Detector implements Comparable, Serializable {
 
     @Override
     public int compareTo(@NotNull Object object) throws ClassCastException {
-        int ordinal = ((Detector) object).getOrdinalIndex();
-        return Integer.compare(this.getOrdinalIndex(), ordinal);
+        int ordinal = ((Detector) object).ordinalIndex;
+        return Integer.compare(ordinalIndex, ordinal);
     }
 
     /**
