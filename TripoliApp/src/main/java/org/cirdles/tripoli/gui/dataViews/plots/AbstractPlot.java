@@ -477,7 +477,7 @@ public abstract class AbstractPlot extends Canvas {
      * @param x
      * @return
      */
-    protected double convertMouseXToValue(double x) {
+    public double convertMouseXToValue(double x) {
         return ((x - leftMargin + 2) / plotWidth) //
                 * getDisplayRangeX()//
                 + getDisplayMinX();
@@ -492,7 +492,7 @@ public abstract class AbstractPlot extends Canvas {
                 - getDisplayMaxY());
     }
 
-    protected boolean mouseInHouse(double sceneX, double sceneY) {
+    public boolean mouseInHouse(double sceneX, double sceneY) {
         return ((sceneX >= leftMargin)
                 && (sceneY >= topMargin)
                 && (sceneY < plotHeight + topMargin - 2)

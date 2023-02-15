@@ -161,7 +161,7 @@ public enum BeamDataOutputDriverExperiment {
         thresholdIntensity = MaxBeam * (0.01);
 
         double[][] leftPeak = new double[(int) maxBeamIndex][1];
-        for (int i = 0; i < maxBeamIndex - 1; i++) {
+        for (int i = 0; i < maxBeamIndex; i++) {
             leftPeak[i][0] = beamShape.get(i, 0);
         }
 

@@ -11,11 +11,10 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
-import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.BeamShapeLinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.GBeamLinePlot;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.PeakCentresLinePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.PeakCentresLinePlotX;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.BeamShapeLinePlotBuilder;
@@ -56,7 +55,7 @@ public class PeakShapeDemoPlotsController {
 
     ListView<File> listViewOfResourcesInFolder;
 
-    AbstractDataView peakCentreLinePlot;
+    AbstractPlot peakCentreLinePlot;
     @FXML
     private ScrollPane resourceListScrollPane;
 
@@ -305,15 +304,15 @@ public class PeakShapeDemoPlotsController {
 
         LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, "PeakCentre Plot", "Cycles", "Peak Widths");
 
-        peakCentreLinePlot = new PeakCentresLinePlot(new Rectangle(peakCentreGridPane.getCellBounds(0, 0).getWidth(), peakCentreGridPane.getCellBounds(0, 0).getHeight()), peakCentrePlotBuilder);
+        peakCentreLinePlot = new PeakCentresLinePlotX(new Rectangle(peakCentreGridPane.getCellBounds(0, 0).getWidth(), peakCentreGridPane.getCellBounds(0, 0).getHeight()), peakCentrePlotBuilder);
 
         peakCentreGridPane.widthProperty().addListener((observable, oldValue, newValue) -> {
-            peakCentreLinePlot.setMyWidth(newValue.intValue());
+            peakCentreLinePlot.setWidthF(newValue.intValue());
             peakCentreLinePlot.repaint();
         });
 
         peakCentreGridPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-            peakCentreLinePlot.setMyHeight(newValue.intValue());
+            peakCentreLinePlot.setHeightF(newValue.intValue());
             peakCentreLinePlot.repaint();
             if (plotsAnchorPane.getChildren().size() > 1) {
                 plotsAnchorPane.getChildren().remove(1, remSize);
@@ -383,7 +382,6 @@ public class PeakShapeDemoPlotsController {
             remSize++;
         }
 
-
         // Selects file from peakCentre plot
         peakCentreGridPane.setOnMouseClicked(click -> {
             peakCentreLinePlot.getOnMouseClicked();
@@ -397,7 +395,7 @@ public class PeakShapeDemoPlotsController {
         peakCentreGridPane.setOnMouseMoved(mouse -> {
             int index = (int) peakCentreLinePlot.convertMouseXToValue(mouse.getX());
 
-            if (peakCentreLinePlot.mouseInHouse(mouse) && index >= 1 && mouse.getY() > 10) {
+            if (peakCentreLinePlot.mouseInHouse(mouse.getX(), mouse.getY()) && index >= 1 && mouse.getY() > 10) {
                 for (int i = 0; i < peakCentreLinePlot.getxAxisData().length; i++) {
                     ImageView pos1 = (ImageView) plotsAnchorPane.getChildren().get(finalSize + (i));
                     pos1.setVisible(false);
