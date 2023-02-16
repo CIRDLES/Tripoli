@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2;
 
+import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
@@ -30,7 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.cirdles.tripoli.constants.ConstantsTripoliCore.ONE_JOULE;
+import static org.cirdles.tripoli.constants.ConstantsTripoliCore.ONE_COULOMB;
 
 /**
  * @author James F. Bowring
@@ -66,9 +67,9 @@ public enum SingleBlockDataAccumulatorMCMC {
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
                         double intensity = baselineIntensities[index][detectorDataColumnIndex];
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
-                        if (Math.abs(intensity) > 1.0) {
-                            // convert all counts to volts to bring all files into alignment
-                            intensity = intensity / (ONE_JOULE / amplifierResistance);
+                        if (analysisMethod.getMassSpectrometerContext().equals(MassSpectrometerContextEnum.PHOENIX)) {
+                            // convert all volts to counts to bring all files into alignment
+                            intensity = intensity * (ONE_COULOMB / amplifierResistance);
                         }
                         intensityAccumulatorList.add(intensity);
                         timeAccumulatorList.add(0.0);
@@ -119,9 +120,9 @@ public enum SingleBlockDataAccumulatorMCMC {
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
                         double intensity = onPeakIntensities[index][detectorDataColumnIndex];
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
-                        if (Math.abs(intensity) > 1.0) {
-                            // convert all counts to volts to bring all files into alignment
-                            intensity = intensity / (ONE_JOULE / amplifierResistance);
+                        if (analysisMethod.getMassSpectrometerContext().equals(MassSpectrometerContextEnum.PHOENIX) && isFaraday) {
+                            // convert all volts to counts to bring all files into alignment
+                            intensity = intensity * (ONE_COULOMB / amplifierResistance);
                         }
                         intensityAccumulatorList.add(intensity);
                         timeAccumulatorList.add(onPeakTimeStamps[index]);
