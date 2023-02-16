@@ -19,7 +19,6 @@ plugins {
     `maven-publish`
 }
 
-
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
@@ -35,7 +34,6 @@ repositories {
     flatDir { dirs("libs") }
 }
 
-
 dependencies {
     // https://mvnrepository.com/artifact/org.jetbrains/annotations
     implementation("org.jetbrains:annotations:23.0.0") //group: 'org.jetbrains', name: 'annotations', version: '23.0.0'
@@ -45,15 +43,11 @@ dependencies {
     implementation("jakarta.annotation:jakarta.annotation-api:2.1.1")
     // https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
-
-
 }
-
 
 val mavenArtifactId = name
 val mavenGroupId = "org.cirdles"
 val mavenVersion = "0.0.9"
-
 
 object Versions {
     const val junitVersion = "5.8.2"
@@ -64,9 +58,7 @@ group = mavenGroupId
 version = mavenVersion
 val utf8 = "UTF-8"
 
-
 tasks {
-
     compileJava {
         options.encoding = utf8
     }
@@ -74,7 +66,6 @@ tasks {
     compileTestJava {
         options.encoding = utf8
     }
-
 
     val packageJavadoc by creating(Jar::class) {
         from(javadoc)
@@ -90,23 +81,19 @@ tasks {
         from(sourceSets["main"].allSource)
     }
 
-
     artifacts {
         archives(jar)
         archives(sourcesJar)
         //  Uncomment next line to produce javadocs
         //archives(packageJavadoc)
     }
-
 }
 
 tasks.withType(JavaCompile::class) {
-
     options.compilerArgs.add("-Xlint:deprecation")
     options.compilerArgs.add("-Xlint:unchecked")
     options.encoding = utf8
     println("Compiler args: " + options.compilerArgs)
-
 }
 
 tasks.withType<Javadoc> {
@@ -127,8 +114,6 @@ tasks.register("CreateFolder") {
         }
     }
 }
-
-
 
 publishing {
     publications {

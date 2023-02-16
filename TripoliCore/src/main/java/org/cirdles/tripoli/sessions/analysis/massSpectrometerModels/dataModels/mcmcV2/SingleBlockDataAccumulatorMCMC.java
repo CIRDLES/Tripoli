@@ -66,6 +66,11 @@ public enum SingleBlockDataAccumulatorMCMC {
                     for (Integer index : baselineIndices) {
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
                         double intensity = baselineIntensities[index][detectorDataColumnIndex];
+                        double amplifierResistance = detector.getAmplifierResistanceInOhms();
+                        if (analysisMethod.getMassSpectrometerContext().equals(MassSpectrometerContextEnum.PHOENIX)) {
+                            // convert all volts to counts to bring all files into alignment
+                            intensity = intensity * (ONE_COULOMB / amplifierResistance);
+                        }
                         intensityAccumulatorList.add(intensity);
                         timeAccumulatorList.add(0.0);
                         timeIndexAccumulatorList.add(index);
@@ -115,9 +120,9 @@ public enum SingleBlockDataAccumulatorMCMC {
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
                         double intensity = onPeakIntensities[index][detectorDataColumnIndex];
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
-                        if (analysisMethod.getMassSpectrometerContext().equals(MassSpectrometerContextEnum.PHOENIX) && !isFaraday) {
-                            // convert all counts to volts to bring all files into alignment
-                            intensity = intensity / (ONE_COULOMB / amplifierResistance);
+                        if (analysisMethod.getMassSpectrometerContext().equals(MassSpectrometerContextEnum.PHOENIX) && isFaraday) {
+                            // convert all volts to counts to bring all files into alignment
+                            intensity = intensity * (ONE_COULOMB / amplifierResistance);
                         }
                         intensityAccumulatorList.add(intensity);
                         timeAccumulatorList.add(onPeakTimeStamps[index]);
