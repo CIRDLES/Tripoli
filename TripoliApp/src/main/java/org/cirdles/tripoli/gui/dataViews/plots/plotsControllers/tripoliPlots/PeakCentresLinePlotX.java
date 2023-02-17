@@ -29,7 +29,7 @@ public class PeakCentresLinePlotX extends AbstractPlot {
      * @param bounds
      * @param linePlotBuilder
      */
-    public PeakCentresLinePlotX(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
+    private PeakCentresLinePlotX(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
         super(bounds, 50, 15, linePlotBuilder.getTitle(), linePlotBuilder.getxAxisLabel(), linePlotBuilder.getyAxisLabel());
         this.peakCentrePlotBuilder = linePlotBuilder;
 
@@ -38,6 +38,10 @@ public class PeakCentresLinePlotX extends AbstractPlot {
         this.setOnMouseClicked(new MouseClickedEventHandler());
         this.indexOfSelectedSpot = -1;
 
+    }
+
+    public static AbstractPlot generatePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
+        return new PeakCentresLinePlotX(bounds, linePlotBuilder);
     }
 
     @Override
@@ -188,16 +192,16 @@ public class PeakCentresLinePlotX extends AbstractPlot {
             boolean isPrimary = mouseEvent.getButton().compareTo(MouseButton.PRIMARY) == 0;
             if (mouseInHouse(mouseEvent.getX(), mouseEvent.getY())) {
                 if (isPrimary) {
+                    indexOfSelectedSpot = indexOfSpotFromMouseX(mouseEvent.getX());
+                    PeakShapeDemoPlotsController.currentGroupIndex = indexOfSelectedSpot;
+                    PeakShapeDemoPlotsController.resourceBrowserTarget = PeakShapeDemoPlotsController.getResourceGroups(PeakShapeDemoPlotsController.getCurrentGroup()).get(indexOfSelectedSpot);
+                    repaint();
+                    getGraphicsContext2D().setLineWidth(1.0);
+                    getGraphicsContext2D().strokeOval(mapX(xAxisData[indexOfSelectedSpot]) - 6, mapY(yAxisData[indexOfSelectedSpot]) - 6, 12, 12);
+
                 } else {
                     plotContextMenu.show((Node) mouseEvent.getSource(), Side.LEFT, mouseEvent.getSceneX() - getLayoutX(), mouseEvent.getSceneY() - getLayoutY());
                 }
-
-                indexOfSelectedSpot = indexOfSpotFromMouseX(mouseEvent.getX());
-                PeakShapeDemoPlotsController.currentGroupIndex = indexOfSelectedSpot;
-                PeakShapeDemoPlotsController.resourceBrowserTarget = PeakShapeDemoPlotsController.getResourceGroups(PeakShapeDemoPlotsController.getCurrentGroup()).get(indexOfSelectedSpot);
-                repaint();
-                getGraphicsContext2D().setLineWidth(1.0);
-                getGraphicsContext2D().strokeOval(mapX(xAxisData[indexOfSelectedSpot]) - 6, mapY(yAxisData[indexOfSelectedSpot]) - 6, 12, 12);
 
 
             } else {

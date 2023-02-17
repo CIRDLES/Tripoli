@@ -26,7 +26,7 @@ public class GBeamLinePlot extends AbstractPlot {
      * @param bounds
      * @param gBeamLinePlotBuilder
      */
-    public GBeamLinePlot(Rectangle bounds, GBeamLinePlotBuilder gBeamLinePlotBuilder) {
+    private GBeamLinePlot(Rectangle bounds, GBeamLinePlotBuilder gBeamLinePlotBuilder) {
         super(bounds, 50, 35, gBeamLinePlotBuilder.getTitle(), gBeamLinePlotBuilder.getxAxisLabel(), gBeamLinePlotBuilder.getyAxisLabel());
         this.gBeamLinePlotBuilder = gBeamLinePlotBuilder;
 
@@ -35,6 +35,10 @@ public class GBeamLinePlot extends AbstractPlot {
         setupPlotContextMenu();
         tooltip = new Tooltip();
         Tooltip.install(this, tooltip);
+    }
+
+    public static AbstractPlot generatePlot(Rectangle bounds, GBeamLinePlotBuilder gBeamLinePlotBuilder) {
+        return new GBeamLinePlot(bounds, gBeamLinePlotBuilder);
     }
 
     @Override

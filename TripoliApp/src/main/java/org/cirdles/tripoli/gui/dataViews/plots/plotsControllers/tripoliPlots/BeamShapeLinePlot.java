@@ -27,7 +27,7 @@ public class BeamShapeLinePlot extends AbstractPlot {
      * @param bounds
      * @param beamShapeLinePlotBuilder
      */
-    public BeamShapeLinePlot(Rectangle bounds, BeamShapeLinePlotBuilder beamShapeLinePlotBuilder) {
+    private BeamShapeLinePlot(Rectangle bounds, BeamShapeLinePlotBuilder beamShapeLinePlotBuilder) {
         super(bounds, 50, 35, beamShapeLinePlotBuilder.getTitle(), beamShapeLinePlotBuilder.getxAxisLabel(), beamShapeLinePlotBuilder.getyAxisLabel());
         this.beamShapeLinePlotBuilder = beamShapeLinePlotBuilder;
 
@@ -36,6 +36,10 @@ public class BeamShapeLinePlot extends AbstractPlot {
         setupPlotContextMenu();
         tooltip = new Tooltip();
         Tooltip.install(this, tooltip);
+    }
+
+    public static AbstractPlot generatePlot(Rectangle bounds, BeamShapeLinePlotBuilder beamShapeLinePlotBuilder) {
+        return new BeamShapeLinePlot(bounds, beamShapeLinePlotBuilder);
     }
 
     @Override

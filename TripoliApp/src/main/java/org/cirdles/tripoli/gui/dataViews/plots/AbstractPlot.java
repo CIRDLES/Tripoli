@@ -512,14 +512,10 @@ public abstract class AbstractPlot extends Canvas {
 
     public void setWidthF(double width) {
         this.width = width;
-        setWidth(width);
-        updatePlotSize();
     }
 
     public void setHeightF(double height) {
         this.height = height;
-        setHeight(height);
-        updatePlotSize();
     }
 
     private class MouseClickEventHandler implements EventHandler<MouseEvent> {
