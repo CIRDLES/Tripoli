@@ -52,7 +52,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
     public static Map<String, AnalysisMethod> analysisMethodsBuiltinMap = new TreeMap<>();
 
     static {
-        AnalysisMethod burdickBlSyntheticData = AnalysisMethod.initializeAnalysisMethod(BURDICK_BL_SYNTHETIC_DATA);
+        AnalysisMethod burdickBlSyntheticData = AnalysisMethod.initializeAnalysisMethod(BURDICK_BL_SYNTHETIC_DATA, PHOENIX_SYNTHETIC);
         analysisMethodsBuiltinMap.put(burdickBlSyntheticData.getMethodName(), burdickBlSyntheticData);
 
         burdickBlSyntheticData.addSpeciesToSpeciesList(pb206);
@@ -95,7 +95,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
     }
 
     static {
-        AnalysisMethod ku_204_5_6_7_8_Daly_AllFaradayPb = AnalysisMethod.initializeAnalysisMethod(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
+        AnalysisMethod ku_204_5_6_7_8_Daly_AllFaradayPb = AnalysisMethod.initializeAnalysisMethod(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB, PHOENIX_SYNTHETIC);
         analysisMethodsBuiltinMap.put(ku_204_5_6_7_8_Daly_AllFaradayPb.getMethodName(), ku_204_5_6_7_8_Daly_AllFaradayPb);
 
         ku_204_5_6_7_8_Daly_AllFaradayPb.addSpeciesToSpeciesList(pb204);
