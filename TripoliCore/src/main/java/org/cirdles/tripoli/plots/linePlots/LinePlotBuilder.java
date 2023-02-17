@@ -16,12 +16,23 @@
 
 package org.cirdles.tripoli.plots.linePlots;
 
-import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.PlotBuilder;
 
-public class LinePlotBuilder extends AbstractPlotBuilder {
+import java.io.Serial;
+import java.io.Serializable;
 
+public class LinePlotBuilder extends PlotBuilder {
+
+    @Serial
+    private static final long serialVersionUID = 5549376854790308330L;
     private final double[] xData;
     private final double[] yData;
+
+    public LinePlotBuilder(String title, String xAxisLabel, String yAxisLabel) {
+        super(title, xAxisLabel, yAxisLabel);
+        xData = new double[0];
+        yData = new double[0];
+    }
 
     protected LinePlotBuilder(double[] xData, double[] yData, String title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel);

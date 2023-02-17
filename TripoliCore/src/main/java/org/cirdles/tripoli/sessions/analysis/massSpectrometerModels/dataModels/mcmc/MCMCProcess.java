@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
 import jama.Matrix;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
-import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -36,9 +36,9 @@ import java.util.*;
 import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.ProposedModelParameters.buildProposalRangesRecord;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.ProposedModelParameters.buildProposalSigmasRecord;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.SingleBlockModelUpdater.*;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalRangesRecord;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalSigmasRecord;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelUpdater.*;
 
 /**
  * @author James F. Bowring
@@ -49,7 +49,7 @@ public class MCMCProcess {
     private final SingleBlockModelRecord singleBlockInitialModelRecord_X0;
     private final AnalysisMethod analysisMethod;
     private final SingleBlockDataSetRecord singleBlockDataSetRecord;
-    List<EnsemblesStoreV2.EnsembleRecord> ensembleRecordsList;
+    List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
     private int faradayCount;
     private int ratioCount;
     private int maxIterationCount;
@@ -126,7 +126,7 @@ public class MCMCProcess {
             Ndata=d0.Ndata; % Number of picks
             Nsig = d0.Nsig; % Number of noise variables
          */
-        maxIterationCount = 1000;
+        maxIterationCount = 2000;
         hierarchical = true;
         tempering = 1.0;
         stepCountForcedSave = 100;
@@ -224,7 +224,7 @@ public class MCMCProcess {
         }
     }
 
-    public AbstractPlotBuilder[][] applyInversionWithAdaptiveMCMC(LoggingCallbackInterface loggingCallback) {
+    public PlotBuilder[][] applyInversionWithAdaptiveMCMC(LoggingCallbackInterface loggingCallback) {
 
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         SingleBlockModelRecord singleBlockInitialModelRecord_initial = singleBlockInitialModelRecord_X0.clone();
@@ -519,7 +519,7 @@ public class MCMCProcess {
                     end
                  */
                     counter++;
-                    ensembleRecordsList.add(new EnsemblesStoreV2.EnsembleRecord(
+                    ensembleRecordsList.add(new EnsemblesStore.EnsembleRecord(
                             singleBlockInitialModelRecord_initial.logRatios(),
                             singleBlockInitialModelRecord_initial.intensities(),
                             singleBlockInitialModelRecord_initial.baselineMeansArray(),
@@ -544,7 +544,7 @@ public class MCMCProcess {
             n dimension of output matrix - datsav)';
                 stepCountForcedSave
             */
-                    UpdatedCovariancesRecord updatedCovariancesRecord =
+                    SingleBlockModelUpdater.UpdatedCovariancesRecord updatedCovariancesRecord =
                             updateMeanCovMS(singleBlockInitialModelRecord_initial, xDataCovariance, xDataMean, ensembleRecordsList, counter - covStart, false);
                     xDataCovariance = updatedCovariancesRecord.dataCov();
                     xDataMean = updatedCovariancesRecord.dataMean();
@@ -641,7 +641,7 @@ public class MCMCProcess {
         }// end model loop
         if (ALLOW_EXECUTION) {
             // experiment with serializing results during development
-            EnsemblesStoreV2 ensemblesStore = new EnsemblesStoreV2(ensembleRecordsList, singleBlockInitialModelRecord_initial);
+            EnsemblesStore ensemblesStore = new EnsemblesStore(ensembleRecordsList, singleBlockInitialModelRecord_initial);
             try {
                 TripoliSerializer.serializeObjectToFile(ensemblesStore, "EnsemblesStore.ser");
             } catch (TripoliException e) {

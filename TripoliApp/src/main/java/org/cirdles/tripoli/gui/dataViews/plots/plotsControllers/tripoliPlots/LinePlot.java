@@ -9,10 +9,7 @@ import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 public class LinePlot extends AbstractPlot {
     private final LinePlotBuilder linePlotBuilder;
 
-    /**
-     * @param bounds
-     * @param linePlotBuilder
-     */
+
     private LinePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
         super(bounds, 75, 25,
                 linePlotBuilder.getTitle(),

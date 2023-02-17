@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
@@ -67,7 +67,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
                         double intensity = baselineIntensities[index][detectorDataColumnIndex];
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
-                        if (analysisMethod.getMassSpectrometerContext().equals(MassSpectrometerContextEnum.PHOENIX)) {
+                        if (analysisMethod.getMassSpectrometerContext() == MassSpectrometerContextEnum.PHOENIX) {
                             // convert all volts to counts to bring all files into alignment
                             intensity = intensity * (ONE_COULOMB / amplifierResistance);
                         }
@@ -120,7 +120,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
                         double intensity = onPeakIntensities[index][detectorDataColumnIndex];
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
-                        if (analysisMethod.getMassSpectrometerContext().equals(MassSpectrometerContextEnum.PHOENIX) && isFaraday) {
+                        if (analysisMethod.getMassSpectrometerContext() == MassSpectrometerContextEnum.PHOENIX && isFaraday) {
                             // convert all volts to counts to bring all files into alignment
                             intensity = intensity * (ONE_COULOMB / amplifierResistance);
                         }

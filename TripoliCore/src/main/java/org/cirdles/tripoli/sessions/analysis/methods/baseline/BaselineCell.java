@@ -59,7 +59,7 @@ public class BaselineCell implements Serializable {
         boolean retVal = true;
         if (otherObject != this) {
             if (otherObject instanceof BaselineCell otherBaselineCell) {
-                retVal = 0 == this.getBaselineID().compareToIgnoreCase(otherBaselineCell.getBaselineID());
+                retVal = 0 == baselineID.compareToIgnoreCase(otherBaselineCell.baselineID);
             } else {
                 retVal = false;
             }

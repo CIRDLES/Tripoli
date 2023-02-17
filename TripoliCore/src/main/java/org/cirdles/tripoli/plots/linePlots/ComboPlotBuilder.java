@@ -16,9 +16,9 @@
 
 package org.cirdles.tripoli.plots.linePlots;
 
-import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.PlotBuilder;
 
-public class ComboPlotBuilder extends AbstractPlotBuilder {
+public class ComboPlotBuilder extends PlotBuilder {
 
     private final double[] xData;
     private final double[] yData;

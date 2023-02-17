@@ -17,12 +17,11 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramBuilder;
 import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.species.IsotopicRatio;
@@ -38,15 +37,14 @@ import static java.lang.StrictMath.exp;
 /**
  * @author James F. Bowring
  */
-public enum DataModelPlot {
+public enum SingleBlockDataModelPlot {
     ;
 
-    public static AbstractPlotBuilder[][] analysisAndPlotting(
-            MassSpecOutputDataRecord massSpecOutputDataRecord,
+    public static PlotBuilder[][] analysisAndPlotting(
+            SingleBlockDataSetRecord singleBlockDataSetRecord,
             List<EnsemblesStore.EnsembleRecord> ensembleRecordsList,
-            DataModellerOutputRecord lastDataModelInit,
-            AnalysisMethod analysisMethod
-    ) {
+            SingleBlockModelRecord singleBlockInitialModelRecordInitial,
+            AnalysisMethod analysisMethod) {
         List<IsotopicRatio> isotopicRatioList = analysisMethod.getTripoliRatiosList();
 
         /*
@@ -90,7 +88,7 @@ public enum DataModelPlot {
         }
 
         // baseLines
-        int baselineSize = massSpecOutputDataRecord.faradayCount();
+        int baselineSize = singleBlockInitialModelRecordInitial.faradayCount();
         double[][] ensembleBaselines = new double[baselineSize][countOfEnsemblesUsed];
         double[] baselinesMeans = new double[baselineSize];
         double[] baselinesStdDev = new double[baselineSize];
@@ -117,7 +115,7 @@ public enum DataModelPlot {
         double dalyFaradayGainStdDev = descriptiveStatisticsDalyFaradayGain.getStandardDeviation();
 
         // signal noise
-        int faradayCount = massSpecOutputDataRecord.faradayCount();
+        int faradayCount = singleBlockInitialModelRecordInitial.faradayCount();
         double[][] ensembleSignalnoise = new double[faradayCount][countOfEnsemblesUsed];
         double[] signalNoiseMeans = new double[faradayCount];
         double[] signalNoiseStdDev = new double[faradayCount];
@@ -143,47 +141,42 @@ public enum DataModelPlot {
          */
 
         // Intensity
-        int knotsCount = ensembleRecordsList.get(0).blockIntensities()[0].length;
-        int blockCount = massSpecOutputDataRecord.blockCount();
+        int knotsCount = singleBlockInitialModelRecordInitial.I0().length;
         double[][] ensembleIntensity = new double[knotsCount][countOfEnsemblesUsed];
-        double[][] intensityMeans = new double[blockCount][knotsCount];
-        double[][] intensityStdDevs = new double[blockCount][knotsCount];
+        double[] intensityMeans = new double[knotsCount];
+        double[] intensityStdDevs = new double[knotsCount];
 
-        for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
-            for (int knotIndex = 0; knotIndex < knotsCount; knotIndex++) {
-                DescriptiveStatistics descriptiveStatisticsIntensity = new DescriptiveStatistics();
-                for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
-                    ensembleIntensity[knotIndex][index - burn] = ensembleRecordsList.get(index).blockIntensities()[blockIndex][knotIndex];
-                    descriptiveStatisticsIntensity.addValue(ensembleIntensity[knotIndex][index - burn]);
-                }
-                intensityMeans[blockIndex][knotIndex] = descriptiveStatisticsIntensity.getMean();
-                intensityStdDevs[blockIndex][knotIndex] = descriptiveStatisticsIntensity.getStandardDeviation();
+        for (int knotIndex = 0; knotIndex < knotsCount; knotIndex++) {
+            DescriptiveStatistics descriptiveStatisticsIntensity = new DescriptiveStatistics();
+            for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
+                ensembleIntensity[knotIndex][index - burn] = ensembleRecordsList.get(index).intensities()[knotIndex];
+                descriptiveStatisticsIntensity.addValue(ensembleIntensity[knotIndex][index - burn]);
             }
+            intensityMeans[knotIndex] = descriptiveStatisticsIntensity.getMean();
+            intensityStdDevs[knotIndex] = descriptiveStatisticsIntensity.getStandardDeviation();
         }
 
         // calculate blockIntensities means for plotting
-        double[][] yDataIntensityMeans = new double[blockCount][];
+        double[][] yDataIntensityMeans = new double[1][];
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
-            MatrixStore<Double> intensityMeansMatrix = storeFactory.columns(intensityMeans[blockIndex]);
-            MatrixStore<Double> yDataMatrix = massSpecOutputDataRecord.allBlockInterpolations().get(blockIndex).multiply(intensityMeansMatrix).multiply(1.0 / dalyFaradayGainMean);//(1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
-            yDataIntensityMeans[blockIndex] = yDataMatrix.toRawCopy1D();
-        }
-        double[] xDataIntensityMeans = new double[massSpecOutputDataRecord.allBlockInterpolations().get(0).getRowDim()];
+        MatrixStore<Double> intensityMeansMatrix = storeFactory.columns(intensityMeans);
+        MatrixStore<Double> yDataMatrix = singleBlockDataSetRecord.blockKnotInterpolationStore().multiply(intensityMeansMatrix).multiply(1.0 / dalyFaradayGainMean);//(1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
+        yDataIntensityMeans[0] = yDataMatrix.toRawCopy1D();
+        double[] xDataIntensityMeans = new double[singleBlockDataSetRecord.blockKnotInterpolationStore().getRowDim()];
         for (int i = 0; i < xDataIntensityMeans.length; i++) {
             xDataIntensityMeans[i] = i;
         }
 
         // visualization - Ensembles tab
-        AbstractPlotBuilder[][] plotBuilders = new AbstractPlotBuilder[15][1];
+        PlotBuilder[][] plotBuilders = new PlotBuilder[15][1];
 
-        plotBuilders[0] = new AbstractPlotBuilder[ensembleRatios.length];
+        plotBuilders[0] = new PlotBuilder[ensembleRatios.length];
         for (int i = 0; i < ensembleRatios.length; i++) {
             plotBuilders[0][i] = HistogramBuilder.initializeHistogram(ensembleRatios[i],
                     25, isotopicRatioList.get(i).prettyPrint(), "Ratios", "Frequency");
         }
 
-        plotBuilders[1] = new AbstractPlotBuilder[ensembleBaselines.length];
+        plotBuilders[1] = new PlotBuilder[ensembleBaselines.length];
         List<Detector> faradayDetectorsUsed = analysisMethod.getSequenceTable().findFaradayDetectorsUsed();
         for (int i = 0; i < ensembleBaselines.length; i++) {
             plotBuilders[1][i] = HistogramBuilder.initializeHistogram(ensembleBaselines[i],
@@ -193,7 +186,7 @@ public enum DataModelPlot {
         plotBuilders[2][0] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain,
                 25, "Daly/Faraday Gain", "Gain", "Frequency");
 
-        plotBuilders[3] = new AbstractPlotBuilder[ensembleSignalnoise.length];
+        plotBuilders[3] = new PlotBuilder[ensembleSignalnoise.length];
         for (int i = 0; i < ensembleSignalnoise.length; i++) {
             plotBuilders[3][i] = HistogramBuilder.initializeHistogram(ensembleSignalnoise[i],
                     25, faradayDetectorsUsed.get(i).getDetectorName() + " Signal Noise", "Noise hyperparameter", "Frequency");
@@ -205,12 +198,12 @@ public enum DataModelPlot {
         // visualization converge ratio and others tabs
 //        double[] convergeLogRatios = new double[ensembleRecordsList.size()];
 //        double[] convergeRatios = new double[ensembleRecordsList.size()];
-//        // todo: hardwired for 2 isotopes
+////        // todo: hardwired for 2 isotopes
 //        double[] convergeBaselineFaradayL1 = new double[ensembleRecordsList.size()];
 //        double[] convergeBaselineFaradayH1 = new double[ensembleRecordsList.size()];
-
-
-        double[][] convergeIntensities = new double[ensembleRecordsList.get(0).blockIntensities()[0].length][ensembleRecordsList.size()];
+//
+//
+        double[][] convergeIntensities = new double[ensembleRecordsList.get(0).intensities().length][ensembleRecordsList.size()];
 //        double[] convergeNoiseFaradayL1 = new double[ensembleRecordsList.size()];
 //        double[] convergeNoiseFaradayH1 = new double[ensembleRecordsList.size()];
         for (int index = 0; index < ensembleRecordsList.size(); index++) {
@@ -222,7 +215,7 @@ public enum DataModelPlot {
 //            convergeErrRawMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorUnWeighted());
             for (int intensityIndex = 0; intensityIndex < convergeIntensities.length; intensityIndex++) {
                 // todo: fix this block indexing issue
-                convergeIntensities[intensityIndex][index] = ensembleRecordsList.get(index).blockIntensities()[0][intensityIndex];
+                convergeIntensities[intensityIndex][index] = ensembleRecordsList.get(index).intensities()[intensityIndex];
             }
 //            convergeNoiseFaradayL1[index] = ensembleRecordsList.get(index).signalNoiseSigma()[0];
 //            convergeNoiseFaradayH1[index] = ensembleRecordsList.get(index).signalNoiseSigma()[1];
@@ -250,21 +243,21 @@ public enum DataModelPlot {
             xDataConvergeSavedIterations[ensembleIndex] = ensembleIndex + 1;
         }
 
-        plotBuilders[5] = new AbstractPlotBuilder[convergeSetOfLogRatios.length];
+        plotBuilders[5] = new PlotBuilder[convergeSetOfLogRatios.length];
         for (int i = 0; i < convergeSetOfLogRatios.length; i++) {
             plotBuilders[5][i] = LinePlotBuilder.initializeLinePlot(
                     xDataConvergeSavedIterations, convergeSetOfLogRatios[i],
                     isotopicRatioList.get(i).prettyPrint(), "Saved iterations", "Log Ratio");
         }
 
-        plotBuilders[6] = new AbstractPlotBuilder[convergeSetOfBaselines.length];
+        plotBuilders[6] = new PlotBuilder[convergeSetOfBaselines.length];
         for (int i = 0; i < convergeSetOfBaselines.length; i++) {
             plotBuilders[6][i] = LinePlotBuilder.initializeLinePlot(
                     xDataConvergeSavedIterations, convergeSetOfBaselines[i],
                     faradayDetectorsUsed.get(i).getDetectorName() + " Baseline", "Saved iterations", "Baseline Counts");
         }
 
-        plotBuilders[11] = new AbstractPlotBuilder[convergeSetOfFaradayNoise.length];
+        plotBuilders[11] = new PlotBuilder[convergeSetOfFaradayNoise.length];
         for (int i = 0; i < convergeSetOfFaradayNoise.length; i++) {
             plotBuilders[11][i] = LinePlotBuilder.initializeLinePlot(
                     xDataConvergeSavedIterations, convergeSetOfFaradayNoise[i],
@@ -284,67 +277,67 @@ public enum DataModelPlot {
 
         // visualization data fit
         // todo: this is duplicated code from above in part
-        double[] data = lastDataModelInit.dataArray();
-        double[] dataWithNoBaseline = new double[lastDataModelInit.dataArray().length];
+//        double[] data = singleBlockInitialModelRecordInitial.dataArray();
+//        double[] dataWithNoBaseline = new double[singleBlockInitialModelRecordInitial.dataArray().length];
         EnsemblesStore.EnsembleRecord lastModelRecord = ensembleRecordsList.get(ensembleRecordsList.size() - 1);
 
-        for (int blockIndex = 0; blockIndex < massSpecOutputDataRecord.blockCount(); blockIndex++) {
-            List<double[]> intensity = new ArrayList<>(1);
-            intensity.add(0, lastDataModelInit.intensityPerBlock().get(blockIndex));
-            // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
-            for (int isotopeIndex = 0; isotopeIndex < massSpecOutputDataRecord.isotopeCount() - 1; isotopeIndex++) {
-                for (int row = 0; row < massSpecOutputDataRecord.rawDataColumn().length; row++) {
-                    if ((1 == massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex])
-                            && (1 == massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row])
-                            && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
-                        double calcValue =
-                                exp(lastModelRecord.logRatios()[isotopeIndex])
-                                        * intensity.get(0)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
-                        data[row] = calcValue;
-                        dataWithNoBaseline[row] = calcValue;
-                    }
-                    if ((1 == massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex])
-                            && (0 == massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row])
-                            && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
-                        double calcValue =
-                                exp(lastModelRecord.logRatios()[isotopeIndex]) / lastModelRecord.dfGain()
-                                        * intensity.get(0)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
-                        dataWithNoBaseline[row] = calcValue;
-                        data[row] =
-                                calcValue + lastModelRecord.baseLine()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1];
-                    }
-                }
-            }
-        }
+//        for (int blockIndex = 0; blockIndex < singleBlockDataSetRecord..blockCount(); blockIndex++) {
+//            List<double[]> intensity = new ArrayList<>(1);
+//            intensity.add(0, singleBlockInitialModelRecordInitial.intensities());
+//            // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
+//            for (int isotopeIndex = 0; isotopeIndex < singleBlockInitialModelRecordInitial.isotopeCount() - 1; isotopeIndex++) {
+//                for (int row = 0; row < singleBlockInitialModelRecordInitial.dataArray().length; row++) {
+//                    if ((1 == singleBlockDataSetRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex])
+//                            && (1 == massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row])
+//                            && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
+//                        double calcValue =
+//                                exp(lastModelRecord.logRatios()[isotopeIndex])
+//                                        * intensity.get(0)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+//                        data[row] = calcValue;
+//                        dataWithNoBaseline[row] = calcValue;
+//                    }
+//                    if ((1 == massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex])
+//                            && (0 == massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row])
+//                            && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
+//                        double calcValue =
+//                                exp(lastModelRecord.logRatios()[isotopeIndex]) / lastModelRecord.dfGain()
+//                                        * intensity.get(0)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
+//                        dataWithNoBaseline[row] = calcValue;
+//                        data[row] =
+//                                calcValue + lastModelRecord.baseLine()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1];
+//                    }
+//                }
+//            }
+//        }
 
-        double[] xSig = lastModelRecord.signalNoise();
-        double[] detectorIndicesForRawDataColumn = massSpecOutputDataRecord.detectorIndicesForRawDataColumn();
-        double[] dataCountsModelOneSigma = new double[detectorIndicesForRawDataColumn.length];
-        for (int row = 0; row < detectorIndicesForRawDataColumn.length; row++) {
-            dataCountsModelOneSigma[row]
-                    = StrictMath.sqrt(StrictMath.pow(xSig[(int) detectorIndicesForRawDataColumn[row] - 1], 2)
-                    + xSig[xSig.length - 1] * dataWithNoBaseline[row]);
-        }
-
-        int plottingStep = 10;
-        double[] dataOriginalCounts = massSpecOutputDataRecord.rawDataColumn();
-        double[] xDataIndex = new double[dataOriginalCounts.length / plottingStep];
-        double[] yDataCounts = new double[dataOriginalCounts.length / plottingStep];
-        double[] yDataModelCounts = new double[dataOriginalCounts.length / plottingStep];
-
-        double[] yDataResiduals = new double[dataOriginalCounts.length / plottingStep];
-        double[] yDataSigmas = new double[dataOriginalCounts.length / plottingStep];
-
-        for (int i = 0; i < dataOriginalCounts.length / plottingStep; i++) {
-            xDataIndex[i] = i * plottingStep;
-            yDataCounts[i] = dataOriginalCounts[i * plottingStep];
-            yDataModelCounts[i] = data[i * plottingStep];
-            yDataResiduals[i] = dataOriginalCounts[i * plottingStep] - data[i * plottingStep];
-            yDataSigmas[i] = dataCountsModelOneSigma[i * plottingStep];
-        }
-        plotBuilders[13][0] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, "Observed Data");
-
-        plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, "Residual Data");
+//        double[] xSig = lastModelRecord.signalNoise();
+//        int[] detectorIndicesForRawDataColumn = singleBlockDataSetRecord.blockDetectorOrdinalIndicesArray();
+//        double[] dataCountsModelOneSigma = new double[detectorIndicesForRawDataColumn.length];
+//        for (int row = 0; row < detectorIndicesForRawDataColumn.length; row++) {
+//            dataCountsModelOneSigma[row]
+//                    = StrictMath.sqrt(StrictMath.pow(xSig[(int) detectorIndicesForRawDataColumn[row] - 1], 2)
+//                    + xSig[xSig.length - 1] * dataWithNoBaseline[row]);
+//        }
+//
+//        int plottingStep = 10;
+//        double[] dataOriginalCounts = singleBlockInitialModelRecordInitial.dataArray();
+//        double[] xDataIndex = new double[dataOriginalCounts.length / plottingStep];
+//        double[] yDataCounts = new double[dataOriginalCounts.length / plottingStep];
+//        double[] yDataModelCounts = new double[dataOriginalCounts.length / plottingStep];
+//
+//        double[] yDataResiduals = new double[dataOriginalCounts.length / plottingStep];
+//        double[] yDataSigmas = new double[dataOriginalCounts.length / plottingStep];
+//
+//        for (int i = 0; i < dataOriginalCounts.length / plottingStep; i++) {
+//            xDataIndex[i] = i * plottingStep;
+//            yDataCounts[i] = dataOriginalCounts[i * plottingStep];
+//            yDataModelCounts[i] = data[i * plottingStep];
+//            yDataResiduals[i] = dataOriginalCounts[i * plottingStep] - data[i * plottingStep];
+//            yDataSigmas[i] = dataCountsModelOneSigma[i * plottingStep];
+//        }
+//        plotBuilders[13][0] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, "Observed Data");
+//
+//        plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, "Residual Data");
 
 
         // todo: missing additional elements of signalNoiseSigma (i.e., 0,11,11)
@@ -356,5 +349,6 @@ public enum DataModelPlot {
 
         return plotBuilders;
     }
+
 
 }

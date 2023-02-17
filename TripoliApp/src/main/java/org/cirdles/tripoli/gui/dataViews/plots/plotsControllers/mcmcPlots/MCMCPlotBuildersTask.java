@@ -14,115 +14,113 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmc2Plots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
 
 import javafx.concurrent.Task;
-import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
-
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.SingleBlockModelDriver.buildAndRunModelForSingleBlock;
 
 /**
  * @author James F. Bowring
  */
-public class MCMC2PlotBuildersTask extends Task<String> implements LoggingCallbackInterface, PlotBuildersTaskInterface {
+public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface, PlotBuildersTaskInterface {
     private final AnalysisInterface analysis;
     private int blockNumber;
     // ensemble plots
-    private AbstractPlotBuilder[] ratiosHistogramBuilder;
-    private AbstractPlotBuilder[] baselineHistogramBuilder;
-    private AbstractPlotBuilder[] dalyFaradayGainHistogramBuilder;
-    private AbstractPlotBuilder[] signalNoiseHistogramBuilder;
-    private AbstractPlotBuilder[] meanIntensityLineBuilder;
+    private PlotBuilder[] ratiosHistogramBuilder;
+    private PlotBuilder[] baselineHistogramBuilder;
+    private PlotBuilder[] dalyFaradayGainHistogramBuilder;
+    private PlotBuilder[] signalNoiseHistogramBuilder;
+    private PlotBuilder[] meanIntensityLineBuilder;
 
-    private AbstractPlotBuilder[] convergeRatioLineBuilder;
+    private PlotBuilder[] convergeRatioLineBuilder;
 
-    private AbstractPlotBuilder observedDataLineBuilder;
-    private AbstractPlotBuilder residualDataLineBuilder;
+    private PlotBuilder observedDataLineBuilder;
+    private PlotBuilder residualDataLineBuilder;
 
-    private AbstractPlotBuilder[] convergeBLFaradayLineBuilder;
+    private PlotBuilder[] convergeBLFaradayLineBuilder;
 
-    private AbstractPlotBuilder[] convergeErrWeightedMisfitLineBuilder;
-    private AbstractPlotBuilder[] convergeErrRawMisfitLineBuilder;
+    private PlotBuilder[] convergeErrWeightedMisfitLineBuilder;
+    private PlotBuilder[] convergeErrRawMisfitLineBuilder;
 
-    private AbstractPlotBuilder convergeIntensityLinesBuilder;
+    private PlotBuilder convergeIntensityLinesBuilder;
 
-    private AbstractPlotBuilder[] convergeNoiseFaradayLineBuilder;
+    private PlotBuilder[] convergeNoiseFaradayLineBuilder;
 
-    public MCMC2PlotBuildersTask(AnalysisInterface analysis, int blockNumber) {
+    public MCMCPlotBuildersTask(AnalysisInterface analysis, int blockNumber) {
         this.analysis = analysis;
         this.blockNumber = blockNumber;
     }
 
     @Override
-    public AbstractPlotBuilder[] getRatiosHistogramBuilder() {
+    public PlotBuilder[] getRatiosHistogramBuilder() {
         return ratiosHistogramBuilder;
     }
 
     @Override
-    public AbstractPlotBuilder[] getBaselineHistogramBuilder() {
+    public PlotBuilder[] getBaselineHistogramBuilder() {
         return baselineHistogramBuilder;
     }
 
     @Override
-    public AbstractPlotBuilder[] getDalyFaradayGainHistogramBuilder() {
+    public PlotBuilder[] getDalyFaradayGainHistogramBuilder() {
         return dalyFaradayGainHistogramBuilder;
     }
 
     @Override
-    public AbstractPlotBuilder[] getSignalNoiseHistogramBuilder() {
+    public PlotBuilder[] getSignalNoiseHistogramBuilder() {
         return signalNoiseHistogramBuilder;
     }
 
     @Override
-    public AbstractPlotBuilder[] getMeanIntensityLineBuilder() {
+    public PlotBuilder[] getMeanIntensityLineBuilder() {
         return meanIntensityLineBuilder;
     }
 
     @Override
-    public AbstractPlotBuilder[] getConvergeRatioLineBuilder() {
+    public PlotBuilder[] getConvergeRatioLineBuilder() {
         return convergeRatioLineBuilder;
     }
 
     @Override
-    public AbstractPlotBuilder getObservedDataLineBuilder() {
+    public PlotBuilder getObservedDataLineBuilder() {
         return observedDataLineBuilder;
     }
 
     @Override
-    public AbstractPlotBuilder getResidualDataLineBuilder() {
+    public PlotBuilder getResidualDataLineBuilder() {
         return residualDataLineBuilder;
     }
 
     @Override
-    public AbstractPlotBuilder[] getConvergeBLFaradayLineBuilder() {
+    public PlotBuilder[] getConvergeBLFaradayLineBuilder() {
         return convergeBLFaradayLineBuilder;
     }
 
     @Override
-    public AbstractPlotBuilder[] getConvergeErrWeightedMisfitLineBuilder() {
+    public PlotBuilder[] getConvergeErrWeightedMisfitLineBuilder() {
         return convergeErrWeightedMisfitLineBuilder;
     }
 
     @Override
-    public AbstractPlotBuilder[] getConvergeErrRawMisfitLineBuilder() {
+    public PlotBuilder[] getConvergeErrRawMisfitLineBuilder() {
         return convergeErrRawMisfitLineBuilder;
     }
 
     @Override
-    public AbstractPlotBuilder getConvergeIntensityLinesBuilder() {
+    public PlotBuilder getConvergeIntensityLinesBuilder() {
         return convergeIntensityLinesBuilder;
     }
 
     @Override
-    public AbstractPlotBuilder[] getConvergeNoiseFaradayLineBuilder() {
+    public PlotBuilder[] getConvergeNoiseFaradayLineBuilder() {
         return convergeNoiseFaradayLineBuilder;
     }
 
     @Override
     public String call() throws Exception {
-        AbstractPlotBuilder[][] plots = buildAndRunModelForSingleBlock(blockNumber, analysis, this);
+        PlotBuilder[][] plots = analysis.updatePlotsByBlock(blockNumber, this);
         ratiosHistogramBuilder = plots[0];
         baselineHistogramBuilder = plots[1];
         dalyFaradayGainHistogramBuilder = plots[2];

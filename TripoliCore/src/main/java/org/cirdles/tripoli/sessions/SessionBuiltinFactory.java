@@ -35,12 +35,13 @@ import static org.cirdles.tripoli.TripoliConstants.SYNTHETIC_DATA_FOLDER_2ISOTOP
 /**
  * @author James F. Bowring
  */
-public final class SessionBuiltinFactory {
+public enum SessionBuiltinFactory {
+    ;
 
     public static final Map<String, Session> sessionsBuiltinMap = new TreeMap<>();
     public static String TRIPOLI_DEMONSTRATION_SESSION = "Tripoli Demonstration Session";
 
-    private static ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
+    private static final ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
 
     static {
         Session tripoliDemonstrationSession = Session.initializeSession(TRIPOLI_DEMONSTRATION_SESSION);

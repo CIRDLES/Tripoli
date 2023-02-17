@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
 import com.google.common.primitives.Ints;
 import org.apache.commons.math3.random.RandomDataGenerator;
@@ -354,7 +354,7 @@ public enum SingleBlockModelUpdater {
                 }
 
                 double changed = parametersModel_updated[operationIndex] + deltaX;
-                if (operationIndex == 21) {
+                if (21 == operationIndex) {
 //                    System.out.println("GAIN");
                 }
                 if ((changed <= priorMaxArray[operationIndex] && (changed >= priorMinArray[operationIndex]))) {
@@ -451,7 +451,7 @@ public enum SingleBlockModelUpdater {
             SingleBlockModelRecord singleBlockModelRecord,
             double[][] dataModelCov,
             double[] dataModelMean,
-            List<EnsemblesStoreV2.EnsembleRecord> ensembleRecordsList,
+            List<EnsemblesStore.EnsembleRecord> ensembleRecordsList,
             int countOfNewModels,
             boolean iterFlag) {
         // [xmean,xcov] = UpdateMeanCovMS(x,xcov,xmean,ensemble,cnt-covstart,0);
@@ -541,7 +541,7 @@ public enum SingleBlockModelUpdater {
             PhysicalStore<Double> enso = storeFactory.make(countOfTotalModelParameters, modelCount);
 
             for (int modelIndex = 0; modelIndex < modelCount; modelIndex++) {
-                EnsemblesStoreV2.EnsembleRecord ensembleRecord = ensembleRecordsList.get(modelIndex + countOfNewModels - 1);
+                EnsemblesStore.EnsembleRecord ensembleRecord = ensembleRecordsList.get(modelIndex + countOfNewModels - 1);
                 int row = 0;
                 for (int logRatioIndex = 0; logRatioIndex < countOfLogRatios; logRatioIndex++) {
                     enso.set(row, modelIndex, ensembleRecord.logRatios()[logRatioIndex]);

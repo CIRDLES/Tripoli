@@ -17,18 +17,26 @@
 package org.cirdles.tripoli.plots.histograms;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.PlotBuilder;
+
+import java.io.Serial;
+import java.io.Serializable;
 
 /**
  * @author James F. Bowring
  */
-public class HistogramBuilder extends AbstractPlotBuilder {
+public class HistogramBuilder extends PlotBuilder {
 
+    @Serial
+    private static final long serialVersionUID = 9180059676626735662L;
     private HistogramRecord histogram;
 
-    private HistogramBuilder(String title, String xAxisLabel, String yAxisLabel) {
+    public HistogramBuilder() {
+    }
+
+    public HistogramBuilder(String title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel);
-        histogram = null;
+        histogram = generateHistogram(new double[0], 0);
     }
 
     public static HistogramBuilder initializeHistogram(double[] data, int binCount, String title, String xAxisLabel, String yAxisLabel) {
@@ -46,11 +54,11 @@ public class HistogramBuilder extends AbstractPlotBuilder {
         double dataMin = descriptiveStatisticsRatios.getMin();
 
         double[] binCounts = new double[binCount];
-        double binWidth = (dataMax - dataMin) / (double) binCount;
+        double binWidth = (dataMax - dataMin) / binCount;
 
         for (int index = 0; index < data.length; index++) {
             double datum = data[index];
-            if (datum != 0.0) { //ignore 0s here
+            if (0.0 != datum) { //ignore 0s here
                 int binNum = Math.min((int) Math.floor(Math.abs((datum - dataMin * 1.000000001) / binWidth)), binCount - 1);
                 try {
                     binCounts[binNum]++;

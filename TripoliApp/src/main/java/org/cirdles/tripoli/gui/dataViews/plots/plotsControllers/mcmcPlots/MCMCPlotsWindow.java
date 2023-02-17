@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -59,7 +59,7 @@ public class MCMCPlotsWindow {
     public void loadPlotsWindow() {
         if (!plottingStage.isShowing()) {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/dataViews/plots/plotsControllers/MCMCDemoPlots.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/dataViews/plots/plotsControllers/MCMCPlots.fxml"));
                 Scene scene = new Scene(loader.load());
                 plottingStage.setScene(scene);
 

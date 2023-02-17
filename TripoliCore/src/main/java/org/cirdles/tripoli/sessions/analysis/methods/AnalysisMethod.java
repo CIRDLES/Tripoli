@@ -49,7 +49,7 @@ public class AnalysisMethod implements Serializable {
     private SequenceTable sequenceTable;
     private List<SpeciesRecordInterface> speciesList;
     private List<IsotopicRatio> isotopicRatiosList;
-    private MassSpectrometerContextEnum massSpectrometerContext;
+    private final MassSpectrometerContextEnum massSpectrometerContext;
 
 
     private AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
