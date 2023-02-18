@@ -5,92 +5,165 @@ import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MatLabTest {
+    public double[][] read_csv_string(String csv) {
+        String[] tokens = csv.split(",");
+        String dim = tokens[0];
+        String[] dims = dim.split("x");
+        double m = Double.parseDouble(dims[0]);
+        double n = Double.parseDouble(dims[1]);
+        int m_int = (int)m;
+        int n_int = (int)n;
+        double[][] matrix = new double[m_int][n_int];
+        String[] nums = Arrays.copyOfRange(tokens, 1, tokens.length);
+        int counter = 0;
 
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                matrix[i][j] = Double.parseDouble(nums[counter++]);
+            }
+            //System.out.println(Arrays.toString(matrix[i]));
+        }
+
+        return matrix;
+    }
+
+
+    public ArrayList<double[][]> read_csv(String fn) throws IOException {
+        String filename = fn;
+        ArrayList<double[][]> matrices = new ArrayList<>();
+        FileReader fr = new FileReader(filename);
+        BufferedReader br = new BufferedReader(fr);
+        String line = br.readLine();
+        double[][] matrix = read_csv_string(line);
+        matrices.add(matrix);
+        while (br.ready()) {
+            line = br.readLine();
+            matrix = read_csv_string(line);
+            matrices.add(matrix);
+        }
+        br.close();
+        return matrices;
+    }
+    // add negs
     @Test
-    void kronTest() {
+    void kronTest() throws IOException {
+        ArrayList<double[][]> A_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\kronTestFiles\\matA.txt");
+        ArrayList<double[][]> B_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\kronTestFiles\\matB.txt");
+        ArrayList<double[][]> Answer_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\kronTestFiles\\answers.txt");
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+        Primitive64Store A;
+        Primitive64Store B;
+        double[][] expected;
+        Primitive64Store actual;
+        for (int i = 0; i < Answer_list.size(); i++){
+            A = storeFactory.rows(A_list.get(i));
+            B = storeFactory.rows(B_list.get(i));
 
-        Primitive64Store A = storeFactory.rows(new double[][]{{1, 2, 3}, {4, 5, 6}});
-        Primitive64Store B = storeFactory.make(2, 2);
-        B.fillAll(1.0);
-        Primitive64Store actual = MatLab.kron(A, B);
-        double[][] expected = new double[][]{{1.0, 1.0, 2.0, 2.0, 3.0, 3.0}, {1.0, 1.0, 2.0, 2.0, 3.0, 3.0}, {4.0, 4.0, 5.0, 5.0, 6.0, 6.0}, {4.0, 4.0, 5.0, 5.0, 6.0, 6.0}};
+            expected = Answer_list.get(i);
+            actual = MatLab.kron(A, B);
 
-        assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
+            System.out.println(expected.length);
+            System.out.println(actual.countRows());
+            System.out.println(actual.countColumns());
+            System.out.println(Arrays.deepToString(expected));
+            System.out.println(Arrays.deepToString(actual.toRawCopy2D()));
+            assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
+        }
+    }
+
+    // add negs
+    @Test
+    void expMatrixTest() throws IOException {
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+        ArrayList<double[][]> A_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\expTestFiles\\matA.txt");
+        ArrayList<double[][]> Answer_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\expTestFiles\\answers.txt");
+        double[][] expected;
+        Primitive64Store actual;
+        Primitive64Store A;
+        for (int i = 0; i < Answer_list.size(); i++){
+            A = storeFactory.rows(A_list.get(i));
+            expected = Answer_list.get(i);
+            actual = MatLab.expMatrix(A, 2);
+            System.out.println(expected.length);
+            System.out.println(actual.countRows());
+            System.out.println(actual.countColumns());
+            System.out.println(Arrays.deepToString(expected));
+            System.out.println(Arrays.deepToString(actual.toRawCopy2D()));
+            assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
+        }
+    }
+
+    // add negs
+    @Test
+    void diffTest() throws IOException {
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+        ArrayList<double[][]> A_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\diffTestFiles\\matA.txt");
+        ArrayList<double[][]> Answer_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\diffTestFiles\\answers.txt");
+        double[][] expected;
+        Primitive64Store actual;
+        Primitive64Store A;
+        for (int i = 0; i < Answer_list.size(); i++) {
+            A = storeFactory.rows(A_list.get(i));
+            expected = Answer_list.get(i);
+            actual = MatLab.diff(A);
+            System.out.println(expected.length);
+            System.out.println(actual.countRows());
+            System.out.println(actual.countColumns());
+            System.out.println(Arrays.deepToString(expected));
+            System.out.println(Arrays.deepToString(actual.toRawCopy2D()));
+            assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
+        }
     }
 
     @Test
-    void expMatrixTest() {
+    void greaterOrEqualTest() throws IOException {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        Primitive64Store A = storeFactory.rows(new double[]{1, 2, 3, 4, 5});
-        Primitive64Store actual = MatLab.expMatrix(A, 2);
-        double[][] expected = new double[][]{{1, 4, 9, 16, 25}};
-
-        assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
-
-        A = storeFactory.rows(new double[][]{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
-        actual = MatLab.expMatrix(A, -1);
-        expected = new double[][]{{1.0, 0.5, 0.3333333333333333}, {0.25, 0.2, 0.16666666666666666}, {0.14285714285714285, 0.125, 0.1111111111111111}};
-
-        assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
+        ArrayList<double[][]> A_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\greaterOrEqualTestFiles\\matA2.txt");
+        ArrayList<double[][]> Answer_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\greaterOrEqualTestFiles\\answers2.txt");
+        double[][] expected;
+        Primitive64Store actual;
+        Primitive64Store A;
+        for (int i = 0; i < Answer_list.size(); i++) {
+            A = storeFactory.rows(A_list.get(i));
+            expected = Answer_list.get(i);
+            actual = MatLab.greaterOrEqual(A, 0);
+            assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
+        }
     }
 
     @Test
-    void diffTest() {
+    void sizeTest() throws IOException {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+        ArrayList<double[][]> A_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\sizeTestFiles\\matA2.txt");
+        ArrayList<double[][]> Answer_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\sizeTestFiles\\answers2.txt");
+        double expected1;
+        double expected2;
+        int actual1;
+        int actual2;
+        Primitive64Store A;
+        for (int i = 0; i < Answer_list.size(); i++) {
+            A = storeFactory.rows(A_list.get(i));
+            expected1 = Answer_list.get(i)[0][0];
+            expected2 = Answer_list.get(i)[0][1];
 
-        Primitive64Store X = storeFactory.rows(new double[]{1, 1, 2, 3, 5, 8, 13, 21});
-        Primitive64Store actual = MatLab.diff(X);
-        double[][] expected = new double[][]{{0.0, 1.0, 1.0, 2.0, 3.0, 5.0, 8.0}};
-        assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
-
-
-        X = storeFactory.rows(new double[][]{{1, 1, 1}, {5, 5, 5}, {25, 25, 25}});
-        actual = MatLab.diff(X);
-        expected = new double[][]{{4.0, 4.0, 4.0}, {20.0, 20.0, 20.0}};
-
-        assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
-
-
-        X = storeFactory.rows(new double[]{0, 5, 15, 30, 50, 75, 105});
-        MatrixStore<Double> actual2 = MatLab.diff(X, 2);
-        expected = new double[][]{{5, 5, 5, 5, 5}};
-
-        assertTrue(Arrays.deepEquals(expected, actual2.toRawCopy2D()));
-
-    }
-
-    @Test
-    void greaterOrEqualTest() {
-        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-
-        Primitive64Store A = storeFactory.rows(new double[][]{{1, 12, 18, 7, 9, 11, 2, 15}});
-        Primitive64Store actual = MatLab.greaterOrEqual(A, 11);
-        double[][] expected = new double[][]{{0, 1, 1, 0, 0, 1, 0, 1}};
-
-        assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
-    }
-
-    @Test
-    void sizeTest() {
-        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-
-        Primitive64Store A = storeFactory.make(2, 3);
-        int actual = MatLab.size(A, 1);
-        int expected = 2;
-        assertEquals(expected, actual);
-
-
-        actual = MatLab.size(A, 2);
-        expected = 3;
-        assertEquals(expected, actual);
-
+            actual1 = MatLab.size(A, 1);
+            actual2 = MatLab.size(A, 2);
+            assertEquals(expected1, actual1);
+            assertEquals(expected2, actual2);
+        }
     }
 
     @Test
@@ -134,18 +207,27 @@ class MatLabTest {
     }
 
     @Test
-    void rDivideTest() {
+    void rDivideTest() throws IOException {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-
-        double[][] testArr = new double[][]{{8, 1, 6}, {3, 5, 7}, {4, 9, 2}};
-        Primitive64Store A = storeFactory.rows(testArr);
-
-        Primitive64Store actual = MatLab.rDivide(A, 5);
-        double[][] expected = new double[][]{{0.625, 5.0, 0.8333333333333334}, {1.6666666666666667, 1.0, 0.7142857142857143}, {1.25, 0.5555555555555556, 2.5}};
-
-        assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
+        ArrayList<double[][]> A_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\rDivideTestFiles\\matA2.txt");
+        ArrayList<double[][]> Answer_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\rDivideTestFiles\\answers2.txt");
+        double[][] expected;
+        Primitive64Store actual;
+        Primitive64Store A;
+        for (int i = 0; i < Answer_list.size(); i++) {
+            A = storeFactory.rows(A_list.get(i));
+            expected = Answer_list.get(i);
+            actual = MatLab.rDivide(A, -5);
+            System.out.println(expected.length);
+            System.out.println(actual.countRows());
+            System.out.println(actual.countColumns());
+            System.out.println(Arrays.deepToString(expected));
+            System.out.println(Arrays.deepToString(actual.toRawCopy2D()));
+            assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
+        }
     }
 
+    // fix error
     @Test
     void maxTest() {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
@@ -157,13 +239,18 @@ class MatLabTest {
     }
 
     @Test
-    void diagTest() {
+    void diagTest() throws IOException {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-
-        Primitive64Store A = storeFactory.rows(new double[][]{{2, 1, -1, -2, -5}});
-        Primitive64Store actual = MatLab.diag(A);
-        System.out.println(Arrays.deepToString(actual.toRawCopy2D()));
-        double[][] expected = new double[][]{{2, 0, 0, 0, 0}, {0, 1, 0, 0, 0}, {0, 0, -1, 0, 0}, {0, 0, 0, -2, 0}, {0, 0, 0, 0, -5}};
-        assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
+        ArrayList<double[][]> A_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\diagTestFiles\\matA2.txt");
+        ArrayList<double[][]> Answer_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\diagTestFiles\\answers2.txt");
+        double[][] expected;
+        Primitive64Store actual;
+        Primitive64Store A;
+        for (int i = 0; i < Answer_list.size(); i++) {
+            A = storeFactory.rows(A_list.get(i));
+            expected = Answer_list.get(i);
+            actual = MatLab.diag(A);
+            assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
+        }
     }
 }
