@@ -19,7 +19,6 @@ import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.GBeamLinePlotBuilder;
-import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.BeamDataOutputDriverExperiment;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
@@ -278,7 +277,7 @@ public class PeakShapeDemoPlotsControllerTest {
         finalYAxis = yAxis;
         finalXAxis = xAxis;
 
-        LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, "PeakCentre Plot", "Cycles", "Peak Widths");
+        //LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, "PeakCentre Plot", "Cycles", "Peak Widths");
 
         //peakCentreLinePlot =  PeakCentresLinePlotX.generatePlot(new Rectangle(peakCentreGridPane.getCellBounds(0, 0).getWidth(), peakCentreGridPane.getCellBounds(0, 0).getHeight()), peakCentrePlotBuilder);
 
@@ -399,7 +398,7 @@ public class PeakShapeDemoPlotsControllerTest {
         listViewOfResourcesInFolder = new ListView<>();
         listViewOfResourcesInFolder.setCellFactory(param -> new PeakShapeDemoPlotsControllerTest.ResourceDisplayName2());
         eventLogTextArea.textProperty().unbind();
-        int initialIndex;
+        //int initialIndex;
 
         ObservableList<File> items = FXCollections.observableArrayList(resourceGroups.get(groupValue));
         listViewOfResourcesInFolder.setItems(items);
@@ -407,10 +406,10 @@ public class PeakShapeDemoPlotsControllerTest {
 
         listViewOfResourcesInFolder.setOnMouseClicked(click -> {
             //peakCentreLinePlot.repaint();
-            int index;
+            //int index;
             if (click.getClickCount() == 1) {
                 resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
-                index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
+                //index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
 //                peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
 //                peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[index]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[index]) - 6, 12, 12);
                 processDataFileAndShowPlotsOfPeakShapes();
@@ -430,7 +429,7 @@ public class PeakShapeDemoPlotsControllerTest {
         });
 
         listViewOfResourcesInFolder.getSelectionModel().selectFirst();
-        initialIndex = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
+        //initialIndex = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
         resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
 //        peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
 //        peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[initialIndex]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[initialIndex]) - 6, 12, 12);
@@ -450,7 +449,7 @@ public class PeakShapeDemoPlotsControllerTest {
             eventLogTextArea.textProperty().bind(service.valueProperty());
             try {
                 AbstractPlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
-                if (wallPlotsAnchorPane.getChildren().size() > 0){
+                if (wallPlotsAnchorPane.getChildren().size() > 0) {
                     wallPlotsAnchorPane.getChildren().remove(0);
                 }
 
