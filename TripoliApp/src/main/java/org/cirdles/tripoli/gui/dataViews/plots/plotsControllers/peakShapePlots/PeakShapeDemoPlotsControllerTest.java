@@ -418,10 +418,10 @@ public class PeakShapeDemoPlotsControllerTest {
 
         listViewOfResourcesInFolder.setOnKeyPressed(key -> {
             //peakCentreLinePlot.repaint();
-            int index;
+            //int index;
             if (key.getCode() == KeyCode.DOWN || key.getCode() == KeyCode.UP) {
                 resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
-                index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
+                //index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
                 processDataFileAndShowPlotsOfPeakShapes();
 //                peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
 //                peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[index]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[index]) - 6, 12, 12);
