@@ -30,11 +30,12 @@ public class GBeamLinePlot extends AbstractPlot {
         super(bounds, 50, 35, gBeamLinePlotBuilder.getTitle(), gBeamLinePlotBuilder.getxAxisLabel(), gBeamLinePlotBuilder.getyAxisLabel());
         this.gBeamLinePlotBuilder = gBeamLinePlotBuilder;
 
-        this.setOnMouseMoved(new MouseMovedHandler());
-        this.setOnMouseClicked(new MouseClickEventHandler());
+
         setupPlotContextMenu();
         tooltip = new Tooltip();
         Tooltip.install(this, tooltip);
+        this.setOnMouseMoved(new MouseMovedHandler());
+        this.setOnMouseClicked(new MouseClickEventHandler());
     }
 
     public static AbstractPlot generatePlot(Rectangle bounds, GBeamLinePlotBuilder gBeamLinePlotBuilder) {

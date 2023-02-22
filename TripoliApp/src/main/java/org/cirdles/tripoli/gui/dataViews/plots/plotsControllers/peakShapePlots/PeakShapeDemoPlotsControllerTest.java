@@ -450,6 +450,10 @@ public class PeakShapeDemoPlotsControllerTest {
             eventLogTextArea.textProperty().bind(service.valueProperty());
             try {
                 AbstractPlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
+                if (wallPlotsAnchorPane.getChildren().size() > 0){
+                    wallPlotsAnchorPane.getChildren().remove(0);
+                }
+
 
                 PlotWallPane ensemblePlotsWallPane = new PlotWallPane();
                 ensemblePlotsWallPane.buildToolBar();
