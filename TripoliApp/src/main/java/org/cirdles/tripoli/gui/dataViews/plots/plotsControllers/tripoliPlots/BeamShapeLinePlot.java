@@ -196,7 +196,7 @@ public class BeamShapeLinePlot extends AbstractPlot {
             Node potNode;
 
             if (mouseInHouse(event.getX(), event.getY())) {
-                ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.CROSSHAIR);
+
                 potNode = ((Canvas) event.getSource()).getParent();
                 int minIndex = 0;
                 double minVal = Integer.MAX_VALUE;
@@ -214,8 +214,12 @@ public class BeamShapeLinePlot extends AbstractPlot {
                         double diffY = Math.abs(getyAxisData()[i - 1] - getyAxisData()[i]);
                         if ((getyAxisData()[i] >= convertMouseYToValue(event.getY()) - diffY && getyAxisData()[i] <= convertMouseYToValue(event.getY()) + diffY)) {
                             showToolTip(potNode, event, getxAxisData()[i], getyAxisData()[i]);
+                            ((Canvas) event.getSource()).setCursor(Cursor.CROSSHAIR);
                         } else if (convertMouseYToValue(event.getY()) - maxY / 200 <= getyAxisData()[minIndex] && convertMouseYToValue(event.getY()) + maxY / 200 >= getyAxisData()[minIndex]) {
                             showToolTip(potNode, event, getxAxisData()[i], getyAxisData()[i]);
+                            ((Canvas) event.getSource()).setCursor(Cursor.CROSSHAIR);
+                        }else {
+                            ((Canvas) event.getSource()).setCursor(Cursor.DEFAULT);
                         }
                     }
                 }

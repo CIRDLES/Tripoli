@@ -15,7 +15,6 @@ import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.BeamShapeLinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.GBeamLinePlot;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.LinePlot;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.plots.AbstractPlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.BeamShapeLinePlotBuilder;
@@ -76,14 +75,6 @@ public class PeakShapeDemoPlotsControllerTest {
     private ToolBar toolbar;
 
     @FXML
-    private GridPane beamPlotsGridPane;
-    @FXML
-    private GridPane gBeamPlotGridPane;
-
-    @FXML
-    private GridPane peakCentreGridPane;
-
-    @FXML
     private AnchorPane eventAnchorPane;
 
     @FXML
@@ -112,6 +103,9 @@ public class PeakShapeDemoPlotsControllerTest {
 
         masterVBox.prefWidthProperty().bind(plotsAnchorPane.widthProperty());
         masterVBox.prefHeightProperty().bind(plotsAnchorPane.heightProperty());
+
+        wallPlotsAnchorPane.prefWidthProperty().bind(masterVBox.widthProperty());
+        wallPlotsAnchorPane.prefHeightProperty().bind(masterVBox.heightProperty());
 
 
         eventAnchorPane.prefHeightProperty().bind(eventScrollPane.heightProperty());
@@ -192,7 +186,6 @@ public class PeakShapeDemoPlotsControllerTest {
             }
 
             ObservableList<String> items = FXCollections.observableArrayList(resourceGroups.keySet().stream().toList());
-            listViewOfGroupResourcesInFolder.setItems(items);
 
 
             listViewOfGroupResourcesInFolder.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -204,11 +197,12 @@ public class PeakShapeDemoPlotsControllerTest {
                 eventLogTextArea.setText("Select File From Plot");
             });
 
-
+            listViewOfGroupResourcesInFolder.setItems(items);
             listViewOfGroupResourcesInFolder.getSelectionModel().selectFirst();
-            listViewOfGroupResourcesInFolder.prefHeightProperty().bind(resourceListScrollPane.prefHeightProperty());
-            listViewOfGroupResourcesInFolder.prefWidthProperty().bind(resourceListScrollPane.prefWidthProperty());
+            listViewOfGroupResourcesInFolder.prefWidthProperty().bind(resourceListScrollPane.widthProperty());
+            listViewOfGroupResourcesInFolder.prefHeightProperty().bind(resourceListScrollPane.heightProperty());
             resourceListScrollPane.setContent(listViewOfGroupResourcesInFolder);
+
             eventLogTextArea.setText("Select File From Plot");
 
         } else {
@@ -217,10 +211,6 @@ public class PeakShapeDemoPlotsControllerTest {
 
 
             eventAnchorPane.getChildren().removeAll();
-
-
-            beamPlotsGridPane.getChildren().removeAll();
-            peakCentreGridPane.getChildren().removeAll();
 
         }
 
@@ -278,6 +268,7 @@ public class PeakShapeDemoPlotsControllerTest {
 
                     // adds the rendered images to a list that will be used later
                     beamImageSet.add(image1);
+
                     gBeamImageSet.add(image2);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -337,7 +328,7 @@ public class PeakShapeDemoPlotsControllerTest {
 
         //peakCentreLinePlot.preparePanel();
 //        peakCentreGridPane.add(peakCentreLinePlot, 0, 0);
-        int size = 1;
+//        int size = 1;
 //        for (int i = 0; i < gBeamImageSet.size(); i++) {
 //            plotsAnchorPane.getChildren().add(gBeamImageSet.get(i));
 //            ImageView pos = (ImageView) plotsAnchorPane.getChildren().get(i + 1);
@@ -375,7 +366,7 @@ public class PeakShapeDemoPlotsControllerTest {
 //            listViewOfResourcesInFolder.getSelectionModel().select(currentGroupIndex);
 //        });
 
-        int finalSize = size;
+//        int finalSize = size;
 
 //        peakCentreGridPane.setOnMouseMoved(mouse -> {
 //            int index = (int) peakCentreLinePlot.convertMouseXToValue(mouse.getX());
@@ -478,8 +469,8 @@ public class PeakShapeDemoPlotsControllerTest {
 //                        (BeamShapeLinePlotBuilder) plots[0]
 //                );
 
-                produceTripoliLinePlots(plots[0], ensemblePlotsWallPane);
-                produceTripoliLinePlots(plots[1], ensemblePlotsWallPane);
+                produceBeamShapeLinePlot(plots[0], ensemblePlotsWallPane);
+                produceGBeamShapeLinePlot(plots[1], ensemblePlotsWallPane);
 
                 ensemblePlotsWallPane.tilePlots();
             } catch (Exception e) {
@@ -492,9 +483,15 @@ public class PeakShapeDemoPlotsControllerTest {
 
     }
 
-    private void produceTripoliLinePlots(AbstractPlotBuilder plotBuilder, PlotWallPane plotWallPane) {
+    private void produceBeamShapeLinePlot(AbstractPlotBuilder plotBuilder, PlotWallPane plotWallPane) {
         TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
-        AbstractPlot plot = LinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (LinePlotBuilder) plotBuilder);
+        AbstractPlot plot = BeamShapeLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (BeamShapeLinePlotBuilder) plotBuilder);
+        tripoliPlotPane.addPlot(plot);
+    }
+
+    private void produceGBeamShapeLinePlot(AbstractPlotBuilder plotBuilder, PlotWallPane plotWallPane) {
+        TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
+        AbstractPlot plot = GBeamLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (GBeamLinePlotBuilder) plotBuilder);
         tripoliPlotPane.addPlot(plot);
     }
 

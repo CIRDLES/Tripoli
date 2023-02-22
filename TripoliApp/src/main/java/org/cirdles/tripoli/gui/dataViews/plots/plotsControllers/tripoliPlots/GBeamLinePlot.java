@@ -180,7 +180,7 @@ public class GBeamLinePlot extends AbstractPlot {
             Node potNode;
 
             if (mouseInHouse(event.getX(), event.getY())) {
-                ((Canvas) event.getSource()).getParent().getScene().setCursor(Cursor.CROSSHAIR);
+
                 potNode = ((Canvas) event.getSource()).getParent();
                 int maxIndex = 0;
                 double maxVal = 0;
@@ -198,10 +198,15 @@ public class GBeamLinePlot extends AbstractPlot {
                         double diffY = Math.abs(getyAxisData()[i] - getyAxisData()[i + 1]);
                         if ((getyAxisData()[i] >= convertMouseYToValue(event.getY()) - diffY && getyAxisData()[i] <= convertMouseYToValue(event.getY()) + diffY)) {
                             showToolTip(potNode, event, getxAxisData()[i], getyAxisData()[i]);
+                            ((Canvas) event.getSource()).setCursor(Cursor.CROSSHAIR);
                         } else if (convertMouseYToValue(event.getY()) - maxY / 100 <= getyAxisData()[maxIndex] && convertMouseYToValue(event.getY()) + maxY / 100 >= getyAxisData()[maxIndex]) {
                             showToolTip(potNode, event, getxAxisData()[i], getyAxisData()[i]);
+                            ((Canvas) event.getSource()).setCursor(Cursor.CROSSHAIR);
                         } else if (convertMouseYToValue(event.getY()) - maxY / 100 <= getyAxisData()[0] && convertMouseYToValue(event.getY()) + maxY / 100 >= getyAxisData()[0]) {
                             showToolTip(potNode, event, getxAxisData()[i], getyAxisData()[i]);
+                            ((Canvas) event.getSource()).setCursor(Cursor.CROSSHAIR);
+                        }else {
+                            ((Canvas) event.getSource()).setCursor(Cursor.DEFAULT);
                         }
                     }
                 }
