@@ -177,7 +177,6 @@ public enum MatLabCholesky {
      * @param sigma
      */
     public static Matrix cholCov(Matrix sigma) {
-        int flag = 1;
         int n = sigma.getRowDimension();
         double max = Double.MIN_VALUE;
         for (int row = 0; row < n; row++) {
@@ -189,7 +188,6 @@ public enum MatLabCholesky {
         Matrix matrixT = new Matrix(tArray);
         double tol = 10.0 * ulp(max);
         if (all(sigma.minus(sigma.transpose()).getArray(), "<", n * tol)) {
-            CholeskyDecomposition chol = sigma.chol();
             EigenvalueDecomposition eig = sigma.plus(sigma.transpose().times(0.5)).eig();
             Matrix U = eig.getV();
             Matrix D = eig.getD();
@@ -284,10 +282,10 @@ public enum MatLabCholesky {
         boolean retVal = true;
         for (int row = 0; row < array.length; row++) {
             for (int col = 0; col < array[row].length; col++) {
-                if ("<" == operator) {
+                if ("<".compareTo(operator) == 0) {
                     retVal = retVal && (Math.abs(array[row][col]) < tolerance);
                 }
-                if (">" == operator) {
+                if (">".compareTo(operator) == 0) {
                     retVal = retVal && (Math.abs(array[row][col]) > tolerance);
                 }
                 if (!retVal) break;

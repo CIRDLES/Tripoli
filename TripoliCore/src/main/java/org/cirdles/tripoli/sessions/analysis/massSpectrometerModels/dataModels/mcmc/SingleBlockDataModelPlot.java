@@ -277,7 +277,7 @@ public enum SingleBlockDataModelPlot {
         // todo: this is duplicated code from above in part
 //        double[] data = singleBlockInitialModelRecordInitial.dataArray();
 //        double[] dataWithNoBaseline = new double[singleBlockInitialModelRecordInitial.dataArray().length];
-        EnsemblesStore.EnsembleRecord lastModelRecord = ensembleRecordsList.get(ensembleRecordsList.size() - 1);
+//        EnsemblesStore.EnsembleRecord lastModelRecord = ensembleRecordsList.get(ensembleRecordsList.size() - 1);
 
 //        for (int blockIndex = 0; blockIndex < singleBlockDataSetRecord..blockCount(); blockIndex++) {
 //            List<double[]> intensity = new ArrayList<>(1);
