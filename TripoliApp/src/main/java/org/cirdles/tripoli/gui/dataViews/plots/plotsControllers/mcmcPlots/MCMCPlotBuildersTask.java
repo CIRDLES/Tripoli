@@ -26,7 +26,7 @@ import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
  */
 public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface, PlotBuildersTaskInterface {
     private final AnalysisInterface analysis;
-    private int blockNumber;
+    private final int blockNumber;
     // ensemble plots
     private PlotBuilder[] ratiosHistogramBuilder;
     private PlotBuilder[] baselineHistogramBuilder;

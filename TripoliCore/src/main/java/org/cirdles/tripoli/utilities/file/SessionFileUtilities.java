@@ -23,12 +23,13 @@ import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 /**
  * @author James F. Bowring
  */
-public final class SessionFileUtilities {
+public enum SessionFileUtilities {
+    ;
 
     public static void serializeTripoliSession(Session session, String sessionFileName)
             throws TripoliException {
 
         TripoliSerializer.serializeObjectToFile(session, sessionFileName);
-        session.setSessionChanged(false);
+        Session.setSessionChanged(false);
     }
 }

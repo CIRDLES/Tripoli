@@ -73,7 +73,7 @@ public class ValueModel implements Serializable, Comparable<ValueModel>, ValueMo
 
     public static ValueModel createCopyOfValueModel(@NotNull ValueModel valueModel) {
         ValueModel valueModelCopy =
-                createFullNamedValueModel(valueModel.getName(), valueModel.getValue(), valueModel.getAnalyticalOneSigmaAbs(), valueModel.getSystematicOneSigmaAbs());
+                createFullNamedValueModel(valueModel.name, valueModel.value, valueModel.analyticalOneSigmaAbs, valueModel.systematicOneSigmaAbs);
         return valueModelCopy;
     }
 
@@ -81,14 +81,14 @@ public class ValueModel implements Serializable, Comparable<ValueModel>, ValueMo
      * @return
      */
     public boolean hasPositiveVarUnct() {
-        return analyticalOneSigmaAbs.compareTo(BigDecimal.ZERO) > 0;
+        return 0 < analyticalOneSigmaAbs.compareTo(BigDecimal.ZERO);
     }
 
     /**
      * @return
      */
     public boolean hasPositiveSysUnct() {
-        return systematicOneSigmaAbs.compareTo(BigDecimal.ZERO) > 0;
+        return 0 < systematicOneSigmaAbs.compareTo(BigDecimal.ZERO);
     }
 
     /**
@@ -132,8 +132,8 @@ public class ValueModel implements Serializable, Comparable<ValueModel>, ValueMo
 
     @Override
     public int compareTo(@NotNull ValueModel valueModel) throws ClassCastException {
-        String name = valueModel.getName();
-        return this.getName().trim().compareToIgnoreCase(name.trim());
+        String name = valueModel.name;
+        return name.trim().compareToIgnoreCase(name.trim());
     }
 
     // TODO: equals, hashcode, copy

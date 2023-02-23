@@ -67,7 +67,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
                         double intensity = baselineIntensities[index][detectorDataColumnIndex];
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
-                        if (analysisMethod.getMassSpectrometerContext() == MassSpectrometerContextEnum.PHOENIX) {
+                        if (MassSpectrometerContextEnum.PHOENIX == analysisMethod.getMassSpectrometerContext()) {
                             // convert all volts to counts to bring all files into alignment
                             intensity = intensity * (ONE_COULOMB / amplifierResistance);
                         }
@@ -120,7 +120,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
                         double intensity = onPeakIntensities[index][detectorDataColumnIndex];
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
-                        if (analysisMethod.getMassSpectrometerContext() == MassSpectrometerContextEnum.PHOENIX && isFaraday) {
+                        if (MassSpectrometerContextEnum.PHOENIX == analysisMethod.getMassSpectrometerContext() && isFaraday) {
                             // convert all volts to counts to bring all files into alignment
                             intensity = intensity * (ONE_COULOMB / amplifierResistance);
                         }

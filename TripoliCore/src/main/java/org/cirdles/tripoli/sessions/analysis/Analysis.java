@@ -52,19 +52,17 @@ import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuilti
 public class Analysis implements Serializable, AnalysisInterface {
     @Serial
     private static final long serialVersionUID = 5737165372498262402L;
-
+    private final Map<Integer, PlotBuilder[][]> mapOfBlockToPlots = new TreeMap<>();
     private String analysisName;
     private String analystName;
     private String labName;
     private AnalysisMethod analysisMethod;
     private String analysisSampleName;
     private String analysisSampleDescription;
-
     // note: Path is not serializable
     private String dataFilePathString;
     private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
-    private final Map<Integer, PlotBuilder[][]> mapOfBlockToPlots = new TreeMap<>();
 
     private Analysis() {
     }

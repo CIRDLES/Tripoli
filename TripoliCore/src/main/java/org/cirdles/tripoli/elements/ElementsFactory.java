@@ -28,12 +28,13 @@ import java.util.List;
 /**
  * @author James F. Bowring
  */
-public final class ElementsFactory {
+public enum ElementsFactory {
+    ;
 
     public static List<ElementRecord> periodicTableElementsList = new ArrayList<>();
 
     static {
-        final ResourceExtractor RESOURCE_EXTRACTOR
+        ResourceExtractor RESOURCE_EXTRACTOR
                 = new ResourceExtractor(Tripoli.class);
         Path periodicTableData;
         List<String> contentsByLine = new ArrayList<>();

@@ -27,7 +27,9 @@ import static org.cirdles.tripoli.Tripoli.TRIPOLI_RESOURCE_EXTRACTOR;
 import static org.cirdles.tripoli.TripoliConstants.*;
 import static org.cirdles.tripoli.utilities.file.GithubFileExtractor.extractGithubFile;
 
-public class TripoliFileResources {
+public enum TripoliFileResources {
+    ;
+
     public static void initLocalResources() throws IOException {
         if (TRIPOLI_RESOURCES_FOLDER.exists()) {
             FileUtilities.recursiveDelete(TRIPOLI_RESOURCES_FOLDER.toPath());
@@ -71,12 +73,12 @@ public class TripoliFileResources {
         if (resourceTargetFolder.exists()) {
             FileUtilities.recursiveDelete(resourceTargetFolder.toPath());
         }
-        if (resourceTargetFolder.mkdir() && (listOfResourceFiles != null)) {
+        if (resourceTargetFolder.mkdir() && (null != listOfResourceFiles)) {
             List<String> fileNames = Files.readAllLines(listOfResourceFiles, ISO_8859_1);
             for (String name : fileNames) {
-                if (name.trim().length() > 0) {
+                if (0 < name.trim().length()) {
                     if (name.startsWith("https")) {
-                        int fileNameIndex = name.lastIndexOf("/");
+                        int fileNameIndex = name.lastIndexOf('/');
                         String fileName = name.substring(fileNameIndex + 1);
                         try {
                             extractGithubFile(
@@ -88,7 +90,7 @@ public class TripoliFileResources {
                     } else {
                         File resourceFileName = TRIPOLI_RESOURCE_EXTRACTOR.extractResourceAsFile(resourceFolderName + "/" + name);
                         File resourceLocalFileName = new File(resourceTargetFolder.getCanonicalPath() + "/" + name);
-                        if (resourceFileName != null) {
+                        if (null != resourceFileName) {
                             boolean renameTo = resourceFileName.renameTo(resourceLocalFileName);
                             if (!renameTo) {
                                 throw new IOException();

@@ -42,7 +42,7 @@ public class LinePlot extends AbstractPlot {
 
         prepareExtents();
         calculateTics();
-        this.repaint();
+        repaint();
     }
 
     @Override
@@ -52,7 +52,7 @@ public class LinePlot extends AbstractPlot {
 
     public void prepareExtents() {
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.01);
-        if (xMarginStretch == 0.0) {
+        if (0.0 == xMarginStretch) {
             xMarginStretch = maxX * 0.01;
         }
         minX -= xMarginStretch;

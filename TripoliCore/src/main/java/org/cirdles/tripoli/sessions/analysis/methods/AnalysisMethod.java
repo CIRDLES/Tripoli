@@ -43,13 +43,12 @@ import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
 public class AnalysisMethod implements Serializable {
     @Serial
     private static final long serialVersionUID = -642166785514147638L;
-
+    private final MassSpectrometerContextEnum massSpectrometerContext;
     private String methodName;
     private BaselineTable baselineTable;
     private SequenceTable sequenceTable;
     private List<SpeciesRecordInterface> speciesList;
     private List<IsotopicRatio> isotopicRatiosList;
-    private final MassSpectrometerContextEnum massSpectrometerContext;
 
 
     private AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {

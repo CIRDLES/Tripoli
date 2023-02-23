@@ -18,7 +18,8 @@ package org.cirdles.tripoli;
 
 import java.io.File;
 
-public final class TripoliConstants {
+public enum TripoliConstants {
+    ;
 
     public static final String TRIPOLI_LOGO_SANS_TEXT_URL = "org/cirdles/tripoli/gui/images/TripoliJune2022.png";
 

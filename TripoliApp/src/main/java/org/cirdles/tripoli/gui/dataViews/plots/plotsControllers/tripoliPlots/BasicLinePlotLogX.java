@@ -59,7 +59,7 @@ public class BasicLinePlotLogX extends AbstractDataView {
             maxY = StrictMath.max(maxY, yAxisDatum);
         }
         ticsY = TicGeneratorForAxes.generateTics(minY, maxY, (int) (graphHeight / 15.0));
-        if ((ticsY != null) && (ticsY.length > 1)) {
+        if ((null != ticsY) && (1 < ticsY.length)) {
             // force y to tics
             minY = ticsY[0].doubleValue();
             maxY = ticsY[ticsY.length - 1].doubleValue();
@@ -72,7 +72,7 @@ public class BasicLinePlotLogX extends AbstractDataView {
         setDisplayOffsetY(0.0);
         setDisplayOffsetX(0.0);
 
-        this.repaint();
+        repaint();
     }
 
     @Override
@@ -84,7 +84,7 @@ public class BasicLinePlotLogX extends AbstractDataView {
         int textWidth = 0;
 
         labelXAxis("Log of Saved Iteration Count");
-        showTitle(linePlotBuilder.getTitle());
+        showTitle(linePlotBuilder.getTitle()[0]);
 
         g2d.setLineWidth(2.0);
         // new line plot
@@ -97,7 +97,7 @@ public class BasicLinePlotLogX extends AbstractDataView {
         }
         g2d.stroke();
 
-        if (ticsY.length > 1) {
+        if (1 < ticsY.length) {
             // border and fill
             g2d.setLineWidth(0.5);
             g2d.setStroke(Paint.valueOf("BLACK"));
@@ -112,7 +112,7 @@ public class BasicLinePlotLogX extends AbstractDataView {
             // ticsY
             float verticalTextShift = 3.2f;
             g2d.setFont(Font.font("SansSerif", 10));
-            if (ticsY != null) {
+            if (null != ticsY) {
                 for (BigDecimal bigDecimal : ticsY) {
                     g2d.strokeLine(
                             mapX(minX), mapY(bigDecimal.doubleValue()), mapX(maxX), mapY(bigDecimal.doubleValue()));
@@ -121,12 +121,12 @@ public class BasicLinePlotLogX extends AbstractDataView {
                     text.setText(bigDecimal.toString());
                     textWidth = (int) text.getLayoutBounds().getWidth();
                     g2d.fillText(text.getText(),//
-                            (float) mapX(minX) - textWidth - 5f,
+                            (float) mapX(minX) - textWidth - 5.0f,
                             (float) mapY(bigDecimal.doubleValue()) + verticalTextShift);
 
                 }
                 // ticsX
-                if (ticsX != null) {
+                if (null != ticsX) {
                     for (BigDecimal bigDecimal : ticsX) {
                         try {
                             g2d.strokeLine(
@@ -138,7 +138,7 @@ public class BasicLinePlotLogX extends AbstractDataView {
                             // bottom
                             String xText = (new BigDecimal(Double.toString(Math.exp(bigDecimal.doubleValue())))).setScale(-1, RoundingMode.HALF_UP).toPlainString();
                             g2d.fillText(xText,
-                                    (float) mapX(bigDecimal.doubleValue()) - 5f,
+                                    (float) mapX(bigDecimal.doubleValue()) - 5.0f,
                                     (float) mapY(ticsY[0].doubleValue()) + 15);
 
                         } catch (Exception ignored) {

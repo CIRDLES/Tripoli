@@ -39,9 +39,8 @@ public enum SessionBuiltinFactory {
     ;
 
     public static final Map<String, Session> sessionsBuiltinMap = new TreeMap<>();
-    public static String TRIPOLI_DEMONSTRATION_SESSION = "Tripoli Demonstration Session";
-
     private static final ResourceExtractor RESOURCE_EXTRACTOR = new ResourceExtractor(Tripoli.class);
+    public static String TRIPOLI_DEMONSTRATION_SESSION = "Tripoli Demonstration Session";
 
     static {
         Session tripoliDemonstrationSession = Session.initializeSession(TRIPOLI_DEMONSTRATION_SESSION);

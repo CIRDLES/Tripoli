@@ -94,7 +94,7 @@ public class CorrelationMatrixModel extends AbstractMatrixModel {
     protected void setCorrelationCell(String leftSide, String rightSide, double rho) {
         Integer left = getCols().get(leftSide);
         Integer right = getCols().get(rightSide);
-        if ((left != null) && (right != null)) {
+        if ((null != left) && (null != right)) {
             matrix.set(left, right, rho);
             matrix.set(right, left, rho);
         }
@@ -125,7 +125,7 @@ public class CorrelationMatrixModel extends AbstractMatrixModel {
         Integer left = getCols().get(leftSide);
         Integer right = getCols().get(rightSide);
 
-        if ((left != null) && (right != null)) {
+        if ((null != left) && (null != right)) {
             return matrix.get(left, right);
         }
         return retval;
@@ -140,7 +140,7 @@ public class CorrelationMatrixModel extends AbstractMatrixModel {
         Integer left = getCols().get(leftSide);
         Integer right = getCols().get(rightSide);
 
-        if ((left != null) && (right != null)) {
+        if ((null != left) && (null != right)) {
             matrix.set(left, right, rho);
             matrix.set(right, left, rho);
         }
@@ -154,7 +154,7 @@ public class CorrelationMatrixModel extends AbstractMatrixModel {
     @Override
     public void setValueAt(int row, int col, double value) {
         // only if value between -1 and 1
-        if ((value >= -1.0) && (value <= 1.0)) {
+        if ((-1.0 <= value) && (1.0 >= value)) {
             matrix.set(row, col, value);
             if (row != col) {
                 matrix.set(col, row, value);

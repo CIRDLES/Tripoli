@@ -30,13 +30,13 @@ public class MultiLinePlotBuilder extends PlotBuilder {
     public MultiLinePlotBuilder() {
     }
 
-    private MultiLinePlotBuilder(double[] xData, double[][] yData, String title, String xAxisLabel, String yAxisLabel) {
+    private MultiLinePlotBuilder(double[] xData, double[][] yData, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel);
         this.xData = xData;
         this.yData = yData;
     }
 
-    public static MultiLinePlotBuilder initializeLinePlot(double[] xData, double[][] yData, String title, String xAxisLabel, String yAxisLabel) {
+    public static MultiLinePlotBuilder initializeLinePlot(double[] xData, double[][] yData, String[] title, String xAxisLabel, String yAxisLabel) {
         return new MultiLinePlotBuilder(xData, yData, title, xAxisLabel, yAxisLabel);
     }
 

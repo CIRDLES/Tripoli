@@ -26,7 +26,10 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.ResourceBundle;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHeight;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
@@ -124,7 +127,7 @@ public class MCMCPlotsController {
         listViewOfBlocks.setCellFactory((parameter) -> new BlockDisplayName());
 
         Collections.sort(blocksByName, new IntuitiveStringComparator<>());
-        ObservableList < String > items = FXCollections.observableArrayList(blocksByName);
+        ObservableList<String> items = FXCollections.observableArrayList(blocksByName);
         listViewOfBlocks.setItems(items);
         listViewOfBlocks.getSelectionModel().selectFirst();
         listViewOfBlocks.prefWidthProperty().bind(listOfFilesScrollPane.widthProperty());

@@ -27,19 +27,19 @@ public class LinePlotBuilder extends PlotBuilder {
     private final double[] xData;
     private final double[] yData;
 
-    public LinePlotBuilder(String title, String xAxisLabel, String yAxisLabel) {
+    public LinePlotBuilder(String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel);
         xData = new double[0];
         yData = new double[0];
     }
 
-    protected LinePlotBuilder(double[] xData, double[] yData, String title, String xAxisLabel, String yAxisLabel) {
+    protected LinePlotBuilder(double[] xData, double[] yData, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel);
         this.xData = xData;
         this.yData = yData;
     }
 
-    public static LinePlotBuilder initializeLinePlot(double[] xData, double[] yData, String title, String xAxisLabel, String yAxisLabel) {
+    public static LinePlotBuilder initializeLinePlot(double[] xData, double[] yData, String[] title, String xAxisLabel, String yAxisLabel) {
         return new LinePlotBuilder(xData, yData, title, xAxisLabel, yAxisLabel);
     }
 

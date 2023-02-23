@@ -149,11 +149,11 @@ public class PeakShapePlotsController {
         File[] allFiles;
         resourceGroups = new TreeMap<>();
 
-        if (resourceBrowserTarget != null) {
+        if (null != resourceBrowserTarget) {
             for (File file : Objects.requireNonNull(resourceBrowserTarget.listFiles((file, name) -> name.toLowerCase().endsWith(".txt")))) {
                 try {
                     List<String> contentsByLine = new ArrayList<>(Files.readAllLines(file.toPath(), Charset.defaultCharset()));
-                    if (contentsByLine.size() > 5 && (contentsByLine.get(4).startsWith("Peak Centre Mass"))) {
+                    if (5 < contentsByLine.size() && (contentsByLine.get(4).startsWith("Peak Centre Mass"))) {
                         resourceFilesInFolder.add(file);
                     }
 
@@ -206,7 +206,7 @@ public class PeakShapePlotsController {
 
             listViewOfGroupResourcesInFolder.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 // Files will be manipulated here when group is selected
-                setCurrentGroup(newValue);
+                currentGroup = newValue;
                 processFilesAndShowPeakCentre(newValue);
                 populateListOfResources(newValue);
                 eventLogTextArea.textProperty().unbind();
@@ -246,7 +246,7 @@ public class PeakShapePlotsController {
         double[] yAxis = new double[resourceGroups.get(groupValue).size()];
         for (int k = 0; k < resourceGroups.get(groupValue).size(); k++) {
             resourceBrowserTarget = resourceGroups.get(groupValue).get(k);
-            if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
+            if (null != resourceBrowserTarget && resourceBrowserTarget.isFile()) {
                 try {
                     BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
                     xAxis[k] = k + 1;
@@ -259,7 +259,7 @@ public class PeakShapePlotsController {
         finalYAxis = yAxis;
         finalXAxis = xAxis;
 
-        LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, "PeakCentre Plot", "", "");
+        LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, new String[]{"PeakCentre Plot"}, "", "");
 
         peakCentreLinePlot = new PeakCentresLinePlot(new Rectangle(peakCentrePlotScrollPane.getWidth(), peakCentrePlotScrollPane.getHeight()), peakCentrePlotBuilder);
 
@@ -300,7 +300,7 @@ public class PeakShapePlotsController {
         listViewOfResourcesInFolder.setOnMouseClicked(click -> {
             peakCentreLinePlot.repaint();
             int index;
-            if (click.getClickCount() == 1) {
+            if (1 == click.getClickCount()) {
                 resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
                 index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
                 peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
@@ -312,7 +312,7 @@ public class PeakShapePlotsController {
         listViewOfResourcesInFolder.setOnKeyPressed(key -> {
             peakCentreLinePlot.repaint();
             int index;
-            if (key.getCode() == KeyCode.DOWN || key.getCode() == KeyCode.UP) {
+            if (KeyCode.DOWN == key.getCode() || KeyCode.UP == key.getCode()) {
                 resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
                 index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
                 processDataFileAndShowPlotsOfPeakShapes();
@@ -337,8 +337,8 @@ public class PeakShapePlotsController {
     public void processDataFileAndShowPlotsOfPeakShapes() {
 
 
-        if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
-            final PeakShapesService service = new PeakShapesService(resourceBrowserTarget.toPath());
+        if (null != resourceBrowserTarget && resourceBrowserTarget.isFile()) {
+            PeakShapesService service = new PeakShapesService(resourceBrowserTarget.toPath());
             eventLogTextArea.textProperty().bind(service.valueProperty());
             try {
                 PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
@@ -350,14 +350,14 @@ public class PeakShapePlotsController {
                 );
 
                 gBeamPlotScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
-                    if (newValue.intValue() > 100) {
+                    if (100 < newValue.intValue()) {
                         gBeamLinePlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
                         gBeamLinePlot.repaint();
                     }
                 });
 
                 gBeamPlotScrollPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    if (newValue.intValue() > 100) {
+                    if (100 < newValue.intValue()) {
                         gBeamLinePlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
                         gBeamLinePlot.repaint();
                     }
@@ -374,14 +374,14 @@ public class PeakShapePlotsController {
                 );
 
                 beamShapePlotScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
-                    if (newValue.intValue() > 100) {
+                    if (100 < newValue.intValue()) {
                         beamShapeLinePlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
                         beamShapeLinePlot.repaint();
                     }
                 });
 
                 beamShapePlotScrollPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    if (newValue.intValue() > 100) {
+                    if (100 < newValue.intValue()) {
                         beamShapeLinePlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
                         beamShapeLinePlot.repaint();
                     }
@@ -404,7 +404,7 @@ public class PeakShapePlotsController {
         @Override
         protected void updateItem(File resource, boolean empty) {
             super.updateItem(resource, empty);
-            if (resource == null || empty) {
+            if (null == resource || empty) {
                 setText(null);
             } else {
                 setText(resource.getName());
@@ -418,7 +418,7 @@ public class PeakShapePlotsController {
         protected void updateItem(String resource, boolean empty) {
 
             super.updateItem(resource, empty);
-            if (resource == null || empty) {
+            if (null == resource || empty) {
                 setText(null);
             } else {
                 setText(resource);

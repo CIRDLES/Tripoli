@@ -25,7 +25,7 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
  */
 public class MCMCUpdatesService extends Service<String> {
     private final AnalysisInterface analysis;
-    private int blockNumber;
+    private final int blockNumber;
 
     private Task<String> plotBuilderTask;
 

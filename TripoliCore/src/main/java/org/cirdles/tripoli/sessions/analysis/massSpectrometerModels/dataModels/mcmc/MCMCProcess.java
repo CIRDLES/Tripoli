@@ -544,7 +544,7 @@ public class MCMCProcess {
                         n dimension of output matrix - datsav)';
                             stepCountForcedSave
                     */
-                        SingleBlockModelUpdater.UpdatedCovariancesRecord updatedCovariancesRecord =
+                        UpdatedCovariancesRecord updatedCovariancesRecord =
                                 updateMeanCovMS(singleBlockInitialModelRecord_initial, xDataCovariance, xDataMean, ensembleRecordsList, counter - covStart, false);
                         xDataCovariance = updatedCovariancesRecord.dataCov();
                         xDataMean = updatedCovariancesRecord.dataMean();

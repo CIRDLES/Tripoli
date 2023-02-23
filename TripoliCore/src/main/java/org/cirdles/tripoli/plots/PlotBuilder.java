@@ -25,20 +25,20 @@ import java.io.Serializable;
 public class PlotBuilder implements Serializable {
     @Serial
     private static final long serialVersionUID = -7383206169661986594L;
-    protected String title;
+    protected String[] title;
     protected String xAxisLabel;
     protected String yAxisLabel;
 
     public PlotBuilder() {
     }
 
-    public PlotBuilder(String title, String xAxisLabel, String yAxisLabel) {
+    public PlotBuilder(String[] title, String xAxisLabel, String yAxisLabel) {
         this.title = title;
         this.xAxisLabel = xAxisLabel;
         this.yAxisLabel = yAxisLabel;
     }
 
-    public String getTitle() {
+    public String[] getTitle() {
         return title;
     }
 

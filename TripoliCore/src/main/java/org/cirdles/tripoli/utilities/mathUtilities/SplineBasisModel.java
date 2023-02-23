@@ -12,7 +12,7 @@ public class SplineBasisModel {
     private final MatrixStore<Double> BSplineMatrix;
 
     public SplineBasisModel(MatrixStore<Double> x, int numSegments, int basisDegree) {
-        this.BSplineMatrix = bBase(x, numSegments, basisDegree);
+        BSplineMatrix = bBase(x, numSegments, basisDegree);
     }
 
 
@@ -57,7 +57,7 @@ public class SplineBasisModel {
         matrixX = MatLab.kron(transposeX, kronTerm2);
 
         sk = new double[1][nb];
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; 1 > i; i++) {
             for (int j = 0; j < nb; j++) {
                 sk[i][j] = knots.get(i, j + basisDegree + 1);
             }
@@ -118,7 +118,7 @@ public class SplineBasisModel {
         matrixX = MatLab.kron(transposeX, kronTerm2);
 
         sk = new double[1][nb];
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; 1 > i; i++) {
             for (int j = 0; j < nb; j++) {
                 sk[i][j] = knots.get(i, j + basisDegree + 1);
             }

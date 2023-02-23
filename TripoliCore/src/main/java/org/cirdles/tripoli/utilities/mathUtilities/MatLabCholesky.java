@@ -30,50 +30,52 @@ import static java.lang.StrictMath.ulp;
 /**
  * @author James F. Bowring
  */
-public class MatLabCholesky {
-    /*
-            function [T,p] = cholCov(Sigma,flag)
-        %CHOLCOV  Cholesky-like decomposition for covariance matrix.
-        %   T = CHOLCOV(SIGMA) computes T such that SIGMA = T'*T.  SIGMA must be
-        %   square, symmetric, and positive semi-definite.  If SIGMA is positive
-        %   definite, then T is the square, upper triangular Cholesky factor.
-        %
-        %   If SIGMA is not positive definite, T is computed from an eigenvalue
-        %   decomposition of SIGMA.  T is not necessarily triangular or square in
-        %   this case.  Any eigenvectors whose corresponding eigenvalue is close to
-        %   zero (within a small tolerance) are omitted.  If any remaining
-        %   eigenvalues are negative, T is empty.
-        %
-        %   [T,P] = CHOLCOV(SIGMA) returns the number of negative eigenvalues of
-        %   SIGMA, and T is empty if P>0.  If P==0, SIGMA is positive semi-definite.
-        %
-        %   If SIGMA is not square and symmetric, P is NaN and T is empty.
-        %
-        %   [T,P] = CHOLCOV(SIGMA,0) returns P==0 if SIGMA is positive definite, and
-        %   T is the Cholesky factor.  If SIGMA is not positive definite, P is a
-        %   positive integer and T is empty.  [...] = CHOLCOV(SIGMA,1) is equivalent
-        %   to [...] = CHOLCOV(SIGMA).
-        %
-        %   Example:
-        %   Factor a rank-deficient covariance matrix C.
-        %       C = [2 1 1 2;1 2 1 2;1 1 2 2;2 2 2 3]
-        %       T = cholCov(C)
-        %       C2 = T'*T
-        %   Generate data with this covariance (aside from random variation).
-        %       C3 = cov(randn(10000,3)*T)
-        %
-        %   See also CHOL.
+public enum MatLabCholesky {
+    ;
 
-        %   Copyright 1993-2017 The MathWorks, Inc.
+     /*
+        if (n == m) && all(all(abs(Sigma - Sigma') < n*tol))
+            [T,p] = chol(Sigma);
 
+            if p > 0
+                % Test for positive definiteness
+                if flag
+                    % Can get factors of the form Sigma==T'*T using the eigenvalue
+                    % decomposition of a symmetric matrix, so long as the matrix
+                    % is positive semi-definite.
+                    [U,D] = eig(full((Sigma+Sigma')/2));
 
-        if nargin < 2, flag = 1; end
+                    % Pick eigenvector direction so max abs coordinate is positive
+                    [~,maxind] = max(abs(U),[],1);
+                    negloc = (U(maxind + (0:n:(m-1)*n)) < 0);
+                    U(:,negloc) = -U(:,negloc);
 
-        % Test for square, symmetric
-        [n,m] = size(Sigma);
-        wassparse = issparse(Sigma);
-        tol = 10*eps(max(abs(diag(Sigma))));
-        */
+                    D = diag(D);
+                    tol = eps(max(D)) * length(D);
+                    t = (abs(D) > tol);
+                    D = D(t);
+                    p = sum(D<0); % number of negative eigenvalues
+
+                    if (p==0)
+                        T = diag(sqrt(D)) * U(:,t)';
+                    else
+                        T = zeros(0,'like',Sigma);
+                    end
+                else
+                    T = zeros(0,'like',Sigma);
+                end
+            end
+
+        else
+            T = zeros(0,'like',Sigma);
+            p = nan('like',Sigma);
+        end
+
+        if wassparse
+            T = sparse(T);
+        end
+
+     */
 
     /**
      * Stripped down matlab function
@@ -125,6 +127,49 @@ public class MatLabCholesky {
 
         return r;
     }
+        /*
+            function [T,p] = cholCov(Sigma,flag)
+        %CHOLCOV  Cholesky-like decomposition for covariance matrix.
+        %   T = CHOLCOV(SIGMA) computes T such that SIGMA = T'*T.  SIGMA must be
+        %   square, symmetric, and positive semi-definite.  If SIGMA is positive
+        %   definite, then T is the square, upper triangular Cholesky factor.
+        %
+        %   If SIGMA is not positive definite, T is computed from an eigenvalue
+        %   decomposition of SIGMA.  T is not necessarily triangular or square in
+        %   this case.  Any eigenvectors whose corresponding eigenvalue is close to
+        %   zero (within a small tolerance) are omitted.  If any remaining
+        %   eigenvalues are negative, T is empty.
+        %
+        %   [T,P] = CHOLCOV(SIGMA) returns the number of negative eigenvalues of
+        %   SIGMA, and T is empty if P>0.  If P==0, SIGMA is positive semi-definite.
+        %
+        %   If SIGMA is not square and symmetric, P is NaN and T is empty.
+        %
+        %   [T,P] = CHOLCOV(SIGMA,0) returns P==0 if SIGMA is positive definite, and
+        %   T is the Cholesky factor.  If SIGMA is not positive definite, P is a
+        %   positive integer and T is empty.  [...] = CHOLCOV(SIGMA,1) is equivalent
+        %   to [...] = CHOLCOV(SIGMA).
+        %
+        %   Example:
+        %   Factor a rank-deficient covariance matrix C.
+        %       C = [2 1 1 2;1 2 1 2;1 1 2 2;2 2 2 3]
+        %       T = cholCov(C)
+        %       C2 = T'*T
+        %   Generate data with this covariance (aside from random variation).
+        %       C3 = cov(randn(10000,3)*T)
+        %
+        %   See also CHOL.
+
+        %   Copyright 1993-2017 The MathWorks, Inc.
+
+
+        if nargin < 2, flag = 1; end
+
+        % Test for square, symmetric
+        [n,m] = size(Sigma);
+        wassparse = issparse(Sigma);
+        tol = 10*eps(max(abs(diag(Sigma))));
+        */
 
     /**
      * Special port of Matlab function - assume square sigma
@@ -171,9 +216,9 @@ public class MatLabCholesky {
             end
              */
             double[][] diagDasColumn = new double[D.getRowDimension()][1];
-            double[] maxRowIndexPerColumn = new double[D.getRowDimension()];
             double maxValueDiagD = Double.MIN_VALUE;
-            for (int col = 0; col < U.getColumnDimension(); col++) {
+            var columnDimensionU = U.getColumnDimension();
+            for (int col = 0; col < columnDimensionU; col++) {
                 int indexOfMax = -1;
                 double maxValueColU = Double.MIN_VALUE;
                 for (int row = 0; row < U.getRowDimension(); row++) {
@@ -182,8 +227,8 @@ public class MatLabCholesky {
                         indexOfMax = row;
                     }
                 }
-                maxRowIndexPerColumn[col] = indexOfMax;
-                if (U.get(indexOfMax, col) < 0.0) {
+
+                if (0.0 > U.get(indexOfMax, col)) {
                     for (int row = 0; row < U.getRowDimension(); row++) {
                         U.set(row, col, -U.get(row, col));
                     }
@@ -207,87 +252,42 @@ public class MatLabCholesky {
                 } else {
                     tList.add(row);
                 }
-                if (diagDasColumn[row][0] < 0.0) {
+                if (0.0 > diagDasColumn[row][0]) {
                     countOfNegativeValues++;
                 }
             }
 
             int[] t = Ints.toArray(tList);
-            Matrix UofT = U.getMatrix(0, U.getRowDimension() - 1, t);
+            Matrix uOfT = U.getMatrix(0, U.getRowDimension() - 1, t);
             Matrix diagDasColumnOfT = (new Matrix(diagDasColumn)).getMatrix(t, 0, 0);
-            double[][] DiagDofTArray = diagDasColumnOfT.getArray();
+            double[][] diagDasColumnOfTarray = diagDasColumnOfT.getArray();
 
-            for (int row = 0; row < DiagDofTArray.length; row++) {
-                DiagDofTArray[row][0] = StrictMath.sqrt(DiagDofTArray[row][0]);
+            for (int row = 0; row < diagDasColumnOfTarray.length; row++) {
+                diagDasColumnOfTarray[row][0] = StrictMath.sqrt(diagDasColumnOfTarray[row][0]);
             }
-            Matrix DofTDiagonalMatrix = new Matrix(DiagDofTArray.length, DiagDofTArray.length);
-            for (int row = 0; row < DiagDofTArray.length; row++){
-                DofTDiagonalMatrix.set(row, row, DiagDofTArray[row][0]);
+            Matrix DofTDiagonalMatrix = new Matrix(diagDasColumnOfTarray.length, diagDasColumnOfTarray.length);
+            for (int row = 0; row < diagDasColumnOfTarray.length; row++) {
+                DofTDiagonalMatrix.set(row, row, diagDasColumnOfTarray[row][0]);
             }
 
-            if (countOfNegativeValues == 0) {//(chol.isSPD()){
+            if (0 == countOfNegativeValues) {//(chol.isSPD()){
                 // matrixT = diag(sqrt(D)) * U(:,t)';
-                matrixT = DofTDiagonalMatrix.times(UofT.transpose());
+                matrixT = DofTDiagonalMatrix.times(uOfT.transpose());
             } else {
-                matrixT = new Matrix(new double[0][0]);
+                matrixT = new Matrix(new double[1][1]);
             }
         }
-        return matrixT;//.transpose().times(matrixT);
+        return matrixT;
     }
-
-
-    /*
-        if (n == m) && all(all(abs(Sigma - Sigma') < n*tol))
-            [T,p] = chol(Sigma);
-
-            if p > 0
-                % Test for positive definiteness
-                if flag
-                    % Can get factors of the form Sigma==T'*T using the eigenvalue
-                    % decomposition of a symmetric matrix, so long as the matrix
-                    % is positive semi-definite.
-                    [U,D] = eig(full((Sigma+Sigma')/2));
-
-                    % Pick eigenvector direction so max abs coordinate is positive
-                    [~,maxind] = max(abs(U),[],1);
-                    negloc = (U(maxind + (0:n:(m-1)*n)) < 0);
-                    U(:,negloc) = -U(:,negloc);
-
-                    D = diag(D);
-                    tol = eps(max(D)) * length(D);
-                    t = (abs(D) > tol);
-                    D = D(t);
-                    p = sum(D<0); % number of negative eigenvalues
-
-                    if (p==0)
-                        T = diag(sqrt(D)) * U(:,t)';
-                    else
-                        T = zeros(0,'like',Sigma);
-                    end
-                else
-                    T = zeros(0,'like',Sigma);
-                end
-            end
-
-        else
-            T = zeros(0,'like',Sigma);
-            p = nan('like',Sigma);
-        end
-
-        if wassparse
-            T = sparse(T);
-        end
-
-     */
 
     public static boolean all(double[][] array, String operator, double tolerance) {
         boolean retVal = true;
         for (int row = 0; row < array.length; row++) {
             for (int col = 0; col < array[row].length; col++) {
-                if (operator == "<") {
+                if ("<" == operator) {
                     retVal = retVal && (Math.abs(array[row][col]) < tolerance);
                 }
-                if (operator == ">") {
+                if (">" == operator) {
                     retVal = retVal && (Math.abs(array[row][col]) > tolerance);
                 }
                 if (!retVal) break;

@@ -19,7 +19,6 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramBuilder;
-import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
@@ -29,7 +28,6 @@ import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.StrictMath.exp;
@@ -173,27 +171,27 @@ public enum SingleBlockDataModelPlot {
         plotBuilders[0] = new PlotBuilder[ensembleRatios.length];
         for (int i = 0; i < ensembleRatios.length; i++) {
             plotBuilders[0][i] = HistogramBuilder.initializeHistogram(ensembleRatios[i],
-                    25, isotopicRatioList.get(i).prettyPrint(), "Ratios", "Frequency");
+                    25, new String[]{isotopicRatioList.get(i).prettyPrint()}, "Ratios", "Frequency");
         }
 
         plotBuilders[1] = new PlotBuilder[ensembleBaselines.length];
         List<Detector> faradayDetectorsUsed = analysisMethod.getSequenceTable().findFaradayDetectorsUsed();
         for (int i = 0; i < ensembleBaselines.length; i++) {
             plotBuilders[1][i] = HistogramBuilder.initializeHistogram(ensembleBaselines[i],
-                    25, faradayDetectorsUsed.get(i).getDetectorName() + " Baseline", "Baseline Counts", "Frequency");
+                    25, new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Baseline"}, "Baseline Counts", "Frequency");
         }
 
         plotBuilders[2][0] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain,
-                25, "Daly/Faraday Gain", "Gain", "Frequency");
+                25, new String[]{"Daly/Faraday Gain"}, "Gain", "Frequency");
 
         plotBuilders[3] = new PlotBuilder[ensembleSignalnoise.length];
         for (int i = 0; i < ensembleSignalnoise.length; i++) {
             plotBuilders[3][i] = HistogramBuilder.initializeHistogram(ensembleSignalnoise[i],
-                    25, faradayDetectorsUsed.get(i).getDetectorName() + " Signal Noise", "Noise hyperparameter", "Frequency");
+                    25, new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Signal Noise"}, "Noise hyperparameter", "Frequency");
         }
 
         plotBuilders[4][0] = MultiLinePlotBuilder.initializeLinePlot(
-                xDataIntensityMeans, yDataIntensityMeans, "Mean Intensity", "Time Index", "Intensity (counts)");
+                xDataIntensityMeans, yDataIntensityMeans, new String[]{"Mean Intensity"}, "Time Index", "Intensity (counts)");
 
         // visualization converge ratio and others tabs
 //        double[] convergeLogRatios = new double[ensembleRecordsList.size()];
@@ -247,29 +245,29 @@ public enum SingleBlockDataModelPlot {
         for (int i = 0; i < convergeSetOfLogRatios.length; i++) {
             plotBuilders[5][i] = LinePlotBuilder.initializeLinePlot(
                     xDataConvergeSavedIterations, convergeSetOfLogRatios[i],
-                    isotopicRatioList.get(i).prettyPrint(), "Saved iterations", "Log Ratio");
+                    new String[]{isotopicRatioList.get(i).prettyPrint()}, "Saved iterations", "Log Ratio");
         }
 
         plotBuilders[6] = new PlotBuilder[convergeSetOfBaselines.length];
         for (int i = 0; i < convergeSetOfBaselines.length; i++) {
             plotBuilders[6][i] = LinePlotBuilder.initializeLinePlot(
                     xDataConvergeSavedIterations, convergeSetOfBaselines[i],
-                    faradayDetectorsUsed.get(i).getDetectorName() + " Baseline", "Saved iterations", "Baseline Counts");
+                    new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Baseline"}, "Saved iterations", "Baseline Counts");
         }
 
         plotBuilders[11] = new PlotBuilder[convergeSetOfFaradayNoise.length];
         for (int i = 0; i < convergeSetOfFaradayNoise.length; i++) {
             plotBuilders[11][i] = LinePlotBuilder.initializeLinePlot(
                     xDataConvergeSavedIterations, convergeSetOfFaradayNoise[i],
-                    faradayDetectorsUsed.get(i).getDetectorName() + " Noise", "Saved iterations", "Noise");
+                    new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Noise"}, "Saved iterations", "Noise");
         }
 
-        plotBuilders[8][0] = LinePlotBuilder.initializeLinePlot(xDataConvergeSavedIterations, convergeErrWeightedMisfit, "Converge Weighted Misfit", "Saved iterations", "Weighted Misfit");
+        plotBuilders[8][0] = LinePlotBuilder.initializeLinePlot(xDataConvergeSavedIterations, convergeErrWeightedMisfit, new String[]{"Converge Weighted Misfit"}, "Saved iterations", "Weighted Misfit");
 
-        plotBuilders[9][0] = LinePlotBuilder.initializeLinePlot(xDataConvergeSavedIterations, convergeErrRawMisfit, "Converge Raw Misfit", "Saved iterations", "Raw Misfit");
+        plotBuilders[9][0] = LinePlotBuilder.initializeLinePlot(xDataConvergeSavedIterations, convergeErrRawMisfit, new String[]{"Converge Raw Misfit"}, "Saved iterations", "Raw Misfit");
 
 
-        plotBuilders[10][0] = MultiLinePlotBuilder.initializeLinePlot(xDataConvergeSavedIterations, convergeIntensities, "Converge Intensity", "", "");
+        plotBuilders[10][0] = MultiLinePlotBuilder.initializeLinePlot(xDataConvergeSavedIterations, convergeIntensities, new String[]{"Converge Intensity"}, "", "");
 
 //        plotBuilders[11][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeNoiseFaradayL1, "Converge Noise Faraday L1","","",Color.BLACK);
 //        plotBuilders[12][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeNoiseFaradayH1, "Converge Noise Faraday H1","","",Color.BLACK);

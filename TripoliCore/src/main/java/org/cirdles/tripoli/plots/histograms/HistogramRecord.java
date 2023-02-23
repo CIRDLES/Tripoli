@@ -10,7 +10,7 @@ public record HistogramRecord(
         double[] binCounts,
         double binWidth,
         double[] binCenters,
-        String title,
+        String[] title,
         String xAxisLabel,
         String yAxisLabel
 ) implements Serializable {
