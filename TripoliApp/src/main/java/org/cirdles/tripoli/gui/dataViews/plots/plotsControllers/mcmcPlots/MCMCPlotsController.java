@@ -75,9 +75,6 @@ public class MCMCPlotsController {
     private TabPane plotTabPane;
 
     @FXML
-    private AnchorPane plotsAnchorPane;
-
-    @FXML
     private Button processFileButton2;
 
     @FXML
@@ -101,17 +98,14 @@ public class MCMCPlotsController {
         masterVBox.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT);
         toolbar.setPrefSize(PLOT_WINDOW_WIDTH, 30.0);
 
-        masterVBox.prefWidthProperty().bind(plotsAnchorPane.widthProperty());
-        masterVBox.prefHeightProperty().bind(plotsAnchorPane.heightProperty());
-
         plotTabPane.prefWidthProperty().bind(masterVBox.widthProperty());
         plotTabPane.prefHeightProperty().bind(masterVBox.heightProperty());
 
         dataFitGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(dataFitLegendTextBox.getWidth()));
         dataFitGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
 
-        convergeErrGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeErrLegendTextBox.getWidth()));
-        convergeErrGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
+//        convergeErrGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeErrLegendTextBox.getWidth()));
+//        convergeErrGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
 
         convergeIntensityAnchorPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeIntensityLegendTextBox.getWidth()));
         convergeIntensityAnchorPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
@@ -252,7 +246,7 @@ public class MCMCPlotsController {
 //        produceTripoliLinePlots(convergeNoiseFaradayLineBuilder, convergePlotsWallPane);
 //        produceTripoliLinePlots(convergeErrRawMisfitBuilder, convergePlotsWallPane);
 //        produceTripoliLinePlots(convergeErrWeightedMisfitBuilder, convergePlotsWallPane);
-//        convergePlotsWallPane.tilePlots();
+        convergePlotsWallPane.tilePlots();
 //
         TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(ensemblePlotsWallPane);
         AbstractPlot plot = MultiLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (MultiLinePlotBuilder) intensityLinePlotBuilder[0]);

@@ -20,7 +20,6 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.plots.PlotBuilder;
 
 import java.io.Serial;
-import java.io.Serializable;
 
 /**
  * @author James F. Bowring

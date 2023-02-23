@@ -18,14 +18,14 @@ package org.cirdles.tripoli.plots.linePlots;
 
 import org.cirdles.tripoli.plots.PlotBuilder;
 
-import java.io.*;
+import java.io.Serial;
 
 public class MultiLinePlotBuilder extends PlotBuilder {
 
     @Serial
     private static final long serialVersionUID = 7957148103741755713L;
-    private  double[] xData;
-    private  double[][] yData;
+    private double[] xData;
+    private double[][] yData;
 
     public MultiLinePlotBuilder() {
     }

@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
 import com.google.common.primitives.Ints;
+import jama.Matrix;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.stat.correlation.Covariance;
 import org.ojalgo.matrix.store.PhysicalStore;
@@ -202,34 +203,6 @@ public enum SingleBlockModelUpdater {
     }
 
 
-    public static String randomOperation(boolean hierFlag) {
-        Object[][] notHier = {{40, 60, 80, 100}, {"changeI", "changer", "changebl", "changedfg"}};
-        Object[][] hier = {{60, 80, 90, 100, 120}, {"changeI", "changer", "changebl", "changedfg", "noise"}};
-//        Object[][] hier = new Object[][]{{400, 440, 520, 540, 600}, {"changeI", "changer", "changebl", "changedfg", "noise"}};
-
-        RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
-        randomDataGenerator.reSeedSecure();
-        int choice = hierFlag ? randomDataGenerator.nextInt(0, 120) : randomDataGenerator.nextInt(0, 100);
-        String retVal = "changeI";
-        if (hierFlag) {
-            for (int i = 0; i < hier[0].length; i++) {
-                if (choice < (int) hier[0][i]) {
-                    retVal = (String) hier[1][i];
-                    break;
-                }
-            }
-        } else {
-            for (int i = 0; i < notHier[0].length; i++) {
-                if (choice < (int) notHier[0][i]) {
-                    retVal = (String) notHier[1][i];
-                    break;
-                }
-            }
-        }
-
-        return retVal;
-    }
-
     /*
     function  [x2,delx,xcov] = UpdateMSv2_Preorder(oper,x,psig,prior,ensemble,xcov,delx_adapt,adaptflag,allflag)
         %%
@@ -352,20 +325,26 @@ public enum SingleBlockModelUpdater {
                 } else {
                     deltaX = ps0DiagArray[operationIndex] * randomDataGenerator.nextGaussian(0.0, randomSigma);
                 }
-
                 double changed = parametersModel_updated[operationIndex] + deltaX;
-                if (21 == operationIndex) {
-//                    System.out.println("GAIN");
-                }
                 if ((changed <= priorMaxArray[operationIndex] && (changed >= priorMinArray[operationIndex]))) {
                     parametersModel_updated[operationIndex] = changed;
                 }
             } else {
-                //        %VARY ALL AT A TIME
-                //                    delx = delx_adapt;
-                //            xx = xx0 + delx;
-                //            inprior = xx <= priormax & xx >= priormin;
-                //            xx(~inprior) = xx0(~inprior);
+                /*
+                    %VARY ALL AT A TIME
+                        delx = delx_adapt;
+                        xx = xx0 + delx;
+                        inprior = xx <= priormax & xx >= priormin;
+                        xx(~inprior) = xx0(~inprior);
+                */
+                PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+                parametersModel_updated = storeFactory.column(parametersModel_xx0.clone()).add(storeFactory.columns(delx_adapt.clone())).toRawCopy1D();
+                for (int row = 0; row < parametersModel_updated.length; row++) {
+                    if ((parametersModel_updated[row] > priorMaxArray[row] || (parametersModel_updated[row] < priorMinArray[row]))) {
+                        // restore values if new values are out of prior range
+                        parametersModel_updated[row] = parametersModel_xx0[row];
+                    }
+                }
             }
 
             List<Double> updatedLogRatioList = new ArrayList<>();
@@ -498,12 +477,12 @@ public enum SingleBlockModelUpdater {
 
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         double[] dataMean;
-        double[][] dataCov;
+//        double[][] dataCov;
         Covariance cov2 = new Covariance();
         if (iterFlag) {
             // todo: currently iterFlag is always false
             dataMean = null;
-            dataCov = null;
+//            dataCov = null;
 
                 /*
                 xx = x.lograt;
@@ -517,8 +496,6 @@ public enum SingleBlockModelUpdater {
                 xctmp = (xctmp+xctmp')/2;
                 xcov = (xcov*(m-1) + (m-1)/m*xctmp)/m;
              */
-
-
         } else {
             /*
                 cnt = length(ensemble);
@@ -537,40 +514,41 @@ public enum SingleBlockModelUpdater {
                 xcov = cov(enso(:,m:end)');
              */
             int modelCount = ensembleRecordsList.size() - countOfNewModels + 1;
-            PhysicalStore<Double> totalsByRow = storeFactory.make(countOfTotalModelParameters, 1);
-            PhysicalStore<Double> enso = storeFactory.make(countOfTotalModelParameters, modelCount);
-
+            double[] totalsByRow2 = new double[countOfTotalModelParameters];
+            double[][] enso2 = new double[countOfTotalModelParameters][modelCount];
             for (int modelIndex = 0; modelIndex < modelCount; modelIndex++) {
                 EnsemblesStore.EnsembleRecord ensembleRecord = ensembleRecordsList.get(modelIndex + countOfNewModels - 1);
                 int row = 0;
                 for (int logRatioIndex = 0; logRatioIndex < countOfLogRatios; logRatioIndex++) {
-                    enso.set(row, modelIndex, ensembleRecord.logRatios()[logRatioIndex]);
-                    totalsByRow.set(row, 0, totalsByRow.get(row, 0) + ensembleRecord.logRatios()[logRatioIndex]);
+                    enso2[row][modelIndex] = ensembleRecord.logRatios()[logRatioIndex];
+                    totalsByRow2[row] += ensembleRecord.logRatios()[logRatioIndex];
                     row++;
                 }
 
                 for (int intensityIndex = 0; intensityIndex < singleBlockModelRecord.I0().length; intensityIndex++) {
-                    enso.set(row, modelIndex, ensembleRecord.intensities()[intensityIndex]);
-                    totalsByRow.set(row, 0, totalsByRow.get(row, 0) + ensembleRecord.intensities()[intensityIndex]);
+                    enso2[row][modelIndex] = ensembleRecord.intensities()[intensityIndex];
+                    totalsByRow2[row] += ensembleRecord.intensities()[intensityIndex];
                     row++;
                 }
 
                 for (int baseLineIndex = 0; baseLineIndex < countOfFaradays; baseLineIndex++) {
-                    enso.set(row, modelIndex, ensembleRecord.baseLine()[baseLineIndex]);
-                    totalsByRow.set(row, 0, totalsByRow.get(row, 0) + ensembleRecord.baseLine()[baseLineIndex]);
+                    enso2[row][modelIndex] = ensembleRecord.baseLine()[baseLineIndex];
+                    totalsByRow2[row] += ensembleRecord.baseLine()[baseLineIndex];
                     row++;
                 }
 
-                enso.set(row, modelIndex, ensembleRecordsList.get(modelIndex + countOfNewModels - 1).dfGain());
-                totalsByRow.set(row, 0, totalsByRow.get(row, 0) + ensembleRecord.dfGain());
+                enso2[row][modelIndex] = enso2[row][modelIndex] = ensembleRecord.dfGain();
+                totalsByRow2[row] += ensembleRecord.dfGain();
             }
 
-            for (int i = 0; i < totalsByRow.getRowDim(); i++) {
-                totalsByRow.set(i, 0, totalsByRow.get(i, 0) / modelCount);
+            for (int i = 0; i < totalsByRow2.length; i++) {
+                totalsByRow2[i] /= modelCount;
             }
 
-            dataMean = totalsByRow.transpose().toRawCopy1D();
-            cov2 = new Covariance(enso.transpose().toRawCopy2D());
+            dataMean = totalsByRow2.clone();
+            Matrix ensoTransposeM = new Matrix(enso2).transpose();
+            double[][] ensoTranspose = ensoTransposeM.getArray();
+            cov2 = new Covariance(ensoTranspose);
         }
         return new UpdatedCovariancesRecord(cov2.getCovarianceMatrix().getData(), dataMean);
     }

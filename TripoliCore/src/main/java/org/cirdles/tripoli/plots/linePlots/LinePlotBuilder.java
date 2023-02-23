@@ -19,7 +19,6 @@ package org.cirdles.tripoli.plots.linePlots;
 import org.cirdles.tripoli.plots.PlotBuilder;
 
 import java.io.Serial;
-import java.io.Serializable;
 
 public class LinePlotBuilder extends PlotBuilder {
 

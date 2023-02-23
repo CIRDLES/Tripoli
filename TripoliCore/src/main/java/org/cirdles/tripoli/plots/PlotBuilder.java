@@ -16,7 +16,8 @@
 
 package org.cirdles.tripoli.plots;
 
-import java.io.*;
+import java.io.Serial;
+import java.io.Serializable;
 
 /**
  * @author James F. Bowring
