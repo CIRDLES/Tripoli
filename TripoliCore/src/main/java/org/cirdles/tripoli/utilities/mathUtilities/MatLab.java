@@ -8,8 +8,27 @@ import org.ojalgo.matrix.task.SolverTask;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class MatLab {
+    /**
+     * Precise rounding for doubles
+     *
+     * @param value A double to be rounded
+     * @param sigFigs The number of significant figures for rounding
+     * @return The rounded double
+     */
+    public static double roundedToSize(double value, int sigFigs) {
+        BigDecimal valueBDtoSize = BigDecimal.ZERO;
+        if (Double.isFinite(value)) {
+            BigDecimal valueBD = new BigDecimal(value);
+            int newScale = sigFigs - (valueBD.precision() - valueBD.scale());
+            valueBDtoSize = valueBD.setScale(newScale, RoundingMode.HALF_UP);
+        }
+        return valueBDtoSize.doubleValue();
+    }
+
     /**
      * The Kronecker product
      *

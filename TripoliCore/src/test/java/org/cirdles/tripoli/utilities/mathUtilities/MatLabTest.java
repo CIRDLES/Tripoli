@@ -7,6 +7,7 @@ import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -14,18 +15,25 @@ import java.util.List;
 
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class MatLabTest {
+
+    /**
+     * Takes a string of comma separated values and turns them into a 2D array of doubles.
+     * Takes first element in the format mXn and uses this as the dimensions of the array.
+     *
+     * @param csv the string of comma-separated values of a line in a CSV or TXT
+     * @return
+     */
     public double[][] read_csv_string(String csv) {
         String[] tokens = csv.split(",");
         String dim = tokens[0];
         String[] dims = dim.split("x");
         double m = Double.parseDouble(dims[0]);
         double n = Double.parseDouble(dims[1]);
-        int m_int = (int)m;
-        int n_int = (int)n;
+        int m_int = (int) m;
+        int n_int = (int) n;
         double[][] matrix = new double[m_int][n_int];
         String[] nums = Arrays.copyOfRange(tokens, 1, tokens.length);
         int counter = 0;
@@ -40,7 +48,15 @@ class MatLabTest {
         return matrix;
     }
 
-
+    /**
+     * Read a CSV/TXT serialization of a MATLAB matrix.
+     * <p>
+     * Uses read_csv_string to convert lines to data.
+     *
+     * @param fn filename of serialization
+     * @return
+     * @throws IOException
+     */
     public ArrayList<double[][]> read_csv(String fn) throws IOException {
         String filename = fn;
         ArrayList<double[][]> matrices = new ArrayList<>();
@@ -58,51 +74,145 @@ class MatLabTest {
         return matrices;
     }
     // add negs
+
+    /**
+     * Kronecker Product Test
+     * <p>
+     * Deserializes matrices from files written using MATLAB
+     * Matrix A is in kron_matrix_A.txt, Matrix B is in kron_matrix_B.txt
+     * Answers are in kron_answers.txt
+     * <p>
+     * Matrices were serialized acording to the following MATLAB definitions:
+     * <p>
+     * rowDim = randi(10);
+     * colDim = randi(10);
+     * rowDim2 = randi(10);
+     * colDim2 = randi(10);
+     * <p>
+     * zeroMatrix1 = zeros(rowDim, colDim);
+     * zeroMatrix2 = zeros(rowDim2, colDim2);
+     * edgeCase1 = rand();
+     * edgeCase2 = rand();
+     * <p>
+     * randMat = max.*rand(rowDim, colDim);
+     * rHelper = (-1).^randi(2,rowDim,colDim);
+     * randMat = randMat.*rHelper;
+     * if edgeCase1 < 0.1
+     * randMat = zeroMatrix1;
+     * end
+     * randMatSize = size(randMat);
+     * filename1 = fullfile('kron_matrix_A.txt');
+     * <p>
+     * randMat2 = max.*rand(rowDim2, colDim2);
+     * r_helper = (-1).^randi(2,rowDim2,colDim2);
+     * randMat2 = randMat2.*r_helper;
+     * if edgeCase2 < 0.1
+     * randMat = zeroMatrix2;
+     * end
+     * randMatSize2 = size(randMat2);
+     * filename2 = fullfile('kron_matrix_B.txt');
+     * <p>
+     * kronout = kron(randMat, randMat2);
+     * kronsize = size(kronout);
+     * filename3 = fullfile('kron_answers.txt');
+     * <p>
+     * The size of the matrix is the first element in the CSV (txt) file, represented as mXn,
+     *
+     * @throws IOException
+     */
     @Test
     void kronTest() throws IOException {
-        ArrayList<double[][]> A_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\kronTestFiles\\matA.txt");
-        ArrayList<double[][]> B_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\kronTestFiles\\matB.txt");
-        ArrayList<double[][]> Answer_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\kronTestFiles\\answers.txt");
+        ArrayList<double[][]> aList = read_csv("src/test/resources/org/cirdles/tripoli/core/kron_matrix_A.txt");
+        ArrayList<double[][]> bList = read_csv("src/test/resources/org/cirdles/tripoli/core/kron_matrix_B.txt");
+        ArrayList<double[][]> answerList = read_csv("src/test/resources/org/cirdles/tripoli/core/kron_answers.txt");
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        Primitive64Store A;
-        Primitive64Store B;
+        Primitive64Store a;
+        Primitive64Store b;
         double[][] expected;
         Primitive64Store actual;
-        for (int i = 0; i < Answer_list.size(); i++){
-            A = storeFactory.rows(A_list.get(i));
-            B = storeFactory.rows(B_list.get(i));
+        double[][] actualArray;
+        for (int i = 0; i < answerList.size(); i++) {
+            a = storeFactory.rows(aList.get(i));
+            b = storeFactory.rows(bList.get(i));
 
-            expected = Answer_list.get(i);
-            actual = MatLab.kron(A, B);
+            expected = answerList.get(i);
+            actual = MatLab.kron(a, b);
+            actualArray = actual.toRawCopy2D();
 
-            System.out.println(expected.length);
-            System.out.println(actual.countRows());
-            System.out.println(actual.countColumns());
-            System.out.println(Arrays.deepToString(expected));
-            System.out.println(Arrays.deepToString(actual.toRawCopy2D()));
-            assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
+            for (int j = 0; j < expected.length; j++) {
+                for (int k = 0; k < expected[j].length; k++) {
+                    expected[j][k] = MatLab.roundedToSize(expected[j][k], 10);
+                }
+            }
+
+            for (int j = 0; j < actualArray.length; j++) {
+                for (int k = 0; k < actualArray[j].length; k++) {
+                    actualArray[j][k] = MatLab.roundedToSize(actualArray[j][k], 10);
+                }
+            }
+
+            assertArrayEquals(expected, actualArray);
         }
     }
 
-    // add negs
+    /**
+     * Matrix Exponent Test
+     * Deserializes matrices from files written using MATLAB
+     * Matrix A is in exp_matrix_A.txt
+     * Answers are in kron_answers.txt
+     * <p>
+     * Matrices were serialized acording to the following MATLAB definitions:
+     * <p>
+     * rowDim = randi(10);
+     * <p>
+     * zeroMatrix1 = zeros(rowDim, rowDim);
+     * edgeCase1 = rand();
+     * <p>
+     * randMat = max.*rand(rowDim, rowDim);
+     * rHelper = (-1).^randi(2,rowDim,rowDim);
+     * randMat = randMat.*rHelper;
+     * if edgeCase1 < 0.1
+     * randMat = zeroMatrix1;
+     * end
+     * randMatSize = size(randMat);
+     * filename1 = fullfile('exp_matrix_A.txt');
+     * <p>
+     * expOut = randMat.^2;
+     * expSize = size(expOut);
+     * filename2 = fullfile('exp_answers.txt');
+     * <p>
+     * The size of the matrix is the first element in the CSV (txt) file, represented as mXn,
+     *
+     * @throws IOException
+     */
     @Test
     void expMatrixTest() throws IOException {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        ArrayList<double[][]> A_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\expTestFiles\\matA.txt");
-        ArrayList<double[][]> Answer_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\expTestFiles\\answers.txt");
+        ArrayList<double[][]> aList = read_csv("src/test/resources/org/cirdles/tripoli/core/exp_matrix_A.txt");
+        ArrayList<double[][]> answerList = read_csv("src/test/resources/org/cirdles/tripoli/core/exp_answers.txt");
         double[][] expected;
         Primitive64Store actual;
-        Primitive64Store A;
-        for (int i = 0; i < Answer_list.size(); i++){
-            A = storeFactory.rows(A_list.get(i));
-            expected = Answer_list.get(i);
-            actual = MatLab.expMatrix(A, 2);
-            System.out.println(expected.length);
-            System.out.println(actual.countRows());
-            System.out.println(actual.countColumns());
-            System.out.println(Arrays.deepToString(expected));
-            System.out.println(Arrays.deepToString(actual.toRawCopy2D()));
-            assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
+        Primitive64Store a;
+        double[][] actualArray;
+        for (int i = 0; i < answerList.size(); i++) {
+            a = storeFactory.rows(aList.get(i));
+
+            expected = answerList.get(i);
+            actual = MatLab.expMatrix(a, 2);
+            actualArray = actual.toRawCopy2D();
+
+            for (int j = 0; j < expected.length; j++) {
+                for (int k = 0; k < expected[j].length; k++) {
+                    expected[j][k] = MatLab.roundedToSize(expected[j][k], 10);
+                }
+            }
+
+            for (int j = 0; j < actualArray.length; j++) {
+                for (int k = 0; k < actualArray[j].length; k++) {
+                    actualArray[j][k] = MatLab.roundedToSize(actualArray[j][k], 10);
+                }
+            }
+            assertArrayEquals(expected, actualArray);
         }
     }
 
