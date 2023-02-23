@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
 import jama.Matrix;
 import org.apache.commons.lang3.time.StopWatch;
-import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
-import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.mathUtilities.MatLabCholesky;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
@@ -36,9 +36,9 @@ import java.util.*;
 import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.ProposedModelParameters.buildProposalRangesRecord;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.ProposedModelParameters.buildProposalSigmasRecord;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.SingleBlockModelUpdater.*;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalRangesRecord;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalSigmasRecord;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelUpdater.*;
 
 /**
  * @author James F. Bowring
@@ -49,7 +49,7 @@ public class MCMCProcess {
     private final SingleBlockModelRecord singleBlockInitialModelRecord_X0;
     private final AnalysisMethod analysisMethod;
     private final SingleBlockDataSetRecord singleBlockDataSetRecord;
-    List<EnsemblesStoreV2.EnsembleRecord> ensembleRecordsList;
+    List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
     private int faradayCount;
     private int ratioCount;
     private int maxIterationCount;
@@ -126,7 +126,7 @@ public class MCMCProcess {
             Ndata=d0.Ndata; % Number of picks
             Nsig = d0.Nsig; % Number of noise variables
          */
-        maxIterationCount = 1000;
+        maxIterationCount = 2000;
         hierarchical = true;
         tempering = 1.0;
         stepCountForcedSave = 100;
@@ -224,7 +224,7 @@ public class MCMCProcess {
         }
     }
 
-    public AbstractPlotBuilder[][] applyInversionWithAdaptiveMCMC(LoggingCallbackInterface loggingCallback) {
+    public PlotBuilder[][] applyInversionWithAdaptiveMCMC(LoggingCallbackInterface loggingCallback) {
 
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         SingleBlockModelRecord singleBlockInitialModelRecord_initial = singleBlockInitialModelRecord_X0.clone();
@@ -269,7 +269,7 @@ public class MCMCProcess {
                 long prev = System.nanoTime();
 
                 // todo: handle adaptiveFlag case
-                boolean adaptiveFlag = (500000 <= counter); // abandon for now
+                boolean adaptiveFlag = (500 <= counter); // abandon for now
                 boolean allFlag = adaptiveFlag;
                 int columnChoice = modelIndex % stepCountForcedSave;
                 double[] delx_adapt_slice = storeFactory.copy(Access2D.wrap(delx_adapt)).sliceColumn(columnChoice).toRawCopy1D();
@@ -519,7 +519,7 @@ public class MCMCProcess {
                     end
                  */
                     counter++;
-                    ensembleRecordsList.add(new EnsemblesStoreV2.EnsembleRecord(
+                    ensembleRecordsList.add(new EnsemblesStore.EnsembleRecord(
                             singleBlockInitialModelRecord_initial.logRatios(),
                             singleBlockInitialModelRecord_initial.intensities(),
                             singleBlockInitialModelRecord_initial.baselineMeansArray(),
@@ -527,112 +527,112 @@ public class MCMCProcess {
                             singleBlockInitialModelRecord_initial.signalNoiseSigma(),
                             E,
                             initialModelErrorUnWeighted_E0));
-                }
 
-                int covStart = 50;
-                if (counter >= covStart + 1) {
-            /*
-            % Iterative covariance
-            [xmean,xcov] = UpdateMeanCovMS(x,xcov,xmean,ensemble,cnt-covstart,0);
 
-            % Draw random numbers based on covariance for next update
-            delx_adapt = mvnrnd(
-            mean vector - zeros(Nmod,1),
-                zeros(sizeOfModel,1)
-            covariance matrix - 2.38^2*xcov/Nmod,
+                    int covStart = 50;
+                    if (counter >= covStart + 1) {
+                    /*
+                        % Iterative covariance
+                        [xmean,xcov] = UpdateMeanCovMS(x,xcov,xmean,ensemble,cnt-covstart,0);
 
-            n dimension of output matrix - datsav)';
-                stepCountForcedSave
-            */
-                    UpdatedCovariancesRecord updatedCovariancesRecord =
-                            updateMeanCovMS(singleBlockInitialModelRecord_initial, xDataCovariance, xDataMean, ensembleRecordsList, counter - covStart, false);
-                    xDataCovariance = updatedCovariancesRecord.dataCov();
-                    xDataMean = updatedCovariancesRecord.dataMean();
+                        % Draw random numbers based on covariance for next update
+                        delx_adapt = mvnrnd(
+                        mean vector - zeros(Nmod,1),
+                            zeros(sizeOfModel,1)
+                        covariance matrix - 2.38^2*xcov/Nmod,
 
-                    if (adaptiveFlag) {
+                        n dimension of output matrix - datsav)';
+                            stepCountForcedSave
+                    */
+                        UpdatedCovariancesRecord updatedCovariancesRecord =
+                                updateMeanCovMS(singleBlockInitialModelRecord_initial, xDataCovariance, xDataMean, ensembleRecordsList, counter - covStart, false);
+                        xDataCovariance = updatedCovariancesRecord.dataCov();
+                        xDataMean = updatedCovariancesRecord.dataMean();
+
+                        if (adaptiveFlag) {
                     /*
                         delx_adapt =  mvnrnd(zeros(sizeOfModel,1), 2.38^2*xDataCovariance/sizeOfModel, stepCountForcedSave)'
                         stepCountForcedSave = 100
                         sizeOfModel = 20
                         */
+                            double[] zeroMean = new double[sizeOfModel];
 
-                        double[] zeroMean = new double[sizeOfModel];
+                            Matrix copy = new Matrix(xDataCovariance);
+                            double[][] delx_adapt2 = new double[0][0];
+                            try {
+                                delx_adapt2 = MatLabCholesky.mvnrndTripoli(
+                                        zeroMean,
+                                        copy.times(pow(2.38, 2) / (sizeOfModel)).getArray(),
+                                        stepCountForcedSave).transpose().getArray();
 
-                        Matrix a = new Matrix(xDataCovariance);
-
-                        if (0.0 != a.det()) {
-
-                            MultivariateNormalDistribution mnd =
-                                    new MultivariateNormalDistribution(zeroMean, storeFactory.copy(Access2D.wrap(xDataCovariance)).multiply(pow(2.38, 2) / (sizeOfModel)).toRawCopy2D());
-                            double[][] samples = new double[stepCountForcedSave][];
-                            for (int i = 0; i < stepCountForcedSave; i++) {
-                                samples[i] = mnd.sample();
+                            } catch (Exception e) {
+                                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Bad matrix at model " + counter);
                             }
-                            delx_adapt = storeFactory.copy(Access2D.wrap(samples)).transpose().toRawCopy2D();
-                        } else {
-                            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Bad matrix at model " + counter);
+                            if (delx_adapt2.length == delx_adapt.length) {
+                                delx_adapt = delx_adapt2;
+                            }
                         }
                     }
-                }
 
-                if (0 == modelIndex % (10 * stepCountForcedSave)) {
-                    loggingSnippet =
-                            "%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
-                                    + " ADAPTIVE = " + adaptiveFlag
-                                    + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
-                                    + "\nError function = "
-                                    + statsFormat.format(StrictMath.sqrt(initialModelErrorUnWeighted_E0 / countOfData))
+                    if (0 == modelIndex % (10 * stepCountForcedSave)) {
+                        loggingSnippet =
+                                "%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
+                                        + " ADAPTIVE = " + adaptiveFlag
+                                        + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
+                                        + "\nError function = "
+                                        + statsFormat.format(StrictMath.sqrt(initialModelErrorUnWeighted_E0 / countOfData))
 
-                                    + "\nChange Log Ratio: "
-                                    + keptUpdates[0][0]
-                                    + " of "
-                                    + keptUpdates[0][1]
-                                    + " accepted (" + statsFormat.format(100.0 * keptUpdates[0][2] / keptUpdates[0][3]) + "% total)"
+                                        + "\nChange Log Ratio: "
+                                        + keptUpdates[0][0]
+                                        + " of "
+                                        + keptUpdates[0][1]
+                                        + " accepted (" + statsFormat.format(100.0 * keptUpdates[0][2] / keptUpdates[0][3]) + "% total)"
 
-                                    + "\nChange Intensity: "
-                                    + keptUpdates[1][0]
-                                    + " of "
-                                    + keptUpdates[1][1]
-                                    + " accepted (" + statsFormat.format(100.0 * keptUpdates[1][2] / keptUpdates[1][3]) + "% total)"
+                                        + "\nChange Intensity: "
+                                        + keptUpdates[1][0]
+                                        + " of "
+                                        + keptUpdates[1][1]
+                                        + " accepted (" + statsFormat.format(100.0 * keptUpdates[1][2] / keptUpdates[1][3]) + "% total)"
 
-                                    + "\nChange DF Gain: "
-                                    + keptUpdates[2][0]
-                                    + " of "
-                                    + keptUpdates[2][1]
-                                    + " accepted (" + statsFormat.format(100.0 * keptUpdates[2][2] / keptUpdates[2][3]) + "% total)"
+                                        + "\nChange DF Gain: "
+                                        + keptUpdates[2][0]
+                                        + " of "
+                                        + keptUpdates[2][1]
+                                        + " accepted (" + statsFormat.format(100.0 * keptUpdates[2][2] / keptUpdates[2][3]) + "% total)"
 
-                                    + "\nChange Baseline: "
-                                    + keptUpdates[3][0]
-                                    + " of "
-                                    + keptUpdates[3][1]
-                                    + " accepted (" + statsFormat.format(100.0 * keptUpdates[3][2] / keptUpdates[3][3]) + "% total)"
+                                        + "\nChange Baseline: "
+                                        + keptUpdates[3][0]
+                                        + " of "
+                                        + keptUpdates[3][1]
+                                        + " accepted (" + statsFormat.format(100.0 * keptUpdates[3][2] / keptUpdates[3][3]) + "% total)"
 
-                                    + (hierarchical ?
-                                    ("\nNoise: "
-                                            + keptUpdates[4][0]
-                                            + " of "
-                                            + keptUpdates[4][1]
-                                            + " accepted (" + statsFormat.format(100.0 * keptUpdates[4][2] / keptUpdates[4][3]) + "% total)")
-                                            + ("\nIntervals: in microseconds, each from prev or zero time till new interval"
-                                            + " Interval1 " + (interval1 / 1000)
-                                            + " Interval2 " + (interval2 / 1000)
-                                            + " Interval3 " + (interval3 / 1000)
-                                            + " Interval4 " + (interval4 / 1000)
-                                            + " Interval5 " + (interval5 / 1000)
-                                    )
-                                    : "")
-                                    + "\n";
+                                        + (hierarchical ?
+                                        ("\nNoise: "
+                                                + keptUpdates[4][0]
+                                                + " of "
+                                                + keptUpdates[4][1]
+                                                + " accepted (" + statsFormat.format(100.0 * keptUpdates[4][2] / keptUpdates[4][3]) + "% total)")
+                                                + ("\nIntervals: in microseconds, each from prev or zero time till new interval"
+                                                + " Interval1 " + (interval1 / 1000)
+                                                + " Interval2 " + (interval2 / 1000)
+                                                + " Interval3 " + (interval3 / 1000)
+                                                + " Interval4 " + (interval4 / 1000)
+                                                + " Interval5 " + (interval5 / 1000)
+                                        )
+                                        : "")
+                                        + "\n";
 
-                    System.err.println("\n" + loggingSnippet);
-                    loggingCallback.receiveLoggingSnippet(loggingSnippet);
+                        System.err.println("\n" + loggingSnippet);
+                        loggingCallback.receiveLoggingSnippet(loggingSnippet);
 
-                    for (int i = 0; 5 > i; i++) {
-                        keptUpdates[i][0] = 0;
-                        keptUpdates[i][1] = 0;
+                        for (int i = 0; 5 > i; i++) {
+                            keptUpdates[i][0] = 0;
+                            keptUpdates[i][1] = 0;
+                        }
+
+                        watch.reset();
+                        watch.start();
                     }
-
-                    watch.reset();
-                    watch.start();
                 }
             } else {
                 //loggingCallback.receiveLoggingSnippet("\n\nCancelled by user.");
@@ -641,7 +641,7 @@ public class MCMCProcess {
         }// end model loop
         if (ALLOW_EXECUTION) {
             // experiment with serializing results during development
-            EnsemblesStoreV2 ensemblesStore = new EnsemblesStoreV2(ensembleRecordsList, singleBlockInitialModelRecord_initial);
+            EnsemblesStore ensemblesStore = new EnsemblesStore(ensembleRecordsList, singleBlockInitialModelRecord_initial);
             try {
                 TripoliSerializer.serializeObjectToFile(ensemblesStore, "EnsemblesStore.ser");
             } catch (TripoliException e) {

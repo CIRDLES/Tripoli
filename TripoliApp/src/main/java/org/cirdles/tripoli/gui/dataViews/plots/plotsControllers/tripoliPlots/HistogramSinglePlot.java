@@ -35,14 +35,14 @@ public class HistogramSinglePlot extends AbstractPlot {
     private HistogramSinglePlot(Rectangle bounds, HistogramRecord histogramRecord) {
         super(bounds,
                 40, 25,
-                histogramRecord.title()
-                        + "  " + "X\u0305" + "=" + String.format("%8.3g", histogramRecord.mean()).trim()
-                        + "\u00B1" + String.format("%8.3g", histogramRecord.standardDeviation()).trim(),
+                new String[]{histogramRecord.title()[0]
+                        + "  " + "X\u0305" + "=" + String.format("%8.5g", histogramRecord.mean()).trim()
+                        , "\u00B1" + String.format("%8.5g", histogramRecord.standardDeviation()).trim()},
                 histogramRecord.xAxisLabel(),
                 histogramRecord.yAxisLabel());
         this.histogramRecord = histogramRecord;
         // these can be changed by user in plot
-        this.binWidth = histogramRecord.binWidth();
+        binWidth = histogramRecord.binWidth();
     }
 
     public static AbstractPlot generatePlot(Rectangle bounds, HistogramRecord histogramRecord) {
@@ -69,7 +69,7 @@ public class HistogramSinglePlot extends AbstractPlot {
 
         prepareExtents();
         calculateTics();
-        this.repaint();
+        repaint();
     }
 
     @Override
@@ -79,7 +79,7 @@ public class HistogramSinglePlot extends AbstractPlot {
 
     public void prepareExtents() {
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.25);
-        if (xMarginStretch == 0.0) {
+        if (0.0 == xMarginStretch) {
             xMarginStretch = maxX * 0.01;
         }
         minX -= xMarginStretch;
@@ -95,7 +95,7 @@ public class HistogramSinglePlot extends AbstractPlot {
         // plot bins
         g2d.setFill(dataColor.color());
         g2d.setLineWidth(2.0);
-        boolean doFrameBins = (mapX(xAxisData[1]) - mapX(xAxisData[0])) > 1.0;
+        boolean doFrameBins = 1.0 < (mapX(xAxisData[1]) - mapX(xAxisData[0]));
 
         for (int i = 0; i < xAxisData.length; i++) {
             double plottedBinWidth = mapX(xAxisData[1]) - mapX(xAxisData[0]);

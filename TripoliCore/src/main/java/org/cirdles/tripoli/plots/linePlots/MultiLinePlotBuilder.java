@@ -16,24 +16,27 @@
 
 package org.cirdles.tripoli.plots.linePlots;
 
-import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.PlotBuilder;
 
-public class MultiLinePlotBuilder extends AbstractPlotBuilder {
+import java.io.Serial;
 
-    private final double[] xData;
-    private final double[][] yData;
+public class MultiLinePlotBuilder extends PlotBuilder {
 
-    private MultiLinePlotBuilder(double[] xData, double[][] yData, String title, String xAxisLabel, String yAxisLabel) {
+    @Serial
+    private static final long serialVersionUID = 7957148103741755713L;
+    private double[] xData;
+    private double[][] yData;
+
+    public MultiLinePlotBuilder() {
+    }
+
+    private MultiLinePlotBuilder(double[] xData, double[][] yData, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel);
         this.xData = xData;
         this.yData = yData;
     }
 
-    public static MultiLinePlotBuilder initializeLinePlot(double[] xData, double[][] yData, String title) {
-        return new MultiLinePlotBuilder(xData, yData, title, "X", "Y");
-    }
-
-    public static MultiLinePlotBuilder initializeLinePlot(double[] xData, double[][] yData, String title, String xAxisLabel, String yAxisLabel) {
+    public static MultiLinePlotBuilder initializeLinePlot(double[] xData, double[][] yData, String[] title, String xAxisLabel, String yAxisLabel) {
         return new MultiLinePlotBuilder(xData, yData, title, xAxisLabel, yAxisLabel);
     }
 

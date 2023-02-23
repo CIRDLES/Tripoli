@@ -41,13 +41,13 @@ public class TripoliMessageDialog extends Alert {
         super(alertType);
         initOwner(owner);
         setTitle("Tripoli Alert");
-        setContentText((message == null) ? "Unknown error ..." : message);
+        setContentText((null == message) ? "Unknown error ..." : message);
         setHeaderText(headerText);
         initStyle(StageStyle.DECORATED);
         int countOfNewLines = 1;
-        if (message != null) {
+        if (null != message) {
             for (int i = 0; i < message.length(); i++) {
-                countOfNewLines = countOfNewLines + ((message.charAt(i) == '\n') ? 1 : 0);
+                countOfNewLines = countOfNewLines + (('\n' == message.charAt(i)) ? 1 : 0);
             }
         }
         getDialogPane().setPrefSize(750, 150 + countOfNewLines * 20);
@@ -87,7 +87,7 @@ public class TripoliMessageDialog extends Alert {
     }
 
     public static void showSavedAsDialog(File file, Window owner) {
-        if (file == null) {
+        if (null == file) {
             Alert dialog = new TripoliMessageDialog(AlertType.WARNING,
                     "Path is null!",
                     "Check permissions ...",

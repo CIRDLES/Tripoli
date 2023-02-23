@@ -19,7 +19,8 @@ import java.util.Locale;
 
 import static org.cirdles.tripoli.utilities.file.FileNameFixer.fixFileName;
 
-public class FileHandlerUtil {
+public enum FileHandlerUtil {
+    ;
 
     public static File saveSessionFile(Session session, Window ownerWindow)
             throws IOException {
@@ -35,11 +36,11 @@ public class FileHandlerUtil {
 
         File sessionFileNew = fileChooser.showSaveDialog(ownerWindow);
 
-        if (sessionFileNew != null) {
+        if (null != sessionFileNew) {
             Session.setSessionChanged(false);
             retVal = sessionFileNew;
             // capture tripoli session file name from file for session itself
-            session.setSessionName(sessionFileNew.getName().substring(0, sessionFileNew.getName().lastIndexOf(".")));
+            session.setSessionName(sessionFileNew.getName().substring(0, sessionFileNew.getName().lastIndexOf('.')));
             try {
                 SessionFileUtilities.serializeTripoliSession(session, sessionFileNew.getCanonicalPath());
             } catch (IOException | TripoliException ex) {
@@ -62,7 +63,7 @@ public class FileHandlerUtil {
 
         File sessionFileNew = fileChooser.showOpenDialog(ownerWindow);
 
-        if (sessionFileNew != null) {
+        if (null != sessionFileNew) {
             retVal = sessionFileNew.getCanonicalPath();
         }
 
@@ -81,7 +82,7 @@ public class FileHandlerUtil {
 
         File dataFile = fileChooser.showOpenDialog(ownerWindow);
 
-        if (dataFile != null) {
+        if (null != dataFile) {
             if (dataFile.getName().toLowerCase(Locale.US).endsWith(".txt")) {
                 retVal = dataFile;
             } else {
@@ -103,7 +104,7 @@ public class FileHandlerUtil {
 
         File dataFile = fileChooser.showOpenDialog(ownerWindow);
 
-        if (dataFile != null) {
+        if (null != dataFile) {
             // <?xml version="1.0" standalone="yes"?>
             List<String> contentsByLine = new ArrayList<>(Files.readAllLines(Path.of(dataFile.toURI()), Charset.defaultCharset()));
             if (contentsByLine.get(0).startsWith("<?xml version=") && (contentsByLine.get(1).startsWith("<ANALYSIS_METHOD>"))) {

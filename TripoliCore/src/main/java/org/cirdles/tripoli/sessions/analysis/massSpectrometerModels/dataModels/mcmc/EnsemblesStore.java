@@ -25,9 +25,9 @@ import java.util.List;
 public class EnsemblesStore implements Serializable {
 
     private final List<EnsembleRecord> ensembles;
-    private final DataModellerOutputRecord lastDataModelInit;
+    private final SingleBlockModelRecord lastDataModelInit;
 
-    public EnsemblesStore(List<EnsembleRecord> ensembles, DataModellerOutputRecord lastDataModelInit) {
+    public EnsemblesStore(List<EnsembleRecord> ensembles, SingleBlockModelRecord lastDataModelInit) {
         this.ensembles = ensembles;
         this.lastDataModelInit = lastDataModelInit;
     }
@@ -36,13 +36,13 @@ public class EnsemblesStore implements Serializable {
         return ensembles;
     }
 
-    public DataModellerOutputRecord getLastDataModelInit() {
+    public SingleBlockModelRecord getLastDataModelInit() {
         return lastDataModelInit;
     }
 
     public record EnsembleRecord(
             double[] logRatios,
-            double[][] blockIntensities,
+            double[] intensities,
             double[] baseLine,
             double dfGain,
             double[] signalNoise,

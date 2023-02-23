@@ -41,11 +41,11 @@ public record NuclideRecord(
                 "\t %abundance: " +
                 naturalAbundancePercent +
                 "\t 1/2Life: " +
-                (halfLifeAnnum > 0 ? halfLifeAnnum : (halfLifeAnnum < 0) ? "Stable" : "n/a");
+                (0 < halfLifeAnnum ? halfLifeAnnum : (0 > halfLifeAnnum) ? "Stable" : "n/a");
     }
 
     public String prettyPrintShortForm() {
-        return "" + (protonsZ + neutronsN) + elementSymbol;
+        return (protonsZ + neutronsN) + elementSymbol;
     }
 
     public int getMassNumber() {

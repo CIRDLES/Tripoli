@@ -50,7 +50,7 @@ public class TripoliGUI extends Application {
 
     public static void updateStageTitle(String fileName) {
         String fileSpec = "[Session File: NONE]";
-        fileSpec = fileName.length() > 0 ? fileSpec.replace("NONE", fileName) : fileSpec;
+        fileSpec = 0 < fileName.length() ? fileSpec.replace("NONE", fileName) : fileSpec;
         primaryStage.setTitle("Tripoli  " + fileSpec);
     }
 
@@ -58,7 +58,7 @@ public class TripoliGUI extends Application {
 
         // arg[0] : -v[erbose]
         boolean verbose = false;
-        if (args.length > 0) {
+        if (0 < args.length) {
             verbose = args[0].startsWith("-v");
         }
 

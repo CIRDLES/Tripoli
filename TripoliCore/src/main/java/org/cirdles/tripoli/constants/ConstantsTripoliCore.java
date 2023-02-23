@@ -21,16 +21,17 @@ import java.nio.CharBuffer;
 /**
  * @author James F. Bowring
  */
-public class ConstantsTripoliCore {
-    public final static String SPACES_100 = CharBuffer.allocate(100).toString().replace('\0', ' ');
+public enum ConstantsTripoliCore {
+    ;
+    public static final String SPACES_100 = CharBuffer.allocate(100).toString().replace('\0', ' ');
 
-    public final static String MISSING_STRING_FIELD = "MISSING";
+    public static final String MISSING_STRING_FIELD = "MISSING";
 
     /**
      * elementary charge e is exactly 1.602176634×10−19 coulomb (C).
      * see: https://en.wikipedia.org/wiki/2019_redefinition_of_the_SI_base_units
      */
-    public final static double ELEMENTARY_CHARGE_E = 1.602176634e-19;
-    public final static double ONE_COULOMB = 1.0 / ELEMENTARY_CHARGE_E; // s.b. 6.2415091e18 == 6.2415090744607631E18
+    public static final double ELEMENTARY_CHARGE_E = 1.602176634e-19;
+    public static final double ONE_COULOMB = 1.0 / ELEMENTARY_CHARGE_E; // s.b. 6.2415091e18 == 6.2415090744607631E18
 
 }

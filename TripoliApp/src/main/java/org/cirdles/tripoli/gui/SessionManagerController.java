@@ -96,7 +96,7 @@ public class SessionManagerController implements Initializable {
         listViewOfAnalyses.setItems(items);
         listViewOfAnalyses.setOnMouseClicked(event -> {
             if (MouseButton.PRIMARY == event.getButton()) {
-                if (2 == event.getClickCount() && event.getTarget().toString().lastIndexOf("null") == -1) {
+                if (2 == event.getClickCount() && -1 == event.getTarget().toString().lastIndexOf("null")) {
                     AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
                     AnalysisManagerController.analysis = analysisSelected;
                     MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
@@ -113,15 +113,15 @@ public class SessionManagerController implements Initializable {
 
     private void setupListeners() {
         sessionNameText.textProperty().addListener((observable, oldValue, newValue) -> {
-            assert tripoliSession != null;
+            assert null != tripoliSession;
             tripoliSession.setSessionName(newValue.isBlank() ? MISSING_STRING_FIELD : newValue);
         });
         analystNameText.textProperty().addListener((observable, oldValue, newValue) -> {
-            assert tripoliSession != null;
+            assert null != tripoliSession;
             tripoliSession.setAnalystName(newValue.isBlank() ? MISSING_STRING_FIELD : newValue);
         });
         sessionNotesText.textProperty().addListener((observable, oldValue, newValue) -> {
-            assert tripoliSession != null;
+            assert null != tripoliSession;
             tripoliSession.setSessionNotes(newValue.isBlank() ? MISSING_STRING_FIELD : newValue);
         });
     }

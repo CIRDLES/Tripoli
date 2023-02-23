@@ -65,7 +65,7 @@ public class CovarianceMatrixModel extends AbstractMatrixModel {
                 String rowName = getRows().get(rowKey);
 
                 BigDecimal varianceModel = variances.get(rowName);
-                if (varianceModel != null) {
+                if (null != varianceModel) {
                     matrix.set(rowKey, rowKey, varianceModel.doubleValue());
                 }
             }
@@ -113,7 +113,7 @@ public class CovarianceMatrixModel extends AbstractMatrixModel {
     protected void setCovarianceCell(String leftSide, String rightSide, double coVariance) {
         Integer left = getCols().get(leftSide);
         Integer right = getCols().get(rightSide);
-        if ((left != null) && (right != null)) {
+        if ((null != left) && (null != right)) {
             matrix.set(left, right, coVariance);
             matrix.set(right, left, coVariance);
         }
@@ -142,20 +142,20 @@ public class CovarianceMatrixModel extends AbstractMatrixModel {
             int colA = getCols().get(covaryingTerms[i]);
 
             // set dOldInvert diagonal to inverse of one-sigmas
-            if (matrix.get(colA, colA) == 0.0) {
+            if (0.0 == matrix.get(colA, colA)) {
                 dOldInvert.set(i, i, 0.0);
             } else {
                 dOldInvert.set(i, i, 1.0 / Math.sqrt(matrix.get(colA, colA)));
             }
 
             // set dNew diagonal to one-sigmas
-            if (i == 0) {
+            if (0 == i) {
                 sigmaConverter = oneSigma.doubleValue() / Math.sqrt(matrix.get(colA, colA));
             }
             if (lockVariancesTogether) {
                 dNew.set(i, i, sigmaConverter * Math.sqrt(matrix.get(colA, colA)));
             } else {
-                if (i == 0) {
+                if (0 == i) {
                     dNew.set(0, 0, oneSigma.doubleValue());
                 } else {
                     dNew.set(i, i, Math.sqrt(matrix.get(colA, colA)));
@@ -240,9 +240,9 @@ public class CovarianceMatrixModel extends AbstractMatrixModel {
 
         for (int i = 0; i < rhos.getRowDimension() - 1; i++) {
             for (int j = i + 1; j < rhos.getColumnDimension(); j++) {
-                if (Math.abs(rhos.get(i, j)) > 1.0) {
+                if (1.0 < Math.abs(rhos.get(i, j))) {
                     // bad rhos
-                    if (retval.length() == 0) {
+                    if (0 == retval.length()) {
                         retval += "For fraction " + fractionID + ", the out-of-range calculated correlation coefficient between inputs<br> ";
                     }
                     retval += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + measuredNamesFound.get(i)
@@ -254,7 +254,7 @@ public class CovarianceMatrixModel extends AbstractMatrixModel {
             }
         }
 
-        if (retval.length() > 0) {
+        if (0 < retval.length()) {
             retval += "<br>";
         }
 
@@ -272,7 +272,7 @@ public class CovarianceMatrixModel extends AbstractMatrixModel {
         Integer left = getCols().get(leftSide);
         Integer right = getCols().get(rightSide);
 
-        if ((left != null) && (right != null)) {
+        if ((null != left) && (null != right)) {
             return matrix.get(left, right);
         }
         return retval;
@@ -287,7 +287,7 @@ public class CovarianceMatrixModel extends AbstractMatrixModel {
         Integer left = getCols().get(leftSide);
         Integer right = getCols().get(rightSide);
 
-        if ((left != null) && (right != null)) {
+        if ((null != left) && (null != right)) {
             matrix.set(left, right, value);
             matrix.set(right, left, value);
         }

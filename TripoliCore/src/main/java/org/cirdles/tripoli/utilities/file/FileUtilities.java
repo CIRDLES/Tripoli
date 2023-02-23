@@ -20,6 +20,7 @@ package org.cirdles.tripoli.utilities.file;
 import org.apache.poi.util.IOUtils;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
@@ -30,7 +31,8 @@ import java.util.zip.ZipFile;
 /**
  * @author James F. Bowring
  */
-public class FileUtilities {
+public enum FileUtilities {
+    ;
 
     public static void recursiveDelete(Path pathToBeDeleted)
             throws IOException {
@@ -47,9 +49,9 @@ public class FileUtilities {
     public static boolean isFileClosedUnix(File file) {
         try {
             Process plsof = new ProcessBuilder("lsof", "|", "grep", file.getAbsolutePath()).start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(plsof.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(plsof.getInputStream(), StandardCharsets.UTF_8));
             String line;
-            while ((line = reader.readLine()) != null) {
+            while (null != (line = reader.readLine())) {
                 if (line.contains(file.getAbsolutePath())) {
                     reader.close();
                     plsof.destroy();
@@ -65,7 +67,7 @@ public class FileUtilities {
         return true;
     }
 
-    public static void unpackZipFile(final File archive, final File targetDirectory)
+    public static void unpackZipFile(File archive, File targetDirectory)
             throws IOException {
         ZipFile zipFile = new ZipFile(archive);
         Enumeration<? extends ZipEntry> entries = zipFile.entries();

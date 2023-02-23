@@ -24,7 +24,7 @@ public class BeamShapeLinePlotBuilder extends LinePlotBuilder {
     private final int rightBoundary;
 
     private BeamShapeLinePlotBuilder(double[] xData, double[] yData, int leftBoundary, int rightBoundary) {
-        super(xData, yData, "Line Plot of Beam Shape", "X", "Y");
+        super(xData, yData, new String[]{"Line Plot of Beam Shape"}, "X", "Y");
         this.leftBoundary = leftBoundary;
         this.rightBoundary = rightBoundary;
     }
