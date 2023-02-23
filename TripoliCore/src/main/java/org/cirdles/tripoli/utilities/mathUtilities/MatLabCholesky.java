@@ -17,7 +17,6 @@
 package org.cirdles.tripoli.utilities.mathUtilities;
 
 import com.google.common.primitives.Ints;
-import jama.CholeskyDecomposition;
 import jama.EigenvalueDecomposition;
 import jama.Matrix;
 import org.apache.commons.math3.random.RandomDataGenerator;
@@ -282,10 +281,10 @@ public enum MatLabCholesky {
         boolean retVal = true;
         for (int row = 0; row < array.length; row++) {
             for (int col = 0; col < array[row].length; col++) {
-                if ("<".compareTo(operator) == 0) {
+                if (0 == "<".compareTo(operator)) {
                     retVal = retVal && (Math.abs(array[row][col]) < tolerance);
                 }
-                if (">".compareTo(operator) == 0) {
+                if (0 == ">".compareTo(operator)) {
                     retVal = retVal && (Math.abs(array[row][col]) > tolerance);
                 }
                 if (!retVal) break;
