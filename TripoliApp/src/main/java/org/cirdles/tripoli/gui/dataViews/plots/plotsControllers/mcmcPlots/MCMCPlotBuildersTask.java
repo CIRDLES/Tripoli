@@ -25,7 +25,7 @@ import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
  * @author James F. Bowring
  */
 public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface, PlotBuildersTaskInterface {
-    private final AnalysisInterface analysis;
+    public static AnalysisInterface analysis;
     private final int blockNumber;
     // ensemble plots
     private PlotBuilder[] ratiosHistogramBuilder;
@@ -48,8 +48,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
     private PlotBuilder[] convergeNoiseFaradayLineBuilder;
 
-    public MCMCPlotBuildersTask(AnalysisInterface analysis, int blockNumber) {
-        this.analysis = analysis;
+    public MCMCPlotBuildersTask(int blockNumber) {
         this.blockNumber = blockNumber;
     }
 
@@ -119,7 +118,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     }
 
     @Override
-    public String call() throws Exception {
+    public synchronized String call() throws Exception {
         PlotBuilder[][] plots = analysis.updatePlotsByBlock(blockNumber, this);
         ratiosHistogramBuilder = plots[0];
         baselineHistogramBuilder = plots[1];
@@ -140,7 +139,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         observedDataLineBuilder = plots[13][0];
         residualDataLineBuilder = plots[14][0];
 
-        return analysis.getDataFilePathString() + "\n\n\tDONE - view tabs for various plots";
+        return analysis.getDataFilePathString() + "Block # " + blockNumber + "\n\n\tDONE - view tabs for various plots";
     }
 
     @Override

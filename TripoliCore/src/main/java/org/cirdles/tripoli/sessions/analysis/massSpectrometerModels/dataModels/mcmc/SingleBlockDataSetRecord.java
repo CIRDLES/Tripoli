@@ -25,6 +25,7 @@ import java.util.List;
  * @author James F. Bowring
  */
 record SingleBlockDataSetRecord(
+        int blockNumber,
         SingleBlockDataRecord baselineDataSetMCMC,
         SingleBlockDataRecord onPeakFaradayDataSetMCMC,
         SingleBlockDataRecord onPeakPhotoMultiplierDataSetMCMC,
@@ -47,6 +48,7 @@ record SingleBlockDataSetRecord(
      * @author James F. Bowring
      */
     record SingleBlockDataRecord(
+            int blockNumber,
             List<Integer> detectorOrdinalIndicesAccumulatorList,
             List<Double> intensityAccumulatorList,
             List<Double> timeAccumulatorList,

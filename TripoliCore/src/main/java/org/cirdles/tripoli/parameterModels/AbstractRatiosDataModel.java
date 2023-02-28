@@ -189,12 +189,12 @@ public abstract class AbstractRatiosDataModel implements
 
     /**
      * compares this {@code AbstractRatiosDataModel} to argument
-     * <code>AbstractRatiosDataModel</code> by their {@code name} and
+     * {@code AbstractRatiosDataModel} by their {@code name} and
      * {@code version}.
      *
      * @param model
      * @return {@code int} - 0 if this
-     * <code>AbstractRatiosDataModel</code>'s {@code name} and
+     * {@code AbstractRatiosDataModel}'s {@code name} and
      * {@code version} is the same as argument
      * {@code AbstractRatiosDataModel}'s, -1 if they are lexicographically
      * less than argument {@code AbstractRatiosDataModel}'s, and 1 if they
@@ -215,19 +215,19 @@ public abstract class AbstractRatiosDataModel implements
 
     /**
      * compares this {@code AbstractRatiosDataModel} to argument
-     * {@code AbstractRatiosDataModel} by their <code>name</code> and
+     * {@code AbstractRatiosDataModel} by their {@code name} and
      * {@code version}.
      *
      * @param model
-     * @return <code>boolean</code> - {@code true} if argument      <code>
-     * AbstractRatiosDataModel</code> is this
-     * <code>AbstractRatiosDataModel</code> or their {@code name} and
-     * {@code version} are identical, else <code>false</code>
+     * @return {@code boolean} - {@code true} if argument      {@code
+     * AbstractRatiosDataModel} is this
+     * {@code AbstractRatiosDataModel} or their {@code name} and
+     * {@code version} are identical, else {@code false}
      * @pre argument {@code AbstractRatiosDataModel} is a valid
      * {@code AbstractRatiosDataModel}
      * @post returns a {@code boolean} representing the equality of this
      * {@code AbstractRatiosDataModel} and argument
-     * {@code AbstractRatiosDataModel} based on their <code>name</code> and
+     * {@code AbstractRatiosDataModel} based on their {@code name} and
      * {@code version}
      */
     @Override
@@ -240,7 +240,7 @@ public abstract class AbstractRatiosDataModel implements
             return false;
         }
 
-        return (0 == this.getNameAndVersion().trim().compareToIgnoreCase( //
+        return (0 == getNameAndVersion().trim().compareToIgnoreCase( //
                 myModel.getNameAndVersion().trim()));
     }
 
@@ -594,7 +594,7 @@ public abstract class AbstractRatiosDataModel implements
      * gets the {@code modelName} of this
      * {@code AbstractRatiosDataModel}.
      *
-     * @return {@code String} - this <code>AbstractRatiosDataModel</code>'s
+     * @return {@code String} - this {@code AbstractRatiosDataModel}'s
      * {@code modelName}
      * @pre this {@code AbstractRatiosDataModel} exists
      * @post returns this {@code AbstractRatiosDataModel}'s
@@ -615,7 +615,7 @@ public abstract class AbstractRatiosDataModel implements
      * gets the {@code versionNumber} of this
      * {@code AbstractRatiosDataModel}.
      *
-     * @return <code>int</code> - this {@code AbstractRatiosDataModel}'s
+     * @return {@code int} - this {@code AbstractRatiosDataModel}'s
      * {@code versionNumber}
      * @pre this {@code AbstractRatiosDataModel} exists
      * @post returns this {@code AbstractRatiosDataModel}'s
@@ -636,7 +636,7 @@ public abstract class AbstractRatiosDataModel implements
      * gets the {@code labName} of this
      * {@code AbstractRatiosDataModel}.
      *
-     * @return {@code String} - this <code>AbstractRatiosDataModel</code>'s
+     * @return {@code String} - this {@code AbstractRatiosDataModel}'s
      * {@code labName}
      * @pre this {@code AbstractRatiosDataModel} exists
      * @post returns this {@code AbstractRatiosDataModel}'s
@@ -657,7 +657,7 @@ public abstract class AbstractRatiosDataModel implements
      * gets the {@code dateCertified} of this
      * {@code AbstractRatiosDataModel}.
      *
-     * @return <code>String</code> - this {@code AbstractRatiosDataModel}'s
+     * @return {@code String} - this {@code AbstractRatiosDataModel}'s
      * {@code dateCertified}
      * @pre this {@code AbstractRatiosDataModel} exists
      * @post returns this {@code AbstractRatiosDataModel}'s
@@ -676,14 +676,14 @@ public abstract class AbstractRatiosDataModel implements
 
     /**
      * gets a {@code String} containing this
-     * {@code AbstractRatiosDataModel}'s <code>modelName</code> and
+     * {@code AbstractRatiosDataModel}'s {@code modelName} and
      * {@code versionNumber}.
      *
-     * @return <code>String</code> - this {@code AbstractRatiosDataModel}'s
-     * <code>modelName</code> and {@code versionNumber}
+     * @return {@code String} - this {@code AbstractRatiosDataModel}'s
+     * {@code modelName} and {@code versionNumber}
      * @pre this {@code AbstractRatiosDataModel} exists
      * @post returns a {@code String} containing this
-     * {@code AbstractRatiosDataModel}'s <code>modelName</code> and
+     * {@code AbstractRatiosDataModel}'s {@code modelName} and
      * {@code versionNumber}
      */
     public String getNameAndVersion() {
@@ -695,7 +695,7 @@ public abstract class AbstractRatiosDataModel implements
      * {@code AbstractRatiosDataModel}.
      *
      * @return {@code ValueModel[]} - collection of this
-     * <code>AbstractRatiosDataModel</code>'s {@code ratios}
+     * {@code AbstractRatiosDataModel}'s {@code ratios}
      * @pre this {@code AbstractRatiosDataModel} exists
      * @post returns this {@code AbstractRatiosDataModel}'s
      * {@code ratios}
@@ -718,17 +718,17 @@ public abstract class AbstractRatiosDataModel implements
 
     /**
      * gets a single ratio from this {@code AbstractRatiosDataModel}'s
-     * {@code ratios} specified by argument <code>datumName</code>. Returns
+     * {@code ratios} specified by argument {@code datumName}. Returns
      * a new, empty      {@code
      * ValueModel} if no matching ratio is found.
      *
      * @param datumName name of the ratio to search for
-     * @return <code>ValueModel</code> - ratio found in {@code ratios}
-     * whose name matches argument <code>datumName</code> or a new      {@code
+     * @return {@code ValueModel} - ratio found in {@code ratios}
+     * whose name matches argument {@code datumName} or a new      {@code
      * ValueModel} if no match is found
-     * @pre argument <code>datumName</code> is a valid {@code String}
+     * @pre argument {@code datumName} is a valid {@code String}
      * @post returns the {@code ValueModel} found in this
-     * <code>AbstractRatiosDataModel</code>'s {@code ratios} whose name
+     * {@code AbstractRatiosDataModel}'s {@code ratios} whose name
      * matches argument {@code datumName}
      */
     public ValueModel getDatumByName(String datumName) {
