@@ -16,7 +16,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.BeamShapeLinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.GBeamLinePlot;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
-import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.GBeamLinePlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.BeamDataOutputDriverExperiment;
@@ -32,8 +32,8 @@ import java.util.regex.Pattern;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHeight;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
-import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
-import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.*;
+
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow.plottingWindow;
 
 public class PeakShapeDemoPlotsControllerTest {
@@ -234,7 +234,7 @@ public class PeakShapeDemoPlotsControllerTest {
             resourceBrowserTarget = resourceGroups.get(groupValue).get(k);
             if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
                 try {
-                    AbstractPlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
+                    PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
                     xAxis[k] = k + 1;
                     yAxis[k] = BeamDataOutputDriverExperiment.getMeasBeamWidthAMU();
                     AbstractPlot gBeamLinePlot = GBeamLinePlot.generatePlot(
@@ -448,7 +448,7 @@ public class PeakShapeDemoPlotsControllerTest {
             final PeakShapesService service = new PeakShapesService(resourceBrowserTarget.toPath());
             eventLogTextArea.textProperty().bind(service.valueProperty());
             try {
-                AbstractPlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
+                PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
                 if (wallPlotsAnchorPane.getChildren().size() > 0) {
                     wallPlotsAnchorPane.getChildren().remove(0);
                 }
@@ -486,13 +486,13 @@ public class PeakShapeDemoPlotsControllerTest {
 
     }
 
-    private void produceBeamShapeLinePlot(AbstractPlotBuilder plotBuilder, PlotWallPane plotWallPane) {
+    private void produceBeamShapeLinePlot(PlotBuilder plotBuilder, PlotWallPane plotWallPane) {
         TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
         AbstractPlot plot = BeamShapeLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (BeamShapeLinePlotBuilder) plotBuilder);
         tripoliPlotPane.addPlot(plot);
     }
 
-    private void produceGBeamShapeLinePlot(AbstractPlotBuilder plotBuilder, PlotWallPane plotWallPane) {
+    private void produceGBeamShapeLinePlot(PlotBuilder plotBuilder, PlotWallPane plotWallPane) {
         TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
         AbstractPlot plot = GBeamLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (GBeamLinePlotBuilder) plotBuilder);
         tripoliPlotPane.addPlot(plot);

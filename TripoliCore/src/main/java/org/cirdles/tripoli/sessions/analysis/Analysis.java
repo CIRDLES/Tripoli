@@ -20,12 +20,14 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.plots.PlotBuilder;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
+import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.File;
@@ -35,9 +37,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
@@ -52,17 +52,15 @@ import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuilti
 public class Analysis implements Serializable, AnalysisInterface {
     @Serial
     private static final long serialVersionUID = 5737165372498262402L;
-
+    private final Map<Integer, PlotBuilder[][]> mapOfBlockToPlots = new TreeMap<>();
     private String analysisName;
     private String analystName;
     private String labName;
     private AnalysisMethod analysisMethod;
     private String analysisSampleName;
     private String analysisSampleDescription;
-
     // note: Path is not serializable
     private String dataFilePathString;
-    private MassSpecOutputDataRecord massSpecOutputDataRecord;// TODO remove when out of use by synthetic files experiment
     private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
 
@@ -77,7 +75,6 @@ public class Analysis implements Serializable, AnalysisInterface {
         labName = MISSING_STRING_FIELD;
         analysisSampleDescription = MISSING_STRING_FIELD;
         dataFilePathString = MISSING_STRING_FIELD;
-        massSpecOutputDataRecord = null; // TODO: remove after transition to new architecture
         massSpecExtractedData = new MassSpecExtractedData();
         mutable = true;
     }
@@ -124,6 +121,17 @@ public class Analysis implements Serializable, AnalysisInterface {
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         PhoenixAnalysisMethod phoenixAnalysisMethod = (PhoenixAnalysisMethod) jaxbUnmarshaller.unmarshal(phoenixAnalysisMethodDataFilePath.toFile());
         return AnalysisMethod.createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod, massSpecExtractedData.getDetectorSetup(), massSpecExtractedData.getMassSpectrometerContext());
+    }
+
+    public PlotBuilder[][] updatePlotsByBlock(int blockNumber, LoggingCallbackInterface loggingCallback) throws TripoliException {
+        PlotBuilder[][] retVal;
+        if (mapOfBlockToPlots.containsKey(blockNumber)) {
+            retVal = mapOfBlockToPlots.get(blockNumber);
+        } else {
+            mapOfBlockToPlots.put(blockNumber, SingleBlockModelDriver.buildAndRunModelForSingleBlock(blockNumber, this, loggingCallback));
+            retVal = mapOfBlockToPlots.get(blockNumber);
+        }
+        return retVal;
     }
 
     public final String prettyPrintAnalysisSummary() {
@@ -232,16 +240,6 @@ public class Analysis implements Serializable, AnalysisInterface {
         this.analysisMethod = analysisMethod;
     }
 
-    @Override
-    public MassSpecOutputDataRecord getMassSpecOutputDataRecord() {
-        return massSpecOutputDataRecord;
-    }
-
-    @Override
-    public void setMassSpecOutputDataRecord(MassSpecOutputDataRecord massSpecOutputDataRecord) {
-        this.massSpecOutputDataRecord = massSpecOutputDataRecord;
-    }
-
     public MassSpecExtractedData getMassSpecExtractedData() {
         return massSpecExtractedData;
     }
@@ -272,5 +270,9 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public void setMutable(boolean mutable) {
         this.mutable = mutable;
+    }
+
+    public Map<Integer, PlotBuilder[][]> getMapOfBlockToPlots() {
+        return mapOfBlockToPlots;
     }
 }

@@ -2,9 +2,10 @@ package org.cirdles.tripoli.sessions.analysis;
 
 import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.IOException;
@@ -48,6 +49,8 @@ public interface AnalysisInterface {
 
     AnalysisMethod extractAnalysisMethodfromPath(Path phoenixAnalysisMethodDataFilePath) throws JAXBException;
 
+    PlotBuilder[][] updatePlotsByBlock(int blockNumber, LoggingCallbackInterface loggingCallback) throws TripoliException;
+
     String getAnalysisName();
 
     void setAnalysisName(String analysisName);
@@ -77,10 +80,6 @@ public interface AnalysisInterface {
     AnalysisMethod getMethod();
 
     void setMethod(AnalysisMethod analysisMethod);
-
-    MassSpecOutputDataRecord getMassSpecOutputDataRecord();
-
-    void setMassSpecOutputDataRecord(MassSpecOutputDataRecord massSpecOutputDataRecord);
 
     MassSpecExtractedData getMassSpecExtractedData();
 

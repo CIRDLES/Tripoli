@@ -16,16 +16,16 @@
 
 package org.cirdles.tripoli.plots.linePlots;
 
-import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.PlotBuilder;
 
-public class ComboPlotBuilder extends AbstractPlotBuilder {
+public class ComboPlotBuilder extends PlotBuilder {
 
     private final double[] xData;
     private final double[] yData;
     private final double[] yData2;
     private final boolean yData2OneSigma;
 
-    protected ComboPlotBuilder(double[] xData, double[] yData, double[] yData2, boolean yData2OneSigma, String title) {
+    protected ComboPlotBuilder(double[] xData, double[] yData, double[] yData2, boolean yData2OneSigma, String[] title) {
         super(title, "", "");
         this.xData = xData;
         this.yData = yData;
@@ -33,11 +33,11 @@ public class ComboPlotBuilder extends AbstractPlotBuilder {
         this.yData2OneSigma = yData2OneSigma;
     }
 
-    public static ComboPlotBuilder initializeLinePlot(double[] xData, double[] yData, double[] yData2, String title) {
+    public static ComboPlotBuilder initializeLinePlot(double[] xData, double[] yData, double[] yData2, String[] title) {
         return new ComboPlotBuilder(xData, yData, yData2, false, title);
     }
 
-    public static ComboPlotBuilder initializeLinePlotWithOneSigma(double[] xData, double[] yData, double[] yData2, String title) {
+    public static ComboPlotBuilder initializeLinePlotWithOneSigma(double[] xData, double[] yData, double[] yData2, String[] title) {
         return new ComboPlotBuilder(xData, yData, yData2, true, title);
     }
 

@@ -66,7 +66,7 @@ public class GBeamLinePlot extends AbstractPlot {
         prepareExtents();
         calculateTics();
 
-        this.repaint();
+        repaint();
     }
 
     @Override

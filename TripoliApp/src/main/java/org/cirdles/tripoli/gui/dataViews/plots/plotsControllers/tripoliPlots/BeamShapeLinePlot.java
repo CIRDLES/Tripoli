@@ -68,7 +68,7 @@ public class BeamShapeLinePlot extends AbstractPlot {
 
         prepareExtents();
         calculateTics();
-        this.repaint();
+        repaint();
     }
 
     @Override

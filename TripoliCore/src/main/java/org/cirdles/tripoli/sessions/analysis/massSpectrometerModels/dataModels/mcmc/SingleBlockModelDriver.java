@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
 import com.google.common.primitives.Doubles;
-import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
@@ -32,7 +32,7 @@ import org.ojalgo.matrix.store.Primitive64Store;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2.SingleBlockModelInitForMCMC.initializeModelForSingleBlockMCMC;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelInitForMCMC.initializeModelForSingleBlockMCMC;
 
 /**
  * @author James F. Bowring
@@ -40,10 +40,10 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public enum SingleBlockModelDriver {
     ;
 
-    public static AbstractPlotBuilder[][] buildAndRunModelForSingleBlock(int blockNumber, AnalysisInterface analysis, LoggingCallbackInterface loggingCallback) throws TripoliException {
+    public static PlotBuilder[][] buildAndRunModelForSingleBlock(int blockNumber, AnalysisInterface analysis, LoggingCallbackInterface loggingCallback) throws TripoliException {
         MassSpecExtractedData massSpecExtractedData = analysis.getMassSpecExtractedData();
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
-        AbstractPlotBuilder[][] plotBuilder = new AbstractPlotBuilder[0][0];
+        PlotBuilder[][] plotBuilder = new PlotBuilder[0][0];
 
         SingleBlockDataSetRecord singleBlockDataSetRecord = prepareSingleBlockDataForMCMC(blockNumber, massSpecExtractedData, analysisMethod);
         SingleBlockModelRecord singleBlockInitialModelRecord;

@@ -40,8 +40,8 @@ public abstract class AbstractDataView extends Canvas {
     protected double[] xAxisData;
     protected int graphWidth;
     protected int graphHeight;
-    protected int topMargin = 0;
-    protected int leftMargin = 0;
+    protected int topMargin;
+    protected int leftMargin;
     protected double minX;
     protected double maxX;
     protected double minY;
@@ -49,12 +49,11 @@ public abstract class AbstractDataView extends Canvas {
     protected BigDecimal[] ticsX;
     protected BigDecimal[] ticsY;
     //    protected BigDecimal[] ticsYII;
-    protected double displayOffsetY = 0;
-    protected double displayOffsetX = 0;
+    protected double displayOffsetY;
+    protected double displayOffsetX;
     protected String xAxisLabel;
 
     private AbstractDataView() {
-        super();
     }
 
     /**
@@ -66,12 +65,12 @@ public abstract class AbstractDataView extends Canvas {
         y = bounds.getY();
         this.leftMargin = leftMargin;
         this.topMargin = topMargin;
-        this.yAxisData = null;
+        yAxisData = null;
         width = bounds.getWidth();
         height = bounds.getHeight();
         updateGraphSize();
 
-        this.ticsY = null;
+        ticsY = null;
     }
 
     /**
@@ -92,7 +91,7 @@ public abstract class AbstractDataView extends Canvas {
     }
 
     public void repaint() {
-        paint(this.getGraphicsContext2D());
+        paint(getGraphicsContext2D());
     }
 
     public void labelXAxis(String label) {
@@ -271,8 +270,8 @@ public abstract class AbstractDataView extends Canvas {
     }
 
     public void updateGraphSize() {
-        this.graphWidth = (int) (width - 2 * leftMargin);
-        this.graphHeight = (int) (height - 2 * topMargin);
+        graphWidth = (int) (width - 2 * leftMargin);
+        graphHeight = (int) (height - 2 * topMargin);
     }
 
     public void setMyWidth(double width) {

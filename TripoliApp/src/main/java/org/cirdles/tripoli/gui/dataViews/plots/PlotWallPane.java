@@ -39,7 +39,7 @@ public class PlotWallPane extends Pane {
                 .filter(plot -> plot instanceof TripoliPlotPane)
                 .collect(Collectors.toList());
 
-        double widthTileCount = 5.0;
+        double widthTileCount = Math.min(5, plotPanes.size());
         double heightTileCount = Math.ceil(plotPanes.size() / widthTileCount);
 
         double displayWidth = ((getParent().getBoundsInParent().getWidth() - gridCellDim * 2.0) / widthTileCount);

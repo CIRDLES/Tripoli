@@ -1,7 +1,7 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes;
 
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
-import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.GBeamLinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
@@ -26,11 +26,11 @@ public enum BeamDataOutputDriverExperiment {
 
     private static double measBeamWidthAMU;
 
-    public static AbstractPlotBuilder[] modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException {
+    public static PlotBuilder[] modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException {
         PeakShapeProcessor_PhoenixTextFile peakShapeProcessor_PhoenixTextFile
                 = PeakShapeProcessor_PhoenixTextFile.initializeWithMassSpectrometer(massSpectrometerModelBuiltinMap.get(MassSpectrometerContextEnum.PHOENIX.getMassSpectrometerName()));
         PeakShapeOutputDataRecord peakShapeOutputDataRecord = peakShapeProcessor_PhoenixTextFile.prepareInputDataModelFromFile(dataFile);
-        AbstractPlotBuilder[] peakShapeLinePlotBuilder = new LinePlotBuilder[0];
+        PlotBuilder[] peakShapeLinePlotBuilder = new LinePlotBuilder[0];
 
 
         try {
@@ -43,7 +43,7 @@ public enum BeamDataOutputDriverExperiment {
         return peakShapeLinePlotBuilder;
     }
 
-    public static AbstractPlotBuilder[] gatherBeamWidth(PeakShapeOutputDataRecord peakShapeOutputDataRecord, LoggingCallbackInterface loggingCallback) throws RecoverableCondition {
+    public static PlotBuilder[] gatherBeamWidth(PeakShapeOutputDataRecord peakShapeOutputDataRecord, LoggingCallbackInterface loggingCallback) throws RecoverableCondition {
 
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         double maxBeamIndex;
@@ -210,12 +210,12 @@ public enum BeamDataOutputDriverExperiment {
         measBeamWidthAMU = beamMassInterp.get(rightBoundary) - beamMassInterp.get(leftBoundary);
 
 
-        AbstractPlotBuilder[] linePlots = new LinePlotBuilder[2];
+        PlotBuilder[] linePlots = new LinePlotBuilder[2];
         // "beamShape"
-        AbstractPlotBuilder beamShapeLinePlotBuilder
+        PlotBuilder beamShapeLinePlotBuilder
                 = BeamShapeLinePlotBuilder.initializeBeamShapeLinePlot(beamMassInterp.toRawCopy2D()[0], beamShape.transpose().toRawCopy2D()[0], leftBoundary, rightBoundary);
 
-        AbstractPlotBuilder gBeamLinePlotBuilder
+        PlotBuilder gBeamLinePlotBuilder
                 = GBeamLinePlotBuilder.initializeGBeamLinePlot(magnetMasses.transpose().toRawCopy2D()[0], gBeam.transpose().toRawCopy2D()[0], intensityData);
 
         linePlots[0] = beamShapeLinePlotBuilder;

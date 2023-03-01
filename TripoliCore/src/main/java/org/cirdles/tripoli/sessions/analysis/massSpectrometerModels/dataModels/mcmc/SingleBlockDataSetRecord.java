@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
 import org.ojalgo.matrix.store.Primitive64Store;
 

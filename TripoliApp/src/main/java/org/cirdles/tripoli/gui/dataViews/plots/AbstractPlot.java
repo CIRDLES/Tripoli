@@ -51,8 +51,8 @@ public abstract class AbstractPlot extends Canvas {
     protected double[] xAxisData;
     protected double plotWidth;
     protected double plotHeight;
-    protected double topMargin = 0.0;
-    protected double leftMargin = 0.0;
+    protected double topMargin;
+    protected double leftMargin;
     protected double minX;
     protected double maxX;
     protected double minY;
@@ -63,25 +63,24 @@ public abstract class AbstractPlot extends Canvas {
     protected double mouseStartY;
     protected BigDecimal[] ticsX;
     protected BigDecimal[] ticsY;
-    protected double displayOffsetX = 0.0;
-    protected double displayOffsetY = 0.0;
+    protected double displayOffsetX;
+    protected double displayOffsetY;
     protected double zoomChunkX;
     protected double zoomChunkY;
-    protected String plotTitle;
+    protected String[] plotTitle;
     protected String plotAxisLabelX;
     protected String plotAxisLabelY;
     protected boolean showStats;
     protected TripoliColor dataColor;
 
     private AbstractPlot() {
-        super();
     }
 
 
     /**
      * @param bounds
      */
-    protected AbstractPlot(Rectangle bounds, int leftMargin, int topMargin, String plotTitle, String plotAxisLabelX, String plotAxisLabelY) {
+    protected AbstractPlot(Rectangle bounds, int leftMargin, int topMargin, String[] plotTitle, String plotAxisLabelX, String plotAxisLabelY) {
         super(bounds.getWidth(), bounds.getHeight());
         x = bounds.getX();
         y = bounds.getY();
@@ -93,13 +92,13 @@ public abstract class AbstractPlot extends Canvas {
         this.plotTitle = plotTitle;
         this.plotAxisLabelX = plotAxisLabelX;
         this.plotAxisLabelY = plotAxisLabelY;
-        this.dataColor = TripoliColor.create(Color.BLUE);
+        dataColor = TripoliColor.create(Color.BLUE);
 
-        this.xAxisData = new double[0];
-        this.yAxisData = new double[0];
-        this.ticsX = new BigDecimal[0];
-        this.ticsY = new BigDecimal[0];
-        this.showStats = false;
+        xAxisData = new double[0];
+        yAxisData = new double[0];
+        ticsX = new BigDecimal[0];
+        ticsY = new BigDecimal[0];
+        showStats = false;
 
         updatePlotSize();
 
@@ -123,7 +122,7 @@ public abstract class AbstractPlot extends Canvas {
                 }
             }
         };
-        this.addEventFilter(ScrollEvent.SCROLL, scrollEventEventHandler);
+        addEventFilter(ScrollEvent.SCROLL, scrollEventEventHandler);
         EventHandler<MouseEvent> mouseDraggedEventHandler = e -> {
             if (mouseInHouse(e.getX(), e.getY())) {
                 displayOffsetX = displayOffsetX + (convertMouseXToValue(mouseStartX) - convertMouseXToValue(e.getX()));
@@ -136,15 +135,15 @@ public abstract class AbstractPlot extends Canvas {
                 repaint();
             }
         };
-        this.addEventFilter(MouseEvent.MOUSE_DRAGGED, mouseDraggedEventHandler);
+        addEventFilter(MouseEvent.MOUSE_DRAGGED, mouseDraggedEventHandler);
         EventHandler<MouseEvent> mousePressedEventHandler = e -> {
             if (mouseInHouse(e.getX(), e.getY()) && e.isPrimaryButtonDown()) {
                 mouseStartX = e.getX();
                 mouseStartY = e.getY();
             }
         };
-        this.addEventFilter(MouseEvent.MOUSE_PRESSED, mousePressedEventHandler);
-        this.setOnMouseClicked(new MouseClickEventHandler());
+        addEventFilter(MouseEvent.MOUSE_PRESSED, mousePressedEventHandler);
+        setOnMouseClicked(new MouseClickEventHandler());
     }
 
     public TripoliColor getDataColor() {
@@ -164,17 +163,17 @@ public abstract class AbstractPlot extends Canvas {
 
         MenuItem plotContextMenuItem2 = new MenuItem("Bring to front");
         plotContextMenuItem2.setOnAction((mouseEvent) -> {
-            this.getParent().toFront();
+            getParent().toFront();
         });
 
         MenuItem plotContextMenuItem3 = new MenuItem("Set data color");
         plotContextMenuItem3.setOnAction((mouseEvent) -> {
-            ((TripoliPlotPane) this.getParent()).changeDataColor(this);
+            ((TripoliPlotPane) getParent()).changeDataColor(this);
         });
 
         MenuItem plotContextMenuItem4 = new MenuItem("Toggle stats");
         plotContextMenuItem4.setOnAction((mouseEvent) -> {
-            ((TripoliPlotPane) this.getParent()).toggleShowStats();
+            ((TripoliPlotPane) getParent()).toggleShowStats();
         });
 
         plotContextMenu.getItems().addAll(plotContextMenuItem1, plotContextMenuItem2, plotContextMenuItem3, plotContextMenuItem4);
@@ -208,7 +207,7 @@ public abstract class AbstractPlot extends Canvas {
     }
 
     public void repaint() {
-        paint(this.getGraphicsContext2D());
+        paint(getGraphicsContext2D());
     }
 
     public abstract void plotData(GraphicsContext g2d);
@@ -220,14 +219,14 @@ public abstract class AbstractPlot extends Canvas {
 
     public void calculateTics() {
         ticsX = TicGeneratorForAxes.generateTics(getDisplayMinX(), getDisplayMaxX(), (int) (plotWidth / 50.0));
-        if (ticsX.length == 0) {
+        if (0 == ticsX.length) {
             ticsX = new BigDecimal[2];
             ticsX[0] = new BigDecimal(Double.toString(minX));
             ticsX[ticsX.length - 1] = new BigDecimal(Double.toString(maxX));
         }
 
         ticsY = TicGeneratorForAxes.generateTics(getDisplayMinY(), getDisplayMaxY(), (int) (plotHeight / 15.0));
-        if (ticsY.length == 0) {
+        if (0 == ticsY.length) {
             ticsY = new BigDecimal[2];
             ticsY[0] = new BigDecimal(Double.toString(minY));
             ticsY[ticsY.length - 1] = new BigDecimal(Double.toString(maxY));
@@ -245,11 +244,11 @@ public abstract class AbstractPlot extends Canvas {
         text.setFont(Font.font("SansSerif", 11));
         int textWidth;
 
-        if (ticsY.length > 1) {
+        if (1 < ticsY.length) {
             // ticsY
             float verticalTextShift = 3.2f;
             g2d.setFont(Font.font("SansSerif", 10));
-            if (ticsY != null) {
+            if (null != ticsY) {
                 for (BigDecimal bigDecimalTicY : ticsY) {
                     if ((mapY(bigDecimalTicY.doubleValue()) >= topMargin) && (mapY(bigDecimalTicY.doubleValue()) <= (topMargin + plotHeight))) {
                         g2d.strokeLine(
@@ -267,7 +266,7 @@ public abstract class AbstractPlot extends Canvas {
                 }
             }
             // ticsX
-            if (ticsX != null) {
+            if (null != ticsX) {
                 for (int i = 1; i < ticsX.length - 1; i++) {
                     try {
                         g2d.strokeLine(
@@ -281,7 +280,7 @@ public abstract class AbstractPlot extends Canvas {
                         fmt.format("%8.5g", ticsX[i].doubleValue());
                         String xText = fmt.toString().trim();
                         g2d.fillText(xText,
-                                (float) mapX(ticsX[i].doubleValue()) - 7f,
+                                (float) mapX(ticsX[i].doubleValue()) - 7.0f,
                                 (float) topMargin + plotHeight + 10);
 
                     } catch (Exception ignored) {
@@ -295,7 +294,10 @@ public abstract class AbstractPlot extends Canvas {
         Paint savedPaint = g2d.getFill();
         g2d.setFont(Font.font("SansSerif", 11));
         g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText(plotTitle, leftMargin - 20, topMargin - 5);
+        g2d.fillText(plotTitle[0], leftMargin - 20, topMargin - 12);
+        if (plotTitle.length == 2){
+            g2d.fillText(plotTitle[1], leftMargin + 50, topMargin - 2);
+        }
         g2d.setFill(savedPaint);
     }
 
@@ -470,7 +472,7 @@ public abstract class AbstractPlot extends Canvas {
     }
 
     public void toggleShowStats() {
-        this.showStats = !this.showStats;
+        showStats = !showStats;
     }
 
     /**
@@ -506,8 +508,8 @@ public abstract class AbstractPlot extends Canvas {
     }
 
     public void updatePlotSize() {
-        this.plotWidth = (int) (width - leftMargin - 10.0);
-        this.plotHeight = (int) (height - 2 * topMargin);
+        plotWidth = (int) (width - leftMargin - 10.0);
+        plotHeight = (int) (height - 2 * topMargin);
     }
 
     public void setWidthF(double width) {
@@ -523,7 +525,7 @@ public abstract class AbstractPlot extends Canvas {
         @Override
         public void handle(MouseEvent mouseEvent) {
             plotContextMenu.hide();
-            boolean isPrimary = mouseEvent.getButton().compareTo(MouseButton.PRIMARY) == 0;
+            boolean isPrimary = 0 == mouseEvent.getButton().compareTo(MouseButton.PRIMARY);
 
             if (mouseInHouse(mouseEvent.getX(), mouseEvent.getY())) {
                 if (isPrimary) {

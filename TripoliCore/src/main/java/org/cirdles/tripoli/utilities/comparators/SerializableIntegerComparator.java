@@ -21,7 +21,8 @@ import java.util.Comparator;
 /**
  * @author James F. Bowring
  */
-public class SerializableIntegerComparator {
+public enum SerializableIntegerComparator {
+    ;
     // see: https://stackoverflow.com/questions/20978922/java-unable-to-serialize-a-objects-which-contain-treemaps-with-comparators
     public static final Comparator<Integer> SERIALIZABLE_COMPARATOR
             = new IntegerComparatorSerializable();

@@ -16,7 +16,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.Bea
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.GBeamLinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.PeakCentresLinePlotX;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
-import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.GBeamLinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
@@ -31,8 +31,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
-import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.*;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow.plottingWindow;
 
 public class PeakShapeDemoPlotsController {
@@ -154,11 +153,11 @@ public class PeakShapeDemoPlotsController {
         File[] allFiles;
         resourceGroups = new TreeMap<>();
 
-        if (resourceBrowserTarget != null) {
+        if (null != resourceBrowserTarget) {
             for (File file : Objects.requireNonNull(resourceBrowserTarget.listFiles((file, name) -> name.toLowerCase().endsWith(".txt")))) {
                 try {
                     List<String> contentsByLine = new ArrayList<>(Files.readAllLines(file.toPath(), Charset.defaultCharset()));
-                    if (contentsByLine.size() > 5 && (contentsByLine.get(4).startsWith("Peak Centre Mass"))) {
+                    if (5 < contentsByLine.size() && (contentsByLine.get(4).startsWith("Peak Centre Mass"))) {
                         resourceFilesInFolder.add(file);
                     }
 
@@ -211,7 +210,7 @@ public class PeakShapeDemoPlotsController {
 
             listViewOfGroupResourcesInFolder.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 // Files will be manipulated here when group is selected
-                setCurrentGroup(newValue);
+                currentGroup = newValue;
                 processFilesAndShowPeakCentre(newValue);
                 populateListOfResources(newValue);
                 eventLogTextArea.textProperty().unbind();
@@ -258,9 +257,9 @@ public class PeakShapeDemoPlotsController {
         double[] yAxis = new double[resourceGroups.get(groupValue).size()];
         for (int k = 0; k < resourceGroups.get(groupValue).size(); k++) {
             resourceBrowserTarget = resourceGroups.get(groupValue).get(k);
-            if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
+            if (null != resourceBrowserTarget && resourceBrowserTarget.isFile()) {
                 try {
-                    AbstractPlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
+                    PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
                     xAxis[k] = k + 1;
                     yAxis[k] = BeamDataOutputDriverExperiment.getMeasBeamWidthAMU();
                     AbstractPlot gBeamLinePlot =  GBeamLinePlot.generatePlot(
@@ -302,7 +301,7 @@ public class PeakShapeDemoPlotsController {
         finalYAxis = yAxis;
         finalXAxis = xAxis;
 
-        LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, "PeakCentre Plot", "Cycles", "Peak Widths");
+        LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, new String[]{"PeakCentre Plot"}, "Cycles", "Peak Widths");
 
         peakCentreLinePlot = PeakCentresLinePlotX.generatePlot(new Rectangle(peakCentreGridPane.getCellBounds(0, 0).getWidth(), peakCentreGridPane.getCellBounds(0, 0).getHeight()), peakCentrePlotBuilder);
 
@@ -432,7 +431,7 @@ public class PeakShapeDemoPlotsController {
         listViewOfResourcesInFolder.setOnMouseClicked(click -> {
             peakCentreLinePlot.repaint();
             int index;
-            if (click.getClickCount() == 1) {
+            if (1 == click.getClickCount()) {
                 resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
                 index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
                 peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
@@ -444,7 +443,7 @@ public class PeakShapeDemoPlotsController {
         listViewOfResourcesInFolder.setOnKeyPressed(key -> {
             peakCentreLinePlot.repaint();
             int index;
-            if (key.getCode() == KeyCode.DOWN || key.getCode() == KeyCode.UP) {
+            if (KeyCode.DOWN == key.getCode() || KeyCode.UP == key.getCode()) {
                 resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
                 index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
                 processDataFileAndShowPlotsOfPeakShapes();
@@ -469,13 +468,11 @@ public class PeakShapeDemoPlotsController {
     public void processDataFileAndShowPlotsOfPeakShapes() {
 
 
-        if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
-            final PeakShapesService service = new PeakShapesService(resourceBrowserTarget.toPath());
+        if (null != resourceBrowserTarget && resourceBrowserTarget.isFile()) {
+            PeakShapesService service = new PeakShapesService(resourceBrowserTarget.toPath());
             eventLogTextArea.textProperty().bind(service.valueProperty());
             try {
-                AbstractPlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
-                beamPlotsGridPane.getChildren().remove(0);
-                gBeamPlotGridPane.getChildren().remove(0);
+                PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
 
                 AbstractPlot gBeamLinePlot = GBeamLinePlot.generatePlot(
                         new Rectangle(gBeamPlotGridPane.getCellBounds(0, 0).getWidth(),
@@ -542,7 +539,7 @@ public class PeakShapeDemoPlotsController {
         @Override
         protected void updateItem(File resource, boolean empty) {
             super.updateItem(resource, empty);
-            if (resource == null || empty) {
+            if (null == resource || empty) {
                 setText(null);
             } else {
                 setText(resource.getName());
@@ -556,7 +553,7 @@ public class PeakShapeDemoPlotsController {
         protected void updateItem(String resource, boolean empty) {
 
             super.updateItem(resource, empty);
-            if (resource == null || empty) {
+            if (null == resource || empty) {
                 setText(null);
             } else {
                 setText(resource);

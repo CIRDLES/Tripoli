@@ -16,42 +16,37 @@
 
 package org.cirdles.tripoli.plots;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * @author James F. Bowring
  */
-public class AbstractPlotBuilder {
-
-    protected String title;
+public class PlotBuilder implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -7383206169661986594L;
+    protected String[] title;
     protected String xAxisLabel;
     protected String yAxisLabel;
 
-    public AbstractPlotBuilder(String title, String xAxisLabel, String yAxisLabel) {
+    public PlotBuilder() {
+    }
+
+    public PlotBuilder(String[] title, String xAxisLabel, String yAxisLabel) {
         this.title = title;
         this.xAxisLabel = xAxisLabel;
         this.yAxisLabel = yAxisLabel;
     }
 
-    public String getTitle() {
+    public String[] getTitle() {
         return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public String getxAxisLabel() {
         return xAxisLabel;
     }
 
-    public void setxAxisLabel(String xAxisLabel) {
-        this.xAxisLabel = xAxisLabel;
-    }
-
     public String getyAxisLabel() {
         return yAxisLabel;
-    }
-
-    public void setyAxisLabel(String yAxisLabel) {
-        this.yAxisLabel = yAxisLabel;
     }
 }

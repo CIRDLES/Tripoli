@@ -44,7 +44,7 @@ public class BasicScatterPlot extends AbstractDataView {
             maxY = StrictMath.max(maxY, yAxisDatum);
         }
         ticsY = TicGeneratorForAxes.generateTics(minY, maxY, (int) (graphHeight / 15.0));
-        if ((ticsY != null) && (ticsY.length > 1)) {
+        if ((null != ticsY) && (1 < ticsY.length)) {
             // force y to tics
             minY = ticsY[0].doubleValue();
             maxY = ticsY[ticsY.length - 1].doubleValue();
@@ -57,7 +57,7 @@ public class BasicScatterPlot extends AbstractDataView {
         setDisplayOffsetY(0.0);
         setDisplayOffsetX(0.0);
 
-        this.repaint();
+        repaint();
     }
 
     @Override
@@ -68,17 +68,17 @@ public class BasicScatterPlot extends AbstractDataView {
         text.setFont(Font.font("SansSerif", 12));
         int textWidth = 0;
 
-        showTitle(intensityLinePlotBuilder.getTitle());
+        showTitle(intensityLinePlotBuilder.getTitle()[0]);
 
         g2d.setLineWidth(0.5);
         // scatter plot
         g2d.setStroke(Paint.valueOf("Black"));
         for (int i = 0; i < xAxisData.length; i++) {
-            g2d.strokeOval(mapX(xAxisData[i]) - 2f, mapY(yAxisData[i]) - 2f, 4f, 4f);
+            g2d.strokeOval(mapX(xAxisData[i]) - 2.0f, mapY(yAxisData[i]) - 2.0f, 4.0f, 4.0f);
         }
 
 
-        if (ticsY.length > 1) {
+        if (1 < ticsY.length) {
             // border and fill
             g2d.setLineWidth(0.5);
             g2d.setStroke(Paint.valueOf("BLACK"));
@@ -93,7 +93,7 @@ public class BasicScatterPlot extends AbstractDataView {
             // ticsY
             float verticalTextShift = 3.2f;
             g2d.setFont(Font.font("SansSerif", 10));
-            if (ticsY != null) {
+            if (null != ticsY) {
                 for (java.math.BigDecimal bigDecimal : ticsY) {
                     g2d.strokeLine(
                             mapX(minX), mapY(bigDecimal.doubleValue()), mapX(maxX), mapY(bigDecimal.doubleValue()));
@@ -102,12 +102,12 @@ public class BasicScatterPlot extends AbstractDataView {
                     text.setText(bigDecimal.toString());
                     textWidth = (int) text.getLayoutBounds().getWidth();
                     g2d.fillText(text.getText(),//
-                            (float) mapX(minX) - textWidth + 5f,
+                            (float) mapX(minX) - textWidth + 5.0f,
                             (float) mapY(bigDecimal.doubleValue()) + verticalTextShift);
 
                 }
                 // ticsX
-                if (ticsX != null) {
+                if (null != ticsX) {
                     for (int i = 0; i < ticsX.length - 1; i++) {
                         try {
                             g2d.strokeLine(
@@ -119,7 +119,7 @@ public class BasicScatterPlot extends AbstractDataView {
                             // bottom
                             String xText = ticsX[i].toPlainString();
                             g2d.fillText(xText,
-                                    (float) mapX(ticsX[i].doubleValue()) - 5f,
+                                    (float) mapX(ticsX[i].doubleValue()) - 5.0f,
                                     (float) mapY(ticsY[0].doubleValue()) + 15);
 
                         } catch (Exception ignored) {
