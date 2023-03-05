@@ -13,15 +13,15 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.HistogramSinglePlot;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.LinePlot;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.MultiLinePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.*;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
+import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
@@ -60,13 +60,7 @@ public class MCMCPlotsController {
     private AnchorPane convergeIntensityAnchorPane;
 
     @FXML
-    private TextArea convergeIntensityLegendTextBox;
-
-    @FXML
     private GridPane dataFitGridPane;
-
-    @FXML
-    private TextArea dataFitLegendTextBox;
 
     @FXML
     private TextArea eventLogTextArea;
@@ -107,13 +101,13 @@ public class MCMCPlotsController {
         plotTabPane.prefWidthProperty().bind(masterVBox.widthProperty());
         plotTabPane.prefHeightProperty().bind(masterVBox.heightProperty());
 
-        dataFitGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(dataFitLegendTextBox.getWidth()));
+        dataFitGridPane.prefWidthProperty().bind(plotTabPane.widthProperty());
         dataFitGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
 
 //        convergeErrGridPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeErrLegendTextBox.getWidth()));
 //        convergeErrGridPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
 
-        convergeIntensityAnchorPane.prefWidthProperty().bind(plotTabPane.widthProperty().subtract(convergeIntensityLegendTextBox.getWidth()));
+        convergeIntensityAnchorPane.prefWidthProperty().bind(plotTabPane.widthProperty());
         convergeIntensityAnchorPane.prefHeightProperty().bind(plotTabPane.heightProperty().subtract(TAB_HEIGHT));
 
         populateListOfAvailableBlocks();
@@ -147,6 +141,7 @@ public class MCMCPlotsController {
         });
     }
 
+    @SuppressWarnings("unchecked")
     public void processDataFileAndShowPlotsOfMCMC2(AnalysisInterface analysis) {
         services = new Service[analysis.getMassSpecExtractedData().getBlocksData().size()];
         MCMCPlotBuildersTask.analysis = analysis;
@@ -164,7 +159,7 @@ public class MCMCPlotsController {
             });
 
             int finalBlockIndex = blockIndex;
-            services[blockIndex].setOnSucceeded(evt -> {
+            services[finalBlockIndex].setOnSucceeded(evt -> {
                 Task<String> plotBuildersTask = ((MCMCUpdatesService) services[finalBlockIndex]).getPlotBuilderTask();
                 if (null != plotBuildersTask) {
                     plotEngine(plotBuildersTask);
@@ -195,39 +190,39 @@ public class MCMCPlotsController {
         PlotBuilder[] convergeErrWeightedMisfitBuilder = plotBuildersTask.getConvergeErrWeightedMisfitLineBuilder();
         PlotBuilder[] convergeErrRawMisfitBuilder = plotBuildersTask.getConvergeErrRawMisfitLineBuilder();
 
-
-////        PlotBuilder observedDataPlotBuilder = plotBuildersTask.getObservedDataLineBuilder();
-////        PlotBuilder residualDataPlotBuilder = plotBuildersTask.getResidualDataLineBuilder();
-////
-////        PlotBuilder convergeIntensityLinesBuilder = plotBuildersTask.getConvergeIntensityLinesBuilder();
-////
-////        AbstractDataView observedDataLinePlot = new BasicScatterAndLinePlot(
-////                new Rectangle(dataFitGridPane.getWidth(),
-////                        (plotTabPane.getHeight() - TAB_HEIGHT) / dataFitGridPane.getRowCount()),
-////                (ComboPlotBuilder) observedDataPlotBuilder);
-////
-////        AbstractDataView residualDataLinePlot = new BasicScatterAndLinePlot(
-////                new Rectangle(dataFitGridPane.getWidth(),
-////                        (plotTabPane.getHeight() - TAB_HEIGHT) / dataFitGridPane.getRowCount()),
-////                (ComboPlotBuilder) residualDataPlotBuilder);
-////
-////        AbstractDataView convergeIntensityLinesPlot = new MultiLinePlotLogX(
-////                new Rectangle(convergeIntensityAnchorPane.getWidth(),
-////                        plotTabPane.getHeight() - TAB_HEIGHT),
-////                (MultiLinePlotBuilder) convergeIntensityLinesBuilder);
-////
-////        plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
-////            if (newValue.intValue() > 100) {
-////                double newWidth = newValue.intValue();
-////
-////                observedDataLinePlot.setMyWidth(newWidth);
-////                observedDataLinePlot.repaint();
-////                residualDataLinePlot.setMyWidth(newWidth);
-////                residualDataLinePlot.repaint();
-////                convergeIntensityLinesPlot.setMyWidth(newWidth);
-////                convergeIntensityLinesPlot.repaint();
-////
-////            }
+//
+//        PlotBuilder observedDataPlotBuilder = plotBuildersTask.getObservedDataLineBuilder();
+//        PlotBuilder residualDataPlotBuilder = plotBuildersTask.getResidualDataLineBuilder();
+//
+//        PlotBuilder convergeIntensityLinesBuilder = plotBuildersTask.getConvergeIntensityLinesBuilder();
+//
+//        AbstractDataView observedDataLinePlot = new BasicScatterAndLinePlot(
+//                new Rectangle(dataFitGridPane.getWidth(),
+//                        (plotTabPane.getHeight() - TAB_HEIGHT) / dataFitGridPane.getRowCount()),
+//                (ComboPlotBuilder) observedDataPlotBuilder);
+//
+//        AbstractDataView residualDataLinePlot = new BasicScatterAndLinePlot(
+//                new Rectangle(dataFitGridPane.getWidth(),
+//                        (plotTabPane.getHeight() - TAB_HEIGHT) / dataFitGridPane.getRowCount()),
+//                (ComboPlotBuilder) residualDataPlotBuilder);
+//
+//        AbstractDataView convergeIntensityLinesPlot = new MultiLinePlotLogX(
+//                new Rectangle(convergeIntensityAnchorPane.getWidth(),
+//                        plotTabPane.getHeight() - TAB_HEIGHT),
+//                (MultiLinePlotBuilder) convergeIntensityLinesBuilder);
+//
+//        plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+//            if (newValue.intValue() > 100) {
+//                double newWidth = newValue.intValue();
+//
+//                observedDataLinePlot.setMyWidth(newWidth);
+//                observedDataLinePlot.repaint();
+//                residualDataLinePlot.setMyWidth(newWidth);
+//                residualDataLinePlot.repaint();
+//                convergeIntensityLinesPlot.setMyWidth(newWidth);
+//                convergeIntensityLinesPlot.repaint();
+//
+//            }
 //        });
 //
 //        plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
@@ -242,7 +237,7 @@ public class MCMCPlotsController {
 //                convergeIntensityLinesPlot.repaint();
 //            }
 //        });
-
+//
 //        observedDataLinePlot.preparePanel();
 //        dataFitGridPane.add(observedDataLinePlot, 0, 0);
 //        residualDataLinePlot.preparePanel();
@@ -250,7 +245,7 @@ public class MCMCPlotsController {
 //
 //        convergeIntensityLinesPlot.preparePanel();
 //        convergeIntensityAnchorPane.getChildren().add(convergeIntensityLinesPlot);
-//
+
 //        processFileButton.setDisable(false);
 
         // plotting revision +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -262,23 +257,24 @@ public class MCMCPlotsController {
         produceTripoliHistogramPlots(baselineHistogramBuilder, ensemblePlotsWallPane);
         produceTripoliHistogramPlots(dalyFaradayHistogramBuilder, ensemblePlotsWallPane);
         produceTripoliHistogramPlots(signalNoiseHistogramBuilder, ensemblePlotsWallPane);
+        ensemblePlotsWallPane.tilePlots();
 
         PlotWallPane convergePlotsWallPane = new PlotWallPane();
         convergePlotsWallPane.buildToolBar();
         convergePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         convergePlotsAnchorPane.getChildren().add(convergePlotsWallPane);
         produceTripoliLinePlots(convergeRatioPlotBuilder, convergePlotsWallPane);
-//        produceTripoliLinePlots(convergeBLFaradayLineBuilder, convergePlotsWallPane);
-//        produceTripoliLinePlots(convergeNoiseFaradayLineBuilder, convergePlotsWallPane);
-//        produceTripoliLinePlots(convergeErrRawMisfitBuilder, convergePlotsWallPane);
-//        produceTripoliLinePlots(convergeErrWeightedMisfitBuilder, convergePlotsWallPane);
+        produceTripoliLinePlots(convergeBLFaradayLineBuilder, convergePlotsWallPane);
+        produceTripoliLinePlots(convergeNoiseFaradayLineBuilder, convergePlotsWallPane);
+        produceTripoliLinePlots(convergeErrRawMisfitBuilder, convergePlotsWallPane);
+        produceTripoliLinePlots(convergeErrWeightedMisfitBuilder, convergePlotsWallPane);
         convergePlotsWallPane.tilePlots();
 //
-        TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(ensemblePlotsWallPane);
-        AbstractPlot plot = MultiLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (MultiLinePlotBuilder) intensityLinePlotBuilder[0]);
-        tripoliPlotPane.addPlot(plot);
+//        TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(ensemblePlotsWallPane);
+//        AbstractPlot plot = MultiLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (MultiLinePlotBuilder) intensityLinePlotBuilder[0]);
+//        tripoliPlotPane.addPlot(plot);
 
-        ensemblePlotsWallPane.tilePlots();
+
     }
 
     private void produceTripoliHistogramPlots(PlotBuilder[] plotBuilder, PlotWallPane plotWallPane) {

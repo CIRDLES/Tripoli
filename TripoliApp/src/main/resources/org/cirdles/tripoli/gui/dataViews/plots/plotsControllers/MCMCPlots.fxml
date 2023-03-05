@@ -46,11 +46,11 @@
                                 <AnchorPane fx:id="convergePlotsAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                             </content>
                         </Tab>
-                        <Tab closable="false" disable="true" text="DataFit">
+                        <Tab closable="false" text="DataFit">
                             <content>
                                 <HBox>
                                     <children>
-                                        <GridPane fx:id="dataFitGridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="282.0" prefWidth="500.0">
+                                        <GridPane fx:id="dataFitGridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="418.0" prefWidth="998.0">
                                             <columnConstraints>
                                                 <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" percentWidth="100.0" prefWidth="100.0" />
                                             </columnConstraints>
@@ -59,16 +59,15 @@
                                                 <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
                                             </rowConstraints>
                                         </GridPane>
-                                        <TextArea fx:id="dataFitLegendTextBox" prefHeight="282.0" prefWidth="306.0" text="Top: Observed data (scattered) with best (or final) modeled data (red line)&#10;&#10;Bottom: Residual difference between observed and modeled data (scattered), with mean residual (dotted red) and 2 standard deviations (solid red). Hopefully mean is close to zero, stdev brackets residual!" wrapText="true" />
                                     </children>
                                 </HBox>
                             </content>
                         </Tab>
-                        <Tab closable="false" disable="true" text="Converge_Error">
+                        <Tab closable="false" text="Converge_Error">
                             <content>
                                 <HBox>
                                     <children>
-                                        <GridPane fx:id="convergeErrGridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="282.0" prefWidth="500.0">
+                                        <GridPane fx:id="convergeErrGridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="435.0" prefWidth="1048.0">
                                             <columnConstraints>
                                                 <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" percentWidth="100.0" prefWidth="100.0" />
                                             </columnConstraints>
@@ -77,17 +76,15 @@
                                                 <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
                                             </rowConstraints>
                                         </GridPane>
-                                        <TextArea fx:id="convergeErrLegendTextBox" prefHeight="282.0" prefWidth="306.0" text="Plots values for misfit for each saved iteration.  &#10;&#10;Weighted misfit takes noise hyperparameters into account, so trend should remain relatively flat.&#10;&#10;Raw gives absolute, unweighted misfit, so better for showing improvement to data fit.&#10;&#10;Could be plotted during MCMC process" wrapText="true" />
                                     </children>
                                 </HBox>
                             </content>
                         </Tab>
-                        <Tab closable="false" disable="true" text="Converge_Intensity">
+                        <Tab closable="false" text="Converge_Intensity">
                             <content>
                                 <HBox>
                                     <children>
                                         <AnchorPane fx:id="convergeIntensityAnchorPane" prefHeight="282.0" prefWidth="500.0" />
-                                        <TextArea fx:id="convergeIntensityLegendTextBox" prefHeight="200.0" prefWidth="300.0" text="Shows development of intensity function knots at each saved model iteration. Colors indicate order of knots, with blue earlier and pink later.&#10;&#10;Each block will have similar figure.&#10;&#10;Used primarily to check convergence and search quality for intensity parameters.&#10;" wrapText="true" />
                                     </children>
                                 </HBox>
                             </content>

@@ -19,6 +19,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramBuilder;
+import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
@@ -28,9 +29,14 @@ import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
+import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
+import static org.cirdles.tripoli.utilities.comparators.SerializableIntegerComparator.SERIALIZABLE_COMPARATOR;
 
 /**
  * @author James F. Bowring
@@ -194,30 +200,17 @@ public enum SingleBlockDataModelPlot {
                 xDataIntensityMeans, yDataIntensityMeans, new String[]{"Mean Intensity"}, "Time Index", "Intensity (counts)");
 
         // visualization converge ratio and others tabs
-//        double[] convergeLogRatios = new double[ensembleRecordsList.size()];
-//        double[] convergeRatios = new double[ensembleRecordsList.size()];
-////        // todo: hardwired for 2 isotopes
-//        double[] convergeBaselineFaradayL1 = new double[ensembleRecordsList.size()];
-//        double[] convergeBaselineFaradayH1 = new double[ensembleRecordsList.size()];
-//
-//
         double[][] convergeIntensities = new double[ensembleRecordsList.get(0).intensities().length][ensembleRecordsList.size()];
-//        double[] convergeNoiseFaradayL1 = new double[ensembleRecordsList.size()];
-//        double[] convergeNoiseFaradayH1 = new double[ensembleRecordsList.size()];
+        double[] convergeNoiseFaradayL1 = new double[ensembleRecordsList.size()];
+        double[] convergeNoiseFaradayH1 = new double[ensembleRecordsList.size()];
         for (int index = 0; index < ensembleRecordsList.size(); index++) {
-//            convergeLogRatios[index] = ensembleRecordsList.get(index).logRatios()[0];
-//            convergeRatios[index] = exp(convergeLogRatios[index]);
-//            convergeBaselineFaradayL1[index] = ensembleRecordsList.get(index).baseLine()[0];
-//            convergeBaselineFaradayH1[index] = ensembleRecordsList.get(index).baseLine()[1];
-//            convergeErrWeightedMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorWeighted());
-//            convergeErrRawMisfit[index] = StrictMath.sqrt(ensembleRecordsList.get(index).errorUnWeighted());
             for (int intensityIndex = 0; intensityIndex < convergeIntensities.length; intensityIndex++) {
                 // todo: fix this block indexing issue
                 convergeIntensities[intensityIndex][index] = ensembleRecordsList.get(index).intensities()[intensityIndex];
             }
 //            convergeNoiseFaradayL1[index] = ensembleRecordsList.get(index).signalNoiseSigma()[0];
 //            convergeNoiseFaradayH1[index] = ensembleRecordsList.get(index).signalNoiseSigma()[1];
-//            xDataconvergeSavedIterations[index] = index + 1;
+//            xDataConvergeSavedIterations[index] = index + 1;
         }
 
         // new converge plots
@@ -269,73 +262,43 @@ public enum SingleBlockDataModelPlot {
 
         plotBuilders[10][0] = MultiLinePlotBuilder.initializeLinePlot(xDataConvergeSavedIterations, convergeIntensities, new String[]{"Converge Intensity"}, "", "");
 
-//        plotBuilders[11][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeNoiseFaradayL1, "Converge Noise Faraday L1","","",Color.BLACK);
-//        plotBuilders[12][0] = LinePlotBuilder.initializeLinePlot(xDataconvergeSavedIterations, convergeNoiseFaradayH1, "Converge Noise Faraday H1","","",Color.BLACK);
+        plotBuilders[11][0] = LinePlotBuilder.initializeLinePlot(xDataConvergeSavedIterations, convergeNoiseFaradayL1, new String[]{"Converge Noise Faraday L1"},"","");
+        plotBuilders[12][0] = LinePlotBuilder.initializeLinePlot(xDataConvergeSavedIterations, convergeNoiseFaradayH1, new String[]{"Converge Noise Faraday H1"},"","");
 
 
         // visualization data fit
-        // todo: this is duplicated code from above in part
-//        double[] data = singleBlockInitialModelRecordInitial.dataArray();
-//        double[] dataWithNoBaseline = new double[singleBlockInitialModelRecordInitial.dataArray().length];
-//        EnsemblesStore.EnsembleRecord lastModelRecord = ensembleRecordsList.get(ensembleRecordsList.size() - 1);
 
-//        for (int blockIndex = 0; blockIndex < singleBlockDataSetRecord..blockCount(); blockIndex++) {
-//            List<double[]> intensity = new ArrayList<>(1);
-//            intensity.add(0, singleBlockInitialModelRecordInitial.intensities());
-//            // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
-//            for (int isotopeIndex = 0; isotopeIndex < singleBlockInitialModelRecordInitial.isotopeCount() - 1; isotopeIndex++) {
-//                for (int row = 0; row < singleBlockInitialModelRecordInitial.dataArray().length; row++) {
-//                    if ((1 == singleBlockDataSetRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex])
-//                            && (1 == massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row])
-//                            && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
-//                        double calcValue =
-//                                exp(lastModelRecord.logRatios()[isotopeIndex])
-//                                        * intensity.get(0)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
-//                        data[row] = calcValue;
-//                        dataWithNoBaseline[row] = calcValue;
-//                    }
-//                    if ((1 == massSpecOutputDataRecord.isotopeFlagsForRawDataColumn()[row][isotopeIndex])
-//                            && (0 == massSpecOutputDataRecord.ionCounterFlagsForRawDataColumn()[row])
-//                            && massSpecOutputDataRecord.blockIndicesForRawDataColumn()[row] == (blockIndex + 1)) {
-//                        double calcValue =
-//                                exp(lastModelRecord.logRatios()[isotopeIndex]) / lastModelRecord.dfGain()
-//                                        * intensity.get(0)[(int) massSpecOutputDataRecord.timeIndColumn()[row] - 1];
-//                        dataWithNoBaseline[row] = calcValue;
-//                        data[row] =
-//                                calcValue + lastModelRecord.baseLine()[(int) massSpecOutputDataRecord.detectorIndicesForRawDataColumn()[row] - 1];
-//                    }
-//                }
-//            }
-//        }
+        double[] data = singleBlockInitialModelRecordInitial.dataArray();
+        double[] dataWithNoBaseline = singleBlockInitialModelRecordInitial.dataWithNoBaselineArray();
 
-//        double[] xSig = lastModelRecord.signalNoise();
-//        int[] detectorIndicesForRawDataColumn = singleBlockDataSetRecord.blockDetectorOrdinalIndicesArray();
-//        double[] dataCountsModelOneSigma = new double[detectorIndicesForRawDataColumn.length];
-//        for (int row = 0; row < detectorIndicesForRawDataColumn.length; row++) {
-//            dataCountsModelOneSigma[row]
-//                    = StrictMath.sqrt(StrictMath.pow(xSig[(int) detectorIndicesForRawDataColumn[row] - 1], 2)
-//                    + xSig[xSig.length - 1] * dataWithNoBaseline[row]);
-//        }
-//
-//        int plottingStep = 10;
-//        double[] dataOriginalCounts = singleBlockInitialModelRecordInitial.dataArray();
-//        double[] xDataIndex = new double[dataOriginalCounts.length / plottingStep];
-//        double[] yDataCounts = new double[dataOriginalCounts.length / plottingStep];
-//        double[] yDataModelCounts = new double[dataOriginalCounts.length / plottingStep];
-//
-//        double[] yDataResiduals = new double[dataOriginalCounts.length / plottingStep];
-//        double[] yDataSigmas = new double[dataOriginalCounts.length / plottingStep];
-//
-//        for (int i = 0; i < dataOriginalCounts.length / plottingStep; i++) {
-//            xDataIndex[i] = i * plottingStep;
-//            yDataCounts[i] = dataOriginalCounts[i * plottingStep];
-//            yDataModelCounts[i] = data[i * plottingStep];
-//            yDataResiduals[i] = dataOriginalCounts[i * plottingStep] - data[i * plottingStep];
-//            yDataSigmas[i] = dataCountsModelOneSigma[i * plottingStep];
-//        }
-//        plotBuilders[13][0] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, "Observed Data");
-//
-//        plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, "Residual Data");
+        double[] xSig = singleBlockInitialModelRecordInitial.signalNoiseSigma();
+        int[] detectorIndicesForRawDataColumn = singleBlockDataSetRecord.blockDetectorOrdinalIndicesArray();
+        double[] dataCountsModelOneSigma = new double[detectorIndicesForRawDataColumn.length];
+        for (int row = 0; row < detectorIndicesForRawDataColumn.length; row++) {
+            dataCountsModelOneSigma[row]
+                    = StrictMath.sqrt(StrictMath.pow(xSig[(int) detectorIndicesForRawDataColumn[row] - 1], 2)
+                    + xSig[xSig.length - 1] * dataWithNoBaseline[row]);
+        }
+
+        int plottingStep = 10;
+        double[] dataOriginalCounts = singleBlockInitialModelRecordInitial.dataArray();
+        double[] xDataIndex = new double[dataOriginalCounts.length / plottingStep];
+        double[] yDataCounts = new double[dataOriginalCounts.length / plottingStep];
+        double[] yDataModelCounts = new double[dataOriginalCounts.length / plottingStep];
+
+        double[] yDataResiduals = new double[dataOriginalCounts.length / plottingStep];
+        double[] yDataSigmas = new double[dataOriginalCounts.length / plottingStep];
+
+        for (int i = 0; i < dataOriginalCounts.length / plottingStep; i++) {
+            xDataIndex[i] = i * plottingStep;
+            yDataCounts[i] = dataOriginalCounts[i * plottingStep];
+            yDataModelCounts[i] = data[i * plottingStep];
+            yDataResiduals[i] = dataOriginalCounts[i * plottingStep] - data[i * plottingStep];
+            yDataSigmas[i] = dataCountsModelOneSigma[i * plottingStep];
+        }
+        plotBuilders[13][0] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, new String[]{"Observed Data"});
+
+        plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, new String[]{"Residual Data"});
 
 
         // todo: missing additional elements of signalNoiseSigma (i.e., 0,11,11)
