@@ -269,7 +269,7 @@ public class MCMCProcess {
                 long prev = System.nanoTime();
 
                 // todo: handle adaptiveFlag case
-                boolean adaptiveFlag = (500 <= counter); // abandon for now
+                boolean adaptiveFlag = (500 <= counter);
                 boolean allFlag = adaptiveFlag;
                 int columnChoice = modelIndex % stepCountForcedSave;
                 double[] delx_adapt_slice = storeFactory.copy(Access2D.wrap(delx_adapt)).sliceColumn(columnChoice).toRawCopy1D();

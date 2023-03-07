@@ -33,7 +33,8 @@ record SingleBlockDataSetRecord(
         double[] blockIntensityArray,
         int[] blockDetectorOrdinalIndicesArray,
         int[] blockIsotopeOrdinalIndicesArray,
-        int[] blockTimeIndicesArray
+        int[] blockTimeIndicesArray,
+        int[] onPeakStartingIndicesOfCycles
 
 ) implements Serializable {
     int getCountOfBaselineIntensities() {

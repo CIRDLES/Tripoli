@@ -11,13 +11,13 @@ public interface PlotBuildersTaskInterface {
 
     PlotBuilder[] getSignalNoiseHistogramBuilder();
 
-    PlotBuilder[] getMeanIntensityLineBuilder();
+    PlotBuilder[] getMeanIntensityVsIntensityMultiLineBuilder();
 
     PlotBuilder[] getConvergeRatioLineBuilder();
 
-    PlotBuilder getObservedDataLineBuilder();
+    PlotBuilder[] getObservedDataLineBuilder();
 
-    PlotBuilder getResidualDataLineBuilder();
+    PlotBuilder[] getResidualDataLineBuilder();
 
     PlotBuilder[] getConvergeBLFaradayLineBuilder();
 

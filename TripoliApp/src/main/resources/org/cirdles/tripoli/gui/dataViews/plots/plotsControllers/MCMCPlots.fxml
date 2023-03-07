@@ -24,10 +24,7 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox fx:id="masterVBox" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController">
@@ -47,38 +44,14 @@
                             </content>
                         </Tab>
                         <Tab closable="false" text="DataFit">
-                            <content>
-                                <HBox>
-                                    <children>
-                                        <GridPane fx:id="dataFitGridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="418.0" prefWidth="998.0">
-                                            <columnConstraints>
-                                                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" percentWidth="100.0" prefWidth="100.0" />
-                                            </columnConstraints>
-                                            <rowConstraints>
-                                                <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
-                                                <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
-                                            </rowConstraints>
-                                        </GridPane>
-                                    </children>
-                                </HBox>
-                            </content>
+                     <content>
+                        <AnchorPane fx:id="dataFitPlotsAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="413.5" prefWidth="998.0" />
+                     </content>
                         </Tab>
                         <Tab closable="false" text="Converge_Error">
-                            <content>
-                                <HBox>
-                                    <children>
-                                        <GridPane fx:id="convergeErrGridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="435.0" prefWidth="1048.0">
-                                            <columnConstraints>
-                                                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" percentWidth="100.0" prefWidth="100.0" />
-                                            </columnConstraints>
-                                            <rowConstraints>
-                                                <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
-                                                <RowConstraints minHeight="10.0" percentHeight="50.0" prefHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
-                                            </rowConstraints>
-                                        </GridPane>
-                                    </children>
-                                </HBox>
-                            </content>
+                     <content>
+                        <AnchorPane fx:id="convergeErrorPlotsAnchorPane1" minHeight="0.0" minWidth="0.0" prefHeight="413.5" prefWidth="998.0" />
+                     </content>
                         </Tab>
                         <Tab closable="false" text="Converge_Intensity">
                             <content>

@@ -32,12 +32,12 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     private PlotBuilder[] baselineHistogramBuilder;
     private PlotBuilder[] dalyFaradayGainHistogramBuilder;
     private PlotBuilder[] signalNoiseHistogramBuilder;
-    private PlotBuilder[] meanIntensityLineBuilder;
+    private PlotBuilder[] meanIntensityVsIntensityMultiLineBuilder;
 
     private PlotBuilder[] convergeRatioLineBuilder;
 
-    private PlotBuilder observedDataLineBuilder;
-    private PlotBuilder residualDataLineBuilder;
+    private PlotBuilder[] observedDataLineBuilder;
+    private PlotBuilder[] residualDataLineBuilder;
 
     private PlotBuilder[] convergeBLFaradayLineBuilder;
 
@@ -54,57 +54,57 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
     @Override
     public PlotBuilder[] getRatiosHistogramBuilder() {
-        return ratiosHistogramBuilder;
+        return ratiosHistogramBuilder.clone();
     }
 
     @Override
     public PlotBuilder[] getBaselineHistogramBuilder() {
-        return baselineHistogramBuilder;
+        return baselineHistogramBuilder.clone();
     }
 
     @Override
     public PlotBuilder[] getDalyFaradayGainHistogramBuilder() {
-        return dalyFaradayGainHistogramBuilder;
+        return dalyFaradayGainHistogramBuilder.clone();
     }
 
     @Override
     public PlotBuilder[] getSignalNoiseHistogramBuilder() {
-        return signalNoiseHistogramBuilder;
+        return signalNoiseHistogramBuilder.clone();
     }
 
     @Override
-    public PlotBuilder[] getMeanIntensityLineBuilder() {
-        return meanIntensityLineBuilder;
+    public PlotBuilder[] getMeanIntensityVsIntensityMultiLineBuilder() {
+        return meanIntensityVsIntensityMultiLineBuilder.clone();
     }
 
     @Override
     public PlotBuilder[] getConvergeRatioLineBuilder() {
-        return convergeRatioLineBuilder;
+        return convergeRatioLineBuilder.clone();
     }
 
     @Override
-    public PlotBuilder getObservedDataLineBuilder() {
-        return observedDataLineBuilder;
+    public PlotBuilder[] getObservedDataLineBuilder() {
+        return observedDataLineBuilder.clone();
     }
 
     @Override
-    public PlotBuilder getResidualDataLineBuilder() {
-        return residualDataLineBuilder;
+    public PlotBuilder[] getResidualDataLineBuilder() {
+        return residualDataLineBuilder.clone();
     }
 
     @Override
     public PlotBuilder[] getConvergeBLFaradayLineBuilder() {
-        return convergeBLFaradayLineBuilder;
+        return convergeBLFaradayLineBuilder.clone();
     }
 
     @Override
     public PlotBuilder[] getConvergeErrWeightedMisfitLineBuilder() {
-        return convergeErrWeightedMisfitLineBuilder;
+        return convergeErrWeightedMisfitLineBuilder.clone();
     }
 
     @Override
     public PlotBuilder[] getConvergeErrRawMisfitLineBuilder() {
-        return convergeErrRawMisfitLineBuilder;
+        return convergeErrRawMisfitLineBuilder.clone();
     }
 
     @Override
@@ -114,7 +114,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
     @Override
     public PlotBuilder[] getConvergeNoiseFaradayLineBuilder() {
-        return convergeNoiseFaradayLineBuilder;
+        return convergeNoiseFaradayLineBuilder.clone();
     }
 
     @Override
@@ -124,7 +124,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         baselineHistogramBuilder = plots[1];
         dalyFaradayGainHistogramBuilder = plots[2];
         signalNoiseHistogramBuilder = plots[3];
-        meanIntensityLineBuilder = plots[4];
+        meanIntensityVsIntensityMultiLineBuilder = plots[4];
 
         convergeRatioLineBuilder = plots[5];
 
@@ -136,8 +136,8 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
         convergeNoiseFaradayLineBuilder = plots[11];
 
-        observedDataLineBuilder = plots[13][0];
-        residualDataLineBuilder = plots[14][0];
+        observedDataLineBuilder = plots[13];
+        residualDataLineBuilder = plots[14];
 
         return analysis.getDataFilePathString() + "Block # " + blockNumber + "\n\n\tDONE - view tabs for various plots";
     }

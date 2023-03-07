@@ -19,6 +19,7 @@ import java.util.List;
 public class MultiLinePlotLogX extends AbstractDataView {
 
     private final MultiLinePlotBuilder multiLinePlotBuilder;
+    private double[][] xData;
     private double[][] yData;
 
     /**
@@ -32,15 +33,15 @@ public class MultiLinePlotLogX extends AbstractDataView {
 
     @Override
     public void preparePanel() {
-        xAxisData = multiLinePlotBuilder.getxData();
+        xAxisData = xData[0];
         yData = multiLinePlotBuilder.getyData();
 
-        minX = Math.log(xAxisData[0]);
-        maxX = Math.log(xAxisData[xAxisData.length - 1]);
+        minX = Math.log(xData[0][0]);
+        maxX = Math.log(xData[0][xData[0].length - 1]);
 
         // logarithmic ticsX
         List<Double> xTicsList = new ArrayList<>();
-        int limitLog = (int) xAxisData[xAxisData.length - 1];
+        int limitLog = (int) xData[0][xData[0].length - 1];
         for (int logIndex = 1; logIndex <= limitLog; logIndex = logIndex * 10) {
             xTicsList.add(Math.log(logIndex));
         }
