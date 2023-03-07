@@ -16,7 +16,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapeDemoPlotsController;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapeDemoPlotsControllerTest;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 
 
@@ -30,7 +30,7 @@ public class PeakCentresLinePlotX extends AbstractPlot {
      * @param linePlotBuilder
      */
     private PeakCentresLinePlotX(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
-        super(bounds, 50, 15, linePlotBuilder.getTitle(), linePlotBuilder.getxAxisLabel(), linePlotBuilder.getyAxisLabel());
+        super(bounds, 50, 30, linePlotBuilder.getTitle(), linePlotBuilder.getxAxisLabel(), linePlotBuilder.getyAxisLabel());
         this.peakCentrePlotBuilder = linePlotBuilder;
 
         setupPlotContextMenu();
@@ -114,7 +114,7 @@ public class PeakCentresLinePlotX extends AbstractPlot {
             g2d.beginPath();
             g2d.setLineWidth(2.5);
             g2d.setLineDashes(4);
-            g2d.setStroke(Paint.valueOf("Red"));
+            g2d.setFill(Paint.valueOf("Red"));
 
             // x = Time y = Peak Widths
             g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]));
@@ -193,8 +193,8 @@ public class PeakCentresLinePlotX extends AbstractPlot {
             if (mouseInHouse(mouseEvent.getX(), mouseEvent.getY())) {
                 if (isPrimary) {
                     indexOfSelectedSpot = indexOfSpotFromMouseX(mouseEvent.getX());
-                    PeakShapeDemoPlotsController.currentGroupIndex = indexOfSelectedSpot;
-                    PeakShapeDemoPlotsController.resourceBrowserTarget = PeakShapeDemoPlotsController.getResourceGroups(PeakShapeDemoPlotsController.getCurrentGroup()).get(indexOfSelectedSpot);
+                    PeakShapeDemoPlotsControllerTest.currentGroupIndex = indexOfSelectedSpot;
+                    PeakShapeDemoPlotsControllerTest.resourceBrowserTarget = PeakShapeDemoPlotsControllerTest.getResourceGroups(PeakShapeDemoPlotsControllerTest.getCurrentGroup()).get(indexOfSelectedSpot);
                     repaint();
                     getGraphicsContext2D().setLineWidth(1.0);
                     getGraphicsContext2D().strokeOval(mapX(xAxisData[indexOfSelectedSpot]) - 6, mapY(yAxisData[indexOfSelectedSpot]) - 6, 12, 12);

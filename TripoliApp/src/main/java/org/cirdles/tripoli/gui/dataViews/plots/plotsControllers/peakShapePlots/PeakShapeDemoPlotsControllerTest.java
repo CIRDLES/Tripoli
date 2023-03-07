@@ -15,10 +15,12 @@ import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.BeamShapeLinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.GBeamLinePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.PeakCentresLinePlotX;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.GBeamLinePlotBuilder;
+import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.BeamDataOutputDriverExperiment;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
@@ -32,8 +34,8 @@ import java.util.regex.Pattern;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHeight;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
-import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.*;
-
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow.plottingWindow;
 
 public class PeakShapeDemoPlotsControllerTest {
@@ -190,8 +192,8 @@ public class PeakShapeDemoPlotsControllerTest {
             listViewOfGroupResourcesInFolder.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 // Files will be manipulated here when group is selected
                 setCurrentGroup(newValue);
-                processFilesAndShowPeakCentre(newValue);
                 populateListOfResources(newValue);
+
                 eventLogTextArea.textProperty().unbind();
                 eventLogTextArea.setText("Select File From Plot");
             });
@@ -216,7 +218,7 @@ public class PeakShapeDemoPlotsControllerTest {
     }
 
 
-    public void processFilesAndShowPeakCentre(String groupValue) {
+    public void processFilesAndShowPeakCentre(String groupValue, PlotWallPane plotWallPane) {
 
         double[] finalYAxis;
         double[] finalXAxis;
@@ -234,7 +236,7 @@ public class PeakShapeDemoPlotsControllerTest {
             resourceBrowserTarget = resourceGroups.get(groupValue).get(k);
             if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
                 try {
-                    PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
+                    PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::populateListOfResources);
                     xAxis[k] = k + 1;
                     yAxis[k] = BeamDataOutputDriverExperiment.getMeasBeamWidthAMU();
                     AbstractPlot gBeamLinePlot = GBeamLinePlot.generatePlot(
@@ -277,10 +279,9 @@ public class PeakShapeDemoPlotsControllerTest {
         finalYAxis = yAxis;
         finalXAxis = xAxis;
 
-        //LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, "PeakCentre Plot", "Cycles", "Peak Widths");
+        LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, new String[]{"PeakCentre Plot"}, "Cycles", "Peak Widths");
 
-        //peakCentreLinePlot =  PeakCentresLinePlotX.generatePlot(new Rectangle(peakCentreGridPane.getCellBounds(0, 0).getWidth(), peakCentreGridPane.getCellBounds(0, 0).getHeight()), peakCentrePlotBuilder);
-
+        producePeakCentrePlot(peakCentrePlotBuilder, plotWallPane);
 //        peakCentreGridPane.widthProperty().addListener((observable, oldValue, newValue) -> {
 //            peakCentreLinePlot.setWidthF(newValue.intValue());
 //            peakCentreLinePlot.repaint();
@@ -412,7 +413,7 @@ public class PeakShapeDemoPlotsControllerTest {
                 //index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
 //                peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
 //                peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[index]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[index]) - 6, 12, 12);
-                processDataFileAndShowPlotsOfPeakShapes();
+                processDataFileAndShowPlotsOfPeakShapes(groupValue);
             }
         });
 
@@ -422,7 +423,7 @@ public class PeakShapeDemoPlotsControllerTest {
             if (key.getCode() == KeyCode.DOWN || key.getCode() == KeyCode.UP) {
                 resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
                 //index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
-                processDataFileAndShowPlotsOfPeakShapes();
+                processDataFileAndShowPlotsOfPeakShapes(groupValue);
 //                peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
 //                peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[index]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[index]) - 6, 12, 12);
             }
@@ -433,7 +434,7 @@ public class PeakShapeDemoPlotsControllerTest {
         resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
 //        peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
 //        peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[initialIndex]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[initialIndex]) - 6, 12, 12);
-        processDataFileAndShowPlotsOfPeakShapes();
+        processDataFileAndShowPlotsOfPeakShapes(groupValue);
 
         listViewOfResourcesInFolder.prefHeightProperty().bind(eventAnchorPane.heightProperty());
         listViewOfResourcesInFolder.prefWidthProperty().bind(eventAnchorPane.widthProperty());
@@ -441,14 +442,14 @@ public class PeakShapeDemoPlotsControllerTest {
     }
 
 
-    public void processDataFileAndShowPlotsOfPeakShapes() {
+    public void processDataFileAndShowPlotsOfPeakShapes(String groupValue) {
 
 
         if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
             final PeakShapesService service = new PeakShapesService(resourceBrowserTarget.toPath());
             eventLogTextArea.textProperty().bind(service.valueProperty());
             try {
-                PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
+                PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::populateListOfResources);
                 if (wallPlotsAnchorPane.getChildren().size() > 0) {
                     wallPlotsAnchorPane.getChildren().remove(0);
                 }
@@ -474,7 +475,7 @@ public class PeakShapeDemoPlotsControllerTest {
 
                 produceBeamShapeLinePlot(plots[0], ensemblePlotsWallPane);
                 produceGBeamShapeLinePlot(plots[1], ensemblePlotsWallPane);
-
+                processFilesAndShowPeakCentre(groupValue, ensemblePlotsWallPane);
                 ensemblePlotsWallPane.tilePlots();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -495,6 +496,12 @@ public class PeakShapeDemoPlotsControllerTest {
     private void produceGBeamShapeLinePlot(PlotBuilder plotBuilder, PlotWallPane plotWallPane) {
         TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
         AbstractPlot plot = GBeamLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (GBeamLinePlotBuilder) plotBuilder);
+        tripoliPlotPane.addPlot(plot);
+    }
+
+    private void producePeakCentrePlot(PlotBuilder plotBuilder, PlotWallPane plotWallPane) {
+        TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
+        AbstractPlot plot = PeakCentresLinePlotX.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (LinePlotBuilder) plotBuilder);
         tripoliPlotPane.addPlot(plot);
     }
 
