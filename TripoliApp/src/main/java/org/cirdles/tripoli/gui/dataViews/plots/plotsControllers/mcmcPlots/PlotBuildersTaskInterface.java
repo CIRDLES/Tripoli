@@ -11,7 +11,7 @@ public interface PlotBuildersTaskInterface {
 
     PlotBuilder[] getSignalNoiseHistogramBuilder();
 
-    PlotBuilder[] getMeanIntensityVsIntensityMultiLineBuilder();
+    PlotBuilder[] getMeanIntensityVsKnotsMultiLineBuilder();
 
     PlotBuilder[] getConvergeRatioLineBuilder();
 
@@ -25,7 +25,7 @@ public interface PlotBuildersTaskInterface {
 
     PlotBuilder[] getConvergeErrRawMisfitLineBuilder();
 
-    PlotBuilder getConvergeIntensityLinesBuilder();
+    PlotBuilder[] getConvergeIntensityLinesBuilder();
 
     PlotBuilder[] getConvergeNoiseFaradayLineBuilder();
 

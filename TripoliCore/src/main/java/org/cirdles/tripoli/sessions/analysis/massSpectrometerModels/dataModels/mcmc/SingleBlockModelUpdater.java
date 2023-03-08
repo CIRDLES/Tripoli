@@ -532,8 +532,8 @@ public class SingleBlockModelUpdater {
                 }
 
                 for (int intensityIndex = 0; intensityIndex < singleBlockModelRecord.I0().length; intensityIndex++) {
-                    enso2[row][modelIndex] = ensembleRecord.intensities()[intensityIndex];
-                    totalsByRow2[row] += ensembleRecord.intensities()[intensityIndex];
+                    enso2[row][modelIndex] = ensembleRecord.I0()[intensityIndex];
+                    totalsByRow2[row] += ensembleRecord.I0()[intensityIndex];
                     row++;
                 }
 

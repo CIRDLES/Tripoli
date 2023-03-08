@@ -150,7 +150,7 @@ public enum SingleBlockDataModelPlot {
         for (int knotIndex = 0; knotIndex < knotsCount; knotIndex++) {
             DescriptiveStatistics descriptiveStatisticsIntensity = new DescriptiveStatistics();
             for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
-                ensembleIntensity[knotIndex][index - burn] = ensembleRecordsList.get(index).intensities()[knotIndex];
+                ensembleIntensity[knotIndex][index - burn] = ensembleRecordsList.get(index).I0()[knotIndex];
                 descriptiveStatisticsIntensity.addValue(ensembleIntensity[knotIndex][index - burn]);
             }
             intensityMeans[knotIndex] = descriptiveStatisticsIntensity.getMean();
@@ -174,7 +174,7 @@ public enum SingleBlockDataModelPlot {
         }
         int xKnotsSize = singleBlockDataSetRecord.onPeakStartingIndicesOfCycles().length;
         xDataIntensityMeans[1] = new double[xKnotsSize];
-        for (int i = 0; i < xKnotsSize; i++){
+        for (int i = 0; i < xKnotsSize; i++) {
             xDataIntensityMeans[1][i] = singleBlockDataSetRecord.onPeakStartingIndicesOfCycles()[i];
         }
 
@@ -207,11 +207,11 @@ public enum SingleBlockDataModelPlot {
                 xDataIntensityMeans, yDataIntensityMeans, new String[]{"Mean Intensity w/ Knots"}, "Time Index", "Intensity (counts)", true);
 
         // visualization converge ratio and others tabs
-        double[][] convergeIntensities = new double[ensembleRecordsList.get(0).intensities().length][ensembleRecordsList.size()];
+        double[][] convergeIntensities = new double[knotsCount][ensembleRecordsList.size()];
         for (int index = 0; index < ensembleRecordsList.size(); index++) {
-            for (int intensityIndex = 0; intensityIndex < convergeIntensities.length; intensityIndex++) {
+            for (int knotsIndex = 0; knotsIndex < knotsCount; knotsIndex++) {
                 // todo: fix this block indexing issue
-                convergeIntensities[intensityIndex][index] = ensembleRecordsList.get(index).intensities()[intensityIndex];
+                convergeIntensities[knotsIndex][index] = ensembleRecordsList.get(index).I0()[knotsIndex];
             }
         }
 
@@ -277,7 +277,7 @@ public enum SingleBlockDataModelPlot {
         Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex = singleBlockInitialModelRecordInitial.mapDetectorOrdinalToFaradayIndex();
         EnsemblesStore.EnsembleRecord lastModelRecord = ensembleRecordsList.get(ensembleRecordsList.size() - 1);
         double[] logRatios = lastModelRecord.logRatios().clone();
-        double[] intensities = lastModelRecord.intensities();
+        double[] intensities = singleBlockInitialModelRecordInitial.intensities();
         double[] xSig = lastModelRecord.signalNoise();
         double detectorFaradayGain = singleBlockInitialModelRecordInitial.detectorFaradayGain();
         double[] baselineMeansArray = singleBlockInitialModelRecordInitial.baselineMeansArray();

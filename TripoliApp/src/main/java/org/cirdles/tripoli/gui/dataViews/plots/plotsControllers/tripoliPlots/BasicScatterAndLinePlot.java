@@ -3,13 +3,9 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
-import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 
 
 public class BasicScatterAndLinePlot extends AbstractPlot {
@@ -27,6 +23,10 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
                 comboPlotBuilder.getxAxisLabel(),
                 comboPlotBuilder.getyAxisLabel());
         this.comboPlotBuilder = comboPlotBuilder;
+    }
+
+    public static AbstractPlot generatePlot(Rectangle bounds, ComboPlotBuilder comboPlotBuilder) {
+        return new BasicScatterAndLinePlot(bounds, comboPlotBuilder);
     }
 
     @Override
@@ -72,9 +72,6 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
         minY -= yMarginStretch;
     }
 
-    public static AbstractPlot generatePlot(Rectangle bounds, ComboPlotBuilder comboPlotBuilder) {
-        return new BasicScatterAndLinePlot(bounds, comboPlotBuilder);
-    }
     @Override
     public void paint(GraphicsContext g2d) {
         super.paint(g2d);

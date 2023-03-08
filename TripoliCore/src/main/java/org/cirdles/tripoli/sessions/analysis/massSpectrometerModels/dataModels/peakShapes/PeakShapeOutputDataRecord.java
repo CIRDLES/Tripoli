@@ -18,7 +18,7 @@ import org.ojalgo.matrix.store.Primitive64Store;
  */
 public record PeakShapeOutputDataRecord(
         Primitive64Store magnetMasses, // vector of masses for blockIntensities measurements
-        Primitive64Store measuredPeakIntensities,    // vector of corresponding peak intensities
+        Primitive64Store measuredPeakIntensities,    // vector of corresponding peak I0
         double peakCenterMass,             // mass at center of peak from header
         double integrationPeriodMS,              // integration period of measurements in ms
         String massID,                     // name of peak getting centered e.g. "205Pb"

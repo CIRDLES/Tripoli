@@ -81,11 +81,11 @@ public class MultiLinePlot extends AbstractPlot {
         g2d.setStroke(dataColor.color());
         boolean isMarkerInLastLine = multiLinePlotBuilder.isMarkerInLastLine();
 
-        for (int lineIndex = 0; lineIndex < yData.length - (isMarkerInLastLine?1:0); lineIndex++) {
+        for (int lineIndex = 0; lineIndex < yData.length - (isMarkerInLastLine ? 1 : 0); lineIndex++) {
             g2d.setLineDashes(8);
             g2d.beginPath();
             g2d.moveTo(mapX(xData[lineIndex][0]), mapY(yData[lineIndex][0]));
-            for (int i = 0; i < xData[lineIndex].length - (isMarkerInLastLine?1:0); i++) {
+            for (int i = 0; i < xData[lineIndex].length - (isMarkerInLastLine ? 1 : 0); i++) {
                 if (pointInPlot(xData[lineIndex][i], yData[lineIndex][i])) {
                     // line tracing through points
                     g2d.lineTo(mapX(xData[lineIndex][i]), mapY(yData[lineIndex][i]));

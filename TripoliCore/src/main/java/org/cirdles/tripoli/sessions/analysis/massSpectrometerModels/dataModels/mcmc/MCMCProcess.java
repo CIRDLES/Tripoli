@@ -36,7 +36,6 @@ import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalRangesRecord;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalSigmasRecord;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelUpdater.UpdatedCovariancesRecord;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelUpdater.operations;
 
 /**
@@ -509,7 +508,7 @@ public class MCMCProcess {
                     counter++;
                     ensembleRecordsList.add(new EnsemblesStore.EnsembleRecord(
                             singleBlockInitialModelRecord_initial.logRatios(),
-                            singleBlockInitialModelRecord_initial.intensities(),
+                            dataModelUpdaterOutputRecord_x2.I0(),
                             singleBlockInitialModelRecord_initial.baselineMeansArray(),
                             singleBlockInitialModelRecord_initial.detectorFaradayGain(),
                             singleBlockInitialModelRecord_initial.signalNoiseSigma(),

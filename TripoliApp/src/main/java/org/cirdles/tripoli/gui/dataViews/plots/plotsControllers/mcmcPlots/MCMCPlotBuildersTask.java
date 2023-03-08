@@ -32,7 +32,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     private PlotBuilder[] baselineHistogramBuilder;
     private PlotBuilder[] dalyFaradayGainHistogramBuilder;
     private PlotBuilder[] signalNoiseHistogramBuilder;
-    private PlotBuilder[] meanIntensityVsIntensityMultiLineBuilder;
+    private PlotBuilder[] meanIntensityVsKnotsMultiLineBuilder;
 
     private PlotBuilder[] convergeRatioLineBuilder;
 
@@ -44,7 +44,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     private PlotBuilder[] convergeErrWeightedMisfitLineBuilder;
     private PlotBuilder[] convergeErrRawMisfitLineBuilder;
 
-    private PlotBuilder convergeIntensityLinesBuilder;
+    private PlotBuilder[] convergeIntensityLinesBuilder;
 
     private PlotBuilder[] convergeNoiseFaradayLineBuilder;
 
@@ -73,8 +73,8 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     }
 
     @Override
-    public PlotBuilder[] getMeanIntensityVsIntensityMultiLineBuilder() {
-        return meanIntensityVsIntensityMultiLineBuilder.clone();
+    public PlotBuilder[] getMeanIntensityVsKnotsMultiLineBuilder() {
+        return meanIntensityVsKnotsMultiLineBuilder.clone();
     }
 
     @Override
@@ -108,7 +108,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     }
 
     @Override
-    public PlotBuilder getConvergeIntensityLinesBuilder() {
+    public PlotBuilder[] getConvergeIntensityLinesBuilder() {
         return convergeIntensityLinesBuilder;
     }
 
@@ -124,7 +124,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         baselineHistogramBuilder = plots[1];
         dalyFaradayGainHistogramBuilder = plots[2];
         signalNoiseHistogramBuilder = plots[3];
-        meanIntensityVsIntensityMultiLineBuilder = plots[4];
+        meanIntensityVsKnotsMultiLineBuilder = plots[4];
 
         convergeRatioLineBuilder = plots[5];
 
@@ -132,7 +132,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
         convergeErrWeightedMisfitLineBuilder = plots[8];
         convergeErrRawMisfitLineBuilder = plots[9];
-        convergeIntensityLinesBuilder = plots[10][0];
+        convergeIntensityLinesBuilder = plots[10];
 
         convergeNoiseFaradayLineBuilder = plots[11];
 
@@ -145,5 +145,6 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     @Override
     public void receiveLoggingSnippet(String loggingSnippet) {
         updateValue(loggingSnippet);
+        //System.out.print(loggingSnippet);
     }
 }
