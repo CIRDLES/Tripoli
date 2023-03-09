@@ -53,6 +53,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     @Serial
     private static final long serialVersionUID = 5737165372498262402L;
     private final Map<Integer, PlotBuilder[][]> mapOfBlockToPlots = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, String> mapOfBlockToLogs = Collections.synchronizedSortedMap(new TreeMap<>());
     private String analysisName;
     private String analystName;
     private String labName;
@@ -132,6 +133,17 @@ public class Analysis implements Serializable, AnalysisInterface {
             mapOfBlockToPlots.put(blockNumber, plotBuilders);
             retVal = mapOfBlockToPlots.get(blockNumber);
         }
+        return retVal;
+    }
+
+    public String uppdateLogsByBlock(int blockNumber, String logEntry){
+        String log = "";
+        if (mapOfBlockToLogs.containsKey(blockNumber)){
+            log = mapOfBlockToLogs.get(blockNumber);
+        }
+        String retVal = log + "\n" + logEntry;
+        mapOfBlockToLogs.put(blockNumber, retVal);
+
         return retVal;
     }
 

@@ -145,6 +145,6 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     @Override
     public void receiveLoggingSnippet(String loggingSnippet) {
         updateValue(loggingSnippet);
-        //System.out.print(loggingSnippet);
+        analysis.uppdateLogsByBlock(blockNumber, loggingSnippet);
     }
 }

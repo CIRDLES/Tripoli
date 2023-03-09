@@ -167,7 +167,7 @@ public enum SingleBlockDataModelPlot {
         yDataIntensityMeans[1] = yDataTrueIntensitiesMatrix.toRawCopy1D();
 
         double[][] xDataIntensityMeans = new double[2][];
-        int xDataSize = singleBlockDataSetRecord.blockKnotInterpolationStore().toRawCopy2D().length;
+        int xDataSize = yDataIntensityMeans[0].length;
         xDataIntensityMeans[0] = new double[xDataSize];
         for (int i = 0; i < xDataSize; i++) {
             xDataIntensityMeans[0][i] = i;

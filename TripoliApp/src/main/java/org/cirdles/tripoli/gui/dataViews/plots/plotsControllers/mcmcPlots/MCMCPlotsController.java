@@ -48,7 +48,13 @@ public class MCMCPlotsController {
     @FXML
     public AnchorPane dataFitPlotsAnchorPane;
     @FXML
-    public AnchorPane convergeErrorPlotsAnchorPane1;
+    public AnchorPane convergeErrorPlotsAnchorPane;
+    @FXML
+    public AnchorPane beamShapeAnchorPane;
+    @FXML
+    public AnchorPane summaryAnchorPane;
+    @FXML
+    public AnchorPane logAnchorPane;
     private Service[] services;
     @FXML
     private ResourceBundle resources;
@@ -133,24 +139,14 @@ public class MCMCPlotsController {
 
         for (int blockIndex = 0; blockIndex < services.length; blockIndex++) {
             services[blockIndex] = new MCMCUpdatesService(blockIndex + 1);
-//            eventLogTextArea.setText("");
-//            eventLogTextArea.accessibleTextProperty().bind(((MCMCUpdatesService) services[blockIndex]).valueProperty());
-//            eventLogTextArea.accessibleTextProperty().addListener((observable, oldValue, newValue) -> {
-//                if (null != newValue) {
-//                    eventLogTextArea.setText(eventLogTextArea.getText() + "\n" + newValue);
-//                    eventLogTextArea.selectEnd();
-//                    eventLogTextArea.deselect();
-//                }
-//            });
-
             int finalBlockIndex = blockIndex;
             services[finalBlockIndex].setOnSucceeded(evt -> {
                 Task<String> plotBuildersTask = ((MCMCUpdatesService) services[finalBlockIndex]).getPlotBuilderTask();
                 if (null != plotBuildersTask) {
                     plotEngine(plotBuildersTask);
+                    showLogsEngine(finalBlockIndex);
                 }
             });
-
         }
 
         for (int blockIndex = 0; blockIndex < services.length; blockIndex++) {
@@ -165,7 +161,7 @@ public class MCMCPlotsController {
         ensemblePlotsAnchorPane.getChildren().removeAll();
         convergePlotsAnchorPane.getChildren().removeAll();
         dataFitPlotsAnchorPane.getChildren().removeAll();
-        convergeErrorPlotsAnchorPane1.getChildren().removeAll();
+        convergeErrorPlotsAnchorPane.getChildren().removeAll();
         convergeIntensityAnchorPane.getChildren().removeAll();
 
         PlotBuildersTaskInterface plotBuildersTask = (PlotBuildersTaskInterface) plotBuildersTaska;
@@ -219,7 +215,7 @@ public class MCMCPlotsController {
         PlotWallPane convergeErrorPlotsWallPane = new PlotWallPane();
         convergeErrorPlotsWallPane.buildToolBar();
         convergeErrorPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-        convergeErrorPlotsAnchorPane1.getChildren().add(convergeErrorPlotsWallPane);
+        convergeErrorPlotsAnchorPane.getChildren().add(convergeErrorPlotsWallPane);
         produceTripoliLinePlots(convergeErrRawMisfitBuilder, convergeErrorPlotsWallPane);
         produceTripoliLinePlots(convergeErrWeightedMisfitBuilder, convergeErrorPlotsWallPane);
         convergeErrorPlotsWallPane.tilePlots();
@@ -230,6 +226,14 @@ public class MCMCPlotsController {
         convergeIntensityAnchorPane.getChildren().add(convergeIntensityPlotsWallPane);
         produceTripoliMultiLineLogXPlots(convergeIntensityLinesBuilder, convergeIntensityPlotsWallPane);
         convergeIntensityPlotsWallPane.tilePlots();
+    }
+
+    private void showLogsEngine(int blockNumber){
+        String log = analysis.uppdateLogsByBlock(blockNumber + 1, "");
+        TextArea logTextArea = new TextArea(log);
+        logTextArea.setPrefSize(logAnchorPane.getWidth(), logAnchorPane.getHeight());
+        logAnchorPane.getChildren().removeAll();
+        logAnchorPane.getChildren().add(logTextArea);
     }
 
     private void produceTripoliHistogramPlots(PlotBuilder[] plotBuilder, PlotWallPane plotWallPane) {
@@ -289,6 +293,7 @@ public class MCMCPlotsController {
         Task<String> mcmcPlotBuildersTask = ((MCMCUpdatesService) services[blockNumber]).getPlotBuilderTask();
         if (mcmcPlotBuildersTask.isDone()) {
             plotEngine(mcmcPlotBuildersTask);
+            showLogsEngine(blockNumber);
         }
     }
 

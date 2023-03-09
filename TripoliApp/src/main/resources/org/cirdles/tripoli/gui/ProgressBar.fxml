@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="67.0" prefWidth="600.0"
+            style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.ProgressBarController">
+   <children>
+      <ProgressBar fx:id="progressBar" layoutX="25.0" layoutY="25.0" prefHeight="20.0" prefWidth="554.0" progress="0.0" />
+   </children>
+</AnchorPane>
