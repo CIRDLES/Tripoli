@@ -16,7 +16,7 @@
  * limitations under the License.
  -->
 
-<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
@@ -56,11 +56,13 @@
         </TabPane>
         <SplitPane dividerPositions="0.15">
             <ScrollPane fx:id="listOfFilesScrollPane" />
-            <TextArea fx:id="eventLogTextArea" editable="false" text="runs to model count of 200000 iterations with adaptation at 50000." />
+         <VBox>
+            <children>
+                  <TextArea fx:id="eventLogTextArea" editable="false" text="runs to model count of 200000 iterations with adaptation at 50000." />
+               <ProgressBar fx:id="progressBar" minHeight="25.0" minWidth="500.0" prefHeight="25.0" prefWidth="848.0" progress="0.0" />
+            </children>
+         </VBox>
         </SplitPane>
     </SplitPane>
-    <ToolBar fx:id="toolbar" prefHeight="35.0">
-        <Button fx:id="processFileButton2" layoutX="515.0" layoutY="10.0" mnemonicParsing="false" onAction="#plotIncomingAction" style="-fx-text-fill: RED;" text="Process selected block in list above from  current analysis in Analysis Manager" />
-        <Button layoutX="207.0" layoutY="10.0" mnemonicParsing="false" onAction="#stopProcess2" text="&lt;&lt; stop processing" />
-    </ToolBar>
+    <ToolBar fx:id="toolbar" prefHeight="35.0" />
 </VBox>

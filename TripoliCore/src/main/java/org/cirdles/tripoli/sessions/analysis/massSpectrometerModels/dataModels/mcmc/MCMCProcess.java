@@ -50,10 +50,11 @@ public class MCMCProcess {
     List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
     private int faradayCount;
     private int ratioCount;
-    private int maxIterationCount;
+    private static int maxIterationCount;
     private boolean hierarchical;
     private double tempering;
-    private int stepCountForcedSave;
+    private static int stepCountForcedSave;
+    private static int modelCount;
     private int burnInThreshold;
     private double[] baselineMultiplier;
     private ProposedModelParameters.ProposalRangesRecord proposalRangesRecord;
@@ -72,10 +73,18 @@ public class MCMCProcess {
     private double[][] delx_adapt;
 
 
+    public static int getModelCount() {
+        return modelCount;
+    }
+
     private MCMCProcess(AnalysisMethod analysisMethod, SingleBlockDataSetRecord singleBlockDataSetRecord, SingleBlockModelRecord singleBlockInitialModelRecord) {
         this.analysisMethod = analysisMethod;
         this.singleBlockDataSetRecord = singleBlockDataSetRecord;
         singleBlockInitialModelRecord_X0 = singleBlockInitialModelRecord;
+        maxIterationCount = 1000;
+        stepCountForcedSave = 100;
+        modelCount = maxIterationCount * stepCountForcedSave;
+
     }
 
     public static synchronized MCMCProcess createMCMCProcess(AnalysisMethod analysisMethod, SingleBlockDataSetRecord singleBlockDataSetRecord, SingleBlockModelRecord singleBlockInitialModelRecord) {
@@ -124,10 +133,10 @@ public class MCMCProcess {
             Ndata=d0.Ndata; % Number of picks
             Nsig = d0.Nsig; % Number of noise variables
          */
-        maxIterationCount = 2000;
+//        maxIterationCount = 2000;
         hierarchical = true;
         tempering = 1.0;
-        stepCountForcedSave = 100;
+//        stepCountForcedSave = 100;
         burnInThreshold = 10;
         startingIndexOfFaradayData = singleBlockDataSetRecord.getCountOfBaselineIntensities();
         startingIndexOfPhotoMultiplierData = startingIndexOfFaradayData + singleBlockDataSetRecord.getCountOfOnPeakFaradayIntensities();
@@ -263,7 +272,7 @@ public class MCMCProcess {
         int[] isotopeOrdinalIndicesArray = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
 
         String loggingSnippet = "";
-        for (int modelIndex = 1; modelIndex <= maxIterationCount * stepCountForcedSave; modelIndex++) {//*****************
+        for (int modelIndex = 1; modelIndex <= modelCount; modelIndex++) {//*****************
             if (ALLOW_EXECUTION) {
                 long prev = System.nanoTime();
 
@@ -563,7 +572,8 @@ public class MCMCProcess {
 
                     if (0 == modelIndex % (10 * stepCountForcedSave)) {
                         loggingSnippet =
-                                "%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
+                                "" + modelIndex +
+                                " >%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
                                         + " ADAPTIVE = " + adaptiveFlag
                                         + "  BLOCK # " + singleBlockInitialModelRecord_initial.blockNumber()
                                         + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex

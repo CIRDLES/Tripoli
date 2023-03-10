@@ -128,6 +128,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         PlotBuilder[][] retVal;
         if (mapOfBlockToPlots.containsKey(blockNumber)) {
             retVal = mapOfBlockToPlots.get(blockNumber);
+            loggingCallback.receiveLoggingSnippet("1000 >%");
         } else {
             PlotBuilder[][] plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock(blockNumber, this, loggingCallback);
             mapOfBlockToPlots.put(blockNumber, plotBuilders);

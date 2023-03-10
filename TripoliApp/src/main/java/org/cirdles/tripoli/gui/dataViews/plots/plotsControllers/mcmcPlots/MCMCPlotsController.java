@@ -55,6 +55,8 @@ public class MCMCPlotsController {
     public AnchorPane summaryAnchorPane;
     @FXML
     public AnchorPane logAnchorPane;
+    @FXML
+    public ProgressBar progressBar;
     private Service[] services;
     @FXML
     private ResourceBundle resources;
@@ -74,9 +76,6 @@ public class MCMCPlotsController {
 
     @FXML
     private TabPane plotTabPane;
-
-    @FXML
-    private Button processFileButton2;
 
     @FXML
     private ToolBar toolbar;
@@ -100,8 +99,9 @@ public class MCMCPlotsController {
 
         plotTabPane.prefWidthProperty().bind(masterVBox.widthProperty());
         plotTabPane.prefHeightProperty().bind(masterVBox.heightProperty());
-
+        plotIncomingAction();
         populateListOfAvailableBlocks();
+
     }
 
     private void populateListOfAvailableBlocks() {
@@ -130,6 +130,8 @@ public class MCMCPlotsController {
                 }
             }
         });
+
+        listViewOfBlocks.setDisable(true);
     }
 
     @SuppressWarnings("unchecked")
@@ -139,12 +141,29 @@ public class MCMCPlotsController {
 
         for (int blockIndex = 0; blockIndex < services.length; blockIndex++) {
             services[blockIndex] = new MCMCUpdatesService(blockIndex + 1);
+            progressBar.accessibleTextProperty().bind(((MCMCUpdatesService) services[blockIndex]).valueProperty());
+            progressBar.accessibleTextProperty().addListener((observable, oldValue, newValue) -> {
+                if (null != newValue) {
+                    String[] data = newValue.split(">%");
+                    try {
+                        double percent = Double.parseDouble(data[0]) / MCMCProcess.getModelCount();
+                        if (progressBar.getProgress() < percent){
+                            progressBar.setProgress(percent);
+                        }
+                    } catch (NumberFormatException e) {
+                        //
+                    }
+                }
+            });
+
+
             int finalBlockIndex = blockIndex;
             services[finalBlockIndex].setOnSucceeded(evt -> {
                 Task<String> plotBuildersTask = ((MCMCUpdatesService) services[finalBlockIndex]).getPlotBuilderTask();
                 if (null != plotBuildersTask) {
                     plotEngine(plotBuildersTask);
                     showLogsEngine(finalBlockIndex);
+                    listViewOfBlocks.setDisable(false);
                 }
             });
         }
@@ -152,7 +171,6 @@ public class MCMCPlotsController {
         for (int blockIndex = 0; blockIndex < services.length; blockIndex++) {
             services[blockIndex].start();
         }
-        processFileButton2.setDisable(true);
         MCMCProcess.ALLOW_EXECUTION = true;
     }
 
@@ -228,7 +246,7 @@ public class MCMCPlotsController {
         convergeIntensityPlotsWallPane.tilePlots();
     }
 
-    private void showLogsEngine(int blockNumber){
+    private void showLogsEngine(int blockNumber) {
         String log = analysis.uppdateLogsByBlock(blockNumber + 1, "");
         TextArea logTextArea = new TextArea(log);
         logTextArea.setPrefSize(logAnchorPane.getWidth(), logAnchorPane.getHeight());

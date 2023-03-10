@@ -29,6 +29,7 @@ import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -69,7 +70,7 @@ public enum SingleBlockDataModelPlot {
 
          */
         int burn;// = 100;// 500;//1000;
-        burn = 450;//Math.min(100, ensembleRecordsList.size() - 50);
+        burn = 500;//Math.min(100, ensembleRecordsList.size() - 50);
         int countOfEnsemblesUsed = ensembleRecordsList.size() - burn;
 
         // log ratios
@@ -282,10 +283,12 @@ public enum SingleBlockDataModelPlot {
         double detectorFaradayGain = singleBlockInitialModelRecordInitial.detectorFaradayGain();
         double[] baselineMeansArray = singleBlockInitialModelRecordInitial.baselineMeansArray();
         double[] dataCountsModelOneSigma = new double[totalIntensityCount];
+        double[] integrationTimes  = new double[totalIntensityCount];
 
         List<Integer> isotopeOrdinalIndicesAccumulatorList = singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().isotopeOrdinalIndicesAccumulatorList();
         List<Integer> detectorOrdinalIndicesAccumulatorList = singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().detectorOrdinalIndicesAccumulatorList();
         List<Integer> timeIndexAccumulatorList = singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().timeIndexAccumulatorList();
+        List<Double> timeAccumulatorList = singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().timeAccumulatorList();
         for (int dataArrayIndex = baselineCount; dataArrayIndex < baselineCount + onPeakFaradayCount; dataArrayIndex++) {
             int intensityIndex = timeIndexAccumulatorList.get(dataArrayIndex - baselineCount);
             int isotopeIndex = isotopeOrdinalIndicesAccumulatorList.get(dataArrayIndex - baselineCount) - 1;
@@ -302,10 +305,13 @@ public enum SingleBlockDataModelPlot {
                     + xSig[xSig.length - 1]
                     * dataWithNoBaselineArray[dataArrayIndex]);
             dataCountsModelOneSigma[dataArrayIndex] = calculatedValue;
+
+            integrationTimes[dataArrayIndex] = timeAccumulatorList.get(intensityIndex);
         }
 
         isotopeOrdinalIndicesAccumulatorList = singleBlockDataSetRecord.onPeakPhotoMultiplierDataSetMCMC().isotopeOrdinalIndicesAccumulatorList();
         timeIndexAccumulatorList = singleBlockDataSetRecord.onPeakPhotoMultiplierDataSetMCMC().timeIndexAccumulatorList();
+        timeAccumulatorList = singleBlockDataSetRecord.onPeakPhotoMultiplierDataSetMCMC().timeAccumulatorList();
         for (int dataArrayIndex = baselineCount + onPeakFaradayCount; dataArrayIndex < baselineCount + onPeakFaradayCount + onPeakPhotoMultCount; dataArrayIndex++) {
             int intensityIndex = timeIndexAccumulatorList.get(dataArrayIndex - baselineCount - onPeakFaradayCount);
             int isotopeIndex = isotopeOrdinalIndicesAccumulatorList.get(dataArrayIndex - baselineCount - onPeakFaradayCount).intValue() - 1;
@@ -322,14 +328,21 @@ public enum SingleBlockDataModelPlot {
                     + xSig[xSig.length - 1]
                     * dataWithNoBaselineArray[dataArrayIndex]);
             dataCountsModelOneSigma[dataArrayIndex] = calculatedValue;
+
+            integrationTimes[dataArrayIndex] = timeAccumulatorList.get(intensityIndex);
         }
 
         detectorOrdinalIndicesAccumulatorList = singleBlockDataSetRecord.baselineDataSetMCMC().detectorOrdinalIndicesAccumulatorList();
+        timeIndexAccumulatorList = singleBlockDataSetRecord.baselineDataSetMCMC().timeIndexAccumulatorList();
+        timeAccumulatorList = singleBlockDataSetRecord.baselineDataSetMCMC().timeAccumulatorList();
         for (int dataArrayIndex = 0; dataArrayIndex < baselineCount; dataArrayIndex++) {
+            int intensityIndex = timeIndexAccumulatorList.get(dataArrayIndex);
             int faradayIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(dataArrayIndex));
 
             double calculatedValue = StrictMath.sqrt(pow(xSig[faradayIndex], 2));
             dataCountsModelOneSigma[dataArrayIndex] = calculatedValue;
+
+            integrationTimes[dataArrayIndex] = timeAccumulatorList.get(intensityIndex);
         }
 
 
@@ -342,16 +355,17 @@ public enum SingleBlockDataModelPlot {
         double[] yDataResiduals = new double[dataOriginalCounts.length / plottingStep];
         double[] yDataSigmas = new double[dataOriginalCounts.length / plottingStep];
 
+        Arrays.sort(integrationTimes);
         for (int i = 0; i < dataOriginalCounts.length / plottingStep; i++) {
-            xDataIndex[i] = i * plottingStep;
+            xDataIndex[i] = integrationTimes[i * plottingStep];
             yDataCounts[i] = dataOriginalCounts[i * plottingStep];
             yDataModelCounts[i] = dataArray[i * plottingStep];
             yDataResiduals[i] = dataOriginalCounts[i * plottingStep] - dataArray[i * plottingStep];
             yDataSigmas[i] = dataCountsModelOneSigma[i * plottingStep];
         }
-        plotBuilders[13][0] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, new String[]{"Observed Data"});
+        plotBuilders[13][0] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, new String[]{"Observed Data"}, "Integration Time", "Intensity");
 
-        plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, new String[]{"Residual Data"});
+        plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, new String[]{"Residual Data"}, "Integration Time", "Intensity");
 
 
         // todo: missing additional elements of signalNoiseSigma (i.e., 0,11,11)
