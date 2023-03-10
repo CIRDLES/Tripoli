@@ -11,14 +11,8 @@ import java.util.List;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class MatLab {
-    /**
-     * Precise rounding for doubles
-     *
-     * @param value A double to be rounded
-     * @param sigFigs The number of significant figures for rounding
-     * @return The rounded double
-     */
+public enum MatLab {
+    ;
     public static double roundedToSize(double value, int sigFigs) {
         BigDecimal valueBDtoSize = BigDecimal.ZERO;
         if (Double.isFinite(value)) {
@@ -28,7 +22,6 @@ public class MatLab {
         }
         return valueBDtoSize.doubleValue();
     }
-
     /**
      * The Kronecker product
      *
@@ -126,8 +119,8 @@ public class MatLab {
         int col = mat.getColDim() - 1;
         double[][] newDiff;
 
-        if (row == 1) {
-            newDiff = new double[row][col];
+        if (1 == row) {
+            newDiff = new double[1][col];
             for (int i = 0; i < row; i++) {
                 for (int j = 0; j < col; j++) {
                     newDiff[i][j] = mat.get(i, j + 1) - mat.get(i, j);
@@ -300,10 +293,10 @@ public class MatLab {
 
     public static int size(MatrixStore<Double> A, int num) {
         double[][] mat = A.toRawCopy2D();
-        if (num > 2) {
+        if (2 < num) {
             return -1;
         } else {
-            int[] choice = new int[]{mat.length, mat[0].length};
+            int[] choice = {mat.length, mat[0].length};
             int matDim;
             matDim = choice[num - 1];
             return matDim;
@@ -345,13 +338,13 @@ public class MatLab {
         int numCheck = 0;
         int i = 0;
         int index;
-        if (dir.equalsIgnoreCase("first")) {
+        if ("first".equalsIgnoreCase(dir)) {
             index = 0;
             for (int startCol = 0; startCol < col; startCol++) {
                 for (int startRow = 0; startRow < row; startRow++) {
                     index++;
                     if (numCheck != num) {
-                        if (mat.get(startRow, startCol) > 0) {
+                        if (0 < mat.get(startRow, startCol)) {
                             found[i][0] = index - 1;
                             numCheck++;
                             i++;
@@ -364,13 +357,13 @@ public class MatLab {
 
             }
 
-        } else if (dir.equalsIgnoreCase("last")) {
+        } else if ("last".equalsIgnoreCase(dir)) {
             index = (row * col) - 1;
-            for (int startCol = col - 1; startCol >= 0; startCol--) {
-                for (int startRow = row - 1; startRow >= 0; startRow--) {
+            for (int startCol = col - 1; 0 <= startCol; startCol--) {
+                for (int startRow = row - 1; 0 <= startRow; startRow--) {
                     index--;
                     if (numCheck != num) {
-                        if (mat.get(startRow, startCol) > 0) {
+                        if (0 < mat.get(startRow, startCol)) {
                             found[i][0] = index + 1;
                             numCheck++;
                             i++;
@@ -397,7 +390,7 @@ public class MatLab {
         int col = matrix.getColDim();
         double[][] anyMat = new double[0][];
         double sum = 0;
-        if (dim == 1) {
+        if (1 == dim) {
             anyMat = new double[1][col];
 
             for (int i = 0; i < col; i++) {
@@ -405,7 +398,7 @@ public class MatLab {
                     sum += matrix.get(j, i);
 
                 }
-                if (sum > 0) {
+                if (0 < sum) {
                     anyMat[0][i] = 1;
                 } else {
                     anyMat[0][i] = 0;
@@ -415,7 +408,7 @@ public class MatLab {
             }
 
 
-        } else if (dim == 2) {
+        } else if (2 == dim) {
             anyMat = new double[row][1];
 
             for (int i = 0; i < row; i++) {
@@ -423,7 +416,7 @@ public class MatLab {
                     sum += matrix.get(i, j);
 
                 }
-                if (sum > 0) {
+                if (0 < sum) {
                     anyMat[i][0] = 1;
                 } else {
                     anyMat[i][0] = 0;
@@ -585,8 +578,10 @@ public class MatLab {
         int i = 0;
         int xm = A.getColDim();
         int xn = 1;
-        while (i < A.getColDim())
-            z.add(i++);
+        while (i < A.getColDim()) {
+            z.add(i);
+            i++;
+        }
         Primitive64Store x = storeFactory.make(xm, xn);
         /*
          * You need a finite number of iterations. Without this condition, the finite precision nature
@@ -599,7 +594,7 @@ public class MatLab {
             //System.out.println(z.size() + " " + p.size());
             MatrixStore<Double> w = A.transpose().multiply(b.subtract(A.multiply(x)));
             //w.print(7, 5);
-            if (z.size() == 0 || isAllNegative(w)) {
+            if (0 == z.size() || isAllNegative(w)) {
                 //System.out.println("Computation should break");
                 //We are done with the computation. Break here!
                 break;//Should break out of the outer while loop.
@@ -632,14 +627,14 @@ public class MatLab {
                 //Step 7
                 allPositive = true;
                 for (i = 0; i < p.size(); i++)
-                    allPositive &= Z.get(p.get(i), 0) > 0;
+                    allPositive &= 0 < Z.get(p.get(i), 0);
                 if (allPositive)
                     x = Z;
                 else {
                     double alpha = Double.MAX_VALUE;
                     for (i = 0; i < p.size(); i++) {
                         int q = p.get(i);
-                        if (Z.get(q, 0) <= 0) {
+                        if (0 >= Z.get(q, 0)) {
                             double xq = x.get(q, 0);
                             if (xq / (xq - Z.get(q, 0)) < alpha)
                                 alpha = xq / (xq - Z.get(q, 0));
@@ -647,8 +642,8 @@ public class MatLab {
                     }
                     //Finished getting alpha. Onto step 10
                     x = (Primitive64Store) x.add(Z.subtract(x).multiply(alpha));
-                    for (i = p.size() - 1; i >= 0; i--)
-                        if (Math.abs(x.get(p.get(i), 0)) < 1e-10)//Close enough to zero, no?
+                    for (i = p.size() - 1; 0 <= i; i--)
+                        if (1.0e-10 > Math.abs(x.get(p.get(i), 0)))//Close enough to zero, no?
                             z.add(p.remove(i));
                 }
             }
@@ -660,7 +655,7 @@ public class MatLab {
         boolean result = true;
         int m = w.getRowDim();
         for (int i = 0; i < m; i++)
-            result &= w.get(i, 0) <= 1e-10;
+            result &= 1.0e-10 >= w.get(i, 0);
         return result;
     }
 

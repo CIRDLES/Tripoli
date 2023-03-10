@@ -1,7 +1,7 @@
 package org.cirdles.tripoli.utilities.mathUtilities;
 
+import org.cirdles.tripoli.Tripoli;
 import org.junit.jupiter.api.Test;
-import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
@@ -11,14 +11,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.List;
 
-import java.util.Arrays;
+import org.cirdles.commons.util.ResourceExtractor;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class MatLabTest {
-
     /**
      * Takes a string of comma separated values and turns them into a 2D array of doubles.
      * Takes first element in the format mXn and uses this as the dimensions of the array.
@@ -34,6 +32,10 @@ class MatLabTest {
         double n = Double.parseDouble(dims[1]);
         int m_int = (int) m;
         int n_int = (int) n;
+        System.out.println(Double.toString(m) + " : " + Double.toString(n));
+        System.out.println(csv);
+        System.out.println(dim);
+
         double[][] matrix = new double[m_int][n_int];
         String[] nums = Arrays.copyOfRange(tokens, 1, tokens.length);
         int counter = 0;
@@ -58,7 +60,8 @@ class MatLabTest {
      * @throws IOException
      */
     public ArrayList<double[][]> read_csv(String fn) throws IOException {
-        String filename = fn;
+        ResourceExtractor tripoliExtractor = new ResourceExtractor(Tripoli.class);
+        File filename = tripoliExtractor.extractResourceAsFile("src/test/resources/org/cirdles/tripoli/core/" + fn);
         ArrayList<double[][]> matrices = new ArrayList<>();
         FileReader fr = new FileReader(filename);
         BufferedReader br = new BufferedReader(fr);
@@ -122,9 +125,9 @@ class MatLabTest {
      */
     @Test
     void kronTest() throws IOException {
-        ArrayList<double[][]> aList = read_csv("src/test/resources/org/cirdles/tripoli/core/kron_matrix_A.txt");
-        ArrayList<double[][]> bList = read_csv("src/test/resources/org/cirdles/tripoli/core/kron_matrix_B.txt");
-        ArrayList<double[][]> answerList = read_csv("src/test/resources/org/cirdles/tripoli/core/kron_answers.txt");
+        ArrayList<double[][]> aList = read_csv("kron_matrix_A.txt");
+        ArrayList<double[][]> bList = read_csv("kron_matrix_B.txt");
+        ArrayList<double[][]> answerList = read_csv("kron_answers.txt");
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         Primitive64Store a;
         Primitive64Store b;
@@ -138,6 +141,7 @@ class MatLabTest {
             expected = answerList.get(i);
             actual = MatLab.kron(a, b);
             actualArray = actual.toRawCopy2D();
+
 
             for (int j = 0; j < expected.length; j++) {
                 for (int k = 0; k < expected[j].length; k++) {
@@ -188,8 +192,8 @@ class MatLabTest {
     @Test
     void expMatrixTest() throws IOException {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        ArrayList<double[][]> aList = read_csv("src/test/resources/org/cirdles/tripoli/core/exp_matrix_A.txt");
-        ArrayList<double[][]> answerList = read_csv("src/test/resources/org/cirdles/tripoli/core/exp_answers.txt");
+        ArrayList<double[][]> aList = read_csv("exp_matrix_A.txt");
+        ArrayList<double[][]> answerList = read_csv("exp_answers.txt");
         double[][] expected;
         Primitive64Store actual;
         Primitive64Store a;
