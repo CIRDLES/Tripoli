@@ -44,9 +44,9 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public class MCMCProcess {
 
     public static boolean ALLOW_EXECUTION = true;
-    private static int maxIterationCount;
-    private static int stepCountForcedSave;
-    private static int modelCount;
+    private static int maxIterationCount = 2000;
+    private static int stepCountForcedSave = 100;
+    private static int modelCount = maxIterationCount * stepCountForcedSave;
     private final SingleBlockModelRecord singleBlockInitialModelRecord_X0;
     private final AnalysisMethod analysisMethod;
     private final SingleBlockDataSetRecord singleBlockDataSetRecord;
@@ -77,10 +77,6 @@ public class MCMCProcess {
         this.analysisMethod = analysisMethod;
         this.singleBlockDataSetRecord = singleBlockDataSetRecord;
         singleBlockInitialModelRecord_X0 = singleBlockInitialModelRecord;
-        maxIterationCount = 1000;
-        stepCountForcedSave = 100;
-        modelCount = maxIterationCount * stepCountForcedSave;
-
     }
 
     public static int getModelCount() {
