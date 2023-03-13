@@ -1,5 +1,6 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
 
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
@@ -120,6 +121,7 @@ public class MCMCPlotsController {
         listViewOfBlocks.getSelectionModel().selectFirst();
         listViewOfBlocks.prefWidthProperty().bind(listOfFilesScrollPane.widthProperty());
         listViewOfBlocks.prefHeightProperty().bind(listOfFilesScrollPane.heightProperty());
+        listViewOfBlocks.getSelectionModel().select(-1);
         listOfFilesScrollPane.setContent(listViewOfBlocks);
 
         listViewOfBlocks.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -164,6 +166,7 @@ public class MCMCPlotsController {
                     plotEngine(plotBuildersTask);
                     showLogsEngine(finalBlockIndex);
                     listViewOfBlocks.setDisable(false);
+                    listViewOfBlocks.getSelectionModel().selectFirst();
                 }
             });
         }
@@ -228,7 +231,7 @@ public class MCMCPlotsController {
         dataFitPlotsAnchorPane.getChildren().add(dataFitPlotsWallPane);
         produceTripoliBasicScatterAndLinePlots(observedDataPlotBuilder, dataFitPlotsWallPane);
         produceTripoliBasicScatterAndLinePlots(residualDataPlotBuilder, dataFitPlotsWallPane);
-        dataFitPlotsWallPane.tilePlots();
+        dataFitPlotsWallPane.stackPlots();
 
         PlotWallPane convergeErrorPlotsWallPane = new PlotWallPane();
         convergeErrorPlotsWallPane.buildToolBar();
@@ -308,13 +311,15 @@ public class MCMCPlotsController {
 
     public void viewSelectedBlockAction() {
         int blockNumber = listViewOfBlocks.getSelectionModel().getSelectedIndex();
+        viewSelectedBlock(blockNumber);
+    }
+    public void viewSelectedBlock(int blockNumber) {
         Task<String> mcmcPlotBuildersTask = ((MCMCUpdatesService) services[blockNumber]).getPlotBuilderTask();
-        if (mcmcPlotBuildersTask.isDone()) {
+        if ((mcmcPlotBuildersTask != null) && mcmcPlotBuildersTask.isDone()) {
             plotEngine(mcmcPlotBuildersTask);
             showLogsEngine(blockNumber);
         }
     }
-
 
     static class BlockDisplayID extends ListCell<String> {
         @Override
