@@ -98,9 +98,11 @@ public enum SingleBlockModelDriver {
         blockTimeIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC.timeIndexAccumulatorList());
         int[] blockTimeIndicesArray = blockTimeIndicesList.stream().mapToInt(i -> i).toArray();
 
+        int[] onPeakStartingIndicesOfCycles = massSpecOutputSingleBlockRecord.onPeakStartingIndicesOfCycles();
+
         SingleBlockDataSetRecord singleBlockDataSetRecord =
-                new SingleBlockDataSetRecord(baselineDataSetMCMC, onPeakFaradayDataSetMCMC, onPeakPhotoMultiplierDataSetMCMC, blockKnotInterpolationStore,
-                        blockIntensityArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeIndicesArray);
+                new SingleBlockDataSetRecord(blockNumber, baselineDataSetMCMC, onPeakFaradayDataSetMCMC, onPeakPhotoMultiplierDataSetMCMC, blockKnotInterpolationStore,
+                        blockIntensityArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeIndicesArray, onPeakStartingIndicesOfCycles);
 
         return singleBlockDataSetRecord;
     }

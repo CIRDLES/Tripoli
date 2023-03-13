@@ -18,29 +18,26 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 
 /**
  * @author James F. Bowring
  */
 public class MCMCUpdatesService extends Service<String> {
-    private final AnalysisInterface analysis;
     private final int blockNumber;
 
     private Task<String> plotBuilderTask;
 
-    public MCMCUpdatesService(AnalysisInterface analysis, int blockNumber) {
-        this.analysis = analysis;
+    public MCMCUpdatesService(int blockNumber) {
         this.blockNumber = blockNumber;
-    }
-
-    public Task<String> getPlotBuildersTask() {
-        return plotBuilderTask;
     }
 
     @Override
     protected Task<String> createTask() {
-        plotBuilderTask = new MCMCPlotBuildersTask(analysis, blockNumber);
+        plotBuilderTask = new MCMCPlotBuildersTask(blockNumber);
+        return plotBuilderTask;
+    }
+
+    public Task<String> getPlotBuilderTask() {
         return plotBuilderTask;
     }
 }

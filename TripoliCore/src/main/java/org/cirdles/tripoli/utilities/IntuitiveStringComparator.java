@@ -147,14 +147,18 @@ public class IntuitiveStringComparator<T extends CharSequence>
         char ch2 = 0;
 
         // Skip leading zeroes, but keep a count of them.
-        while (pos1 < len1 && '0' == (ch1 = str1.charAt(pos1++))) {
+        while (pos1 < len1 && '0' == (ch1 = str1.charAt(pos1))) {
+            pos1++;
             zeroes1++;
 
         }
-        while (pos2 < len2 && '0' == (ch2 = str2.charAt(pos2++))) {
+        pos1++;
+        while (pos2 < len2 && '0' == (ch2 = str2.charAt(pos2))) {
+            pos2++;
             zeroes2++;
 
         }
+        pos2++;
 
         // If one sequence contains more significant digits than the
         // other, it's a larger number.  In case they turn out to have
@@ -188,14 +192,14 @@ public class IntuitiveStringComparator<T extends CharSequence>
                 ch1 = str1.charAt(pos1);
                 pos1++;
             } else {
-                ch1 = (char) 0;
+                ch1 = 0;
             }
 
             if (pos2 < len2) {
                 ch2 = str2.charAt(pos2);
                 pos2++;
             } else {
-                ch2 = (char) 0;
+                ch2 = 0;
             }
 
         }

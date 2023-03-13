@@ -317,6 +317,7 @@ enum SingleBlockModelInitForMCMC {
 
 
         return new SingleBlockModelRecord(
+                singleBlockDataSetRecord.blockNumber(),
                 baselineMeansArray,
                 baselineStandardDeviationsArray,
                 detectorFaradayGain,

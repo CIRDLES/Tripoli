@@ -42,7 +42,7 @@ public class EnsemblesStore implements Serializable {
 
     public record EnsembleRecord(
             double[] logRatios,
-            double[] intensities,
+            double[] I0,
             double[] baseLine,
             double dfGain,
             double[] signalNoise,

@@ -28,11 +28,14 @@ public enum ConstantsTripoliApp {
     public static final Color TRIPOLI_STARTING_YELLOW = new Color(243.0 / 256.0, 227.0 / 256.0, 118.0 / 256.0, 1.0);
     public static final Color TRIPOLI_SESSION_LINEN = Color.LINEN;
     public static final Color TRIPOLI_ANALYSIS_YELLOW = Color.web("#fbf6d5");
+    public static final Color TRIPOLI_ANALYSIS_GREEN = Color.web("#AFFF80");
+    public static final Color TRIPOLI_ANALYSIS_RED = Color.web("#FF7377");
+
 
     public static @NonNls String convertColorToHex(Color color) {
-        String red = Integer.toHexString((int) (color.getRed() * 256));
-        String green = Integer.toHexString((int) (color.getGreen() * 256));
-        String blue = Integer.toHexString((int) (color.getBlue() * 256));
+        String red = Integer.toHexString((int) (color.getRed() * 255));
+        String green = Integer.toHexString((int) (color.getGreen() * 255));
+        String blue = Integer.toHexString((int) (color.getBlue() * 255));
 
         return "#" + red + green + blue;
     }

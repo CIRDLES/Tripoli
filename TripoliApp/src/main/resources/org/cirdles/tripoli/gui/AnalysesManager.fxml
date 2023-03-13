@@ -34,7 +34,8 @@
         <RowConstraints maxHeight="25.0" minHeight="25.0" prefHeight="25.0" valignment="CENTER" vgrow="NEVER"/>
         <RowConstraints maxHeight="90.0" minHeight="90.0" prefHeight="90.0" valignment="TOP" vgrow="SOMETIMES"/>
         <RowConstraints maxHeight="90.0" minHeight="90.0" prefHeight="90.0" valignment="TOP" vgrow="SOMETIMES"/>
-        <RowConstraints maxHeight="300.0" minHeight="300.0" prefHeight="300.0" valignment="TOP" vgrow="SOMETIMES"/>
+        <RowConstraints maxHeight="270.0" minHeight="270.0" prefHeight="270.0" valignment="TOP" vgrow="SOMETIMES"/>
+        <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES"/>
         <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES"/>
     </rowConstraints>
     <padding>
@@ -70,21 +71,27 @@
     <TextField fx:id="dataFilePathNameTextField" editable="false" prefHeight="26.0" prefWidth="1064.0"
                promptText="Data File Path Name" GridPane.columnIndex="1" GridPane.hgrow="NEVER" GridPane.rowIndex="3"/>
     <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0"
-           style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Actions:" GridPane.rowIndex="7"/>
+           style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Actions:" GridPane.rowIndex="8"/>
     <ToolBar maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="1085.0"
-             style="-fx-background-color: transparent;" GridPane.columnIndex="1" GridPane.rowIndex="7">
+             style="-fx-background-color: transparent;" GridPane.columnIndex="1" GridPane.rowIndex="8">
         <Button mnemonicParsing="false" onAction="#selectDataFileButtonAction" text="Select and load Data File"/>
         <Button layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectMethodFileButtonAction"
                 text="Select and load Method File"/>
         <Button layoutX="165.0" layoutY="7.0" mnemonicParsing="false" onAction="#initializeMonteCarloTechniqueAction"
                 style="-fx-text-fill: RED;"
-                text="Run Monte Carlo Technique on an analysis block and plot some results"/>
+                text="Run Monte Carlo Technique on analysis blocks and plot results"/>
     </ToolBar>
     <Label prefHeight="58.0" prefWidth="114.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;"
            text="Analysis Method with Detector Details from Data File:" textAlignment="RIGHT" wrapText="true"
            GridPane.rowIndex="6"/>
     <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0"
            style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Data Summary:" GridPane.rowIndex="5"/>
+    <TextArea fx:id="metaDataTextArea" editable="false" prefHeight="200.0" prefWidth="200.0"
+              style="-fx-font-family: Monospaced; -fx-font-weight: BOLD;" text="No meta data" GridPane.columnIndex="1"
+              GridPane.rowIndex="4"/>
+    <TextArea fx:id="dataSummaryTextArea" editable="false" prefHeight="200.0" prefWidth="200.0"
+              style="-fx-font-family: Monospaced; -fx-font-weight: BOLD;" text="No data" GridPane.columnIndex="1"
+              GridPane.rowIndex="5"/>
     <TabPane fx:id="analysiMethodTabPane" style="-fx-border-color: BLACK;" tabMaxHeight="20.0" tabMinHeight="20.0"
              GridPane.columnIndex="1" GridPane.rowIndex="6">
         <Tab closable="false" text="About">
@@ -129,10 +136,9 @@
             </ScrollPane>
         </Tab>
     </TabPane>
-    <TextArea fx:id="metaDataTextArea" editable="false" prefHeight="200.0" prefWidth="200.0"
-              style="-fx-font-family: Monospaced; -fx-font-weight: BOLD;" text="No meta data" GridPane.columnIndex="1"
-              GridPane.rowIndex="4"/>
-    <TextArea fx:id="dataSummaryTextArea" editable="false" prefHeight="200.0" prefWidth="200.0"
-              style="-fx-font-family: Monospaced; -fx-font-weight: BOLD;" text="No data" GridPane.columnIndex="1"
-              GridPane.rowIndex="5"/>
+    <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0"
+           style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Block Process Status:" GridPane.rowIndex="7"/>
+    <HBox fx:id="blockStatusHBox" prefHeight="100.0" prefWidth="200.0"
+          style="-fx-background-color: white; -fx-border-color: green; -fx-border-width: 2;" GridPane.columnIndex="1"
+          GridPane.rowIndex="7"/>
 </GridPane>

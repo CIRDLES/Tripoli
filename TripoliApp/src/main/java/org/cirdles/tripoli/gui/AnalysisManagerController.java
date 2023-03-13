@@ -4,16 +4,18 @@ import jakarta.xml.bind.JAXBException;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
@@ -29,8 +31,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
-import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_ANALYSIS_YELLOW;
-import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColorToHex;
+import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
 import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDialog;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectDataFile;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectMethodFile;
@@ -43,6 +44,8 @@ public class AnalysisManagerController implements Initializable {
     private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
     public Tab detectorDetailTab;
     public TabPane analysiMethodTabPane;
+    @FXML
+    public HBox blockStatusHBox;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -139,6 +142,8 @@ public class AnalysisManagerController implements Initializable {
         }
 
         populateAnalysisMethodGridPane();
+
+        populateBlocksStatus();
     }
 
     private void populateAnalysisDataFields() {
@@ -257,6 +262,26 @@ public class AnalysisManagerController implements Initializable {
                 methodGridPane.getRowConstraints().add(new RowConstraints(25));
             }
         }
+    }
+
+    private void populateBlocksStatus() {
+        var massSpecExtractedData = analysis.getMassSpecExtractedData();
+        Map<Integer, MassSpecOutputSingleBlockRecord> blocksData = massSpecExtractedData.getBlocksData();
+        for (MassSpecOutputSingleBlockRecord block : blocksData.values()) {
+            CheckBox blockStatusCheckbox = blockStatusCheckboxFactory(String.valueOf(block.blockNumber()), TRIPOLI_ANALYSIS_RED);
+            blockStatusHBox.getChildren().add(blockStatusCheckbox);
+        }
+    }
+
+    private CheckBox blockStatusCheckboxFactory(String blockID, Color backgroundColor) {
+        CheckBox blockStatusCheckbox = new CheckBox(blockID);
+        blockStatusCheckbox.setPrefSize(45.0, 25.0);
+        blockStatusCheckbox.setStyle("-fx-background-color: " + convertColorToHex(backgroundColor) + ";-fx-border-color: BLACK");
+        blockStatusCheckbox.setPadding(new Insets(0003));
+        blockStatusCheckbox.setFont(Font.font("Monospaced", FontWeight.EXTRA_BOLD, 12));
+        blockStatusCheckbox.setId(blockID);
+
+        return blockStatusCheckbox;
     }
 
     @FXML

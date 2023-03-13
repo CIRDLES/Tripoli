@@ -25,20 +25,20 @@ public class ComboPlotBuilder extends PlotBuilder {
     private final double[] yData2;
     private final boolean yData2OneSigma;
 
-    protected ComboPlotBuilder(double[] xData, double[] yData, double[] yData2, boolean yData2OneSigma, String[] title) {
-        super(title, "", "");
+    protected ComboPlotBuilder(double[] xData, double[] yData, double[] yData2, boolean yData2OneSigma, String[] title, String xAxisLabel, String yAxisLabel) {
+        super(title, xAxisLabel, yAxisLabel);
         this.xData = xData;
         this.yData = yData;
         this.yData2 = yData2;
         this.yData2OneSigma = yData2OneSigma;
     }
 
-    public static ComboPlotBuilder initializeLinePlot(double[] xData, double[] yData, double[] yData2, String[] title) {
-        return new ComboPlotBuilder(xData, yData, yData2, false, title);
+    public static ComboPlotBuilder initializeLinePlot(double[] xData, double[] yData, double[] yData2, String[] title, String xAxisLabel, String yAxisLabel) {
+        return new ComboPlotBuilder(xData, yData, yData2, false, title, xAxisLabel, yAxisLabel);
     }
 
-    public static ComboPlotBuilder initializeLinePlotWithOneSigma(double[] xData, double[] yData, double[] yData2, String[] title) {
-        return new ComboPlotBuilder(xData, yData, yData2, true, title);
+    public static ComboPlotBuilder initializeLinePlotWithOneSigma(double[] xData, double[] yData, double[] yData2, String[] title, String xAxisLabel, String yAxisLabel) {
+        return new ComboPlotBuilder(xData, yData, yData2, true, title, xAxisLabel, yAxisLabel);
     }
 
     public double[] getyData() {
