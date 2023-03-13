@@ -283,7 +283,7 @@ public enum SingleBlockDataModelPlot {
         double detectorFaradayGain = singleBlockInitialModelRecordInitial.detectorFaradayGain();
         double[] baselineMeansArray = singleBlockInitialModelRecordInitial.baselineMeansArray();
         double[] dataCountsModelOneSigma = new double[totalIntensityCount];
-        double[] integrationTimes  = new double[totalIntensityCount];
+        double[] integrationTimes = new double[totalIntensityCount];
 
         List<Integer> isotopeOrdinalIndicesAccumulatorList = singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().isotopeOrdinalIndicesAccumulatorList();
         List<Integer> detectorOrdinalIndicesAccumulatorList = singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().detectorOrdinalIndicesAccumulatorList();

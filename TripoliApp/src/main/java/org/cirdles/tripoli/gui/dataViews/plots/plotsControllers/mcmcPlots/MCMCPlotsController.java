@@ -1,6 +1,5 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
 
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
@@ -149,7 +148,7 @@ public class MCMCPlotsController {
                     String[] data = newValue.split(">%");
                     try {
                         double percent = Double.parseDouble(data[0]) / MCMCProcess.getModelCount();
-                        if (progressBar.getProgress() < percent){
+                        if (progressBar.getProgress() < percent) {
                             progressBar.setProgress(percent);
                         }
                     } catch (NumberFormatException e) {
@@ -313,9 +312,10 @@ public class MCMCPlotsController {
         int blockNumber = listViewOfBlocks.getSelectionModel().getSelectedIndex();
         viewSelectedBlock(blockNumber);
     }
+
     public void viewSelectedBlock(int blockNumber) {
         Task<String> mcmcPlotBuildersTask = ((MCMCUpdatesService) services[blockNumber]).getPlotBuilderTask();
-        if ((mcmcPlotBuildersTask != null) && mcmcPlotBuildersTask.isDone()) {
+        if ((null != mcmcPlotBuildersTask) && mcmcPlotBuildersTask.isDone()) {
             plotEngine(mcmcPlotBuildersTask);
             showLogsEngine(blockNumber);
         }

@@ -137,9 +137,9 @@ public class Analysis implements Serializable, AnalysisInterface {
         return retVal;
     }
 
-    public String uppdateLogsByBlock(int blockNumber, String logEntry){
+    public String uppdateLogsByBlock(int blockNumber, String logEntry) {
         String log = "";
-        if (mapOfBlockToLogs.containsKey(blockNumber)){
+        if (mapOfBlockToLogs.containsKey(blockNumber)) {
             log = mapOfBlockToLogs.get(blockNumber);
         }
         String retVal = log + "\n" + logEntry;

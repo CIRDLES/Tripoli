@@ -44,17 +44,17 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public class MCMCProcess {
 
     public static boolean ALLOW_EXECUTION = true;
+    private static int maxIterationCount;
+    private static int stepCountForcedSave;
+    private static int modelCount;
     private final SingleBlockModelRecord singleBlockInitialModelRecord_X0;
     private final AnalysisMethod analysisMethod;
     private final SingleBlockDataSetRecord singleBlockDataSetRecord;
     List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
     private int faradayCount;
     private int ratioCount;
-    private static int maxIterationCount;
     private boolean hierarchical;
     private double tempering;
-    private static int stepCountForcedSave;
-    private static int modelCount;
     private int burnInThreshold;
     private double[] baselineMultiplier;
     private ProposedModelParameters.ProposalRangesRecord proposalRangesRecord;
@@ -73,10 +73,6 @@ public class MCMCProcess {
     private double[][] delx_adapt;
 
 
-    public static int getModelCount() {
-        return modelCount;
-    }
-
     private MCMCProcess(AnalysisMethod analysisMethod, SingleBlockDataSetRecord singleBlockDataSetRecord, SingleBlockModelRecord singleBlockInitialModelRecord) {
         this.analysisMethod = analysisMethod;
         this.singleBlockDataSetRecord = singleBlockDataSetRecord;
@@ -85,6 +81,10 @@ public class MCMCProcess {
         stepCountForcedSave = 100;
         modelCount = maxIterationCount * stepCountForcedSave;
 
+    }
+
+    public static int getModelCount() {
+        return modelCount;
     }
 
     public static synchronized MCMCProcess createMCMCProcess(AnalysisMethod analysisMethod, SingleBlockDataSetRecord singleBlockDataSetRecord, SingleBlockModelRecord singleBlockInitialModelRecord) {
@@ -572,39 +572,7 @@ public class MCMCProcess {
 
                     if (0 == modelIndex % (10 * stepCountForcedSave)) {
                         loggingSnippet =
-                                "" + modelIndex +
-                                " >%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
-                                        + " ADAPTIVE = " + adaptiveFlag
-                                        + "  BLOCK # " + singleBlockInitialModelRecord_initial.blockNumber()
-                                        + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
-                                        + "\nError function = "
-                                        + statsFormat.format(StrictMath.sqrt(initialModelErrorUnWeighted_E0 / countOfData))
-
-                                        + "\nChange Log Ratio: "
-                                        + keptUpdates[0][0]
-                                        + " of "
-                                        + keptUpdates[0][1]
-                                        + " accepted (" + statsFormat.format(100.0 * keptUpdates[0][2] / keptUpdates[0][3]) + "% total)"
-
-                                        + "\nChange Intensity: "
-                                        + keptUpdates[1][0]
-                                        + " of "
-                                        + keptUpdates[1][1]
-                                        + " accepted (" + statsFormat.format(100.0 * keptUpdates[1][2] / keptUpdates[1][3]) + "% total)"
-
-                                        + "\nChange DF Gain: "
-                                        + keptUpdates[2][0]
-                                        + " of "
-                                        + keptUpdates[2][1]
-                                        + " accepted (" + statsFormat.format(100.0 * keptUpdates[2][2] / keptUpdates[2][3]) + "% total)"
-
-                                        + "\nChange Baseline: "
-                                        + keptUpdates[3][0]
-                                        + " of "
-                                        + keptUpdates[3][1]
-                                        + " accepted (" + statsFormat.format(100.0 * keptUpdates[3][2] / keptUpdates[3][3]) + "% total)"
-
-                                        + (hierarchical ?
+                                modelIndex + " >%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%" + " ADAPTIVE = " + adaptiveFlag + "  BLOCK # " + singleBlockInitialModelRecord_initial.blockNumber() + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex + "\nError function = " + statsFormat.format(StrictMath.sqrt(initialModelErrorUnWeighted_E0 / countOfData)) + "\nChange Log Ratio: " + keptUpdates[0][0] + " of " + keptUpdates[0][1] + " accepted (" + statsFormat.format(100.0 * keptUpdates[0][2] / keptUpdates[0][3]) + "% total)" + "\nChange Intensity: " + keptUpdates[1][0] + " of " + keptUpdates[1][1] + " accepted (" + statsFormat.format(100.0 * keptUpdates[1][2] / keptUpdates[1][3]) + "% total)" + "\nChange DF Gain: " + keptUpdates[2][0] + " of " + keptUpdates[2][1] + " accepted (" + statsFormat.format(100.0 * keptUpdates[2][2] / keptUpdates[2][3]) + "% total)" + "\nChange Baseline: " + keptUpdates[3][0] + " of " + keptUpdates[3][1] + " accepted (" + statsFormat.format(100.0 * keptUpdates[3][2] / keptUpdates[3][3]) + "% total)" + (hierarchical ?
                                         ("\nNoise: "
                                                 + keptUpdates[4][0]
                                                 + " of "
@@ -617,8 +585,7 @@ public class MCMCProcess {
                                                 + " Interval4 " + (interval4 / 1000)
                                                 + " Interval5 " + (interval5 / 1000)
                                         )
-                                        : "")
-                                        + "\n";
+                                        : "") + "\n";
 
                         System.err.println("\n" + loggingSnippet);
                         loggingCallback.receiveLoggingSnippet(loggingSnippet);
