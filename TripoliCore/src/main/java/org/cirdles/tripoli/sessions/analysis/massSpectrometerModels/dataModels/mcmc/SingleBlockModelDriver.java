@@ -31,6 +31,8 @@ import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelInitForMCMC.initializeModelForSingleBlockMCMC;
 
@@ -100,9 +102,32 @@ public enum SingleBlockModelDriver {
 
         int[] onPeakStartingIndicesOfCycles = massSpecOutputSingleBlockRecord.onPeakStartingIndicesOfCycles();
 
+
+        Map<String, List<Double>> blockMapIdsToDataTimes = new TreeMap<>();
+        for (String id : onPeakFaradayDataSetMCMC.blockMapOfIdsToData().keySet()) {
+            if (!blockMapIdsToDataTimes.containsKey(id)) {
+                blockMapIdsToDataTimes.put(id, new ArrayList<>());
+            }
+        }
+        for (String id : onPeakPhotoMultiplierDataSetMCMC.blockMapOfIdsToData().keySet()) {
+            if (!blockMapIdsToDataTimes.containsKey(id)) {
+                blockMapIdsToDataTimes.put(id, new ArrayList<>());
+            }
+        }
+        for (String id : blockMapIdsToDataTimes.keySet()) {
+            if (onPeakFaradayDataSetMCMC.blockMapOfIdsToData().get(id) != null) {
+                blockMapIdsToDataTimes.get(id).addAll(onPeakFaradayDataSetMCMC.blockMapOfIdsToData().get(id));
+            }
+            if (onPeakPhotoMultiplierDataSetMCMC.blockMapOfIdsToData().get(id) != null) {
+                blockMapIdsToDataTimes.get(id).addAll(onPeakPhotoMultiplierDataSetMCMC.blockMapOfIdsToData().get(id));
+            }
+        }
+
+
         SingleBlockDataSetRecord singleBlockDataSetRecord =
                 new SingleBlockDataSetRecord(blockNumber, baselineDataSetMCMC, onPeakFaradayDataSetMCMC, onPeakPhotoMultiplierDataSetMCMC, blockKnotInterpolationStore,
-                        blockIntensityArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeIndicesArray, onPeakStartingIndicesOfCycles);
+                        blockIntensityArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeIndicesArray, onPeakStartingIndicesOfCycles,
+                        blockMapIdsToDataTimes);
 
         return singleBlockDataSetRecord;
     }

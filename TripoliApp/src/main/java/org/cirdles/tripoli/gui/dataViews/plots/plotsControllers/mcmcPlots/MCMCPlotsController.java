@@ -148,9 +148,9 @@ public class MCMCPlotsController {
                     String[] data = newValue.split(">%");
                     try {
                         double percent = Double.parseDouble(data[0]) / MCMCProcess.getModelCount();
-                        if (progressBar.getProgress() < percent) {
-                            progressBar.setProgress(percent);
-                        }
+                        //if (progressBar.getProgress() < percent) {
+                        progressBar.setProgress(percent);
+                        // }
                     } catch (NumberFormatException e) {
                         //
                     }
@@ -202,6 +202,8 @@ public class MCMCPlotsController {
 
         PlotBuilder[] convergeIntensityLinesBuilder = plotBuildersTask.getConvergeIntensityLinesBuilder();
 
+        PlotBuilder[] observedDataWithSubsetsLineBuilder = plotBuildersTask.getObservedDataWithSubsetsLineBuilder();
+
 
         // plotting revision +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         PlotWallPane ensemblePlotsWallPane = new PlotWallPane();
@@ -229,6 +231,7 @@ public class MCMCPlotsController {
         dataFitPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         dataFitPlotsAnchorPane.getChildren().add(dataFitPlotsWallPane);
         produceTripoliBasicScatterAndLinePlots(observedDataPlotBuilder, dataFitPlotsWallPane);
+        produceTripoliBasicScatterAndLinePlots(observedDataWithSubsetsLineBuilder, dataFitPlotsWallPane);
         produceTripoliBasicScatterAndLinePlots(residualDataPlotBuilder, dataFitPlotsWallPane);
         dataFitPlotsWallPane.stackPlots();
 

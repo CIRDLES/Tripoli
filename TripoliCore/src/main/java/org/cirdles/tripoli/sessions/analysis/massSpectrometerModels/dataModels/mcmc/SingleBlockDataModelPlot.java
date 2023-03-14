@@ -180,7 +180,7 @@ public enum SingleBlockDataModelPlot {
         }
 
         // visualization - Ensembles tab
-        PlotBuilder[][] plotBuilders = new PlotBuilder[15][1];
+        PlotBuilder[][] plotBuilders = new PlotBuilder[16][1];
 
         plotBuilders[0] = new PlotBuilder[ensembleRatios.length];
         for (int i = 0; i < ensembleRatios.length; i++) {
@@ -356,6 +356,9 @@ public enum SingleBlockDataModelPlot {
 
         plotBuilders[13][0] = ComboPlotBuilder.initializeLinePlot(
                 integrationTimes, dataOriginalCounts, dataArray, new String[]{"Observed Data"}, "Integration Time", "Intensity");
+        plotBuilders[15][0] = ComboPlotBuilder.initializeLinePlotWithSubsets(
+                integrationTimes, dataOriginalCounts, dataArray, singleBlockDataSetRecord.blockMapIdsToDataTimes(),
+                new String[]{"Observed Data"}, "Integration Time", "Intensity by Sequence");
         plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(
                 integrationTimes, yDataResiduals, dataCountsModelOneSigma, new String[]{"Residual Data"}, "Integration Time", "Intensity");
 

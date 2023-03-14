@@ -43,6 +43,7 @@ import java.util.Formatter;
  * @author James F. Bowring
  */
 public abstract class AbstractPlot extends Canvas {
+
     protected double x;
     protected double y;
     protected double width;

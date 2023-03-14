@@ -3,16 +3,23 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_PALLETTE_FOUR;
 
 
 public class BasicScatterAndLinePlot extends AbstractPlot {
 
     private final ComboPlotBuilder comboPlotBuilder;
-    private double[] yAxisData2;
     private final int plottingStep;
+    private double[] yAxisData2;
 
     /**
      * @param bounds
@@ -85,6 +92,33 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
         g2d.setStroke(Paint.valueOf("Black"));
         for (int i = 0; i < xAxisData.length; i += plottingStep) {
             g2d.strokeOval(mapX(xAxisData[i]) - 2.0f, mapY(yAxisData[i]) - 2.0f, 4.0f, 4.0f);
+        }
+
+        g2d.setFont(Font.font("SansSerif", 18));
+        if (!comboPlotBuilder.getBlockMapOfIdsToData().isEmpty()) {
+            int colorIndex = 0;
+            List<Double> xAxisDataList = new ArrayList<>();
+            for (double d : xAxisData) xAxisDataList.add(d);
+            Collections.sort(xAxisDataList);
+            for (String sequenceID : comboPlotBuilder.getBlockMapOfIdsToData().keySet()) {
+                g2d.setFill(Paint.valueOf(TRIPOLI_PALLETTE_FOUR[colorIndex]));
+                List<Double> timeList = comboPlotBuilder.getBlockMapOfIdsToData().get(sequenceID);
+                Collections.sort(timeList);
+                for (double time : timeList) {
+                    int timeIndex = xAxisDataList.indexOf(time);
+                    do {
+                        if (0 == timeIndex % plottingStep) {
+                            g2d.fillOval(mapX(xAxisData[timeIndex]) - 2.0f, mapY(yAxisData[timeIndex]) - 2.0f, 4.0f, 4.0f);
+                        }
+                        timeIndex++;
+                    } while ((timeIndex < xAxisData.length) && xAxisData[timeIndex - 1] == xAxisData[timeIndex]);
+                }
+
+                // legend
+                g2d.fillText(sequenceID, leftMargin + 10, topMargin + 20 * (colorIndex + 1));
+                colorIndex++;
+            }
+
         }
 
         // new line plot from yAxisData2
