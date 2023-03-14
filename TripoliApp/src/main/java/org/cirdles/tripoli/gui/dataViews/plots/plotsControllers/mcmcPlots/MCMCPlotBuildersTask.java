@@ -48,6 +48,8 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
     private PlotBuilder[] convergeNoiseFaradayLineBuilder;
 
+    private PlotBuilder[] observedDataWithSubsetsLineBuilder;
+
     public MCMCPlotBuildersTask(int blockNumber) {
         this.blockNumber = blockNumber;
     }
@@ -117,6 +119,10 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         return convergeNoiseFaradayLineBuilder.clone();
     }
 
+    public PlotBuilder[] getObservedDataWithSubsetsLineBuilder() {
+        return observedDataWithSubsetsLineBuilder;
+    }
+
     @Override
     public synchronized String call() throws Exception {
         PlotBuilder[][] plots = analysis.updatePlotsByBlock(blockNumber, this);
@@ -138,6 +144,8 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
         observedDataLineBuilder = plots[13];
         residualDataLineBuilder = plots[14];
+
+        observedDataWithSubsetsLineBuilder = plots[15];
 
         return analysis.getDataFilePathString() + "Block # " + blockNumber + "\n\n\tDONE - view tabs for various plots";
     }

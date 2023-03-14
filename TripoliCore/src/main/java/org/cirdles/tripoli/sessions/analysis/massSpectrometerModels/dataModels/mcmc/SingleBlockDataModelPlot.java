@@ -180,7 +180,7 @@ public enum SingleBlockDataModelPlot {
         }
 
         // visualization - Ensembles tab
-        PlotBuilder[][] plotBuilders = new PlotBuilder[15][1];
+        PlotBuilder[][] plotBuilders = new PlotBuilder[16][1];
 
         plotBuilders[0] = new PlotBuilder[ensembleRatios.length];
         for (int i = 0; i < ensembleRatios.length; i++) {
@@ -346,26 +346,21 @@ public enum SingleBlockDataModelPlot {
         }
 
 
-        int plottingStep = 10;
         double[] dataOriginalCounts = singleBlockDataSetRecord.blockIntensityArray().clone();
-        double[] xDataIndex = new double[dataOriginalCounts.length / plottingStep];
-        double[] yDataCounts = new double[dataOriginalCounts.length / plottingStep];
-        double[] yDataModelCounts = new double[dataOriginalCounts.length / plottingStep];
-
-        double[] yDataResiduals = new double[dataOriginalCounts.length / plottingStep];
-        double[] yDataSigmas = new double[dataOriginalCounts.length / plottingStep];
+        double[] yDataResiduals = new double[dataOriginalCounts.length];
 
         Arrays.sort(integrationTimes);
-        for (int i = 0; i < dataOriginalCounts.length / plottingStep; i++) {
-            xDataIndex[i] = integrationTimes[i * plottingStep];
-            yDataCounts[i] = dataOriginalCounts[i * plottingStep];
-            yDataModelCounts[i] = dataArray[i * plottingStep];
-            yDataResiduals[i] = dataOriginalCounts[i * plottingStep] - dataArray[i * plottingStep];
-            yDataSigmas[i] = dataCountsModelOneSigma[i * plottingStep];
+        for (int i = 0; i < dataOriginalCounts.length; i++) {
+            yDataResiduals[i] = dataOriginalCounts[i] - dataArray[i];
         }
-        plotBuilders[13][0] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, new String[]{"Observed Data"}, "Integration Time", "Intensity");
 
-        plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, new String[]{"Residual Data"}, "Integration Time", "Intensity");
+        plotBuilders[13][0] = ComboPlotBuilder.initializeLinePlot(
+                integrationTimes, dataOriginalCounts, dataArray, new String[]{"Observed Data"}, "Integration Time", "Intensity");
+        plotBuilders[15][0] = ComboPlotBuilder.initializeLinePlotWithSubsets(
+                integrationTimes, dataOriginalCounts, dataArray, singleBlockDataSetRecord.blockMapIdsToDataTimes(),
+                new String[]{"Observed Data by Sequence"}, "Integration Time", "Intensity");
+        plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(
+                integrationTimes, yDataResiduals, dataCountsModelOneSigma, new String[]{"Residual Data"}, "Integration Time", "Intensity");
 
 
         // todo: missing additional elements of signalNoiseSigma (i.e., 0,11,11)
