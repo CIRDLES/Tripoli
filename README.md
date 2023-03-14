@@ -25,6 +25,9 @@ Installation Instructions
    executable is in the "bin" folder and is named "java"  for Mac and Linux, and "java.exe" for Windows. To run the
    Tripoli "jar" file, open a terminal window and paste in the path to the java executable, followed by a space
    character and the flag "-jar" followed by a space character and the path to the Tripoli "jar" file.
+   
+**NOTE: 9.March.2023.**  Tripoli is providing a large number of plots and may cause performance errors during rendering.  
+    The fix is described [here](https://bell-sw.com/announcements/2022/04/26/insufficient-video-memory-causing-nullpointerexceptions-in-javafx-apps/).  Thus, when launching the '.jar' file as described below, add " -Dprism.maxvram=2G " between "java" and "-jar."
 
 Windows example using Zulu from Azul assuming terminal is running in folder containing Tripoli "jar":
 

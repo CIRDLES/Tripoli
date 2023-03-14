@@ -24,27 +24,33 @@ public class MultiLinePlotBuilder extends PlotBuilder {
 
     @Serial
     private static final long serialVersionUID = 7957148103741755713L;
-    private double[] xData;
+    private double[][] xData;
     private double[][] yData;
+    private boolean markerInLastLine;
 
     public MultiLinePlotBuilder() {
     }
 
-    private MultiLinePlotBuilder(double[] xData, double[][] yData, String[] title, String xAxisLabel, String yAxisLabel) {
+    private MultiLinePlotBuilder(double[][] xData, double[][] yData, String[] title, String xAxisLabel, String yAxisLabel, boolean markerInLastLine) {
         super(title, xAxisLabel, yAxisLabel);
         this.xData = xData;
         this.yData = yData;
+        this.markerInLastLine = markerInLastLine;
     }
 
-    public static MultiLinePlotBuilder initializeLinePlot(double[] xData, double[][] yData, String[] title, String xAxisLabel, String yAxisLabel) {
-        return new MultiLinePlotBuilder(xData, yData, title, xAxisLabel, yAxisLabel);
+    public static MultiLinePlotBuilder initializeLinePlot(double[][] xData, double[][] yData, String[] title, String xAxisLabel, String yAxisLabel, boolean markerInLastLine) {
+        return new MultiLinePlotBuilder(xData, yData, title, xAxisLabel, yAxisLabel, markerInLastLine);
     }
 
     public double[][] getyData() {
         return yData;
     }
 
-    public double[] getxData() {
+    public double[][] getxData() {
         return xData;
+    }
+
+    public boolean isMarkerInLastLine() {
+        return markerInLastLine;
     }
 }

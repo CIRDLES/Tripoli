@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 public record SingleBlockModelRecord(
+        int blockNumber,
         double[] baselineMeansArray,
         double[] baselineStandardDeviationsArray,
         double detectorFaradayGain,
@@ -36,6 +37,7 @@ public record SingleBlockModelRecord(
 ) implements Serializable {
     public SingleBlockModelRecord clone() {
         return new SingleBlockModelRecord(
+                blockNumber,
                 baselineMeansArray.clone(),
                 baselineStandardDeviationsArray.clone(),
                 detectorFaradayGain,

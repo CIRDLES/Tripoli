@@ -22,9 +22,7 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
-import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLabCholesky;
-import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
@@ -38,7 +36,7 @@ import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalRangesRecord;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalSigmasRecord;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelUpdater.*;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelUpdater.operations;
 
 /**
  * @author James F. Bowring
@@ -46,16 +44,17 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public class MCMCProcess {
 
     public static boolean ALLOW_EXECUTION = true;
+    private static int maxIterationCount = 2000;
+    private static int stepCountForcedSave = 100;
+    private static int modelCount = maxIterationCount * stepCountForcedSave;
     private final SingleBlockModelRecord singleBlockInitialModelRecord_X0;
     private final AnalysisMethod analysisMethod;
     private final SingleBlockDataSetRecord singleBlockDataSetRecord;
     List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
     private int faradayCount;
     private int ratioCount;
-    private int maxIterationCount;
     private boolean hierarchical;
     private double tempering;
-    private int stepCountForcedSave;
     private int burnInThreshold;
     private double[] baselineMultiplier;
     private ProposedModelParameters.ProposalRangesRecord proposalRangesRecord;
@@ -80,7 +79,11 @@ public class MCMCProcess {
         singleBlockInitialModelRecord_X0 = singleBlockInitialModelRecord;
     }
 
-    public static MCMCProcess createMCMCProcess(AnalysisMethod analysisMethod, SingleBlockDataSetRecord singleBlockDataSetRecord, SingleBlockModelRecord singleBlockInitialModelRecord) {
+    public static int getModelCount() {
+        return modelCount;
+    }
+
+    public static synchronized MCMCProcess createMCMCProcess(AnalysisMethod analysisMethod, SingleBlockDataSetRecord singleBlockDataSetRecord, SingleBlockModelRecord singleBlockInitialModelRecord) {
         /*
             % MCMC Parameters
             maxcnt = 2000;  % Maximum number of models to save
@@ -126,10 +129,10 @@ public class MCMCProcess {
             Ndata=d0.Ndata; % Number of picks
             Nsig = d0.Nsig; % Number of noise variables
          */
-        maxIterationCount = 2000;
+//        maxIterationCount = 2000;
         hierarchical = true;
         tempering = 1.0;
-        stepCountForcedSave = 100;
+//        stepCountForcedSave = 100;
         burnInThreshold = 10;
         startingIndexOfFaradayData = singleBlockDataSetRecord.getCountOfBaselineIntensities();
         startingIndexOfPhotoMultiplierData = startingIndexOfFaradayData + singleBlockDataSetRecord.getCountOfOnPeakFaradayIntensities();
@@ -224,7 +227,7 @@ public class MCMCProcess {
         }
     }
 
-    public PlotBuilder[][] applyInversionWithAdaptiveMCMC(LoggingCallbackInterface loggingCallback) {
+    public synchronized PlotBuilder[][] applyInversionWithAdaptiveMCMC(LoggingCallbackInterface loggingCallback) {
 
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         SingleBlockModelRecord singleBlockInitialModelRecord_initial = singleBlockInitialModelRecord_X0.clone();
@@ -255,8 +258,9 @@ public class MCMCProcess {
         StopWatch watch = new StopWatch();
         watch.start();
         int counter = 0;
-        int[] operationOrder = preOrderOpsMS(singleBlockInitialModelRecord_initial, maxIterationCount * stepCountForcedSave);
-        buildPriorLimits(proposalSigmasRecord, proposalRangesRecord);
+        SingleBlockModelUpdater singleBlockModelUpdater = new SingleBlockModelUpdater();
+        int[] operationOrder = singleBlockModelUpdater.preOrderOpsMS(singleBlockInitialModelRecord_initial, maxIterationCount * stepCountForcedSave);
+        singleBlockModelUpdater.buildPriorLimits(proposalSigmasRecord, proposalRangesRecord);
 
         int countOfData = singleBlockInitialModelRecord_initial.dataArray().length;
         int[] detectorOrdinalIndices = singleBlockDataSetRecord.blockDetectorOrdinalIndicesArray();
@@ -264,32 +268,19 @@ public class MCMCProcess {
         int[] isotopeOrdinalIndicesArray = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
 
         String loggingSnippet = "";
-        for (int modelIndex = 1; modelIndex <= maxIterationCount * stepCountForcedSave; modelIndex++) {//*****************
+        for (int modelIndex = 1; modelIndex <= modelCount; modelIndex++) {//*****************
             if (ALLOW_EXECUTION) {
                 long prev = System.nanoTime();
 
                 // todo: handle adaptiveFlag case
-                boolean adaptiveFlag = (500 <= counter); // abandon for now
+                boolean adaptiveFlag = (500 <= counter);
                 boolean allFlag = adaptiveFlag;
                 int columnChoice = modelIndex % stepCountForcedSave;
                 double[] delx_adapt_slice = storeFactory.copy(Access2D.wrap(delx_adapt)).sliceColumn(columnChoice).toRawCopy1D();
 
-                // original way
-//            String operation = SingleBlockModelUpdater.randomOperation(hierarchical);
-//            SingleBlockModelRecord dataModelUpdaterOutputRecord_x2 = updateMSv2(
-//                    operation,
-//                    singleBlockInitialModelRecord_initial,
-//                    proposalSigmasRecord,
-//                    proposalRangesRecord,
-//                    xDataCovariance,
-//                    delx_adapt_slice,
-//                    adaptiveFlag,
-//                    allFlag
-//            );
-
                 // Scott's new way Feb 2023
-                String operation = randomOperMS_Preorder(operationOrder[modelIndex - 1]);
-                SingleBlockModelRecord dataModelUpdaterOutputRecord_x2 = updateMSv2Preorder(
+                String operation = singleBlockModelUpdater.randomOperMS_Preorder(operationOrder[modelIndex - 1]);
+                SingleBlockModelRecord dataModelUpdaterOutputRecord_x2 = singleBlockModelUpdater.updateMSv2Preorder(
                         operationOrder[modelIndex - 1],
                         singleBlockInitialModelRecord_initial,
                         proposalSigmasRecord,
@@ -474,6 +465,7 @@ public class MCMCProcess {
                     initialModelErrorUnWeighted_E0 = E02;
 
                     singleBlockInitialModelRecord_initial = new SingleBlockModelRecord(
+                            dataModelUpdaterOutputRecord_x2.blockNumber(),
                             dataModelUpdaterOutputRecord_x2.baselineMeansArray(),
                             dataModelUpdaterOutputRecord_x2.baselineStandardDeviationsArray(),
                             dataModelUpdaterOutputRecord_x2.detectorFaradayGain(),
@@ -521,7 +513,7 @@ public class MCMCProcess {
                     counter++;
                     ensembleRecordsList.add(new EnsemblesStore.EnsembleRecord(
                             singleBlockInitialModelRecord_initial.logRatios(),
-                            singleBlockInitialModelRecord_initial.intensities(),
+                            dataModelUpdaterOutputRecord_x2.I0(),
                             singleBlockInitialModelRecord_initial.baselineMeansArray(),
                             singleBlockInitialModelRecord_initial.detectorFaradayGain(),
                             singleBlockInitialModelRecord_initial.signalNoiseSigma(),
@@ -544,8 +536,8 @@ public class MCMCProcess {
                         n dimension of output matrix - datsav)';
                             stepCountForcedSave
                     */
-                        UpdatedCovariancesRecord updatedCovariancesRecord =
-                                updateMeanCovMS(singleBlockInitialModelRecord_initial, xDataCovariance, xDataMean, ensembleRecordsList, counter - covStart, false);
+                        SingleBlockModelUpdater.UpdatedCovariancesRecord updatedCovariancesRecord =
+                                singleBlockModelUpdater.updateMeanCovMS(singleBlockInitialModelRecord_initial, xDataCovariance, xDataMean, ensembleRecordsList, counter - covStart, false);
                         xDataCovariance = updatedCovariancesRecord.dataCov();
                         xDataMean = updatedCovariancesRecord.dataMean();
 
@@ -576,37 +568,7 @@ public class MCMCProcess {
 
                     if (0 == modelIndex % (10 * stepCountForcedSave)) {
                         loggingSnippet =
-                                "%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
-                                        + " ADAPTIVE = " + adaptiveFlag
-                                        + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
-                                        + "\nError function = "
-                                        + statsFormat.format(StrictMath.sqrt(initialModelErrorUnWeighted_E0 / countOfData))
-
-                                        + "\nChange Log Ratio: "
-                                        + keptUpdates[0][0]
-                                        + " of "
-                                        + keptUpdates[0][1]
-                                        + " accepted (" + statsFormat.format(100.0 * keptUpdates[0][2] / keptUpdates[0][3]) + "% total)"
-
-                                        + "\nChange Intensity: "
-                                        + keptUpdates[1][0]
-                                        + " of "
-                                        + keptUpdates[1][1]
-                                        + " accepted (" + statsFormat.format(100.0 * keptUpdates[1][2] / keptUpdates[1][3]) + "% total)"
-
-                                        + "\nChange DF Gain: "
-                                        + keptUpdates[2][0]
-                                        + " of "
-                                        + keptUpdates[2][1]
-                                        + " accepted (" + statsFormat.format(100.0 * keptUpdates[2][2] / keptUpdates[2][3]) + "% total)"
-
-                                        + "\nChange Baseline: "
-                                        + keptUpdates[3][0]
-                                        + " of "
-                                        + keptUpdates[3][1]
-                                        + " accepted (" + statsFormat.format(100.0 * keptUpdates[3][2] / keptUpdates[3][3]) + "% total)"
-
-                                        + (hierarchical ?
+                                modelIndex + " >%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%" + " ADAPTIVE = " + adaptiveFlag + "  BLOCK # " + singleBlockInitialModelRecord_initial.blockNumber() + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex + "\nError function = " + statsFormat.format(StrictMath.sqrt(initialModelErrorUnWeighted_E0 / countOfData)) + "\nChange Log Ratio: " + keptUpdates[0][0] + " of " + keptUpdates[0][1] + " accepted (" + statsFormat.format(100.0 * keptUpdates[0][2] / keptUpdates[0][3]) + "% total)" + "\nChange Intensity: " + keptUpdates[1][0] + " of " + keptUpdates[1][1] + " accepted (" + statsFormat.format(100.0 * keptUpdates[1][2] / keptUpdates[1][3]) + "% total)" + "\nChange DF Gain: " + keptUpdates[2][0] + " of " + keptUpdates[2][1] + " accepted (" + statsFormat.format(100.0 * keptUpdates[2][2] / keptUpdates[2][3]) + "% total)" + "\nChange Baseline: " + keptUpdates[3][0] + " of " + keptUpdates[3][1] + " accepted (" + statsFormat.format(100.0 * keptUpdates[3][2] / keptUpdates[3][3]) + "% total)" + (hierarchical ?
                                         ("\nNoise: "
                                                 + keptUpdates[4][0]
                                                 + " of "
@@ -619,8 +581,7 @@ public class MCMCProcess {
                                                 + " Interval4 " + (interval4 / 1000)
                                                 + " Interval5 " + (interval5 / 1000)
                                         )
-                                        : "")
-                                        + "\n";
+                                        : "") + "\n";
 
                         System.err.println("\n" + loggingSnippet);
                         loggingCallback.receiveLoggingSnippet(loggingSnippet);
@@ -639,15 +600,7 @@ public class MCMCProcess {
                 break;
             }
         }// end model loop
-        if (ALLOW_EXECUTION) {
-            // experiment with serializing results during development
-            EnsemblesStore ensemblesStore = new EnsemblesStore(ensembleRecordsList, singleBlockInitialModelRecord_initial);
-            try {
-                TripoliSerializer.serializeObjectToFile(ensemblesStore, "EnsemblesStore.ser");
-            } catch (TripoliException e) {
-                e.printStackTrace();
-            }
-        }
+
         return SingleBlockDataModelPlot.analysisAndPlotting(singleBlockDataSetRecord, ensembleRecordsList, singleBlockInitialModelRecord_initial, analysisMethod);
     }
 }

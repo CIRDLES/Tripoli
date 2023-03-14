@@ -295,7 +295,7 @@ public abstract class AbstractPlot extends Canvas {
         g2d.setFont(Font.font("SansSerif", 11));
         g2d.setFill(Paint.valueOf("RED"));
         g2d.fillText(plotTitle[0], leftMargin - 20, topMargin - 12);
-        if (plotTitle.length == 2){
+        if (2 == plotTitle.length) {
             g2d.fillText(plotTitle[1], leftMargin + 50, topMargin - 2);
         }
         g2d.setFill(savedPaint);

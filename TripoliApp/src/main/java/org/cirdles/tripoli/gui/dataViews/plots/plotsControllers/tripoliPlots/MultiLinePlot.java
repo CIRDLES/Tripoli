@@ -1,6 +1,7 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
@@ -10,6 +11,7 @@ import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
 public class MultiLinePlot extends AbstractPlot {
 
     private final MultiLinePlotBuilder multiLinePlotBuilder;
+    private double[][] xData;
     private double[][] yData;
 
     /**
@@ -30,7 +32,8 @@ public class MultiLinePlot extends AbstractPlot {
 
     @Override
     public void preparePanel() {
-        xAxisData = multiLinePlotBuilder.getxData();
+        xData = multiLinePlotBuilder.getxData();
+        xAxisData = xData[0];
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
 
@@ -76,23 +79,37 @@ public class MultiLinePlot extends AbstractPlot {
         // new line plots
         g2d.setLineWidth(1.0);
         g2d.setStroke(dataColor.color());
-        for (int lineIndex = 0; lineIndex < yData.length; lineIndex++) {
+        boolean isMarkerInLastLine = multiLinePlotBuilder.isMarkerInLastLine();
+
+        for (int lineIndex = 0; lineIndex < yData.length - (isMarkerInLastLine ? 1 : 0); lineIndex++) {
             g2d.setLineDashes(8);
             g2d.beginPath();
-            g2d.moveTo(mapX(xAxisData[0]), mapY(yData[lineIndex][0]));
-            for (int i = 0; i < xAxisData.length; i++) {
-                if (pointInPlot(xAxisData[i], yData[lineIndex][i])) {
+            g2d.moveTo(mapX(xData[lineIndex][0]), mapY(yData[lineIndex][0]));
+            for (int i = 0; i < xData[lineIndex].length - (isMarkerInLastLine ? 1 : 0); i++) {
+                if (pointInPlot(xData[lineIndex][i], yData[lineIndex][i])) {
                     // line tracing through points
-                    g2d.lineTo(mapX(xAxisData[i]), mapY(yData[lineIndex][i]));
+                    g2d.lineTo(mapX(xData[lineIndex][i]), mapY(yData[lineIndex][i]));
                 } else {
                     // out of bounds
-                    g2d.moveTo(mapX(xAxisData[i]), mapY(yData[lineIndex][i]));
+                    g2d.moveTo(mapX(xData[lineIndex][i]), mapY(yData[lineIndex][i]));
                 }
             }
             g2d.stroke();
         }
+
+        if (isMarkerInLastLine) {
+            int markerDataIndex = xData.length - 1;
+            for (int i = 0; i < xData[markerDataIndex].length; i++) {
+                if (pointInPlot(xData[markerDataIndex][i], yData[markerDataIndex][i])) {
+                    g2d.setFill(Color.RED);
+                    g2d.setLineWidth(2.0);
+                    g2d.fillOval(mapX(xData[markerDataIndex][i]) - 2.5, mapY(yData[markerDataIndex][i]) - 2.5, 5.0, 5.0);
+                }
+            }
+        }
         g2d.setLineDashes(0);
     }
+
 
     @Override
     public void plotStats(GraphicsContext g2d) {

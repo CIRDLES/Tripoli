@@ -51,6 +51,7 @@ public enum SingleBlockDataAccumulatorMCMC {
         List<Integer> isotopeOrdinalIndicesAccumulatorList = new ArrayList<>();
 
         double[][] baselineIntensities = massSpecOutputSingleBlockRecord.baselineIntensities();
+        double[] baseLineTimeStamps = massSpecOutputSingleBlockRecord.baselineTimeStamps();
         Map<String, List<Integer>> mapOfBaselineIdsToIndices = massSpecOutputSingleBlockRecord.mapOfBaselineIdsToIndices();
 
         // this map is in ascending detector order
@@ -72,7 +73,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                             intensity = intensity * (ONE_COULOMB / amplifierResistance);
                         }
                         intensityAccumulatorList.add(intensity);
-                        timeAccumulatorList.add(0.0);
+                        timeAccumulatorList.add(baseLineTimeStamps[index]);
                         timeIndexAccumulatorList.add(index);
                         isotopeOrdinalIndicesAccumulatorList.add(analysisMethod.getSpeciesList().size());
                     }
@@ -81,6 +82,7 @@ public enum SingleBlockDataAccumulatorMCMC {
         }
 
         return new SingleBlockDataSetRecord.SingleBlockDataRecord(
+                massSpecOutputSingleBlockRecord.blockNumber(),
                 detectorOrdinalIndicesAccumulatorList,
                 intensityAccumulatorList,
                 timeAccumulatorList,
@@ -134,6 +136,7 @@ public enum SingleBlockDataAccumulatorMCMC {
         }
 
         return new SingleBlockDataSetRecord.SingleBlockDataRecord(
+                massSpecOutputSingleBlockRecord.blockNumber(),
                 detectorOrdinalIndicesAccumulatorList,
                 intensityAccumulatorList,
                 timeAccumulatorList,
