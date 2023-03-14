@@ -358,7 +358,7 @@ public enum SingleBlockDataModelPlot {
                 integrationTimes, dataOriginalCounts, dataArray, new String[]{"Observed Data"}, "Integration Time", "Intensity");
         plotBuilders[15][0] = ComboPlotBuilder.initializeLinePlotWithSubsets(
                 integrationTimes, dataOriginalCounts, dataArray, singleBlockDataSetRecord.blockMapIdsToDataTimes(),
-                new String[]{"Observed Data"}, "Integration Time", "Intensity by Sequence");
+                new String[]{"Observed Data by Sequence"}, "Integration Time", "Intensity");
         plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(
                 integrationTimes, yDataResiduals, dataCountsModelOneSigma, new String[]{"Residual Data"}, "Integration Time", "Intensity");
 
