@@ -59,15 +59,13 @@ public class PeakShapeDemoPlotsControllerTest {
     ListView<File> listViewOfResourcesInFolder;
 
     AbstractPlot peakCentreLinePlot;
+
+    PlotWallPane ensemblePlotsWallPane = new PlotWallPane();
     @FXML
     private ScrollPane resourceListScrollPane;
 
-
     @FXML
     private AnchorPane plotsAnchorPane;
-
-    @FXML
-    private AnchorPane plotPane;
 
     @FXML
     private VBox masterVBox;
@@ -192,6 +190,7 @@ public class PeakShapeDemoPlotsControllerTest {
             listViewOfGroupResourcesInFolder.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 // Files will be manipulated here when group is selected
                 setCurrentGroup(newValue);
+                processFilesAndShowPeakCentre(newValue);
                 populateListOfResources(newValue);
 
                 eventLogTextArea.textProperty().unbind();
@@ -203,7 +202,7 @@ public class PeakShapeDemoPlotsControllerTest {
             listViewOfGroupResourcesInFolder.prefWidthProperty().bind(resourceListScrollPane.widthProperty());
             listViewOfGroupResourcesInFolder.prefHeightProperty().bind(resourceListScrollPane.heightProperty());
             resourceListScrollPane.setContent(listViewOfGroupResourcesInFolder);
-
+            eventLogTextArea.textProperty().unbind();
             eventLogTextArea.setText("Select File From Plot");
 
         } else {
@@ -218,7 +217,7 @@ public class PeakShapeDemoPlotsControllerTest {
     }
 
 
-    public void processFilesAndShowPeakCentre(String groupValue, PlotWallPane plotWallPane) {
+    public void processFilesAndShowPeakCentre(String groupValue) {
 
         double[] finalYAxis;
         double[] finalXAxis;
@@ -278,10 +277,20 @@ public class PeakShapeDemoPlotsControllerTest {
         }
         finalYAxis = yAxis;
         finalXAxis = xAxis;
+        if (wallPlotsAnchorPane.getChildren().size() == 0) {
+            wallPlotsAnchorPane.getChildren().add(ensemblePlotsWallPane);
+        }else {
+            ensemblePlotsWallPane.getChildren().clear();
+        }
+
 
         LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, new String[]{"PeakCentre Plot"}, "Cycles", "Peak Widths");
+        ensemblePlotsWallPane.buildToolBar();
+        ensemblePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
 
-        producePeakCentrePlot(peakCentrePlotBuilder, plotWallPane);
+        peakCentreLinePlot = producePeakCentrePlot(peakCentrePlotBuilder, ensemblePlotsWallPane);
+
+
 //        peakCentreGridPane.widthProperty().addListener((observable, oldValue, newValue) -> {
 //            peakCentreLinePlot.setWidthF(newValue.intValue());
 //            peakCentreLinePlot.repaint();
@@ -406,35 +415,32 @@ public class PeakShapeDemoPlotsControllerTest {
 
 
         listViewOfResourcesInFolder.setOnMouseClicked(click -> {
-            //peakCentreLinePlot.repaint();
-            //int index;
+            peakCentreLinePlot.repaint();
+            int index;
             if (click.getClickCount() == 1) {
                 resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
-                //index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
-//                peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
-//                peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[index]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[index]) - 6, 12, 12);
-                processDataFileAndShowPlotsOfPeakShapes(groupValue);
+                index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
+                peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
+                peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[index]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[index]) - 6, 12, 12);
+                processDataFileAndShowPlotsOfPeakShapes();
             }
         });
 
         listViewOfResourcesInFolder.setOnKeyPressed(key -> {
-            //peakCentreLinePlot.repaint();
-            //int index;
+            peakCentreLinePlot.repaint();
+            int index;
             if (key.getCode() == KeyCode.DOWN || key.getCode() == KeyCode.UP) {
                 resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
-                //index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
-                processDataFileAndShowPlotsOfPeakShapes(groupValue);
-//                peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
-//                peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[index]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[index]) - 6, 12, 12);
+                index = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
+                processDataFileAndShowPlotsOfPeakShapes();
+                peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
+                peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[index]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[index]) - 6, 12, 12);
             }
         });
 
         listViewOfResourcesInFolder.getSelectionModel().selectFirst();
-        //initialIndex = listViewOfResourcesInFolder.getSelectionModel().getSelectedIndex();
         resourceBrowserTarget = listViewOfResourcesInFolder.getSelectionModel().getSelectedItem();
-//        peakCentreLinePlot.getGraphicsContext2D().setLineWidth(1.0);
-//        peakCentreLinePlot.getGraphicsContext2D().strokeOval(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[initialIndex]) - 6, peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[initialIndex]) - 6, 12, 12);
-        processDataFileAndShowPlotsOfPeakShapes(groupValue);
+        processDataFileAndShowPlotsOfPeakShapes();
 
         listViewOfResourcesInFolder.prefHeightProperty().bind(eventAnchorPane.heightProperty());
         listViewOfResourcesInFolder.prefWidthProperty().bind(eventAnchorPane.widthProperty());
@@ -442,7 +448,7 @@ public class PeakShapeDemoPlotsControllerTest {
     }
 
 
-    public void processDataFileAndShowPlotsOfPeakShapes(String groupValue) {
+    public void processDataFileAndShowPlotsOfPeakShapes() {
 
 
         if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
@@ -450,32 +456,19 @@ public class PeakShapeDemoPlotsControllerTest {
             eventLogTextArea.textProperty().bind(service.valueProperty());
             try {
                 PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::populateListOfResources);
-                if (wallPlotsAnchorPane.getChildren().size() > 0) {
-                    wallPlotsAnchorPane.getChildren().remove(0);
+
+
+                if (ensemblePlotsWallPane.getChildren().size() > 3) {
+                    ensemblePlotsWallPane.getChildren().remove(2, ensemblePlotsWallPane.getChildren().size());
+
                 }
 
 
-                PlotWallPane ensemblePlotsWallPane = new PlotWallPane();
-                ensemblePlotsWallPane.buildToolBar();
-                ensemblePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-                wallPlotsAnchorPane.getChildren().add(ensemblePlotsWallPane);
 
 
-//                AbstractPlot gBeamLinePlot = new GBeamLinePlot(
-//                        new Rectangle(gBeamPlotGridPane.getCellBounds(0, 0).getWidth(),
-//                                gBeamPlotGridPane.getCellBounds(0, 0).getHeight()),
-//                        (GBeamLinePlotBuilder) plots[1]
-//                );
-//
-//                AbstractPlot beamShapeLinePlot = new BeamShapeLinePlot(
-//                        new Rectangle(beamPlotsGridPane.getCellBounds(0, 0).getWidth(),
-//                                beamPlotsGridPane.getCellBounds(0, 0).getHeight()),
-//                        (BeamShapeLinePlotBuilder) plots[0]
-//                );
 
                 produceBeamShapeLinePlot(plots[0], ensemblePlotsWallPane);
                 produceGBeamShapeLinePlot(plots[1], ensemblePlotsWallPane);
-                processFilesAndShowPeakCentre(groupValue, ensemblePlotsWallPane);
                 ensemblePlotsWallPane.tilePlots();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -497,12 +490,15 @@ public class PeakShapeDemoPlotsControllerTest {
         TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
         AbstractPlot plot = GBeamLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (GBeamLinePlotBuilder) plotBuilder);
         tripoliPlotPane.addPlot(plot);
+
     }
 
-    private void producePeakCentrePlot(PlotBuilder plotBuilder, PlotWallPane plotWallPane) {
+    private AbstractPlot producePeakCentrePlot(LinePlotBuilder plotBuilder, PlotWallPane plotWallPane) {
         TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
-        AbstractPlot plot = PeakCentresLinePlotX.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (LinePlotBuilder) plotBuilder);
+        AbstractPlot plot = PeakCentresLinePlotX.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), plotBuilder);
         tripoliPlotPane.addPlot(plot);
+
+        return plot;
     }
 
 
