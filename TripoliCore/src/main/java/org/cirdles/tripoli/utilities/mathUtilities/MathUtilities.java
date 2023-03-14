@@ -35,7 +35,7 @@ public class MathUtilities {
     public static double roundedToSize(double value, int sigFigs) {
         BigDecimal valueBDtoSize = BigDecimal.ZERO;
         if (Double.isFinite(value)) {
-            BigDecimal valueBD = new BigDecimal(value);
+            BigDecimal valueBD = new BigDecimal(String.valueOf(value));
             int newScale = sigFigs - (valueBD.precision() - valueBD.scale());
             valueBDtoSize = valueBD.setScale(newScale, RoundingMode.HALF_UP);
         }
