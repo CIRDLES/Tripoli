@@ -12,6 +12,7 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
 
     private final ComboPlotBuilder comboPlotBuilder;
     private double[] yAxisData2;
+    private final int plottingStep;
 
     /**
      * @param bounds
@@ -23,6 +24,7 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
                 comboPlotBuilder.getxAxisLabel(),
                 comboPlotBuilder.getyAxisLabel());
         this.comboPlotBuilder = comboPlotBuilder;
+        plottingStep = 10;
     }
 
     public static AbstractPlot generatePlot(Rectangle bounds, ComboPlotBuilder comboPlotBuilder) {
@@ -81,7 +83,7 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
         // scatter plot
         g2d.setLineWidth(0.75);
         g2d.setStroke(Paint.valueOf("Black"));
-        for (int i = 0; i < xAxisData.length; i++) {
+        for (int i = 0; i < xAxisData.length; i += plottingStep) {
             g2d.strokeOval(mapX(xAxisData[i]) - 2.0f, mapY(yAxisData[i]) - 2.0f, 4.0f, 4.0f);
         }
 
@@ -89,7 +91,7 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
         g2d.setStroke(Paint.valueOf("red"));
         g2d.beginPath();
         g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData2[0]));
-        for (int i = 0; i < xAxisData.length; i++) {
+        for (int i = 0; i < xAxisData.length; i += plottingStep) {
             // line tracing through points
             g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData2[i]));
         }
@@ -98,7 +100,7 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
         if (comboPlotBuilder.isyData2OneSigma()) {
             g2d.beginPath();
             g2d.moveTo(mapX(xAxisData[0]), mapY(-yAxisData2[0]));
-            for (int i = 0; i < xAxisData.length; i++) {
+            for (int i = 0; i < xAxisData.length; i += plottingStep) {
                 // line tracing through points
                 g2d.lineTo(mapX(xAxisData[i]), mapY(-yAxisData2[i]));
             }
