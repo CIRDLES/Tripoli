@@ -32,9 +32,9 @@ class MatLabTest {
         double n = Double.parseDouble(dims[1]);
         int m_int = (int) m;
         int n_int = (int) n;
-        System.out.println(Double.toString(m) + " : " + Double.toString(n));
-        System.out.println(csv);
-        System.out.println(dim);
+        //System.out.println(Double.toString(m) + " : " + Double.toString(n));
+        //System.out.println(csv);
+        //System.out.println(dim);
 
         double[][] matrix = new double[m_int][n_int];
         String[] nums = Arrays.copyOfRange(tokens, 1, tokens.length);
@@ -61,7 +61,7 @@ class MatLabTest {
      */
     public ArrayList<double[][]> read_csv(String fn) throws IOException {
         ResourceExtractor tripoliExtractor = new ResourceExtractor(Tripoli.class);
-        File filename = tripoliExtractor.extractResourceAsFile("src/test/resources/org/cirdles/tripoli/core/" + fn);
+        File filename = tripoliExtractor.extractResourceAsFile("/org/cirdles/tripoli/core/" + fn);
         ArrayList<double[][]> matrices = new ArrayList<>();
         FileReader fr = new FileReader(filename);
         BufferedReader br = new BufferedReader(fr);
@@ -85,7 +85,7 @@ class MatLabTest {
      * Matrix A is in kron_matrix_A.txt, Matrix B is in kron_matrix_B.txt
      * Answers are in kron_answers.txt
      * <p>
-     * Matrices were serialized acording to the following MATLAB definitions:
+     * Matrices were serialized according to the following MATLAB definitions:
      * <p>
      * rowDim = randi(10);
      * colDim = randi(10);
@@ -110,7 +110,7 @@ class MatLabTest {
      * r_helper = (-1).^randi(2,rowDim2,colDim2);
      * randMat2 = randMat2.*r_helper;
      * if edgeCase2 < 0.1
-     * randMat = zeroMatrix2;
+     * randMat2 = zeroMatrix2;
      * end
      * randMatSize2 = size(randMat2);
      * filename2 = fullfile('kron_matrix_B.txt');
@@ -165,7 +165,7 @@ class MatLabTest {
      * Matrix A is in exp_matrix_A.txt
      * Answers are in kron_answers.txt
      * <p>
-     * Matrices were serialized acording to the following MATLAB definitions:
+     * Matrices were serialized according to the following MATLAB definitions:
      * <p>
      * rowDim = randi(10);
      * <p>
@@ -224,29 +224,30 @@ class MatLabTest {
     @Test
     void diffTest() throws IOException {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        ArrayList<double[][]> A_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\diffTestFiles\\matA.txt");
-        ArrayList<double[][]> Answer_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\diffTestFiles\\answers.txt");
+        ArrayList<double[][]> A_list = read_csv("diff_matrix_A.txt");
+        ArrayList<double[][]> Answer_list = read_csv("diff_answers.txt");
         double[][] expected;
         Primitive64Store actual;
         Primitive64Store A;
+        double[][] actualArray;
         for (int i = 0; i < Answer_list.size(); i++) {
             A = storeFactory.rows(A_list.get(i));
             expected = Answer_list.get(i);
             actual = MatLab.diff(A);
-            System.out.println(expected.length);
-            System.out.println(actual.countRows());
-            System.out.println(actual.countColumns());
+            actualArray = actual.toRawCopy2D();
+            System.out.println(Arrays.deepToString(actualArray));
             System.out.println(Arrays.deepToString(expected));
-            System.out.println(Arrays.deepToString(actual.toRawCopy2D()));
-            assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
+            System.out.println(i);
+            //System.out.println(Arrays.toString(expected));
+            assertArrayEquals(expected, actualArray);
         }
     }
 
     @Test
     void greaterOrEqualTest() throws IOException {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        ArrayList<double[][]> A_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\greaterOrEqualTestFiles\\matA2.txt");
-        ArrayList<double[][]> Answer_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\greaterOrEqualTestFiles\\answers2.txt");
+        ArrayList<double[][]> A_list = read_csv("greater_or_equal_matrix_A.txt");
+        ArrayList<double[][]> Answer_list = read_csv("greater_or_equal_answers.txt");
         double[][] expected;
         Primitive64Store actual;
         Primitive64Store A;
@@ -261,8 +262,8 @@ class MatLabTest {
     @Test
     void sizeTest() throws IOException {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        ArrayList<double[][]> A_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\sizeTestFiles\\matA2.txt");
-        ArrayList<double[][]> Answer_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\sizeTestFiles\\answers2.txt");
+        ArrayList<double[][]> A_list = read_csv("size_matrix_A.txt");
+        ArrayList<double[][]> Answer_list = read_csv("size_answers.txt");
         double expected1;
         double expected2;
         int actual1;
@@ -323,8 +324,8 @@ class MatLabTest {
     @Test
     void rDivideTest() throws IOException {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        ArrayList<double[][]> A_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\rDivideTestFiles\\matA2.txt");
-        ArrayList<double[][]> Answer_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\rDivideTestFiles\\answers2.txt");
+        ArrayList<double[][]> A_list = read_csv("rDivide_matrix_A.txt");
+        ArrayList<double[][]> Answer_list = read_csv("rDivide_answers.txt");
         double[][] expected;
         Primitive64Store actual;
         Primitive64Store A;

@@ -34,7 +34,7 @@ class MatLabCholeskyTest{
         double n = Double.parseDouble(dims[1]);
         int m_int = (int) m;
         int n_int = (int) n;
-        System.out.println(Double.toString(m) + " : " + Double.toString(n));
+        //System.out.println(Double.toString(m) + " : " + Double.toString(n));
         double[][] matrix = new double[m_int][n_int];
         String[] nums = Arrays.copyOfRange(tokens, 1, tokens.length);
         int counter = 0;
@@ -59,7 +59,8 @@ class MatLabCholeskyTest{
      * @throws IOException
      */
     public ArrayList<double[][]> read_csv(String fn) throws IOException {
-        String filename = "src/test/resources/org/cirdles/tripoli/core/" + fn;
+        ResourceExtractor tripoliExtractor = new ResourceExtractor(Tripoli.class);
+        File filename = tripoliExtractor.extractResourceAsFile("/org/cirdles/tripoli/core/" + fn);
         ArrayList<double[][]> matrices = new ArrayList<>();
         FileReader fr = new FileReader(filename);
         BufferedReader br = new BufferedReader(fr);
@@ -77,14 +78,16 @@ class MatLabCholeskyTest{
     // add negs
     @Test
     public void cholCovTest() throws IOException {
-        ArrayList<double[][]> aList = read_csv("exp_matrix_A.txt");
-        ArrayList<double[][]> answerList = read_csv("exp_answers.txt");
+        ArrayList<double[][]> aList = read_csv("chol_matrix_A.txt");
+        ArrayList<double[][]> answerList = read_csv("chol_answers.txt");
+        System.out.println(Arrays.deepToString(answerList.toArray()));
         double[][] expected;
         Matrix actual;
         Matrix a;
         double[][] actualArray;
         for (int i = 0; i < answerList.size(); i++) {
             a = new Matrix(aList.get(i));
+            System.out.println(a);
 
             expected = answerList.get(i);
             actual = MatLabCholesky.cholCov(a);
@@ -101,6 +104,8 @@ class MatLabCholeskyTest{
                     actualArray[j][k] = MatLab.roundedToSize(actualArray[j][k], 10);
                 }
             }
+            System.out.println(Arrays.deepToString(expected));
+            System.out.println(Arrays.deepToString(actualArray));
             assertArrayEquals(expected, actualArray);
         }
     }
