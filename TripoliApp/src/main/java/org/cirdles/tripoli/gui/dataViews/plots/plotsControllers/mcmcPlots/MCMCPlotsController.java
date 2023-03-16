@@ -1,5 +1,7 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
@@ -31,10 +33,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHeight;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
@@ -132,6 +131,13 @@ public class MCMCPlotsController {
             }
         });
 
+        listViewOfBlocks.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                viewSelectedBlockAction();
+            }
+        });
+
         listViewOfBlocks.setDisable(true);
     }
 
@@ -139,36 +145,40 @@ public class MCMCPlotsController {
     public void processDataFileAndShowPlotsOfMCMC2(AnalysisInterface analysis) {
         services = new Service[analysis.getMassSpecExtractedData().getBlocksData().size()];
         MCMCPlotBuildersTask.analysis = analysis;
+        Set<Integer> activeServices = new TreeSet<>();
+        for (int blockIndex = 0; blockIndex < services.length; blockIndex++) {
+            activeServices.add(blockIndex);
+        }
 
         for (int blockIndex = 0; blockIndex < services.length; blockIndex++) {
             services[blockIndex] = new MCMCUpdatesService(blockIndex + 1);
-            progressBar.accessibleTextProperty().bind(((MCMCUpdatesService) services[blockIndex]).valueProperty());
-            progressBar.accessibleTextProperty().addListener((observable, oldValue, newValue) -> {
-                if (null != newValue) {
-                    String[] data = newValue.split(">%");
-                    try {
-                        double percent = Double.parseDouble(data[0]) / MCMCProcess.getModelCount();
-                        //if (progressBar.getProgress() < percent) {
-                        progressBar.setProgress(percent);
-                        // }
-                    } catch (NumberFormatException e) {
-                        //
-                    }
-                }
-            });
-
 
             int finalBlockIndex = blockIndex;
             services[finalBlockIndex].setOnSucceeded(evt -> {
+                activeServices.remove(finalBlockIndex);
                 Task<String> plotBuildersTask = ((MCMCUpdatesService) services[finalBlockIndex]).getPlotBuilderTask();
                 if (null != plotBuildersTask) {
                     plotEngine(plotBuildersTask);
                     showLogsEngine(finalBlockIndex);
-                    listViewOfBlocks.setDisable(false);
-                    listViewOfBlocks.getSelectionModel().selectFirst();
+                    if (activeServices.isEmpty()) {
+                        listViewOfBlocks.setDisable(false);
+                        listViewOfBlocks.getSelectionModel().selectFirst();
+                    }
                 }
             });
         }
+
+        progressBar.accessibleTextProperty().bind(((MCMCUpdatesService) services[0]).valueProperty());
+        progressBar.accessibleTextProperty().addListener((observable, oldValue, newValue) -> {
+            if (null != newValue) {
+                String[] data = newValue.split(">%");
+                try {
+                    double percent = Double.parseDouble(data[0]) / MCMCProcess.getModelCount();
+                    progressBar.setProgress(percent);
+                } catch (NumberFormatException e) {
+                }
+            }
+        });
 
         for (int blockIndex = 0; blockIndex < services.length; blockIndex++) {
             services[blockIndex].start();

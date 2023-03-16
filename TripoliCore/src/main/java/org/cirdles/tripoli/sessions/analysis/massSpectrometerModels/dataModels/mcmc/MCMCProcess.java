@@ -129,10 +129,9 @@ public class MCMCProcess {
             Ndata=d0.Ndata; % Number of picks
             Nsig = d0.Nsig; % Number of noise variables
          */
-//        maxIterationCount = 2000;
         hierarchical = true;
         tempering = 1.0;
-//        stepCountForcedSave = 100;
+
         burnInThreshold = 10;
         startingIndexOfFaradayData = singleBlockDataSetRecord.getCountOfBaselineIntensities();
         startingIndexOfPhotoMultiplierData = startingIndexOfFaradayData + singleBlockDataSetRecord.getCountOfOnPeakFaradayIntensities();
