@@ -356,8 +356,8 @@ class MatLabTest {
     @Test
     void diagTest() throws IOException {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        ArrayList<double[][]> A_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\diagTestFiles\\matA2.txt");
-        ArrayList<double[][]> Answer_list = read_csv("C:\\Users\\neilm\\Desktop\\tripoli\\Tripoli\\TripoliCore\\src\\test\\java\\org\\cirdles\\tripoli\\utilities\\mathUtilities\\diagTestFiles\\answers2.txt");
+        ArrayList<double[][]> A_list = read_csv("diag_matrix_A.txt");
+        ArrayList<double[][]> Answer_list = read_csv("diag_answers.txt");
         double[][] expected;
         Primitive64Store actual;
         Primitive64Store A;
@@ -365,6 +365,8 @@ class MatLabTest {
             A = storeFactory.rows(A_list.get(i));
             expected = Answer_list.get(i);
             actual = MatLab.diag(A);
+            System.out.println(Arrays.deepToString(expected));
+            System.out.println(Arrays.deepToString(actual.toRawCopy2D()));
             assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
         }
     }
