@@ -72,11 +72,7 @@ META-INF/
 !TripoliCore/src/main/resources/org/cirdles/tripoli/parameterModels/tracerModels/*.txt
 !TripoliCore/src/main/resources/org/cirdles/tripoli/schema/*.txt
 
-!TripoliCore/src/test/resources/org/cirdles/tripoli/core/kron_matrix_A.txt
-!TripoliCore/src/test/resources/org/cirdles/tripoli/core/kron_matrix_B.txt
-!TripoliCore/src/test/resources/org/cirdles/tripoli/core/kron_answers.txt
-!TripoliCore/src/test/resources/org/cirdles/tripoli/core/exp_matrix_A.txt
-!TripoliCore/src/test/resources/org/cirdles/tripoli/core/exp_answers.txt
+!TripoliCore/src/test/resources/org/cirdles/tripoli/core/*.txt
 
 # data files
 !TripoliCore/src/main/resources/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData/*.txt
