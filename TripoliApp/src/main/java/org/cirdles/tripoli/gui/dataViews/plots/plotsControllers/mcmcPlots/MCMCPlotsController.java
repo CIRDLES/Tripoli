@@ -1,17 +1,13 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -39,11 +35,15 @@ import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHei
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
+import static org.cirdles.tripoli.sessions.analysis.Analysis.NORUN;
+import static org.cirdles.tripoli.sessions.analysis.Analysis.RUN;
 
 public class MCMCPlotsController {
 
     private static final int TAB_HEIGHT = 35;
     public static AnalysisInterface analysis;
+
+    private static int MAX_BLOCK_COUNT = 1000;
     @FXML
     public AnchorPane dataFitPlotsAnchorPane;
     @FXML
@@ -104,10 +104,11 @@ public class MCMCPlotsController {
     }
 
     private void populateListOfAvailableBlocks() {
-        int blockCount = analysis.getMassSpecExtractedData().getBlocksData().size();
         List<String> blocksByName = new ArrayList<>();
-        for (int i = 0; i < blockCount; i++) {
-            blocksByName.add("Block # " + (i + 1));
+        for (Integer blockID : analysis.getMapOfBlocksToProcessStatus().keySet()) {
+            if (NORUN != analysis.getMapOfBlocksToProcessStatus().get(blockID)) {
+                blocksByName.add("Block # " + blockID);
+            }
         }
 
         listViewOfBlocks = new ListView<>();
@@ -122,37 +123,42 @@ public class MCMCPlotsController {
         listViewOfBlocks.getSelectionModel().select(-1);
         listOfFilesScrollPane.setContent(listViewOfBlocks);
 
-        listViewOfBlocks.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if (MouseButton.PRIMARY == event.getButton() && 2 == event.getClickCount()) {
-                    viewSelectedBlockAction();
-                }
-            }
-        });
-
-        listViewOfBlocks.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+        listViewOfBlocks.setOnMouseClicked(event -> {
+            if (MouseButton.PRIMARY == event.getButton() && 2 == event.getClickCount()) {
                 viewSelectedBlockAction();
             }
         });
+
+        listViewOfBlocks.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> viewSelectedBlockAction());
 
         listViewOfBlocks.setDisable(true);
     }
 
     @SuppressWarnings("unchecked")
     public void processDataFileAndShowPlotsOfMCMC2(AnalysisInterface analysis) {
-        services = new Service[analysis.getMassSpecExtractedData().getBlocksData().size()];
         MCMCPlotBuildersTask.analysis = analysis;
+        // check process status
+        List<Integer> blocksToProcess = new ArrayList<>();
+
+        for (Integer blockID : analysis.getMapOfBlocksToProcessStatus().keySet()) {
+            if (NORUN != analysis.getMapOfBlocksToProcessStatus().get(blockID)) {
+                blocksToProcess.add(blockID);
+            }
+        }
+        services = new Service[blocksToProcess.size()];
+
         Set<Integer> activeServices = new TreeSet<>();
         for (int blockIndex = 0; blockIndex < services.length; blockIndex++) {
             activeServices.add(blockIndex);
         }
 
+        int indexOfFirstRunningBlockProcess = MAX_BLOCK_COUNT;
         for (int blockIndex = 0; blockIndex < services.length; blockIndex++) {
-            services[blockIndex] = new MCMCUpdatesService(blockIndex + 1);
+            services[blockIndex] = new MCMCUpdatesService(blocksToProcess.get(blockIndex));
 
+            if (analysis.getMapOfBlocksToProcessStatus().get(blocksToProcess.get(blockIndex)) == RUN) {
+                indexOfFirstRunningBlockProcess = Math.min(indexOfFirstRunningBlockProcess, blockIndex);
+            }
             int finalBlockIndex = blockIndex;
             services[finalBlockIndex].setOnSucceeded(evt -> {
                 activeServices.remove(finalBlockIndex);
@@ -168,17 +174,21 @@ public class MCMCPlotsController {
             });
         }
 
-        progressBar.accessibleTextProperty().bind(((MCMCUpdatesService) services[0]).valueProperty());
-        progressBar.accessibleTextProperty().addListener((observable, oldValue, newValue) -> {
-            if (null != newValue) {
-                String[] data = newValue.split(">%");
-                try {
-                    double percent = Double.parseDouble(data[0]) / MCMCProcess.getModelCount();
-                    progressBar.setProgress(percent);
-                } catch (NumberFormatException e) {
+        if (MAX_BLOCK_COUNT > indexOfFirstRunningBlockProcess) {
+            progressBar.accessibleTextProperty().bind(((MCMCUpdatesService) services[indexOfFirstRunningBlockProcess]).valueProperty());
+            progressBar.accessibleTextProperty().addListener((observable, oldValue, newValue) -> {
+                if (null != newValue) {
+                    String[] data = newValue.split(">%");
+                    try {
+                        double percent = Double.parseDouble(data[0]) / MCMCProcess.getModelCount();
+                        progressBar.setProgress(percent);
+                    } catch (NumberFormatException e) {
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            progressBar.setProgress(1.0);
+        }
 
         for (int blockIndex = 0; blockIndex < services.length; blockIndex++) {
             services[blockIndex].start();
@@ -322,15 +332,15 @@ public class MCMCPlotsController {
     }
 
     public void viewSelectedBlockAction() {
-        int blockNumber = listViewOfBlocks.getSelectionModel().getSelectedIndex();
-        viewSelectedBlock(blockNumber);
+        int blockIndex = listViewOfBlocks.getSelectionModel().getSelectedIndex();
+        viewSelectedBlock(blockIndex);
     }
 
-    public void viewSelectedBlock(int blockNumber) {
-        Task<String> mcmcPlotBuildersTask = ((MCMCUpdatesService) services[blockNumber]).getPlotBuilderTask();
+    public void viewSelectedBlock(int blockIndex) {
+        Task<String> mcmcPlotBuildersTask = ((MCMCUpdatesService) services[blockIndex]).getPlotBuilderTask();
         if ((null != mcmcPlotBuildersTask) && mcmcPlotBuildersTask.isDone()) {
             plotEngine(mcmcPlotBuildersTask);
-            showLogsEngine(blockNumber);
+            showLogsEngine(blockIndex);
         }
     }
 

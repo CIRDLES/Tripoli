@@ -26,3 +26,7 @@
         font-family: 'Inter var', sans-serif;
     }
 }
+
+.toggle-button:selected {
+    -fx-background-color: blue;
+}

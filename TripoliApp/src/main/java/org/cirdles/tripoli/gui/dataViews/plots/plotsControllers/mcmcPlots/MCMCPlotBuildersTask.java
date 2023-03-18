@@ -26,7 +26,7 @@ import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
  */
 public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface, PlotBuildersTaskInterface {
     public static AnalysisInterface analysis;
-    private final int blockNumber;
+    private final int blockID;
     // ensemble plots
     private PlotBuilder[] ratiosHistogramBuilder;
     private PlotBuilder[] baselineHistogramBuilder;
@@ -50,8 +50,8 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
     private PlotBuilder[] observedDataWithSubsetsLineBuilder;
 
-    public MCMCPlotBuildersTask(int blockNumber) {
-        this.blockNumber = blockNumber;
+    public MCMCPlotBuildersTask(int blockID) {
+        this.blockID = blockID;
     }
 
     @Override
@@ -125,7 +125,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
     @Override
     public synchronized String call() throws Exception {
-        PlotBuilder[][] plots = analysis.updatePlotsByBlock(blockNumber, this);
+        PlotBuilder[][] plots = analysis.updatePlotsByBlock(blockID, this);
         ratiosHistogramBuilder = plots[0];
         baselineHistogramBuilder = plots[1];
         dalyFaradayGainHistogramBuilder = plots[2];
@@ -147,12 +147,16 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
         observedDataWithSubsetsLineBuilder = plots[15];
 
-        return analysis.getDataFilePathString() + "Block # " + blockNumber + "\n\n\tDONE - view tabs for various plots";
+        return analysis.getDataFilePathString() + "Block # " + blockID + "\n\n\tDONE - view tabs for various plots";
     }
 
     @Override
     public void receiveLoggingSnippet(String loggingSnippet) {
         updateValue(loggingSnippet);
-        analysis.uppdateLogsByBlock(blockNumber, loggingSnippet);
+        analysis.uppdateLogsByBlock(blockID, loggingSnippet);
+    }
+
+    public int getBlockID() {
+        return blockID;
     }
 }

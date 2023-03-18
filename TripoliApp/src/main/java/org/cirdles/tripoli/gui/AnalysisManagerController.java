@@ -268,20 +268,40 @@ public class AnalysisManagerController implements Initializable {
         var massSpecExtractedData = analysis.getMassSpecExtractedData();
         Map<Integer, MassSpecOutputSingleBlockRecord> blocksData = massSpecExtractedData.getBlocksData();
         for (MassSpecOutputSingleBlockRecord block : blocksData.values()) {
-            CheckBox blockStatusCheckbox = blockStatusCheckboxFactory(String.valueOf(block.blockNumber()), TRIPOLI_ANALYSIS_RED);
-            blockStatusHBox.getChildren().add(blockStatusCheckbox);
+            Button blockStatusButton = blockStatusButtonFactory(String.valueOf(block.blockNumber()), TRIPOLI_ANALYSIS_RED);
+            blockStatusHBox.getChildren().add(blockStatusButton);
+//            ToggleButton blockStatusToggleButton = blockStatusToggleButtonFactory(String.valueOf(block.blockNumber()), TRIPOLI_ANALYSIS_RED);
+//            blockStatusToggleButton.setOnAction(e -> {
+//                if (blockStatusButton.ge.isArmed()Selected()){
+//                    blockStatusButton.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_GREEN) + ";-fx-border-color: BLACK");
+//                } else {
+//                    blockStatusButton.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_RED) + ";-fx-border-color: BLACK");
+//                }
+//            });
+
         }
     }
 
-    private CheckBox blockStatusCheckboxFactory(String blockID, Color backgroundColor) {
-        CheckBox blockStatusCheckbox = new CheckBox(blockID);
-        blockStatusCheckbox.setPrefSize(45.0, 25.0);
-        blockStatusCheckbox.setStyle("-fx-background-color: " + convertColorToHex(backgroundColor) + ";-fx-border-color: BLACK");
-        blockStatusCheckbox.setPadding(new Insets(0003));
-        blockStatusCheckbox.setFont(Font.font("Monospaced", FontWeight.EXTRA_BOLD, 12));
-        blockStatusCheckbox.setId(blockID);
+    private Button blockStatusButtonFactory(String blockID, Color backgroundColor) {
+        Button blockStatusButton = new Button(blockID);
+        blockStatusButton.setPrefSize(45.0, 25.0);
+        blockStatusButton.setStyle("-fx-background-color: " + convertColorToHex(backgroundColor) + ";-fx-border-color: BLACK");
+        blockStatusButton.setPadding(new Insets(0003));
+        blockStatusButton.setFont(Font.font("Monospaced", FontWeight.EXTRA_BOLD, 12));
+        blockStatusButton.setId(blockID);
 
-        return blockStatusCheckbox;
+        return blockStatusButton;
+    }
+
+    private ToggleButton blockStatusToggleButtonFactory(String blockID, Color backgroundColor) {
+        ToggleButton blockStatusToggleButton = new ToggleButton(blockID);
+        blockStatusToggleButton.setPrefSize(45.0, 25.0);
+        blockStatusToggleButton.setStyle("-fx-background-color: " + convertColorToHex(backgroundColor) + ";-fx-border-color: BLACK");
+        blockStatusToggleButton.setPadding(new Insets(0003));
+        blockStatusToggleButton.setFont(Font.font("Monospaced", FontWeight.EXTRA_BOLD, 12));
+        blockStatusToggleButton.setId(blockID);
+
+        return blockStatusToggleButton;
     }
 
     @FXML
@@ -326,7 +346,7 @@ public class AnalysisManagerController implements Initializable {
         populateAnalysisManagerGridPane();
     }
 
-    public void initializeMonteCarloTechniqueAction() throws TripoliException {
+    public void initializeMonteCarloTechniqueAction() {
         MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
         MCMCPlotsController.analysis = analysis;
         MCMCPlotsWindow.loadPlotsWindow();
