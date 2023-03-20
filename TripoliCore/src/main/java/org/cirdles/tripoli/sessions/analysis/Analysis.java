@@ -57,7 +57,6 @@ public class Analysis implements Serializable, AnalysisInterface {
     private static final long serialVersionUID = 5737165372498262402L;
 
 
-
     private final Map<Integer, PlotBuilder[][]> mapOfBlockToPlots = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, String> mapOfBlockToLogs = Collections.synchronizedSortedMap(new TreeMap<>());
     private Map<Integer, Integer> mapOfBlocksToProcessStatus = Collections.synchronizedSortedMap(new TreeMap<>());

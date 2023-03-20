@@ -38,7 +38,7 @@ import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.se
 import static org.cirdles.tripoli.sessions.analysis.Analysis.*;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compareAnalysisMethodToDataFileSpecs;
 
-public class AnalysisManagerController implements Initializable {
+public class AnalysisManagerController implements Initializable, AnalysisManagerCallbackI {
 
     public static AnalysisInterface analysis;
     public static MCMCPlotsWindow MCMCPlotsWindow;
@@ -281,7 +281,7 @@ public class AnalysisManagerController implements Initializable {
         blockStatusButton.setPadding(new Insets(0003));
         blockStatusButton.setFont(Font.font("Monospaced", FontWeight.EXTRA_BOLD, 10));
         blockStatusButton.setId(String.valueOf(blockID));
-        blockStatusButton.setPadding(new Insets(0,-1,0,-1));
+        blockStatusButton.setPadding(new Insets(0, -1, 0, -1));
         tuneButton(blockStatusButton, analysis.getMapOfBlocksToProcessStatus().get(blockID));
 
         blockStatusButton.setOnAction(e -> {
@@ -366,46 +366,55 @@ public class AnalysisManagerController implements Initializable {
     }
 
     public void initializeMonteCarloTechniqueAction() {
-        for (Node button : blockStatusHBox.getChildren()){
-            if (button instanceof Button){
-                analysis.getMapOfBlocksToProcessStatus().put(Integer.parseInt(button.getId()), (int)button.getUserData());
+        for (Node button : blockStatusHBox.getChildren()) {
+            if (button instanceof Button) {
+                analysis.getMapOfBlocksToProcessStatus().put(Integer.parseInt(button.getId()), (int) button.getUserData());
             }
         }
-
-        MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
+        if (null == MCMCPlotsWindow) {
+            MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage, this);
+        }
         MCMCPlotsController.analysis = analysis;
         MCMCPlotsWindow.loadPlotsWindow();
     }
 
     public void selectRunAllAction() {
-        for (Node button : blockStatusHBox.getChildren()){
-            if (button instanceof Button){
-                tuneButton((Button)button, RUN);
+        for (Node button : blockStatusHBox.getChildren()) {
+            if (button instanceof Button) {
+                tuneButton((Button) button, RUN);
             }
         }
     }
 
     public void selectRunNoneAction() {
-        for (Node button : blockStatusHBox.getChildren()){
-            if (button instanceof Button){
-                tuneButton((Button)button, SKIP);
+        for (Node button : blockStatusHBox.getChildren()) {
+            if (button instanceof Button) {
+                tuneButton((Button) button, SKIP);
             }
         }
     }
 
     public void selectShowsAction() {
-        for (Node button : blockStatusHBox.getChildren()){
-            if ((button instanceof Button) && (analysis.getMapOfBlocksToProcessStatus().get(Integer.parseInt(button.getId())) == 0)){
-                tuneButton((Button)button, SHOW);
+        for (Node button : blockStatusHBox.getChildren()) {
+            if ((button instanceof Button) && (analysis.getMapOfBlocksToProcessStatus().get(Integer.parseInt(button.getId())) == 0)) {
+                tuneButton((Button) button, SHOW);
             }
         }
     }
 
     public void restoreAllAction() {
-        for (Node button : blockStatusHBox.getChildren()){
-            if (button instanceof Button){
-                tuneButton((Button)button, analysis.getMapOfBlocksToProcessStatus().get(Integer.parseInt(button.getId())));
+        for (Node button : blockStatusHBox.getChildren()) {
+            if (button instanceof Button) {
+                tuneButton((Button) button, analysis.getMapOfBlocksToProcessStatus().get(Integer.parseInt(button.getId())));
             }
         }
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void callbackRefreshBlocksStatus() {
+        restoreAllAction();
     }
 }

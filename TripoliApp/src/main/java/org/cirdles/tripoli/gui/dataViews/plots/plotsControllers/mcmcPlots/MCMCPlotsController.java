@@ -14,6 +14,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
@@ -35,13 +36,15 @@ import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHei
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
-import static org.cirdles.tripoli.sessions.analysis.Analysis.SKIP;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.RUN;
+import static org.cirdles.tripoli.sessions.analysis.Analysis.SKIP;
 
 public class MCMCPlotsController {
 
     private static final int TAB_HEIGHT = 35;
     public static AnalysisInterface analysis;
+
+    public static AnalysisManagerCallbackI analysisManagerCallbackI;
 
     private static int MAX_BLOCK_COUNT = 1000;
     @FXML
@@ -198,6 +201,8 @@ public class MCMCPlotsController {
 
 
     private void plotEngine(Task<String> plotBuildersTaska) {
+        analysisManagerCallbackI.callbackRefreshBlocksStatus();
+
         ensemblePlotsAnchorPane.getChildren().removeAll();
         convergePlotsAnchorPane.getChildren().removeAll();
         dataFitPlotsAnchorPane.getChildren().removeAll();

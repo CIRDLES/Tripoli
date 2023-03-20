@@ -19,9 +19,9 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<GridPane fx:id="analysisManagerGridPane" hgap="15.0" minWidth="250.0" prefHeight="640.0" prefWidth="1250.0"
-          style="-fx-background-color: #fbf6d5;" stylesheets="@css/tripoli.css" vgap="10.0"
-          xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="analysisManagerGridPane" hgap="15.0" minWidth="250.0" prefHeight="640.0"
+          prefWidth="1250.0" style="-fx-background-color: #fbf6d5;" stylesheets="@css/tripoli.css"
+          vgap="10.0" xmlns="http://javafx.com/javafx/17"
           fx:controller="org.cirdles.tripoli.gui.AnalysisManagerController">
     <columnConstraints>
         <ColumnConstraints halignment="RIGHT" hgrow="NEVER" maxWidth="130.0" minWidth="130.0" prefWidth="130.0"/>
@@ -82,13 +82,11 @@
         <Button layoutX="225.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectRunNoneAction"
                 style="-fx-text-fill: RED;" text="Select Run None"/>
         <Button layoutX="321.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectShowsAction"
-                style="-fx-text-fill: RED;" text="Select Shows"/>
+                style="-fx-text-fill: GREEN;" text="Select Shows"/>
         <Button layoutX="433.0" layoutY="7.0" mnemonicParsing="false" onAction="#restoreAllAction"
                 style="-fx-text-fill: RED;" text="Restore All"/>
         <Button layoutX="165.0" layoutY="7.0" mnemonicParsing="false" onAction="#initializeMonteCarloTechniqueAction"
                 style="-fx-text-fill: RED;" text="Process / Plot Blocks using MCMC"/>
-        <Button layoutX="433.0" layoutY="7.0" mnemonicParsing="false" onAction="#restoreAllAction"
-                style="-fx-text-fill: RED;" text="Refresh"/>
     </ToolBar>
     <Label prefHeight="58.0" prefWidth="114.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;"
            text="Analysis Method with Detector Details from Data File:" textAlignment="RIGHT" wrapText="true"
