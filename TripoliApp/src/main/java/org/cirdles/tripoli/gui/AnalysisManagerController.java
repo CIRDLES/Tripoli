@@ -35,6 +35,7 @@ import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
 import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDialog;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectDataFile;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectMethodFile;
+import static org.cirdles.tripoli.sessions.analysis.Analysis.*;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compareAnalysisMethodToDataFileSpecs;
 
 public class AnalysisManagerController implements Initializable {
@@ -265,43 +266,61 @@ public class AnalysisManagerController implements Initializable {
     }
 
     private void populateBlocksStatus() {
+        blockStatusHBox.getChildren().clear();
         var massSpecExtractedData = analysis.getMassSpecExtractedData();
         Map<Integer, MassSpecOutputSingleBlockRecord> blocksData = massSpecExtractedData.getBlocksData();
         for (MassSpecOutputSingleBlockRecord block : blocksData.values()) {
-            Button blockStatusButton = blockStatusButtonFactory(String.valueOf(block.blockNumber()), TRIPOLI_ANALYSIS_RED);
+            Button blockStatusButton = blockStatusButtonFactory(block.blockID());
             blockStatusHBox.getChildren().add(blockStatusButton);
-//            ToggleButton blockStatusToggleButton = blockStatusToggleButtonFactory(String.valueOf(block.blockNumber()), TRIPOLI_ANALYSIS_RED);
-//            blockStatusToggleButton.setOnAction(e -> {
-//                if (blockStatusButton.ge.isArmed()Selected()){
-//                    blockStatusButton.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_GREEN) + ";-fx-border-color: BLACK");
-//                } else {
-//                    blockStatusButton.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_RED) + ";-fx-border-color: BLACK");
-//                }
-//            });
-
         }
     }
 
-    private Button blockStatusButtonFactory(String blockID, Color backgroundColor) {
-        Button blockStatusButton = new Button(blockID);
+    private Button blockStatusButtonFactory(int blockID) {
+        Button blockStatusButton = new Button();
         blockStatusButton.setPrefSize(45.0, 25.0);
-        blockStatusButton.setStyle("-fx-background-color: " + convertColorToHex(backgroundColor) + ";-fx-border-color: BLACK");
         blockStatusButton.setPadding(new Insets(0003));
-        blockStatusButton.setFont(Font.font("Monospaced", FontWeight.EXTRA_BOLD, 12));
-        blockStatusButton.setId(blockID);
+        blockStatusButton.setFont(Font.font("Monospaced", FontWeight.EXTRA_BOLD, 10));
+        blockStatusButton.setId(String.valueOf(blockID));
+        blockStatusButton.setPadding(new Insets(0,-1,0,-1));
+        tuneButton(blockStatusButton, analysis.getMapOfBlocksToProcessStatus().get(blockID));
+
+        blockStatusButton.setOnAction(e -> {
+            switch ((int) blockStatusButton.getUserData()) {
+                case RUN -> {
+                    if (null != analysis.getMapOfBlockToPlots().get(blockID)) {
+                        tuneButton(blockStatusButton, SHOW);
+                    } else {
+                        tuneButton(blockStatusButton, SKIP);
+                    }
+                }
+                case SHOW -> tuneButton(blockStatusButton, SKIP);
+                case SKIP -> tuneButton(blockStatusButton, RUN);
+            }
+        });
 
         return blockStatusButton;
     }
 
-    private ToggleButton blockStatusToggleButtonFactory(String blockID, Color backgroundColor) {
-        ToggleButton blockStatusToggleButton = new ToggleButton(blockID);
-        blockStatusToggleButton.setPrefSize(45.0, 25.0);
-        blockStatusToggleButton.setStyle("-fx-background-color: " + convertColorToHex(backgroundColor) + ";-fx-border-color: BLACK");
-        blockStatusToggleButton.setPadding(new Insets(0003));
-        blockStatusToggleButton.setFont(Font.font("Monospaced", FontWeight.EXTRA_BOLD, 12));
-        blockStatusToggleButton.setId(blockID);
-
-        return blockStatusToggleButton;
+    private void tuneButton(Button blockStatusButton, int blockStatus) {
+        Color stateColor = Color.BLACK;
+        switch (blockStatus) {
+            case SKIP -> {
+                stateColor = TRIPOLI_ANALYSIS_RED;
+                blockStatusButton.setUserData(SKIP);
+                blockStatusButton.setText("Skip " + blockStatusButton.getId());
+            }
+            case RUN -> {
+                stateColor = Color.WHITE;
+                blockStatusButton.setUserData(RUN);
+                blockStatusButton.setText("Run " + blockStatusButton.getId());
+            }
+            case SHOW -> {
+                stateColor = TRIPOLI_ANALYSIS_GREEN;
+                blockStatusButton.setUserData(SHOW);
+                blockStatusButton.setText("Show " + blockStatusButton.getId());
+            }
+        }
+        blockStatusButton.setStyle("-fx-background-color: " + convertColorToHex(stateColor) + ";-fx-border-color: BLACK");
     }
 
     @FXML
@@ -347,8 +366,46 @@ public class AnalysisManagerController implements Initializable {
     }
 
     public void initializeMonteCarloTechniqueAction() {
+        for (Node button : blockStatusHBox.getChildren()){
+            if (button instanceof Button){
+                analysis.getMapOfBlocksToProcessStatus().put(Integer.parseInt(button.getId()), (int)button.getUserData());
+            }
+        }
+
         MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
         MCMCPlotsController.analysis = analysis;
         MCMCPlotsWindow.loadPlotsWindow();
+    }
+
+    public void selectRunAllAction() {
+        for (Node button : blockStatusHBox.getChildren()){
+            if (button instanceof Button){
+                tuneButton((Button)button, RUN);
+            }
+        }
+    }
+
+    public void selectRunNoneAction() {
+        for (Node button : blockStatusHBox.getChildren()){
+            if (button instanceof Button){
+                tuneButton((Button)button, SKIP);
+            }
+        }
+    }
+
+    public void selectShowsAction() {
+        for (Node button : blockStatusHBox.getChildren()){
+            if ((button instanceof Button) && (analysis.getMapOfBlocksToProcessStatus().get(Integer.parseInt(button.getId())) == 0)){
+                tuneButton((Button)button, SHOW);
+            }
+        }
+    }
+
+    public void restoreAllAction() {
+        for (Node button : blockStatusHBox.getChildren()){
+            if (button instanceof Button){
+                tuneButton((Button)button, analysis.getMapOfBlocksToProcessStatus().get(Integer.parseInt(button.getId())));
+            }
+        }
     }
 }

@@ -81,7 +81,7 @@ public enum SingleBlockDataAccumulatorMCMC {
         }
 
         return new SingleBlockDataSetRecord.SingleBlockDataRecord(
-                massSpecOutputSingleBlockRecord.blockNumber(),
+                massSpecOutputSingleBlockRecord.blockID(),
                 detectorOrdinalIndicesAccumulatorList,
                 intensityAccumulatorList,
                 timeAccumulatorList,
@@ -141,7 +141,7 @@ public enum SingleBlockDataAccumulatorMCMC {
         }
 
         return new SingleBlockDataSetRecord.SingleBlockDataRecord(
-                massSpecOutputSingleBlockRecord.blockNumber(),
+                massSpecOutputSingleBlockRecord.blockID(),
                 detectorOrdinalIndicesAccumulatorList,
                 intensityAccumulatorList,
                 timeAccumulatorList,

@@ -26,7 +26,7 @@ public class MassSpecExtractedData implements Serializable {
     }
 
     public void addBlockRecord(MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord) {
-        blocksData.put(massSpecOutputSingleBlockRecord.blockNumber(), massSpecOutputSingleBlockRecord);
+        blocksData.put(massSpecOutputSingleBlockRecord.blockID(), massSpecOutputSingleBlockRecord);
     }
 
     public void populateHeader(List<String[]> headerData) {

@@ -50,11 +50,14 @@ import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuilti
  * @author James F. Bowring
  */
 public class Analysis implements Serializable, AnalysisInterface {
-    public static final int NORUN = -1;
+    public static final int SKIP = -1;
     public static final int SHOW = 0;
     public static final int RUN = 1;
     @Serial
     private static final long serialVersionUID = 5737165372498262402L;
+
+
+
     private final Map<Integer, PlotBuilder[][]> mapOfBlockToPlots = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, String> mapOfBlockToLogs = Collections.synchronizedSortedMap(new TreeMap<>());
     private Map<Integer, Integer> mapOfBlocksToProcessStatus = Collections.synchronizedSortedMap(new TreeMap<>());
@@ -299,5 +302,9 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public Map<Integer, Integer> getMapOfBlocksToProcessStatus() {
         return mapOfBlocksToProcessStatus;
+    }
+
+    public Map<Integer, PlotBuilder[][]> getMapOfBlockToPlots() {
+        return mapOfBlockToPlots;
     }
 }

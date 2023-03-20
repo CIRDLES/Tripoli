@@ -35,7 +35,7 @@ import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHei
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
-import static org.cirdles.tripoli.sessions.analysis.Analysis.NORUN;
+import static org.cirdles.tripoli.sessions.analysis.Analysis.SKIP;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.RUN;
 
 public class MCMCPlotsController {
@@ -106,7 +106,7 @@ public class MCMCPlotsController {
     private void populateListOfAvailableBlocks() {
         List<String> blocksByName = new ArrayList<>();
         for (Integer blockID : analysis.getMapOfBlocksToProcessStatus().keySet()) {
-            if (NORUN != analysis.getMapOfBlocksToProcessStatus().get(blockID)) {
+            if (SKIP != analysis.getMapOfBlocksToProcessStatus().get(blockID)) {
                 blocksByName.add("Block # " + blockID);
             }
         }
@@ -141,7 +141,7 @@ public class MCMCPlotsController {
         List<Integer> blocksToProcess = new ArrayList<>();
 
         for (Integer blockID : analysis.getMapOfBlocksToProcessStatus().keySet()) {
-            if (NORUN != analysis.getMapOfBlocksToProcessStatus().get(blockID)) {
+            if (SKIP != analysis.getMapOfBlocksToProcessStatus().get(blockID)) {
                 blocksToProcess.add(blockID);
             }
         }
