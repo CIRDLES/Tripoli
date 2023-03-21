@@ -21,6 +21,8 @@ import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockDataModelPlot.PLOT_INDEX_RATIOS;
+
 /**
  * @author James F. Bowring
  */
@@ -126,7 +128,8 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     @Override
     public synchronized String call() throws Exception {
         PlotBuilder[][] plots = analysis.updatePlotsByBlock(blockID, this);
-        ratiosHistogramBuilder = plots[0];
+
+        ratiosHistogramBuilder = plots[PLOT_INDEX_RATIOS];
         baselineHistogramBuilder = plots[1];
         dalyFaradayGainHistogramBuilder = plots[2];
         signalNoiseHistogramBuilder = plots[3];

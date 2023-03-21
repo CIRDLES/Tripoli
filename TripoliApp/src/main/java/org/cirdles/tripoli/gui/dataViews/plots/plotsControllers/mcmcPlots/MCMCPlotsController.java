@@ -4,7 +4,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
@@ -19,12 +18,14 @@ import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.*;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.HistogramSessionPlot;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
+import org.cirdles.tripoli.plots.sessionPlots.HistogramSessionBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.MCMCProcess;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
@@ -36,8 +37,10 @@ import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHei
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
+import static org.cirdles.tripoli.plots.sessionPlots.HistogramSessionBuilder.initializeHistogramSession;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.RUN;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.SKIP;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockDataModelPlot.PLOT_INDEX_RATIOS;
 
 public class MCMCPlotsController {
 
@@ -54,7 +57,7 @@ public class MCMCPlotsController {
     @FXML
     public AnchorPane beamShapeAnchorPane;
     @FXML
-    public AnchorPane summaryAnchorPane;
+    public AnchorPane sessionAnchorPane;
     @FXML
     public AnchorPane logAnchorPane;
     @FXML
@@ -108,8 +111,8 @@ public class MCMCPlotsController {
 
     private void populateListOfAvailableBlocks() {
         List<String> blocksByName = new ArrayList<>();
-        for (Integer blockID : analysis.getMapOfBlocksToProcessStatus().keySet()) {
-            if (SKIP != analysis.getMapOfBlocksToProcessStatus().get(blockID)) {
+        for (Integer blockID : analysis.getMapOfBlockIdToProcessStatus().keySet()) {
+            if (SKIP != analysis.getMapOfBlockIdToProcessStatus().get(blockID)) {
                 blocksByName.add("Block # " + blockID);
             }
         }
@@ -143,8 +146,8 @@ public class MCMCPlotsController {
         // check process status
         List<Integer> blocksToProcess = new ArrayList<>();
 
-        for (Integer blockID : analysis.getMapOfBlocksToProcessStatus().keySet()) {
-            if (SKIP != analysis.getMapOfBlocksToProcessStatus().get(blockID)) {
+        for (Integer blockID : analysis.getMapOfBlockIdToProcessStatus().keySet()) {
+            if (SKIP != analysis.getMapOfBlockIdToProcessStatus().get(blockID)) {
                 blocksToProcess.add(blockID);
             }
         }
@@ -159,7 +162,7 @@ public class MCMCPlotsController {
         for (int blockIndex = 0; blockIndex < services.length; blockIndex++) {
             services[blockIndex] = new MCMCUpdatesService(blocksToProcess.get(blockIndex));
 
-            if (analysis.getMapOfBlocksToProcessStatus().get(blocksToProcess.get(blockIndex)) == RUN) {
+            if (analysis.getMapOfBlockIdToProcessStatus().get(blocksToProcess.get(blockIndex)) == RUN) {
                 indexOfFirstRunningBlockProcess = Math.min(indexOfFirstRunningBlockProcess, blockIndex);
             }
             int finalBlockIndex = blockIndex;
@@ -167,9 +170,10 @@ public class MCMCPlotsController {
                 activeServices.remove(finalBlockIndex);
                 Task<String> plotBuildersTask = ((MCMCUpdatesService) services[finalBlockIndex]).getPlotBuilderTask();
                 if (null != plotBuildersTask) {
-                    plotEngine(plotBuildersTask);
+                    plotBlockEngine(plotBuildersTask);
                     showLogsEngine(finalBlockIndex);
                     if (activeServices.isEmpty()) {
+                        if (blocksToProcess.size() > 1) plotSessionEngine();
                         listViewOfBlocks.setDisable(false);
                         listViewOfBlocks.getSelectionModel().selectFirst();
                     }
@@ -199,8 +203,34 @@ public class MCMCPlotsController {
         MCMCProcess.ALLOW_EXECUTION = true;
     }
 
+    private void plotSessionEngine() {
+        Map<Integer, PlotBuilder[][]> mapOfBlockIdToPlots = analysis.getMapOfBlockIdToPlots();
+        Map<String, List<HistogramRecord>> mapRatioNameToSessionRecords = new TreeMap<>();
+        for (PlotBuilder[][] plotBuilders : mapOfBlockIdToPlots.values()) {
+            PlotBuilder[] ratiosPlotBuilder = plotBuilders[PLOT_INDEX_RATIOS];
+            for (PlotBuilder ratioPlotBuilder : ratiosPlotBuilder) {
+                String ratioName = ratioPlotBuilder.getTitle()[0];
+                mapRatioNameToSessionRecords.computeIfAbsent(ratioName, k -> new ArrayList<>());
+                mapRatioNameToSessionRecords.get(ratioName).add(((HistogramBuilder) ratioPlotBuilder).getHistogramRecord());
+            }
+        }
 
-    private void plotEngine(Task<String> plotBuildersTaska) {
+        sessionAnchorPane.getChildren().removeAll();
+        PlotWallPane ratiosSessionPlotsWallPane = new PlotWallPane();
+        ratiosSessionPlotsWallPane.buildToolBar();
+        ratiosSessionPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+        sessionAnchorPane.getChildren().add(ratiosSessionPlotsWallPane);
+        for (Map.Entry<String, List<HistogramRecord>> entry : mapRatioNameToSessionRecords.entrySet()) {
+            HistogramSessionBuilder histogramSessionBuilder = initializeHistogramSession(
+                    entry.getValue(), new String[]{entry.getKey()}, "Block ID", "Ratio");
+            TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(ratiosSessionPlotsWallPane);
+            AbstractPlot plot = HistogramSessionPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), histogramSessionBuilder.getHistogramSessionRecord());
+            tripoliPlotPane.addPlot(plot);
+        }
+        ratiosSessionPlotsWallPane.stackPlots();
+    }
+
+    private void plotBlockEngine(Task<String> plotBuildersTaska) {
         analysisManagerCallbackI.callbackRefreshBlocksStatus();
 
         ensemblePlotsAnchorPane.getChildren().removeAll();
@@ -286,7 +316,7 @@ public class MCMCPlotsController {
 
     private void produceTripoliHistogramPlots(PlotBuilder[] plotBuilder, PlotWallPane plotWallPane) {
         for (int i = 0; i < plotBuilder.length; i++) {
-            HistogramRecord plotRecord = ((HistogramBuilder) plotBuilder[i]).getHistogram();
+            HistogramRecord plotRecord = ((HistogramBuilder) plotBuilder[i]).getHistogramRecord();
             TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
             AbstractPlot plot = HistogramSinglePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), plotRecord);
             tripoliPlotPane.addPlot(plot);
@@ -325,16 +355,6 @@ public class MCMCPlotsController {
         }
     }
 
-    public void stopProcess2(ActionEvent actionEvent) {
-        MCMCProcess.ALLOW_EXECUTION = false;
-
-        for (int blockIndex = 0; blockIndex < services.length; blockIndex++) {
-            ((MCMCUpdatesService) services[blockIndex]).getPlotBuilderTask().cancel();
-            if (((MCMCUpdatesService) services[blockIndex]).getPlotBuilderTask().isCancelled()) {
-                services[blockIndex].cancel();
-            }
-        }
-    }
 
     public void viewSelectedBlockAction() {
         int blockIndex = listViewOfBlocks.getSelectionModel().getSelectedIndex();
@@ -344,7 +364,7 @@ public class MCMCPlotsController {
     public void viewSelectedBlock(int blockIndex) {
         Task<String> mcmcPlotBuildersTask = ((MCMCUpdatesService) services[blockIndex]).getPlotBuilderTask();
         if ((null != mcmcPlotBuildersTask) && mcmcPlotBuildersTask.isDone()) {
-            plotEngine(mcmcPlotBuildersTask);
+            plotBlockEngine(mcmcPlotBuildersTask);
             showLogsEngine(blockIndex);
         }
     }

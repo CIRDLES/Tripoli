@@ -28,23 +28,23 @@ public class HistogramBuilder extends PlotBuilder {
 
     @Serial
     private static final long serialVersionUID = 9180059676626735662L;
-    private HistogramRecord histogram;
+    private HistogramRecord histogramRecord;
 
     public HistogramBuilder() {
     }
 
-    public HistogramBuilder(String[] title, String xAxisLabel, String yAxisLabel) {
+    public HistogramBuilder(int blockID, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel);
-        histogram = generateHistogram(new double[0], 0);
+        histogramRecord = generateHistogram(blockID, new double[0], 0);
     }
 
-    public static HistogramBuilder initializeHistogram(double[] data, int binCount, String[] title, String xAxisLabel, String yAxisLabel) {
-        HistogramBuilder histogramBuilder = new HistogramBuilder(title, xAxisLabel, yAxisLabel);
-        histogramBuilder.histogram = histogramBuilder.generateHistogram(data, binCount);
+    public static HistogramBuilder initializeHistogram(int blockID, double[] data, int binCount, String[] title, String xAxisLabel, String yAxisLabel) {
+        HistogramBuilder histogramBuilder = new HistogramBuilder(blockID, title, xAxisLabel, yAxisLabel);
+        histogramBuilder.histogramRecord = histogramBuilder.generateHistogram(blockID, data, binCount);
         return histogramBuilder;
     }
 
-    private HistogramRecord generateHistogram(double[] data, int binCount) {
+    private HistogramRecord generateHistogram(int blockID, double[] data, int binCount) {
         DescriptiveStatistics descriptiveStatisticsRatios = new DescriptiveStatistics();
         for (int index = 0; index < data.length; index++) {
             descriptiveStatisticsRatios.addValue(data[index]);
@@ -73,6 +73,7 @@ public class HistogramBuilder extends PlotBuilder {
         }
 
         return new HistogramRecord(
+                blockID,
                 data,
                 descriptiveStatisticsRatios.getMean(),
                 descriptiveStatisticsRatios.getStandardDeviation(),
@@ -86,7 +87,7 @@ public class HistogramBuilder extends PlotBuilder {
         );
     }
 
-    public HistogramRecord getHistogram() {
-        return histogram;
+    public HistogramRecord getHistogramRecord() {
+        return histogramRecord;
     }
 }

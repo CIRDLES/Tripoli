@@ -42,6 +42,8 @@ import static java.lang.StrictMath.exp;
 public enum SingleBlockDataModelPlot {
     ;
 
+    public final static int PLOT_INDEX_RATIOS = 0;
+
     public static PlotBuilder[][] analysisAndPlotting(
             SingleBlockDataSetRecord singleBlockDataSetRecord,
             List<EnsemblesStore.EnsembleRecord> ensembleRecordsList,
@@ -184,23 +186,23 @@ public enum SingleBlockDataModelPlot {
 
         plotBuilders[0] = new PlotBuilder[ensembleRatios.length];
         for (int i = 0; i < ensembleRatios.length; i++) {
-            plotBuilders[0][i] = HistogramBuilder.initializeHistogram(ensembleRatios[i],
+            plotBuilders[PLOT_INDEX_RATIOS][i] = HistogramBuilder.initializeHistogram(singleBlockDataSetRecord.blockNumber(), ensembleRatios[i],
                     25, new String[]{isotopicRatioList.get(i).prettyPrint()}, "Ratios", "Frequency");
         }
 
         plotBuilders[1] = new PlotBuilder[ensembleBaselines.length];
         List<Detector> faradayDetectorsUsed = analysisMethod.getSequenceTable().findFaradayDetectorsUsed();
         for (int i = 0; i < ensembleBaselines.length; i++) {
-            plotBuilders[1][i] = HistogramBuilder.initializeHistogram(ensembleBaselines[i],
+            plotBuilders[1][i] = HistogramBuilder.initializeHistogram(singleBlockDataSetRecord.blockNumber(), ensembleBaselines[i],
                     25, new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Baseline"}, "Baseline Counts", "Frequency");
         }
 
-        plotBuilders[2][0] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain,
+        plotBuilders[2][0] = HistogramBuilder.initializeHistogram(singleBlockDataSetRecord.blockNumber(), ensembleDalyFaradayGain,
                 25, new String[]{"Daly/Faraday Gain"}, "Gain", "Frequency");
 
         plotBuilders[3] = new PlotBuilder[ensembleSignalnoise.length];
         for (int i = 0; i < ensembleSignalnoise.length; i++) {
-            plotBuilders[3][i] = HistogramBuilder.initializeHistogram(ensembleSignalnoise[i],
+            plotBuilders[3][i] = HistogramBuilder.initializeHistogram(singleBlockDataSetRecord.blockNumber(), ensembleSignalnoise[i],
                     25, new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Signal Noise"}, "Noise hyperparameter", "Frequency");
         }
 

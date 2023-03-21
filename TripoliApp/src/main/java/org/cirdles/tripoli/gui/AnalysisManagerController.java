@@ -282,12 +282,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         blockStatusButton.setFont(Font.font("Monospaced", FontWeight.EXTRA_BOLD, 10));
         blockStatusButton.setId(String.valueOf(blockID));
         blockStatusButton.setPadding(new Insets(0, -1, 0, -1));
-        tuneButton(blockStatusButton, analysis.getMapOfBlocksToProcessStatus().get(blockID));
+        tuneButton(blockStatusButton, analysis.getMapOfBlockIdToProcessStatus().get(blockID));
 
         blockStatusButton.setOnAction(e -> {
             switch ((int) blockStatusButton.getUserData()) {
                 case RUN -> {
-                    if (null != analysis.getMapOfBlockToPlots().get(blockID)) {
+                    if (null != analysis.getMapOfBlockIdToPlots().get(blockID)) {
                         tuneButton(blockStatusButton, SHOW);
                     } else {
                         tuneButton(blockStatusButton, SKIP);
@@ -368,7 +368,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public void initializeMonteCarloTechniqueAction() {
         for (Node button : blockStatusHBox.getChildren()) {
             if (button instanceof Button) {
-                analysis.getMapOfBlocksToProcessStatus().put(Integer.parseInt(button.getId()), (int) button.getUserData());
+                analysis.getMapOfBlockIdToProcessStatus().put(Integer.parseInt(button.getId()), (int) button.getUserData());
             }
         }
         if (null == MCMCPlotsWindow) {
@@ -396,7 +396,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     public void selectShowsAction() {
         for (Node button : blockStatusHBox.getChildren()) {
-            if ((button instanceof Button) && (analysis.getMapOfBlocksToProcessStatus().get(Integer.parseInt(button.getId())) == 0)) {
+            if ((button instanceof Button) && (analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())) == 0)) {
                 tuneButton((Button) button, SHOW);
             }
         }
@@ -405,7 +405,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public void restoreAllAction() {
         for (Node button : blockStatusHBox.getChildren()) {
             if (button instanceof Button) {
-                tuneButton((Button) button, analysis.getMapOfBlocksToProcessStatus().get(Integer.parseInt(button.getId())));
+                tuneButton((Button) button, analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())));
             }
         }
     }

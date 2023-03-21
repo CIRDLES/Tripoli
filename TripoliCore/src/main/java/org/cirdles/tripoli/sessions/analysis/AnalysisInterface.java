@@ -100,7 +100,7 @@ public interface AnalysisInterface {
 
     void setMutable(boolean mutable);
 
-    public Map<Integer, Integer> getMapOfBlocksToProcessStatus();
+    public Map<Integer, Integer> getMapOfBlockIdToProcessStatus();
 
-    public Map<Integer, PlotBuilder[][]> getMapOfBlockToPlots();
+    public Map<Integer, PlotBuilder[][]> getMapOfBlockIdToPlots();
 }

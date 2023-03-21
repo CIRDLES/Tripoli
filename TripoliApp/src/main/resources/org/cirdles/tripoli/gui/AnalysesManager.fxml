@@ -143,8 +143,14 @@
             </ScrollPane>
         </Tab>
     </TabPane>
-    <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0"
-           style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Block Process Status:" GridPane.rowIndex="7"/>
+    <VBox GridPane.rowIndex="7">
+        <children>
+            <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0"
+                   style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Block Process Status:"/>
+            <Label alignment="CENTER_RIGHT" layoutX="10.0" layoutY="10.0" prefHeight="28.0" prefWidth="156.0"
+                   style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Buttons change status"/>
+        </children>
+    </VBox>
     <HBox fx:id="blockStatusHBox" prefHeight="100.0" prefWidth="200.0"
           style="-fx-background-color: white; -fx-border-color: green; -fx-border-width: 2;"
           stylesheets="@css/tripoli.css" GridPane.columnIndex="1" GridPane.rowIndex="7"/>

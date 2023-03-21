@@ -57,9 +57,9 @@ public class Analysis implements Serializable, AnalysisInterface {
     private static final long serialVersionUID = 5737165372498262402L;
 
 
-    private final Map<Integer, PlotBuilder[][]> mapOfBlockToPlots = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, PlotBuilder[][]> mapOfBlockIdToPlots = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, String> mapOfBlockToLogs = Collections.synchronizedSortedMap(new TreeMap<>());
-    private Map<Integer, Integer> mapOfBlocksToProcessStatus = Collections.synchronizedSortedMap(new TreeMap<>());
+    private Map<Integer, Integer> mapOfBlockIdToProcessStatus = Collections.synchronizedSortedMap(new TreeMap<>());
 
     private String analysisName;
     private String analystName;
@@ -122,7 +122,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         }
         // initialize block processing state
         for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
-            mapOfBlocksToProcessStatus.put(blockID, RUN);
+            mapOfBlockIdToProcessStatus.put(blockID, RUN);
         }
     }
 
@@ -133,19 +133,20 @@ public class Analysis implements Serializable, AnalysisInterface {
         return AnalysisMethod.createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod, massSpecExtractedData.getDetectorSetup(), massSpecExtractedData.getMassSpectrometerContext());
     }
 
+
     public PlotBuilder[][] updatePlotsByBlock(int blockID, LoggingCallbackInterface loggingCallback) throws TripoliException {
         PlotBuilder[][] retVal;
-        if (mapOfBlocksToProcessStatus.get(blockID) == RUN) {
-            mapOfBlockToPlots.remove(blockID);
+        if (mapOfBlockIdToProcessStatus.get(blockID) == RUN) {
+            mapOfBlockIdToPlots.remove(blockID);
         }
-        if (mapOfBlockToPlots.containsKey(blockID)) {
-            retVal = mapOfBlockToPlots.get(blockID);
+        if (mapOfBlockIdToPlots.containsKey(blockID)) {
+            retVal = mapOfBlockIdToPlots.get(blockID);
             loggingCallback.receiveLoggingSnippet("1000 >%");
         } else {
             PlotBuilder[][] plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock(blockID, this, loggingCallback);
-            mapOfBlockToPlots.put(blockID, plotBuilders);
-            mapOfBlocksToProcessStatus.put(blockID, SHOW);
-            retVal = mapOfBlockToPlots.get(blockID);
+            mapOfBlockIdToPlots.put(blockID, plotBuilders);
+            mapOfBlockIdToProcessStatus.put(blockID, SHOW);
+            retVal = mapOfBlockIdToPlots.get(blockID);
         }
         return retVal;
     }
@@ -299,11 +300,11 @@ public class Analysis implements Serializable, AnalysisInterface {
         this.mutable = mutable;
     }
 
-    public Map<Integer, Integer> getMapOfBlocksToProcessStatus() {
-        return mapOfBlocksToProcessStatus;
+    public Map<Integer, Integer> getMapOfBlockIdToProcessStatus() {
+        return mapOfBlockIdToProcessStatus;
     }
 
-    public Map<Integer, PlotBuilder[][]> getMapOfBlockToPlots() {
-        return mapOfBlockToPlots;
+    public Map<Integer, PlotBuilder[][]> getMapOfBlockIdToPlots() {
+        return mapOfBlockIdToPlots;
     }
 }
