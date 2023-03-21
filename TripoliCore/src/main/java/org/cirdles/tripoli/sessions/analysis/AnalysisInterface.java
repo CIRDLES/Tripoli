@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
 
@@ -98,4 +99,8 @@ public interface AnalysisInterface {
     boolean isMutable();
 
     void setMutable(boolean mutable);
+
+    public Map<Integer, Integer> getMapOfBlockIdToProcessStatus();
+
+    public Map<Integer, PlotBuilder[][]> getMapOfBlockIdToPlots();
 }

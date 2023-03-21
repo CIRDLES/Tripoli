@@ -41,8 +41,8 @@
             <Tab closable="false" text="Beam Shape">
                 <AnchorPane fx:id="beamShapeAnchorPane"/>
             </Tab>
-            <Tab closable="false" text="Summary">
-                <AnchorPane fx:id="summaryAnchorPane"/>
+            <Tab closable="false" text="Session">
+                <AnchorPane fx:id="sessionAnchorPane"/>
             </Tab>
             <Tab closable="false" text="Log">
                 <AnchorPane fx:id="logAnchorPane"/>

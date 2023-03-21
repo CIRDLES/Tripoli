@@ -21,6 +21,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
+import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 
 import java.io.IOException;
 
@@ -42,7 +43,7 @@ public class MCMCPlotsWindow {
     private MCMCPlotsWindow() {
     }
 
-    public MCMCPlotsWindow(Stage primaryStage) {
+    public MCMCPlotsWindow(Stage primaryStage, AnalysisManagerCallbackI analysisManagerCallbackI) {
         this.primaryStage = primaryStage;
         plottingStage = new Stage();
         plottingStage.setMinWidth(PLOT_WINDOW_WIDTH);
@@ -54,6 +55,8 @@ public class MCMCPlotsWindow {
             plottingStage.setScene(null);
             e.consume();
         });
+
+        MCMCPlotsController.analysisManagerCallbackI = analysisManagerCallbackI;
     }
 
     public void loadPlotsWindow() {

@@ -21,12 +21,14 @@ import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockDataModelPlot.PLOT_INDEX_RATIOS;
+
 /**
  * @author James F. Bowring
  */
 public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface, PlotBuildersTaskInterface {
     public static AnalysisInterface analysis;
-    private final int blockNumber;
+    private final int blockID;
     // ensemble plots
     private PlotBuilder[] ratiosHistogramBuilder;
     private PlotBuilder[] baselineHistogramBuilder;
@@ -50,8 +52,8 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
     private PlotBuilder[] observedDataWithSubsetsLineBuilder;
 
-    public MCMCPlotBuildersTask(int blockNumber) {
-        this.blockNumber = blockNumber;
+    public MCMCPlotBuildersTask(int blockID) {
+        this.blockID = blockID;
     }
 
     @Override
@@ -125,8 +127,9 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
     @Override
     public synchronized String call() throws Exception {
-        PlotBuilder[][] plots = analysis.updatePlotsByBlock(blockNumber, this);
-        ratiosHistogramBuilder = plots[0];
+        PlotBuilder[][] plots = analysis.updatePlotsByBlock(blockID, this);
+
+        ratiosHistogramBuilder = plots[PLOT_INDEX_RATIOS];
         baselineHistogramBuilder = plots[1];
         dalyFaradayGainHistogramBuilder = plots[2];
         signalNoiseHistogramBuilder = plots[3];
@@ -147,12 +150,16 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
         observedDataWithSubsetsLineBuilder = plots[15];
 
-        return analysis.getDataFilePathString() + "Block # " + blockNumber + "\n\n\tDONE - view tabs for various plots";
+        return analysis.getDataFilePathString() + "Block # " + blockID + "\n\n\tDONE - view tabs for various plots";
     }
 
     @Override
     public void receiveLoggingSnippet(String loggingSnippet) {
         updateValue(loggingSnippet);
-        analysis.uppdateLogsByBlock(blockNumber, loggingSnippet);
+        analysis.uppdateLogsByBlock(blockID, loggingSnippet);
+    }
+
+    public int getBlockID() {
+        return blockID;
     }
 }

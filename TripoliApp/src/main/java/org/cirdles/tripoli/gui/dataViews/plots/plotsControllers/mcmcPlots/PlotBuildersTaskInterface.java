@@ -34,4 +34,6 @@ public interface PlotBuildersTaskInterface {
     String call() throws Exception;
 
     void receiveLoggingSnippet(String loggingSnippet);
+
+    public int getBlockID();
 }

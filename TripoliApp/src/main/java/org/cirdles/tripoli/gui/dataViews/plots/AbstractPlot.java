@@ -197,10 +197,11 @@ public abstract class AbstractPlot extends Canvas {
 
         drawBorder(g2d);
         drawPlotLimits(g2d);
-        plotData(g2d);
+
         if (showStats) {
             plotStats(g2d);
         }
+        plotData(g2d);
         drawAxes(g2d);
         labelAxisX(g2d);
         labelAxisY(g2d);

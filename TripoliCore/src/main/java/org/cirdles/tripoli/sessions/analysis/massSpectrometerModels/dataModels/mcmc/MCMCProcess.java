@@ -44,7 +44,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public class MCMCProcess {
 
     public static boolean ALLOW_EXECUTION = true;
-    private static int maxIterationCount = 2000;
+    private static int maxIterationCount = 1000;
     private static int stepCountForcedSave = 100;
     private static int modelCount = maxIterationCount * stepCountForcedSave;
     private final SingleBlockModelRecord singleBlockInitialModelRecord_X0;
@@ -129,10 +129,9 @@ public class MCMCProcess {
             Ndata=d0.Ndata; % Number of picks
             Nsig = d0.Nsig; % Number of noise variables
          */
-//        maxIterationCount = 2000;
         hierarchical = true;
         tempering = 1.0;
-//        stepCountForcedSave = 100;
+
         burnInThreshold = 10;
         startingIndexOfFaradayData = singleBlockDataSetRecord.getCountOfBaselineIntensities();
         startingIndexOfPhotoMultiplierData = startingIndexOfFaradayData + singleBlockDataSetRecord.getCountOfOnPeakFaradayIntensities();
