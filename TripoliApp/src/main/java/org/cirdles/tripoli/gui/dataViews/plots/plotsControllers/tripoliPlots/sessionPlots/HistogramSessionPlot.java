@@ -85,6 +85,7 @@ public class HistogramSessionPlot extends AbstractPlot {
     @Override
     public void plotData(GraphicsContext g2d) {
         g2d.setFill(dataColor.color());
+        g2d.setStroke(dataColor.color());
         g2d.setLineWidth(1.0);
 
         for (int i = 0; i < xAxisData.length; i++) {
