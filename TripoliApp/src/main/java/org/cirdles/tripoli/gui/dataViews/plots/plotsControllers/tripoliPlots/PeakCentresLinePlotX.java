@@ -92,7 +92,6 @@ public class PeakCentresLinePlotX extends AbstractPlot {
     @Override
     public void plotData(GraphicsContext g2d) {
         if (yAxisData.length != 1) {
-
             g2d.setLineWidth(2.5);
 
             g2d.beginPath();
@@ -104,6 +103,7 @@ public class PeakCentresLinePlotX extends AbstractPlot {
                 if (pointInPlot(xAxisData[i], yAxisData[i])) {
                     // line tracing through points
                     g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
+
                 } else {
                     // out of bounds
                     g2d.moveTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
@@ -120,7 +120,14 @@ public class PeakCentresLinePlotX extends AbstractPlot {
             g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]));
             for (int i = 0; i < xAxisData.length; i++) {
                 // line tracing through points
-                g2d.fillOval(mapX(xAxisData[i]) - 4, mapY(yAxisData[i]) - 4, 8, 8);
+                if (pointInPlot(xAxisData[i], yAxisData[i])) {
+                    // line tracing through points
+                    g2d.fillOval(mapX(xAxisData[i]) - 4, mapY(yAxisData[i]) - 4, 8, 8);
+                } else {
+                    // out of bounds
+                    g2d.moveTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
+                }
+                //g2d.fillOval(mapX(xAxisData[i]) - 4, mapY(yAxisData[i]) - 4, 8, 8);
             }
             g2d.stroke();
             g2d.beginPath();

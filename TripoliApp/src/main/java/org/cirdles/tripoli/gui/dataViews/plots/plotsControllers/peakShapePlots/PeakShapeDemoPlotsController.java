@@ -392,28 +392,28 @@ public class PeakShapeDemoPlotsController {
         int finalSize = size;
 
         peakCentreGridPane.setOnMouseMoved(mouse -> {
-            int index = (int) peakCentreLinePlot.convertMouseXToValue(mouse.getX());
+//            int index = (int) peakCentreLinePlot.convertMouseXToValue(mouse.getX());
 
-            if (peakCentreLinePlot.mouseInHouse(mouse.getX(), mouse.getY()) && index >= 1 && mouse.getY() > 10) {
-                for (int i = 0; i < peakCentreLinePlot.getxAxisData().length; i++) {
-                    ImageView pos1 = (ImageView) plotsAnchorPane.getChildren().get(finalSize + (i));
-                    pos1.setVisible(false);
-                    ImageView pos2 = (ImageView) plotsAnchorPane.getChildren().get(i + 1);
-                    pos2.setVisible(false);
-                    if (peakCentreLinePlot.getxAxisData()[i] == index) {
-                        pos1 = (ImageView) plotsAnchorPane.getChildren().get(finalSize + (index - 1));
-                        pos1.setVisible(true);
-                        pos2 = (ImageView) plotsAnchorPane.getChildren().get(index);
-                        pos2.setVisible(true);
-                    }
-
-                }
-
-            } else {
-                for (int i = 1; i < plotsAnchorPane.getChildren().size(); i++) {
-                    plotsAnchorPane.getChildren().get(i).setVisible(false);
-                }
-            }
+//            if (peakCentreLinePlot.mouseInHouse(mouse.getX(), mouse.getY()) && index >= 1 && mouse.getY() > 10) {
+//                for (int i = 0; i < peakCentreLinePlot.getxAxisData().length; i++) {
+//                    ImageView pos1 = (ImageView) plotsAnchorPane.getChildren().get(finalSize + (i));
+//                    pos1.setVisible(false);
+//                    ImageView pos2 = (ImageView) plotsAnchorPane.getChildren().get(i + 1);
+//                    pos2.setVisible(false);
+//                    if (peakCentreLinePlot.getxAxisData()[i] == index) {
+//                        pos1 = (ImageView) plotsAnchorPane.getChildren().get(finalSize + (index - 1));
+//                        pos1.setVisible(true);
+//                        pos2 = (ImageView) plotsAnchorPane.getChildren().get(index);
+//                        pos2.setVisible(true);
+//                    }
+//
+//                }
+//
+//            } else {
+//                for (int i = 1; i < plotsAnchorPane.getChildren().size(); i++) {
+//                    plotsAnchorPane.getChildren().get(i).setVisible(false);
+//                }
+//            }
 
         });
     }
