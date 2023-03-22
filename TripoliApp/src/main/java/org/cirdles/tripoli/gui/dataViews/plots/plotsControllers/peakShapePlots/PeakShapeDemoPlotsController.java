@@ -389,7 +389,7 @@ public class PeakShapeDemoPlotsController {
             listViewOfResourcesInFolder.getSelectionModel().select(currentGroupIndex);
         });
 
-        int finalSize = size;
+        //int finalSize = size;
 
         peakCentreGridPane.setOnMouseMoved(mouse -> {
 //            int index = (int) peakCentreLinePlot.convertMouseXToValue(mouse.getX());
