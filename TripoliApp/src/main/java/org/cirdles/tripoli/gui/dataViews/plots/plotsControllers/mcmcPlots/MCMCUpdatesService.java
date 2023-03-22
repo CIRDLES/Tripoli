@@ -23,17 +23,17 @@ import javafx.concurrent.Task;
  * @author James F. Bowring
  */
 public class MCMCUpdatesService extends Service<String> {
-    private final int blockNumber;
+    private final int blockID;
 
     private Task<String> plotBuilderTask;
 
-    public MCMCUpdatesService(int blockNumber) {
-        this.blockNumber = blockNumber;
+    public MCMCUpdatesService(int blockID) {
+        this.blockID = blockID;
     }
 
     @Override
     protected Task<String> createTask() {
-        plotBuilderTask = new MCMCPlotBuildersTask(blockNumber);
+        plotBuilderTask = new MCMCPlotBuildersTask(blockID);
         return plotBuilderTask;
     }
 

@@ -26,7 +26,7 @@ public class MassSpecExtractedData implements Serializable {
     }
 
     public void addBlockRecord(MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord) {
-        blocksData.put(massSpecOutputSingleBlockRecord.blockNumber(), massSpecOutputSingleBlockRecord);
+        blocksData.put(massSpecOutputSingleBlockRecord.blockID(), massSpecOutputSingleBlockRecord);
     }
 
     public void populateHeader(List<String[]> headerData) {
@@ -96,10 +96,6 @@ public class MassSpecExtractedData implements Serializable {
         return header;
     }
 
-    public void setHeader(MassSpecExtractedHeader header) {
-        this.header = header;
-    }
-
     public String[] getColumnHeaders() {
         return columnHeaders;
     }
@@ -118,10 +114,6 @@ public class MassSpecExtractedData implements Serializable {
 
     public Map<Integer, MassSpecOutputSingleBlockRecord> getBlocksData() {
         return blocksData;
-    }
-
-    public void setBlocksData(Map<Integer, MassSpecOutputSingleBlockRecord> blocksData) {
-        this.blocksData = blocksData;
     }
 
     public record MassSpecExtractedHeader(

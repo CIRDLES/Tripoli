@@ -34,9 +34,9 @@ record SingleBlockDataSetRecord(
         int[] blockDetectorOrdinalIndicesArray,
         int[] blockIsotopeOrdinalIndicesArray,
         int[] blockTimeIndicesArray,
-        int[] onPeakStartingIndicesOfCycles
+        int[] onPeakStartingIndicesOfCycles,
 
-) implements Serializable {
+        java.util.Map<String, List<Double>> blockMapIdsToDataTimes) implements Serializable {
     int getCountOfBaselineIntensities() {
         return baselineDataSetMCMC().intensityAccumulatorList().size();
     }
@@ -54,8 +54,8 @@ record SingleBlockDataSetRecord(
             List<Double> intensityAccumulatorList,
             List<Double> timeAccumulatorList,
             List<Integer> timeIndexAccumulatorList,
-            List<Integer> isotopeOrdinalIndicesAccumulatorList
-    ) implements Serializable {
+            List<Integer> isotopeOrdinalIndicesAccumulatorList,
+            java.util.Map<String, List<Double>> blockMapOfIdsToData) implements Serializable {
     }
 
 

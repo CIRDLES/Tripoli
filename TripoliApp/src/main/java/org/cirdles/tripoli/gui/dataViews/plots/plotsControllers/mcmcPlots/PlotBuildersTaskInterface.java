@@ -29,7 +29,11 @@ public interface PlotBuildersTaskInterface {
 
     PlotBuilder[] getConvergeNoiseFaradayLineBuilder();
 
+    public PlotBuilder[] getObservedDataWithSubsetsLineBuilder();
+
     String call() throws Exception;
 
     void receiveLoggingSnippet(String loggingSnippet);
+
+    public int getBlockID();
 }

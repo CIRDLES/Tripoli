@@ -42,6 +42,8 @@ import static java.lang.StrictMath.exp;
 public enum SingleBlockDataModelPlot {
     ;
 
+    public final static int PLOT_INDEX_RATIOS = 0;
+
     public static PlotBuilder[][] analysisAndPlotting(
             SingleBlockDataSetRecord singleBlockDataSetRecord,
             List<EnsemblesStore.EnsembleRecord> ensembleRecordsList,
@@ -180,27 +182,27 @@ public enum SingleBlockDataModelPlot {
         }
 
         // visualization - Ensembles tab
-        PlotBuilder[][] plotBuilders = new PlotBuilder[15][1];
+        PlotBuilder[][] plotBuilders = new PlotBuilder[16][1];
 
         plotBuilders[0] = new PlotBuilder[ensembleRatios.length];
         for (int i = 0; i < ensembleRatios.length; i++) {
-            plotBuilders[0][i] = HistogramBuilder.initializeHistogram(ensembleRatios[i],
+            plotBuilders[PLOT_INDEX_RATIOS][i] = HistogramBuilder.initializeHistogram(singleBlockDataSetRecord.blockNumber(), ensembleRatios[i],
                     25, new String[]{isotopicRatioList.get(i).prettyPrint()}, "Ratios", "Frequency");
         }
 
         plotBuilders[1] = new PlotBuilder[ensembleBaselines.length];
         List<Detector> faradayDetectorsUsed = analysisMethod.getSequenceTable().findFaradayDetectorsUsed();
         for (int i = 0; i < ensembleBaselines.length; i++) {
-            plotBuilders[1][i] = HistogramBuilder.initializeHistogram(ensembleBaselines[i],
+            plotBuilders[1][i] = HistogramBuilder.initializeHistogram(singleBlockDataSetRecord.blockNumber(), ensembleBaselines[i],
                     25, new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Baseline"}, "Baseline Counts", "Frequency");
         }
 
-        plotBuilders[2][0] = HistogramBuilder.initializeHistogram(ensembleDalyFaradayGain,
+        plotBuilders[2][0] = HistogramBuilder.initializeHistogram(singleBlockDataSetRecord.blockNumber(), ensembleDalyFaradayGain,
                 25, new String[]{"Daly/Faraday Gain"}, "Gain", "Frequency");
 
         plotBuilders[3] = new PlotBuilder[ensembleSignalnoise.length];
         for (int i = 0; i < ensembleSignalnoise.length; i++) {
-            plotBuilders[3][i] = HistogramBuilder.initializeHistogram(ensembleSignalnoise[i],
+            plotBuilders[3][i] = HistogramBuilder.initializeHistogram(singleBlockDataSetRecord.blockNumber(), ensembleSignalnoise[i],
                     25, new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Signal Noise"}, "Noise hyperparameter", "Frequency");
         }
 
@@ -346,26 +348,21 @@ public enum SingleBlockDataModelPlot {
         }
 
 
-        int plottingStep = 10;
         double[] dataOriginalCounts = singleBlockDataSetRecord.blockIntensityArray().clone();
-        double[] xDataIndex = new double[dataOriginalCounts.length / plottingStep];
-        double[] yDataCounts = new double[dataOriginalCounts.length / plottingStep];
-        double[] yDataModelCounts = new double[dataOriginalCounts.length / plottingStep];
-
-        double[] yDataResiduals = new double[dataOriginalCounts.length / plottingStep];
-        double[] yDataSigmas = new double[dataOriginalCounts.length / plottingStep];
+        double[] yDataResiduals = new double[dataOriginalCounts.length];
 
         Arrays.sort(integrationTimes);
-        for (int i = 0; i < dataOriginalCounts.length / plottingStep; i++) {
-            xDataIndex[i] = integrationTimes[i * plottingStep];
-            yDataCounts[i] = dataOriginalCounts[i * plottingStep];
-            yDataModelCounts[i] = dataArray[i * plottingStep];
-            yDataResiduals[i] = dataOriginalCounts[i * plottingStep] - dataArray[i * plottingStep];
-            yDataSigmas[i] = dataCountsModelOneSigma[i * plottingStep];
+        for (int i = 0; i < dataOriginalCounts.length; i++) {
+            yDataResiduals[i] = dataOriginalCounts[i] - dataArray[i];
         }
-        plotBuilders[13][0] = ComboPlotBuilder.initializeLinePlot(xDataIndex, yDataCounts, yDataModelCounts, new String[]{"Observed Data"}, "Integration Time", "Intensity");
 
-        plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(xDataIndex, yDataResiduals, yDataSigmas, new String[]{"Residual Data"}, "Integration Time", "Intensity");
+        plotBuilders[13][0] = ComboPlotBuilder.initializeLinePlot(
+                integrationTimes, dataOriginalCounts, dataArray, new String[]{"Observed Data"}, "Integration Time", "Intensity");
+        plotBuilders[15][0] = ComboPlotBuilder.initializeLinePlotWithSubsets(
+                integrationTimes, dataOriginalCounts, dataArray, singleBlockDataSetRecord.blockMapIdsToDataTimes(),
+                new String[]{"Observed Data by Sequence"}, "Integration Time", "Intensity");
+        plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(
+                integrationTimes, yDataResiduals, dataCountsModelOneSigma, new String[]{"Residual Data"}, "Integration Time", "Intensity");
 
 
         // todo: missing additional elements of signalNoiseSigma (i.e., 0,11,11)

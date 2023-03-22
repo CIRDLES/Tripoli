@@ -101,7 +101,7 @@ public class TripoliGUIController implements Initializable {
         versionLabel.setText("v" + Tripoli.VERSION);
         versionBuildDate.setText(Tripoli.RELEASE_DATE);
 
-        MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
+        MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage, null);
 
         showStartingMenus();
 
@@ -353,7 +353,7 @@ public class TripoliGUIController implements Initializable {
 
     @FXML
     private void showDemo1() {
-        MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
+        MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage, null);
         MCMCPlotsWindow.loadPlotsWindow();
     }
 
