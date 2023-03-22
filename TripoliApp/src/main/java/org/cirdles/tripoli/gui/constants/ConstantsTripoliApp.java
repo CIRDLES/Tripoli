@@ -28,12 +28,26 @@ public enum ConstantsTripoliApp {
     public static final Color TRIPOLI_STARTING_YELLOW = new Color(243.0 / 256.0, 227.0 / 256.0, 118.0 / 256.0, 1.0);
     public static final Color TRIPOLI_SESSION_LINEN = Color.LINEN;
     public static final Color TRIPOLI_ANALYSIS_YELLOW = Color.web("#fbf6d5");
+    public static final Color TRIPOLI_ANALYSIS_GREEN = Color.web("#AFFF80");
+    public static final Color TRIPOLI_ANALYSIS_RED = Color.web("#FF7377");
+
+    // https://www.learnui.design/tools/data-color-picker.html
+    public static final String[] TRIPOLI_PALLETTE_ONE = {"#003f5c", "#2f4b7c", "#665191", "#a05195", "#f95d6a", "#ff7c43", "#ffa600"};
+    // https://www.vis4.net/palettes/#/9|d|00429d,96ffea,ffffe0|ffffe0,ff005e,93003a|1|1
+    public static final String[] TRIPOLI_PALLETTE_TWO = {"#00429d", "#4771b2", "#73a2c6", "#a5d5d8", "#ffffe0", "#ffbcaf", "#f4777f", "#cf3759", "#93003a"};
+    // https://colorbrewer2.org/#type=diverging&scheme=BrBG&n=8
+
+    public static final String[] TRIPOLI_PALLETTE_THREE = {"#8c510a", "#bf812d", "#dfc27d", "#f6e8c3", "#c7eae5", "#80cdc1", "#35978f", "#01665e"};
+    //https://docs.oracle.com/javase/8/javafx/api/javafx/scene/paint/Color.html
+    public static final String[] TRIPOLI_PALLETTE_FOUR = {"RED", "BLUE", "GREEN", "BLACK", "ORANGE", "INDIGO", "#35978f", "#01665e"};
 
     public static @NonNls String convertColorToHex(Color color) {
-        String red = Integer.toHexString((int) (color.getRed() * 256));
-        String green = Integer.toHexString((int) (color.getGreen() * 256));
-        String blue = Integer.toHexString((int) (color.getBlue() * 256));
+        String red = Integer.toHexString((int) (color.getRed() * 255));
+        String green = Integer.toHexString((int) (color.getGreen() * 255));
+        String blue = Integer.toHexString((int) (color.getBlue() * 255));
 
         return "#" + red + green + blue;
     }
+
+
 }

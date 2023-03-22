@@ -21,111 +21,119 @@ import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockDataModelPlot.PLOT_INDEX_RATIOS;
+
 /**
  * @author James F. Bowring
  */
 public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface, PlotBuildersTaskInterface {
-    private final AnalysisInterface analysis;
-    private final int blockNumber;
+    public static AnalysisInterface analysis;
+    private final int blockID;
     // ensemble plots
     private PlotBuilder[] ratiosHistogramBuilder;
     private PlotBuilder[] baselineHistogramBuilder;
     private PlotBuilder[] dalyFaradayGainHistogramBuilder;
     private PlotBuilder[] signalNoiseHistogramBuilder;
-    private PlotBuilder[] meanIntensityLineBuilder;
+    private PlotBuilder[] meanIntensityVsKnotsMultiLineBuilder;
 
     private PlotBuilder[] convergeRatioLineBuilder;
 
-    private PlotBuilder observedDataLineBuilder;
-    private PlotBuilder residualDataLineBuilder;
+    private PlotBuilder[] observedDataLineBuilder;
+    private PlotBuilder[] residualDataLineBuilder;
 
     private PlotBuilder[] convergeBLFaradayLineBuilder;
 
     private PlotBuilder[] convergeErrWeightedMisfitLineBuilder;
     private PlotBuilder[] convergeErrRawMisfitLineBuilder;
 
-    private PlotBuilder convergeIntensityLinesBuilder;
+    private PlotBuilder[] convergeIntensityLinesBuilder;
 
     private PlotBuilder[] convergeNoiseFaradayLineBuilder;
 
-    public MCMCPlotBuildersTask(AnalysisInterface analysis, int blockNumber) {
-        this.analysis = analysis;
-        this.blockNumber = blockNumber;
+    private PlotBuilder[] observedDataWithSubsetsLineBuilder;
+
+    public MCMCPlotBuildersTask(int blockID) {
+        this.blockID = blockID;
     }
 
     @Override
     public PlotBuilder[] getRatiosHistogramBuilder() {
-        return ratiosHistogramBuilder;
+        return ratiosHistogramBuilder.clone();
     }
 
     @Override
     public PlotBuilder[] getBaselineHistogramBuilder() {
-        return baselineHistogramBuilder;
+        return baselineHistogramBuilder.clone();
     }
 
     @Override
     public PlotBuilder[] getDalyFaradayGainHistogramBuilder() {
-        return dalyFaradayGainHistogramBuilder;
+        return dalyFaradayGainHistogramBuilder.clone();
     }
 
     @Override
     public PlotBuilder[] getSignalNoiseHistogramBuilder() {
-        return signalNoiseHistogramBuilder;
+        return signalNoiseHistogramBuilder.clone();
     }
 
     @Override
-    public PlotBuilder[] getMeanIntensityLineBuilder() {
-        return meanIntensityLineBuilder;
+    public PlotBuilder[] getMeanIntensityVsKnotsMultiLineBuilder() {
+        return meanIntensityVsKnotsMultiLineBuilder.clone();
     }
 
     @Override
     public PlotBuilder[] getConvergeRatioLineBuilder() {
-        return convergeRatioLineBuilder;
+        return convergeRatioLineBuilder.clone();
     }
 
     @Override
-    public PlotBuilder getObservedDataLineBuilder() {
-        return observedDataLineBuilder;
+    public PlotBuilder[] getObservedDataLineBuilder() {
+        return observedDataLineBuilder.clone();
     }
 
     @Override
-    public PlotBuilder getResidualDataLineBuilder() {
-        return residualDataLineBuilder;
+    public PlotBuilder[] getResidualDataLineBuilder() {
+        return residualDataLineBuilder.clone();
     }
 
     @Override
     public PlotBuilder[] getConvergeBLFaradayLineBuilder() {
-        return convergeBLFaradayLineBuilder;
+        return convergeBLFaradayLineBuilder.clone();
     }
 
     @Override
     public PlotBuilder[] getConvergeErrWeightedMisfitLineBuilder() {
-        return convergeErrWeightedMisfitLineBuilder;
+        return convergeErrWeightedMisfitLineBuilder.clone();
     }
 
     @Override
     public PlotBuilder[] getConvergeErrRawMisfitLineBuilder() {
-        return convergeErrRawMisfitLineBuilder;
+        return convergeErrRawMisfitLineBuilder.clone();
     }
 
     @Override
-    public PlotBuilder getConvergeIntensityLinesBuilder() {
+    public PlotBuilder[] getConvergeIntensityLinesBuilder() {
         return convergeIntensityLinesBuilder;
     }
 
     @Override
     public PlotBuilder[] getConvergeNoiseFaradayLineBuilder() {
-        return convergeNoiseFaradayLineBuilder;
+        return convergeNoiseFaradayLineBuilder.clone();
+    }
+
+    public PlotBuilder[] getObservedDataWithSubsetsLineBuilder() {
+        return observedDataWithSubsetsLineBuilder;
     }
 
     @Override
-    public String call() throws Exception {
-        PlotBuilder[][] plots = analysis.updatePlotsByBlock(blockNumber, this);
-        ratiosHistogramBuilder = plots[0];
+    public synchronized String call() throws Exception {
+        PlotBuilder[][] plots = analysis.updatePlotsByBlock(blockID, this);
+
+        ratiosHistogramBuilder = plots[PLOT_INDEX_RATIOS];
         baselineHistogramBuilder = plots[1];
         dalyFaradayGainHistogramBuilder = plots[2];
         signalNoiseHistogramBuilder = plots[3];
-        meanIntensityLineBuilder = plots[4];
+        meanIntensityVsKnotsMultiLineBuilder = plots[4];
 
         convergeRatioLineBuilder = plots[5];
 
@@ -133,18 +141,25 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
         convergeErrWeightedMisfitLineBuilder = plots[8];
         convergeErrRawMisfitLineBuilder = plots[9];
-        convergeIntensityLinesBuilder = plots[10][0];
+        convergeIntensityLinesBuilder = plots[10];
 
         convergeNoiseFaradayLineBuilder = plots[11];
 
-        observedDataLineBuilder = plots[13][0];
-        residualDataLineBuilder = plots[14][0];
+        observedDataLineBuilder = plots[13];
+        residualDataLineBuilder = plots[14];
 
-        return analysis.getDataFilePathString() + "\n\n\tDONE - view tabs for various plots";
+        observedDataWithSubsetsLineBuilder = plots[15];
+
+        return analysis.getDataFilePathString() + "Block # " + blockID + "\n\n\tDONE - view tabs for various plots";
     }
 
     @Override
     public void receiveLoggingSnippet(String loggingSnippet) {
         updateValue(loggingSnippet);
+        analysis.uppdateLogsByBlock(blockID, loggingSnippet);
+    }
+
+    public int getBlockID() {
+        return blockID;
     }
 }

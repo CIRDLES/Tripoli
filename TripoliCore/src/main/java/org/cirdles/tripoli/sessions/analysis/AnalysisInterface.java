@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
 
@@ -50,6 +51,8 @@ public interface AnalysisInterface {
     AnalysisMethod extractAnalysisMethodfromPath(Path phoenixAnalysisMethodDataFilePath) throws JAXBException;
 
     PlotBuilder[][] updatePlotsByBlock(int blockNumber, LoggingCallbackInterface loggingCallback) throws TripoliException;
+
+    String uppdateLogsByBlock(int blockNumber, String logEntry);
 
     String getAnalysisName();
 
@@ -96,4 +99,8 @@ public interface AnalysisInterface {
     boolean isMutable();
 
     void setMutable(boolean mutable);
+
+    public Map<Integer, Integer> getMapOfBlockIdToProcessStatus();
+
+    public Map<Integer, PlotBuilder[][]> getMapOfBlockIdToPlots();
 }

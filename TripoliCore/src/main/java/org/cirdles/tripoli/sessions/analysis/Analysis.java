@@ -50,9 +50,17 @@ import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuilti
  * @author James F. Bowring
  */
 public class Analysis implements Serializable, AnalysisInterface {
+    public static final int SKIP = -1;
+    public static final int SHOW = 0;
+    public static final int RUN = 1;
     @Serial
     private static final long serialVersionUID = 5737165372498262402L;
-    private final Map<Integer, PlotBuilder[][]> mapOfBlockToPlots = new TreeMap<>();
+
+
+    private final Map<Integer, PlotBuilder[][]> mapOfBlockIdToPlots = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, String> mapOfBlockToLogs = Collections.synchronizedSortedMap(new TreeMap<>());
+    private Map<Integer, Integer> mapOfBlockIdToProcessStatus = Collections.synchronizedSortedMap(new TreeMap<>());
+
     private String analysisName;
     private String analystName;
     private String labName;
@@ -95,7 +103,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         // TODO: remove this temp hack for synthetic demos
         if (0 == massSpectrometerContext.compareTo(PHOENIX_SYNTHETIC)) {
             massSpecExtractedData.setDetectorSetup(DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_SYNTHETIC.getName()));
-            if (massSpecExtractedData.getHeader().methodName().toUpperCase().contains("SYNTHETIC")) {
+            if (massSpecExtractedData.getHeader().methodName().toUpperCase(Locale.ROOT).contains("SYNTHETIC")) {
                 analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(BURDICK_BL_SYNTHETIC_DATA);
             } else {
                 analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
@@ -104,15 +112,17 @@ public class Analysis implements Serializable, AnalysisInterface {
             // attempt to load specified method
             File selectedFile = new File(Path.of(dataFilePathString).getParent().getParent().toString()
                     + File.separator + "Methods" + File.separator + massSpecExtractedData.getHeader().methodName());
-            if (null != selectedFile) {
-                if (selectedFile.exists()) {
-                    analysisMethod = extractAnalysisMethodfromPath(Path.of(selectedFile.toURI()));
-                } else {
-                    throw new TripoliException(
-                            "Method File not found: " + massSpecExtractedData.getHeader().methodName()
-                                    + "\n\n at location: " + Path.of(dataFilePathString).getParent().getParent().toString() + File.separator + "Methods");
-                }
+            if (selectedFile.exists()) {
+                analysisMethod = extractAnalysisMethodfromPath(Path.of(selectedFile.toURI()));
+            } else {
+                throw new TripoliException(
+                        "Method File not found: " + massSpecExtractedData.getHeader().methodName()
+                                + "\n\n at location: " + Path.of(dataFilePathString).getParent().getParent().toString() + File.separator + "Methods");
             }
+        }
+        // initialize block processing state
+        for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
+            mapOfBlockIdToProcessStatus.put(blockID, RUN);
         }
     }
 
@@ -123,14 +133,32 @@ public class Analysis implements Serializable, AnalysisInterface {
         return AnalysisMethod.createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod, massSpecExtractedData.getDetectorSetup(), massSpecExtractedData.getMassSpectrometerContext());
     }
 
-    public PlotBuilder[][] updatePlotsByBlock(int blockNumber, LoggingCallbackInterface loggingCallback) throws TripoliException {
+
+    public PlotBuilder[][] updatePlotsByBlock(int blockID, LoggingCallbackInterface loggingCallback) throws TripoliException {
         PlotBuilder[][] retVal;
-        if (mapOfBlockToPlots.containsKey(blockNumber)) {
-            retVal = mapOfBlockToPlots.get(blockNumber);
-        } else {
-            mapOfBlockToPlots.put(blockNumber, SingleBlockModelDriver.buildAndRunModelForSingleBlock(blockNumber, this, loggingCallback));
-            retVal = mapOfBlockToPlots.get(blockNumber);
+        if (mapOfBlockIdToProcessStatus.get(blockID) == RUN) {
+            mapOfBlockIdToPlots.remove(blockID);
         }
+        if (mapOfBlockIdToPlots.containsKey(blockID)) {
+            retVal = mapOfBlockIdToPlots.get(blockID);
+            loggingCallback.receiveLoggingSnippet("1000 >%");
+        } else {
+            PlotBuilder[][] plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock(blockID, this, loggingCallback);
+            mapOfBlockIdToPlots.put(blockID, plotBuilders);
+            mapOfBlockIdToProcessStatus.put(blockID, SHOW);
+            retVal = mapOfBlockIdToPlots.get(blockID);
+        }
+        return retVal;
+    }
+
+    public String uppdateLogsByBlock(int blockID, String logEntry) {
+        String log = "";
+        if (mapOfBlockToLogs.containsKey(blockID)) {
+            log = mapOfBlockToLogs.get(blockID);
+        }
+        String retVal = log + "\n" + logEntry;
+        mapOfBlockToLogs.put(blockID, retVal);
+
         return retVal;
     }
 
@@ -272,7 +300,11 @@ public class Analysis implements Serializable, AnalysisInterface {
         this.mutable = mutable;
     }
 
-    public Map<Integer, PlotBuilder[][]> getMapOfBlockToPlots() {
-        return mapOfBlockToPlots;
+    public Map<Integer, Integer> getMapOfBlockIdToProcessStatus() {
+        return mapOfBlockIdToProcessStatus;
+    }
+
+    public Map<Integer, PlotBuilder[][]> getMapOfBlockIdToPlots() {
+        return mapOfBlockIdToPlots;
     }
 }

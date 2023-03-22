@@ -11,13 +11,13 @@ public interface PlotBuildersTaskInterface {
 
     PlotBuilder[] getSignalNoiseHistogramBuilder();
 
-    PlotBuilder[] getMeanIntensityLineBuilder();
+    PlotBuilder[] getMeanIntensityVsKnotsMultiLineBuilder();
 
     PlotBuilder[] getConvergeRatioLineBuilder();
 
-    PlotBuilder getObservedDataLineBuilder();
+    PlotBuilder[] getObservedDataLineBuilder();
 
-    PlotBuilder getResidualDataLineBuilder();
+    PlotBuilder[] getResidualDataLineBuilder();
 
     PlotBuilder[] getConvergeBLFaradayLineBuilder();
 
@@ -25,11 +25,15 @@ public interface PlotBuildersTaskInterface {
 
     PlotBuilder[] getConvergeErrRawMisfitLineBuilder();
 
-    PlotBuilder getConvergeIntensityLinesBuilder();
+    PlotBuilder[] getConvergeIntensityLinesBuilder();
 
     PlotBuilder[] getConvergeNoiseFaradayLineBuilder();
+
+    public PlotBuilder[] getObservedDataWithSubsetsLineBuilder();
 
     String call() throws Exception;
 
     void receiveLoggingSnippet(String loggingSnippet);
+
+    public int getBlockID();
 }

@@ -18,27 +18,39 @@ package org.cirdles.tripoli.plots.linePlots;
 
 import org.cirdles.tripoli.plots.PlotBuilder;
 
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
 public class ComboPlotBuilder extends PlotBuilder {
 
     private final double[] xData;
     private final double[] yData;
     private final double[] yData2;
     private final boolean yData2OneSigma;
+    private final Map<String, List<Double>> blockMapOfIdsToData;
 
-    protected ComboPlotBuilder(double[] xData, double[] yData, double[] yData2, boolean yData2OneSigma, String[] title) {
-        super(title, "", "");
+    protected ComboPlotBuilder(
+            double[] xData, double[] yData, double[] yData2, Map<String, List<Double>> blockMapOfIdsToData, boolean yData2OneSigma, String[] title, String xAxisLabel, String yAxisLabel) {
+        super(title, xAxisLabel, yAxisLabel);
         this.xData = xData;
         this.yData = yData;
         this.yData2 = yData2;
         this.yData2OneSigma = yData2OneSigma;
+        this.blockMapOfIdsToData = blockMapOfIdsToData;
     }
 
-    public static ComboPlotBuilder initializeLinePlot(double[] xData, double[] yData, double[] yData2, String[] title) {
-        return new ComboPlotBuilder(xData, yData, yData2, false, title);
+    public static ComboPlotBuilder initializeLinePlot(double[] xData, double[] yData, double[] yData2, String[] title, String xAxisLabel, String yAxisLabel) {
+        return new ComboPlotBuilder(xData, yData, yData2, new TreeMap<>(), false, title, xAxisLabel, yAxisLabel);
     }
 
-    public static ComboPlotBuilder initializeLinePlotWithOneSigma(double[] xData, double[] yData, double[] yData2, String[] title) {
-        return new ComboPlotBuilder(xData, yData, yData2, true, title);
+    public static ComboPlotBuilder initializeLinePlotWithOneSigma(double[] xData, double[] yData, double[] yData2, String[] title, String xAxisLabel, String yAxisLabel) {
+        return new ComboPlotBuilder(xData, yData, yData2, new TreeMap<>(), true, title, xAxisLabel, yAxisLabel);
+    }
+
+    public static ComboPlotBuilder initializeLinePlotWithSubsets(
+            double[] xData, double[] yData, double[] yData2, Map<String, List<Double>> sequenceIds, String[] title, String xAxisLabel, String yAxisLabel) {
+        return new ComboPlotBuilder(xData, yData, yData2, sequenceIds, false, title, xAxisLabel, yAxisLabel);
     }
 
     public double[] getyData() {
@@ -55,5 +67,9 @@ public class ComboPlotBuilder extends PlotBuilder {
 
     public boolean isyData2OneSigma() {
         return yData2OneSigma;
+    }
+
+    public Map<String, List<Double>> getBlockMapOfIdsToData() {
+        return blockMapOfIdsToData;
     }
 }

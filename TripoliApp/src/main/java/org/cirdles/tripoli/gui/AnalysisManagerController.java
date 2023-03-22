@@ -4,16 +4,18 @@ import jakarta.xml.bind.JAXBException;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
@@ -29,20 +31,22 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
-import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_ANALYSIS_YELLOW;
-import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColorToHex;
+import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
 import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDialog;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectDataFile;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectMethodFile;
+import static org.cirdles.tripoli.sessions.analysis.Analysis.*;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compareAnalysisMethodToDataFileSpecs;
 
-public class AnalysisManagerController implements Initializable {
+public class AnalysisManagerController implements Initializable, AnalysisManagerCallbackI {
 
     public static AnalysisInterface analysis;
     public static MCMCPlotsWindow MCMCPlotsWindow;
     private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
     public Tab detectorDetailTab;
     public TabPane analysiMethodTabPane;
+    @FXML
+    public HBox blockStatusHBox;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -139,6 +143,8 @@ public class AnalysisManagerController implements Initializable {
         }
 
         populateAnalysisMethodGridPane();
+
+        populateBlocksStatus();
     }
 
     private void populateAnalysisDataFields() {
@@ -259,6 +265,64 @@ public class AnalysisManagerController implements Initializable {
         }
     }
 
+    private void populateBlocksStatus() {
+        blockStatusHBox.getChildren().clear();
+        var massSpecExtractedData = analysis.getMassSpecExtractedData();
+        Map<Integer, MassSpecOutputSingleBlockRecord> blocksData = massSpecExtractedData.getBlocksData();
+        for (MassSpecOutputSingleBlockRecord block : blocksData.values()) {
+            Button blockStatusButton = blockStatusButtonFactory(block.blockID());
+            blockStatusHBox.getChildren().add(blockStatusButton);
+        }
+    }
+
+    private Button blockStatusButtonFactory(int blockID) {
+        Button blockStatusButton = new Button();
+        blockStatusButton.setPrefSize(45.0, 25.0);
+        blockStatusButton.setPadding(new Insets(0003));
+        blockStatusButton.setFont(Font.font("Monospaced", FontWeight.EXTRA_BOLD, 10));
+        blockStatusButton.setId(String.valueOf(blockID));
+        blockStatusButton.setPadding(new Insets(0, -1, 0, -1));
+        tuneButton(blockStatusButton, analysis.getMapOfBlockIdToProcessStatus().get(blockID));
+
+        blockStatusButton.setOnAction(e -> {
+            switch ((int) blockStatusButton.getUserData()) {
+                case RUN -> {
+                    if (null != analysis.getMapOfBlockIdToPlots().get(blockID)) {
+                        tuneButton(blockStatusButton, SHOW);
+                    } else {
+                        tuneButton(blockStatusButton, SKIP);
+                    }
+                }
+                case SHOW -> tuneButton(blockStatusButton, SKIP);
+                case SKIP -> tuneButton(blockStatusButton, RUN);
+            }
+        });
+
+        return blockStatusButton;
+    }
+
+    private void tuneButton(Button blockStatusButton, int blockStatus) {
+        Color stateColor = Color.BLACK;
+        switch (blockStatus) {
+            case SKIP -> {
+                stateColor = TRIPOLI_ANALYSIS_RED;
+                blockStatusButton.setUserData(SKIP);
+                blockStatusButton.setText("Skip " + blockStatusButton.getId());
+            }
+            case RUN -> {
+                stateColor = Color.WHITE;
+                blockStatusButton.setUserData(RUN);
+                blockStatusButton.setText("Run " + blockStatusButton.getId());
+            }
+            case SHOW -> {
+                stateColor = TRIPOLI_ANALYSIS_GREEN;
+                blockStatusButton.setUserData(SHOW);
+                blockStatusButton.setText("Show " + blockStatusButton.getId());
+            }
+        }
+        blockStatusButton.setStyle("-fx-background-color: " + convertColorToHex(stateColor) + ";-fx-border-color: BLACK");
+    }
+
     @FXML
     private void selectDataFileButtonAction() {
         try {
@@ -301,9 +365,56 @@ public class AnalysisManagerController implements Initializable {
         populateAnalysisManagerGridPane();
     }
 
-    public void initializeMonteCarloTechniqueAction() throws TripoliException {
-        MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
+    public void initializeMonteCarloTechniqueAction() {
+        for (Node button : blockStatusHBox.getChildren()) {
+            if (button instanceof Button) {
+                analysis.getMapOfBlockIdToProcessStatus().put(Integer.parseInt(button.getId()), (int) button.getUserData());
+            }
+        }
+        if (null == MCMCPlotsWindow) {
+            MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage, this);
+        }
         MCMCPlotsController.analysis = analysis;
         MCMCPlotsWindow.loadPlotsWindow();
+    }
+
+    public void selectRunAllAction() {
+        for (Node button : blockStatusHBox.getChildren()) {
+            if (button instanceof Button) {
+                tuneButton((Button) button, RUN);
+            }
+        }
+    }
+
+    public void selectRunNoneAction() {
+        for (Node button : blockStatusHBox.getChildren()) {
+            if (button instanceof Button) {
+                tuneButton((Button) button, SKIP);
+            }
+        }
+    }
+
+    public void selectShowsAction() {
+        for (Node button : blockStatusHBox.getChildren()) {
+            if ((button instanceof Button) && (analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())) == 0)) {
+                tuneButton((Button) button, SHOW);
+            }
+        }
+    }
+
+    public void restoreAllAction() {
+        for (Node button : blockStatusHBox.getChildren()) {
+            if (button instanceof Button) {
+                tuneButton((Button) button, analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())));
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void callbackRefreshBlocksStatus() {
+        restoreAllAction();
     }
 }
