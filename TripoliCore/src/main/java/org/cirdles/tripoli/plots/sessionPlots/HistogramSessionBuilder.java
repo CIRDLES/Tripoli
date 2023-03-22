@@ -32,24 +32,25 @@ public class HistogramSessionBuilder extends PlotBuilder {
     //    @Serial
 //    private static final long serialVersionUID = 9180059676626735662L;
     private HistogramSessionRecord histogramSessionRecord;
+    private int blockCount;
 
     public HistogramSessionBuilder() {
     }
 
-    public HistogramSessionBuilder(List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
+    public HistogramSessionBuilder(int blockCount, List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel);
+        this.blockCount = blockCount;
         histogramSessionRecord = generateHistogramSession(histogramRecords);
     }
 
-    public static HistogramSessionBuilder initializeHistogramSession(List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
-        HistogramSessionBuilder histogramSessionBuilder = new HistogramSessionBuilder(histogramRecords, title, xAxisLabel, yAxisLabel);
+    public static HistogramSessionBuilder initializeHistogramSession(
+            int blockCount, List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
+        HistogramSessionBuilder histogramSessionBuilder = new HistogramSessionBuilder(blockCount, histogramRecords, title, xAxisLabel, yAxisLabel);
         histogramSessionBuilder.histogramSessionRecord = histogramSessionBuilder.generateHistogramSession(histogramRecords);
         return histogramSessionBuilder;
     }
 
     private HistogramSessionRecord generateHistogramSession(List<HistogramRecord> histogramRecords) {
-        // calculate mean, error, etc across all
-
         List<Double> blockIdList = new ArrayList<>();
         List<Double> histogramMeans = new ArrayList<>();
         List<Double> histogramOneSigma = new ArrayList<>();
@@ -68,6 +69,7 @@ public class HistogramSessionBuilder extends PlotBuilder {
         double[] blockOneSigmas = histogramOneSigma.stream().mapToDouble(d -> d).toArray();
 
         return new HistogramSessionRecord(
+                blockCount,
                 mapBlockIdToHistogramRecord,
                 blockIds,
                 blockMeans,

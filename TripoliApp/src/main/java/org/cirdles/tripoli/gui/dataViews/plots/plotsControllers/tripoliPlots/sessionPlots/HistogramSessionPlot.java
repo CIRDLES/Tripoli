@@ -51,7 +51,7 @@ public class HistogramSessionPlot extends AbstractPlot {
     public void preparePanel() {
         xAxisData = histogramSessionRecord.blockIds();
         minX = 0.0;
-        maxX = xAxisData[xAxisData.length - 1] + 1;
+        maxX = histogramSessionRecord.blockCount() + 1;
 
         yAxisData = histogramSessionRecord.blockMeans();
         oneSigma = histogramSessionRecord.blockOneSigmas();
