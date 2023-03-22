@@ -38,8 +38,7 @@ import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWid
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
 import static org.cirdles.tripoli.plots.sessionPlots.HistogramSessionBuilder.initializeHistogramSession;
-import static org.cirdles.tripoli.sessions.analysis.Analysis.RUN;
-import static org.cirdles.tripoli.sessions.analysis.Analysis.SKIP;
+import static org.cirdles.tripoli.sessions.analysis.Analysis.*;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockDataModelPlot.PLOT_INDEX_RATIOS;
 
 public class MCMCPlotsController {
@@ -206,12 +205,16 @@ public class MCMCPlotsController {
     private void plotSessionEngine() {
         Map<Integer, PlotBuilder[][]> mapOfBlockIdToPlots = analysis.getMapOfBlockIdToPlots();
         Map<String, List<HistogramRecord>> mapRatioNameToSessionRecords = new TreeMap<>();
-        for (PlotBuilder[][] plotBuilders : mapOfBlockIdToPlots.values()) {
-            PlotBuilder[] ratiosPlotBuilder = plotBuilders[PLOT_INDEX_RATIOS];
-            for (PlotBuilder ratioPlotBuilder : ratiosPlotBuilder) {
-                String ratioName = ratioPlotBuilder.getTitle()[0];
-                mapRatioNameToSessionRecords.computeIfAbsent(ratioName, k -> new ArrayList<>());
-                mapRatioNameToSessionRecords.get(ratioName).add(((HistogramBuilder) ratioPlotBuilder).getHistogramRecord());
+        Iterator<Map.Entry<Integer, PlotBuilder[][]>> iterator = mapOfBlockIdToPlots.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, PlotBuilder[][]> entry = iterator.next();
+            if (analysis.getMapOfBlockIdToProcessStatus().get(entry.getKey()) == SHOW){
+                PlotBuilder[] ratiosPlotBuilder = entry.getValue()[PLOT_INDEX_RATIOS];
+                for (PlotBuilder ratioPlotBuilder : ratiosPlotBuilder) {
+                    String ratioName = ratioPlotBuilder.getTitle()[0];
+                    mapRatioNameToSessionRecords.computeIfAbsent(ratioName, k -> new ArrayList<>());
+                    mapRatioNameToSessionRecords.get(ratioName).add(((HistogramBuilder) ratioPlotBuilder).getHistogramRecord());
+                }
             }
         }
 
@@ -222,7 +225,7 @@ public class MCMCPlotsController {
         sessionAnchorPane.getChildren().add(ratiosSessionPlotsWallPane);
         for (Map.Entry<String, List<HistogramRecord>> entry : mapRatioNameToSessionRecords.entrySet()) {
             HistogramSessionBuilder histogramSessionBuilder = initializeHistogramSession(
-                    entry.getValue(), new String[]{entry.getKey()}, "Block ID", "Ratio");
+                    analysis.getMapOfBlockIdToProcessStatus().size(),  entry.getValue(), new String[]{entry.getKey()}, "Block ID", "Ratio");
             TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(ratiosSessionPlotsWallPane);
             AbstractPlot plot = HistogramSessionPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), histogramSessionBuilder.getHistogramSessionRecord());
             tripoliPlotPane.addPlot(plot);
