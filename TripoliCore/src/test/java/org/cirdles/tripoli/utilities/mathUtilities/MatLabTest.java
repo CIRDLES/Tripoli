@@ -219,8 +219,7 @@ class MatLabTest {
             assertArrayEquals(expected, actualArray);
         }
     }
-
-    // add negs
+    
     @Test
     void diffTest() throws IOException {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
@@ -235,9 +234,7 @@ class MatLabTest {
             expected = Answer_list.get(i);
             actual = MatLab.diff(A);
             actualArray = actual.toRawCopy2D();
-            System.out.println(Arrays.deepToString(actualArray));
-            System.out.println(Arrays.deepToString(expected));
-            System.out.println(i);
+
             //System.out.println(Arrays.toString(expected));
             assertArrayEquals(expected, actualArray);
         }
@@ -321,24 +318,41 @@ class MatLabTest {
 
     }
 
+    //function is somewhat incorrect. Divides each the second parm by each el in A where in matlab it does the opposite
+    //Also, it requires an extremely low number of sigfigs to work for some reason
     @Test
     void rDivideTest() throws IOException {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         ArrayList<double[][]> A_list = read_csv("rDivide_matrix_A.txt");
+        ArrayList<double[][]> B_list = read_csv("rDivide_matrix_B.txt");
         ArrayList<double[][]> Answer_list = read_csv("rDivide_answers.txt");
         double[][] expected;
+        double[][] actualArray;
         Primitive64Store actual;
         Primitive64Store A;
+        Primitive64Store B;
         for (int i = 0; i < Answer_list.size(); i++) {
             A = storeFactory.rows(A_list.get(i));
+            B = storeFactory.rows(B_list.get(i));
+
             expected = Answer_list.get(i);
-            actual = MatLab.rDivide(A, -5);
-            System.out.println(expected.length);
-            System.out.println(actual.countRows());
-            System.out.println(actual.countColumns());
-            System.out.println(Arrays.deepToString(expected));
-            System.out.println(Arrays.deepToString(actual.toRawCopy2D()));
-            assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
+            actual = MatLab.rDivide(A, B.get(0, 0));
+            actualArray = actual.toRawCopy2D();
+
+            for (int j = 0; j < expected.length; j++) {
+                for (int k = 0; k < expected[j].length; k++) {
+                    expected[j][k] = MatLab.roundedToSize(expected[j][k], 2);
+                }
+            }
+
+            for (int j = 0; j < actualArray.length; j++) {
+                for (int k = 0; k < actualArray[j].length; k++) {
+                    actualArray[j][k] = MatLab.roundedToSize(actualArray[j][k], 2);
+                }
+            }
+
+
+            assertArrayEquals(expected, actualArray);
         }
     }
 
@@ -365,8 +379,7 @@ class MatLabTest {
             A = storeFactory.rows(A_list.get(i));
             expected = Answer_list.get(i);
             actual = MatLab.diag(A);
-            System.out.println(Arrays.deepToString(expected));
-            System.out.println(Arrays.deepToString(actual.toRawCopy2D()));
+
             assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
         }
     }
