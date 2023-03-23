@@ -35,7 +35,6 @@ public enum MatLabCholesky {
      /*
         if (n == m) && all(all(abs(Sigma - Sigma') < n*tol))
             [T,p] = chol(Sigma);
-
             if p > 0
                 % Test for positive definiteness
                 if flag
@@ -43,18 +42,15 @@ public enum MatLabCholesky {
                     % decomposition of a symmetric matrix, so long as the matrix
                     % is positive semi-definite.
                     [U,D] = eig(full((Sigma+Sigma')/2));
-
                     % Pick eigenvector direction so max abs coordinate is positive
                     [~,maxind] = max(abs(U),[],1);
                     negloc = (U(maxind + (0:n:(m-1)*n)) < 0);
                     U(:,negloc) = -U(:,negloc);
-
                     D = diag(D);
                     tol = eps(max(D)) * length(D);
                     t = (abs(D) > tol);
                     D = D(t);
                     p = sum(D<0); % number of negative eigenvalues
-
                     if (p==0)
                         T = diag(sqrt(D)) * U(:,t)';
                     else
@@ -160,8 +156,6 @@ public enum MatLabCholesky {
         %   See also CHOL.
 
         %   Copyright 1993-2017 The MathWorks, Inc.
-
-
         if nargin < 2, flag = 1; end
 
         % Test for square, symmetric

@@ -8,9 +8,20 @@ import org.ojalgo.matrix.task.SolverTask;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public enum MatLab {
     ;
+    public static double roundedToSize(double value, int sigFigs) {
+        BigDecimal valueBDtoSize = BigDecimal.ZERO;
+        if (Double.isFinite(value)) {
+            BigDecimal valueBD = new BigDecimal(value);
+            int newScale = sigFigs - (valueBD.precision() - valueBD.scale());
+            valueBDtoSize = valueBD.setScale(newScale, RoundingMode.HALF_UP);
+        }
+        return valueBDtoSize.doubleValue();
+    }
 
     /**
      * The Kronecker product

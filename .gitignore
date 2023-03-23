@@ -72,6 +72,8 @@ META-INF/
 !TripoliCore/src/main/resources/org/cirdles/tripoli/parameterModels/tracerModels/*.txt
 !TripoliCore/src/main/resources/org/cirdles/tripoli/schema/*.txt
 
+!TripoliCore/src/test/resources/org/cirdles/tripoli/core/*.txt
+
 # data files
 !TripoliCore/src/main/resources/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData/*.txt
 !TripoliCore/src/main/resources/org/cirdles/tripoli/dataSourceProcessors/dataSources/testDataFiles/*.txt
