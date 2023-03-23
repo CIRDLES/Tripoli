@@ -89,9 +89,13 @@ public class HistogramSessionPlot extends AbstractPlot {
         g2d.setLineWidth(1.0);
 
         for (int i = 0; i < xAxisData.length; i++) {
-            g2d.fillOval(mapX(xAxisData[i]) - 2.5, mapY(yAxisData[i]) - 2.5, 5, 5);
-            g2d.strokeLine(mapX(xAxisData[i]), mapY(yAxisData[i]), mapX(xAxisData[i]), mapY(yAxisData[i] + oneSigma[i]));
-            g2d.strokeLine(mapX(xAxisData[i]), mapY(yAxisData[i]), mapX(xAxisData[i]), mapY(yAxisData[i] - oneSigma[i]));
+            double dataX = mapX(xAxisData[i]);
+
+            if ((dataX >= leftMargin) && (dataX <= leftMargin + plotWidth)){
+                g2d.fillOval(dataX - 2.5, mapY(yAxisData[i]) - 2.5, 5, 5);
+                g2d.strokeLine(dataX, mapY(yAxisData[i]), dataX, mapY(yAxisData[i] + oneSigma[i]));
+                g2d.strokeLine(dataX, mapY(yAxisData[i]), dataX, mapY(yAxisData[i] - oneSigma[i]));
+            }
         }
     }
 
@@ -102,7 +106,7 @@ public class HistogramSessionPlot extends AbstractPlot {
         g2d.setGlobalAlpha(0.6);
         double mean = histogramSessionRecord.sessionMean();
         double stdDev = histogramSessionRecord.sessionOneSigma();
-//        double twoSigmaWidth = 2.0 * stdDev;
+        double twoSigmaHeight = 2.20 * stdDev;
         double plottedTwoSigmaHeight = mapY(mean - stdDev) - mapY(mean + stdDev);
 //        if (mapX(mean + twoSigmaWidth / 2.0) > (leftMargin + plotWidth)) {
 //            plottedTwoSigmaWidth = leftMargin + plotWidth - (mapX(mean - twoSigmaWidth / 2.0));
@@ -119,14 +123,22 @@ public class HistogramSessionPlot extends AbstractPlot {
 //                            Math.min(mapY(0.0) - topMargin,
 //                                    Math.min(mapY(0.0) - mapY(maxY), topMargin + plotHeight - mapY(maxY)))));
 //        }
+        double leftX = mapX(minX);
+        if (leftX < leftMargin) leftX = leftMargin;
+        double rightX = mapX(maxX);
+        if (rightX > leftMargin + plotWidth) rightX = leftMargin + plotWidth;
 
-        g2d.fillRect(mapX(0.0), mapY(mean + stdDev), mapX(xAxisData[xAxisData.length - 1] + 1.0) - mapX(0.0), plottedTwoSigmaHeight);
+        if (mapY(mean + twoSigmaHeight / 2.0) > (topMargin + plotHeight)) {
+            plottedTwoSigmaHeight = leftMargin + plotWidth - (mapY(mean - twoSigmaHeight / 2.0));
+        }
+
+        g2d.fillRect(leftX, Math.max(mapY(mean + stdDev), topMargin), rightX - leftX, plottedTwoSigmaHeight);
         g2d.setFill(saveFill);
         g2d.setGlobalAlpha(1.0);
 
         g2d.setStroke(Color.RED);
         g2d.setLineWidth(1.0);
-        g2d.strokeLine(mapX(0.0), mapY(histogramSessionRecord.sessionMean()), mapX(xAxisData[xAxisData.length - 1] + 1.0), mapY(histogramSessionRecord.sessionMean()));
+        g2d.strokeLine(leftX, Math.max(mapY(mean), topMargin), rightX, mapY(mean));
 
     }
 }
