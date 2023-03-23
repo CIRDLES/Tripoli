@@ -34,7 +34,7 @@ public final class NuclidesFactory implements Serializable {
     public static Map<String, List<SpeciesRecordInterface>> nuclidesListByElementMap = new TreeMap<>();
 
     static {
-        final ResourceExtractor RESOURCE_EXTRACTOR
+        ResourceExtractor RESOURCE_EXTRACTOR
                 = new ResourceExtractor(Tripoli.class);
         Path nuclidesChartData;
         List<String> contentsByLine = new ArrayList<>();
@@ -59,7 +59,7 @@ public final class NuclidesFactory implements Serializable {
             try {
                 atomicMass = Double.parseDouble(lineContents[5]);
             } catch (NumberFormatException e) {
-                atomicMass = 0.;
+                atomicMass = 0.0;
             }
 
             double halfLifeAnnum;
@@ -67,9 +67,9 @@ public final class NuclidesFactory implements Serializable {
                 halfLifeAnnum = Double.parseDouble(lineContents[4]);
             } catch (NumberFormatException e) {
                 if (lineContents[4].toUpperCase(Locale.ROOT).contains("STABLE")) {
-                    halfLifeAnnum = -1.;
+                    halfLifeAnnum = -1.0;
                 } else {
-                    halfLifeAnnum = 0.;
+                    halfLifeAnnum = 0.0;
                 }
             }
 
@@ -77,7 +77,7 @@ public final class NuclidesFactory implements Serializable {
             try {
                 naturalAbundancePercent = Double.parseDouble(lineContents[3]);
             } catch (NumberFormatException e) {
-                naturalAbundancePercent = 0.;
+                naturalAbundancePercent = 0.0;
             }
 
             SpeciesRecordInterface nuclide = new NuclideRecord(
@@ -89,7 +89,7 @@ public final class NuclidesFactory implements Serializable {
                     naturalAbundancePercent
             );
 
-            if (nuclidesListByElementMap.get(elementSymbol) != null) {
+            if (null != nuclidesListByElementMap.get(elementSymbol)) {
                 nuclidesListByElementMap.get(elementSymbol).add(nuclide);
             } else {
                 List<SpeciesRecordInterface> speciesListForElement = new ArrayList<>();

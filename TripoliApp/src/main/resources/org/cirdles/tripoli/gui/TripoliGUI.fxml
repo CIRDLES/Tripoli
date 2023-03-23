@@ -21,8 +21,8 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" prefHeight="725.0" prefWidth="1250.0" xmlns="http://javafx.com/javafx/17"
-      fx:controller="org.cirdles.tripoli.gui.TripoliGUIController">
+<VBox xmlns:fx="http://javafx.com/fxml/1" prefHeight="725.0" prefWidth="1250.0" stylesheets="@css/tripoli.css"
+      xmlns="http://javafx.com/javafx/17" fx:controller="org.cirdles.tripoli.gui.TripoliGUIController">
     <MenuBar prefHeight="17.0" prefWidth="1234.0" VBox.vgrow="NEVER">
         <Menu mnemonicParsing="false" text="Session">
             <MenuItem fx:id="sessionManagerMenuItem" mnemonicParsing="false" onAction="#sessionManagerMenuItemAction"

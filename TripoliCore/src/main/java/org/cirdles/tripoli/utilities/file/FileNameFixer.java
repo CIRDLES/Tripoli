@@ -20,7 +20,8 @@ import java.io.File;
 /**
  * @author ryanb
  */
-public class FileNameFixer {
+public enum FileNameFixer {
+    ;
 
     public static String fixFileName(String name) {
         String nameFixed = name.replaceAll(" ", "_");

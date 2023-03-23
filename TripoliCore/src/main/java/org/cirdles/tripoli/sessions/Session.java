@@ -56,10 +56,10 @@ public class Session implements Serializable {
         this.sessionName = sessionName;
         this.mapOfAnalyses = mapOfAnalyses;
 
-        this.analystName = MISSING_STRING_FIELD;
-        this.sessionNotes = MISSING_STRING_FIELD;
-        this.sessionFilePathAsString = "";
-        this.mutable = true;
+        analystName = MISSING_STRING_FIELD;
+        sessionNotes = MISSING_STRING_FIELD;
+        sessionFilePathAsString = "";
+        mutable = true;
         sessionChanged = false;
     }
 

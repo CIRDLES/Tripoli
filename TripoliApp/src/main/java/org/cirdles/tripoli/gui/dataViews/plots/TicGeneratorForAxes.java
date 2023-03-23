@@ -25,7 +25,8 @@ import java.math.RoundingMode;
 /**
  * @author James F. Bowring
  */
-public class TicGeneratorForAxes {
+public enum TicGeneratorForAxes {
+    ;
 
     /**
      * @param axisMin
@@ -98,24 +99,24 @@ public class TicGeneratorForAxes {
         f = x / StrictMath.pow(10.0, expv);
         /* between 1 and 10 */
         if (round) {
-            if (f < 1.5) {
-                nf = 1.;
-            } else if (f < 3.) {
-                nf = 2.;
-            } else if (f < 7.) {
-                nf = 5.;
+            if (1.5 > f) {
+                nf = 1.0;
+            } else if (3.0 > f) {
+                nf = 2.0;
+            } else if (7.0 > f) {
+                nf = 5.0;
             } else {
-                nf = 10.;
+                nf = 10.0;
             }
         } else {
-            if (f <= 1.) {
-                nf = 1.;
-            } else if (f <= 2.) {
-                nf = 2.;
-            } else if (f <= 5.) {
-                nf = 5.;
+            if (1.0 >= f) {
+                nf = 1.0;
+            } else if (2.0 >= f) {
+                nf = 2.0;
+            } else if (5.0 >= f) {
+                nf = 5.0;
             } else {
-                nf = 10.;
+                nf = 10.0;
             }
 
         }

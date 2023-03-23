@@ -50,7 +50,7 @@ public class GBeamLinePlot extends AbstractDataView {
         }
 
         ticsY = TicGeneratorForAxes.generateTics(minY, maxY, (int) (graphHeight / 20.0));
-        if ((ticsY != null) && (ticsY.length > 1)) {
+        if ((null != ticsY) && (1 < ticsY.length)) {
             // force y to tics
             minY = ticsY[0].doubleValue();
             maxY = ticsY[ticsY.length - 1].doubleValue();
@@ -63,7 +63,7 @@ public class GBeamLinePlot extends AbstractDataView {
         setDisplayOffsetY(0.0);
         setDisplayOffsetX(0.0);
 
-        this.repaint();
+        repaint();
     }
 
     @Override
@@ -75,7 +75,7 @@ public class GBeamLinePlot extends AbstractDataView {
         int textWidth = 0;
 
         g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText(gBeamLinePlotBuilder.getTitle(), 20, 20);
+        g2d.fillText(gBeamLinePlotBuilder.getTitle()[0], 20, 20);
 
         g2d.setLineWidth(2.5);
 
@@ -105,7 +105,7 @@ public class GBeamLinePlot extends AbstractDataView {
         g2d.setLineDashes(0);
 
         g2d.stroke();
-        if (ticsY.length > 1) {
+        if (1 < ticsY.length) {
             // border and fill
             g2d.setLineWidth(0.5);
             g2d.setStroke(Paint.valueOf("BLACK"));
@@ -120,7 +120,7 @@ public class GBeamLinePlot extends AbstractDataView {
             // ticsY
             float verticalTextShift = 3.2f;
             g2d.setFont(Font.font("SansSerif", 10));
-            if (ticsY != null) {
+            if (null != ticsY) {
                 for (java.math.BigDecimal bigDecimal : ticsY) {
                     g2d.strokeLine(
                             mapX(minX), mapY(bigDecimal.doubleValue()), mapX(maxX), mapY(bigDecimal.doubleValue()));
@@ -129,12 +129,12 @@ public class GBeamLinePlot extends AbstractDataView {
                     text.setText(bigDecimal.toString());
                     textWidth = (int) text.getLayoutBounds().getWidth();
                     g2d.fillText(text.getText(),//
-                            (float) mapX(minX) - textWidth - 5f,
+                            (float) mapX(minX) - textWidth - 5.0f,
                             (float) mapY(bigDecimal.doubleValue()) + verticalTextShift);
 
                 }
                 // ticsX
-                if (ticsX != null) {
+                if (null != ticsX) {
                     for (int i = 0; i < ticsX.length - 1; i++) {
                         try {
                             g2d.strokeLine(
@@ -146,7 +146,7 @@ public class GBeamLinePlot extends AbstractDataView {
                             // bottom
                             String xText = ticsX[i].toPlainString();
                             g2d.fillText(xText,
-                                    (float) mapX(ticsX[i].doubleValue()) - 5f,
+                                    (float) mapX(ticsX[i].doubleValue()) - 5.0f,
                                     (float) mapY(ticsY[0].doubleValue()) + 15);
 
                         } catch (Exception ignored) {

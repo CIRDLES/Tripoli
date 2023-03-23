@@ -60,13 +60,16 @@ public enum MatLabCholesky {
                     T = zeros(0,'like',Sigma);
                 end
             end
+
         else
             T = zeros(0,'like',Sigma);
             p = nan('like',Sigma);
         end
+
         if wassparse
             T = sparse(T);
         end
+
      */
 
     /**
@@ -93,6 +96,7 @@ public enum MatLabCholesky {
         % semi-definite (can have perfect correlation). Cholesky requires a
         % positive definite matrix.  sigma == T'*T
         [T,err] = cholCov(sigma);%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
         r = randn(n,size(T,1),'like',outtype) * T + mu;
         t = diag(sigma);
         r(:,t==0) = mu(:,t==0); % force exact mean when variance is 0
@@ -150,8 +154,10 @@ public enum MatLabCholesky {
         %       C3 = cov(randn(10000,3)*T)
         %
         %   See also CHOL.
+
         %   Copyright 1993-2017 The MathWorks, Inc.
         if nargin < 2, flag = 1; end
+
         % Test for square, symmetric
         [n,m] = size(Sigma);
         wassparse = issparse(Sigma);
@@ -187,11 +193,13 @@ public enum MatLabCholesky {
             [~,maxind] = max(abs(U),[],1);
             negloc = (U(maxind + (0:n:(m-1)*n)) < 0);
             U(:,negloc) = -U(:,negloc);
+
             D = diag(D);
             tol = eps(max(D)) * length(D);
             t = (abs(D) > tol);
             D = D(t);
             p = sum(D<0); % number of negative eigenvalues
+
             if (p==0)
                 matrixT = diag(sqrt(D)) * U(:,t)';
             else

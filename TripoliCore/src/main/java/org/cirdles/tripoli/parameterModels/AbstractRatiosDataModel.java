@@ -115,26 +115,26 @@ public abstract class AbstractRatiosDataModel implements
      *
      */
     protected AbstractRatiosDataModel() {
-        this.XMLSchemaURL = "";
-        this.modelName = DEFAULT_OBJECT_NAME;
-        this.versionNumber = 1;
-        this.minorVersionNumber = 0;
-        this.labName = DEFAULT_OBJECT_NAME;
+        XMLSchemaURL = "";
+        modelName = DEFAULT_OBJECT_NAME;
+        versionNumber = 1;
+        minorVersionNumber = 0;
+        labName = DEFAULT_OBJECT_NAME;
 
         // TODO: switch to https://www.baeldung.com/java-8-date-time-intro
         //  this.dateCertified = DateHelpers.defaultEarthTimeDateString();
 
-        this.reference = "None";
-        this.comment = "None";
+        reference = "None";
+        comment = "None";
 
-        this.ratios = new ValueModel[0];
-        this.rhosUnct = new HashMap<>();
-        this.rhosSysUnct = new HashMap<>();
-        this.dataCovariancesVarUnct = new CovarianceMatrixModel();
-        this.dataCorrelationsVarUnct = new CorrelationMatrixModel();
-        this.dataCovariancesSysUnct = new CovarianceMatrixModel();
-        this.dataCorrelationsSysUnct = new CorrelationMatrixModel();
-        this.immutable = false;
+        ratios = new ValueModel[0];
+        rhosUnct = new HashMap<>();
+        rhosSysUnct = new HashMap<>();
+        dataCovariancesVarUnct = new CovarianceMatrixModel();
+        dataCorrelationsVarUnct = new CorrelationMatrixModel();
+        dataCovariancesSysUnct = new CovarianceMatrixModel();
+        dataCorrelationsSysUnct = new CorrelationMatrixModel();
+        immutable = false;
     }
 
     /**
@@ -175,7 +175,7 @@ public abstract class AbstractRatiosDataModel implements
     public AbstractRatiosDataModel copyModel(boolean doAppendName) {
 
         AbstractRatiosDataModel myModel = cloneModel();
-        myModel.setModelName(myModel.getModelName() + (doAppendName ? "-COPY" : ""));
+        myModel.modelName = myModel.modelName + (doAppendName ? "-COPY" : "");
 
         myModel.initializeModel();
 
@@ -188,47 +188,47 @@ public abstract class AbstractRatiosDataModel implements
     public abstract AbstractRatiosDataModel cloneModel();
 
     /**
-     * compares this <code>AbstractRatiosDataModel</code> to argument
-     * <code>AbstractRatiosDataModel</code> by their <code>name</code> and
-     * <code>version</code>.
+     * compares this {@code AbstractRatiosDataModel} to argument
+     * {@code AbstractRatiosDataModel} by their {@code name} and
+     * {@code version}.
      *
      * @param model
-     * @return <code>int</code> - 0 if this
-     * <code>AbstractRatiosDataModel</code>'s <code>name</code> and
-     * <code>version</code> is the same as argument
-     * <code>AbstractRatiosDataModel</code>'s, -1 if they are lexicographically
-     * less than argument <code>AbstractRatiosDataModel</code>'s, and 1 if they
-     * are greater than argument <code>AbstractRatiosDataModel</code>'s
+     * @return {@code int} - 0 if this
+     * {@code AbstractRatiosDataModel}'s {@code name} and
+     * {@code version} is the same as argument
+     * {@code AbstractRatiosDataModel}'s, -1 if they are lexicographically
+     * less than argument {@code AbstractRatiosDataModel}'s, and 1 if they
+     * are greater than argument {@code AbstractRatiosDataModel}'s
      * @throws java.lang.ClassCastException a ClassCastException
-     * @pre argument <code>AbstractRatiosDataModel</code> is a valid
-     * <code>AbstractRatiosDataModel</code>
-     * @post returns an <code>int</code> representing the comparison between
-     * this <code>AbstractRatiosDataModel</code> and argument
-     * <code>AbstractRatiosDataModel</code>
+     * @pre argument {@code AbstractRatiosDataModel} is a valid
+     * {@code AbstractRatiosDataModel}
+     * @post returns an {@code int} representing the comparison between
+     * this {@code AbstractRatiosDataModel} and argument
+     * {@code AbstractRatiosDataModel}
      */
     @Override
     public int compareTo(AbstractRatiosDataModel model) throws ClassCastException {
         String modelID = model.getNameAndVersion().trim();
-        return (this.getNameAndVersion().trim() //
+        return (getNameAndVersion().trim() //
                 .compareToIgnoreCase(modelID));
     }
 
     /**
-     * compares this <code>AbstractRatiosDataModel</code> to argument
-     * <code>AbstractRatiosDataModel</code> by their <code>name</code> and
-     * <code>version</code>.
+     * compares this {@code AbstractRatiosDataModel} to argument
+     * {@code AbstractRatiosDataModel} by their {@code name} and
+     * {@code version}.
      *
      * @param model
-     * @return <code>boolean</code> - <code>true</code> if argument      <code>
-     * AbstractRatiosDataModel</code> is this
-     * <code>AbstractRatiosDataModel</code> or their <code>name</code> and
-     * <code>version</code> are identical, else <code>false</code>
-     * @pre argument <code>AbstractRatiosDataModel</code> is a valid
-     * <code>AbstractRatiosDataModel</code>
-     * @post returns a <code>boolean</code> representing the equality of this
-     * <code>AbstractRatiosDataModel</code> and argument
-     * <code>AbstractRatiosDataModel</code> based on their <code>name</code> and
-     * <code>version</code>
+     * @return {@code boolean} - {@code true} if argument      {@code
+     * AbstractRatiosDataModel} is this
+     * {@code AbstractRatiosDataModel} or their {@code name} and
+     * {@code version} are identical, else {@code false}
+     * @pre argument {@code AbstractRatiosDataModel} is a valid
+     * {@code AbstractRatiosDataModel}
+     * @post returns a {@code boolean} representing the equality of this
+     * {@code AbstractRatiosDataModel} and argument
+     * {@code AbstractRatiosDataModel} based on their {@code name} and
+     * {@code version}
      */
     @Override
     public boolean equals(Object model) {
@@ -240,19 +240,19 @@ public abstract class AbstractRatiosDataModel implements
             return false;
         }
 
-        return (this.getNameAndVersion().trim().compareToIgnoreCase( //
-                myModel.getNameAndVersion().trim()) == 0);
+        return (0 == getNameAndVersion().trim().compareToIgnoreCase( //
+                myModel.getNameAndVersion().trim()));
     }
 
     /**
-     * returns 0 as the hashcode for this <code>AbstractRatiosDataModel</code>.
+     * returns 0 as the hashcode for this {@code AbstractRatiosDataModel}.
      * Implemented to meet equivalency requirements as documented by
-     * <code>java.lang.Object</code>
+     * {@code java.lang.Object}
      *
-     * @return <code>int</code> - 0
-     * @pre this <code>AbstractRatiosDataModel</code> exists
+     * @return {@code int} - 0
+     * @pre this {@code AbstractRatiosDataModel} exists
      * @post hashcode of 0 is returned for this
-     * <code>AbstractRatiosDataModel</code>
+     * {@code AbstractRatiosDataModel}
      */
     // http://www.javaworld.com/javaworld/jw-01-1999/jw-01-object.html?page=4
     @Override
@@ -301,23 +301,23 @@ public abstract class AbstractRatiosDataModel implements
         }
 
         // introduce special comparator that puts concentrations (conc) after dataIncoming)//dec 2014 not needed
-        Arrays.sort(this.ratios, new DataValueModelNameComparator());
+        Arrays.sort(ratios, new DataValueModelNameComparator());
 
-        if (myRhos == null) {
+        if (null == myRhos) {
             buildRhosMap();
         } else {
             for (String key : myRhos.keySet()) {
-                if (rhosUnct.get(key) != null) {
+                if (null != rhosUnct.get(key)) {
                     rhosUnct.put(key, myRhos.get(key));
                 }
             }
         }
 
-        if (myRhosSysUnct == null) {
+        if (null == myRhosSysUnct) {
             buildRhosSysUnctMap();
         } else {
             for (String key : myRhosSysUnct.keySet()) {
-                if (rhosSysUnct.get(key) != null) {
+                if (null != rhosSysUnct.get(key)) {
                     rhosSysUnct.put(key, myRhosSysUnct.get(key));
                 }
             }
@@ -443,14 +443,14 @@ public abstract class AbstractRatiosDataModel implements
      */
     protected void copyBothRhosFromEachCorrelationM() {
         // sept 2014 backwards compat
-        if (rhosUnct == null) {
+        if (null == rhosUnct) {
             buildRhosMap();
         }
 
         rhosUnct.replaceAll((n, v) -> BigDecimal.valueOf(((CorrelationMatrixModel) dataCorrelationsVarUnct).getCorrelationCell(n)));
 
         // sept 2014 backwards compat
-        if (rhosSysUnct == null) {
+        if (null == rhosSysUnct) {
             buildRhosSysUnctMap();
         }
 
@@ -463,7 +463,7 @@ public abstract class AbstractRatiosDataModel implements
      */
     public void saveEdits(boolean checkCovarianceValidity)
             throws TripoliException {
-        if ((dataCorrelationsVarUnct != null) || (dataCorrelationsSysUnct != null)) {
+        if ((null != dataCorrelationsVarUnct) || (null != dataCorrelationsSysUnct)) {
             generateBothUnctCovarianceMFromEachUnctCorrelationM();
 
             copyBothRhosFromEachCorrelationM();
@@ -591,14 +591,14 @@ public abstract class AbstractRatiosDataModel implements
     }
 
     /**
-     * gets the <code>modelName</code> of this
-     * <code>AbstractRatiosDataModel</code>.
+     * gets the {@code modelName} of this
+     * {@code AbstractRatiosDataModel}.
      *
-     * @return <code>String</code> - this <code>AbstractRatiosDataModel</code>'s
-     * <code>modelName</code>
-     * @pre this <code>AbstractRatiosDataModel</code> exists
-     * @post returns this <code>AbstractRatiosDataModel</code>'s
-     * <code>modelName</code>
+     * @return {@code String} - this {@code AbstractRatiosDataModel}'s
+     * {@code modelName}
+     * @pre this {@code AbstractRatiosDataModel} exists
+     * @post returns this {@code AbstractRatiosDataModel}'s
+     * {@code modelName}
      */
     public String getModelName() {
         return modelName;
@@ -612,14 +612,14 @@ public abstract class AbstractRatiosDataModel implements
     }
 
     /**
-     * gets the <code>versionNumber</code> of this
-     * <code>AbstractRatiosDataModel</code>.
+     * gets the {@code versionNumber} of this
+     * {@code AbstractRatiosDataModel}.
      *
-     * @return <code>int</code> - this <code>AbstractRatiosDataModel</code>'s
-     * <code>versionNumber</code>
-     * @pre this <code>AbstractRatiosDataModel</code> exists
-     * @post returns this <code>AbstractRatiosDataModel</code>'s
-     * <code>versionNumber</code>
+     * @return {@code int} - this {@code AbstractRatiosDataModel}'s
+     * {@code versionNumber}
+     * @pre this {@code AbstractRatiosDataModel} exists
+     * @post returns this {@code AbstractRatiosDataModel}'s
+     * {@code versionNumber}
      */
     public int getVersionNumber() {
         return versionNumber;
@@ -633,14 +633,14 @@ public abstract class AbstractRatiosDataModel implements
     }
 
     /**
-     * gets the <code>labName</code> of this
-     * <code>AbstractRatiosDataModel</code>.
+     * gets the {@code labName} of this
+     * {@code AbstractRatiosDataModel}.
      *
-     * @return <code>String</code> - this <code>AbstractRatiosDataModel</code>'s
-     * <code>labName</code>
-     * @pre this <code>AbstractRatiosDataModel</code> exists
-     * @post returns this <code>AbstractRatiosDataModel</code>'s
-     * <code>labName</code>
+     * @return {@code String} - this {@code AbstractRatiosDataModel}'s
+     * {@code labName}
+     * @pre this {@code AbstractRatiosDataModel} exists
+     * @post returns this {@code AbstractRatiosDataModel}'s
+     * {@code labName}
      */
     public String getLabName() {
         return labName;
@@ -654,14 +654,14 @@ public abstract class AbstractRatiosDataModel implements
     }
 
     /**
-     * gets the <code>dateCertified</code> of this
-     * <code>AbstractRatiosDataModel</code>.
+     * gets the {@code dateCertified} of this
+     * {@code AbstractRatiosDataModel}.
      *
-     * @return <code>String</code> - this <code>AbstractRatiosDataModel</code>'s
-     * <code>dateCertified</code>
-     * @pre this <code>AbstractRatiosDataModel</code> exists
-     * @post returns this <code>AbstractRatiosDataModel</code>'s
-     * <code>dateCertified</code>
+     * @return {@code String} - this {@code AbstractRatiosDataModel}'s
+     * {@code dateCertified}
+     * @pre this {@code AbstractRatiosDataModel} exists
+     * @post returns this {@code AbstractRatiosDataModel}'s
+     * {@code dateCertified}
      */
     public String getDateCertified() {
         return dateCertified;
@@ -675,30 +675,30 @@ public abstract class AbstractRatiosDataModel implements
     }
 
     /**
-     * gets a <code>String</code> containing this
-     * <code>AbstractRatiosDataModel</code>'s <code>modelName</code> and
-     * <code>versionNumber</code>.
+     * gets a {@code String} containing this
+     * {@code AbstractRatiosDataModel}'s {@code modelName} and
+     * {@code versionNumber}.
      *
-     * @return <code>String</code> - this <code>AbstractRatiosDataModel</code>'s
-     * <code>modelName</code> and <code>versionNumber</code>
-     * @pre this <code>AbstractRatiosDataModel</code> exists
-     * @post returns a <code>String</code> containing this
-     * <code>AbstractRatiosDataModel</code>'s <code>modelName</code> and
-     * <code>versionNumber</code>
+     * @return {@code String} - this {@code AbstractRatiosDataModel}'s
+     * {@code modelName} and {@code versionNumber}
+     * @pre this {@code AbstractRatiosDataModel} exists
+     * @post returns a {@code String} containing this
+     * {@code AbstractRatiosDataModel}'s {@code modelName} and
+     * {@code versionNumber}
      */
     public String getNameAndVersion() {
         return makeNameAndVersion(modelName, versionNumber, minorVersionNumber);
     }
 
     /**
-     * gets the <code>ratios</code> of this
-     * <code>AbstractRatiosDataModel</code>.
+     * gets the {@code ratios} of this
+     * {@code AbstractRatiosDataModel}.
      *
-     * @return <code>ValueModel[]</code> - collection of this
-     * <code>AbstractRatiosDataModel</code>'s <code>ratios</code>
-     * @pre this <code>AbstractRatiosDataModel</code> exists
-     * @post returns this <code>AbstractRatiosDataModel</code>'s
-     * <code>ratios</code>
+     * @return {@code ValueModel[]} - collection of this
+     * {@code AbstractRatiosDataModel}'s {@code ratios}
+     * @pre this {@code AbstractRatiosDataModel} exists
+     * @post returns this {@code AbstractRatiosDataModel}'s
+     * {@code ratios}
      */
     public ValueModel[] getData() {
         return ratios;
@@ -717,19 +717,19 @@ public abstract class AbstractRatiosDataModel implements
     }
 
     /**
-     * gets a single ratio from this <code>AbstractRatiosDataModel</code>'s
-     * <code>ratios</code> specified by argument <code>datumName</code>. Returns
-     * a new, empty      <code>
-     * ValueModel</code> if no matching ratio is found.
+     * gets a single ratio from this {@code AbstractRatiosDataModel}'s
+     * {@code ratios} specified by argument {@code datumName}. Returns
+     * a new, empty      {@code
+     * ValueModel} if no matching ratio is found.
      *
      * @param datumName name of the ratio to search for
-     * @return <code>ValueModel</code> - ratio found in <code>ratios</code>
-     * whose name matches argument <code>datumName</code> or a new      <code>
-     * ValueModel</code> if no match is found
-     * @pre argument <code>datumName</code> is a valid <code>String</code>
-     * @post returns the <code>ValueModel</code> found in this
-     * <code>AbstractRatiosDataModel</code>'s <code>ratios</code> whose name
-     * matches argument <code>datumName</code>
+     * @return {@code ValueModel} - ratio found in {@code ratios}
+     * whose name matches argument {@code datumName} or a new      {@code
+     * ValueModel} if no match is found
+     * @pre argument {@code datumName} is a valid {@code String}
+     * @post returns the {@code ValueModel} found in this
+     * {@code AbstractRatiosDataModel}'s {@code ratios} whose name
+     * matches argument {@code datumName}
      */
     public ValueModel getDatumByName(String datumName) {
 
@@ -776,7 +776,7 @@ public abstract class AbstractRatiosDataModel implements
      */
     public ValueModel getRhoSysUnctByName(String coeffName) {
         BigDecimal myRhoValue = rhosSysUnct.get(coeffName);
-        if (myRhoValue == null) {
+        if (null == myRhoValue) {
             myRhoValue = BigDecimal.ZERO;
         }
 
@@ -808,7 +808,7 @@ public abstract class AbstractRatiosDataModel implements
     public Map<String, BigDecimal> getRhosVarUnctForXMLSerialization() {
         Map<String, BigDecimal> tightRhos = new HashMap<>();
         for (String key : rhosUnct.keySet()) {
-            if (rhosUnct.get(key).compareTo(BigDecimal.ZERO) != 0) {
+            if (0 != rhosUnct.get(key).compareTo(BigDecimal.ZERO)) {
                 tightRhos.put(key, rhosUnct.get(key));
             }
         }
@@ -824,7 +824,7 @@ public abstract class AbstractRatiosDataModel implements
         Iterator<String> rhosKeyIterator = rhosSysUnct.keySet().iterator();
         while (rhosKeyIterator.hasNext()) {
             String key = rhosKeyIterator.next();
-            if (rhosSysUnct.get(key).compareTo(BigDecimal.ZERO) != 0) {
+            if (0 != rhosSysUnct.get(key).compareTo(BigDecimal.ZERO)) {
                 tightRhos.put(key, rhosSysUnct.get(key));
             }
         }
@@ -865,7 +865,7 @@ public abstract class AbstractRatiosDataModel implements
     public ValueModel getRhoVarUnctByName(String coeffName) {
 
         BigDecimal myRhoValue = rhosUnct.get(coeffName);
-        if (myRhoValue == null) {
+        if (null == myRhoValue) {
             myRhoValue = BigDecimal.ZERO;
         }
 
@@ -912,7 +912,7 @@ public abstract class AbstractRatiosDataModel implements
     /**
      *
      */
-    protected class DataValueModelNameComparator implements Comparator<ValueModel> {
+    protected class DataValueModelNameComparator implements Comparator<ValueModel>, Serializable {
 
         /**
          *

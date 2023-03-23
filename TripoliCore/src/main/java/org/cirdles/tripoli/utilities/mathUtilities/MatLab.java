@@ -22,6 +22,7 @@ public enum MatLab {
         }
         return valueBDtoSize.doubleValue();
     }
+
     /**
      * The Kronecker product
      *

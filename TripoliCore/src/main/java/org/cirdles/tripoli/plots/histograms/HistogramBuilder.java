@@ -17,27 +17,34 @@
 package org.cirdles.tripoli.plots.histograms;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.cirdles.tripoli.plots.AbstractPlotBuilder;
+import org.cirdles.tripoli.plots.PlotBuilder;
+
+import java.io.Serial;
 
 /**
  * @author James F. Bowring
  */
-public class HistogramBuilder extends AbstractPlotBuilder {
+public class HistogramBuilder extends PlotBuilder {
 
-    private HistogramRecord histogram;
+    @Serial
+    private static final long serialVersionUID = 9180059676626735662L;
+    private HistogramRecord histogramRecord;
 
-    private HistogramBuilder(String title, String xAxisLabel, String yAxisLabel) {
-        super(title, xAxisLabel, yAxisLabel);
-        histogram = null;
+    public HistogramBuilder() {
     }
 
-    public static HistogramBuilder initializeHistogram(double[] data, int binCount, String title, String xAxisLabel, String yAxisLabel) {
-        HistogramBuilder histogramBuilder = new HistogramBuilder(title, xAxisLabel, yAxisLabel);
-        histogramBuilder.histogram = histogramBuilder.generateHistogram(data, binCount);
+    public HistogramBuilder(int blockID, String[] title, String xAxisLabel, String yAxisLabel) {
+        super(title, xAxisLabel, yAxisLabel);
+        histogramRecord = generateHistogram(blockID, new double[0], 0);
+    }
+
+    public static HistogramBuilder initializeHistogram(int blockID, double[] data, int binCount, String[] title, String xAxisLabel, String yAxisLabel) {
+        HistogramBuilder histogramBuilder = new HistogramBuilder(blockID, title, xAxisLabel, yAxisLabel);
+        histogramBuilder.histogramRecord = histogramBuilder.generateHistogram(blockID, data, binCount);
         return histogramBuilder;
     }
 
-    private HistogramRecord generateHistogram(double[] data, int binCount) {
+    private HistogramRecord generateHistogram(int blockID, double[] data, int binCount) {
         DescriptiveStatistics descriptiveStatisticsRatios = new DescriptiveStatistics();
         for (int index = 0; index < data.length; index++) {
             descriptiveStatisticsRatios.addValue(data[index]);
@@ -46,11 +53,11 @@ public class HistogramBuilder extends AbstractPlotBuilder {
         double dataMin = descriptiveStatisticsRatios.getMin();
 
         double[] binCounts = new double[binCount];
-        double binWidth = (dataMax - dataMin) / (double) binCount;
+        double binWidth = (dataMax - dataMin) / binCount;
 
         for (int index = 0; index < data.length; index++) {
             double datum = data[index];
-            if (datum != 0.0) { //ignore 0s here
+            if (0.0 != datum) { //ignore 0s here
                 int binNum = Math.min((int) Math.floor(Math.abs((datum - dataMin * 1.000000001) / binWidth)), binCount - 1);
                 try {
                     binCounts[binNum]++;
@@ -66,6 +73,7 @@ public class HistogramBuilder extends AbstractPlotBuilder {
         }
 
         return new HistogramRecord(
+                blockID,
                 data,
                 descriptiveStatisticsRatios.getMean(),
                 descriptiveStatisticsRatios.getStandardDeviation(),
@@ -79,7 +87,7 @@ public class HistogramBuilder extends AbstractPlotBuilder {
         );
     }
 
-    public HistogramRecord getHistogram() {
-        return histogram;
+    public HistogramRecord getHistogramRecord() {
+        return histogramRecord;
     }
 }

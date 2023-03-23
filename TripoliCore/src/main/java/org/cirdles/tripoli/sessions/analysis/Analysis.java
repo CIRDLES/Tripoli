@@ -20,12 +20,14 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.plots.PlotBuilder;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
+import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.File;
@@ -35,9 +37,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
@@ -50,8 +50,16 @@ import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuilti
  * @author James F. Bowring
  */
 public class Analysis implements Serializable, AnalysisInterface {
+    public static final int SKIP = -1;
+    public static final int SHOW = 0;
+    public static final int RUN = 1;
     @Serial
     private static final long serialVersionUID = 5737165372498262402L;
+
+
+    private final Map<Integer, PlotBuilder[][]> mapOfBlockIdToPlots = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, String> mapOfBlockToLogs = Collections.synchronizedSortedMap(new TreeMap<>());
+    private Map<Integer, Integer> mapOfBlockIdToProcessStatus = Collections.synchronizedSortedMap(new TreeMap<>());
 
     private String analysisName;
     private String analystName;
@@ -59,10 +67,8 @@ public class Analysis implements Serializable, AnalysisInterface {
     private AnalysisMethod analysisMethod;
     private String analysisSampleName;
     private String analysisSampleDescription;
-
     // note: Path is not serializable
     private String dataFilePathString;
-    private MassSpecOutputDataRecord massSpecOutputDataRecord;// TODO remove when out of use by synthetic files experiment
     private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
 
@@ -77,7 +83,6 @@ public class Analysis implements Serializable, AnalysisInterface {
         labName = MISSING_STRING_FIELD;
         analysisSampleDescription = MISSING_STRING_FIELD;
         dataFilePathString = MISSING_STRING_FIELD;
-        massSpecOutputDataRecord = null; // TODO: remove after transition to new architecture
         massSpecExtractedData = new MassSpecExtractedData();
         mutable = true;
     }
@@ -98,7 +103,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         // TODO: remove this temp hack for synthetic demos
         if (0 == massSpectrometerContext.compareTo(PHOENIX_SYNTHETIC)) {
             massSpecExtractedData.setDetectorSetup(DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_SYNTHETIC.getName()));
-            if (massSpecExtractedData.getHeader().methodName().toUpperCase().contains("SYNTHETIC")) {
+            if (massSpecExtractedData.getHeader().methodName().toUpperCase(Locale.ROOT).contains("SYNTHETIC")) {
                 analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(BURDICK_BL_SYNTHETIC_DATA);
             } else {
                 analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
@@ -107,15 +112,17 @@ public class Analysis implements Serializable, AnalysisInterface {
             // attempt to load specified method
             File selectedFile = new File(Path.of(dataFilePathString).getParent().getParent().toString()
                     + File.separator + "Methods" + File.separator + massSpecExtractedData.getHeader().methodName());
-            if (null != selectedFile) {
-                if (selectedFile.exists()) {
-                    analysisMethod = extractAnalysisMethodfromPath(Path.of(selectedFile.toURI()));
-                } else {
-                    throw new TripoliException(
-                            "Method File not found: " + massSpecExtractedData.getHeader().methodName()
-                                    + "\n\n at location: " + Path.of(dataFilePathString).getParent().getParent().toString() + File.separator + "Methods");
-                }
+            if (selectedFile.exists()) {
+                analysisMethod = extractAnalysisMethodfromPath(Path.of(selectedFile.toURI()));
+            } else {
+                throw new TripoliException(
+                        "Method File not found: " + massSpecExtractedData.getHeader().methodName()
+                                + "\n\n at location: " + Path.of(dataFilePathString).getParent().getParent().toString() + File.separator + "Methods");
             }
+        }
+        // initialize block processing state
+        for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
+            mapOfBlockIdToProcessStatus.put(blockID, RUN);
         }
     }
 
@@ -124,6 +131,35 @@ public class Analysis implements Serializable, AnalysisInterface {
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         PhoenixAnalysisMethod phoenixAnalysisMethod = (PhoenixAnalysisMethod) jaxbUnmarshaller.unmarshal(phoenixAnalysisMethodDataFilePath.toFile());
         return AnalysisMethod.createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod, massSpecExtractedData.getDetectorSetup(), massSpecExtractedData.getMassSpectrometerContext());
+    }
+
+
+    public PlotBuilder[][] updatePlotsByBlock(int blockID, LoggingCallbackInterface loggingCallback) throws TripoliException {
+        PlotBuilder[][] retVal;
+        if (mapOfBlockIdToProcessStatus.get(blockID) == RUN) {
+            mapOfBlockIdToPlots.remove(blockID);
+        }
+        if (mapOfBlockIdToPlots.containsKey(blockID)) {
+            retVal = mapOfBlockIdToPlots.get(blockID);
+            loggingCallback.receiveLoggingSnippet("1000 >%");
+        } else {
+            PlotBuilder[][] plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock(blockID, this, loggingCallback);
+            mapOfBlockIdToPlots.put(blockID, plotBuilders);
+            mapOfBlockIdToProcessStatus.put(blockID, SHOW);
+            retVal = mapOfBlockIdToPlots.get(blockID);
+        }
+        return retVal;
+    }
+
+    public String uppdateLogsByBlock(int blockID, String logEntry) {
+        String log = "";
+        if (mapOfBlockToLogs.containsKey(blockID)) {
+            log = mapOfBlockToLogs.get(blockID);
+        }
+        String retVal = log + "\n" + logEntry;
+        mapOfBlockToLogs.put(blockID, retVal);
+
+        return retVal;
     }
 
     public final String prettyPrintAnalysisSummary() {
@@ -232,16 +268,6 @@ public class Analysis implements Serializable, AnalysisInterface {
         this.analysisMethod = analysisMethod;
     }
 
-    @Override
-    public MassSpecOutputDataRecord getMassSpecOutputDataRecord() {
-        return massSpecOutputDataRecord;
-    }
-
-    @Override
-    public void setMassSpecOutputDataRecord(MassSpecOutputDataRecord massSpecOutputDataRecord) {
-        this.massSpecOutputDataRecord = massSpecOutputDataRecord;
-    }
-
     public MassSpecExtractedData getMassSpecExtractedData() {
         return massSpecExtractedData;
     }
@@ -272,5 +298,13 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public void setMutable(boolean mutable) {
         this.mutable = mutable;
+    }
+
+    public Map<Integer, Integer> getMapOfBlockIdToProcessStatus() {
+        return mapOfBlockIdToProcessStatus;
+    }
+
+    public Map<Integer, PlotBuilder[][]> getMapOfBlockIdToPlots() {
+        return mapOfBlockIdToPlots;
     }
 }

@@ -31,8 +31,8 @@ import java.io.IOException;
 public final class TripoliAboutWindow {
 
     private Stage primaryStage;
-    private double xOffset = 0;
-    private double yOffset = 0;
+    private double xOffset;
+    private double yOffset;
 
     private TripoliAboutWindow() {
     }

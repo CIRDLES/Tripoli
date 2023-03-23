@@ -63,7 +63,7 @@ public class SequenceCell implements Serializable {
         boolean retVal = true;
         if (otherObject != this) {
             if (otherObject instanceof SequenceCell otherSequenceCell) {
-                retVal = 0 == this.getSequenceId().compareToIgnoreCase(otherSequenceCell.getSequenceId());
+                retVal = 0 == sequenceId.compareToIgnoreCase(otherSequenceCell.sequenceId);
             } else {
                 retVal = false;
             }

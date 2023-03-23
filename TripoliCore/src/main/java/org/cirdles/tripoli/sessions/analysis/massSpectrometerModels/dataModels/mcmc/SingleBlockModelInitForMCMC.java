@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmcV2;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
 import com.google.common.collect.Sets;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -317,6 +317,7 @@ enum SingleBlockModelInitForMCMC {
 
 
         return new SingleBlockModelRecord(
+                singleBlockDataSetRecord.blockNumber(),
                 baselineMeansArray,
                 baselineStandardDeviationsArray,
                 detectorFaradayGain,

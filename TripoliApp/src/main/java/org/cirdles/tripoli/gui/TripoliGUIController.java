@@ -27,7 +27,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import org.cirdles.tripoli.Tripoli;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcDemoPlots.MCMCPlotsWindow;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
@@ -101,7 +101,7 @@ public class TripoliGUIController implements Initializable {
         versionLabel.setText("v" + Tripoli.VERSION);
         versionBuildDate.setText(Tripoli.RELEASE_DATE);
 
-        MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
+        MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage, null);
 
         showStartingMenus();
 
@@ -186,7 +186,7 @@ public class TripoliGUIController implements Initializable {
             confirmSaveOnProjectClose();
             tripoliSession = (Session) TripoliSerializer.getSerializedObjectFromFile(sessionFileName, true);
 
-            if (tripoliSession != null) {
+            if (null != tripoliSession) {
 //                squidPersistentState.updateProjectListMRU(new File(projectFileName));
                 TripoliGUI.updateStageTitle(sessionFileName);
 //                buildSessionMenuMRU();
@@ -213,7 +213,7 @@ public class TripoliGUIController implements Initializable {
     }
 
     public void saveSessionMenuItemAction() {
-        if (tripoliSession != null) {
+        if (null != tripoliSession) {
             try {
 //                serializeObjectToFile(tripoliSession, squidPersistentState.getMRUProjectFile().getCanonicalPath());
                 serializeObjectToFile(tripoliSession, sessionFileName);
@@ -225,7 +225,7 @@ public class TripoliGUIController implements Initializable {
     }
 
     public void saveSessionAsMenuItemAction() {
-        if (tripoliSession != null) {
+        if (null != tripoliSession) {
             saveAsSession();
         }
     }
@@ -233,7 +233,7 @@ public class TripoliGUIController implements Initializable {
     private void saveAsSession() {
         try {
             File sessionFile = FileHandlerUtil.saveSessionFile(tripoliSession, TripoliGUI.primaryStageWindow);
-            if (sessionFile != null) {
+            if (null != sessionFile) {
                 sessionFileName = sessionFile.getPath();
                 tripoliSession.setSessionFilePathAsString(sessionFileName);
                 saveSessionMenuItem.setDisable(false);
@@ -353,7 +353,7 @@ public class TripoliGUIController implements Initializable {
 
     @FXML
     private void showDemo1() {
-        MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage);
+        MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage, null);
         MCMCPlotsWindow.loadPlotsWindow();
     }
 

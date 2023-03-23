@@ -25,11 +25,11 @@ public class PeakCentresLinePlot extends AbstractDataView {
      */
     public PeakCentresLinePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
         super(bounds, 50, 30);
-        this.peakCentrePlotBuilder = linePlotBuilder;
+        peakCentrePlotBuilder = linePlotBuilder;
 
-        this.setOnMouseMoved(new MouseMovedHandler());
-        this.setOnMouseClicked(new MouseClickedEventHandler());
-        this.indexOfSelectedSpot = -1;
+        setOnMouseMoved(new MouseMovedHandler());
+        setOnMouseClicked(new MouseClickedEventHandler());
+        indexOfSelectedSpot = -1;
     }
 
     @Override
@@ -55,7 +55,7 @@ public class PeakCentresLinePlot extends AbstractDataView {
         }
 
         ticsY = TicGeneratorForAxes.generateTics(minY, maxY + 0.0005, (int) (graphHeight / 25.0));
-        if ((ticsY != null) && (ticsY.length > 1)) {
+        if ((null != ticsY) && (1 < ticsY.length)) {
             // force y to tics
             minY = ticsY[0].doubleValue();
             maxY = ticsY[ticsY.length - 1].doubleValue();
@@ -68,20 +68,20 @@ public class PeakCentresLinePlot extends AbstractDataView {
         setDisplayOffsetY(0.0);
         setDisplayOffsetX(0.0);
 
-        this.repaint();
+        repaint();
     }
 
     @Override
     public void paint(GraphicsContext g2d) {
         super.paint(g2d);
 
-        if (yAxisData.length != 1) {
+        if (1 != yAxisData.length) {
             Text text = new Text();
             g2d.setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, 12));
             int textWidth = 0;
 
             g2d.setFill(Paint.valueOf("RED"));
-            g2d.fillText(peakCentrePlotBuilder.getTitle(), 20, 12);
+            g2d.fillText(peakCentrePlotBuilder.getTitle()[0], 20, 12);
 
             g2d.setLineWidth(2.5);
 
@@ -111,7 +111,7 @@ public class PeakCentresLinePlot extends AbstractDataView {
             g2d.setLineDashes(0);
 
             g2d.stroke();
-            if (ticsY.length > 1) {
+            if (1 < ticsY.length) {
                 // border and fill
                 g2d.setLineWidth(0.5);
                 g2d.setStroke(Paint.valueOf("BLACK"));
@@ -126,7 +126,7 @@ public class PeakCentresLinePlot extends AbstractDataView {
                 // ticsY
                 float verticalTextShift = 3.2f;
                 g2d.setFont(Font.font("SansSerif", 10));
-                if (ticsY != null) {
+                if (null != ticsY) {
                     for (int i = 0; i < ticsY.length; i++) {
                         g2d.strokeLine(
                                 mapX(minX), mapY(ticsY[i].doubleValue()), mapX(maxX), mapY(ticsY[i].doubleValue()));
@@ -135,12 +135,12 @@ public class PeakCentresLinePlot extends AbstractDataView {
                         text.setText(ticsY[i].toString());
                         textWidth = (int) text.getLayoutBounds().getWidth();
                         g2d.fillText(text.getText(),//
-                                (float) mapX(minX) - textWidth + 5f,
+                                (float) mapX(minX) - textWidth + 5.0f,
                                 (float) mapY(ticsY[i].doubleValue()) + verticalTextShift);
 
                     }
                     // ticsX
-                    if (ticsX != null) {
+                    if (null != ticsX) {
                         for (int i = 0; i < ticsX.length - 1; i++) {
                             try {
                                 g2d.strokeLine(
@@ -152,7 +152,7 @@ public class PeakCentresLinePlot extends AbstractDataView {
                                 // bottom
                                 String xText = ticsX[i].toPlainString();
                                 g2d.fillText(xText,
-                                        (float) mapX(ticsX[i].doubleValue()) - 5f,
+                                        (float) mapX(ticsX[i].doubleValue()) - 5.0f,
                                         (float) mapY(ticsY[0].doubleValue()) + 15);
 
                             } catch (Exception e) {
@@ -180,7 +180,7 @@ public class PeakCentresLinePlot extends AbstractDataView {
             }
 
 
-            if (index == -1 && ((StrictMath.abs(convertedX - xAxisData[xAxisData.length - 1]) < 0.5)))
+            if (-1 == index && ((0.5 > StrictMath.abs(convertedX - xAxisData[xAxisData.length - 1]))))
                 index = xAxisData.length - 1;
         }
 

@@ -23,10 +23,8 @@ import java.io.*;
 /**
  * @author James F. Bowring
  */
-public final class TripoliSerializer {
-
-    private TripoliSerializer() {
-    }
+public enum TripoliSerializer {
+    ;
 
     /**
      * @param serializableObject
@@ -48,7 +46,7 @@ public final class TripoliSerializer {
                     + " because: " + ex.getMessage());
 
         } finally {
-            if (objectOutputStream != null) {
+            if (null != objectOutputStream) {
                 try {
                     objectOutputStream.close();
                 } catch (IOException iOException) {

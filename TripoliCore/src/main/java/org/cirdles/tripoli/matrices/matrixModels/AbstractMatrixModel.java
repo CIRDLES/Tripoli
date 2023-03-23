@@ -52,7 +52,7 @@ public abstract class AbstractMatrixModel implements Serializable {
     /**
      * @param levelName name of internal matrix
      */
-    public AbstractMatrixModel(
+    protected AbstractMatrixModel(
             String levelName) {
         this.levelName = levelName;
         rows = new HashMap<>();
@@ -105,8 +105,8 @@ public abstract class AbstractMatrixModel implements Serializable {
      */
     public void copyValuesFrom(AbstractMatrixModel matrixModel) {
 
-        rows = matrixModel.getRows();
-        cols = matrixModel.getCols();
+        rows = matrixModel.rows;
+        cols = matrixModel.cols;
         matrix = matrixModel.matrix.copy();
     }
 
@@ -127,12 +127,12 @@ public abstract class AbstractMatrixModel implements Serializable {
     public String ToStringWithLabels() {
         String formatCell = "%1$-23s";
 
-        StringBuilder retVal = new StringBuilder(String.format(formatCell, "MATRIX#=" + getLevelName()));
+        StringBuilder retVal = new StringBuilder(String.format(formatCell, "MATRIX#=" + levelName));
 
         // make an inverse map of columns
         Map<Integer, String> tempCols = new HashMap<>();
-        for (String colKey : getCols().keySet()) {
-            tempCols.put(getCols().get(colKey), colKey);
+        for (String colKey : cols.keySet()) {
+            tempCols.put(cols.get(colKey), colKey);
         }
 
         for (int i = 0; i < tempCols.size(); i++) {
@@ -172,14 +172,14 @@ public abstract class AbstractMatrixModel implements Serializable {
         for (int i = 0; i < rowNames.length; i++) {
             myRows.put(i, rowNames[i]);
         }
-        this.rows = myRows;
+        rows = myRows;
     }
 
     /**
      * @param myRows
      */
     public void setRows(Map<Integer, String> myRows) {
-        this.rows = myRows;
+        rows = myRows;
     }
 
     /**
@@ -193,7 +193,7 @@ public abstract class AbstractMatrixModel implements Serializable {
      * @param rowMap
      */
     public void setCols(Map<Integer, String> rowMap) {
-        this.cols = invertRowMap(rowMap);
+        cols = invertRowMap(rowMap);
     }
 
     /**
@@ -263,14 +263,14 @@ public abstract class AbstractMatrixModel implements Serializable {
      */
     public void initializeMatrixModelFromMatrixModel(AbstractMatrixModel parentModel) {
         // requires that rows be identical; we are slicing out columns
-        boolean retVal = !(getRows().isEmpty() || getCols().isEmpty());
+        boolean retVal = !(rows.isEmpty() || cols.isEmpty());
         if (retVal) {
             initializeMatrix();
-            for (String colName : parentModel.getCols().keySet()) {
-                Integer col = getCols().get(colName);
-                if (col != null) {
+            for (String colName : parentModel.cols.keySet()) {
+                Integer col = cols.get(colName);
+                if (null != col) {
                     //copy values from this column
-                    matrix.setMatrix(0, matrix.getRowDimension() - 1, new int[]{col}, parentModel.matrix.getMatrix(0, matrix.getRowDimension() - 1, new int[]{parentModel.getCols().get(colName)}));
+                    matrix.setMatrix(0, matrix.getRowDimension() - 1, new int[]{col}, parentModel.matrix.getMatrix(0, matrix.getRowDimension() - 1, new int[]{parentModel.cols.get(colName)}));
                 }
             }
         }

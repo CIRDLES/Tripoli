@@ -30,7 +30,8 @@ import java.nio.charset.StandardCharsets;
 /**
  * @author James F. Bowring
  */
-public class BrowserControl {
+public enum BrowserControl {
+    ;
 
     public static void showURI(String location, Window ownerWindow) {
         try {
@@ -57,7 +58,7 @@ public class BrowserControl {
         showURI(location, TripoliGUI.primaryStageWindow);
     }
 
-    public static String urlEncode(final String text) {
+    public static String urlEncode(String text) {
         return URLEncoder.encode(text, StandardCharsets.UTF_8);
     }
 

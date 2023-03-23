@@ -25,8 +25,8 @@ import java.io.Serializable;
  */
 public class BaselineMass implements SpeciesRecordInterface, Serializable {
 
-    private final static String DEFAULT_NAME = "Placeholder";
-    private final static double DEFAULT_ABUNDANCE = 0.0;
+    private static final String DEFAULT_NAME = "Placeholder";
+    private static final double DEFAULT_ABUNDANCE = 0.0;
 //    private double atomicMass;
 
 //    public BaselineMass(double atomicMass) {

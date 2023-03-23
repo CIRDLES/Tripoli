@@ -91,9 +91,9 @@ public class IntuitiveStringComparator<T extends CharSequence>
             return 0;
         }
 
-        if (len1 == 0) {
-            return len2 == 0 ? 0 : -1;
-        } else if (len2 == 0) {
+        if (0 == len1) {
+            return 0 == len2 ? 0 : -1;
+        } else if (0 == len2) {
             return 1;
         }
 
@@ -112,7 +112,7 @@ public class IntuitiveStringComparator<T extends CharSequence>
                         : compareOther(false);
             }
 
-            if (result != 0) {
+            if (0 != result) {
                 return result;
             }
 
@@ -130,8 +130,8 @@ public class IntuitiveStringComparator<T extends CharSequence>
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 79 * hash + Objects.hashCode(this.str1);
-        hash = 79 * hash + Objects.hashCode(this.str2);
+        hash = 79 * hash + Objects.hashCode(str1);
+        hash = 79 * hash + Objects.hashCode(str2);
         return hash;
     }
 
@@ -142,28 +142,32 @@ public class IntuitiveStringComparator<T extends CharSequence>
 
         int zeroes2 = 0;
 
-        char ch1 = (char) 0;
+        char ch1 = 0;
 
-        char ch2 = (char) 0;
+        char ch2 = 0;
 
         // Skip leading zeroes, but keep a count of them.
-        while (pos1 < len1 && (ch1 = str1.charAt(pos1++)) == '0') {
+        while (pos1 < len1 && '0' == (ch1 = str1.charAt(pos1))) {
+            pos1++;
             zeroes1++;
 
         }
-        while (pos2 < len2 && (ch2 = str2.charAt(pos2++)) == '0') {
+        pos1++;
+        while (pos2 < len2 && '0' == (ch2 = str2.charAt(pos2))) {
+            pos2++;
             zeroes2++;
 
         }
+        pos2++;
 
         // If one sequence contains more significant digits than the
         // other, it's a larger number.  In case they turn out to have
         // equal lengths, we compare digits at each position; the first
         // unequal pair determines which is the bigger number.
         while (true) {
-            boolean noMoreDigits1 = (ch1 == 0) || !Character.isDigit(ch1);
+            boolean noMoreDigits1 = (0 == ch1) || !Character.isDigit(ch1);
 
-            boolean noMoreDigits2 = (ch2 == 0) || !Character.isDigit(ch2);
+            boolean noMoreDigits2 = (0 == ch2) || !Character.isDigit(ch2);
 
             if (noMoreDigits1 && noMoreDigits2) {
 
@@ -171,7 +175,7 @@ public class IntuitiveStringComparator<T extends CharSequence>
                 pos1--;
                 pos2--;
 
-                return delta != 0 ? delta : zeroes1 - zeroes2;
+                return 0 != delta ? delta : zeroes1 - zeroes2;
 
             } else if (noMoreDigits1) {
                 return -1;
@@ -179,22 +183,34 @@ public class IntuitiveStringComparator<T extends CharSequence>
             } else if (noMoreDigits2) {
                 return 1;
 
-            } else if (delta == 0 && ch1 != ch2) {
+            } else if (0 == delta && ch1 != ch2) {
                 delta = ch1 - ch2;
 
             }
 
-            ch1 = pos1 < len1 ? str1.charAt(pos1++) : (char) 0;
+            if (pos1 < len1) {
+                ch1 = str1.charAt(pos1);
+                pos1++;
+            } else {
+                ch1 = 0;
+            }
 
-            ch2 = pos2 < len2 ? str2.charAt(pos2++) : (char) 0;
+            if (pos2 < len2) {
+                ch2 = str2.charAt(pos2);
+                pos2++;
+            } else {
+                ch2 = 0;
+            }
 
         }
     }
 
     private int compareOther(boolean isLetters) {
-        char ch1 = str1.charAt(pos1++);
+        char ch1 = str1.charAt(pos1);
+        pos1++;
 
-        char ch2 = str2.charAt(pos2++);
+        char ch2 = str2.charAt(pos2);
+        pos2++;
 
         if (ch1 == ch2) {
             return 0;

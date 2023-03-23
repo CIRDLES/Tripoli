@@ -14,33 +14,30 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmc2Plots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 
 /**
  * @author James F. Bowring
  */
-public class MCMC2UpdatesService extends Service<String> {
-    private final AnalysisInterface analysis;
-    private int blockNumber;
+public class MCMCUpdatesService extends Service<String> {
+    private final int blockID;
 
     private Task<String> plotBuilderTask;
 
-    public MCMC2UpdatesService(AnalysisInterface analysis, int blockNumber) {
-        this.analysis = analysis;
-        this.blockNumber = blockNumber;
-    }
-
-    public Task<String> getPlotBuildersTask() {
-        return plotBuilderTask;
+    public MCMCUpdatesService(int blockID) {
+        this.blockID = blockID;
     }
 
     @Override
     protected Task<String> createTask() {
-        plotBuilderTask = new MCMC2PlotBuildersTask(analysis, blockNumber);
+        plotBuilderTask = new MCMCPlotBuildersTask(blockID);
+        return plotBuilderTask;
+    }
+
+    public Task<String> getPlotBuilderTask() {
         return plotBuilderTask;
     }
 }

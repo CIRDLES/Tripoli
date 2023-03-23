@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @param blockNumber
+ * @param blockID
  * @param baselineIntensities
  * @param baselineIDs
  * @param baselineCycleNumbers
@@ -37,7 +37,7 @@ import java.util.Map;
  * @param onPeakStartingIndicesOfCycles
  */
 public record MassSpecOutputSingleBlockRecord(
-        int blockNumber,
+        int blockID,
         double[][] baselineIntensities,
         String[] baselineIDs,
         Map<String, List<Integer>> mapOfBaselineIdsToIndices,

@@ -39,12 +39,18 @@ dependencies {
 
     implementation("eu.hansolo.fx:charts:17.1.13")
 
+//    // https://mvnrepository.com/artifact/com.google.guava/guava
+//    implementation("com.google.guava:guava:31.1-jre")
+//    // https://mvnrepository.com/artifact/com.google.guava/guava-primitives
+//    implementation("com.google.guava:guava-primitives:r03")
+
+
 }
 
 extraJavaModuleInfo {
     failOnMissingModuleInfo.set(false)
     automaticModule("commons-bc38781605.jar", "commons.bc38781605")
-    // automaticModule("org.ojalgo:ojalgo", "ojalgo")
+//    automaticModule("com.google.guava-primitives:guava-primitives.r03", "guava-primitives.r03")
 }
 
 project(":TripoliApp") {
