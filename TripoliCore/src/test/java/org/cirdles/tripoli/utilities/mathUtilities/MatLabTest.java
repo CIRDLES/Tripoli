@@ -219,7 +219,7 @@ class MatLabTest {
             assertArrayEquals(expected, actualArray);
         }
     }
-    
+
     @Test
     void diffTest() throws IOException {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
@@ -318,7 +318,7 @@ class MatLabTest {
 
     }
 
-    //function is somewhat incorrect. Divides each the second parm by each el in A where in matlab it does the opposite
+    //function is somewhat incorrect. Divides the second parm by each element in A where in matlab it does the opposite
     //Also, it requires an extremely low number of sigfigs to work for some reason
     @Test
     void rDivideTest() throws IOException {
