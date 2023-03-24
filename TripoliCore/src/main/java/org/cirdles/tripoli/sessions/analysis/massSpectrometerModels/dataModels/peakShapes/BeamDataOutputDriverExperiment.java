@@ -26,6 +26,7 @@ public enum BeamDataOutputDriverExperiment {
 
     private static double measBeamWidthAMU;
 
+
     public static PlotBuilder[] modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException {
         PeakShapeProcessor_PhoenixTextFile peakShapeProcessor_PhoenixTextFile
                 = PeakShapeProcessor_PhoenixTextFile.initializeWithMassSpectrometer(massSpectrometerModelBuiltinMap.get(MassSpectrometerContextEnum.PHOENIX.getMassSpectrometerName()));
@@ -172,6 +173,8 @@ public enum BeamDataOutputDriverExperiment {
 
             linePlots[0] = beamShapeLinePlotBuilder;
             linePlots[1] = gBeamLinePlotBuilder;
+
+            measBeamWidthAMU = 0;
         }else {
             double[][] leftPeak = new double[(int) maxBeamIndex][1];
             for (int i = 0; i < maxBeamIndex; i++) {

@@ -114,7 +114,8 @@ public class PeakCentresLinePlotX extends AbstractPlot {
             g2d.beginPath();
             g2d.setLineWidth(2.5);
             g2d.setLineDashes(4);
-            g2d.setFill(Paint.valueOf("Red"));
+
+
 
             // x = Time y = Peak Widths
             g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]));
@@ -122,6 +123,11 @@ public class PeakCentresLinePlotX extends AbstractPlot {
                 // line tracing through points
                 if (pointInPlot(xAxisData[i], yAxisData[i])) {
                     // line tracing through points
+                    if (yAxisData[i] == 0) {
+                        g2d.setFill(Paint.valueOf("Black"));
+                    }else {
+                        g2d.setFill(Paint.valueOf("Red"));
+                    }
                     g2d.fillOval(mapX(xAxisData[i]) - 4, mapY(yAxisData[i]) - 4, 8, 8);
                 } else {
                     // out of bounds
