@@ -284,7 +284,7 @@ public class PeakShapeDemoPlotsControllerTest {
         }
 
 
-        LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, new String[]{"PeakCentre Plot"}, "Cycles", "Peak Widths");
+        LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, new String[]{"PeakCentre Plot"}, "Blocks", "Peak Widths");
         ensemblePlotsWallPane.buildToolBar();
         ensemblePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
 
