@@ -89,15 +89,13 @@ public class HistogramSessionPlot extends AbstractPlot {
         g2d.setLineWidth(1.0);
 
         for (int i = 0; i < xAxisData.length; i++) {
-            double dataX = mapX(xAxisData[i]);
-            double dataY = mapY(yAxisData[i]);
-            double dataYplusSigma = mapY(yAxisData[i] + oneSigma[i]);
-            double dataYminusSigma = mapY(yAxisData[i] - oneSigma[i]);
-            boolean datumIsPlottable =
-                    ((dataX >= leftMargin) && (dataX <= leftMargin + plotWidth))
-                    && ((dataY <= topMargin + plotHeight) && (dataY >= topMargin));
-            if (datumIsPlottable){
-                g2d.fillOval(dataX - 2.5, mapY(yAxisData[i]) - 2.5, 5, 5);
+            if (pointInPlot(xAxisData[i], yAxisData[i])) {
+                double dataX = mapX(xAxisData[i]);
+                double dataY = mapY(yAxisData[i]);
+                double dataYplusSigma = mapY(yAxisData[i] + oneSigma[i]);
+                double dataYminusSigma = mapY(yAxisData[i] - oneSigma[i]);
+
+                g2d.fillOval(dataX - 2.5, dataY - 2.5, 5, 5);
                 g2d.strokeLine(dataX, dataY, dataX, dataYplusSigma);
                 g2d.strokeLine(dataX, dataY, dataX, dataYminusSigma);
             }
@@ -107,6 +105,7 @@ public class HistogramSessionPlot extends AbstractPlot {
     public void plotStats(GraphicsContext g2d) {
 
         Paint saveFill = g2d.getFill();
+        // todo: promote color to constant
         g2d.setFill(Color.rgb(255, 251, 194));
         g2d.setGlobalAlpha(0.6);
         double mean = histogramSessionRecord.sessionMean();
@@ -116,7 +115,7 @@ public class HistogramSessionPlot extends AbstractPlot {
         if (leftX < leftMargin) leftX = leftMargin;
         double rightX = mapX(maxX);
         if (rightX > leftMargin + plotWidth) rightX = leftMargin + plotWidth;
-        double plottedTwoSigmaHeight = Math.min(mapY(mean - stdDev), topMargin + plotHeight) -   Math.max(mapY(mean + stdDev), topMargin);
+        double plottedTwoSigmaHeight = Math.min(mapY(mean - stdDev), topMargin + plotHeight) - Math.max(mapY(mean + stdDev), topMargin);
 
         g2d.fillRect(leftX, Math.max(mapY(mean + stdDev), topMargin), rightX - leftX, plottedTwoSigmaHeight);
         g2d.setFill(saveFill);

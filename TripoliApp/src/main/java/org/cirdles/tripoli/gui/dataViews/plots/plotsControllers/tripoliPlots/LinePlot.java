@@ -76,7 +76,7 @@ public class LinePlot extends AbstractPlot {
                 g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
             } else {
                 // out of bounds
-                g2d.moveTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
+                g2d.moveTo(mapX(xAxisData[i]), mapY(yAxisData[i]) < topMargin ? topMargin : topMargin + plotHeight);
             }
         }
         g2d.stroke();
