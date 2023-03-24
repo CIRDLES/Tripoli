@@ -109,10 +109,8 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
                 for (double time : timeList) {
                     int timeIndex = xAxisDataList.indexOf(time);
                     do {
-                        if (0 == timeIndex % plottingStep) {
-                            if (pointInPlot(xAxisData[timeIndex], yAxisData[timeIndex])) {
-                                g2d.fillOval(mapX(xAxisData[timeIndex]) - 2.0f, mapY(yAxisData[timeIndex]) - 2.0f, 4.0f, 4.0f);
-                            }
+                        if ((0 == timeIndex % plottingStep) && pointInPlot(xAxisData[timeIndex], yAxisData[timeIndex])) {
+                            g2d.fillOval(mapX(xAxisData[timeIndex]) - 2.0f, mapY(yAxisData[timeIndex]) - 2.0f, 4.0f, 4.0f);
                         }
                         timeIndex++;
                     } while ((timeIndex < xAxisData.length) && xAxisData[timeIndex - 1] == xAxisData[timeIndex]);
