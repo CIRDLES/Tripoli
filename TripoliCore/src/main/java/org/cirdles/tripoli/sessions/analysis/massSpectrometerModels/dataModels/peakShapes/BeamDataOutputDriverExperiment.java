@@ -163,7 +163,6 @@ public enum BeamDataOutputDriverExperiment {
                     continue;
                 }
                 maxBeamIndex = index;
-                break;
             }
         }
 
