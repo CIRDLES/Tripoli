@@ -369,7 +369,7 @@ public abstract class AbstractPlot extends Canvas {
     }
 
     public boolean pointInPlot(double x, double y) {
-        return ((mapX(x) > leftMargin) && (mapX(x) < (leftMargin + plotWidth)) && (mapY(y) > topMargin) && (mapY(y) < (topMargin + plotHeight)));
+        return ((mapX(x) >= leftMargin) && (mapX(x) <= (leftMargin + plotWidth)) && (mapY(y) >= topMargin) && (mapY(y) <= (topMargin + plotHeight)));
     }
 
     /**

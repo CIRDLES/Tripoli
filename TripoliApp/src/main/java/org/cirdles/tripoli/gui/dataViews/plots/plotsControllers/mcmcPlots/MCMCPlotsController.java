@@ -208,7 +208,7 @@ public class MCMCPlotsController {
         Iterator<Map.Entry<Integer, PlotBuilder[][]>> iterator = mapOfBlockIdToPlots.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<Integer, PlotBuilder[][]> entry = iterator.next();
-            if (analysis.getMapOfBlockIdToProcessStatus().get(entry.getKey()) == SHOW){
+            if (analysis.getMapOfBlockIdToProcessStatus().get(entry.getKey()) == SHOW) {
                 PlotBuilder[] ratiosPlotBuilder = entry.getValue()[PLOT_INDEX_RATIOS];
                 for (PlotBuilder ratioPlotBuilder : ratiosPlotBuilder) {
                     String ratioName = ratioPlotBuilder.getTitle()[0];
@@ -225,7 +225,7 @@ public class MCMCPlotsController {
         sessionAnchorPane.getChildren().add(ratiosSessionPlotsWallPane);
         for (Map.Entry<String, List<HistogramRecord>> entry : mapRatioNameToSessionRecords.entrySet()) {
             HistogramSessionBuilder histogramSessionBuilder = initializeHistogramSession(
-                    analysis.getMapOfBlockIdToProcessStatus().size(),  entry.getValue(), new String[]{entry.getKey()}, "Block ID", "Ratio");
+                    analysis.getMapOfBlockIdToProcessStatus().size(), entry.getValue(), new String[]{entry.getKey()}, "Block ID", "Ratio");
             TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(ratiosSessionPlotsWallPane);
             AbstractPlot plot = HistogramSessionPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), histogramSessionBuilder.getHistogramSessionRecord());
             tripoliPlotPane.addPlot(plot);
