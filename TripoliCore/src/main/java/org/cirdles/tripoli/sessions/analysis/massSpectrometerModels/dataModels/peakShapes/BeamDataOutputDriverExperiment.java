@@ -99,6 +99,11 @@ public enum BeamDataOutputDriverExperiment {
             }
         }
 
+        if(newDataSet == 0){
+            System.out.println("Error generating plot in block");
+            newDataSet = 65;
+        }
+
         double[][] gMatrixTrim = new double[newDataSet][gMatrix.getColDim()];
         int j = 0;
         for (int i = 0; i < gMatrix.getRowDim(); i++) {
@@ -107,6 +112,7 @@ public enum BeamDataOutputDriverExperiment {
                 j++;
             }
         }
+
         Primitive64Store trimGMatrix = storeFactory.rows(gMatrixTrim);
 
         double[][] trimMagnetMasses = new double[newDataSet][peakShapeOutputDataRecord.magnetMasses().getRowDim()];
