@@ -32,7 +32,7 @@ public class MultiLinePlotBuilder extends PlotBuilder {
     }
 
     private MultiLinePlotBuilder(double[][] xData, double[][] yData, String[] title, String xAxisLabel, String yAxisLabel, boolean markerInLastLine) {
-        super(title, xAxisLabel, yAxisLabel);
+        super(title, xAxisLabel, yAxisLabel, true);
         this.xData = xData;
         this.yData = yData;
         this.markerInLastLine = markerInLastLine;

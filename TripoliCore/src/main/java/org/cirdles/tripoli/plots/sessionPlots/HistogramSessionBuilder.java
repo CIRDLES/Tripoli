@@ -38,7 +38,7 @@ public class HistogramSessionBuilder extends PlotBuilder {
     }
 
     public HistogramSessionBuilder(int blockCount, List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
-        super(title, xAxisLabel, yAxisLabel);
+        super(title, xAxisLabel, yAxisLabel, true);
         this.blockCount = blockCount;
         histogramSessionRecord = generateHistogramSession(histogramRecords);
     }

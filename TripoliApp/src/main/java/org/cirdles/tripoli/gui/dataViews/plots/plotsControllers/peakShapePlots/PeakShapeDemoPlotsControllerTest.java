@@ -279,7 +279,7 @@ public class PeakShapeDemoPlotsControllerTest {
         finalXAxis = xAxis;
         if (wallPlotsAnchorPane.getChildren().size() == 0) {
             wallPlotsAnchorPane.getChildren().add(ensemblePlotsWallPane);
-        }else {
+        } else {
             ensemblePlotsWallPane.getChildren().clear();
         }
 
@@ -462,9 +462,6 @@ public class PeakShapeDemoPlotsControllerTest {
                     ensemblePlotsWallPane.getChildren().remove(2, ensemblePlotsWallPane.getChildren().size());
 
                 }
-
-
-
 
 
                 produceBeamShapeLinePlot(plots[0], ensemblePlotsWallPane);

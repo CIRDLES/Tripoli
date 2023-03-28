@@ -33,13 +33,14 @@ public class HistogramBuilder extends PlotBuilder {
     public HistogramBuilder() {
     }
 
-    public HistogramBuilder(int blockID, String[] title, String xAxisLabel, String yAxisLabel) {
-        super(title, xAxisLabel, yAxisLabel);
+    public HistogramBuilder(int blockID, String[] title, String xAxisLabel, String yAxisLabel, boolean displayed) {
+        super(title, xAxisLabel, yAxisLabel, displayed);
         histogramRecord = generateHistogram(blockID, new double[0], 0);
+        this.displayed = displayed;
     }
 
-    public static HistogramBuilder initializeHistogram(int blockID, double[] data, int binCount, String[] title, String xAxisLabel, String yAxisLabel) {
-        HistogramBuilder histogramBuilder = new HistogramBuilder(blockID, title, xAxisLabel, yAxisLabel);
+    public static HistogramBuilder initializeHistogram(int blockID, double[] data, int binCount, String[] title, String xAxisLabel, String yAxisLabel, boolean displayed) {
+        HistogramBuilder histogramBuilder = new HistogramBuilder(blockID, title, xAxisLabel, yAxisLabel, displayed);
         histogramBuilder.histogramRecord = histogramBuilder.generateHistogram(blockID, data, binCount);
         return histogramBuilder;
     }

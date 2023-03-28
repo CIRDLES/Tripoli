@@ -28,13 +28,13 @@ public class LinePlotBuilder extends PlotBuilder {
     private final double[] yData;
 
     public LinePlotBuilder(String[] title, String xAxisLabel, String yAxisLabel) {
-        super(title, xAxisLabel, yAxisLabel);
+        super(title, xAxisLabel, yAxisLabel, true);
         xData = new double[0];
         yData = new double[0];
     }
 
     protected LinePlotBuilder(double[] xData, double[] yData, String[] title, String xAxisLabel, String yAxisLabel) {
-        super(title, xAxisLabel, yAxisLabel);
+        super(title, xAxisLabel, yAxisLabel, true);
         this.xData = xData;
         this.yData = yData;
     }
