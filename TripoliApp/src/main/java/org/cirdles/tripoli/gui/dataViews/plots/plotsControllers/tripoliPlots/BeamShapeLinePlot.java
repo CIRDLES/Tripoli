@@ -181,7 +181,7 @@ public class BeamShapeLinePlot extends AbstractPlot {
             if (mouseInHouse(mouseEvent.getX(), mouseEvent.getY())) {
                 if (isPrimary) {
                 } else {
-                    plotContextMenu.show((Node) mouseEvent.getSource(), Side.LEFT, mouseEvent.getSceneX() , mouseEvent.getSceneY() );
+                    plotContextMenu.show((Node) mouseEvent.getSource(), Side.LEFT, mouseEvent.getSceneX(), mouseEvent.getSceneY());
                 }
             }
 
@@ -219,7 +219,7 @@ public class BeamShapeLinePlot extends AbstractPlot {
                         } else if (convertMouseYToValue(event.getY()) - maxY / 200 <= getyAxisData()[minIndex] && convertMouseYToValue(event.getY()) + maxY / 200 >= getyAxisData()[minIndex]) {
                             showToolTip(potNode, event, getxAxisData()[i], getyAxisData()[i]);
                             ((Canvas) event.getSource()).setCursor(Cursor.CROSSHAIR);
-                        }else {
+                        } else {
                             ((Canvas) event.getSource()).setCursor(Cursor.DEFAULT);
                         }
                     }
@@ -233,5 +233,3 @@ public class BeamShapeLinePlot extends AbstractPlot {
         }
     }
 }
-
-

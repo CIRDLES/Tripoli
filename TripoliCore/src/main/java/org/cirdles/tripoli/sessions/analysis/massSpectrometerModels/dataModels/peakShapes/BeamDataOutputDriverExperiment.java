@@ -99,7 +99,7 @@ public enum BeamDataOutputDriverExperiment {
             }
         }
 
-        if(newDataSet == 0){
+        if (newDataSet == 0) {
             System.out.println("Error generating plot in block");
             newDataSet = 65;
         }
@@ -168,7 +168,7 @@ public enum BeamDataOutputDriverExperiment {
 
         thresholdIntensity = MaxBeam * (0.01);
         PlotBuilder[] linePlots = new LinePlotBuilder[2];
-        if(maxBeamIndex <= 0 || maxBeamIndex >= 999){
+        if (maxBeamIndex <= 0 || maxBeamIndex >= 999) {
             System.out.println("Error generating plot in block");
             PlotBuilder beamShapeLinePlotBuilder
                     = BeamShapeLinePlotBuilder.initializeBeamShapeLinePlot(beamMassInterp.toRawCopy2D()[0], beamShape.transpose().toRawCopy2D()[0], 0, 0);
@@ -180,7 +180,7 @@ public enum BeamDataOutputDriverExperiment {
             linePlots[1] = gBeamLinePlotBuilder;
 
             measBeamWidthAMU = 0;
-        }else {
+        } else {
             double[][] leftPeak = new double[(int) maxBeamIndex][1];
             for (int i = 0; i < maxBeamIndex; i++) {
                 leftPeak[i][0] = beamShape.get(i, 0);
@@ -231,18 +231,16 @@ public enum BeamDataOutputDriverExperiment {
             measBeamWidthAMU = beamMassInterp.get(rightBoundary) - beamMassInterp.get(leftBoundary);
 
 
+            // "beamShape"
+            PlotBuilder beamShapeLinePlotBuilder
+                    = BeamShapeLinePlotBuilder.initializeBeamShapeLinePlot(beamMassInterp.toRawCopy2D()[0], beamShape.transpose().toRawCopy2D()[0], leftBoundary, rightBoundary);
 
-                // "beamShape"
-                PlotBuilder beamShapeLinePlotBuilder
-                        = BeamShapeLinePlotBuilder.initializeBeamShapeLinePlot(beamMassInterp.toRawCopy2D()[0], beamShape.transpose().toRawCopy2D()[0], leftBoundary, rightBoundary);
+            PlotBuilder gBeamLinePlotBuilder
+                    = GBeamLinePlotBuilder.initializeGBeamLinePlot(magnetMasses.transpose().toRawCopy2D()[0], gBeam.transpose().toRawCopy2D()[0], intensityData);
 
-                PlotBuilder gBeamLinePlotBuilder
-                        = GBeamLinePlotBuilder.initializeGBeamLinePlot(magnetMasses.transpose().toRawCopy2D()[0], gBeam.transpose().toRawCopy2D()[0], intensityData);
-
-                linePlots[0] = beamShapeLinePlotBuilder;
-                linePlots[1] = gBeamLinePlotBuilder;
+            linePlots[0] = beamShapeLinePlotBuilder;
+            linePlots[1] = gBeamLinePlotBuilder;
         }
-
 
 
         return linePlots;

@@ -17,9 +17,11 @@
 package org.cirdles.tripoli.species.nuclides;
 
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.util.Objects;
 
 /**
  * @author James F. Bowring
@@ -32,7 +34,7 @@ public record NuclideRecord(
         double atomicMass,
         double halfLifeAnnum,
         double naturalAbundancePercent
-) implements SpeciesRecordInterface, Serializable {
+) implements SpeciesRecordInterface, Serializable, Comparable {
 
     public String prettyPrintLongForm() {
         DecimalFormat df = new DecimalFormat("###0.0000000#####           ");
@@ -65,5 +67,27 @@ public record NuclideRecord(
     @Override
     public double getNaturalAbundancePercent() {
         return naturalAbundancePercent;
+    }
+
+    /**
+     * @param o the object to be compared.
+     * @return
+     */
+    @Override
+    public int compareTo(@NotNull Object o) {
+        return Integer.compare(protonsZ + neutronsN, ((NuclideRecord) o).neutronsN + ((NuclideRecord) o).protonsZ);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (null == o || getClass() != o.getClass()) return false;
+        NuclideRecord that = (NuclideRecord) o;
+        return protonsZ == that.protonsZ && neutronsN == that.neutronsN && elementSymbol.equals(that.elementSymbol);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(elementSymbol, protonsZ, neutronsN);
     }
 }

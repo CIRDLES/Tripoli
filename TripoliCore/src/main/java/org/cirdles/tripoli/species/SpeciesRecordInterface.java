@@ -16,12 +16,18 @@
 
 package org.cirdles.tripoli.species;
 
+import org.jetbrains.annotations.NotNull;
+
 public interface SpeciesRecordInterface {
     String getMolecularFormula();
 
     double getAtomicMass();
 
+    public int getMassNumber();
+
     double getNaturalAbundancePercent();
+
+    public int compareTo(@NotNull Object o);
 
     String prettyPrintShortForm();
 }

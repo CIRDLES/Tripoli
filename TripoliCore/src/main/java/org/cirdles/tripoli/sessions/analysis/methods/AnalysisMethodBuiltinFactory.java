@@ -58,7 +58,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         burdickBlSyntheticData.addSpeciesToSpeciesList(pb206);
         burdickBlSyntheticData.addSpeciesToSpeciesList(pb208);
 
-        burdickBlSyntheticData.addRatioToIsotopicRatiosList(new IsotopicRatio(pb206, pb208));
+        burdickBlSyntheticData.createListsOfIsotopicRatios();//(new IsotopicRatio(pb206, pb208, true));
 
         DetectorSetup detectorSetup = DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_SYNTHETIC.getName());
 
@@ -104,10 +104,10 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         ku_204_5_6_7_8_Daly_AllFaradayPb.addSpeciesToSpeciesList(pb207);
         ku_204_5_6_7_8_Daly_AllFaradayPb.addSpeciesToSpeciesList(pb208);
 
-        ku_204_5_6_7_8_Daly_AllFaradayPb.addRatioToIsotopicRatiosList(new IsotopicRatio(pb204, pb208));
-        ku_204_5_6_7_8_Daly_AllFaradayPb.addRatioToIsotopicRatiosList(new IsotopicRatio(pb205, pb208));
-        ku_204_5_6_7_8_Daly_AllFaradayPb.addRatioToIsotopicRatiosList(new IsotopicRatio(pb206, pb208));
-        ku_204_5_6_7_8_Daly_AllFaradayPb.addRatioToIsotopicRatiosList(new IsotopicRatio(pb207, pb208));
+        ku_204_5_6_7_8_Daly_AllFaradayPb.addRatioToIsotopicRatiosList(new IsotopicRatio(pb204, pb208, true));
+        ku_204_5_6_7_8_Daly_AllFaradayPb.addRatioToIsotopicRatiosList(new IsotopicRatio(pb205, pb208, true));
+        ku_204_5_6_7_8_Daly_AllFaradayPb.addRatioToIsotopicRatiosList(new IsotopicRatio(pb206, pb208, true));
+        ku_204_5_6_7_8_Daly_AllFaradayPb.addRatioToIsotopicRatiosList(new IsotopicRatio(pb207, pb208, true));
 
         DetectorSetup detectorSetup = DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_SYNTHETIC.getName());
         BaselineTable baselineTable = ku_204_5_6_7_8_Daly_AllFaradayPb.getBaselineTable();

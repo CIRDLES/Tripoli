@@ -126,9 +126,13 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
         // new line plot from yAxisData2
         g2d.setStroke(Paint.valueOf("red"));
         g2d.beginPath();
-        g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData2[0]));
+        boolean startedPlot = false;
         for (int i = 0; i < xAxisData.length; i += plottingStep) {
             if (pointInPlot(xAxisData[i], yAxisData2[i])) {
+                if (!startedPlot) {
+                    g2d.moveTo(mapX(xAxisData[i]), mapY(yAxisData2[i]));
+                    startedPlot = true;
+                }
                 // line tracing through points
                 g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData2[i]));
             } else {
@@ -140,9 +144,13 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
 
         if (comboPlotBuilder.isyData2OneSigma()) {
             g2d.beginPath();
-            g2d.moveTo(mapX(xAxisData[0]), mapY(-yAxisData2[0]));
+            startedPlot = false;
             for (int i = 0; i < xAxisData.length; i += plottingStep) {
                 if (pointInPlot(xAxisData[i], -yAxisData2[i])) {
+                    if (!startedPlot) {
+                        g2d.moveTo(mapX(xAxisData[i]), mapY(-yAxisData2[i]));
+                        startedPlot = true;
+                    }
                     // line tracing through points
                     g2d.lineTo(mapX(xAxisData[i]), mapY(-yAxisData2[i]));
                 } else {
