@@ -1,5 +1,6 @@
 package org.cirdles.tripoli.utilities.mathUtilities;
 
+import org.checkerframework.checker.units.qual.A;
 import org.cirdles.tripoli.Tripoli;
 import org.junit.jupiter.api.Test;
 import org.ojalgo.matrix.store.PhysicalStore;
@@ -279,12 +280,43 @@ class MatLabTest {
     }
 
     @Test
-    void linspaceTest() {
+    void linspaceTest() throws IOException{
+        ArrayList<double[][]> A_list = read_csv("linspace_matrix_A.txt");
+        ArrayList<double[][]> Answer_list = read_csv("linspace_answers.txt");
+        double val1;
+        double val2;
+        double points;
+        double[][] expected;
+        double[][] actualArray;
+        Primitive64Store actual;
+        for (int i = 0; i < Answer_list.size(); i++) {
+            val1 = A_list.get(i)[0][0];
+            val2 = A_list.get(i)[0][1];
+            points = A_list.get(i)[0][2];
 
-        Primitive64Store actual = MatLab.linspace(-5, 5, 7);
-        double[][] expected = new double[][]{{-5.0, -3.333333333333333, -1.6666666666666665, 0.0, 1.666666666666667, 3.333333333333334, 5.0}};
+            expected = Answer_list.get(i);
+            System.out.println(val1);
+            System.out.println(val2);
+            System.out.println(points);
+            System.out.println(Arrays.deepToString(expected));
+            actual = MatLab.linspace2(val1, val2, points);
+            actualArray = actual.toRawCopy2D();
+            System.out.println(Arrays.deepToString(actualArray));
 
-        assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
+            for (int j = 0; j < expected.length; j++) {
+                for (int k = 0; k < expected[j].length; k++) {
+                    expected[j][k] = MatLab.roundedToSize(expected[j][k], 12);
+                }
+            }
+
+            for (int j = 0; j < actualArray.length; j++) {
+                for (int k = 0; k < actualArray[j].length; k++) {
+                    actualArray[j][k] = MatLab.roundedToSize(actualArray[j][k], 12);
+                }
+            }
+
+            assertArrayEquals(expected, actualArray);
+        }
     }
 
     @Test
@@ -336,7 +368,7 @@ class MatLabTest {
             B = storeFactory.rows(B_list.get(i));
 
             expected = Answer_list.get(i);
-            actual = MatLab.rDivide(A, B.get(0, 0));
+            actual = MatLab.rDivide2(A, B.get(0, 0));
             actualArray = actual.toRawCopy2D();
 
             for (int j = 0; j < expected.length; j++) {

@@ -16,7 +16,7 @@ public enum MatLab {
     public static double roundedToSize(double value, int sigFigs) {
         BigDecimal valueBDtoSize = BigDecimal.ZERO;
         if (Double.isFinite(value)) {
-            BigDecimal valueBD = new BigDecimal(value);
+            BigDecimal valueBD = new BigDecimal(String.valueOf(value));
             int newScale = sigFigs - (valueBD.precision() - valueBD.scale());
             valueBDtoSize = valueBD.setScale(newScale, RoundingMode.HALF_UP);
         }
@@ -332,6 +332,31 @@ public enum MatLab {
      * @param dir Direction
      */
 
+    /**
+     * Generates a linearly spaced vector of n points of (max - min)/(points - 1)
+     *
+     * @param min    min value
+     * @param max    max value
+     * @param points number of points spaced between
+     * @return A vector matrix of linearly spaced vector
+     */
+    public static Primitive64Store linspace2(double min, double max, double points) {
+
+        if (points < 0.1){
+            return Primitive64Store.FACTORY.rows(new double[][]{{}});
+        }
+
+        if (points < 1.1){
+            return Primitive64Store.FACTORY.rows(new double[][]{{max}});
+        }
+
+        double[][] d = new double[1][(int) points];
+        for (int i = 0; i < points; i++) {
+            d[0][i] = min + i * (max - min) / (points - 1);
+        }
+        return Primitive64Store.FACTORY.rows(d);
+    }
+
     public static Primitive64Store find(MatrixStore<Double> mat, int num, String dir) {
         double[][] found = new double[num][1];
         int row = mat.getRowDim();
@@ -446,6 +471,27 @@ public enum MatLab {
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
                 divMat[i][j] = div / A.get(i, j);
+            }
+        }
+
+        return Primitive64Store.FACTORY.rows(divMat);
+    }
+
+    /**
+     * Divides each element in param A by param div
+     *
+     * @param A   Matrix A
+     * @param div dividend div
+     * @return div/A
+     */
+
+    public static Primitive64Store rDivide2(MatrixStore<Double> A, double div) {
+        int row = A.getRowDim();
+        int col = A.getColDim();
+        double[][] divMat = new double[row][col];
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                divMat[i][j] = A.get(i, j) / div;
             }
         }
 
