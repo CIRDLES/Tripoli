@@ -30,7 +30,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static org.cirdles.tripoli.TripoliConstants.SYNTHETIC_DATA_FOLDER_2ISOTOPE;
+import static org.cirdles.tripoli.constants.TripoliConstants.SYNTHETIC_DATA_FOLDER_2ISOTOPE;
 
 /**
  * @author James F. Bowring

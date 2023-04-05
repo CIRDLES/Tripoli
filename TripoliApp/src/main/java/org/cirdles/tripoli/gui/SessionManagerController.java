@@ -34,7 +34,7 @@ import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
+import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliSession;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_SESSION_LINEN;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColorToHex;

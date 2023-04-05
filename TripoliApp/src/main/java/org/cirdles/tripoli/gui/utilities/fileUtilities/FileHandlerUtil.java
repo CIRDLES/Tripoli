@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliPersistentState;
 import static org.cirdles.tripoli.utilities.file.FileNameFixer.fixFileName;
 
 public enum FileHandlerUtil {
@@ -30,8 +31,8 @@ public enum FileHandlerUtil {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Session '.tripoli' file");
         fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Tripoli Session files", "*.tripoli"));
-//        File initDirectory = new File(squidPersistentState.getMRUProjectFolderPath());
-//        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
+        File initDirectory = new File(tripoliPersistentState.getMRUSessionFolderPath());
+        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
         fileChooser.setInitialFileName(fixFileName(session.getSessionName()) + ".tripoli");
 
         File sessionFileNew = fileChooser.showSaveDialog(ownerWindow);
@@ -58,8 +59,8 @@ public enum FileHandlerUtil {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Session '.tripoli' file");
         fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Tripoli Session files", "*.tripoli"));
-//        File initDirectory = new File(squidPersistentState.getMRUProjectFolderPath());
-//        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
+        File initDirectory = new File(tripoliPersistentState.getMRUSessionFolderPath());
+        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
 
         File sessionFileNew = fileChooser.showOpenDialog(ownerWindow);
 
@@ -77,7 +78,7 @@ public enum FileHandlerUtil {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Data text file");
         fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Data txt files", "*.txt"));
-//        File initDirectory = new File(squidPersistentState.getMRUPrawnFileFolderPath());
+//        File initDirectory = new File(squidPersistentState.getMRUDataFileFolderPath());
 //        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
 
         File dataFile = fileChooser.showOpenDialog(ownerWindow);
@@ -99,7 +100,7 @@ public enum FileHandlerUtil {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Analysis Method '.xml' file");
         fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Analysis Method '.xml' files", "*.txt,*.xml,*.TIMSAM"));
-//        File initDirectory = new File(squidPersistentState.getMRUPrawnFileFolderPath());
+//        File initDirectory = new File(squidPersistentState.getMRUDataFileFolderPath());
 //        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
 
         File dataFile = fileChooser.showOpenDialog(ownerWindow);

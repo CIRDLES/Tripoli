@@ -33,7 +33,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
+import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
 import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDialog;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectDataFile;
@@ -389,6 +389,11 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             }
         } catch (TripoliException | IOException | JAXBException e) {
             TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
+        }
+
+        // initialize block processing state
+        for (Integer blockID : analysis.getMassSpecExtractedData().getBlocksData().keySet()) {
+            analysis.getMapOfBlockIdToProcessStatus().put(blockID, RUN);
         }
         populateAnalysisManagerGridPane();
     }

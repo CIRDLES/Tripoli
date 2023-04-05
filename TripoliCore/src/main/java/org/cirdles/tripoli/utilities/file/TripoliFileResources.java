@@ -24,7 +24,7 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.cirdles.tripoli.Tripoli.TRIPOLI_RESOURCE_EXTRACTOR;
-import static org.cirdles.tripoli.TripoliConstants.*;
+import static org.cirdles.tripoli.constants.TripoliConstants.*;
 import static org.cirdles.tripoli.utilities.file.GithubFileExtractor.extractGithubFile;
 
 public enum TripoliFileResources {
