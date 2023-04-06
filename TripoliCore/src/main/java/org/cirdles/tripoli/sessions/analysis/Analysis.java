@@ -43,6 +43,7 @@ import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_
 import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_SYNTHETIC;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockDataModelPlot.PLOT_INDEX_RATIOS;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB;
 
@@ -149,6 +150,15 @@ public class Analysis implements Serializable, AnalysisInterface {
             retVal = mapOfBlockIdToPlots.get(blockID);
         }
         return retVal;
+    }
+
+    public void updateRatiosPlotBuilderDisplayStatus(int indexOfIsotopicRatio, boolean displayed) {
+        for (Integer blockID : mapOfBlockIdToPlots.keySet()) {
+            PlotBuilder[] plotBuilder = mapOfBlockIdToPlots.get(blockID)[PLOT_INDEX_RATIOS];
+            if (plotBuilder[indexOfIsotopicRatio] != null) {
+                plotBuilder[indexOfIsotopicRatio].setDisplayed(displayed);
+            }
+        }
     }
 
     public String uppdateLogsByBlock(int blockID, String logEntry) {

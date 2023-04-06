@@ -247,8 +247,8 @@ public abstract class AbstractDataView extends Canvas {
      * @param x
      * @return
      */
-    protected double convertMouseXToValue(double x) {
-        return ((x - leftMargin + 2) / graphWidth) //
+    public double convertMouseXToValue(double x) {
+        return ((x - leftMargin + 2) / (double) graphWidth) //
                 * getRangeX_Display()//
                 + getMinX_Display();
     }
@@ -257,12 +257,12 @@ public abstract class AbstractDataView extends Canvas {
      * @param y
      * @return
      */
-    protected double convertMouseYToValue(double y) {
+    public double convertMouseYToValue(double y) {
         return -1 * (((y - topMargin - 1) * getRangeY_Display() / graphHeight)
                 - getMaxY_Display());
     }
 
-    protected boolean mouseInHouse(javafx.scene.input.MouseEvent evt) {
+    public boolean mouseInHouse(javafx.scene.input.MouseEvent evt) {
         return ((evt.getX() >= leftMargin)
                 && (evt.getY() >= topMargin)
                 && (evt.getY() < graphHeight + topMargin - 2)

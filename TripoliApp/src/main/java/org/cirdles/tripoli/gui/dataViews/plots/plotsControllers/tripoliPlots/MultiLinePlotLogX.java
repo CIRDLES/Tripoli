@@ -132,13 +132,18 @@ public class MultiLinePlotLogX extends AbstractPlot {
         for (int y = 0; y < yData.length; y++) {
             g2d.setStroke(Color.color(rgbStartRed + redDelta * y, rgbStartGreen + greenDelta * y, rgbStartBlue + blueDelta * y));
             g2d.beginPath();
-            g2d.moveTo(mapX(Math.log(xAxisData[0])), mapY(yData[y][0]));
+            boolean startedPlot = false;
             for (int i = 0; i < xAxisData.length; i++) {
-                // line tracing through points
-                try {
+                if (pointInPlot(Math.log(xAxisData[i]), yData[y][i])) {
+                    if (!startedPlot) {
+                        g2d.moveTo(mapX(Math.log(xAxisData[i])), mapY(yData[y][i]));
+                        startedPlot = true;
+                    }
+                    // line tracing through points
                     g2d.lineTo(mapX(Math.log(xAxisData[i])), mapY(yData[y][i]));
-                } catch (Exception e) {
-                    System.out.println("ERROR");
+                } else {
+                    // out of bounds
+                    g2d.moveTo(mapX(Math.log(xAxisData[i])), mapY(yData[y][i]) < topMargin ? topMargin : topMargin + plotHeight);
                 }
             }
             g2d.stroke();

@@ -91,7 +91,9 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
         g2d.setLineWidth(0.75);
         g2d.setStroke(Paint.valueOf("Black"));
         for (int i = 0; i < xAxisData.length; i += plottingStep) {
-            g2d.strokeOval(mapX(xAxisData[i]) - 2.0f, mapY(yAxisData[i]) - 2.0f, 4.0f, 4.0f);
+            if (pointInPlot(xAxisData[i], yAxisData[i])) {
+                g2d.strokeOval(mapX(xAxisData[i]) - 2.0f, mapY(yAxisData[i]) - 2.0f, 4.0f, 4.0f);
+            }
         }
 
         g2d.setFont(Font.font("SansSerif", 18));
@@ -107,7 +109,7 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
                 for (double time : timeList) {
                     int timeIndex = xAxisDataList.indexOf(time);
                     do {
-                        if (0 == timeIndex % plottingStep) {
+                        if ((0 == timeIndex % plottingStep) && pointInPlot(xAxisData[timeIndex], yAxisData[timeIndex])) {
                             g2d.fillOval(mapX(xAxisData[timeIndex]) - 2.0f, mapY(yAxisData[timeIndex]) - 2.0f, 4.0f, 4.0f);
                         }
                         timeIndex++;
@@ -124,19 +126,37 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
         // new line plot from yAxisData2
         g2d.setStroke(Paint.valueOf("red"));
         g2d.beginPath();
-        g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData2[0]));
+        boolean startedPlot = false;
         for (int i = 0; i < xAxisData.length; i += plottingStep) {
-            // line tracing through points
-            g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData2[i]));
+            if (pointInPlot(xAxisData[i], yAxisData2[i])) {
+                if (!startedPlot) {
+                    g2d.moveTo(mapX(xAxisData[i]), mapY(yAxisData2[i]));
+                    startedPlot = true;
+                }
+                // line tracing through points
+                g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData2[i]));
+            } else {
+                // out of bounds
+                g2d.moveTo(mapX(xAxisData[i]), mapY(yAxisData2[i]) < topMargin ? topMargin : topMargin + plotHeight);
+            }
         }
         g2d.stroke();
 
         if (comboPlotBuilder.isyData2OneSigma()) {
             g2d.beginPath();
-            g2d.moveTo(mapX(xAxisData[0]), mapY(-yAxisData2[0]));
+            startedPlot = false;
             for (int i = 0; i < xAxisData.length; i += plottingStep) {
-                // line tracing through points
-                g2d.lineTo(mapX(xAxisData[i]), mapY(-yAxisData2[i]));
+                if (pointInPlot(xAxisData[i], -yAxisData2[i])) {
+                    if (!startedPlot) {
+                        g2d.moveTo(mapX(xAxisData[i]), mapY(-yAxisData2[i]));
+                        startedPlot = true;
+                    }
+                    // line tracing through points
+                    g2d.lineTo(mapX(xAxisData[i]), mapY(-yAxisData2[i]));
+                } else {
+                    // out of bounds
+                    g2d.moveTo(mapX(xAxisData[i]), mapY(-yAxisData2[i]) < topMargin ? topMargin : topMargin + plotHeight);
+                }
             }
             g2d.stroke();
         }

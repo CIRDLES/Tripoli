@@ -157,7 +157,7 @@ enum SingleBlockModelInitForMCMC {
         //  the ratios are between each species and the most abundant species, with one less ratio than species
         int indexOfMostAbundantIsotope = mapPhotoMultiplierIsotopeIndicesToStatistics.size() - 1;
         double detectorFaradayGain = photoMultiplierMeansArray[maxCountPhotoMultiplierIndex] / faradayMeansArray[maxCountFaradayIndex];
-        double[] logRatios = new double[mapPhotoMultiplierIsotopeIndicesToStatistics.size() - 1];
+        double[] logRatios = new double[indexOfMostAbundantIsotope];
         for (int logRatioIndex = 0; logRatioIndex < logRatios.length; logRatioIndex++) {
             logRatios[logRatioIndex] = log(photoMultiplierMeansArray[logRatioIndex] / photoMultiplierMeansArray[indexOfMostAbundantIsotope]);
         }

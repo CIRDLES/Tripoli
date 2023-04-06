@@ -24,8 +24,8 @@ public enum BeamDataOutputDriverExperiment {
     ;
 
 
-    private static final boolean doFullProcessing = true;
     private static double measBeamWidthAMU;
+
 
     public static PlotBuilder[] modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException {
         PeakShapeProcessor_PhoenixTextFile peakShapeProcessor_PhoenixTextFile
@@ -33,12 +33,11 @@ public enum BeamDataOutputDriverExperiment {
         PeakShapeOutputDataRecord peakShapeOutputDataRecord = peakShapeProcessor_PhoenixTextFile.prepareInputDataModelFromFile(dataFile);
         PlotBuilder[] peakShapeLinePlotBuilder = new LinePlotBuilder[0];
 
-        if (doFullProcessing) {
-            try {
-                peakShapeLinePlotBuilder = gatherBeamWidth(peakShapeOutputDataRecord, loggingCallback);
-            } catch (RecoverableCondition e) {
-                e.printStackTrace();
-            }
+
+        try {
+            peakShapeLinePlotBuilder = gatherBeamWidth(peakShapeOutputDataRecord, loggingCallback);
+        } catch (RecoverableCondition e) {
+            e.printStackTrace();
         }
 
 
@@ -100,6 +99,11 @@ public enum BeamDataOutputDriverExperiment {
             }
         }
 
+        if (newDataSet == 0) {
+            System.out.println("Error generating plot in block");
+            newDataSet = 65;
+        }
+
         double[][] gMatrixTrim = new double[newDataSet][gMatrix.getColDim()];
         int j = 0;
         for (int i = 0; i < gMatrix.getRowDim(); i++) {
@@ -108,6 +112,7 @@ public enum BeamDataOutputDriverExperiment {
                 j++;
             }
         }
+
         Primitive64Store trimGMatrix = storeFactory.rows(gMatrixTrim);
 
         double[][] trimMagnetMasses = new double[newDataSet][peakShapeOutputDataRecord.magnetMasses().getRowDim()];
@@ -133,7 +138,6 @@ public enum BeamDataOutputDriverExperiment {
         Primitive64Store magnetMasses = storeFactory.rows(trimMagnetMasses);
         Primitive64Store measuredPeakIntensities = storeFactory.rows(trimPeakIntensity);
 
-        double[] massData = magnetMasses.transpose().toRawCopy2D()[0];
         double[] intensityData = measuredPeakIntensities.transpose().toRawCopy2D()[0];
 
 
@@ -154,75 +158,90 @@ public enum BeamDataOutputDriverExperiment {
         int index = 0;
         for (int i = 0; i < beamShape.getRowDim(); i++) {
             for (int l = 0; l < beamShape.getColDim(); l++) {
-                if (beamShape.get(i, l) == MaxBeam) {
-                    maxBeamIndex = index;
-                    break;
+                if (beamShape.get(i, l) != MaxBeam) {
+                    index++;
+                    continue;
                 }
-                index++;
+                maxBeamIndex = index;
             }
         }
+
         thresholdIntensity = MaxBeam * (0.01);
-
-        double[][] leftPeak = new double[(int) maxBeamIndex][1];
-        for (int i = 0; i < maxBeamIndex - 1; i++) {
-            leftPeak[i][0] = beamShape.get(i, 0);
-        }
-
-        Primitive64Store peakLeft = storeFactory.rows(leftPeak);
-        Primitive64Store leftAboveThreshold = MatLab.greaterThan(peakLeft, thresholdIntensity);
-        double[][] thresholdLeft1 = new double[leftAboveThreshold.getRowDim() - 1][1];
-        double[][] thresholdLeft2 = new double[leftAboveThreshold.getRowDim() - 1][1];
-        for (int i = 0; i < leftAboveThreshold.getRowDim() - 1; i++) {
-            thresholdLeft1[i][0] = leftAboveThreshold.get(i + 1, 0);
-        }
-
-        for (int i = 0; i < leftAboveThreshold.getRowDim() - 1; i++) {
-            thresholdLeft2[i][0] = leftAboveThreshold.get(i, 0);
-        }
-        Primitive64Store leftT1 = storeFactory.rows(thresholdLeft1);
-        Primitive64Store leftT2 = storeFactory.rows(thresholdLeft2);
-
-        MatrixStore<Double> leftThresholdChange = leftT1.subtract(leftT2);
-        int leftBoundary = (int) (MatLab.find(leftThresholdChange, 1, "last").get(0, 0) + 1);
-
-
-        double[][] rightPeak = new double[beamShape.getRowDim() - (int) maxBeamIndex][1];
-        for (int i = 0; i < beamShape.getRowDim() - (int) maxBeamIndex; i++) {
-            rightPeak[i][0] = beamShape.get(i + (int) maxBeamIndex, 0);
-        }
-
-        Primitive64Store peakRight = storeFactory.rows(rightPeak);
-        Primitive64Store rightAboveThreshold = MatLab.greaterThan(peakRight, thresholdIntensity);
-
-        double[][] thresholdRight1 = new double[rightAboveThreshold.getRowDim() - 1][1];
-        double[][] thresholdRight2 = new double[rightAboveThreshold.getRowDim() - 1][1];
-        for (int i = 0; i < rightAboveThreshold.getRowDim() - 1; i++) {
-            thresholdRight1[i][0] = rightAboveThreshold.get(i + 1, 0);
-        }
-
-        for (int i = 0; i < rightAboveThreshold.getRowDim() - 1; i++) {
-            thresholdRight2[i][0] = rightAboveThreshold.get(i, 0);
-        }
-        Primitive64Store rightT1 = storeFactory.rows(thresholdRight1);
-        Primitive64Store rightT2 = storeFactory.rows(thresholdRight2);
-        MatrixStore<Double> rightThresholdChange = rightT2.subtract(rightT1);
-        int rightBoundary = (int) (MatLab.find(rightThresholdChange, 1, "first").get(0, 0) + maxBeamIndex);
-
-        MatrixStore<Double> gBeam = trimGMatrix.multiply(beamShape);
-
-        measBeamWidthAMU = beamMassInterp.get(rightBoundary) - beamMassInterp.get(leftBoundary);
-
-
         PlotBuilder[] linePlots = new LinePlotBuilder[2];
-        // "beamShape"
-        PlotBuilder beamShapeLinePlotBuilder
-                = BeamShapeLinePlotBuilder.initializeBeamShapeLinePlot(beamMassInterp.toRawCopy2D()[0], beamShape.transpose().toRawCopy2D()[0], leftBoundary, rightBoundary);
+        if (maxBeamIndex <= 0 || maxBeamIndex >= 999) {
+            System.out.println("Error generating plot in block");
+            PlotBuilder beamShapeLinePlotBuilder
+                    = BeamShapeLinePlotBuilder.initializeBeamShapeLinePlot(beamMassInterp.toRawCopy2D()[0], beamShape.transpose().toRawCopy2D()[0], 0, 0);
 
-        PlotBuilder gBeamLinePlotBuilder
-                = GBeamLinePlotBuilder.initializeGBeamLinePlot(magnetMasses.transpose().toRawCopy2D()[0], gBeam.transpose().toRawCopy2D()[0], massData, intensityData);
+            PlotBuilder gBeamLinePlotBuilder
+                    = GBeamLinePlotBuilder.initializeGBeamLinePlot(magnetMasses.transpose().toRawCopy2D()[0], new double[magnetMasses.transpose().toRawCopy2D()[0].length], intensityData);
 
-        linePlots[0] = beamShapeLinePlotBuilder;
-        linePlots[1] = gBeamLinePlotBuilder;
+            linePlots[0] = beamShapeLinePlotBuilder;
+            linePlots[1] = gBeamLinePlotBuilder;
+
+            measBeamWidthAMU = 0;
+        } else {
+            double[][] leftPeak = new double[(int) maxBeamIndex][1];
+            for (int i = 0; i < maxBeamIndex; i++) {
+                leftPeak[i][0] = beamShape.get(i, 0);
+            }
+
+            Primitive64Store peakLeft = storeFactory.rows(leftPeak);
+            Primitive64Store leftAboveThreshold = MatLab.greaterThan(peakLeft, thresholdIntensity);
+            double[][] thresholdLeft1 = new double[leftAboveThreshold.getRowDim() - 1][1];
+            double[][] thresholdLeft2 = new double[leftAboveThreshold.getRowDim() - 1][1];
+            for (int i = 0; i < leftAboveThreshold.getRowDim() - 1; i++) {
+                thresholdLeft1[i][0] = leftAboveThreshold.get(i + 1, 0);
+            }
+
+            for (int i = 0; i < leftAboveThreshold.getRowDim() - 1; i++) {
+                thresholdLeft2[i][0] = leftAboveThreshold.get(i, 0);
+            }
+            Primitive64Store leftT1 = storeFactory.rows(thresholdLeft1);
+            Primitive64Store leftT2 = storeFactory.rows(thresholdLeft2);
+
+            MatrixStore<Double> leftThresholdChange = leftT1.subtract(leftT2);
+            int leftBoundary = (int) (MatLab.find(leftThresholdChange, 1, "last").get(0, 0) + 1);
+
+
+            double[][] rightPeak = new double[beamShape.getRowDim() - (int) maxBeamIndex][1];
+            for (int i = 0; i < beamShape.getRowDim() - (int) maxBeamIndex; i++) {
+                rightPeak[i][0] = beamShape.get(i + (int) maxBeamIndex, 0);
+            }
+
+            Primitive64Store peakRight = storeFactory.rows(rightPeak);
+            Primitive64Store rightAboveThreshold = MatLab.greaterThan(peakRight, thresholdIntensity);
+
+            double[][] thresholdRight1 = new double[rightAboveThreshold.getRowDim() - 1][1];
+            double[][] thresholdRight2 = new double[rightAboveThreshold.getRowDim() - 1][1];
+            for (int i = 0; i < rightAboveThreshold.getRowDim() - 1; i++) {
+                thresholdRight1[i][0] = rightAboveThreshold.get(i + 1, 0);
+            }
+
+            for (int i = 0; i < rightAboveThreshold.getRowDim() - 1; i++) {
+                thresholdRight2[i][0] = rightAboveThreshold.get(i, 0);
+            }
+            Primitive64Store rightT1 = storeFactory.rows(thresholdRight1);
+            Primitive64Store rightT2 = storeFactory.rows(thresholdRight2);
+            MatrixStore<Double> rightThresholdChange = rightT2.subtract(rightT1);
+            int rightBoundary = (int) (MatLab.find(rightThresholdChange, 1, "first").get(0, 0) + maxBeamIndex);
+
+            MatrixStore<Double> gBeam = trimGMatrix.multiply(beamShape);
+
+            measBeamWidthAMU = beamMassInterp.get(rightBoundary) - beamMassInterp.get(leftBoundary);
+
+
+            // "beamShape"
+            PlotBuilder beamShapeLinePlotBuilder
+                    = BeamShapeLinePlotBuilder.initializeBeamShapeLinePlot(beamMassInterp.toRawCopy2D()[0], beamShape.transpose().toRawCopy2D()[0], leftBoundary, rightBoundary);
+
+            PlotBuilder gBeamLinePlotBuilder
+                    = GBeamLinePlotBuilder.initializeGBeamLinePlot(magnetMasses.transpose().toRawCopy2D()[0], gBeam.transpose().toRawCopy2D()[0], intensityData);
+
+            linePlots[0] = beamShapeLinePlotBuilder;
+            linePlots[1] = gBeamLinePlotBuilder;
+        }
+
 
         return linePlots;
     }

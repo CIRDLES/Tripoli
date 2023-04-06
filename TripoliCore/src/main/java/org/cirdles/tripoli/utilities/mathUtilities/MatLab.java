@@ -6,13 +6,14 @@ import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 import org.ojalgo.matrix.task.SolverTask;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 
 public enum MatLab {
     ;
+
     public static double roundedToSize(double value, int sigFigs) {
         BigDecimal valueBDtoSize = BigDecimal.ZERO;
         if (Double.isFinite(value)) {

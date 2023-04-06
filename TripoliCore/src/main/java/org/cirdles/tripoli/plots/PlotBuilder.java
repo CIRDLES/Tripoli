@@ -28,14 +28,17 @@ public class PlotBuilder implements Serializable {
     protected String[] title;
     protected String xAxisLabel;
     protected String yAxisLabel;
+    protected boolean displayed;
 
     public PlotBuilder() {
+        this(new String[]{"NONE"}, "NONE", "NONE", false);
     }
 
-    public PlotBuilder(String[] title, String xAxisLabel, String yAxisLabel) {
+    public PlotBuilder(String[] title, String xAxisLabel, String yAxisLabel, boolean displayed) {
         this.title = title;
         this.xAxisLabel = xAxisLabel;
         this.yAxisLabel = yAxisLabel;
+        this.displayed = displayed;
     }
 
     public String[] getTitle() {
@@ -48,5 +51,13 @@ public class PlotBuilder implements Serializable {
 
     public String getyAxisLabel() {
         return yAxisLabel;
+    }
+
+    public boolean isDisplayed() {
+        return displayed;
+    }
+
+    public void setDisplayed(boolean displayed) {
+        this.displayed = displayed;
     }
 }

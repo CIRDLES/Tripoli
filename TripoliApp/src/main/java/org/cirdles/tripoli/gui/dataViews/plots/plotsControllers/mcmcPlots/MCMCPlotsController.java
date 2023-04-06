@@ -48,7 +48,7 @@ public class MCMCPlotsController {
 
     public static AnalysisManagerCallbackI analysisManagerCallbackI;
 
-    private static int MAX_BLOCK_COUNT = 1000;
+    private static int MAX_BLOCK_COUNT = 2000;
     @FXML
     public AnchorPane dataFitPlotsAnchorPane;
     @FXML
@@ -208,12 +208,14 @@ public class MCMCPlotsController {
         Iterator<Map.Entry<Integer, PlotBuilder[][]>> iterator = mapOfBlockIdToPlots.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<Integer, PlotBuilder[][]> entry = iterator.next();
-            if (analysis.getMapOfBlockIdToProcessStatus().get(entry.getKey()) == SHOW){
+            if (analysis.getMapOfBlockIdToProcessStatus().get(entry.getKey()) == SHOW) {
                 PlotBuilder[] ratiosPlotBuilder = entry.getValue()[PLOT_INDEX_RATIOS];
                 for (PlotBuilder ratioPlotBuilder : ratiosPlotBuilder) {
-                    String ratioName = ratioPlotBuilder.getTitle()[0];
-                    mapRatioNameToSessionRecords.computeIfAbsent(ratioName, k -> new ArrayList<>());
-                    mapRatioNameToSessionRecords.get(ratioName).add(((HistogramBuilder) ratioPlotBuilder).getHistogramRecord());
+                    if (ratioPlotBuilder.isDisplayed()) {
+                        String ratioName = ratioPlotBuilder.getTitle()[0];
+                        mapRatioNameToSessionRecords.computeIfAbsent(ratioName, k -> new ArrayList<>());
+                        mapRatioNameToSessionRecords.get(ratioName).add(((HistogramBuilder) ratioPlotBuilder).getHistogramRecord());
+                    }
                 }
             }
         }
@@ -225,7 +227,7 @@ public class MCMCPlotsController {
         sessionAnchorPane.getChildren().add(ratiosSessionPlotsWallPane);
         for (Map.Entry<String, List<HistogramRecord>> entry : mapRatioNameToSessionRecords.entrySet()) {
             HistogramSessionBuilder histogramSessionBuilder = initializeHistogramSession(
-                    analysis.getMapOfBlockIdToProcessStatus().size(),  entry.getValue(), new String[]{entry.getKey()}, "Block ID", "Ratio");
+                    analysis.getMapOfBlockIdToProcessStatus().size(), entry.getValue(), new String[]{entry.getKey()}, "Block ID", "Ratio");
             TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(ratiosSessionPlotsWallPane);
             AbstractPlot plot = HistogramSessionPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), histogramSessionBuilder.getHistogramSessionRecord());
             tripoliPlotPane.addPlot(plot);
@@ -319,10 +321,12 @@ public class MCMCPlotsController {
 
     private void produceTripoliHistogramPlots(PlotBuilder[] plotBuilder, PlotWallPane plotWallPane) {
         for (int i = 0; i < plotBuilder.length; i++) {
-            HistogramRecord plotRecord = ((HistogramBuilder) plotBuilder[i]).getHistogramRecord();
-            TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
-            AbstractPlot plot = HistogramSinglePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), plotRecord);
-            tripoliPlotPane.addPlot(plot);
+            if (plotBuilder[i].isDisplayed()) {
+                HistogramRecord plotRecord = ((HistogramBuilder) plotBuilder[i]).getHistogramRecord();
+                TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
+                AbstractPlot plot = HistogramSinglePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), plotRecord);
+                tripoliPlotPane.addPlot(plot);
+            }
         }
     }
 

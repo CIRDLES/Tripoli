@@ -4,14 +4,17 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
-import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
+import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.BeamShapeLinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.GBeamLinePlot;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.PeakCentresLinePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.PeakCentresLinePlotX;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.BeamShapeLinePlotBuilder;
@@ -22,17 +25,17 @@ import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.*;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow.plottingWindow;
 
-public class PeakShapePlotsController {
+public class PeakShapeDemoPlotsController {
 
     public static List<File> resourceFilesInFolder;
 
@@ -42,19 +45,17 @@ public class PeakShapePlotsController {
 
     public static int currentGroupIndex;
 
-    static Map<String, List<File>> resourceGroups;
+    public static int remSize;
 
-    ListView<String> listViewOfGroupResourcesInFolder;
+    public static List<ImageView> beamImageSet;
+
+    public static List<ImageView> gBeamImageSet;
+
+    static Map<String, List<File>> resourceGroups;
 
     ListView<File> listViewOfResourcesInFolder;
 
-    AbstractDataView peakCentreLinePlot;
-
-    @FXML
-    private ResourceBundle resources;
-
-    @FXML
-    private URL location;
+    AbstractPlot peakCentreLinePlot;
     @FXML
     private ScrollPane resourceListScrollPane;
 
@@ -65,16 +66,21 @@ public class PeakShapePlotsController {
     private AnchorPane plotsAnchorPane;
 
     @FXML
+    private AnchorPane plotPane;
+
+    @FXML
     private VBox masterVBox;
 
     @FXML
-    private ScrollPane beamShapePlotScrollPane;
+    private ToolBar toolbar;
 
     @FXML
-    private ScrollPane peakCentrePlotScrollPane;
+    private GridPane beamPlotsGridPane;
+    @FXML
+    private GridPane gBeamPlotGridPane;
 
     @FXML
-    private ScrollPane gBeamPlotScrollPane;
+    private GridPane peakCentreGridPane;
 
     @FXML
     private AnchorPane eventAnchorPane;
@@ -85,45 +91,42 @@ public class PeakShapePlotsController {
     @FXML
     private TextArea eventLogTextArea;
 
-    @FXML
-    private ToolBar toolbar;
-
-    @FXML
-    private Button browseResourceButton;
 
     public static String getCurrentGroup() {
         return currentGroup;
     }
 
     public void setCurrentGroup(String currentGroup) {
-        PeakShapePlotsController.currentGroup = currentGroup;
+        PeakShapeDemoPlotsController.currentGroup = currentGroup;
     }
 
     public static List<File> getResourceGroups(String group) {
         return resourceGroups.get(group);
     }
 
-
     @FXML
     void initialize() {
-
         masterVBox.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT);
-        toolbar.setPrefSize(PLOT_WINDOW_WIDTH, 20.0);
-
-        gBeamPlotScrollPane.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT - toolbar.getHeight());
-        gBeamPlotScrollPane.setPrefViewportWidth(PLOT_WINDOW_WIDTH - SCROLLBAR_THICKNESS);
-        gBeamPlotScrollPane.setPrefViewportHeight(gBeamPlotScrollPane.getPrefHeight() - SCROLLBAR_THICKNESS);
+        toolbar.setPrefSize(PLOT_WINDOW_WIDTH, 30.0);
 
         masterVBox.prefWidthProperty().bind(plotsAnchorPane.widthProperty());
         masterVBox.prefHeightProperty().bind(plotsAnchorPane.heightProperty());
 
-        gBeamPlotScrollPane.prefWidthProperty().bind(masterVBox.widthProperty());
-        gBeamPlotScrollPane.prefHeightProperty().bind(masterVBox.heightProperty().subtract(toolbar.getHeight()));
+        plotPane.prefWidthProperty().bind(masterVBox.widthProperty());
+        plotPane.prefHeightProperty().bind(masterVBox.heightProperty());
+
+        beamPlotsGridPane.prefWidthProperty().bind(plotPane.widthProperty());
+        beamPlotsGridPane.prefHeightProperty().bind(plotPane.heightProperty());
+
+        gBeamPlotGridPane.prefWidthProperty().bind(plotPane.widthProperty());
+        gBeamPlotGridPane.prefHeightProperty().bind(plotPane.heightProperty());
+
+        peakCentreGridPane.prefWidthProperty().bind(plotPane.widthProperty());
+        peakCentreGridPane.prefHeightProperty().bind(plotPane.heightProperty());
 
 
-        resourceListAnchorPane.prefHeightProperty().bind(resourceListScrollPane.heightProperty());
         resourceListAnchorPane.prefWidthProperty().bind(resourceListScrollPane.widthProperty());
-
+        resourceListAnchorPane.prefHeightProperty().bind(resourceListScrollPane.heightProperty());
 
         eventAnchorPane.prefHeightProperty().bind(eventScrollPane.heightProperty());
         eventAnchorPane.prefWidthProperty().bind(eventScrollPane.widthProperty());
@@ -131,16 +134,18 @@ public class PeakShapePlotsController {
         eventLogTextArea.prefWidthProperty().bind(eventAnchorPane.widthProperty());
 
 
-        peakCentrePlotScrollPane.prefHeightProperty().bind(plotsAnchorPane.heightProperty().subtract(300));
-        peakCentrePlotScrollPane.prefWidthProperty().bind(masterVBox.widthProperty());
-
-
     }
+
 
     @FXML
     public void browseResourceFileAction() {
         resourceBrowserTarget = FileHandlerUtil.selectPeakShapeResourceFolderForBrowsing(plottingWindow);
-        populateListOfGroups();
+        if (resourceBrowserTarget == null) {
+            System.out.println("File not chosen");
+        } else {
+            populateListOfGroups();
+        }
+
     }
 
     private void populateListOfGroups() {
@@ -167,10 +172,10 @@ public class PeakShapePlotsController {
 
 
         if (!resourceFilesInFolder.isEmpty()) {
-            listViewOfGroupResourcesInFolder = new ListView<>();
+            ListView<String> listViewOfGroupResourcesInFolder = new ListView<>();
             listViewOfGroupResourcesInFolder.setCellFactory(
                     (parameter)
-                            -> new ResourceDisplayName()
+                            -> new PeakShapeDemoPlotsController.ResourceDisplayName()
             );
             allFiles = resourceFilesInFolder.toArray(new File[0]);
             eventLogTextArea.textProperty().unbind();
@@ -229,18 +234,25 @@ public class PeakShapePlotsController {
             eventAnchorPane.getChildren().removeAll();
 
 
-            gBeamPlotScrollPane.setContent(null);
-            beamShapePlotScrollPane.setContent(null);
-            peakCentrePlotScrollPane.setContent(null);
+            beamPlotsGridPane.getChildren().removeAll();
+            peakCentreGridPane.getChildren().removeAll();
 
         }
 
     }
 
-    public String processFilesAndShowPeakCentre(String groupValue) {
+
+    public void processFilesAndShowPeakCentre(String groupValue) {
 
         double[] finalYAxis;
         double[] finalXAxis;
+        beamImageSet = new ArrayList<>();
+        gBeamImageSet = new ArrayList<>();
+
+        if (plotsAnchorPane.getChildren().size() > 1) {
+            plotsAnchorPane.getChildren().remove(1, remSize);
+        }
+        remSize = 1;
 
         double[] xAxis = new double[resourceGroups.get(groupValue).size()];
         double[] yAxis = new double[resourceGroups.get(groupValue).size()];
@@ -248,9 +260,40 @@ public class PeakShapePlotsController {
             resourceBrowserTarget = resourceGroups.get(groupValue).get(k);
             if (null != resourceBrowserTarget && resourceBrowserTarget.isFile()) {
                 try {
-                    BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
+                    PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
                     xAxis[k] = k + 1;
                     yAxis[k] = BeamDataOutputDriverExperiment.getMeasBeamWidthAMU();
+                    AbstractPlot gBeamLinePlot = GBeamLinePlot.generatePlot(
+                            new Rectangle(beamPlotsGridPane.getCellBounds(0, 0).getWidth(),
+                                    beamPlotsGridPane.getCellBounds(0, 0).getHeight()),
+                            (GBeamLinePlotBuilder) plots[1]
+                    );
+
+                    AbstractPlot beamShapeLinePlot = BeamShapeLinePlot.generatePlot(
+                            new Rectangle(beamPlotsGridPane.getCellBounds(0, 0).getWidth(),
+                                    beamPlotsGridPane.getCellBounds(0, 0).getHeight()),
+                            (BeamShapeLinePlotBuilder) plots[0]
+                    );
+
+                    gBeamLinePlot.preparePanel();
+                    beamShapeLinePlot.preparePanel();
+
+                    // Creates a rendered image of the beam shape and g-beam line plots
+                    WritableImage writableImage1 = new WritableImage((int) beamShapeLinePlot.getWidth(), (int) beamShapeLinePlot.getHeight());
+                    beamShapeLinePlot.snapshot(null, writableImage1);
+                    ImageView image1 = new ImageView(writableImage1);
+                    image1.setFitWidth(85);
+                    image1.setFitHeight(46);
+
+                    WritableImage writableImage2 = new WritableImage((int) gBeamLinePlot.getWidth(), (int) gBeamLinePlot.getHeight());
+                    gBeamLinePlot.snapshot(null, writableImage2);
+                    ImageView image2 = new ImageView(writableImage2);
+                    image2.setFitWidth(85);
+                    image2.setFitHeight(46);
+
+                    // adds the rendered images to a list that will be used later
+                    beamImageSet.add(image1);
+                    gBeamImageSet.add(image2);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -259,37 +302,126 @@ public class PeakShapePlotsController {
         finalYAxis = yAxis;
         finalXAxis = xAxis;
 
-        LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, new String[]{"PeakCentre Plot"}, "", "");
+        LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, new String[]{"PeakCentre Plot"}, "Blocks", "Peak Widths");
 
-        peakCentreLinePlot = new PeakCentresLinePlot(new Rectangle(peakCentrePlotScrollPane.getWidth(), peakCentrePlotScrollPane.getHeight()), peakCentrePlotBuilder);
+        peakCentreLinePlot = PeakCentresLinePlotX.generatePlot(new Rectangle(peakCentreGridPane.getCellBounds(0, 0).getWidth(), peakCentreGridPane.getCellBounds(0, 0).getHeight()), peakCentrePlotBuilder);
 
-        peakCentrePlotScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
-            peakCentreLinePlot.setMyWidth(newValue.intValue());
+        peakCentreGridPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+            peakCentreLinePlot.setWidthF(newValue.intValue());
             peakCentreLinePlot.repaint();
         });
 
-        peakCentrePlotScrollPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-            peakCentreLinePlot.setMyHeight(newValue.intValue());
+        peakCentreGridPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+            peakCentreLinePlot.setHeightF(newValue.intValue());
             peakCentreLinePlot.repaint();
+            if (plotsAnchorPane.getChildren().size() > 1) {
+                plotsAnchorPane.getChildren().remove(1, remSize);
+            }
+            remSize = 1;
+
+            int size = 1;
+            for (int i = 0; i < gBeamImageSet.size(); i++) {
+                plotsAnchorPane.getChildren().add(gBeamImageSet.get(i));
+                ImageView pos = (ImageView) plotsAnchorPane.getChildren().get(i + 1);
+                pos.setX(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[i]) - 35);
+                if ((peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 160) < 200) {
+                    pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 300);
+                } else {
+                    pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 155);
+                }
+
+                pos.setVisible(false);
+                size++;
+                remSize++;
+
+
+            }
+            for (int i = 0; i < beamImageSet.size(); i++) {
+                plotsAnchorPane.getChildren().add(beamImageSet.get(i));
+                ImageView pos = (ImageView) plotsAnchorPane.getChildren().get(size + i);
+                pos.setX(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[i]) - 35);
+                if ((peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 160) < 200) {
+                    pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 260);
+                } else {
+                    pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 195);
+                }
+                pos.setVisible(false);
+                remSize++;
+            }
         });
 
         peakCentreLinePlot.preparePanel();
-        peakCentrePlotScrollPane.setContent(peakCentreLinePlot);
+        peakCentreGridPane.add(peakCentreLinePlot, 0, 0);
+        int size = 1;
+        for (int i = 0; i < gBeamImageSet.size(); i++) {
+            plotsAnchorPane.getChildren().add(gBeamImageSet.get(i));
+            ImageView pos = (ImageView) plotsAnchorPane.getChildren().get(i + 1);
+            pos.setX(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[i]) - 35);
+            if ((peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 160) < 220) {
+                pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 300);
+            } else {
+                pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 155);
+            }
 
+            pos.setVisible(false);
+            size++;
+            remSize++;
+
+
+        }
+        for (int i = 0; i < beamImageSet.size(); i++) {
+            plotsAnchorPane.getChildren().add(beamImageSet.get(i));
+            ImageView pos = (ImageView) plotsAnchorPane.getChildren().get(size + i);
+            pos.setX(peakCentreLinePlot.mapX(peakCentreLinePlot.getxAxisData()[i]) - 35);
+            if ((peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 160) < 220) {
+                pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 260);
+            } else {
+                pos.setY(peakCentreLinePlot.mapY(peakCentreLinePlot.getyAxisData()[i]) + 195);
+            }
+            pos.setVisible(false);
+            remSize++;
+        }
 
         // Selects file from peakCentre plot
-        peakCentrePlotScrollPane.setOnMouseClicked(click -> {
+        peakCentreGridPane.setOnMouseClicked(click -> {
             peakCentreLinePlot.getOnMouseClicked();
             processDataFileAndShowPlotsOfPeakShapes();
 
             listViewOfResourcesInFolder.getSelectionModel().select(currentGroupIndex);
         });
-        return "";
+
+        //int finalSize = size;
+
+        peakCentreGridPane.setOnMouseMoved(mouse -> {
+//            int index = (int) peakCentreLinePlot.convertMouseXToValue(mouse.getX());
+
+//            if (peakCentreLinePlot.mouseInHouse(mouse.getX(), mouse.getY()) && index >= 1 && mouse.getY() > 10) {
+//                for (int i = 0; i < peakCentreLinePlot.getxAxisData().length; i++) {
+//                    ImageView pos1 = (ImageView) plotsAnchorPane.getChildren().get(finalSize + (i));
+//                    pos1.setVisible(false);
+//                    ImageView pos2 = (ImageView) plotsAnchorPane.getChildren().get(i + 1);
+//                    pos2.setVisible(false);
+//                    if (peakCentreLinePlot.getxAxisData()[i] == index) {
+//                        pos1 = (ImageView) plotsAnchorPane.getChildren().get(finalSize + (index - 1));
+//                        pos1.setVisible(true);
+//                        pos2 = (ImageView) plotsAnchorPane.getChildren().get(index);
+//                        pos2.setVisible(true);
+//                    }
+//
+//                }
+//
+//            } else {
+//                for (int i = 1; i < plotsAnchorPane.getChildren().size(); i++) {
+//                    plotsAnchorPane.getChildren().get(i).setVisible(false);
+//                }
+//            }
+
+        });
     }
 
     private void populateListOfResources(String groupValue) {
         listViewOfResourcesInFolder = new ListView<>();
-        listViewOfResourcesInFolder.setCellFactory(param -> new ResourceDisplayName2());
+        listViewOfResourcesInFolder.setCellFactory(param -> new PeakShapeDemoPlotsController.ResourceDisplayName2());
         eventLogTextArea.textProperty().unbind();
         int initialIndex;
 
@@ -343,52 +475,56 @@ public class PeakShapePlotsController {
             try {
                 PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
 
-                AbstractDataView gBeamLinePlot = new GBeamLinePlot(
-                        new Rectangle(gBeamPlotScrollPane.getWidth(),
-                                gBeamPlotScrollPane.getHeight()),
+                AbstractPlot gBeamLinePlot = GBeamLinePlot.generatePlot(
+                        new Rectangle(gBeamPlotGridPane.getCellBounds(0, 0).getWidth(),
+                                gBeamPlotGridPane.getCellBounds(0, 0).getHeight()),
                         (GBeamLinePlotBuilder) plots[1]
                 );
 
-                gBeamPlotScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
-                    if (100 < newValue.intValue()) {
-                        gBeamLinePlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
+                AbstractPlot beamShapeLinePlot = BeamShapeLinePlot.generatePlot(
+                        new Rectangle(beamPlotsGridPane.getCellBounds(0, 0).getWidth(),
+                                beamPlotsGridPane.getCellBounds(0, 0).getHeight()),
+                        (BeamShapeLinePlotBuilder) plots[0]
+                );
+
+                gBeamPlotGridPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue.intValue() > 100) {
+                        gBeamLinePlot.setWidthF(newValue.intValue());
                         gBeamLinePlot.repaint();
                     }
                 });
 
-                gBeamPlotScrollPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    if (100 < newValue.intValue()) {
-                        gBeamLinePlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
+                gBeamPlotGridPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue.intValue() > 100) {
+                        gBeamLinePlot.setHeightF(newValue.intValue());
                         gBeamLinePlot.repaint();
+
+
+                    }
+                });
+
+
+                beamPlotsGridPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue.intValue() > 100) {
+                        beamShapeLinePlot.setWidthF(newValue.intValue());
+                        beamShapeLinePlot.repaint();
+                    }
+                });
+                beamPlotsGridPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue.intValue() > 100) {
+                        beamShapeLinePlot.setHeightF(newValue.intValue());
+                        beamShapeLinePlot.repaint();
+
                     }
                 });
 
                 gBeamLinePlot.preparePanel();
-                gBeamPlotScrollPane.setContent(gBeamLinePlot);
+                gBeamPlotGridPane.add(gBeamLinePlot, 0, 0);
 
-
-                AbstractDataView beamShapeLinePlot = new BeamShapeLinePlot(
-                        new Rectangle(beamShapePlotScrollPane.getWidth(),
-                                beamShapePlotScrollPane.getHeight()),
-                        (BeamShapeLinePlotBuilder) plots[0]
-                );
-
-                beamShapePlotScrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
-                    if (100 < newValue.intValue()) {
-                        beamShapeLinePlot.setMyWidth(newValue.intValue() - SCROLLBAR_THICKNESS);
-                        beamShapeLinePlot.repaint();
-                    }
-                });
-
-                beamShapePlotScrollPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    if (100 < newValue.intValue()) {
-                        beamShapeLinePlot.setMyHeight(newValue.intValue() - SCROLLBAR_THICKNESS);
-                        beamShapeLinePlot.repaint();
-                    }
-                });
 
                 beamShapeLinePlot.preparePanel();
-                beamShapePlotScrollPane.setContent(beamShapeLinePlot);
+                beamPlotsGridPane.add(beamShapeLinePlot, 0, 0);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -425,6 +561,4 @@ public class PeakShapePlotsController {
             }
         }
     }
-
-
 }

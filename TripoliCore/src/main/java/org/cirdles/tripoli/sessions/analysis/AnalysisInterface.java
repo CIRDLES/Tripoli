@@ -52,6 +52,8 @@ public interface AnalysisInterface {
 
     PlotBuilder[][] updatePlotsByBlock(int blockNumber, LoggingCallbackInterface loggingCallback) throws TripoliException;
 
+    public void updateRatiosPlotBuilderDisplayStatus(int indexOfIsotopicRatio, boolean displayed);
+
     String uppdateLogsByBlock(int blockNumber, String logEntry);
 
     String getAnalysisName();

@@ -1,6 +1,8 @@
 package org.cirdles.tripoli.gui;
 
 import jakarta.xml.bind.JAXBException;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
@@ -20,6 +22,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
+import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.File;
@@ -47,6 +50,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public TabPane analysiMethodTabPane;
     @FXML
     public HBox blockStatusHBox;
+    @FXML
+    public GridPane selectRatiosGridPane;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -145,6 +150,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         populateAnalysisMethodGridPane();
 
         populateBlocksStatus();
+
+        populateAnalysisMethodRatioSelectorPane();
     }
 
     private void populateAnalysisDataFields() {
@@ -265,6 +272,27 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
     }
 
+    private void populateAnalysisMethodRatioSelectorPane() {
+        if (analysis.getAnalysisMethod() != null) {
+            List<IsotopicRatio> allRatios = new ArrayList<>();
+            allRatios.addAll(analysis.getAnalysisMethod().getIsotopicRatiosList());
+            allRatios.addAll(analysis.getAnalysisMethod().getDerivedIsotopicRatiosList());
+            Collections.sort(allRatios, IsotopicRatio::compareTo);
+
+            int ratioCount = 0;
+            for (IsotopicRatio ratio : allRatios) {
+                CheckBox ratioCheckbox = new CheckBox(ratio.prettyPrint());
+                ratioCheckbox.setSelected(ratio.isDisplayed());
+                ratioCheckbox.setUserData(ratio);
+                ratioCheckbox.selectedProperty().addListener(new CheckBoxChangeListener(ratioCheckbox));
+
+                selectRatiosGridPane.add(ratioCheckbox, ratioCount % 8, (ratioCount / 8) % 10);
+                ratioCount++;
+            }
+        }
+
+    }
+
     private void populateBlocksStatus() {
         blockStatusHBox.getChildren().clear();
         var massSpecExtractedData = analysis.getMassSpecExtractedData();
@@ -371,6 +399,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 analysis.getMapOfBlockIdToProcessStatus().put(Integer.parseInt(button.getId()), (int) button.getUserData());
             }
         }
+        if (null != MCMCPlotsWindow){
+            MCMCPlotsWindow.loadPlotsWindow();
+        }
         if (null == MCMCPlotsWindow) {
             MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage, this);
         }
@@ -416,5 +447,37 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     @Override
     public void callbackRefreshBlocksStatus() {
         restoreAllAction();
+    }
+
+    private class CheckBoxChangeListener implements ChangeListener<Boolean> {
+        private CheckBox checkBox;
+
+        public CheckBoxChangeListener(CheckBox checkBox) {
+            this.checkBox = checkBox;
+        }
+
+        /**
+         * @param observable The {@code ObservableValue} which value changed
+         * @param oldValue   The old value
+         * @param newValue   The new value
+         */
+        @Override
+        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+            boolean displayed = newValue;
+            IsotopicRatio ratio = (IsotopicRatio) checkBox.getUserData();
+            AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
+            int indexOfIsotopicRatio = analysisMethod.getIsotopicRatiosList().indexOf(ratio);
+            if (indexOfIsotopicRatio >= 0) {
+                analysisMethod.getIsotopicRatiosList().get(indexOfIsotopicRatio).setDisplayed(displayed);
+                analysis.updateRatiosPlotBuilderDisplayStatus(indexOfIsotopicRatio, displayed);
+            }
+            int indexOfDerivedIsotopicRatio = analysisMethod.getDerivedIsotopicRatiosList().indexOf(ratio);
+            if (indexOfDerivedIsotopicRatio >= 0) {
+                analysisMethod.getDerivedIsotopicRatiosList().get(indexOfDerivedIsotopicRatio).setDisplayed(displayed);
+                analysis.updateRatiosPlotBuilderDisplayStatus(indexOfDerivedIsotopicRatio + analysisMethod.getIsotopicRatiosList().size(), displayed);
+            }
+
+
+        }
     }
 }
