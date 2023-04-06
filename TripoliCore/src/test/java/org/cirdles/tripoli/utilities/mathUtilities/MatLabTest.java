@@ -1,19 +1,17 @@
 package org.cirdles.tripoli.utilities.mathUtilities;
 
-import org.checkerframework.checker.units.qual.A;
+import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
 import org.junit.jupiter.api.Test;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.ArrayList;
-
-import org.cirdles.commons.util.ResourceExtractor;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -280,7 +278,7 @@ class MatLabTest {
     }
 
     @Test
-    void linspaceTest() throws IOException{
+    void linspace2Test() throws IOException {
         ArrayList<double[][]> A_list = read_csv("linspace_matrix_A.txt");
         ArrayList<double[][]> Answer_list = read_csv("linspace_answers.txt");
         double val1;
@@ -295,13 +293,9 @@ class MatLabTest {
             points = A_list.get(i)[0][2];
 
             expected = Answer_list.get(i);
-            System.out.println(val1);
-            System.out.println(val2);
-            System.out.println(points);
-            System.out.println(Arrays.deepToString(expected));
             actual = MatLab.linspace2(val1, val2, points);
             actualArray = actual.toRawCopy2D();
-            System.out.println(Arrays.deepToString(actualArray));
+
 
             for (int j = 0; j < expected.length; j++) {
                 for (int k = 0; k < expected[j].length; k++) {
@@ -353,7 +347,7 @@ class MatLabTest {
     //function is somewhat incorrect. Divides the second parm by each element in A where in matlab it does the opposite
     //Also, it requires an extremely low number of sigfigs to work for some reason
     @Test
-    void rDivideTest() throws IOException {
+    void rDivide2Test() throws IOException {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         ArrayList<double[][]> A_list = read_csv("rDivide_matrix_A.txt");
         ArrayList<double[][]> B_list = read_csv("rDivide_matrix_B.txt");

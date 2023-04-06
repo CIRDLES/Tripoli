@@ -342,20 +342,25 @@ public enum MatLab {
      * @return A vector matrix of linearly spaced vector
      */
     public static Primitive64Store linspace2(double min, double max, double points) {
+        Primitive64Store returnVal = null;
 
-        if (points < 0.1){
-            return Primitive64Store.FACTORY.rows(new double[][]{{}});
+        if (points == 0.0) {
+            returnVal = Primitive64Store.FACTORY.rows(new double[][]{{}});
         }
 
-        if (points < 1.1){
-            return Primitive64Store.FACTORY.rows(new double[][]{{max}});
+        if (points == 1.0) {
+            returnVal = Primitive64Store.FACTORY.rows(new double[][]{{max}});
         }
 
-        double[][] d = new double[1][(int) points];
-        for (int i = 0; i < points; i++) {
-            d[0][i] = min + i * (max - min) / (points - 1);
+        if (returnVal == null) {
+            double[][] d = new double[1][(int) points];
+            for (int i = 0; i < points; i++) {
+                d[0][i] = min + i * (max - min) / (points - 1);
+            }
+            returnVal = Primitive64Store.FACTORY.rows(d);
         }
-        return Primitive64Store.FACTORY.rows(d);
+
+        return returnVal;
     }
 
     public static Primitive64Store find(MatrixStore<Double> mat, int num, String dir) {
