@@ -29,6 +29,7 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactor
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.File;
 import java.io.IOException;
@@ -111,10 +112,11 @@ public class Analysis implements Serializable, AnalysisInterface {
             }
         } else {
             // attempt to load specified method
-            File selectedFile = new File(Path.of(dataFilePathString).getParent().getParent().toString()
+            File selectedMethodFile = new File(Path.of(dataFilePathString).getParent().getParent().toString()
                     + File.separator + "Methods" + File.separator + massSpecExtractedData.getHeader().methodName());
-            if (selectedFile.exists()) {
-                analysisMethod = extractAnalysisMethodfromPath(Path.of(selectedFile.toURI()));
+            if (selectedMethodFile.exists()) {
+                analysisMethod = extractAnalysisMethodfromPath(Path.of(selectedMethodFile.toURI()));
+                TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedMethodFile.getParent());
             } else {
                 throw new TripoliException(
                         "Method File not found: " + massSpecExtractedData.getHeader().methodName()

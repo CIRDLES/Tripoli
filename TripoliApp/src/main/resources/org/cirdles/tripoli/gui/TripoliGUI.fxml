@@ -17,87 +17,100 @@
 -->
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-
-<VBox prefHeight="725.0" prefWidth="1250.0" stylesheets="@css/tripoli.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.TripoliGUIController">
+<?import javafx.scene.layout.*?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" prefHeight="725.0" prefWidth="1250.0" stylesheets="@css/tripoli.css"
+      xmlns="http://javafx.com/javafx/17" fx:controller="org.cirdles.tripoli.gui.TripoliGUIController">
     <MenuBar prefHeight="17.0" prefWidth="1234.0" VBox.vgrow="NEVER">
         <Menu mnemonicParsing="false" text="Session">
-            <MenuItem fx:id="sessionManagerMenuItem" mnemonicParsing="false" onAction="#sessionManagerMenuItemAction" text="Manage Session" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="newSessionMenuItem" mnemonicParsing="false" onAction="#newSessionMenuItemAction" text="New Session" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="openSessionMenuItem" mnemonicParsing="false" onAction="#openSessionMenuItemAction" text="Open Session" />
-         <Menu fx:id="openRecentSessionMenu" mnemonicParsing="false" text="Open Recent Session" />
-            <MenuItem fx:id="openRecentSessionMenuItem" mnemonicParsing="false" onAction="#openRecentSessionMenuItemAction" text="Open Recent Session" />
-            <MenuItem mnemonicParsing="false" onAction="#openDemonstrationSessionMenuItemAction" text="Open Demonstration Session" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="saveSessionMenuItem" mnemonicParsing="false" onAction="#saveSessionMenuItemAction" text="Save  Session" />
-            <MenuItem fx:id="saveSessionAsMenuItem" mnemonicParsing="false" onAction="#saveSessionAsMenuItemAction" text="Save  Session as ..." />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="closeSessionMenuItem" mnemonicParsing="false" onAction="#closeSessionMenuItemAction" text="Close  Session" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" onAction="#quitAction" text="Quit" />
+            <MenuItem fx:id="sessionManagerMenuItem" mnemonicParsing="false" onAction="#sessionManagerMenuItemAction"
+                      text="Manage Session"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem fx:id="newSessionMenuItem" mnemonicParsing="false" onAction="#newSessionMenuItemAction"
+                      text="New Session"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem fx:id="openSessionMenuItem" mnemonicParsing="false" onAction="#openSessionMenuItemAction"
+                      text="Open Session"/>
+            <Menu fx:id="openRecentSessionMenu" mnemonicParsing="false" text="Open Recent Session"/>
+            <MenuItem fx:id="openRecentSessionMenuItem" mnemonicParsing="false"
+                      onAction="#openRecentSessionMenuItemAction" text="Open Recent Session"/>
+            <MenuItem mnemonicParsing="false" onAction="#openDemonstrationSessionMenuItemAction"
+                      text="Open Demonstration Session"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem fx:id="saveSessionMenuItem" mnemonicParsing="false" onAction="#saveSessionMenuItemAction"
+                      text="Save  Session"/>
+            <MenuItem fx:id="saveSessionAsMenuItem" mnemonicParsing="false" onAction="#saveSessionAsMenuItemAction"
+                      text="Save  Session as ..."/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem fx:id="closeSessionMenuItem" mnemonicParsing="false" onAction="#closeSessionMenuItemAction"
+                      text="Close  Session"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem mnemonicParsing="false" onAction="#quitAction" text="Quit"/>
         </Menu>
         <Menu fx:id="analysisMenu" mnemonicParsing="false" text="Analysis">
-            <MenuItem mnemonicParsing="false" onAction="#manageAnalysisMenuItemAction" text="Manage Analysis" />
-            <MenuItem mnemonicParsing="false" onAction="#newAnalysisMenuItemOnAction" text="New Analysis" />
-            <MenuItem mnemonicParsing="false" text="Import Analysis" />
-            <MenuItem mnemonicParsing="false" text="Export Analysis" />
+            <MenuItem mnemonicParsing="false" onAction="#manageAnalysisMenuItemAction" text="Manage Analysis"/>
+            <MenuItem mnemonicParsing="false" onAction="#newAnalysisMenuItemOnAction" text="New Analysis"/>
+            <MenuItem mnemonicParsing="false" text="Import Analysis"/>
+            <MenuItem mnemonicParsing="false" text="Export Analysis"/>
         </Menu>
         <Menu fx:id="methodsMenu" mnemonicParsing="false" text="Methods">
             <Menu mnemonicParsing="false" text="New Method from ...">
-                <MenuItem mnemonicParsing="false" text="Current Method" />
-                <MenuItem mnemonicParsing="false" text="Empty Method" />
+                <MenuItem mnemonicParsing="false" text="Current Method"/>
+                <MenuItem mnemonicParsing="false" text="Empty Method"/>
             </Menu>
             <Menu mnemonicParsing="false" text="Browse, Load, or Edit Method files">
-                <MenuItem mnemonicParsing="false" text="Tripoli Built-In Methods Library" />
+                <MenuItem mnemonicParsing="false" text="Tripoli Built-In Methods Library"/>
             </Menu>
         </Menu>
         <Menu fx:id="parametersMenu" mnemonicParsing="false" text="Parameters">
-            <MenuItem mnemonicParsing="false" text="Tracer Models" />
+            <MenuItem mnemonicParsing="false" text="Tracer Models"/>
         </Menu>
         <Menu mnemonicParsing="false" text="Resources">
-            <MenuItem mnemonicParsing="false" onAction="#showPeriodicTable" text="Periodic Table" />
+            <MenuItem mnemonicParsing="false" onAction="#showPeriodicTable" text="Periodic Table"/>
         </Menu>
         <Menu mnemonicParsing="false" text="About">
-            <MenuItem mnemonicParsing="false" onAction="#showTripoliAbout" text="About Tripoli" />
-            <MenuItem mnemonicParsing="false" onAction="#showTripoliGitHubRepo" text="Tripoli GitHub Repository" />
+            <MenuItem mnemonicParsing="false" onAction="#showTripoliAbout" text="About Tripoli"/>
+            <MenuItem mnemonicParsing="false" onAction="#showTripoliGitHubRepo" text="Tripoli GitHub Repository"/>
         </Menu>
         <Menu mnemonicParsing="false" text="Help">
-            <MenuItem mnemonicParsing="false" onAction="#showTripoliContributeIssue" text="Contribute an Issue on Github" />
+            <MenuItem mnemonicParsing="false" onAction="#showTripoliContributeIssue"
+                      text="Contribute an Issue on Github"/>
         </Menu>
         <Menu mnemonicParsing="false" text="Demos">
-            <MenuItem mnemonicParsing="false" onAction="#showDemo1" text="Demo1: RJ MMC for 2-isotope analysis" visible="false" />
-            <MenuItem mnemonicParsing="false" onAction="#showDemo2" text="Demo: PeakShapes" />
+            <MenuItem mnemonicParsing="false" onAction="#showDemo1" text="Demo1: RJ MMC for 2-isotope analysis"
+                      visible="false"/>
+            <MenuItem mnemonicParsing="false" onAction="#showDemo2" text="Demo: PeakShapes"/>
         </Menu>
     </MenuBar>
-    <AnchorPane fx:id="splashAnchor" prefHeight="673.0" prefWidth="900.0" style="-fx-background-color: #faf0e6;" VBox.vgrow="ALWAYS">
-        <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <AnchorPane fx:id="splashAnchor" prefHeight="673.0" prefWidth="900.0" style="-fx-background-color: #faf0e6;"
+                VBox.vgrow="ALWAYS">
+        <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                    AnchorPane.topAnchor="0.0">
             <center>
                 <HBox alignment="CENTER" prefHeight="691.0" prefWidth="1234.0">
                     <VBox alignment="CENTER">
                         <opaqueInsets>
-                            <Insets />
+                            <Insets/>
                         </opaqueInsets>
                         <HBox.margin>
-                            <Insets />
+                            <Insets/>
                         </HBox.margin>
                         <ImageView fitHeight="247.0" fitWidth="246.0" pickOnBounds="true" preserveRatio="true">
-                            <Image url="@images/TripoliJune2022.png" />
+                            <Image url="@images/TripoliJune2022.png"/>
                         </ImageView>
-                        <Label alignment="CENTER" prefHeight="68.0" prefWidth="248.0" style="-fx-text-fill: black; -fx-font-size: 48; -fx-font-family: SansSerif;" text="Tripoli" textFill="#fffdfd" />
-                        <Label fx:id="versionLabel" alignment="CENTER" layoutX="10.0" layoutY="256.0" prefHeight="35.0" prefWidth="248.0" style="-fx-text-fill: black; -fx-font-size: 24; -fx-font-family: SansSerif;" text="v1.0.0.0" textFill="#fffdfd" />
-                        <Label fx:id="versionBuildDate" alignment="CENTER" layoutX="10.0" layoutY="414.0" prefHeight="24.0" prefWidth="248.0" style="-fx-text-fill: black; -fx-font-size: 16; -fx-font-family: SansSerif;" text="build date" textFill="#fffdfd" />
+                        <Label alignment="CENTER" prefHeight="68.0" prefWidth="248.0"
+                               style="-fx-text-fill: black; -fx-font-size: 48; -fx-font-family: SansSerif;"
+                               text="Tripoli" textFill="#fffdfd"/>
+                        <Label fx:id="versionLabel" alignment="CENTER" layoutX="10.0" layoutY="256.0" prefHeight="35.0"
+                               prefWidth="248.0"
+                               style="-fx-text-fill: black; -fx-font-size: 24; -fx-font-family: SansSerif;"
+                               text="v1.0.0.0" textFill="#fffdfd"/>
+                        <Label fx:id="versionBuildDate" alignment="CENTER" layoutX="10.0" layoutY="414.0"
+                               prefHeight="24.0" prefWidth="248.0"
+                               style="-fx-text-fill: black; -fx-font-size: 16; -fx-font-family: SansSerif;"
+                               text="build date" textFill="#fffdfd"/>
                     </VBox>
                 </HBox>
             </center>

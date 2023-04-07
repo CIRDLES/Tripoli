@@ -114,8 +114,6 @@ public class AnalysisMethod implements Serializable {
 
                 SpeciesRecordInterface species = NuclidesFactory.retrieveSpecies(elementName, massNumber);
                 analysisMethod.addSpeciesToSpeciesList(species);
-//                analysisMethod.sortSpeciesListByAbundance();
-//                analysisMethod.createListsOfIsotopicRatios();
 
                 String detectorName = cellSpecs[1].split("S")[0];
                 Detector detector = detectorSetup.getMapOfDetectors().get(detectorName);

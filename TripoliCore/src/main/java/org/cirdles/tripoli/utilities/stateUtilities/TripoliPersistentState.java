@@ -1,7 +1,7 @@
 /*
- * SquidPersistentState.java
+ * TripoliPersistentState.java
  *
- * Copyright 2017 James F. Bowring and CIRDLES.org.
+ * Copyright 2022 James Bowring, Noah McLean, Scott Burdick, and CIRDLES.org.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -33,11 +33,11 @@ import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_USERS_DATA_
 public class TripoliPersistentState implements Serializable {
 
     // class variables
-   // private static final long serialVersionUID = 9131785805774520290L;
+    private static final long serialVersionUID = -7177208336686295496L;
     private static final String TRIPOLI_PERSISTENT_STATE_FILE_NAME = "TripoliPersistentState.ser";
     private static final int MRU_COUNT = 10;
+    private static TripoliPersistentState myInstance;
     private String tripoliUserHomeDirectoryLocal;
-
     // instance variables
     private File MRUSessionFile;
     private List<String> MRUSessionList;
@@ -54,10 +54,10 @@ public class TripoliPersistentState implements Serializable {
 //        stream.defaultReadObject();
 //
 //        ObjectStreamClass myObject = ObjectStreamClass.lookup(
-//                Class.forName(SquidPersistentState.class.getCanonicalName()));
+//                Class.forName(TripoliPersistentState.class.getCanonicalName()));
 //        long theSUID = myObject.getSerialVersionUID();
 //
-//        System.out.println("Customized De-serialization of SquidPersistentState "
+//        System.out.println("Customized De-serialization of TripoliPersistentState "
 //                + theSUID);
 //    }
 
@@ -103,7 +103,10 @@ public class TripoliPersistentState implements Serializable {
                 + TRIPOLI_USERS_DATA_FOLDER_NAME //
                 + File.separator + TRIPOLI_PERSISTENT_STATE_FILE_NAME;
 
-        TripoliPersistentState myInstance = (TripoliPersistentState) TripoliSerializer.getSerializedObjectFromFile(mySerializedName, false);
+        if (myInstance == null) {
+            myInstance = (TripoliPersistentState) TripoliSerializer.getSerializedObjectFromFile(mySerializedName, false);
+        }
+
 
         if (myInstance == null) {
             // check if user data folder exists and create if it does not
@@ -113,8 +116,6 @@ public class TripoliPersistentState implements Serializable {
                 dataFolder.mkdir();
             }
             myInstance = new TripoliPersistentState();
-            myInstance.serializeSelf();
-
             myInstance.serializeSelf();
         }
         return myInstance;
@@ -133,7 +134,7 @@ public class TripoliPersistentState implements Serializable {
         return mySerializedName;
     }
 
-    public String getSquidUserHomeDirectoryLocal() {
+    public String getTripoliUserHomeDirectoryLocal() {
         if (tripoliUserHomeDirectoryLocal == null) {
             tripoliUserHomeDirectoryLocal = System.getProperty("user.home");
         }
@@ -144,12 +145,12 @@ public class TripoliPersistentState implements Serializable {
         // save initial persistent state serialized file
         try {
             TripoliSerializer.serializeObjectToFile(this, getMySerializedName());
-        } catch (TripoliException squidException) {
+        } catch (TripoliException tripoliException) {
         }
     }
     //properties
 
-    public void updateSquidPersistentState() {
+    public void updateTripoliPersistentState() {
         serializeSelf();
     }
 
@@ -212,7 +213,7 @@ public class TripoliPersistentState implements Serializable {
         // save
         try {
             TripoliSerializer.serializeObjectToFile(this, getMySerializedName());
-        } catch (TripoliException squidException) {
+        } catch (TripoliException tripoliException) {
         }
     }
 
@@ -279,7 +280,7 @@ public class TripoliPersistentState implements Serializable {
     /**
      * @param dataFileMRU
      */
-    public void updatePrawnFileListMRU(File dataFileMRU) {
+    public void updateDataFileListMRU(File dataFileMRU) {
         if (MRUDataFileList == null) {
             MRUDataFileList = new ArrayList<>();
         }
@@ -287,9 +288,9 @@ public class TripoliPersistentState implements Serializable {
         if (dataFileMRU != null) {
             try {
                 // remove if exists in MRU list
-                String MRUPrawnFileName = dataFileMRU.getCanonicalPath();
-                MRUDataFileList.remove(MRUPrawnFileName);
-                MRUDataFileList.add(0, MRUPrawnFileName);
+                String MRUDataFileName = dataFileMRU.getCanonicalPath();
+                MRUDataFileList.remove(MRUDataFileName);
+                MRUDataFileList.add(0, MRUDataFileName);
 
                 // trim list
                 if (MRUDataFileList.size() > MRU_COUNT) {
@@ -309,7 +310,7 @@ public class TripoliPersistentState implements Serializable {
         // save
         try {
             TripoliSerializer.serializeObjectToFile(this, getMySerializedName());
-        } catch (TripoliException squidException) {
+        } catch (TripoliException tripoliException) {
         }
     }
 
@@ -317,12 +318,12 @@ public class TripoliPersistentState implements Serializable {
         MRUDataFileList.remove(mruDataFileName);
     }
 
-    public void cleanPrawnFileListMRU() {
+    public void cleanDataFileListMRU() {
         cleanListMRU(MRUDataFileList);
     }
 
-    public void removePrawnFileNameFromMRU(String prawnFileName) {
-        MRUDataFileList.remove(prawnFileName);
+    public void removeDataFileNameFromMRU(String dataFileName) {
+        MRUDataFileList.remove(dataFileName);
     }
 
     /**
@@ -358,6 +359,10 @@ public class TripoliPersistentState implements Serializable {
      */
     public String getMRUDataFileFolderPath() {
         return MRUDataFileFolderPath;
+    }
+
+    public void setMRUDataFileFolderPath(String MRUDataFileFolderPath) {
+        this.MRUDataFileFolderPath = MRUDataFileFolderPath;
     }
 
 
@@ -396,7 +401,7 @@ public class TripoliPersistentState implements Serializable {
         // save
         try {
             TripoliSerializer.serializeObjectToFile(this, getMySerializedName());
-        } catch (TripoliException squidException) {
+        } catch (TripoliException tripoliException) {
         }
     }
 
@@ -456,7 +461,7 @@ public class TripoliPersistentState implements Serializable {
         this.MRUMethodXMLFolderPath = MRUMethodXMLFolderPath;
     }
 
-    public void removeTaskXMLFileNameFromMRU(String taskXMLFileName) {
+    public void removeMethodXMLFileNameFromMRU(String taskXMLFileName) {
         MRUMethodXMLList.remove(taskXMLFileName);
     }
 }

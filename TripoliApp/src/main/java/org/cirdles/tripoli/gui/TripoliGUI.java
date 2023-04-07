@@ -18,6 +18,7 @@ package org.cirdles.tripoli.gui;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
@@ -55,7 +56,6 @@ public class TripoliGUI extends Application {
     }
 
     public static void main(String[] args) {
-
         // arg[0] : -v[erbose]
         boolean verbose = false;
         if (0 < args.length) {
@@ -111,11 +111,7 @@ public class TripoliGUI extends Application {
 
         // this produces non-null window after .show()
         primaryStageWindow = primaryStage.getScene().getWindow();
-
-        primaryStage.setOnCloseRequest((WindowEvent e) -> {
-            Platform.exit();
-            System.exit(0);
-        });
+        primaryStage.setOnCloseRequest(e -> TripoliGUIController.quit());
 
         // postpone loading to allow for stage creation and use in controller
         FXMLLoader loader = new FXMLLoader(TripoliGUI.class.getResource("TripoliGUI.fxml"));

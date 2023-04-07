@@ -24,6 +24,7 @@ import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.File;
 import java.io.IOException;
@@ -310,8 +311,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         blockStatusButton.setFont(Font.font("Monospaced", FontWeight.EXTRA_BOLD, 10));
         blockStatusButton.setId(String.valueOf(blockID));
         blockStatusButton.setPadding(new Insets(0, -1, 0, -1));
-        tuneButton(blockStatusButton, analysis.getMapOfBlockIdToProcessStatus().get(blockID));
-
+        if (analysis.getMapOfBlockIdToProcessStatus().get(blockID) != null) {
+            tuneButton(blockStatusButton, analysis.getMapOfBlockIdToProcessStatus().get(blockID));
+        }
         blockStatusButton.setOnAction(e -> {
             switch ((int) blockStatusButton.getUserData()) {
                 case RUN -> {
@@ -379,12 +381,16 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 String compareInfo = compareAnalysisMethodToDataFileSpecs(analysisMethod, analysis.getMassSpecExtractedData());
                 if (compareInfo.isBlank()) {
                     analysis.setMethod(analysisMethod);
+                    TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedFile.getParent());
                 } else {
                     boolean choice = showChoiceDialog(
                             "The chosen analysis method does not meet the specifications in the data file.\n\n"
                                     + compareInfo
                                     + "\n\nProceed?", TripoliGUI.primaryStage);
-                    if (choice) analysis.setMethod(analysisMethod);
+                    if (choice) {
+                        analysis.setMethod(analysisMethod);
+                        TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedFile.getParent());
+                    }
                 }
             }
         } catch (TripoliException | IOException | JAXBException e) {
@@ -404,7 +410,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 analysis.getMapOfBlockIdToProcessStatus().put(Integer.parseInt(button.getId()), (int) button.getUserData());
             }
         }
-        if (null != MCMCPlotsWindow){
+        if (null != MCMCPlotsWindow) {
             MCMCPlotsWindow.loadPlotsWindow();
         }
         if (null == MCMCPlotsWindow) {
