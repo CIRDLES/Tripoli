@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliPersistentState;
 import static org.cirdles.tripoli.utilities.file.FileNameFixer.fixFileName;
 
 public enum FileHandlerUtil {
@@ -30,8 +31,8 @@ public enum FileHandlerUtil {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Session '.tripoli' file");
         fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Tripoli Session files", "*.tripoli"));
-//        File initDirectory = new File(squidPersistentState.getMRUProjectFolderPath());
-//        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
+        File initDirectory = new File(tripoliPersistentState.getMRUSessionFolderPath());
+        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
         fileChooser.setInitialFileName(fixFileName(session.getSessionName()) + ".tripoli");
 
         File sessionFileNew = fileChooser.showSaveDialog(ownerWindow);
@@ -58,13 +59,14 @@ public enum FileHandlerUtil {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Session '.tripoli' file");
         fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Tripoli Session files", "*.tripoli"));
-//        File initDirectory = new File(squidPersistentState.getMRUProjectFolderPath());
-//        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
+        File initDirectory = new File(tripoliPersistentState.getMRUSessionFolderPath());
+        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
 
         File sessionFileNew = fileChooser.showOpenDialog(ownerWindow);
 
         if (null != sessionFileNew) {
             retVal = sessionFileNew.getCanonicalPath();
+            tripoliPersistentState.setMRUSessionFolderPath(sessionFileNew.getParent());
         }
 
         return retVal;
@@ -77,14 +79,19 @@ public enum FileHandlerUtil {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Data text file");
         fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Data txt files", "*.txt"));
-//        File initDirectory = new File(squidPersistentState.getMRUPrawnFileFolderPath());
-//        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
+        File initDirectory = new File("");
+        if (tripoliPersistentState.getMRUDataFileFolderPath() != null) {
+            initDirectory = new File(tripoliPersistentState.getMRUDataFileFolderPath());
+        }
+        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
 
         File dataFile = fileChooser.showOpenDialog(ownerWindow);
 
         if (null != dataFile) {
             if (dataFile.getName().toLowerCase(Locale.US).endsWith(".txt")) {
                 retVal = dataFile;
+                tripoliPersistentState.setMRUDataFile(dataFile);
+                tripoliPersistentState.setMRUDataFileFolderPath(dataFile.getParent());
             } else {
                 throw new TripoliException("Filename does not end with '.txt'");
             }
@@ -99,8 +106,8 @@ public enum FileHandlerUtil {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Analysis Method '.xml' file");
         fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Analysis Method '.xml' files", "*.txt,*.xml,*.TIMSAM"));
-//        File initDirectory = new File(squidPersistentState.getMRUPrawnFileFolderPath());
-//        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
+        File initDirectory = new File(tripoliPersistentState.getMRUMethodXMLFolderPath());
+        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
 
         File dataFile = fileChooser.showOpenDialog(ownerWindow);
 
@@ -109,6 +116,7 @@ public enum FileHandlerUtil {
             List<String> contentsByLine = new ArrayList<>(Files.readAllLines(Path.of(dataFile.toURI()), Charset.defaultCharset()));
             if (contentsByLine.get(0).startsWith("<?xml version=") && (contentsByLine.get(1).startsWith("<ANALYSIS_METHOD>"))) {
                 retVal = dataFile;
+                tripoliPersistentState.setMRUMethodXMLFolderPath(dataFile.getParent());
             } else {
                 throw new TripoliException("File does not contain correct xml for a method specification.");
             }

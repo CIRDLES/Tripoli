@@ -29,6 +29,7 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactor
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,10 +40,10 @@ import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.*;
 
-import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
-import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_SYNTHETIC;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
+import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
+import static org.cirdles.tripoli.constants.TripoliConstants.SPACES_100;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockDataModelPlot.PLOT_INDEX_RATIOS;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB;
@@ -111,10 +112,11 @@ public class Analysis implements Serializable, AnalysisInterface {
             }
         } else {
             // attempt to load specified method
-            File selectedFile = new File(Path.of(dataFilePathString).getParent().getParent().toString()
+            File selectedMethodFile = new File(Path.of(dataFilePathString).getParent().getParent().toString()
                     + File.separator + "Methods" + File.separator + massSpecExtractedData.getHeader().methodName());
-            if (selectedFile.exists()) {
-                analysisMethod = extractAnalysisMethodfromPath(Path.of(selectedFile.toURI()));
+            if (selectedMethodFile.exists()) {
+                analysisMethod = extractAnalysisMethodfromPath(Path.of(selectedMethodFile.toURI()));
+                TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedMethodFile.getParent());
             } else {
                 throw new TripoliException(
                         "Method File not found: " + massSpecExtractedData.getHeader().methodName()

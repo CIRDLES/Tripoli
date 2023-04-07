@@ -26,7 +26,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.*;
 
-import static org.cirdles.tripoli.TripoliConstants.DEFAULT_OBJECT_NAME;
+import static org.cirdles.tripoli.constants.TripoliConstants.DEFAULT_OBJECT_NAME;
 
 /**
  * @author James F. Bowring

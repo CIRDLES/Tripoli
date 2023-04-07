@@ -35,7 +35,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
+import static org.cirdles.tripoli.constants.TripoliConstants.SPACES_100;
 
 /**
  * @author James F. Bowring
@@ -114,8 +114,6 @@ public class AnalysisMethod implements Serializable {
 
                 SpeciesRecordInterface species = NuclidesFactory.retrieveSpecies(elementName, massNumber);
                 analysisMethod.addSpeciesToSpeciesList(species);
-//                analysisMethod.sortSpeciesListByAbundance();
-//                analysisMethod.createListsOfIsotopicRatios();
 
                 String detectorName = cellSpecs[1].split("S")[0];
                 Detector detector = detectorSetup.getMapOfDetectors().get(detectorName);
