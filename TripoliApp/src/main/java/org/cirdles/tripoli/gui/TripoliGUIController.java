@@ -104,6 +104,18 @@ public class TripoliGUIController implements Initializable {
     @FXML
     private AnchorPane splashAnchor;
 
+    public static void quit() {
+        try {
+            TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
+        } catch (TripoliException squidException) {
+            TripoliMessageDialog.showWarningDialog(squidException.getMessage(), primaryStageWindow);
+        }
+        //  todo:      confirmSaveOnProjectClose();
+        System.out.println("Tripoli quitting normally.");
+        Platform.exit();
+        System.exit(0);
+    }
+
     /**
      * @param location  The location used to resolve relative paths for the root object, or
      *                  {@code null} if the location is not known.
@@ -122,7 +134,6 @@ public class TripoliGUIController implements Initializable {
 
     }
 
-
     private void showStartingMenus() {
         sessionManagerMenuItem.setDisable(true);
         newSessionMenuItem.setDisable(false);
@@ -137,7 +148,6 @@ public class TripoliGUIController implements Initializable {
 
         parametersMenu.setDisable(true);
     }
-
 
     private void removeAllManagers() throws TripoliException {
         TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
@@ -323,22 +333,9 @@ public class TripoliGUIController implements Initializable {
         }
     }
 
-
     @FXML
     private void quitAction() {
-            quit();
-    }
-
-    public static void quit(){
-        try {
-            TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
-        } catch (TripoliException squidException) {
-            TripoliMessageDialog.showWarningDialog(squidException.getMessage(), primaryStageWindow);
-        }
-        //  todo:      confirmSaveOnProjectClose();
-        System.out.println("Tripoli quitting normally.");
-        Platform.exit();
-        System.exit(0);
+        quit();
     }
 
     // ++++++++++++++++++++++++++++++++++++++++++++++++++ end sessions ++++++++++++++++++++++++++++++++++++++++++++++++++
