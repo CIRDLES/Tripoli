@@ -59,6 +59,10 @@ public class MCMCPlotsWindow {
         MCMCPlotsController.analysisManagerCallbackI = analysisManagerCallbackI;
     }
 
+    public void close() {
+        plottingStage.close();
+    }
+
     public void loadPlotsWindow() {
         if (!plottingStage.isShowing()) {
             try {
