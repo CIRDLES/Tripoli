@@ -32,7 +32,7 @@ public class ComboPlotBuilder extends PlotBuilder {
 
     protected ComboPlotBuilder(
             double[] xData, double[] yData, double[] yData2, Map<String, List<Double>> blockMapOfIdsToData, boolean yData2OneSigma, String[] title, String xAxisLabel, String yAxisLabel) {
-        super(title, xAxisLabel, yAxisLabel);
+        super(title, xAxisLabel, yAxisLabel, true);
         this.xData = xData;
         this.yData = yData;
         this.yData2 = yData2;

@@ -31,10 +31,12 @@ import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
+import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
+import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliPersistentState;
 import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliSession;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_SESSION_LINEN;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColorToHex;
@@ -99,6 +101,8 @@ public class SessionManagerController implements Initializable {
                 if (2 == event.getClickCount() && -1 == event.getTarget().toString().lastIndexOf("null")) {
                     AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
                     AnalysisManagerController.analysis = analysisSelected;
+                    File dataFile = new File(analysisSelected.getDataFilePathString());
+                    tripoliPersistentState.setMRUDataFileFolderPath(dataFile.getParent());
                     MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
                             .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
                     menuItemAnalysesManager.fire();

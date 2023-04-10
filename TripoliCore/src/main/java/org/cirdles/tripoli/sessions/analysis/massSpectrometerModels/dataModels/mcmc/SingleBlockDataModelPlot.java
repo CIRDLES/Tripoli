@@ -25,6 +25,7 @@ import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.species.IsotopicRatio;
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
@@ -49,7 +50,7 @@ public enum SingleBlockDataModelPlot {
             List<EnsemblesStore.EnsembleRecord> ensembleRecordsList,
             SingleBlockModelRecord singleBlockInitialModelRecordInitial,
             AnalysisMethod analysisMethod) {
-        List<IsotopicRatio> isotopicRatioList = analysisMethod.getTripoliRatiosList();
+        List<IsotopicRatio> isotopicRatioList = analysisMethod.getIsotopicRatiosList();
 
         /*
             %% Analysis and Plotting
@@ -90,6 +91,38 @@ public enum SingleBlockDataModelPlot {
             logRatioMean[ratioIndex] = descriptiveStatisticsLogRatios.getMean();
             logRatioStdDev[ratioIndex] = descriptiveStatisticsLogRatios.getStandardDeviation();
         }
+        // derived ratios
+        List<IsotopicRatio> derivedIsotopicRatiosList = analysisMethod.getDerivedIsotopicRatiosList();
+        int countOfDerivedRatios = derivedIsotopicRatiosList.size();
+        double[][] derivedEnsembleRatios = new double[countOfDerivedRatios][countOfEnsemblesUsed];
+        int derivedRatioIndex = 0;
+        // derive the ratios
+        for (IsotopicRatio isotopicRatio : derivedIsotopicRatiosList) {
+            SpeciesRecordInterface numerator = isotopicRatio.getNumerator();
+            SpeciesRecordInterface denominator = isotopicRatio.getDenominator();
+            SpeciesRecordInterface highestAbundanceSpecies = analysisMethod.retrieveHighestAbundanceSpecies();
+            if (numerator != highestAbundanceSpecies) {
+                IsotopicRatio numeratorRatio = new IsotopicRatio(numerator, highestAbundanceSpecies, false);
+                int indexNumeratorRatio = isotopicRatioList.indexOf(numeratorRatio);
+                IsotopicRatio denominatorRatio = new IsotopicRatio(denominator, highestAbundanceSpecies, false);
+                int indexDenominatorRatio = isotopicRatioList.indexOf(denominatorRatio);
+                for (int ensembleIndex = 0; ensembleIndex < countOfEnsemblesUsed; ensembleIndex++) {
+                    derivedEnsembleRatios[derivedRatioIndex][ensembleIndex] =
+                            ensembleRatios[indexNumeratorRatio][ensembleIndex] / ensembleRatios[indexDenominatorRatio][ensembleIndex];
+                }
+                derivedRatioIndex++;
+            } else {
+                // assume we are dealing with the inverses of isotopicRatiosList
+                IsotopicRatio targetRatio = new IsotopicRatio(denominator, highestAbundanceSpecies, false);
+                int indexOfTargetRatio = isotopicRatioList.indexOf(targetRatio);
+                for (int ensembleIndex = 0; ensembleIndex < countOfEnsemblesUsed; ensembleIndex++) {
+                    derivedEnsembleRatios[derivedRatioIndex][ensembleIndex] =
+                            1.0 / ensembleRatios[indexOfTargetRatio][ensembleIndex];
+                }
+                derivedRatioIndex++;
+            }
+        }
+
 
         // baseLines
         int baselineSize = singleBlockInitialModelRecordInitial.faradayCount();
@@ -184,26 +217,30 @@ public enum SingleBlockDataModelPlot {
         // visualization - Ensembles tab
         PlotBuilder[][] plotBuilders = new PlotBuilder[16][1];
 
-        plotBuilders[0] = new PlotBuilder[ensembleRatios.length];
+        plotBuilders[PLOT_INDEX_RATIOS] = new PlotBuilder[ensembleRatios.length + derivedEnsembleRatios.length];
         for (int i = 0; i < ensembleRatios.length; i++) {
             plotBuilders[PLOT_INDEX_RATIOS][i] = HistogramBuilder.initializeHistogram(singleBlockDataSetRecord.blockNumber(), ensembleRatios[i],
-                    25, new String[]{isotopicRatioList.get(i).prettyPrint()}, "Ratios", "Frequency");
+                    25, new String[]{isotopicRatioList.get(i).prettyPrint()}, "Ratios", "Frequency", isotopicRatioList.get(i).isDisplayed());
+        }
+        for (int i = 0; i < derivedEnsembleRatios.length; i++) {
+            plotBuilders[PLOT_INDEX_RATIOS][i + ensembleRatios.length] = HistogramBuilder.initializeHistogram(singleBlockDataSetRecord.blockNumber(), derivedEnsembleRatios[i],
+                    25, new String[]{derivedIsotopicRatiosList.get(i).prettyPrint()}, "Ratios", "Frequency", derivedIsotopicRatiosList.get(i).isDisplayed());
         }
 
         plotBuilders[1] = new PlotBuilder[ensembleBaselines.length];
         List<Detector> faradayDetectorsUsed = analysisMethod.getSequenceTable().findFaradayDetectorsUsed();
         for (int i = 0; i < ensembleBaselines.length; i++) {
             plotBuilders[1][i] = HistogramBuilder.initializeHistogram(singleBlockDataSetRecord.blockNumber(), ensembleBaselines[i],
-                    25, new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Baseline"}, "Baseline Counts", "Frequency");
+                    25, new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Baseline"}, "Baseline Counts", "Frequency", true);
         }
 
         plotBuilders[2][0] = HistogramBuilder.initializeHistogram(singleBlockDataSetRecord.blockNumber(), ensembleDalyFaradayGain,
-                25, new String[]{"Daly/Faraday Gain"}, "Gain", "Frequency");
+                25, new String[]{"Daly/Faraday Gain"}, "Gain", "Frequency", true);
 
         plotBuilders[3] = new PlotBuilder[ensembleSignalnoise.length];
         for (int i = 0; i < ensembleSignalnoise.length; i++) {
             plotBuilders[3][i] = HistogramBuilder.initializeHistogram(singleBlockDataSetRecord.blockNumber(), ensembleSignalnoise[i],
-                    25, new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Signal Noise"}, "Noise hyperparameter", "Frequency");
+                    25, new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Signal Noise"}, "Noise hyperparameter", "Frequency", true);
         }
 
         plotBuilders[4][0] = MultiLinePlotBuilder.initializeLinePlot(

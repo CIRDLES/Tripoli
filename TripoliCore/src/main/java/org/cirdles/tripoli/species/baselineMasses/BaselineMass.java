@@ -17,21 +17,15 @@
 package org.cirdles.tripoli.species.baselineMasses;
 
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
-
-import java.io.Serializable;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author James F. Bowring
  */
-public class BaselineMass implements SpeciesRecordInterface, Serializable {
+public class BaselineMass implements SpeciesRecordInterface {
 
     private static final String DEFAULT_NAME = "Placeholder";
     private static final double DEFAULT_ABUNDANCE = 0.0;
-//    private double atomicMass;
-
-//    public BaselineMass(double atomicMass) {
-//        this.atomicMass = atomicMass;
-//    }
 
     @Override
     public String getMolecularFormula() {
@@ -43,13 +37,36 @@ public class BaselineMass implements SpeciesRecordInterface, Serializable {
         return 0;
     }
 
+    /**
+     * @return
+     */
+    @Override
+    public int getMassNumber() {
+        return 0;
+    }
+
     @Override
     public double getNaturalAbundancePercent() {
         return DEFAULT_ABUNDANCE;
+    }
+
+    /**
+     * @param o
+     * @return
+     */
+    @Override
+    public int compareTo(@NotNull Object o) {
+        return 0;
     }
 
     @Override
     public String prettyPrintShortForm() {
         return "OOPS";
     }
+
+    /**
+     * @param o the object to be compared.
+     * @return
+     */
+
 }

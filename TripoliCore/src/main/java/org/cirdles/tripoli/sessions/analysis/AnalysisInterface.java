@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
+import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
 
 public interface AnalysisInterface {
     static Analysis initializeAnalysis(String analysisName, AnalysisMethod analysisMethod, String analysisSampleName) {
@@ -51,6 +51,8 @@ public interface AnalysisInterface {
     AnalysisMethod extractAnalysisMethodfromPath(Path phoenixAnalysisMethodDataFilePath) throws JAXBException;
 
     PlotBuilder[][] updatePlotsByBlock(int blockNumber, LoggingCallbackInterface loggingCallback) throws TripoliException;
+
+    public void updateRatiosPlotBuilderDisplayStatus(int indexOfIsotopicRatio, boolean displayed);
 
     String uppdateLogsByBlock(int blockNumber, String logEntry);
 

@@ -1,6 +1,8 @@
 package org.cirdles.tripoli.gui;
 
 import jakarta.xml.bind.JAXBException;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
@@ -20,7 +22,9 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
+import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +34,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
+import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
 import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDialog;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectDataFile;
@@ -47,6 +51,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public TabPane analysiMethodTabPane;
     @FXML
     public HBox blockStatusHBox;
+    @FXML
+    public GridPane selectRatiosGridPane;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -145,6 +151,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         populateAnalysisMethodGridPane();
 
         populateBlocksStatus();
+
+        populateAnalysisMethodRatioSelectorPane();
     }
 
     private void populateAnalysisDataFields() {
@@ -265,6 +273,27 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
     }
 
+    private void populateAnalysisMethodRatioSelectorPane() {
+        if (analysis.getAnalysisMethod() != null) {
+            List<IsotopicRatio> allRatios = new ArrayList<>();
+            allRatios.addAll(analysis.getAnalysisMethod().getIsotopicRatiosList());
+            allRatios.addAll(analysis.getAnalysisMethod().getDerivedIsotopicRatiosList());
+            Collections.sort(allRatios, IsotopicRatio::compareTo);
+
+            int ratioCount = 0;
+            for (IsotopicRatio ratio : allRatios) {
+                CheckBox ratioCheckbox = new CheckBox(ratio.prettyPrint());
+                ratioCheckbox.setSelected(ratio.isDisplayed());
+                ratioCheckbox.setUserData(ratio);
+                ratioCheckbox.selectedProperty().addListener(new CheckBoxChangeListener(ratioCheckbox));
+
+                selectRatiosGridPane.add(ratioCheckbox, ratioCount % 8, (ratioCount / 8) % 10);
+                ratioCount++;
+            }
+        }
+
+    }
+
     private void populateBlocksStatus() {
         blockStatusHBox.getChildren().clear();
         var massSpecExtractedData = analysis.getMassSpecExtractedData();
@@ -282,8 +311,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         blockStatusButton.setFont(Font.font("Monospaced", FontWeight.EXTRA_BOLD, 10));
         blockStatusButton.setId(String.valueOf(blockID));
         blockStatusButton.setPadding(new Insets(0, -1, 0, -1));
-        tuneButton(blockStatusButton, analysis.getMapOfBlockIdToProcessStatus().get(blockID));
-
+        if (analysis.getMapOfBlockIdToProcessStatus().get(blockID) != null) {
+            tuneButton(blockStatusButton, analysis.getMapOfBlockIdToProcessStatus().get(blockID));
+        }
         blockStatusButton.setOnAction(e -> {
             switch ((int) blockStatusButton.getUserData()) {
                 case RUN -> {
@@ -351,16 +381,25 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 String compareInfo = compareAnalysisMethodToDataFileSpecs(analysisMethod, analysis.getMassSpecExtractedData());
                 if (compareInfo.isBlank()) {
                     analysis.setMethod(analysisMethod);
+                    TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedFile.getParent());
                 } else {
                     boolean choice = showChoiceDialog(
                             "The chosen analysis method does not meet the specifications in the data file.\n\n"
                                     + compareInfo
                                     + "\n\nProceed?", TripoliGUI.primaryStage);
-                    if (choice) analysis.setMethod(analysisMethod);
+                    if (choice) {
+                        analysis.setMethod(analysisMethod);
+                        TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedFile.getParent());
+                    }
                 }
             }
         } catch (TripoliException | IOException | JAXBException e) {
             TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
+        }
+
+        // initialize block processing state
+        for (Integer blockID : analysis.getMassSpecExtractedData().getBlocksData().keySet()) {
+            analysis.getMapOfBlockIdToProcessStatus().put(blockID, RUN);
         }
         populateAnalysisManagerGridPane();
     }
@@ -370,6 +409,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             if (button instanceof Button) {
                 analysis.getMapOfBlockIdToProcessStatus().put(Integer.parseInt(button.getId()), (int) button.getUserData());
             }
+        }
+        if (null != MCMCPlotsWindow) {
+            MCMCPlotsWindow.loadPlotsWindow();
         }
         if (null == MCMCPlotsWindow) {
             MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage, this);
@@ -416,5 +458,37 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     @Override
     public void callbackRefreshBlocksStatus() {
         restoreAllAction();
+    }
+
+    private class CheckBoxChangeListener implements ChangeListener<Boolean> {
+        private CheckBox checkBox;
+
+        public CheckBoxChangeListener(CheckBox checkBox) {
+            this.checkBox = checkBox;
+        }
+
+        /**
+         * @param observable The {@code ObservableValue} which value changed
+         * @param oldValue   The old value
+         * @param newValue   The new value
+         */
+        @Override
+        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+            boolean displayed = newValue;
+            IsotopicRatio ratio = (IsotopicRatio) checkBox.getUserData();
+            AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
+            int indexOfIsotopicRatio = analysisMethod.getIsotopicRatiosList().indexOf(ratio);
+            if (indexOfIsotopicRatio >= 0) {
+                analysisMethod.getIsotopicRatiosList().get(indexOfIsotopicRatio).setDisplayed(displayed);
+                analysis.updateRatiosPlotBuilderDisplayStatus(indexOfIsotopicRatio, displayed);
+            }
+            int indexOfDerivedIsotopicRatio = analysisMethod.getDerivedIsotopicRatiosList().indexOf(ratio);
+            if (indexOfDerivedIsotopicRatio >= 0) {
+                analysisMethod.getDerivedIsotopicRatiosList().get(indexOfDerivedIsotopicRatio).setDisplayed(displayed);
+                analysis.updateRatiosPlotBuilderDisplayStatus(indexOfDerivedIsotopicRatio + analysisMethod.getIsotopicRatiosList().size(), displayed);
+            }
+
+
+        }
     }
 }

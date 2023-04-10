@@ -35,7 +35,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
+import static org.cirdles.tripoli.constants.TripoliConstants.SPACES_100;
 
 /**
  * @author James F. Bowring
@@ -49,6 +49,7 @@ public class AnalysisMethod implements Serializable {
     private SequenceTable sequenceTable;
     private List<SpeciesRecordInterface> speciesList;
     private List<IsotopicRatio> isotopicRatiosList;
+    private List<IsotopicRatio> derivedIsotopicRatiosList;
 
 
     private AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
@@ -62,6 +63,7 @@ public class AnalysisMethod implements Serializable {
         this.baselineTable = baselineTable;
         this.sequenceTable = sequenceTable;
         isotopicRatiosList = new ArrayList<>();
+        derivedIsotopicRatiosList = new ArrayList<>();
     }
 
     public static AnalysisMethod initializeAnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
@@ -112,8 +114,6 @@ public class AnalysisMethod implements Serializable {
 
                 SpeciesRecordInterface species = NuclidesFactory.retrieveSpecies(elementName, massNumber);
                 analysisMethod.addSpeciesToSpeciesList(species);
-                analysisMethod.sortSpeciesListByAbundance();
-                analysisMethod.createBaseListOfRatios();
 
                 String detectorName = cellSpecs[1].split("S")[0];
                 Detector detector = detectorSetup.getMapOfDetectors().get(detectorName);
@@ -147,6 +147,9 @@ public class AnalysisMethod implements Serializable {
 
             }
         }
+
+        analysisMethod.sortSpeciesListByAbundance();
+        analysisMethod.createListsOfIsotopicRatios();
 
         // post-process baselineTable to populate with masses
         // TODO: make deltas more robust - Noah will have matlab code
@@ -250,10 +253,6 @@ public class AnalysisMethod implements Serializable {
         return methodName;
     }
 
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
-    }
-
     public MassSpectrometerContextEnum getMassSpectrometerContext() {
         return massSpectrometerContext;
     }
@@ -279,28 +278,24 @@ public class AnalysisMethod implements Serializable {
         Collections.sort(speciesList, Comparator.comparing(s -> s.getNaturalAbundancePercent()));
     }
 
-    public BaselineTable getBaselineTable() {
-        return baselineTable;
+    public SpeciesRecordInterface retrieveHighestAbundanceSpecies() {
+        return speciesList.get(speciesList.size() - 1);
     }
 
-    public void setBaselineTable(BaselineTable baselineTable) {
-        this.baselineTable = baselineTable;
+    public BaselineTable getBaselineTable() {
+        return baselineTable;
     }
 
     public SequenceTable getSequenceTable() {
         return sequenceTable;
     }
 
-    public void setSequenceTable(SequenceTable sequenceTable) {
-        this.sequenceTable = sequenceTable;
-    }
-
-    public List<IsotopicRatio> getTripoliRatiosList() {
+    public List<IsotopicRatio> getIsotopicRatiosList() {
         return isotopicRatiosList;
     }
 
-    public void setTripoliRatiosList(List<IsotopicRatio> isotopicRatiosList) {
-        this.isotopicRatiosList = isotopicRatiosList;
+    public List<IsotopicRatio> getDerivedIsotopicRatiosList() {
+        return derivedIsotopicRatiosList;
     }
 
     public void addRatioToIsotopicRatiosList(IsotopicRatio isotopicRatio) {
@@ -312,15 +307,43 @@ public class AnalysisMethod implements Serializable {
         }
     }
 
-    /**
-     * Creates a ratio of each species except the last one divided by the last one in specieslist
-     */
-    public void createBaseListOfRatios() {
-        isotopicRatiosList = new ArrayList<>();
-        SpeciesRecordInterface highestAbundanceSpecies = speciesList.get(speciesList.size() - 1);
-        for (int speciesIndex = 0; speciesIndex < speciesList.size() - 1; speciesIndex++) {
-            addRatioToIsotopicRatiosList(new IsotopicRatio(speciesList.get(speciesIndex), highestAbundanceSpecies));
+    public void addRatioToDerivedIsotopicRatiosList(IsotopicRatio isotopicRatio) {
+        if (null == derivedIsotopicRatiosList) {
+            derivedIsotopicRatiosList = new ArrayList<>();
+        }
+        if (!derivedIsotopicRatiosList.contains(isotopicRatio)) {
+            derivedIsotopicRatiosList.add(isotopicRatio);
         }
     }
 
+
+    /**
+     * Creates a ratio of each species except the last one divided by the last one in specieslist
+     */
+    public void createListsOfIsotopicRatios() {
+        sortSpeciesListByAbundance();
+        isotopicRatiosList = new ArrayList<>();
+        SpeciesRecordInterface highestAbundanceSpecies = speciesList.get(speciesList.size() - 1);
+        for (int speciesIndex = 0; speciesIndex < speciesList.size() - 1; speciesIndex++) {
+            addRatioToIsotopicRatiosList(new IsotopicRatio(speciesList.get(speciesIndex), highestAbundanceSpecies, true));
+        }
+        for (int i = 0; i < isotopicRatiosList.size() - 1; i++) {
+            IsotopicRatio ratioOne = isotopicRatiosList.get(i);
+            for (int j = i + 1; j < isotopicRatiosList.size(); j++) {
+                IsotopicRatio ratioTwo = isotopicRatiosList.get(j);
+                IsotopicRatio derivedRatio = new IsotopicRatio(ratioOne.getNumerator(), ratioTwo.getNumerator(), false);
+                addRatioToDerivedIsotopicRatiosList(derivedRatio);
+                IsotopicRatio inverseDerivedRatio = new IsotopicRatio(ratioTwo.getNumerator(), ratioOne.getNumerator(), false);
+                addRatioToDerivedIsotopicRatiosList(inverseDerivedRatio);
+            }
+        }
+        // remaining inverses
+        for (int i = 0; i < isotopicRatiosList.size(); i++) {
+            IsotopicRatio ratio = isotopicRatiosList.get(i);
+            IsotopicRatio invertedRatio = new IsotopicRatio(ratio.getDenominator(), ratio.getNumerator(), false);
+            addRatioToDerivedIsotopicRatiosList(invertedRatio);
+        }
+
+        Collections.sort(derivedIsotopicRatiosList, (ratio1, ratio2) -> ratio1.getNumerator().compareTo(ratio2.getNumerator()));
+    }
 }

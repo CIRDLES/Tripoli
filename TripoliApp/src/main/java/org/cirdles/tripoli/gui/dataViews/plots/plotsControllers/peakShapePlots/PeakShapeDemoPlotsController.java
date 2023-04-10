@@ -31,7 +31,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.*;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow.plottingWindow;
 
 public class PeakShapeDemoPlotsController {
@@ -262,7 +263,7 @@ public class PeakShapeDemoPlotsController {
                     PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
                     xAxis[k] = k + 1;
                     yAxis[k] = BeamDataOutputDriverExperiment.getMeasBeamWidthAMU();
-                    AbstractPlot gBeamLinePlot =  GBeamLinePlot.generatePlot(
+                    AbstractPlot gBeamLinePlot = GBeamLinePlot.generatePlot(
                             new Rectangle(beamPlotsGridPane.getCellBounds(0, 0).getWidth(),
                                     beamPlotsGridPane.getCellBounds(0, 0).getHeight()),
                             (GBeamLinePlotBuilder) plots[1]

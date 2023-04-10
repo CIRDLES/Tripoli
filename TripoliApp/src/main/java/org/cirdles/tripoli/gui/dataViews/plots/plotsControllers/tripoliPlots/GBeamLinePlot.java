@@ -206,7 +206,7 @@ public class GBeamLinePlot extends AbstractPlot {
                         } else if (convertMouseYToValue(event.getY()) - maxY / 100 <= getyAxisData()[0] && convertMouseYToValue(event.getY()) + maxY / 100 >= getyAxisData()[0]) {
                             showToolTip(potNode, event, getxAxisData()[i], getyAxisData()[i]);
                             ((Canvas) event.getSource()).setCursor(Cursor.CROSSHAIR);
-                        }else {
+                        } else {
                             ((Canvas) event.getSource()).setCursor(Cursor.DEFAULT);
                         }
                     }

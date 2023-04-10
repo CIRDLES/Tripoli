@@ -69,9 +69,13 @@ public class LinePlot extends AbstractPlot {
         // new line plot
         g2d.setStroke(dataColor.color());
         g2d.beginPath();
-        g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]));
+        boolean startedPlot = false;
         for (int i = 0; i < xAxisData.length; i++) {
             if (pointInPlot(xAxisData[i], yAxisData[i])) {
+                if (!startedPlot) {
+                    g2d.moveTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
+                    startedPlot = true;
+                }
                 // line tracing through points
                 g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
             } else {
