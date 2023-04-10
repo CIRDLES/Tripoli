@@ -27,7 +27,7 @@ public class BeamShapeLinePlotBuilderX extends PlotBuilder {
     }
 
     public BeamShapeLinePlotBuilderX(PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) {
-        super(title, xAxisLabel, yAxisLabel);
+        super(title, xAxisLabel, yAxisLabel, true);
         try {
             beamShapeRecord = generateBeamShape(peakShapeOutputDataRecord);
         }catch (RecoverableCondition e){
@@ -36,7 +36,7 @@ public class BeamShapeLinePlotBuilderX extends PlotBuilder {
 
     }
 
-    public static BeamShapeLinePlotBuilderX initializeBeamShape(PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) throws RecoverableCondition {
+    public static BeamShapeLinePlotBuilderX initializeBeamShape(PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) {
         return new BeamShapeLinePlotBuilderX(peakShapeOutputDataRecord, title, xAxisLabel, yAxisLabel);
     }
 
