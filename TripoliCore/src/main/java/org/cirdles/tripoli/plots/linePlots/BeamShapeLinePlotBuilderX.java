@@ -26,15 +26,18 @@ public class BeamShapeLinePlotBuilderX extends PlotBuilder {
     public BeamShapeLinePlotBuilderX() {
     }
 
-    public BeamShapeLinePlotBuilderX(PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) throws RecoverableCondition {
+    public BeamShapeLinePlotBuilderX(PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel);
-        beamShapeRecord = generateBeamShape(peakShapeOutputDataRecord);
+        try {
+            beamShapeRecord = generateBeamShape(peakShapeOutputDataRecord);
+        }catch (RecoverableCondition e){
+            e.printStackTrace();
+        }
+
     }
 
     public static BeamShapeLinePlotBuilderX initializeBeamShape(PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) throws RecoverableCondition {
-        BeamShapeLinePlotBuilderX beamShapeLinePlotBuilderX = new BeamShapeLinePlotBuilderX(peakShapeOutputDataRecord, title, xAxisLabel, yAxisLabel);
-        beamShapeLinePlotBuilderX.beamShapeRecord = beamShapeLinePlotBuilderX.generateBeamShape(peakShapeOutputDataRecord);
-        return beamShapeLinePlotBuilderX;
+        return new BeamShapeLinePlotBuilderX(peakShapeOutputDataRecord, title, xAxisLabel, yAxisLabel);
     }
 
     private BeamShapeRecord generateBeamShape(PeakShapeOutputDataRecord peakShapeOutputDataRecord) throws RecoverableCondition {
