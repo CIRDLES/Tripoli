@@ -16,6 +16,8 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
@@ -50,6 +52,7 @@ public class AnalysisMethod implements Serializable {
     private List<SpeciesRecordInterface> speciesList;
     private List<IsotopicRatio> isotopicRatiosList;
     private List<IsotopicRatio> derivedIsotopicRatiosList;
+    private BiMap<IsotopicRatio, IsotopicRatio> biMapOfRatiosAndInverses = HashBiMap.create();
 
 
     private AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
@@ -298,6 +301,10 @@ public class AnalysisMethod implements Serializable {
         return derivedIsotopicRatiosList;
     }
 
+    public BiMap<IsotopicRatio, IsotopicRatio> getBiMapOfRatiosAndInverses() {
+        return biMapOfRatiosAndInverses;
+    }
+
     public void addRatioToIsotopicRatiosList(IsotopicRatio isotopicRatio) {
         if (null == isotopicRatiosList) {
             isotopicRatiosList = new ArrayList<>();
@@ -335,6 +342,7 @@ public class AnalysisMethod implements Serializable {
                 addRatioToDerivedIsotopicRatiosList(derivedRatio);
                 IsotopicRatio inverseDerivedRatio = new IsotopicRatio(ratioTwo.getNumerator(), ratioOne.getNumerator(), false);
                 addRatioToDerivedIsotopicRatiosList(inverseDerivedRatio);
+                biMapOfRatiosAndInverses.put(derivedRatio, inverseDerivedRatio);
             }
         }
         // remaining inverses
@@ -342,6 +350,7 @@ public class AnalysisMethod implements Serializable {
             IsotopicRatio ratio = isotopicRatiosList.get(i);
             IsotopicRatio invertedRatio = new IsotopicRatio(ratio.getDenominator(), ratio.getNumerator(), false);
             addRatioToDerivedIsotopicRatiosList(invertedRatio);
+            biMapOfRatiosAndInverses.put(ratio, invertedRatio);
         }
 
         Collections.sort(derivedIsotopicRatiosList, (ratio1, ratio2) -> ratio1.getNumerator().compareTo(ratio2.getNumerator()));

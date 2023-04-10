@@ -16,9 +16,11 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
+import com.google.common.collect.BiMap;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramBuilder;
+import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
 import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
@@ -90,6 +92,8 @@ public enum SingleBlockDataModelPlot {
             }
             logRatioMean[ratioIndex] = descriptiveStatisticsLogRatios.getMean();
             logRatioStdDev[ratioIndex] = descriptiveStatisticsLogRatios.getStandardDeviation();
+
+            isotopicRatioList.get(ratioIndex).setRatioValues(ensembleRatios[ratioIndex]);
         }
         // derived ratios
         List<IsotopicRatio> derivedIsotopicRatiosList = analysisMethod.getDerivedIsotopicRatiosList();
@@ -110,7 +114,6 @@ public enum SingleBlockDataModelPlot {
                     derivedEnsembleRatios[derivedRatioIndex][ensembleIndex] =
                             ensembleRatios[indexNumeratorRatio][ensembleIndex] / ensembleRatios[indexDenominatorRatio][ensembleIndex];
                 }
-                derivedRatioIndex++;
             } else {
                 // assume we are dealing with the inverses of isotopicRatiosList
                 IsotopicRatio targetRatio = new IsotopicRatio(denominator, highestAbundanceSpecies, false);
@@ -119,8 +122,9 @@ public enum SingleBlockDataModelPlot {
                     derivedEnsembleRatios[derivedRatioIndex][ensembleIndex] =
                             1.0 / ensembleRatios[indexOfTargetRatio][ensembleIndex];
                 }
-                derivedRatioIndex++;
             }
+            derivedIsotopicRatiosList.get(derivedRatioIndex).setRatioValues(derivedEnsembleRatios[derivedRatioIndex]);
+            derivedRatioIndex++;
         }
 
 
@@ -217,14 +221,25 @@ public enum SingleBlockDataModelPlot {
         // visualization - Ensembles tab
         PlotBuilder[][] plotBuilders = new PlotBuilder[16][1];
 
+        BiMap<IsotopicRatio, IsotopicRatio> biMapOfRatiosAndInverses = analysisMethod.getBiMapOfRatiosAndInverses();
         plotBuilders[PLOT_INDEX_RATIOS] = new PlotBuilder[ensembleRatios.length + derivedEnsembleRatios.length];
         for (int i = 0; i < ensembleRatios.length; i++) {
-            plotBuilders[PLOT_INDEX_RATIOS][i] = HistogramBuilder.initializeHistogram(singleBlockDataSetRecord.blockNumber(), ensembleRatios[i],
-                    25, new String[]{isotopicRatioList.get(i).prettyPrint()}, "Ratios", "Frequency", isotopicRatioList.get(i).isDisplayed());
+            plotBuilders[PLOT_INDEX_RATIOS][i] =
+                    RatioHistogramBuilder.initializeRatioHistogram(
+                            singleBlockDataSetRecord.blockNumber(),
+                            isotopicRatioList.get(i),
+                            biMapOfRatiosAndInverses.get(isotopicRatioList.get(i)),
+                            25);
         }
         for (int i = 0; i < derivedEnsembleRatios.length; i++) {
-            plotBuilders[PLOT_INDEX_RATIOS][i + ensembleRatios.length] = HistogramBuilder.initializeHistogram(singleBlockDataSetRecord.blockNumber(), derivedEnsembleRatios[i],
-                    25, new String[]{derivedIsotopicRatiosList.get(i).prettyPrint()}, "Ratios", "Frequency", derivedIsotopicRatiosList.get(i).isDisplayed());
+            plotBuilders[PLOT_INDEX_RATIOS][i + ensembleRatios.length] =
+                    RatioHistogramBuilder.initializeRatioHistogram(
+                            singleBlockDataSetRecord.blockNumber(),
+                            derivedIsotopicRatiosList.get(i),
+                            (biMapOfRatiosAndInverses.get(derivedIsotopicRatiosList.get(i)) != null) ?
+                                    (biMapOfRatiosAndInverses.get(derivedIsotopicRatiosList.get(i))) :
+                                    (biMapOfRatiosAndInverses.inverse().get(derivedIsotopicRatiosList.get(i))),
+                            25);
         }
 
         plotBuilders[1] = new PlotBuilder[ensembleBaselines.length];

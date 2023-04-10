@@ -27,35 +27,41 @@ import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 /**
  * @author James F. Bowring
  */
-public class HistogramSinglePlot extends AbstractPlot {
+public class RatioHistogramPlot extends HistogramSinglePlot {
 
-    protected HistogramRecord histogramRecord;
-    protected double binWidth;
+    private final HistogramRecord invertedRatioHistogramRecord;
+    private HistogramRecord histogramRecordActive;
 
-    protected HistogramSinglePlot(Rectangle bounds, HistogramRecord histogramRecord) {
-        super(bounds,
-                40, 25,
-                new String[]{histogramRecord.title()[0]
-                        + "  " + "X\u0305" + "=" + String.format("%8.5g", histogramRecord.mean()).trim()
-                        , "\u00B1" + String.format("%8.5g", histogramRecord.standardDeviation()).trim()},
-                histogramRecord.xAxisLabel(),
-                histogramRecord.yAxisLabel());
+    private RatioHistogramPlot(Rectangle bounds, HistogramRecord histogramRecord, HistogramRecord invertedRatioHistogramRecord) {
+        super(bounds, histogramRecord);
         this.histogramRecord = histogramRecord;
+        this.invertedRatioHistogramRecord = invertedRatioHistogramRecord;
         // these can be changed by user in plot
         binWidth = histogramRecord.binWidth();
+        histogramRecordActive = histogramRecord;
     }
 
-    public static AbstractPlot generatePlot(Rectangle bounds, HistogramRecord histogramRecord) {
-        return new HistogramSinglePlot(bounds, histogramRecord);
+    public static AbstractPlot generatePlot(Rectangle bounds, HistogramRecord ratioHistogramRecord, HistogramRecord invertedRatioHistogramRecord) {
+        return new RatioHistogramPlot(bounds, ratioHistogramRecord, invertedRatioHistogramRecord);
+    }
+
+    public void toggleRatioInverse() {
+        if (histogramRecordActive == histogramRecord) {
+            histogramRecordActive = invertedRatioHistogramRecord;
+        } else {
+            histogramRecordActive = histogramRecord;
+        }
+//        refreshPanel(true, true);
     }
 
     @Override
     public void preparePanel() {
-        xAxisData = histogramRecord.binCenters();
+        plotTitle = histogramRecordActive.title();
+        xAxisData = histogramRecordActive.binCenters();
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
 
-        yAxisData = histogramRecord.binCounts();
+        yAxisData = histogramRecordActive.binCounts();
         // special case histogram
         minY = 0.0;
         maxY = -Double.MAX_VALUE;
@@ -123,8 +129,8 @@ public class HistogramSinglePlot extends AbstractPlot {
         // copied from OGTripoli for giggles
         g2d.setFill(Color.rgb(255, 251, 194));
         g2d.setGlobalAlpha(0.6);
-        double mean = histogramRecord.mean();
-        double stdDev = histogramRecord.standardDeviation();
+        double mean = histogramRecordActive.mean();
+        double stdDev = histogramRecordActive.standardDeviation();
         double twoSigmaWidth = 2.0 * stdDev;
         double plottedTwoSigmaWidth = mapX(mean + stdDev) - mapX(mean - stdDev);
         if (mapX(mean + twoSigmaWidth / 2.0) > (leftMargin + plotWidth)) {
@@ -149,7 +155,7 @@ public class HistogramSinglePlot extends AbstractPlot {
         double saveLineWidth = g2d.getLineWidth();
         g2d.setLineWidth(1.0);
         g2d.setStroke(Paint.valueOf("Black"));
-        g2d.strokeLine(mapX(histogramRecord.mean()), Math.min(mapY(0.0), mapY(minY)), mapX(histogramRecord.mean()), Math.max(mapY(maxY), topMargin));
+        g2d.strokeLine(mapX(histogramRecordActive.mean()), Math.min(mapY(0.0), mapY(minY)), mapX(histogramRecordActive.mean()), Math.max(mapY(maxY), topMargin));
         g2d.setStroke(saveStroke);
         g2d.setLineWidth(saveLineWidth);
     }

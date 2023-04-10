@@ -22,6 +22,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.ses
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
+import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
 import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
@@ -172,7 +173,7 @@ public class MCMCPlotsController {
                     plotBlockEngine(plotBuildersTask);
                     showLogsEngine(finalBlockIndex);
                     if (activeServices.isEmpty()) {
-                        if (blocksToProcess.size() > 1) plotSessionEngine();
+                        if (blocksToProcess.size() > 1) plotRatioSessionEngine();
                         listViewOfBlocks.setDisable(false);
                         listViewOfBlocks.getSelectionModel().selectFirst();
                     }
@@ -202,7 +203,7 @@ public class MCMCPlotsController {
         MCMCProcess.ALLOW_EXECUTION = true;
     }
 
-    private void plotSessionEngine() {
+    private void plotRatioSessionEngine() {
         Map<Integer, PlotBuilder[][]> mapOfBlockIdToPlots = analysis.getMapOfBlockIdToPlots();
         Map<String, List<HistogramRecord>> mapRatioNameToSessionRecords = new TreeMap<>();
         Iterator<Map.Entry<Integer, PlotBuilder[][]>> iterator = mapOfBlockIdToPlots.entrySet().iterator();
@@ -214,7 +215,7 @@ public class MCMCPlotsController {
                     if (ratioPlotBuilder.isDisplayed()) {
                         String ratioName = ratioPlotBuilder.getTitle()[0];
                         mapRatioNameToSessionRecords.computeIfAbsent(ratioName, k -> new ArrayList<>());
-                        mapRatioNameToSessionRecords.get(ratioName).add(((HistogramBuilder) ratioPlotBuilder).getHistogramRecord());
+                        mapRatioNameToSessionRecords.get(ratioName).add(((RatioHistogramBuilder) ratioPlotBuilder).getHistogramRecord());
                     }
                 }
             }
@@ -270,7 +271,7 @@ public class MCMCPlotsController {
         ensemblePlotsWallPane.buildToolBar();
         ensemblePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         ensemblePlotsAnchorPane.getChildren().add(ensemblePlotsWallPane);
-        produceTripoliHistogramPlots(ratiosHistogramBuilder, ensemblePlotsWallPane);
+        produceTripoliRatioHistogramPlots(ratiosHistogramBuilder, ensemblePlotsWallPane);
         produceTripoliHistogramPlots(baselineHistogramBuilder, ensemblePlotsWallPane);
         produceTripoliHistogramPlots(dalyFaradayHistogramBuilder, ensemblePlotsWallPane);
         produceTripoliHistogramPlots(signalNoiseHistogramBuilder, ensemblePlotsWallPane);
@@ -317,6 +318,18 @@ public class MCMCPlotsController {
         logTextArea.setPrefSize(logAnchorPane.getWidth(), logAnchorPane.getHeight());
         logAnchorPane.getChildren().removeAll();
         logAnchorPane.getChildren().add(logTextArea);
+    }
+
+    private void produceTripoliRatioHistogramPlots(PlotBuilder[] plotBuilder, PlotWallPane plotWallPane) {
+        for (int i = 0; i < plotBuilder.length; i++) {
+            if (plotBuilder[i].isDisplayed()) {
+                HistogramRecord plotRecord = ((RatioHistogramBuilder) plotBuilder[i]).getHistogramRecord();
+                HistogramRecord invertedPlotRecord = ((RatioHistogramBuilder) plotBuilder[i]).getInvertedRatioHistogramRecord();
+                TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
+                AbstractPlot plot = RatioHistogramPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), plotRecord, invertedPlotRecord);
+                tripoliPlotPane.addPlot(plot);
+            }
+        }
     }
 
     private void produceTripoliHistogramPlots(PlotBuilder[] plotBuilder, PlotWallPane plotWallPane) {

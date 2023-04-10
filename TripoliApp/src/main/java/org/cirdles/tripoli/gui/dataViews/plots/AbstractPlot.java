@@ -34,6 +34,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
 import java.math.BigDecimal;
@@ -177,7 +178,19 @@ public abstract class AbstractPlot extends Canvas {
             ((TripoliPlotPane) getParent()).toggleShowStats();
         });
 
+        MenuItem plotContextMenuItem5 = null;
+        if (this instanceof RatioHistogramPlot){
+            plotContextMenuItem5 = new MenuItem("Toggle ratio inverse");
+            plotContextMenuItem5.setOnAction((mouseEvent) -> {
+                ((RatioHistogramPlot) this).toggleRatioInverse();
+                refreshPanel(true, true);
+            });
+        }
+
         plotContextMenu.getItems().addAll(plotContextMenuItem1, plotContextMenuItem2, plotContextMenuItem3, plotContextMenuItem4);
+        if (plotContextMenuItem5 != null){
+            plotContextMenu.getItems().add(plotContextMenuItem5);
+        }
 
     }
 
