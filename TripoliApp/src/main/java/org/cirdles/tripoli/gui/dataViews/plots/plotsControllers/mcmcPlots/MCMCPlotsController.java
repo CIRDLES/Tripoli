@@ -57,7 +57,7 @@ public class MCMCPlotsController {
     @FXML
     public AnchorPane beamShapeAnchorPane;
     @FXML
-    public AnchorPane sessionAnchorPane;
+    public AnchorPane ratioSessionAnchorPane;
     @FXML
     public AnchorPane logAnchorPane;
     @FXML
@@ -203,6 +203,7 @@ public class MCMCPlotsController {
         MCMCProcess.ALLOW_EXECUTION = true;
     }
 
+    @FXML
     private void plotRatioSessionEngine() {
         Map<Integer, PlotBuilder[][]> mapOfBlockIdToPlots = analysis.getMapOfBlockIdToPlots();
         Map<String, List<HistogramRecord>> mapRatioNameToSessionRecords = new TreeMap<>();
@@ -215,20 +216,24 @@ public class MCMCPlotsController {
                     if (ratioPlotBuilder.isDisplayed()) {
                         String ratioName = ratioPlotBuilder.getTitle()[0];
                         mapRatioNameToSessionRecords.computeIfAbsent(ratioName, k -> new ArrayList<>());
-                        mapRatioNameToSessionRecords.get(ratioName).add(((RatioHistogramBuilder) ratioPlotBuilder).getHistogramRecord());
+                        boolean useInvertedRatio = RatioHistogramBuilder.mapOfRatioNamesToInvertedFlag.get(ratioName);
+                        mapRatioNameToSessionRecords.get(ratioName).add(
+                                useInvertedRatio ?
+                                ((RatioHistogramBuilder) ratioPlotBuilder).getInvertedRatioHistogramRecord()
+                                : ((RatioHistogramBuilder) ratioPlotBuilder).getHistogramRecord());
                     }
                 }
             }
         }
 
-        sessionAnchorPane.getChildren().removeAll();
+        ratioSessionAnchorPane.getChildren().removeAll();
         PlotWallPane ratiosSessionPlotsWallPane = new PlotWallPane();
         ratiosSessionPlotsWallPane.buildToolBar();
         ratiosSessionPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-        sessionAnchorPane.getChildren().add(ratiosSessionPlotsWallPane);
+        ratioSessionAnchorPane.getChildren().add(ratiosSessionPlotsWallPane);
         for (Map.Entry<String, List<HistogramRecord>> entry : mapRatioNameToSessionRecords.entrySet()) {
             HistogramSessionBuilder histogramSessionBuilder = initializeHistogramSession(
-                    analysis.getMapOfBlockIdToProcessStatus().size(), entry.getValue(), new String[]{entry.getKey()}, "Block ID", "Ratio");
+                    analysis.getMapOfBlockIdToProcessStatus().size(), entry.getValue(), entry.getValue().get(0).title(), "Block ID", "Ratio");
             TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(ratiosSessionPlotsWallPane);
             AbstractPlot plot = HistogramSessionPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), histogramSessionBuilder.getHistogramSessionRecord());
             tripoliPlotPane.addPlot(plot);

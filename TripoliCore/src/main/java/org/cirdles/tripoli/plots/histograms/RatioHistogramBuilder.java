@@ -18,6 +18,10 @@ package org.cirdles.tripoli.plots.histograms;
 
 import org.cirdles.tripoli.species.IsotopicRatio;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
 /**
  * @author James F. Bowring
  */
@@ -25,6 +29,8 @@ public class RatioHistogramBuilder extends HistogramBuilder {
     private static final long serialVersionUID = 2597311797768082265L;
 
     private HistogramRecord invertedRatioHistogramRecord;
+
+    public static Map<String, Boolean> mapOfRatioNamesToInvertedFlag =new TreeMap<>();
 
     private RatioHistogramBuilder(int blockID, String[] title, String xAxisLabel, String yAxisLabel, boolean displayed) {
         super(blockID, title, xAxisLabel, yAxisLabel, displayed);
@@ -37,6 +43,7 @@ public class RatioHistogramBuilder extends HistogramBuilder {
         RatioHistogramBuilder ratioHistogramBuilder = new RatioHistogramBuilder(blockID, new String[]{ratio.prettyPrint()}, "Ratios", "Frequency", ratio.isDisplayed());
         ratioHistogramBuilder.histogramRecord = ratioHistogramBuilder.generateHistogram(blockID, ratio.getRatioValues(), binCount, new String[]{ratio.prettyPrint()});
         ratioHistogramBuilder.invertedRatioHistogramRecord = ratioHistogramBuilder.generateHistogram(blockID, invertedRatio.getRatioValues(), binCount, new String[]{invertedRatio.prettyPrint()});
+        mapOfRatioNamesToInvertedFlag.put(ratio.prettyPrint(), false);
         return ratioHistogramBuilder;
     }
 

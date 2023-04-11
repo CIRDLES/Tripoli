@@ -23,6 +23,7 @@ import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
+import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
 
 /**
  * @author James F. Bowring
@@ -34,11 +35,16 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
 
     private RatioHistogramPlot(Rectangle bounds, HistogramRecord histogramRecord, HistogramRecord invertedRatioHistogramRecord) {
         super(bounds, histogramRecord);
-        this.histogramRecord = histogramRecord;
-        this.invertedRatioHistogramRecord = invertedRatioHistogramRecord;
+
         // these can be changed by user in plot
-        binWidth = histogramRecord.binWidth();
-        histogramRecordActive = histogramRecord;
+        this.invertedRatioHistogramRecord = invertedRatioHistogramRecord;
+
+        boolean inverted = RatioHistogramBuilder.mapOfRatioNamesToInvertedFlag.get(histogramRecord.title()[0]);
+        if (inverted){
+            histogramRecordActive = invertedRatioHistogramRecord;
+        } else {
+            histogramRecordActive = histogramRecord;
+        }
     }
 
     public static AbstractPlot generatePlot(Rectangle bounds, HistogramRecord ratioHistogramRecord, HistogramRecord invertedRatioHistogramRecord) {
@@ -46,17 +52,21 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
     }
 
     public void toggleRatioInverse() {
-        if (histogramRecordActive == histogramRecord) {
-            histogramRecordActive = invertedRatioHistogramRecord;
-        } else {
+        boolean inverted = RatioHistogramBuilder.mapOfRatioNamesToInvertedFlag.get(histogramRecord.title()[0]);
+        if (inverted){
+            RatioHistogramBuilder.mapOfRatioNamesToInvertedFlag.put(histogramRecord.title()[0], !inverted);
             histogramRecordActive = histogramRecord;
+        } else {
+            RatioHistogramBuilder.mapOfRatioNamesToInvertedFlag.put(histogramRecord.title()[0], !inverted);
+            histogramRecordActive = invertedRatioHistogramRecord;
         }
-//        refreshPanel(true, true);
     }
 
     @Override
     public void preparePanel() {
-        plotTitle = histogramRecordActive.title();
+        plotTitle = new String[]{histogramRecordActive.title()[0]
+                + "  " + "X\u0305" + "=" + String.format("%8.5g", histogramRecordActive.mean()).trim()
+                , "\u00B1" + String.format("%8.5g", histogramRecordActive.standardDeviation()).trim()};
         xAxisData = histogramRecordActive.binCenters();
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];

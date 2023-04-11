@@ -32,9 +32,13 @@ public enum TripoliConstants {
     public static final File PHYSCONST_MODELS_FOLDER = new File(PARAMETER_MODELS_FOLDER.getAbsolutePath() + File.separator + "PhysicalConstantsModels");
     public static final File TRACER_MODELS_FOLDER = new File(PARAMETER_MODELS_FOLDER.getAbsolutePath() + File.separator + "TracerModels");
 
-    public static final File SYNTHETIC_DATA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "SyntheticData");
+    public static final File SYNTHETIC_DATA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "syntheticData");
     public static final File SYNTHETIC_DATA_FOLDER_2ISOTOPE
             = new File(SYNTHETIC_DATA_FOLDER.getAbsolutePath() + File.separator + "TwoIsotopeSyntheticData");
+    public static final File SYNTHETIC_DATA_FOLDER_DATA
+            = new File(SYNTHETIC_DATA_FOLDER.getAbsolutePath() + File.separator + "data");
+    public static final File SYNTHETIC_DATA_FOLDER_METHODS
+            = new File(SYNTHETIC_DATA_FOLDER.getAbsolutePath() + File.separator + "methods");
     public static final File NUCLIDESCHART_DATA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "NuclidesChartData");
     public static final File PERIODICTABLE_DATA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "PeriodicTableData");
 
