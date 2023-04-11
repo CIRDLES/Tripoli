@@ -23,7 +23,7 @@ import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
-import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 
 /**
  * @author James F. Bowring
@@ -32,32 +32,34 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
 
     private final HistogramRecord invertedRatioHistogramRecord;
     private HistogramRecord histogramRecordActive;
+    private AnalysisMethod analysisMethod;
 
-    private RatioHistogramPlot(Rectangle bounds, HistogramRecord histogramRecord, HistogramRecord invertedRatioHistogramRecord) {
+    private RatioHistogramPlot(Rectangle bounds, HistogramRecord histogramRecord, HistogramRecord invertedRatioHistogramRecord, AnalysisMethod analysisMethod) {
         super(bounds, histogramRecord);
+        this.analysisMethod = analysisMethod;
 
         // these can be changed by user in plot
         this.invertedRatioHistogramRecord = invertedRatioHistogramRecord;
 
-        boolean inverted = RatioHistogramBuilder.mapOfRatioNamesToInvertedFlag.get(histogramRecord.title()[0]);
-        if (inverted){
+        boolean inverted = analysisMethod.getMapOfRatioNamesToInvertedFlag().get(histogramRecord.title()[0]);
+        if (inverted) {
             histogramRecordActive = invertedRatioHistogramRecord;
         } else {
             histogramRecordActive = histogramRecord;
         }
     }
 
-    public static AbstractPlot generatePlot(Rectangle bounds, HistogramRecord ratioHistogramRecord, HistogramRecord invertedRatioHistogramRecord) {
-        return new RatioHistogramPlot(bounds, ratioHistogramRecord, invertedRatioHistogramRecord);
+    public static AbstractPlot generatePlot(Rectangle bounds, HistogramRecord ratioHistogramRecord, HistogramRecord invertedRatioHistogramRecord, AnalysisMethod analysisMethod) {
+        return new RatioHistogramPlot(bounds, ratioHistogramRecord, invertedRatioHistogramRecord, analysisMethod);
     }
 
     public void toggleRatioInverse() {
-        boolean inverted = RatioHistogramBuilder.mapOfRatioNamesToInvertedFlag.get(histogramRecord.title()[0]);
-        if (inverted){
-            RatioHistogramBuilder.mapOfRatioNamesToInvertedFlag.put(histogramRecord.title()[0], !inverted);
+        boolean inverted = analysisMethod.getMapOfRatioNamesToInvertedFlag().get(histogramRecord.title()[0]);
+        if (inverted) {
+            analysisMethod.getMapOfRatioNamesToInvertedFlag().put(histogramRecord.title()[0], !inverted);
             histogramRecordActive = histogramRecord;
         } else {
-            RatioHistogramBuilder.mapOfRatioNamesToInvertedFlag.put(histogramRecord.title()[0], !inverted);
+            analysisMethod.getMapOfRatioNamesToInvertedFlag().put(histogramRecord.title()[0], !inverted);
             histogramRecordActive = invertedRatioHistogramRecord;
         }
     }

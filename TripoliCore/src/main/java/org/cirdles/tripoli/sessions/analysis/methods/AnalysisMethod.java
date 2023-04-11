@@ -46,6 +46,7 @@ public class AnalysisMethod implements Serializable {
     @Serial
     private static final long serialVersionUID = -642166785514147638L;
     private final MassSpectrometerContextEnum massSpectrometerContext;
+    public Map<String, Boolean> mapOfRatioNamesToInvertedFlag;
     private String methodName;
     private BaselineTable baselineTable;
     private SequenceTable sequenceTable;
@@ -67,6 +68,7 @@ public class AnalysisMethod implements Serializable {
         this.sequenceTable = sequenceTable;
         isotopicRatiosList = new ArrayList<>();
         derivedIsotopicRatiosList = new ArrayList<>();
+        mapOfRatioNamesToInvertedFlag = new TreeMap<>();
     }
 
     public static AnalysisMethod initializeAnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
@@ -303,6 +305,10 @@ public class AnalysisMethod implements Serializable {
 
     public BiMap<IsotopicRatio, IsotopicRatio> getBiMapOfRatiosAndInverses() {
         return biMapOfRatiosAndInverses;
+    }
+
+    public Map<String, Boolean> getMapOfRatioNamesToInvertedFlag() {
+        return mapOfRatioNamesToInvertedFlag;
     }
 
     public void addRatioToIsotopicRatiosList(IsotopicRatio isotopicRatio) {

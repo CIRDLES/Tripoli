@@ -179,7 +179,7 @@ public abstract class AbstractPlot extends Canvas {
         });
 
         MenuItem plotContextMenuItem5 = null;
-        if (this instanceof RatioHistogramPlot){
+        if (this instanceof RatioHistogramPlot) {
             plotContextMenuItem5 = new MenuItem("Toggle ratio inverse");
             plotContextMenuItem5.setOnAction((mouseEvent) -> {
                 ((RatioHistogramPlot) this).toggleRatioInverse();
@@ -188,7 +188,7 @@ public abstract class AbstractPlot extends Canvas {
         }
 
         plotContextMenu.getItems().addAll(plotContextMenuItem1, plotContextMenuItem2, plotContextMenuItem3, plotContextMenuItem4);
-        if (plotContextMenuItem5 != null){
+        if (plotContextMenuItem5 != null) {
             plotContextMenu.getItems().add(plotContextMenuItem5);
         }
 

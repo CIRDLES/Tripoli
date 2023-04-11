@@ -230,6 +230,7 @@ public enum SingleBlockDataModelPlot {
                             isotopicRatioList.get(i),
                             biMapOfRatiosAndInverses.get(isotopicRatioList.get(i)),
                             25);
+            analysisMethod.getMapOfRatioNamesToInvertedFlag().put(isotopicRatioList.get(i).prettyPrint(), false);
         }
         for (int i = 0; i < derivedEnsembleRatios.length; i++) {
             plotBuilders[PLOT_INDEX_RATIOS][i + ensembleRatios.length] =
@@ -240,6 +241,7 @@ public enum SingleBlockDataModelPlot {
                                     (biMapOfRatiosAndInverses.get(derivedIsotopicRatiosList.get(i))) :
                                     (biMapOfRatiosAndInverses.inverse().get(derivedIsotopicRatiosList.get(i))),
                             25);
+            analysisMethod.getMapOfRatioNamesToInvertedFlag().put(derivedIsotopicRatiosList.get(i).prettyPrint(), false);
         }
 
         plotBuilders[1] = new PlotBuilder[ensembleBaselines.length];

@@ -216,11 +216,11 @@ public class MCMCPlotsController {
                     if (ratioPlotBuilder.isDisplayed()) {
                         String ratioName = ratioPlotBuilder.getTitle()[0];
                         mapRatioNameToSessionRecords.computeIfAbsent(ratioName, k -> new ArrayList<>());
-                        boolean useInvertedRatio = RatioHistogramBuilder.mapOfRatioNamesToInvertedFlag.get(ratioName);
+                        boolean useInvertedRatio = analysis.getAnalysisMethod().getMapOfRatioNamesToInvertedFlag().get(ratioName);
                         mapRatioNameToSessionRecords.get(ratioName).add(
                                 useInvertedRatio ?
-                                ((RatioHistogramBuilder) ratioPlotBuilder).getInvertedRatioHistogramRecord()
-                                : ((RatioHistogramBuilder) ratioPlotBuilder).getHistogramRecord());
+                                        ((RatioHistogramBuilder) ratioPlotBuilder).getInvertedRatioHistogramRecord()
+                                        : ((RatioHistogramBuilder) ratioPlotBuilder).getHistogramRecord());
                     }
                 }
             }
@@ -331,7 +331,7 @@ public class MCMCPlotsController {
                 HistogramRecord plotRecord = ((RatioHistogramBuilder) plotBuilder[i]).getHistogramRecord();
                 HistogramRecord invertedPlotRecord = ((RatioHistogramBuilder) plotBuilder[i]).getInvertedRatioHistogramRecord();
                 TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
-                AbstractPlot plot = RatioHistogramPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), plotRecord, invertedPlotRecord);
+                AbstractPlot plot = RatioHistogramPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), plotRecord, invertedPlotRecord, analysis.getAnalysisMethod());
                 tripoliPlotPane.addPlot(plot);
             }
         }
