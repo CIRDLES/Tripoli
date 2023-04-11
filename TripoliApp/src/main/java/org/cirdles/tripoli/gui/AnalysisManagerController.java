@@ -97,6 +97,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        MCMCPlotsController.analysis = analysis;
         analysisManagerGridPane.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_YELLOW));
         setupListeners();
         populateAnalysisManagerGridPane();
@@ -411,11 +412,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             }
         }
         if (null != MCMCPlotsWindow) {
-            MCMCPlotsWindow.loadPlotsWindow();
+            MCMCPlotsWindow.close();
         }
-        if (null == MCMCPlotsWindow) {
-            MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage, this);
-        }
+        MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage, this);
         MCMCPlotsController.analysis = analysis;
         MCMCPlotsWindow.loadPlotsWindow();
     }
@@ -446,7 +445,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     public void restoreAllAction() {
         for (Node button : blockStatusHBox.getChildren()) {
-            if (button instanceof Button) {
+            if ((button instanceof Button) && (analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())) != null)) {
                 tuneButton((Button) button, analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())));
             }
         }

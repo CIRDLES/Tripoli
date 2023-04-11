@@ -30,6 +30,7 @@ public class IsotopicRatio implements Serializable, Comparable {
     private static final long serialVersionUID = 676151940943728743L;
     private final SpeciesRecordInterface numerator;
     private final SpeciesRecordInterface denominator;
+    private double[] ratioValues;
 
     private boolean displayed;
 
@@ -37,6 +38,7 @@ public class IsotopicRatio implements Serializable, Comparable {
         this.numerator = numerator;
         this.denominator = denominator;
         this.displayed = displayed;
+        this.ratioValues = new double[0];
     }
 
     public String prettyPrint() {
@@ -81,6 +83,13 @@ public class IsotopicRatio implements Serializable, Comparable {
         return Objects.hash(numerator, denominator);
     }
 
+    public double[] getRatioValues() {
+        return ratioValues;
+    }
+
+    public void setRatioValues(double[] ratioValues) {
+        this.ratioValues = ratioValues;
+    }
     //    private void readObject(ObjectInputStream stream) throws IOException,
 //            ClassNotFoundException {
 //        stream.defaultReadObject();
