@@ -335,7 +335,7 @@ class MatLabTest {
             B = storeFactory.rows(B_list.get(i));
 
             expected = Answer_list.get(i);
-            actual = MatLab.rDivide(A, B.get(0, 0));
+            actual = MatLab.rDivide(B.get(0, 0), A);
             actualArray = actual.toRawCopy2D();
 
             for (int j = 0; j < expected.length; j++) {

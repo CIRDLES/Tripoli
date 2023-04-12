@@ -142,7 +142,7 @@ public enum BeamDataOutputDriverExperiment {
 
         // WLS and NNLS
         MatrixStore<Double> GB = trimGMatrix.multiply(Basis);
-        MatrixStore<Double> wData = MatLab.diag(MatLab.rDivide(MatLab.max(measuredPeakIntensities, 1), 1));
+        MatrixStore<Double> wData = MatLab.diag(MatLab.rDivide(1, MatLab.max(measuredPeakIntensities, 1)));
 
         Cholesky<Double> decompChol = Cholesky.PRIMITIVE.make();
         decompChol.decompose(wData);
