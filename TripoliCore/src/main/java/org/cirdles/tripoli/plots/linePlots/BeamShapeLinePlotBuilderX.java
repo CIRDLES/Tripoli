@@ -19,8 +19,8 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassS
 
 public class BeamShapeLinePlotBuilderX extends PlotBuilder {
 
-    private BeamShapeRecord beamShapeRecord;
     private static double measBeamWidthAMU;
+    private BeamShapeRecord beamShapeRecord;
 
 
     public BeamShapeLinePlotBuilderX() {
@@ -30,7 +30,7 @@ public class BeamShapeLinePlotBuilderX extends PlotBuilder {
         super(title, xAxisLabel, yAxisLabel, true);
         try {
             beamShapeRecord = generateBeamShape(peakShapeOutputDataRecord);
-        }catch (RecoverableCondition e){
+        } catch (RecoverableCondition e) {
             e.printStackTrace();
         }
 
@@ -38,6 +38,17 @@ public class BeamShapeLinePlotBuilderX extends PlotBuilder {
 
     public static BeamShapeLinePlotBuilderX initializeBeamShape(PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) {
         return new BeamShapeLinePlotBuilderX(peakShapeOutputDataRecord, title, xAxisLabel, yAxisLabel);
+    }
+
+    public static PeakShapeOutputDataRecord getPeakData(Path dataFile) throws IOException {
+        PeakShapeProcessor_PhoenixTextFile peakShapeProcessor_PhoenixTextFile
+                = PeakShapeProcessor_PhoenixTextFile.initializeWithMassSpectrometer(massSpectrometerModelBuiltinMap.get(MassSpectrometerContextEnum.PHOENIX.getMassSpectrometerName()));
+
+        return peakShapeProcessor_PhoenixTextFile.prepareInputDataModelFromFile(dataFile);
+    }
+
+    public static double getMeasBeamWidthAMU() {
+        return measBeamWidthAMU;
     }
 
     private BeamShapeRecord generateBeamShape(PeakShapeOutputDataRecord peakShapeOutputDataRecord) throws RecoverableCondition {
@@ -126,7 +137,7 @@ public class BeamShapeLinePlotBuilderX extends PlotBuilder {
 
         // WLS and NNLS
         MatrixStore<Double> GB = trimGMatrix.multiply(Basis);
-        MatrixStore<Double> wData = MatLab.diag(MatLab.rDivide(MatLab.max(measuredPeakIntensities, 1), 1));
+        MatrixStore<Double> wData = MatLab.diag(MatLab.rDivide(1, MatLab.max(measuredPeakIntensities, 1)));
 
         Cholesky<Double> decompChol = Cholesky.PRIMITIVE.make();
         decompChol.decompose(wData);
@@ -212,7 +223,7 @@ public class BeamShapeLinePlotBuilderX extends PlotBuilder {
 
         return new BeamShapeRecord(
                 beamMassInterp.toRawCopy2D()[0],
-                beamShape.toRawCopy2D()[0],
+                beamShape.transpose().toRawCopy2D()[0],
                 leftBoundary,
                 rightBoundary,
                 title,
@@ -221,18 +232,7 @@ public class BeamShapeLinePlotBuilderX extends PlotBuilder {
         );
     }
 
-    public PeakShapeOutputDataRecord getPeakData(Path dataFile) throws IOException {
-        PeakShapeProcessor_PhoenixTextFile peakShapeProcessor_PhoenixTextFile
-                = PeakShapeProcessor_PhoenixTextFile.initializeWithMassSpectrometer(massSpectrometerModelBuiltinMap.get(MassSpectrometerContextEnum.PHOENIX.getMassSpectrometerName()));
-
-        return peakShapeProcessor_PhoenixTextFile.prepareInputDataModelFromFile(dataFile);
-    }
-
     public BeamShapeRecord getBeamShapeRecord() {
         return beamShapeRecord;
-    }
-
-    public static double getMeasBeamWidthAMU() {
-        return measBeamWidthAMU;
     }
 }
