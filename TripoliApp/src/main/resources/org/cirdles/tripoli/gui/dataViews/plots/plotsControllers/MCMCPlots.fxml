@@ -41,8 +41,8 @@
             <Tab closable="false" text="Beam Shape">
                 <AnchorPane fx:id="beamShapeAnchorPane"/>
             </Tab>
-            <Tab closable="false" text="Session">
-                <AnchorPane fx:id="sessionAnchorPane"/>
+            <Tab closable="false" onSelectionChanged="#plotRatioSessionEngine" text="Ratio Session">
+                <AnchorPane fx:id="ratioSessionAnchorPane"/>
             </Tab>
             <Tab closable="false" text="Log">
                 <AnchorPane fx:id="logAnchorPane"/>
