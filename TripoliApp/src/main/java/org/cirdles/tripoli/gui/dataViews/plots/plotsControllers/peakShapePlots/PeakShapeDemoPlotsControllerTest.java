@@ -13,10 +13,7 @@ import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.BeamShapeLinePlot;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.BeamShapeLinePlotX;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.GBeamLinePlot;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.PeakCentresLinePlotX;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.*;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.*;
@@ -457,15 +454,16 @@ public class PeakShapeDemoPlotsControllerTest {
             try {
                 PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::populateListOfResources);
                 PeakShapeOutputDataRecord peakShapeOutputDataRecord = BeamShapeLinePlotBuilderX.getPeakData(resourceBrowserTarget.toPath());
-                BeamShapeLinePlotBuilderX beamShape = BeamShapeLinePlotBuilderX.initializeBeamShape(peakShapeOutputDataRecord, new String[]{peakShapeOutputDataRecord.massID()}, "Mass (amu)", "Beam Intensity");
-
+                //BeamShapeLinePlotBuilderX beamShape = BeamShapeLinePlotBuilderX.initializeBeamShape(peakShapeOutputDataRecord, new String[]{peakShapeOutputDataRecord.massID()}, "Mass (amu)", "Beam Intensity");
+                PeakShapesOverlayBuilder peakShapes = PeakShapesOverlayBuilder.initializePeakShapes(peakShapeOutputDataRecord, new String[]{peakShapeOutputDataRecord.massID()}, "Mass (amu)", "Intensities");
                 if (ensemblePlotsWallPane.getChildren().size() > 3) {
                     ensemblePlotsWallPane.getChildren().remove(2, ensemblePlotsWallPane.getChildren().size());
 
                 }
 
 
-                produceBeamShapeLinePlot(beamShape.getBeamShapeRecord(), ensemblePlotsWallPane);
+                //produceBeamShapeLinePlot(beamShape.getBeamShapeRecord(), ensemblePlotsWallPane);
+                producePeakShapesOverlayPlot(peakShapes.getPeakShapesOverlayRecord(), ensemblePlotsWallPane);
                 produceGBeamShapeLinePlot(plots[1], ensemblePlotsWallPane);
                 ensemblePlotsWallPane.tilePlots();
             } catch (Exception e) {
@@ -487,6 +485,13 @@ public class PeakShapeDemoPlotsControllerTest {
     private void produceGBeamShapeLinePlot(PlotBuilder plotBuilder, PlotWallPane plotWallPane) {
         TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
         AbstractPlot plot = GBeamLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (GBeamLinePlotBuilder) plotBuilder);
+        tripoliPlotPane.addPlot(plot);
+
+    }
+
+    private void producePeakShapesOverlayPlot(PeakShapesOverlayRecord peakShapesOverlayRecord, PlotWallPane plotWallPane) {
+        TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
+        AbstractPlot plot = PeakShapesOverlayPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), peakShapesOverlayRecord);
         tripoliPlotPane.addPlot(plot);
 
     }
