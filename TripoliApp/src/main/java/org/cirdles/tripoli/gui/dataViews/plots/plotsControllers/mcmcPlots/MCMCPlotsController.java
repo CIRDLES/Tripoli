@@ -28,7 +28,7 @@ import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
 import org.cirdles.tripoli.plots.sessionPlots.HistogramSessionBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.MCMCProcess;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.MCMCProcess2;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
 import java.net.URL;
@@ -93,7 +93,6 @@ public class MCMCPlotsController {
     private ListView<String> listViewOfBlocks = new ListView<>();
 
     public void plotIncomingAction() {
-        MCMCProcess.ALLOW_EXECUTION = true;
         processDataFileAndShowPlotsOfMCMC2(analysis);
     }
 
@@ -187,7 +186,7 @@ public class MCMCPlotsController {
                 if (null != newValue) {
                     String[] data = newValue.split(">%");
                     try {
-                        double percent = Double.parseDouble(data[0]) / MCMCProcess.getModelCount();
+                        double percent = Double.parseDouble(data[0]) / MCMCProcess2.getModelCount();
                         progressBar.setProgress(percent);
                     } catch (NumberFormatException e) {
                     }
@@ -200,7 +199,6 @@ public class MCMCPlotsController {
         for (int blockIndex = 0; blockIndex < services.length; blockIndex++) {
             services[blockIndex].start();
         }
-        MCMCProcess.ALLOW_EXECUTION = true;
     }
 
     @FXML

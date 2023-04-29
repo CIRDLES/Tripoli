@@ -53,7 +53,7 @@
             <VBox>
                 <children>
                     <TextArea fx:id="eventLogTextArea" editable="false"
-                              text="runs to model count of 200000 iterations with adaptation at 50000."/>
+                              text="This space will display stats during execution."/>
                     <ProgressBar fx:id="progressBar" minHeight="25.0" minWidth="500.0" prefHeight="25.0"
                                  prefWidth="848.0" progress="0.0"/>
                 </children>
