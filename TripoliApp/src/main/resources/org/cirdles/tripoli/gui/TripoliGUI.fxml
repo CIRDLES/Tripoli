@@ -33,6 +33,7 @@
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem fx:id="openSessionMenuItem" mnemonicParsing="false" onAction="#openSessionMenuItemAction"
                       text="Open Session"/>
+            <Menu fx:id="openRecentSessionMenu" mnemonicParsing="false" text="Open Recent Session"/>
             <MenuItem fx:id="openRecentSessionMenuItem" mnemonicParsing="false"
                       onAction="#openRecentSessionMenuItemAction" text="Open Recent Session"/>
             <MenuItem mnemonicParsing="false" onAction="#openDemonstrationSessionMenuItemAction"

@@ -24,7 +24,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
+import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.sessions.analysis.AnalysisInterface.initializeNewAnalysis;
 
 /**

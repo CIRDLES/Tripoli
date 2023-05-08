@@ -28,24 +28,21 @@ public class HistogramBuilder extends PlotBuilder {
 
     @Serial
     private static final long serialVersionUID = 9180059676626735662L;
-    private HistogramRecord histogramRecord;
+    protected HistogramRecord histogramRecord;
 
-    public HistogramBuilder() {
-    }
-
-    public HistogramBuilder(int blockID, String[] title, String xAxisLabel, String yAxisLabel, boolean displayed) {
+    protected HistogramBuilder(int blockID, String[] title, String xAxisLabel, String yAxisLabel, boolean displayed) {
         super(title, xAxisLabel, yAxisLabel, displayed);
-        histogramRecord = generateHistogram(blockID, new double[0], 0);
+        histogramRecord = generateHistogram(blockID, new double[0], 0, new String[]{""});
         this.displayed = displayed;
     }
 
     public static HistogramBuilder initializeHistogram(int blockID, double[] data, int binCount, String[] title, String xAxisLabel, String yAxisLabel, boolean displayed) {
         HistogramBuilder histogramBuilder = new HistogramBuilder(blockID, title, xAxisLabel, yAxisLabel, displayed);
-        histogramBuilder.histogramRecord = histogramBuilder.generateHistogram(blockID, data, binCount);
+        histogramBuilder.histogramRecord = histogramBuilder.generateHistogram(blockID, data, binCount, title);
         return histogramBuilder;
     }
 
-    private HistogramRecord generateHistogram(int blockID, double[] data, int binCount) {
+    protected HistogramRecord generateHistogram(int blockID, double[] data, int binCount, String[] title) {
         DescriptiveStatistics descriptiveStatisticsRatios = new DescriptiveStatistics();
         for (int index = 0; index < data.length; index++) {
             descriptiveStatisticsRatios.addValue(data[index]);

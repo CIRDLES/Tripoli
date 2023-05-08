@@ -28,7 +28,7 @@ import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.util.*;
 
-import static org.cirdles.tripoli.constants.ConstantsTripoliCore.ONE_COULOMB;
+import static org.cirdles.tripoli.constants.TripoliConstants.ONE_COULOMB;
 import static org.cirdles.tripoli.utilities.mathUtilities.MathUtilities.roundedToSize;
 
 /**

@@ -16,6 +16,8 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
@@ -35,7 +37,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.cirdles.tripoli.constants.ConstantsTripoliCore.SPACES_100;
+import static org.cirdles.tripoli.constants.TripoliConstants.SPACES_100;
 
 /**
  * @author James F. Bowring
@@ -44,12 +46,14 @@ public class AnalysisMethod implements Serializable {
     @Serial
     private static final long serialVersionUID = -642166785514147638L;
     private final MassSpectrometerContextEnum massSpectrometerContext;
+    public Map<String, Boolean> mapOfRatioNamesToInvertedFlag;
     private String methodName;
     private BaselineTable baselineTable;
     private SequenceTable sequenceTable;
     private List<SpeciesRecordInterface> speciesList;
     private List<IsotopicRatio> isotopicRatiosList;
     private List<IsotopicRatio> derivedIsotopicRatiosList;
+    private BiMap<IsotopicRatio, IsotopicRatio> biMapOfRatiosAndInverses = HashBiMap.create();
 
 
     private AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
@@ -64,6 +68,7 @@ public class AnalysisMethod implements Serializable {
         this.sequenceTable = sequenceTable;
         isotopicRatiosList = new ArrayList<>();
         derivedIsotopicRatiosList = new ArrayList<>();
+        mapOfRatioNamesToInvertedFlag = new TreeMap<>();
     }
 
     public static AnalysisMethod initializeAnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
@@ -114,8 +119,6 @@ public class AnalysisMethod implements Serializable {
 
                 SpeciesRecordInterface species = NuclidesFactory.retrieveSpecies(elementName, massNumber);
                 analysisMethod.addSpeciesToSpeciesList(species);
-//                analysisMethod.sortSpeciesListByAbundance();
-//                analysisMethod.createListsOfIsotopicRatios();
 
                 String detectorName = cellSpecs[1].split("S")[0];
                 Detector detector = detectorSetup.getMapOfDetectors().get(detectorName);
@@ -300,6 +303,14 @@ public class AnalysisMethod implements Serializable {
         return derivedIsotopicRatiosList;
     }
 
+    public BiMap<IsotopicRatio, IsotopicRatio> getBiMapOfRatiosAndInverses() {
+        return biMapOfRatiosAndInverses;
+    }
+
+    public Map<String, Boolean> getMapOfRatioNamesToInvertedFlag() {
+        return mapOfRatioNamesToInvertedFlag;
+    }
+
     public void addRatioToIsotopicRatiosList(IsotopicRatio isotopicRatio) {
         if (null == isotopicRatiosList) {
             isotopicRatiosList = new ArrayList<>();
@@ -337,6 +348,7 @@ public class AnalysisMethod implements Serializable {
                 addRatioToDerivedIsotopicRatiosList(derivedRatio);
                 IsotopicRatio inverseDerivedRatio = new IsotopicRatio(ratioTwo.getNumerator(), ratioOne.getNumerator(), false);
                 addRatioToDerivedIsotopicRatiosList(inverseDerivedRatio);
+                biMapOfRatiosAndInverses.put(derivedRatio, inverseDerivedRatio);
             }
         }
         // remaining inverses
@@ -344,6 +356,7 @@ public class AnalysisMethod implements Serializable {
             IsotopicRatio ratio = isotopicRatiosList.get(i);
             IsotopicRatio invertedRatio = new IsotopicRatio(ratio.getDenominator(), ratio.getNumerator(), false);
             addRatioToDerivedIsotopicRatiosList(invertedRatio);
+            biMapOfRatiosAndInverses.put(ratio, invertedRatio);
         }
 
         Collections.sort(derivedIsotopicRatiosList, (ratio1, ratio2) -> ratio1.getNumerator().compareTo(ratio2.getNumerator()));

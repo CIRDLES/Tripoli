@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli;
+package org.cirdles.tripoli.constants;
 
 import java.io.File;
+import java.nio.CharBuffer;
 
 public enum TripoliConstants {
     ;
@@ -31,14 +32,33 @@ public enum TripoliConstants {
     public static final File PHYSCONST_MODELS_FOLDER = new File(PARAMETER_MODELS_FOLDER.getAbsolutePath() + File.separator + "PhysicalConstantsModels");
     public static final File TRACER_MODELS_FOLDER = new File(PARAMETER_MODELS_FOLDER.getAbsolutePath() + File.separator + "TracerModels");
 
-    public static final File SYNTHETIC_DATA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "SyntheticData");
+    public static final File SYNTHETIC_DATA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "syntheticData");
     public static final File SYNTHETIC_DATA_FOLDER_2ISOTOPE
             = new File(SYNTHETIC_DATA_FOLDER.getAbsolutePath() + File.separator + "TwoIsotopeSyntheticData");
+    public static final File SYNTHETIC_DATA_FOLDER_DATA
+            = new File(SYNTHETIC_DATA_FOLDER.getAbsolutePath() + File.separator + "data");
+    public static final File SYNTHETIC_DATA_FOLDER_METHODS
+            = new File(SYNTHETIC_DATA_FOLDER.getAbsolutePath() + File.separator + "methods");
     public static final File NUCLIDESCHART_DATA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "NuclidesChartData");
     public static final File PERIODICTABLE_DATA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "PeriodicTableData");
 
     public static final File PEAK_CENTRES_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "PeakCentres");
 
     public static final String DEFAULT_OBJECT_NAME = "NO_NAME";
+
+    public static final String TRIPOLI_USERS_DATA_FOLDER_NAME = "TripoliUserData";
+
+
+    public static final String SPACES_100 = CharBuffer.allocate(100).toString().replace('\0', ' ');
+
+    public static final String MISSING_STRING_FIELD = "MISSING";
+
+    /**
+     * elementary charge e is exactly 1.602176634×10−19 coulomb (C).
+     * see: https://en.wikipedia.org/wiki/2019_redefinition_of_the_SI_base_units
+     */
+    public static final double ELEMENTARY_CHARGE_E = 1.602176634e-19;
+    public static final double ONE_COULOMB = 1.0 / ELEMENTARY_CHARGE_E; // s.b. 6.2415091e18 == 6.2415090744607631E18
+
 
 }

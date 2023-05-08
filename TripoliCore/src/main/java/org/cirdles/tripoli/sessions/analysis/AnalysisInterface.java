@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.cirdles.tripoli.constants.ConstantsTripoliCore.MISSING_STRING_FIELD;
+import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
 
 public interface AnalysisInterface {
     static Analysis initializeAnalysis(String analysisName, AnalysisMethod analysisMethod, String analysisSampleName) {

@@ -43,7 +43,8 @@ public enum GithubFileExtractor {
             while (null != (line = reader.readLine()))
                 fileContents.append(line).append("\n");
 
-            Path path = Paths.get(fileName);
+            // translate spaces
+            Path path = Paths.get(fileName.replace("%20", " "));
             byte[] strToBytes = fileContents.toString().getBytes(StandardCharsets.UTF_8);
 
             Files.write(path, strToBytes);
