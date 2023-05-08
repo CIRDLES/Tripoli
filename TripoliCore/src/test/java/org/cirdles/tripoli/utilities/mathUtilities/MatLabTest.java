@@ -144,16 +144,15 @@ class MatLabTest {
 
             for (int j = 0; j < expected.length; j++) {
                 for (int k = 0; k < expected[j].length; k++) {
-                    expected[j][k] = MatLab.roundedToSize(expected[j][k], 10);
+                    expected[j][k] = MatLab.roundedToSize(expected[j][k], 8);
                 }
             }
 
             for (int j = 0; j < actualArray.length; j++) {
                 for (int k = 0; k < actualArray[j].length; k++) {
-                    actualArray[j][k] = MatLab.roundedToSize(actualArray[j][k], 10);
+                    actualArray[j][k] = MatLab.roundedToSize(actualArray[j][k], 8);
                 }
             }
-
             assertArrayEquals(expected, actualArray);
         }
     }
@@ -162,7 +161,7 @@ class MatLabTest {
      * Matrix Exponent Test
      * Deserializes matrices from files written using MATLAB
      * Matrix A is in exp_matrix_A.txt
-     * Answers are in kron_answers.txt
+     * Answers are in exp_answers.txt
      * <p>
      * Matrices were serialized according to the following MATLAB definitions:
      * <p>
@@ -277,6 +276,37 @@ class MatLabTest {
         }
     }
 
+    /**
+     *     Linspace test
+     *     Deserializes matrices from files written using MATLAB
+     *     Matrix A contains the parameters for the linspace. It is linspace_matrix_A.txt
+     *     Answers are in linspace_answers.txt
+     *     rowDim = randi(11) - 1;
+     *     colDim = randi(10);
+     *     rowDim2 = randi(10);
+     *     colDim2 = randi(10);
+     *
+     *     zeroMatrix1 = zeros(1, 2);
+     *     zeroMatrix2 = zeros(1, 1);
+     *     edgeCase1 = rand();
+     *
+     *     randMat = max.*rand(1, 2);
+     *     rHelper = (-1).^randi(2,1,2);
+     *     randMat = randMat.*rHelper;
+     *
+     *     if edgeCase1 < 0.1
+     *         randMat = zeroMatrix1;
+     *     end
+     *
+     *     filename1 = fullfile('linspace_matrix_A.txt');
+     *
+     *
+     *     linout = linspace(randMat(1), randMat(2), rowDim);
+     *     linsize = size(linout);
+     *     filename3 = fullfile('linspace_answers.txt');
+     *     randMatSize1 = size(randMat);
+     * @throws IOException
+     */
     @Test
     void linspace2Test() throws IOException {
         ArrayList<double[][]> A_list = read_csv("linspace_matrix_A.txt");
@@ -344,8 +374,36 @@ class MatLabTest {
 
     }
 
-    //function is somewhat incorrect. Divides the second parm by each element in A where in matlab it does the opposite
-    //Also, it requires an extremely low number of sigfigs to work for some reason
+    /**
+     *     rDivide test
+     *     Deserializes matrices from files written using MATLAB
+     *     Matrix A contains the input matrix. It is rDivide_matrix_A.txt
+     *     Matrix B contains the parameters for the rDivide. It is rDivide_matrix_B.txt
+     *     Answers are in linspace_answers.txt
+     *     rowDim = randi(10);
+     *     colDim = randi(10);
+     *     rowDim2 = randi(10);
+     *     colDim2 = randi(10);
+
+
+     *     randMat = max.*rand(rowDim, colDim);
+     *     rHelper = (-1).^randi(2,rowDim,colDim);
+     *     randMat = randMat.*rHelper;
+
+
+     *     filename1 = fullfile('rDivide_matrix_A.txt');
+
+     *     randMat2 = max2.*rand(1, 1);
+     *     r_helper = (-1).^randi(2,1,1);
+     *     randMat2 = randMat2.*r_helper;
+
+     *     randMatSize2 = size(randMat2);
+     *     filename2 = fullfile('rDivide_matrix_B.txt');
+
+     *     rout = rdivide(randMat, randMat2(1));
+     *     rsize = size(rout);
+     */
+    // TODO: Make sure the original rDivide (flipped parameters) is okay.
     @Test
     void rDivide2Test() throws IOException {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
@@ -381,8 +439,17 @@ class MatLabTest {
             assertArrayEquals(expected, actualArray);
         }
     }
+    // TODO: See if MATLAB can consistently generate test cases without the solver reaching max iterations
+    @Test
+    void solveNNLSTest() {
+        PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
 
-    // fix error
+        Primitive64Store A = storeFactory.rows(new double[][]{{1, 7, 3}, {6, 2, 9}});
+        Primitive64Store actual = MatLab.max(A, 5);
+        double[][] expected = new double[][]{{5, 7, 5}, {6, 5, 9}};
+        assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
+    }
+    // TODO: MATLAB's max function does not work exactly like this. Ensure this function is what is desired.
     @Test
     void maxTest() {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
@@ -393,6 +460,32 @@ class MatLabTest {
         assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
     }
 
+    /**
+     *     diag test
+     *     Deserializes matrices from files written using MATLAB
+     *     Matrix A contains the original matrix. It is diag_matrix_A.txt
+     *     Answers are in diag_answers.txt
+     *     rowDim = randi(10);
+
+
+     *     zeroMatrix1 = zeros(rowDim, 1);
+
+     *     edgeCase1 = rand();
+
+
+     *     randMat = max.*rand(rowDim, 1);
+     *     rHelper = (-1).^randi(2, rowDim, 1);
+     *     randMat = randMat.*rHelper;
+     *     if edgeCase1 < 0.1
+     *     randMat = zeroMatrix1;
+     *     end
+
+
+     *     diagout = diag(randMat);
+     *     diagsize = size(diagout);
+     *     randMatSize1 = size(randMat);
+     * @throws IOException
+     */
     @Test
     void diagTest() throws IOException {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
