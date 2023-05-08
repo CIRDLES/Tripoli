@@ -4,7 +4,6 @@ import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
 import org.junit.jupiter.api.Test;
 import org.ojalgo.matrix.store.MatrixStore;
-import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.io.BufferedReader;
@@ -14,7 +13,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SplineBasisModelTest {
