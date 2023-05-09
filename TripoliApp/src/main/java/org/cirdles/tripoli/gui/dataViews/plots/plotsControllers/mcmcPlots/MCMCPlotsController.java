@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
@@ -27,6 +28,7 @@ import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
 import org.cirdles.tripoli.plots.sessionPlots.HistogramSessionBuilder;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.MCMCProcess2;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
@@ -98,6 +100,7 @@ public class MCMCPlotsController {
 
     @FXML
     void initialize() {
+        eventLogTextArea.setText("Using technique: " + ((Analysis)analysis).getMcmcVersion());
         masterVBox.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT);
         toolbar.setPrefSize(PLOT_WINDOW_WIDTH, 30.0);
 
@@ -140,7 +143,7 @@ public class MCMCPlotsController {
     }
 
     @SuppressWarnings("unchecked")
-    public void processDataFileAndShowPlotsOfMCMC2(AnalysisInterface analysis) {
+    public synchronized void processDataFileAndShowPlotsOfMCMC2(AnalysisInterface analysis) {
         MCMCPlotBuildersTask.analysis = analysis;
         // check process status
         List<Integer> blocksToProcess = new ArrayList<>();
@@ -150,15 +153,17 @@ public class MCMCPlotsController {
                 blocksToProcess.add(blockID);
             }
         }
+
+        int countOfBlocks = blocksToProcess.size();
         services = new Service[blocksToProcess.size()];
 
         Set<Integer> activeServices = new TreeSet<>();
-        for (int blockIndex = 0; blockIndex < services.length; blockIndex++) {
+        for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
             activeServices.add(blockIndex);
         }
 
         int indexOfFirstRunningBlockProcess = MAX_BLOCK_COUNT;
-        for (int blockIndex = 0; blockIndex < services.length; blockIndex++) {
+        for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
             services[blockIndex] = new MCMCUpdatesService(blocksToProcess.get(blockIndex));
 
             if (analysis.getMapOfBlockIdToProcessStatus().get(blocksToProcess.get(blockIndex)) == RUN) {
@@ -169,14 +174,20 @@ public class MCMCPlotsController {
                 activeServices.remove(finalBlockIndex);
                 Task<String> plotBuildersTask = ((MCMCUpdatesService) services[finalBlockIndex]).getPlotBuilderTask();
                 if (null != plotBuildersTask) {
-                    plotBlockEngine(plotBuildersTask);
-                    showLogsEngine(finalBlockIndex);
+                    if (((MCMCPlotBuildersTask)plotBuildersTask).healthyPlotbuilder()) {
+                        plotBlockEngine(plotBuildersTask);
+                        showLogsEngine(finalBlockIndex);
+                    }
                     if (activeServices.isEmpty()) {
                         if (blocksToProcess.size() > 1) plotRatioSessionEngine();
                         listViewOfBlocks.setDisable(false);
                         listViewOfBlocks.getSelectionModel().selectFirst();
                     }
                 }
+            });
+            services[finalBlockIndex].setOnFailed(evt -> {
+                listViewOfBlocks.setDisable(false);
+                listViewOfBlocks.getSelectionModel().selectFirst();
             });
         }
 
@@ -196,7 +207,7 @@ public class MCMCPlotsController {
             progressBar.setProgress(1.0);
         }
 
-        for (int blockIndex = 0; blockIndex < services.length; blockIndex++) {
+        for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
             services[blockIndex].start();
         }
     }
@@ -239,7 +250,7 @@ public class MCMCPlotsController {
         ratiosSessionPlotsWallPane.stackPlots();
     }
 
-    private void plotBlockEngine(Task<String> plotBuildersTaska) {
+    private synchronized void plotBlockEngine(Task<String> plotBuildersTaska) {
         analysisManagerCallbackI.callbackRefreshBlocksStatus();
 
         ensemblePlotsAnchorPane.getChildren().removeAll();
@@ -315,7 +326,7 @@ public class MCMCPlotsController {
         convergeIntensityPlotsWallPane.tilePlots();
     }
 
-    private void showLogsEngine(int blockNumber) {
+    private synchronized void showLogsEngine(int blockNumber) {
         String log = analysis.uppdateLogsByBlock(blockNumber + 1, "");
         TextArea logTextArea = new TextArea(log);
         logTextArea.setPrefSize(logAnchorPane.getWidth(), logAnchorPane.getHeight());
@@ -387,8 +398,10 @@ public class MCMCPlotsController {
     public void viewSelectedBlock(int blockIndex) {
         Task<String> mcmcPlotBuildersTask = ((MCMCUpdatesService) services[blockIndex]).getPlotBuilderTask();
         if ((null != mcmcPlotBuildersTask) && mcmcPlotBuildersTask.isDone()) {
-            plotBlockEngine(mcmcPlotBuildersTask);
-            showLogsEngine(blockIndex);
+            if (((MCMCPlotBuildersTask)mcmcPlotBuildersTask).healthyPlotbuilder()) {
+                plotBlockEngine(mcmcPlotBuildersTask);
+                showLogsEngine(blockIndex);
+            }
         }
     }
 

@@ -144,12 +144,10 @@ public class MCMCProcess2 {
         double nTemp = 10000;
 
         double[] hot = linspace(5, 1, nTemp).toRawCopy1D();
-        double[] TTarray = new double[modelCount];
+        double[] TTarray = new double[100000];//modelCount];
         Arrays.fill(TTarray, 1.0);
-        for (int i = 0; i < hot.length; i++) {
-            TTarray[i] = hot[i];
-        }
-        TT = new Matrix(TTarray, modelCount);
+        System.arraycopy(hot, 0, TTarray, 0, hot.length);
+        TT = new Matrix(TTarray, 100000);//modelCount);
 
         startingIndexOfFaradayData = singleBlockDataSetRecord.getCountOfBaselineIntensities();
         startingIndexOfPhotoMultiplierData = startingIndexOfFaradayData + singleBlockDataSetRecord.getCountOfOnPeakFaradayIntensities();
@@ -638,28 +636,32 @@ public class MCMCProcess2 {
     display(sprintf(' '));
  */
                 if (0 == modelIndex % (10 * stepCountForcedSave)) {
+                    // calculate summaries
+                    int modelsKeptLocal = 0;
+                    int modelsTotalLocal = 0;
+                    int modelsKept = 0;
+                    int modelsTotal = 0;
+                    for (int row = 0; row < 4; row ++){
+                        modelsKeptLocal+= keptUpdates[row][0];
+                        modelsTotalLocal+= keptUpdates[row][1];
+                        modelsKept+= keptUpdates[row][2];
+                        modelsTotal+= keptUpdates[row][3];
+                    }
+
                     loggingSnippet =
                             modelIndex + " >%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
                                     + "  BLOCK # " + singleBlockInitialModelRecord_initial.blockNumber()
                                     + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
                                     + "\nError function = " + statsFormat.format(StrictMath.sqrt(initialModelErrorUnWeighted_E0 / countOfData))
-                                    + "\nChange All Variables: " + keptUpdates[0][0] + " of " + keptUpdates[0][1] + " accepted (" + statsFormat.format(100.0 * keptUpdates[0][2] / keptUpdates[0][3]) + "% total)"
-                                    + (hierarchical ?
-                                    ("\nNoise: "
-                                            + keptUpdates[4][0]
-                                            + " of "
-                                            + keptUpdates[4][1]
-                                            + " accepted (" + statsFormat.format(100.0 * keptUpdates[4][2] / keptUpdates[4][3]) + "% total)")
-                                            + ("\nIntervals: in microseconds, each from prev or zero time till new interval"
-                                            + " Interval1 " + (interval1 / 1000)
-                                            + " Interval2 " + (interval2 / 1000)
-                                            + " Interval3 " + (interval3 / 1000)
-                                            + " Interval4 " + (interval4 / 1000)
-                                            + " Interval5 " + (interval5 / 1000)
-                                    )
-                                    : "") + "\n";
+                                    + "\nChange All Variables: " + modelsKeptLocal + " of " + modelsTotalLocal + " accepted (" + statsFormat.format(100.0 * modelsKept / modelsTotal) + "% total)"
+                                    + ("\nIntervals: in microseconds, each from prev or zero time till new interval"
+                                    + " Interval1 " + (interval1 / 1000)
+                                    + " Interval2 " + (interval2 / 1000)
+                                    + " Interval3 " + (interval3 / 1000)
+                                    + " Interval4 " + (interval4 / 1000)
+                                    + " Interval5 " + (interval5 / 1000));
 
-                    System.err.println("\n" + loggingSnippet);
+                    System.err.println("\n" + loggingSnippet + "\n");
                     loggingCallback.receiveLoggingSnippet(loggingSnippet);
 
                     for (int i = 0; 5 > i; i++) {

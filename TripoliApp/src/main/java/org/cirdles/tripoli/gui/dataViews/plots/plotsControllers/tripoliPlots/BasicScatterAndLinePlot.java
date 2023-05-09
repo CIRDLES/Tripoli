@@ -9,6 +9,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -99,18 +100,22 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
         g2d.setFont(Font.font("SansSerif", 18));
         if (!comboPlotBuilder.getBlockMapOfIdsToData().isEmpty()) {
             int colorIndex = 0;
-            List<Double> xAxisDataList = new ArrayList<>();
-            for (double d : xAxisData) xAxisDataList.add(d);
-            Collections.sort(xAxisDataList);
+//            List<Double> xAxisDataList = new ArrayList<>();
+//            for (double d : xAxisData) xAxisDataList.add(d);
+//            Collections.sort(xAxisDataList);
+            Arrays.sort(xAxisData);
             for (String sequenceID : comboPlotBuilder.getBlockMapOfIdsToData().keySet()) {
                 g2d.setFill(Paint.valueOf(TRIPOLI_PALLETTE_FOUR[colorIndex]));
                 List<Double> timeList = comboPlotBuilder.getBlockMapOfIdsToData().get(sequenceID);
                 Collections.sort(timeList);
                 for (double time : timeList) {
-                    int timeIndex = xAxisDataList.indexOf(time);
+                    int timeIndex = Arrays.binarySearch(xAxisData, time);//                       xAxisDataList.indexOf(time);
                     do {
                         if ((0 == timeIndex % plottingStep) && pointInPlot(xAxisData[timeIndex], yAxisData[timeIndex])) {
-                            g2d.fillOval(mapX(xAxisData[timeIndex]) - 2.0f, mapY(yAxisData[timeIndex]) - 2.0f, 4.0f, 4.0f);
+                            try {
+                                g2d.fillOval(mapX(xAxisData[timeIndex]) - 2.0f, mapY(yAxisData[timeIndex]) - 2.0f, 4.0f, 4.0f);} catch (Exception e) {
+                                System.err.println("Bad time at timeindex = " + timeIndex);
+                            }
                         }
                         timeIndex++;
                     } while ((timeIndex < xAxisData.length) && xAxisData[timeIndex - 1] == xAxisData[timeIndex]);
