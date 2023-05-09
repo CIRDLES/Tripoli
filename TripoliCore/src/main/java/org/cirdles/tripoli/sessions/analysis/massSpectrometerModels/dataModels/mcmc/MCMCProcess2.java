@@ -18,7 +18,6 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.
 
 import jama.Matrix;
 import org.apache.commons.lang3.time.StopWatch;
-import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
@@ -34,7 +33,6 @@ import java.util.*;
 import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
-import static org.apache.commons.math3.special.Gamma.gamma;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalRangesRecord;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalSigmasRecord;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelUpdater.operations;
@@ -204,9 +202,9 @@ public class MCMCProcess2 {
             Mchain = 1; % Number of Chains
             ExitCrit = sqrt(1+Mchain/EffectSamp); % Exit when G-R criterium less than this
          */
-        double alpha = 0.025; //Confidence interval we want to be accurate (0.05 = 95% CI)
-        double epsilon = 0.025; // Relative confidence in mean compared to std dev estimator(?)
-        ChiSquaredDistribution chiSquaredDistribution = new ChiSquaredDistribution(1.0 - alpha, sizeOfModel);
+//        double alpha = 0.025; //Confidence interval we want to be accurate (0.05 = 95% CI)
+//        double epsilon = 0.025; // Relative confidence in mean compared to std dev estimator(?)
+//        ChiSquaredDistribution chiSquaredDistribution = new ChiSquaredDistribution(1.0 - alpha, sizeOfModel);
 //        double effectSamp =
 //                StrictMath.pow(2.0, (2.0 / sizeOfModel))
 //                        * Math.PI
@@ -593,7 +591,7 @@ public class MCMCProcess2 {
 
             if (0 == modelIndex % (stepCountForcedSave)) {
                 /*
-                    cnt=cnt+1; % Increment counter
+//                    cnt=cnt+1; % Increment counter
                     ensemble(cnt).lograt=x.lograt; % Log ratios
                     for mm=1:d0.Nblock
                         ensemble(cnt).I{mm}=x.I{mm}; % Intensity by block
