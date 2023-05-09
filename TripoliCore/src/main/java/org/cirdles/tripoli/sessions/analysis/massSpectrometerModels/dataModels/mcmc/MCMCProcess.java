@@ -55,12 +55,10 @@ public class MCMCProcess {
     private int ratioCount;
     private boolean hierarchical;
     private double tempering;
-    private int burnInThreshold;
     private double[] baselineMultiplier;
     private ProposedModelParameters.ProposalRangesRecord proposalRangesRecord;
     private ProposedModelParameters.ProposalSigmasRecord proposalSigmasRecord;
     private double[] dataArray;
-    private double[] dataWithNoBaselineArray;
     private double[] dataSignalNoiseArray;
     private double initialModelErrorWeighted_E;
     private double initialModelErrorUnWeighted_E0;
@@ -132,7 +130,7 @@ public class MCMCProcess {
         hierarchical = true;
         tempering = 1.0;
 
-        burnInThreshold = 10;
+//        int burnInThreshold = 10;
         startingIndexOfFaradayData = singleBlockDataSetRecord.getCountOfBaselineIntensities();
         startingIndexOfPhotoMultiplierData = startingIndexOfFaradayData + singleBlockDataSetRecord.getCountOfOnPeakFaradayIntensities();
 
@@ -197,7 +195,7 @@ public class MCMCProcess {
 
         // NOTE: these already populated in the initial model singleBlockInitialModelRecord_X0
         dataArray = singleBlockInitialModelRecord_X0.dataArray().clone();
-        dataWithNoBaselineArray = singleBlockInitialModelRecord_X0.dataWithNoBaselineArray().clone();
+        double[] dataWithNoBaselineArray = singleBlockInitialModelRecord_X0.dataWithNoBaselineArray().clone();
         dataSignalNoiseArray = singleBlockInitialModelRecord_X0.dataSignalNoiseArray();
 
         /*

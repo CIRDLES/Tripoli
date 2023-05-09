@@ -22,6 +22,7 @@ import jakarta.xml.bind.Unmarshaller;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver2;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
@@ -61,7 +62,7 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     private final Map<Integer, PlotBuilder[][]> mapOfBlockIdToPlots = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, String> mapOfBlockToLogs = Collections.synchronizedSortedMap(new TreeMap<>());
-    private Map<Integer, Integer> mapOfBlockIdToProcessStatus = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, Integer> mapOfBlockIdToProcessStatus = Collections.synchronizedSortedMap(new TreeMap<>());
 
     private String analysisName;
     private String analystName;
@@ -73,6 +74,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private String dataFilePathString;
     private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
+    private String mcmcVersion;
 
     private Analysis() {
     }
@@ -87,6 +89,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         dataFilePathString = MISSING_STRING_FIELD;
         massSpecExtractedData = new MassSpecExtractedData();
         mutable = true;
+        mcmcVersion = "";
     }
 
     public void extractMassSpecDataFromPath(Path dataFilePath)
@@ -139,14 +142,19 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public PlotBuilder[][] updatePlotsByBlock(int blockID, LoggingCallbackInterface loggingCallback) throws TripoliException {
         PlotBuilder[][] retVal;
-        if (mapOfBlockIdToProcessStatus.get(blockID) == RUN) {
+        if (RUN == mapOfBlockIdToProcessStatus.get(blockID)) {
             mapOfBlockIdToPlots.remove(blockID);
         }
         if (mapOfBlockIdToPlots.containsKey(blockID)) {
             retVal = mapOfBlockIdToPlots.get(blockID);
             loggingCallback.receiveLoggingSnippet("1000 >%");
         } else {
-            PlotBuilder[][] plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock(blockID, this, loggingCallback);
+            PlotBuilder[][] plotBuilders;
+            if (mcmcVersion.compareTo("MCMC1") == 0) {
+                plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock(blockID, this, loggingCallback);
+            } else {
+                plotBuilders = SingleBlockModelDriver2.buildAndRunModelForSingleBlock2(blockID, this, loggingCallback);
+            }
             mapOfBlockIdToPlots.put(blockID, plotBuilders);
             mapOfBlockIdToProcessStatus.put(blockID, SHOW);
             retVal = mapOfBlockIdToPlots.get(blockID);
@@ -157,7 +165,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     public void updateRatiosPlotBuilderDisplayStatus(int indexOfIsotopicRatio, boolean displayed) {
         for (Integer blockID : mapOfBlockIdToPlots.keySet()) {
             PlotBuilder[] plotBuilder = mapOfBlockIdToPlots.get(blockID)[PLOT_INDEX_RATIOS];
-            if (plotBuilder[indexOfIsotopicRatio] != null) {
+            if (null != plotBuilder[indexOfIsotopicRatio]) {
                 plotBuilder[indexOfIsotopicRatio].setDisplayed(displayed);
             }
         }
@@ -176,7 +184,7 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public final String prettyPrintAnalysisSummary() {
         return analysisName +
-                SPACES_100.substring(0, 30 - analysisName.length()) +
+                SPACES_100.substring(0, 40 - analysisName.length()) +
                 (null == analysisMethod ? "NO Method" : analysisMethod.prettyPrintMethodSummary(false));
     }
 
@@ -318,5 +326,13 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public Map<Integer, PlotBuilder[][]> getMapOfBlockIdToPlots() {
         return mapOfBlockIdToPlots;
+    }
+
+    public String getMcmcVersion() {
+        return mcmcVersion;
+    }
+
+    public void setMcmcVersion(String mcmcVersion) {
+        this.mcmcVersion = mcmcVersion;
     }
 }

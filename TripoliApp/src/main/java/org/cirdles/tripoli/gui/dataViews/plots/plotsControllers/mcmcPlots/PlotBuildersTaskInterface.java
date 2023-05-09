@@ -3,6 +3,8 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
 import org.cirdles.tripoli.plots.PlotBuilder;
 
 public interface PlotBuildersTaskInterface {
+    boolean healthyPlotbuilder();
+
     PlotBuilder[] getRatiosHistogramBuilder();
 
     PlotBuilder[] getBaselineHistogramBuilder();

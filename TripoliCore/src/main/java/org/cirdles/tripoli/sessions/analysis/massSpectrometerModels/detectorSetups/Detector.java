@@ -56,6 +56,7 @@ public class Detector implements Comparable, Serializable {
     public static Detector initializeDetector(DetectorTypeEnum detectorType, String detectorName, int ordinalIndex,
                                               AmplifierTypeEnum amplifierType, double amplifierResistanceInOhms,
                                               double amplifierGain, double amplifierEfficiency, double detectorDeadTime) {
+
         return new Detector(detectorType, detectorName, ordinalIndex, amplifierType, amplifierResistanceInOhms,
                 amplifierGain, amplifierEfficiency, detectorDeadTime);
     }

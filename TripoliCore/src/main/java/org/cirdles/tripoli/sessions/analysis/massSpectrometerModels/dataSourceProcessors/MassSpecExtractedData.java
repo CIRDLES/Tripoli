@@ -72,13 +72,21 @@ public class MassSpecExtractedData implements Serializable {
         detectorSetup = DetectorSetup.initializeDetectorSetup();
         for (int detectorIndex = 1; detectorIndex < detectorData.size(); detectorIndex++) {
             Detector detector = Detector.initializeDetector(
+                    //detectorType
                     Detector.DetectorTypeEnum.mapOfNamesToDetectorType.get(detectorData.get(detectorIndex)[1]),
+                    //detectorName
                     detectorData.get(detectorIndex)[0],
+                    //ordinalIndex
                     detectorIndex - 1,
+                    //amplifierType
                     Detector.AmplifierTypeEnum.mapOfDetectorTypetoAmplifierType.get(detectorData.get(detectorIndex)[1]),
+                    //amplifierResistanceInOhms
                     Double.parseDouble(detectorData.get(detectorIndex)[2]),
+                    //amplifierGain
                     Double.parseDouble(detectorData.get(detectorIndex)[3]),
+                    //amplifierEfficiency
                     Double.parseDouble(detectorData.get(detectorIndex)[4]),
+                    //detectorDeadTime
                     Double.parseDouble(detectorData.get(detectorIndex)[5]));
             detectorSetup.addDetector(detector);
         }
