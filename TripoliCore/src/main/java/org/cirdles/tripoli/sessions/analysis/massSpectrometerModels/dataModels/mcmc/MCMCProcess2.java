@@ -207,11 +207,11 @@ public class MCMCProcess2 {
         double alpha = 0.025; //Confidence interval we want to be accurate (0.05 = 95% CI)
         double epsilon = 0.025; // Relative confidence in mean compared to std dev estimator(?)
         ChiSquaredDistribution chiSquaredDistribution = new ChiSquaredDistribution(1.0 - alpha, sizeOfModel);
-        double effectSamp =
-                StrictMath.pow(2.0, (2.0 / sizeOfModel))
-                        * Math.PI
-                        / StrictMath.pow((sizeOfModel * gamma(sizeOfModel / 2.0)), (2.0 / sizeOfModel) * chiSquaredDistribution.inverseCumulativeProbability(1.0 - alpha) / StrictMath.pow(epsilon, 2));
-        double mchain = 1.0; // Number of Chains
+//        double effectSamp =
+//                StrictMath.pow(2.0, (2.0 / sizeOfModel))
+//                        * Math.PI
+//                        / StrictMath.pow((sizeOfModel * gamma(sizeOfModel / 2.0)), (2.0 / sizeOfModel) * chiSquaredDistribution.inverseCumulativeProbability(1.0 - alpha) / StrictMath.pow(epsilon, 2));
+//        double mchain = 1.0; // Number of Chains
 //        double ExitCrit = StrictMath.sqrt(1.0 + mchain / effectSamp); //Exit when G-R criterium less than this
 
 
