@@ -5,6 +5,8 @@ import org.cirdles.tripoli.plots.PlotBuilder;
 public interface PlotBuildersTaskInterface {
     boolean healthyPlotbuilder();
 
+    PlotBuilder[] getPeakShapesBuilder();
+
     PlotBuilder[] getRatiosHistogramBuilder();
 
     PlotBuilder[] getBaselineHistogramBuilder();
@@ -31,7 +33,7 @@ public interface PlotBuildersTaskInterface {
 
     PlotBuilder[] getConvergeNoiseFaradayLineBuilder();
 
-    public PlotBuilder[] getObservedDataWithSubsetsLineBuilder();
+    PlotBuilder[] getObservedDataWithSubsetsLineBuilder();
 
     String call() throws Exception;
 

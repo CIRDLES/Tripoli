@@ -51,6 +51,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     private PlotBuilder[] convergeNoiseFaradayLineBuilder;
 
     private PlotBuilder[] observedDataWithSubsetsLineBuilder;
+    private PlotBuilder[] peakShapesBuilder;
 
     public MCMCPlotBuildersTask(int blockID) {
         this.blockID = blockID;
@@ -58,6 +59,11 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
     public boolean healthyPlotbuilder() {
         return (ratiosHistogramBuilder != null);
+    }
+
+    @Override
+    public PlotBuilder[] getPeakShapesBuilder() {
+        return peakShapesBuilder.clone();
     }
 
     @Override
@@ -133,6 +139,8 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     public synchronized String call() throws Exception {
         PlotBuilder[][] plots = analysis.updatePlotsByBlock(blockID, this);
 
+
+        peakShapesBuilder = analysis.updatePeakPlotsByBlock(blockID);
         ratiosHistogramBuilder = plots[PLOT_INDEX_RATIOS];
         baselineHistogramBuilder = plots[1];
         dalyFaradayGainHistogramBuilder = plots[2];

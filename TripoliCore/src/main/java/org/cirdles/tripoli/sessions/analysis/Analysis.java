@@ -22,8 +22,8 @@ import jakarta.xml.bind.Unmarshaller;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.SingleBlockPeakDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver2;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.SingleBlockPeakDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
@@ -68,8 +68,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<Integer, PlotBuilder[]> mapOfBlockIdToPeakPlots = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, String> mapOfBlockToLogs = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, Integer> mapOfBlockIdToProcessStatus = Collections.synchronizedSortedMap(new TreeMap<>());
-    private Map<Integer, List<File>> blockPeakGroups;
-    private List<File> fileList;
+    private final Map<Integer, List<File>> blockPeakGroups = Collections.synchronizedSortedMap(new TreeMap<>());
 
     private String analysisName;
     private String analystName;
@@ -137,7 +136,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             }
 
             // collects the file objects from PeakCentres folder
-            fileList = new ArrayList<>();
+            List<File> fileList = new ArrayList<>();
             if (getPeakCentresFolder.exists() && getPeakCentresFolder.isDirectory()) {
                 File[] peakCentreFiles = getPeakCentresFolder.listFiles();
                 Pattern p = Pattern.compile("^(.*?)\\.TXT$");
@@ -158,7 +157,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             // groups isotopic files that are in the same block
             if (!fileList.isEmpty()) {
                 File[] files = fileList.toArray(new File[0]);
-                blockPeakGroups = Collections.synchronizedSortedMap(new TreeMap<>());
+
                 Pattern p = Pattern.compile("-S(.*?)C1");
 
                 for (File file : files) {
@@ -218,7 +217,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         return retVal;
     }
 
-    // Updates Peak Centre plots
+    @Override
     public PlotBuilder[] updatePeakPlotsByBlock(int blockID) throws TripoliException {
         PlotBuilder[] retVal;
         if (mapOfBlockIdToProcessStatus.get(blockID) == RUN) {
@@ -231,6 +230,9 @@ public class Analysis implements Serializable, AnalysisInterface {
 
         return retVal;
     }
+
+    // Updates Peak Centre plots
+
 
     public void updateRatiosPlotBuilderDisplayStatus(int indexOfIsotopicRatio, boolean displayed) {
         for (Integer blockID : mapOfBlockIdToPlots.keySet()) {
