@@ -4,6 +4,7 @@ import org.cirdles.tripoli.plots.PlotBuilder;
 
 public interface PlotBuildersTaskInterface {
     boolean healthyPlotbuilder();
+
     PlotBuilder[] getRatiosHistogramBuilder();
 
     PlotBuilder[] getBaselineHistogramBuilder();

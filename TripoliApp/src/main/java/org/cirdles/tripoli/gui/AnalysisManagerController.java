@@ -103,10 +103,19 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public void initialize(URL location, ResourceBundle resources) {
         MCMCPlotsController.analysis = analysis;
         analysisManagerGridPane.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_YELLOW));
-        switch (((Analysis)analysis).getMcmcVersion()){
-            case "" -> {mcmc1Button.setDisable(false); mcmc2Button.setDisable(false); }
-            case "MCMC1" -> {mcmc1Button.setDisable(false); mcmc2Button.setDisable(true); }
-            case "MCMC2" -> {mcmc1Button.setDisable(true); mcmc2Button.setDisable(false); }
+        switch (((Analysis) analysis).getMcmcVersion()) {
+            case "" -> {
+                mcmc1Button.setDisable(false);
+                mcmc2Button.setDisable(false);
+            }
+            case "MCMC1" -> {
+                mcmc1Button.setDisable(false);
+                mcmc2Button.setDisable(true);
+            }
+            case "MCMC2" -> {
+                mcmc1Button.setDisable(true);
+                mcmc2Button.setDisable(false);
+            }
         }
         setupListeners();
         populateAnalysisManagerGridPane();
@@ -415,9 +424,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     public void initializeMonteCarloTechniqueAction(ActionEvent event) {
-        String mcmcVersion = ((Button)event.getSource()).getId();
-        ((Analysis)analysis).setMcmcVersion(mcmcVersion);
-        if (mcmcVersion.compareTo("MCMC1") == 0){
+        String mcmcVersion = ((Button) event.getSource()).getId();
+        ((Analysis) analysis).setMcmcVersion(mcmcVersion);
+        if (mcmcVersion.compareTo("MCMC1") == 0) {
             mcmc2Button.setDisable(true);
         } else {
             mcmc1Button.setDisable(true);

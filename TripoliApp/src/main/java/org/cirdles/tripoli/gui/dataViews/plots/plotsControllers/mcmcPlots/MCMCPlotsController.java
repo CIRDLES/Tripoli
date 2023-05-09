@@ -5,7 +5,6 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
@@ -100,7 +99,7 @@ public class MCMCPlotsController {
 
     @FXML
     void initialize() {
-        eventLogTextArea.setText("Using technique: " + ((Analysis)analysis).getMcmcVersion());
+        eventLogTextArea.setText("Using technique: " + ((Analysis) analysis).getMcmcVersion());
         masterVBox.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT);
         toolbar.setPrefSize(PLOT_WINDOW_WIDTH, 30.0);
 
@@ -174,7 +173,7 @@ public class MCMCPlotsController {
                 activeServices.remove(finalBlockIndex);
                 Task<String> plotBuildersTask = ((MCMCUpdatesService) services[finalBlockIndex]).getPlotBuilderTask();
                 if (null != plotBuildersTask) {
-                    if (((MCMCPlotBuildersTask)plotBuildersTask).healthyPlotbuilder()) {
+                    if (((MCMCPlotBuildersTask) plotBuildersTask).healthyPlotbuilder()) {
                         plotBlockEngine(plotBuildersTask);
                         showLogsEngine(finalBlockIndex);
                     }
@@ -398,7 +397,7 @@ public class MCMCPlotsController {
     public void viewSelectedBlock(int blockIndex) {
         Task<String> mcmcPlotBuildersTask = ((MCMCUpdatesService) services[blockIndex]).getPlotBuilderTask();
         if ((null != mcmcPlotBuildersTask) && mcmcPlotBuildersTask.isDone()) {
-            if (((MCMCPlotBuildersTask)mcmcPlotBuildersTask).healthyPlotbuilder()) {
+            if (((MCMCPlotBuildersTask) mcmcPlotBuildersTask).healthyPlotbuilder()) {
                 plotBlockEngine(mcmcPlotBuildersTask);
                 showLogsEngine(blockIndex);
             }

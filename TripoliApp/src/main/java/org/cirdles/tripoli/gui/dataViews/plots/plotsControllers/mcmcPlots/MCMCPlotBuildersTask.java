@@ -56,7 +56,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         this.blockID = blockID;
     }
 
-    public boolean healthyPlotbuilder(){
+    public boolean healthyPlotbuilder() {
         return (ratiosHistogramBuilder != null);
     }
 

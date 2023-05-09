@@ -8,7 +8,6 @@ import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -113,7 +112,8 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
                     do {
                         if ((0 == timeIndex % plottingStep) && pointInPlot(xAxisData[timeIndex], yAxisData[timeIndex])) {
                             try {
-                                g2d.fillOval(mapX(xAxisData[timeIndex]) - 2.0f, mapY(yAxisData[timeIndex]) - 2.0f, 4.0f, 4.0f);} catch (Exception e) {
+                                g2d.fillOval(mapX(xAxisData[timeIndex]) - 2.0f, mapY(yAxisData[timeIndex]) - 2.0f, 4.0f, 4.0f);
+                            } catch (Exception e) {
                                 System.err.println("Bad time at timeindex = " + timeIndex);
                             }
                         }

@@ -150,7 +150,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             loggingCallback.receiveLoggingSnippet("1000 >%");
         } else {
             PlotBuilder[][] plotBuilders;
-            if (mcmcVersion.compareTo("MCMC1")==0) {
+            if (mcmcVersion.compareTo("MCMC1") == 0) {
                 plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock(blockID, this, loggingCallback);
             } else {
                 plotBuilders = SingleBlockModelDriver2.buildAndRunModelForSingleBlock2(blockID, this, loggingCallback);

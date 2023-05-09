@@ -641,11 +641,11 @@ public class MCMCProcess2 {
                     int modelsTotalLocal = 0;
                     int modelsKept = 0;
                     int modelsTotal = 0;
-                    for (int row = 0; row < 4; row ++){
-                        modelsKeptLocal+= keptUpdates[row][0];
-                        modelsTotalLocal+= keptUpdates[row][1];
-                        modelsKept+= keptUpdates[row][2];
-                        modelsTotal+= keptUpdates[row][3];
+                    for (int row = 0; row < 4; row++) {
+                        modelsKeptLocal += keptUpdates[row][0];
+                        modelsTotalLocal += keptUpdates[row][1];
+                        modelsKept += keptUpdates[row][2];
+                        modelsTotal += keptUpdates[row][3];
                     }
 
                     loggingSnippet =
