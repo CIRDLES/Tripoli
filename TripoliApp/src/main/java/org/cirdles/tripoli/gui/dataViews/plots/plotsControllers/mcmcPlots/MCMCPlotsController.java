@@ -396,11 +396,11 @@ public class MCMCPlotsController {
 
     public void viewSelectedBlock(int blockIndex) {
         Task<String> mcmcPlotBuildersTask = ((MCMCUpdatesService) services[blockIndex]).getPlotBuilderTask();
-        if ((null != mcmcPlotBuildersTask) && mcmcPlotBuildersTask.isDone()) {
-            if (((MCMCPlotBuildersTask) mcmcPlotBuildersTask).healthyPlotbuilder()) {
-                plotBlockEngine(mcmcPlotBuildersTask);
-                showLogsEngine(blockIndex);
-            }
+        if ((null != mcmcPlotBuildersTask)
+                && mcmcPlotBuildersTask.isDone()
+                && ((MCMCPlotBuildersTask) mcmcPlotBuildersTask).healthyPlotbuilder()) {
+            plotBlockEngine(mcmcPlotBuildersTask);
+            showLogsEngine(blockIndex);
         }
     }
 

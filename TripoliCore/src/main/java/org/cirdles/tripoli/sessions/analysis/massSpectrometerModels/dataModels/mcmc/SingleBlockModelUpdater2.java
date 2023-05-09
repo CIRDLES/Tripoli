@@ -244,7 +244,6 @@ public class SingleBlockModelUpdater2 {
                 for (int row = 0; row < xx.length; row++) {
                     xx[row] = xx0[row] + delx_adapt[row];
 
-                    int doNothing;
                     switch (xInd[row]) {
                         case 1 -> {
                             if ((xx[row] > proposalRangesRecord.priorLogRatio()[0][1]) || (xx[row] < proposalRangesRecord.priorLogRatio()[0][0])) {
@@ -270,7 +269,8 @@ public class SingleBlockModelUpdater2 {
                             }
                             updatedFaradayGain = xx[row];
                         }
-                        default -> doNothing = 0;
+                        default -> {
+                        }
                     }
                 }
 

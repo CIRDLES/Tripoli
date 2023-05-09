@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.PhoenixMassSpec.extractMetaAndBlockDataFromFileVersion_1_0;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.PhoenixMassSpec.extractMetaAndBlockDataFromFileVersion_1_2;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DataSourceProcessorOPPhoenixTest {
@@ -48,10 +47,8 @@ class DataSourceProcessorOPPhoenixTest {
         System.err.println("Testing Synthetic Data 2 isotopes.");
         Path dataFile = RESOURCE_EXTRACTOR
                 .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_05.txt").toPath();
-        MassSpecExtractedData massSpecExtractedData =   extractMetaAndBlockDataFromFileVersion_1_0(dataFile);
+        MassSpecExtractedData massSpecExtractedData = extractMetaAndBlockDataFromFileVersion_1_0(dataFile);
         massSpecExtractedData.setMassSpectrometerContext(MassSpectrometerContextEnum.PHOENIX_SYNTHETIC);
-
-
 
 
 //        DataSourceProcessor_PhoenixSyntheticTextFile dataSourceProcessorOPPhoenix

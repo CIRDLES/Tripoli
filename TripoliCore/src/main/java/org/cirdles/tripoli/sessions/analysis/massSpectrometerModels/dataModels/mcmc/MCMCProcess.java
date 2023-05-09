@@ -130,7 +130,7 @@ public class MCMCProcess {
         hierarchical = true;
         tempering = 1.0;
 
-        int burnInThreshold = 10;
+//        int burnInThreshold = 10;
         startingIndexOfFaradayData = singleBlockDataSetRecord.getCountOfBaselineIntensities();
         startingIndexOfPhotoMultiplierData = startingIndexOfFaradayData + singleBlockDataSetRecord.getCountOfOnPeakFaradayIntensities();
 

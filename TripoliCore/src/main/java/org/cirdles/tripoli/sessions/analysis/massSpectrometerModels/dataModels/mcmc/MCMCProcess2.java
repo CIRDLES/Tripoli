@@ -212,7 +212,7 @@ public class MCMCProcess2 {
                         * Math.PI
                         / StrictMath.pow((sizeOfModel * gamma(sizeOfModel / 2.0)), (2.0 / sizeOfModel) * chiSquaredDistribution.inverseCumulativeProbability(1.0 - alpha) / StrictMath.pow(epsilon, 2));
         double mchain = 1.0; // Number of Chains
-        double ExitCrit = StrictMath.sqrt(1.0 + mchain / effectSamp); //Exit when G-R criterium less than this
+//        double ExitCrit = StrictMath.sqrt(1.0 + mchain / effectSamp); //Exit when G-R criterium less than this
 
 
         xDataMean = new double[sizeOfModel];
@@ -318,7 +318,7 @@ public class MCMCProcess2 {
         DecimalFormat statsFormat = new DecimalFormat("#0.000000");
         StopWatch watch = new StopWatch();
         watch.start();
-        int counter = 0;
+//        int counter = 0;
 //        int counter2 = 0;
         SingleBlockModelUpdater2 singleBlockModelUpdater2 = new SingleBlockModelUpdater2();
         singleBlockModelUpdater2.buildPriorLimits(singleBlockInitialModelRecord_initial, proposalSigmasRecord, proposalRangesRecord);
@@ -613,7 +613,7 @@ public class MCMCProcess2 {
                         delx_adapt = mvnrnd(zeros(Nmod,1),2.38^2*xcov/Nmod,datsav)';
                     end
                  */
-                counter++;
+//                counter++;
                 ensembleRecordsList.add(new EnsemblesStore.EnsembleRecord(
                         singleBlockInitialModelRecord_initial.logRatios(),
                         singleBlockInitialModelRecord_initial.I0(),
