@@ -20,7 +20,8 @@ import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.BeamShapeLinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.GBeamLinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.BeamDataOutputDriverExperiment;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.BeamShapeTestDriver;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.PeakShapeProcess;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
 import java.io.File;
@@ -260,9 +261,9 @@ public class PeakShapeDemoPlotsController {
             resourceBrowserTarget = resourceGroups.get(groupValue).get(k);
             if (null != resourceBrowserTarget && resourceBrowserTarget.isFile()) {
                 try {
-                    PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
+                    PlotBuilder[] plots = BeamShapeTestDriver.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
                     xAxis[k] = k + 1;
-                    yAxis[k] = BeamDataOutputDriverExperiment.getMeasBeamWidthAMU();
+                    yAxis[k] = BeamShapeTestDriver.getMeasBeamWidthAMU();
                     AbstractPlot gBeamLinePlot = GBeamLinePlot.generatePlot(
                             new Rectangle(beamPlotsGridPane.getCellBounds(0, 0).getWidth(),
                                     beamPlotsGridPane.getCellBounds(0, 0).getHeight()),
@@ -473,7 +474,7 @@ public class PeakShapeDemoPlotsController {
             PeakShapesService service = new PeakShapesService(resourceBrowserTarget.toPath());
             eventLogTextArea.textProperty().bind(service.valueProperty());
             try {
-                PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
+                PlotBuilder[] plots = BeamShapeTestDriver.modelTest(resourceBrowserTarget.toPath(), this::processFilesAndShowPeakCentre);
 
                 AbstractPlot gBeamLinePlot = GBeamLinePlot.generatePlot(
                         new Rectangle(gBeamPlotGridPane.getCellBounds(0, 0).getWidth(),

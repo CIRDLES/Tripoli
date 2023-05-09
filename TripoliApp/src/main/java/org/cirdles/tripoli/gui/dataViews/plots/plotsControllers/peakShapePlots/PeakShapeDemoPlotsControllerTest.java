@@ -17,7 +17,8 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.*;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.*;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.BeamDataOutputDriverExperiment;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.BeamShapeTestDriver;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.PeakShapeProcess;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.PeakShapeOutputDataRecord;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
@@ -232,9 +233,9 @@ public class PeakShapeDemoPlotsControllerTest {
             resourceBrowserTarget = resourceGroups.get(groupValue).get(k);
             if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
                 try {
-                    PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::populateListOfResources);
+                    PlotBuilder[] plots = BeamShapeTestDriver.modelTest(resourceBrowserTarget.toPath(), this::populateListOfResources);
                     xAxis[k] = k + 1;
-                    yAxis[k] = BeamDataOutputDriverExperiment.getMeasBeamWidthAMU();
+                    yAxis[k] = BeamShapeTestDriver.getMeasBeamWidthAMU();
                     AbstractPlot gBeamLinePlot = GBeamLinePlot.generatePlot(
                             new Rectangle(minPlotWidth,
                                     minPlotHeight),
@@ -452,7 +453,7 @@ public class PeakShapeDemoPlotsControllerTest {
             final PeakShapesService service = new PeakShapesService(resourceBrowserTarget.toPath());
             eventLogTextArea.textProperty().bind(service.valueProperty());
             try {
-                PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::populateListOfResources);
+                PlotBuilder[] plots = BeamShapeTestDriver.modelTest(resourceBrowserTarget.toPath(), this::populateListOfResources);
                 PeakShapeOutputDataRecord peakShapeOutputDataRecord = BeamShapeLinePlotBuilderX.getPeakData(resourceBrowserTarget.toPath());
                 //BeamShapeLinePlotBuilderX beamShape = BeamShapeLinePlotBuilderX.initializeBeamShape(peakShapeOutputDataRecord, new String[]{peakShapeOutputDataRecord.massID()}, "Mass (amu)", "Beam Intensity");
                 PeakShapesOverlayBuilder peakShapes = PeakShapesOverlayBuilder.initializePeakShapes(peakShapeOutputDataRecord,

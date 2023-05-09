@@ -20,33 +20,37 @@ import java.nio.file.Path;
 
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory.massSpectrometerModelBuiltinMap;
 
-public enum BeamDataOutputDriverExperiment {
-    ;
+public class PeakShapeProcess {
 
 
     private static double measBeamWidthAMU;
+    private final Path dataFile;
+    private PeakShapeOutputDataRecord peakShapeOutputDataRecord;
 
-
-    public static PlotBuilder[] modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException {
-        PeakShapeProcessor_PhoenixTextFile peakShapeProcessor_PhoenixTextFile
-                = PeakShapeProcessor_PhoenixTextFile.initializeWithMassSpectrometer(massSpectrometerModelBuiltinMap.get(MassSpectrometerContextEnum.PHOENIX.getMassSpectrometerName()));
-        PeakShapeOutputDataRecord peakShapeOutputDataRecord = peakShapeProcessor_PhoenixTextFile.prepareInputDataModelFromFile(dataFile);
-        PlotBuilder[] peakShapeLinePlotBuilder = new LinePlotBuilder[0];
-
-
-        try {
-            peakShapeLinePlotBuilder = gatherBeamWidth(peakShapeOutputDataRecord, loggingCallback);
-        } catch (RecoverableCondition e) {
-            e.printStackTrace();
-        }
-
-
-        return peakShapeLinePlotBuilder;
+    private PeakShapeProcess(Path dataFile) {
+        this.dataFile = dataFile;
+        this.peakShapeOutputDataRecord = null;
     }
 
-    public static PlotBuilder[] gatherBeamWidth(PeakShapeOutputDataRecord peakShapeOutputDataRecord, LoggingCallbackInterface loggingCallback) throws RecoverableCondition {
+
+    public static synchronized PeakShapeProcess createPeakShapeProcess(Path dataFile) {
+        return new PeakShapeProcess(dataFile);
+    }
+
+    public static double getMeasBeamWidthAMU() {
+        return measBeamWidthAMU;
+    }
+
+    public void initializePeakShapeProcess() throws IOException {
+        PeakShapeProcessor_PhoenixTextFile peakShapeProcessor_PhoenixTextFile
+                = PeakShapeProcessor_PhoenixTextFile.initializeWithMassSpectrometer(massSpectrometerModelBuiltinMap.get(MassSpectrometerContextEnum.PHOENIX.getMassSpectrometerName()));
+        peakShapeOutputDataRecord = peakShapeProcessor_PhoenixTextFile.prepareInputDataModelFromFile(dataFile);
+    }
+
+    public synchronized PlotBuilder[] beamShapeCollectorWidth(LoggingCallbackInterface loggingCallback) throws RecoverableCondition {
 
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
+
         double maxBeamIndex;
         double thresholdIntensity;
 
@@ -243,9 +247,5 @@ public enum BeamDataOutputDriverExperiment {
 
 
         return linePlots;
-    }
-
-    public static double getMeasBeamWidthAMU() {
-        return measBeamWidthAMU;
     }
 }
