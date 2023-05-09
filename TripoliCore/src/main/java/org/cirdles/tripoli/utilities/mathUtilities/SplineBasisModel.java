@@ -83,6 +83,7 @@ public class SplineBasisModel {
         xLower = xl > x.get(0, 0) ? x.get(0, 0) : xl;
         xUpper = xr < x.get(x.getRowDim() - 1, x.getColDim() - 1) ? x.get(x.getRowDim() - 1, x.getColDim() - 1) : xr;
 
+        // TODO: confirm that transpose should be used here instead of just x.
         MatrixStore<Double> transposeX = x.transpose();
 
         double dx = (xUpper - xLower) / numSegments;
@@ -104,6 +105,7 @@ public class SplineBasisModel {
 
         Primitive64Store testTerm1 = MatLab.expMatrix(matrixX.subtract(matrixT), basisDegree);
         Primitive64Store testTerm2 = MatLab.greaterOrEqual(matrixX, matrixT);
+
         MatrixStore<Double> matrixP = MatLab.arrayMultiply(testTerm1, testTerm2);
 
 
