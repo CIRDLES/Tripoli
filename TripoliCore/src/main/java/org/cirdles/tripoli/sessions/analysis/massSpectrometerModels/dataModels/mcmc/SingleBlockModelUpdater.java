@@ -143,7 +143,7 @@ public class SingleBlockModelUpdater {
         }
 
         for (int cycleIndex = 0; cycleIndex < countOfCycles; cycleIndex++) {
-            ps0DiagArray[cycleIndex + countOfLogRatios] = proposalSigmasRecord.psigIntensityPercent();
+            ps0DiagArray[cycleIndex + countOfLogRatios] = proposalSigmasRecord.psigIntensity();
             priorMinArray[cycleIndex + countOfLogRatios] = proposalRangesRecord.priorIntensity()[0][0];
             priorMaxArray[cycleIndex + countOfLogRatios] = proposalRangesRecord.priorIntensity()[0][1];
         }

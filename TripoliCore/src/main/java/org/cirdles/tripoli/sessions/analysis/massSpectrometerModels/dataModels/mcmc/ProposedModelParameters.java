@@ -49,7 +49,7 @@ public enum ProposedModelParameters {
         }
 
         double[][] priorIntensity = {{0.0, 1.5 * maxIntensity}};
-        double[][] priorDFgain = {{0.5, 1.2}};
+        double[][] priorDFgain = {{0.8, 1.0}};
         double[][] priorSignalNoiseFaraday = {{0.0, 1.0e6}};
         double[][] priorSignalNoiseDaly = {{0.0, 0.0}};
         double[][] priorPoissonNoiseDaly = {{0.0, 10.0}};
@@ -90,12 +90,12 @@ public enum ProposedModelParameters {
         }
         double psigBaselineFaraday = maxValue / 10.0;
         double psigBaselineDaly = 1.0e-1;
-        double psigLogRatio = 0.0005 * 0.2;
+        double psigLogRatio = 0.02;//0.0005 * 0.2;
         double psigIntensity = (proposalRangesRecord.maxIntensity() - proposalRangesRecord.minIntensity()) / 100.0;
         double psigDFgain = 0.001;
         double psigSignalNoiseFaraday = maxValue;
         double psigSignalNoisePoisson = 0.5;
-        double psigSignalNoiseDaly = 0;
+        double psigSignalNoiseDaly = 0.0;
 
         return new ProposalSigmasRecord(
                 psigBaselineFaraday,
@@ -114,7 +114,7 @@ public enum ProposedModelParameters {
             double psigBaselineFaraday,
             double psigBaselineDaly,
             double psigLogRatio,
-            double psigIntensityPercent,
+            double psigIntensity,
             double psigDFgain,
             double psigSignalNoiseFaraday,
             double psigSignalNoisePoisson,
