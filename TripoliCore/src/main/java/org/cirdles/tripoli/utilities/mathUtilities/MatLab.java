@@ -465,18 +465,18 @@ public enum MatLab {
     /**
      * Divides param div by the elements in param A
      *
-     * @param A   Matrix A
-     * @param div dividend div
-     * @return div/A
+     * @param A  dividend
+     * @param B  Matrix B
+     * @return div./B
      */
 
-    public static Primitive64Store rDivide(MatrixStore<Double> A, double div) {
-        int row = A.getRowDim();
-        int col = A.getColDim();
+    public static Primitive64Store rDivide(double A, MatrixStore<Double> B) {
+        int row = B.getRowDim();
+        int col = B.getColDim();
         double[][] divMat = new double[row][col];
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
-                divMat[i][j] = div / A.get(i, j);
+                divMat[i][j] = A / B.get(i, j);
             }
         }
 

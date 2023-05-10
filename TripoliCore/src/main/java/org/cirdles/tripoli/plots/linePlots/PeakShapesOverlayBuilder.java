@@ -1,12 +1,9 @@
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes;
+package org.cirdles.tripoli.plots.linePlots;
 
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.plots.PlotBuilder;
-import org.cirdles.tripoli.plots.linePlots.BeamShapeLinePlotBuilder;
-import org.cirdles.tripoli.plots.linePlots.GBeamLinePlotBuilder;
-import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.PeakShapeOutputDataRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.PeakShapeProcessor_PhoenixTextFile;
-import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLab;
 import org.cirdles.tripoli.utilities.mathUtilities.SplineBasisModel;
 import org.ojalgo.RecoverableCondition;
@@ -20,35 +17,46 @@ import java.nio.file.Path;
 
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory.massSpectrometerModelBuiltinMap;
 
-public enum BeamDataOutputDriverExperiment {
-    ;
-
+public class PeakShapesOverlayBuilder extends PlotBuilder {
 
     private static double measBeamWidthAMU;
+    private PeakShapesOverlayRecord peakShapesOverlayRecord;
 
+    public PeakShapesOverlayBuilder() {
+    }
 
-    public static PlotBuilder[] modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException {
-        PeakShapeProcessor_PhoenixTextFile peakShapeProcessor_PhoenixTextFile
-                = PeakShapeProcessor_PhoenixTextFile.initializeWithMassSpectrometer(massSpectrometerModelBuiltinMap.get(MassSpectrometerContextEnum.PHOENIX.getMassSpectrometerName()));
-        PeakShapeOutputDataRecord peakShapeOutputDataRecord = peakShapeProcessor_PhoenixTextFile.prepareInputDataModelFromFile(dataFile);
-        PlotBuilder[] peakShapeLinePlotBuilder = new LinePlotBuilder[0];
-
+    public PeakShapesOverlayBuilder(PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) {
+        super(title, xAxisLabel, yAxisLabel, true);
 
         try {
-            peakShapeLinePlotBuilder = gatherBeamWidth(peakShapeOutputDataRecord, loggingCallback);
+            peakShapesOverlayRecord = generatePeakShapes(peakShapeOutputDataRecord);
         } catch (RecoverableCondition e) {
             e.printStackTrace();
         }
-
-
-        return peakShapeLinePlotBuilder;
     }
 
-    public static PlotBuilder[] gatherBeamWidth(PeakShapeOutputDataRecord peakShapeOutputDataRecord, LoggingCallbackInterface loggingCallback) throws RecoverableCondition {
 
+    public static PeakShapesOverlayBuilder initializePeakShapes(PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) {
+        return new PeakShapesOverlayBuilder(peakShapeOutputDataRecord, title, xAxisLabel, yAxisLabel);
+    }
+
+    public static PeakShapeOutputDataRecord getPeakData(Path dataFile) throws IOException {
+        PeakShapeProcessor_PhoenixTextFile peakShapeProcessor_PhoenixTextFile
+                = PeakShapeProcessor_PhoenixTextFile.initializeWithMassSpectrometer(massSpectrometerModelBuiltinMap.get(MassSpectrometerContextEnum.PHOENIX.getMassSpectrometerName()));
+
+        return peakShapeProcessor_PhoenixTextFile.prepareInputDataModelFromFile(dataFile);
+    }
+
+    public static double getMeasBeamWidthAMU() {
+        return measBeamWidthAMU;
+    }
+
+    public PeakShapesOverlayRecord generatePeakShapes(PeakShapeOutputDataRecord peakShapeOutputDataRecord) throws RecoverableCondition {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         double maxBeamIndex;
         double thresholdIntensity;
+        int leftBoundary;
+        int rightBoundary;
 
         // Spline basis Basis
         int basisDegree = 3;
@@ -152,6 +160,7 @@ public enum BeamDataOutputDriverExperiment {
 
         // Determine peak width
         MatrixStore<Double> beamShape = Basis.multiply(beamWNNLS);
+        MatrixStore<Double> gBeam = trimGMatrix.multiply(beamShape);
         double MaxBeam = MatLab.normInf(beamShape);
         maxBeamIndex = 0;
         int index = 0;
@@ -166,19 +175,20 @@ public enum BeamDataOutputDriverExperiment {
         }
 
         thresholdIntensity = MaxBeam * (0.01);
-        PlotBuilder[] linePlots = new LinePlotBuilder[2];
         if (maxBeamIndex <= 0 || maxBeamIndex >= 999) {
-            System.out.println("Error generating plot in block");
-            PlotBuilder beamShapeLinePlotBuilder
-                    = BeamShapeLinePlotBuilder.initializeBeamShapeLinePlot(beamMassInterp.toRawCopy2D()[0], beamShape.transpose().toRawCopy2D()[0], 0, 0);
 
-            PlotBuilder gBeamLinePlotBuilder
-                    = GBeamLinePlotBuilder.initializeGBeamLinePlot(magnetMasses.transpose().toRawCopy2D()[0], new double[magnetMasses.transpose().toRawCopy2D()[0].length], intensityData);
-
-            linePlots[0] = beamShapeLinePlotBuilder;
-            linePlots[1] = gBeamLinePlotBuilder;
-
-            measBeamWidthAMU = 0;
+            return new PeakShapesOverlayRecord(
+                    beamMassInterp.toRawCopy2D()[0],
+                    magnetMasses.transpose().toRawCopy2D()[0],
+                    beamShape.transpose().toRawCopy2D()[0],
+                    gBeam.transpose().toRawCopy2D()[0],
+                    intensityData,
+                    0,
+                    0,
+                    title,
+                    xAxisLabel,
+                    yAxisLabel
+            );
         } else {
             double[][] leftPeak = new double[(int) maxBeamIndex][1];
             for (int i = 0; i < maxBeamIndex; i++) {
@@ -200,7 +210,7 @@ public enum BeamDataOutputDriverExperiment {
             Primitive64Store leftT2 = storeFactory.rows(thresholdLeft2);
 
             MatrixStore<Double> leftThresholdChange = leftT1.subtract(leftT2);
-            int leftBoundary = (int) (MatLab.find(leftThresholdChange, 1, "last").get(0, 0) + 1);
+            leftBoundary = (int) (MatLab.find(leftThresholdChange, 1, "last").get(0, 0) + 1);
 
 
             double[][] rightPeak = new double[beamShape.getRowDim() - (int) maxBeamIndex][1];
@@ -223,29 +233,26 @@ public enum BeamDataOutputDriverExperiment {
             Primitive64Store rightT1 = storeFactory.rows(thresholdRight1);
             Primitive64Store rightT2 = storeFactory.rows(thresholdRight2);
             MatrixStore<Double> rightThresholdChange = rightT2.subtract(rightT1);
-            int rightBoundary = (int) (MatLab.find(rightThresholdChange, 1, "first").get(0, 0) + maxBeamIndex);
-
-            MatrixStore<Double> gBeam = trimGMatrix.multiply(beamShape);
+            rightBoundary = (int) (MatLab.find(rightThresholdChange, 1, "first").get(0, 0) + maxBeamIndex);
 
             measBeamWidthAMU = beamMassInterp.get(rightBoundary) - beamMassInterp.get(leftBoundary);
-
-
-            // "beamShape"
-            PlotBuilder beamShapeLinePlotBuilder
-                    = BeamShapeLinePlotBuilder.initializeBeamShapeLinePlot(beamMassInterp.toRawCopy2D()[0], beamShape.transpose().toRawCopy2D()[0], leftBoundary, rightBoundary);
-
-            PlotBuilder gBeamLinePlotBuilder
-                    = GBeamLinePlotBuilder.initializeGBeamLinePlot(magnetMasses.transpose().toRawCopy2D()[0], gBeam.transpose().toRawCopy2D()[0], intensityData);
-
-            linePlots[0] = beamShapeLinePlotBuilder;
-            linePlots[1] = gBeamLinePlotBuilder;
         }
 
-
-        return linePlots;
+        return new PeakShapesOverlayRecord(
+                beamMassInterp.toRawCopy2D()[0],
+                magnetMasses.transpose().toRawCopy2D()[0],
+                beamShape.transpose().toRawCopy2D()[0],
+                gBeam.transpose().toRawCopy2D()[0],
+                intensityData,
+                leftBoundary,
+                rightBoundary,
+                title,
+                xAxisLabel,
+                yAxisLabel
+        );
     }
 
-    public static double getMeasBeamWidthAMU() {
-        return measBeamWidthAMU;
+    public PeakShapesOverlayRecord getPeakShapesOverlayRecord() {
+        return peakShapesOverlayRecord;
     }
 }

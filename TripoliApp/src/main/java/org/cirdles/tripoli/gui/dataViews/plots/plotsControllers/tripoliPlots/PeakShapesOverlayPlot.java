@@ -15,21 +15,23 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.plots.linePlots.BeamShapeRecord;
+import org.cirdles.tripoli.plots.linePlots.PeakShapesOverlayRecord;
 
-public class BeamShapeLinePlotX extends AbstractPlot {
+public class PeakShapesOverlayPlot extends AbstractPlot {
+
     private final Tooltip tooltip;
-    protected BeamShapeRecord beamShapeRecord;
+    protected PeakShapesOverlayRecord peakShapesOverlayRecord;
+
+    private  double[] gBeamXData;
+    private double[] yIntensity;
+    private double[] gBeamYData;
+
     private int leftBoundary;
     private int rightBoundary;
 
-    /**
-     * @param bounds
-     * @param beamShapeRecord
-     */
-    private BeamShapeLinePlotX(Rectangle bounds, BeamShapeRecord beamShapeRecord) {
-        super(bounds, 50, 35, beamShapeRecord.title(), beamShapeRecord.xAxisLabel(), beamShapeRecord.yAxisLabel());
-        this.beamShapeRecord = beamShapeRecord;
+    private PeakShapesOverlayPlot(Rectangle bounds, PeakShapesOverlayRecord peakShapesOverlayRecord) {
+        super(bounds, 50, 35, peakShapesOverlayRecord.title(), peakShapesOverlayRecord.xAxisLabel(), peakShapesOverlayRecord.yAxisLabel());
+        this.peakShapesOverlayRecord = peakShapesOverlayRecord;
 
 
         setupPlotContextMenu();
@@ -39,20 +41,24 @@ public class BeamShapeLinePlotX extends AbstractPlot {
         this.setOnMouseClicked(new MouseClickEventHandler());
     }
 
-    public static AbstractPlot generatePlot(Rectangle bounds, BeamShapeRecord beamShapeRecord) {
-        return new BeamShapeLinePlotX(bounds, beamShapeRecord);
+    public static AbstractPlot generatePlot(Rectangle bounds, PeakShapesOverlayRecord peakShapesOverlayRecord) {
+        return new PeakShapesOverlayPlot(bounds, peakShapesOverlayRecord);
     }
 
     @Override
     public void preparePanel() {
-        xAxisData = beamShapeRecord.xData();
+        xAxisData = peakShapesOverlayRecord.beamXData();
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
 
-        leftBoundary = beamShapeRecord.leftBoundary();
-        rightBoundary = beamShapeRecord.rightBoundary();
+        leftBoundary = peakShapesOverlayRecord.leftBoundary();
+        rightBoundary = peakShapesOverlayRecord.rightBoundary();
 
-        yAxisData = beamShapeRecord.yData();
+        yIntensity = peakShapesOverlayRecord.intensityData();
+        gBeamYData = peakShapesOverlayRecord.gBeamYData();
+        gBeamXData = peakShapesOverlayRecord.gBeamXData();
+
+        yAxisData = peakShapesOverlayRecord.beamYData();
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 
@@ -69,24 +75,6 @@ public class BeamShapeLinePlotX extends AbstractPlot {
         prepareExtents();
         calculateTics();
         repaint();
-    }
-
-    @Override
-    public void paint(GraphicsContext g2d) {
-        super.paint(g2d);
-    }
-
-    public void prepareExtents() {
-        double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.01);
-        if (xMarginStretch == 0.0) {
-            xMarginStretch = maxX * 0.01;
-        }
-        minX -= xMarginStretch;
-        maxX += xMarginStretch;
-
-        double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.01);
-        maxY += yMarginStretch;
-        minY -= yMarginStretch;
     }
 
     @Override
@@ -145,6 +133,67 @@ public class BeamShapeLinePlotX extends AbstractPlot {
         g2d.setLineDashes(0);
 
         g2d.stroke();
+
+        g2d.setLineWidth(2.2);
+
+
+        g2d.setStroke(Paint.valueOf("Blue"));
+        g2d.setLineDashes(0);
+        g2d.beginPath();
+        // x = magnetMass y = blockIntensities
+
+        for (int i = 0; i < gBeamXData.length; i++) {
+            if (pointInPlot(gBeamXData[i], yIntensity[i])) {
+                // line tracing through points
+                g2d.lineTo(mapX(gBeamXData[i]), mapY(yIntensity[i]));
+            } else {
+                // out of bounds
+                g2d.moveTo(mapX(gBeamXData[i]), mapY(yIntensity[i]));
+            }
+        }
+        g2d.stroke();
+        g2d.beginPath();
+        g2d.setLineWidth(2.2);
+        g2d.setLineDashes(4);
+        g2d.setStroke(Paint.valueOf("Red"));
+
+
+        // x = magnetMass y = G-Beam
+        for (int i = 0; i < gBeamXData.length; i++) {
+            // line tracing through points
+            if (pointInPlot(gBeamXData[i], gBeamYData[i])) {
+                // line tracing through points
+                g2d.lineTo(mapX(gBeamXData[i]), mapY(gBeamYData[i]));
+            } else {
+                // out of bounds
+                g2d.moveTo(mapX(gBeamXData[i]), mapY(gBeamYData[i]));
+            }
+        }
+        g2d.stroke();
+        g2d.beginPath();
+        g2d.setLineDashes(0);
+    }
+
+
+
+
+
+    @Override
+    public void paint(GraphicsContext g2d) {
+        super.paint(g2d);
+    }
+
+    public void prepareExtents() {
+        double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.01);
+        if (xMarginStretch == 0.0) {
+            xMarginStretch = maxX * 0.01;
+        }
+        minX -= xMarginStretch;
+        maxX += xMarginStretch;
+
+        double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.01);
+        maxY += yMarginStretch;
+        minY -= yMarginStretch;
     }
 
     @Override
