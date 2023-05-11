@@ -394,7 +394,12 @@ public enum SingleBlockDataModelPlot {
         for (int dataArrayIndex = 0; dataArrayIndex < baselineCount; dataArrayIndex++) {
             int intensityIndex = timeIndexAccumulatorList.get(dataArrayIndex);
             int faradayIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(dataArrayIndex));
-
+            dataArray[dataArrayIndex] = baselineMeansArray[faradayIndex];
+            // TODO: get BL from model aka unknown take mean across all ensembles
+                /*
+                 d(d0.blflag & d0.det_ind(:,mm),1) = x0.BL(mm); % Faraday Baseline
+    dnobl(d0.blflag & d0.det_ind(:,mm),1) = 0; % Data with No Baseline
+                 */
             double calculatedValue = StrictMath.sqrt(pow(xSig[faradayIndex], 2));
             dataCountsModelOneSigma[dataArrayIndex] = calculatedValue;
 

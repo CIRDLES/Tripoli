@@ -88,7 +88,7 @@ public enum ProposedModelParameters {
         for (int row = 0; row < baselineStandardDeviations.length; row++) {
             maxValue = Math.max(baselineStandardDeviations[row], maxValue);
         }
-        double psigBaselineFaraday = maxValue / 10.0;
+        double psigBaselineFaraday = maxValue;// / 10.0; removed per team meeting 5/11/2023
         double psigBaselineDaly = 1.0e-1;
         double psigLogRatio = 0.02;//0.0005 * 0.2;
         double psigIntensity = (proposalRangesRecord.maxIntensity() - proposalRangesRecord.minIntensity()) / 100.0;
