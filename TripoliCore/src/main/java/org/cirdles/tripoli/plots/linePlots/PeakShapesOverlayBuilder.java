@@ -25,7 +25,7 @@ public class PeakShapesOverlayBuilder extends PlotBuilder {
     public PeakShapesOverlayBuilder() {
     }
 
-    public PeakShapesOverlayBuilder(PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) {
+    protected PeakShapesOverlayBuilder(PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel, true);
 
         try {
@@ -36,15 +36,8 @@ public class PeakShapesOverlayBuilder extends PlotBuilder {
     }
 
 
-    public static PeakShapesOverlayBuilder initializePeakShapes(PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) {
+    public static PeakShapesOverlayBuilder initializePeakShape(PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) {
         return new PeakShapesOverlayBuilder(peakShapeOutputDataRecord, title, xAxisLabel, yAxisLabel);
-    }
-
-    public static PeakShapeOutputDataRecord getPeakData(Path dataFile) throws IOException {
-        PeakShapeProcessor_PhoenixTextFile peakShapeProcessor_PhoenixTextFile
-                = PeakShapeProcessor_PhoenixTextFile.initializeWithMassSpectrometer(massSpectrometerModelBuiltinMap.get(MassSpectrometerContextEnum.PHOENIX.getMassSpectrometerName()));
-
-        return peakShapeProcessor_PhoenixTextFile.prepareInputDataModelFromFile(dataFile);
     }
 
     public static double getMeasBeamWidthAMU() {

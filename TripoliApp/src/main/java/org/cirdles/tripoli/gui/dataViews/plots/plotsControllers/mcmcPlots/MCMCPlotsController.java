@@ -23,9 +23,7 @@ import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
-import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
-import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
-import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
+import org.cirdles.tripoli.plots.linePlots.*;
 import org.cirdles.tripoli.plots.sessionPlots.HistogramSessionBuilder;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
@@ -257,8 +255,10 @@ public class MCMCPlotsController {
         dataFitPlotsAnchorPane.getChildren().removeAll();
         convergeErrorPlotsAnchorPane.getChildren().removeAll();
         convergeIntensityAnchorPane.getChildren().removeAll();
+        beamShapeAnchorPane.getChildren().removeAll();
 
         PlotBuildersTaskInterface plotBuildersTask = (PlotBuildersTaskInterface) plotBuildersTaska;
+        PlotBuilder[] peakShapeOverlayBuilder = plotBuildersTask.getPeakShapesBuilder();
         PlotBuilder[] ratiosHistogramBuilder = plotBuildersTask.getRatiosHistogramBuilder();
         PlotBuilder[] baselineHistogramBuilder = plotBuildersTask.getBaselineHistogramBuilder();
         PlotBuilder[] dalyFaradayHistogramBuilder = plotBuildersTask.getDalyFaradayGainHistogramBuilder();
@@ -323,6 +323,13 @@ public class MCMCPlotsController {
         convergeIntensityAnchorPane.getChildren().add(convergeIntensityPlotsWallPane);
         produceTripoliMultiLineLogXPlots(convergeIntensityLinesBuilder, convergeIntensityPlotsWallPane);
         convergeIntensityPlotsWallPane.tilePlots();
+
+        PlotWallPane peakShapeOverlayPlotWallPane = new PlotWallPane();
+        peakShapeOverlayPlotWallPane.buildToolBar();
+        peakShapeOverlayPlotWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+        beamShapeAnchorPane.getChildren().add(peakShapeOverlayPlotWallPane);
+        producePeakShapesOverlayPlot(peakShapeOverlayBuilder, peakShapeOverlayPlotWallPane);
+        peakShapeOverlayPlotWallPane.tilePlots();
     }
 
     private synchronized void showLogsEngine(int blockNumber) {
@@ -386,6 +393,18 @@ public class MCMCPlotsController {
             AbstractPlot plot = BasicScatterAndLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (ComboPlotBuilder) plotBuilder[i]);
             tripoliPlotPane.addPlot(plot);
         }
+    }
+
+    private void producePeakShapesOverlayPlot(PlotBuilder[] plotBuilder, PlotWallPane plotWallPane) {
+        for (int i = 0; i < plotBuilder.length; i++) {
+            if(plotBuilder[i].isDisplayed()) {
+                PeakShapesOverlayRecord peakShapesOverlayRecord = ((PeakShapesOverlayBuilder) plotBuilder[i]).getPeakShapesOverlayRecord();
+                TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
+                AbstractPlot plot = PeakShapesOverlayPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), peakShapesOverlayRecord);
+                tripoliPlotPane.addPlot(plot);
+            }
+        }
+
     }
 
 

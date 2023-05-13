@@ -15,6 +15,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
+import org.cirdles.tripoli.plots.linePlots.PeakShapesOverlayBuilder;
 import org.cirdles.tripoli.plots.linePlots.PeakShapesOverlayRecord;
 
 public class PeakShapesOverlayPlot extends AbstractPlot {

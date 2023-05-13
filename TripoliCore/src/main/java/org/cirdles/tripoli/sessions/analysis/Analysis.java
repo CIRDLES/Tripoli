@@ -198,7 +198,6 @@ public class Analysis implements Serializable, AnalysisInterface {
         PlotBuilder[][] retVal;
         if (RUN == mapOfBlockIdToProcessStatus.get(blockID)) {
             mapOfBlockIdToPlots.remove(blockID);
-            mapOfBlockIdToPeakPlots.remove(blockID);
         }
         if (mapOfBlockIdToPlots.containsKey(blockID)) {
             retVal = mapOfBlockIdToPlots.get(blockID);
