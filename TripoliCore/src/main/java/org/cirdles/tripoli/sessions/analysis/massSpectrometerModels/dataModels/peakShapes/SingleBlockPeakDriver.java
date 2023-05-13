@@ -13,7 +13,6 @@ public enum SingleBlockPeakDriver {
     ;
 
     public static PlotBuilder[] buildForSinglePeakBlock(int blockNumber, Map<Integer, List<File>> peakGroups) throws TripoliException {
-        // TODO initialize and generate plots for files in peakGroups based on block number
         PlotBuilder[] plotBuilders = new PlotBuilder[peakGroups.get(blockNumber).size()];
 
         try {
@@ -23,14 +22,12 @@ public enum SingleBlockPeakDriver {
                 peakShapeProcess.initializePeakShapeProcess();
                 plotBuilders[i] = peakShapeProcess.beamShapeCollectorWidth();
             }
-        }catch (RecoverableCondition | IOException e){
+        } catch (RecoverableCondition | IOException e) {
             throw new TripoliException("Ojalgo RecoverableCondition");
         }
 
         return plotBuilders;
     }
-
-
 
 
 }

@@ -1,9 +1,7 @@
 package org.cirdles.tripoli.plots.linePlots;
 
-import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.PeakShapeOutputDataRecord;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.PeakShapeProcessor_PhoenixTextFile;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLab;
 import org.cirdles.tripoli.utilities.mathUtilities.SplineBasisModel;
 import org.ojalgo.RecoverableCondition;
@@ -11,11 +9,6 @@ import org.ojalgo.matrix.decomposition.Cholesky;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
-
-import java.io.IOException;
-import java.nio.file.Path;
-
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory.massSpectrometerModelBuiltinMap;
 
 public class PeakShapesOverlayBuilder extends PlotBuilder {
 

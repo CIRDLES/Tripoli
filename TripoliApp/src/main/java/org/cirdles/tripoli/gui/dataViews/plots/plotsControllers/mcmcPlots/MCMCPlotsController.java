@@ -397,7 +397,7 @@ public class MCMCPlotsController {
 
     private void producePeakShapesOverlayPlot(PlotBuilder[] plotBuilder, PlotWallPane plotWallPane) {
         for (int i = 0; i < plotBuilder.length; i++) {
-            if(plotBuilder[i].isDisplayed()) {
+            if (plotBuilder[i].isDisplayed()) {
                 PeakShapesOverlayRecord peakShapesOverlayRecord = ((PeakShapesOverlayBuilder) plotBuilder[i]).getPeakShapesOverlayRecord();
                 TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
                 AbstractPlot plot = PeakShapesOverlayPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), peakShapesOverlayRecord);
