@@ -247,6 +247,13 @@ public class MCMCPlotsController {
         ratiosSessionPlotsWallPane.stackPlots();
     }
 
+    // plotting engine for peak sessions
+    @FXML
+    private void plotPeakSessionEngine() {
+        Map<Integer, PlotBuilder[]> mapOfPeakPlotsToBlock = analysis.getMapOfBlockIdToPeakPlots();
+        // TODO add plot peak Session
+    }
+
     private synchronized void plotBlockEngine(Task<String> plotBuildersTaska) {
         analysisManagerCallbackI.callbackRefreshBlocksStatus();
 

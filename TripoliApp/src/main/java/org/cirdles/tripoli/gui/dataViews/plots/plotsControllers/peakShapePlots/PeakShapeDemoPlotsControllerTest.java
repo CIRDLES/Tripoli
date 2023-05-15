@@ -455,7 +455,7 @@ public class PeakShapeDemoPlotsControllerTest {
                 PlotBuilder[] plots = BeamShapeTestDriver.modelTest(resourceBrowserTarget.toPath(), this::populateListOfResources);
                 PeakShapeOutputDataRecord peakShapeOutputDataRecord = BeamShapeLinePlotBuilderX.getPeakData(resourceBrowserTarget.toPath());
                 //BeamShapeLinePlotBuilderX beamShape = BeamShapeLinePlotBuilderX.initializeBeamShape(peakShapeOutputDataRecord, new String[]{peakShapeOutputDataRecord.massID()}, "Mass (amu)", "Beam Intensity");
-                PeakShapesOverlayBuilder peakShapes = PeakShapesOverlayBuilder.initializePeakShape(peakShapeOutputDataRecord,
+                PeakShapesOverlayBuilder peakShapes = PeakShapesOverlayBuilder.initializePeakShape(1, peakShapeOutputDataRecord,
                         new String[]{"Peak Shapes " + peakShapeOutputDataRecord.massID() + " / Peak Mass: " + peakShapeOutputDataRecord.peakCenterMass()},
                         "Mass (amu)", "Peak Intensities");
                 if (ensemblePlotsWallPane.getChildren().size() > 3) {

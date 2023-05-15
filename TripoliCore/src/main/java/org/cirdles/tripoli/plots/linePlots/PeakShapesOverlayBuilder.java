@@ -18,26 +18,22 @@ public class PeakShapesOverlayBuilder extends PlotBuilder {
     public PeakShapesOverlayBuilder() {
     }
 
-    protected PeakShapesOverlayBuilder(PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) {
+    protected PeakShapesOverlayBuilder(int blockID, PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel, true);
 
         try {
-            peakShapesOverlayRecord = generatePeakShapes(peakShapeOutputDataRecord);
+            peakShapesOverlayRecord = generatePeakShapes(blockID, peakShapeOutputDataRecord);
         } catch (RecoverableCondition e) {
             e.printStackTrace();
         }
     }
 
 
-    public static PeakShapesOverlayBuilder initializePeakShape(PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) {
-        return new PeakShapesOverlayBuilder(peakShapeOutputDataRecord, title, xAxisLabel, yAxisLabel);
+    public static PeakShapesOverlayBuilder initializePeakShape(int blockID, PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) {
+        return new PeakShapesOverlayBuilder(blockID, peakShapeOutputDataRecord, title, xAxisLabel, yAxisLabel);
     }
 
-    public static double getMeasBeamWidthAMU() {
-        return measBeamWidthAMU;
-    }
-
-    public PeakShapesOverlayRecord generatePeakShapes(PeakShapeOutputDataRecord peakShapeOutputDataRecord) throws RecoverableCondition {
+    public PeakShapesOverlayRecord generatePeakShapes(int blockID, PeakShapeOutputDataRecord peakShapeOutputDataRecord) throws RecoverableCondition {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         double maxBeamIndex;
         double thresholdIntensity;
@@ -164,6 +160,8 @@ public class PeakShapesOverlayBuilder extends PlotBuilder {
         if (maxBeamIndex <= 0 || maxBeamIndex >= 999) {
 
             return new PeakShapesOverlayRecord(
+                    blockID,
+                    measBeamWidthAMU,
                     beamMassInterp.toRawCopy2D()[0],
                     magnetMasses.transpose().toRawCopy2D()[0],
                     beamShape.transpose().toRawCopy2D()[0],
@@ -225,6 +223,8 @@ public class PeakShapesOverlayBuilder extends PlotBuilder {
         }
 
         return new PeakShapesOverlayRecord(
+                blockID,
+                measBeamWidthAMU,
                 beamMassInterp.toRawCopy2D()[0],
                 magnetMasses.transpose().toRawCopy2D()[0],
                 beamShape.transpose().toRawCopy2D()[0],

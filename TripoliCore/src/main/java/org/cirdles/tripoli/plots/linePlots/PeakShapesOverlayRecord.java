@@ -1,6 +1,8 @@
 package org.cirdles.tripoli.plots.linePlots;
 
 public record PeakShapesOverlayRecord(
+        int blockID,
+        double peakWidth,
         double[] beamXData,
         double[] gBeamXData,
         double[] beamYData,

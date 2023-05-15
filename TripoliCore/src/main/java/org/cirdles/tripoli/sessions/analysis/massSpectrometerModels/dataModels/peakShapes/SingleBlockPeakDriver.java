@@ -20,7 +20,7 @@ public enum SingleBlockPeakDriver {
                 File peakFile = peakGroups.get(blockNumber).get(i);
                 PeakShapeProcess peakShapeProcess = PeakShapeProcess.createPeakShapeProcess(peakFile.toPath());
                 peakShapeProcess.initializePeakShapeProcess();
-                plotBuilders[i] = peakShapeProcess.beamShapeCollectorWidth();
+                plotBuilders[i] = peakShapeProcess.beamShapeCollectorWidth(blockNumber);
             }
         } catch (RecoverableCondition | IOException e) {
             throw new TripoliException("Ojalgo RecoverableCondition");

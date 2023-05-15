@@ -38,8 +38,8 @@ public class PeakShapeProcess {
         peakShapeOutputDataRecord = peakShapeProcessor_PhoenixTextFile.prepareInputDataModelFromFile(dataFile);
     }
 
-    public synchronized PlotBuilder beamShapeCollectorWidth() throws RecoverableCondition {
-        return PeakShapesOverlayBuilder.initializePeakShape(peakShapeOutputDataRecord,
+    public synchronized PlotBuilder beamShapeCollectorWidth(int blockID) throws RecoverableCondition {
+        return PeakShapesOverlayBuilder.initializePeakShape(blockID, peakShapeOutputDataRecord,
                 new String[]{"Peak Shapes " + peakShapeOutputDataRecord.massID() + " / Peak Mass: " + peakShapeOutputDataRecord.peakCenterMass()},
                 "Mass (amu)",
                 "Peak Intensities");
