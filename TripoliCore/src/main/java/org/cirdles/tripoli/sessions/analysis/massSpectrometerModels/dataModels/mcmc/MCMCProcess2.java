@@ -33,6 +33,7 @@ import java.util.*;
 import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
+import static java.lang.StrictMath.log;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalRangesRecord;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalSigmasRecord;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelUpdater.operations;
@@ -258,7 +259,7 @@ public class MCMCProcess2 {
         // NOTE: these already populated in the initial model singleBlockInitialModelRecord_X0
         dataArray = singleBlockInitialModelRecord_X0.dataArray().clone();
         dataWithNoBaselineArray = singleBlockInitialModelRecord_X0.dataWithNoBaselineArray().clone();
-        dataSignalNoiseArray = singleBlockInitialModelRecord_X0.dataSignalNoiseArray();
+        dataSignalNoiseArray = singleBlockInitialModelRecord_X0.dataSignalNoiseArray().clone();
 
         /*
             % New data covariance vector
@@ -414,12 +415,12 @@ public class MCMCProcess2 {
             for (int row = 0; row < countOfData; row++) {
                 int detectorIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndices[row]);
                 updatedBaseLineArray[row] = updatedBaseLineMeansArray[detectorIndex];
-                if ((row >= startingIndexOfFaradayData) && (row < startingIndexOfPhotoMultiplierData)) {
+                if (row < startingIndexOfPhotoMultiplierData) {
                     updatedDetectorFaradayArray[row] = 1.0 / detectorFaradayGain;
                 }
                 // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
                 if (isotopeOrdinalIndicesArray[row] - 1 < logRatios.length) {
-                    updatedLogRatioArray[row] = exp(logRatios[isotopeOrdinalIndicesArray[row] - 1]);
+                    updatedLogRatioArray[row] = (logRatios[isotopeOrdinalIndicesArray[row] - 1]);
                 } else {
                     updatedLogRatioArray[row] = 1.0;
                 }
@@ -482,6 +483,9 @@ public class MCMCProcess2 {
             long interval3 = System.nanoTime() - prev;
             prev = interval3 + prev;
 
+            /*
+            Dsig2 = x2.sig(d0.det_vec).^2 + x2.sig(d0.iso_vec+d0.Ndet).*dnobl2;
+             */
             int[] isotopeOrdinalIndices = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
             double[] intensitiesArray = singleBlockDataSetRecord.blockIntensityArray();
             double[] signalNoiseSigma = dataModelUpdaterOutputRecord_x2.signalNoiseSigma();
@@ -591,8 +595,9 @@ public class MCMCProcess2 {
 
             if (0 == modelIndex % (stepCountForcedSave)) {
                 /*
-//                    cnt=cnt+1; % Increment counter
-                    ensemble(cnt).lograt=x.lograt; % Log ratios
+                    cnt=cnt+1; % Increment counter
+
+                    ensemble(cnt).lograt=log(x.lograt); % Log ratios
                     for mm=1:d0.Nblock
                         ensemble(cnt).I{mm}=x.I{mm}; % Intensity by block
                     end
@@ -601,19 +606,15 @@ public class MCMCProcess2 {
                     ensemble(cnt).sig=x.sig;  % Noise hyperparameter
                     ensemble(cnt).E=E;  % Misfit
                     ensemble(cnt).E0=E0; % Unweighted misfit
-
-                    covstart = 50;  % After this many iterations, begin calculating covariance iteratively
-                    if cnt>=covstart+1
-                        % Iterative covariance
-                        [xmean,xcov] = UpdateMeanCovMS(x,xcov,xmean,ensemble,cnt-covstart,0);
-
-                        % Draw random numbers based on covariance for next update
-                        delx_adapt = mvnrnd(zeros(Nmod,1),2.38^2*xcov/Nmod,datsav)';
-                    end
                  */
 //                counter++;
+                int countOfLogRatios = singleBlockInitialModelRecord_initial.logRatios().length;
+                double[] convertedToLogRatios = new double[countOfLogRatios];
+                for (int i = 0; i < countOfLogRatios; i ++){
+                    convertedToLogRatios[i] = log(singleBlockInitialModelRecord_initial.logRatios()[i]);
+                }
                 ensembleRecordsList.add(new EnsemblesStore.EnsembleRecord(
-                        singleBlockInitialModelRecord_initial.logRatios(),
+                        convertedToLogRatios,
                         singleBlockInitialModelRecord_initial.I0(),
                         singleBlockInitialModelRecord_initial.baselineMeansArray(),
                         singleBlockInitialModelRecord_initial.detectorFaradayGain(),

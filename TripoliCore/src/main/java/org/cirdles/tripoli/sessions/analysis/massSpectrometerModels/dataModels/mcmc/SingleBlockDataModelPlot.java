@@ -45,7 +45,7 @@ import static java.lang.StrictMath.exp;
 public enum SingleBlockDataModelPlot {
     ;
 
-    public final static int PLOT_INDEX_RATIOS = 0;
+    public static final int PLOT_INDEX_RATIOS = 0;
 
     public static PlotBuilder[][] analysisAndPlotting(
             SingleBlockDataSetRecord singleBlockDataSetRecord,
@@ -237,7 +237,7 @@ public enum SingleBlockDataModelPlot {
                     RatioHistogramBuilder.initializeRatioHistogram(
                             singleBlockDataSetRecord.blockNumber(),
                             derivedIsotopicRatiosList.get(i),
-                            (biMapOfRatiosAndInverses.get(derivedIsotopicRatiosList.get(i)) != null) ?
+                            (null != biMapOfRatiosAndInverses.get(derivedIsotopicRatiosList.get(i))) ?
                                     (biMapOfRatiosAndInverses.get(derivedIsotopicRatiosList.get(i))) :
                                     (biMapOfRatiosAndInverses.inverse().get(derivedIsotopicRatiosList.get(i))),
                             25);
@@ -337,8 +337,8 @@ public enum SingleBlockDataModelPlot {
         double[] intensities = singleBlockInitialModelRecordInitial.intensities();
         double[] xSig = lastModelRecord.signalNoise();
         double detectorFaradayGain = singleBlockInitialModelRecordInitial.detectorFaradayGain();
-        double[] baselineMeansArray = singleBlockInitialModelRecordInitial.baselineMeansArray();
-        double[] dataCountsModelOneSigma = new double[totalIntensityCount];
+//        double[] baselineMeansArray = singleBlockInitialModelRecordInitial.baselineMeansArray();
+        double[] dataCountsModelOneSigma_Dsig = new double[totalIntensityCount];
         double[] integrationTimes = new double[totalIntensityCount];
 
         List<Integer> isotopeOrdinalIndicesAccumulatorList = singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().isotopeOrdinalIndicesAccumulatorList();
@@ -349,18 +349,28 @@ public enum SingleBlockDataModelPlot {
             int intensityIndex = timeIndexAccumulatorList.get(dataArrayIndex - baselineCount);
             int isotopeIndex = isotopeOrdinalIndicesAccumulatorList.get(dataArrayIndex - baselineCount) - 1;
             int faradayIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(dataArrayIndex - baselineCount));
+            /*
+                itmp = d0.iso_ind(:,mm) & ~d0.axflag & d0.block(:,n);
+                d(itmp,1) = (x.lograt(mm))*x.DFgain^-1 *Intensity{n}(d0.time_ind(itmp)) + x.BL(d0.det_vec(itmp)); %debug
+                dnobl(itmp,1) = (x.lograt(mm))*x.DFgain^-1 *Intensity{n}(d0.time_ind(itmp)); %debug
+             */
+
+
             if (isotopeIndex < logRatios.length) {
                 dataArray[dataArrayIndex] = exp(logRatios[isotopeIndex]) / detectorFaradayGain
-                        * intensities[intensityIndex] + baselineMeansArray[faradayIndex];
+                        * intensities[intensityIndex] + baselinesMeans[faradayIndex];
             } else {
-                dataArray[dataArrayIndex] = 1.0 / detectorFaradayGain * intensities[intensityIndex] + baselineMeansArray[faradayIndex];
+                dataArray[dataArrayIndex] = 1.0 / detectorFaradayGain * intensities[intensityIndex] + baselinesMeans[faradayIndex];
             }
-            dataWithNoBaselineArray[dataArrayIndex] = dataArray[dataArrayIndex] - baselineMeansArray[faradayIndex];
+            dataWithNoBaselineArray[dataArrayIndex] = dataArray[dataArrayIndex] - baselinesMeans[faradayIndex];
 
+            /*
+            Dsig = sqrt(x.sig(d0.det_vec).^2 + x.sig(end).*dnobl); % New data covar vector
+             */
             double calculatedValue = StrictMath.sqrt(pow(xSig[faradayIndex], 2)
                     + xSig[xSig.length - 1]
                     * dataWithNoBaselineArray[dataArrayIndex]);
-            dataCountsModelOneSigma[dataArrayIndex] = calculatedValue;
+            dataCountsModelOneSigma_Dsig[dataArrayIndex] = calculatedValue;
 
             integrationTimes[dataArrayIndex] = timeAccumulatorList.get(intensityIndex);
         }
@@ -373,6 +383,11 @@ public enum SingleBlockDataModelPlot {
             int isotopeIndex = isotopeOrdinalIndicesAccumulatorList.get(dataArrayIndex - baselineCount - onPeakFaradayCount).intValue() - 1;
             int faradayIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(dataArrayIndex - baselineCount - onPeakFaradayCount));
 
+            /*
+                itmp = d0.iso_ind(:,mm) & d0.axflag & d0.block(:,n);
+                d(itmp,1) = (x.lograt(mm))*Intensity{n}(d0.time_ind(itmp)); %debug
+                dnobl(itmp,1) = (x.lograt(mm))*Intensity{n}(d0.time_ind(itmp)); %debug
+             */
             if (isotopeIndex < logRatios.length) {
                 dataArray[dataArrayIndex] = exp(logRatios[isotopeIndex]) * intensities[intensityIndex];
             } else {
@@ -383,25 +398,25 @@ public enum SingleBlockDataModelPlot {
             double calculatedValue = StrictMath.sqrt(StrictMath.pow(xSig[faradayIndex], 2)
                     + xSig[xSig.length - 1]
                     * dataWithNoBaselineArray[dataArrayIndex]);
-            dataCountsModelOneSigma[dataArrayIndex] = calculatedValue;
+            dataCountsModelOneSigma_Dsig[dataArrayIndex] = calculatedValue;
 
             integrationTimes[dataArrayIndex] = timeAccumulatorList.get(intensityIndex);
         }
 
+//        isotopeOrdinalIndicesAccumulatorList = singleBlockDataSetRecord.baselineDataSetMCMC().isotopeOrdinalIndicesAccumulatorList();
         detectorOrdinalIndicesAccumulatorList = singleBlockDataSetRecord.baselineDataSetMCMC().detectorOrdinalIndicesAccumulatorList();
         timeIndexAccumulatorList = singleBlockDataSetRecord.baselineDataSetMCMC().timeIndexAccumulatorList();
         timeAccumulatorList = singleBlockDataSetRecord.baselineDataSetMCMC().timeAccumulatorList();
         for (int dataArrayIndex = 0; dataArrayIndex < baselineCount; dataArrayIndex++) {
             int intensityIndex = timeIndexAccumulatorList.get(dataArrayIndex);
             int faradayIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(dataArrayIndex));
-            dataArray[dataArrayIndex] = baselineMeansArray[faradayIndex];
-            // TODO: get BL from model aka unknown take mean across all ensembles
-                /*
-                 d(d0.blflag & d0.det_ind(:,mm),1) = x0.BL(mm); % Faraday Baseline
-    dnobl(d0.blflag & d0.det_ind(:,mm),1) = 0; % Data with No Baseline
-                 */
-            double calculatedValue = StrictMath.sqrt(pow(xSig[faradayIndex], 2));
-            dataCountsModelOneSigma[dataArrayIndex] = calculatedValue;
+            dataArray[dataArrayIndex] = baselinesMeans[faradayIndex];
+//            dataWithNoBaselineArray[dataArrayIndex] = dataArray[dataArrayIndex] - baselinesMeans[faradayIndex];
+
+            double calculatedValue = StrictMath.sqrt(pow(xSig[faradayIndex], 2)
+                    + xSig[xSig.length - 1]
+                    * dataWithNoBaselineArray[dataArrayIndex]);
+            dataCountsModelOneSigma_Dsig[dataArrayIndex] = calculatedValue;
 
             integrationTimes[dataArrayIndex] = timeAccumulatorList.get(intensityIndex);
         }
@@ -421,7 +436,7 @@ public enum SingleBlockDataModelPlot {
                 integrationTimes, dataOriginalCounts, dataArray, singleBlockDataSetRecord.blockMapIdsToDataTimes(),
                 new String[]{"Observed Data by Sequence"}, "Integration Time", "Intensity");
         plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(
-                integrationTimes, yDataResiduals, dataCountsModelOneSigma, new String[]{"Residual Data"}, "Integration Time", "Intensity");
+                integrationTimes, yDataResiduals, dataCountsModelOneSigma_Dsig, new String[]{"Residual Data"}, "Integration Time", "Intensity");
 
 
         // todo: missing additional elements of signalNoiseSigma (i.e., 0,11,11)

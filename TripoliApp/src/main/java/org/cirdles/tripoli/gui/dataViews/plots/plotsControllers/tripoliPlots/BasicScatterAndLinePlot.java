@@ -88,7 +88,9 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
 
     public void plotData(GraphicsContext g2d) {
         // scatter plot
-        g2d.setLineWidth(0.75);
+        Arrays.sort(xAxisData);
+
+        g2d.setLineWidth(1.25);
         g2d.setStroke(Paint.valueOf("Black"));
         for (int i = 0; i < xAxisData.length; i += plottingStep) {
             if (pointInPlot(xAxisData[i], yAxisData[i])) {
@@ -99,26 +101,29 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
         g2d.setFont(Font.font("SansSerif", 18));
         if (!comboPlotBuilder.getBlockMapOfIdsToData().isEmpty()) {
             int colorIndex = 0;
-//            List<Double> xAxisDataList = new ArrayList<>();
-//            for (double d : xAxisData) xAxisDataList.add(d);
-//            Collections.sort(xAxisDataList);
-            Arrays.sort(xAxisData);
             for (String sequenceID : comboPlotBuilder.getBlockMapOfIdsToData().keySet()) {
                 g2d.setFill(Paint.valueOf(TRIPOLI_PALLETTE_FOUR[colorIndex]));
                 List<Double> timeList = comboPlotBuilder.getBlockMapOfIdsToData().get(sequenceID);
                 Collections.sort(timeList);
+                int countOfSequences = comboPlotBuilder.getBlockMapOfIdsToData().keySet().size();
                 for (double time : timeList) {
-                    int timeIndex = Arrays.binarySearch(xAxisData, time);//                       xAxisDataList.indexOf(time);
-                    do {
-                        if ((0 == timeIndex % plottingStep) && pointInPlot(xAxisData[timeIndex], yAxisData[timeIndex])) {
-                            try {
-                                g2d.fillOval(mapX(xAxisData[timeIndex]) - 2.0f, mapY(yAxisData[timeIndex]) - 2.0f, 4.0f, 4.0f);
-                            } catch (Exception e) {
-                                System.err.println("Bad time at timeindex = " + timeIndex);
-                            }
+                    // binarySearch does not guarantee which of equals it chooses
+                    int timeIndex = Arrays.binarySearch(xAxisData, time);
+                    // handle repeated time values due to multiple sequences
+                    int timeIndexPlottable = 0;
+                    for (int timeIndex2 = timeIndex - countOfSequences; timeIndex2 < timeIndex + countOfSequences; timeIndex2++) {
+                        if ((0 <= timeIndex2) && (timeIndex2 < xAxisData.length) && (xAxisData[timeIndex2] == xAxisData[timeIndex]) && (0 == timeIndex2 % plottingStep)) {
+                            timeIndexPlottable = timeIndex2;
+                            break;
                         }
-                        timeIndex++;
-                    } while ((timeIndex < xAxisData.length) && xAxisData[timeIndex - 1] == xAxisData[timeIndex]);
+                    }
+                    if (pointInPlot(xAxisData[timeIndexPlottable], yAxisData[timeIndexPlottable])) {
+                        try {
+                            g2d.fillOval(mapX(xAxisData[timeIndexPlottable]) - 2.0f, mapY(yAxisData[timeIndexPlottable]) - 2.0f, 4.0f, 4.0f);
+                        } catch (Exception e) {
+                            System.err.println("Bad time at timeIndexPlottable = " + timeIndexPlottable);
+                        }
+                    }
                 }
 
                 // legend
