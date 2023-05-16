@@ -250,8 +250,27 @@ public class MCMCPlotsController {
     // plotting engine for peak sessions
     @FXML
     private void plotPeakSessionEngine() {
-        // Map<Integer, PlotBuilder[]> mapOfPeakPlotsToBlock = analysis.getMapOfBlockIdToPeakPlots();
-        // TODO add plot peak Session
+        Map<Integer, PlotBuilder[]> mapOfPeakPlotsToBlock = analysis.getMapOfBlockIdToPeakPlots();
+        Map<String, List<PeakShapesOverlayRecord>> mapPeakNameToSessionRecords = new TreeMap<>();
+        Iterator<Map.Entry<Integer, PlotBuilder[]>> iterator = mapOfPeakPlotsToBlock.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, PlotBuilder[]> entry = iterator.next();
+            if (analysis.getMapOfBlockIdToProcessStatus().get(entry.getKey()) == SHOW) {
+                PlotBuilder[] peaksPlotBuilder = entry.getValue();
+                for (PlotBuilder peakPlotBuilder : peaksPlotBuilder) {
+                    if (peakPlotBuilder.isDisplayed()) {
+                        String peakName = peakPlotBuilder.getTitle()[0];
+                        mapPeakNameToSessionRecords.computeIfAbsent(peakName, k -> new ArrayList<>());
+                        mapPeakNameToSessionRecords.get(peakName).add(((PeakShapesOverlayBuilder) peakPlotBuilder).getPeakShapesOverlayRecord());
+
+                    }
+                }
+            }
+        }
+
+        // TODO add peak session pane to fxml and controller
+
+
     }
 
     private synchronized void plotBlockEngine(Task<String> plotBuildersTaska) {

@@ -40,7 +40,7 @@ public class PeakShapeProcess {
 
     public synchronized PlotBuilder beamShapeCollectorWidth(int blockID) throws RecoverableCondition {
         return PeakShapesOverlayBuilder.initializePeakShape(blockID, peakShapeOutputDataRecord,
-                new String[]{"Peak Shapes " + peakShapeOutputDataRecord.massID() + " / Peak Mass: " + peakShapeOutputDataRecord.peakCenterMass()},
+                new String[]{"Peak Shapes " + peakShapeOutputDataRecord.massID()},
                 "Mass (amu)",
                 "Peak Intensities");
     }
