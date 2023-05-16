@@ -250,7 +250,7 @@ public class MCMCPlotsController {
     // plotting engine for peak sessions
     @FXML
     private void plotPeakSessionEngine() {
-        Map<Integer, PlotBuilder[]> mapOfPeakPlotsToBlock = analysis.getMapOfBlockIdToPeakPlots();
+        // Map<Integer, PlotBuilder[]> mapOfPeakPlotsToBlock = analysis.getMapOfBlockIdToPeakPlots();
         // TODO add plot peak Session
     }
 
