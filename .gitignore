@@ -3,7 +3,6 @@
 # local helpers
 run
 run.sh
-run.bat
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/

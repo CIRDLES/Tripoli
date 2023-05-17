@@ -48,8 +48,7 @@ public class PeakShapesOverlayPlot extends AbstractPlot {
     @Override
     public void preparePanel() {
         xAxisData = peakShapesOverlayRecord.beamXData();
-        minX = xAxisData[0];
-        maxX = xAxisData[xAxisData.length - 1];
+
 
         leftBoundary = peakShapesOverlayRecord.leftBoundary();
         rightBoundary = peakShapesOverlayRecord.rightBoundary();
@@ -58,14 +57,16 @@ public class PeakShapesOverlayPlot extends AbstractPlot {
         gBeamYData = peakShapesOverlayRecord.gBeamYData();
         gBeamXData = peakShapesOverlayRecord.gBeamXData();
 
+        minX = gBeamXData[0];
+        maxX = gBeamXData[gBeamXData.length - 1];
         yAxisData = peakShapesOverlayRecord.beamYData();
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 
 
         for (int i = 0; i < yAxisData.length; i++) {
-            minY = StrictMath.min(minY, yAxisData[i]);
-            maxY = StrictMath.max(maxY, yAxisData[i]);
+            minY = StrictMath.min(minY, yAxisData[i]/10);
+            maxY = StrictMath.max(maxY, yAxisData[i]/10);
         }
 
 
@@ -83,15 +84,15 @@ public class PeakShapesOverlayPlot extends AbstractPlot {
         // new line graph
         g2d.setStroke(Paint.valueOf("Black"));
         g2d.beginPath();
-        g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]));
+        g2d.moveTo(mapX(xAxisData[0]), mapY(yAxisData[0]/10));
         for (int i = 0; i < xAxisData.length; i++) {
             // line tracing through points
-            if (pointInPlot(xAxisData[i], yAxisData[i])) {
+            if (pointInPlot(xAxisData[i], yAxisData[i]/10)) {
                 // line tracing through points
-                g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
+                g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData[i]/10));
             } else {
                 // out of bounds
-                g2d.moveTo(mapX(xAxisData[i]), mapY(yAxisData[i]));
+                g2d.moveTo(mapX(xAxisData[i]), mapY(yAxisData[i]/10));
             }
 
         }
@@ -102,30 +103,30 @@ public class PeakShapesOverlayPlot extends AbstractPlot {
         g2d.setStroke(Paint.valueOf("Blue"));
         for (int i = leftBoundary; i <= rightBoundary; i++) {
             // line tracing through points
-            if (pointInPlot(xAxisData[i], yAxisData[leftBoundary])) {
+            if (pointInPlot(xAxisData[i], yAxisData[leftBoundary]/10)) {
                 // line tracing through points
-                g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData[leftBoundary]));
+                g2d.lineTo(mapX(xAxisData[i]), mapY(yAxisData[leftBoundary]/10));
             } else {
                 // out of bounds
-                g2d.moveTo(mapX(xAxisData[i]), mapY(yAxisData[leftBoundary]));
+                g2d.moveTo(mapX(xAxisData[i]), mapY(yAxisData[leftBoundary]/10));
             }
 
         }
         g2d.stroke();
 
         g2d.setFill(Paint.valueOf("Red"));
-        if (pointInPlot(xAxisData[leftBoundary], yAxisData[leftBoundary])) {
+        if (pointInPlot(xAxisData[leftBoundary], yAxisData[leftBoundary]/10)) {
             // line tracing through points
 
-            g2d.fillOval(mapX(xAxisData[leftBoundary]) - 3.5, mapY(yAxisData[leftBoundary]) - 3.5, 7, 7);
-            g2d.fillOval(mapX(xAxisData[rightBoundary]) - 3.5, mapY(yAxisData[rightBoundary]) - 3.5, 7, 7);
-        } else if (pointInPlot(xAxisData[rightBoundary], yAxisData[rightBoundary])) {
+            g2d.fillOval(mapX(xAxisData[leftBoundary]) - 3.5, mapY(yAxisData[leftBoundary]/10) - 3.5, 7, 7);
+            g2d.fillOval(mapX(xAxisData[rightBoundary]) - 3.5, mapY(yAxisData[rightBoundary]/10) - 3.5, 7, 7);
+        } else if (pointInPlot(xAxisData[rightBoundary], yAxisData[rightBoundary]/10)) {
             // line tracing through points
-            g2d.fillOval(mapX(xAxisData[rightBoundary]) - 3.5, mapY(yAxisData[rightBoundary]) - 3.5, 7, 7);
+            g2d.fillOval(mapX(xAxisData[rightBoundary]) - 3.5, mapY(yAxisData[rightBoundary]/10) - 3.5, 7, 7);
         } else {
             // out of bounds
-            g2d.moveTo(mapX(xAxisData[leftBoundary]) - 3.5, mapY(yAxisData[leftBoundary]));
-            g2d.moveTo(mapX(xAxisData[rightBoundary]) - 3.5, mapY(yAxisData[rightBoundary]));
+            g2d.moveTo(mapX(xAxisData[leftBoundary]) - 3.5, mapY(yAxisData[leftBoundary]/10));
+            g2d.moveTo(mapX(xAxisData[rightBoundary]) - 3.5, mapY(yAxisData[rightBoundary]/10));
         }
 
 
@@ -259,11 +260,11 @@ public class PeakShapesOverlayPlot extends AbstractPlot {
                     }
                     if ((getxAxisData()[i] >= convertMouseXToValue(event.getX()) - diff && getxAxisData()[i] <= convertMouseXToValue(event.getX()) + diff)) {
                         double diffY = Math.abs(getyAxisData()[i - 1] - getyAxisData()[i]);
-                        if ((getyAxisData()[i] >= convertMouseYToValue(event.getY()) - diffY && getyAxisData()[i] <= convertMouseYToValue(event.getY()) + diffY)) {
+                        if ((getyAxisData()[i]/10 >= convertMouseYToValue(event.getY()) - diffY && getyAxisData()[i]/10 <= convertMouseYToValue(event.getY()) + diffY)) {
                             showToolTip(potNode, event, getxAxisData()[i], getyAxisData()[i]);
                             ((Canvas) event.getSource()).setCursor(Cursor.CROSSHAIR);
-                        } else if (convertMouseYToValue(event.getY()) - maxY / 200 <= getyAxisData()[minIndex] && convertMouseYToValue(event.getY()) + maxY / 200 >= getyAxisData()[minIndex]) {
-                            showToolTip(potNode, event, getxAxisData()[i], getyAxisData()[i]);
+                        } else if (convertMouseYToValue(event.getY()) - maxY / 200 <= getyAxisData()[minIndex]/10 && convertMouseYToValue(event.getY()) + maxY / 200 >= getyAxisData()[minIndex]/10) {
+                            showToolTip(potNode, event, getxAxisData()[i], getyAxisData()[i]/10);
                             ((Canvas) event.getSource()).setCursor(Cursor.CROSSHAIR);
                         } else {
                             ((Canvas) event.getSource()).setCursor(Cursor.DEFAULT);
