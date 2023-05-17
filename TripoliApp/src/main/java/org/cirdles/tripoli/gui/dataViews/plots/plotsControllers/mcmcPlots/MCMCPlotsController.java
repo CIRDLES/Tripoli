@@ -267,10 +267,7 @@ public class MCMCPlotsController {
                 }
             }
         }
-
         // TODO add peak session pane to fxml and controller
-
-
     }
 
     private synchronized void plotBlockEngine(Task<String> plotBuildersTaska) {

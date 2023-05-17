@@ -2,6 +2,7 @@ package org.cirdles.tripoli.plots.sessionPlots;
 
 import org.cirdles.tripoli.plots.linePlots.PeakShapesOverlayRecord;
 
+import java.io.Serializable;
 import java.util.Map;
 
 public record PeakCentreSessionRecord(
@@ -12,5 +13,5 @@ public record PeakCentreSessionRecord(
         String[] title,
         String xAxisLabel,
         String yAxisLabel
-) {
+) implements Serializable {
 }
