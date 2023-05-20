@@ -19,7 +19,6 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots;
 import javafx.concurrent.Task;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.BeamShapeTestDriver;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.PeakShapeProcess;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 
 import java.nio.file.Path;
@@ -55,7 +54,7 @@ public class PeakShapesTask extends Task<String> implements LoggingCallbackInter
         PlotBuilder[] linePlots = BeamShapeTestDriver.modelTest(dataFile, this);
         beamShapePlotBuilder = linePlots[0];
         gBeamPlotBuilder = linePlots[1];
-        peakWidth = PeakShapeProcess.getMeasBeamWidthAMU();
+        peakWidth = BeamShapeTestDriver.getMeasBeamWidthAMU();
         return "DONE";
     }
 

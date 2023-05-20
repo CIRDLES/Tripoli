@@ -16,7 +16,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapeDemoPlotsControllerTest;
 import org.cirdles.tripoli.plots.sessionPlots.PeakCentreSessionRecord;
 
 
