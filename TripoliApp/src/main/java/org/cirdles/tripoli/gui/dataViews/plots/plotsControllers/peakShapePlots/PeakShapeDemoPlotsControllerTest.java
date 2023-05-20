@@ -230,6 +230,7 @@ public class PeakShapeDemoPlotsControllerTest {
         double[] yAxis = new double[resourceGroups.get(groupValue).size()];
         for (int k = 0; k < resourceGroups.get(groupValue).size(); k++) {
             resourceBrowserTarget = resourceGroups.get(groupValue).get(k);
+            // This can be changed to implement only image of peak shapes overlay
             if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
                 try {
                     PlotBuilder[] plots = BeamShapeTestDriver.modelTest(resourceBrowserTarget.toPath(), this::populateListOfResources);
@@ -280,12 +281,12 @@ public class PeakShapeDemoPlotsControllerTest {
             ensemblePlotsWallPane.getChildren().clear();
         }
 
-
-        LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, new String[]{"PeakCentre Plot"}, "Blocks", "Peak Widths");
-        ensemblePlotsWallPane.buildToolBar();
-        ensemblePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-
-        peakCentreLinePlot = producePeakCentrePlot(peakCentrePlotBuilder, ensemblePlotsWallPane);
+        // Attempted to set up thumbnails
+//        LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, new String[]{"PeakCentre Plot"}, "Blocks", "Peak Widths");
+//        ensemblePlotsWallPane.buildToolBar();
+//        ensemblePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+//
+//        peakCentreLinePlot = producePeakCentrePlot(peakCentrePlotBuilder, ensemblePlotsWallPane);
 
 
 //        peakCentreGridPane.widthProperty().addListener((observable, oldValue, newValue) -> {
@@ -498,13 +499,13 @@ public class PeakShapeDemoPlotsControllerTest {
 
     }
 
-    private AbstractPlot producePeakCentrePlot(LinePlotBuilder plotBuilder, PlotWallPane plotWallPane) {
-        TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
-        AbstractPlot plot = PeakCentresLinePlotX.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), plotBuilder);
-        tripoliPlotPane.addPlot(plot);
-
-        return plot;
-    }
+//    private AbstractPlot producePeakCentrePlot(LinePlotBuilder plotBuilder, PlotWallPane plotWallPane) {
+//        TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
+//        AbstractPlot plot = PeakCentresLinePlotX.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), plotBuilder);
+//        tripoliPlotPane.addPlot(plot);
+//
+//        return plot;
+//    }
 
 
     static class ResourceDisplayName2 extends ListCell<File> {

@@ -158,7 +158,7 @@ public class PeakShapesOverlayBuilder extends PlotBuilder {
 
         thresholdIntensity = MaxBeam * (0.01);
         if (maxBeamIndex <= 0 || maxBeamIndex >= 999) {
-
+            measBeamWidthAMU = 0;
             return new PeakShapesOverlayRecord(
                     blockID,
                     measBeamWidthAMU,

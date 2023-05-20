@@ -24,7 +24,7 @@ import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 
-import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapeDemoPlotsController.resourceBrowserTarget;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapeDemoPlotsControllerTest.resourceBrowserTarget;
 
 /**
  * @author James F. Bowring

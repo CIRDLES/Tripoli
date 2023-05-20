@@ -25,6 +25,7 @@ import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
 import org.cirdles.tripoli.plots.linePlots.*;
 import org.cirdles.tripoli.plots.sessionPlots.HistogramSessionBuilder;
+import org.cirdles.tripoli.plots.sessionPlots.PeakCentreSessionBuilder;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.MCMCProcess2;
@@ -38,6 +39,7 @@ import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWid
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
 import static org.cirdles.tripoli.plots.sessionPlots.HistogramSessionBuilder.initializeHistogramSession;
+import static org.cirdles.tripoli.plots.sessionPlots.PeakCentreSessionBuilder.initializePeakCentreSession;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.*;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockDataModelPlot.PLOT_INDEX_RATIOS;
 
@@ -57,6 +59,8 @@ public class MCMCPlotsController {
     public AnchorPane beamShapeAnchorPane;
     @FXML
     public AnchorPane ratioSessionAnchorPane;
+    @FXML
+    public AnchorPane peakSessionAnchorPane;
     @FXML
     public AnchorPane logAnchorPane;
     @FXML
@@ -259,7 +263,7 @@ public class MCMCPlotsController {
                 PlotBuilder[] peaksPlotBuilder = entry.getValue();
                 for (PlotBuilder peakPlotBuilder : peaksPlotBuilder) {
                     if (peakPlotBuilder.isDisplayed()) {
-                        String peakName = peakPlotBuilder.getTitle()[0];
+                        String peakName = peakPlotBuilder.getTitle()[1];
                         mapPeakNameToSessionRecords.computeIfAbsent(peakName, k -> new ArrayList<>());
                         mapPeakNameToSessionRecords.get(peakName).add(((PeakShapesOverlayBuilder) peakPlotBuilder).getPeakShapesOverlayRecord());
 
@@ -268,6 +272,24 @@ public class MCMCPlotsController {
             }
         }
         // TODO add peak session pane to fxml and controller
+        peakSessionAnchorPane.getChildren().removeAll();
+        PlotWallPane peakSessionPlotWallPlane = new PlotWallPane();
+        peakSessionPlotWallPlane.buildToolBar();
+        peakSessionPlotWallPlane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+        peakSessionAnchorPane.getChildren().add(peakSessionPlotWallPlane);
+        for (Map.Entry<String, List<PeakShapesOverlayRecord>> entry : mapPeakNameToSessionRecords.entrySet()) {
+            PeakCentreSessionBuilder peakCentreSessionBuilder = initializePeakCentreSession(analysis.getMapOfBlockIdToPeakPlots().size(),
+                    entry.getValue(),
+                    new String[]{entry.getValue().get(0).title()[1]},
+                    "Block ID",
+                    "Peak Widths");
+
+                    TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(peakSessionPlotWallPlane);
+                    AbstractPlot plot = PeakCentresLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), peakCentreSessionBuilder.getPeakCentreSessionRecord());
+                    tripoliPlotPane.addPlot(plot);
+        }
+        peakSessionPlotWallPlane.stackPlots();
+
     }
 
     private synchronized void plotBlockEngine(Task<String> plotBuildersTaska) {

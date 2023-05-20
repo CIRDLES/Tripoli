@@ -30,7 +30,9 @@ public class PeakShapesOverlayPlot extends AbstractPlot {
     private int rightBoundary;
 
     private PeakShapesOverlayPlot(Rectangle bounds, PeakShapesOverlayRecord peakShapesOverlayRecord) {
-        super(bounds, 50, 35, peakShapesOverlayRecord.title(), peakShapesOverlayRecord.xAxisLabel(), peakShapesOverlayRecord.yAxisLabel());
+        super(bounds, 50, 35, new String[]{peakShapesOverlayRecord.title()[0]},
+                peakShapesOverlayRecord.xAxisLabel(),
+                peakShapesOverlayRecord.yAxisLabel());
         this.peakShapesOverlayRecord = peakShapesOverlayRecord;
 
 
