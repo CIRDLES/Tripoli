@@ -154,6 +154,12 @@ public class Analysis implements Serializable, AnalysisInterface {
 
             IntuitiveStringComparator<String> intuitiveStringComparator = new IntuitiveStringComparator<>();
             fileList.sort((file1, file2) -> intuitiveStringComparator.compare(file1.getName(), file2.getName()));
+            if (blockPeakGroups.size() > 0) {
+                for (Integer blockID : blockPeakGroups.keySet()) {
+                        blockPeakGroups.get(blockID).clear();
+                }
+            }
+
             // groups isotopic files that are in the same block
             if (!fileList.isEmpty()) {
                 File[] files = fileList.toArray(new File[0]);
@@ -223,10 +229,13 @@ public class Analysis implements Serializable, AnalysisInterface {
             mapOfBlockIdToPeakPlots.remove(blockID);
         }
 
-        PlotBuilder[] peakPlotBuilders = SingleBlockPeakDriver.buildForSinglePeakBlock(blockID, blockPeakGroups);
-        mapOfBlockIdToPeakPlots.put(blockID, peakPlotBuilders);
-        retVal = mapOfBlockIdToPeakPlots.get(blockID);
-
+        if (mapOfBlockIdToPeakPlots.containsKey(blockID)) {
+            retVal = mapOfBlockIdToPeakPlots.get(blockID);
+        }else {
+            PlotBuilder[] peakPlotBuilders = SingleBlockPeakDriver.buildForSinglePeakBlock(blockID, blockPeakGroups);
+            mapOfBlockIdToPeakPlots.put(blockID, peakPlotBuilders);
+            retVal = mapOfBlockIdToPeakPlots.get(blockID);
+        }
         return retVal;
     }
 
