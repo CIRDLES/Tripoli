@@ -381,7 +381,7 @@ public class SingleBlockModelUpdater2 {
             SingleBlockModelRecord singleBlockModelRecord,
             double[][] dataModelCov,
             double[] dataModelMean,
-            int countOfNewModels) {
+            long countOfNewModels) {
         // function [xmean,xcov] = UpdateMeanCovMS(x,xmean,xcov,m)
         /*
             xx = x.lograt;

@@ -27,6 +27,10 @@ import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -44,7 +48,7 @@ import static org.cirdles.tripoli.utilities.mathUtilities.MatLab.linspace;
  */
 public class MCMCProcess2 {
 
-    private static final int maxIterationCount = 10000;
+    private static final int maxIterationCount = 3200;//10000;
     private static final int stepCountForcedSave = 10;
     private static final int modelCount = maxIterationCount * stepCountForcedSave;
     private final SingleBlockModelRecord singleBlockInitialModelRecord_X0;
@@ -73,6 +77,7 @@ public class MCMCProcess2 {
     private double[][] xDataCovariance;
     private double[][] delx_adapt;
     private Matrix TT;
+    private List<String> proposals;
 
 
     private MCMCProcess2(AnalysisMethod analysisMethod, SingleBlockDataSetRecord singleBlockDataSetRecord, SingleBlockModelRecord singleBlockInitialModelRecord) {
@@ -219,6 +224,15 @@ public class MCMCProcess2 {
 
         delx_adapt = new double[sizeOfModel][stepCountForcedSave];
 
+        try {
+            proposals = Files.readAllLines(new File("TESTING.CSV").toPath(), Charset.defaultCharset());
+
+            System.out.println(proposals.get(0));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
         buildForwardModel();
 
     }
@@ -330,7 +344,7 @@ public class MCMCProcess2 {
         double beta = 0.05;
 
         String loggingSnippet;
-        for (int modelIndex = 1; modelCount >= modelIndex; modelIndex++) {//********************************************
+        for (long modelIndex = 1; modelCount >= modelIndex; modelIndex++) {//********************************************
             long prev = System.nanoTime();
 
             boolean adaptiveFlag = true;
@@ -366,7 +380,18 @@ public class MCMCProcess2 {
                     % Update model and save proposed update values (delx)
                     [x2,delx] = UpdateMSv2(oper,x,psig,prior,ensemble,xcov,delx_adapt,adaptflag,allflag);
                 */
-            Matrix delx_adapt_Matrix = MatLabCholesky.mvnrndTripoli(new double[sizeOfModel], c_Matrix.getArray(), 1).transpose();
+//            Matrix delx_adapt_Matrix = MatLabCholesky.mvnrndTripoli(new double[sizeOfModel], c_Matrix.getArray(), 1).transpose();
+
+
+            String delxString = proposals.get((int)modelIndex);
+            String [] delxStrings = delxString.split(",");
+            double [] delx_adapt = new double[(int)sizeOfModel];
+
+            delx_adapt[0] = Double.parseDouble(delxStrings[0]);
+            for (int i = 2; i < delxStrings.length; i++){
+                delx_adapt[i - 1] = Double.parseDouble(delxStrings[i]);
+            }
+
             SingleBlockModelRecord dataModelUpdaterOutputRecord_x2 =
                     singleBlockModelUpdater2.updateMSv2(
                             operation,
@@ -374,7 +399,8 @@ public class MCMCProcess2 {
                             proposalSigmasRecord,
                             proposalRangesRecord,
                             xDataCovariance,
-                            delx_adapt_Matrix.getRowPackedCopy(),
+                            delx_adapt,
+//                            delx_adapt_Matrix.getRowPackedCopy(),
                             adaptiveFlag,
                             allFlag
                     );
