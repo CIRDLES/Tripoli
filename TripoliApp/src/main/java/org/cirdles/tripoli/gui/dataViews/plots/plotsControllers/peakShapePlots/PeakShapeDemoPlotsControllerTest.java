@@ -456,7 +456,7 @@ public class PeakShapeDemoPlotsControllerTest {
                 PeakShapeOutputDataRecord peakShapeOutputDataRecord = BeamShapeLinePlotBuilderX.getPeakData(resourceBrowserTarget.toPath());
                 //BeamShapeLinePlotBuilderX beamShape = BeamShapeLinePlotBuilderX.initializeBeamShape(peakShapeOutputDataRecord, new String[]{peakShapeOutputDataRecord.massID()}, "Mass (amu)", "Beam Intensity");
                 PeakShapesOverlayBuilder peakShapes = PeakShapesOverlayBuilder.initializePeakShapes(peakShapeOutputDataRecord,
-                        new String[]{ "Peak Shapes " + peakShapeOutputDataRecord.massID() + " / Peak Mass: " + peakShapeOutputDataRecord.peakCenterMass() },
+                        new String[]{"Peak Shapes " + peakShapeOutputDataRecord.massID() + " / Peak Mass: " + peakShapeOutputDataRecord.peakCenterMass()},
                         "Mass (amu)", "Peak Intensities");
                 if (ensemblePlotsWallPane.getChildren().size() > 3) {
                     ensemblePlotsWallPane.getChildren().remove(2, ensemblePlotsWallPane.getChildren().size());

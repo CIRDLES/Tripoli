@@ -274,7 +274,16 @@ public class SingleBlockModelUpdater2 {
                     }
                 }
 
+                /*
+                    x2.lograt = xx(xind==1);
+                        for ii=1:Nblock
+                            x2.I{ii} = xx(xind==(1+ii));
+                        end
+                        x2.BL = xx(xind==(2+Nblock));
+                        x2.DFgain = xx(xind==(3+Nblock));
 
+                        x2.sig = x.sig;
+                 */
                 singleBlockInitialModelRecord_initial2 = new SingleBlockModelRecord(
                         singleBlockInitialModelRecord_initial.blockNumber(),
                         updatedBaselineMeans,
@@ -402,25 +411,35 @@ public class SingleBlockModelUpdater2 {
         System.arraycopy(singleBlockModelRecord.baselineMeansArray(), 0, xx, countOfLogRatios + countOfCycles, countOfFaradays);
         xx[countOfTotalModelParameters - 1] = singleBlockModelRecord.detectorFaradayGain();
 
-        double[] xMeanTemp = new double[dataModelMean.length];
+        double[] xMeanTemp = dataModelMean.clone();
+        double[] xMean = new double[dataModelMean.length];
         double[] diffXwithXmean = new double[dataModelMean.length];
         double[] diffXwithXmeanTemp = new double[dataModelMean.length];
         for (int row = 0; row < xMeanTemp.length; row++) {
-            xMeanTemp[row] = dataModelMean[row] + (xx[row] - dataModelMean[row]) / countOfNewModels;
-            diffXwithXmean[row] = xx[row] - dataModelMean[row];
             diffXwithXmeanTemp[row] = xx[row] - xMeanTemp[row];
+            xMean[row] = xMeanTemp[row] + diffXwithXmeanTemp[row] / countOfNewModels;
+            diffXwithXmean[row] = xx[row] - xMean[row];
+
+
+//            diffXwithXmean[row] = xx[row] - dataModelMean[row];
+//            xMeanTemp[row] = dataModelMean[row] + diffXwithXmean[row] / countOfNewModels;
+//            //diffXwithXmean[row] = xx[row] - dataModelMean[row];
+//            diffXwithXmeanTemp[row] = xx[row] - xMeanTemp[row];
         }
 
+        /*
+         xcov = xcov*(m-1)/m + (m-1)/m^2*(xx-xmean)*(xx-xmeantmp)';
+         */
         Matrix xCovM = new Matrix(dataModelCov);
         Matrix diffXwithXmeanMatrix = new Matrix(diffXwithXmean, diffXwithXmean.length);
         Matrix diffXwithXmeanTempMatrix = new Matrix(diffXwithXmeanTemp, diffXwithXmeanTemp.length);
         Matrix updated_xCovM =
                 xCovM.times(((countOfNewModels - 1) / countOfNewModels))
                         .plus(diffXwithXmeanMatrix
-                                .times((countOfNewModels - 1) / Math.pow(countOfNewModels, 2))
+                                .times((countOfNewModels - 1) / Math.pow(countOfNewModels, 2.0))
                                 .times(diffXwithXmeanTempMatrix.transpose()));
 
-        return new UpdatedCovariancesRecord(updated_xCovM.getArray(), xMeanTemp);
+        return new UpdatedCovariancesRecord(updated_xCovM.getArray(), xMean);
     }
 
     public record UpdatedCovariancesRecord(

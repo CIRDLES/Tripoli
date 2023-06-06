@@ -70,11 +70,11 @@ public enum ProposedModelParameters {
 
     public static ProposalSigmasRecord buildProposalSigmasRecord(double[] baselineStandardDeviations, ProposalRangesRecord proposalRangesRecord) {
         /*
-            % "Proposal Sigmas"
+           % "Proposal Sigmas"
             % Standard deviations for proposing changes to model
             psig.BL = max(x0.BLstd)/10*1;  % Faraday Baseline
             psig.BLdaly = 1e-1*1;  % Daly Baseline
-            psig.lograt = 0.0005*.2;  % Log Ratio
+            psig.lograt = 0.02; %0.0005*.2;  % Log Ratio %debug
             psig.I = max(max([x0.I{:}])-min([x0.I{:}]))/100*1 ; % Intensity
             psig.DFgain = 0.001; % Daly-Faraday gain
 
@@ -88,7 +88,7 @@ public enum ProposedModelParameters {
         for (int row = 0; row < baselineStandardDeviations.length; row++) {
             maxValue = Math.max(baselineStandardDeviations[row], maxValue);
         }
-        double psigBaselineFaraday = maxValue;// / 10.0; removed per team meeting 5/11/2023
+        double psigBaselineFaraday = maxValue / 10.0;
         double psigBaselineDaly = 1.0e-1;
         double psigLogRatio = 0.02;//0.0005 * 0.2;
         double psigIntensity = (proposalRangesRecord.maxIntensity() - proposalRangesRecord.minIntensity()) / 100.0;

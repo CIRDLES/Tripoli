@@ -22,7 +22,7 @@ public class PeakShapesOverlayPlot extends AbstractPlot {
     private final Tooltip tooltip;
     protected PeakShapesOverlayRecord peakShapesOverlayRecord;
 
-    private  double[] gBeamXData;
+    private double[] gBeamXData;
     private double[] yIntensity;
     private double[] gBeamYData;
 
@@ -173,9 +173,6 @@ public class PeakShapesOverlayPlot extends AbstractPlot {
         g2d.beginPath();
         g2d.setLineDashes(0);
     }
-
-
-
 
 
     @Override

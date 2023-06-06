@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.utilities.mathUtilities;
 
 import com.google.common.primitives.Ints;
+import jama.CholeskyDecomposition;
 import jama.EigenvalueDecomposition;
 import jama.Matrix;
 import org.apache.commons.math3.random.RandomDataGenerator;
@@ -31,7 +32,7 @@ import static java.lang.StrictMath.ulp;
  */
 public enum MatLabCholesky {
     ;
-
+    static RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
      /*
         if (n == m) && all(all(abs(Sigma - Sigma') < n*tol))
             [T,p] = chol(Sigma);
@@ -109,9 +110,10 @@ public enum MatLabCholesky {
         // then z = (1.4-1.2) / 0.4 = 0.5, i.e. the pupil is half a standard deviation from the mean (value at centre of curve).
 
         Matrix T = cholCov(new Matrix(sigma));
+
         double[][] rArray = new double[cases][T.getRowDimension()];
-        RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
-        randomDataGenerator.reSeedSecure();
+//        RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
+        //       randomDataGenerator.reSeedSecure();
         for (int row = 0; row < cases; row++) {
             for (int col = 0; col < T.getRowDimension(); col++) {
                 rArray[row][col] = randomDataGenerator.nextGaussian(0.0, 1.0);
@@ -268,7 +270,10 @@ public enum MatLabCholesky {
                 matrixT = new Matrix(new double[1][1]);
             }
         }
-        return matrixT;
+
+        CholeskyDecomposition choleskyDecomposition = new CholeskyDecomposition(sigma);
+
+        return choleskyDecomposition.getL().transpose();
     }
 
     public static boolean all(double[][] array, String operator, double tolerance) {

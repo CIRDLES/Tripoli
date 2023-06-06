@@ -28,8 +28,6 @@ import java.io.Serializable;
 import java.util.*;
 
 import static java.lang.Math.pow;
-import static java.lang.StrictMath.exp;
-import static java.lang.StrictMath.log;
 import static org.cirdles.tripoli.utilities.comparators.SerializableIntegerComparator.SERIALIZABLE_COMPARATOR;
 
 /**

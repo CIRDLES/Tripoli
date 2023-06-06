@@ -465,8 +465,8 @@ public enum MatLab {
     /**
      * Divides param div by the elements in param A
      *
-     * @param A  dividend
-     * @param B  Matrix B
+     * @param A dividend
+     * @param B Matrix B
      * @return div./B
      */
 

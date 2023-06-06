@@ -27,10 +27,6 @@ import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -48,7 +44,7 @@ import static org.cirdles.tripoli.utilities.mathUtilities.MatLab.linspace;
  */
 public class MCMCProcess2 {
 
-    private static final int maxIterationCount = 3200;//10000;
+    private static final int maxIterationCount = 10000;
     private static final int stepCountForcedSave = 10;
     private static final int modelCount = maxIterationCount * stepCountForcedSave;
     private final SingleBlockModelRecord singleBlockInitialModelRecord_X0;
@@ -75,7 +71,7 @@ public class MCMCProcess2 {
     private int startingIndexOfPhotoMultiplierData;
     private double[] xDataMean;
     private double[][] xDataCovariance;
-    private double[][] delx_adapt;
+    //    private double[][] delx_adapt;
     private Matrix TT;
     private List<String> proposals;
 
@@ -148,10 +144,10 @@ public class MCMCProcess2 {
         double nTemp = 10000;
 
         double[] hot = linspace(5, 1, nTemp).toRawCopy1D();
-        double[] TTarray = new double[100000];//modelCount];
+        double[] TTarray = new double[modelCount + 1];
         Arrays.fill(TTarray, 1.0);
         System.arraycopy(hot, 0, TTarray, 0, hot.length);
-        TT = new Matrix(TTarray, 100000);//modelCount);
+        TT = new Matrix(TTarray, modelCount + 1);//modelCount);
 
         startingIndexOfFaradayData = singleBlockDataSetRecord.getCountOfBaselineIntensities();
         startingIndexOfPhotoMultiplierData = startingIndexOfFaradayData + singleBlockDataSetRecord.getCountOfOnPeakFaradayIntensities();
@@ -185,18 +181,18 @@ public class MCMCProcess2 {
         c0_Array = new double[sizeOfModel][sizeOfModel];
         double calculatedValue;
         for (int i = 0; i < ratioCount; i++) {
-            calculatedValue = StrictMath.pow(0.1, 2) * (1.0 / sizeOfModel) * proposalSigmasRecord.psigLogRatio();
+            calculatedValue = StrictMath.pow(0.1, 2.0) * (1.0 / sizeOfModel) * proposalSigmasRecord.psigLogRatio();
             c0_Array[i][i] = calculatedValue;
         }
         for (int i = ratioCount; i < ratioCount + countOfCycles; i++) {
-            calculatedValue = StrictMath.pow(0.1, 2) * (1.0 / sizeOfModel) * proposalSigmasRecord.psigIntensity();
+            calculatedValue = StrictMath.pow(0.1, 2.0) * (1.0 / sizeOfModel) * proposalSigmasRecord.psigIntensity();
             c0_Array[i][i] = calculatedValue;
         }
         for (int i = ratioCount + countOfCycles; i < ratioCount + countOfCycles + faradayCount; i++) {
-            calculatedValue = StrictMath.pow(0.1, 2) * (1.0 / sizeOfModel) * proposalSigmasRecord.psigBaselineFaraday();
+            calculatedValue = StrictMath.pow(0.1, 2.0) * (1.0 / sizeOfModel) * proposalSigmasRecord.psigBaselineFaraday();
             c0_Array[i][i] = calculatedValue;
         }
-        c0_Array[sizeOfModel - 1][sizeOfModel - 1] = StrictMath.pow(0.1, 2) * (1.0 / sizeOfModel) * proposalSigmasRecord.psigDFgain();
+        c0_Array[sizeOfModel - 1][sizeOfModel - 1] = StrictMath.pow(0.1, 2.0) * (1.0 / sizeOfModel) * proposalSigmasRecord.psigDFgain();
 
 
 
@@ -222,15 +218,13 @@ public class MCMCProcess2 {
         xDataMean = new double[sizeOfModel];
         xDataCovariance = new double[sizeOfModel][sizeOfModel];
 
-        delx_adapt = new double[sizeOfModel][stepCountForcedSave];
-
-        try {
-            proposals = Files.readAllLines(new File("TESTING.CSV").toPath(), Charset.defaultCharset());
-
-            System.out.println(proposals.get(0));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            proposals = Files.readAllLines(new File("TESTING.CSV").toPath(), Charset.defaultCharset());
+//
+//            System.out.println(proposals.get(0));
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
 
 
         buildForwardModel();
@@ -346,6 +340,9 @@ public class MCMCProcess2 {
         String loggingSnippet;
         for (long modelIndex = 1; modelCount >= modelIndex; modelIndex++) {//********************************************
             long prev = System.nanoTime();
+            if (modelIndex == 100000) {
+                System.out.println("HELP");
+            }
 
             boolean adaptiveFlag = true;
             boolean allFlag = true;
@@ -366,7 +363,7 @@ public class MCMCProcess2 {
             Matrix c0_Matrix = new Matrix(c0_Array);
             Matrix c_Matrix;
 
-            if (modelIndex <= 2 * sizeOfModel) {
+            if (modelIndex <= 2L * sizeOfModel) {
                 c_Matrix = (Matrix) c0_Matrix.clone();
             } else {
                 c_Matrix = c0_Matrix.times(beta).plus(xDataCovarianceMatrix.times((1.0 - beta) * 2.38 * 2.38 / sizeOfModel));
@@ -380,17 +377,17 @@ public class MCMCProcess2 {
                     % Update model and save proposed update values (delx)
                     [x2,delx] = UpdateMSv2(oper,x,psig,prior,ensemble,xcov,delx_adapt,adaptflag,allflag);
                 */
-//            Matrix delx_adapt_Matrix = MatLabCholesky.mvnrndTripoli(new double[sizeOfModel], c_Matrix.getArray(), 1).transpose();
+            Matrix delx_adapt_Matrix = MatLabCholesky.mvnrndTripoli(new double[sizeOfModel], c_Matrix.getArray(), 1).transpose();
 
 
-            String delxString = proposals.get((int)modelIndex);
-            String [] delxStrings = delxString.split(",");
-            double [] delx_adapt = new double[(int)sizeOfModel];
-
-            delx_adapt[0] = Double.parseDouble(delxStrings[0]);
-            for (int i = 2; i < delxStrings.length; i++){
-                delx_adapt[i - 1] = Double.parseDouble(delxStrings[i]);
-            }
+//            String delxString = proposals.get((int)modelIndex);
+//            String [] delxStrings = delxString.split(",");
+//            double [] delx_adapt = new double[(int)sizeOfModel];
+//
+//            delx_adapt[0] = Double.parseDouble(delxStrings[0]);
+//            for (int i = 2; i < delxStrings.length; i++){
+//                delx_adapt[i - 1] = Double.parseDouble(delxStrings[i]);
+//            }
 
             SingleBlockModelRecord dataModelUpdaterOutputRecord_x2 =
                     singleBlockModelUpdater2.updateMSv2(
@@ -399,22 +396,21 @@ public class MCMCProcess2 {
                             proposalSigmasRecord,
                             proposalRangesRecord,
                             xDataCovariance,
-                            delx_adapt,
-//                            delx_adapt_Matrix.getRowPackedCopy(),
+//                            delx_adapt,
+                            delx_adapt_Matrix.getRowPackedCopy(),
                             adaptiveFlag,
                             allFlag
                     );
             boolean noiseOperation = operation.toLowerCase(Locale.ROOT).startsWith("n");
 
                 /*
-            %% Create updated data based on new model
+          %% Create updated data based on new model
                 % I was working on making this more compact and some of the details
                 % elude me.
-                tmpBLind = [x2.BL; 0];
-                tmpBL = tmpBLind(d0.det_vec);
-                tmpDF = ones(d0.Ndata,1);
-                tmpDF(~d0.axflag) = x2.DFgain^-1;
-                tmpLR = exp(x2.lograt(d0.iso_vec));
+                tmpBLind = [x2.BL; 0]; tmpBL = tmpBLind(d0.det_vec);
+                tmpDF = ones(d0.Ndata,1); tmpDF(~d0.axflag) = x2.DFgain^-1;
+                %tmpLR = exp(x2.lograt(d0.iso_vec)); % debug
+                tmpLR = (x2.lograt(d0.iso_vec));
                 tmpI = zeros(d0.Ndata,1);
                 for n=1:d0.Nblock
                     Intensity2{n} = InterpMat{n}*x2.I{n};
@@ -524,24 +520,38 @@ public class MCMCProcess2 {
                 double residualValue2 = pow(intensitiesArray[row] - dataArray2[row], 2);
                 E02 += residualValue2;
 
-                    /*
-                    % Decide whether to accept or reject model
-                    keep = AcceptItMS(oper,dE,psig,delx,prior,Dsig,Dsig2,d0);
+
+                /*
+                if strcmp(oper,'noise')
+                    % If noise operation
+                    E=sum(restmp./Dsig);
+                    E2=sum(restmp2./Dsig2);
+                    dE=E2-E; % Change in misfit
+                else
+                    % If any other model update
+                    E=sum(restmp.*blmult./Dsig/TT(m));
+                    E2=sum(restmp2.*blmult./Dsig2/TT(m));
+                    dE=temp^-1*(E2-E); % Change in misfit
+                end
                  */
                 if (noiseOperation) {
-                    E += residualValue / dataSignalNoiseArray[row] / TT.get(row, 0);
-                    E2 += residualValue2 / dataSignalNoise2Array[row] / TT.get(row, 0);
+                    E += residualValue / dataSignalNoiseArray[row];
+                    E2 += residualValue2 / dataSignalNoise2Array[row];
                     sumLogDSignalNoise += -1.0 * Math.log(dataSignalNoiseArray[row]);
                     sumLogDSignalNoise2 += -1.0 * Math.log(dataSignalNoise2Array[row]);
                 } else {
-                    E += residualValue * baselineMultiplier[row] / dataSignalNoiseArray[row] / TT.get(row, 0);
-                    E2 += residualValue2 * baselineMultiplier[row] / dataSignalNoise2Array[row] / TT.get(row, 0);
+                    E += residualValue * baselineMultiplier[row] / dataSignalNoiseArray[row] / TT.get((int) modelIndex, 0);
+                    E2 += residualValue2 * baselineMultiplier[row] / dataSignalNoise2Array[row] / TT.get((int) modelIndex, 0);
                 }
             } //rows loop
 
             long interval4 = System.nanoTime() - prev;
             prev = interval4 + prev;
 
+               /*
+                    % Decide whether to accept or reject model
+                    keep = AcceptItMS(oper,dE,psig,delx,prior,Dsig,Dsig2,d0);
+                 */
             if (noiseOperation) {
                 dE = E2 - E;
                 double deltaLogNoise = sumLogDSignalNoise2 - sumLogDSignalNoise;
@@ -636,7 +646,7 @@ public class MCMCProcess2 {
 //                counter++;
                 int countOfLogRatios = singleBlockInitialModelRecord_initial.logRatios().length;
                 double[] convertedToLogRatios = new double[countOfLogRatios];
-                for (int i = 0; i < countOfLogRatios; i ++){
+                for (int i = 0; i < countOfLogRatios; i++) {
                     convertedToLogRatios[i] = log(singleBlockInitialModelRecord_initial.logRatios()[i]);
                 }
                 ensembleRecordsList.add(new EnsemblesStore.EnsembleRecord(
@@ -666,12 +676,13 @@ public class MCMCProcess2 {
                     int modelsTotalLocal = 0;
                     int modelsKept = 0;
                     int modelsTotal = 0;
-                    for (int row = 0; row < 4; row++) {
+                    for (int row = 0; 4 > row; row++) {
                         modelsKeptLocal += keptUpdates[row][0];
                         modelsTotalLocal += keptUpdates[row][1];
                         modelsKept += keptUpdates[row][2];
                         modelsTotal += keptUpdates[row][3];
                     }
+
 
                     loggingSnippet =
                             modelIndex + " >%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
