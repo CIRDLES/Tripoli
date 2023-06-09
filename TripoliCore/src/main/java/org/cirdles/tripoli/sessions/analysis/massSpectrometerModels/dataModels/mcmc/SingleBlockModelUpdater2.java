@@ -130,7 +130,7 @@ public class SingleBlockModelUpdater2 {
     // function  [x2,delx,xcov] = UpdateMSv2(oper,x,psig,prior,ensemble,xcov,delx_adapt,adaptflag,allflag)
     synchronized SingleBlockModelRecord updateMSv2(
             String operation,
-            SingleBlockModelRecord singleBlockInitialModelRecord_initial,
+            SingleBlockModelRecord singleBlockInitialModelRecord_initial,// i.e. "X"
             ProposedModelParameters.ProposalSigmasRecord proposalSigmasRecord,
             ProposedModelParameters.ProposalRangesRecord proposalRangesRecord,
             double[][] xDataCovariance,
@@ -390,7 +390,7 @@ public class SingleBlockModelUpdater2 {
             SingleBlockModelRecord singleBlockModelRecord,
             double[][] dataModelCov,
             double[] dataModelMean,
-            long countOfNewModels) {
+            long countOfModels) {
         // function [xmean,xcov] = UpdateMeanCovMS(x,xmean,xcov,m)
         /*
             xx = x.lograt;
@@ -417,14 +417,8 @@ public class SingleBlockModelUpdater2 {
         double[] diffXwithXmeanTemp = new double[dataModelMean.length];
         for (int row = 0; row < xMeanTemp.length; row++) {
             diffXwithXmeanTemp[row] = xx[row] - xMeanTemp[row];
-            xMean[row] = xMeanTemp[row] + diffXwithXmeanTemp[row] / countOfNewModels;
+            xMean[row] = xMeanTemp[row] + diffXwithXmeanTemp[row] / countOfModels;
             diffXwithXmean[row] = xx[row] - xMean[row];
-
-
-//            diffXwithXmean[row] = xx[row] - dataModelMean[row];
-//            xMeanTemp[row] = dataModelMean[row] + diffXwithXmean[row] / countOfNewModels;
-//            //diffXwithXmean[row] = xx[row] - dataModelMean[row];
-//            diffXwithXmeanTemp[row] = xx[row] - xMeanTemp[row];
         }
 
         /*
@@ -433,10 +427,13 @@ public class SingleBlockModelUpdater2 {
         Matrix xCovM = new Matrix(dataModelCov);
         Matrix diffXwithXmeanMatrix = new Matrix(diffXwithXmean, diffXwithXmean.length);
         Matrix diffXwithXmeanTempMatrix = new Matrix(diffXwithXmeanTemp, diffXwithXmeanTemp.length);
+        // June 2023 discovered need to pre-calculate to guarantee results
+        double countMinusOneOverCount = ((countOfModels - 1.0) / countOfModels);
+        double countMinusOneOverSquareCount = (countOfModels - 1.0) / Math.pow(countOfModels, 2.0);
         Matrix updated_xCovM =
-                xCovM.times(((countOfNewModels - 1) / countOfNewModels))
+                xCovM.times(countMinusOneOverCount)
                         .plus(diffXwithXmeanMatrix
-                                .times((countOfNewModels - 1) / Math.pow(countOfNewModels, 2.0))
+                                .times(countMinusOneOverSquareCount)
                                 .times(diffXwithXmeanTempMatrix.transpose()));
 
         return new UpdatedCovariancesRecord(updated_xCovM.getArray(), xMean);
