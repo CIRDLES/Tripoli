@@ -61,7 +61,7 @@ dependencies {
     // https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
     // https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-impl
-  //  implementation("com.sun.xml.bind:jaxb-impl:4.0.2")
+    //  implementation("com.sun.xml.bind:jaxb-impl:4.0.2")
     // https://mvnrepository.com/artifact/org.eclipse.persistence/org.eclipse.persistence.moxy
     implementation("org.eclipse.persistence:org.eclipse.persistence.moxy:4.0.1")
 

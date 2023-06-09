@@ -33,7 +33,6 @@ import java.util.*;
 import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
-import static java.lang.StrictMath.log;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalRangesRecord;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalSigmasRecord;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelUpdater.operations;
@@ -429,7 +428,7 @@ x=x0;
                 }
                 // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
                 if (isotopeOrdinalIndicesArray[row] - 1 < logRatios.length) {
-                    updatedLogRatioArray[row] = StrictMath.exp(logRatios[isotopeOrdinalIndicesArray[row] - 1]);
+                    updatedLogRatioArray[row] = exp(logRatios[isotopeOrdinalIndicesArray[row] - 1]);
                 } else {
                     updatedLogRatioArray[row] = 1.0;
                 }

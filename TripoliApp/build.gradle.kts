@@ -1,5 +1,3 @@
-import Common_build_gradle.Versions.junitVersion
-
 /*
  * Copyright 2022 James Bowring, Noah McLean, Scott Burdick, and CIRDLES.org.
  *
