@@ -90,7 +90,7 @@ public enum ProposedModelParameters {
         }
         double psigBaselineFaraday = maxValue / 10.0;
         double psigBaselineDaly = 1.0e-1;
-        double psigLogRatio = 0.02;//0.0005 * 0.2;
+        double psigLogRatio = 0.0005 * 0.2;
         double psigIntensity = (proposalRangesRecord.maxIntensity() - proposalRangesRecord.minIntensity()) / 100.0;
         double psigDFgain = 0.001;
         double psigSignalNoiseFaraday = maxValue;

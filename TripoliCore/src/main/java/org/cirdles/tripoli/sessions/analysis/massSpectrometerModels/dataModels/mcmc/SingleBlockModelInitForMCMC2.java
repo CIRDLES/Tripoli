@@ -158,7 +158,7 @@ enum SingleBlockModelInitForMCMC2 {
         double[] logRatios = new double[indexOfMostAbundantIsotope];
         // per Scott switch to pure ratio
         for (int logRatioIndex = 0; logRatioIndex < logRatios.length; logRatioIndex++) {
-            logRatios[logRatioIndex] = (photoMultiplierMeansArray[logRatioIndex] / photoMultiplierMeansArray[indexOfMostAbundantIsotope]);
+            logRatios[logRatioIndex] = StrictMath.log(photoMultiplierMeansArray[logRatioIndex] / photoMultiplierMeansArray[indexOfMostAbundantIsotope]);
         }
 
         /*
@@ -179,7 +179,7 @@ enum SingleBlockModelInitForMCMC2 {
         for (int row = 0; row < intensityAccumulatorList.size(); row++) {
             if (isotopeOrdinalIndicesAccumulatorList.get(row) - 1 < logRatios.length) {
                 dd.add(intensityAccumulatorList.get(row)
-                        / (logRatios[isotopeOrdinalIndicesAccumulatorList.get(row) - 1]));
+                        / StrictMath.exp(logRatios[isotopeOrdinalIndicesAccumulatorList.get(row) - 1]));
             } else {
                 // this used to be the iden/iden ratio, which we eliminated, was 1.0 anyway
                 dd.add(intensityAccumulatorList.get(row));
@@ -267,7 +267,7 @@ enum SingleBlockModelInitForMCMC2 {
             isotopeIndex = isotopeOrdinalIndicesAccumulatorList.get(dataArrayIndex - baselineCount) - 1;
             faradayIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(dataArrayIndex - baselineCount));
             if (isotopeIndex < logRatios.length) {
-                dataArray[dataArrayIndex] = (logRatios[isotopeIndex]) / detectorFaradayGain * intensities.get(intensityIndex, 0) + baselineMeansArray[faradayIndex];
+                dataArray[dataArrayIndex] = StrictMath.exp(logRatios[isotopeIndex]) / detectorFaradayGain * intensities.get(intensityIndex, 0) + baselineMeansArray[faradayIndex];
             } else {
                 dataArray[dataArrayIndex] = 1.0 / detectorFaradayGain * intensities.get(intensityIndex, 0) + baselineMeansArray[faradayIndex];
             }
@@ -290,7 +290,7 @@ enum SingleBlockModelInitForMCMC2 {
             isotopeIndex = isotopeOrdinalIndicesAccumulatorList.get(dataArrayIndex - baselineCount - onPeakFaradayCount).intValue() - 1;
             faradayIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(dataArrayIndex - baselineCount - onPeakFaradayCount));
             if (isotopeIndex < logRatios.length) {
-                dataArray[dataArrayIndex] = (logRatios[isotopeIndex]) * intensities.get(intensityIndex, 0);
+                dataArray[dataArrayIndex] = StrictMath.exp(logRatios[isotopeIndex]) * intensities.get(intensityIndex, 0);
             } else {
                 dataArray[dataArrayIndex] = intensities.get(intensityIndex, 0);
             }

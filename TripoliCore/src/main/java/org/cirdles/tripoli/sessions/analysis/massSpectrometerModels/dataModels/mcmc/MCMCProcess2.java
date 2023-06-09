@@ -429,7 +429,7 @@ x=x0;
                 }
                 // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
                 if (isotopeOrdinalIndicesArray[row] - 1 < logRatios.length) {
-                    updatedLogRatioArray[row] = (logRatios[isotopeOrdinalIndicesArray[row] - 1]);
+                    updatedLogRatioArray[row] = StrictMath.exp(logRatios[isotopeOrdinalIndicesArray[row] - 1]);
                 } else {
                     updatedLogRatioArray[row] = 1.0;
                 }
@@ -631,13 +631,13 @@ x=x0;
                     ensemble(cnt).E0=E0; % Unweighted misfit
                  */
 //                counter++;
-                int countOfLogRatios = singleBlockInitialModelRecord_X.logRatios().length;
-                double[] convertedToLogRatios = new double[countOfLogRatios];
-                for (int i = 0; i < countOfLogRatios; i++) {
-                    convertedToLogRatios[i] = log(singleBlockInitialModelRecord_X.logRatios()[i]);
-                }
+//                int countOfLogRatios = singleBlockInitialModelRecord_X.logRatios().length;
+//                double[] convertedToLogRatios = new double[countOfLogRatios];
+//                for (int i = 0; i < countOfLogRatios; i++) {
+//                    convertedToLogRatios[i] = log(singleBlockInitialModelRecord_X.logRatios()[i]);
+//                }
                 ensembleRecordsList.add(new EnsemblesStore.EnsembleRecord(
-                        convertedToLogRatios,
+                        singleBlockInitialModelRecord_X.logRatios(),
                         singleBlockInitialModelRecord_X.I0(),
                         singleBlockInitialModelRecord_X.baselineMeansArray(),
                         singleBlockInitialModelRecord_X.detectorFaradayGain(),
