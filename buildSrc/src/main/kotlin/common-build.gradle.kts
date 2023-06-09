@@ -46,7 +46,7 @@ dependencies {
 
 val mavenArtifactId = name
 val mavenGroupId = "org.cirdles"
-val mavenVersion = "0.1.7"
+val mavenVersion = "0.1.8"
 
 object Versions {
     const val junitVersion = "5.8.2"
