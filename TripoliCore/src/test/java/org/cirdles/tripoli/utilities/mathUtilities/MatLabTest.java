@@ -277,34 +277,35 @@ class MatLabTest {
     }
 
     /**
-     *     Linspace test
-     *     Deserializes matrices from files written using MATLAB
-     *     Matrix A contains the parameters for the linspace. It is linspace_matrix_A.txt
-     *     Answers are in linspace_answers.txt
-     *     rowDim = randi(11) - 1;
-     *     colDim = randi(10);
-     *     rowDim2 = randi(10);
-     *     colDim2 = randi(10);
+     * Linspace test
+     * Deserializes matrices from files written using MATLAB
+     * Matrix A contains the parameters for the linspace. It is linspace_matrix_A.txt
+     * Answers are in linspace_answers.txt
+     * rowDim = randi(11) - 1;
+     * colDim = randi(10);
+     * rowDim2 = randi(10);
+     * colDim2 = randi(10);
+     * <p>
+     * zeroMatrix1 = zeros(1, 2);
+     * zeroMatrix2 = zeros(1, 1);
+     * edgeCase1 = rand();
+     * <p>
+     * randMat = max.*rand(1, 2);
+     * rHelper = (-1).^randi(2,1,2);
+     * randMat = randMat.*rHelper;
+     * <p>
+     * if edgeCase1 < 0.1
+     * randMat = zeroMatrix1;
+     * end
+     * <p>
+     * filename1 = fullfile('linspace_matrix_A.txt');
+     * <p>
+     * <p>
+     * linout = linspace(randMat(1), randMat(2), rowDim);
+     * linsize = size(linout);
+     * filename3 = fullfile('linspace_answers.txt');
+     * randMatSize1 = size(randMat);
      *
-     *     zeroMatrix1 = zeros(1, 2);
-     *     zeroMatrix2 = zeros(1, 1);
-     *     edgeCase1 = rand();
-     *
-     *     randMat = max.*rand(1, 2);
-     *     rHelper = (-1).^randi(2,1,2);
-     *     randMat = randMat.*rHelper;
-     *
-     *     if edgeCase1 < 0.1
-     *         randMat = zeroMatrix1;
-     *     end
-     *
-     *     filename1 = fullfile('linspace_matrix_A.txt');
-     *
-     *
-     *     linout = linspace(randMat(1), randMat(2), rowDim);
-     *     linsize = size(linout);
-     *     filename3 = fullfile('linspace_answers.txt');
-     *     randMatSize1 = size(randMat);
      * @throws IOException
      */
     @Test
@@ -375,33 +376,33 @@ class MatLabTest {
     }
 
     /**
-     *     rDivide test
-     *     Deserializes matrices from files written using MATLAB
-     *     Matrix A contains the input matrix. It is rDivide_matrix_A.txt
-     *     Matrix B contains the parameters for the rDivide. It is rDivide_matrix_B.txt
-     *     Answers are in linspace_answers.txt
-     *     rowDim = randi(10);
-     *     colDim = randi(10);
-     *     rowDim2 = randi(10);
-     *     colDim2 = randi(10);
-
-
-     *     randMat = max.*rand(rowDim, colDim);
-     *     rHelper = (-1).^randi(2,rowDim,colDim);
-     *     randMat = randMat.*rHelper;
-
-
-     *     filename1 = fullfile('rDivide_matrix_A.txt');
-
-     *     randMat2 = max2.*rand(1, 1);
-     *     r_helper = (-1).^randi(2,1,1);
-     *     randMat2 = randMat2.*r_helper;
-
-     *     randMatSize2 = size(randMat2);
-     *     filename2 = fullfile('rDivide_matrix_B.txt');
-
-     *     rout = rdivide(randMat, randMat2(1));
-     *     rsize = size(rout);
+     * rDivide test
+     * Deserializes matrices from files written using MATLAB
+     * Matrix A contains the input matrix. It is rDivide_matrix_A.txt
+     * Matrix B contains the parameters for the rDivide. It is rDivide_matrix_B.txt
+     * Answers are in linspace_answers.txt
+     * rowDim = randi(10);
+     * colDim = randi(10);
+     * rowDim2 = randi(10);
+     * colDim2 = randi(10);
+     * <p>
+     * <p>
+     * randMat = max.*rand(rowDim, colDim);
+     * rHelper = (-1).^randi(2,rowDim,colDim);
+     * randMat = randMat.*rHelper;
+     * <p>
+     * <p>
+     * filename1 = fullfile('rDivide_matrix_A.txt');
+     * <p>
+     * randMat2 = max2.*rand(1, 1);
+     * r_helper = (-1).^randi(2,1,1);
+     * randMat2 = randMat2.*r_helper;
+     * <p>
+     * randMatSize2 = size(randMat2);
+     * filename2 = fullfile('rDivide_matrix_B.txt');
+     * <p>
+     * rout = rdivide(randMat, randMat2(1));
+     * rsize = size(rout);
      */
     // TODO: Make sure the original rDivide (flipped parameters) is okay.
     @Test
@@ -443,6 +444,7 @@ class MatLabTest {
             assertArrayEquals(expected, actualArray);
         }
     }
+
     // TODO: See if MATLAB can consistently generate test cases without the solver reaching max iterations
     @Test
     void solveNNLSTest() {
@@ -453,6 +455,7 @@ class MatLabTest {
         double[][] expected = new double[][]{{5, 7, 5}, {6, 5, 9}};
         assertTrue(Arrays.deepEquals(expected, actual.toRawCopy2D()));
     }
+
     // TODO: MATLAB's max function does not work exactly like this. Ensure this function is what is desired.
     @Test
     void maxTest() {
@@ -465,29 +468,30 @@ class MatLabTest {
     }
 
     /**
-     *     diag test
-     *     Deserializes matrices from files written using MATLAB
-     *     Matrix A contains the original matrix. It is diag_matrix_A.txt
-     *     Answers are in diag_answers.txt
-     *     rowDim = randi(10);
-
-
-     *     zeroMatrix1 = zeros(rowDim, 1);
-
-     *     edgeCase1 = rand();
-
-
-     *     randMat = max.*rand(rowDim, 1);
-     *     rHelper = (-1).^randi(2, rowDim, 1);
-     *     randMat = randMat.*rHelper;
-     *     if edgeCase1 < 0.1
-     *     randMat = zeroMatrix1;
-     *     end
-
-
-     *     diagout = diag(randMat);
-     *     diagsize = size(diagout);
-     *     randMatSize1 = size(randMat);
+     * diag test
+     * Deserializes matrices from files written using MATLAB
+     * Matrix A contains the original matrix. It is diag_matrix_A.txt
+     * Answers are in diag_answers.txt
+     * rowDim = randi(10);
+     * <p>
+     * <p>
+     * zeroMatrix1 = zeros(rowDim, 1);
+     * <p>
+     * edgeCase1 = rand();
+     * <p>
+     * <p>
+     * randMat = max.*rand(rowDim, 1);
+     * rHelper = (-1).^randi(2, rowDim, 1);
+     * randMat = randMat.*rHelper;
+     * if edgeCase1 < 0.1
+     * randMat = zeroMatrix1;
+     * end
+     * <p>
+     * <p>
+     * diagout = diag(randMat);
+     * diagsize = size(diagout);
+     * randMatSize1 = size(randMat);
+     *
      * @throws IOException
      */
     @Test

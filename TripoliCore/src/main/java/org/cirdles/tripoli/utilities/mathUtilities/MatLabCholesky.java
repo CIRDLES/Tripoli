@@ -16,22 +16,16 @@
 
 package org.cirdles.tripoli.utilities.mathUtilities;
 
-import com.google.common.primitives.Ints;
-import jama.EigenvalueDecomposition;
+import jama.CholeskyDecomposition;
 import jama.Matrix;
 import org.apache.commons.math3.random.RandomDataGenerator;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.lang.StrictMath.ulp;
 
 /**
  * @author James F. Bowring
  */
 public enum MatLabCholesky {
     ;
-
+    static RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
      /*
         if (n == m) && all(all(abs(Sigma - Sigma') < n*tol))
             [T,p] = chol(Sigma);
@@ -109,9 +103,8 @@ public enum MatLabCholesky {
         // then z = (1.4-1.2) / 0.4 = 0.5, i.e. the pupil is half a standard deviation from the mean (value at centre of curve).
 
         Matrix T = cholCov(new Matrix(sigma));
+
         double[][] rArray = new double[cases][T.getRowDimension()];
-        RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
-        randomDataGenerator.reSeedSecure();
         for (int row = 0; row < cases; row++) {
             for (int col = 0; col < T.getRowDimension(); col++) {
                 rArray[row][col] = randomDataGenerator.nextGaussian(0.0, 1.0);
@@ -170,105 +163,109 @@ public enum MatLabCholesky {
      * @param sigma
      */
     public static Matrix cholCov(Matrix sigma) {
-        int n = sigma.getRowDimension();
-        double max = Double.MIN_VALUE;
-        for (int row = 0; row < n; row++) {
-            if (Math.abs(sigma.get(row, row)) > max) {
-                max = sigma.get(row, row);
-            }
-        }
-        double[][] tArray = new double[1][1];
-        Matrix matrixT = new Matrix(tArray);
-        double tol = 10.0 * ulp(max);
-        if (all(sigma.minus(sigma.transpose()).getArray(), "<", n * tol)) {
-            EigenvalueDecomposition eig = sigma.plus(sigma.transpose().times(0.5)).eig();
-            Matrix U = eig.getV();
-            Matrix D = eig.getD();
-            // create int[] with indices of greatest ABS value in each column of U
-            // make that entry positive
-            // also process D
-            // column vector
-            /*
-            % Pick eigenvector direction so max abs coordinate is positive
-            [~,maxind] = max(abs(U),[],1);
-            negloc = (U(maxind + (0:n:(m-1)*n)) < 0);
-            U(:,negloc) = -U(:,negloc);
+//        int n = sigma.getRowDimension();
+//        double max = Double.MIN_VALUE;
+//        for (int row = 0; row < n; row++) {
+//            if (Math.abs(sigma.get(row, row)) > max) {
+//                max = sigma.get(row, row);
+//            }
+//        }
+//        double[][] tArray = new double[1][1];
+//        Matrix matrixT = new Matrix(tArray);
+//        double tol = 10.0 * ulp(max);
+//        if (all(sigma.minus(sigma.transpose()).getArray(), "<", n * tol)) {
+//            EigenvalueDecomposition eig = sigma.plus(sigma.transpose().times(0.5)).eig();
+//            Matrix U = eig.getV();
+//            Matrix D = eig.getD();
+//            // create int[] with indices of greatest ABS value in each column of U
+//            // make that entry positive
+//            // also process D
+//            // column vector
+//            /*
+//            % Pick eigenvector direction so max abs coordinate is positive
+//            [~,maxind] = max(abs(U),[],1);
+//            negloc = (U(maxind + (0:n:(m-1)*n)) < 0);
+//            U(:,negloc) = -U(:,negloc);
+//
+//            D = diag(D);
+//            tol = eps(max(D)) * length(D);
+//            t = (abs(D) > tol);
+//            D = D(t);
+//            p = sum(D<0); % number of negative eigenvalues
+//
+//            if (p==0)
+//                matrixT = diag(sqrt(D)) * U(:,t)';
+//            else
+//                matrixT = zeros(0,'like',Sigma);
+//            end
+//             */
+//            double[][] diagDasColumn = new double[D.getRowDimension()][1];
+//            double maxValueDiagD = Double.MIN_VALUE;
+//            var columnDimensionU = U.getColumnDimension();
+//            for (int col = 0; col < columnDimensionU; col++) {
+//                int indexOfMax = -1;
+//                double maxValueColU = Double.MIN_VALUE;
+//                for (int row = 0; row < U.getRowDimension(); row++) {
+//                    if (Math.abs(U.get(row, col)) > maxValueColU) {
+//                        maxValueColU = Math.abs(U.get(row, col));
+//                        indexOfMax = row;
+//                    }
+//                }
+//
+//                if (0.0 > U.get(indexOfMax, col)) {
+//                    for (int row = 0; row < U.getRowDimension(); row++) {
+//                        U.set(row, col, -U.get(row, col));
+//                    }
+//                }
+//                for (int row = 0; row < U.getRowDimension(); row++) {
+//                    if (col == row) {
+//                        diagDasColumn[row][0] = D.get(row, col);
+//                        if (diagDasColumn[row][0] > maxValueDiagD) {
+//                            maxValueDiagD = diagDasColumn[row][0];
+//                        }
+//                    }
+//                }
+//            }
+//            tol = ulp(maxValueDiagD) * diagDasColumn.length;
+//            // remove elements of diagDasColumn that are less than tol and then count negative values
+//            int countOfNegativeValues = 0;
+//            List<Integer> tList = new ArrayList<>();
+//            for (int row = 0; row < diagDasColumn.length; row++) {
+//                if (Math.abs(diagDasColumn[row][0]) <= tol) {
+//                    diagDasColumn[row][0] = 0.0;
+//                } else {
+//                    tList.add(row);
+//                }
+//                if (0.0 > diagDasColumn[row][0]) {
+//                    countOfNegativeValues++;
+//                }
+//            }
+//
+//            int[] t = Ints.toArray(tList);
+//            Matrix uOfT = U.getMatrix(0, U.getRowDimension() - 1, t);
+//            Matrix diagDasColumnOfT = (new Matrix(diagDasColumn)).getMatrix(t, 0, 0);
+//            double[][] diagDasColumnOfTarray = diagDasColumnOfT.getArray();
+//
+//            for (int row = 0; row < diagDasColumnOfTarray.length; row++) {
+//                diagDasColumnOfTarray[row][0] = StrictMath.sqrt(diagDasColumnOfTarray[row][0]);
+//            }
+//            Matrix DofTDiagonalMatrix = new Matrix(diagDasColumnOfTarray.length, diagDasColumnOfTarray.length);
+//            for (int row = 0; row < diagDasColumnOfTarray.length; row++) {
+//                DofTDiagonalMatrix.set(row, row, diagDasColumnOfTarray[row][0]);
+//            }
+//
+//            if (0 == countOfNegativeValues) {//(chol.isSPD()){
+//                // matrixT = diag(sqrt(D)) * U(:,t)';
+//                matrixT = DofTDiagonalMatrix.times(uOfT.transpose());
+//            } else {
+//                matrixT = new Matrix(new double[1][1]);
+//            }
+//        }
 
-            D = diag(D);
-            tol = eps(max(D)) * length(D);
-            t = (abs(D) > tol);
-            D = D(t);
-            p = sum(D<0); % number of negative eigenvalues
+        // June 2023 - for Tripoli MCMC2, just need the following
+        CholeskyDecomposition choleskyDecomposition = new CholeskyDecomposition(sigma);
 
-            if (p==0)
-                matrixT = diag(sqrt(D)) * U(:,t)';
-            else
-                matrixT = zeros(0,'like',Sigma);
-            end
-             */
-            double[][] diagDasColumn = new double[D.getRowDimension()][1];
-            double maxValueDiagD = Double.MIN_VALUE;
-            var columnDimensionU = U.getColumnDimension();
-            for (int col = 0; col < columnDimensionU; col++) {
-                int indexOfMax = -1;
-                double maxValueColU = Double.MIN_VALUE;
-                for (int row = 0; row < U.getRowDimension(); row++) {
-                    if (Math.abs(U.get(row, col)) > maxValueColU) {
-                        maxValueColU = Math.abs(U.get(row, col));
-                        indexOfMax = row;
-                    }
-                }
-
-                if (0.0 > U.get(indexOfMax, col)) {
-                    for (int row = 0; row < U.getRowDimension(); row++) {
-                        U.set(row, col, -U.get(row, col));
-                    }
-                }
-                for (int row = 0; row < U.getRowDimension(); row++) {
-                    if (col == row) {
-                        diagDasColumn[row][0] = D.get(row, col);
-                        if (diagDasColumn[row][0] > maxValueDiagD) {
-                            maxValueDiagD = diagDasColumn[row][0];
-                        }
-                    }
-                }
-            }
-            tol = ulp(maxValueDiagD) * diagDasColumn.length;
-            // remove elements of diagDasColumn that are less than tol and then count negative values
-            int countOfNegativeValues = 0;
-            List<Integer> tList = new ArrayList<>();
-            for (int row = 0; row < diagDasColumn.length; row++) {
-                if (Math.abs(diagDasColumn[row][0]) <= tol) {
-                    diagDasColumn[row][0] = 0.0;
-                } else {
-                    tList.add(row);
-                }
-                if (0.0 > diagDasColumn[row][0]) {
-                    countOfNegativeValues++;
-                }
-            }
-
-            int[] t = Ints.toArray(tList);
-            Matrix uOfT = U.getMatrix(0, U.getRowDimension() - 1, t);
-            Matrix diagDasColumnOfT = (new Matrix(diagDasColumn)).getMatrix(t, 0, 0);
-            double[][] diagDasColumnOfTarray = diagDasColumnOfT.getArray();
-
-            for (int row = 0; row < diagDasColumnOfTarray.length; row++) {
-                diagDasColumnOfTarray[row][0] = StrictMath.sqrt(diagDasColumnOfTarray[row][0]);
-            }
-            Matrix DofTDiagonalMatrix = new Matrix(diagDasColumnOfTarray.length, diagDasColumnOfTarray.length);
-            for (int row = 0; row < diagDasColumnOfTarray.length; row++) {
-                DofTDiagonalMatrix.set(row, row, diagDasColumnOfTarray[row][0]);
-            }
-
-            if (0 == countOfNegativeValues) {//(chol.isSPD()){
-                // matrixT = diag(sqrt(D)) * U(:,t)';
-                matrixT = DofTDiagonalMatrix.times(uOfT.transpose());
-            } else {
-                matrixT = new Matrix(new double[1][1]);
-            }
-        }
-        return matrixT;
+        return choleskyDecomposition.getL().transpose();
     }
 
     public static boolean all(double[][] array, String operator, double tolerance) {
