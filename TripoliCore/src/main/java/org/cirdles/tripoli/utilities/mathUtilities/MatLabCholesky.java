@@ -16,16 +16,9 @@
 
 package org.cirdles.tripoli.utilities.mathUtilities;
 
-import com.google.common.primitives.Ints;
 import jama.CholeskyDecomposition;
-import jama.EigenvalueDecomposition;
 import jama.Matrix;
 import org.apache.commons.math3.random.RandomDataGenerator;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.lang.StrictMath.ulp;
 
 /**
  * @author James F. Bowring

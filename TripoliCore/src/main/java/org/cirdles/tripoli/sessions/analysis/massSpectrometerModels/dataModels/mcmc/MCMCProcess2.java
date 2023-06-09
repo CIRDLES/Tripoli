@@ -19,7 +19,6 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.
 import jama.Matrix;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.random.RandomDataGenerator;
-import org.apache.commons.math3.stat.correlation.Covariance;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
