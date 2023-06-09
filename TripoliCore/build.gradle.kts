@@ -49,30 +49,30 @@ dependencies {
 
     // https://github.com/optimatika/ojAlgo
     // https://github.com/optimatika/ojAlgo/wiki/Optimisation-Modelling-Advice
-    implementation("org.ojalgo:ojalgo:51.4.0")
+    implementation("org.ojalgo:ojalgo:52.0.1")
 
-    implementation("com.thoughtworks.xstream:xstream:1.4.19") //group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.19'
+    implementation("com.thoughtworks.xstream:xstream:1.4.20") //group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.19'
 
 
     // https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api
-    implementation("javax.xml.bind:jaxb-api:2.3.1")
-    implementation("org.glassfish.jaxb:jaxb-runtime:3.0.0")
+    implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
+    implementation("org.glassfish.jaxb:jaxb-runtime:4.0.2")
 
     // https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
     // https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-impl
-    implementation("com.sun.xml.bind:jaxb-impl:3.0.2-b01")
+  //  implementation("com.sun.xml.bind:jaxb-impl:4.0.2")
     // https://mvnrepository.com/artifact/org.eclipse.persistence/org.eclipse.persistence.moxy
-    implementation("org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.3")
+    implementation("org.eclipse.persistence:org.eclipse.persistence.moxy:4.0.1")
 
 
     // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
-    implementation("org.apache.logging.log4j:log4j-core:2.18.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.20.0")
 
 
     testImplementation("com.github.cirdles:commons:bc38781605")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }
 
 
@@ -83,6 +83,9 @@ tasks.test {
 
 val timestamp = {
     SimpleDateFormat("dd MMMM yyyy").format(Date())
+}
+repositories {
+    mavenCentral()
 }
 
 

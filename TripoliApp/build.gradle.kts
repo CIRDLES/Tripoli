@@ -29,15 +29,15 @@ application {
 
 dependencies {
     implementation(project(":TripoliCore"))
-    implementation("org.jetbrains:annotations:22.0.0")
+    implementation("org.jetbrains:annotations:24.0.1")
 
     implementation("com.github.cirdles:commons:bc38781605")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
     //implementation("org.ojalgo:ojalgo:51.4.0")
 
-    implementation("eu.hansolo.fx:charts:17.1.13")
+    implementation("eu.hansolo.fx:charts:17.1.27")
 
 //    // https://mvnrepository.com/artifact/com.google.guava/guava
 //    implementation("com.google.guava:guava:31.1-jre")
@@ -69,4 +69,7 @@ tasks.create("fatAppJar", Jar::class) {
     exclude("META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA")
     with(tasks.jar.get())
 
+}
+repositories {
+    mavenCentral()
 }
