@@ -18,6 +18,8 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.
 
 import jama.Matrix;
 import org.apache.commons.math3.random.RandomDataGenerator;
+import org.apache.commons.math3.stat.correlation.Covariance;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -439,10 +441,100 @@ public class SingleBlockModelUpdater2 {
         return new UpdatedCovariancesRecord(updated_xCovM.getArray(), xMean);
     }
 
+    synchronized double grConverge(List<EnsemblesStore.EnsembleRecord> ensembleRecordsList) {
+        /*
+        function Rexit = GRConverge(x,ensemble);
+            cnt = length(ensemble);
+            xall = [ensemble.lograt];
+            xall = xall(1:Niso,:);
+            for ii = 1:Nblock
+                for n = 1:cnt;
+                    ens_I{ii}(:,n) =[ensemble(n).I{ii}];
+                end
+                xall = [xall; ens_I{ii}];
+
+            end
+            xall = [xall; [ensemble.BL]];
+            xall = [xall; [ensemble.DFgain]];
+            xall = xall';
+         */
+        int countOfEnsembles = ensembleRecordsList.size();
+        double[][] xAll = new double[countOfEnsembles][countOfTotalModelParameters];
+        int ensIndex = 0;
+        for (EnsemblesStore.EnsembleRecord ens : ensembleRecordsList) {
+            System.arraycopy(ens.logRatios(), 0, xAll[ensIndex], 0, countOfLogRatios);
+            System.arraycopy(ens.I0(), 0, xAll[ensIndex], countOfLogRatios, countOfCycles);
+            System.arraycopy(ens.baseLine(), 0, xAll[ensIndex], countOfLogRatios + countOfCycles, countOfFaradays);
+            xAll[ensIndex][countOfTotalModelParameters - 1] = ens.dfGain();
+            ensIndex++;
+        }
+
+    /*
+        ngroup = round(sqrt(cnt));
+        gsize = round(sqrt(cnt));
+        for jj = 1:ngroup % Iterate over ngroups groups of size gsize
+            tmpxs(:,:,jj) = cov(xall(1+(jj-1)*gsize:jj*gsize,:));
+            tmpxm(:,jj) = mean(xall(1+(jj-1)*gsize:jj*gsize,:));
+        end
+        MeanofVar = sum(tmpxs(:,:,1:ngroup),3)/ngroup; % Mean of variances
+        VarofMean = diag(std(tmpxm(:,1:ngroup),[],2).^2); % Variance of means
+
+        %Rexit(ngroup) = sqrt((ngroup-1)/ngroup+(det(VarofMean)/det(MeanofVar))^(1/N)/ngroup);
+        Rexit = sqrt((ngroup-1)/ngroup+(det(VarofMean)/det(MeanofVar))^(1/Nmod)/ngroup);
+     */
+
+        int nGroup = (int) Math.round(Math.sqrt(countOfEnsembles));
+        int groupSize = (int) Math.round(Math.sqrt(countOfEnsembles));
+
+        double[][] extractedArray = new double[groupSize][countOfTotalModelParameters];
+        double[][] meanOfVarArray = new double[countOfTotalModelParameters][countOfTotalModelParameters];
+        double[][] meansOverGroups = new double[countOfTotalModelParameters][groupSize];
+        double[][] varOfMeansArray = new double[countOfTotalModelParameters][countOfTotalModelParameters];
+
+        for (int groupIndex = 0; groupIndex < nGroup; groupIndex++) {
+            for (int row = groupIndex * groupSize; row < (groupIndex + 1) * groupSize; row++) {
+                extractedArray[row - groupIndex * groupSize] = xAll[row];
+            }
+
+            Covariance cov = new Covariance(extractedArray);
+            double[][] covArray = cov.getCovarianceMatrix().getData();
+            for (int row = 0; row < countOfTotalModelParameters; row++) {
+                for (int col = 0; col < countOfTotalModelParameters; col++) {
+                    meanOfVarArray[row][col] += covArray[row][col] / nGroup;
+                }
+            }
+
+            for (int row = 0; row < countOfTotalModelParameters; row++) {
+                for (int col = 0; col < groupSize; col++) {
+                    meansOverGroups[row][col] += extractedArray[col][row] / nGroup;
+                }
+            }
+        }
+
+        for (int row = 0; row < countOfTotalModelParameters; row++) {
+            DescriptiveStatistics descriptiveStatisticsParametersPerGroups = new DescriptiveStatistics();
+            for (int col = 0; col < groupSize; col++) {
+                descriptiveStatisticsParametersPerGroups.addValue(meansOverGroups[row][col]);
+            }
+            varOfMeansArray[row][row] = descriptiveStatisticsParametersPerGroups.getStandardDeviation();
+        }
+
+        //Rexit = sqrt(   (ngroup-1)/ngroup + (det(VarofMean)/det(MeanofVar))^(1/Nmod)/ngroup   );
+        Matrix varOfMeansM = new Matrix(varOfMeansArray);
+        Matrix meanOfVarM = new Matrix(meanOfVarArray);
+
+        double term1 = (nGroup - 1.0) / nGroup;
+        double term2 = varOfMeansM.det() / meanOfVarM.det();
+        double rExit = StrictMath.sqrt(term1 + StrictMath.pow(term2, 1.0 / countOfTotalModelParameters) / nGroup);
+
+        return rExit;
+    }
+
     public record UpdatedCovariancesRecord(
             double[][] dataCov,
             double[] dataMean
     ) {
 
     }
+
 }
