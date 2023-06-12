@@ -13,7 +13,8 @@ public class PeakCentreSessionBuilder extends PlotBuilder {
     private PeakCentreSessionRecord peakCentreSessionRecord;
     private int blockCount;
 
-    public PeakCentreSessionBuilder(){}
+    public PeakCentreSessionBuilder() {
+    }
 
     protected PeakCentreSessionBuilder(int blockCount, List<PeakShapesOverlayRecord> peakShapesOverlayRecords, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel, true);
@@ -28,11 +29,10 @@ public class PeakCentreSessionBuilder extends PlotBuilder {
                                                                        String[] title,
                                                                        String xAxisLabel,
                                                                        String yAxisLabel) {
-        PeakCentreSessionBuilder peakCentreSessionBuilder = new PeakCentreSessionBuilder(blockCount, peakShapesOverlayRecords, title, xAxisLabel,yAxisLabel);
+        PeakCentreSessionBuilder peakCentreSessionBuilder = new PeakCentreSessionBuilder(blockCount, peakShapesOverlayRecords, title, xAxisLabel, yAxisLabel);
         peakCentreSessionBuilder.peakCentreSessionRecord = peakCentreSessionBuilder.generatePeakCentreSession(peakShapesOverlayRecords);
         return peakCentreSessionBuilder;
     }
-
 
 
     private PeakCentreSessionRecord generatePeakCentreSession(List<PeakShapesOverlayRecord> peakShapesOverlayRecords) {

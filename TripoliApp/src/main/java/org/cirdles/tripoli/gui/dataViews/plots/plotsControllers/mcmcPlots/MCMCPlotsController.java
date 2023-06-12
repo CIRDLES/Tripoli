@@ -284,9 +284,9 @@ public class MCMCPlotsController {
                     "Block ID",
                     "Peak Widths");
 
-                    TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(peakSessionPlotWallPlane);
-                    AbstractPlot plot = PeakCentresLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), peakCentreSessionBuilder.getPeakCentreSessionRecord());
-                    tripoliPlotPane.addPlot(plot);
+            TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(peakSessionPlotWallPlane);
+            AbstractPlot plot = PeakCentresLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), peakCentreSessionBuilder.getPeakCentreSessionRecord());
+            tripoliPlotPane.addPlot(plot);
         }
         peakSessionPlotWallPlane.stackPlots();
 

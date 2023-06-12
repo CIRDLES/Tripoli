@@ -107,5 +107,6 @@ public interface AnalysisInterface {
     Map<Integer, Integer> getMapOfBlockIdToProcessStatus();
 
     Map<Integer, PlotBuilder[][]> getMapOfBlockIdToPlots();
+
     Map<Integer, PlotBuilder[]> getMapOfBlockIdToPeakPlots();
 }
