@@ -120,6 +120,10 @@ public class Analysis implements Serializable, AnalysisInterface {
             } else {
                 analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
             }
+            // initialize block processing state
+            for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
+                mapOfBlockIdToProcessStatus.put(blockID, RUN);
+            }
         } else {
             // attempt to load specified method
             File selectedMethodFile = new File((Path.of(dataFilePathString).getParent().getParent().toString()
@@ -135,7 +139,12 @@ public class Analysis implements Serializable, AnalysisInterface {
                                 + "\n\n at location: " + Path.of(dataFilePathString).getParent().getParent().toString() + File.separator + "Methods");
             }
 
-            // collects the file objects from PeakCentres folder
+            // initialize block processing state
+            for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
+                mapOfBlockIdToProcessStatus.put(blockID, RUN);
+            }
+
+            // collects the file objects from PeakCentres folder +++++++++++++++++++++++++++++++++++++++++++++++++++++++
             List<File> fileList = new ArrayList<>();
             if (getPeakCentresFolder.exists() && getPeakCentresFolder.isDirectory()) {
                 File[] peakCentreFiles = getPeakCentresFolder.listFiles();
@@ -147,48 +156,43 @@ public class Analysis implements Serializable, AnalysisInterface {
                     }
                 }
 
+                IntuitiveStringComparator<String> intuitiveStringComparator = new IntuitiveStringComparator<>();
+                fileList.sort((file1, file2) -> intuitiveStringComparator.compare(file1.getName(), file2.getName()));
+                if (0 < blockPeakGroups.size()) {
+                    for (Integer blockID : blockPeakGroups.keySet()) {
+                        blockPeakGroups.get(blockID).clear();
+                    }
+                }
+
+                // groups isotopic files that are in the same block
+                if (!fileList.isEmpty()) {
+                    File[] files = fileList.toArray(new File[0]);
+
+                    p = Pattern.compile("-S(.*?)C1");
+
+                    for (File file : files) {
+
+                        Matcher groupMatch = p.matcher(file.getName());
+                        if (groupMatch.find()) {
+                            int value = Integer.parseInt(groupMatch.group(1).substring(2));
+                            if (blockPeakGroups.containsKey(value)) {
+                                blockPeakGroups.get(value).add(file);
+                            } else {
+                                blockPeakGroups.put(value, new ArrayList<>());
+                                blockPeakGroups.get(value).add(file);
+                            }
+                        }
+                    }
+
+                    for (Map.Entry<Integer, List<File>> entry : blockPeakGroups.entrySet()) {
+                        List<File> peakFile = entry.getValue();
+                        peakFile.sort((file1, file2) -> intuitiveStringComparator.compare(file1.getName(), file2.getName()));
+                    }
+                }
             } else {
                 throw new TripoliException(
                         "PeakCentres folder not found at location: " + Path.of(dataFilePathString).getParent().toString() + File.separator + "PeakCentres");
             }
-
-            IntuitiveStringComparator<String> intuitiveStringComparator = new IntuitiveStringComparator<>();
-            fileList.sort((file1, file2) -> intuitiveStringComparator.compare(file1.getName(), file2.getName()));
-            if (blockPeakGroups.size() > 0) {
-                for (Integer blockID : blockPeakGroups.keySet()) {
-                        blockPeakGroups.get(blockID).clear();
-                }
-            }
-
-            // groups isotopic files that are in the same block
-            if (!fileList.isEmpty()) {
-                File[] files = fileList.toArray(new File[0]);
-
-                Pattern p = Pattern.compile("-S(.*?)C1");
-
-                for (File file : files) {
-
-                    Matcher groupMatch = p.matcher(file.getName());
-                    if (groupMatch.find()) {
-                        int value = Integer.parseInt(groupMatch.group(1).substring(2));
-                        if (blockPeakGroups.containsKey(value)) {
-                            blockPeakGroups.get(value).add(file);
-                        } else {
-                            blockPeakGroups.put(value, new ArrayList<>());
-                            blockPeakGroups.get(value).add(file);
-                        }
-                    }
-                }
-
-                for (Map.Entry<Integer, List<File>> entry : blockPeakGroups.entrySet()) {
-                    List<File> peakFile = entry.getValue();
-                    peakFile.sort((file1, file2) -> intuitiveStringComparator.compare(file1.getName(), file2.getName()));
-                }
-            }
-        }
-        // initialize block processing state
-        for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
-            mapOfBlockIdToProcessStatus.put(blockID, RUN);
         }
     }
 
@@ -210,7 +214,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             loggingCallback.receiveLoggingSnippet("1000 >%");
         } else {
             PlotBuilder[][] plotBuilders;
-            if (mcmcVersion.compareTo("MCMC1") == 0) {
+            if (0 == mcmcVersion.compareTo("MCMC1")) {
                 plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock(blockID, this, loggingCallback);
             } else {
                 plotBuilders = SingleBlockModelDriver2.buildAndRunModelForSingleBlock2(blockID, this, loggingCallback);
@@ -225,13 +229,13 @@ public class Analysis implements Serializable, AnalysisInterface {
     @Override
     public PlotBuilder[] updatePeakPlotsByBlock(int blockID) throws TripoliException {
         PlotBuilder[] retVal;
-        if (mapOfBlockIdToProcessStatus.get(blockID) == RUN) {
+        if (RUN == mapOfBlockIdToProcessStatus.get(blockID)) {
             mapOfBlockIdToPeakPlots.remove(blockID);
         }
 
         if (mapOfBlockIdToPeakPlots.containsKey(blockID)) {
             retVal = mapOfBlockIdToPeakPlots.get(blockID);
-        }else {
+        } else {
             PlotBuilder[] peakPlotBuilders = SingleBlockPeakDriver.buildForSinglePeakBlock(blockID, blockPeakGroups);
             mapOfBlockIdToPeakPlots.put(blockID, peakPlotBuilders);
             retVal = mapOfBlockIdToPeakPlots.get(blockID);

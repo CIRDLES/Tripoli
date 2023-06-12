@@ -44,11 +44,11 @@
             <Tab closable="false" text="Converge_Intensity">
                 <AnchorPane fx:id="convergeIntensityAnchorPane" />
             </Tab>
-            <Tab closable="false" text="Beam Shape">
-                <AnchorPane fx:id="beamShapeAnchorPane" />
-            </Tab>
             <Tab closable="false" onSelectionChanged="#plotRatioSessionEngine" text="Ratio Session">
                 <AnchorPane fx:id="ratioSessionAnchorPane" />
+            </Tab>
+            <Tab closable="false" text="Beam Shape">
+                <AnchorPane fx:id="beamShapeAnchorPane" />
             </Tab>
             <Tab closable="false" onSelectionChanged="#plotPeakSessionEngine" text="Peak Shape Session">
                <AnchorPane fx:id="peakSessionAnchorPane" />
