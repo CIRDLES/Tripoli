@@ -49,7 +49,7 @@ public enum ProposedModelParameters {
         }
 
         double[][] priorIntensity = {{0.0, 1.5 * maxIntensity}};
-        double[][] priorDFgain = {{0.8, 1.0}};
+        double[][] priorDFgain = {{0.5, 1.1}};
         double[][] priorSignalNoiseFaraday = {{0.0, 1.0e6}};
         double[][] priorSignalNoiseDaly = {{0.0, 0.0}};
         double[][] priorPoissonNoiseDaly = {{0.0, 10.0}};

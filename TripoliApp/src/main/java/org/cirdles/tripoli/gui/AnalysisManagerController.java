@@ -8,12 +8,18 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
@@ -25,6 +31,7 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.species.IsotopicRatio;
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
@@ -57,6 +64,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public GridPane selectRatiosGridPane;
     public Button mcmc1Button;
     public Button mcmc2Button;
+    public TextFlow massesListTextFlow;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -172,6 +180,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         populateBlocksStatus();
 
         populateAnalysisMethodRatioSelectorPane();
+        populateAnalysisMethodRatioBuilderPane();
     }
 
     private void populateAnalysisDataFields() {
@@ -311,6 +320,18 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             }
         }
 
+    }
+
+    private void populateAnalysisMethodRatioBuilderPane(){
+        if (analysis.getAnalysisMethod() != null) {
+            // extract numerators and denominators
+            List<SpeciesRecordInterface> species = analysis.getAnalysisMethod().getSpeciesList();
+            StackPane massText;
+            for (SpeciesRecordInterface specie : species) {
+                massText = makeMassStackPane("" + specie.getMassNumber(), "white");
+            }
+            //massesListTextFlow.getChildren().add(massText);
+        }
     }
 
     private void populateBlocksStatus() {
@@ -514,8 +535,21 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 analysisMethod.getDerivedIsotopicRatiosList().get(indexOfDerivedIsotopicRatio).setDisplayed(displayed);
                 analysis.updateRatiosPlotBuilderDisplayStatus(indexOfDerivedIsotopicRatio + analysisMethod.getIsotopicRatiosList().size(), displayed);
             }
-
-
         }
+    }
+    public static StackPane makeMassStackPane(String massName, String color) {
+        Text massText = new Text(massName);
+        massText.setFont(new Font("Monospaced Bold", 14));
+
+        Shape circle = new Ellipse(15, 15, 30, 20);
+        circle.setFill(Paint.valueOf(color));
+        circle.setStroke(Paint.valueOf("black"));
+        circle.setStrokeWidth(1);
+
+        StackPane mass = new StackPane(circle, massText);
+        mass.setUserData(massName);
+        mass.setAlignment(Pos.CENTER);
+
+        return mass;
     }
 }
