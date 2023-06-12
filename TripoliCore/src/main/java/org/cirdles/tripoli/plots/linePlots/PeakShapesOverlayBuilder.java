@@ -1,9 +1,7 @@
 package org.cirdles.tripoli.plots.linePlots;
 
-import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.PeakShapeOutputDataRecord;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.PeakShapeProcessor_PhoenixTextFile;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLab;
 import org.cirdles.tripoli.utilities.mathUtilities.SplineBasisModel;
 import org.ojalgo.RecoverableCondition;
@@ -11,11 +9,6 @@ import org.ojalgo.matrix.decomposition.Cholesky;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
-
-import java.io.IOException;
-import java.nio.file.Path;
-
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory.massSpectrometerModelBuiltinMap;
 
 public class PeakShapesOverlayBuilder extends PlotBuilder {
 
@@ -25,33 +18,22 @@ public class PeakShapesOverlayBuilder extends PlotBuilder {
     public PeakShapesOverlayBuilder() {
     }
 
-    public PeakShapesOverlayBuilder(PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) {
+    protected PeakShapesOverlayBuilder(int blockID, PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel, true);
 
         try {
-            peakShapesOverlayRecord = generatePeakShapes(peakShapeOutputDataRecord);
+            peakShapesOverlayRecord = generatePeakShapes(blockID, peakShapeOutputDataRecord);
         } catch (RecoverableCondition e) {
             e.printStackTrace();
         }
     }
 
 
-    public static PeakShapesOverlayBuilder initializePeakShapes(PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) {
-        return new PeakShapesOverlayBuilder(peakShapeOutputDataRecord, title, xAxisLabel, yAxisLabel);
+    public static PeakShapesOverlayBuilder initializePeakShape(int blockID, PeakShapeOutputDataRecord peakShapeOutputDataRecord, String[] title, String xAxisLabel, String yAxisLabel) {
+        return new PeakShapesOverlayBuilder(blockID, peakShapeOutputDataRecord, title, xAxisLabel, yAxisLabel);
     }
 
-    public static PeakShapeOutputDataRecord getPeakData(Path dataFile) throws IOException {
-        PeakShapeProcessor_PhoenixTextFile peakShapeProcessor_PhoenixTextFile
-                = PeakShapeProcessor_PhoenixTextFile.initializeWithMassSpectrometer(massSpectrometerModelBuiltinMap.get(MassSpectrometerContextEnum.PHOENIX.getMassSpectrometerName()));
-
-        return peakShapeProcessor_PhoenixTextFile.prepareInputDataModelFromFile(dataFile);
-    }
-
-    public static double getMeasBeamWidthAMU() {
-        return measBeamWidthAMU;
-    }
-
-    public PeakShapesOverlayRecord generatePeakShapes(PeakShapeOutputDataRecord peakShapeOutputDataRecord) throws RecoverableCondition {
+    public PeakShapesOverlayRecord generatePeakShapes(int blockID, PeakShapeOutputDataRecord peakShapeOutputDataRecord) throws RecoverableCondition {
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         double maxBeamIndex;
         double thresholdIntensity;
@@ -176,8 +158,10 @@ public class PeakShapesOverlayBuilder extends PlotBuilder {
 
         thresholdIntensity = MaxBeam * (0.01);
         if (maxBeamIndex <= 0 || maxBeamIndex >= 999) {
-
+            measBeamWidthAMU = 0;
             return new PeakShapesOverlayRecord(
+                    blockID,
+                    measBeamWidthAMU,
                     beamMassInterp.toRawCopy2D()[0],
                     magnetMasses.transpose().toRawCopy2D()[0],
                     beamShape.transpose().toRawCopy2D()[0],
@@ -239,6 +223,8 @@ public class PeakShapesOverlayBuilder extends PlotBuilder {
         }
 
         return new PeakShapesOverlayRecord(
+                blockID,
+                measBeamWidthAMU,
                 beamMassInterp.toRawCopy2D()[0],
                 magnetMasses.transpose().toRawCopy2D()[0],
                 beamShape.transpose().toRawCopy2D()[0],

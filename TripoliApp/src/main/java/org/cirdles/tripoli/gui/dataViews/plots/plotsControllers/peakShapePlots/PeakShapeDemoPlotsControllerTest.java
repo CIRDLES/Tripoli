@@ -17,7 +17,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.*;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.*;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.BeamDataOutputDriverExperiment;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.BeamShapeTestDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.PeakShapeOutputDataRecord;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
@@ -230,11 +230,12 @@ public class PeakShapeDemoPlotsControllerTest {
         double[] yAxis = new double[resourceGroups.get(groupValue).size()];
         for (int k = 0; k < resourceGroups.get(groupValue).size(); k++) {
             resourceBrowserTarget = resourceGroups.get(groupValue).get(k);
+            // This can be changed to implement only image of peak shapes overlay
             if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
                 try {
-                    PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::populateListOfResources);
+                    PlotBuilder[] plots = BeamShapeTestDriver.modelTest(resourceBrowserTarget.toPath(), this::populateListOfResources);
                     xAxis[k] = k + 1;
-                    yAxis[k] = BeamDataOutputDriverExperiment.getMeasBeamWidthAMU();
+                    yAxis[k] = BeamShapeTestDriver.getMeasBeamWidthAMU();
                     AbstractPlot gBeamLinePlot = GBeamLinePlot.generatePlot(
                             new Rectangle(minPlotWidth,
                                     minPlotHeight),
@@ -280,12 +281,12 @@ public class PeakShapeDemoPlotsControllerTest {
             ensemblePlotsWallPane.getChildren().clear();
         }
 
-
-        LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, new String[]{"PeakCentre Plot"}, "Blocks", "Peak Widths");
-        ensemblePlotsWallPane.buildToolBar();
-        ensemblePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-
-        peakCentreLinePlot = producePeakCentrePlot(peakCentrePlotBuilder, ensemblePlotsWallPane);
+        // Attempted to set up thumbnails
+//        LinePlotBuilder peakCentrePlotBuilder = LinePlotBuilder.initializeLinePlot(finalXAxis, finalYAxis, new String[]{"PeakCentre Plot"}, "Blocks", "Peak Widths");
+//        ensemblePlotsWallPane.buildToolBar();
+//        ensemblePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+//
+//        peakCentreLinePlot = producePeakCentrePlot(peakCentrePlotBuilder, ensemblePlotsWallPane);
 
 
 //        peakCentreGridPane.widthProperty().addListener((observable, oldValue, newValue) -> {
@@ -452,10 +453,11 @@ public class PeakShapeDemoPlotsControllerTest {
             final PeakShapesService service = new PeakShapesService(resourceBrowserTarget.toPath());
             eventLogTextArea.textProperty().bind(service.valueProperty());
             try {
-                PlotBuilder[] plots = BeamDataOutputDriverExperiment.modelTest(resourceBrowserTarget.toPath(), this::populateListOfResources);
+                PlotBuilder[] plots = BeamShapeTestDriver.modelTest(resourceBrowserTarget.toPath(), this::populateListOfResources);
                 PeakShapeOutputDataRecord peakShapeOutputDataRecord = BeamShapeLinePlotBuilderX.getPeakData(resourceBrowserTarget.toPath());
                 //BeamShapeLinePlotBuilderX beamShape = BeamShapeLinePlotBuilderX.initializeBeamShape(peakShapeOutputDataRecord, new String[]{peakShapeOutputDataRecord.massID()}, "Mass (amu)", "Beam Intensity");
-                PeakShapesOverlayBuilder peakShapes = PeakShapesOverlayBuilder.initializePeakShapes(peakShapeOutputDataRecord,
+
+                PeakShapesOverlayBuilder peakShapes = PeakShapesOverlayBuilder.initializePeakShape(1, peakShapeOutputDataRecord,
                         new String[]{"Peak Shapes " + peakShapeOutputDataRecord.massID() + " / Peak Mass: " + peakShapeOutputDataRecord.peakCenterMass()},
                         "Mass (amu)", "Peak Intensities");
                 if (ensemblePlotsWallPane.getChildren().size() > 3) {
@@ -498,13 +500,13 @@ public class PeakShapeDemoPlotsControllerTest {
 
     }
 
-    private AbstractPlot producePeakCentrePlot(LinePlotBuilder plotBuilder, PlotWallPane plotWallPane) {
-        TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
-        AbstractPlot plot = PeakCentresLinePlotX.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), plotBuilder);
-        tripoliPlotPane.addPlot(plot);
-
-        return plot;
-    }
+//    private AbstractPlot producePeakCentrePlot(LinePlotBuilder plotBuilder, PlotWallPane plotWallPane) {
+//        TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
+//        AbstractPlot plot = PeakCentresLinePlotX.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), plotBuilder);
+//        tripoliPlotPane.addPlot(plot);
+//
+//        return plot;
+//    }
 
 
     static class ResourceDisplayName2 extends ListCell<File> {

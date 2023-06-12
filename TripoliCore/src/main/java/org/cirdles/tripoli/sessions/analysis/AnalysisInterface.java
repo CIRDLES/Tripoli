@@ -52,7 +52,9 @@ public interface AnalysisInterface {
 
     PlotBuilder[][] updatePlotsByBlock(int blockNumber, LoggingCallbackInterface loggingCallback) throws TripoliException;
 
-    public void updateRatiosPlotBuilderDisplayStatus(int indexOfIsotopicRatio, boolean displayed);
+    PlotBuilder[] updatePeakPlotsByBlock(int blockNumber) throws TripoliException;
+
+    void updateRatiosPlotBuilderDisplayStatus(int indexOfIsotopicRatio, boolean displayed);
 
     String uppdateLogsByBlock(int blockNumber, String logEntry);
 
@@ -102,7 +104,8 @@ public interface AnalysisInterface {
 
     void setMutable(boolean mutable);
 
-    public Map<Integer, Integer> getMapOfBlockIdToProcessStatus();
+    Map<Integer, Integer> getMapOfBlockIdToProcessStatus();
 
-    public Map<Integer, PlotBuilder[][]> getMapOfBlockIdToPlots();
+    Map<Integer, PlotBuilder[][]> getMapOfBlockIdToPlots();
+    Map<Integer, PlotBuilder[]> getMapOfBlockIdToPeakPlots();
 }

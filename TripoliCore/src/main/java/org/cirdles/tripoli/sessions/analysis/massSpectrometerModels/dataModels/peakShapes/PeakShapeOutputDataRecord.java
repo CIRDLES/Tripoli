@@ -3,6 +3,8 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.
 
 import org.ojalgo.matrix.store.Primitive64Store;
 
+import java.io.Serializable;
+
 /**
  * @param magnetMasses
  * @param measuredPeakIntensities
@@ -28,5 +30,5 @@ public record PeakShapeOutputDataRecord(
         Primitive64Store collectorLimits,
         double deltaMagnetMass,
         double beamWindow
-) {
+) implements Serializable {
 }

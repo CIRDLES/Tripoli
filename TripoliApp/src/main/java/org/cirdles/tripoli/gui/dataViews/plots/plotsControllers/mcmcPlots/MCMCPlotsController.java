@@ -23,10 +23,9 @@ import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
-import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
-import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
-import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
+import org.cirdles.tripoli.plots.linePlots.*;
 import org.cirdles.tripoli.plots.sessionPlots.HistogramSessionBuilder;
+import org.cirdles.tripoli.plots.sessionPlots.PeakCentreSessionBuilder;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.MCMCProcess2;
@@ -40,6 +39,7 @@ import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWid
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
 import static org.cirdles.tripoli.plots.sessionPlots.HistogramSessionBuilder.initializeHistogramSession;
+import static org.cirdles.tripoli.plots.sessionPlots.PeakCentreSessionBuilder.initializePeakCentreSession;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.*;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockDataModelPlot.PLOT_INDEX_RATIOS;
 
@@ -59,6 +59,8 @@ public class MCMCPlotsController {
     public AnchorPane beamShapeAnchorPane;
     @FXML
     public AnchorPane ratioSessionAnchorPane;
+    @FXML
+    public AnchorPane peakSessionAnchorPane;
     @FXML
     public AnchorPane logAnchorPane;
     @FXML
@@ -249,6 +251,47 @@ public class MCMCPlotsController {
         ratiosSessionPlotsWallPane.stackPlots();
     }
 
+    // plotting engine for peak sessions
+    @FXML
+    private void plotPeakSessionEngine() {
+        Map<Integer, PlotBuilder[]> mapOfPeakPlotsToBlock = analysis.getMapOfBlockIdToPeakPlots();
+        Map<String, List<PeakShapesOverlayRecord>> mapPeakNameToSessionRecords = new TreeMap<>();
+        Iterator<Map.Entry<Integer, PlotBuilder[]>> iterator = mapOfPeakPlotsToBlock.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, PlotBuilder[]> entry = iterator.next();
+            if (analysis.getMapOfBlockIdToProcessStatus().get(entry.getKey()) == SHOW) {
+                PlotBuilder[] peaksPlotBuilder = entry.getValue();
+                for (PlotBuilder peakPlotBuilder : peaksPlotBuilder) {
+                    if (peakPlotBuilder.isDisplayed()) {
+                        String peakName = peakPlotBuilder.getTitle()[1];
+                        mapPeakNameToSessionRecords.computeIfAbsent(peakName, k -> new ArrayList<>());
+                        mapPeakNameToSessionRecords.get(peakName).add(((PeakShapesOverlayBuilder) peakPlotBuilder).getPeakShapesOverlayRecord());
+
+                    }
+                }
+            }
+        }
+        // TODO add peak session pane to fxml and controller
+        peakSessionAnchorPane.getChildren().removeAll();
+        PlotWallPane peakSessionPlotWallPlane = new PlotWallPane();
+        peakSessionPlotWallPlane.buildToolBar();
+        peakSessionPlotWallPlane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+        peakSessionAnchorPane.getChildren().add(peakSessionPlotWallPlane);
+        for (Map.Entry<String, List<PeakShapesOverlayRecord>> entry : mapPeakNameToSessionRecords.entrySet()) {
+            PeakCentreSessionBuilder peakCentreSessionBuilder = initializePeakCentreSession(analysis.getMapOfBlockIdToPeakPlots().size(),
+                    entry.getValue(),
+                    new String[]{entry.getValue().get(0).title()[1]},
+                    "Block ID",
+                    "Peak Widths");
+
+                    TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(peakSessionPlotWallPlane);
+                    AbstractPlot plot = PeakCentresLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), peakCentreSessionBuilder.getPeakCentreSessionRecord());
+                    tripoliPlotPane.addPlot(plot);
+        }
+        peakSessionPlotWallPlane.stackPlots();
+
+    }
+
     private synchronized void plotBlockEngine(Task<String> plotBuildersTaska) {
         analysisManagerCallbackI.callbackRefreshBlocksStatus();
 
@@ -257,8 +300,10 @@ public class MCMCPlotsController {
         dataFitPlotsAnchorPane.getChildren().removeAll();
         convergeErrorPlotsAnchorPane.getChildren().removeAll();
         convergeIntensityAnchorPane.getChildren().removeAll();
+        beamShapeAnchorPane.getChildren().removeAll();
 
         PlotBuildersTaskInterface plotBuildersTask = (PlotBuildersTaskInterface) plotBuildersTaska;
+        PlotBuilder[] peakShapeOverlayBuilder = plotBuildersTask.getPeakShapesBuilder();
         PlotBuilder[] ratiosHistogramBuilder = plotBuildersTask.getRatiosHistogramBuilder();
         PlotBuilder[] baselineHistogramBuilder = plotBuildersTask.getBaselineHistogramBuilder();
         PlotBuilder[] dalyFaradayHistogramBuilder = plotBuildersTask.getDalyFaradayGainHistogramBuilder();
@@ -323,6 +368,13 @@ public class MCMCPlotsController {
         convergeIntensityAnchorPane.getChildren().add(convergeIntensityPlotsWallPane);
         produceTripoliMultiLineLogXPlots(convergeIntensityLinesBuilder, convergeIntensityPlotsWallPane);
         convergeIntensityPlotsWallPane.tilePlots();
+
+        PlotWallPane peakShapeOverlayPlotWallPane = new PlotWallPane();
+        peakShapeOverlayPlotWallPane.buildToolBar();
+        peakShapeOverlayPlotWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+        beamShapeAnchorPane.getChildren().add(peakShapeOverlayPlotWallPane);
+        producePeakShapesOverlayPlot(peakShapeOverlayBuilder, peakShapeOverlayPlotWallPane);
+        peakShapeOverlayPlotWallPane.tilePlots();
     }
 
     private synchronized void showLogsEngine(int blockNumber) {
@@ -386,6 +438,18 @@ public class MCMCPlotsController {
             AbstractPlot plot = BasicScatterAndLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (ComboPlotBuilder) plotBuilder[i]);
             tripoliPlotPane.addPlot(plot);
         }
+    }
+
+    private void producePeakShapesOverlayPlot(PlotBuilder[] plotBuilder, PlotWallPane plotWallPane) {
+        for (int i = 0; i < plotBuilder.length; i++) {
+            if (plotBuilder[i].isDisplayed()) {
+                PeakShapesOverlayRecord peakShapesOverlayRecord = ((PeakShapesOverlayBuilder) plotBuilder[i]).getPeakShapesOverlayRecord();
+                TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
+                AbstractPlot plot = PeakShapesOverlayPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), peakShapesOverlayRecord);
+                tripoliPlotPane.addPlot(plot);
+            }
+        }
+
     }
 
 

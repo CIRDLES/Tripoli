@@ -1,6 +1,10 @@
 package org.cirdles.tripoli.plots.linePlots;
 
+import java.io.Serializable;
+
 public record PeakShapesOverlayRecord(
+        int blockID,
+        double peakWidth,
         double[] beamXData,
         double[] gBeamXData,
         double[] beamYData,
@@ -11,5 +15,5 @@ public record PeakShapesOverlayRecord(
         String[] title,
         String xAxisLabel,
         String yAxisLabel
-) {
+) implements Serializable {
 }

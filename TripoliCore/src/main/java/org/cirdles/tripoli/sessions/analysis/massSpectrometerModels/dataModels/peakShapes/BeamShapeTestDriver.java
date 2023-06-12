@@ -20,12 +20,9 @@ import java.nio.file.Path;
 
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory.massSpectrometerModelBuiltinMap;
 
-public enum BeamDataOutputDriverExperiment {
+public enum BeamShapeTestDriver {
     ;
-
-
     private static double measBeamWidthAMU;
-
 
     public static PlotBuilder[] modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException {
         PeakShapeProcessor_PhoenixTextFile peakShapeProcessor_PhoenixTextFile
@@ -35,7 +32,7 @@ public enum BeamDataOutputDriverExperiment {
 
 
         try {
-            peakShapeLinePlotBuilder = gatherBeamWidth(peakShapeOutputDataRecord, loggingCallback);
+            peakShapeLinePlotBuilder = beamShapeCollectorWidth(peakShapeOutputDataRecord, loggingCallback);
         } catch (RecoverableCondition e) {
             e.printStackTrace();
         }
@@ -44,7 +41,7 @@ public enum BeamDataOutputDriverExperiment {
         return peakShapeLinePlotBuilder;
     }
 
-    public static PlotBuilder[] gatherBeamWidth(PeakShapeOutputDataRecord peakShapeOutputDataRecord, LoggingCallbackInterface loggingCallback) throws RecoverableCondition {
+    public static PlotBuilder[] beamShapeCollectorWidth(PeakShapeOutputDataRecord peakShapeOutputDataRecord, LoggingCallbackInterface loggingCallback) throws RecoverableCondition {
 
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         double maxBeamIndex;

@@ -23,11 +23,13 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver2;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.SingleBlockPeakDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
+import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
@@ -40,6 +42,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_SYNTHETIC;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
@@ -61,8 +65,10 @@ public class Analysis implements Serializable, AnalysisInterface {
 
 
     private final Map<Integer, PlotBuilder[][]> mapOfBlockIdToPlots = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, PlotBuilder[]> mapOfBlockIdToPeakPlots = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, String> mapOfBlockToLogs = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, Integer> mapOfBlockIdToProcessStatus = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, List<File>> blockPeakGroups = Collections.synchronizedSortedMap(new TreeMap<>());
 
     private String analysisName;
     private String analystName;
@@ -75,6 +81,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
     private String mcmcVersion;
+
 
     private Analysis() {
     }
@@ -117,6 +124,8 @@ public class Analysis implements Serializable, AnalysisInterface {
             // attempt to load specified method
             File selectedMethodFile = new File((Path.of(dataFilePathString).getParent().getParent().toString()
                     + File.separator + "Methods" + File.separator + massSpecExtractedData.getHeader().methodName()).toLowerCase(Locale.getDefault()));
+            File getPeakCentresFolder = new File((Path.of(dataFilePathString).getParent().toString()
+                    + File.separator + "PeakCentres"));
             if (selectedMethodFile.exists()) {
                 analysisMethod = extractAnalysisMethodfromPath(Path.of(selectedMethodFile.toURI()));
                 TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedMethodFile.getParent());
@@ -124,6 +133,57 @@ public class Analysis implements Serializable, AnalysisInterface {
                 throw new TripoliException(
                         "Method File not found: " + massSpecExtractedData.getHeader().methodName()
                                 + "\n\n at location: " + Path.of(dataFilePathString).getParent().getParent().toString() + File.separator + "Methods");
+            }
+
+            // collects the file objects from PeakCentres folder
+            List<File> fileList = new ArrayList<>();
+            if (getPeakCentresFolder.exists() && getPeakCentresFolder.isDirectory()) {
+                File[] peakCentreFiles = getPeakCentresFolder.listFiles();
+                Pattern p = Pattern.compile("^(.*?)\\.TXT$");
+                for (File file : peakCentreFiles) {
+                    Matcher m = p.matcher(file.getName());
+                    if (m.matches()) {
+                        fileList.add(file);
+                    }
+                }
+
+            } else {
+                throw new TripoliException(
+                        "PeakCentres folder not found at location: " + Path.of(dataFilePathString).getParent().toString() + File.separator + "PeakCentres");
+            }
+
+            IntuitiveStringComparator<String> intuitiveStringComparator = new IntuitiveStringComparator<>();
+            fileList.sort((file1, file2) -> intuitiveStringComparator.compare(file1.getName(), file2.getName()));
+            if (blockPeakGroups.size() > 0) {
+                for (Integer blockID : blockPeakGroups.keySet()) {
+                        blockPeakGroups.get(blockID).clear();
+                }
+            }
+
+            // groups isotopic files that are in the same block
+            if (!fileList.isEmpty()) {
+                File[] files = fileList.toArray(new File[0]);
+
+                Pattern p = Pattern.compile("-S(.*?)C1");
+
+                for (File file : files) {
+
+                    Matcher groupMatch = p.matcher(file.getName());
+                    if (groupMatch.find()) {
+                        int value = Integer.parseInt(groupMatch.group(1).substring(2));
+                        if (blockPeakGroups.containsKey(value)) {
+                            blockPeakGroups.get(value).add(file);
+                        } else {
+                            blockPeakGroups.put(value, new ArrayList<>());
+                            blockPeakGroups.get(value).add(file);
+                        }
+                    }
+                }
+
+                for (Map.Entry<Integer, List<File>> entry : blockPeakGroups.entrySet()) {
+                    List<File> peakFile = entry.getValue();
+                    peakFile.sort((file1, file2) -> intuitiveStringComparator.compare(file1.getName(), file2.getName()));
+                }
             }
         }
         // initialize block processing state
@@ -161,6 +221,26 @@ public class Analysis implements Serializable, AnalysisInterface {
         }
         return retVal;
     }
+
+    @Override
+    public PlotBuilder[] updatePeakPlotsByBlock(int blockID) throws TripoliException {
+        PlotBuilder[] retVal;
+        if (mapOfBlockIdToProcessStatus.get(blockID) == RUN) {
+            mapOfBlockIdToPeakPlots.remove(blockID);
+        }
+
+        if (mapOfBlockIdToPeakPlots.containsKey(blockID)) {
+            retVal = mapOfBlockIdToPeakPlots.get(blockID);
+        }else {
+            PlotBuilder[] peakPlotBuilders = SingleBlockPeakDriver.buildForSinglePeakBlock(blockID, blockPeakGroups);
+            mapOfBlockIdToPeakPlots.put(blockID, peakPlotBuilders);
+            retVal = mapOfBlockIdToPeakPlots.get(blockID);
+        }
+        return retVal;
+    }
+
+    // Updates Peak Centre plots
+
 
     public void updateRatiosPlotBuilderDisplayStatus(int indexOfIsotopicRatio, boolean displayed) {
         for (Integer blockID : mapOfBlockIdToPlots.keySet()) {
@@ -326,6 +406,10 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public Map<Integer, PlotBuilder[][]> getMapOfBlockIdToPlots() {
         return mapOfBlockIdToPlots;
+    }
+
+    public Map<Integer, PlotBuilder[]> getMapOfBlockIdToPeakPlots() {
+        return mapOfBlockIdToPeakPlots;
     }
 
     public String getMcmcVersion() {
