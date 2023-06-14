@@ -16,11 +16,12 @@
   limitations under the License.
  -->
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.effect.InnerShadow?>
 <?import javafx.scene.layout.*?>
-<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="analysisManagerGridPane" hgap="15.0" minWidth="250.0"
-          prefHeight="640.0"
+<?import javafx.scene.text.TextFlow?>
+<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="analysisManagerGridPane" hgap="15.0" minWidth="250.0" prefHeight="640.0"
           prefWidth="1250.0" style="-fx-background-color: #fbf6d5;" stylesheets="@css/tripoli.css"
           vgap="10.0" xmlns="http://javafx.com/javafx/17"
           fx:controller="org.cirdles.tripoli.gui.AnalysisManagerController">
@@ -147,7 +148,7 @@
                 </GridPane>
             </ScrollPane>
         </Tab>
-        <Tab text="Select Ratios to plot">
+        <Tab closable="false" disable="true" text="Select Ratios to plot">
             <content>
                 <GridPane fx:id="selectRatiosGridPane" style="-fx-background-color: tan;">
                     <columnConstraints>
@@ -172,6 +173,82 @@
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                     </rowConstraints>
+                </GridPane>
+            </content>
+        </Tab>
+        <Tab closable="false" text="Select Ratios to plot (new)">
+            <content>
+                <GridPane fx:id="selectRatiosGridPane1" style="-fx-background-color: bisque;">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES"/>
+                        <RowConstraints maxHeight="-Infinity" minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES"/>
+                        <RowConstraints maxHeight="-Infinity" minHeight="20.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+                        <RowConstraints maxHeight="-Infinity" minHeight="60.0" prefHeight="60.0" vgrow="SOMETIMES"/>
+                        <RowConstraints maxHeight="-Infinity" minHeight="20.0" prefHeight="20.0" vgrow="SOMETIMES"/>
+                        <RowConstraints maxHeight="-Infinity" minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES"/>
+                        <RowConstraints maxHeight="-Infinity" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <children>
+                        <TextFlow fx:id="numeratorMassesListTextFlow" lineSpacing="10.0" minHeight="30.0"
+                                  minWidth="997.0" style="-fx-background-color: white; -fx-border-color: black;"
+                                  textAlignment="CENTER" GridPane.columnSpan="4" GridPane.rowIndex="1">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                            <padding>
+                                <Insets top="3.0"/>
+                            </padding>
+                        </TextFlow>
+                        <TextFlow fx:id="ratiosListTextFlow" minHeight="60.0" minWidth="997.0"
+                                  style="-fx-background-color: white; -fx-border-color: black;" textAlignment="CENTER"
+                                  GridPane.columnSpan="4" GridPane.rowIndex="3">
+                            <padding>
+                                <Insets top="7.0"/>
+                            </padding>
+                        </TextFlow>
+                        <TextFlow fx:id="denominatorMassesListTextFlow" minHeight="30.0" minWidth="997.0"
+                                  style="-fx-background-color: white; -fx-border-color: black;" textAlignment="CENTER"
+                                  GridPane.columnSpan="4" GridPane.rowIndex="5">
+                            <GridPane.margin>
+                                <Insets/>
+                            </GridPane.margin>
+                            <padding>
+                                <Insets top="3.0"/>
+                            </padding>
+                        </TextFlow>
+                        <HBox alignment="CENTER" GridPane.columnSpan="4" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6">
+                            <children>
+                                <Button fx:id="addRatioButton" alignment="CENTER" contentDisplay="CENTER"
+                                        graphicTextGap="0.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="614.0"
+                                        style="-fx-text-fill: red; -fx-border-color: red;" text="Add Ratio for Plotting"
+                                        textAlignment="CENTER">
+                                    <effect>
+                                        <InnerShadow/>
+                                    </effect>
+                                </Button>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnSpan="4"
+                              GridPane.rowIndex="2">
+                            <children>
+                                <Label style="-fx-text-fill: red;"
+                                       text="Click a species above to populate the numerator of the red ratio below.  Click a ratio to deselect it."/>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" layoutX="10.0" layoutY="70.0" prefHeight="100.0" prefWidth="200.0"
+                              GridPane.columnSpan="4" GridPane.rowIndex="4">
+                            <children>
+                                <Label style="-fx-text-fill: red;"
+                                       text="Click a species below to populate the denominator of the red ratio above.  Click a ratio to deselect it."/>
+                            </children>
+                        </HBox>
+                    </children>
                 </GridPane>
             </content>
         </Tab>

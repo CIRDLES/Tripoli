@@ -4,16 +4,25 @@ import jakarta.xml.bind.JAXBException;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
@@ -25,6 +34,7 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.species.IsotopicRatio;
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
@@ -57,6 +67,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public GridPane selectRatiosGridPane;
     public Button mcmc1Button;
     public Button mcmc2Button;
+    public TextFlow numeratorMassesListTextFlow;
+    public TextFlow denominatorMassesListTextFlow;
+    public TextFlow ratiosListTextFlow;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -83,6 +96,46 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private GridPane sequenceTableGridPane;
     @FXML
     private GridPane baselineTableGridPane;
+    private VBox proposedRatioVBox;
+    private List<IsotopicRatio> activeRatiosList;
+    @FXML
+    private Button addRatioButton;
+
+    public static StackPane makeMassStackPane(String massName, String color) {
+        Text massText = new Text(massName);
+        massText.setFont(new Font("Monospaced Bold", 14));
+
+        Shape circle = new Ellipse(15, 15, 30, 20);
+        circle.setFill(Paint.valueOf(color));
+        circle.setStroke(Paint.valueOf("black"));
+        circle.setStrokeWidth(1);
+
+        StackPane mass = new StackPane(circle, massText);
+        mass.setUserData(massName);
+        mass.setAlignment(Pos.CENTER);
+
+        return mass;
+    }
+
+    public static VBox makeRatioVBox(String ratioName, Color textColor) {
+        String[] numDen = ratioName.split("/");
+        Text num = new Text(numDen[0].trim());
+        num.setFont(new Font("Monospaced Bold", 14));
+        num.setFill(textColor);
+        Text den = new Text(numDen[1].trim());
+        den.setFont(new Font("Monospaced Bold", 14));
+        den.setFill(textColor);
+        Shape line = new Line(0, 0, 40, 0);
+
+        VBox ratioVBox = new VBox(num, line, den);
+        ratioVBox.setUserData(ratioName);
+        ratioVBox.setAlignment(Pos.CENTER);
+        ratioVBox.setPadding(new Insets(1, 5, 1, 5));
+
+        ratioVBox.setStyle(ratioVBox.getStyle() + "-fx-border-color: black;");
+
+        return ratioVBox;
+    }
 
     private void populateDetectorDetailRow(GridPane target, String entry, int colIndex, int rowIndex) {
         if (!mapOfGridPanesToCellUse.get(target.getId())[rowIndex][colIndex]) {
@@ -172,6 +225,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         populateBlocksStatus();
 
         populateAnalysisMethodRatioSelectorPane();
+        populateAnalysisMethodRatioBuilderPane();
     }
 
     private void populateAnalysisDataFields() {
@@ -293,7 +347,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     private void populateAnalysisMethodRatioSelectorPane() {
-        if (analysis.getAnalysisMethod() != null) {
+        if (null != analysis.getAnalysisMethod()) {
             List<IsotopicRatio> allRatios = new ArrayList<>();
             allRatios.addAll(analysis.getAnalysisMethod().getIsotopicRatiosList());
             allRatios.addAll(analysis.getAnalysisMethod().getDerivedIsotopicRatiosList());
@@ -313,6 +367,122 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     }
 
+    private void populateAnalysisMethodRatioBuilderPane() {
+        addRatioButton.setStyle(addRatioButton.getStyle() + "-fx-font-size:15");
+        if (null != analysis.getAnalysisMethod()) {
+            activeRatiosList = new ArrayList<>();
+            List<SpeciesRecordInterface> species = analysis.getAnalysisMethod().getSpeciesListSortedByMass();
+            StackPane numeratorMass;
+            StackPane denominatorMass;
+            for (SpeciesRecordInterface specie : species) {
+                numeratorMass = makeMassStackPane(specie.prettyPrintShortForm(), "white");
+                numeratorMass.setUserData(specie);
+                numeratorMassesListTextFlow.getChildren().add(numeratorMass);
+                numeratorMass.setOnMouseClicked((MouseEvent event) -> {
+                    if (event.getEventType().equals(MouseEvent.MOUSE_CLICKED)) {
+                        ((Text) proposedRatioVBox.getChildren().get(0)).setText(specie.prettyPrintShortForm());
+                        proposedRatioVBox.getChildren().get(0).setUserData(specie);
+                        addRatioButton.setDisable(!checkLegalityOfProposedRatio());
+                    }
+                });
+
+                denominatorMass = makeMassStackPane(specie.prettyPrintShortForm(), "white");
+                denominatorMass.setUserData(specie);
+                denominatorMassesListTextFlow.getChildren().add(denominatorMass);
+                denominatorMass.setOnMouseClicked((MouseEvent event) -> {
+                    if (event.getEventType().equals(MouseEvent.MOUSE_CLICKED)) {
+                        ((Text) proposedRatioVBox.getChildren().get(2)).setText(specie.prettyPrintShortForm());
+                        proposedRatioVBox.getChildren().get(2).setUserData(specie);
+                        addRatioButton.setDisable(!checkLegalityOfProposedRatio());
+                    }
+                });
+            }
+
+            List<IsotopicRatio> allRatios = new ArrayList<>();
+            allRatios.addAll(analysis.getAnalysisMethod().getIsotopicRatiosList());
+            allRatios.addAll(analysis.getAnalysisMethod().getDerivedIsotopicRatiosList());
+            Collections.sort(allRatios, IsotopicRatio::compareTo);
+
+            populateRatiosForDisplay(allRatios);
+
+            addRatioButton.setDisable(true);
+            addRatioButton.setOnAction((evt) -> {
+                Button b = (Button) evt.getSource();
+                if (checkLegalityOfProposedRatio()) {
+                    IsotopicRatio ratio = new IsotopicRatio(
+                            (SpeciesRecordInterface) proposedRatioVBox.getChildren().get(0).getUserData(),
+                            (SpeciesRecordInterface) proposedRatioVBox.getChildren().get(2).getUserData(),
+                            true);
+                    VBox ratioVBox = makeRatioVBox(ratio.prettyPrint(), Color.BLACK);
+                    ratioVBox.setUserData(ratio);
+                    ratioVBox.setOnMouseClicked(new RatioClickHandler(ratio, ratioVBox));
+
+                    AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
+                    int indexOfIsotopicRatio = analysisMethod.getIsotopicRatiosList().indexOf(ratio);
+                    if (0 <= indexOfIsotopicRatio) {
+                        analysisMethod.getIsotopicRatiosList().get(indexOfIsotopicRatio).setDisplayed(true);
+                        analysis.updateRatiosPlotBuilderDisplayStatus(indexOfIsotopicRatio, true);
+                    }
+                    int indexOfDerivedIsotopicRatio = analysisMethod.getDerivedIsotopicRatiosList().indexOf(ratio);
+                    if (0 <= indexOfDerivedIsotopicRatio) {
+                        analysisMethod.getDerivedIsotopicRatiosList().get(indexOfDerivedIsotopicRatio).setDisplayed(true);
+                        analysis.updateRatiosPlotBuilderDisplayStatus(indexOfDerivedIsotopicRatio + analysisMethod.getIsotopicRatiosList().size(), true);
+                    }
+
+                    activeRatiosList.add(ratio);
+                    populateRatiosForDisplay(allRatios);
+                }
+            });
+        }
+    }
+
+    private void populateRatiosForDisplay(List<IsotopicRatio> allRatios) {
+        addRatioButton.setDisable(true);
+        ratiosListTextFlow.getChildren().clear();
+        for (IsotopicRatio ratio : allRatios) {
+            if (ratio.isDisplayed()) {
+                VBox ratioVBox = makeRatioVBox(ratio.prettyPrint(), Color.BLACK);
+                ratioVBox.setUserData(ratio);
+                activeRatiosList.add(ratio);
+
+                ratioVBox.setOnMouseClicked(new RatioClickHandler(ratio, ratioVBox));
+                ratiosListTextFlow.getChildren().add(ratioVBox);
+            }
+        }
+
+        proposedRatioVBox = makeRatioVBox(" ? / ? ", Color.RED);
+        proposedRatioVBox.setStyle(proposedRatioVBox.getStyle() + "-fx-border-color: red;");
+        ratiosListTextFlow.getChildren().add(proposedRatioVBox);
+        proposedRatioVBox.setOnMouseClicked((MouseEvent event) -> {
+            if (event.getEventType().equals(MouseEvent.MOUSE_CLICKED)) {
+                clearProposedRatio();
+            }
+        });
+    }
+
+    private boolean checkLegalityOfProposedRatio() {
+        boolean isLegal = !((Text) proposedRatioVBox.getChildren().get(0)).getText().contains("?");
+        isLegal = isLegal && !((Text) proposedRatioVBox.getChildren().get(2)).getText().contains("?");
+        if (isLegal) {
+            SpeciesRecordInterface num = (SpeciesRecordInterface) proposedRatioVBox.getChildren().get(0).getUserData();
+            SpeciesRecordInterface den = (SpeciesRecordInterface) proposedRatioVBox.getChildren().get(2).getUserData();
+            if (!num.equals(den)) {
+                IsotopicRatio ratio = new IsotopicRatio(num, den, true);
+                isLegal = !activeRatiosList.contains(ratio);
+            } else {
+                isLegal = false;
+            }
+        }
+
+        return isLegal;
+    }
+
+    private void clearProposedRatio() {
+        ((Text) proposedRatioVBox.getChildren().get(0)).setText(" ? ");
+        ((Text) proposedRatioVBox.getChildren().get(2)).setText(" ? ");
+        addRatioButton.setDisable(true);
+    }
+
     private void populateBlocksStatus() {
         blockStatusHBox.getChildren().clear();
         var massSpecExtractedData = analysis.getMassSpecExtractedData();
@@ -330,7 +500,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         blockStatusButton.setFont(Font.font("Monospaced", FontWeight.EXTRA_BOLD, 10));
         blockStatusButton.setId(String.valueOf(blockID));
         blockStatusButton.setPadding(new Insets(0, -1, 0, -1));
-        if (analysis.getMapOfBlockIdToProcessStatus().get(blockID) != null) {
+        if (null != analysis.getMapOfBlockIdToProcessStatus().get(blockID)) {
             tuneButton(blockStatusButton, analysis.getMapOfBlockIdToProcessStatus().get(blockID));
         }
         blockStatusButton.setOnAction(e -> {
@@ -426,7 +596,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public void initializeMonteCarloTechniqueAction(ActionEvent event) {
         String mcmcVersion = ((Button) event.getSource()).getId();
         ((Analysis) analysis).setMcmcVersion(mcmcVersion);
-        if (mcmcVersion.compareTo("MCMC1") == 0) {
+        if (0 == mcmcVersion.compareTo("MCMC1")) {
             mcmc2Button.setDisable(true);
         } else {
             mcmc1Button.setDisable(true);
@@ -465,7 +635,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     public void selectShowsAction() {
         for (Node button : blockStatusHBox.getChildren()) {
-            if ((button instanceof Button) && (analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())) == 0)) {
+            if ((button instanceof Button) && (0 == analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())))) {
                 tuneButton((Button) button, SHOW);
             }
         }
@@ -473,7 +643,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     public void restoreAllAction() {
         for (Node button : blockStatusHBox.getChildren()) {
-            if ((button instanceof Button) && (analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())) != null)) {
+            if ((button instanceof Button) && (null != analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())))) {
                 tuneButton((Button) button, analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())));
             }
         }
@@ -487,8 +657,41 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         restoreAllAction();
     }
 
+    class RatioClickHandler implements EventHandler<MouseEvent> {
+        IsotopicRatio ratio;
+        VBox ratioVBox;
+
+        public RatioClickHandler(IsotopicRatio ratio, VBox ratioVBox) {
+            this.ratio = ratio;
+            this.ratioVBox = ratioVBox;
+        }
+
+        /**
+         * @param event the event which occurred
+         */
+        @Override
+        public void handle(MouseEvent event) {
+            if (event.getEventType().equals(MouseEvent.MOUSE_CLICKED)) {
+                ratiosListTextFlow.getChildren().remove(ratioVBox);
+                activeRatiosList.remove(ratio);
+                IsotopicRatio myRatio = (IsotopicRatio) ratioVBox.getUserData();
+                AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
+                int indexOfIsotopicRatio = analysisMethod.getIsotopicRatiosList().indexOf(myRatio);
+                if (0 <= indexOfIsotopicRatio) {
+                    analysisMethod.getIsotopicRatiosList().get(indexOfIsotopicRatio).setDisplayed(false);
+                    analysis.updateRatiosPlotBuilderDisplayStatus(indexOfIsotopicRatio, false);
+                }
+                int indexOfDerivedIsotopicRatio = analysisMethod.getDerivedIsotopicRatiosList().indexOf(myRatio);
+                if (0 <= indexOfDerivedIsotopicRatio) {
+                    analysisMethod.getDerivedIsotopicRatiosList().get(indexOfDerivedIsotopicRatio).setDisplayed(false);
+                    analysis.updateRatiosPlotBuilderDisplayStatus(indexOfDerivedIsotopicRatio + analysisMethod.getIsotopicRatiosList().size(), false);
+                }
+            }
+        }
+    }
+
     private class CheckBoxChangeListener implements ChangeListener<Boolean> {
-        private CheckBox checkBox;
+        private final CheckBox checkBox;
 
         public CheckBoxChangeListener(CheckBox checkBox) {
             this.checkBox = checkBox;
@@ -505,17 +708,15 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             IsotopicRatio ratio = (IsotopicRatio) checkBox.getUserData();
             AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
             int indexOfIsotopicRatio = analysisMethod.getIsotopicRatiosList().indexOf(ratio);
-            if (indexOfIsotopicRatio >= 0) {
+            if (0 <= indexOfIsotopicRatio) {
                 analysisMethod.getIsotopicRatiosList().get(indexOfIsotopicRatio).setDisplayed(displayed);
                 analysis.updateRatiosPlotBuilderDisplayStatus(indexOfIsotopicRatio, displayed);
             }
             int indexOfDerivedIsotopicRatio = analysisMethod.getDerivedIsotopicRatiosList().indexOf(ratio);
-            if (indexOfDerivedIsotopicRatio >= 0) {
+            if (0 <= indexOfDerivedIsotopicRatio) {
                 analysisMethod.getDerivedIsotopicRatiosList().get(indexOfDerivedIsotopicRatio).setDisplayed(displayed);
                 analysis.updateRatiosPlotBuilderDisplayStatus(indexOfDerivedIsotopicRatio + analysisMethod.getIsotopicRatiosList().size(), displayed);
             }
-
-
         }
     }
 }

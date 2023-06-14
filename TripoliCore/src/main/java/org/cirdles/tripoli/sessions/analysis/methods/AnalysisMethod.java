@@ -283,6 +283,12 @@ public class AnalysisMethod implements Serializable {
         Collections.sort(speciesList, Comparator.comparing(s -> s.getNaturalAbundancePercent()));
     }
 
+    public List<SpeciesRecordInterface> getSpeciesListSortedByMass() {
+        List<SpeciesRecordInterface> speciesListCopy = new ArrayList<>(speciesList);
+        Collections.sort(speciesListCopy, Comparator.comparing(s -> s.getMassNumber()));
+        return speciesListCopy;
+    }
+
     public SpeciesRecordInterface retrieveHighestAbundanceSpecies() {
         return speciesList.get(speciesList.size() - 1);
     }

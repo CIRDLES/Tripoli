@@ -101,7 +101,7 @@ public class MCMCPlotsController {
 
     @FXML
     void initialize() {
-        eventLogTextArea.setText("Using technique: " + ((Analysis) analysis).getMcmcVersion());
+        eventLogTextArea.setText("Using technique: " + ((Analysis) analysis).getMcmcVersion() + "  with max of 100000 iterations");
         masterVBox.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT);
         toolbar.setPrefSize(PLOT_WINDOW_WIDTH, 30.0);
 
