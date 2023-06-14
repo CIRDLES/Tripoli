@@ -25,7 +25,7 @@ import org.apache.commons.math3.random.RandomDataGenerator;
  */
 public enum MatLabCholesky {
     ;
-    static RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
+//    static RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
      /*
         if (n == m) && all(all(abs(Sigma - Sigma') < n*tol))
             [T,p] = chol(Sigma);
@@ -103,6 +103,8 @@ public enum MatLabCholesky {
         // then z = (1.4-1.2) / 0.4 = 0.5, i.e. the pupil is half a standard deviation from the mean (value at centre of curve).
 
         Matrix T = cholCov(new Matrix(sigma));
+        RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
+        randomDataGenerator.reSeedSecure();
 
         double[][] rArray = new double[cases][T.getRowDimension()];
         for (int row = 0; row < cases; row++) {
