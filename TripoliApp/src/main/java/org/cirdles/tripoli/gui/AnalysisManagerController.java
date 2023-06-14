@@ -407,7 +407,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
             addRatioButton.setDisable(true);
             addRatioButton.setOnAction((evt) -> {
-                Button b = (Button) evt.getSource();
                 if (checkLegalityOfProposedRatio()) {
                     IsotopicRatio ratio = new IsotopicRatio(
                             (SpeciesRecordInterface) proposedRatioVBox.getChildren().get(0).getUserData(),
