@@ -67,7 +67,15 @@ public class IsotopicRatio implements Serializable, Comparable {
      */
     @Override
     public int compareTo(@NotNull Object o) {
-        return Integer.compare(numerator.getMassNumber(), ((IsotopicRatio) o).getNumerator().getMassNumber());
+        if (numerator.getMassNumber() != ((IsotopicRatio) o).getNumerator().getMassNumber()) {
+            return Integer.compare(numerator.getMassNumber(), ((IsotopicRatio) o).getNumerator().getMassNumber());
+        } else {
+            return Integer.compare(denominator.getMassNumber(), ((IsotopicRatio) o).getDenominator().getMassNumber());
+        }
+    }
+
+    private double ratioValue() {
+        return (numerator.getMassNumber() / denominator.getMassNumber());
     }
 
     @Override

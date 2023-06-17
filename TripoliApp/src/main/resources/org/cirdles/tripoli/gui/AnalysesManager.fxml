@@ -209,7 +209,7 @@
                                   style="-fx-background-color: white; -fx-border-color: black;" textAlignment="CENTER"
                                   GridPane.columnSpan="4" GridPane.rowIndex="3">
                             <padding>
-                                <Insets top="7.0"/>
+                                <Insets top="2.0"/>
                             </padding>
                         </TextFlow>
                         <TextFlow fx:id="denominatorMassesListTextFlow" minHeight="30.0" minWidth="997.0"
@@ -238,14 +238,14 @@
                               GridPane.rowIndex="2">
                             <children>
                                 <Label style="-fx-text-fill: red;"
-                                       text="Click a species above to populate the numerator of the red ratio below.  Click a ratio to deselect it."/>
+                                       text="Click a species above to populate the numerator of the red ratio below.  Click a ratio to deselect it.  Click the circle of arrows to invert ratio."/>
                             </children>
                         </HBox>
                         <HBox alignment="CENTER" layoutX="10.0" layoutY="70.0" prefHeight="100.0" prefWidth="200.0"
                               GridPane.columnSpan="4" GridPane.rowIndex="4">
                             <children>
                                 <Label style="-fx-text-fill: red;"
-                                       text="Click a species below to populate the denominator of the red ratio above.  Click a ratio to deselect it."/>
+                                       text="Click a species below to populate the denominator of the red ratio above.  Click a ratio to deselect it.  Click the circle of arrows to invert ratio."/>
                             </children>
                         </HBox>
                     </children>
