@@ -36,7 +36,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
 
 /**
@@ -75,7 +74,7 @@ public enum SingleBlockDataModelPlot {
 
          */
         int burn;// = 100;// 500;//1000;
-        burn = 500;//Math.min(100, ensembleRecordsList.size() - 50);
+        burn = 1;//Math.min(100, ensembleRecordsList.size() - 50);
         int countOfEnsemblesUsed = ensembleRecordsList.size() - burn;
 
         // log ratios
@@ -155,21 +154,21 @@ public enum SingleBlockDataModelPlot {
         double dalyFaradayGainMean = descriptiveStatisticsDalyFaradayGain.getMean();
         double dalyFaradayGainStdDev = descriptiveStatisticsDalyFaradayGain.getStandardDeviation();
 
-        // signal noise
-        int faradayCount = singleBlockInitialModelRecordInitial.faradayCount();
-        double[][] ensembleSignalnoise = new double[faradayCount][countOfEnsemblesUsed];
-        double[] signalNoiseMeans = new double[faradayCount];
-        double[] signalNoiseStdDev = new double[faradayCount];
-
-        for (int row = 0; row < faradayCount; row++) {
-            DescriptiveStatistics descriptiveStatisticsSignalNoise = new DescriptiveStatistics();
-            for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
-                ensembleSignalnoise[row][index - burn] = ensembleRecordsList.get(index).signalNoise()[row];
-                descriptiveStatisticsSignalNoise.addValue(ensembleSignalnoise[row][index - burn]);
-            }
-            signalNoiseMeans[row] = descriptiveStatisticsSignalNoise.getMean();
-            signalNoiseStdDev[row] = descriptiveStatisticsSignalNoise.getStandardDeviation();
-        }
+//        // signal noise
+//        int faradayCount = singleBlockInitialModelRecordInitial.faradayCount();
+//        double[][] ensembleSignalnoise = new double[faradayCount][countOfEnsemblesUsed];
+//        double[] signalNoiseMeans = new double[faradayCount];
+//        double[] signalNoiseStdDev = new double[faradayCount];
+//
+//        for (int row = 0; row < faradayCount; row++) {
+//            DescriptiveStatistics descriptiveStatisticsSignalNoise = new DescriptiveStatistics();
+//            for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
+//                ensembleSignalnoise[row][index - burn] = ensembleRecordsList.get(index).signalNoise()[row];
+//                descriptiveStatisticsSignalNoise.addValue(ensembleSignalnoise[row][index - burn]);
+//            }
+//            signalNoiseMeans[row] = descriptiveStatisticsSignalNoise.getMean();
+//            signalNoiseStdDev[row] = descriptiveStatisticsSignalNoise.getStandardDeviation();
+//        }
 
         /*
             for m=1:d0.Nblock
@@ -254,11 +253,11 @@ public enum SingleBlockDataModelPlot {
         plotBuilders[2][0] = HistogramBuilder.initializeHistogram(singleBlockDataSetRecord.blockNumber(), ensembleDalyFaradayGain,
                 25, new String[]{"Daly/Faraday Gain"}, "Gain", "Frequency", true);
 
-        plotBuilders[3] = new PlotBuilder[ensembleSignalnoise.length];
-        for (int i = 0; i < ensembleSignalnoise.length; i++) {
-            plotBuilders[3][i] = HistogramBuilder.initializeHistogram(singleBlockDataSetRecord.blockNumber(), ensembleSignalnoise[i],
-                    25, new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Signal Noise"}, "Noise hyperparameter", "Frequency", true);
-        }
+//        plotBuilders[3] = new PlotBuilder[ensembleSignalnoise.length];
+//        for (int i = 0; i < ensembleSignalnoise.length; i++) {
+//            plotBuilders[3][i] = HistogramBuilder.initializeHistogram(singleBlockDataSetRecord.blockNumber(), ensembleSignalnoise[i],
+//                    25, new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Signal Noise"}, "Noise hyperparameter", "Frequency", true);
+//        }
 
         plotBuilders[4][0] = MultiLinePlotBuilder.initializeLinePlot(
                 xDataIntensityMeans, yDataIntensityMeans, new String[]{"Mean Intensity w/ Knots"}, "Time Index", "Intensity (counts)", true);
@@ -275,7 +274,7 @@ public enum SingleBlockDataModelPlot {
         // new converge plots
         double[][] convergeSetOfLogRatios = new double[isotopicRatioList.size()][ensembleRecordsList.size()];
         double[][] convergeSetOfBaselines = new double[baselineSize][ensembleRecordsList.size()];
-        double[][] convergeSetOfFaradayNoise = new double[baselineSize][ensembleRecordsList.size()];
+//        double[][] convergeSetOfFaradayNoise = new double[baselineSize][ensembleRecordsList.size()];
         double[] convergeErrWeightedMisfit = new double[ensembleRecordsList.size()];
         double[] convergeErrRawMisfit = new double[ensembleRecordsList.size()];
         double[] xDataConvergeSavedIterations = new double[ensembleRecordsList.size()];
@@ -285,7 +284,7 @@ public enum SingleBlockDataModelPlot {
             }
             for (int faradayIndex = 0; faradayIndex < baselineSize; faradayIndex++) {
                 convergeSetOfBaselines[faradayIndex][ensembleIndex] = ensembleRecordsList.get(ensembleIndex).baseLine()[faradayIndex];
-                convergeSetOfFaradayNoise[faradayIndex][ensembleIndex] = ensembleRecordsList.get(ensembleIndex).signalNoise()[faradayIndex];
+//                convergeSetOfFaradayNoise[faradayIndex][ensembleIndex] = ensembleRecordsList.get(ensembleIndex).signalNoise()[faradayIndex];
             }
             convergeErrWeightedMisfit[ensembleIndex] = StrictMath.sqrt(ensembleRecordsList.get(ensembleIndex).errorWeighted());
             convergeErrRawMisfit[ensembleIndex] = StrictMath.sqrt(ensembleRecordsList.get(ensembleIndex).errorUnWeighted());
@@ -307,12 +306,12 @@ public enum SingleBlockDataModelPlot {
                     new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Baseline"}, "Saved iterations", "Baseline Counts");
         }
 
-        plotBuilders[11] = new PlotBuilder[convergeSetOfFaradayNoise.length];
-        for (int i = 0; i < convergeSetOfFaradayNoise.length; i++) {
-            plotBuilders[11][i] = LinePlotBuilder.initializeLinePlot(
-                    xDataConvergeSavedIterations, convergeSetOfFaradayNoise[i],
-                    new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Noise"}, "Saved iterations", "Noise");
-        }
+//        plotBuilders[11] = new PlotBuilder[convergeSetOfFaradayNoise.length];
+//        for (int i = 0; i < convergeSetOfFaradayNoise.length; i++) {
+//            plotBuilders[11][i] = LinePlotBuilder.initializeLinePlot(
+//                    xDataConvergeSavedIterations, convergeSetOfFaradayNoise[i],
+//                    new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Noise"}, "Saved iterations", "Noise");
+//        }
 
         plotBuilders[8][0] = LinePlotBuilder.initializeLinePlot(xDataConvergeSavedIterations, convergeErrWeightedMisfit, new String[]{"Converge Weighted Misfit"}, "Saved iterations", "Weighted Misfit");
 
@@ -335,7 +334,7 @@ public enum SingleBlockDataModelPlot {
         EnsemblesStore.EnsembleRecord lastModelRecord = ensembleRecordsList.get(ensembleRecordsList.size() - 1);
         double[] logRatios = lastModelRecord.logRatios().clone();
         double[] intensities = singleBlockInitialModelRecordInitial.intensities();
-        double[] xSig = lastModelRecord.signalNoise();
+//        double[] xSig = lastModelRecord.signalNoise();
         double detectorFaradayGain = singleBlockInitialModelRecordInitial.detectorFaradayGain();
 //        double[] baselineMeansArray = singleBlockInitialModelRecordInitial.baselineMeansArray();
         double[] dataCountsModelOneSigma_Dsig = new double[totalIntensityCount];
@@ -367,8 +366,8 @@ public enum SingleBlockDataModelPlot {
             /*
             Dsig = sqrt(x.sig(d0.det_vec).^2 + x.sig(end).*dnobl); % New data covar vector
              */
-            double calculatedValue = StrictMath.sqrt(pow(xSig[faradayIndex], 2)
-                    + xSig[xSig.length - 1]
+            double calculatedValue = StrictMath.sqrt(1.0 //pow(xSig[faradayIndex], 2)
+                    + 1.0//xSig[xSig.length - 1]
                     * dataWithNoBaselineArray[dataArrayIndex]);
             dataCountsModelOneSigma_Dsig[dataArrayIndex] = calculatedValue;
 
@@ -395,8 +394,8 @@ public enum SingleBlockDataModelPlot {
             }
             dataWithNoBaselineArray[dataArrayIndex] = dataArray[dataArrayIndex];
 
-            double calculatedValue = StrictMath.sqrt(StrictMath.pow(xSig[faradayIndex], 2)
-                    + xSig[xSig.length - 1]
+            double calculatedValue = StrictMath.sqrt(1.0 //StrictMath.pow(xSig[faradayIndex], 2)
+                    + 1.0//xSig[xSig.length - 1]
                     * dataWithNoBaselineArray[dataArrayIndex]);
             dataCountsModelOneSigma_Dsig[dataArrayIndex] = calculatedValue;
 
@@ -413,8 +412,8 @@ public enum SingleBlockDataModelPlot {
             dataArray[dataArrayIndex] = baselinesMeans[faradayIndex];
 //            dataWithNoBaselineArray[dataArrayIndex] = dataArray[dataArrayIndex] - baselinesMeans[faradayIndex];
 
-            double calculatedValue = StrictMath.sqrt(pow(xSig[faradayIndex], 2)
-                    + xSig[xSig.length - 1]
+            double calculatedValue = StrictMath.sqrt(1.0//pow(xSig[faradayIndex], 2)
+                    + 1.0//xSig[xSig.length - 1]
                     * dataWithNoBaselineArray[dataArrayIndex]);
             dataCountsModelOneSigma_Dsig[dataArrayIndex] = calculatedValue;
 
@@ -443,7 +442,7 @@ public enum SingleBlockDataModelPlot {
         System.err.println(logRatioMean + "         " + logRatioStdDev);
         System.err.println(baselinesMeans[0] + "         " + baselinesMeans[1] + "    " + baselinesStdDev[0] + "     " + baselinesStdDev[1]);
         System.err.println(dalyFaradayGainMean + "    " + dalyFaradayGainStdDev);
-        System.err.println(signalNoiseMeans[0] + "         " + signalNoiseMeans[1] + "    " + signalNoiseStdDev[0] + "     " + signalNoiseStdDev[1]);
+//        System.err.println(signalNoiseMeans[0] + "         " + signalNoiseMeans[1] + "    " + signalNoiseStdDev[0] + "     " + signalNoiseStdDev[1]);
 
 
         return plotBuilders;

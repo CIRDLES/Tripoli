@@ -49,6 +49,7 @@ public class MCMCProcess2 {
     private static final int stepCountForcedSave = 10;
     private static final int modelCount = maxIterationCount * stepCountForcedSave;
     private final SingleBlockModelRecord singleBlockInitialModelRecord_X0;
+    private final Matrix covarianceMatrix_C0;
     private final AnalysisMethod analysisMethod;
     private final SingleBlockDataSetRecord singleBlockDataSetRecord;
     List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
@@ -76,17 +77,24 @@ public class MCMCProcess2 {
     private double effectSamp;
     private double ExitCrit;
 
-    private MCMCProcess2(AnalysisMethod analysisMethod, SingleBlockDataSetRecord singleBlockDataSetRecord, SingleBlockModelRecord singleBlockInitialModelRecord) {
+    private MCMCProcess2(
+            AnalysisMethod analysisMethod,
+            SingleBlockDataSetRecord singleBlockDataSetRecord,
+            SingleBlockModelInitForMCMC2.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov) {
         this.analysisMethod = analysisMethod;
         this.singleBlockDataSetRecord = singleBlockDataSetRecord;
-        singleBlockInitialModelRecord_X0 = singleBlockInitialModelRecord;
+        singleBlockInitialModelRecord_X0 = singleBlockInitialModelRecordWithCov.singleBlockModelRecord();
+        covarianceMatrix_C0 = singleBlockInitialModelRecordWithCov.covarianceMatrix_C0();
     }
 
     public static int getModelCount() {
         return modelCount;
     }
 
-    public static synchronized MCMCProcess2 createMCMCProcess2(AnalysisMethod analysisMethod, SingleBlockDataSetRecord singleBlockDataSetRecord, SingleBlockModelRecord singleBlockInitialModelRecord) {
+    public static synchronized MCMCProcess2 createMCMCProcess2(
+            AnalysisMethod analysisMethod,
+            SingleBlockDataSetRecord singleBlockDataSetRecord,
+            SingleBlockModelInitForMCMC2.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov) {
         /*
             % MCMC Parameters
             maxcnt = 2000;  % Maximum number of models to save
@@ -105,7 +113,7 @@ public class MCMCProcess2 {
             Ndata=d0.Ndata; % Number of picks
             Nsig = d0.Nsig; % Number of noise variables
          */
-        MCMCProcess2 mcmcProcess2 = new MCMCProcess2(analysisMethod, singleBlockDataSetRecord, singleBlockInitialModelRecord);
+        MCMCProcess2 mcmcProcess2 = new MCMCProcess2(analysisMethod, singleBlockDataSetRecord, singleBlockInitialModelRecordWithCov);
         return mcmcProcess2;
     }
 
@@ -170,31 +178,6 @@ public class MCMCProcess2 {
                 buildProposalRangesRecord(singleBlockInitialModelRecord_X0.intensities());
         proposalSigmasRecord =
                 buildProposalSigmasRecord(singleBlockInitialModelRecord_X0.baselineStandardDeviationsArray(), proposalRangesRecord);
-
-
-        /*
-            % Initial covariance taken from Proposal Sigmas
-            C0diag =  [psig.lograt*ones(d0.Niso,1);psig.I*ones(sum(d0.Ncycle),1);psig.BL*ones(d0.Nfar,1);psig.DFgain*ones(1,1)];
-            C0 = (0.1)^2*Nmod^-1*diag(C0diag);
-            beta = 0.05;
-         */
-        c0_Array = new double[sizeOfModel][sizeOfModel];
-        double calculatedValue;
-        for (int i = 0; i < ratioCount; i++) {
-            calculatedValue = StrictMath.pow(0.1, 2.0) * (1.0 / sizeOfModel) * proposalSigmasRecord.psigLogRatio();
-            c0_Array[i][i] = calculatedValue;
-        }
-        for (int i = ratioCount; i < ratioCount + countOfCycles; i++) {
-            calculatedValue = StrictMath.pow(0.1, 2.0) * (1.0 / sizeOfModel) * proposalSigmasRecord.psigIntensity();
-            c0_Array[i][i] = calculatedValue;
-        }
-        for (int i = ratioCount + countOfCycles; i < ratioCount + countOfCycles + faradayCount; i++) {
-            calculatedValue = StrictMath.pow(0.1, 2.0) * (1.0 / sizeOfModel) * proposalSigmasRecord.psigBaselineFaraday();
-            c0_Array[i][i] = calculatedValue;
-        }
-        c0_Array[sizeOfModel - 1][sizeOfModel - 1] = StrictMath.pow(0.1, 2.0) * (1.0 / sizeOfModel) * proposalSigmasRecord.psigDFgain();
-
-
 
         /*
             % Modified Gelman-Rubin Convergence
@@ -263,7 +246,7 @@ x=x0;
         */
 
         // NOTE: these already populated in the initial model singleBlockInitialModelRecord_X0
-        dataArray = singleBlockInitialModelRecord_X0.dataArray().clone();
+        dataArray = singleBlockInitialModelRecord_X0.dataWithNoBaselineArray().clone();
         dataWithNoBaselineArray = singleBlockInitialModelRecord_X0.dataWithNoBaselineArray().clone();
         dataSignalNoiseArray = singleBlockInitialModelRecord_X0.dataSignalNoiseArray().clone();
 
@@ -358,7 +341,7 @@ x=x0;
                    end
             */
                 Matrix xDataCovarianceMatrix = new Matrix(xDataCovariance);
-                Matrix c0_Matrix = new Matrix(c0_Array);
+                Matrix c0_Matrix = covarianceMatrix_C0;
                 Matrix c_Matrix;
 
                 if (modelIndex <= 2L * sizeOfModel) {
@@ -424,13 +407,15 @@ x=x0;
                 double detectorFaradayGain = dataModelUpdaterOutputRecord_x2.detectorFaradayGain();
 
                 for (int row = 0; row < countOfData; row++) {
-                    int detectorIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndices[row]);
-                    updatedBaseLineArray[row] = updatedBaseLineMeansArray[detectorIndex];
                     if (row < startingIndexOfPhotoMultiplierData) {
+                        int detectorIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndices[row]);
+                        updatedBaseLineArray[row] = updatedBaseLineMeansArray[detectorIndex];
                         updatedDetectorFaradayArray[row] = 1.0 / detectorFaradayGain;
                     }
                     // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
-                    if (isotopeOrdinalIndicesArray[row] - 1 < logRatios.length) {
+                    if (isotopeOrdinalIndicesArray[row] == 0) {
+                        updatedLogRatioArray[row] = 1.0;
+                    } else if (isotopeOrdinalIndicesArray[row] - 1 < logRatios.length) {
                         updatedLogRatioArray[row] = exp(logRatios[isotopeOrdinalIndicesArray[row] - 1]);
                     } else {
                         updatedLogRatioArray[row] = 1.0;
@@ -497,14 +482,15 @@ x=x0;
             /*
             Dsig2 = x2.sig(d0.det_vec).^2 + x2.sig(d0.iso_vec+d0.Ndet).*dnobl2;
              */
-                int[] isotopeOrdinalIndices = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
+                dataSignalNoiseArray2 = dataSignalNoiseArray.clone();
+//                int[] isotopeOrdinalIndices = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
                 double[] intensitiesArray = singleBlockDataSetRecord.blockIntensityArray();
-                double[] signalNoiseSigma = dataModelUpdaterOutputRecord_x2.signalNoiseSigma();
+//                double[] signalNoiseSigma = dataModelUpdaterOutputRecord_x2.signalNoiseSigma();
                 for (int row = 0; row < countOfData; row++) {
-                    int detectorIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndices[row]);
-                    double term1 = StrictMath.pow(signalNoiseSigma[detectorIndex], 2);
-                    double term2 = signalNoiseSigma[isotopeOrdinalIndices[row] - 1 + faradayCount + 1];
-                    dataSignalNoiseArray2[row] = term1 + term2 * dataWithNoBaselineArray2[row];
+//                    int detectorIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndices[row]);
+//                    double term1 = StrictMath.pow(signalNoiseSigma[detectorIndex], 2);
+//                    double term2 = signalNoiseSigma[isotopeOrdinalIndices[row] - 1 + faradayCount + 1];
+//                    dataSignalNoiseArray2[row] = term1 + term2 * dataWithNoBaselineArray2[row];
                     double residualValue = pow(intensitiesArray[row] - dataArray[row], 2);
                     double residualValue2 = pow(intensitiesArray[row] - dataArray2[row], 2);
                     E02 += residualValue2;
@@ -596,7 +582,7 @@ x=x0;
                             dataModelUpdaterOutputRecord_x2.faradayCount(),
                             dataModelUpdaterOutputRecord_x2.isotopeCount()
                     );
-                    dataSignalNoiseArray = dataSignalNoiseArray2.clone();
+//                    dataSignalNoiseArray = dataSignalNoiseArray2.clone();
 
                     keptUpdates[operationIndex][0] = keptUpdates[operationIndex][0] + 1;
                     keptUpdates[operationIndex][2] = keptUpdates[operationIndex][2] + 1;

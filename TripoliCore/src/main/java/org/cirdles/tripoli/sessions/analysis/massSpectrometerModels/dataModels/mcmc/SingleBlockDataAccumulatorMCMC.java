@@ -74,7 +74,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                         intensityAccumulatorList.add(intensity);
                         timeAccumulatorList.add(baseLineTimeStamps[index]);
                         timeIndexAccumulatorList.add(index);
-                        isotopeOrdinalIndicesAccumulatorList.add(analysisMethod.getSpeciesList().size());
+                        isotopeOrdinalIndicesAccumulatorList.add(0);//analysisMethod.getSpeciesList().size());
                     }
                 }
             }

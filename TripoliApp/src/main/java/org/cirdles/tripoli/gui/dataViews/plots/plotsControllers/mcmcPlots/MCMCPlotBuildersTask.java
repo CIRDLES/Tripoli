@@ -81,10 +81,10 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         return dalyFaradayGainHistogramBuilder.clone();
     }
 
-    @Override
-    public PlotBuilder[] getSignalNoiseHistogramBuilder() {
-        return signalNoiseHistogramBuilder.clone();
-    }
+//    @Override
+//    public PlotBuilder[] getSignalNoiseHistogramBuilder() {
+//        return signalNoiseHistogramBuilder.clone();
+//    }
 
     @Override
     public PlotBuilder[] getMeanIntensityVsKnotsMultiLineBuilder() {
@@ -126,10 +126,10 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         return convergeIntensityLinesBuilder;
     }
 
-    @Override
-    public PlotBuilder[] getConvergeNoiseFaradayLineBuilder() {
-        return convergeNoiseFaradayLineBuilder.clone();
-    }
+//    @Override
+//    public PlotBuilder[] getConvergeNoiseFaradayLineBuilder() {
+//        return convergeNoiseFaradayLineBuilder.clone();
+//    }
 
     public PlotBuilder[] getObservedDataWithSubsetsLineBuilder() {
         return observedDataWithSubsetsLineBuilder;
@@ -144,7 +144,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         ratiosHistogramBuilder = plots[PLOT_INDEX_RATIOS];
         baselineHistogramBuilder = plots[1];
         dalyFaradayGainHistogramBuilder = plots[2];
-        signalNoiseHistogramBuilder = plots[3];
+//        signalNoiseHistogramBuilder = plots[3];
         meanIntensityVsKnotsMultiLineBuilder = plots[4];
 
         convergeRatioLineBuilder = plots[5];
@@ -155,7 +155,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         convergeErrRawMisfitLineBuilder = plots[9];
         convergeIntensityLinesBuilder = plots[10];
 
-        convergeNoiseFaradayLineBuilder = plots[11];
+        //convergeNoiseFaradayLineBuilder = plots[11];
 
         observedDataLineBuilder = plots[13];
         residualDataLineBuilder = plots[14];

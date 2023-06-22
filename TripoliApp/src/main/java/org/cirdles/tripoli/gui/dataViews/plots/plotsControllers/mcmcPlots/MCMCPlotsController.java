@@ -307,12 +307,12 @@ public class MCMCPlotsController {
         PlotBuilder[] ratiosHistogramBuilder = plotBuildersTask.getRatiosHistogramBuilder();
         PlotBuilder[] baselineHistogramBuilder = plotBuildersTask.getBaselineHistogramBuilder();
         PlotBuilder[] dalyFaradayHistogramBuilder = plotBuildersTask.getDalyFaradayGainHistogramBuilder();
-        PlotBuilder[] signalNoiseHistogramBuilder = plotBuildersTask.getSignalNoiseHistogramBuilder();
+        //PlotBuilder[] signalNoiseHistogramBuilder = plotBuildersTask.getSignalNoiseHistogramBuilder();
         PlotBuilder[] intensityLinePlotBuilder = plotBuildersTask.getMeanIntensityVsKnotsMultiLineBuilder();
 
         PlotBuilder[] convergeRatioPlotBuilder = plotBuildersTask.getConvergeRatioLineBuilder();
         PlotBuilder[] convergeBLFaradayLineBuilder = plotBuildersTask.getConvergeBLFaradayLineBuilder();
-        PlotBuilder[] convergeNoiseFaradayLineBuilder = plotBuildersTask.getConvergeNoiseFaradayLineBuilder();
+//        PlotBuilder[] convergeNoiseFaradayLineBuilder = plotBuildersTask.getConvergeNoiseFaradayLineBuilder();
         PlotBuilder[] convergeErrWeightedMisfitBuilder = plotBuildersTask.getConvergeErrWeightedMisfitLineBuilder();
         PlotBuilder[] convergeErrRawMisfitBuilder = plotBuildersTask.getConvergeErrRawMisfitLineBuilder();
 
@@ -332,7 +332,7 @@ public class MCMCPlotsController {
         produceTripoliRatioHistogramPlots(ratiosHistogramBuilder, ensemblePlotsWallPane);
         produceTripoliHistogramPlots(baselineHistogramBuilder, ensemblePlotsWallPane);
         produceTripoliHistogramPlots(dalyFaradayHistogramBuilder, ensemblePlotsWallPane);
-        produceTripoliHistogramPlots(signalNoiseHistogramBuilder, ensemblePlotsWallPane);
+        //produceTripoliHistogramPlots(signalNoiseHistogramBuilder, ensemblePlotsWallPane);
         produceTripoliMultiLinePlots(intensityLinePlotBuilder, ensemblePlotsWallPane);
         ensemblePlotsWallPane.tilePlots();
 
@@ -342,7 +342,7 @@ public class MCMCPlotsController {
         convergePlotsAnchorPane.getChildren().add(convergePlotsWallPane);
         produceTripoliLinePlots(convergeRatioPlotBuilder, convergePlotsWallPane);
         produceTripoliLinePlots(convergeBLFaradayLineBuilder, convergePlotsWallPane);
-        produceTripoliLinePlots(convergeNoiseFaradayLineBuilder, convergePlotsWallPane);
+//        produceTripoliLinePlots(convergeNoiseFaradayLineBuilder, convergePlotsWallPane);
         convergePlotsWallPane.tilePlots();
 
         PlotWallPane dataFitPlotsWallPane = new PlotWallPane();
