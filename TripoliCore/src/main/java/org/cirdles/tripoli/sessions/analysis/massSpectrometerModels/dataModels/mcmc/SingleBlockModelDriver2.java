@@ -48,15 +48,15 @@ public enum SingleBlockModelDriver2 {
         PlotBuilder[][] plotBuilder = new PlotBuilder[0][0];
 
         SingleBlockDataSetRecord singleBlockDataSetRecord2 = prepareSingleBlockDataForMCMC2(blockNumber, massSpecExtractedData, analysisMethod);
-        SingleBlockModelRecord singleBlockInitialModelRecord2;
+        SingleBlockModelInitForMCMC2.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov;
         try {
-            singleBlockInitialModelRecord2 = initializeModelForSingleBlockMCMC2(singleBlockDataSetRecord2);
+            singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC2(singleBlockDataSetRecord2);
         } catch (RecoverableCondition e) {
             throw new TripoliException("Ojalgo RecoverableCondition");
         }
 
-        if (null != singleBlockInitialModelRecord2) {
-            MCMCProcess2 mcmcProcess2 = MCMCProcess2.createMCMCProcess2(analysisMethod, singleBlockDataSetRecord2, singleBlockInitialModelRecord2);
+        if (null != singleBlockInitialModelRecordWithCov) {
+            MCMCProcess2 mcmcProcess2 = MCMCProcess2.createMCMCProcess2(analysisMethod, singleBlockDataSetRecord2, singleBlockInitialModelRecordWithCov);
             mcmcProcess2.initializeMCMCProcess2();
             plotBuilder = mcmcProcess2.applyInversionWithAdaptiveMCMC2(loggingCallback);
         }
