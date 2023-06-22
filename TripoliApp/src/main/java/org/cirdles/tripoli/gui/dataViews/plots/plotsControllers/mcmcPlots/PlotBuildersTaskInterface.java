@@ -13,7 +13,7 @@ public interface PlotBuildersTaskInterface {
 
     PlotBuilder[] getDalyFaradayGainHistogramBuilder();
 
-    PlotBuilder[] getSignalNoiseHistogramBuilder();
+//    PlotBuilder[] getSignalNoiseHistogramBuilder();
 
     PlotBuilder[] getMeanIntensityVsKnotsMultiLineBuilder();
 
@@ -31,7 +31,7 @@ public interface PlotBuildersTaskInterface {
 
     PlotBuilder[] getConvergeIntensityLinesBuilder();
 
-    PlotBuilder[] getConvergeNoiseFaradayLineBuilder();
+//    PlotBuilder[] getConvergeNoiseFaradayLineBuilder();
 
     PlotBuilder[] getObservedDataWithSubsetsLineBuilder();
 
