@@ -647,7 +647,7 @@ enum SingleBlockModelInitForMCMC2 {
 
     }
 
-    public static double[] modelInitData(SingleBlockModelRecord x0, SingleBlockDataSetRecord singleBlockDataSetRecord) {
+    public synchronized static double[] modelInitData(SingleBlockModelRecord x0, SingleBlockDataSetRecord singleBlockDataSetRecord) {
         int baselineCount = singleBlockDataSetRecord.baselineDataSetMCMC().intensityAccumulatorList().size();
         int onPeakFaradayCount = singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
         int onPeakPhotoMultCount = singleBlockDataSetRecord.onPeakPhotoMultiplierDataSetMCMC().intensityAccumulatorList().size();
@@ -698,7 +698,7 @@ enum SingleBlockModelInitForMCMC2 {
         return dataModel;
     }
 
-    private static double calcError(double[] origData, double[] modelData, double[] dataSignalNoiseArray_Dsig) {
+    private synchronized static double calcError(double[] origData, double[] modelData, double[] dataSignalNoiseArray_Dsig) {
         double sum = 0.0;
         for (int i = 0; i < origData.length; i++) {
             sum += Math.pow((origData[i] - modelData[i]), 2.0) / dataSignalNoiseArray_Dsig[i];
@@ -706,7 +706,7 @@ enum SingleBlockModelInitForMCMC2 {
         return sum;
     }
 
-    private static double calcVariance(double[] eTmp, double minETmp, double[] testArray) {
+    private synchronized static double calcVariance(double[] eTmp, double minETmp, double[] testArray) {
         double[] ee = new double[eTmp.length];
         double sumExpEE = 0.0;
         for (int i = 0; i < ee.length; i++) {

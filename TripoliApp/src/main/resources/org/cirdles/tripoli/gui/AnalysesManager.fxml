@@ -80,11 +80,11 @@
         <Button layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectMethodFileButtonAction"
                 text="Load Method File"/>
         <Button layoutX="225.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectRunAllAction"
-                style="-fx-text-fill: RED;" text="Select Run All"/>
+                style="-fx-text-fill: RED;" text="Run All"/>
         <Button layoutX="225.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectRunNoneAction"
-                style="-fx-text-fill: RED;" text="Select Run None"/>
+                style="-fx-text-fill: RED;" text="Run None"/>
         <Button layoutX="321.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectShowsAction"
-                style="-fx-text-fill: GREEN;" text="Select Shows"/>
+                style="-fx-text-fill: GREEN;" text="Shows Only"/>
         <Button layoutX="433.0" layoutY="7.0" mnemonicParsing="false" onAction="#restoreAllAction"
                 style="-fx-text-fill: RED;" text="Restore All"/>
         <Button id="MCMC1" fx:id="mcmc1Button" layoutX="165.0" layoutY="7.0" mnemonicParsing="false"
