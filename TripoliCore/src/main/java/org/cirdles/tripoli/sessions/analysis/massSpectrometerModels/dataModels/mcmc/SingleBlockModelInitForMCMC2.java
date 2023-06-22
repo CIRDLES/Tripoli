@@ -468,21 +468,21 @@ enum SingleBlockModelInitForMCMC2 {
         double covarianceFactor = Math.pow(0.1, 2) * (1.0 / countOfParameters);
         double[][] diagC0 = new double[countOfParameters][countOfParameters];
         int diagIndex = 0;
-        for (int i = 0; i < logRatioVar.length; i++){
+        for (int i = 0; i < logRatioVar.length; i++) {
             diagC0[diagIndex][diagIndex] = StrictMath.sqrt(logRatioVar[i]) * covarianceFactor;
             diagIndex++;
         }
-        for (int i = 0; i < intensityVar.length; i++){
+        for (int i = 0; i < intensityVar.length; i++) {
             diagC0[diagIndex][diagIndex] = StrictMath.sqrt(intensityVar[i]) * covarianceFactor;
             diagIndex++;
         }
-        for (int i = 0; i < baseLineVar.length; i++){
+        for (int i = 0; i < baseLineVar.length; i++) {
             diagC0[diagIndex][diagIndex] = StrictMath.sqrt(baseLineVar[i]) * covarianceFactor;
             diagIndex++;
         }
         diagC0[diagIndex][diagIndex] = StrictMath.sqrt(dfGainVar) * covarianceFactor;
 
-        Matrix covarianceMatrix_C0 =  new Matrix(diagC0);
+        Matrix covarianceMatrix_C0 = new Matrix(diagC0);
 
         SingleBlockModelRecord calculatedX0 = new SingleBlockModelRecord(
                 singleBlockDataSetRecord.blockNumber(),
@@ -641,12 +641,6 @@ enum SingleBlockModelInitForMCMC2 {
 //                isotopeCount);
     }
 
-    public record SingleBlockModelRecordWithCov(
-            SingleBlockModelRecord singleBlockModelRecord,
-            Matrix covarianceMatrix_C0){
-
-    }
-
     public synchronized static double[] modelInitData(SingleBlockModelRecord x0, SingleBlockDataSetRecord singleBlockDataSetRecord) {
         int baselineCount = singleBlockDataSetRecord.baselineDataSetMCMC().intensityAccumulatorList().size();
         int onPeakFaradayCount = singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
@@ -721,6 +715,12 @@ enum SingleBlockModelInitForMCMC2 {
         }
 
         return varSum;
+    }
+
+    public record SingleBlockModelRecordWithCov(
+            SingleBlockModelRecord singleBlockModelRecord,
+            Matrix covarianceMatrix_C0) {
+
     }
 
     private static class ArrayIndexComparator implements Comparator<Integer>, Serializable {
