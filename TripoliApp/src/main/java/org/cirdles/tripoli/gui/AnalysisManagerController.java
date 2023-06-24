@@ -383,7 +383,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     private void populateAnalysisMethodRatioBuilderPane() {
-        addRatioButton.setStyle(addRatioButton.getStyle() + "-fx-font-size:15");
+        addRatioButton.setStyle(addRatioButton.getStyle() + ";-fx-font-size:15");
         if (null != analysis.getAnalysisMethod()) {
             activeRatiosList = new TreeSet<>();
             List<SpeciesRecordInterface> species = analysis.getAnalysisMethod().getSpeciesListSortedByMass();
