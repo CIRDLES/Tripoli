@@ -238,6 +238,7 @@ enum SingleBlockModelInitForMCMC2 {
         for (int i = 0; i < ddVer2Array.length; i++) {
             ddVer2SortedArray[i] = ddVer2Array[ddVer2sortIndices[i]];
         }
+// this sort was good
 
         double[][] interpolatedKnotData_II = singleBlockDataSetRecord.blockKnotInterpolationStore().toRawCopy2D();
         RealMatrix II = new BlockRealMatrix(interpolatedKnotData_II);
@@ -249,9 +250,8 @@ enum SingleBlockModelInitForMCMC2 {
 
         Matrix IIm = new Matrix(II.getData());
         Matrix intensityFn = IIm.times(new Matrix(intensity_I, intensity_I.length));
-
+// good intensityfn
         int[] isotopeOrdinalIndicesAccumulatorArray = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
-
         double[] logRatios = new double[indexOfMostAbundantIsotope];
         int isotopeCount = logRatios.length + 1;
         for (isotopeIndex = 0; isotopeIndex < logRatios.length; isotopeIndex++) {
@@ -270,7 +270,7 @@ enum SingleBlockModelInitForMCMC2 {
             }
 
             ddVer2Array = ddver2List.stream().mapToDouble(d -> d).toArray();
-
+// good array
             tempTimeIndicesArray = tempTime.stream().mapToInt(d -> d).toArray();
             comparatorTime = new ArrayIndexComparator(tempTimeIndicesArray);
             ddVer2sortIndices = comparatorTime.createIndexArray();
@@ -280,14 +280,17 @@ enum SingleBlockModelInitForMCMC2 {
             for (int i = 0; i < ddVer2Array.length; i++) {
                 ddVer2SortedArray[i] = ddVer2Array[ddVer2sortIndices[i]];
             }
-
+// good array
             DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics();
             for (int dataArrayIndex = 0; dataArrayIndex < ddVer2SortedArray.length; dataArrayIndex++) {
+//                System.out.println("  dd " + dataArrayIndex + "   " + StrictMath.log(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0)));
+
                 descriptiveStatistics.addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
+
             }
             logRatios[isotopeIndex] = StrictMath.log(descriptiveStatistics.getMean());
         }
-
+// good logratios
         // initialize model data vectors
         double[] dataArray = new double[totalIntensityCount];
         double[] dataWithNoBaselineArray = new double[dataArray.length];
@@ -323,12 +326,13 @@ enum SingleBlockModelInitForMCMC2 {
                 dataSignalNoiseArray_Dsig[dataArrayIndex] = Math.pow(baselineStandardDeviationsArray[faradayIndex], 2.0);
             }
         }
-
+// ddd is good
         double[] logRatioVar = new double[logRatios.length];
-        double minETmp = Double.MAX_VALUE;
+
         for (int logRatioIndex = 0; logRatioIndex < logRatios.length; logRatioIndex++) {
             double[] testLR = MatLab.linspace(-0.5, 0.5, 1001).toRawCopy1D();
             double[] eTmp = new double[testLR.length];
+            double minETmp = Double.MAX_VALUE;
             for (int ii = 0; ii < testLR.length; ii++) {
                 double[] testLogRatios = logRatios.clone();
                 testLogRatios[logRatioIndex] = logRatios[logRatioIndex] + testLR[ii];
@@ -348,18 +352,23 @@ enum SingleBlockModelInitForMCMC2 {
                         intensityFn.getColumnPackedCopy(),
                         mapDetectorOrdinalToFaradayIndex.size(),
                         isotopeCount);
-                double[] dataModel = modelInitData(testX0, singleBlockDataSetRecord);
-                eTmp[ii] = calcError(singleBlockDataSetRecord.blockIntensityArray(), dataModel, dataSignalNoiseArray_Dsig);
-                minETmp = Math.min(eTmp[ii], minETmp);
+                try {
+                    double[] dataModel = modelInitData(testX0, singleBlockDataSetRecord);
+                    eTmp[ii] = calcError(singleBlockDataSetRecord.blockIntensityArray(), dataModel, dataSignalNoiseArray_Dsig);
+                    minETmp = Math.min(eTmp[ii], minETmp);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
             logRatioVar[logRatioIndex] = calcVariance(eTmp, minETmp, testLR);
         }
 
         double[] intensityVar = new double[intensity_I.length];
-        minETmp = Double.MAX_VALUE;
+
         for (intensityIndex = 0; intensityIndex < intensity_I.length; intensityIndex++) {
             double[] testI = MatLab.linspace(-meanOfBaseLineMeansStdDev, meanOfBaseLineMeansStdDev, 101).toRawCopy1D();
             double[] eTmp = new double[testI.length];
+            double minETmp = Double.MAX_VALUE;
             for (int ii = 0; ii < testI.length; ii++) {
                 double[] testIntensity = intensity_I.clone();
                 testIntensity[intensityIndex] = intensity_I[intensityIndex] + testI[ii];
@@ -386,9 +395,10 @@ enum SingleBlockModelInitForMCMC2 {
             intensityVar[intensityIndex] = calcVariance(eTmp, minETmp, testI);
         }
 
-        minETmp = Double.MAX_VALUE;
+
         double[] testDF = MatLab.linspace(-.1, .1, 1001).toRawCopy1D();
         double[] eTmp = new double[testDF.length];
+        double minETmp = Double.MAX_VALUE;
         for (int ii = 0; ii < testDF.length; ii++) {
             double testDFGain = detectorFaradayGain + testDF[ii];
 
@@ -416,10 +426,11 @@ enum SingleBlockModelInitForMCMC2 {
 
 
         double[] baseLineVar = new double[baselineMeansArray.length];
-        minETmp = Double.MAX_VALUE;
+
         for (int baseLineIndex = 0; baseLineIndex < baselineMeansArray.length; baseLineIndex++) {
             double[] testBL = MatLab.linspace(-baselineStandardDeviationsArray[baseLineIndex], baselineStandardDeviationsArray[baseLineIndex], 1001).toRawCopy1D();
             eTmp = new double[testBL.length];
+            minETmp = Double.MAX_VALUE;
             for (int ii = 0; ii < testBL.length; ii++) {
                 double[] testBaseLineMeans = baselineMeansArray.clone();
                 testBaseLineMeans[baseLineIndex] = baselineMeansArray[baseLineIndex] + testBL[ii];
