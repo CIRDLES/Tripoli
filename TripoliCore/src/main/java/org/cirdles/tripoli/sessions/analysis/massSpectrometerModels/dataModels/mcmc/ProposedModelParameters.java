@@ -37,8 +37,8 @@ public enum ProposedModelParameters {
             prior.sigpois = [0 10]; % Poisson noise on Daly
      */
     public static ProposalRangesRecord buildProposalRangesRecord(double[] blockIntensities) {
-        double[][] priorBaselineFaraday = {{-1.0e6, 1.0e6}};
-        double[][] priorBaselineDaly = {{0.0, 0.0}};
+        double[][] priorBaselineFaraday = {{-4.0e6, 4.0e6}};
+        double[][] priorBaselineDaly = {{0.0, 1.0}};
         double[][] priorLogRatio = {{-20.0, 20.0}};
         double maxIntensity = Double.MIN_VALUE;
         double minIntensity = Double.MAX_VALUE;
