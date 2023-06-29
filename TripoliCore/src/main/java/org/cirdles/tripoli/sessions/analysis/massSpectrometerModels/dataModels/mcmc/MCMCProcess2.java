@@ -36,7 +36,6 @@ import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
 import static org.apache.commons.math3.special.Gamma.gamma;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalRangesRecord;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalSigmasRecord;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelUpdater.operations;
 import static org.cirdles.tripoli.utilities.mathUtilities.MatLab.linspace;
 
@@ -53,15 +52,12 @@ public class MCMCProcess2 {
     private final AnalysisMethod analysisMethod;
     private final SingleBlockDataSetRecord singleBlockDataSetRecord;
     List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
-    double[][] c0_Array;
     private int faradayCount;
     private int ratioCount;
     private boolean hierarchical;
     private double tempering;
-    private int burnInThreshold;
     private double[] baselineMultiplier;
     private ProposedModelParameters.ProposalRangesRecord proposalRangesRecord;
-    private ProposedModelParameters.ProposalSigmasRecord proposalSigmasRecord;
     private double[] dataArray;
     private double[] dataWithNoBaselineArray;
     private double[] dataSignalNoiseArray;
@@ -140,9 +136,8 @@ public class MCMCProcess2 {
             Ndata=d0.Ndata; % Number of picks
             Nsig = d0.Nsig; % Number of noise variables
          */
+        //TODO: remove his variable
         hierarchical = false;
-        burnInThreshold = 1;
-
         tempering = 1.0;
         /*
             Ntemp = 10000; % Cool search over this number of steps
@@ -176,8 +171,8 @@ public class MCMCProcess2 {
 
         proposalRangesRecord =
                 buildProposalRangesRecord(singleBlockInitialModelRecord_X0.intensities());
-        proposalSigmasRecord =
-                buildProposalSigmasRecord(singleBlockInitialModelRecord_X0.baselineStandardDeviationsArray(), proposalRangesRecord);
+//        proposalSigmasRecord =
+//                buildProposalSigmasRecord(singleBlockInitialModelRecord_X0.baselineStandardDeviationsArray(), proposalRangesRecord);
 
         /*
             % Modified Gelman-Rubin Convergence
@@ -310,7 +305,7 @@ x=x0;
         int counter = 0;
         int counter2 = 0;
         SingleBlockModelUpdater2 singleBlockModelUpdater2 = new SingleBlockModelUpdater2();
-        singleBlockModelUpdater2.buildPriorLimits(singleBlockInitialModelRecord_X, proposalSigmasRecord, proposalRangesRecord);
+        singleBlockModelUpdater2.buildPriorLimits(singleBlockInitialModelRecord_X, proposalRangesRecord);
 
         int countOfData = singleBlockInitialModelRecord_X.dataArray().length;
         int[] detectorOrdinalIndices = singleBlockDataSetRecord.blockDetectorOrdinalIndicesArray();
@@ -364,7 +359,7 @@ x=x0;
                         singleBlockModelUpdater2.updateMSv2(
                                 operation,
                                 singleBlockInitialModelRecord_X,
-                                proposalSigmasRecord,
+                                null,
                                 proposalRangesRecord,
                                 xDataCovariance,
                                 delx_adapt_Matrix.getRowPackedCopy(),

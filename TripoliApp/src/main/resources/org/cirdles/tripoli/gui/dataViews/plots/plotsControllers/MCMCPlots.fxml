@@ -18,8 +18,8 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="masterVBox" minHeight="600.0" minWidth="1000.0"
-      xmlns="http://javafx.com/javafx/17"
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="masterVBox" minHeight="600.0" minWidth="1000.0" prefHeight="600.0"
+      xmlns="http://javafx.com/javafx/20.0.1"
       fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController">
     <SplitPane dividerPositions="0.7633410672853829" minHeight="565.0" minWidth="1000.0" orientation="VERTICAL">
         <TabPane fx:id="plotTabPane">
