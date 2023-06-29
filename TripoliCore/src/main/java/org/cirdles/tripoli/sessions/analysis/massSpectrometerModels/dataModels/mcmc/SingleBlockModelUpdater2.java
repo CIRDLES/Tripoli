@@ -24,60 +24,11 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.SplittableRandom;
 
 /**
  * @author James F. Bowring
  */
 public class SingleBlockModelUpdater2 {
-
-    /*
-    Scott Burdick via email 5 Feb 2023
-    Here are the operation permutation generator and two functions that needed to be altered to accommodate it.  PreorderOpsMS takes in
-    the number of parameters and permutes them as many times as necessary.
-    It can be placed anywhere after the initial model is defined but before the main loop:oper_order = PreorderOpsMS(x,maxcnt*datsav);
-
-    The other two functions replace the existing versions in the main loop:
-
-    oper = RandomOperMS_Preorder(x,oper_order(m));
-
-    [x2,delx] = UpdateMSv2_Preorder(oper_order(m),x,psig,prior,ensemble,xcov,delx_adapt,adaptflag,allflag);
-
-    Unfortunately it seemed easier to keep in the “oper” string variable since it’s used in so many other places,
-    but now it’s defined according to the precomputed order.
-     */
-
-    /*
-    function oper_order = PreorderOpsMS(x,cnt)
-    oper_order = PreorderOpsMS(x,maxcnt*datsav);
-        % Inputs:
-        % x - struct containing model variables
-        % cnt - Number of random walk iterations to perform before adaptive MC
-        % Outputs:
-        % oper_order
-
-        % Find number of variables for each parameter type from model struct
-        Niso = length(x.lograt);
-        Nblock = length(x.I);
-        for ii=1:Nblock;
-            Ncycle(ii) = length(x.I{ii});
-        end
-        Nfar = length(x.BL);
-        Ndf = 1;
-        Nsig = length(x.sig);
-
-        % Total number of variables
-        N = Niso+sum(Ncycle)+Nfar+Ndf+Nsig;
-
-        % How many permutations needed?
-        Npermutes = ceil(cnt/N);
-
-        oper_order= zeros(N*Npermutes,1);
-
-        for ii = 1:Npermutes
-            oper_order((1+(ii-1)*N):ii*N,1) = randperm(N)';
-        end
-     */
 
     public static List<String> operations = new ArrayList<>();
     private static int countOfLogRatios;
@@ -171,52 +122,6 @@ public class SingleBlockModelUpdater2 {
         xx0[countOfTotalModelParameters - 1] = singleBlockInitialModelRecord_initial.detectorFaradayGain();
         xInd[countOfTotalModelParameters - 1] = 4;
 
-        /*
-        if strcmp(oper(1:3),'cha')
-            if ~allflag
-                if strcmp(oper,'changer')
-                    nind = randi(Niso-1);
-                elseif strcmp(oper,'changeI')
-                    nind = Niso+randi(sum(Ncycle));
-                elseif strcmp(oper,'changebl')
-                    nind = Niso + sum(Ncycle) + randi(Nfar);
-                elseif strcmp(oper,'changedfg')
-                    nind = Niso + sum(Ncycle) + Nfar + randi(Ndf);
-                end
-                if adaptflag
-                    delx = sqrt(xcov(nind,nind))*randn(1); %mvnrnd(zeros(1),xcov(nind,nind));
-                else
-                    delx = ps0diag(nind)*randn(1);
-                end
-                xx =  xx0;
-                xx(nind) = xx(nind) + delx;
-                inprior = xx<=priormax & xx>=priormin;
-                xx(~inprior) = xx0(~inprior);
-            else
-                %VARY ALL AT A TIME
-                delx = delx_adapt;
-                xx =  xx0 + delx;
-                inprior = xx<=priormax & xx>=priormin;
-                xx(~inprior) = xx0(~inprior);
-            end (if ~allflag)
-            x2.lograt = xx(xind==1);
-            for ii=1:Nblock
-                x2.I{ii} = xx(xind==(1+ii));
-            end
-            x2.BL = xx(xind==(2+Nblock));
-            x2.DFgain = xx(xind==(3+Nblock));
-            x2.sig = x.sig;
-        elseif strcmp(oper(1:3),'noi')    %CHANGE NOISE
-            nind = randi(length(x.BL)); %Just for the faradays
-            x2=x;
-            delx=psig.sig*randn(1);
-            if x2.sig(nind) + delx >= prior.sig(1) && x2.sig(nind) + delx <= prior.sig(2)
-                x2.sig(nind) = x2.sig(nind)+delx;
-            else
-                delx=0;
-            end
-         */
-
         SingleBlockModelRecord singleBlockInitialModelRecord_initial2 = null;
         double[] updatedLogRatios = new double[countOfLogRatios];
         double[] updatedIntensities = new double[countOfCycles];
@@ -230,15 +135,7 @@ public class SingleBlockModelUpdater2 {
                     delx = delx_adapt;
                     xx =  xx0 + delx;
                     inprior = xx<=priormax & xx>=priormin;
-                    xx(~inprior) = xx0(~inprior);
-
-                    x2.lograt = xx(xind==1);
-                    for ii=1:Nblock
-                        x2.I{ii} = xx(xind==(1+ii));
-                    end
-                    x2.BL = xx(xind==(2+Nblock));
-                    x2.DFgain = xx(xind==(3+Nblock));
-                    x2.sig = x.sig;
+                     xx(~inprior) = xx0(~inprior);
                 */
                 double[] delX = delx_adapt.clone();
                 double[] xx = new double[delX.length];
@@ -278,13 +175,12 @@ public class SingleBlockModelUpdater2 {
 
                 /*
                     x2.lograt = xx(xind==1);
-                        for ii=1:Nblock
-                            x2.I{ii} = xx(xind==(1+ii));
-                        end
-                        x2.BL = xx(xind==(2+Nblock));
-                        x2.DFgain = xx(xind==(3+Nblock));
-
-                        x2.sig = x.sig;
+                    for ii=1:Nblock
+                        x2.I{ii} = xx(xind==(1+ii));
+                    end
+                    x2.BL = xx(xind==(2+Nblock));
+                    x2.DFgain = xx(xind==(3+Nblock));
+                    x2.sig = x.sig;
                  */
                 singleBlockInitialModelRecord_initial2 = new SingleBlockModelRecord(
                         singleBlockInitialModelRecord_initial.blockNumber(),
@@ -304,47 +200,6 @@ public class SingleBlockModelUpdater2 {
                 );
 
             }
-        } else {
-            // noise case
-            /*
-                nind = randi(length(x.BL)); %Just for the faradays
-                x2=x;
-                delx=psig.sig*randn(1);
-
-                if x2.sig(nind) + delx >= prior.sig(1) && x2.sig(nind) + delx <= prior.sig(2)
-                    x2.sig(nind) = x2.sig(nind)+delx;
-                else
-                    delx=0;
-                end
-             */
-
-            double randomSigma = 1.0;
-            SplittableRandom splittableRandom = new SplittableRandom();
-            double[] updatedSignalNoiseSigma = singleBlockInitialModelRecord_initial.signalNoiseSigma().clone();
-            int nInd = splittableRandom.nextInt(0, countOfFaradays - 1);
-            double deltaX = proposalSigmasRecord.psigSignalNoiseFaraday() * splittableRandom.nextGaussian(0.0, randomSigma);
-
-            double testDelta = updatedSignalNoiseSigma[nInd] + deltaX;
-            if ((testDelta >= proposalRangesRecord.priorSignalNoiseFaraday()[0][0])
-                    &&
-                    (testDelta <= proposalRangesRecord.priorSignalNoiseFaraday()[0][1])) {
-                updatedSignalNoiseSigma[nInd] = testDelta;
-            }
-            singleBlockInitialModelRecord_initial2 = new SingleBlockModelRecord(
-                    singleBlockInitialModelRecord_initial.blockNumber(),
-                    singleBlockInitialModelRecord_initial.baselineMeansArray(),
-                    singleBlockInitialModelRecord_initial.baselineStandardDeviationsArray(),
-                    singleBlockInitialModelRecord_initial.detectorFaradayGain(),
-                    singleBlockInitialModelRecord_initial.mapDetectorOrdinalToFaradayIndex(),
-                    singleBlockInitialModelRecord_initial.logRatios(),
-                    updatedSignalNoiseSigma,
-                    singleBlockInitialModelRecord_initial.dataArray(),
-                    singleBlockInitialModelRecord_initial.dataWithNoBaselineArray(),
-                    singleBlockInitialModelRecord_initial.dataSignalNoiseArray(),
-                    singleBlockInitialModelRecord_initial.I0(),
-                    singleBlockInitialModelRecord_initial.intensities(),
-                    singleBlockInitialModelRecord_initial.faradayCount(),
-                    singleBlockInitialModelRecord_initial.isotopeCount());
         }
 
         return singleBlockInitialModelRecord_initial2;
@@ -352,7 +207,6 @@ public class SingleBlockModelUpdater2 {
 
     public synchronized void buildPriorLimits(
             SingleBlockModelRecord singleBlockModelRecord,
-            ProposedModelParameters.ProposalSigmasRecord proposalSigmasRecord,
             ProposedModelParameters.ProposalRangesRecord proposalRangesRecord) {
 
         countOfLogRatios = singleBlockModelRecord.logRatios().length;
@@ -360,29 +214,24 @@ public class SingleBlockModelUpdater2 {
         countOfFaradays = singleBlockModelRecord.faradayCount();
         int countOfPhotoMultipliers = 1;
         countOfTotalModelParameters = countOfLogRatios + countOfCycles + countOfFaradays + countOfPhotoMultipliers;
-
-        double[] ps0DiagArray = new double[countOfTotalModelParameters];
+;
         double[] priorMinArray = new double[countOfTotalModelParameters];
         double[] priorMaxArray = new double[countOfTotalModelParameters];
 
         for (int logRatioIndex = 0; logRatioIndex < countOfLogRatios; logRatioIndex++) {
-            ps0DiagArray[logRatioIndex] = proposalSigmasRecord.psigLogRatio();
             priorMinArray[logRatioIndex] = proposalRangesRecord.priorLogRatio()[0][0];
             priorMaxArray[logRatioIndex] = proposalRangesRecord.priorLogRatio()[0][1];
         }
 
         for (int cycleIndex = 0; cycleIndex < countOfCycles; cycleIndex++) {
-            ps0DiagArray[cycleIndex + countOfLogRatios] = proposalSigmasRecord.psigIntensity();
             priorMinArray[cycleIndex + countOfLogRatios] = proposalRangesRecord.priorIntensity()[0][0];
             priorMaxArray[cycleIndex + countOfLogRatios] = proposalRangesRecord.priorIntensity()[0][1];
         }
 
         for (int faradayIndex = 0; faradayIndex < countOfFaradays; faradayIndex++) {
-            ps0DiagArray[faradayIndex + countOfLogRatios + countOfCycles] = proposalSigmasRecord.psigBaselineFaraday();
             priorMinArray[faradayIndex + countOfLogRatios + countOfCycles] = proposalRangesRecord.priorBaselineFaraday()[0][0];
             priorMaxArray[faradayIndex + countOfLogRatios + countOfCycles] = proposalRangesRecord.priorBaselineFaraday()[0][1];
         }
-        ps0DiagArray[countOfTotalModelParameters - 1] = proposalSigmasRecord.psigDFgain();
         priorMinArray[countOfTotalModelParameters - 1] = proposalRangesRecord.priorDFgain()[0][0];
         priorMaxArray[countOfTotalModelParameters - 1] = proposalRangesRecord.priorDFgain()[0][1];
     }

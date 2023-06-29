@@ -16,52 +16,56 @@
  * limitations under the License.
  -->
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="masterVBox" minHeight="600.0" minWidth="1000.0"
-      xmlns="http://javafx.com/javafx/17"
-      fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController">
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="masterVBox" minHeight="600.0" minWidth="1000.0" prefHeight="600.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController">
     <SplitPane dividerPositions="0.7633410672853829" minHeight="565.0" minWidth="1000.0" orientation="VERTICAL">
         <TabPane fx:id="plotTabPane">
             <Tab closable="false" text="Ensembles">
-                <AnchorPane fx:id="ensemblePlotsAnchorPane" prefWidth="200.0"/>
+                <AnchorPane fx:id="ensemblePlotsAnchorPane" prefWidth="200.0" />
             </Tab>
             <Tab closable="false" text="Convergences">
-                <AnchorPane fx:id="convergePlotsAnchorPane"/>
+                <AnchorPane fx:id="convergePlotsAnchorPane" />
             </Tab>
             <Tab closable="false" text="DataFit">
-                <AnchorPane fx:id="dataFitPlotsAnchorPane"/>
+                <AnchorPane fx:id="dataFitPlotsAnchorPane" />
             </Tab>
             <Tab closable="false" text="Converge_Error">
-                <AnchorPane fx:id="convergeErrorPlotsAnchorPane"/>
+                <AnchorPane fx:id="convergeErrorPlotsAnchorPane" />
             </Tab>
             <Tab closable="false" text="Converge_Intensity">
-                <AnchorPane fx:id="convergeIntensityAnchorPane"/>
+                <AnchorPane fx:id="convergeIntensityAnchorPane" />
             </Tab>
             <Tab closable="false" onSelectionChanged="#plotRatioSessionEngine" text="Ratio Session">
-                <AnchorPane fx:id="ratioSessionAnchorPane"/>
+                <AnchorPane fx:id="ratioSessionAnchorPane" />
             </Tab>
             <Tab closable="false" text="Beam Shape">
-                <AnchorPane fx:id="beamShapeAnchorPane"/>
+                <AnchorPane fx:id="beamShapeAnchorPane" />
             </Tab>
             <Tab closable="false" onSelectionChanged="#plotPeakSessionEngine" text="Peak Shape Session">
-                <AnchorPane fx:id="peakSessionAnchorPane"/>
+                <AnchorPane fx:id="peakSessionAnchorPane" />
             </Tab>
             <Tab closable="false" text="Log">
-                <AnchorPane fx:id="logAnchorPane"/>
+                <AnchorPane fx:id="logAnchorPane" />
             </Tab>
         </TabPane>
         <SplitPane dividerPositions="0.15">
-            <ScrollPane fx:id="listOfFilesScrollPane"/>
+            <ScrollPane fx:id="listOfFilesScrollPane" />
             <VBox>
                 <children>
-                    <TextArea fx:id="eventLogTextArea" editable="false" style="-fx-font-size: 24;"
-                              text="This space will display stats during execution."/>
-                    <ProgressBar fx:id="progressBar" minHeight="25.0" minWidth="500.0" prefHeight="25.0"
-                                 prefWidth="848.0" progress="0.0"/>
+                    <TextArea fx:id="eventLogTextArea" editable="false" style="-fx-font-size: 24;" text="This space will display stats during execution." />
+                    <ProgressBar fx:id="progressBar" minHeight="25.0" minWidth="500.0" prefHeight="25.0" prefWidth="848.0" progress="0.0" />
                 </children>
             </VBox>
         </SplitPane>
     </SplitPane>
-    <ToolBar fx:id="toolbar" prefHeight="35.0"/>
+    <ToolBar fx:id="toolbar" prefHeight="35.0" />
 </VBox>

@@ -231,7 +231,7 @@ enum SingleBlockModelInitForMCMC2 {
             for (int dataArrayIndex = 0; dataArrayIndex < ddVer2SortedArray.length; dataArrayIndex++) {
                 descriptiveStatistics.addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
             }
-            logRatios[isotopeIndex] = StrictMath.log(descriptiveStatistics.getMean());
+            logRatios[isotopeIndex] = StrictMath.log(Math.max(descriptiveStatistics.getMean(), 3e-9));
         }
 
         // initialize model data vectors
