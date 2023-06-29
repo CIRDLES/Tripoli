@@ -28,7 +28,6 @@ import javafx.scene.text.TextFlow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
-import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
@@ -68,8 +67,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public HBox blockStatusHBox;
     @FXML
     public GridPane selectRatiosGridPane;
-    public Button mcmc1Button;
-    public Button mcmc2Button;
+    public Button mcmcButton;
     public TextFlow numeratorMassesListTextFlow;
     public TextFlow denominatorMassesListTextFlow;
     public TextFlow ratiosListTextFlow;
@@ -171,21 +169,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public void initialize(URL location, ResourceBundle resources) {
         MCMCPlotsController.analysis = analysis;
         analysisManagerGridPane.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_YELLOW));
-        switch (((Analysis) analysis).getMcmcVersion()) {
-            case "" -> {
-                mcmc1Button.setDisable(false);
-                mcmc2Button.setDisable(false);
-            }
-            case "MCMC1" -> {
-                mcmc1Button.setDisable(false);
-                mcmc2Button.setDisable(true);
-            }
-            case "MCMC2" -> {
-                mcmc1Button.setDisable(true);
-                mcmc2Button.setDisable(false);
-            }
-        }
-        setupListeners();
+
         populateAnalysisManagerGridPane();
     }
 
@@ -627,12 +611,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     public void initializeMonteCarloTechniqueAction(ActionEvent event) {
         String mcmcVersion = ((Button) event.getSource()).getId();
-        ((Analysis) analysis).setMcmcVersion(mcmcVersion);
-        if (0 == mcmcVersion.compareTo("MCMC1")) {
-            mcmc2Button.setDisable(true);
-        } else {
-            mcmc1Button.setDisable(true);
-        }
 
         for (Node button : blockStatusHBox.getChildren()) {
             if (button instanceof Button) {
@@ -653,8 +631,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 tuneButton((Button) button, RUN);
             }
         }
-        mcmc1Button.setDisable(false);
-        mcmc2Button.setDisable(false);
+        mcmcButton.setDisable(false);
     }
 
     public void selectRunNoneAction() {

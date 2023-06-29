@@ -22,7 +22,6 @@ import jakarta.xml.bind.Unmarshaller;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver2;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.SingleBlockPeakDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
@@ -80,7 +79,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private String dataFilePathString;
     private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
-    private String mcmcVersion;
+//    private String mcmcVersion;
 
 
     private Analysis() {
@@ -96,7 +95,6 @@ public class Analysis implements Serializable, AnalysisInterface {
         dataFilePathString = MISSING_STRING_FIELD;
         massSpecExtractedData = new MassSpecExtractedData();
         mutable = true;
-        mcmcVersion = "";
     }
 
     public void extractMassSpecDataFromPath(Path dataFilePath)
@@ -214,11 +212,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             loggingCallback.receiveLoggingSnippet("1000 >%");
         } else {
             PlotBuilder[][] plotBuilders;
-            if (0 == mcmcVersion.compareTo("MCMC1")) {
-                plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock(blockID, this, loggingCallback);
-            } else {
-                plotBuilders = SingleBlockModelDriver2.buildAndRunModelForSingleBlock2(blockID, this, loggingCallback);
-            }
+            plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock2(blockID, this, loggingCallback);
             mapOfBlockIdToPlots.put(blockID, plotBuilders);
             mapOfBlockIdToProcessStatus.put(blockID, SHOW);
             retVal = mapOfBlockIdToPlots.get(blockID);
@@ -414,13 +408,5 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public Map<Integer, PlotBuilder[]> getMapOfBlockIdToPeakPlots() {
         return mapOfBlockIdToPeakPlots;
-    }
-
-    public String getMcmcVersion() {
-        return mcmcVersion;
-    }
-
-    public void setMcmcVersion(String mcmcVersion) {
-        this.mcmcVersion = mcmcVersion;
     }
 }
