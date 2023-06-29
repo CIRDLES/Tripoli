@@ -214,7 +214,7 @@ public class SingleBlockModelUpdater2 {
         countOfFaradays = singleBlockModelRecord.faradayCount();
         int countOfPhotoMultipliers = 1;
         countOfTotalModelParameters = countOfLogRatios + countOfCycles + countOfFaradays + countOfPhotoMultipliers;
-;
+        ;
         double[] priorMinArray = new double[countOfTotalModelParameters];
         double[] priorMaxArray = new double[countOfTotalModelParameters];
 
