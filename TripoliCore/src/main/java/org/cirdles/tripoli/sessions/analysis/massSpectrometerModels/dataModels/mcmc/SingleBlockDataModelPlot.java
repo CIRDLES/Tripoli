@@ -412,6 +412,7 @@ public enum SingleBlockDataModelPlot {
             dataArray[dataArrayIndex] = baselinesMeans[faradayIndex];
 //            dataWithNoBaselineArray[dataArrayIndex] = dataArray[dataArrayIndex] - baselinesMeans[faradayIndex];
 
+            //TODO: WTF???
             double calculatedValue = StrictMath.sqrt(1.0//pow(xSig[faradayIndex], 2)
                     + 1.0//xSig[xSig.length - 1]
                     * dataWithNoBaselineArray[dataArrayIndex]);

@@ -26,9 +26,8 @@ import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
 import org.cirdles.tripoli.plots.linePlots.*;
 import org.cirdles.tripoli.plots.sessionPlots.HistogramSessionBuilder;
 import org.cirdles.tripoli.plots.sessionPlots.PeakCentreSessionBuilder;
-import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.MCMCProcess2;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.MCMCProcess;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
 import java.net.URL;
@@ -96,12 +95,12 @@ public class MCMCPlotsController {
     private ListView<String> listViewOfBlocks = new ListView<>();
 
     public void plotIncomingAction() {
-        processDataFileAndShowPlotsOfMCMC2(analysis);
+        processDataFileAndShowPlotsOfMCMC(analysis);
     }
 
     @FXML
     void initialize() {
-        eventLogTextArea.setText("Using technique: " + ((Analysis) analysis).getMcmcVersion() + "  with max of 100000 iterations");
+        eventLogTextArea.setText("Using MCMC with max of 100000 iterations");
         masterVBox.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT);
         toolbar.setPrefSize(PLOT_WINDOW_WIDTH, 30.0);
 
@@ -144,7 +143,7 @@ public class MCMCPlotsController {
     }
 
     @SuppressWarnings("unchecked")
-    public synchronized void processDataFileAndShowPlotsOfMCMC2(AnalysisInterface analysis) {
+    public synchronized void processDataFileAndShowPlotsOfMCMC(AnalysisInterface analysis) {
         MCMCPlotBuildersTask.analysis = analysis;
         // check process status
         List<Integer> blocksToProcess = new ArrayList<>();
@@ -198,7 +197,7 @@ public class MCMCPlotsController {
                 if (null != newValue) {
                     String[] data = newValue.split(">%");
                     try {
-                        double percent = Double.parseDouble(data[0]) / MCMCProcess2.getModelCount();
+                        double percent = Double.parseDouble(data[0]) / MCMCProcess.getModelCount();
                         progressBar.setProgress(percent);
                     } catch (NumberFormatException e) {
                     }

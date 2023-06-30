@@ -53,4 +53,8 @@ public record SingleBlockModelRecord(
                 isotopeCount
         );
     }
+
+    public int sizeOfModel() {
+        return logRatios().length + I0.length + faradayCount() + 1;
+    }
 }

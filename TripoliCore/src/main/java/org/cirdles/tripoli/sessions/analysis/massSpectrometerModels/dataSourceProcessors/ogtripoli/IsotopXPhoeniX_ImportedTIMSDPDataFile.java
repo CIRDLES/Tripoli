@@ -47,7 +47,7 @@ public class IsotopXPhoeniX_ImportedTIMSDPDataFile implements OGTripoliMassSpecD
         contentsByLine.addAll(Files.readAllLines(filePath, Charset.defaultCharset()));
 
 
-        System.out.println();
+//        System.out.println();
     }
 
     /**

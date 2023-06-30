@@ -264,7 +264,7 @@ public enum MatLabCholesky {
 //            }
 //        }
 
-        // June 2023 - for Tripoli MCMC2, just need the following
+        // June 2023 - for Tripoli MCMC, just need the following
         CholeskyDecomposition choleskyDecomposition = new CholeskyDecomposition(sigma);
 
         return choleskyDecomposition.getL().transpose();
