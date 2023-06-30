@@ -87,9 +87,9 @@
                 style="-fx-text-fill: GREEN;" text="Shows Only"/>
         <Button layoutX="433.0" layoutY="7.0" mnemonicParsing="false" onAction="#restoreAllAction"
                 style="-fx-text-fill: RED;" text="Restore All"/>
-        <Button id="MCMC2" fx:id="mcmcButton" layoutX="609.0" layoutY="7.0" mnemonicParsing="false"
+        <Button id="MCMC" fx:id="mcmcButton" layoutX="609.0" layoutY="7.0" mnemonicParsing="false"
                 onAction="#initializeMonteCarloTechniqueAction" style="-fx-text-fill: RED;"
-                text="Process / Plot Blocks using MCMC2"/>
+                text="Process / Plot Blocks using MCMC"/>
     </ToolBar>
     <Label prefHeight="58.0" prefWidth="114.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;"
            text="Analysis Method with Detector Details from Data File:" textAlignment="RIGHT" wrapText="true"

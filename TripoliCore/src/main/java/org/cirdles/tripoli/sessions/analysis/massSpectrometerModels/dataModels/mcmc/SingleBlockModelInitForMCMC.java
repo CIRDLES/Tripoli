@@ -26,6 +26,7 @@ import org.ojalgo.RecoverableCondition;
 import java.io.Serializable;
 import java.util.*;
 
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalRangesRecord;
 import static org.cirdles.tripoli.utilities.comparators.SerializableIntegerComparator.SERIALIZABLE_COMPARATOR;
 
 /**
@@ -153,7 +154,7 @@ enum SingleBlockModelInitForMCMC {
         //  the ratios are between each species and the most abundant species, with one less ratio than species
         int indexOfMostAbundantIsotope = mapPhotoMultiplierIsotopeIndicesToStatistics.size() - 1;
 
-        // june 2023 new init line 14 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        // june 2023 new init line 14 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // june 2023 new init - will need to be user input
         int iden = indexOfMostAbundantIsotope + 1; // ordinal
         double detectorFaradayGain = 0.9;
@@ -198,6 +199,8 @@ enum SingleBlockModelInitForMCMC {
 
         Matrix IIm = new Matrix(II.getData());
         Matrix intensityFn = IIm.times(new Matrix(intensity_I, intensity_I.length));
+        ProposedModelParameters.ProposalRangesRecord proposalRangesRecord =
+                buildProposalRangesRecord(intensityFn.getColumnPackedCopy());
         int[] isotopeOrdinalIndicesAccumulatorArray = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
         double[] logRatios = new double[indexOfMostAbundantIsotope];
         int isotopeCount = logRatios.length + 1;
@@ -454,7 +457,7 @@ enum SingleBlockModelInitForMCMC {
 
         System.out.println("completed init with covariance");
 
-        return new SingleBlockModelRecordWithCov(calculatedX0, covarianceMatrix_C0);
+        return new SingleBlockModelRecordWithCov(calculatedX0, proposalRangesRecord, covarianceMatrix_C0);
 
     }
 
@@ -536,6 +539,7 @@ enum SingleBlockModelInitForMCMC {
 
     public record SingleBlockModelRecordWithCov(
             SingleBlockModelRecord singleBlockModelRecord,
+            ProposedModelParameters.ProposalRangesRecord proposalRangesRecord,
             Matrix covarianceMatrix_C0) {
 
     }

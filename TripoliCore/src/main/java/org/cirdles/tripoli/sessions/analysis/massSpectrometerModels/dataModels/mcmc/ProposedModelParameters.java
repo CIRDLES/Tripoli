@@ -68,60 +68,6 @@ public enum ProposedModelParameters {
         );
     }
 
-    public static ProposalSigmasRecord buildProposalSigmasRecord(double[] baselineStandardDeviations, ProposalRangesRecord proposalRangesRecord) {
-        /*
-           % "Proposal Sigmas"
-            % Standard deviations for proposing changes to model
-            psig.BL = max(x0.BLstd)/10*1;  % Faraday Baseline
-            psig.BLdaly = 1e-1*1;  % Daly Baseline
-            psig.lograt = 0.02; %0.0005*.2;  % Log Ratio %debug
-            psig.I = max(max([x0.I{:}])-min([x0.I{:}]))/100*1 ; % Intensity
-            psig.DFgain = 0.001; % Daly-Faraday gain
-
-            psig.sig = max(x0.BLstd); % Noise hyperparameter for Faraday
-            psig.sigpois = 0.5; % Poisson noise on Daly
-            psig.sigdaly = 0;  % Gaussian noise on Daly
-         */
-
-        double maxValue = Double.MIN_VALUE;
-
-        for (int row = 0; row < baselineStandardDeviations.length; row++) {
-            maxValue = Math.max(baselineStandardDeviations[row], maxValue);
-        }
-        double psigBaselineFaraday = maxValue / 10.0;
-        double psigBaselineDaly = 1.0e-1;
-        double psigLogRatio = 0.0005 * 0.2;
-        double psigIntensity = (proposalRangesRecord.maxIntensity() - proposalRangesRecord.minIntensity()) / 100.0;
-        double psigDFgain = 0.001;
-        double psigSignalNoiseFaraday = maxValue;
-        double psigSignalNoisePoisson = 0.5;
-        double psigSignalNoiseDaly = 0.0;
-
-        return new ProposalSigmasRecord(
-                psigBaselineFaraday,
-                psigBaselineDaly,
-                psigLogRatio,
-                psigIntensity,
-                psigDFgain,
-                psigSignalNoiseFaraday,
-                psigSignalNoisePoisson,
-                psigSignalNoiseDaly
-        );
-
-    }
-
-    record ProposalSigmasRecord(
-            double psigBaselineFaraday,
-            double psigBaselineDaly,
-            double psigLogRatio,
-            double psigIntensity,
-            double psigDFgain,
-            double psigSignalNoiseFaraday,
-            double psigSignalNoisePoisson,
-            double psigSignalNoiseDaly
-    ) {
-    }
-
     record ProposalRangesRecord(
             double[][] priorBaselineFaraday,
             double[][] priorBaselineDaly,
@@ -134,8 +80,5 @@ public enum ProposedModelParameters {
             double[][] priorSignalNoiseDaly,
             double[][] priorPoissonNoiseDaly
     ) {
-
     }
-
-
 }

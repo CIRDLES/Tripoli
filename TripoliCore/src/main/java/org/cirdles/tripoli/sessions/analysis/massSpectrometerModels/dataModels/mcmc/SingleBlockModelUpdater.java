@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
+import com.google.common.collect.ImmutableList;
 import jama.Matrix;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.stat.correlation.Covariance;
@@ -30,19 +31,12 @@ import java.util.List;
  */
 public class SingleBlockModelUpdater {
 
-    public static List<String> operations = new ArrayList<>();
-    private static int countOfLogRatios;
-    private static int countOfCycles;
-    private static int countOfFaradays;
-    private static int countOfTotalModelParameters;
-
-    static {
-        operations.add("changer");
-        operations.add("changeI");
-        operations.add("changedfg");
-        operations.add("changebl");
-        operations.add("noise");
-    }
+    private List<String> operations = ImmutableList.of("changer", "changeI", "changedfg","changebl", "noise");
+    private int countOfLogRatios ;
+    private int countOfCycles ;
+    private int countOfFaradays ;
+    private int countOfPhotoMultipliers ;
+    private int countOfTotalModelParameters ;
 
     SingleBlockModelUpdater() {
     }
@@ -54,8 +48,8 @@ public class SingleBlockModelUpdater {
      * @return Random operation by name
      */
     synchronized String randomOperMS(boolean hierFlag) {
-        Object[][] notHier = {{40, 60, 80, 100}, {"changeI", "changer", "changebl", "changedfg"}};
-        Object[][] hier = {{60, 80, 90, 100, 120}, {"changeI", "changer", "changebl", "changedfg", "noise"}};
+        Object[][] notHier = {{40, 60, 80, 100}, {operations.get(1),operations.get(0), operations.get(3), operations.get(2)}};
+        Object[][] hier = {{60, 80, 90, 100, 120}, {operations.get(1),operations.get(0), operations.get(3), operations.get(2), operations.get(4)}};
 
         RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
         randomDataGenerator.reSeedSecure();
@@ -84,11 +78,8 @@ public class SingleBlockModelUpdater {
     synchronized SingleBlockModelRecord updateMSv2(
             String operation,
             SingleBlockModelRecord singleBlockInitialModelRecord_initial,// i.e. "X"
-            ProposedModelParameters.ProposalSigmasRecord proposalSigmasRecord,
             ProposedModelParameters.ProposalRangesRecord proposalRangesRecord,
-            double[][] xDataCovariance,
             double[] delx_adapt,
-            boolean adaptiveFlag,
             boolean allFlag) {
         /*
             xx0 = x.lograt;
@@ -102,6 +93,12 @@ public class SingleBlockModelUpdater {
             xx0 = [xx0; x.DFgain];
             xind = [xind; (3+Nblock)*ones(Ndf,1)];
          */
+
+         countOfLogRatios = singleBlockInitialModelRecord_initial.logRatios().length;
+         countOfCycles = singleBlockInitialModelRecord_initial.I0().length;
+         countOfFaradays = singleBlockInitialModelRecord_initial.faradayCount();
+         countOfPhotoMultipliers = 1;
+         countOfTotalModelParameters = countOfLogRatios + countOfCycles + countOfFaradays + countOfPhotoMultipliers;
 
         double[] xx0 = new double[countOfTotalModelParameters];
         int[] xInd = new int[countOfTotalModelParameters];
@@ -203,37 +200,6 @@ public class SingleBlockModelUpdater {
         }
 
         return singleBlockInitialModelRecord_initial2;
-    }
-
-    public synchronized void buildPriorLimits(
-            SingleBlockModelRecord singleBlockModelRecord,
-            ProposedModelParameters.ProposalRangesRecord proposalRangesRecord) {
-
-        countOfLogRatios = singleBlockModelRecord.logRatios().length;
-        countOfCycles = singleBlockModelRecord.I0().length;
-        countOfFaradays = singleBlockModelRecord.faradayCount();
-        int countOfPhotoMultipliers = 1;
-        countOfTotalModelParameters = countOfLogRatios + countOfCycles + countOfFaradays + countOfPhotoMultipliers;
-        ;
-        double[] priorMinArray = new double[countOfTotalModelParameters];
-        double[] priorMaxArray = new double[countOfTotalModelParameters];
-
-        for (int logRatioIndex = 0; logRatioIndex < countOfLogRatios; logRatioIndex++) {
-            priorMinArray[logRatioIndex] = proposalRangesRecord.priorLogRatio()[0][0];
-            priorMaxArray[logRatioIndex] = proposalRangesRecord.priorLogRatio()[0][1];
-        }
-
-        for (int cycleIndex = 0; cycleIndex < countOfCycles; cycleIndex++) {
-            priorMinArray[cycleIndex + countOfLogRatios] = proposalRangesRecord.priorIntensity()[0][0];
-            priorMaxArray[cycleIndex + countOfLogRatios] = proposalRangesRecord.priorIntensity()[0][1];
-        }
-
-        for (int faradayIndex = 0; faradayIndex < countOfFaradays; faradayIndex++) {
-            priorMinArray[faradayIndex + countOfLogRatios + countOfCycles] = proposalRangesRecord.priorBaselineFaraday()[0][0];
-            priorMaxArray[faradayIndex + countOfLogRatios + countOfCycles] = proposalRangesRecord.priorBaselineFaraday()[0][1];
-        }
-        priorMinArray[countOfTotalModelParameters - 1] = proposalRangesRecord.priorDFgain()[0][0];
-        priorMaxArray[countOfTotalModelParameters - 1] = proposalRangesRecord.priorDFgain()[0][1];
     }
 
 
@@ -385,5 +351,10 @@ public class SingleBlockModelUpdater {
     ) {
 
     }
+
+    public List<String> getOperations() {
+        return operations;
+    }
+
 
 }

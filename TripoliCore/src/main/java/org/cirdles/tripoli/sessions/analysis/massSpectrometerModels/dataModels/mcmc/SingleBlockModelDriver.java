@@ -56,7 +56,7 @@ public enum SingleBlockModelDriver {
         }
 
         if (null != singleBlockInitialModelRecordWithCov) {
-            MCMCProcess mcmcProcess = MCMCProcess.createMCMCProcess2(analysisMethod, singleBlockDataSetRecord, singleBlockInitialModelRecordWithCov);
+            MCMCProcess mcmcProcess = MCMCProcess.createMCMCProcess(analysisMethod, singleBlockDataSetRecord, singleBlockInitialModelRecordWithCov);
             mcmcProcess.initializeMCMCProcess2();
             plotBuilder = mcmcProcess.applyInversionWithAdaptiveMCMC(loggingCallback);
         }

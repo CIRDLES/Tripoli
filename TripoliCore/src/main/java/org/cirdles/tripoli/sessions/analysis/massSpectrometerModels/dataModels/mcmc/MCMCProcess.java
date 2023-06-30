@@ -35,9 +35,6 @@ import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
 import static org.apache.commons.math3.special.Gamma.gamma;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalRangesRecord;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelUpdater.operations;
-import static org.cirdles.tripoli.utilities.mathUtilities.MatLab.linspace;
 
 /**
  * @author James F. Bowring
@@ -52,14 +49,11 @@ public class MCMCProcess {
     private final AnalysisMethod analysisMethod;
     private final SingleBlockDataSetRecord singleBlockDataSetRecord;
     List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
-    private int faradayCount;
-    private int ratioCount;
     private boolean hierarchical;
     private double tempering;
     private double[] baselineMultiplier;
     private ProposedModelParameters.ProposalRangesRecord proposalRangesRecord;
     private double[] dataArray;
-    private double[] dataWithNoBaselineArray;
     private double[] dataSignalNoiseArray;
     private double initialModelErrorWeighted_E;
     private double initialModelErrorUnWeighted_E0;
@@ -80,6 +74,7 @@ public class MCMCProcess {
         this.analysisMethod = analysisMethod;
         this.singleBlockDataSetRecord = singleBlockDataSetRecord;
         singleBlockInitialModelRecord_X0 = singleBlockInitialModelRecordWithCov.singleBlockModelRecord();
+        proposalRangesRecord = singleBlockInitialModelRecordWithCov.proposalRangesRecord();
         covarianceMatrix_C0 = singleBlockInitialModelRecordWithCov.covarianceMatrix_C0();
     }
 
@@ -87,7 +82,7 @@ public class MCMCProcess {
         return modelCount;
     }
 
-    public static synchronized MCMCProcess createMCMCProcess2(
+    public static synchronized MCMCProcess createMCMCProcess(
             AnalysisMethod analysisMethod,
             SingleBlockDataSetRecord singleBlockDataSetRecord,
             SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov) {
@@ -114,10 +109,6 @@ public class MCMCProcess {
     }
 
     public void initializeMCMCProcess2() {
-        faradayCount = singleBlockInitialModelRecord_X0.faradayCount();
-        // do not use identity ratio per Noah as it introduces zeroes into covariance matrix
-        ratioCount = singleBlockInitialModelRecord_X0.isotopeCount() - 1;
-
         /*
             % MCMC Parameters
             maxcnt = 2000;  % Maximum number of models to save
@@ -136,7 +127,7 @@ public class MCMCProcess {
             Ndata=d0.Ndata; % Number of picks
             Nsig = d0.Nsig; % Number of noise variables
          */
-        //TODO: remove his variable
+        //TODO: remove his variable??
         hierarchical = false;
         tempering = 1.0;
         /*
@@ -146,10 +137,10 @@ public class MCMCProcess {
          */
         double nTemp = 10000;
 
-        double[] hot = linspace(5, 1, nTemp).toRawCopy1D();
+//        double[] hot = linspace(5, 1, nTemp).toRawCopy1D();
         double[] TTarray = new double[modelCount + 1];
         Arrays.fill(TTarray, 1.0);
-        System.arraycopy(hot, 0, TTarray, 0, hot.length);
+//        System.arraycopy(hot, 0, TTarray, 0, hot.length);
         TT = new Matrix(TTarray, modelCount + 1);//modelCount);
 
         startingIndexOfFaradayData = singleBlockDataSetRecord.getCountOfBaselineIntensities();
@@ -157,22 +148,14 @@ public class MCMCProcess {
 
         baselineMultiplier = new double[singleBlockInitialModelRecord_X0.dataArray().length];
         Arrays.fill(baselineMultiplier, 1.0);
+        //TODO: review this
         for (int row = startingIndexOfPhotoMultiplierData; row < singleBlockInitialModelRecord_X0.dataArray().length; row++) {
             baselineMultiplier[row] = 0.1;
         }
 
         keptUpdates = new int[5][4];
         ensembleRecordsList = new ArrayList<>();
-        int countOfDFGains = 1;
-        int countOfCycles = singleBlockDataSetRecord.blockKnotInterpolationStore().getColDim();
-
-        sizeOfModel = ratioCount + countOfCycles + faradayCount + countOfDFGains;
-
-
-        proposalRangesRecord =
-                buildProposalRangesRecord(singleBlockInitialModelRecord_X0.intensities());
-//        proposalSigmasRecord =
-//                buildProposalSigmasRecord(singleBlockInitialModelRecord_X0.baselineStandardDeviationsArray(), proposalRangesRecord);
+        sizeOfModel = singleBlockInitialModelRecord_X0.sizeOfModel();
 
         /*
             % Modified Gelman-Rubin Convergence
@@ -197,7 +180,6 @@ public class MCMCProcess {
         xDataCovariance = new double[sizeOfModel][sizeOfModel];
 
         buildForwardModel();
-
     }
 
     private void buildForwardModel() {
@@ -242,7 +224,6 @@ x=x0;
 
         // NOTE: these already populated in the initial model singleBlockInitialModelRecord_X0
         dataArray = singleBlockInitialModelRecord_X0.dataWithNoBaselineArray().clone();
-        dataWithNoBaselineArray = singleBlockInitialModelRecord_X0.dataWithNoBaselineArray().clone();
         dataSignalNoiseArray = singleBlockInitialModelRecord_X0.dataSignalNoiseArray().clone();
 
         /*
@@ -303,9 +284,7 @@ x=x0;
         StopWatch watch = new StopWatch();
         watch.start();
         int counter = 0;
-        int counter2 = 0;
         SingleBlockModelUpdater singleBlockModelUpdater = new SingleBlockModelUpdater();
-        singleBlockModelUpdater.buildPriorLimits(singleBlockInitialModelRecord_X, proposalRangesRecord);
 
         int countOfData = singleBlockInitialModelRecord_X.dataArray().length;
         int[] detectorOrdinalIndices = singleBlockDataSetRecord.blockDetectorOrdinalIndicesArray();
@@ -319,8 +298,6 @@ x=x0;
         for (long modelIndex = 1; modelCount >= modelIndex; modelIndex++) {//********************************************
             if (notConverged) {
                 long prev = System.nanoTime();
-
-                boolean adaptiveFlag = true;
                 boolean allFlag = true;
                 tempering = 1.0;
 
@@ -359,11 +336,8 @@ x=x0;
                         singleBlockModelUpdater.updateMSv2(
                                 operation,
                                 singleBlockInitialModelRecord_X,
-                                null,
                                 proposalRangesRecord,
-                                xDataCovariance,
                                 delx_adapt_Matrix.getRowPackedCopy(),
-                                adaptiveFlag,
                                 allFlag
                         );
                 boolean noiseOperation = operation.toLowerCase(Locale.ROOT).startsWith("n");
@@ -478,14 +452,8 @@ x=x0;
             Dsig2 = x2.sig(d0.det_vec).^2 + x2.sig(d0.iso_vec+d0.Ndet).*dnobl2;
              */
                 dataSignalNoiseArray2 = dataSignalNoiseArray.clone();
-//                int[] isotopeOrdinalIndices = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
                 double[] intensitiesArray = singleBlockDataSetRecord.blockIntensityArray();
-//                double[] signalNoiseSigma = dataModelUpdaterOutputRecord_x2.signalNoiseSigma();
                 for (int row = 0; row < countOfData; row++) {
-//                    int detectorIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndices[row]);
-//                    double term1 = StrictMath.pow(signalNoiseSigma[detectorIndex], 2);
-//                    double term2 = signalNoiseSigma[isotopeOrdinalIndices[row] - 1 + faradayCount + 1];
-//                    dataSignalNoiseArray2[row] = term1 + term2 * dataWithNoBaselineArray2[row];
                     double residualValue = pow(intensitiesArray[row] - dataArray[row], 2);
                     double residualValue2 = pow(intensitiesArray[row] - dataArray2[row], 2);
                     E02 += residualValue2;
@@ -553,7 +521,7 @@ x=x0;
                     end
                 */
 
-                int operationIndex = operations.indexOf(operation);
+                int operationIndex = singleBlockModelUpdater.getOperations().indexOf(operation);
                 keptUpdates[operationIndex][1] = keptUpdates[operationIndex][1] + 1;
                 keptUpdates[operationIndex][3] = keptUpdates[operationIndex][3] + 1;
 
@@ -577,7 +545,6 @@ x=x0;
                             dataModelUpdaterOutputRecord_x2.faradayCount(),
                             dataModelUpdaterOutputRecord_x2.isotopeCount()
                     );
-//                    dataSignalNoiseArray = dataSignalNoiseArray2.clone();
 
                     keptUpdates[operationIndex][0] = keptUpdates[operationIndex][0] + 1;
                     keptUpdates[operationIndex][2] = keptUpdates[operationIndex][2] + 1;
@@ -689,7 +656,6 @@ x=x0;
                      */
 
                         if ((0 == Math.sqrt(counter) % 1) && (counter >= effectSamp / stepCountForcedSave)) {
-                            counter2++;
                             double rExit = singleBlockModelUpdater.grConverge(ensembleRecordsList);
 
                             if (rExit <= ExitCrit) {
