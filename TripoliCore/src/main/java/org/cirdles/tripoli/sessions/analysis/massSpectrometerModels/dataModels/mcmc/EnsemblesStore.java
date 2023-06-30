@@ -51,43 +51,44 @@ public class EnsemblesStore implements Serializable {
             double errorWeighted,
             double errorUnWeighted
     ) implements Serializable {
-        public String prettyPrintHeaderAsCSV(String indexTitle, List<IsotopicRatio> isotopicRatiosList){
+        public String prettyPrintHeaderAsCSV(String indexTitle, List<IsotopicRatio> isotopicRatiosList) {
             String header = "";
-            for (int i = 0; i < logRatios.length; i++){
+            for (int i = 0; i < logRatios.length; i++) {
                 header += isotopicRatiosList.get(i).prettyPrint().replaceAll(" ", "") + ",";
             }
-            for (int i = 0; i < I0.length; i ++){
-                header+= "I-" + i + ",";
+            for (int i = 0; i < I0.length; i++) {
+                header += "I-" + i + ",";
             }
-            for (int i = 0; i < baseLine.length; i ++){
-                header+= "BL-" + i + ",";
+            for (int i = 0; i < baseLine.length; i++) {
+                header += "BL-" + i + ",";
             }
-            header+= "DFGain,";
-            for (int i = 0; i < signalNoise.length; i ++){
-                header+= "SigNoise-" + i + ",";
+            header += "DFGain,";
+            for (int i = 0; i < signalNoise.length; i++) {
+                header += "SigNoise-" + i + ",";
             }
-            header+= "errorWeighted,";
-            header+= "errorUnWeighted \n";
+            header += "errorWeighted,";
+            header += "errorUnWeighted \n";
 
             return header;
         }
-        public String prettyPrintAsCSV(){
+
+        public String prettyPrintAsCSV() {
             String data = "";
-            for (int i = 0; i < logRatios.length; i++){
+            for (int i = 0; i < logRatios.length; i++) {
                 data += logRatios[i] + ",";
             }
-            for (int i = 0; i < I0.length; i ++){
-                data+= I0[i] + ",";
+            for (int i = 0; i < I0.length; i++) {
+                data += I0[i] + ",";
             }
-            for (int i = 0; i < baseLine.length; i ++){
-                data+= baseLine[i] + ",";
+            for (int i = 0; i < baseLine.length; i++) {
+                data += baseLine[i] + ",";
             }
-            data+= dfGain() + ",";
-            for (int i = 0; i < signalNoise.length; i ++){
-                data+= signalNoise[i] + ",";
+            data += dfGain() + ",";
+            for (int i = 0; i < signalNoise.length; i++) {
+                data += signalNoise[i] + ",";
             }
-            data+= errorWeighted + ",";
-            data+= errorUnWeighted + "\n";
+            data += errorWeighted + ",";
+            data += errorUnWeighted + "\n";
 
             return data;
         }

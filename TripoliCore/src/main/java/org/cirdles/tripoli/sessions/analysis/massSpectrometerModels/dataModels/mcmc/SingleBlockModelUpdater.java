@@ -22,7 +22,6 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.stat.correlation.Covariance;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,12 +30,12 @@ import java.util.List;
  */
 public class SingleBlockModelUpdater {
 
-    private List<String> operations = ImmutableList.of("changer", "changeI", "changedfg","changebl", "noise");
-    private int countOfLogRatios ;
-    private int countOfCycles ;
-    private int countOfFaradays ;
-    private int countOfPhotoMultipliers ;
-    private int countOfTotalModelParameters ;
+    private List<String> operations = ImmutableList.of("changer", "changeI", "changedfg", "changebl", "noise");
+    private int countOfLogRatios;
+    private int countOfCycles;
+    private int countOfFaradays;
+    private int countOfPhotoMultipliers;
+    private int countOfTotalModelParameters;
 
     SingleBlockModelUpdater() {
     }
@@ -48,8 +47,8 @@ public class SingleBlockModelUpdater {
      * @return Random operation by name
      */
     synchronized String randomOperMS(boolean hierFlag) {
-        Object[][] notHier = {{40, 60, 80, 100}, {operations.get(1),operations.get(0), operations.get(3), operations.get(2)}};
-        Object[][] hier = {{60, 80, 90, 100, 120}, {operations.get(1),operations.get(0), operations.get(3), operations.get(2), operations.get(4)}};
+        Object[][] notHier = {{40, 60, 80, 100}, {operations.get(1), operations.get(0), operations.get(3), operations.get(2)}};
+        Object[][] hier = {{60, 80, 90, 100, 120}, {operations.get(1), operations.get(0), operations.get(3), operations.get(2), operations.get(4)}};
 
         RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
         randomDataGenerator.reSeedSecure();
@@ -94,11 +93,11 @@ public class SingleBlockModelUpdater {
             xind = [xind; (3+Nblock)*ones(Ndf,1)];
          */
 
-         countOfLogRatios = singleBlockInitialModelRecord_initial.logRatios().length;
-         countOfCycles = singleBlockInitialModelRecord_initial.I0().length;
-         countOfFaradays = singleBlockInitialModelRecord_initial.faradayCount();
-         countOfPhotoMultipliers = 1;
-         countOfTotalModelParameters = countOfLogRatios + countOfCycles + countOfFaradays + countOfPhotoMultipliers;
+        countOfLogRatios = singleBlockInitialModelRecord_initial.logRatios().length;
+        countOfCycles = singleBlockInitialModelRecord_initial.I0().length;
+        countOfFaradays = singleBlockInitialModelRecord_initial.faradayCount();
+        countOfPhotoMultipliers = 1;
+        countOfTotalModelParameters = countOfLogRatios + countOfCycles + countOfFaradays + countOfPhotoMultipliers;
 
         double[] xx0 = new double[countOfTotalModelParameters];
         int[] xInd = new int[countOfTotalModelParameters];
@@ -345,15 +344,15 @@ public class SingleBlockModelUpdater {
         return rExit;
     }
 
+    public List<String> getOperations() {
+        return operations;
+    }
+
     public record UpdatedCovariancesRecord(
             double[][] dataCov,
             double[] dataMean
     ) {
 
-    }
-
-    public List<String> getOperations() {
-        return operations;
     }
 
 

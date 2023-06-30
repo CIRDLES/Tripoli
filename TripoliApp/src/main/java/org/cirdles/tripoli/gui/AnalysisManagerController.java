@@ -28,7 +28,6 @@ import javafx.scene.text.TextFlow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
-import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
@@ -568,7 +567,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 try {
                     analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
                 } catch (TripoliException e) {
-                    TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
+                    //TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
                 }
                 populateAnalysisManagerGridPane();
             }
@@ -624,8 +623,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage, this);
         MCMCPlotsController.analysis = analysis;
         MCMCPlotsWindow.loadPlotsWindow();
-
-        BrowserControl.showURI("EnsemblesForBlock_1");
     }
 
     public void selectRunAllAction() {

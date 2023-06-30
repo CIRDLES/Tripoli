@@ -680,14 +680,13 @@ x=x0;
 
         // Detroit 2023 printout ensembleRecordsList
         // analysisMethod.getIsotopicRatiosList()
-        Path path = Paths.get("EnsemblesForBlock_" + singleBlockInitialModelRecord_X.blockNumber());
+        Path path = Paths.get("EnsemblesForBlock_" + singleBlockInitialModelRecord_X.blockNumber() + ".csv");
         OutputStream stream = Files.newOutputStream(path);
         stream.write(ensembleRecordsList.get(0).prettyPrintHeaderAsCSV("Index", analysisMethod.getIsotopicRatiosList()).getBytes());
-        for (int i = 0; i < ensembleRecordsList.size(); i ++){
+        for (int i = 0; i < ensembleRecordsList.size(); i++) {
             stream.write(ensembleRecordsList.get(i).prettyPrintAsCSV().getBytes());
         }
         stream.close();
-
 
 
         return SingleBlockDataModelPlot.analysisAndPlotting(singleBlockDataSetRecord, ensembleRecordsList, singleBlockInitialModelRecord_X, analysisMethod);

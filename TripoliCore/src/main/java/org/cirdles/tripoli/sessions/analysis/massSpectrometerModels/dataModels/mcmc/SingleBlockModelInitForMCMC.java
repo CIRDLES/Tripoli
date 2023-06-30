@@ -26,7 +26,6 @@ import org.ojalgo.RecoverableCondition;
 import java.io.Serializable;
 import java.util.*;
 
-import static org.apache.commons.lang3.ArrayUtils.toArray;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters.buildProposalRangesRecord;
 import static org.cirdles.tripoli.utilities.comparators.SerializableIntegerComparator.SERIALIZABLE_COMPARATOR;
 
@@ -247,7 +246,7 @@ enum SingleBlockModelInitForMCMC {
         for (int i = 0; i < ddNoPMArray.length; i++) {
             ddSortedArray[i] = ddNoPMArray[ddSortIndices[i]];
             tmpPMflagSortedArray[i] = tmpPMflagArray[ddSortIndices[i]];
-            if (tmpPMflagSortedArray[i] == 0){
+            if (tmpPMflagSortedArray[i] == 0) {
                 IIFar.add(interpolatedKnotData_II[i]);
                 dataFar.add(ddSortedArray[i]);
             } else {
@@ -256,14 +255,14 @@ enum SingleBlockModelInitForMCMC {
             }
         }
 
-        double[][] IIFarArray = new double[ IIFar.size()][];
-        for (int row = 0; row < IIFar.size(); row++){
+        double[][] IIFarArray = new double[IIFar.size()][];
+        for (int row = 0; row < IIFar.size(); row++) {
             IIFarArray[row] = IIFar.get(row);
         }
         double[] dataFarArray = dataFar.stream().mapToDouble(d -> d).toArray();
 
-        double[][] IIPMArray = new double[ IIPM.size()][];
-        for (int row = 0; row < IIPM.size(); row++){
+        double[][] IIPMArray = new double[IIPM.size()][];
+        for (int row = 0; row < IIPM.size(); row++) {
             IIPMArray[row] = IIPM.get(row);
         }
         double[] dataPMArray = dataPM.stream().mapToDouble(d -> d).toArray();
@@ -281,13 +280,11 @@ enum SingleBlockModelInitForMCMC {
         double[] intensityPM_I = solution.toArray();
 
         DescriptiveStatistics dfGainDescriptiveStaqtistics = new DescriptiveStatistics();
-        for (int row = 1; row < (intensityPM_I.length - 1); row++){
-            dfGainDescriptiveStaqtistics.addValue(intensityPM_I[row]/intensityFar_I[row]);
+        for (int row = 1; row < (intensityPM_I.length - 1); row++) {
+            dfGainDescriptiveStaqtistics.addValue(intensityPM_I[row] / intensityFar_I[row]);
         }
         double detectorFaradayGain = dfGainDescriptiveStaqtistics.getMean();
 
-
-        System.out.println();
           /*
             for m=1:d0.Nblock
                 II = d0.InterpMat{m};
@@ -390,9 +387,9 @@ enum SingleBlockModelInitForMCMC {
 
         //double[][] interpolatedKnotData_II = singleBlockDataSetRecord.blockKnotInterpolationStore().toRawCopy2D();
         RealMatrix II = new BlockRealMatrix(interpolatedKnotData_II);
-         solver = new QRDecomposition(II).getSolver();
+        solver = new QRDecomposition(II).getSolver();
         RealVector data = new ArrayRealVector(ddVer2SortedArray);
-         solution = solver.solve(data);
+        solution = solver.solve(data);
         double[] intensity_I = solution.toArray();
 
         Matrix IIm = new Matrix(II.getData());
@@ -432,7 +429,7 @@ enum SingleBlockModelInitForMCMC {
             for (int dataArrayIndex = 0; dataArrayIndex < ddVer2SortedArray.length; dataArrayIndex++) {
                 descriptiveStatistics.addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
             }
-            logRatios[isotopeIndex] = StrictMath.log(Math.max(descriptiveStatistics.getMean(), 3e-9));
+            logRatios[isotopeIndex] = StrictMath.log(Math.max(descriptiveStatistics.getMean(), StrictMath.exp(proposalRangesRecord.priorLogRatio()[0][0])));
         }
 
         // initialize model data vectors
