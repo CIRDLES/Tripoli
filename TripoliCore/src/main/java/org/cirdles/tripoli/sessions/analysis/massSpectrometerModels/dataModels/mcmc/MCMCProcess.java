@@ -140,7 +140,7 @@ public class MCMCProcess {
             % Create tempering vector - start high, cool down to 1 then stay there
             TT = ones(maxcnt*datsav,1);TT(1:Ntemp) = linspace(5,1,Ntemp)';
          */
-        double nTemp = 10000;
+//        double nTemp = 10000;
 
 //        double[] hot = linspace(5, 1, nTemp).toRawCopy1D();
         double[] TTarray = new double[modelCount + 1];

@@ -124,8 +124,7 @@ public class SingleBlockModelUpdater {
         double[] updatedBaselineMeans = new double[countOfFaradays];
         double updatedFaradayGain = 0.0;
 
-        if (operation.startsWith("cha")) {
-            if (allFlag) {
+        if (operation.startsWith("cha") && allFlag) {
                 // VARY ALL AT A TIME
                 /*
                     delx = delx_adapt;
@@ -194,8 +193,6 @@ public class SingleBlockModelUpdater {
                         singleBlockInitialModelRecord_initial.faradayCount(),
                         singleBlockInitialModelRecord_initial.isotopeCount()
                 );
-
-            }
         }
 
         return singleBlockInitialModelRecord_initial2;
