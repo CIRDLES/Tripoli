@@ -28,6 +28,11 @@ import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -253,7 +258,7 @@ x=x0;
         }
     }
 
-    public synchronized PlotBuilder[][] applyInversionWithAdaptiveMCMC(LoggingCallbackInterface loggingCallback) {
+    public synchronized PlotBuilder[][] applyInversionWithAdaptiveMCMC(LoggingCallbackInterface loggingCallback) throws IOException {
 
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         SingleBlockModelRecord singleBlockInitialModelRecord_X = singleBlockInitialModelRecord_X0.clone();
@@ -672,6 +677,18 @@ x=x0;
                 }
             }// end model loop
         }// convergence check
+
+        // Detroit 2023 printout ensembleRecordsList
+        // analysisMethod.getIsotopicRatiosList()
+        Path path = Paths.get("EnsemblesForBlock_" + singleBlockInitialModelRecord_X.blockNumber());
+        OutputStream stream = Files.newOutputStream(path);
+        stream.write(ensembleRecordsList.get(0).prettyPrintHeaderAsCSV("Index", analysisMethod.getIsotopicRatiosList()).getBytes());
+        for (int i = 0; i < ensembleRecordsList.size(); i ++){
+            stream.write(ensembleRecordsList.get(i).prettyPrintAsCSV().getBytes());
+        }
+        stream.close();
+
+
 
         return SingleBlockDataModelPlot.analysisAndPlotting(singleBlockDataSetRecord, ensembleRecordsList, singleBlockInitialModelRecord_X, analysisMethod);
     }

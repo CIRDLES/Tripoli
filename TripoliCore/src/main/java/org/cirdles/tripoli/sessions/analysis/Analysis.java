@@ -203,7 +203,7 @@ public class Analysis implements Serializable, AnalysisInterface {
 
 
     public PlotBuilder[][] updatePlotsByBlock(int blockID, LoggingCallbackInterface loggingCallback) throws TripoliException {
-        PlotBuilder[][] retVal;
+        PlotBuilder[][] retVal = new PlotBuilder[0][];
         if (RUN == mapOfBlockIdToProcessStatus.get(blockID)) {
             mapOfBlockIdToPlots.remove(blockID);
         }
@@ -211,11 +211,15 @@ public class Analysis implements Serializable, AnalysisInterface {
             retVal = mapOfBlockIdToPlots.get(blockID);
             loggingCallback.receiveLoggingSnippet("1000 >%");
         } else {
-            PlotBuilder[][] plotBuilders;
-            plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock2(blockID, this, loggingCallback);
-            mapOfBlockIdToPlots.put(blockID, plotBuilders);
-            mapOfBlockIdToProcessStatus.put(blockID, SHOW);
-            retVal = mapOfBlockIdToPlots.get(blockID);
+            try {
+                PlotBuilder[][] plotBuilders;
+                plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock(blockID, this, loggingCallback);
+                mapOfBlockIdToPlots.put(blockID, plotBuilders);
+                mapOfBlockIdToProcessStatus.put(blockID, SHOW);
+                retVal = mapOfBlockIdToPlots.get(blockID);
+            } catch (IOException e) {
+                System.out.println("PROBLEM EXPORTING ENSEMBLES");
+            }
         }
         return retVal;
     }

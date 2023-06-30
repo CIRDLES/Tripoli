@@ -29,6 +29,7 @@ import org.ojalgo.RecoverableCondition;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public enum SingleBlockModelDriver {
     ;
 
-    public static PlotBuilder[][] buildAndRunModelForSingleBlock2(int blockNumber, AnalysisInterface analysis, LoggingCallbackInterface loggingCallback) throws TripoliException {
+    public static PlotBuilder[][] buildAndRunModelForSingleBlock(int blockNumber, AnalysisInterface analysis, LoggingCallbackInterface loggingCallback) throws TripoliException, IOException {
         MassSpecExtractedData massSpecExtractedData = analysis.getMassSpecExtractedData();
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
         PlotBuilder[][] plotBuilder = new PlotBuilder[0][0];
