@@ -158,7 +158,6 @@ enum SingleBlockModelInitForMCMC {
 
         // june 2023 new init - will need to be user input
         int iden = indexOfMostAbundantIsotope + 1; // ordinal
-//        double detectorFaradayGain = 0.9;
 
         /*
         %x0.DFgain = user_DFgain;  %sb629 Now going to set according to data(?)
@@ -354,12 +353,7 @@ enum SingleBlockModelInitForMCMC {
             x0.Dsig = Dsig;
          */
         // TODO: backtrack and simplify
-        //double[] d0_data = singleBlockDataSetRecord.blockIntensityArray();
-        //int startIndexOfPhotoMultiplierData = singleBlockDataSetRecord.getCountOfBaselineIntensities() + singleBlockDataSetRecord.getCountOfOnPeakFaradayIntensities();
-        //int[] d0_detVec = singleBlockDataSetRecord.blockDetectorOrdinalIndicesArray();
         List<Double> ddver2List = new ArrayList<>();
-        //int[] isotopeOrdinalIndices = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
-        //int[] timeIndForSortingArray = singleBlockDataSetRecord.blockTimeIndicesArray();
         tempTime = new ArrayList<>();
         for (int dataArrayIndex = 0; dataArrayIndex < d0_data.length; dataArrayIndex++) {
             if (isotopeOrdinalIndices[dataArrayIndex] == iden) {
@@ -385,7 +379,6 @@ enum SingleBlockModelInitForMCMC {
             ddVer2SortedArray[i] = ddVer2Array[ddVer2sortIndices[i]];
         }
 
-        //double[][] interpolatedKnotData_II = singleBlockDataSetRecord.blockKnotInterpolationStore().toRawCopy2D();
         RealMatrix II = new BlockRealMatrix(interpolatedKnotData_II);
         solver = new QRDecomposition(II).getSolver();
         RealVector data = new ArrayRealVector(ddVer2SortedArray);
