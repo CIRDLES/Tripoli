@@ -32,17 +32,17 @@ public class HistogramBuilder extends PlotBuilder {
 
     protected HistogramBuilder(int blockID, String[] title, String xAxisLabel, String yAxisLabel, boolean displayed) {
         super(title, xAxisLabel, yAxisLabel, displayed);
-        histogramRecord = generateHistogram(blockID, new double[0], 0, new String[]{""});
+        histogramRecord = generateHistogram(blockID, new double[0], 0, new String[]{""}, xAxisLabel);
         this.displayed = displayed;
     }
 
     public static HistogramBuilder initializeHistogram(int blockID, double[] data, int binCount, String[] title, String xAxisLabel, String yAxisLabel, boolean displayed) {
         HistogramBuilder histogramBuilder = new HistogramBuilder(blockID, title, xAxisLabel, yAxisLabel, displayed);
-        histogramBuilder.histogramRecord = histogramBuilder.generateHistogram(blockID, data, binCount, title);
+        histogramBuilder.histogramRecord = histogramBuilder.generateHistogram(blockID, data, binCount, title, xAxisLabel);
         return histogramBuilder;
     }
 
-    protected HistogramRecord generateHistogram(int blockID, double[] data, int binCount, String[] title) {
+    protected HistogramRecord generateHistogram(int blockID, double[] data, int binCount, String[] title, String xAxisLabel) {
         DescriptiveStatistics descriptiveStatisticsRatios = new DescriptiveStatistics();
         for (int index = 0; index < data.length; index++) {
             descriptiveStatisticsRatios.addValue(data[index]);

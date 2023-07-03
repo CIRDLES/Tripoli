@@ -25,23 +25,37 @@ public class RatioHistogramBuilder extends HistogramBuilder {
     private static final long serialVersionUID = 2597311797768082265L;
 
     private HistogramRecord invertedRatioHistogramRecord;
+    private HistogramRecord logRatioHistogramRecord;
+    private HistogramRecord logInvertedRatioHistogramRecord;
 
 
     private RatioHistogramBuilder(int blockID, String[] title, String xAxisLabel, String yAxisLabel, boolean displayed) {
         super(blockID, title, xAxisLabel, yAxisLabel, displayed);
-        histogramRecord = generateHistogram(blockID, new double[0], 0, new String[]{""});
-        invertedRatioHistogramRecord = generateHistogram(blockID, new double[0], 0, new String[]{""});
+        histogramRecord = null;
+        invertedRatioHistogramRecord = null;
+        logRatioHistogramRecord  = null;
+        logInvertedRatioHistogramRecord  = null;
         this.displayed = displayed;
     }
 
     public static RatioHistogramBuilder initializeRatioHistogram(int blockID, IsotopicRatio ratio, IsotopicRatio invertedRatio, int binCount) {
         RatioHistogramBuilder ratioHistogramBuilder = new RatioHistogramBuilder(blockID, new String[]{ratio.prettyPrint()}, "Ratios", "Frequency", ratio.isDisplayed());
-        ratioHistogramBuilder.histogramRecord = ratioHistogramBuilder.generateHistogram(blockID, ratio.getRatioValues(), binCount, new String[]{ratio.prettyPrint()});
-        ratioHistogramBuilder.invertedRatioHistogramRecord = ratioHistogramBuilder.generateHistogram(blockID, invertedRatio.getRatioValues(), binCount, new String[]{invertedRatio.prettyPrint()});
+        ratioHistogramBuilder.histogramRecord = ratioHistogramBuilder.generateHistogram(blockID, ratio.getRatioValues(), binCount, new String[]{ratio.prettyPrint()}, "Ratio");
+        ratioHistogramBuilder.invertedRatioHistogramRecord = ratioHistogramBuilder.generateHistogram(blockID, invertedRatio.getRatioValues(), binCount, new String[]{invertedRatio.prettyPrint()}, "Ratio");
+        ratioHistogramBuilder.logRatioHistogramRecord = ratioHistogramBuilder.generateHistogram(blockID, ratio.getLogRatioValues(), binCount, new String[]{"Log " + ratio.prettyPrint()}, "LogRatio");
+        ratioHistogramBuilder.logInvertedRatioHistogramRecord = ratioHistogramBuilder.generateHistogram(blockID, invertedRatio.getLogRatioValues(), binCount, new String[]{"Log " + invertedRatio.prettyPrint()}, "LogRatio");
         return ratioHistogramBuilder;
     }
 
     public HistogramRecord getInvertedRatioHistogramRecord() {
         return invertedRatioHistogramRecord;
+    }
+
+    public HistogramRecord getLogRatioHistogramRecord() {
+        return logRatioHistogramRecord;
+    }
+
+    public HistogramRecord getLogInvertedRatioHistogramRecord() {
+        return logInvertedRatioHistogramRecord;
     }
 }

@@ -74,6 +74,7 @@ public abstract class AbstractPlot extends Canvas {
     protected String plotAxisLabelY;
     protected boolean showStats;
     protected TripoliColor dataColor;
+    protected boolean showYaxis;
 
     private AbstractPlot() {
     }
@@ -101,6 +102,7 @@ public abstract class AbstractPlot extends Canvas {
         ticsX = new BigDecimal[0];
         ticsY = new BigDecimal[0];
         showStats = false;
+        showYaxis = true;
 
         updatePlotSize();
 
@@ -178,20 +180,7 @@ public abstract class AbstractPlot extends Canvas {
             ((TripoliPlotPane) getParent()).toggleShowStats();
         });
 
-        MenuItem plotContextMenuItem5 = null;
-        if (this instanceof RatioHistogramPlot) {
-            plotContextMenuItem5 = new MenuItem("Toggle ratio inverse");
-            plotContextMenuItem5.setOnAction((mouseEvent) -> {
-                ((RatioHistogramPlot) this).toggleRatioInverse();
-                refreshPanel(true, true);
-            });
-        }
-
         plotContextMenu.getItems().addAll(plotContextMenuItem1, plotContextMenuItem2, plotContextMenuItem3, plotContextMenuItem4);
-        if (plotContextMenuItem5 != null) {
-            plotContextMenu.getItems().add(plotContextMenuItem5);
-        }
-
     }
 
     /**
@@ -206,15 +195,21 @@ public abstract class AbstractPlot extends Canvas {
      * @param g2d
      */
     public void paint(GraphicsContext g2d) {
+        if (!showYaxis){leftMargin = 15;}
         paintInit(g2d);
 
         drawBorder(g2d);
         drawPlotLimits(g2d);
 
+//        if (showStats) {
+//            plotStats(g2d);
+//        }
+        plotData(g2d);
+
         if (showStats) {
             plotStats(g2d);
         }
-        plotData(g2d);
+
         drawAxes(g2d);
         labelAxisX(g2d);
         labelAxisY(g2d);
@@ -260,23 +255,25 @@ public abstract class AbstractPlot extends Canvas {
         int textWidth;
 
         if (1 < ticsY.length) {
-            // ticsY
-            float verticalTextShift = 3.2f;
-            g2d.setFont(Font.font("SansSerif", 10));
-            if (null != ticsY) {
-                for (BigDecimal bigDecimalTicY : ticsY) {
-                    if ((mapY(bigDecimalTicY.doubleValue()) >= topMargin) && (mapY(bigDecimalTicY.doubleValue()) <= (topMargin + plotHeight))) {
-                        g2d.strokeLine(
-                                leftMargin, mapY(bigDecimalTicY.doubleValue()), leftMargin + plotWidth, mapY(bigDecimalTicY.doubleValue()));
-                        // left side
-                        Formatter fmt = new Formatter();
-                        fmt.format("%8.3g", bigDecimalTicY.doubleValue());
-                        String yText = fmt.toString().trim();
-                        text.setText(yText);
-                        textWidth = (int) text.getLayoutBounds().getWidth();
-                        g2d.fillText(text.getText(),//
-                                leftMargin - textWidth - 2.5f,
-                                (float) mapY(bigDecimalTicY.doubleValue()) + verticalTextShift);
+            if (showYaxis) {
+                // ticsY
+                float verticalTextShift = 3.2f;
+                g2d.setFont(Font.font("SansSerif", 10));
+                if (null != ticsY) {
+                    for (BigDecimal bigDecimalTicY : ticsY) {
+                        if ((mapY(bigDecimalTicY.doubleValue()) >= topMargin) && (mapY(bigDecimalTicY.doubleValue()) <= (topMargin + plotHeight))) {
+                            g2d.strokeLine(
+                                    leftMargin, mapY(bigDecimalTicY.doubleValue()), leftMargin + plotWidth, mapY(bigDecimalTicY.doubleValue()));
+                            // left side
+                            Formatter fmt = new Formatter();
+                            fmt.format("%8.3g", bigDecimalTicY.doubleValue());
+                            String yText = fmt.toString().trim();
+                            text.setText(yText);
+                            textWidth = (int) text.getLayoutBounds().getWidth();
+                            g2d.fillText(text.getText(),//
+                                    leftMargin - textWidth - 2.5f,
+                                    (float) mapY(bigDecimalTicY.doubleValue()) + verticalTextShift);
+                        }
                     }
                 }
             }
@@ -309,9 +306,9 @@ public abstract class AbstractPlot extends Canvas {
         Paint savedPaint = g2d.getFill();
         g2d.setFont(Font.font("SansSerif", 11));
         g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText(plotTitle[0], leftMargin - 20, topMargin - 12);
+        g2d.fillText(plotTitle[0], leftMargin, topMargin - 12);
         if (2 == plotTitle.length) {
-            g2d.fillText(plotTitle[1], leftMargin + 50, topMargin - 2);
+            g2d.fillText(plotTitle[1], leftMargin + 75, topMargin - 2);
         }
         g2d.setFill(savedPaint);
     }
