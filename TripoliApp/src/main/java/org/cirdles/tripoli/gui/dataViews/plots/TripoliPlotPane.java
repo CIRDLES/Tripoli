@@ -32,7 +32,7 @@ import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.*;
 public class TripoliPlotPane extends Pane {
 
     public static double minPlotWidth = 225.0;
-    public static double minPlotHeight = 200.0;
+    public static double minPlotHeight = 100.0;
     static double mouseStartX;
     static double mouseStartY;
     static boolean onEdgeEast;
@@ -100,17 +100,20 @@ public class TripoliPlotPane extends Pane {
         if (onEdgeSouth) {
             if (0.0 <= deltaY) {
                 targetPane.setPrefHeight(Math.min(plotWallPane.getHeight() - targetPane.getLayoutY() - gridCellDim, targetPane.getHeight() + deltaY));
+//                mouseStartY = Math.max(e.getSceneY(), mouseStartY - deltaX);
             } else {
                 targetPane.setPrefHeight(Math.max(minPlotHeight, targetPane.getHeight() + deltaY));
+//                mouseStartY = Math.min(e.getSceneY(), mouseStartY + deltaX);
             }
         }
 
-
-        mouseStartX = e.getSceneX();
-        mouseStartY = e.getSceneY();
+//        mouseStartX = e.getSceneX();
+//        mouseStartY = e.getSceneY();
 
         ((AbstractPlot) getChildren().get(0)).updatePlotSize(getPrefWidth(), getPrefHeight());
         ((AbstractPlot) getChildren().get(0)).calculateTics();
+        mouseStartX = e.getSceneX();
+        mouseStartY = e.getSceneY();
     };
     private PlotLocation plotLocation;
     private final EventHandler<MouseEvent> mouseClickedEventHandler = e -> {

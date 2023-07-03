@@ -182,6 +182,7 @@ public class MCMCPlotsController {
                         if (blocksToProcess.size() > 1) plotRatioSessionEngine();
                         listViewOfBlocks.setDisable(false);
                         listViewOfBlocks.getSelectionModel().selectFirst();
+                        progressBar.setProgress(1.0);
                     }
                 }
             });

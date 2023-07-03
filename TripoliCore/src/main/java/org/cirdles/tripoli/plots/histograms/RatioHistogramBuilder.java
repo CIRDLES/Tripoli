@@ -31,10 +31,10 @@ public class RatioHistogramBuilder extends HistogramBuilder {
 
     private RatioHistogramBuilder(int blockID, String[] title, String xAxisLabel, String yAxisLabel, boolean displayed) {
         super(blockID, title, xAxisLabel, yAxisLabel, displayed);
-        histogramRecord = null; //generateHistogram(blockID, new double[0], 0, new String[]{""});
-        invertedRatioHistogramRecord = null; //generateHistogram(blockID, new double[0], 0, new String[]{""});
-        logRatioHistogramRecord  = null; //generateHistogram(blockID, new double[0], 0, new String[]{""});
-        logInvertedRatioHistogramRecord  = null; //generateHistogram(blockID, new double[0], 0, new String[]{""});
+        histogramRecord = null;
+        invertedRatioHistogramRecord = null;
+        logRatioHistogramRecord  = null;
+        logInvertedRatioHistogramRecord  = null;
         this.displayed = displayed;
     }
 

@@ -26,6 +26,8 @@ import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 
+import java.math.BigDecimal;
+
 /**
  * @author James F. Bowring
  */
@@ -36,7 +38,6 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
     private HistogramRecord logRatioHistogramRecord;
     private HistogramRecord logInvertedRatioHistogramRecord;
     private AnalysisMethod analysisMethod;
-//    private boolean inverted;
     private boolean logMode;
 
     private RatioHistogramPlot(
@@ -138,6 +139,7 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
 
         prepareExtents();
         calculateTics();
+        showYaxis = false;
         repaint();
     }
 
@@ -147,7 +149,7 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
     }
 
     public void prepareExtents() {
-        double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.25);
+        double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.05);
         if (0.0 == xMarginStretch) {
             xMarginStretch = maxX * 0.01;
         }
@@ -164,7 +166,7 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
         // plot bins
         g2d.setFill(dataColor.color());
         g2d.setLineWidth(2.0);
-        boolean doFrameBins = 1.0 < (mapX(xAxisData[1]) - mapX(xAxisData[0]));
+        boolean doFrameBins = false;//1.0 < (mapX(xAxisData[1]) - mapX(xAxisData[0]));
 
         for (int i = 0; i < xAxisData.length; i++) {
             double plottedBinWidth = mapX(xAxisData[1]) - mapX(xAxisData[0]);

@@ -24,6 +24,8 @@ import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 
+import java.math.BigDecimal;
+
 /**
  * @author James F. Bowring
  */
@@ -69,6 +71,7 @@ public class HistogramSinglePlot extends AbstractPlot {
 
         prepareExtents();
         calculateTics();
+        showYaxis = false;
         repaint();
     }
 
@@ -78,7 +81,7 @@ public class HistogramSinglePlot extends AbstractPlot {
     }
 
     public void prepareExtents() {
-        double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.25);
+        double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.05);
         if (0.0 == xMarginStretch) {
             xMarginStretch = maxX * 0.01;
         }
@@ -95,7 +98,7 @@ public class HistogramSinglePlot extends AbstractPlot {
         // plot bins
         g2d.setFill(dataColor.color());
         g2d.setLineWidth(2.0);
-        boolean doFrameBins = 1.0 < (mapX(xAxisData[1]) - mapX(xAxisData[0]));
+        boolean doFrameBins = false; //1.0 < (mapX(xAxisData[1]) - mapX(xAxisData[0]));
 
         for (int i = 0; i < xAxisData.length; i++) {
             double plottedBinWidth = mapX(xAxisData[1]) - mapX(xAxisData[0]);
