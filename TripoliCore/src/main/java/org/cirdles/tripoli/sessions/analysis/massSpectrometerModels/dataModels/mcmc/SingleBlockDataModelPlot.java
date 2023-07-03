@@ -93,11 +93,13 @@ public enum SingleBlockDataModelPlot {
             logRatioStdDev[ratioIndex] = descriptiveStatisticsLogRatios.getStandardDeviation();
 
             isotopicRatioList.get(ratioIndex).setRatioValues(ensembleRatios[ratioIndex]);
+            isotopicRatioList.get(ratioIndex).setLogRatioValues(ensembleSetOfLogRatios[ratioIndex]);
         }
         // derived ratios
         List<IsotopicRatio> derivedIsotopicRatiosList = analysisMethod.getDerivedIsotopicRatiosList();
         int countOfDerivedRatios = derivedIsotopicRatiosList.size();
         double[][] derivedEnsembleRatios = new double[countOfDerivedRatios][countOfEnsemblesUsed];
+        double[][] derivedEnsembleLogRatios = new double[countOfDerivedRatios][countOfEnsemblesUsed];
         int derivedRatioIndex = 0;
         // derive the ratios
         for (IsotopicRatio isotopicRatio : derivedIsotopicRatiosList) {
@@ -112,6 +114,8 @@ public enum SingleBlockDataModelPlot {
                 for (int ensembleIndex = 0; ensembleIndex < countOfEnsemblesUsed; ensembleIndex++) {
                     derivedEnsembleRatios[derivedRatioIndex][ensembleIndex] =
                             ensembleRatios[indexNumeratorRatio][ensembleIndex] / ensembleRatios[indexDenominatorRatio][ensembleIndex];
+                    derivedEnsembleLogRatios[derivedRatioIndex][ensembleIndex] =
+                            StrictMath.log(derivedEnsembleRatios[derivedRatioIndex][ensembleIndex]);
                 }
             } else {
                 // assume we are dealing with the inverses of isotopicRatiosList
@@ -120,9 +124,14 @@ public enum SingleBlockDataModelPlot {
                 for (int ensembleIndex = 0; ensembleIndex < countOfEnsemblesUsed; ensembleIndex++) {
                     derivedEnsembleRatios[derivedRatioIndex][ensembleIndex] =
                             1.0 / ensembleRatios[indexOfTargetRatio][ensembleIndex];
+                    derivedEnsembleLogRatios[derivedRatioIndex][ensembleIndex] =
+                            StrictMath.log(derivedEnsembleRatios[derivedRatioIndex][ensembleIndex]);
+//                    derivedEnsembleLogRatios[derivedRatioIndex][ensembleIndex] =
+//                            1.0 / ensembleSetOfLogRatios[indexOfTargetRatio][ensembleIndex];
                 }
             }
             derivedIsotopicRatiosList.get(derivedRatioIndex).setRatioValues(derivedEnsembleRatios[derivedRatioIndex]);
+            derivedIsotopicRatiosList.get(derivedRatioIndex).setLogRatioValues(derivedEnsembleLogRatios[derivedRatioIndex]);
             derivedRatioIndex++;
         }
 

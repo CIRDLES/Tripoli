@@ -31,6 +31,7 @@ public class IsotopicRatio implements Serializable, Comparable {
     private final SpeciesRecordInterface numerator;
     private final SpeciesRecordInterface denominator;
     private double[] ratioValues;
+    private double[] logRatioValues;
 
     private boolean displayed;
 
@@ -97,6 +98,14 @@ public class IsotopicRatio implements Serializable, Comparable {
 
     public void setRatioValues(double[] ratioValues) {
         this.ratioValues = ratioValues;
+    }
+
+    public double[] getLogRatioValues() {
+        return logRatioValues;
+    }
+
+    public void setLogRatioValues(double[] logRatioValues) {
+        this.logRatioValues = logRatioValues;
     }
     //    private void readObject(ObjectInputStream stream) throws IOException,
 //            ClassNotFoundException {

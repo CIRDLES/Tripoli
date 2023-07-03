@@ -21,6 +21,7 @@ import javafx.scene.Cursor;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.*;
@@ -219,6 +220,13 @@ public class TripoliPlotPane extends Pane {
     public void toggleShowStats() {
         ((AbstractPlot) getChildren().get(0)).toggleShowStats();
         ((AbstractPlot) getChildren().get(0)).repaint();
+    }
+
+    public void toggleRatiosLogRatios() {
+        if (getChildren().get(0) instanceof RatioHistogramPlot) {
+            ((RatioHistogramPlot) getChildren().get(0)).toggleRatiosLogRatios();
+            ((RatioHistogramPlot) getChildren().get(0)).repaint();
+        }
     }
 
     public void restorePlot() {

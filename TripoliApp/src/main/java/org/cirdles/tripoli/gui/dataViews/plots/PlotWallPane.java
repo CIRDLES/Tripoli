@@ -122,6 +122,14 @@ public class PlotWallPane extends Pane {
         }
     }
 
+    public void toggleRatiosLogRatios() {
+        for (Node plotPane : getChildren()) {
+            if (plotPane instanceof TripoliPlotPane) {
+                ((TripoliPlotPane) plotPane).toggleRatiosLogRatios();
+            }
+        }
+    }
+
     private int getCountOfPlots() {
         List<Node> plots = getChildren()
                 .stream()
@@ -134,7 +142,7 @@ public class PlotWallPane extends Pane {
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);
 
-        Button button0 = new Button("Restore all Plots");
+        Button button0 = new Button("Restore Plots");
         button0.setOnAction(event -> restoreAllPlots());
 
         Button button1 = new Button("Tile Plots");
@@ -146,10 +154,13 @@ public class PlotWallPane extends Pane {
         Button button3 = new Button("Cascade Plots");
         button3.setOnAction(event -> cascadePlots());
 
-        Button button4 = new Button("Toggle Stats all Plots");
+        Button button4 = new Button("Toggle Plots' Stats");
         button4.setOnAction(event -> toggleShowStatsAllPlots());
 
-        toolBar.getItems().addAll(button0, button4, button1, button2, button3);
+        Button button5 = new Button("Toggle Ratios / LogRatios");
+        button5.setOnAction(event -> toggleRatiosLogRatios());
+
+        toolBar.getItems().addAll(button0, button5, button4, button1, button2, button3);
         getChildren().addAll(toolBar);
     }
 }

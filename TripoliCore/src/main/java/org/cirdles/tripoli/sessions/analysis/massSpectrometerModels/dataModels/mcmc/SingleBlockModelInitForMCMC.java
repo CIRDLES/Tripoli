@@ -282,6 +282,8 @@ enum SingleBlockModelInitForMCMC {
         for (int row = 1; row < (intensityPM_I.length - 1); row++) {
             dfGainDescriptiveStaqtistics.addValue(intensityPM_I[row] / intensityFar_I[row]);
         }
+
+        //TODO: Fix this when using bbase
         double detectorFaradayGain = dfGainDescriptiveStaqtistics.getMean();
 
           /*

@@ -389,8 +389,15 @@ public class MCMCPlotsController {
             if (plotBuilder[i].isDisplayed()) {
                 HistogramRecord plotRecord = ((RatioHistogramBuilder) plotBuilder[i]).getHistogramRecord();
                 HistogramRecord invertedPlotRecord = ((RatioHistogramBuilder) plotBuilder[i]).getInvertedRatioHistogramRecord();
+                HistogramRecord logRatioHistogramRecord = ((RatioHistogramBuilder) plotBuilder[i]).getLogRatioHistogramRecord();
+                HistogramRecord logInvertedRatioHistogramRecord = ((RatioHistogramBuilder) plotBuilder[i]).getLogInvertedRatioHistogramRecord();
                 TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
-                AbstractPlot plot = RatioHistogramPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), plotRecord, invertedPlotRecord, analysis.getAnalysisMethod());
+                AbstractPlot plot = RatioHistogramPlot.generatePlot(
+                        new Rectangle(minPlotWidth, minPlotHeight),
+                        plotRecord, invertedPlotRecord,
+                        logRatioHistogramRecord,
+                        logInvertedRatioHistogramRecord,
+                        analysis.getAnalysisMethod());
                 tripoliPlotPane.addPlot(plot);
             }
         }
