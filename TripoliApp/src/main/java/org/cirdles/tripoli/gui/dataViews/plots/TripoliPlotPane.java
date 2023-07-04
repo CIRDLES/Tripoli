@@ -31,7 +31,7 @@ import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.*;
  */
 public class TripoliPlotPane extends Pane {
 
-    public static double minPlotWidth = 225.0;
+    public static double minPlotWidth = 175.0;
     public static double minPlotHeight = 100.0;
     static double mouseStartX;
     static double mouseStartY;
@@ -67,6 +67,7 @@ public class TripoliPlotPane extends Pane {
             targetPane.setCursor(Cursor.OPEN_HAND);
         }
     };
+
     private final EventHandler<MouseEvent> mouseReleasedEventHandler = e -> {
         snapToGrid();
     };
@@ -76,13 +77,13 @@ public class TripoliPlotPane extends Pane {
         double deltaX = e.getSceneX() - mouseStartX;
         double deltaY = e.getSceneY() - mouseStartY;
         if (oneEdgesNorthWest) {
-            if (0.0 <= deltaX) {
+            if (0.0 < deltaX) {
                 targetPane.setLayoutX(Math.min(targetPane.getLayoutX() + deltaX, plotWallPane.getWidth() - targetPane.getWidth() - gridCellDim));
             } else {
                 targetPane.setLayoutX(Math.max(targetPane.getLayoutX() + deltaX, gridCellDim));
             }
 
-            if (0.0 <= deltaY) {
+            if (0.0 < deltaY) {
                 targetPane.setLayoutY(Math.min(targetPane.getLayoutY() + deltaY, plotWallPane.getHeight() - targetPane.getHeight() - gridCellDim));
             } else {
                 targetPane.setLayoutY(Math.max(targetPane.getLayoutY() + deltaY, gridCellDim + toolBarHeight));
@@ -90,28 +91,24 @@ public class TripoliPlotPane extends Pane {
         }
 
         if (onEdgeEast) {
-            if (0.0 <= deltaX) {
-                targetPane.setPrefWidth(Math.min(plotWallPane.getWidth() - targetPane.getLayoutX() - gridCellDim, targetPane.getWidth() + deltaX));
+            if (0.0 < deltaX) {
+                targetPane.setPrefWidth(Math.min(plotWallPane.getWidth() - targetPane.getLayoutX() - gridCellDim, targetPane.getWidth() + deltaX + 0.4));
             } else {
-                targetPane.setPrefWidth(Math.max(minPlotWidth, targetPane.getWidth() + deltaX));
+                targetPane.setPrefWidth(Math.max(minPlotWidth, targetPane.getWidth() + deltaX  - 0.6));
             }
         }
 
         if (onEdgeSouth) {
-            if (0.0 <= deltaY) {
-                targetPane.setPrefHeight(Math.min(plotWallPane.getHeight() - targetPane.getLayoutY() - gridCellDim, targetPane.getHeight() + deltaY));
-//                mouseStartY = Math.max(e.getSceneY(), mouseStartY - deltaX);
+            if (0.0 < deltaY) {
+                targetPane.setPrefHeight(Math.min(plotWallPane.getHeight() - targetPane.getLayoutY() - gridCellDim, targetPane.getHeight() + deltaY + 0.4));
             } else {
-                targetPane.setPrefHeight(Math.max(minPlotHeight, targetPane.getHeight() + deltaY));
-//                mouseStartY = Math.min(e.getSceneY(), mouseStartY + deltaX);
+                targetPane.setPrefHeight(Math.max(minPlotHeight, targetPane.getHeight() + deltaY - 0.6));
             }
         }
 
-//        mouseStartX = e.getSceneX();
-//        mouseStartY = e.getSceneY();
-
         ((AbstractPlot) getChildren().get(0)).updatePlotSize(getPrefWidth(), getPrefHeight());
         ((AbstractPlot) getChildren().get(0)).calculateTics();
+
         mouseStartX = e.getSceneX();
         mouseStartY = e.getSceneY();
     };
