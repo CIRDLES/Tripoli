@@ -21,6 +21,7 @@ import javafx.scene.Cursor;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
@@ -76,41 +77,44 @@ public class TripoliPlotPane extends Pane {
         Pane targetPane = (Pane) e.getSource();
         double deltaX = e.getSceneX() - mouseStartX;
         double deltaY = e.getSceneY() - mouseStartY;
-        if (oneEdgesNorthWest) {
-            if (0.0 < deltaX) {
-                targetPane.setLayoutX(Math.min(targetPane.getLayoutX() + deltaX, plotWallPane.getWidth() - targetPane.getWidth() - gridCellDim));
-            } else {
-                targetPane.setLayoutX(Math.max(targetPane.getLayoutX() + deltaX, gridCellDim));
+        if ((deltaX != 0) && (deltaY != 0)) {
+            if (oneEdgesNorthWest) {
+                if (0.0 < deltaX) {
+                    targetPane.setLayoutX(Math.min(targetPane.getLayoutX() + deltaX, plotWallPane.getWidth() - targetPane.getWidth() - gridCellDim));
+                } else {
+                    targetPane.setLayoutX(Math.max(targetPane.getLayoutX() + deltaX, gridCellDim));
+                }
+
+                if (0.0 < deltaY) {
+                    targetPane.setLayoutY(Math.min(targetPane.getLayoutY() + deltaY, plotWallPane.getHeight() - targetPane.getHeight() - gridCellDim));
+                } else {
+                    targetPane.setLayoutY(Math.max(targetPane.getLayoutY() + deltaY, gridCellDim + toolBarHeight));
+                }
             }
 
-            if (0.0 < deltaY) {
-                targetPane.setLayoutY(Math.min(targetPane.getLayoutY() + deltaY, plotWallPane.getHeight() - targetPane.getHeight() - gridCellDim));
-            } else {
-                targetPane.setLayoutY(Math.max(targetPane.getLayoutY() + deltaY, gridCellDim + toolBarHeight));
+            if (onEdgeEast) {
+                if (0.0 < deltaX) {
+                    targetPane.setPrefWidth(Math.min(plotWallPane.getWidth() - targetPane.getLayoutX() - gridCellDim, targetPane.getWidth() + deltaX + 0.4));
+                } else {
+                    targetPane.setPrefWidth(Math.max(minPlotWidth, targetPane.getWidth() + deltaX - 0.6));
+                }
             }
+
+            if (onEdgeSouth) {
+                if (0.0 < deltaY) {
+                    targetPane.setPrefHeight(Math.min(plotWallPane.getHeight() - targetPane.getLayoutY() - gridCellDim, targetPane.getHeight() + deltaY + 0.4));
+                } else {
+                    // shrinking
+                    targetPane.setPrefHeight(Math.max(minPlotHeight, targetPane.getHeight() + deltaY - 0.6));
+                }
+            }
+
+            ((AbstractPlot) getChildren().get(0)).updatePlotSize(getPrefWidth(), getPrefHeight());
+            ((AbstractPlot) getChildren().get(0)).calculateTics();
+
+            mouseStartX = e.getSceneX(); // use deltas??
+            mouseStartY = e.getSceneY();
         }
-
-        if (onEdgeEast) {
-            if (0.0 < deltaX) {
-                targetPane.setPrefWidth(Math.min(plotWallPane.getWidth() - targetPane.getLayoutX() - gridCellDim, targetPane.getWidth() + deltaX + 0.4));
-            } else {
-                targetPane.setPrefWidth(Math.max(minPlotWidth, targetPane.getWidth() + deltaX  - 0.6));
-            }
-        }
-
-        if (onEdgeSouth) {
-            if (0.0 < deltaY) {
-                targetPane.setPrefHeight(Math.min(plotWallPane.getHeight() - targetPane.getLayoutY() - gridCellDim, targetPane.getHeight() + deltaY + 0.4));
-            } else {
-                targetPane.setPrefHeight(Math.max(minPlotHeight, targetPane.getHeight() + deltaY - 0.6));
-            }
-        }
-
-        ((AbstractPlot) getChildren().get(0)).updatePlotSize(getPrefWidth(), getPrefHeight());
-        ((AbstractPlot) getChildren().get(0)).calculateTics();
-
-        mouseStartX = e.getSceneX();
-        mouseStartY = e.getSceneY();
     };
     private PlotLocation plotLocation;
     private final EventHandler<MouseEvent> mouseClickedEventHandler = e -> {

@@ -34,7 +34,6 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
 import java.math.BigDecimal;
@@ -195,7 +194,9 @@ public abstract class AbstractPlot extends Canvas {
      * @param g2d
      */
     public void paint(GraphicsContext g2d) {
-        if (!showYaxis){leftMargin = 15;}
+        if (!showYaxis) {
+            leftMargin = 15;
+        }
         paintInit(g2d);
 
         drawBorder(g2d);

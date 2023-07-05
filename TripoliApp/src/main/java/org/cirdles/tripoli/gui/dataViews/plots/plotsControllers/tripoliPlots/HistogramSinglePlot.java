@@ -24,8 +24,6 @@ import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 
-import java.math.BigDecimal;
-
 /**
  * @author James F. Bowring
  */
