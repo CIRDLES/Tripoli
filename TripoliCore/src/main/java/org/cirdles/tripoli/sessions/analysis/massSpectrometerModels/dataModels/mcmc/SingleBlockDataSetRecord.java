@@ -30,6 +30,7 @@ record SingleBlockDataSetRecord(
         SingleBlockDataRecord onPeakFaradayDataSetMCMC,
         SingleBlockDataRecord onPeakPhotoMultiplierDataSetMCMC,
         Primitive64Store blockKnotInterpolationStore,
+        int[] blockCycleArray,
         double[] blockIntensityArray,
         int[] blockDetectorOrdinalIndicesArray,
         int[] blockIsotopeOrdinalIndicesArray,
@@ -51,6 +52,7 @@ record SingleBlockDataSetRecord(
     record SingleBlockDataRecord(
             int blockNumber,
             List<Integer> detectorOrdinalIndicesAccumulatorList,
+            List<Integer> cycleAccumulatorList,
             List<Double> intensityAccumulatorList,
             List<Double> timeAccumulatorList,
             List<Integer> timeIndexAccumulatorList,

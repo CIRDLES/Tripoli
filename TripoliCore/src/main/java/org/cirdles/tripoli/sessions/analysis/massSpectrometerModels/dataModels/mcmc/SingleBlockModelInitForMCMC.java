@@ -16,7 +16,6 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
-import com.google.common.collect.Sets;
 import jama.Matrix;
 import org.apache.commons.math3.linear.*;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -35,8 +34,7 @@ import static org.cirdles.tripoli.utilities.comparators.SerializableIntegerCompa
 enum SingleBlockModelInitForMCMC {
     ;
 
-    static SingleBlockModelRecordWithCov initializeModelForSingleBlockMCMC(SingleBlockDataSetRecord singleBlockDataSetRecord) throws RecoverableCondition {
-
+    static SingleBlockModelRecordWithCov initializeModelForSingleBlockMCMC(int countOfIsotopes, SingleBlockDataSetRecord singleBlockDataSetRecord) throws RecoverableCondition {
         int baselineCount = singleBlockDataSetRecord.baselineDataSetMCMC().intensityAccumulatorList().size();
         int onPeakFaradayCount = singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
         int onPeakPhotoMultCount = singleBlockDataSetRecord.onPeakPhotoMultiplierDataSetMCMC().intensityAccumulatorList().size();
@@ -78,213 +76,90 @@ enum SingleBlockModelInitForMCMC {
 
         double meanOfBaseLineMeansStdDev = meanOfBaseLineMeansStdDevDescriptiveStatistics.getMean();
 
-        // OnPeak statistics by faraday ********************************************************************************
-        /*
-        for m=1:d0.Niso;
-            tmpCounts(m,1) = mean(d0.data( (d0.iso_ind(:,m) & d0.axflag)));
+//        // OnPeak statistics by faraday ********************************************************************************
+//        /*
+//        for m=1:d0.Niso;
+//            tmpCounts(m,1) = mean(d0.data( (d0.iso_ind(:,m) & d0.axflag)));
+//
+//            itmp = (d0.iso_ind(:,m) & ~d0.axflag);
+//            tmpFar(m,1)  = mean(d0.data(itmp)-x0.BL(d0.det_vec(itmp)));
+//        end
+//         */
+//        SingleBlockDataSetRecord.SingleBlockDataRecord onPeakFaradayDataSetMCMC = singleBlockDataSetRecord.onPeakFaradayDataSetMCMC();
+//        List<Integer> isotopeOrdinalIndicesAccumulatorList = onPeakFaradayDataSetMCMC.isotopeOrdinalIndicesAccumulatorList();
+//        detectorOrdinalIndicesAccumulatorList = onPeakFaradayDataSetMCMC.detectorOrdinalIndicesAccumulatorList();
+//        intensityAccumulatorList = onPeakFaradayDataSetMCMC.intensityAccumulatorList();
+//        Map<Integer, DescriptiveStatistics> mapFaradayIsotopeIndicesToStatistics = new TreeMap<>(SERIALIZABLE_COMPARATOR);
+//
+//        intensityIndex = 0;
+//        for (Integer isotopeOrdinalIndex : isotopeOrdinalIndicesAccumulatorList) {
+//            if (!mapFaradayIsotopeIndicesToStatistics.containsKey(isotopeOrdinalIndex)) {
+//                mapFaradayIsotopeIndicesToStatistics.put(isotopeOrdinalIndex, new DescriptiveStatistics());
+//            }
+//            mapFaradayIsotopeIndicesToStatistics.get(isotopeOrdinalIndex).addValue(
+//                    intensityAccumulatorList.get(intensityIndex)
+//                            - baselineMeansArray[mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(intensityIndex))]);
+//            intensityIndex++;
+//        }
 
-            itmp = (d0.iso_ind(:,m) & ~d0.axflag);
-            tmpFar(m,1)  = mean(d0.data(itmp)-x0.BL(d0.det_vec(itmp)));
-        end
-         */
-        SingleBlockDataSetRecord.SingleBlockDataRecord onPeakFaradayDataSetMCMC = singleBlockDataSetRecord.onPeakFaradayDataSetMCMC();
-        List<Integer> isotopeOrdinalIndicesAccumulatorList = onPeakFaradayDataSetMCMC.isotopeOrdinalIndicesAccumulatorList();
-        detectorOrdinalIndicesAccumulatorList = onPeakFaradayDataSetMCMC.detectorOrdinalIndicesAccumulatorList();
-        intensityAccumulatorList = onPeakFaradayDataSetMCMC.intensityAccumulatorList();
-        Map<Integer, DescriptiveStatistics> mapFaradayIsotopeIndicesToStatistics = new TreeMap<>(SERIALIZABLE_COMPARATOR);
-
-        intensityIndex = 0;
-        for (Integer isotopeOrdinalIndex : isotopeOrdinalIndicesAccumulatorList) {
-            if (!mapFaradayIsotopeIndicesToStatistics.containsKey(isotopeOrdinalIndex)) {
-                mapFaradayIsotopeIndicesToStatistics.put(isotopeOrdinalIndex, new DescriptiveStatistics());
-            }
-            mapFaradayIsotopeIndicesToStatistics.get(isotopeOrdinalIndex).addValue(
-                    intensityAccumulatorList.get(intensityIndex)
-                            - baselineMeansArray[mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(intensityIndex))]);
-            intensityIndex++;
-        }
-
-
-        // OnPeak statistics by photomultiplier ************************************************************************
-        SingleBlockDataSetRecord.SingleBlockDataRecord onPeakPhotoMultiplierDataSetMCMC = singleBlockDataSetRecord.onPeakPhotoMultiplierDataSetMCMC();
-        isotopeOrdinalIndicesAccumulatorList = onPeakPhotoMultiplierDataSetMCMC.isotopeOrdinalIndicesAccumulatorList();
-        intensityAccumulatorList = onPeakPhotoMultiplierDataSetMCMC.intensityAccumulatorList();
-        Map<Integer, DescriptiveStatistics> mapPhotoMultiplierIsotopeIndicesToStatistics = new TreeMap<>(SERIALIZABLE_COMPARATOR);
-
-        intensityIndex = 0;
-        for (Integer isotopeOrdinalIndex : isotopeOrdinalIndicesAccumulatorList) {
-            if (!mapPhotoMultiplierIsotopeIndicesToStatistics.containsKey(isotopeOrdinalIndex)) {
-                mapPhotoMultiplierIsotopeIndicesToStatistics.put(isotopeOrdinalIndex, new DescriptiveStatistics());
-            }
-            mapPhotoMultiplierIsotopeIndicesToStatistics.get(isotopeOrdinalIndex).addValue(
-                    intensityAccumulatorList.get(intensityIndex));
-            intensityIndex++;
-        }
+//        // OnPeak statistics by photomultiplier ************************************************************************
+//        SingleBlockDataSetRecord.SingleBlockDataRecord onPeakPhotoMultiplierDataSetMCMC = singleBlockDataSetRecord.onPeakPhotoMultiplierDataSetMCMC();
+//        isotopeOrdinalIndicesAccumulatorList = onPeakPhotoMultiplierDataSetMCMC.isotopeOrdinalIndicesAccumulatorList();
+//        intensityAccumulatorList = onPeakPhotoMultiplierDataSetMCMC.intensityAccumulatorList();
+//        Map<Integer, DescriptiveStatistics> mapPhotoMultiplierIsotopeIndicesToStatistics = new TreeMap<>(SERIALIZABLE_COMPARATOR);
+//
+//        intensityIndex = 0;
+//        for (Integer isotopeOrdinalIndex : isotopeOrdinalIndicesAccumulatorList) {
+//            if (!mapPhotoMultiplierIsotopeIndicesToStatistics.containsKey(isotopeOrdinalIndex)) {
+//                mapPhotoMultiplierIsotopeIndicesToStatistics.put(isotopeOrdinalIndex, new DescriptiveStatistics());
+//            }
+//            mapPhotoMultiplierIsotopeIndicesToStatistics.get(isotopeOrdinalIndex).addValue(
+//                    intensityAccumulatorList.get(intensityIndex));
+//            intensityIndex++;
+//        }
 
         // Updated by Noah 9 Feb 2023
         // find intersection of species in PhotoMultiplier and Faraday cases
-        Set<Integer> commonSpeciesOrdinalIndices = Sets.intersection(mapPhotoMultiplierIsotopeIndicesToStatistics.keySet(), mapFaradayIsotopeIndicesToStatistics.keySet());
+        //TODO: abundances from periodic table won't work according to Noah
+//        Set<Integer> commonSpeciesOrdinalIndices = Sets.intersection(mapPhotoMultiplierIsotopeIndicesToStatistics.keySet(), mapFaradayIsotopeIndicesToStatistics.keySet());
+//
+//        double[] faradayMeansArray = new double[mapFaradayIsotopeIndicesToStatistics.keySet().size()];
+//        int isotopeIndex = 0;
+//        double maxFaradayCountsMean = Double.MIN_VALUE;
+//        for (Integer isotopeOrdinalIndex : mapFaradayIsotopeIndicesToStatistics.keySet()) {
+//            faradayMeansArray[isotopeIndex] = mapFaradayIsotopeIndicesToStatistics.get(isotopeOrdinalIndex).getMean();
+//            if (commonSpeciesOrdinalIndices.contains(isotopeOrdinalIndex)
+//                    &&
+//                    (faradayMeansArray[isotopeIndex] > maxFaradayCountsMean)) {
+//                maxFaradayCountsMean = faradayMeansArray[isotopeIndex];
+//            }
+//            isotopeIndex++;
+//        }
+//
+//        double[] photoMultiplierMeansArray = new double[mapPhotoMultiplierIsotopeIndicesToStatistics.keySet().size()];
+//        isotopeIndex = 0;
+//        double maxPhotoMultiplierCountsMean = Double.MIN_VALUE;
+//        for (Integer isotopeOrdinalIndex : mapPhotoMultiplierIsotopeIndicesToStatistics.keySet()) {
+//            photoMultiplierMeansArray[isotopeIndex] = mapPhotoMultiplierIsotopeIndicesToStatistics.get(isotopeOrdinalIndex).getMean();
+//            if (commonSpeciesOrdinalIndices.contains(isotopeOrdinalIndex) &&
+//                    (photoMultiplierMeansArray[isotopeIndex] > maxPhotoMultiplierCountsMean)) {
+//                maxPhotoMultiplierCountsMean = photoMultiplierMeansArray[isotopeIndex];
+//            }
+//            isotopeIndex++;
+//        }
 
-        double[] faradayMeansArray = new double[mapFaradayIsotopeIndicesToStatistics.keySet().size()];
-        int isotopeIndex = 0;
-        double maxFaradayCountsMean = Double.MIN_VALUE;
-        for (Integer isotopeOrdinalIndex : mapFaradayIsotopeIndicesToStatistics.keySet()) {
-            faradayMeansArray[isotopeIndex] = mapFaradayIsotopeIndicesToStatistics.get(isotopeOrdinalIndex).getMean();
-            if (commonSpeciesOrdinalIndices.contains(isotopeOrdinalIndex)
-                    &&
-                    (faradayMeansArray[isotopeIndex] > maxFaradayCountsMean)) {
-                maxFaradayCountsMean = faradayMeansArray[isotopeIndex];
-            }
-            isotopeIndex++;
-        }
-
-        double[] photoMultiplierMeansArray = new double[mapPhotoMultiplierIsotopeIndicesToStatistics.keySet().size()];
-        isotopeIndex = 0;
-        double maxPhotoMultiplierCountsMean = Double.MIN_VALUE;
-        for (Integer isotopeOrdinalIndex : mapPhotoMultiplierIsotopeIndicesToStatistics.keySet()) {
-            photoMultiplierMeansArray[isotopeIndex] = mapPhotoMultiplierIsotopeIndicesToStatistics.get(isotopeOrdinalIndex).getMean();
-            if (commonSpeciesOrdinalIndices.contains(isotopeOrdinalIndex) &&
-                    (photoMultiplierMeansArray[isotopeIndex] > maxPhotoMultiplierCountsMean)) {
-                maxPhotoMultiplierCountsMean = photoMultiplierMeansArray[isotopeIndex];
-            }
-            isotopeIndex++;
-        }
-
+        // TODO:Fix this per Noah
         // NOTE: the speciesList has been sorted by increasing abundances in the original analysisMethod setup
         //  the ratios are between each species and the most abundant species, with one less ratio than species
-        int indexOfMostAbundantIsotope = mapPhotoMultiplierIsotopeIndicesToStatistics.size() - 1;
+        int indexOfMostAbundantIsotope = countOfIsotopes - 1;//          mapPhotoMultiplierIsotopeIndicesToStatistics.size() - 1;
 
         // june 2023 new init line 14 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         // june 2023 new init - will need to be user input
         int iden = indexOfMostAbundantIsotope + 1; // ordinal
 
-        /*
-        %x0.DFgain = user_DFgain;  %sb629 Now going to set according to data(?)
-
-            %% Initialize DF Gain based on data  %sb629
-            % Solve for initial intensity function based on denominator isotope
-            % for Daly by itself and Faradays by themselves. Initial DFgain is then
-            % determined by ratio between intensity knot values.
-            for m=1:d0.Nblock
-                II = d0.InterpMat{m};
-
-                % Choose denominator iso for this block
-                dind = (d0.iso_ind(:,iden) &   d0.block(:,m));
-                dd=d0.data(dind);
-                tmpdetvec = d0.det_vec(dind);
-
-                % Construct data vector for denominator isotope WITHOUT DFgain
-                % Subtract appropriate baselines
-                dd(~d0.axflag(dind)) = (dd(~d0.axflag(dind)) - x0.BL(tmpdetvec(~d0.axflag(dind)))) ;
-
-                tmpdalyflag = d0.axflag(dind);
-                tmptime = d0.time_ind(dind);
-
-                % Sort data vector and Daly flag (axflag) by time sample
-                [~,dsort]=sort(tmptime);
-                dd=dd(dsort);
-                dalyflag=tmpdalyflag(dsort);
-
-                % Solve for intensity knots using Daly and Faradays separately
-                I0daly = II(dalyflag,:)\dd(dalyflag);
-                I0far = II(~dalyflag,:)\dd(~dalyflag);
-
-                % Find ratio. Throw out first and last knots since time periods may not
-                % overlap for Daly and Faradays
-                BlockDFgain(m) = mean(I0daly(2:end-1)./I0far(2:end-1));
-            end
-
-            % Take average of DFgain for all blocks
-            x0.DFgain = mean(BlockDFgain);
-
-            % Warning if user DF gain is different from calculation
-            if 100*abs(x0.DFgain - user_DFgain)/user_DFgain > 5
-                disp(sprintf('Warning, discrepancy with user-specified DF Gain %.4f %.4f',user_DFgain,x0.DFgain))
-            end
-
-         */
-
-        // new DFGain calculator
-        double[] d0_data = singleBlockDataSetRecord.blockIntensityArray();
-        int startIndexOfPhotoMultiplierData = singleBlockDataSetRecord.getCountOfBaselineIntensities() + singleBlockDataSetRecord.getCountOfOnPeakFaradayIntensities();
-        int[] d0_detVec = singleBlockDataSetRecord.blockDetectorOrdinalIndicesArray();
-        List<Double> ddNoPMList = new ArrayList<>();
-        List<Integer> tmpPMflagList = new ArrayList<>();
-        int[] isotopeOrdinalIndices = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
-        int[] timeIndForSortingArray = singleBlockDataSetRecord.blockTimeIndicesArray();
-        List<Integer> tempTime = new ArrayList<>();
-        for (int dataArrayIndex = 0; dataArrayIndex < d0_data.length; dataArrayIndex++) {
-            if (isotopeOrdinalIndices[dataArrayIndex] == iden) {
-                if (dataArrayIndex < startIndexOfPhotoMultiplierData) {
-                    double calculated = (d0_data[dataArrayIndex] - baselineMeansArray[mapDetectorOrdinalToFaradayIndex.get(d0_detVec[dataArrayIndex])]);
-                    ddNoPMList.add(calculated);
-                    tmpPMflagList.add(0);
-                } else {
-                    ddNoPMList.add(d0_data[dataArrayIndex]);
-                    tmpPMflagList.add(1);
-                }
-                tempTime.add(timeIndForSortingArray[dataArrayIndex]);
-            }
-        }
-        double[] ddNoPMArray = ddNoPMList.stream().mapToDouble(d -> d).toArray();
-        int[] tmpPMflagArray = tmpPMflagList.stream().mapToInt(d -> d).toArray();
-        int[] tempTimeIndicesArray = tempTime.stream().mapToInt(d -> d).toArray();
-
-        ArrayIndexComparator comparatorTime = new ArrayIndexComparator(tempTimeIndicesArray);
-        Integer[] ddSortIndices = comparatorTime.createIndexArray();
-        Arrays.sort(ddSortIndices, comparatorTime);
-
-        double[] ddSortedArray = new double[ddNoPMArray.length];
-        double[][] interpolatedKnotData_II = singleBlockDataSetRecord.blockKnotInterpolationStore().toRawCopy2D();
-        List<double[]> IIFar = new ArrayList<>();
-        List<double[]> IIPM = new ArrayList<>();
-        List<Double> dataFar = new ArrayList<>();
-        List<Double> dataPM = new ArrayList<>();
-        int[] tmpPMflagSortedArray = new int[tmpPMflagArray.length];
-        for (int i = 0; i < ddNoPMArray.length; i++) {
-            ddSortedArray[i] = ddNoPMArray[ddSortIndices[i]];
-            tmpPMflagSortedArray[i] = tmpPMflagArray[ddSortIndices[i]];
-            if (tmpPMflagSortedArray[i] == 0) {
-                IIFar.add(interpolatedKnotData_II[i]);
-                dataFar.add(ddSortedArray[i]);
-            } else {
-                IIPM.add(interpolatedKnotData_II[i]);
-                dataPM.add(ddSortedArray[i]);
-            }
-        }
-
-        double[][] IIFarArray = new double[IIFar.size()][];
-        for (int row = 0; row < IIFar.size(); row++) {
-            IIFarArray[row] = IIFar.get(row);
-        }
-        double[] dataFarArray = dataFar.stream().mapToDouble(d -> d).toArray();
-
-        double[][] IIPMArray = new double[IIPM.size()][];
-        for (int row = 0; row < IIPM.size(); row++) {
-            IIPMArray[row] = IIPM.get(row);
-        }
-        double[] dataPMArray = dataPM.stream().mapToDouble(d -> d).toArray();
-
-        RealMatrix IIFarM = new BlockRealMatrix(IIFarArray);
-        DecompositionSolver solver = new QRDecomposition(IIFarM).getSolver();
-        RealVector dataFarV = new ArrayRealVector(dataFarArray);
-        RealVector solution = solver.solve(dataFarV);
-        double[] intensityFar_I = solution.toArray();
-
-        RealMatrix IIPMM = new BlockRealMatrix(IIPMArray);
-        solver = new QRDecomposition(IIPMM).getSolver();
-        RealVector dataPMV = new ArrayRealVector(dataPMArray);
-        solution = solver.solve(dataPMV);
-        double[] intensityPM_I = solution.toArray();
-
-        DescriptiveStatistics dfGainDescriptiveStaqtistics = new DescriptiveStatistics();
-        for (int row = 1; row < (intensityPM_I.length - 1); row++) {
-            dfGainDescriptiveStaqtistics.addValue(intensityPM_I[row] / intensityFar_I[row]);
-        }
-
         //TODO: Fix this when using bbase
-        double detectorFaradayGain = dfGainDescriptiveStaqtistics.getMean();
+        double detectorFaradayGain = calculateDFGain(iden, baselineMeansArray, mapDetectorOrdinalToFaradayIndex, singleBlockDataSetRecord);
 
           /*
             for m=1:d0.Nblock
@@ -355,8 +230,16 @@ enum SingleBlockModelInitForMCMC {
             x0.Dsig = Dsig;
          */
         // TODO: backtrack and simplify
+        double[] d0_data = singleBlockDataSetRecord.blockIntensityArray();
+        int[] d0_detVec = singleBlockDataSetRecord.blockDetectorOrdinalIndicesArray();
+        int startIndexOfPhotoMultiplierData = singleBlockDataSetRecord.getCountOfBaselineIntensities() + singleBlockDataSetRecord.getCountOfOnPeakFaradayIntensities();
         List<Double> ddver2List = new ArrayList<>();
-        tempTime = new ArrayList<>();
+        int[] blockCycles = singleBlockDataSetRecord.blockCycleArray();
+        List<Integer> tempTime = new ArrayList<>();
+        List<Integer> cyclesList = new ArrayList<>();
+
+        int[] isotopeOrdinalIndices = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
+        int[] timeIndForSortingArray = singleBlockDataSetRecord.blockTimeIndicesArray();
         for (int dataArrayIndex = 0; dataArrayIndex < d0_data.length; dataArrayIndex++) {
             if (isotopeOrdinalIndices[dataArrayIndex] == iden) {
                 if (dataArrayIndex < startIndexOfPhotoMultiplierData) {
@@ -366,36 +249,45 @@ enum SingleBlockModelInitForMCMC {
                     ddver2List.add(d0_data[dataArrayIndex]);
                 }
                 tempTime.add(timeIndForSortingArray[dataArrayIndex]);
+                cyclesList.add(blockCycles[dataArrayIndex]);
             }
         }
 
         double[] ddVer2Array = ddver2List.stream().mapToDouble(d -> d).toArray();
+        int[] cyclesArray = cyclesList.stream().mapToInt(d -> d).toArray();
 
-        tempTimeIndicesArray = tempTime.stream().mapToInt(d -> d).toArray();
-        comparatorTime = new ArrayIndexComparator(tempTimeIndicesArray);
+        int[] tempTimeIndicesArray = tempTime.stream().mapToInt(d -> d).toArray();
+        ArrayIndexComparator comparatorTime = new ArrayIndexComparator(tempTimeIndicesArray);
         Integer[] ddVer2sortIndices = comparatorTime.createIndexArray();
         Arrays.sort(ddVer2sortIndices, comparatorTime);
 
         double[] ddVer2SortedArray = new double[ddVer2Array.length];
+        int[] cyclesSortedArray = new int[cyclesArray.length];
         for (int i = 0; i < ddVer2Array.length; i++) {
             ddVer2SortedArray[i] = ddVer2Array[ddVer2sortIndices[i]];
+            cyclesSortedArray[i] = cyclesArray[ddVer2sortIndices[i]];
         }
 
+        double[][] interpolatedKnotData_II = singleBlockDataSetRecord.blockKnotInterpolationStore().toRawCopy2D();
         RealMatrix II = new BlockRealMatrix(interpolatedKnotData_II);
-        solver = new QRDecomposition(II).getSolver();
+        DecompositionSolver solver = new QRDecomposition(II).getSolver();
         RealVector data = new ArrayRealVector(ddVer2SortedArray);
-        solution = solver.solve(data);
+        RealVector solution = solver.solve(data);
         double[] intensity_I = solution.toArray();
 
         Matrix IIm = new Matrix(II.getData());
         Matrix intensityFn = IIm.times(new Matrix(intensity_I, intensity_I.length));
         ProposedModelParameters.ProposalRangesRecord proposalRangesRecord =
                 buildProposalRangesRecord(intensityFn.getColumnPackedCopy());
+
         int[] isotopeOrdinalIndicesAccumulatorArray = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
+        int cycleCount = singleBlockDataSetRecord.onPeakStartingIndicesOfCycles().length;
         double[] logRatios = new double[indexOfMostAbundantIsotope];
+        double[][] cycleLogRatios = new double[indexOfMostAbundantIsotope][cycleCount];
         int isotopeCount = logRatios.length + 1;
-        for (isotopeIndex = 0; isotopeIndex < logRatios.length; isotopeIndex++) {
+        for (int isotopeIndex = 0; isotopeIndex < logRatios.length; isotopeIndex++) {
             ddver2List = new ArrayList<>();
+            cyclesList = new ArrayList<>();
             tempTime = new ArrayList<>();
             for (int dataArrayIndex = 0; dataArrayIndex < d0_data.length; dataArrayIndex++) {
                 if (isotopeOrdinalIndicesAccumulatorArray[dataArrayIndex] == isotopeIndex + 1) {
@@ -406,18 +298,22 @@ enum SingleBlockModelInitForMCMC {
                         ddver2List.add(d0_data[dataArrayIndex]);
                     }
                     tempTime.add(timeIndForSortingArray[dataArrayIndex]);
+                    cyclesList.add(blockCycles[dataArrayIndex]);
                 }
             }
 
             ddVer2Array = ddver2List.stream().mapToDouble(d -> d).toArray();
+            cyclesArray = cyclesList.stream().mapToInt(d -> d).toArray();
             tempTimeIndicesArray = tempTime.stream().mapToInt(d -> d).toArray();
             comparatorTime = new ArrayIndexComparator(tempTimeIndicesArray);
             ddVer2sortIndices = comparatorTime.createIndexArray();
             Arrays.sort(ddVer2sortIndices, comparatorTime);
 
             ddVer2SortedArray = new double[ddVer2Array.length];
+            cyclesSortedArray = new int[ddVer2Array.length];
             for (int i = 0; i < ddVer2Array.length; i++) {
                 ddVer2SortedArray[i] = ddVer2Array[ddVer2sortIndices[i]];
+                cyclesSortedArray[i] = cyclesArray[ddVer2sortIndices[i]];
             }
 
             DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics();
@@ -425,6 +321,20 @@ enum SingleBlockModelInitForMCMC {
                 descriptiveStatistics.addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
             }
             logRatios[isotopeIndex] = StrictMath.log(Math.max(descriptiveStatistics.getMean(), StrictMath.exp(proposalRangesRecord.priorLogRatio()[0][0])));
+
+            DescriptiveStatistics[] cycleStats = new DescriptiveStatistics[cycleCount];
+            for (int dataArrayIndex = 0; dataArrayIndex < ddVer2SortedArray.length; dataArrayIndex++) {
+                int cycle = cyclesSortedArray[dataArrayIndex] - 1;
+                if (cycleStats[cycle] == null) { cycleStats[cycle] = new DescriptiveStatistics();}
+                cycleStats[cycle].addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
+            }
+            descriptiveStatistics = new DescriptiveStatistics();
+            for (int i = 0; i < cycleStats.length; i ++){
+                cycleLogRatios[isotopeIndex][i] = StrictMath.log(Math.max(cycleStats[i].getMean(), StrictMath.exp(proposalRangesRecord.priorLogRatio()[0][0])));
+                descriptiveStatistics.addValue(cycleStats[i].getMean());
+            }
+            System.out.println(StrictMath.log(Math.max(descriptiveStatistics.getMean(), StrictMath.exp(proposalRangesRecord.priorLogRatio()[0][0]))) + "  <>><><>  " + logRatios[isotopeIndex]);
+
         }
 
         // initialize model data vectors
@@ -437,7 +347,7 @@ enum SingleBlockModelInitForMCMC {
 
         for (int dataArrayIndex = 0; dataArrayIndex < d0_data.length; dataArrayIndex++) {
             intensityIndex = timeIndForSortingArray[dataArrayIndex];
-            isotopeIndex = isotopeOrdinalIndicesAccumulatorArray[dataArrayIndex] - 1;
+            int isotopeIndex = isotopeOrdinalIndicesAccumulatorArray[dataArrayIndex] - 1;
 
             if (0 <= isotopeIndex) {
                 if (dataArrayIndex >= startIndexOfPhotoMultiplierData) {
@@ -722,6 +632,135 @@ enum SingleBlockModelInitForMCMC {
 
     }
 
+    public static synchronized double calculateDFGain(int iden, double[] baselineMeansArray, Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex, SingleBlockDataSetRecord singleBlockDataSetRecord){
+        // new DFGain calculator
+        /*
+        %x0.DFgain = user_DFgain;  %sb629 Now going to set according to data(?)
+
+            %% Initialize DF Gain based on data  %sb629
+            % Solve for initial intensity function based on denominator isotope
+            % for Daly by itself and Faradays by themselves. Initial DFgain is then
+            % determined by ratio between intensity knot values.
+            for m=1:d0.Nblock
+                II = d0.InterpMat{m};
+
+                % Choose denominator iso for this block
+                dind = (d0.iso_ind(:,iden) &   d0.block(:,m));
+                dd=d0.data(dind);
+                tmpdetvec = d0.det_vec(dind);
+
+                % Construct data vector for denominator isotope WITHOUT DFgain
+                % Subtract appropriate baselines
+                dd(~d0.axflag(dind)) = (dd(~d0.axflag(dind)) - x0.BL(tmpdetvec(~d0.axflag(dind)))) ;
+
+                tmpdalyflag = d0.axflag(dind);
+                tmptime = d0.time_ind(dind);
+
+                % Sort data vector and Daly flag (axflag) by time sample
+                [~,dsort]=sort(tmptime);
+                dd=dd(dsort);
+                dalyflag=tmpdalyflag(dsort);
+
+                % Solve for intensity knots using Daly and Faradays separately
+                I0daly = II(dalyflag,:)\dd(dalyflag);
+                I0far = II(~dalyflag,:)\dd(~dalyflag);
+
+                % Find ratio. Throw out first and last knots since time periods may not
+                % overlap for Daly and Faradays
+                BlockDFgain(m) = mean(I0daly(2:end-1)./I0far(2:end-1));
+            end
+
+            % Take average of DFgain for all blocks
+            x0.DFgain = mean(BlockDFgain);
+
+            % Warning if user DF gain is different from calculation
+            if 100*abs(x0.DFgain - user_DFgain)/user_DFgain > 5
+                disp(sprintf('Warning, discrepancy with user-specified DF Gain %.4f %.4f',user_DFgain,x0.DFgain))
+            end
+
+         */
+
+        double[] d0_data = singleBlockDataSetRecord.blockIntensityArray();
+        int startIndexOfPhotoMultiplierData = singleBlockDataSetRecord.getCountOfBaselineIntensities() + singleBlockDataSetRecord.getCountOfOnPeakFaradayIntensities();
+        int[] d0_detVec = singleBlockDataSetRecord.blockDetectorOrdinalIndicesArray();
+        List<Double> ddNoPMList = new ArrayList<>();
+        List<Integer> tmpPMflagList = new ArrayList<>();
+        int[] isotopeOrdinalIndices = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
+        int[] timeIndForSortingArray = singleBlockDataSetRecord.blockTimeIndicesArray();
+
+        List<Integer> tempTime = new ArrayList<>();
+        for (int dataArrayIndex = 0; dataArrayIndex < d0_data.length; dataArrayIndex++) {
+            if (isotopeOrdinalIndices[dataArrayIndex] == iden) {
+                if (dataArrayIndex < startIndexOfPhotoMultiplierData) {
+                    double calculated = (d0_data[dataArrayIndex] - baselineMeansArray[mapDetectorOrdinalToFaradayIndex.get(d0_detVec[dataArrayIndex])]);
+                    ddNoPMList.add(calculated);
+                    tmpPMflagList.add(0);
+                } else {
+                    ddNoPMList.add(d0_data[dataArrayIndex]);
+                    tmpPMflagList.add(1);
+                }
+                tempTime.add(timeIndForSortingArray[dataArrayIndex]);
+            }
+        }
+        double[] ddNoPMArray = ddNoPMList.stream().mapToDouble(d -> d).toArray();
+        int[] tmpPMflagArray = tmpPMflagList.stream().mapToInt(d -> d).toArray();
+        int[] tempTimeIndicesArray = tempTime.stream().mapToInt(d -> d).toArray();
+
+        ArrayIndexComparator comparatorTime = new ArrayIndexComparator(tempTimeIndicesArray);
+        Integer[] ddSortIndices = comparatorTime.createIndexArray();
+        Arrays.sort(ddSortIndices, comparatorTime);
+
+        double[] ddSortedArray = new double[ddNoPMArray.length];
+        double[][] interpolatedKnotData_II = singleBlockDataSetRecord.blockKnotInterpolationStore().toRawCopy2D();
+        List<double[]> IIFar = new ArrayList<>();
+        List<double[]> IIPM = new ArrayList<>();
+        List<Double> dataFar = new ArrayList<>();
+        List<Double> dataPM = new ArrayList<>();
+        int[] tmpPMflagSortedArray = new int[tmpPMflagArray.length];
+        for (int i = 0; i < ddNoPMArray.length; i++) {
+            ddSortedArray[i] = ddNoPMArray[ddSortIndices[i]];
+            tmpPMflagSortedArray[i] = tmpPMflagArray[ddSortIndices[i]];
+            if (tmpPMflagSortedArray[i] == 0) {
+                IIFar.add(interpolatedKnotData_II[i]);
+                dataFar.add(ddSortedArray[i]);
+            } else {
+                IIPM.add(interpolatedKnotData_II[i]);
+                dataPM.add(ddSortedArray[i]);
+            }
+        }
+
+        double[][] IIFarArray = new double[IIFar.size()][];
+        for (int row = 0; row < IIFar.size(); row++) {
+            IIFarArray[row] = IIFar.get(row);
+        }
+        double[] dataFarArray = dataFar.stream().mapToDouble(d -> d).toArray();
+
+        double[][] IIPMArray = new double[IIPM.size()][];
+        for (int row = 0; row < IIPM.size(); row++) {
+            IIPMArray[row] = IIPM.get(row);
+        }
+        double[] dataPMArray = dataPM.stream().mapToDouble(d -> d).toArray();
+
+        RealMatrix IIFarM = new BlockRealMatrix(IIFarArray);
+        DecompositionSolver solver = new QRDecomposition(IIFarM).getSolver();
+        RealVector dataFarV = new ArrayRealVector(dataFarArray);
+        RealVector solution = solver.solve(dataFarV);
+        double[] intensityFar_I = solution.toArray();
+
+        RealMatrix IIPMM = new BlockRealMatrix(IIPMArray);
+        solver = new QRDecomposition(IIPMM).getSolver();
+        RealVector dataPMV = new ArrayRealVector(dataPMArray);
+        solution = solver.solve(dataPMV);
+        double[] intensityPM_I = solution.toArray();
+
+        DescriptiveStatistics dfGainDescriptiveStaqtistics = new DescriptiveStatistics();
+        for (int row = 1; row < (intensityPM_I.length - 1); row++) {
+            dfGainDescriptiveStaqtistics.addValue(intensityPM_I[row] / intensityFar_I[row]);
+        }
+
+        return dfGainDescriptiveStaqtistics.getMean();
+
+    }
     public synchronized static double[] modelInitData(SingleBlockModelRecord x0, SingleBlockDataSetRecord singleBlockDataSetRecord) {
         int baselineCount = singleBlockDataSetRecord.baselineDataSetMCMC().intensityAccumulatorList().size();
         int onPeakFaradayCount = singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
