@@ -34,6 +34,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.HistogramSinglePlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
 import java.math.BigDecimal;
@@ -131,7 +132,11 @@ public abstract class AbstractPlot extends Canvas {
                 displayOffsetX = displayOffsetX + (convertMouseXToValue(mouseStartX) - convertMouseXToValue(e.getX()));
                 mouseStartX = e.getX();
 
-                displayOffsetY = displayOffsetY + (convertMouseYToValue(mouseStartY) - convertMouseYToValue(e.getY()));
+                if (this instanceof HistogramSinglePlot) {
+                    displayOffsetY = Math.max(0.0, displayOffsetY + (convertMouseYToValue(mouseStartY) - convertMouseYToValue(e.getY())));
+                } else {
+                    displayOffsetY = displayOffsetY + (convertMouseYToValue(mouseStartY) - convertMouseYToValue(e.getY()));
+                }
                 mouseStartY = e.getY();
 
                 calculateTics();
@@ -302,11 +307,17 @@ public abstract class AbstractPlot extends Canvas {
 
     public void showTitle(GraphicsContext g2d) {
         Paint savedPaint = g2d.getFill();
-        g2d.setFont(Font.font("SansSerif", 11));
+        Font titleFont = Font.font("Monospaced Bold", 12);
+        g2d.setFont(titleFont);
         g2d.setFill(Paint.valueOf("RED"));
         g2d.fillText(plotTitle[0], leftMargin, topMargin - 12);
         if (2 == plotTitle.length) {
-            g2d.fillText(plotTitle[1], leftMargin + 75, topMargin - 2);
+            Text textTitle1 = new Text(plotTitle[0].split("\\.")[0]);
+            textTitle1.setFont(titleFont);
+            Text textTitle2 = new Text(plotTitle[1].split("\\.")[0]);
+            textTitle2.setFont(titleFont);
+            double offset = textTitle1.getLayoutBounds().getWidth() - textTitle2.getLayoutBounds().getWidth();
+            g2d.fillText(plotTitle[1], leftMargin + offset, topMargin - 2);
         }
         g2d.setFill(savedPaint);
     }

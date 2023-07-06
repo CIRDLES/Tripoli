@@ -410,4 +410,6 @@ public class TripoliGUIController implements Initializable {
 
     public void newAnalysisMenuItemOnAction() {
     }
+
+
 }
