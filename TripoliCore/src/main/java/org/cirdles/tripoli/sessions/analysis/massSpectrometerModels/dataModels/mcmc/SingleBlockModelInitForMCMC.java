@@ -161,75 +161,31 @@ enum SingleBlockModelInitForMCMC {
         //TODO: Fix this when using bbase
         double detectorFaradayGain = calculateDFGain(iden, baselineMeansArray, mapDetectorOrdinalToFaradayIndex, singleBlockDataSetRecord);
 
-          /*
-            for m=1:d0.Nblock
-                II = d0.InterpMat{m};
+        /*
+        %% Initialize Intensity Function
+        for m=1:d0.Nblock
+            II = d0.InterpMat{m};
 
-                dind = (d0.iso_ind(:,iden) &   d0.block(:,m));
-                dd=d0.data(dind);
-                tmpdetvec = d0.det_vec(dind);
+            dind = (d0.iso_ind(:,iden) &   d0.block(:,m));
+            dd=d0.data(dind);
+            tmpdetvec = d0.det_vec(dind);
 
-                dd(~d0.axflag(dind)) = (dd(~d0.axflag(dind)) - x0.BL(tmpdetvec(~d0.axflag(dind))))*x0.DFgain ;
+            dd(~d0.axflag(dind)) = (dd(~d0.axflag(dind)) - x0.BL(tmpdetvec(~d0.axflag(dind))))*x0.DFgain ;
 
-                tmptime = d0.time_ind(dind);
-                [~,dsort]=sort(tmptime);
 
-                dd=dd(dsort);
+            tmptime = d0.time_ind(dind);
+            [~,dsort]=sort(tmptime);
 
-                %I0=(II'*II)^-1*II'*dd;
-                I0=II\dd;  % Solve least squares problem for initial intensity values
+            dd=dd(dsort);
 
-                %x0.I{m} =  tmpDenIso*ones(Nknots(m),1);
-                %x0.I{m} = linspace(maxtmpCounts(m,iden),mintmpCounts(m,iden),d0.Nknots(m))';
-                x0.I{m} = I0;
-            end
+            %I0=(II'*II)^-1*II'*dd;
+            I0=II\dd;  % Solve least squares problem for initial intensity values
 
-            for m=1:d0.Nblock
-                II = d0.InterpMat{m};
-                IntensityFn = II*x0.I{m};
-
-                for ii = 1:d0.Niso
-                    dind = (d0.iso_ind(:,ii) &   d0.block(:,m));
-                    dd=d0.data(dind);
-                    tmpdetvec = d0.det_vec(dind);
-                    dd(~d0.axflag(dind)) = (dd(~d0.axflag(dind)) - x0.BL(tmpdetvec(~d0.axflag(dind))))*x0.DFgain ;
-                    tmptime = d0.time_ind(dind);
-                    [~,dsort]=sort(tmptime);
-                    dd=dd(dsort);
-                    IsoBlockMean(ii,m) = log(mean(dd./IntensityFn));
-                end
-            end
-
-            for ii=1:d0.Niso
-                x0.lograt(ii,1) = mean(IsoBlockMean(ii,:));
-            end
-
-            Dsig = zeros(size(d0.data));
-
-            ReportInterval = 0.1;
-            II = d0.InterpMat;
-            for n = 1:d0.Nblock
-                Intensity{n} = II{n}*x0.I{n};
-                for m=1:d0.Niso;
-                    itmp = d0.iso_ind(:,m) & d0.axflag & d0.block(:,n);
-                    ddd(itmp,1) = exp(x0.lograt(m))*Intensity{n}(d0.time_ind(itmp));
-                    Dsig(itmp,1) = ddd(itmp)/ReportInterval;
-
-                    itmp = d0.iso_ind(:,m) & ~d0.axflag & d0.block(:,n);
-                    ddd(itmp) = exp(x0.lograt(m))*x0.DFgain^-1 *Intensity{n}(d0.time_ind(itmp));
-                end
-                for m=1:d0.Nfar%+1
-                    itmp = d0.det_ind(:,m) & ~d0.axflag & d0.block(:,n);
-                    Dsig(itmp,1) = ddd(itmp)/ReportInterval + x0.BLstd(m).^2;
-                end
-            end
-            for m=1:d0.Nfar%+1
-                Dsig(d0.blflag & d0.det_ind(:,m),1) = x0.BLstd(m).^2;
-            end
-
-            x0.Dsig = Dsig;
+            %x0.I{m} =  tmpDenIso*ones(Nknots(m),1);
+            %x0.I{m} = linspace(maxtmpCounts(m,iden),mintmpCounts(m,iden),d0.Nknots(m))';
+            x0.I{m} = I0;
+        end
          */
-        // TODO: backtrack and simplify
         double[] d0_data = singleBlockDataSetRecord.blockIntensityArray();
         int[] d0_detVec = singleBlockDataSetRecord.blockDetectorOrdinalIndicesArray();
         int startIndexOfPhotoMultiplierData = singleBlockDataSetRecord.getCountOfBaselineIntensities() + singleBlockDataSetRecord.getCountOfOnPeakFaradayIntensities();
@@ -277,9 +233,37 @@ enum SingleBlockModelInitForMCMC {
 
         Matrix IIm = new Matrix(II.getData());
         Matrix intensityFn = IIm.times(new Matrix(intensity_I, intensity_I.length));
+
         ProposedModelParameters.ProposalRangesRecord proposalRangesRecord =
                 buildProposalRangesRecord(intensityFn.getColumnPackedCopy());
 
+        /*
+        %% Initialize Log Isotope Ratios
+        for m=1:d0.Nblock
+            II = d0.InterpMat{m};
+            IntensityFn = II*x0.I{m};
+
+            for ii = 1:d0.Niso-1
+                dind = (d0.iso_ind(:,ii) &   d0.block(:,m));
+                dd=d0.data(dind);
+                tmpdetvec = d0.det_vec(dind);
+
+                dd(~d0.axflag(dind)) = (dd(~d0.axflag(dind)) - x0.BL(tmpdetvec(~d0.axflag(dind))))*x0.DFgain ;
+
+                tmptime = d0.time_ind(dind);
+                [~,dsort]=sort(tmptime);
+
+                dd=dd(dsort);
+
+                IsoBlockMean(ii,m) = log(mean(dd./IntensityFn));
+
+            end
+        end
+
+        for ii=1:d0.Niso-1
+            x0.lograt(ii,1) = mean(IsoBlockMean(ii,:));
+        end
+         */
         int[] isotopeOrdinalIndicesAccumulatorArray = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
         int cycleCount = singleBlockDataSetRecord.onPeakStartingIndicesOfCycles().length;
         double[] logRatios = new double[indexOfMostAbundantIsotope];
@@ -325,24 +309,57 @@ enum SingleBlockModelInitForMCMC {
             DescriptiveStatistics[] cycleStats = new DescriptiveStatistics[cycleCount];
             for (int dataArrayIndex = 0; dataArrayIndex < ddVer2SortedArray.length; dataArrayIndex++) {
                 int cycle = cyclesSortedArray[dataArrayIndex] - 1;
-                if (cycleStats[cycle] == null) { cycleStats[cycle] = new DescriptiveStatistics();}
+                if (cycleStats[cycle] == null) {
+                    cycleStats[cycle] = new DescriptiveStatistics();
+                }
                 cycleStats[cycle].addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
             }
             descriptiveStatistics = new DescriptiveStatistics();
-            for (int i = 0; i < cycleStats.length; i ++){
+            for (int i = 0; i < cycleStats.length; i++) {
                 cycleLogRatios[isotopeIndex][i] = StrictMath.log(Math.max(cycleStats[i].getMean(), StrictMath.exp(proposalRangesRecord.priorLogRatio()[0][0])));
                 descriptiveStatistics.addValue(cycleStats[i].getMean());
             }
             System.out.println(StrictMath.log(Math.max(descriptiveStatistics.getMean(), StrictMath.exp(proposalRangesRecord.priorLogRatio()[0][0]))) + "  <>><><>  " + logRatios[isotopeIndex]);
 
-        }
+                }
+        /*
+        %% Initialize Dsig Noise Variance values
+        Dsig = zeros(size(d0.data));
 
-        // initialize model data vectors
-        double[] dataArray = new double[totalIntensityCount];
-        double[] dataWithNoBaselineArray = new double[dataArray.length];
-        double[] dataSignalNoiseArray_Dsig = new double[dataArray.length];
-        double[] ddd = new double[dataArray.length];
-        double reportInterval = 0.1;  //TODO: data-detected
+        %ReportInterval = 0.1;
+        ReportInterval = d0.ReportInterval; %sb629 Previously hardcoded, should be read from file
+
+        LogRatios = [x0.lograt; 0];  %sb629 Changed to exclude denominator isotope as parameter
+
+        II = d0.InterpMat;
+        for n = 1:d0.Nblock
+            Intensity{n} = II{n}*x0.I{n};
+            for m=1:d0.Niso;
+                itmp = d0.iso_ind(:,m) & d0.axflag & d0.block(:,n);
+                tempDsig(itmp,1) = exp(LogRatios(m))*Intensity{n}(d0.time_ind(itmp));
+                Dsig(itmp,1) = tempDsig(itmp)/ReportInterval;
+
+                itmp = d0.iso_ind(:,m) & ~d0.axflag & d0.block(:,n);
+                tempDsig(itmp) = exp(LogRatios(m))*x0.DFgain^-1 *Intensity{n}(d0.time_ind(itmp));
+            end
+            for m=1:d0.Nfar%+1
+                itmp = d0.det_ind(:,m) & ~d0.axflag & d0.block(:,n);
+                Dsig(itmp,1) = tempDsig(itmp)/ReportInterval + x0.BLstd(m).^2;
+            end
+
+        end
+        for m=1:d0.Nfar%+1
+            Dsig(d0.blflag & d0.det_ind(:,m),1) = x0.BLstd(m).^2;
+        end
+
+        x0.Dsig = Dsig;
+
+         */
+
+        double[] dataWithNoBaselineArray = new double[totalIntensityCount];
+        double[] dataSignalNoiseArray_Dsig = new double[totalIntensityCount];
+        double[] ddd = new double[totalIntensityCount];
+        double reportInterval = 0.1;  //TODO: data-detected or input
         int[] detectorOrdinalIndicesAccumulatorArray = singleBlockDataSetRecord.blockDetectorOrdinalIndicesArray();
 
         for (int dataArrayIndex = 0; dataArrayIndex < d0_data.length; dataArrayIndex++) {
@@ -374,24 +391,32 @@ enum SingleBlockModelInitForMCMC {
         }
 
         /*
-            for m = 1:d0.Niso
+            %%  Initialize Diagonal Model Covariance Matrix
+
+            for m = 1:d0.Niso-1
                 testLR = linspace(-.5,.5,1001);
+                %sb629
+                delta_testLR = testLR(2)-testLR(1);
+                minvarLR = (delta_testLR/2)^2;
                 Etmp = zeros(size(testLR));
                 for ii = 1:length(testLR)
                     testx0 = x0;
                     testx0.lograt(m) = x0.lograt(m) + testLR(ii);
-                    d = ModelInitData(testx0,d0);
+                    d = ModelMSData(testx0,d0);
                     Etmp(ii) = sum((d0.data-d).^2./Dsig);
                 end
                 EE=(Etmp-min(Etmp));
                 p = exp(-EE/2)/sum(exp(-EE/2));
-                x0.logratVar(m) = sum(p.*(testLR-0).^2);
+                x0.logratVar(m) = max(sum(p.*(testLR-0).^2),minvarLR);%sb629
+
             end
          */
 
         double[] logRatioVar = new double[logRatios.length];
         for (int logRatioIndex = 0; logRatioIndex < logRatios.length; logRatioIndex++) {
             double[] testLR = MatLab.linspace(-0.5, 0.5, 1001).toRawCopy1D();
+            double delta_testLR = testLR[1]-testLR[0];
+            double minvarLR = Math.pow(delta_testLR/2.0, 2.0);
             double[] eTmp = new double[testLR.length];
             double minETmp = Double.MAX_VALUE;
             for (int ii = 0; ii < testLR.length; ii++) {
@@ -421,31 +446,36 @@ enum SingleBlockModelInitForMCMC {
                     System.err.println("Dsig error during init line 302");
                 }
             }
-            logRatioVar[logRatioIndex] = calcVariance(eTmp, minETmp, testLR);
+            logRatioVar[logRatioIndex] = Math.max(calcVariance(eTmp, minETmp, testLR), minvarLR);
         }
 
         /*
-            for n = 1:d0.Nblock
-                for m = 1:length(x0.I{n})
-                    testI = linspace(-mean(x0.BLstd),mean(x0.BLstd),101);
-                    Etmp = zeros(size(testI));
-                    for ii = 1:length(testI)
-                        testx0 = x0;
-                        testx0.I{n}(m) = x0.I{n}(m) + testI(ii);
-                        d = ModelInitData(testx0,d0);
-                        Etmp(ii) = sum((d0.data-d).^2./Dsig);
-                    end
-                    EE=(Etmp-min(Etmp));
-                    p = exp(-EE/2)/sum(exp(-EE/2));
-                    x0.IVar{n}(m) = sum(p.*(testI-0).^2);
-
+        for n = 1:d0.Nblock
+            for m = 1:length(x0.I{n})
+                testI = linspace(-mean(x0.BLstd),mean(x0.BLstd),101);
+                %sb629
+                delta_testI = testI(2)-testI(1);
+                minvarI = (delta_testI/2)^2;
+                Etmp = zeros(size(testI));
+                for ii = 1:length(testI)
+                    testx0 = x0;
+                    testx0.I{n}(m) = x0.I{n}(m) + testI(ii);
+                    d = ModelMSData(testx0,d0);
+                    Etmp(ii) = sum((d0.data-d).^2./Dsig);
                 end
-            end
-         */
+                EE=(Etmp-min(Etmp));
+                p = exp(-EE/2)/sum(exp(-EE/2));
+                x0.IVar{n}(m) = max(sum(p.*(testI-0).^2),minvarI);%sb629
 
+            end
+        end
+
+         */
         double[] intensityVar = new double[intensity_I.length];
         for (intensityIndex = 0; intensityIndex < intensity_I.length; intensityIndex++) {
             double[] testI = MatLab.linspace(-meanOfBaseLineMeansStdDev, meanOfBaseLineMeansStdDev, 101).toRawCopy1D();
+            double delta_testI = testI[1]-testI[0];
+            double minvarI = Math.pow(delta_testI/2.0, 2.0);
             double[] eTmp = new double[testI.length];
             double minETmp = Double.MAX_VALUE;
             for (int ii = 0; ii < testI.length; ii++) {
@@ -471,25 +501,28 @@ enum SingleBlockModelInitForMCMC {
                 eTmp[ii] = calcError(singleBlockDataSetRecord.blockIntensityArray(), dataModel, dataSignalNoiseArray_Dsig);
                 minETmp = Math.min(eTmp[ii], minETmp);
             }
-            intensityVar[intensityIndex] = calcVariance(eTmp, minETmp, testI);
+            intensityVar[intensityIndex] = Math.max(calcVariance(eTmp, minETmp, testI), minvarI);
         }
 
         /*
             testDF = linspace(-.1,.1,1001);
+            %sb629
+            delta_testDF = testDF(2)-testDF(1);
+            minvarDF = (delta_testDF/2)^2;
             Etmp = zeros(size(testDF));
             for ii = 1:length(testDF)
                 testx0 = x0;
                 testx0.DFgain = x0.DFgain + testDF(ii);
-                d = ModelInitData(testx0,d0);
+                d = ModelMSData(testx0,d0);
                 Etmp(ii) = sum((d0.data-d).^2./Dsig);
             end
             EE=(Etmp-min(Etmp));
             p = exp(-EE/2)/sum(exp(-EE/2));
-            x0.DFgainVar = sum(p.*(testDF-0).^2);
-
-         */
-
+            x0.DFgainVar = max(sum(p.*(testDF-0).^2),minvarDF);%sb629
+        */
         double[] testDF = MatLab.linspace(-.1, .1, 1001).toRawCopy1D();
+        double delta_testDF = testDF[1]-testDF[0];
+        double minvarDF = Math.pow(delta_testDF/2.0, 2.0);
         double[] eTmp = new double[testDF.length];
         double minETmp = Double.MAX_VALUE;
         for (int ii = 0; ii < testDF.length; ii++) {
@@ -515,8 +548,7 @@ enum SingleBlockModelInitForMCMC {
             eTmp[ii] = calcError(singleBlockDataSetRecord.blockIntensityArray(), dataModel, dataSignalNoiseArray_Dsig);
             minETmp = Math.min(eTmp[ii], minETmp);
         }
-        double dfGainVar = calcVariance(eTmp, minETmp, testDF);
-
+        double dfGainVar = Math.max(calcVariance(eTmp, minETmp, testDF), minvarDF);
 
         /*
             for m = 1:d0.Nfar
@@ -535,9 +567,30 @@ enum SingleBlockModelInitForMCMC {
             end
 
          */
+        /*
+            for m = 1:d0.Nfar
+                testBL = linspace(-x0.BLstd(m),x0.BLstd(m),1001);
+                %sb629
+                delta_testBL = testBL(2)-testBL(1);
+                minvarBL = (delta_testBL/2)^2;
+                Etmp = zeros(size(testBL));
+                for ii = 1:length(testBL)
+                    testx0 = x0;
+                    testx0.BL(m) = x0.BL(m) + testBL(ii);
+                    d = ModelMSData(testx0,d0);
+                    Etmp(ii) = sum((d0.data-d).^2./Dsig);
+                end
+                EE=(Etmp-min(Etmp));
+                p = exp(-EE/2)/sum(exp(-EE/2));
+                x0.BLVar(m) = max(sum(p.*(testBL-0).^2),minvarBL); %sb629
+
+            end
+         */
         double[] baseLineVar = new double[baselineMeansArray.length];
         for (int baseLineIndex = 0; baseLineIndex < baselineMeansArray.length; baseLineIndex++) {
             double[] testBL = MatLab.linspace(-baselineStandardDeviationsArray[baseLineIndex], baselineStandardDeviationsArray[baseLineIndex], 1001).toRawCopy1D();
+            double delta_testBL = testBL[1]-testBL[0];
+            double minvarBL = Math.pow(delta_testBL/2.0, 2.0);
             eTmp = new double[testBL.length];
             minETmp = Double.MAX_VALUE;
             for (int ii = 0; ii < testBL.length; ii++) {
@@ -563,7 +616,7 @@ enum SingleBlockModelInitForMCMC {
                 eTmp[ii] = calcError(singleBlockDataSetRecord.blockIntensityArray(), dataModel, dataSignalNoiseArray_Dsig);
                 minETmp = Math.min(eTmp[ii], minETmp);
             }
-            baseLineVar[baseLineIndex] = calcVariance(eTmp, minETmp, testBL);
+            baseLineVar[baseLineIndex] = Math.max(calcVariance(eTmp, minETmp, testBL), minvarBL);
         }
 
         /*
@@ -632,7 +685,7 @@ enum SingleBlockModelInitForMCMC {
 
     }
 
-    public static synchronized double calculateDFGain(int iden, double[] baselineMeansArray, Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex, SingleBlockDataSetRecord singleBlockDataSetRecord){
+    public static synchronized double calculateDFGain(int iden, double[] baselineMeansArray, Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex, SingleBlockDataSetRecord singleBlockDataSetRecord) {
         // new DFGain calculator
         /*
         %x0.DFgain = user_DFgain;  %sb629 Now going to set according to data(?)
@@ -761,6 +814,7 @@ enum SingleBlockModelInitForMCMC {
         return dfGainDescriptiveStaqtistics.getMean();
 
     }
+
     public synchronized static double[] modelInitData(SingleBlockModelRecord x0, SingleBlockDataSetRecord singleBlockDataSetRecord) {
         int baselineCount = singleBlockDataSetRecord.baselineDataSetMCMC().intensityAccumulatorList().size();
         int onPeakFaradayCount = singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();

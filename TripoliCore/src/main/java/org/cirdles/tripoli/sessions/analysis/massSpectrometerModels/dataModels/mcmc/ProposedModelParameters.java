@@ -37,18 +37,23 @@ public enum ProposedModelParameters {
             prior.sigpois = [0 10]; % Poisson noise on Daly
      */
     public static ProposalRangesRecord buildProposalRangesRecord(double[] blockIntensities) {
-        double[][] priorBaselineFaraday = {{-4.0e6, 4.0e6}};
-        double[][] priorBaselineDaly = {{0.0, 1.0}};
+        /*
+            % Range for ratios and intensity parameters
+            %sb629  Changed priors to infinite where appropropriate
+            prior.BL = [-inf inf];  % Faraday baseline
+            prior.BLdaly = [0 0];   % Daly baseline (no baseline uncertainty)
+            prior.lograt = [-20 20]; % Log ratio
+            prior.I = [0 inf];  % Intensity
+            prior.DFgain = [0 inf];  % Daly-Faraday gain
+
+            prior.sig = [0 1e6];  % Noise hyperparameter for Faraday
+            prior.sigdaly = [0 0]; % Gaussian noise on Daly
+            prior.sigpois = [0 10]; % Poisson noise on Daly
+         */
+        double[][] priorBaselineFaraday = {{Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY}};
+        double[][] priorBaselineDaly = {{0.0, 0.0}};
         double[][] priorLogRatio = {{-20.0, 20.0}};
-        double maxIntensity = Double.MIN_VALUE;
-        double minIntensity = Double.MAX_VALUE;
-
-        for (int row = 0; row < blockIntensities.length; row++) {
-            maxIntensity = Math.max(blockIntensities[row], maxIntensity);
-            minIntensity = min(blockIntensities[row], minIntensity);
-        }
-
-        double[][] priorIntensity = {{0.0, 1.5 * maxIntensity}};
+        double[][] priorIntensity = {{0.0, Double.POSITIVE_INFINITY}};
         double[][] priorDFgain = {{0.0, Double.POSITIVE_INFINITY}};
         double[][] priorSignalNoiseFaraday = {{0.0, 1.0e6}};
         double[][] priorSignalNoiseDaly = {{0.0, 0.0}};
@@ -58,8 +63,6 @@ public enum ProposedModelParameters {
                 priorBaselineFaraday,
                 priorBaselineDaly,
                 priorLogRatio,
-                maxIntensity,
-                minIntensity,
                 priorIntensity,
                 priorDFgain,
                 priorSignalNoiseFaraday,
@@ -72,8 +75,6 @@ public enum ProposedModelParameters {
             double[][] priorBaselineFaraday,
             double[][] priorBaselineDaly,
             double[][] priorLogRatio,
-            double maxIntensity,
-            double minIntensity,
             double[][] priorIntensity,
             double[][] priorDFgain,
             double[][] priorSignalNoiseFaraday,
