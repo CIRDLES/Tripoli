@@ -125,48 +125,48 @@ public class SingleBlockModelUpdater {
         double updatedFaradayGain = 0.0;
 
         if (operation.startsWith("cha") && allFlag) {
-                // VARY ALL AT A TIME
+            // VARY ALL AT A TIME
                 /*
                     delx = delx_adapt;
                     xx =  xx0 + delx;
                     inprior = xx<=priormax & xx>=priormin;
                      xx(~inprior) = xx0(~inprior);
                 */
-                double[] delX = delx_adapt.clone();
-                double[] xx = new double[delX.length];
+            double[] delX = delx_adapt.clone();
+            double[] xx = new double[delX.length];
 
-                for (int row = 0; row < xx.length; row++) {
-                    xx[row] = xx0[row] + delx_adapt[row];
+            for (int row = 0; row < xx.length; row++) {
+                xx[row] = xx0[row] + delx_adapt[row];
 
-                    switch (xInd[row]) {
-                        case 1 -> {
-                            if ((xx[row] > proposalRangesRecord.priorLogRatio()[0][1]) || (xx[row] < proposalRangesRecord.priorLogRatio()[0][0])) {
-                                xx[row] = xx0[row];
-                            }
-                            updatedLogRatios[row] = xx[row];
+                switch (xInd[row]) {
+                    case 1 -> {
+                        if ((xx[row] > proposalRangesRecord.priorLogRatio()[0][1]) || (xx[row] < proposalRangesRecord.priorLogRatio()[0][0])) {
+                            xx[row] = xx0[row];
                         }
-                        case 2 -> {
-                            if ((xx[row] > proposalRangesRecord.priorIntensity()[0][1]) || (xx[row] < proposalRangesRecord.priorIntensity()[0][0])) {
-                                xx[row] = xx0[row];
-                            }
-                            updatedIntensities[row - countOfLogRatios] = xx[row];
+                        updatedLogRatios[row] = xx[row];
+                    }
+                    case 2 -> {
+                        if ((xx[row] > proposalRangesRecord.priorIntensity()[0][1]) || (xx[row] < proposalRangesRecord.priorIntensity()[0][0])) {
+                            xx[row] = xx0[row];
                         }
-                        case 3 -> {
-                            if ((xx[row] > proposalRangesRecord.priorBaselineFaraday()[0][1]) || (xx[row] < proposalRangesRecord.priorBaselineFaraday()[0][0])) {
-                                xx[row] = xx0[row];
-                            }
-                            updatedBaselineMeans[row - countOfLogRatios - countOfCycles] = xx[row];
+                        updatedIntensities[row - countOfLogRatios] = xx[row];
+                    }
+                    case 3 -> {
+                        if ((xx[row] > proposalRangesRecord.priorBaselineFaraday()[0][1]) || (xx[row] < proposalRangesRecord.priorBaselineFaraday()[0][0])) {
+                            xx[row] = xx0[row];
                         }
-                        case 4 -> {
-                            if ((xx[row] > proposalRangesRecord.priorDFgain()[0][1]) || (xx[row] < proposalRangesRecord.priorDFgain()[0][0])) {
-                                xx[row] = xx0[row];
-                            }
-                            updatedFaradayGain = xx[row];
+                        updatedBaselineMeans[row - countOfLogRatios - countOfCycles] = xx[row];
+                    }
+                    case 4 -> {
+                        if ((xx[row] > proposalRangesRecord.priorDFgain()[0][1]) || (xx[row] < proposalRangesRecord.priorDFgain()[0][0])) {
+                            xx[row] = xx0[row];
                         }
-                        default -> {
-                        }
+                        updatedFaradayGain = xx[row];
+                    }
+                    default -> {
                     }
                 }
+            }
 
                 /*
                     x2.lograt = xx(xind==1);
@@ -177,22 +177,22 @@ public class SingleBlockModelUpdater {
                     x2.DFgain = xx(xind==(3+Nblock));
                     x2.sig = x.sig;
                  */
-                singleBlockInitialModelRecord_initial2 = new SingleBlockModelRecord(
-                        singleBlockInitialModelRecord_initial.blockNumber(),
-                        updatedBaselineMeans,
-                        singleBlockInitialModelRecord_initial.baselineStandardDeviationsArray().clone(),
-                        updatedFaradayGain,
-                        singleBlockInitialModelRecord_initial.mapDetectorOrdinalToFaradayIndex(),
-                        updatedLogRatios,
-                        singleBlockInitialModelRecord_initial.signalNoiseSigma().clone(),
-                        singleBlockInitialModelRecord_initial.dataArray().clone(),
-                        singleBlockInitialModelRecord_initial.dataWithNoBaselineArray().clone(),
-                        singleBlockInitialModelRecord_initial.dataSignalNoiseArray().clone(),
-                        updatedIntensities,
-                        singleBlockInitialModelRecord_initial.intensities(),
-                        singleBlockInitialModelRecord_initial.faradayCount(),
-                        singleBlockInitialModelRecord_initial.isotopeCount()
-                );
+            singleBlockInitialModelRecord_initial2 = new SingleBlockModelRecord(
+                    singleBlockInitialModelRecord_initial.blockNumber(),
+                    updatedBaselineMeans,
+                    singleBlockInitialModelRecord_initial.baselineStandardDeviationsArray().clone(),
+                    updatedFaradayGain,
+                    singleBlockInitialModelRecord_initial.mapDetectorOrdinalToFaradayIndex(),
+                    updatedLogRatios,
+                    singleBlockInitialModelRecord_initial.signalNoiseSigma().clone(),
+                    singleBlockInitialModelRecord_initial.dataArray().clone(),
+                    singleBlockInitialModelRecord_initial.dataWithNoBaselineArray().clone(),
+                    singleBlockInitialModelRecord_initial.dataSignalNoiseArray().clone(),
+                    updatedIntensities,
+                    singleBlockInitialModelRecord_initial.intensities(),
+                    singleBlockInitialModelRecord_initial.faradayCount(),
+                    singleBlockInitialModelRecord_initial.isotopeCount()
+            );
         }
 
         return singleBlockInitialModelRecord_initial2;

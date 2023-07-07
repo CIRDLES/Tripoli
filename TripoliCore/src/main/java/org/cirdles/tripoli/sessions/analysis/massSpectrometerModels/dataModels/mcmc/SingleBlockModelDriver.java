@@ -51,7 +51,7 @@ public enum SingleBlockModelDriver {
         SingleBlockDataSetRecord singleBlockDataSetRecord = prepareSingleBlockDataForMCMC(blockNumber, massSpecExtractedData, analysisMethod);
         SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov;
         try {
-            singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC(singleBlockDataSetRecord);
+            singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC(analysisMethod.getSpeciesList().size(), singleBlockDataSetRecord);
         } catch (RecoverableCondition e) {
             throw new TripoliException("Ojalgo RecoverableCondition");
         }
@@ -76,6 +76,12 @@ public enum SingleBlockModelDriver {
                 SingleBlockDataAccumulatorMCMC.accumulateOnPeakDataPerSequenceTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod, true);
         SingleBlockDataSetRecord.SingleBlockDataRecord onPeakPhotoMultiplierDataSetMCMC =
                 SingleBlockDataAccumulatorMCMC.accumulateOnPeakDataPerSequenceTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod, false);
+
+        List<Integer> cycleList = new ArrayList<>();
+        cycleList.addAll(baselineDataSetMCMC.cycleAccumulatorList());
+        cycleList.addAll(onPeakFaradayDataSetMCMC.cycleAccumulatorList());
+        cycleList.addAll(onPeakPhotoMultiplierDataSetMCMC.cycleAccumulatorList());
+        int[] blockCycleArray = cycleList.stream().mapToInt(i -> i).toArray();
 
         List<Double> blockIntensityList = new ArrayList<>();
         blockIntensityList.addAll(baselineDataSetMCMC.intensityAccumulatorList());
@@ -127,8 +133,8 @@ public enum SingleBlockModelDriver {
 
         SingleBlockDataSetRecord singleBlockDataSetRecord =
                 new SingleBlockDataSetRecord(blockNumber, baselineDataSetMCMC, onPeakFaradayDataSetMCMC, onPeakPhotoMultiplierDataSetMCMC, blockKnotInterpolationStore,
-                        blockIntensityArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeIndicesArray, onPeakStartingIndicesOfCycles,
-                        blockMapIdsToDataTimes);
+                        blockCycleArray, blockIntensityArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeIndicesArray,
+                        onPeakStartingIndicesOfCycles, blockMapIdsToDataTimes);
 
         return singleBlockDataSetRecord;
     }

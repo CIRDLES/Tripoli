@@ -33,8 +33,8 @@ public class RatioHistogramBuilder extends HistogramBuilder {
         super(blockID, title, xAxisLabel, yAxisLabel, displayed);
         histogramRecord = null;
         invertedRatioHistogramRecord = null;
-        logRatioHistogramRecord  = null;
-        logInvertedRatioHistogramRecord  = null;
+        logRatioHistogramRecord = null;
+        logInvertedRatioHistogramRecord = null;
         this.displayed = displayed;
     }
 
