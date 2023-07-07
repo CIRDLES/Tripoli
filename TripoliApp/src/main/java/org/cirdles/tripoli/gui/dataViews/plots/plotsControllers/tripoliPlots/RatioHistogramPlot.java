@@ -26,8 +26,6 @@ import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 
-import java.math.BigDecimal;
-
 /**
  * @author James F. Bowring
  */
@@ -96,7 +94,7 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
             analysisMethod.getMapOfRatioNamesToInvertedFlag().put(histogramRecord.title()[0], !inverted);
             histogramRecordActive = invertedRatioHistogramRecord;
         }
-      //  inverted = !inverted;
+        //  inverted = !inverted;
         refreshPanel(true, true);
     }
 

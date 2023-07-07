@@ -3,7 +3,6 @@ package org.cirdles.tripoli.gui;
 import jakarta.xml.bind.JAXBException;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -609,9 +608,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         populateAnalysisManagerGridPane();
     }
 
-    public void initializeMonteCarloTechniqueAction(ActionEvent event) {
-        String mcmcVersion = ((Button) event.getSource()).getId();
-
+    @FXML
+    final void initializeMonteCarloTechniqueAction() {
         for (Node button : blockStatusHBox.getChildren()) {
             if (button instanceof Button) {
                 analysis.getMapOfBlockIdToProcessStatus().put(Integer.parseInt(button.getId()), (int) button.getUserData());
@@ -697,7 +695,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             if (event.getEventType().equals(MouseEvent.MOUSE_CLICKED)) {
                 ratiosListTextFlow.getChildren().remove(ratioVBox);
                 activeRatiosList.remove(ratio);
-                IsotopicRatio myRatio = (IsotopicRatio) ratioVBox.getChildren().get(0).getUserData();
                 updateAnalysisRatios(ratio, false);
             }
         }
