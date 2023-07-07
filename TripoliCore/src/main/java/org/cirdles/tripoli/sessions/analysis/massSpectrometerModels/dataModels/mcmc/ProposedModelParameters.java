@@ -16,8 +16,6 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
-import static java.lang.Math.min;
-
 /**
  * @author James F. Bowring
  */

@@ -321,7 +321,7 @@ enum SingleBlockModelInitForMCMC {
             }
             System.out.println(StrictMath.log(Math.max(descriptiveStatistics.getMean(), StrictMath.exp(proposalRangesRecord.priorLogRatio()[0][0]))) + "  <>><><>  " + logRatios[isotopeIndex]);
 
-                }
+        }
         /*
         %% Initialize Dsig Noise Variance values
         Dsig = zeros(size(d0.data));
@@ -415,8 +415,8 @@ enum SingleBlockModelInitForMCMC {
         double[] logRatioVar = new double[logRatios.length];
         for (int logRatioIndex = 0; logRatioIndex < logRatios.length; logRatioIndex++) {
             double[] testLR = MatLab.linspace(-0.5, 0.5, 1001).toRawCopy1D();
-            double delta_testLR = testLR[1]-testLR[0];
-            double minvarLR = Math.pow(delta_testLR/2.0, 2.0);
+            double delta_testLR = testLR[1] - testLR[0];
+            double minvarLR = Math.pow(delta_testLR / 2.0, 2.0);
             double[] eTmp = new double[testLR.length];
             double minETmp = Double.MAX_VALUE;
             for (int ii = 0; ii < testLR.length; ii++) {
@@ -474,8 +474,8 @@ enum SingleBlockModelInitForMCMC {
         double[] intensityVar = new double[intensity_I.length];
         for (intensityIndex = 0; intensityIndex < intensity_I.length; intensityIndex++) {
             double[] testI = MatLab.linspace(-meanOfBaseLineMeansStdDev, meanOfBaseLineMeansStdDev, 101).toRawCopy1D();
-            double delta_testI = testI[1]-testI[0];
-            double minvarI = Math.pow(delta_testI/2.0, 2.0);
+            double delta_testI = testI[1] - testI[0];
+            double minvarI = Math.pow(delta_testI / 2.0, 2.0);
             double[] eTmp = new double[testI.length];
             double minETmp = Double.MAX_VALUE;
             for (int ii = 0; ii < testI.length; ii++) {
@@ -521,8 +521,8 @@ enum SingleBlockModelInitForMCMC {
             x0.DFgainVar = max(sum(p.*(testDF-0).^2),minvarDF);%sb629
         */
         double[] testDF = MatLab.linspace(-.1, .1, 1001).toRawCopy1D();
-        double delta_testDF = testDF[1]-testDF[0];
-        double minvarDF = Math.pow(delta_testDF/2.0, 2.0);
+        double delta_testDF = testDF[1] - testDF[0];
+        double minvarDF = Math.pow(delta_testDF / 2.0, 2.0);
         double[] eTmp = new double[testDF.length];
         double minETmp = Double.MAX_VALUE;
         for (int ii = 0; ii < testDF.length; ii++) {
@@ -589,8 +589,8 @@ enum SingleBlockModelInitForMCMC {
         double[] baseLineVar = new double[baselineMeansArray.length];
         for (int baseLineIndex = 0; baseLineIndex < baselineMeansArray.length; baseLineIndex++) {
             double[] testBL = MatLab.linspace(-baselineStandardDeviationsArray[baseLineIndex], baselineStandardDeviationsArray[baseLineIndex], 1001).toRawCopy1D();
-            double delta_testBL = testBL[1]-testBL[0];
-            double minvarBL = Math.pow(delta_testBL/2.0, 2.0);
+            double delta_testBL = testBL[1] - testBL[0];
+            double minvarBL = Math.pow(delta_testBL / 2.0, 2.0);
             eTmp = new double[testBL.length];
             minETmp = Double.MAX_VALUE;
             for (int ii = 0; ii < testBL.length; ii++) {
