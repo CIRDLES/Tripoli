@@ -261,7 +261,7 @@ x=x0;
     public synchronized PlotBuilder[][] applyInversionWithAdaptiveMCMC(LoggingCallbackInterface loggingCallback) throws IOException {
 
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        SingleBlockModelRecord singleBlockInitialModelRecord_X = singleBlockInitialModelRecord_X0.clone();
+        SingleBlockModelRecord singleBlockInitialModelRecord_X = singleBlockInitialModelRecord_X0;//.clone();
         /*
             for m = 1:maxcnt*datsav
                 % Choose an operation for updating model
@@ -541,7 +541,9 @@ x=x0;
                             dataModelUpdaterOutputRecord_x2.detectorFaradayGain(),
                             dataModelUpdaterOutputRecord_x2.mapDetectorOrdinalToFaradayIndex(),
                             dataModelUpdaterOutputRecord_x2.logRatios(),
-                            dataModelUpdaterOutputRecord_x2.signalNoiseSigma(),
+                            dataModelUpdaterOutputRecord_x2.onPeakStartingIndicesOfCycles(),
+                            dataModelUpdaterOutputRecord_x2.mapLogRatiosToCycleStats(),
+                            dataModelUpdaterOutputRecord_x2.timeAccumulatorList(),
                             dataArray2.clone(),
                             dataWithNoBaselineArray2.clone(),
                             dataSignalNoiseArray2.clone(),
@@ -592,7 +594,7 @@ x=x0;
                             singleBlockInitialModelRecord_X.I0(),
                             singleBlockInitialModelRecord_X.baselineMeansArray(),
                             singleBlockInitialModelRecord_X.detectorFaradayGain(),
-                            singleBlockInitialModelRecord_X.signalNoiseSigma(),
+                            null,//singleBlockInitialModelRecord_X.cycleLogRatios(),
                             E,
                             initialModelErrorUnWeighted_E0));
 

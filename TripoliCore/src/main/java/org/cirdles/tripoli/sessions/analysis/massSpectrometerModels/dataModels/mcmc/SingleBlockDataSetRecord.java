@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * @author James F. Bowring
  */
-record SingleBlockDataSetRecord(
+public record SingleBlockDataSetRecord(
         int blockNumber,
         SingleBlockDataRecord baselineDataSetMCMC,
         SingleBlockDataRecord onPeakFaradayDataSetMCMC,
@@ -34,9 +34,10 @@ record SingleBlockDataSetRecord(
         double[] blockIntensityArray,
         int[] blockDetectorOrdinalIndicesArray,
         int[] blockIsotopeOrdinalIndicesArray,
+        double[] blockTimeArray,
         int[] blockTimeIndicesArray,
         int[] onPeakStartingIndicesOfCycles,
-
+        boolean[] activeOnPeakCycles,
         java.util.Map<String, List<Double>> blockMapIdsToDataTimes) implements Serializable {
     int getCountOfBaselineIntensities() {
         return baselineDataSetMCMC().intensityAccumulatorList().size();

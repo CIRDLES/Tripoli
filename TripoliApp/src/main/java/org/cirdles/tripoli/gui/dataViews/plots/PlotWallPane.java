@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  */
 public class PlotWallPane extends Pane {
 
-    public static final double menuOffset = 30.0;
+    public static  double menuOffset = 30.0;
     public static final double gridCellDim = 2.0;
     public static final double toolBarHeight = 35.0;
 

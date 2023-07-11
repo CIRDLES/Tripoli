@@ -26,7 +26,9 @@ public record SingleBlockModelRecord(
         double detectorFaradayGain,
         Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex,
         double[] logRatios,
-        double[] signalNoiseSigma,
+        int[] onPeakStartingIndicesOfCycles,
+        Map<Integer, Map<Integer, double[]>> mapLogRatiosToCycleStats,
+        java.util.List<Double> timeAccumulatorList,
         double[] dataArray,
         double[] dataWithNoBaselineArray,
         double[] dataSignalNoiseArray,
@@ -35,26 +37,25 @@ public record SingleBlockModelRecord(
         int faradayCount,
         int isotopeCount
 ) implements Serializable {
-    public SingleBlockModelRecord clone() {
-        return new SingleBlockModelRecord(
-                blockNumber,
-                baselineMeansArray.clone(),
-                baselineStandardDeviationsArray.clone(),
-                detectorFaradayGain,
-                mapDetectorOrdinalToFaradayIndex,
-                logRatios.clone(),
-                signalNoiseSigma.clone(),
-                dataArray.clone(),
-                dataWithNoBaselineArray.clone(),
-                dataSignalNoiseArray.clone(),
-                I0.clone(),
-                intensities.clone(),
-                faradayCount,
-                isotopeCount
-        );
-    }
 
     public int sizeOfModel() {
         return logRatios().length + I0.length + faradayCount() + 1;
+    }
+    public double[] assembleCycleMeansForLogRatio(int logRatioIndex){
+        Map<Integer, double[]> mapCycleToStats = mapLogRatiosToCycleStats.get(logRatioIndex);
+        double[] cycleMeans = new double[mapCycleToStats.keySet().size()];
+        for (int cycleIndex = 0; cycleIndex < mapCycleToStats.keySet().size(); cycleIndex++){
+            cycleMeans[cycleIndex] = mapCycleToStats.get(cycleIndex)[0];
+        }
+        return cycleMeans;
+    }
+
+    public double[] assembleCycleStdDevForLogRatio(int logRatioIndex){
+        Map<Integer, double[]> mapCycleToStats = mapLogRatiosToCycleStats().get(logRatioIndex);
+        double[] cycleStdDev = new double[mapCycleToStats.keySet().size()];
+        for (int cycleIndex = 0; cycleIndex < mapCycleToStats.keySet().size(); cycleIndex++){
+            cycleStdDev[cycleIndex] = mapCycleToStats.get(cycleIndex)[1];
+        }
+        return cycleStdDev;
     }
 }

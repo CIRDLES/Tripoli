@@ -30,10 +30,7 @@ import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelInitForMCMC.initializeModelForSingleBlockMCMC;
 
@@ -51,7 +48,7 @@ public enum SingleBlockModelDriver {
         SingleBlockDataSetRecord singleBlockDataSetRecord = prepareSingleBlockDataForMCMC(blockNumber, massSpecExtractedData, analysisMethod);
         SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov;
         try {
-            singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC(analysisMethod.getSpeciesList().size(), singleBlockDataSetRecord);
+            singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC(analysisMethod.getSpeciesList().size(), singleBlockDataSetRecord, true);
         } catch (RecoverableCondition e) {
             throw new TripoliException("Ojalgo RecoverableCondition");
         }
@@ -65,7 +62,7 @@ public enum SingleBlockModelDriver {
         return plotBuilder;
     }
 
-    private static SingleBlockDataSetRecord prepareSingleBlockDataForMCMC(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) {
+    static SingleBlockDataSetRecord prepareSingleBlockDataForMCMC(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) {
         MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord = massSpecExtractedData.getBlocksData().get(blockNumber);
 //        Primitive64Store blockKnotInterpolationStore = generateKnotsMatrixForBlock(massSpecOutputSingleBlockRecord, 3);
         // TODO: the following line invokes a replication of the linear knots from Burdick's matlab code
@@ -101,6 +98,12 @@ public enum SingleBlockModelDriver {
         blockIsotopeOrdinalIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC.isotopeOrdinalIndicesAccumulatorList());
         int[] blockIsotopeOrdinalIndicesArray = blockIsotopeOrdinalIndicesList.stream().mapToInt(i -> i).toArray();
 
+        List<Double> blockTimeList = new ArrayList<>();
+        blockTimeList.addAll(baselineDataSetMCMC.timeAccumulatorList());
+        blockTimeList.addAll(onPeakFaradayDataSetMCMC.timeAccumulatorList());
+        blockTimeList.addAll(onPeakPhotoMultiplierDataSetMCMC.timeAccumulatorList());
+        double[] blockTimeArray = blockTimeList.stream().mapToDouble(i -> i).toArray();
+
         List<Integer> blockTimeIndicesList = new ArrayList<>();
         blockTimeIndicesList.addAll(baselineDataSetMCMC.timeIndexAccumulatorList());
         blockTimeIndicesList.addAll(onPeakFaradayDataSetMCMC.timeIndexAccumulatorList());
@@ -130,11 +133,13 @@ public enum SingleBlockModelDriver {
             }
         }
 
+        boolean[] activeCycles = new boolean[onPeakStartingIndicesOfCycles.length];
+        Arrays.fill(activeCycles, true);
 
         SingleBlockDataSetRecord singleBlockDataSetRecord =
                 new SingleBlockDataSetRecord(blockNumber, baselineDataSetMCMC, onPeakFaradayDataSetMCMC, onPeakPhotoMultiplierDataSetMCMC, blockKnotInterpolationStore,
-                        blockCycleArray, blockIntensityArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeIndicesArray,
-                        onPeakStartingIndicesOfCycles, blockMapIdsToDataTimes);
+                        blockCycleArray, blockIntensityArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeArray, blockTimeIndicesArray,
+                        onPeakStartingIndicesOfCycles, activeCycles, blockMapIdsToDataTimes);
 
         return singleBlockDataSetRecord;
     }

@@ -37,6 +37,9 @@ dependencies {
 
     implementation("eu.hansolo.fx:charts:17.1.27")
 
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
+    implementation("org.apache.commons:commons-math3:3.6.1") // group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+
 //    // https://mvnrepository.com/artifact/com.google.guava/guava
 //    implementation("com.google.guava:guava:31.1-jre")
 //    // https://mvnrepository.com/artifact/com.google.guava/guava-primitives
@@ -49,6 +52,7 @@ extraJavaModuleInfo {
     failOnMissingModuleInfo.set(false)
     automaticModule("commons-bc38781605.jar", "commons.bc38781605")
 //    automaticModule("com.google.guava-primitives:guava-primitives.r03", "guava-primitives.r03")
+    automaticModule("org.apache.commons:commons-math3", "commons.math3")
 }
 
 project(":TripoliApp") {

@@ -3,6 +3,7 @@ package org.cirdles.tripoli.gui;
 import jakarta.xml.bind.JAXBException;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -59,6 +60,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     public static AnalysisInterface analysis;
     public static MCMCPlotsWindow MCMCPlotsWindow;
+    public static OGTripoliPlotsWindow ogTripoliPlotsWindow;
     private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
     public Tab detectorDetailTab;
     public TabPane analysiMethodTabPane;
@@ -357,8 +359,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 ratioCheckbox.setSelected(ratio.isDisplayed());
                 ratioCheckbox.setUserData(ratio);
                 ratioCheckbox.selectedProperty().addListener(new CheckBoxChangeListener(ratioCheckbox));
-
-                selectRatiosGridPane.add(ratioCheckbox, ratioCount % 8, (ratioCount / 8) % 10);
                 ratioCount++;
             }
         }
@@ -621,6 +621,18 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage, this);
         MCMCPlotsController.analysis = analysis;
         MCMCPlotsWindow.loadPlotsWindow();
+    }
+
+
+    public void reviewAndSculptDataAction() {
+        // ogTripoli view
+        if (null != ogTripoliPlotsWindow) {
+            ogTripoliPlotsWindow.close();
+        }
+        ogTripoliPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this);
+        OGTripoliViewController.analysis = analysis;
+        ogTripoliPlotsWindow.loadPlotsWindow();
+
     }
 
     public void selectRunAllAction() {
