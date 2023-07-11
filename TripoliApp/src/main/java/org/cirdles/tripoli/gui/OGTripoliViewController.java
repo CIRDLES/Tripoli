@@ -6,7 +6,6 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
@@ -55,7 +54,7 @@ public class OGTripoliViewController {
                 double[] logRatios = singleBlockModelRecords[blockIndex].logRatios();
                 double[] cycleMeansForBlock = singleBlockModelRecords[blockIndex].assembleCycleMeansForLogRatio(logRatioIndex);
                 System.arraycopy(cycleMeansForBlock, 0, cycleMeans, blockIndex * countOfOnPeakCycles, cycleMeansForBlock.length);
-                for (int i = 0; i < countOfOnPeakCycles; i ++){
+                for (int i = 0; i < countOfOnPeakCycles; i++) {
                     xAxis[blockIndex * countOfOnPeakCycles + i] = //singleBlockModelRecords[blockIndex].timeAccumulatorList().get(singleBlockModelRecords[blockIndex].onPeakStartingIndicesOfCycles()[i]);
                             blockIndex * countOfOnPeakCycles + i;
                 }

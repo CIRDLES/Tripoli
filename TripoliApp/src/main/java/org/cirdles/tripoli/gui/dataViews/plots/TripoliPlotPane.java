@@ -125,6 +125,7 @@ public class TripoliPlotPane extends Pane {
         }
         toFront();
     };
+
     private TripoliPlotPane(Pane plotWallPane) {
         this.plotWallPane = plotWallPane;
     }

@@ -232,10 +232,8 @@ enum SingleBlockModelInitForMCMC {
             for (int dataArrayIndex = 0; dataArrayIndex < ddVer2SortedArray.length; dataArrayIndex++) {
                 //TODO: Check for cycle active
                 descriptiveStatistics.addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
-//                descriptiveStatistics.addValue(StrictMath.log(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0)));
             }
             logRatios[isotopeIndex] = StrictMath.log(Math.max(descriptiveStatistics.getMean(), Math.exp(proposalRangesRecord.priorLogRatio()[0][0])));
-//            logRatios[isotopeIndex] = (Math.max(descriptiveStatistics.getMean(), (proposalRangesRecord.priorLogRatio()[0][0])));
 
             DescriptiveStatistics[] cycleStats = new DescriptiveStatistics[cycleCount];
             for (int dataArrayIndex = 0; dataArrayIndex < ddVer2SortedArray.length; dataArrayIndex++) {
@@ -245,7 +243,6 @@ enum SingleBlockModelInitForMCMC {
                 }
                 if (singleBlockDataSetRecord.activeOnPeakCycles()[cycle]) {
                     cycleStats[cycle].addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
-//                    cycleStats[cycle].addValue(StrictMath.log(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0)));
                 }
             }
             descriptiveStatistics = new DescriptiveStatistics();
@@ -253,20 +250,16 @@ enum SingleBlockModelInitForMCMC {
             Map<Integer, double[]> mapCyclesToStats = new TreeMap<>();
             for (int cycleIndex = 0; cycleIndex < cycleStats.length; cycleIndex++) {
                 double[] cycleLogRatioStats = new double[2];
-                if (cycleStats[cycleIndex].getMean() >= Math.exp(proposalRangesRecord.priorLogRatio()[0][0])){
+                if (cycleStats[cycleIndex].getMean() >= Math.exp(proposalRangesRecord.priorLogRatio()[0][0])) {
                     cycleLogRatioStats[0] = StrictMath.log(cycleStats[cycleIndex].getMean());
                     cycleLogRatioStats[1] = StrictMath.log(cycleStats[cycleIndex].getStandardDeviation());
-//                    cycleLogRatioStats[0] = (cycleStats[cycleIndex].getMean());
-//                    cycleLogRatioStats[1] = (cycleStats[cycleIndex].getStandardDeviation());
                 } else {
-//                    cycleLogRatioStats[0] = StrictMath.exp(proposalRangesRecord.priorLogRatio()[0][0]);
                     cycleLogRatioStats[0] = (proposalRangesRecord.priorLogRatio()[0][0]);
                     cycleLogRatioStats[1] = 0.0;
                 }
                 mapCyclesToStats.put(cycleIndex, cycleLogRatioStats);
 
                 cycleLogRatios[isotopeIndex][cycleIndex] = StrictMath.log(Math.max(cycleStats[cycleIndex].getMean(), StrictMath.exp(proposalRangesRecord.priorLogRatio()[0][0])));
-//                cycleLogRatios[isotopeIndex][cycleIndex] = (Math.max(cycleStats[cycleIndex].getMean(), (proposalRangesRecord.priorLogRatio()[0][0])));
                 // for testing cycle=based mean compared to intensity-base mean
                 descriptiveStatistics.addValue(cycleStats[cycleIndex].getMean());
             }
@@ -349,9 +342,7 @@ enum SingleBlockModelInitForMCMC {
                 detectorFaradayGain,
                 mapDetectorOrdinalToFaradayIndex,
                 logRatios,//calculated
-                singleBlockDataSetRecord.onPeakStartingIndicesOfCycles(),
                 mapLogRatiosToCycleStats,
-                singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().timeAccumulatorList(),
                 singleBlockDataSetRecord.blockIntensityArray(),
                 dataWithNoBaselineArray,
                 dataSignalNoiseArray_Dsig,//calculated
@@ -369,9 +360,7 @@ enum SingleBlockModelInitForMCMC {
                 detectorFaradayGain,//calculated
                 mapDetectorOrdinalToFaradayIndex,//calculated
                 logRatios,//calculated
-                singleBlockDataSetRecord.onPeakStartingIndicesOfCycles(),
                 mapLogRatiosToCycleStats,
-                singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().timeAccumulatorList(),
                 singleBlockDataSetRecord.blockIntensityArray(),//original
                 dataModel,//calculated
                 dataSignalNoiseArray_Dsig,//calculated
@@ -423,9 +412,7 @@ enum SingleBlockModelInitForMCMC {
                             detectorFaradayGain,
                             mapDetectorOrdinalToFaradayIndex,
                             testLogRatios,
-                            singleBlockDataSetRecord.onPeakStartingIndicesOfCycles(),
                             mapLogRatiosToCycleStats,
-                            singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().timeAccumulatorList(),
                             singleBlockDataSetRecord.blockIntensityArray(),
                             dataWithNoBaselineArray,
                             dataSignalNoiseArray_Dsig,
@@ -484,9 +471,7 @@ enum SingleBlockModelInitForMCMC {
                             detectorFaradayGain,
                             mapDetectorOrdinalToFaradayIndex,
                             logRatios,
-                            singleBlockDataSetRecord.onPeakStartingIndicesOfCycles(),
                             mapLogRatiosToCycleStats,
-                            singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().timeAccumulatorList(),
                             singleBlockDataSetRecord.blockIntensityArray(),
                             dataWithNoBaselineArray,
                             dataSignalNoiseArray_Dsig,
@@ -532,9 +517,7 @@ enum SingleBlockModelInitForMCMC {
                         testDFGain,
                         mapDetectorOrdinalToFaradayIndex,
                         logRatios,
-                        singleBlockDataSetRecord.onPeakStartingIndicesOfCycles(),
                         mapLogRatiosToCycleStats,
-                        singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().timeAccumulatorList(),
                         singleBlockDataSetRecord.blockIntensityArray(),
                         dataWithNoBaselineArray,
                         dataSignalNoiseArray_Dsig,
@@ -586,9 +569,7 @@ enum SingleBlockModelInitForMCMC {
                             detectorFaradayGain,
                             mapDetectorOrdinalToFaradayIndex,
                             logRatios,
-                            singleBlockDataSetRecord.onPeakStartingIndicesOfCycles(),
                             mapLogRatiosToCycleStats,
-                            singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().timeAccumulatorList(),
                             singleBlockDataSetRecord.blockIntensityArray(),
                             dataWithNoBaselineArray,
                             dataSignalNoiseArray_Dsig,

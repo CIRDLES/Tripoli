@@ -21,7 +21,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
 
 import java.io.IOException;
 
@@ -56,7 +55,7 @@ public class OGTripoliPlotsWindow {
             e.consume();
         });
 
-    //    MCMCPlotsController.analysisManagerCallbackI = analysisManagerCallbackI;
+        //    MCMCPlotsController.analysisManagerCallbackI = analysisManagerCallbackI;
     }
 
     public void close() {

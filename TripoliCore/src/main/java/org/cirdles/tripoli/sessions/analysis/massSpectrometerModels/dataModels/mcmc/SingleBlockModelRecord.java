@@ -26,9 +26,7 @@ public record SingleBlockModelRecord(
         double detectorFaradayGain,
         Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex,
         double[] logRatios,
-        int[] onPeakStartingIndicesOfCycles,
         Map<Integer, Map<Integer, double[]>> mapLogRatiosToCycleStats,
-        java.util.List<Double> timeAccumulatorList,
         double[] dataArray,
         double[] dataWithNoBaselineArray,
         double[] dataSignalNoiseArray,
@@ -41,19 +39,20 @@ public record SingleBlockModelRecord(
     public int sizeOfModel() {
         return logRatios().length + I0.length + faradayCount() + 1;
     }
-    public double[] assembleCycleMeansForLogRatio(int logRatioIndex){
+
+    public double[] assembleCycleMeansForLogRatio(int logRatioIndex) {
         Map<Integer, double[]> mapCycleToStats = mapLogRatiosToCycleStats.get(logRatioIndex);
         double[] cycleMeans = new double[mapCycleToStats.keySet().size()];
-        for (int cycleIndex = 0; cycleIndex < mapCycleToStats.keySet().size(); cycleIndex++){
+        for (int cycleIndex = 0; cycleIndex < mapCycleToStats.keySet().size(); cycleIndex++) {
             cycleMeans[cycleIndex] = mapCycleToStats.get(cycleIndex)[0];
         }
         return cycleMeans;
     }
 
-    public double[] assembleCycleStdDevForLogRatio(int logRatioIndex){
+    public double[] assembleCycleStdDevForLogRatio(int logRatioIndex) {
         Map<Integer, double[]> mapCycleToStats = mapLogRatiosToCycleStats().get(logRatioIndex);
         double[] cycleStdDev = new double[mapCycleToStats.keySet().size()];
-        for (int cycleIndex = 0; cycleIndex < mapCycleToStats.keySet().size(); cycleIndex++){
+        for (int cycleIndex = 0; cycleIndex < mapCycleToStats.keySet().size(); cycleIndex++) {
             cycleStdDev[cycleIndex] = mapCycleToStats.get(cycleIndex)[1];
         }
         return cycleStdDev;
