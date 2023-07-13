@@ -86,7 +86,12 @@ enum SingleBlockModelInitForMCMC {
         int iden = indexOfMostAbundantIsotope + 1; // ordinal
 
         //TODO: Fix this when using bbase
-        double detectorFaradayGain = calculateDFGain(iden, baselineMeansArray, mapDetectorOrdinalToFaradayIndex, singleBlockDataSetRecord);
+        double detectorFaradayGain = 0.9;
+        try {
+            detectorFaradayGain = calculateDFGain(iden, baselineMeansArray, mapDetectorOrdinalToFaradayIndex, singleBlockDataSetRecord);
+        } catch (Exception e) {
+            System.out.println("BAD GAIN:  BLOCK# " + singleBlockDataSetRecord.blockNumber());
+        }
 
         /*
         %% Initialize Intensity Function
@@ -252,7 +257,7 @@ enum SingleBlockModelInitForMCMC {
                 double[] cycleLogRatioStats = new double[2];
                 if (cycleStats[cycleIndex].getMean() >= Math.exp(proposalRangesRecord.priorLogRatio()[0][0])) {
                     cycleLogRatioStats[0] = StrictMath.log(cycleStats[cycleIndex].getMean());
-                    cycleLogRatioStats[1] = StrictMath.log(cycleStats[cycleIndex].getStandardDeviation());
+                    cycleLogRatioStats[1] = 0;//StrictMath.log(cycleStats[cycleIndex].getStandardDeviation());
                 } else {
                     cycleLogRatioStats[0] = (proposalRangesRecord.priorLogRatio()[0][0]);
                     cycleLogRatioStats[1] = 0.0;

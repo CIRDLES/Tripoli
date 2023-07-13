@@ -237,7 +237,7 @@ public class MCMCPlotsController {
         }
 
         ratioSessionAnchorPane.getChildren().removeAll();
-        PlotWallPane ratiosSessionPlotsWallPane = new PlotWallPane();
+        PlotWallPane ratiosSessionPlotsWallPane = PlotWallPane.createPlotWallPane(null);
         ratiosSessionPlotsWallPane.buildToolBar();
         ratiosSessionPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         ratioSessionAnchorPane.getChildren().add(ratiosSessionPlotsWallPane);
@@ -273,7 +273,7 @@ public class MCMCPlotsController {
         }
         // TODO add peak session pane to fxml and controller
         peakSessionAnchorPane.getChildren().removeAll();
-        PlotWallPane peakSessionPlotWallPlane = new PlotWallPane();
+        PlotWallPane peakSessionPlotWallPlane = PlotWallPane.createPlotWallPane(null);
         peakSessionPlotWallPlane.buildToolBar();
         peakSessionPlotWallPlane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         peakSessionAnchorPane.getChildren().add(peakSessionPlotWallPlane);
@@ -325,7 +325,7 @@ public class MCMCPlotsController {
 
 
         // plotting revision +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        PlotWallPane ensemblePlotsWallPane = new PlotWallPane();
+        PlotWallPane ensemblePlotsWallPane = PlotWallPane.createPlotWallPane(null);
         ensemblePlotsWallPane.buildToolBar();
         ensemblePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         ensemblePlotsAnchorPane.getChildren().add(ensemblePlotsWallPane);
@@ -334,9 +334,10 @@ public class MCMCPlotsController {
         produceTripoliHistogramPlots(dalyFaradayHistogramBuilder, ensemblePlotsWallPane);
         //produceTripoliHistogramPlots(signalNoiseHistogramBuilder, ensemblePlotsWallPane);
         produceTripoliMultiLinePlots(intensityLinePlotBuilder, ensemblePlotsWallPane);
+        ensemblePlotsWallPane.setPrefSize(ensemblePlotsAnchorPane.getPrefWidth(), ensemblePlotsAnchorPane.getPrefHeight());
         ensemblePlotsWallPane.tilePlots();
 
-        PlotWallPane convergePlotsWallPane = new PlotWallPane();
+        PlotWallPane convergePlotsWallPane = PlotWallPane.createPlotWallPane(null);
         convergePlotsWallPane.buildToolBar();
         convergePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         convergePlotsAnchorPane.getChildren().add(convergePlotsWallPane);
@@ -345,7 +346,7 @@ public class MCMCPlotsController {
 //        produceTripoliLinePlots(convergeNoiseFaradayLineBuilder, convergePlotsWallPane);
         convergePlotsWallPane.tilePlots();
 
-        PlotWallPane dataFitPlotsWallPane = new PlotWallPane();
+        PlotWallPane dataFitPlotsWallPane = PlotWallPane.createPlotWallPane(null);
         dataFitPlotsWallPane.buildToolBar();
         dataFitPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         dataFitPlotsAnchorPane.getChildren().add(dataFitPlotsWallPane);
@@ -354,7 +355,7 @@ public class MCMCPlotsController {
         produceTripoliBasicScatterAndLinePlots(residualDataPlotBuilder, dataFitPlotsWallPane);
         dataFitPlotsWallPane.stackPlots();
 
-        PlotWallPane convergeErrorPlotsWallPane = new PlotWallPane();
+        PlotWallPane convergeErrorPlotsWallPane = PlotWallPane.createPlotWallPane(null);
         convergeErrorPlotsWallPane.buildToolBar();
         convergeErrorPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         convergeErrorPlotsAnchorPane.getChildren().add(convergeErrorPlotsWallPane);
@@ -362,14 +363,14 @@ public class MCMCPlotsController {
         produceTripoliLinePlots(convergeErrWeightedMisfitBuilder, convergeErrorPlotsWallPane);
         convergeErrorPlotsWallPane.tilePlots();
 
-        PlotWallPane convergeIntensityPlotsWallPane = new PlotWallPane();
+        PlotWallPane convergeIntensityPlotsWallPane = PlotWallPane.createPlotWallPane(null);
         convergeIntensityPlotsWallPane.buildToolBar();
         convergeIntensityPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         convergeIntensityAnchorPane.getChildren().add(convergeIntensityPlotsWallPane);
         produceTripoliMultiLineLogXPlots(convergeIntensityLinesBuilder, convergeIntensityPlotsWallPane);
         convergeIntensityPlotsWallPane.tilePlots();
 
-        PlotWallPane peakShapeOverlayPlotWallPane = new PlotWallPane();
+        PlotWallPane peakShapeOverlayPlotWallPane = PlotWallPane.createPlotWallPane(null);
         peakShapeOverlayPlotWallPane.buildToolBar();
         peakShapeOverlayPlotWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         beamShapeAnchorPane.getChildren().add(peakShapeOverlayPlotWallPane);

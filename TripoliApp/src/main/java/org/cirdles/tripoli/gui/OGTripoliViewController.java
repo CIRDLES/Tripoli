@@ -9,14 +9,18 @@ import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.BasicScatterPlot;
-import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
+import org.cirdles.tripoli.plots.compoundPlots.BlockRatioCyclesBuilder;
+import org.cirdles.tripoli.plots.compoundPlots.BlockRatioCyclesRecord;
+import org.cirdles.tripoli.plots.sessionPlots.BlockRatioCyclesSessionBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHeight;
@@ -36,7 +40,7 @@ public class OGTripoliViewController {
     private void populatePlots() throws TripoliException {
         ogTripoliPlotsAnchorPane.getChildren().clear();
 
-        PlotWallPane plotsWallPane = new PlotWallPane();
+        PlotWallPane plotsWallPane = PlotWallPane.createPlotWallPane("OGTripoli");
         PlotWallPane.menuOffset = 0.0;
         plotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         plotsWallPane.setPrefSize(ogTripoliPlotsAnchorPane.getPrefWidth(), ogTripoliPlotsAnchorPane.getPrefHeight());
@@ -46,25 +50,30 @@ public class OGTripoliViewController {
         int countOfBlocks = singleBlockModelRecords.length;
         int countOfOnPeakCycles = singleBlockModelRecords[0].mapLogRatiosToCycleStats().get(0).keySet().size();
         List<IsotopicRatio> isotopicRatioList = analysis.getAnalysisMethod().getIsotopicRatiosList();
+        boolean[] DUMMY_CYCLES_INCLUDED = new boolean[countOfOnPeakCycles];
+        Arrays.fill(DUMMY_CYCLES_INCLUDED, true);
         for (int logRatioIndex = 0; logRatioIndex < singleBlockModelRecords[0].logRatios().length; logRatioIndex++) {
             TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPane);
-            double[] cycleMeans = new double[countOfBlocks * countOfOnPeakCycles];
-            double[] xAxis = new double[cycleMeans.length];
+            List<BlockRatioCyclesRecord> blockRatioCyclesRecords = new ArrayList<>();
             for (int blockIndex = 0; blockIndex < singleBlockModelRecords.length; blockIndex++) {
-                double[] logRatios = singleBlockModelRecords[blockIndex].logRatios();
-                double[] cycleMeansForBlock = singleBlockModelRecords[blockIndex].assembleCycleMeansForLogRatio(logRatioIndex);
-                System.arraycopy(cycleMeansForBlock, 0, cycleMeans, blockIndex * countOfOnPeakCycles, cycleMeansForBlock.length);
-                for (int i = 0; i < countOfOnPeakCycles; i++) {
-                    xAxis[blockIndex * countOfOnPeakCycles + i] = //singleBlockModelRecords[blockIndex].timeAccumulatorList().get(singleBlockModelRecords[blockIndex].onPeakStartingIndicesOfCycles()[i]);
-                            blockIndex * countOfOnPeakCycles + i;
-                }
-
+                blockRatioCyclesRecords.add(BlockRatioCyclesBuilder.initializeBlockCycles(
+                        blockIndex + 1,
+                        singleBlockModelRecords[blockIndex].assembleCycleMeansForLogRatio(logRatioIndex),
+                        singleBlockModelRecords[blockIndex].assembleCycleStdDevForLogRatio(logRatioIndex),
+                        DUMMY_CYCLES_INCLUDED,
+                        new String[]{isotopicRatioList.get(logRatioIndex).prettyPrint()},
+                        "TIME",
+                        "LOGRATIO",
+                        true).getBlockCyclesRecord());
             }
-            LinePlotBuilder linePlotBuilder = LinePlotBuilder.initializeLinePlot(xAxis, cycleMeans, new String[]{isotopicRatioList.get(logRatioIndex).prettyPrint()}, "TIME", "LOGRATIO");
-            AbstractPlot plot = BasicScatterPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), linePlotBuilder);
+            BlockRatioCyclesSessionBuilder blockRatioCyclesSessionBuilder =
+                    BlockRatioCyclesSessionBuilder.initializeBlockRatioCyclesSession(
+                            blockRatioCyclesRecords, new String[]{isotopicRatioList.get(logRatioIndex).prettyPrint()},
+                            "TIME", "LOGRATIO");
+            AbstractPlot plot = BlockRatioCyclesSessionPlot.generatePlot(
+                    new Rectangle(minPlotWidth, minPlotHeight), blockRatioCyclesSessionBuilder.getBlockRatioCyclesSessionRecord());
             tripoliPlotPane.addPlot(plot);
         }
+        plotsWallPane.stackPlots();
     }
-
-
 }

@@ -56,4 +56,5 @@ module Tripoli.TripoliCore {
     opens org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec to jakarta.xml.bind;
     exports org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec;
     exports org.cirdles.tripoli.plots.sessionPlots;
+    exports org.cirdles.tripoli.plots.compoundPlots;
 }

@@ -19,6 +19,7 @@ package org.cirdles.tripoli.gui.dataViews.plots;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 
 import java.util.List;
@@ -32,6 +33,19 @@ public class PlotWallPane extends Pane {
     public static final double gridCellDim = 2.0;
     public static final double toolBarHeight = 35.0;
     public static double menuOffset = 30.0;
+    private String iD;
+
+    private PlotWallPane(String iD) {
+        this.iD = iD;
+    }
+
+    public static PlotWallPane createPlotWallPane(String iD) {
+        if (iD == null) {
+            return new PlotWallPane("NONE");
+        } else {
+            return new PlotWallPane(iD);
+        }
+    }
 
     public void tilePlots() {
         List<Node> plotPanes = getChildren()
@@ -62,9 +76,16 @@ public class PlotWallPane extends Pane {
     }
 
     public void stackPlots() {
-        double tileWidth = (getParent().getBoundsInParent().getWidth() - gridCellDim * 2.0);
+        double tileWidth;
+        double displayHeight;
+        if (iD.compareToIgnoreCase("OGTripoli") == 0) {
+            tileWidth = ((AnchorPane) getParent()).getPrefWidth() - gridCellDim * 2.0;
+            displayHeight = (((AnchorPane) getParent()).getPrefHeight() - toolBarHeight) / getCountOfPlots();
+        } else {
+            tileWidth = (getParent().getBoundsInParent().getWidth() - gridCellDim * 2.0);
+            displayHeight = (getParent().getBoundsInParent().getHeight() - toolBarHeight) / getCountOfPlots();
+        }
 
-        double displayHeight = ((getParent().getBoundsInParent().getHeight() - toolBarHeight) / getCountOfPlots());
         double tileHeight = displayHeight - displayHeight % gridCellDim;
 
         int plotIndex = 0;

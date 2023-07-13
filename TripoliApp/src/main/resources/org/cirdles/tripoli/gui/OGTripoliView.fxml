@@ -2,8 +2,12 @@
 
 
 <?import javafx.scene.layout.AnchorPane?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:id="ogTripoliPlotsAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity"
-            minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1000.0"
-            style="-fx-background-color: lightgrey;" xmlns="http://javafx.com/javafx/17"
-            fx:controller="org.cirdles.tripoli.gui.OGTripoliViewController">
-</AnchorPane>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" minHeight="600.0" minWidth="1000.0" prefHeight="600.0" prefWidth="1000.0"
+      xmlns="http://javafx.com/javafx/17" fx:controller="org.cirdles.tripoli.gui.OGTripoliViewController">
+    <children>
+        <AnchorPane fx:id="ogTripoliPlotsAnchorPane" minHeight="600.0" minWidth="1000.0" prefHeight="600.0"
+                    prefWidth="1000.0" style="-fx-background-color: lightgrey;">
+        </AnchorPane>
+    </children>
+</VBox>
