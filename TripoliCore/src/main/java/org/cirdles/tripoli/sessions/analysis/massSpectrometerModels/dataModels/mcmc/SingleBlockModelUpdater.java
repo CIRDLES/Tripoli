@@ -184,6 +184,7 @@ public class SingleBlockModelUpdater {
                     updatedFaradayGain,
                     singleBlockInitialModelRecord_initial.mapDetectorOrdinalToFaradayIndex(),
                     updatedLogRatios,
+                    singleBlockInitialModelRecord_initial.mapOfSpeciesToActiveCycles(),
                     singleBlockInitialModelRecord_initial.mapLogRatiosToCycleStats(),
                     singleBlockInitialModelRecord_initial.dataArray().clone(),
                     singleBlockInitialModelRecord_initial.dataWithNoBaselineArray().clone(),

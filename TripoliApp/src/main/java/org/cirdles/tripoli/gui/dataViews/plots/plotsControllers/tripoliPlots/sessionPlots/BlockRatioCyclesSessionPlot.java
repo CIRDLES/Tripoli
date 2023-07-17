@@ -16,11 +16,15 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots;
 
+import javafx.collections.ObservableList;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
+import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
 import org.cirdles.tripoli.plots.compoundPlots.BlockRatioCyclesRecord;
 import org.cirdles.tripoli.plots.sessionPlots.BlockRatioCyclesSessionRecord;
 
@@ -32,9 +36,10 @@ import java.util.Map;
 public class BlockRatioCyclesSessionPlot extends AbstractPlot {
 
     private final BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord;
-
-    private double[] oneSigma;
-
+    private Map<Integer, BlockRatioCyclesRecord> mapBlockIdToBlockRatioCyclesRecord;
+    private double[] oneSigmaForCycles;
+    private double sessionMean;
+    private double sessionOneSigma;
     private BlockRatioCyclesSessionPlot(Rectangle bounds, BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord) {
         super(bounds,
                 50, 25,
@@ -50,10 +55,14 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
         return new BlockRatioCyclesSessionPlot(bounds, blockRatioCyclesSessionRecord);
     }
 
+    public Map<Integer, BlockRatioCyclesRecord> getMapBlockIdToBlockRatioCyclesRecord() {
+        return mapBlockIdToBlockRatioCyclesRecord;
+    }
+
     @Override
     public void preparePanel() {
         // process blocks
-        Map<Integer, BlockRatioCyclesRecord> mapBlockIdToBlockRatioCyclesRecord = blockRatioCyclesSessionRecord.mapBlockIdToBlockRatioCyclesRecord();
+        mapBlockIdToBlockRatioCyclesRecord = blockRatioCyclesSessionRecord.mapBlockIdToBlockRatioCyclesRecord();
         int cyclesPerBlock = blockRatioCyclesSessionRecord.cyclesPerBlock();
 
         xAxisData = new double[mapBlockIdToBlockRatioCyclesRecord.size() * cyclesPerBlock];
@@ -64,20 +73,29 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
         maxX = xAxisData.length;
 
         yAxisData = new double[mapBlockIdToBlockRatioCyclesRecord.size() * cyclesPerBlock];
-        oneSigma = new double[mapBlockIdToBlockRatioCyclesRecord.size() * cyclesPerBlock];
+        oneSigmaForCycles = new double[mapBlockIdToBlockRatioCyclesRecord.size() * cyclesPerBlock];
         for (Map.Entry<Integer, BlockRatioCyclesRecord> entry : mapBlockIdToBlockRatioCyclesRecord.entrySet()) {
             BlockRatioCyclesRecord blockRatioCyclesRecord = entry.getValue();
-            int availableCyclesPerBlock = blockRatioCyclesRecord.cycleLogRatioMeansData().length;
-            System.arraycopy(blockRatioCyclesRecord.cycleLogRatioMeansData(), 0, yAxisData, (entry.getKey() - 1) * cyclesPerBlock, availableCyclesPerBlock);
-            System.arraycopy(blockRatioCyclesRecord.cycleLogRatioOneSigmaData(), 0, oneSigma, (entry.getKey() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+            int availableCyclesPerBlock = blockRatioCyclesRecord.cycleRatioMeansData().length;
+            System.arraycopy(blockRatioCyclesRecord.cycleRatioMeansData(), 0, yAxisData, (entry.getKey() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+            System.arraycopy(blockRatioCyclesRecord.cycleRatioOneSigmaData(), 0, oneSigmaForCycles, (entry.getKey() - 1) * cyclesPerBlock, availableCyclesPerBlock);
         }
+        // calculate ratio and unct across all included blocks
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 
         for (int i = 0; i < yAxisData.length; i++) {
-            minY = StrictMath.min(minY, yAxisData[i] - oneSigma[i]);
-            maxY = StrictMath.max(maxY, yAxisData[i] + oneSigma[i]);
+            int blockID = (i % mapBlockIdToBlockRatioCyclesRecord.size()) + 1;
+            if (mapBlockIdToBlockRatioCyclesRecord.get(blockID).blockIncluded() && (yAxisData[i] > 0)) {
+                minY = StrictMath.min(minY, yAxisData[i] - oneSigmaForCycles[i]);
+                maxY = StrictMath.max(maxY, yAxisData[i] + oneSigmaForCycles[i]);
+            }
         }
+
+        calcStats();
+
+        showXaxis = false;
+        showStats = true;
 
         displayOffsetX = 0.0;
         displayOffsetY = 0.0;
@@ -111,18 +129,29 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
 
         for (int i = 0; i < xAxisData.length; i++) {
             if (pointInPlot(xAxisData[i], yAxisData[i])) {
+                int blockId = (int) ((xAxisData[i] - 0.7) / cyclesPerBlock) + 1;
+                g2d.setFill(dataColor.color());
+                g2d.setStroke(dataColor.color());
+                if (!mapBlockIdToBlockRatioCyclesRecord.get(blockId).blockIncluded()) {
+                    g2d.setFill(Color.RED);
+                    g2d.setStroke(Color.RED);
+                }
                 double dataX = mapX(xAxisData[i]);
                 double dataY = mapY(yAxisData[i]);
-                double dataYplusSigma = mapY(yAxisData[i] + oneSigma[i]);
-                double dataYminusSigma = mapY(yAxisData[i] - oneSigma[i]);
+                double dataYplusSigma = mapY(yAxisData[i] + oneSigmaForCycles[i]);
+                double dataYminusSigma = mapY(yAxisData[i] - oneSigmaForCycles[i]);
 
-                g2d.fillOval(dataX - 2.5, dataY - 2.5, 5, 5);
-                g2d.strokeLine(dataX, dataY, dataX, dataYplusSigma);
-                g2d.strokeLine(dataX, dataY, dataX, dataYminusSigma);
+                if (yAxisData[i] > 0) {
+                    g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
+                    g2d.strokeLine(dataX, dataY, dataX, dataYplusSigma);
+                    g2d.strokeLine(dataX, dataY, dataX, dataYminusSigma);
+                } else {
+                    g2d.strokeOval(dataX - 2.0, dataY - 2.0, 4, 4);
+                }
             }
         }
         // block delimeters
-        g2d.setStroke(Color.RED);
+        g2d.setStroke(Color.BLACK);
         g2d.setLineWidth(0.5);
         for (int i = 0; i < xAxisData.length; i += cyclesPerBlock) {
             double dataX = mapX(xAxisData[i] - 0.5);
@@ -134,30 +163,70 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
     }
 
     public void plotStats(GraphicsContext g2d) {
+        calcStats();
 
-//        Paint saveFill = g2d.getFill();
-//        // todo: promote color to constant
-//        g2d.setFill(Color.rgb(255, 251, 194));
-//        g2d.setGlobalAlpha(0.6);
-//        double mean = histogramSessionRecord.sessionMean();
-//        double stdDev = histogramSessionRecord.sessionOneSigma();
-//
-//        double leftX = mapX(minX);
-//        if (leftX < leftMargin) leftX = leftMargin;
-//        double rightX = mapX(maxX);
-//        if (rightX > leftMargin + plotWidth) rightX = leftMargin + plotWidth;
-//        double plottedTwoSigmaHeight = Math.min(mapY(mean - stdDev), topMargin + plotHeight) - Math.max(mapY(mean + stdDev), topMargin);
-//
-//        g2d.fillRect(leftX, Math.max(mapY(mean + stdDev), topMargin), rightX - leftX, plottedTwoSigmaHeight);
-//        g2d.setFill(saveFill);
-//        g2d.setGlobalAlpha(1.0);
-//
-//        boolean meanIsPlottable = (mapY(mean) >= topMargin) && (mapY(mean) <= topMargin + plotHeight);
-//        if (meanIsPlottable) {
-//            g2d.setStroke(Color.RED);
-//            g2d.setLineWidth(1.0);
-//            g2d.strokeLine(leftX, mapY(mean), rightX, mapY(mean));
+        Paint saveFill = g2d.getFill();
+        // todo: promote color to constant
+        g2d.setFill(Color.rgb(255, 251, 194));
+        g2d.setGlobalAlpha(0.6);
+        double mean = sessionMean;
+        double stdDev = sessionOneSigma;
+
+        double leftX = mapX(minX);
+        if (leftX < leftMargin) leftX = leftMargin;
+        double rightX = mapX(maxX);
+        if (rightX > leftMargin + plotWidth) rightX = leftMargin + plotWidth;
+        double plottedTwoSigmaHeight = Math.min(mapY(mean - stdDev), topMargin + plotHeight) - Math.max(mapY(mean + stdDev), topMargin);
+
+        g2d.fillRect(leftX, Math.max(mapY(mean + stdDev), topMargin), rightX - leftX, plottedTwoSigmaHeight);
+        g2d.setFill(saveFill);
+        g2d.setGlobalAlpha(1.0);
+
+        boolean meanIsPlottable = (mapY(mean) >= topMargin) && (mapY(mean) <= topMargin + plotHeight);
+        if (meanIsPlottable) {
+            g2d.setStroke(Color.RED);
+            g2d.setLineWidth(1.0);
+            g2d.strokeLine(leftX, mapY(mean), rightX, mapY(mean));
+        }
+    }
+
+    public void calcStats() {
+        DescriptiveStatistics descriptiveStatsIncludedCycles = new DescriptiveStatistics();
+        for (int i = 0; i < yAxisData.length; i++) {
+            int blockID = (i % mapBlockIdToBlockRatioCyclesRecord.size()) + 1;
+            if (mapBlockIdToBlockRatioCyclesRecord.get(blockID).blockIncluded() && (yAxisData[i] != 0)) {
+                descriptiveStatsIncludedCycles.addValue(yAxisData[i]);
+            }
+        }
+        sessionMean = descriptiveStatsIncludedCycles.getMean();
+        sessionOneSigma = descriptiveStatsIncludedCycles.getStandardDeviation();
+        plotTitle =
+                new String[]{blockRatioCyclesSessionRecord.title()[0]
+                        + "  " + "X\u0305" + "=" + String.format("%8.5g", sessionMean).trim()
+                        , "\u00B1" + String.format("%8.5g", sessionOneSigma).trim()};
+    }
+
+    public void performPrimaryClick(double mouseX, double mouseY) {
+        // determine blockID
+        double xValue = convertMouseXToValue(mouseX);
+        int blockId = (int) ((xValue - 0.7) / blockRatioCyclesSessionRecord.cyclesPerBlock()) + 1;
+        if (null != mapBlockIdToBlockRatioCyclesRecord.get(blockId)) {
+//            mapBlockIdToBlockRatioCyclesRecord.put(
+//                    blockId,
+//                    mapBlockIdToBlockRatioCyclesRecord.get(blockId).toggleBlockIncluded());
+//            repaint();
 //        }
 
+            ObservableList tripoliPlotPanes = this.getParent().getParent().getChildrenUnmodifiable();
+            for (Object child : tripoliPlotPanes) {
+                if (child instanceof TripoliPlotPane) {
+                    BlockRatioCyclesSessionPlot tripoliPlot = (BlockRatioCyclesSessionPlot) ((TripoliPlotPane) child).getChildren().get(0);
+                    tripoliPlot.getMapBlockIdToBlockRatioCyclesRecord().put(
+                            blockId,
+                            mapBlockIdToBlockRatioCyclesRecord.get(blockId).toggleBlockIncluded());
+                    tripoliPlot.repaint();
+                }
+            }
+        }
     }
 }

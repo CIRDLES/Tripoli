@@ -47,7 +47,6 @@ public class OGTripoliViewController {
         ogTripoliPlotsAnchorPane.getChildren().add(plotsWallPane);
 
         SingleBlockModelRecord[] singleBlockModelRecords = AllBlockInitForMCMC.initBlockModels(analysis);
-        int countOfBlocks = singleBlockModelRecords.length;
         int countOfOnPeakCycles = singleBlockModelRecords[0].mapLogRatiosToCycleStats().get(0).keySet().size();
         List<IsotopicRatio> isotopicRatioList = analysis.getAnalysisMethod().getIsotopicRatiosList();
         boolean[] DUMMY_CYCLES_INCLUDED = new boolean[countOfOnPeakCycles];
@@ -58,18 +57,18 @@ public class OGTripoliViewController {
             for (int blockIndex = 0; blockIndex < singleBlockModelRecords.length; blockIndex++) {
                 blockRatioCyclesRecords.add(BlockRatioCyclesBuilder.initializeBlockCycles(
                         blockIndex + 1,
-                        singleBlockModelRecords[blockIndex].assembleCycleMeansForLogRatio(logRatioIndex),
-                        singleBlockModelRecords[blockIndex].assembleCycleStdDevForLogRatio(logRatioIndex),
+                        singleBlockModelRecords[blockIndex].assembleCycleMeansForRatio(logRatioIndex),
+                        singleBlockModelRecords[blockIndex].assembleCycleStdDevForRatio(logRatioIndex),
                         DUMMY_CYCLES_INCLUDED,
                         new String[]{isotopicRatioList.get(logRatioIndex).prettyPrint()},
-                        "TIME",
-                        "LOGRATIO",
+                        "Blocks & Cycles by Time",
+                        "Ratio",
                         true).getBlockCyclesRecord());
             }
             BlockRatioCyclesSessionBuilder blockRatioCyclesSessionBuilder =
                     BlockRatioCyclesSessionBuilder.initializeBlockRatioCyclesSession(
                             blockRatioCyclesRecords, new String[]{isotopicRatioList.get(logRatioIndex).prettyPrint()},
-                            "TIME", "LOGRATIO");
+                            "Blocks & Cycles by Time", "Ratio");
             AbstractPlot plot = BlockRatioCyclesSessionPlot.generatePlot(
                     new Rectangle(minPlotWidth, minPlotHeight), blockRatioCyclesSessionBuilder.getBlockRatioCyclesSessionRecord());
             tripoliPlotPane.addPlot(plot);

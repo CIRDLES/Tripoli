@@ -6,12 +6,26 @@ public record BlockRatioCyclesRecord(
         int blockID,
         boolean blockIncluded,
         boolean[] cyclesIncluded,
-        double[] cycleLogRatioMeansData,
-        double[] cycleLogRatioOneSigmaData,
+        double[] cycleRatioMeansData,
+        double[] cycleRatioOneSigmaData,
         double mean,
         double standardDeviation,
         String[] title,
         String xAxisLabel,
         String yAxisLabel
 ) implements Serializable {
+    public BlockRatioCyclesRecord toggleBlockIncluded() {
+        return new BlockRatioCyclesRecord(
+                blockID,
+                !blockIncluded,
+                cyclesIncluded,
+                cycleRatioMeansData,
+                cycleRatioOneSigmaData,
+                mean,
+                standardDeviation,
+                title,
+                xAxisLabel,
+                yAxisLabel
+        );
+    }
 }

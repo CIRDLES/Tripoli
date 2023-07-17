@@ -68,8 +68,8 @@ public class BlockRatioCyclesSessionBuilder extends PlotBuilder {
                 1,
                 1,
                 title,
-                "Block Number",
-                "LogRatio"
+                "Blocks & Cycles by Time",
+                "Ratio"
         );
     }
 

@@ -75,6 +75,7 @@ public abstract class AbstractPlot extends Canvas {
     protected boolean showStats;
     protected TripoliColor dataColor;
     protected boolean showYaxis;
+    protected boolean showXaxis;
 
     private AbstractPlot() {
     }
@@ -103,6 +104,7 @@ public abstract class AbstractPlot extends Canvas {
         ticsY = new BigDecimal[0];
         showStats = false;
         showYaxis = true;
+        showXaxis = true;
 
         updatePlotSize();
 
@@ -239,7 +241,7 @@ public abstract class AbstractPlot extends Canvas {
         }
 
         ticsY = TicGeneratorForAxes.generateTics(getDisplayMinY(), getDisplayMaxY(), (int) (plotHeight / 15.0));
-        if (0 == ticsY.length) {
+        if ((0 == ticsY.length) && !Double.isInfinite(minY)) {
             ticsY = new BigDecimal[2];
             ticsY[0] = new BigDecimal(Double.toString(minY));
             ticsY[ticsY.length - 1] = new BigDecimal(Double.toString(maxY));
@@ -257,49 +259,47 @@ public abstract class AbstractPlot extends Canvas {
         text.setFont(Font.font("SansSerif", 11));
         int textWidth;
 
-        if (1 < ticsY.length) {
-            if (showYaxis) {
-                // ticsY
-                float verticalTextShift = 3.2f;
-                g2d.setFont(Font.font("SansSerif", 10));
-                if (null != ticsY) {
-                    for (BigDecimal bigDecimalTicY : ticsY) {
-                        if ((mapY(bigDecimalTicY.doubleValue()) >= topMargin) && (mapY(bigDecimalTicY.doubleValue()) <= (topMargin + plotHeight))) {
-                            g2d.strokeLine(
-                                    leftMargin, mapY(bigDecimalTicY.doubleValue()), leftMargin + plotWidth, mapY(bigDecimalTicY.doubleValue()));
-                            // left side
-                            Formatter fmt = new Formatter();
-                            fmt.format("%8.3g", bigDecimalTicY.doubleValue());
-                            String yText = fmt.toString().trim();
-                            text.setText(yText);
-                            textWidth = (int) text.getLayoutBounds().getWidth();
-                            g2d.fillText(text.getText(),//
-                                    leftMargin - textWidth - 2.5f,
-                                    (float) mapY(bigDecimalTicY.doubleValue()) + verticalTextShift);
-                        }
+        if ((1 < ticsY.length) && showYaxis) {
+            // ticsY
+            float verticalTextShift = 3.2f;
+            g2d.setFont(Font.font("SansSerif", 10));
+            if (null != ticsY) {
+                for (BigDecimal bigDecimalTicY : ticsY) {
+                    if ((mapY(bigDecimalTicY.doubleValue()) >= topMargin) && (mapY(bigDecimalTicY.doubleValue()) <= (topMargin + plotHeight))) {
+                        g2d.strokeLine(
+                                leftMargin, mapY(bigDecimalTicY.doubleValue()), leftMargin + plotWidth, mapY(bigDecimalTicY.doubleValue()));
+                        // left side
+                        Formatter fmt = new Formatter();
+                        fmt.format("%8.3g", bigDecimalTicY.doubleValue());
+                        String yText = fmt.toString().trim();
+                        text.setText(yText);
+                        textWidth = (int) text.getLayoutBounds().getWidth();
+                        g2d.fillText(text.getText(),//
+                                leftMargin - textWidth - 2.5f,
+                                (float) mapY(bigDecimalTicY.doubleValue()) + verticalTextShift);
                     }
                 }
             }
-            // ticsX
-            if (null != ticsX) {
-                for (int i = 1; i < ticsX.length - 1; i++) {
-                    try {
-                        g2d.strokeLine(
-                                mapX(ticsX[i].doubleValue()),
-                                topMargin + plotHeight,
-                                mapX(ticsX[i].doubleValue()),
-                                topMargin + plotHeight + 3);
-                        // bottom
-                        // http://www.java2s.com/Tutorials/Java/String/How_to_use_Java_Formatter_to_format_value_in_scientific_notation.htm#:~:text=%25e%20is%20for%20scientific%20notation,scientific%20notation%2C%20use%20%25e.
-                        Formatter fmt = new Formatter();
-                        fmt.format("%8.5g", ticsX[i].doubleValue());
-                        String xText = fmt.toString().trim();
-                        g2d.fillText(xText,
-                                (float) mapX(ticsX[i].doubleValue()) - 7.0f,
-                                (float) topMargin + plotHeight + 10);
+        }
+        // ticsX
+        if ((null != ticsX) && showXaxis) {
+            for (int i = 1; i < ticsX.length - 1; i++) {
+                try {
+                    g2d.strokeLine(
+                            mapX(ticsX[i].doubleValue()),
+                            topMargin + plotHeight,
+                            mapX(ticsX[i].doubleValue()),
+                            topMargin + plotHeight + 3);
+                    // bottom
+                    // http://www.java2s.com/Tutorials/Java/String/How_to_use_Java_Formatter_to_format_value_in_scientific_notation.htm#:~:text=%25e%20is%20for%20scientific%20notation,scientific%20notation%2C%20use%20%25e.
+                    Formatter fmt = new Formatter();
+                    fmt.format("%8.5g", ticsX[i].doubleValue());
+                    String xText = fmt.toString().trim();
+                    g2d.fillText(xText,
+                            (float) mapX(ticsX[i].doubleValue()) - 7.0f,
+                            (float) topMargin + plotHeight + 10);
 
-                    } catch (Exception ignored) {
-                    }
+                } catch (Exception ignored) {
                 }
             }
         }
@@ -541,22 +541,24 @@ public abstract class AbstractPlot extends Canvas {
         this.height = height;
     }
 
-    private class MouseClickEventHandler implements EventHandler<MouseEvent> {
+    public void performPrimaryClick(double mouseX, double mouseY) {
 
+    }
+
+    class MouseClickEventHandler implements EventHandler<MouseEvent> {
         @Override
         public void handle(MouseEvent mouseEvent) {
             plotContextMenu.hide();
-            boolean isPrimary = 0 == mouseEvent.getButton().compareTo(MouseButton.PRIMARY);
+            boolean isPrimary = (0 == mouseEvent.getButton().compareTo(MouseButton.PRIMARY));
 
             if (mouseInHouse(mouseEvent.getX(), mouseEvent.getY())) {
                 if (isPrimary) {
+                    performPrimaryClick(mouseEvent.getX(), mouseEvent.getY());
                 } else {
                     plotContextMenu.show((Node) mouseEvent.getSource(), Side.LEFT, mouseEvent.getX() - getLayoutX(), mouseEvent.getY() - getLayoutY());
                 }
             }
-
         }
     }
-
 
 }

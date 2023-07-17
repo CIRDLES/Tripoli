@@ -541,6 +541,7 @@ x=x0;
                             dataModelUpdaterOutputRecord_x2.detectorFaradayGain(),
                             dataModelUpdaterOutputRecord_x2.mapDetectorOrdinalToFaradayIndex(),
                             dataModelUpdaterOutputRecord_x2.logRatios(),
+                            dataModelUpdaterOutputRecord_x2.mapOfSpeciesToActiveCycles(),
                             dataModelUpdaterOutputRecord_x2.mapLogRatiosToCycleStats(),
                             dataArray2.clone(),
                             dataWithNoBaselineArray2.clone(),

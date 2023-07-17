@@ -16,6 +16,8 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
+
 import java.io.Serializable;
 import java.util.Map;
 
@@ -26,6 +28,7 @@ public record SingleBlockModelRecord(
         double detectorFaradayGain,
         Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex,
         double[] logRatios,
+        Map<SpeciesRecordInterface, boolean[]> mapOfSpeciesToActiveCycles,
         Map<Integer, Map<Integer, double[]>> mapLogRatiosToCycleStats,
         double[] dataArray,
         double[] dataWithNoBaselineArray,
@@ -40,8 +43,8 @@ public record SingleBlockModelRecord(
         return logRatios().length + I0.length + faradayCount() + 1;
     }
 
-    public double[] assembleCycleMeansForLogRatio(int logRatioIndex) {
-        Map<Integer, double[]> mapCycleToStats = mapLogRatiosToCycleStats.get(logRatioIndex);
+    public double[] assembleCycleMeansForRatio(int ratioIndex) {
+        Map<Integer, double[]> mapCycleToStats = mapLogRatiosToCycleStats.get(ratioIndex);
         double[] cycleMeans = new double[mapCycleToStats.keySet().size()];
         for (int cycleIndex = 0; cycleIndex < mapCycleToStats.keySet().size(); cycleIndex++) {
             cycleMeans[cycleIndex] = mapCycleToStats.get(cycleIndex)[0];
@@ -49,8 +52,8 @@ public record SingleBlockModelRecord(
         return cycleMeans;
     }
 
-    public double[] assembleCycleStdDevForLogRatio(int logRatioIndex) {
-        Map<Integer, double[]> mapCycleToStats = mapLogRatiosToCycleStats().get(logRatioIndex);
+    public double[] assembleCycleStdDevForRatio(int ratioIndex) {
+        Map<Integer, double[]> mapCycleToStats = mapLogRatiosToCycleStats().get(ratioIndex);
         double[] cycleStdDev = new double[mapCycleToStats.keySet().size()];
         for (int cycleIndex = 0; cycleIndex < mapCycleToStats.keySet().size(); cycleIndex++) {
             cycleStdDev[cycleIndex] = mapCycleToStats.get(cycleIndex)[1];

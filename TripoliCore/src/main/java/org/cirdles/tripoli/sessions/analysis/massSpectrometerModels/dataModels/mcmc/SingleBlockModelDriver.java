@@ -22,6 +22,7 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.mathUtilities.SplineBasisModel;
@@ -48,7 +49,7 @@ public enum SingleBlockModelDriver {
         SingleBlockDataSetRecord singleBlockDataSetRecord = prepareSingleBlockDataForMCMC(blockNumber, massSpecExtractedData, analysisMethod);
         SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov;
         try {
-            singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC(analysisMethod.getSpeciesList().size(), singleBlockDataSetRecord, true);
+            singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC(analysisMethod.getSpeciesList(), singleBlockDataSetRecord, true);
         } catch (RecoverableCondition e) {
             throw new TripoliException("Ojalgo RecoverableCondition");
         }
@@ -98,12 +99,6 @@ public enum SingleBlockModelDriver {
         blockIsotopeOrdinalIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC.isotopeOrdinalIndicesAccumulatorList());
         int[] blockIsotopeOrdinalIndicesArray = blockIsotopeOrdinalIndicesList.stream().mapToInt(i -> i).toArray();
 
-        List<Double> blockTimeList = new ArrayList<>();
-        blockTimeList.addAll(baselineDataSetMCMC.timeAccumulatorList());
-        blockTimeList.addAll(onPeakFaradayDataSetMCMC.timeAccumulatorList());
-        blockTimeList.addAll(onPeakPhotoMultiplierDataSetMCMC.timeAccumulatorList());
-        double[] blockTimeArray = blockTimeList.stream().mapToDouble(i -> i).toArray();
-
         List<Integer> blockTimeIndicesList = new ArrayList<>();
         blockTimeIndicesList.addAll(baselineDataSetMCMC.timeIndexAccumulatorList());
         blockTimeIndicesList.addAll(onPeakFaradayDataSetMCMC.timeIndexAccumulatorList());
@@ -135,11 +130,16 @@ public enum SingleBlockModelDriver {
 
         boolean[] activeCycles = new boolean[onPeakStartingIndicesOfCycles.length];
         Arrays.fill(activeCycles, true);
+        List<SpeciesRecordInterface> species = analysisMethod.getSpeciesList();
+        Map<SpeciesRecordInterface, boolean[]> mapOfSpeciesToActiveCycles = new TreeMap<>();
+        for (SpeciesRecordInterface specie : species) {
+            mapOfSpeciesToActiveCycles.put(specie, activeCycles.clone());
+        }
 
         SingleBlockDataSetRecord singleBlockDataSetRecord =
                 new SingleBlockDataSetRecord(blockNumber, baselineDataSetMCMC, onPeakFaradayDataSetMCMC, onPeakPhotoMultiplierDataSetMCMC, blockKnotInterpolationStore,
-                        blockCycleArray, blockIntensityArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeArray, blockTimeIndicesArray,
-                        onPeakStartingIndicesOfCycles, activeCycles, blockMapIdsToDataTimes);
+                        blockCycleArray, blockIntensityArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeIndicesArray,
+                        onPeakStartingIndicesOfCycles, mapOfSpeciesToActiveCycles, blockMapIdsToDataTimes);
 
         return singleBlockDataSetRecord;
     }

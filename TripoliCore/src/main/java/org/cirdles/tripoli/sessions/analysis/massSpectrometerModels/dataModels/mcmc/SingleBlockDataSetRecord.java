@@ -16,10 +16,12 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author James F. Bowring
@@ -34,11 +36,10 @@ public record SingleBlockDataSetRecord(
         double[] blockIntensityArray,
         int[] blockDetectorOrdinalIndicesArray,
         int[] blockIsotopeOrdinalIndicesArray,
-        double[] blockTimeArray,
         int[] blockTimeIndicesArray,
         int[] onPeakStartingIndicesOfCycles,
-        boolean[] activeOnPeakCycles,
-        java.util.Map<String, List<Double>> blockMapIdsToDataTimes) implements Serializable {
+        Map<SpeciesRecordInterface, boolean[]> mapOfSpeciesToActiveCycles,
+        Map<String, List<Double>> blockMapIdsToDataTimes) implements Serializable {
     int getCountOfBaselineIntensities() {
         return baselineDataSetMCMC().intensityAccumulatorList().size();
     }

@@ -40,10 +40,10 @@ public class RatioHistogramBuilder extends HistogramBuilder {
 
     public static RatioHistogramBuilder initializeRatioHistogram(int blockID, IsotopicRatio ratio, IsotopicRatio invertedRatio, int binCount) {
         RatioHistogramBuilder ratioHistogramBuilder = new RatioHistogramBuilder(blockID, new String[]{ratio.prettyPrint()}, "Ratios", "Frequency", ratio.isDisplayed());
-        ratioHistogramBuilder.histogramRecord = ratioHistogramBuilder.generateHistogram(blockID, ratio.getRatioValues(), binCount, new String[]{ratio.prettyPrint()}, "Ratio");
-        ratioHistogramBuilder.invertedRatioHistogramRecord = ratioHistogramBuilder.generateHistogram(blockID, invertedRatio.getRatioValues(), binCount, new String[]{invertedRatio.prettyPrint()}, "Ratio");
-        ratioHistogramBuilder.logRatioHistogramRecord = ratioHistogramBuilder.generateHistogram(blockID, ratio.getLogRatioValues(), binCount, new String[]{"Log " + ratio.prettyPrint()}, "LogRatio");
-        ratioHistogramBuilder.logInvertedRatioHistogramRecord = ratioHistogramBuilder.generateHistogram(blockID, invertedRatio.getLogRatioValues(), binCount, new String[]{"Log " + invertedRatio.prettyPrint()}, "LogRatio");
+        ratioHistogramBuilder.histogramRecord = ratioHistogramBuilder.generateHistogram(blockID, ratio.getRatioValuesForBlockEnsembles(), binCount, new String[]{ratio.prettyPrint()}, "Ratio");
+        ratioHistogramBuilder.invertedRatioHistogramRecord = ratioHistogramBuilder.generateHistogram(blockID, invertedRatio.getRatioValuesForBlockEnsembles(), binCount, new String[]{invertedRatio.prettyPrint()}, "Ratio");
+        ratioHistogramBuilder.logRatioHistogramRecord = ratioHistogramBuilder.generateHistogram(blockID, ratio.getLogRatioValuesForBlockEnsembles(), binCount, new String[]{"Log " + ratio.prettyPrint()}, "LogRatio");
+        ratioHistogramBuilder.logInvertedRatioHistogramRecord = ratioHistogramBuilder.generateHistogram(blockID, invertedRatio.getLogRatioValuesForBlockEnsembles(), binCount, new String[]{"Log " + invertedRatio.prettyPrint()}, "LogRatio");
         return ratioHistogramBuilder;
     }
 

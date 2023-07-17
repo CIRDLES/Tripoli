@@ -30,8 +30,8 @@ public class IsotopicRatio implements Serializable, Comparable {
     private static final long serialVersionUID = 676151940943728743L;
     private final SpeciesRecordInterface numerator;
     private final SpeciesRecordInterface denominator;
-    private double[] ratioValues;
-    private double[] logRatioValues;
+    private double[] ratioValuesForBlockEnsembles;
+    private double[] logRatioValuesForBlockEnsembles;
 
     private boolean displayed;
 
@@ -39,7 +39,8 @@ public class IsotopicRatio implements Serializable, Comparable {
         this.numerator = numerator;
         this.denominator = denominator;
         this.displayed = displayed;
-        this.ratioValues = new double[0];
+        this.ratioValuesForBlockEnsembles = new double[0];
+        this.logRatioValuesForBlockEnsembles = new double[0];
     }
 
     public String prettyPrint() {
@@ -92,20 +93,20 @@ public class IsotopicRatio implements Serializable, Comparable {
         return Objects.hash(numerator, denominator);
     }
 
-    public double[] getRatioValues() {
-        return ratioValues;
+    public double[] getRatioValuesForBlockEnsembles() {
+        return ratioValuesForBlockEnsembles;
     }
 
-    public void setRatioValues(double[] ratioValues) {
-        this.ratioValues = ratioValues;
+    public void setRatioValuesForBlockEnsembles(double[] ratioValuesForBlockEnsembles) {
+        this.ratioValuesForBlockEnsembles = ratioValuesForBlockEnsembles;
     }
 
-    public double[] getLogRatioValues() {
-        return logRatioValues;
+    public double[] getLogRatioValuesForBlockEnsembles() {
+        return logRatioValuesForBlockEnsembles;
     }
 
-    public void setLogRatioValues(double[] logRatioValues) {
-        this.logRatioValues = logRatioValues;
+    public void setLogRatioValuesForBlockEnsembles(double[] logRatioValuesForBlockEnsembles) {
+        this.logRatioValuesForBlockEnsembles = logRatioValuesForBlockEnsembles;
     }
     //    private void readObject(ObjectInputStream stream) throws IOException,
 //            ClassNotFoundException {

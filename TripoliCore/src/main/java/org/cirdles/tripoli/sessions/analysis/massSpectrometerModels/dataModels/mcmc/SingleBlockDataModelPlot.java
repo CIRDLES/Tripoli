@@ -92,8 +92,8 @@ public enum SingleBlockDataModelPlot {
             logRatioMean[ratioIndex] = descriptiveStatisticsLogRatios.getMean();
             logRatioStdDev[ratioIndex] = descriptiveStatisticsLogRatios.getStandardDeviation();
 
-            isotopicRatioList.get(ratioIndex).setRatioValues(ensembleRatios[ratioIndex]);
-            isotopicRatioList.get(ratioIndex).setLogRatioValues(ensembleSetOfLogRatios[ratioIndex]);
+            isotopicRatioList.get(ratioIndex).setRatioValuesForBlockEnsembles(ensembleRatios[ratioIndex]);
+            isotopicRatioList.get(ratioIndex).setLogRatioValuesForBlockEnsembles(ensembleSetOfLogRatios[ratioIndex]);
         }
         // derived ratios
         List<IsotopicRatio> derivedIsotopicRatiosList = analysisMethod.getDerivedIsotopicRatiosList();
@@ -130,8 +130,8 @@ public enum SingleBlockDataModelPlot {
 //                            1.0 / ensembleSetOfLogRatios[indexOfTargetRatio][ensembleIndex];
                 }
             }
-            derivedIsotopicRatiosList.get(derivedRatioIndex).setRatioValues(derivedEnsembleRatios[derivedRatioIndex]);
-            derivedIsotopicRatiosList.get(derivedRatioIndex).setLogRatioValues(derivedEnsembleLogRatios[derivedRatioIndex]);
+            derivedIsotopicRatiosList.get(derivedRatioIndex).setRatioValuesForBlockEnsembles(derivedEnsembleRatios[derivedRatioIndex]);
+            derivedIsotopicRatiosList.get(derivedRatioIndex).setLogRatioValuesForBlockEnsembles(derivedEnsembleLogRatios[derivedRatioIndex]);
             derivedRatioIndex++;
         }
 
