@@ -91,7 +91,7 @@
         <Button layoutX="433.0" layoutY="7.0" mnemonicParsing="false" onAction="#restoreAllAction"
                 style="-fx-text-fill: RED;" text="Restore All"/>
         <Button id="MCMC" fx:id="reviewSculptData" layoutX="527.0" layoutY="7.0" mnemonicParsing="false"
-                onAction="#reviewAndSculptDataAction" style="-fx-text-fill: RED;" text="Review and Sculpt Data"/>
+                onAction="#reviewAndSculptDataAction" style="-fx-text-fill: RED;" text="Preview and Sculpt Data"/>
         <Button id="MCMC" fx:id="mcmcButton" layoutX="609.0" layoutY="7.0" mnemonicParsing="false"
                 onAction="#initializeMonteCarloTechniqueAction" style="-fx-text-fill: RED;"
                 text="Process / Plot Blocks using MCMC"/>

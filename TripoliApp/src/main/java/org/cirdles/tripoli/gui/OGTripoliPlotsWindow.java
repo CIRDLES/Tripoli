@@ -47,7 +47,7 @@ public class OGTripoliPlotsWindow {
         plottingStage = new Stage();
         plottingStage.setMinWidth(PLOT_WINDOW_WIDTH);
         plottingStage.setMinHeight(PLOT_WINDOW_HEIGHT);
-        plottingStage.setTitle("Tripoli Review and Sculpt Data");
+        plottingStage.setTitle("Tripoli Preview and Sculpt Data");
 
         plottingStage.setOnCloseRequest((WindowEvent e) -> {
             plottingStage.hide();

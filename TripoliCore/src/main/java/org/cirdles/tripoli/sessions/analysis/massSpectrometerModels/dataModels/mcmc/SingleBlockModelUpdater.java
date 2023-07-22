@@ -192,8 +192,9 @@ public class SingleBlockModelUpdater {
                     updatedIntensities,
                     singleBlockInitialModelRecord_initial.intensities(),
                     singleBlockInitialModelRecord_initial.faradayCount(),
-                    singleBlockInitialModelRecord_initial.isotopeCount()
-            );
+                    singleBlockInitialModelRecord_initial.isotopeCount(),
+                    0,
+                    singleBlockInitialModelRecord_initial.highestAbundanceSpecies());
         }
 
         return singleBlockInitialModelRecord_initial2;

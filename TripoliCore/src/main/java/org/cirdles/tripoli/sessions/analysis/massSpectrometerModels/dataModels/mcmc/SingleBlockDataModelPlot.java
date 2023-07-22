@@ -126,8 +126,6 @@ public enum SingleBlockDataModelPlot {
                             1.0 / ensembleRatios[indexOfTargetRatio][ensembleIndex];
                     derivedEnsembleLogRatios[derivedRatioIndex][ensembleIndex] =
                             StrictMath.log(derivedEnsembleRatios[derivedRatioIndex][ensembleIndex]);
-//                    derivedEnsembleLogRatios[derivedRatioIndex][ensembleIndex] =
-//                            1.0 / ensembleSetOfLogRatios[indexOfTargetRatio][ensembleIndex];
                 }
             }
             derivedIsotopicRatiosList.get(derivedRatioIndex).setRatioValuesForBlockEnsembles(derivedEnsembleRatios[derivedRatioIndex]);

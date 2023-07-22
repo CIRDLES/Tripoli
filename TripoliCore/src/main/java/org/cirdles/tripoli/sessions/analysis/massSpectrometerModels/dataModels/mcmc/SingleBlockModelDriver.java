@@ -49,7 +49,7 @@ public enum SingleBlockModelDriver {
         SingleBlockDataSetRecord singleBlockDataSetRecord = prepareSingleBlockDataForMCMC(blockNumber, massSpecExtractedData, analysisMethod);
         SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov;
         try {
-            singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC(analysisMethod.getSpeciesList(), singleBlockDataSetRecord, true);
+            singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC(analysisMethod, singleBlockDataSetRecord, true);
         } catch (RecoverableCondition e) {
             throw new TripoliException("Ojalgo RecoverableCondition");
         }

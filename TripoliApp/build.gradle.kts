@@ -26,6 +26,9 @@ application {
 }
 
 dependencies {
+    implementation(files("./lib/cirdles.jar"))
+
+
     implementation(project(":TripoliCore"))
     implementation("org.jetbrains:annotations:24.0.1")
 
@@ -74,4 +77,8 @@ tasks.create("fatAppJar", Jar::class) {
 }
 repositories {
     mavenCentral()
+    mavenLocal()
+    flatDir {
+        dirs ("./lib")
+    }
 }

@@ -42,6 +42,9 @@ dependencies {
     implementation("jakarta.annotation:jakarta.annotation-api:2.1.1")
     // https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
+
+    // https://mvnrepository.com/artifact/com.google.guava/guava
+    implementation("com.google.guava:guava:31.1-jre")
 }
 
 val mavenArtifactId = name

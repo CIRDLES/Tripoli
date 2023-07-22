@@ -541,16 +541,19 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 stateColor = TRIPOLI_ANALYSIS_RED;
                 blockStatusButton.setUserData(SKIP);
                 blockStatusButton.setText("Skip " + blockStatusButton.getId());
+                analysis.getMapOfBlockIdToProcessStatus().put(Integer.parseInt(blockStatusButton.getId()), SKIP);
             }
             case RUN -> {
                 stateColor = Color.WHITE;
                 blockStatusButton.setUserData(RUN);
                 blockStatusButton.setText("Run " + blockStatusButton.getId());
+                analysis.getMapOfBlockIdToProcessStatus().put(Integer.parseInt(blockStatusButton.getId()), RUN);
             }
             case SHOW -> {
                 stateColor = TRIPOLI_ANALYSIS_GREEN;
                 blockStatusButton.setUserData(SHOW);
                 blockStatusButton.setText("Show " + blockStatusButton.getId());
+                analysis.getMapOfBlockIdToProcessStatus().put(Integer.parseInt(blockStatusButton.getId()), SHOW);
             }
         }
         blockStatusButton.setStyle("-fx-background-color: " + convertColorToHex(stateColor) + ";-fx-border-color: BLACK");

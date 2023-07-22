@@ -32,27 +32,21 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 /**
  * @author James F. Bowring
  */
-public class AllBlockInitForMCMC {
+public class AllBlockInitForOGTripoli {
 
     public static SingleBlockModelRecord[] initBlockModels(AnalysisInterface analysis) throws TripoliException {
         // check process status
         MassSpecExtractedData massSpecExtractedData = analysis.getMassSpecExtractedData();
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
-        List<Integer> blocksToProcess = new ArrayList<>();
 
-        for (Integer blockID : analysis.getMapOfBlockIdToProcessStatus().keySet()) {
-            if (SKIP != analysis.getMapOfBlockIdToProcessStatus().get(blockID)) {
-                blocksToProcess.add(blockID);
-            }
-        }
-        int countOfBlocks = blocksToProcess.size();
+        int countOfBlocks = analysis.getMapOfBlockIdToProcessStatus().keySet().size();
         SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[countOfBlocks];
 
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
             SingleBlockDataSetRecord singleBlockDataSetRecord = prepareSingleBlockDataForMCMC(blockIndex + 1, massSpecExtractedData, analysisMethod);
             SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithNoCov;
             try {
-                singleBlockInitialModelRecordWithNoCov = initializeModelForSingleBlockMCMC(analysis.getAnalysisMethod().getSpeciesList(), singleBlockDataSetRecord, false);
+                singleBlockInitialModelRecordWithNoCov = initializeModelForSingleBlockMCMC(analysis.getAnalysisMethod(), singleBlockDataSetRecord, false);
             } catch (RecoverableCondition e) {
                 throw new TripoliException("Ojalgo RecoverableCondition");
             }

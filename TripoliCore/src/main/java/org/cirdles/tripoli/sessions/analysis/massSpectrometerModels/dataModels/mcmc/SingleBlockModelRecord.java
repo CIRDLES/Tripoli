@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
+import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.io.Serializable;
@@ -29,35 +30,96 @@ public record SingleBlockModelRecord(
         Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex,
         double[] logRatios,
         Map<SpeciesRecordInterface, boolean[]> mapOfSpeciesToActiveCycles,
-        Map<Integer, Map<Integer, double[]>> mapLogRatiosToCycleStats,
+        //TODO: convert to logratios?
+        Map<IsotopicRatio, Map<Integer, double[]>> mapLogRatiosToCycleStats,
         double[] dataArray,
         double[] dataWithNoBaselineArray,
         double[] dataSignalNoiseArray,
         double[] I0,
         double[] intensities,
         int faradayCount,
-        int isotopeCount
-) implements Serializable {
+        int isotopeCount,
+        int cycleCount,
+        SpeciesRecordInterface highestAbundanceSpecies) implements Serializable {
 
     public int sizeOfModel() {
         return logRatios().length + I0.length + faradayCount() + 1;
     }
 
-    public double[] assembleCycleMeansForRatio(int ratioIndex) {
-        Map<Integer, double[]> mapCycleToStats = mapLogRatiosToCycleStats.get(ratioIndex);
-        double[] cycleMeans = new double[mapCycleToStats.keySet().size()];
-        for (int cycleIndex = 0; cycleIndex < mapCycleToStats.keySet().size(); cycleIndex++) {
-            cycleMeans[cycleIndex] = mapCycleToStats.get(cycleIndex)[0];
+    public double[] assembleCycleMeansForRatio(IsotopicRatio ratio) {
+        Map<Integer, double[]> mapCycleToStats = mapLogRatiosToCycleStats.get(ratio);
+        double[] cycleMeans = new double[cycleCount];
+        if (mapCycleToStats != null) {
+            for (int cycleIndex = 0; cycleIndex < mapCycleToStats.keySet().size(); cycleIndex++) {
+                cycleMeans[cycleIndex] = mapCycleToStats.get(cycleIndex)[0];
+            }
+        } else {
+            cycleMeans = calculateDerivedRatioMean(ratio);
         }
         return cycleMeans;
     }
 
-    public double[] assembleCycleStdDevForRatio(int ratioIndex) {
-        Map<Integer, double[]> mapCycleToStats = mapLogRatiosToCycleStats().get(ratioIndex);
-        double[] cycleStdDev = new double[mapCycleToStats.keySet().size()];
-        for (int cycleIndex = 0; cycleIndex < mapCycleToStats.keySet().size(); cycleIndex++) {
-            cycleStdDev[cycleIndex] = mapCycleToStats.get(cycleIndex)[1];
+    public double[] assembleCycleStdDevForRatio(IsotopicRatio ratio) {
+        Map<Integer, double[]> mapCycleToStats = mapLogRatiosToCycleStats().get(ratio);
+        double[] cycleStdDev = new double[cycleCount];
+        if (mapCycleToStats != null) {
+            for (int cycleIndex = 0; cycleIndex < mapCycleToStats.keySet().size(); cycleIndex++) {
+                cycleStdDev[cycleIndex] = mapCycleToStats.get(cycleIndex)[1];
+            }
+        } else {
+            cycleStdDev = calculateDerivedRatioOneSigma(ratio);
         }
         return cycleStdDev;
+    }
+
+    private double[] calculateDerivedRatioMean(IsotopicRatio  derivedRatio){
+        double[] cycleMeans = new double[cycleCount];
+        SpeciesRecordInterface numerator = derivedRatio.getNumerator();
+        SpeciesRecordInterface denominator = derivedRatio.getDenominator();
+
+        if (numerator.equals(highestAbundanceSpecies)) {
+            IsotopicRatio targetRatio = new IsotopicRatio(denominator, highestAbundanceSpecies, false);
+            Map<Integer, double[]> mapCycleToStats = mapLogRatiosToCycleStats().get(targetRatio);
+            for (int cycleIndex = 0; cycleIndex < cycleCount; cycleIndex++){
+                cycleMeans[cycleIndex] = 1.0 / mapCycleToStats.get(cycleIndex)[0];
+            }
+        } else {
+            IsotopicRatio numRatio = null;
+            IsotopicRatio denRatio = null;
+            for (IsotopicRatio isoRatio : mapLogRatiosToCycleStats.keySet()){
+                if (isoRatio.getNumerator().equals(numerator)){
+                    numRatio = isoRatio;
+                }
+                if (isoRatio.getNumerator().equals(denominator)){
+                    denRatio = isoRatio;
+                }
+            }
+            Map<Integer, double[]> mapCycleToStatsNumRatio = mapLogRatiosToCycleStats().get(numRatio);
+            Map<Integer, double[]> mapCycleToStatsDenRatio = mapLogRatiosToCycleStats().get(denRatio);
+            for (int cycleIndex = 0; cycleIndex < cycleCount; cycleIndex++){
+                cycleMeans[cycleIndex] = mapCycleToStatsNumRatio.get(cycleIndex)[0] / mapCycleToStatsDenRatio.get(cycleIndex)[0];
+            }
+        }
+
+        return cycleMeans;
+    }
+
+    private double[] calculateDerivedRatioOneSigma(IsotopicRatio  derivedRatio){
+        double[] cycleOneSigmas = new double[cycleCount];
+        SpeciesRecordInterface numerator = derivedRatio.getNumerator();
+        SpeciesRecordInterface denominator = derivedRatio.getDenominator();
+// need to recalculate
+        if (numerator.equals(highestAbundanceSpecies)) {
+            IsotopicRatio targetRatio = new IsotopicRatio(denominator, highestAbundanceSpecies, false);
+            Map<Integer, double[]> mapCycleToStats = mapLogRatiosToCycleStats().get(targetRatio);
+//            for (int cycleIndex = 0; cycleIndex < cycleCount; cycleIndex++){
+//                cycleOneSigmas[cycleIndex] = 1.0 / mapCycleToStats.get(cycleIndex)[1];
+//            }
+        } else {
+
+
+        }
+
+        return cycleOneSigmas;
     }
 }

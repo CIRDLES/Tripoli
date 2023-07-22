@@ -11,6 +11,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
+import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
@@ -23,6 +24,7 @@ import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.*;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.BeamShapeTestDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.PeakShapeOutputDataRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.PeakShapeProcessor_PhoenixTextFile;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
 import java.io.File;
@@ -38,6 +40,7 @@ import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWid
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow.plottingWindow;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.MassSpectrometerBuiltinModelFactory.massSpectrometerModelBuiltinMap;
 
 public class PeakShapeDemoPlotsControllerTest {
     public static List<File> resourceFilesInFolder;
@@ -454,11 +457,17 @@ public class PeakShapeDemoPlotsControllerTest {
 
 
         if (resourceBrowserTarget != null && resourceBrowserTarget.isFile()) {
-            final PeakShapesService service = new PeakShapesService(resourceBrowserTarget.toPath());
+            PeakShapesService service = new PeakShapesService(resourceBrowserTarget.toPath());
             eventLogTextArea.textProperty().bind(service.valueProperty());
             try {
                 PlotBuilder[] plots = BeamShapeTestDriver.modelTest(resourceBrowserTarget.toPath(), this::populateListOfResources);
-                PeakShapeOutputDataRecord peakShapeOutputDataRecord = BeamShapeLinePlotBuilderX.getPeakData(resourceBrowserTarget.toPath());
+                PeakShapeOutputDataRecord peakShapeOutputDataRecord =
+                        PeakShapeProcessor_PhoenixTextFile.initializeWithMassSpectrometer(
+                                massSpectrometerModelBuiltinMap.get(MassSpectrometerContextEnum.PHOENIX.getMassSpectrometerName()))
+                                .prepareInputDataModelFromFile(resourceBrowserTarget.toPath());
+
+
+//                        BeamShapeLinePlotBuilderX.getPeakData(resourceBrowserTarget.toPath());
                 //BeamShapeLinePlotBuilderX beamShape = BeamShapeLinePlotBuilderX.initializeBeamShape(peakShapeOutputDataRecord, new String[]{peakShapeOutputDataRecord.massID()}, "Mass (amu)", "Beam Intensity");
 
                 PeakShapesOverlayBuilder peakShapes = PeakShapesOverlayBuilder.initializePeakShape(1, peakShapeOutputDataRecord,

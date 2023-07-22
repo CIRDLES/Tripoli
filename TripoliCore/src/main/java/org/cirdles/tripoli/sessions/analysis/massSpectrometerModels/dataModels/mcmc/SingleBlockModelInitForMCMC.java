@@ -19,7 +19,8 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.
 import jama.Matrix;
 import org.apache.commons.math3.linear.*;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.cirdles.tripoli.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLab;
 import org.ojalgo.RecoverableCondition;
 
@@ -35,12 +36,12 @@ import static org.cirdles.tripoli.utilities.comparators.SerializableIntegerCompa
 enum SingleBlockModelInitForMCMC {
     ;
 
-    static SingleBlockModelRecordWithCov initializeModelForSingleBlockMCMC(List<SpeciesRecordInterface> speciesList, SingleBlockDataSetRecord singleBlockDataSetRecord, boolean provideCovariance) throws RecoverableCondition {
+    static SingleBlockModelRecordWithCov initializeModelForSingleBlockMCMC(AnalysisMethod analysisMethod, SingleBlockDataSetRecord singleBlockDataSetRecord, boolean provideCovariance) throws RecoverableCondition {
         int baselineCount = singleBlockDataSetRecord.baselineDataSetMCMC().intensityAccumulatorList().size();
         int onPeakFaradayCount = singleBlockDataSetRecord.onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
         int onPeakPhotoMultCount = singleBlockDataSetRecord.onPeakPhotoMultiplierDataSetMCMC().intensityAccumulatorList().size();
         int totalIntensityCount = baselineCount + onPeakFaradayCount + onPeakPhotoMultCount;
-        int countOfIsotopes = speciesList.size();
+        int countOfIsotopes = analysisMethod.getSpeciesList().size();
 
         // Baseline statistics *****************************************************************************************
         /*
@@ -86,6 +87,7 @@ enum SingleBlockModelInitForMCMC {
         // june 2023 new init line 14 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // june 2023 new init - will need to be user input
         int iden = indexOfMostAbundantIsotope + 1; // ordinal
+        IsotopicRatio idenIden =  new IsotopicRatio(analysisMethod.getSpeciesList().get(iden - 1), analysisMethod.getSpeciesList().get(iden - 1),false);
 
         //TODO: Fix this when using bbase
         //TODO: handle case of only 2 cycles, which blows up calculateDFGain since it thrwos out first and last
@@ -201,11 +203,12 @@ enum SingleBlockModelInitForMCMC {
          */
         int[] isotopeOrdinalIndicesAccumulatorArray = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
         int cycleCount = singleBlockDataSetRecord.onPeakStartingIndicesOfCycles().length;
-        double[] logRatios = new double[indexOfMostAbundantIsotope];
-        double[][] cycleLogRatios = new double[countOfIsotopes][cycleCount];
-        Map<Integer, Map<Integer, double[]>> mapLogRatiosToCycleStats = new TreeMap<>();
-        int isotopeCount = logRatios.length + 1;
-        for (int isotopeIndex = 0; isotopeIndex < countOfIsotopes /* logRatios.length*/; isotopeIndex++) {
+        double[] logRatios = new double[analysisMethod.getIsotopicRatiosList().size()];
+//        double[][] cycleLogRatios = new double[countOfIsotopes][cycleCount];
+        Map<IsotopicRatio, Map<Integer, double[]>> mapLogRatiosToCycleStats = new TreeMap<>();
+
+        Map<Integer, double[]> denominatorMapCyclesToStats = new TreeMap<>();
+        for (int isotopeIndex = 0; isotopeIndex < countOfIsotopes; isotopeIndex++) {
             ddver2List = new ArrayList<>();
             cyclesList = new ArrayList<>();
             tempTime = new ArrayList<>();
@@ -254,12 +257,13 @@ enum SingleBlockModelInitForMCMC {
                     cycleStats[cycle] = new DescriptiveStatistics();
                 }
                 // TODO: make this a check for both isotopes (eventually may include denominator as one that be excluded)
-                if (singleBlockDataSetRecord.mapOfSpeciesToActiveCycles().get(speciesList.get(isotopeIndex))[cycle]) {
+                if (singleBlockDataSetRecord.mapOfSpeciesToActiveCycles().get(analysisMethod.getSpeciesList().get(isotopeIndex))[cycle]) {
                     cycleStats[cycle].addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
                 }
             }
 
             Map<Integer, double[]> mapCyclesToStats = new TreeMap<>();
+
             for (int cycleIndex = 0; cycleIndex < cycleStats.length; cycleIndex++) {
                 // TODO: fix this - currently using ratios instead of logs for cycles - see ViewCycles in matlab
                 double[] cycleLogRatioStats = new double[2];
@@ -273,13 +277,16 @@ enum SingleBlockModelInitForMCMC {
                 }
                 mapCyclesToStats.put(cycleIndex, cycleLogRatioStats);
             }
-            mapLogRatiosToCycleStats.put(isotopeIndex, mapCyclesToStats);
+            if (isotopeIndex == iden - 1){
+                denominatorMapCyclesToStats = mapCyclesToStats;
+            } else {
+                mapLogRatiosToCycleStats.put(analysisMethod.getIsotopicRatiosList().get(isotopeIndex), mapCyclesToStats);
+            }
         }
 
         // postprocess to correct by denominator isotope as per ViewCycles in matlab
-        Map<Integer, double[]> denominatorMapCyclesToStats = mapLogRatiosToCycleStats.get(logRatios.length);
-        for (int i = 0; i < countOfIsotopes - 1; i++) {
-            Map<Integer, double[]> numeratorMapCyclesToStats = mapLogRatiosToCycleStats.get(i);
+        for (IsotopicRatio iRatio : mapLogRatiosToCycleStats.keySet()){
+            Map<Integer, double[]> numeratorMapCyclesToStats = mapLogRatiosToCycleStats.get(iRatio);
             for (int cycleIndex = 0; cycleIndex < numeratorMapCyclesToStats.keySet().size(); cycleIndex++) {
                 numeratorMapCyclesToStats.get(cycleIndex)[0] /= denominatorMapCyclesToStats.get(cycleIndex)[0];
                 double calcSterrCycleRatio =
@@ -288,6 +295,7 @@ enum SingleBlockModelInitForMCMC {
                 numeratorMapCyclesToStats.get(cycleIndex)[1] = calcSterrCycleRatio;
             }
         }
+
 
         /*
         %% Initialize Dsig Noise Variance values
@@ -372,8 +380,8 @@ enum SingleBlockModelInitForMCMC {
                 intensity_I,//calculated
                 intensityFn.getColumnPackedCopy(),
                 mapDetectorOrdinalToFaradayIndex.size(),
-                isotopeCount
-        );
+                countOfIsotopes,
+                cycleCount, analysisMethod.retrieveHighestAbundanceSpecies());
 
         double[] dataModel = modelInitData(originalX0, singleBlockDataSetRecord);
         // note: this datamodel replicates matlab datamodel when using linear knots
@@ -393,7 +401,7 @@ enum SingleBlockModelInitForMCMC {
                 intensity_I,//calculated
                 intensityFn.getColumnPackedCopy(),//calculated
                 mapDetectorOrdinalToFaradayIndex.size(),//calculated
-                isotopeCount);
+                countOfIsotopes, cycleCount, analysisMethod.retrieveHighestAbundanceSpecies());
 
         Matrix covarianceMatrix_C0 = null;
         if (provideCovariance) {
@@ -446,7 +454,7 @@ enum SingleBlockModelInitForMCMC {
                             intensity_I,
                             intensityFn.getColumnPackedCopy(),
                             mapDetectorOrdinalToFaradayIndex.size(),
-                            isotopeCount);
+                            countOfIsotopes, cycleCount, analysisMethod.retrieveHighestAbundanceSpecies());
                     try {
                         dataModel = modelInitData(testX0, singleBlockDataSetRecord);
                         eTmp[ii] = calcError(singleBlockDataSetRecord.blockIntensityArray(), dataModel, dataSignalNoiseArray_Dsig);
@@ -506,7 +514,7 @@ enum SingleBlockModelInitForMCMC {
                             testIntensity,
                             intensityFn.getColumnPackedCopy(),
                             mapDetectorOrdinalToFaradayIndex.size(),
-                            isotopeCount);
+                            countOfIsotopes, cycleCount, analysisMethod.retrieveHighestAbundanceSpecies());
                     dataModel = modelInitData(testX0, singleBlockDataSetRecord);
                     eTmp[ii] = calcError(singleBlockDataSetRecord.blockIntensityArray(), dataModel, dataSignalNoiseArray_Dsig);
                     minETmp = Math.min(eTmp[ii], minETmp);
@@ -553,7 +561,8 @@ enum SingleBlockModelInitForMCMC {
                         intensity_I,
                         intensityFn.getColumnPackedCopy(),
                         mapDetectorOrdinalToFaradayIndex.size(),
-                        isotopeCount);
+                        countOfIsotopes,
+                        cycleCount, analysisMethod.retrieveHighestAbundanceSpecies());
 
                 dataModel = modelInitData(testX0, singleBlockDataSetRecord);
                 eTmp[ii] = calcError(singleBlockDataSetRecord.blockIntensityArray(), dataModel, dataSignalNoiseArray_Dsig);
@@ -606,7 +615,8 @@ enum SingleBlockModelInitForMCMC {
                             intensity_I,
                             intensityFn.getColumnPackedCopy(),
                             mapDetectorOrdinalToFaradayIndex.size(),
-                            isotopeCount);
+                            countOfIsotopes,
+                            cycleCount, analysisMethod.retrieveHighestAbundanceSpecies());
                     dataModel = modelInitData(testX0, singleBlockDataSetRecord);
                     eTmp[ii] = calcError(singleBlockDataSetRecord.blockIntensityArray(), dataModel, dataSignalNoiseArray_Dsig);
                     minETmp = Math.min(eTmp[ii], minETmp);

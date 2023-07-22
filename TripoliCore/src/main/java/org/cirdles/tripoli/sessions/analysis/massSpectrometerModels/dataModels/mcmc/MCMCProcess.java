@@ -549,8 +549,8 @@ x=x0;
                             dataModelUpdaterOutputRecord_x2.I0(),
                             intensity2.toRawCopy1D(),
                             dataModelUpdaterOutputRecord_x2.faradayCount(),
-                            dataModelUpdaterOutputRecord_x2.isotopeCount()
-                    );
+                            dataModelUpdaterOutputRecord_x2.isotopeCount(),
+                            0, analysisMethod.retrieveHighestAbundanceSpecies());
 
                     keptUpdates[operationIndex][0] = keptUpdates[operationIndex][0] + 1;
                     keptUpdates[operationIndex][2] = keptUpdates[operationIndex][2] + 1;
