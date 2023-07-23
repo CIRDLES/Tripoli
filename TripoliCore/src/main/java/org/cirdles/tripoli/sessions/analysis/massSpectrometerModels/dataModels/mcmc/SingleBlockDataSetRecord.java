@@ -51,7 +51,7 @@ public record SingleBlockDataSetRecord(
     /**
      * @author James F. Bowring
      */
-    record SingleBlockDataRecord(
+    public record SingleBlockDataRecord(
             int blockNumber,
             List<Integer> detectorOrdinalIndicesAccumulatorList,
             List<Integer> cycleAccumulatorList,

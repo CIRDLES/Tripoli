@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
+import org.apache.commons.math3.analysis.function.Sin;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
@@ -34,25 +35,31 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
  */
 public class AllBlockInitForOGTripoli {
 
-    public static SingleBlockModelRecord[] initBlockModels(AnalysisInterface analysis) throws TripoliException {
+    public static PlottingData initBlockModels(AnalysisInterface analysis) throws TripoliException {
         // check process status
         MassSpecExtractedData massSpecExtractedData = analysis.getMassSpecExtractedData();
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
 
         int countOfBlocks = analysis.getMapOfBlockIdToProcessStatus().keySet().size();
+        SingleBlockDataSetRecord[] singleBlockDataSetRecords = new SingleBlockDataSetRecord[countOfBlocks];
         SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[countOfBlocks];
 
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
-            SingleBlockDataSetRecord singleBlockDataSetRecord = prepareSingleBlockDataForMCMC(blockIndex + 1, massSpecExtractedData, analysisMethod);
+            singleBlockDataSetRecords[blockIndex] = prepareSingleBlockDataForMCMC(blockIndex + 1, massSpecExtractedData, analysisMethod);
             SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithNoCov;
             try {
-                singleBlockInitialModelRecordWithNoCov = initializeModelForSingleBlockMCMC(analysis.getAnalysisMethod(), singleBlockDataSetRecord, false);
+                singleBlockInitialModelRecordWithNoCov = initializeModelForSingleBlockMCMC(analysis.getAnalysisMethod(), singleBlockDataSetRecords[blockIndex], false);
             } catch (RecoverableCondition e) {
                 throw new TripoliException("Ojalgo RecoverableCondition");
             }
             singleBlockModelRecords[blockIndex] = singleBlockInitialModelRecordWithNoCov.singleBlockModelRecord();
         }
 
-        return singleBlockModelRecords;
+        return  new PlottingData(singleBlockDataSetRecords, singleBlockModelRecords);
     }
+
+    public record PlottingData(
+            SingleBlockDataSetRecord[] singleBlockDataSetRecords,
+            SingleBlockModelRecord[] singleBlockModelRecords
+    ){}
 }

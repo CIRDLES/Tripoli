@@ -11,13 +11,13 @@
          <tabs>
             <Tab closable="false" text="Ratios by Cycles and Blocks">
                <content>
-                    <AnchorPane fx:id="ogTripoliPlotsAnchorPane" minHeight="600.0" minWidth="1000.0" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: lightgrey;">
+                    <AnchorPane fx:id="ogtCycleRatioPlotsAnchorPane" minHeight="600.0" minWidth="1000.0" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: lightgrey;">
         </AnchorPane>
                </content>
             </Tab>
-            <Tab closable="false" text="Intensities by Time">
+            <Tab closable="false" text="OnPeak Intensities by Time">
                <content>
-                  <AnchorPane fx:id="ogTripoliIntensitiesPlotPane" minHeight="600.0" minWidth="1000.0" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: lightgrey;" />
+                  <AnchorPane fx:id="ogtSpeciesIntensitiesPlotAnchorPane" minHeight="600.0" minWidth="1000.0" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: lightgrey;" />
                </content>
             </Tab>
          </tabs>

@@ -78,7 +78,7 @@ public class PlotWallPane extends Pane {
     public void stackPlots() {
         double tileWidth;
         double displayHeight;
-        if (iD.compareToIgnoreCase("OGTripoli") == 0) {
+        if (iD.compareToIgnoreCase("OGTripoliSession") == 0) {
             tileWidth = ((AnchorPane) getParent()).getPrefWidth() - gridCellDim * 2.0;
             displayHeight = (((AnchorPane) getParent()).getPrefHeight() - toolBarHeight) / getCountOfPlots();
         } else {

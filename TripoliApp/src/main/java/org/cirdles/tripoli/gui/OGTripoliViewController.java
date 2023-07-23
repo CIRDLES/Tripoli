@@ -1,7 +1,5 @@
 package org.cirdles.tripoli.gui;
 
-//import com.google.common.collect.BiMap;
-//import com.google.common.collect.HashBiMap;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
@@ -11,12 +9,18 @@ import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.MultiLinePlotLogX;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.SpeciesIntensitySessionPlot;
+import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.compoundPlots.BlockRatioCyclesBuilder;
 import org.cirdles.tripoli.plots.compoundPlots.BlockRatioCyclesRecord;
+import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
 import org.cirdles.tripoli.plots.sessionPlots.BlockRatioCyclesSessionBuilder;
+import org.cirdles.tripoli.plots.sessionPlots.SpeciesIntensitySessionBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -25,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.util.Arrays.binarySearch;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHeight;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.SKIP;
@@ -32,10 +37,12 @@ import static org.cirdles.tripoli.sessions.analysis.Analysis.SKIP;
 public class OGTripoliViewController {
     public static AnalysisInterface analysis;
     @FXML
-    public AnchorPane ogTripoliIntensitiesPlotPane;
+    public AnchorPane ogtSpeciesIntensitiesPlotAnchorPane;
 
     @FXML
-    private AnchorPane ogTripoliPlotsAnchorPane;
+    private AnchorPane ogtCycleRatioPlotsAnchorPane;
+
+    private AllBlockInitForOGTripoli.PlottingData plottingData;
 
     @FXML
     void initialize() throws TripoliException {
@@ -43,38 +50,42 @@ public class OGTripoliViewController {
     }
 
     private void populatePlots() throws TripoliException {
-        ogTripoliPlotsAnchorPane.getChildren().clear();
+        plottingData = AllBlockInitForOGTripoli.initBlockModels(analysis);
+        plotRatios();
+        plotOnPeakIntensities();
+    }
 
-        PlotWallPane plotsWallPane = PlotWallPane.createPlotWallPane("OGTripoli");
+    private void plotRatios() {
+        ogtCycleRatioPlotsAnchorPane.getChildren().clear();
+
+        PlotWallPane plotsWallPane = PlotWallPane.createPlotWallPane("OGTripoliSession");
         PlotWallPane.menuOffset = 0.0;
         plotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-        plotsWallPane.setPrefSize(ogTripoliPlotsAnchorPane.getPrefWidth(), ogTripoliPlotsAnchorPane.getPrefHeight());
-        ogTripoliPlotsAnchorPane.getChildren().add(plotsWallPane);
+        plotsWallPane.setPrefSize(ogtCycleRatioPlotsAnchorPane.getPrefWidth(), ogtCycleRatioPlotsAnchorPane.getPrefHeight());
+        ogtCycleRatioPlotsAnchorPane.getChildren().add(plotsWallPane);
 
-        SingleBlockModelRecord[] singleBlockModelRecords = AllBlockInitForOGTripoli.initBlockModels(analysis);
+        SingleBlockModelRecord[] singleBlockModelRecords = plottingData.singleBlockModelRecords();
         int countOfOnPeakCycles = singleBlockModelRecords[0].cycleCount();
-        List<IsotopicRatio> isotopicRatioList = analysis.getAnalysisMethod().getIsotopicRatiosList();
 
         boolean[] DUMMY_CYCLES_INCLUDED = new boolean[countOfOnPeakCycles];
         Arrays.fill(DUMMY_CYCLES_INCLUDED, true);
 
-
         // build list of ratios to plot
         List<IsotopicRatio> ratiosToPlot = new ArrayList<>();
-        for (IsotopicRatio isotopicRatio : analysis.getAnalysisMethod().getIsotopicRatiosList()){
-            if (isotopicRatio.isDisplayed()){
+        for (IsotopicRatio isotopicRatio : analysis.getAnalysisMethod().getIsotopicRatiosList()) {
+            if (isotopicRatio.isDisplayed()) {
                 ratiosToPlot.add(isotopicRatio);
             }
         }
-        for (IsotopicRatio isotopicRatio : analysis.getAnalysisMethod().getDerivedIsotopicRatiosList()){
-            if (isotopicRatio.isDisplayed()){
+        for (IsotopicRatio isotopicRatio : analysis.getAnalysisMethod().getDerivedIsotopicRatiosList()) {
+            if (isotopicRatio.isDisplayed()) {
                 ratiosToPlot.add(isotopicRatio);
                 // need to calculate cycle values
 
             }
         }
 
-        for (IsotopicRatio isotopicRatio : ratiosToPlot){
+        for (IsotopicRatio isotopicRatio : ratiosToPlot) {
             TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPane);
             List<BlockRatioCyclesRecord> blockRatioCyclesRecords = new ArrayList<>();
             for (int blockIndex = 0; blockIndex < singleBlockModelRecords.length; blockIndex++) {
@@ -91,8 +102,6 @@ public class OGTripoliViewController {
                         blockStatus != SKIP).getBlockCyclesRecord());
             }
 
-            analysis.getAnalysisMethod().getBiMapOfRatiosAndInverses();//temp
-
             BlockRatioCyclesSessionBuilder blockRatioCyclesSessionBuilder =
                     BlockRatioCyclesSessionBuilder.initializeBlockRatioCyclesSession(
                             blockRatioCyclesRecords, new String[]{isotopicRatio.prettyPrint()},
@@ -101,6 +110,64 @@ public class OGTripoliViewController {
                     new Rectangle(minPlotWidth, minPlotHeight), blockRatioCyclesSessionBuilder.getBlockRatioCyclesSessionRecord());
             tripoliPlotPane.addPlot(plot);
         }
+        plotsWallPane.stackPlots();
+    }
+
+    private void plotOnPeakIntensities() {
+        ogtSpeciesIntensitiesPlotAnchorPane.getChildren().clear();
+        PlotWallPane plotsWallPane = PlotWallPane.createPlotWallPane("OGTripoliSession");
+        PlotWallPane.menuOffset = 0.0;
+        plotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+        plotsWallPane.setPrefSize(ogtSpeciesIntensitiesPlotAnchorPane.getPrefWidth(), ogtSpeciesIntensitiesPlotAnchorPane.getPrefHeight());
+        ogtSpeciesIntensitiesPlotAnchorPane.getChildren().add(plotsWallPane);
+
+        SingleBlockDataSetRecord[] singleBlockDataSetRecords = plottingData.singleBlockDataSetRecords();
+        // only plotting onPeaks
+        int countOfBlocks = singleBlockDataSetRecords.length;
+        int countOfSpecies = analysis.getAnalysisMethod().getSpeciesList().size();
+
+        // x-axis = time
+        double[] xAxis = analysis.getMassSpecExtractedData().getBlocksData().get(1).onPeakTimeStamps();
+
+        // alternating faraday and pm rows (pair for each species)
+        double[][] onPeakData = new double[countOfSpecies * 2][xAxis.length];
+
+        for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
+            double[] onPeakTimeStamps = analysis.getMassSpecExtractedData().getBlocksData().get(blockIndex + 1).onPeakTimeStamps();
+
+            SingleBlockDataSetRecord.SingleBlockDataRecord onPeakFaradayDataSet = singleBlockDataSetRecords[blockIndex].onPeakFaradayDataSetMCMC();
+            List<Double> intensityAccumulatorList = onPeakFaradayDataSet.intensityAccumulatorList();
+            List<Integer> timeIndexAccumulatorList = onPeakFaradayDataSet.timeIndexAccumulatorList();
+            List<Integer> isotopeOrdinalIndexAccumulatorList = onPeakFaradayDataSet.isotopeOrdinalIndicesAccumulatorList();
+
+            for (int onPeakDataIndex = 0; onPeakDataIndex < intensityAccumulatorList.size(); onPeakDataIndex++) {
+                int timeIndex = timeIndexAccumulatorList.get(onPeakDataIndex);
+                double time = onPeakTimeStamps[timeIndex];
+                int intensitySpeciesIndex = isotopeOrdinalIndexAccumulatorList.get(onPeakDataIndex) - 1;
+                int timeIndx = binarySearch(xAxis, time);
+                onPeakData[intensitySpeciesIndex * 2][timeIndx] = intensityAccumulatorList.get(onPeakDataIndex);
+            }
+
+            SingleBlockDataSetRecord.SingleBlockDataRecord onPeakPhotoMultiplierDataSet = singleBlockDataSetRecords[blockIndex].onPeakPhotoMultiplierDataSetMCMC();
+            intensityAccumulatorList = onPeakPhotoMultiplierDataSet.intensityAccumulatorList();
+            timeIndexAccumulatorList = onPeakPhotoMultiplierDataSet.timeIndexAccumulatorList();
+            isotopeOrdinalIndexAccumulatorList = onPeakPhotoMultiplierDataSet.isotopeOrdinalIndicesAccumulatorList();
+
+            for (int onPeakDataIndex = 0; onPeakDataIndex < intensityAccumulatorList.size(); onPeakDataIndex++) {
+                int timeIndex = timeIndexAccumulatorList.get(onPeakDataIndex);
+                double time = onPeakTimeStamps[timeIndex];
+                int intensitySpeciesIndex = isotopeOrdinalIndexAccumulatorList.get(onPeakDataIndex) - 1;
+                int timeIndx = binarySearch(xAxis, time);
+                onPeakData[intensitySpeciesIndex * 2 + 1][timeIndx] = intensityAccumulatorList.get(onPeakDataIndex);
+            }
+        }
+
+        PlotBuilder plotBuilder = SpeciesIntensitySessionBuilder.initializeSpeciesIntensitySessionPlot(
+                xAxis, onPeakData, new String[]{"Species Intensity"}, "Time", "Intensity (counts)");
+
+        TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPane);
+        AbstractPlot plot = SpeciesIntensitySessionPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (SpeciesIntensitySessionBuilder) plotBuilder);
+        tripoliPlotPane.addPlot(plot);
         plotsWallPane.stackPlots();
     }
 }
