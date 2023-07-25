@@ -40,11 +40,11 @@ public record SingleBlockDataSetRecord(
         int[] onPeakStartingIndicesOfCycles,
         Map<SpeciesRecordInterface, boolean[]> mapOfSpeciesToActiveCycles,
         Map<String, List<Double>> blockMapIdsToDataTimes) implements Serializable {
-    int getCountOfBaselineIntensities() {
+    public int getCountOfBaselineIntensities() {
         return baselineDataSetMCMC().intensityAccumulatorList().size();
     }
 
-    int getCountOfOnPeakFaradayIntensities() {
+    public int getCountOfOnPeakFaradayIntensities() {
         return onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
     }
 
@@ -60,6 +60,11 @@ public record SingleBlockDataSetRecord(
             List<Integer> timeIndexAccumulatorList,
             List<Integer> isotopeOrdinalIndicesAccumulatorList,
             java.util.Map<String, List<Double>> blockMapOfIdsToData) implements Serializable {
+
+        public int getCountOfDataElements() {
+            return intensityAccumulatorList.size();
+        }
+
     }
 
 

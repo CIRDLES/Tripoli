@@ -66,6 +66,8 @@ public enum TripoliSerializer {
         ObjectInputStream deserializedInputStream;
         Object deserializedObject = null;
 
+        verbose = true;
+
         try (FileInputStream inputStream = new FileInputStream(filename)) {
             deserializedInputStream = new ObjectInputStream(inputStream);
             deserializedObject = deserializedInputStream.readObject();

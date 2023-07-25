@@ -42,6 +42,12 @@ public record SingleBlockModelRecord(
         int cycleCount,
         SpeciesRecordInterface highestAbundanceSpecies) implements Serializable {
 
+    public double[] getOnPeakDataFaradayArray(int sizeOfBaseLineDataArray, int countOfFaradayDataEntries){
+        double[] onPeakDataFaradayArray = new double[countOfFaradayDataEntries];
+        System.arraycopy(dataWithNoBaselineArray, sizeOfBaseLineDataArray, onPeakDataFaradayArray, 0, countOfFaradayDataEntries);
+        return onPeakDataFaradayArray;
+    }
+
     public int sizeOfModel() {
         return logRatios().length + I0.length + faradayCount() + 1;
     }

@@ -22,12 +22,14 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
 import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Arrays.binarySearch;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHeight;
@@ -122,18 +124,26 @@ public class OGTripoliViewController {
         ogtSpeciesIntensitiesPlotAnchorPane.getChildren().add(plotsWallPane);
 
         SingleBlockDataSetRecord[] singleBlockDataSetRecords = plottingData.singleBlockDataSetRecords();
+        SingleBlockModelRecord[] singleBlockModelRecords = plottingData.singleBlockModelRecords();
         // only plotting onPeaks
         int countOfBlocks = singleBlockDataSetRecords.length;
         int countOfSpecies = analysis.getAnalysisMethod().getSpeciesList().size();
 
         // x-axis = time
-        double[] xAxis = analysis.getMassSpecExtractedData().getBlocksData().get(1).onPeakTimeStamps();
+        double[] xAxis = analysis.getMassSpecExtractedData().calculateSessionTimes();
 
-        // alternating faraday and pm rows (pair for each species)
-        double[][] onPeakData = new double[countOfSpecies * 2][xAxis.length];
-
+        // alternating faraday, model, pm, and model rows (4-tuple for each species)
+        double[][] onPeakData = new double[countOfSpecies * 4][xAxis.length];
+        Map<Integer, MassSpecOutputSingleBlockRecord> blocksData = analysis.getMassSpecExtractedData().getBlocksData();
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
-            double[] onPeakTimeStamps = analysis.getMassSpecExtractedData().getBlocksData().get(blockIndex + 1).onPeakTimeStamps();
+
+
+            double[] onPeakTimeStamps = blocksData.get(blockIndex + 1).onPeakTimeStamps();
+
+            SingleBlockModelRecord singleBlockModelRecord = singleBlockModelRecords[blockIndex];
+            int countOfBaselineDataEntries = singleBlockDataSetRecords[blockIndex].getCountOfBaselineIntensities();
+            int countOfFaradayDataEntries = singleBlockDataSetRecords[blockIndex].getCountOfOnPeakFaradayIntensities();
+            double[] onPeakModelFaradayData = singleBlockModelRecord.getOnPeakDataFaradayArray(countOfBaselineDataEntries, countOfFaradayDataEntries);
 
             SingleBlockDataSetRecord.SingleBlockDataRecord onPeakFaradayDataSet = singleBlockDataSetRecords[blockIndex].onPeakFaradayDataSetMCMC();
             List<Double> intensityAccumulatorList = onPeakFaradayDataSet.intensityAccumulatorList();
@@ -145,7 +155,8 @@ public class OGTripoliViewController {
                 double time = onPeakTimeStamps[timeIndex];
                 int intensitySpeciesIndex = isotopeOrdinalIndexAccumulatorList.get(onPeakDataIndex) - 1;
                 int timeIndx = binarySearch(xAxis, time);
-                onPeakData[intensitySpeciesIndex * 2][timeIndx] = intensityAccumulatorList.get(onPeakDataIndex);
+                onPeakData[intensitySpeciesIndex * 4][timeIndx] = intensityAccumulatorList.get(onPeakDataIndex);
+                onPeakData[intensitySpeciesIndex * 4 + 1][timeIndx] = onPeakModelFaradayData[onPeakDataIndex];
             }
 
             SingleBlockDataSetRecord.SingleBlockDataRecord onPeakPhotoMultiplierDataSet = singleBlockDataSetRecords[blockIndex].onPeakPhotoMultiplierDataSetMCMC();
@@ -158,7 +169,7 @@ public class OGTripoliViewController {
                 double time = onPeakTimeStamps[timeIndex];
                 int intensitySpeciesIndex = isotopeOrdinalIndexAccumulatorList.get(onPeakDataIndex) - 1;
                 int timeIndx = binarySearch(xAxis, time);
-                onPeakData[intensitySpeciesIndex * 2 + 1][timeIndx] = intensityAccumulatorList.get(onPeakDataIndex);
+                onPeakData[intensitySpeciesIndex * 4 + 2][timeIndx] = intensityAccumulatorList.get(onPeakDataIndex);
             }
         }
 

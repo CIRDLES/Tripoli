@@ -4,13 +4,12 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.io.*;
+import java.util.*;
 
 public class MassSpecExtractedData implements Serializable {
+
+
     private MassSpectrometerContextEnum massSpectrometerContext;
     private MassSpecExtractedHeader header;
     private String[] columnHeaders;
@@ -90,6 +89,22 @@ public class MassSpecExtractedData implements Serializable {
                     Double.parseDouble(detectorData.get(detectorIndex)[5]));
             detectorSetup.addDetector(detector);
         }
+    }
+
+    public double[] calculateSessionTimes(){
+        int totalSize = 0;
+        for (MassSpecOutputSingleBlockRecord blockRecord : blocksData.values()){
+            totalSize += blockRecord.onPeakTimeStamps().length;
+        }
+        double [] times = new double[totalSize];
+        totalSize = 0;
+        for (MassSpecOutputSingleBlockRecord blockRecord : blocksData.values()){
+            double[] blockTimes = blockRecord.onPeakTimeStamps();
+
+            System.arraycopy(blockTimes, 0, times, totalSize, blockTimes.length);
+            totalSize += blockRecord.onPeakTimeStamps().length;
+        }
+        return times;
     }
 
     public MassSpectrometerContextEnum getMassSpectrometerContext() {
