@@ -22,6 +22,7 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.SpeciesIntensitySessionPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.*;
@@ -108,8 +109,7 @@ public class TripoliPlotPane extends Pane {
                 }
             }
 
-            ((AbstractPlot) getChildren().get(0)).updatePlotSize(getPrefWidth(), getPrefHeight());
-            ((AbstractPlot) getChildren().get(0)).calculateTics();
+            updatePlot();
 
             mouseStartX = e.getSceneX(); // use deltas??
             mouseStartY = e.getSceneY();
@@ -138,9 +138,17 @@ public class TripoliPlotPane extends Pane {
         tripoliPlotPane.setLayoutY(40.0);
         tripoliPlotPane.initializePlotPane();
 
+        tripoliPlotPane.setStyle(tripoliPlotPane.getStyle() + ";-fx-background-color:RED;");
         plotWallPane.getChildren().addAll(tripoliPlotPane);
 
         return tripoliPlotPane;
+    }
+
+    private void updatePlot() {
+        if (!getChildren().isEmpty()) {
+            ((AbstractPlot) getChildren().get(0)).updatePlotSize(getPrefWidth(), getPrefHeight());
+            ((AbstractPlot) getChildren().get(0)).calculateTics();
+        }
     }
 
     private void toggleFullSize() {
@@ -157,8 +165,7 @@ public class TripoliPlotPane extends Pane {
             setPrefHeight(plotLocation.h());
             plotLocation = null;
         }
-        ((AbstractPlot) getChildren().get(0)).updatePlotSize(getPrefWidth(), getPrefHeight());
-        ((AbstractPlot) getChildren().get(0)).calculateTics();
+        updatePlot();
     }
 
     public void snapToGrid() {
@@ -167,8 +174,7 @@ public class TripoliPlotPane extends Pane {
         setLayoutY(getLayoutY() - (getLayoutY() % gridCellDim));
         setPrefHeight(getPrefHeight() - (getPrefHeight() % gridCellDim));
 
-        ((AbstractPlot) getChildren().get(0)).updatePlotSize(getPrefWidth(), getPrefHeight());
-        ((AbstractPlot) getChildren().get(0)).calculateTics();
+        updatePlot();
     }
 
     private void initializePlotPane() {
@@ -221,19 +227,33 @@ public class TripoliPlotPane extends Pane {
     }
 
     public void toggleShowStats() {
-        ((AbstractPlot) getChildren().get(0)).toggleShowStats();
-        ((AbstractPlot) getChildren().get(0)).repaint();
+        if (!getChildren().isEmpty()) {
+            ((AbstractPlot) getChildren().get(0)).toggleShowStats();
+            ((AbstractPlot) getChildren().get(0)).repaint();
+        }
     }
 
     public void toggleRatiosLogRatios() {
-        if (getChildren().get(0) instanceof RatioHistogramPlot) {
+        if (!getChildren().isEmpty() && (getChildren().get(0) instanceof RatioHistogramPlot)) {
             ((RatioHistogramPlot) getChildren().get(0)).toggleRatiosLogRatios();
             ((RatioHistogramPlot) getChildren().get(0)).repaint();
         }
     }
 
     public void restorePlot() {
-        ((AbstractPlot) getChildren().get(0)).refreshPanel(true, true);
+        if (!getChildren().isEmpty()) {
+            ((AbstractPlot) getChildren().get(0)).refreshPanel(true, true);
+        }
+    }
+
+    public void updateSpeciesPlotted(boolean[] speciesChecked, boolean showFaradays, boolean showPMs, boolean showModels) {
+        if (!getChildren().isEmpty() && (getChildren().get(0) instanceof SpeciesIntensitySessionPlot)) {
+            ((SpeciesIntensitySessionPlot) getChildren().get(0)).setSpeciesChecked(speciesChecked);
+            ((SpeciesIntensitySessionPlot) getChildren().get(0)).setShowFaradays(showFaradays);
+            ((SpeciesIntensitySessionPlot) getChildren().get(0)).setShowPMs(showPMs);
+            ((SpeciesIntensitySessionPlot) getChildren().get(0)).setShowModels(showModels);
+            ((SpeciesIntensitySessionPlot) getChildren().get(0)).refreshPanel(true, true);
+        }
     }
 
     private record PlotLocation(

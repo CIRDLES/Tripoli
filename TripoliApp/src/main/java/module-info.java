@@ -25,4 +25,5 @@ module Tripoli.TripoliApp {
     requires jakarta.annotation;
     requires jakarta.xml.bind;
     requires org.jetbrains.annotations;
+    requires commons.math3;
 }

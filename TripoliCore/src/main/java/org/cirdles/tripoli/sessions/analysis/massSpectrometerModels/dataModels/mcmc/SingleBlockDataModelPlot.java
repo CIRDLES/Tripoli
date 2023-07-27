@@ -92,8 +92,8 @@ public enum SingleBlockDataModelPlot {
             logRatioMean[ratioIndex] = descriptiveStatisticsLogRatios.getMean();
             logRatioStdDev[ratioIndex] = descriptiveStatisticsLogRatios.getStandardDeviation();
 
-            isotopicRatioList.get(ratioIndex).setRatioValues(ensembleRatios[ratioIndex]);
-            isotopicRatioList.get(ratioIndex).setLogRatioValues(ensembleSetOfLogRatios[ratioIndex]);
+            isotopicRatioList.get(ratioIndex).setRatioValuesForBlockEnsembles(ensembleRatios[ratioIndex]);
+            isotopicRatioList.get(ratioIndex).setLogRatioValuesForBlockEnsembles(ensembleSetOfLogRatios[ratioIndex]);
         }
         // derived ratios
         List<IsotopicRatio> derivedIsotopicRatiosList = analysisMethod.getDerivedIsotopicRatiosList();
@@ -126,12 +126,10 @@ public enum SingleBlockDataModelPlot {
                             1.0 / ensembleRatios[indexOfTargetRatio][ensembleIndex];
                     derivedEnsembleLogRatios[derivedRatioIndex][ensembleIndex] =
                             StrictMath.log(derivedEnsembleRatios[derivedRatioIndex][ensembleIndex]);
-//                    derivedEnsembleLogRatios[derivedRatioIndex][ensembleIndex] =
-//                            1.0 / ensembleSetOfLogRatios[indexOfTargetRatio][ensembleIndex];
                 }
             }
-            derivedIsotopicRatiosList.get(derivedRatioIndex).setRatioValues(derivedEnsembleRatios[derivedRatioIndex]);
-            derivedIsotopicRatiosList.get(derivedRatioIndex).setLogRatioValues(derivedEnsembleLogRatios[derivedRatioIndex]);
+            derivedIsotopicRatiosList.get(derivedRatioIndex).setRatioValuesForBlockEnsembles(derivedEnsembleRatios[derivedRatioIndex]);
+            derivedIsotopicRatiosList.get(derivedRatioIndex).setLogRatioValuesForBlockEnsembles(derivedEnsembleLogRatios[derivedRatioIndex]);
             derivedRatioIndex++;
         }
 
@@ -418,7 +416,7 @@ public enum SingleBlockDataModelPlot {
             int intensityIndex = timeIndexAccumulatorList.get(dataArrayIndex);
             int faradayIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(dataArrayIndex));
             dataArray[dataArrayIndex] = baselinesMeans[faradayIndex];
-//            dataWithNoBaselineArray[dataArrayIndex] = dataArray[dataArrayIndex] - baselinesMeans[faradayIndex];
+//            dataWithNoBaselineArray[dataArrayIndex] = dataModelArray[dataArrayIndex] - baselinesMeans[faradayIndex];
 
             //TODO: WTF???
             double calculatedValue = StrictMath.sqrt(1.0//pow(xSig[faradayIndex], 2)
@@ -430,7 +428,7 @@ public enum SingleBlockDataModelPlot {
         }
 
 
-        double[] dataOriginalCounts = singleBlockDataSetRecord.blockIntensityArray().clone();
+        double[] dataOriginalCounts = singleBlockDataSetRecord.blockRawDataArray().clone();
         double[] yDataResiduals = new double[dataOriginalCounts.length];
 
         Arrays.sort(integrationTimes);

@@ -88,9 +88,18 @@
                 style="-fx-text-fill: GREEN;" text="Shows Only"/>
         <Button layoutX="433.0" layoutY="7.0" mnemonicParsing="false" onAction="#restoreAllAction"
                 style="-fx-text-fill: RED;" text="Restore All"/>
+        <Button id="MCMC" fx:id="reviewSculptData" layoutX="527.0" layoutY="7.0" mnemonicParsing="false"
+                onAction="#reviewAndSculptDataAction" style="-fx-text-fill: RED;" text="Preview and Sculpt Data"/>
         <Button id="MCMC" fx:id="mcmcButton" layoutX="609.0" layoutY="7.0" mnemonicParsing="false"
                 onAction="#initializeMonteCarloTechniqueAction" style="-fx-text-fill: RED;"
                 text="Process / Plot Blocks using MCMC"/>
+        <RadioButton mnemonicParsing="false" onAction="#knotsChoiceAction" selected="true" text="Linear">
+            <toggleGroup>
+                <ToggleGroup fx:id="knotsToggleGroup"/>
+            </toggleGroup>
+        </RadioButton>
+        <RadioButton mnemonicParsing="false" onAction="#knotsChoiceAction" text="Cubic"
+                     toggleGroup="$knotsToggleGroup"/>
     </ToolBar>
     <Label prefHeight="58.0" prefWidth="114.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;"
            text="Analysis Method with Detector Details from Data File:" textAlignment="RIGHT" wrapText="true"
@@ -146,35 +155,7 @@
                 </GridPane>
             </ScrollPane>
         </Tab>
-        <Tab closable="false" disable="true" text="Select Ratios to plot">
-            <content>
-                <GridPane fx:id="selectRatiosGridPane" style="-fx-background-color: tan;">
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                    </rowConstraints>
-                </GridPane>
-            </content>
-        </Tab>
-        <Tab closable="false" text="Select Ratios to plot (new)">
+        <Tab closable="false" text="Select Ratios to plot ">
             <content>
                 <GridPane fx:id="selectRatiosGridPane1" style="-fx-background-color: bisque;">
                     <columnConstraints>
@@ -222,7 +203,7 @@
                         </TextFlow>
                         <HBox alignment="CENTER" GridPane.columnSpan="4" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6">
                             <children>
-                                <Button fx:id="addRatioButton" alignment="CENTER" contentDisplay="CENTER"
+                                <Button fx:id="addRatioButton" alignment="CENTER" contentDisplay="CENTER" disable="true"
                                         graphicTextGap="0.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="614.0"
                                         style="-fx-text-fill: red; -fx-border-color: red;" text="Add Ratio for Plotting"
                                         textAlignment="CENTER">

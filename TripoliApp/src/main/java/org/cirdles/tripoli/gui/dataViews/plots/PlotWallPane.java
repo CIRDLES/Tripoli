@@ -16,10 +16,14 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots;
 
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ToolBar;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,9 +33,27 @@ import java.util.stream.Collectors;
  */
 public class PlotWallPane extends Pane {
 
-    public static final double menuOffset = 30.0;
     public static final double gridCellDim = 2.0;
     public static final double toolBarHeight = 35.0;
+    public static double menuOffset = 30.0;
+    private String iD;
+
+    private boolean[] speciesChecked = new boolean[0];
+    private boolean showFaradays = true;
+    private boolean showPMs = true;
+    private boolean showModels = true;
+
+    private PlotWallPane(String iD) {
+        this.iD = iD;
+    }
+
+    public static PlotWallPane createPlotWallPane(String iD) {
+        if (iD == null) {
+            return new PlotWallPane("NONE");
+        } else {
+            return new PlotWallPane(iD);
+        }
+    }
 
     public void tilePlots() {
         List<Node> plotPanes = getChildren()
@@ -62,9 +84,16 @@ public class PlotWallPane extends Pane {
     }
 
     public void stackPlots() {
-        double tileWidth = (getParent().getBoundsInParent().getWidth() - gridCellDim * 2.0);
+        double tileWidth;
+        double displayHeight;
+        if (iD.compareToIgnoreCase("OGTripoliSession") == 0) {
+            tileWidth = ((AnchorPane) getParent()).getPrefWidth() - gridCellDim * 2.0;
+            displayHeight = (((AnchorPane) getParent()).getPrefHeight() - toolBarHeight) / getCountOfPlots();
+        } else {
+            tileWidth = (getParent().getBoundsInParent().getWidth() - gridCellDim * 2.0);
+            displayHeight = (getParent().getBoundsInParent().getHeight() - toolBarHeight) / getCountOfPlots();
+        }
 
-        double displayHeight = ((getParent().getBoundsInParent().getHeight() - toolBarHeight) / getCountOfPlots());
         double tileHeight = displayHeight - displayHeight % gridCellDim;
 
         int plotIndex = 0;
@@ -162,5 +191,64 @@ public class PlotWallPane extends Pane {
 
         toolBar.getItems().addAll(button0, button5, button4, button1, button2, button3);
         getChildren().addAll(toolBar);
+    }
+
+    public void buildOGTripoliToolBar(List<SpeciesRecordInterface> species) {
+        ToolBar toolBar = new ToolBar();
+        toolBar.setPrefHeight(toolBarHeight);
+        speciesChecked = new boolean[species.size()];
+
+        CheckBox[] speciesCheckBoxes = new CheckBox[species.size()];
+        for (int speciesIndex = 0; speciesIndex < species.size(); speciesIndex++) {
+            speciesCheckBoxes[speciesIndex] = new CheckBox(species.get(speciesIndex).prettyPrintShortForm());
+            speciesCheckBoxes[speciesIndex].setPrefWidth(75);
+            toolBar.getItems().add(speciesCheckBoxes[speciesIndex]);
+            int finalSpeciesIndex = speciesIndex;
+            speciesCheckBoxes[speciesIndex].selectedProperty().addListener(
+                    (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                        speciesChecked[finalSpeciesIndex] = newVal;
+                        rebuildPlot();
+                    });
+        }
+        speciesCheckBoxes[0].setSelected(true);
+
+        CheckBox showFaraday = new CheckBox("F");
+        showFaraday.setSelected(true);
+        showFaraday.setPrefWidth(50);
+        toolBar.getItems().add(showFaraday);
+        showFaraday.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                    showFaradays = newVal;
+                    rebuildPlot();
+                });
+
+        CheckBox showPM = new CheckBox("PM");
+        showPM.setSelected(true);
+        showPM.setPrefWidth(60);
+        toolBar.getItems().add(showPM);
+        showPM.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                    showPMs = newVal;
+                    rebuildPlot();
+                });
+
+        CheckBox showModel = new CheckBox("Model");
+        showModel.setSelected(true);
+        toolBar.getItems().add(showModel);
+        showModel.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                    showModels = newVal;
+                    rebuildPlot();
+                });
+
+        getChildren().addAll(toolBar);
+    }
+
+    private void rebuildPlot() {
+        for (Node plotPane : getChildren()) {
+            if (plotPane instanceof TripoliPlotPane) {
+                ((TripoliPlotPane) plotPane).updateSpeciesPlotted(speciesChecked, showFaradays, showPMs, showModels);
+            }
+        }
     }
 }

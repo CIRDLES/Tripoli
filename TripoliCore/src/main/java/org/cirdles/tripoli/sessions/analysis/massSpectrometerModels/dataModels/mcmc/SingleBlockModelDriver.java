@@ -22,6 +22,7 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.mathUtilities.SplineBasisModel;
@@ -30,10 +31,7 @@ import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelInitForMCMC.initializeModelForSingleBlockMCMC;
 
@@ -51,91 +49,104 @@ public enum SingleBlockModelDriver {
         SingleBlockDataSetRecord singleBlockDataSetRecord = prepareSingleBlockDataForMCMC(blockNumber, massSpecExtractedData, analysisMethod);
         SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov;
         try {
-            singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC(analysisMethod.getSpeciesList().size(), singleBlockDataSetRecord);
+            singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC(analysisMethod, singleBlockDataSetRecord, true);
         } catch (RecoverableCondition e) {
             throw new TripoliException("Ojalgo RecoverableCondition");
         }
 
         if (null != singleBlockInitialModelRecordWithCov) {
             MCMCProcess mcmcProcess = MCMCProcess.createMCMCProcess(analysisMethod, singleBlockDataSetRecord, singleBlockInitialModelRecordWithCov);
-            mcmcProcess.initializeMCMCProcess2();
+            mcmcProcess.initializeMCMCProcess();
             plotBuilder = mcmcProcess.applyInversionWithAdaptiveMCMC(loggingCallback);
         }
 
         return plotBuilder;
     }
 
-    private static SingleBlockDataSetRecord prepareSingleBlockDataForMCMC(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) {
+    static SingleBlockDataSetRecord prepareSingleBlockDataForMCMC(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) {
+        SingleBlockDataSetRecord singleBlockDataSetRecord = null;
         MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord = massSpecExtractedData.getBlocksData().get(blockNumber);
-//        Primitive64Store blockKnotInterpolationStore = generateKnotsMatrixForBlock(massSpecOutputSingleBlockRecord, 3);
-        // TODO: the following line invokes a replication of the linear knots from Burdick's matlab code
-        Primitive64Store blockKnotInterpolationStore = generateLinearKnotsMatrixReplicaOfBurdickMatLab(massSpecOutputSingleBlockRecord);
-        SingleBlockDataSetRecord.SingleBlockDataRecord baselineDataSetMCMC =
-                SingleBlockDataAccumulatorMCMC.accumulateBaselineDataPerBaselineTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod);
-        SingleBlockDataSetRecord.SingleBlockDataRecord onPeakFaradayDataSetMCMC =
-                SingleBlockDataAccumulatorMCMC.accumulateOnPeakDataPerSequenceTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod, true);
-        SingleBlockDataSetRecord.SingleBlockDataRecord onPeakPhotoMultiplierDataSetMCMC =
-                SingleBlockDataAccumulatorMCMC.accumulateOnPeakDataPerSequenceTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod, false);
-
-        List<Integer> cycleList = new ArrayList<>();
-        cycleList.addAll(baselineDataSetMCMC.cycleAccumulatorList());
-        cycleList.addAll(onPeakFaradayDataSetMCMC.cycleAccumulatorList());
-        cycleList.addAll(onPeakPhotoMultiplierDataSetMCMC.cycleAccumulatorList());
-        int[] blockCycleArray = cycleList.stream().mapToInt(i -> i).toArray();
-
-        List<Double> blockIntensityList = new ArrayList<>();
-        blockIntensityList.addAll(baselineDataSetMCMC.intensityAccumulatorList());
-        blockIntensityList.addAll(onPeakFaradayDataSetMCMC.intensityAccumulatorList());
-        blockIntensityList.addAll(onPeakPhotoMultiplierDataSetMCMC.intensityAccumulatorList());
-        double[] blockIntensityArray = Doubles.toArray(blockIntensityList);
-
-        List<Integer> blockDetectorOrdinalIndicesList = new ArrayList<>();
-        blockDetectorOrdinalIndicesList.addAll(baselineDataSetMCMC.detectorOrdinalIndicesAccumulatorList());
-        blockDetectorOrdinalIndicesList.addAll(onPeakFaradayDataSetMCMC.detectorOrdinalIndicesAccumulatorList());
-        blockDetectorOrdinalIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC.detectorOrdinalIndicesAccumulatorList());
-        int[] blockDetectorOrdinalIndicesArray = blockDetectorOrdinalIndicesList.stream().mapToInt(i -> i).toArray();
-
-        List<Integer> blockIsotopeOrdinalIndicesList = new ArrayList<>();
-        blockIsotopeOrdinalIndicesList.addAll(baselineDataSetMCMC.isotopeOrdinalIndicesAccumulatorList());
-        blockIsotopeOrdinalIndicesList.addAll(onPeakFaradayDataSetMCMC.isotopeOrdinalIndicesAccumulatorList());
-        blockIsotopeOrdinalIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC.isotopeOrdinalIndicesAccumulatorList());
-        int[] blockIsotopeOrdinalIndicesArray = blockIsotopeOrdinalIndicesList.stream().mapToInt(i -> i).toArray();
-
-        List<Integer> blockTimeIndicesList = new ArrayList<>();
-        blockTimeIndicesList.addAll(baselineDataSetMCMC.timeIndexAccumulatorList());
-        blockTimeIndicesList.addAll(onPeakFaradayDataSetMCMC.timeIndexAccumulatorList());
-        blockTimeIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC.timeIndexAccumulatorList());
-        int[] blockTimeIndicesArray = blockTimeIndicesList.stream().mapToInt(i -> i).toArray();
-
-        int[] onPeakStartingIndicesOfCycles = massSpecOutputSingleBlockRecord.onPeakStartingIndicesOfCycles();
-
-
-        Map<String, List<Double>> blockMapIdsToDataTimes = new TreeMap<>();
-        for (String id : onPeakFaradayDataSetMCMC.blockMapOfIdsToData().keySet()) {
-            if (!blockMapIdsToDataTimes.containsKey(id)) {
-                blockMapIdsToDataTimes.put(id, new ArrayList<>());
+        if (massSpecOutputSingleBlockRecord != null) {
+            Primitive64Store blockKnotInterpolationStore;
+            if (analysisMethod.isUseLinearKnots()) {
+                // TODO: the following line invokes a replication of the linear knots from Burdick's matlab code
+                blockKnotInterpolationStore = generateLinearKnotsMatrixReplicaOfBurdickMatLab(massSpecOutputSingleBlockRecord);
+            } else {
+                blockKnotInterpolationStore = generateKnotsMatrixForBlock(massSpecOutputSingleBlockRecord, 3);
             }
+            SingleBlockDataSetRecord.SingleBlockDataRecord baselineDataSetMCMC =
+                    SingleBlockDataAccumulatorMCMC.accumulateBaselineDataPerBaselineTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod);
+            SingleBlockDataSetRecord.SingleBlockDataRecord onPeakFaradayDataSetMCMC =
+                    SingleBlockDataAccumulatorMCMC.accumulateOnPeakDataPerSequenceTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod, true);
+            SingleBlockDataSetRecord.SingleBlockDataRecord onPeakPhotoMultiplierDataSetMCMC =
+                    SingleBlockDataAccumulatorMCMC.accumulateOnPeakDataPerSequenceTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod, false);
+
+            List<Integer> cycleList = new ArrayList<>();
+            cycleList.addAll(baselineDataSetMCMC.cycleAccumulatorList());
+            cycleList.addAll(onPeakFaradayDataSetMCMC.cycleAccumulatorList());
+            cycleList.addAll(onPeakPhotoMultiplierDataSetMCMC.cycleAccumulatorList());
+            int[] blockCycleArray = cycleList.stream().mapToInt(i -> i).toArray();
+
+            List<Double> blockIntensityList = new ArrayList<>();
+            blockIntensityList.addAll(baselineDataSetMCMC.intensityAccumulatorList());
+            blockIntensityList.addAll(onPeakFaradayDataSetMCMC.intensityAccumulatorList());
+            blockIntensityList.addAll(onPeakPhotoMultiplierDataSetMCMC.intensityAccumulatorList());
+            double[] blockIntensityArray = Doubles.toArray(blockIntensityList);
+
+            List<Integer> blockDetectorOrdinalIndicesList = new ArrayList<>();
+            blockDetectorOrdinalIndicesList.addAll(baselineDataSetMCMC.detectorOrdinalIndicesAccumulatorList());
+            blockDetectorOrdinalIndicesList.addAll(onPeakFaradayDataSetMCMC.detectorOrdinalIndicesAccumulatorList());
+            blockDetectorOrdinalIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC.detectorOrdinalIndicesAccumulatorList());
+            int[] blockDetectorOrdinalIndicesArray = blockDetectorOrdinalIndicesList.stream().mapToInt(i -> i).toArray();
+
+            List<Integer> blockIsotopeOrdinalIndicesList = new ArrayList<>();
+            blockIsotopeOrdinalIndicesList.addAll(baselineDataSetMCMC.isotopeOrdinalIndicesAccumulatorList());
+            blockIsotopeOrdinalIndicesList.addAll(onPeakFaradayDataSetMCMC.isotopeOrdinalIndicesAccumulatorList());
+            blockIsotopeOrdinalIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC.isotopeOrdinalIndicesAccumulatorList());
+            int[] blockIsotopeOrdinalIndicesArray = blockIsotopeOrdinalIndicesList.stream().mapToInt(i -> i).toArray();
+
+            List<Integer> blockTimeIndicesList = new ArrayList<>();
+            blockTimeIndicesList.addAll(baselineDataSetMCMC.timeIndexAccumulatorList());
+            blockTimeIndicesList.addAll(onPeakFaradayDataSetMCMC.timeIndexAccumulatorList());
+            blockTimeIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC.timeIndexAccumulatorList());
+            int[] blockTimeIndicesArray = blockTimeIndicesList.stream().mapToInt(i -> i).toArray();
+
+            int[] onPeakStartingIndicesOfCycles = massSpecOutputSingleBlockRecord.onPeakStartingIndicesOfCycles();
+
+
+            Map<String, List<Double>> blockMapIdsToDataTimes = new TreeMap<>();
+            for (String id : onPeakFaradayDataSetMCMC.blockMapOfIdsToData().keySet()) {
+                if (!blockMapIdsToDataTimes.containsKey(id)) {
+                    blockMapIdsToDataTimes.put(id, new ArrayList<>());
+                }
+            }
+            for (String id : onPeakPhotoMultiplierDataSetMCMC.blockMapOfIdsToData().keySet()) {
+                if (!blockMapIdsToDataTimes.containsKey(id)) {
+                    blockMapIdsToDataTimes.put(id, new ArrayList<>());
+                }
+            }
+            for (String id : blockMapIdsToDataTimes.keySet()) {
+                if (onPeakFaradayDataSetMCMC.blockMapOfIdsToData().get(id) != null) {
+                    blockMapIdsToDataTimes.get(id).addAll(onPeakFaradayDataSetMCMC.blockMapOfIdsToData().get(id));
+                }
+                if (onPeakPhotoMultiplierDataSetMCMC.blockMapOfIdsToData().get(id) != null) {
+                    blockMapIdsToDataTimes.get(id).addAll(onPeakPhotoMultiplierDataSetMCMC.blockMapOfIdsToData().get(id));
+                }
+            }
+
+            boolean[] activeCycles = new boolean[onPeakStartingIndicesOfCycles.length];
+            Arrays.fill(activeCycles, true);
+            List<SpeciesRecordInterface> species = analysisMethod.getSpeciesList();
+            Map<SpeciesRecordInterface, boolean[]> mapOfSpeciesToActiveCycles = new TreeMap<>();
+            for (SpeciesRecordInterface specie : species) {
+                mapOfSpeciesToActiveCycles.put(specie, activeCycles.clone());
+            }
+
+            singleBlockDataSetRecord =
+                    new SingleBlockDataSetRecord(blockNumber, baselineDataSetMCMC, onPeakFaradayDataSetMCMC, onPeakPhotoMultiplierDataSetMCMC, blockKnotInterpolationStore,
+                            blockCycleArray, blockIntensityArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeIndicesArray,
+                            onPeakStartingIndicesOfCycles, mapOfSpeciesToActiveCycles, blockMapIdsToDataTimes);
         }
-        for (String id : onPeakPhotoMultiplierDataSetMCMC.blockMapOfIdsToData().keySet()) {
-            if (!blockMapIdsToDataTimes.containsKey(id)) {
-                blockMapIdsToDataTimes.put(id, new ArrayList<>());
-            }
-        }
-        for (String id : blockMapIdsToDataTimes.keySet()) {
-            if (onPeakFaradayDataSetMCMC.blockMapOfIdsToData().get(id) != null) {
-                blockMapIdsToDataTimes.get(id).addAll(onPeakFaradayDataSetMCMC.blockMapOfIdsToData().get(id));
-            }
-            if (onPeakPhotoMultiplierDataSetMCMC.blockMapOfIdsToData().get(id) != null) {
-                blockMapIdsToDataTimes.get(id).addAll(onPeakPhotoMultiplierDataSetMCMC.blockMapOfIdsToData().get(id));
-            }
-        }
-
-
-        SingleBlockDataSetRecord singleBlockDataSetRecord =
-                new SingleBlockDataSetRecord(blockNumber, baselineDataSetMCMC, onPeakFaradayDataSetMCMC, onPeakPhotoMultiplierDataSetMCMC, blockKnotInterpolationStore,
-                        blockCycleArray, blockIntensityArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeIndicesArray,
-                        onPeakStartingIndicesOfCycles, blockMapIdsToDataTimes);
-
         return singleBlockDataSetRecord;
     }
 

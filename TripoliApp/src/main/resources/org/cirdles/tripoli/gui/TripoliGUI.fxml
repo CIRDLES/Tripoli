@@ -78,7 +78,7 @@
             <MenuItem mnemonicParsing="false" onAction="#showTripoliContributeIssue"
                       text="Contribute an Issue on Github"/>
         </Menu>
-        <Menu mnemonicParsing="false" text="Demos">
+        <Menu disable="true" mnemonicParsing="false" text="Demos" visible="false">
             <MenuItem mnemonicParsing="false" onAction="#showDemo1" text="Demo1: RJ MMC for 2-isotope analysis"
                       visible="false"/>
             <MenuItem mnemonicParsing="false" onAction="#showDemo2" text="Demo: PeakShapes"/>

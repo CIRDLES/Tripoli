@@ -15,6 +15,7 @@
  */
 
 package org.cirdles.tripoli.gui;
+//import org.cirdles.MakeSqr;
 
 import jakarta.xml.bind.JAXBException;
 import javafx.application.Platform;
@@ -410,6 +411,4 @@ public class TripoliGUIController implements Initializable {
 
     public void newAnalysisMenuItemOnAction() {
     }
-
-
 }

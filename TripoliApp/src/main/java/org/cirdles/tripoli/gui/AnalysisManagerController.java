@@ -59,6 +59,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     public static AnalysisInterface analysis;
     public static MCMCPlotsWindow MCMCPlotsWindow;
+    public static OGTripoliPlotsWindow ogTripoliPlotsWindow;
     private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
     public Tab detectorDetailTab;
     public TabPane analysiMethodTabPane;
@@ -66,10 +67,18 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public HBox blockStatusHBox;
     @FXML
     public GridPane selectRatiosGridPane;
+    @FXML
     public Button mcmcButton;
+    @FXML
     public TextFlow numeratorMassesListTextFlow;
+    @FXML
     public TextFlow denominatorMassesListTextFlow;
+    @FXML
     public TextFlow ratiosListTextFlow;
+    @FXML
+    public ToggleGroup knotsToggleGroup;
+    @FXML
+    public Button reviewSculptData;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -357,8 +366,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 ratioCheckbox.setSelected(ratio.isDisplayed());
                 ratioCheckbox.setUserData(ratio);
                 ratioCheckbox.selectedProperty().addListener(new CheckBoxChangeListener(ratioCheckbox));
-
-                selectRatiosGridPane.add(ratioCheckbox, ratioCount % 8, (ratioCount / 8) % 10);
                 ratioCount++;
             }
         }
@@ -542,16 +549,19 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 stateColor = TRIPOLI_ANALYSIS_RED;
                 blockStatusButton.setUserData(SKIP);
                 blockStatusButton.setText("Skip " + blockStatusButton.getId());
+                analysis.getMapOfBlockIdToProcessStatus().put(Integer.parseInt(blockStatusButton.getId()), SKIP);
             }
             case RUN -> {
                 stateColor = Color.WHITE;
                 blockStatusButton.setUserData(RUN);
                 blockStatusButton.setText("Run " + blockStatusButton.getId());
+                analysis.getMapOfBlockIdToProcessStatus().put(Integer.parseInt(blockStatusButton.getId()), RUN);
             }
             case SHOW -> {
                 stateColor = TRIPOLI_ANALYSIS_GREEN;
                 blockStatusButton.setUserData(SHOW);
                 blockStatusButton.setText("Show " + blockStatusButton.getId());
+                analysis.getMapOfBlockIdToProcessStatus().put(Integer.parseInt(blockStatusButton.getId()), SHOW);
             }
         }
         blockStatusButton.setStyle("-fx-background-color: " + convertColorToHex(stateColor) + ";-fx-border-color: BLACK");
@@ -623,6 +633,18 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         MCMCPlotsWindow.loadPlotsWindow();
     }
 
+
+    public void reviewAndSculptDataAction() {
+        // ogTripoli view
+        if (null != ogTripoliPlotsWindow) {
+            ogTripoliPlotsWindow.close();
+        }
+        ogTripoliPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage);//, this);
+        OGTripoliViewController.analysis = analysis;
+        ogTripoliPlotsWindow.loadPlotsWindow();
+
+    }
+
     public void selectRunAllAction() {
         for (Node button : blockStatusHBox.getChildren()) {
             if (button instanceof Button) {
@@ -676,6 +698,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             analysisMethod.getDerivedIsotopicRatiosList().get(indexOfDerivedIsotopicRatio).setDisplayed(displayed);
             analysis.updateRatiosPlotBuilderDisplayStatus(indexOfDerivedIsotopicRatio + analysisMethod.getIsotopicRatiosList().size(), displayed);
         }
+    }
+
+    public void knotsChoiceAction() {
+        analysis.getAnalysisMethod().toggleKnotsMethod();
     }
 
     class RatioClickHandler implements EventHandler<MouseEvent> {

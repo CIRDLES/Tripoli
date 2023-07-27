@@ -16,40 +16,42 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author James F. Bowring
  */
-record SingleBlockDataSetRecord(
+public record SingleBlockDataSetRecord(
         int blockNumber,
         SingleBlockDataRecord baselineDataSetMCMC,
         SingleBlockDataRecord onPeakFaradayDataSetMCMC,
         SingleBlockDataRecord onPeakPhotoMultiplierDataSetMCMC,
         Primitive64Store blockKnotInterpolationStore,
         int[] blockCycleArray,
-        double[] blockIntensityArray,
+        double[] blockRawDataArray,
         int[] blockDetectorOrdinalIndicesArray,
         int[] blockIsotopeOrdinalIndicesArray,
         int[] blockTimeIndicesArray,
         int[] onPeakStartingIndicesOfCycles,
-
-        java.util.Map<String, List<Double>> blockMapIdsToDataTimes) implements Serializable {
-    int getCountOfBaselineIntensities() {
+        Map<SpeciesRecordInterface, boolean[]> mapOfSpeciesToActiveCycles,
+        Map<String, List<Double>> blockMapIdsToDataTimes) implements Serializable {
+    public int getCountOfBaselineIntensities() {
         return baselineDataSetMCMC().intensityAccumulatorList().size();
     }
 
-    int getCountOfOnPeakFaradayIntensities() {
+    public int getCountOfOnPeakFaradayIntensities() {
         return onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
     }
 
     /**
      * @author James F. Bowring
      */
-    record SingleBlockDataRecord(
+    public record SingleBlockDataRecord(
             int blockNumber,
             List<Integer> detectorOrdinalIndicesAccumulatorList,
             List<Integer> cycleAccumulatorList,
@@ -58,6 +60,11 @@ record SingleBlockDataSetRecord(
             List<Integer> timeIndexAccumulatorList,
             List<Integer> isotopeOrdinalIndicesAccumulatorList,
             java.util.Map<String, List<Double>> blockMapOfIdsToData) implements Serializable {
+
+        public int getCountOfDataElements() {
+            return intensityAccumulatorList.size();
+        }
+
     }
 
 

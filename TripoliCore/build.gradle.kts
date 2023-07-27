@@ -27,8 +27,8 @@ plugins {
 
 dependencies {
 //    implementation("de.jjohannes.gradle:extra-java-module-info:0.14")
-    // https://mvnrepository.com/artifact/com.google.guava/guava
-    implementation("com.google.guava:guava:31.1-jre")
+//    // https://mvnrepository.com/artifact/com.google.guava/guava
+//    implementation("com.google.guava:guava:31.1-jre")
 
     implementation("com.github.cirdles:commons:bc38781605")
 

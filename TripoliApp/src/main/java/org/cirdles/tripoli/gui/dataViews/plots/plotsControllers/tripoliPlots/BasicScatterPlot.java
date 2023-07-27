@@ -1,16 +1,13 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import org.cirdles.tripoli.gui.dataViews.plots.AbstractDataView;
+import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 
 
-public class BasicScatterPlot extends AbstractDataView {
+public class BasicScatterPlot extends AbstractPlot {
 
     private final LinePlotBuilder intensityLinePlotBuilder;
 
@@ -18,115 +15,86 @@ public class BasicScatterPlot extends AbstractDataView {
      * @param bounds
      * @param intensityLinePlotBuilder
      */
-    public BasicScatterPlot(Rectangle bounds, LinePlotBuilder intensityLinePlotBuilder) {
-        super(bounds, 50, 5);
+    private BasicScatterPlot(Rectangle bounds, LinePlotBuilder intensityLinePlotBuilder) {
+        super(bounds, 75, 25,
+                intensityLinePlotBuilder.getTitle(),
+                intensityLinePlotBuilder.getxAxisLabel(),
+                intensityLinePlotBuilder.getyAxisLabel());
+        ;
         this.intensityLinePlotBuilder = intensityLinePlotBuilder;
+    }
+
+    public static AbstractPlot generatePlot(Rectangle bounds, LinePlotBuilder intensityLinePlotBuilder) {
+        return new BasicScatterPlot(bounds, intensityLinePlotBuilder);
     }
 
     @Override
     public void preparePanel() {
         xAxisData = intensityLinePlotBuilder.getxData();
-        yAxisData = intensityLinePlotBuilder.getyData();
-
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
 
-        ticsX = TicGeneratorForAxes.generateTics(minX, maxX, (int) (graphWidth / 40.0));
-        double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.01);
-        minX -= xMarginStretch;
-        maxX += xMarginStretch;
-
+        yAxisData = intensityLinePlotBuilder.getyData();
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 
-        for (double yAxisDatum : yAxisData) {
-            minY = StrictMath.min(minY, yAxisDatum);
-            maxY = StrictMath.max(maxY, yAxisDatum);
-        }
-        ticsY = TicGeneratorForAxes.generateTics(minY, maxY, (int) (graphHeight / 15.0));
-        if ((null != ticsY) && (1 < ticsY.length)) {
-            // force y to tics
-            minY = ticsY[0].doubleValue();
-            maxY = ticsY[ticsY.length - 1].doubleValue();
-            // adjust margins
-            double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.1);
-            minY -= yMarginStretch * 2.0;
-            maxY += yMarginStretch;
+        for (int i = 0; i < yAxisData.length; i++) {
+            minY = StrictMath.min(minY, yAxisData[i]);
+            maxY = StrictMath.max(maxY, yAxisData[i]);
         }
 
-        setDisplayOffsetY(0.0);
-        setDisplayOffsetX(0.0);
+        displayOffsetX = 0.0;
+        displayOffsetY = 0.0;
 
+        prepareExtents();
+        calculateTics();
         repaint();
     }
 
     @Override
     public void paint(GraphicsContext g2d) {
         super.paint(g2d);
+    }
 
-        Text text = new Text();
-        text.setFont(Font.font("SansSerif", 12));
-        int textWidth = 0;
-
-        showTitle(intensityLinePlotBuilder.getTitle()[0]);
-
-        g2d.setLineWidth(0.5);
-        // scatter plot
-        g2d.setStroke(Paint.valueOf("Black"));
-        for (int i = 0; i < xAxisData.length; i++) {
-            g2d.strokeOval(mapX(xAxisData[i]) - 2.0f, mapY(yAxisData[i]) - 2.0f, 4.0f, 4.0f);
+    public void prepareExtents() {
+        double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.01);
+        if (0.0 == xMarginStretch) {
+            xMarginStretch = maxX * 0.01;
         }
+        minX -= xMarginStretch;
+        maxX += xMarginStretch;
 
+        double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.01);
+        maxY += yMarginStretch;
+        minY -= yMarginStretch;
+    }
 
-        if (1 < ticsY.length) {
-            // border and fill
-            g2d.setLineWidth(0.5);
-            g2d.setStroke(Paint.valueOf("BLACK"));
-            g2d.strokeRect(
-                    mapX(minX),
-                    mapY(ticsY[ticsY.length - 1].doubleValue()),
-                    graphWidth,
-                    StrictMath.abs(mapY(ticsY[ticsY.length - 1].doubleValue()) - mapY(ticsY[0].doubleValue())));
+    @Override
+    public void plotData(GraphicsContext g2d) {
+        g2d.setFill(dataColor.color());
+        g2d.setStroke(dataColor.color());
+        g2d.setLineWidth(1.0);
 
-            g2d.setFill(Paint.valueOf("BLACK"));
+        for (int i = 0; i < xAxisData.length; i++) {
+            if (pointInPlot(xAxisData[i], yAxisData[i])) {
+                double dataX = mapX(xAxisData[i]);
+                double dataY = mapY(yAxisData[i]);
+//                double dataYplusSigma = mapY(yAxisData[i] + oneSigma[i]);
+//                double dataYminusSigma = mapY(yAxisData[i] - oneSigma[i]);
 
-            // ticsY
-            float verticalTextShift = 3.2f;
-            g2d.setFont(Font.font("SansSerif", 10));
-            if (null != ticsY) {
-                for (java.math.BigDecimal bigDecimal : ticsY) {
-                    g2d.strokeLine(
-                            mapX(minX), mapY(bigDecimal.doubleValue()), mapX(maxX), mapY(bigDecimal.doubleValue()));
-
-                    // left side
-                    text.setText(bigDecimal.toString());
-                    textWidth = (int) text.getLayoutBounds().getWidth();
-                    g2d.fillText(text.getText(),//
-                            (float) mapX(minX) - textWidth + 5.0f,
-                            (float) mapY(bigDecimal.doubleValue()) + verticalTextShift);
-
-                }
-                // ticsX
-                if (null != ticsX) {
-                    for (int i = 0; i < ticsX.length - 1; i++) {
-                        try {
-                            g2d.strokeLine(
-                                    mapX(ticsX[i].doubleValue()),
-                                    mapY(ticsY[0].doubleValue()),
-                                    mapX(ticsX[i].doubleValue()),
-                                    mapY(ticsY[0].doubleValue()) + 5);
-
-                            // bottom
-                            String xText = ticsX[i].toPlainString();
-                            g2d.fillText(xText,
-                                    (float) mapX(ticsX[i].doubleValue()) - 5.0f,
-                                    (float) mapY(ticsY[0].doubleValue()) + 15);
-
-                        } catch (Exception ignored) {
-                        }
-                    }
-                }
+                g2d.fillOval(dataX - 2.5, dataY - 2.5, 5, 5);
+//                g2d.strokeLine(dataX, dataY, dataX, dataYplusSigma);
+//                g2d.strokeLine(dataX, dataY, dataX, dataYminusSigma);
             }
         }
+    }
+
+
+    /**
+     * @param g2d
+     */
+    @Override
+    public void plotStats(GraphicsContext g2d) {
+
     }
 }

@@ -63,9 +63,9 @@ public class EnsemblesStore implements Serializable {
                 header += "BL-" + i + ",";
             }
             header += "DFGain,";
-            for (int i = 0; i < signalNoise.length; i++) {
-                header += "SigNoise-" + i + ",";
-            }
+//            for (int i = 0; i < signalNoise.length; i++) {
+//                header += "SigNoise-" + i + ",";
+//            }
             header += "errorWeighted,";
             header += "errorUnWeighted \n";
 
@@ -84,9 +84,9 @@ public class EnsemblesStore implements Serializable {
                 data += baseLine[i] + ",";
             }
             data += dfGain() + ",";
-            for (int i = 0; i < signalNoise.length; i++) {
-                data += signalNoise[i] + ",";
-            }
+//            for (int i = 0; i < signalNoise.length; i++) {
+//                data += signalNoise[i] + ",";
+//            }
             data += errorWeighted + ",";
             data += errorUnWeighted + "\n";
 
