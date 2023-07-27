@@ -87,7 +87,7 @@ enum SingleBlockModelInitForMCMC {
         // june 2023 new init line 14 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // june 2023 new init - will need to be user input
         int iden = indexOfMostAbundantIsotope + 1; // ordinal
-        IsotopicRatio idenIden = new IsotopicRatio(analysisMethod.getSpeciesList().get(iden - 1), analysisMethod.getSpeciesList().get(iden - 1), false);
+//        IsotopicRatio idenIden = new IsotopicRatio(analysisMethod.getSpeciesList().get(iden - 1), analysisMethod.getSpeciesList().get(iden - 1), false);
 
         //TODO: Fix this when using bbase
         //TODO: handle case of only 2 cycles, which blows up calculateDFGain since it thrwos out first and last

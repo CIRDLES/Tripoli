@@ -234,11 +234,9 @@ public class TripoliPlotPane extends Pane {
     }
 
     public void toggleRatiosLogRatios() {
-        if (!getChildren().isEmpty()) {
-            if (getChildren().get(0) instanceof RatioHistogramPlot) {
-                ((RatioHistogramPlot) getChildren().get(0)).toggleRatiosLogRatios();
-                ((RatioHistogramPlot) getChildren().get(0)).repaint();
-            }
+        if (!getChildren().isEmpty() && (getChildren().get(0) instanceof RatioHistogramPlot)) {
+            ((RatioHistogramPlot) getChildren().get(0)).toggleRatiosLogRatios();
+            ((RatioHistogramPlot) getChildren().get(0)).repaint();
         }
     }
 
@@ -249,14 +247,12 @@ public class TripoliPlotPane extends Pane {
     }
 
     public void updateSpeciesPlotted(boolean[] speciesChecked, boolean showFaradays, boolean showPMs, boolean showModels) {
-        if (!getChildren().isEmpty()) {
-            if (getChildren().get(0) instanceof SpeciesIntensitySessionPlot) {
-                ((SpeciesIntensitySessionPlot) getChildren().get(0)).setSpeciesChecked(speciesChecked);
-                ((SpeciesIntensitySessionPlot) getChildren().get(0)).setShowFaradays(showFaradays);
-                ((SpeciesIntensitySessionPlot) getChildren().get(0)).setShowPMs(showPMs);
-                ((SpeciesIntensitySessionPlot) getChildren().get(0)).setShowModels(showModels);
-                ((SpeciesIntensitySessionPlot) getChildren().get(0)).refreshPanel(true, true);
-            }
+        if (!getChildren().isEmpty() && (getChildren().get(0) instanceof SpeciesIntensitySessionPlot)) {
+            ((SpeciesIntensitySessionPlot) getChildren().get(0)).setSpeciesChecked(speciesChecked);
+            ((SpeciesIntensitySessionPlot) getChildren().get(0)).setShowFaradays(showFaradays);
+            ((SpeciesIntensitySessionPlot) getChildren().get(0)).setShowPMs(showPMs);
+            ((SpeciesIntensitySessionPlot) getChildren().get(0)).setShowModels(showModels);
+            ((SpeciesIntensitySessionPlot) getChildren().get(0)).refreshPanel(true, true);
         }
     }
 

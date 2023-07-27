@@ -639,7 +639,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         if (null != ogTripoliPlotsWindow) {
             ogTripoliPlotsWindow.close();
         }
-        ogTripoliPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this);
+        ogTripoliPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage);//, this);
         OGTripoliViewController.analysis = analysis;
         ogTripoliPlotsWindow.loadPlotsWindow();
 

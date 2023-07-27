@@ -42,7 +42,7 @@ public class OGTripoliPlotsWindow {
     private OGTripoliPlotsWindow() {
     }
 
-    public OGTripoliPlotsWindow(Stage primaryStage, AnalysisManagerCallbackI analysisManagerCallbackI) {
+    public OGTripoliPlotsWindow(Stage primaryStage) {//}, AnalysisManagerCallbackI analysisManagerCallbackI) {
         this.primaryStage = primaryStage;
         plottingStage = new Stage();
         plottingStage.setMinWidth(PLOT_WINDOW_WIDTH);

@@ -124,7 +124,7 @@ public record SingleBlockModelRecord(
 // need to recalculate
         if (numerator.equals(highestAbundanceSpecies)) {
             IsotopicRatio targetRatio = new IsotopicRatio(denominator, highestAbundanceSpecies, false);
-            Map<Integer, double[]> mapCycleToStats = mapLogRatiosToCycleStats().get(targetRatio);
+//            Map<Integer, double[]> mapCycleToStats = mapLogRatiosToCycleStats().get(targetRatio);
 //            for (int cycleIndex = 0; cycleIndex < cycleCount; cycleIndex++){
 //                cycleOneSigmas[cycleIndex] = 1.0 / mapCycleToStats.get(cycleIndex)[1];
 //            }
