@@ -17,10 +17,7 @@
 package org.cirdles.tripoli.gui.constants;
 
 import javafx.scene.paint.Color;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.PhoenixMassSpec;
 import org.jetbrains.annotations.NonNls;
-
-import static org.cirdles.tripoli.constants.TripoliConstants.ONE_COULOMB;
 
 /**
  * @author James F. Bowring
@@ -50,32 +47,6 @@ public enum ConstantsTripoliApp {
         String blue = Integer.toHexString((int) (color.getBlue() * 255));
 
         return "#" + red + green + blue;
-    }
-
-    public static enum IntensityUnits {
-        COUNTS(),
-        VOLTS(),
-        AMPS();
-
-        public static double[] convertFromCountsToVolts(double [] counts, double[] amplifierResistance){
-            double [] volts = new double[counts.length];
-            for (int i = 0; i < volts.length; i ++){
-                volts[i] = counts[i] / (ONE_COULOMB / amplifierResistance[i]);
-            }
-            return volts;
-        }
-
-        public static double convertFromCountToVolts(double count, double amplifierResistance){;
-            return count / (ONE_COULOMB / amplifierResistance);
-        }
-
-        public static double[] convertFromCountsToAmps(double [] counts){
-            double [] amps = new double[counts.length];
-            for (int i = 0; i < amps.length; i ++){
-                amps[i] = counts[i] / ONE_COULOMB;
-            }
-            return amps;
-        }
     }
 
 

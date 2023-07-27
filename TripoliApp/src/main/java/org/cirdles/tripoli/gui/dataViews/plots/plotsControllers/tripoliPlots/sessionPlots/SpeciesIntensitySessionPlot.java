@@ -2,14 +2,11 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.se
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
-import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.sessionPlots.SpeciesIntensitySessionBuilder;
-
-import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_PALLETTE_FOUR;
 
 public class SpeciesIntensitySessionPlot extends AbstractPlot {
     private final SpeciesIntensitySessionBuilder speciesIntensitySessionBuilder;
@@ -58,11 +55,11 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
         this.showModels = showModels;
     }
 
-    public void setIntensityUnits(ConstantsTripoliApp.IntensityUnits intensityUnits) {
+    public void setIntensityUnits(TripoliConstants.IntensityUnits intensityUnits) {
         this.intensityUnits = intensityUnits;
     }
 
-    ConstantsTripoliApp.IntensityUnits intensityUnits = ConstantsTripoliApp.IntensityUnits.COUNTS;
+    TripoliConstants.IntensityUnits intensityUnits = TripoliConstants.IntensityUnits.COUNTS;
 
     @Override
     public void preparePanel() {
@@ -77,12 +74,12 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
         switch (intensityUnits){
             case VOLTS -> {
                 for (int row = 0; row < yDataCounts.length; row++) {
-                    yData[row] = ConstantsTripoliApp.IntensityUnits.convertFromCountsToVolts(yDataCounts[row], ampResistance[row / 4]);
+                    yData[row] = TripoliConstants.IntensityUnits.convertFromCountsToVolts(yDataCounts[row], ampResistance[row / 4]);
                 }
             }
             case AMPS -> {
                 for (int row = 0; row < yDataCounts.length; row++) {
-                    yData[row] = ConstantsTripoliApp.IntensityUnits.convertFromCountsToAmps( yDataCounts[row]);
+                    yData[row] = TripoliConstants.IntensityUnits.convertFromCountsToAmps( yDataCounts[row]);
                 }
             }
             case COUNTS ->{

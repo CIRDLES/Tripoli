@@ -22,11 +22,9 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.text.TextAlignment;
-import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
-import javax.swing.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +42,7 @@ public class PlotWallPane extends Pane {
     private boolean showFaradays = true;
     private boolean showPMs = true;
     private boolean showModels = true;
-    private ConstantsTripoliApp.IntensityUnits intensityUnits = ConstantsTripoliApp.IntensityUnits.COUNTS;
+    private TripoliConstants.IntensityUnits intensityUnits = TripoliConstants.IntensityUnits.COUNTS;
     private PlotWallPane(String iD) {
         this.iD = iD;
     }
@@ -254,36 +252,36 @@ public class PlotWallPane extends Pane {
         RadioButton countsRB = new RadioButton("Counts");
         countsRB.setToggleGroup(toggleScaleY);
         countsRB.setSelected(true);
-        countsRB.setPrefWidth(75);
+        countsRB.setPrefWidth(70);
         toolBar.getItems().add(countsRB);
         countsRB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     if (newVal){
-                        intensityUnits = ConstantsTripoliApp.IntensityUnits.COUNTS;
+                        intensityUnits = TripoliConstants.IntensityUnits.COUNTS;
                     }
                     rebuildPlot();
                 });
 
         RadioButton voltsRB = new RadioButton("Volts");
         voltsRB.setToggleGroup(toggleScaleY);
-        voltsRB.setPrefWidth(75);
+        voltsRB.setPrefWidth(60);
         toolBar.getItems().add(voltsRB);
         voltsRB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     if (newVal){
-                        intensityUnits = ConstantsTripoliApp.IntensityUnits.VOLTS;
+                        intensityUnits = TripoliConstants.IntensityUnits.VOLTS;
                     }
                     rebuildPlot();
                 });
 
         RadioButton ampsRB = new RadioButton("Amps");
         ampsRB.setToggleGroup(toggleScaleY);
-        ampsRB.setPrefWidth(75);
+        ampsRB.setPrefWidth(60);
         toolBar.getItems().add(ampsRB);
         ampsRB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     if (newVal){
-                        intensityUnits = ConstantsTripoliApp.IntensityUnits.AMPS;
+                        intensityUnits = TripoliConstants.IntensityUnits.AMPS;
                     }
                     rebuildPlot();
                 });

@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
@@ -28,7 +29,6 @@ import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.util.*;
 
-import static org.cirdles.tripoli.constants.TripoliConstants.ONE_COULOMB;
 import static org.cirdles.tripoli.utilities.mathUtilities.MathUtilities.roundedToSize;
 
 /**
@@ -71,13 +71,13 @@ public enum SingleBlockDataAccumulatorMCMC {
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
                         if (MassSpectrometerContextEnum.PHOENIX == analysisMethod.getMassSpectrometerContext()) {
                             // convert all volts to counts to bring all files into alignment
-                            intensity = intensity * (ONE_COULOMB / amplifierResistance);
+                            intensity = TripoliConstants.IntensityUnits.convertFromVoltsToCount(intensity, amplifierResistance);
                         }
                         cycleAccumulatorList.add(baseLineCycleNumbers[index]);
                         intensityAccumulatorList.add(intensity);
                         timeAccumulatorList.add(baseLineTimeStamps[index]);
                         timeIndexAccumulatorList.add(index);
-                        isotopeOrdinalIndicesAccumulatorList.add(0);//analysisMethod.getSpeciesList().size());
+                        isotopeOrdinalIndicesAccumulatorList.add(0);
                     }
                 }
             }
@@ -137,7 +137,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
                         if (MassSpectrometerContextEnum.PHOENIX == analysisMethod.getMassSpectrometerContext() && isFaraday) {
                             // convert all volts to counts to bring all files into alignment
-                            intensity = intensity * (ONE_COULOMB / amplifierResistance);
+                            intensity = TripoliConstants.IntensityUnits.convertFromVoltsToCount(intensity, amplifierResistance);
                         }
                         intensityAccumulatorList.add(intensity);
                         timeAccumulatorList.add(onPeakTimeStamps[index]);
