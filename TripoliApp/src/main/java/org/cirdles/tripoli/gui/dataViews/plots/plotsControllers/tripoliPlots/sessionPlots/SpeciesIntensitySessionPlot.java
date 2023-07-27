@@ -2,15 +2,21 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.se
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.sessionPlots.SpeciesIntensitySessionBuilder;
 
+import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_PALLETTE_FOUR;
+
 public class SpeciesIntensitySessionPlot extends AbstractPlot {
     private final SpeciesIntensitySessionBuilder speciesIntensitySessionBuilder;
 
+    private double[][] yDataCounts;
     private double[][] yData;
+    private double[][] ampResistance;
 
     private boolean[] speciesChecked;
     private boolean showFaradays;
@@ -23,8 +29,9 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                 speciesIntensitySessionBuilder.getxAxisLabel(),
                 speciesIntensitySessionBuilder.getyAxisLabel());
         this.speciesIntensitySessionBuilder = speciesIntensitySessionBuilder;
-        yData = speciesIntensitySessionBuilder.getyData();
-        this.speciesChecked = new boolean[yData.length / 4];
+        this.yDataCounts = speciesIntensitySessionBuilder.getyData();
+        this.ampResistance = speciesIntensitySessionBuilder.getAmpResistance();
+        this.speciesChecked = new boolean[yDataCounts.length / 4];
         this.speciesChecked[0] = true;
         this.showFaradays = true;
         this.showPMs = true;
@@ -51,6 +58,12 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
         this.showModels = showModels;
     }
 
+    public void setIntensityUnits(ConstantsTripoliApp.IntensityUnits intensityUnits) {
+        this.intensityUnits = intensityUnits;
+    }
+
+    ConstantsTripoliApp.IntensityUnits intensityUnits = ConstantsTripoliApp.IntensityUnits.COUNTS;
+
     @Override
     public void preparePanel() {
         xAxisData = speciesIntensitySessionBuilder.getxData();
@@ -60,6 +73,24 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 
+        yData = new double[yDataCounts.length][yDataCounts[0].length];
+        switch (intensityUnits){
+            case VOLTS -> {
+                for (int row = 0; row < yDataCounts.length; row++) {
+                    yData[row] = ConstantsTripoliApp.IntensityUnits.convertFromCountsToVolts(yDataCounts[row], ampResistance[row / 4]);
+                }
+            }
+            case AMPS -> {
+                for (int row = 0; row < yDataCounts.length; row++) {
+                    yData[row] = ConstantsTripoliApp.IntensityUnits.convertFromCountsToAmps( yDataCounts[row]);
+                }
+            }
+            case COUNTS ->{
+                for (int row = 0; row < yDataCounts.length; row++){
+                    yData[row] = yDataCounts[row];
+                }
+            }
+        }
 
         for (int row = 0; row < yData.length; row++) {
             int speciesIndex = (row / 4);
@@ -103,6 +134,7 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
 
     @Override
     public void plotData(GraphicsContext g2d) {
+
         g2d.setFill(dataColor.color());
         g2d.setStroke(dataColor.color());
         g2d.setLineWidth(1.5);

@@ -17,14 +17,16 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.TextAlignment;
+import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
+import javax.swing.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,7 +44,7 @@ public class PlotWallPane extends Pane {
     private boolean showFaradays = true;
     private boolean showPMs = true;
     private boolean showModels = true;
-
+    private ConstantsTripoliApp.IntensityUnits intensityUnits = ConstantsTripoliApp.IntensityUnits.COUNTS;
     private PlotWallPane(String iD) {
         this.iD = iD;
     }
@@ -234,6 +236,7 @@ public class PlotWallPane extends Pane {
 
         CheckBox showModel = new CheckBox("Model");
         showModel.setSelected(true);
+        showModel.setPrefWidth(60);
         toolBar.getItems().add(showModel);
         showModel.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
@@ -241,13 +244,60 @@ public class PlotWallPane extends Pane {
                     rebuildPlot();
                 });
 
+        Label labelViews = new Label("Views:");
+        labelViews.setAlignment(Pos.CENTER_RIGHT);
+        labelViews.setPrefWidth(60);
+        toolBar.getItems().add(labelViews);
+
+        ToggleGroup toggleScaleY = new ToggleGroup();
+
+        RadioButton countsRB = new RadioButton("Counts");
+        countsRB.setToggleGroup(toggleScaleY);
+        countsRB.setSelected(true);
+        countsRB.setPrefWidth(75);
+        toolBar.getItems().add(countsRB);
+        countsRB.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                    if (newVal){
+                        intensityUnits = ConstantsTripoliApp.IntensityUnits.COUNTS;
+                    }
+                    rebuildPlot();
+                });
+
+        RadioButton voltsRB = new RadioButton("Volts");
+        voltsRB.setToggleGroup(toggleScaleY);
+        voltsRB.setPrefWidth(75);
+        toolBar.getItems().add(voltsRB);
+        voltsRB.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                    if (newVal){
+                        intensityUnits = ConstantsTripoliApp.IntensityUnits.VOLTS;
+                    }
+                    rebuildPlot();
+                });
+
+        RadioButton ampsRB = new RadioButton("Amps");
+        ampsRB.setToggleGroup(toggleScaleY);
+        ampsRB.setPrefWidth(75);
+        toolBar.getItems().add(ampsRB);
+        ampsRB.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                    if (newVal){
+                        intensityUnits = ConstantsTripoliApp.IntensityUnits.AMPS;
+                    }
+                    rebuildPlot();
+                });
+
+
+
+
         getChildren().addAll(toolBar);
     }
 
     private void rebuildPlot() {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
-                ((TripoliPlotPane) plotPane).updateSpeciesPlotted(speciesChecked, showFaradays, showPMs, showModels);
+                ((TripoliPlotPane) plotPane).updateSpeciesPlotted(speciesChecked, showFaradays, showPMs, showModels, intensityUnits);
             }
         }
     }
