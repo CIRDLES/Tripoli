@@ -40,6 +40,7 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
     private double[] oneSigmaForCycles;
     private double sessionMean;
     private double sessionOneSigma;
+
     private BlockRatioCyclesSessionPlot(Rectangle bounds, BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord) {
         super(bounds,
                 50, 25,

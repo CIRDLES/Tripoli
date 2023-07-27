@@ -67,10 +67,18 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public HBox blockStatusHBox;
     @FXML
     public GridPane selectRatiosGridPane;
+    @FXML
     public Button mcmcButton;
+    @FXML
     public TextFlow numeratorMassesListTextFlow;
+    @FXML
     public TextFlow denominatorMassesListTextFlow;
+    @FXML
     public TextFlow ratiosListTextFlow;
+    @FXML
+    public ToggleGroup knotsToggleGroup;
+    @FXML
+    public Button reviewSculptData;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -690,6 +698,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             analysisMethod.getDerivedIsotopicRatiosList().get(indexOfDerivedIsotopicRatio).setDisplayed(displayed);
             analysis.updateRatiosPlotBuilderDisplayStatus(indexOfDerivedIsotopicRatio + analysisMethod.getIsotopicRatiosList().size(), displayed);
         }
+    }
+
+    public void knotsChoiceAction() {
+        analysis.getAnalysisMethod().toggleKnotsMethod();
     }
 
     class RatioClickHandler implements EventHandler<MouseEvent> {

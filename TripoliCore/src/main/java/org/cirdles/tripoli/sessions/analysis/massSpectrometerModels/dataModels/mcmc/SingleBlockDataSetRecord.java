@@ -33,7 +33,7 @@ public record SingleBlockDataSetRecord(
         SingleBlockDataRecord onPeakPhotoMultiplierDataSetMCMC,
         Primitive64Store blockKnotInterpolationStore,
         int[] blockCycleArray,
-        double[] blockIntensityArray,
+        double[] blockRawDataArray,
         int[] blockDetectorOrdinalIndicesArray,
         int[] blockIsotopeOrdinalIndicesArray,
         int[] blockTimeIndicesArray,

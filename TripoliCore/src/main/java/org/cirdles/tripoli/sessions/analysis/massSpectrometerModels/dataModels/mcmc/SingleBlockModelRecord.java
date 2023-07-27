@@ -24,6 +24,10 @@ import java.util.Map;
 
 public record SingleBlockModelRecord(
         int blockNumber,
+        int faradayCount,
+        int cycleCount,
+        int isotopeCount,
+        SpeciesRecordInterface highestAbundanceSpecies,
         double[] baselineMeansArray,
         double[] baselineStandardDeviationsArray,
         double detectorFaradayGain,
@@ -32,20 +36,23 @@ public record SingleBlockModelRecord(
         Map<SpeciesRecordInterface, boolean[]> mapOfSpeciesToActiveCycles,
         //TODO: convert to logratios?
         Map<IsotopicRatio, Map<Integer, double[]>> mapLogRatiosToCycleStats,
-        double[] dataArray,
-        double[] dataWithNoBaselineArray,
+        double[] dataModelArray,
         double[] dataSignalNoiseArray,
         double[] I0,
-        double[] intensities,
-        int faradayCount,
-        int isotopeCount,
-        int cycleCount,
-        SpeciesRecordInterface highestAbundanceSpecies) implements Serializable {
+        double[] intensities
+) implements Serializable {
 
-    public double[] getOnPeakDataFaradayArray(int sizeOfBaseLineDataArray, int countOfFaradayDataEntries){
-        double[] onPeakDataFaradayArray = new double[countOfFaradayDataEntries];
-        System.arraycopy(dataWithNoBaselineArray, sizeOfBaseLineDataArray, onPeakDataFaradayArray, 0, countOfFaradayDataEntries);
-        return onPeakDataFaradayArray;
+    public double[] getOnPeakDataModelFaradayArray(int countOfBaselineDataEntries, int countOfFaradayDataEntries) {
+        double[] onPeakDataModelFaradayArray = new double[countOfFaradayDataEntries];
+        System.arraycopy(dataModelArray, countOfBaselineDataEntries, onPeakDataModelFaradayArray, 0, countOfFaradayDataEntries);
+        return onPeakDataModelFaradayArray;
+    }
+
+    public double[] getOnPeakDataModelPhotoMultiplierArray(int countOfBaselineDataEntries, int countOfFaradayDataEntries) {
+        double[] onPeakDataModelPhotoMultiplierArray = new double[countOfFaradayDataEntries];
+        System.arraycopy(dataModelArray, countOfBaselineDataEntries + countOfFaradayDataEntries,
+                onPeakDataModelPhotoMultiplierArray, 0, dataModelArray.length - countOfBaselineDataEntries - countOfFaradayDataEntries);
+        return onPeakDataModelPhotoMultiplierArray;
     }
 
     public int sizeOfModel() {
@@ -78,7 +85,7 @@ public record SingleBlockModelRecord(
         return cycleStdDev;
     }
 
-    private double[] calculateDerivedRatioMean(IsotopicRatio  derivedRatio){
+    private double[] calculateDerivedRatioMean(IsotopicRatio derivedRatio) {
         double[] cycleMeans = new double[cycleCount];
         SpeciesRecordInterface numerator = derivedRatio.getNumerator();
         SpeciesRecordInterface denominator = derivedRatio.getDenominator();
@@ -86,23 +93,23 @@ public record SingleBlockModelRecord(
         if (numerator.equals(highestAbundanceSpecies)) {
             IsotopicRatio targetRatio = new IsotopicRatio(denominator, highestAbundanceSpecies, false);
             Map<Integer, double[]> mapCycleToStats = mapLogRatiosToCycleStats().get(targetRatio);
-            for (int cycleIndex = 0; cycleIndex < cycleCount; cycleIndex++){
+            for (int cycleIndex = 0; cycleIndex < cycleCount; cycleIndex++) {
                 cycleMeans[cycleIndex] = 1.0 / mapCycleToStats.get(cycleIndex)[0];
             }
         } else {
             IsotopicRatio numRatio = null;
             IsotopicRatio denRatio = null;
-            for (IsotopicRatio isoRatio : mapLogRatiosToCycleStats.keySet()){
-                if (isoRatio.getNumerator().equals(numerator)){
+            for (IsotopicRatio isoRatio : mapLogRatiosToCycleStats.keySet()) {
+                if (isoRatio.getNumerator().equals(numerator)) {
                     numRatio = isoRatio;
                 }
-                if (isoRatio.getNumerator().equals(denominator)){
+                if (isoRatio.getNumerator().equals(denominator)) {
                     denRatio = isoRatio;
                 }
             }
             Map<Integer, double[]> mapCycleToStatsNumRatio = mapLogRatiosToCycleStats().get(numRatio);
             Map<Integer, double[]> mapCycleToStatsDenRatio = mapLogRatiosToCycleStats().get(denRatio);
-            for (int cycleIndex = 0; cycleIndex < cycleCount; cycleIndex++){
+            for (int cycleIndex = 0; cycleIndex < cycleCount; cycleIndex++) {
                 cycleMeans[cycleIndex] = mapCycleToStatsNumRatio.get(cycleIndex)[0] / mapCycleToStatsDenRatio.get(cycleIndex)[0];
             }
         }
@@ -110,7 +117,7 @@ public record SingleBlockModelRecord(
         return cycleMeans;
     }
 
-    private double[] calculateDerivedRatioOneSigma(IsotopicRatio  derivedRatio){
+    private double[] calculateDerivedRatioOneSigma(IsotopicRatio derivedRatio) {
         double[] cycleOneSigmas = new double[cycleCount];
         SpeciesRecordInterface numerator = derivedRatio.getNumerator();
         SpeciesRecordInterface denominator = derivedRatio.getDenominator();

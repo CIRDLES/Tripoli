@@ -16,17 +16,12 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
-import org.apache.commons.math3.analysis.function.Sin;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.ojalgo.RecoverableCondition;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.cirdles.tripoli.sessions.analysis.Analysis.SKIP;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver.prepareSingleBlockDataForMCMC;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelInitForMCMC.initializeModelForSingleBlockMCMC;
 
@@ -55,11 +50,12 @@ public class AllBlockInitForOGTripoli {
             singleBlockModelRecords[blockIndex] = singleBlockInitialModelRecordWithNoCov.singleBlockModelRecord();
         }
 
-        return  new PlottingData(singleBlockDataSetRecords, singleBlockModelRecords);
+        return new PlottingData(singleBlockDataSetRecords, singleBlockModelRecords);
     }
 
     public record PlottingData(
             SingleBlockDataSetRecord[] singleBlockDataSetRecords,
             SingleBlockModelRecord[] singleBlockModelRecords
-    ){}
+    ) {
+    }
 }

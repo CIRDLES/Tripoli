@@ -416,7 +416,7 @@ public enum SingleBlockDataModelPlot {
             int intensityIndex = timeIndexAccumulatorList.get(dataArrayIndex);
             int faradayIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(dataArrayIndex));
             dataArray[dataArrayIndex] = baselinesMeans[faradayIndex];
-//            dataWithNoBaselineArray[dataArrayIndex] = dataArray[dataArrayIndex] - baselinesMeans[faradayIndex];
+//            dataWithNoBaselineArray[dataArrayIndex] = dataModelArray[dataArrayIndex] - baselinesMeans[faradayIndex];
 
             //TODO: WTF???
             double calculatedValue = StrictMath.sqrt(1.0//pow(xSig[faradayIndex], 2)
@@ -428,7 +428,7 @@ public enum SingleBlockDataModelPlot {
         }
 
 
-        double[] dataOriginalCounts = singleBlockDataSetRecord.blockIntensityArray().clone();
+        double[] dataOriginalCounts = singleBlockDataSetRecord.blockRawDataArray().clone();
         double[] yDataResiduals = new double[dataOriginalCounts.length];
 
         Arrays.sort(integrationTimes);

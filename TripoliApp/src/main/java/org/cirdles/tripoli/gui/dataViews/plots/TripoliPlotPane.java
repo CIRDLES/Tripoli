@@ -22,6 +22,7 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.SpeciesIntensitySessionPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.*;
@@ -244,6 +245,18 @@ public class TripoliPlotPane extends Pane {
     public void restorePlot() {
         if (!getChildren().isEmpty()) {
             ((AbstractPlot) getChildren().get(0)).refreshPanel(true, true);
+        }
+    }
+
+    public void updateSpeciesPlotted(boolean[] speciesChecked, boolean showFaradays, boolean showPMs, boolean showModels) {
+        if (!getChildren().isEmpty()) {
+            if (getChildren().get(0) instanceof SpeciesIntensitySessionPlot) {
+                ((SpeciesIntensitySessionPlot) getChildren().get(0)).setSpeciesChecked(speciesChecked);
+                ((SpeciesIntensitySessionPlot) getChildren().get(0)).setShowFaradays(showFaradays);
+                ((SpeciesIntensitySessionPlot) getChildren().get(0)).setShowPMs(showPMs);
+                ((SpeciesIntensitySessionPlot) getChildren().get(0)).setShowModels(showModels);
+                ((SpeciesIntensitySessionPlot) getChildren().get(0)).refreshPanel(true, true);
+            }
         }
     }
 

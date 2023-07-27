@@ -87,7 +87,7 @@ enum SingleBlockModelInitForMCMC {
         // june 2023 new init line 14 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // june 2023 new init - will need to be user input
         int iden = indexOfMostAbundantIsotope + 1; // ordinal
-        IsotopicRatio idenIden =  new IsotopicRatio(analysisMethod.getSpeciesList().get(iden - 1), analysisMethod.getSpeciesList().get(iden - 1),false);
+        IsotopicRatio idenIden = new IsotopicRatio(analysisMethod.getSpeciesList().get(iden - 1), analysisMethod.getSpeciesList().get(iden - 1), false);
 
         //TODO: Fix this when using bbase
         //TODO: handle case of only 2 cycles, which blows up calculateDFGain since it thrwos out first and last
@@ -123,7 +123,7 @@ enum SingleBlockModelInitForMCMC {
             x0.I{m} = I0;
         end
          */
-        double[] d0_data = singleBlockDataSetRecord.blockIntensityArray();
+        double[] d0_data = singleBlockDataSetRecord.blockRawDataArray();
         int[] d0_detVec = singleBlockDataSetRecord.blockDetectorOrdinalIndicesArray();
         int startIndexOfPhotoMultiplierData = singleBlockDataSetRecord.getCountOfBaselineIntensities() + singleBlockDataSetRecord.getCountOfOnPeakFaradayIntensities();
         List<Double> ddver2List = new ArrayList<>();
@@ -204,7 +204,6 @@ enum SingleBlockModelInitForMCMC {
         int[] isotopeOrdinalIndicesAccumulatorArray = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
         int cycleCount = singleBlockDataSetRecord.onPeakStartingIndicesOfCycles().length;
         double[] logRatios = new double[analysisMethod.getIsotopicRatiosList().size()];
-//        double[][] cycleLogRatios = new double[countOfIsotopes][cycleCount];
         Map<IsotopicRatio, Map<Integer, double[]>> mapLogRatiosToCycleStats = new TreeMap<>();
 
         Map<Integer, double[]> denominatorMapCyclesToStats = new TreeMap<>();
@@ -277,7 +276,7 @@ enum SingleBlockModelInitForMCMC {
                 }
                 mapCyclesToStats.put(cycleIndex, cycleLogRatioStats);
             }
-            if (isotopeIndex == iden - 1){
+            if (isotopeIndex == iden - 1) {
                 denominatorMapCyclesToStats = mapCyclesToStats;
             } else {
                 mapLogRatiosToCycleStats.put(analysisMethod.getIsotopicRatiosList().get(isotopeIndex), mapCyclesToStats);
@@ -285,7 +284,7 @@ enum SingleBlockModelInitForMCMC {
         }
 
         // postprocess to correct by denominator isotope as per ViewCycles in matlab
-        for (IsotopicRatio iRatio : mapLogRatiosToCycleStats.keySet()){
+        for (IsotopicRatio iRatio : mapLogRatiosToCycleStats.keySet()) {
             Map<Integer, double[]> numeratorMapCyclesToStats = mapLogRatiosToCycleStats.get(iRatio);
             for (int cycleIndex = 0; cycleIndex < numeratorMapCyclesToStats.keySet().size(); cycleIndex++) {
                 numeratorMapCyclesToStats.get(cycleIndex)[0] /= denominatorMapCyclesToStats.get(cycleIndex)[0];
@@ -367,6 +366,10 @@ enum SingleBlockModelInitForMCMC {
 
         SingleBlockModelRecord originalX0 = new SingleBlockModelRecord(
                 singleBlockDataSetRecord.blockNumber(),
+                mapDetectorOrdinalToFaradayIndex.size(),
+                cycleCount,
+                countOfIsotopes,
+                analysisMethod.retrieveHighestAbundanceSpecies(),
                 baselineMeansArray,//calculated
                 baselineStandardDeviationsArray,
                 detectorFaradayGain,
@@ -374,20 +377,21 @@ enum SingleBlockModelInitForMCMC {
                 logRatios,//calculated
                 singleBlockDataSetRecord.mapOfSpeciesToActiveCycles(),
                 mapLogRatiosToCycleStats,
-                singleBlockDataSetRecord.blockIntensityArray(),
-                dataWithNoBaselineArray,
+                singleBlockDataSetRecord.blockRawDataArray(), // ie dataModelArray
                 dataSignalNoiseArray_Dsig,//calculated
                 intensity_I,//calculated
-                intensityFn.getColumnPackedCopy(),
-                mapDetectorOrdinalToFaradayIndex.size(),
-                countOfIsotopes,
-                cycleCount, analysisMethod.retrieveHighestAbundanceSpecies());
+                intensityFn.getColumnPackedCopy()
+        );
 
         double[] dataModel = modelInitData(originalX0, singleBlockDataSetRecord);
         // note: this datamodel replicates matlab datamodel when using linear knots
 
         SingleBlockModelRecord calculatedX0 = new SingleBlockModelRecord(
                 singleBlockDataSetRecord.blockNumber(),//original
+                mapDetectorOrdinalToFaradayIndex.size(),
+                cycleCount,
+                countOfIsotopes,
+                analysisMethod.retrieveHighestAbundanceSpecies(),
                 baselineMeansArray,//calculated
                 baselineStandardDeviationsArray,//calculated
                 detectorFaradayGain,//calculated
@@ -395,13 +399,11 @@ enum SingleBlockModelInitForMCMC {
                 logRatios,//calculated
                 singleBlockDataSetRecord.mapOfSpeciesToActiveCycles(),
                 mapLogRatiosToCycleStats,
-                singleBlockDataSetRecord.blockIntensityArray(),//original
-                dataModel,//calculated
+                dataModel,
                 dataSignalNoiseArray_Dsig,//calculated
                 intensity_I,//calculated
-                intensityFn.getColumnPackedCopy(),//calculated
-                mapDetectorOrdinalToFaradayIndex.size(),//calculated
-                countOfIsotopes, cycleCount, analysisMethod.retrieveHighestAbundanceSpecies());
+                intensityFn.getColumnPackedCopy()//calculated
+        );
 
         Matrix covarianceMatrix_C0 = null;
         if (provideCovariance) {
@@ -441,23 +443,21 @@ enum SingleBlockModelInitForMCMC {
 
                     SingleBlockModelRecord testX0 = new SingleBlockModelRecord(
                             singleBlockDataSetRecord.blockNumber(),
-                            baselineMeansArray,
+                            mapDetectorOrdinalToFaradayIndex.size(), cycleCount, countOfIsotopes, analysisMethod.retrieveHighestAbundanceSpecies(), baselineMeansArray,
                             baselineStandardDeviationsArray,
                             detectorFaradayGain,
                             mapDetectorOrdinalToFaradayIndex,
                             testLogRatios,
                             singleBlockDataSetRecord.mapOfSpeciesToActiveCycles(),
                             mapLogRatiosToCycleStats,
-                            singleBlockDataSetRecord.blockIntensityArray(),
-                            dataWithNoBaselineArray,
+                            singleBlockDataSetRecord.blockRawDataArray(),
                             dataSignalNoiseArray_Dsig,
                             intensity_I,
-                            intensityFn.getColumnPackedCopy(),
-                            mapDetectorOrdinalToFaradayIndex.size(),
-                            countOfIsotopes, cycleCount, analysisMethod.retrieveHighestAbundanceSpecies());
+                            intensityFn.getColumnPackedCopy()
+                    );
                     try {
                         dataModel = modelInitData(testX0, singleBlockDataSetRecord);
-                        eTmp[ii] = calcError(singleBlockDataSetRecord.blockIntensityArray(), dataModel, dataSignalNoiseArray_Dsig);
+                        eTmp[ii] = calcError(singleBlockDataSetRecord.blockRawDataArray(), dataModel, dataSignalNoiseArray_Dsig);
                         minETmp = Math.min(eTmp[ii], minETmp);
                     } catch (Exception e) {
                         System.err.println("Dsig error during init line 302");
@@ -501,22 +501,20 @@ enum SingleBlockModelInitForMCMC {
 
                     SingleBlockModelRecord testX0 = new SingleBlockModelRecord(
                             singleBlockDataSetRecord.blockNumber(),
-                            baselineMeansArray,
+                            mapDetectorOrdinalToFaradayIndex.size(), cycleCount, countOfIsotopes, analysisMethod.retrieveHighestAbundanceSpecies(), baselineMeansArray,
                             baselineStandardDeviationsArray,
                             detectorFaradayGain,
                             mapDetectorOrdinalToFaradayIndex,
                             logRatios,
                             singleBlockDataSetRecord.mapOfSpeciesToActiveCycles(),
                             mapLogRatiosToCycleStats,
-                            singleBlockDataSetRecord.blockIntensityArray(),
-                            dataWithNoBaselineArray,
+                            singleBlockDataSetRecord.blockRawDataArray(),
                             dataSignalNoiseArray_Dsig,
                             testIntensity,
-                            intensityFn.getColumnPackedCopy(),
-                            mapDetectorOrdinalToFaradayIndex.size(),
-                            countOfIsotopes, cycleCount, analysisMethod.retrieveHighestAbundanceSpecies());
+                            intensityFn.getColumnPackedCopy()
+                    );
                     dataModel = modelInitData(testX0, singleBlockDataSetRecord);
-                    eTmp[ii] = calcError(singleBlockDataSetRecord.blockIntensityArray(), dataModel, dataSignalNoiseArray_Dsig);
+                    eTmp[ii] = calcError(singleBlockDataSetRecord.blockRawDataArray(), dataModel, dataSignalNoiseArray_Dsig);
                     minETmp = Math.min(eTmp[ii], minETmp);
                 }
                 intensityVar[intensityIndex] = Math.max(calcVariance(eTmp, minETmp, testI), minvarI);
@@ -548,24 +546,21 @@ enum SingleBlockModelInitForMCMC {
 
                 SingleBlockModelRecord testX0 = new SingleBlockModelRecord(
                         singleBlockDataSetRecord.blockNumber(),
-                        baselineMeansArray,
+                        mapDetectorOrdinalToFaradayIndex.size(), cycleCount, countOfIsotopes, analysisMethod.retrieveHighestAbundanceSpecies(), baselineMeansArray,
                         baselineStandardDeviationsArray,
                         testDFGain,
                         mapDetectorOrdinalToFaradayIndex,
                         logRatios,
                         singleBlockDataSetRecord.mapOfSpeciesToActiveCycles(),
                         mapLogRatiosToCycleStats,
-                        singleBlockDataSetRecord.blockIntensityArray(),
-                        dataWithNoBaselineArray,
+                        singleBlockDataSetRecord.blockRawDataArray(),
                         dataSignalNoiseArray_Dsig,
                         intensity_I,
-                        intensityFn.getColumnPackedCopy(),
-                        mapDetectorOrdinalToFaradayIndex.size(),
-                        countOfIsotopes,
-                        cycleCount, analysisMethod.retrieveHighestAbundanceSpecies());
+                        intensityFn.getColumnPackedCopy()
+                );
 
                 dataModel = modelInitData(testX0, singleBlockDataSetRecord);
-                eTmp[ii] = calcError(singleBlockDataSetRecord.blockIntensityArray(), dataModel, dataSignalNoiseArray_Dsig);
+                eTmp[ii] = calcError(singleBlockDataSetRecord.blockRawDataArray(), dataModel, dataSignalNoiseArray_Dsig);
                 minETmp = Math.min(eTmp[ii], minETmp);
             }
             double dfGainVar = Math.max(calcVariance(eTmp, minETmp, testDF), minvarDF);
@@ -602,23 +597,20 @@ enum SingleBlockModelInitForMCMC {
 
                     SingleBlockModelRecord testX0 = new SingleBlockModelRecord(
                             singleBlockDataSetRecord.blockNumber(),
-                            testBaseLineMeans,
+                            mapDetectorOrdinalToFaradayIndex.size(), cycleCount, countOfIsotopes, analysisMethod.retrieveHighestAbundanceSpecies(), testBaseLineMeans,
                             baselineStandardDeviationsArray,
                             detectorFaradayGain,
                             mapDetectorOrdinalToFaradayIndex,
                             logRatios,
                             singleBlockDataSetRecord.mapOfSpeciesToActiveCycles(),
                             mapLogRatiosToCycleStats,
-                            singleBlockDataSetRecord.blockIntensityArray(),
-                            dataWithNoBaselineArray,
+                            singleBlockDataSetRecord.blockRawDataArray(),
                             dataSignalNoiseArray_Dsig,
                             intensity_I,
-                            intensityFn.getColumnPackedCopy(),
-                            mapDetectorOrdinalToFaradayIndex.size(),
-                            countOfIsotopes,
-                            cycleCount, analysisMethod.retrieveHighestAbundanceSpecies());
+                            intensityFn.getColumnPackedCopy()
+                    );
                     dataModel = modelInitData(testX0, singleBlockDataSetRecord);
-                    eTmp[ii] = calcError(singleBlockDataSetRecord.blockIntensityArray(), dataModel, dataSignalNoiseArray_Dsig);
+                    eTmp[ii] = calcError(singleBlockDataSetRecord.blockRawDataArray(), dataModel, dataSignalNoiseArray_Dsig);
                     minETmp = Math.min(eTmp[ii], minETmp);
                 }
                 baseLineVar[baseLineIndex] = Math.max(calcVariance(eTmp, minETmp, testBL), minvarBL);
@@ -704,7 +696,7 @@ enum SingleBlockModelInitForMCMC {
 
          */
 
-        double[] d0_data = singleBlockDataSetRecord.blockIntensityArray();
+        double[] d0_data = singleBlockDataSetRecord.blockRawDataArray();
         int startIndexOfPhotoMultiplierData = singleBlockDataSetRecord.getCountOfBaselineIntensities() + singleBlockDataSetRecord.getCountOfOnPeakFaradayIntensities();
         int[] d0_detVec = singleBlockDataSetRecord.blockDetectorOrdinalIndicesArray();
         List<Double> ddNoPMList = new ArrayList<>();

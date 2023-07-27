@@ -54,7 +54,7 @@ public class AnalysisMethod implements Serializable {
     private List<IsotopicRatio> isotopicRatiosList;
     private List<IsotopicRatio> derivedIsotopicRatiosList;
     private BiMap<IsotopicRatio, IsotopicRatio> biMapOfRatiosAndInverses = HashBiMap.create();
-
+    private boolean useLinearKnots;
 
     private AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
         this(methodName, massSpectrometerContext, BaselineTable.createEmptyBaselineTable(), SequenceTable.createEmptySequenceTable());
@@ -69,6 +69,7 @@ public class AnalysisMethod implements Serializable {
         isotopicRatiosList = new ArrayList<>();
         derivedIsotopicRatiosList = new ArrayList<>();
         mapOfRatioNamesToInvertedFlag = new TreeMap<>();
+        this.useLinearKnots = true;
     }
 
     public static AnalysisMethod initializeAnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
@@ -198,6 +199,14 @@ public class AnalysisMethod implements Serializable {
         }
 
         return retVal;
+    }
+
+    public boolean isUseLinearKnots() {
+        return useLinearKnots;
+    }
+
+    public void toggleKnotsMethod() {
+        this.useLinearKnots = !this.useLinearKnots;
     }
 
     private String prettyPrintSequenceTable() {

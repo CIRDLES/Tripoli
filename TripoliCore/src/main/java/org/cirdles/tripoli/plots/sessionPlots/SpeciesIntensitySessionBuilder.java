@@ -20,7 +20,7 @@ import org.cirdles.tripoli.plots.PlotBuilder;
 
 public class SpeciesIntensitySessionBuilder extends PlotBuilder {
 
-//    @Serial
+    //    @Serial
 //    private static final long serialVersionUID = 5549376854790308330L;
     private final double[] xData;
     private final double[][] yData;

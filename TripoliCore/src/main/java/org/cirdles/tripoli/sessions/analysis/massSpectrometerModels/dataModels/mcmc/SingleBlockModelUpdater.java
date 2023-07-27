@@ -179,22 +179,18 @@ public class SingleBlockModelUpdater {
                  */
             singleBlockInitialModelRecord_initial2 = new SingleBlockModelRecord(
                     singleBlockInitialModelRecord_initial.blockNumber(),
-                    updatedBaselineMeans,
+                    singleBlockInitialModelRecord_initial.faradayCount(), 0, singleBlockInitialModelRecord_initial.isotopeCount(), singleBlockInitialModelRecord_initial.highestAbundanceSpecies(), updatedBaselineMeans,
                     singleBlockInitialModelRecord_initial.baselineStandardDeviationsArray().clone(),
                     updatedFaradayGain,
                     singleBlockInitialModelRecord_initial.mapDetectorOrdinalToFaradayIndex(),
                     updatedLogRatios,
                     singleBlockInitialModelRecord_initial.mapOfSpeciesToActiveCycles(),
                     singleBlockInitialModelRecord_initial.mapLogRatiosToCycleStats(),
-                    singleBlockInitialModelRecord_initial.dataArray().clone(),
-                    singleBlockInitialModelRecord_initial.dataWithNoBaselineArray().clone(),
+                    singleBlockInitialModelRecord_initial.dataModelArray().clone(),
                     singleBlockInitialModelRecord_initial.dataSignalNoiseArray().clone(),
                     updatedIntensities,
-                    singleBlockInitialModelRecord_initial.intensities(),
-                    singleBlockInitialModelRecord_initial.faradayCount(),
-                    singleBlockInitialModelRecord_initial.isotopeCount(),
-                    0,
-                    singleBlockInitialModelRecord_initial.highestAbundanceSpecies());
+                    singleBlockInitialModelRecord_initial.intensities()
+            );
         }
 
         return singleBlockInitialModelRecord_initial2;

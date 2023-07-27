@@ -5,7 +5,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.sessionPlots.SpeciesIntensitySessionBuilder;
 
 public class SpeciesIntensitySessionPlot extends AbstractPlot {
@@ -13,6 +12,10 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
 
     private double[][] yData;
 
+    private boolean[] speciesChecked;
+    private boolean showFaradays;
+    private boolean showPMs;
+    private boolean showModels;
 
     private SpeciesIntensitySessionPlot(Rectangle bounds, SpeciesIntensitySessionBuilder speciesIntensitySessionBuilder) {
         super(bounds, 75, 25,
@@ -20,10 +23,32 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                 speciesIntensitySessionBuilder.getxAxisLabel(),
                 speciesIntensitySessionBuilder.getyAxisLabel());
         this.speciesIntensitySessionBuilder = speciesIntensitySessionBuilder;
+        yData = speciesIntensitySessionBuilder.getyData();
+        this.speciesChecked = new boolean[yData.length / 4];
+        this.speciesChecked[0] = true;
+        this.showFaradays = true;
+        this.showPMs = true;
+        this.showModels = true;
     }
 
     public static AbstractPlot generatePlot(Rectangle bounds, SpeciesIntensitySessionBuilder speciesIntensitySessionBuilder) {
         return new SpeciesIntensitySessionPlot(bounds, speciesIntensitySessionBuilder);
+    }
+
+    public void setSpeciesChecked(boolean[] speciesChecked) {
+        this.speciesChecked = speciesChecked;
+    }
+
+    public void setShowFaradays(boolean showFaradays) {
+        this.showFaradays = showFaradays;
+    }
+
+    public void setShowPMs(boolean showPMs) {
+        this.showPMs = showPMs;
+    }
+
+    public void setShowModels(boolean showModels) {
+        this.showModels = showModels;
     }
 
     @Override
@@ -35,19 +60,17 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 
-//        for (int i = 0; i < yAxisData.length; i++) {
-//            if (yAxisData[i] != 0.0) {
-//                minY = StrictMath.min(minY, yAxisData[i]);
-//                maxY = StrictMath.max(maxY, yAxisData[i]);
-//            }
-//        }
 
-        yData = speciesIntensitySessionBuilder.getyData();
-        for (int row = 0; row < 2; row++){//yData.length
-            for (int col = 0; col < yData[row].length; col++){
-                if (yData[row][col] != 0.0) {
-                    minY = StrictMath.min(minY, yData[row][col]);
-                    maxY = StrictMath.max(maxY, yData[row][col]);
+        for (int row = 0; row < yData.length; row++) {
+            int speciesIndex = (row / 4);
+            if (speciesChecked[speciesIndex]) {
+                boolean plotFaradays = (showFaradays && (row >= speciesIndex * 4) && (row <= speciesIndex * 4 + 1));
+                boolean plotPMs = (showPMs && (row >= speciesIndex * 4 + 2) && (row <= speciesIndex * 4 + 3));
+                for (int col = 0; col < yData[row].length; col++) {
+                    if ((yData[row][col] != 0.0) && (plotFaradays || plotPMs)) {
+                        minY = StrictMath.min(minY, yData[row][col]);
+                        maxY = StrictMath.max(maxY, yData[row][col]);
+                    }
                 }
             }
         }
@@ -82,60 +105,75 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
     public void plotData(GraphicsContext g2d) {
         g2d.setFill(dataColor.color());
         g2d.setStroke(dataColor.color());
-        g2d.setLineWidth(1.0);
+        g2d.setLineWidth(1.5);
 
-        for (int i = 0; i < xAxisData.length; i++) {
-            if ((yData[0][i] != 0.0) && pointInPlot(xAxisData[i], yData[0][i])) {
-                double dataX = mapX(xAxisData[i]);
-                double dataY = mapY(yData[0][i]);
-                g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
-            }
-        }
+        Color[] isotopeColors = {Color.BLUE, Color.GREEN, Color.BLACK, Color.PURPLE, Color.ORANGE};
+        for (int isotopePlotSetIndex = 0; isotopePlotSetIndex < yData.length / 4; isotopePlotSetIndex++) {
+            if (speciesChecked[isotopePlotSetIndex]) {
+                // plot Faraday
+                if (showFaradays) {
+                    g2d.beginPath();
+                    g2d.setLineDashes(0);
+                    boolean startedPlot = false;
+                    g2d.setFill(isotopeColors[isotopePlotSetIndex]);
+                    g2d.setStroke(isotopeColors[isotopePlotSetIndex]);
+                    for (int i = 0; i < xAxisData.length; i++) {
+                        if ((yData[isotopePlotSetIndex * 4][i] != 0.0) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4][i])) {
+                            double dataX = mapX(xAxisData[i]);
+                            double dataY = mapY(yData[isotopePlotSetIndex * 4][i]);
+                            g2d.fillOval(dataX - 1.5, dataY - 1.5, 3, 3);
+                        }
 
-//
-//        for (int i = 0; i < xAxisData.length; i++) {
-//            if ((yData[1][i] != 0.0) && pointInPlot(xAxisData[i], yData[1][i])) {
-//                double dataX = mapX(xAxisData[i]);
-//                double dataY = mapY(yData[1][i]);
-//                g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
-//            }
-//        }
-
-        g2d.setStroke(Color.GREEN);
-        g2d.beginPath();
-        boolean startedPlot = false;
-        for (int i = 0; i < xAxisData.length; i++) {
-            if ((yData[1][i] != 0.0) && pointInPlot(xAxisData[i], yData[1][i])) {
-                if (!startedPlot) {
-                    g2d.moveTo(mapX(xAxisData[i]), mapY(yData[1][i]));
-                    startedPlot = true;
+                        if (showModels) {
+                            if ((yData[isotopePlotSetIndex * 4 + 1][i] != 0.0) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 1][i])) {
+                                if (!startedPlot) {
+                                    g2d.moveTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 1][i]));
+                                    startedPlot = true;
+                                }
+                                // line tracing through points
+                                g2d.lineTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 1][i]));
+                            }
+                        }
+                    }
+                    g2d.setStroke(Color.RED);
+                    g2d.stroke();
+                    g2d.setStroke(isotopeColors[isotopePlotSetIndex]);
                 }
-                // line tracing through points
-                g2d.lineTo(mapX(xAxisData[i]), mapY(yData[1][i]));
-            } else {
-                // out of bounds
-//                g2d.moveTo(mapX(xAxisData[i]), mapY(yData[1][i]) < topMargin ? topMargin : topMargin + plotHeight);
+
+                // plot PM
+                if (showPMs) {
+                    g2d.beginPath();
+                    g2d.setLineDashes(4);
+                    boolean startedPlot = false;
+                    g2d.setFill(isotopeColors[isotopePlotSetIndex]);
+                    g2d.setStroke(isotopeColors[isotopePlotSetIndex]);
+                    for (int i = 0; i < xAxisData.length; i++) {
+                        if ((yData[isotopePlotSetIndex * 4 + 2][i] != 0.0) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 2][i])) {
+                            double dataX = mapX(xAxisData[i]);
+                            double dataY = mapY(yData[isotopePlotSetIndex * 4 + 2][i]);
+                            g2d.fillRect(dataX - 1.5, dataY - 1.5, 3, 3);
+                        }
+
+                        if (showModels) {
+                            if ((yData[isotopePlotSetIndex * 4 + 3][i] != 0.0) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 3][i])) {
+                                if (!startedPlot) {
+                                    g2d.moveTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 3][i]));
+                                    startedPlot = true;
+                                }
+                                // line tracing through points
+                                g2d.lineTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 3][i]));
+                            }
+                        }
+                    }
+                    g2d.setStroke(Color.RED);
+                    g2d.stroke();
+                    g2d.setStroke(isotopeColors[isotopePlotSetIndex]);
+
+                }
             }
         }
-        g2d.stroke();
 
-//        g2d.setFill(Color.ORANGE);
-//        for (int i = 0; i < xAxisData.length; i++) {
-//            if ((yData[2][i] != 0.0) && pointInPlot(xAxisData[i], yData[2][i])) {
-//                double dataX = mapX(xAxisData[i]);
-//                double dataY = mapY(yData[2][i]);
-//                g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
-//            }
-//        }
-//
-//        g2d.setFill(Color.RED);
-//        for (int i = 0; i < xAxisData.length; i++) {
-//            if ((yData[3][i] != 0.0) && pointInPlot(xAxisData[i], yData[3][i])) {
-//                double dataX = mapX(xAxisData[i]);
-//                double dataY = mapY(yData[3][i]);
-//                g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
-//            }
-//        }
+
     }
 
     @Override

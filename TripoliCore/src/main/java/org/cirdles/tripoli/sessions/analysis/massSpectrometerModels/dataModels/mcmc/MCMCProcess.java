@@ -113,7 +113,7 @@ public class MCMCProcess {
         return mcmcProcess;
     }
 
-    public void initializeMCMCProcess2() {
+    public void initializeMCMCProcess() {
         /*
             % MCMC Parameters
             maxcnt = 2000;  % Maximum number of models to save
@@ -132,7 +132,7 @@ public class MCMCProcess {
             Ndata=d0.Ndata; % Number of picks
             Nsig = d0.Nsig; % Number of noise variables
          */
-        //TODO: remove his variable??
+        //TODO: remove this variable??
         hierarchical = false;
         tempering = 1.0;
         /*
@@ -151,10 +151,10 @@ public class MCMCProcess {
         startingIndexOfFaradayData = singleBlockDataSetRecord.getCountOfBaselineIntensities();
         startingIndexOfPhotoMultiplierData = startingIndexOfFaradayData + singleBlockDataSetRecord.getCountOfOnPeakFaradayIntensities();
 
-        baselineMultiplier = new double[singleBlockInitialModelRecord_X0.dataArray().length];
+        baselineMultiplier = new double[singleBlockInitialModelRecord_X0.dataModelArray().length];
         Arrays.fill(baselineMultiplier, 1.0);
         //TODO: review this
-        for (int row = startingIndexOfPhotoMultiplierData; row < singleBlockInitialModelRecord_X0.dataArray().length; row++) {
+        for (int row = startingIndexOfPhotoMultiplierData; row < singleBlockInitialModelRecord_X0.dataModelArray().length; row++) {
             baselineMultiplier[row] = 0.1;
         }
 
@@ -228,7 +228,7 @@ x=x0;
         */
 
         // NOTE: these already populated in the initial model singleBlockInitialModelRecord_X0
-        dataArray = singleBlockInitialModelRecord_X0.dataWithNoBaselineArray().clone();
+        dataArray = singleBlockInitialModelRecord_X0.dataModelArray().clone();
         dataSignalNoiseArray = singleBlockInitialModelRecord_X0.dataSignalNoiseArray().clone();
 
         /*
@@ -252,7 +252,7 @@ x=x0;
         initialModelErrorUnWeighted_E0 = 0.0;
 
         for (int row = 0; row < dataSignalNoiseArray.length; row++) {
-            double calculatedValue = StrictMath.pow(singleBlockDataSetRecord.blockIntensityArray()[row] - dataArray[row], 2);
+            double calculatedValue = StrictMath.pow(singleBlockDataSetRecord.blockRawDataArray()[row] - dataArray[row], 2);
             initialModelErrorWeighted_E = initialModelErrorWeighted_E + (calculatedValue * baselineMultiplier[row] / dataSignalNoiseArray[row] / TT.get(1, 0));
             initialModelErrorUnWeighted_E0 = initialModelErrorUnWeighted_E0 + calculatedValue;
         }
@@ -291,7 +291,7 @@ x=x0;
         int counter = 0;
         SingleBlockModelUpdater singleBlockModelUpdater = new SingleBlockModelUpdater();
 
-        int countOfData = singleBlockInitialModelRecord_X.dataArray().length;
+        int countOfData = singleBlockInitialModelRecord_X.dataModelArray().length;
         int[] detectorOrdinalIndices = singleBlockDataSetRecord.blockDetectorOrdinalIndicesArray();
         Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex = singleBlockInitialModelRecord_X.mapDetectorOrdinalToFaradayIndex();
         int[] isotopeOrdinalIndicesArray = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
@@ -457,7 +457,7 @@ x=x0;
             Dsig2 = x2.sig(d0.det_vec).^2 + x2.sig(d0.iso_vec+d0.Ndet).*dnobl2;
              */
                 dataSignalNoiseArray2 = dataSignalNoiseArray.clone();
-                double[] intensitiesArray = singleBlockDataSetRecord.blockIntensityArray();
+                double[] intensitiesArray = singleBlockDataSetRecord.blockRawDataArray();
                 for (int row = 0; row < countOfData; row++) {
                     double residualValue = pow(intensitiesArray[row] - dataArray[row], 2);
                     double residualValue2 = pow(intensitiesArray[row] - dataArray2[row], 2);
@@ -536,7 +536,7 @@ x=x0;
 
                     singleBlockInitialModelRecord_X = new SingleBlockModelRecord(
                             dataModelUpdaterOutputRecord_x2.blockNumber(),
-                            dataModelUpdaterOutputRecord_x2.baselineMeansArray(),
+                            dataModelUpdaterOutputRecord_x2.faradayCount(), 0, dataModelUpdaterOutputRecord_x2.isotopeCount(), analysisMethod.retrieveHighestAbundanceSpecies(), dataModelUpdaterOutputRecord_x2.baselineMeansArray(),
                             dataModelUpdaterOutputRecord_x2.baselineStandardDeviationsArray(),
                             dataModelUpdaterOutputRecord_x2.detectorFaradayGain(),
                             dataModelUpdaterOutputRecord_x2.mapDetectorOrdinalToFaradayIndex(),
@@ -544,13 +544,10 @@ x=x0;
                             dataModelUpdaterOutputRecord_x2.mapOfSpeciesToActiveCycles(),
                             dataModelUpdaterOutputRecord_x2.mapLogRatiosToCycleStats(),
                             dataArray2.clone(),
-                            dataWithNoBaselineArray2.clone(),
                             dataSignalNoiseArray2.clone(),
                             dataModelUpdaterOutputRecord_x2.I0(),
-                            intensity2.toRawCopy1D(),
-                            dataModelUpdaterOutputRecord_x2.faradayCount(),
-                            dataModelUpdaterOutputRecord_x2.isotopeCount(),
-                            0, analysisMethod.retrieveHighestAbundanceSpecies());
+                            intensity2.toRawCopy1D()
+                    );
 
                     keptUpdates[operationIndex][0] = keptUpdates[operationIndex][0] + 1;
                     keptUpdates[operationIndex][2] = keptUpdates[operationIndex][2] + 1;

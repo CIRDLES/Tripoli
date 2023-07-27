@@ -79,6 +79,6 @@ repositories {
     mavenCentral()
     mavenLocal()
     flatDir {
-        dirs ("./lib")
+        dirs("./lib")
     }
 }

@@ -4,8 +4,11 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 
-import java.io.*;
-import java.util.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class MassSpecExtractedData implements Serializable {
 
@@ -91,14 +94,14 @@ public class MassSpecExtractedData implements Serializable {
         }
     }
 
-    public double[] calculateSessionTimes(){
+    public double[] calculateSessionTimes() {
         int totalSize = 0;
-        for (MassSpecOutputSingleBlockRecord blockRecord : blocksData.values()){
+        for (MassSpecOutputSingleBlockRecord blockRecord : blocksData.values()) {
             totalSize += blockRecord.onPeakTimeStamps().length;
         }
-        double [] times = new double[totalSize];
+        double[] times = new double[totalSize];
         totalSize = 0;
-        for (MassSpecOutputSingleBlockRecord blockRecord : blocksData.values()){
+        for (MassSpecOutputSingleBlockRecord blockRecord : blocksData.values()) {
             double[] blockTimes = blockRecord.onPeakTimeStamps();
 
             System.arraycopy(blockTimes, 0, times, totalSize, blockTimes.length);

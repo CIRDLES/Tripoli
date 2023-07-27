@@ -252,6 +252,7 @@ public abstract class AbstractPlot extends Canvas {
     }
 
     private void drawAxes(GraphicsContext g2d) {
+        g2d.setLineDashes(0);
         g2d.setFill(Paint.valueOf("BLACK"));
         g2d.setStroke(Paint.valueOf("BLACK"));
         g2d.setLineWidth(0.75);
