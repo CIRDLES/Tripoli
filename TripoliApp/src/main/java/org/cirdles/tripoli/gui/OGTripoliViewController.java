@@ -129,9 +129,13 @@ public class OGTripoliViewController {
         double[] xAxis = analysis.getMassSpecExtractedData().calculateSessionTimes();
 
         // alternating faraday, model, pm, and model rows (4-tuple for each species)
-        // last line will carry block boundaries
+
         double[][] onPeakDataCounts = new double[countOfSpecies * 4][xAxis.length];
         double[][] onPeakDataAmpResistance = new double[countOfSpecies][xAxis.length];
+        double[][] onPeakBaseline = new double[countOfSpecies * 4][xAxis.length];
+        double[][] onPeakGain = new double[countOfSpecies * 4][xAxis.length];
+
+
         Set<Detector> detectors = analysis.getAnalysisMethod().getSequenceTable().getMapOfDetectorsToSequenceCells().keySet();
         Map<Integer, Double> mapOfOrdinalDetectorsToResistance = new TreeMap<>();
         for (Detector detector : detectors){
@@ -148,6 +152,9 @@ public class OGTripoliViewController {
             int countOfFaradayDataEntries = singleBlockDataSetRecords[blockIndex].getCountOfOnPeakFaradayIntensities();
 
             double[] onPeakModelFaradayData = singleBlockModelRecord.getOnPeakDataModelFaradayArray(countOfBaselineDataEntries, countOfFaradayDataEntries);
+            double[] baseLineVector = singleBlockModelRecord.baselineMeansArray();
+            double dfGain = singleBlockModelRecord.detectorFaradayGain();
+            Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex = singleBlockModelRecord.mapDetectorOrdinalToFaradayIndex();
 
             SingleBlockDataSetRecord.SingleBlockDataRecord onPeakFaradayDataSet = singleBlockDataSetRecords[blockIndex].onPeakFaradayDataSetMCMC();
             List<Double> intensityAccumulatorList = onPeakFaradayDataSet.intensityAccumulatorList();
@@ -163,6 +170,8 @@ public class OGTripoliViewController {
                 onPeakDataCounts[intensitySpeciesIndex * 4][timeIndx] = intensityAccumulatorList.get(onPeakDataIndex);
                 onPeakDataCounts[intensitySpeciesIndex * 4 + 1][timeIndx] = onPeakModelFaradayData[onPeakDataIndex];
                 onPeakDataAmpResistance[intensitySpeciesIndex][timeIndx] = mapOfOrdinalDetectorsToResistance.get(detectorOrdinalIndicesAccumulatorList.get(onPeakDataIndex));
+                onPeakBaseline[intensitySpeciesIndex * 4][timeIndx] = baseLineVector[mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(onPeakDataIndex))];
+                onPeakBaseline[intensitySpeciesIndex * 4 + 1][timeIndx] = baseLineVector[mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(onPeakDataIndex))];
             }
 
             double[] onPeakModelPhotoMultiplierData = singleBlockModelRecord.getOnPeakDataModelPhotoMultiplierArray(countOfBaselineDataEntries, countOfFaradayDataEntries);
@@ -181,11 +190,14 @@ public class OGTripoliViewController {
                 onPeakDataCounts[intensitySpeciesIndex * 4 + 2][timeIndx] = intensityAccumulatorList.get(onPeakDataIndex);
                 onPeakDataCounts[intensitySpeciesIndex * 4 + 3][timeIndx] = onPeakModelPhotoMultiplierData[onPeakDataIndex];
                 onPeakDataAmpResistance[intensitySpeciesIndex][timeIndx] = mapOfOrdinalDetectorsToResistance.get(detectorOrdinalIndicesAccumulatorList.get(onPeakDataIndex));
+                //TODO: address this: onPeakBaseline is  zero for PM for now
+                onPeakGain[intensitySpeciesIndex * 4 + 2][timeIndx] = dfGain;
+                onPeakGain[intensitySpeciesIndex * 4 + 3][timeIndx] = dfGain;
             }
         }
 
         PlotBuilder plotBuilder = SpeciesIntensitySessionBuilder.initializeSpeciesIntensitySessionPlot(
-                xAxis, onPeakDataCounts, onPeakDataAmpResistance, new String[]{"Species Intensity by Session"}, "Time", "Intensity (counts)");
+                xAxis, onPeakDataCounts, onPeakDataAmpResistance, onPeakBaseline, onPeakGain, new String[]{"Species Intensity by Session"}, "Time", "Intensity (counts)");
 
         TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPane);
         AbstractPlot plot = SpeciesIntensitySessionPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (SpeciesIntensitySessionBuilder) plotBuilder);

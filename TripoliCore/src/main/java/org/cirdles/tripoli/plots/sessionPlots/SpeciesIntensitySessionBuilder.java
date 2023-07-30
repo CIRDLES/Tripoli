@@ -25,16 +25,20 @@ public class SpeciesIntensitySessionBuilder extends PlotBuilder {
     private final double[] xData;
     private final double[][] yData;
     private final double[][] ampResistance;
+    private final double[][] baseLine;
+    private final double[][] dfGain;
 
-    protected SpeciesIntensitySessionBuilder(double[] xData, double[][] yData, double[][] ampResistance, String[] title, String xAxisLabel, String yAxisLabel) {
+    protected SpeciesIntensitySessionBuilder(double[] xData, double[][] yData, double[][] ampResistance, double[][] baseLine, double[][] dfGain, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel, true);
         this.xData = xData;
         this.yData = yData;
         this.ampResistance = ampResistance;
+        this.baseLine = baseLine;
+        this.dfGain = dfGain;
     }
 
-    public static SpeciesIntensitySessionBuilder initializeSpeciesIntensitySessionPlot(double[] xData, double[][] yData, double[][] ampResistance, String[] title, String xAxisLabel, String yAxisLabel) {
-        return new SpeciesIntensitySessionBuilder(xData, yData, ampResistance, title, xAxisLabel, yAxisLabel);
+    public static SpeciesIntensitySessionBuilder initializeSpeciesIntensitySessionPlot(double[] xData, double[][] yData, double[][] ampResistance, double[][] baseLine, double[][] dfGain, String[] title, String xAxisLabel, String yAxisLabel) {
+        return new SpeciesIntensitySessionBuilder(xData, yData, ampResistance, baseLine, dfGain, title, xAxisLabel, yAxisLabel);
     }
 
     public double[][] getyData() {
@@ -47,5 +51,13 @@ public class SpeciesIntensitySessionBuilder extends PlotBuilder {
 
     public double[][] getAmpResistance() {
         return ampResistance;
+    }
+
+    public double[][] getBaseLine() {
+        return baseLine;
+    }
+
+    public double[][] getDfGain() {
+        return dfGain;
     }
 }

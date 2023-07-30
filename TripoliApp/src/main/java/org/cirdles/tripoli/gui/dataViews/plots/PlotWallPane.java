@@ -43,6 +43,11 @@ public class PlotWallPane extends Pane {
     private boolean showPMs = true;
     private boolean showModels = true;
     private TripoliConstants.IntensityUnits intensityUnits = TripoliConstants.IntensityUnits.COUNTS;
+    CheckBox baseLineCB;
+    private boolean baselineCorr = false;
+    CheckBox gainCB;
+    private boolean gainCorr = false;
+    private boolean logScale = false;
     private PlotWallPane(String iD) {
         this.iD = iD;
     }
@@ -200,8 +205,8 @@ public class PlotWallPane extends Pane {
 
         CheckBox[] speciesCheckBoxes = new CheckBox[species.size()];
         for (int speciesIndex = 0; speciesIndex < species.size(); speciesIndex++) {
-            speciesCheckBoxes[speciesIndex] = new CheckBox(species.get(speciesIndex).prettyPrintShortForm());
-            speciesCheckBoxes[speciesIndex].setPrefWidth(75);
+            speciesCheckBoxes[speciesIndex] = new CheckBox(species.get(speciesIndex).prettyPrintShortForm().trim());
+//            speciesCheckBoxes[speciesIndex].setPrefWidth(65);
             toolBar.getItems().add(speciesCheckBoxes[speciesIndex]);
             int finalSpeciesIndex = speciesIndex;
             speciesCheckBoxes[speciesIndex].selectedProperty().addListener(
@@ -214,7 +219,7 @@ public class PlotWallPane extends Pane {
 
         CheckBox showFaraday = new CheckBox("F");
         showFaraday.setSelected(true);
-        showFaraday.setPrefWidth(50);
+//        showFaraday.setPrefWidth(40);
         toolBar.getItems().add(showFaraday);
         showFaraday.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
@@ -224,7 +229,7 @@ public class PlotWallPane extends Pane {
 
         CheckBox showPM = new CheckBox("PM");
         showPM.setSelected(true);
-        showPM.setPrefWidth(60);
+//        showPM.setPrefWidth(50);
         toolBar.getItems().add(showPM);
         showPM.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
@@ -234,7 +239,7 @@ public class PlotWallPane extends Pane {
 
         CheckBox showModel = new CheckBox("Model");
         showModel.setSelected(true);
-        showModel.setPrefWidth(60);
+//        showModel.setPrefWidth(60);
         toolBar.getItems().add(showModel);
         showModel.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
@@ -242,9 +247,9 @@ public class PlotWallPane extends Pane {
                     rebuildPlot();
                 });
 
-        Label labelViews = new Label("Views:");
+        Label labelViews = new Label("Units:");
         labelViews.setAlignment(Pos.CENTER_RIGHT);
-        labelViews.setPrefWidth(60);
+        labelViews.setPrefWidth(50);
         toolBar.getItems().add(labelViews);
 
         ToggleGroup toggleScaleY = new ToggleGroup();
@@ -252,7 +257,7 @@ public class PlotWallPane extends Pane {
         RadioButton countsRB = new RadioButton("Counts");
         countsRB.setToggleGroup(toggleScaleY);
         countsRB.setSelected(true);
-        countsRB.setPrefWidth(70);
+//        countsRB.setPrefWidth(70);
         toolBar.getItems().add(countsRB);
         countsRB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
@@ -264,7 +269,7 @@ public class PlotWallPane extends Pane {
 
         RadioButton voltsRB = new RadioButton("Volts");
         voltsRB.setToggleGroup(toggleScaleY);
-        voltsRB.setPrefWidth(60);
+//        voltsRB.setPrefWidth(60);
         toolBar.getItems().add(voltsRB);
         voltsRB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
@@ -276,7 +281,7 @@ public class PlotWallPane extends Pane {
 
         RadioButton ampsRB = new RadioButton("Amps");
         ampsRB.setToggleGroup(toggleScaleY);
-        ampsRB.setPrefWidth(60);
+//        ampsRB.setPrefWidth(55);
         toolBar.getItems().add(ampsRB);
         ampsRB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
@@ -287,6 +292,51 @@ public class PlotWallPane extends Pane {
                 });
 
 
+        Label labelCorr = new Label("Corr:");
+        labelCorr.setAlignment(Pos.CENTER_RIGHT);
+        labelCorr.setPrefWidth(50);
+        toolBar.getItems().add(labelCorr);
+
+
+        baseLineCB = new CheckBox("BL");
+        baseLineCB.setSelected(false);
+//        baseLineCB.setPrefWidth(50);
+        toolBar.getItems().add(baseLineCB);
+        baseLineCB.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                        baselineCorr = newVal;
+                        if (! newVal){
+                            gainCB.setSelected(false);
+                        }
+                    rebuildPlot();
+                });
+
+        gainCB = new CheckBox("Gain");
+//        gainCB.setPrefWidth(50);
+        toolBar.getItems().add(gainCB);
+        gainCB.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                    gainCorr = newVal;
+                    if (newVal){
+                        baseLineCB.setSelected(true);
+                    }
+                    rebuildPlot();
+                });
+
+        Label labelScale = new Label("Scale:");
+        labelScale.setAlignment(Pos.CENTER_RIGHT);
+        labelScale.setPrefWidth(60);
+        toolBar.getItems().add(labelScale);
+
+        CheckBox logCB = new CheckBox("Log");
+//        logCB.setPrefWidth(50);
+        toolBar.getItems().add(logCB);
+        logCB.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                    logScale = newVal;
+                    rebuildPlot();
+                });
+
 
 
         getChildren().addAll(toolBar);
@@ -295,7 +345,7 @@ public class PlotWallPane extends Pane {
     private void rebuildPlot() {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
-                ((TripoliPlotPane) plotPane).updateSpeciesPlotted(speciesChecked, showFaradays, showPMs, showModels, intensityUnits);
+                ((TripoliPlotPane) plotPane).updateSpeciesPlotted(speciesChecked, showFaradays, showPMs, showModels, intensityUnits, baselineCorr, gainCorr, logScale);
             }
         }
     }
