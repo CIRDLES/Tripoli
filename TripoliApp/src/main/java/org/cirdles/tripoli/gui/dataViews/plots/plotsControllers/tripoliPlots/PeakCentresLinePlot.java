@@ -153,7 +153,8 @@ public class PeakCentresLinePlot extends AbstractPlot {
 
     }
 
-    private void setupPlotContextMenu() {
+    @Override
+    public void setupPlotContextMenu() {
         plotContextMenu = new ContextMenu();
         MenuItem plotContextMenuItem1 = new MenuItem("Restore plot");
         plotContextMenuItem1.setOnAction((mouseEvent) -> {

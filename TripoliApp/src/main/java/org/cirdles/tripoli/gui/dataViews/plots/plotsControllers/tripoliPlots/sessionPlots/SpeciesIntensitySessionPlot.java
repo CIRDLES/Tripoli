@@ -1,21 +1,33 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.sessionPlots.SpeciesIntensitySessionBuilder;
 
+import static java.lang.StrictMath.*;
+
 public class SpeciesIntensitySessionPlot extends AbstractPlot {
     private final SpeciesIntensitySessionBuilder speciesIntensitySessionBuilder;
-
+    private final double[][] dfGain;
+    TripoliConstants.IntensityUnits intensityUnits = TripoliConstants.IntensityUnits.COUNTS;
+    private double[][] yDataCounts;
     private double[][] yData;
-
+    private double[][] ampResistance;
+    private double[][] baseLine;
     private boolean[] speciesChecked;
     private boolean showFaradays;
     private boolean showPMs;
     private boolean showModels;
+    private boolean baselineCorr;
+    private boolean gainCorr;
+    private boolean logScale;
+    private boolean[] zoomFlagsXY;
 
     private SpeciesIntensitySessionPlot(Rectangle bounds, SpeciesIntensitySessionBuilder speciesIntensitySessionBuilder) {
         super(bounds, 75, 25,
@@ -23,12 +35,20 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                 speciesIntensitySessionBuilder.getxAxisLabel(),
                 speciesIntensitySessionBuilder.getyAxisLabel());
         this.speciesIntensitySessionBuilder = speciesIntensitySessionBuilder;
-        yData = speciesIntensitySessionBuilder.getyData();
-        this.speciesChecked = new boolean[yData.length / 4];
+        this.yDataCounts = speciesIntensitySessionBuilder.getyData();
+        this.ampResistance = speciesIntensitySessionBuilder.getAmpResistance();
+        this.baseLine = speciesIntensitySessionBuilder.getBaseLine();
+        this.dfGain = speciesIntensitySessionBuilder.getDfGain();
+        this.speciesChecked = new boolean[yDataCounts.length / 4];
         this.speciesChecked[0] = true;
         this.showFaradays = true;
         this.showPMs = true;
         this.showModels = true;
+        this.baselineCorr = false;
+        this.gainCorr = false;
+        this.logScale = false;
+        this.zoomFlagsXY = new boolean[]{true, true};
+
     }
 
     public static AbstractPlot generatePlot(Rectangle bounds, SpeciesIntensitySessionBuilder speciesIntensitySessionBuilder) {
@@ -51,15 +71,79 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
         this.showModels = showModels;
     }
 
+    public void setIntensityUnits(TripoliConstants.IntensityUnits intensityUnits) {
+        this.intensityUnits = intensityUnits;
+    }
+
+    public void setBaselineCorr(boolean baselineCorr) {
+        this.baselineCorr = baselineCorr;
+    }
+
+    public void setGainCorr(boolean gainCorr) {
+        this.gainCorr = gainCorr;
+    }
+
+    public void setLogScale(boolean logScale) {
+        this.logScale = logScale;
+    }
+
+    public void setZoomFlagsXY(boolean[] zoomFlagsXY) {
+        this.zoomFlagsXY = zoomFlagsXY;
+    }
+
     @Override
     public void preparePanel() {
         xAxisData = speciesIntensitySessionBuilder.getxData();
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
 
+        yData = new double[yDataCounts.length][yDataCounts[0].length];
+
+        for (int row = 0; row < yData.length; row++) {
+            int speciesIndex = (row / 4);
+            if (speciesChecked[speciesIndex]) {
+                for (int col = 0; col < yData[0].length; col++) {
+                    yData[row][col] = yDataCounts[row][col];
+                    if (yDataCounts[row][col] != 0.0) {
+                        if (baselineCorr) {
+                            yData[row][col] -= baseLine[row][col];
+                        }
+
+                        if (gainCorr) {
+                            if (dfGain[row][col] != 0.0) {
+                                yData[row][col] -= baseLine[row][col];
+                                yData[row][col] /= dfGain[row][col];
+                            }
+                        }
+
+                        if (logScale) {
+                            yData[row][col] = pow(10.0, log(yData[row][col]));
+                        }
+                    }
+                }
+            }
+        }
+
+        switch (intensityUnits) {
+            case VOLTS -> {
+                plotAxisLabelY = "Intensity (volts)";
+                for (int row = 0; row < yData.length; row++) {
+                    yData[row] = TripoliConstants.IntensityUnits.convertFromCountsToVolts(yData[row], ampResistance[row / 4]);
+                }
+            }
+            case AMPS -> {
+                plotAxisLabelY = "Intensity (amps)";
+                for (int row = 0; row < yData.length; row++) {
+                    yData[row] = TripoliConstants.IntensityUnits.convertFromCountsToAmps(yData[row]);
+                }
+            }
+            case COUNTS -> {
+                plotAxisLabelY = "Intensity (counts)";
+            }
+        }
+
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
-
 
         for (int row = 0; row < yData.length; row++) {
             int speciesIndex = (row / 4);
@@ -68,8 +152,8 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                 boolean plotPMs = (showPMs && (row >= speciesIndex * 4 + 2) && (row <= speciesIndex * 4 + 3));
                 for (int col = 0; col < yData[row].length; col++) {
                     if ((yData[row][col] != 0.0) && (plotFaradays || plotPMs)) {
-                        minY = StrictMath.min(minY, yData[row][col]);
-                        maxY = StrictMath.max(maxY, yData[row][col]);
+                        minY = min(minY, yData[row][col]);
+                        maxY = max(maxY, yData[row][col]);
                     }
                 }
             }
@@ -80,7 +164,15 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
 
         prepareExtents();
         calculateTics();
+
         repaint();
+    }
+
+    @Override
+    public void calculateTics() {
+        super.calculateTics();
+        zoomChunkX = zoomFlagsXY[0] ? zoomChunkX : 0.0;
+        zoomChunkY = zoomFlagsXY[1] ? zoomChunkY : 0.0;
     }
 
     @Override
@@ -103,16 +195,17 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
 
     @Override
     public void plotData(GraphicsContext g2d) {
+
         g2d.setFill(dataColor.color());
         g2d.setStroke(dataColor.color());
-        g2d.setLineWidth(1.5);
+
+        g2d.setLineWidth(2.0);
 
         Color[] isotopeColors = {Color.BLUE, Color.GREEN, Color.BLACK, Color.PURPLE, Color.ORANGE};
         for (int isotopePlotSetIndex = 0; isotopePlotSetIndex < yData.length / 4; isotopePlotSetIndex++) {
             if (speciesChecked[isotopePlotSetIndex]) {
                 // plot Faraday
                 if (showFaradays) {
-                    g2d.beginPath();
                     g2d.setLineDashes(0);
                     boolean startedPlot = false;
                     g2d.setFill(isotopeColors[isotopePlotSetIndex]);
@@ -125,25 +218,29 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                         }
 
                         if (showModels) {
-                            if ((yData[isotopePlotSetIndex * 4 + 1][i] != 0.0) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 1][i])) {
-                                if (!startedPlot) {
-                                    g2d.moveTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 1][i]));
-                                    startedPlot = true;
+                            // TODO: make this 10.0 more robust for finding block separations
+                            if ((i < xAxisData.length - 1) && (xAxisData[i + 1] - xAxisData[i] < 10.0)) {
+                                if ((yData[isotopePlotSetIndex * 4 + 1][i] != 0.0) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 1][i])) {
+                                    if (!startedPlot) {
+                                        g2d.beginPath();
+                                        g2d.moveTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 1][i]));
+                                        startedPlot = true;
+                                    }
+                                    g2d.lineTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 1][i]));
                                 }
-                                // line tracing through points
-                                g2d.lineTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 1][i]));
+                            } else {
+                                startedPlot = false;
+                                g2d.setStroke(Color.RED);
+                                g2d.stroke();
                             }
                         }
                     }
-                    g2d.setStroke(Color.RED);
-                    g2d.stroke();
                     g2d.setStroke(isotopeColors[isotopePlotSetIndex]);
                 }
 
                 // plot PM
                 if (showPMs) {
-                    g2d.beginPath();
-                    g2d.setLineDashes(4);
+                    g2d.setLineDashes(5);
                     boolean startedPlot = false;
                     g2d.setFill(isotopeColors[isotopePlotSetIndex]);
                     g2d.setStroke(isotopeColors[isotopePlotSetIndex]);
@@ -151,24 +248,27 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                         if ((yData[isotopePlotSetIndex * 4 + 2][i] != 0.0) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 2][i])) {
                             double dataX = mapX(xAxisData[i]);
                             double dataY = mapY(yData[isotopePlotSetIndex * 4 + 2][i]);
-                            g2d.fillRect(dataX - 1.5, dataY - 1.5, 3, 3);
+                            g2d.fillOval(dataX - 1.5, dataY - 1.5, 3, 3);
                         }
 
                         if (showModels) {
-                            if ((yData[isotopePlotSetIndex * 4 + 3][i] != 0.0) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 3][i])) {
-                                if (!startedPlot) {
-                                    g2d.moveTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 3][i]));
-                                    startedPlot = true;
+                            if ((i < xAxisData.length - 1) && (xAxisData[i + 1] - xAxisData[i] < 10.0)) {
+                                if ((yData[isotopePlotSetIndex * 4 + 3][i] != 0.0) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 3][i])) {
+                                    if (!startedPlot) {
+                                        g2d.beginPath();
+                                        g2d.moveTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 3][i]));
+                                        startedPlot = true;
+                                    }
+                                    g2d.lineTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 3][i]));
                                 }
-                                // line tracing through points
-                                g2d.lineTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 3][i]));
+                            } else {
+                                startedPlot = false;
+                                g2d.setStroke(Color.RED);
+                                g2d.stroke();
                             }
                         }
                     }
-                    g2d.setStroke(Color.RED);
-                    g2d.stroke();
                     g2d.setStroke(isotopeColors[isotopePlotSetIndex]);
-
                 }
             }
         }
@@ -179,5 +279,16 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
     @Override
     public void plotStats(GraphicsContext g2d) {
 
+    }
+
+    @Override
+    public void setupPlotContextMenu() {
+        plotContextMenu = new ContextMenu();
+        MenuItem plotContextMenuItem1 = new MenuItem("Restore plot");
+        plotContextMenuItem1.setOnAction((mouseEvent) -> {
+            refreshPanel(true, true);
+        });
+
+        plotContextMenu.getItems().addAll(plotContextMenuItem1);
     }
 }

@@ -8,6 +8,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
+import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneOGTripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.SpeciesIntensitySessionPlot;
@@ -21,13 +22,11 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.Arrays.binarySearch;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHeight;
@@ -115,10 +114,10 @@ public class OGTripoliViewController {
 
     private void plotOnPeakIntensities() {
         ogtSpeciesIntensitiesPlotAnchorPane.getChildren().clear();
-        PlotWallPane plotsWallPane = PlotWallPane.createPlotWallPane("OGTripoliSession");
+        PlotWallPaneOGTripoli plotsWallPane = PlotWallPaneOGTripoli.createPlotWallPane("OGTripoliSession");
         PlotWallPane.menuOffset = 0.0;
         plotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-        plotsWallPane.setPrefSize(ogtSpeciesIntensitiesPlotAnchorPane.getPrefWidth(), ogtSpeciesIntensitiesPlotAnchorPane.getPrefHeight());
+        plotsWallPane.setPrefSize(ogtSpeciesIntensitiesPlotAnchorPane.getPrefWidth(), ogtSpeciesIntensitiesPlotAnchorPane.getPrefHeight() + PlotWallPaneOGTripoli.toolBarHeight * 2.0);
         ogtSpeciesIntensitiesPlotAnchorPane.getChildren().add(plotsWallPane);
 
         SingleBlockDataSetRecord[] singleBlockDataSetRecords = plottingData.singleBlockDataSetRecords();
@@ -131,8 +130,19 @@ public class OGTripoliViewController {
         double[] xAxis = analysis.getMassSpecExtractedData().calculateSessionTimes();
 
         // alternating faraday, model, pm, and model rows (4-tuple for each species)
-        // last line will carry block boundaries
-        double[][] onPeakData = new double[countOfSpecies * 4][xAxis.length];
+
+        double[][] onPeakDataCounts = new double[countOfSpecies * 4][xAxis.length];
+        double[][] onPeakDataAmpResistance = new double[countOfSpecies][xAxis.length];
+        double[][] onPeakBaseline = new double[countOfSpecies * 4][xAxis.length];
+        double[][] onPeakGain = new double[countOfSpecies * 4][xAxis.length];
+
+
+        Set<Detector> detectors = analysis.getAnalysisMethod().getSequenceTable().getMapOfDetectorsToSequenceCells().keySet();
+        Map<Integer, Double> mapOfOrdinalDetectorsToResistance = new TreeMap<>();
+        for (Detector detector : detectors) {
+            mapOfOrdinalDetectorsToResistance.put(detector.getOrdinalIndex(), detector.getAmplifierResistanceInOhms());
+        }
+
         Map<Integer, MassSpecOutputSingleBlockRecord> blocksData = analysis.getMassSpecExtractedData().getBlocksData();
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
 
@@ -141,20 +151,28 @@ public class OGTripoliViewController {
             SingleBlockModelRecord singleBlockModelRecord = singleBlockModelRecords[blockIndex];
             int countOfBaselineDataEntries = singleBlockDataSetRecords[blockIndex].getCountOfBaselineIntensities();
             int countOfFaradayDataEntries = singleBlockDataSetRecords[blockIndex].getCountOfOnPeakFaradayIntensities();
+
             double[] onPeakModelFaradayData = singleBlockModelRecord.getOnPeakDataModelFaradayArray(countOfBaselineDataEntries, countOfFaradayDataEntries);
+            double[] baseLineVector = singleBlockModelRecord.baselineMeansArray();
+            double dfGain = singleBlockModelRecord.detectorFaradayGain();
+            Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex = singleBlockModelRecord.mapDetectorOrdinalToFaradayIndex();
 
             SingleBlockDataSetRecord.SingleBlockDataRecord onPeakFaradayDataSet = singleBlockDataSetRecords[blockIndex].onPeakFaradayDataSetMCMC();
             List<Double> intensityAccumulatorList = onPeakFaradayDataSet.intensityAccumulatorList();
             List<Integer> timeIndexAccumulatorList = onPeakFaradayDataSet.timeIndexAccumulatorList();
             List<Integer> isotopeOrdinalIndexAccumulatorList = onPeakFaradayDataSet.isotopeOrdinalIndicesAccumulatorList();
+            List<Integer> detectorOrdinalIndicesAccumulatorList = onPeakFaradayDataSet.detectorOrdinalIndicesAccumulatorList();
 
             for (int onPeakDataIndex = 0; onPeakDataIndex < intensityAccumulatorList.size(); onPeakDataIndex++) {
                 int timeIndex = timeIndexAccumulatorList.get(onPeakDataIndex);
                 double time = onPeakTimeStamps[timeIndex];
                 int intensitySpeciesIndex = isotopeOrdinalIndexAccumulatorList.get(onPeakDataIndex) - 1;
                 int timeIndx = binarySearch(xAxis, time);
-                onPeakData[intensitySpeciesIndex * 4][timeIndx] = intensityAccumulatorList.get(onPeakDataIndex);
-                onPeakData[intensitySpeciesIndex * 4 + 1][timeIndx] = onPeakModelFaradayData[onPeakDataIndex];
+                onPeakDataCounts[intensitySpeciesIndex * 4][timeIndx] = intensityAccumulatorList.get(onPeakDataIndex);
+                onPeakDataCounts[intensitySpeciesIndex * 4 + 1][timeIndx] = onPeakModelFaradayData[onPeakDataIndex];
+                onPeakDataAmpResistance[intensitySpeciesIndex][timeIndx] = mapOfOrdinalDetectorsToResistance.get(detectorOrdinalIndicesAccumulatorList.get(onPeakDataIndex));
+                onPeakBaseline[intensitySpeciesIndex * 4][timeIndx] = baseLineVector[mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(onPeakDataIndex))];
+                onPeakBaseline[intensitySpeciesIndex * 4 + 1][timeIndx] = baseLineVector[mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(onPeakDataIndex))];
             }
 
             double[] onPeakModelPhotoMultiplierData = singleBlockModelRecord.getOnPeakDataModelPhotoMultiplierArray(countOfBaselineDataEntries, countOfFaradayDataEntries);
@@ -163,24 +181,30 @@ public class OGTripoliViewController {
             intensityAccumulatorList = onPeakPhotoMultiplierDataSet.intensityAccumulatorList();
             timeIndexAccumulatorList = onPeakPhotoMultiplierDataSet.timeIndexAccumulatorList();
             isotopeOrdinalIndexAccumulatorList = onPeakPhotoMultiplierDataSet.isotopeOrdinalIndicesAccumulatorList();
+            detectorOrdinalIndicesAccumulatorList = onPeakPhotoMultiplierDataSet.detectorOrdinalIndicesAccumulatorList();
 
             for (int onPeakDataIndex = 0; onPeakDataIndex < intensityAccumulatorList.size(); onPeakDataIndex++) {
                 int timeIndex = timeIndexAccumulatorList.get(onPeakDataIndex);
                 double time = onPeakTimeStamps[timeIndex];
                 int intensitySpeciesIndex = isotopeOrdinalIndexAccumulatorList.get(onPeakDataIndex) - 1;
                 int timeIndx = binarySearch(xAxis, time);
-                onPeakData[intensitySpeciesIndex * 4 + 2][timeIndx] = intensityAccumulatorList.get(onPeakDataIndex);
-                onPeakData[intensitySpeciesIndex * 4 + 3][timeIndx] = onPeakModelPhotoMultiplierData[onPeakDataIndex];
+                onPeakDataCounts[intensitySpeciesIndex * 4 + 2][timeIndx] = intensityAccumulatorList.get(onPeakDataIndex);
+                onPeakDataCounts[intensitySpeciesIndex * 4 + 3][timeIndx] = onPeakModelPhotoMultiplierData[onPeakDataIndex];
+                onPeakDataAmpResistance[intensitySpeciesIndex][timeIndx] = mapOfOrdinalDetectorsToResistance.get(detectorOrdinalIndicesAccumulatorList.get(onPeakDataIndex));
+                //TODO: address this: onPeakBaseline is  zero for PM for now
+                onPeakGain[intensitySpeciesIndex * 4 + 2][timeIndx] = dfGain;
+                onPeakGain[intensitySpeciesIndex * 4 + 3][timeIndx] = dfGain;
             }
         }
 
         PlotBuilder plotBuilder = SpeciesIntensitySessionBuilder.initializeSpeciesIntensitySessionPlot(
-                xAxis, onPeakData, new String[]{"Species Intensity by Session"}, "Time", "Intensity (counts)");
+                xAxis, onPeakDataCounts, onPeakDataAmpResistance, onPeakBaseline, onPeakGain, new String[]{"Species Intensity by Session"}, "Time", "Intensity (counts)");
 
         TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPane);
         AbstractPlot plot = SpeciesIntensitySessionPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (SpeciesIntensitySessionBuilder) plotBuilder);
         tripoliPlotPane.addPlot(plot);
         plotsWallPane.buildOGTripoliToolBar(analysis.getAnalysisMethod().getSpeciesList());
+        plotsWallPane.buildScaleControlsToolbar();
         plotsWallPane.stackPlots();
     }
 }
