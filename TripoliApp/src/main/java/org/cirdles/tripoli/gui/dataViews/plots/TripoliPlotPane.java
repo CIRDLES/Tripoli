@@ -257,8 +257,15 @@ public class TripoliPlotPane extends Pane {
             ((SpeciesIntensitySessionPlot) getChildren().get(0)).setBaselineCorr(baselineCorr);
             ((SpeciesIntensitySessionPlot) getChildren().get(0)).setGainCorr(gainCorr);
             ((SpeciesIntensitySessionPlot) getChildren().get(0)).setLogScale(logScale);
+
             ((SpeciesIntensitySessionPlot) getChildren().get(0)).refreshPanel(true, true);
         }
+    }
+
+    public void resetZoom(boolean[] zoomFlagsXY) {
+        ((SpeciesIntensitySessionPlot) getChildren().get(0)).setZoomFlagsXY(zoomFlagsXY);
+
+//        ((SpeciesIntensitySessionPlot) getChildren().get(0)).refreshPanel(true, true);
     }
 
     private record PlotLocation(

@@ -27,6 +27,7 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
     private boolean baselineCorr;
     private boolean gainCorr;
     private boolean logScale;
+    private boolean[] zoomFlagsXY;
 
     private SpeciesIntensitySessionPlot(Rectangle bounds, SpeciesIntensitySessionBuilder speciesIntensitySessionBuilder) {
         super(bounds, 75, 25,
@@ -46,6 +47,7 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
         this.baselineCorr = false;
         this.gainCorr = false;
         this.logScale = false;
+        this.zoomFlagsXY = new boolean[]{true, true};
 
     }
 
@@ -83,6 +85,10 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
 
     public void setLogScale(boolean logScale) {
         this.logScale = logScale;
+    }
+
+    public void setZoomFlagsXY(boolean[] zoomFlagsXY) {
+        this.zoomFlagsXY = zoomFlagsXY;
     }
 
     @Override
@@ -158,7 +164,15 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
 
         prepareExtents();
         calculateTics();
+
         repaint();
+    }
+
+    @Override
+    public void calculateTics() {
+        super.calculateTics();
+        zoomChunkX = zoomFlagsXY[0] ? zoomChunkX : 0.0;
+        zoomChunkY = zoomFlagsXY[1] ? zoomChunkY : 0.0;
     }
 
     @Override
@@ -184,6 +198,7 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
 
         g2d.setFill(dataColor.color());
         g2d.setStroke(dataColor.color());
+
         g2d.setLineWidth(2.0);
 
         Color[] isotopeColors = {Color.BLUE, Color.GREEN, Color.BLACK, Color.PURPLE, Color.ORANGE};

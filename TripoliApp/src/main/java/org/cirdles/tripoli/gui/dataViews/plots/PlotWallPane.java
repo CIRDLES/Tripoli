@@ -16,14 +16,11 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots;
 
-import javafx.beans.value.ObservableValue;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ToolBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import org.cirdles.tripoli.constants.TripoliConstants;
-import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,16 +35,6 @@ public class PlotWallPane extends Pane {
     public static double menuOffset = 30.0;
     private String iD;
 
-    private boolean[] speciesChecked = new boolean[0];
-    private boolean showFaradays = true;
-    private boolean showPMs = true;
-    private boolean showModels = true;
-    private TripoliConstants.IntensityUnits intensityUnits = TripoliConstants.IntensityUnits.COUNTS;
-    CheckBox baseLineCB;
-    private boolean baselineCorr = false;
-    CheckBox gainCB;
-    private boolean gainCorr = false;
-    private boolean logScale = false;
     private PlotWallPane(String iD) {
         this.iD = iD;
     }
@@ -196,157 +183,5 @@ public class PlotWallPane extends Pane {
 
         toolBar.getItems().addAll(button0, button5, button4, button1, button2, button3);
         getChildren().addAll(toolBar);
-    }
-
-    public void buildOGTripoliToolBar(List<SpeciesRecordInterface> species) {
-        ToolBar toolBar = new ToolBar();
-        toolBar.setPrefHeight(toolBarHeight);
-        speciesChecked = new boolean[species.size()];
-
-        CheckBox[] speciesCheckBoxes = new CheckBox[species.size()];
-        for (int speciesIndex = 0; speciesIndex < species.size(); speciesIndex++) {
-            speciesCheckBoxes[speciesIndex] = new CheckBox(species.get(speciesIndex).prettyPrintShortForm().trim());
-//            speciesCheckBoxes[speciesIndex].setPrefWidth(65);
-            toolBar.getItems().add(speciesCheckBoxes[speciesIndex]);
-            int finalSpeciesIndex = speciesIndex;
-            speciesCheckBoxes[speciesIndex].selectedProperty().addListener(
-                    (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
-                        speciesChecked[finalSpeciesIndex] = newVal;
-                        rebuildPlot();
-                    });
-        }
-        speciesCheckBoxes[0].setSelected(true);
-
-        CheckBox showFaraday = new CheckBox("F");
-        showFaraday.setSelected(true);
-//        showFaraday.setPrefWidth(40);
-        toolBar.getItems().add(showFaraday);
-        showFaraday.selectedProperty().addListener(
-                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
-                    showFaradays = newVal;
-                    rebuildPlot();
-                });
-
-        CheckBox showPM = new CheckBox("PM");
-        showPM.setSelected(true);
-//        showPM.setPrefWidth(50);
-        toolBar.getItems().add(showPM);
-        showPM.selectedProperty().addListener(
-                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
-                    showPMs = newVal;
-                    rebuildPlot();
-                });
-
-        CheckBox showModel = new CheckBox("Model");
-        showModel.setSelected(true);
-//        showModel.setPrefWidth(60);
-        toolBar.getItems().add(showModel);
-        showModel.selectedProperty().addListener(
-                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
-                    showModels = newVal;
-                    rebuildPlot();
-                });
-
-        Label labelViews = new Label("Units:");
-        labelViews.setAlignment(Pos.CENTER_RIGHT);
-        labelViews.setPrefWidth(50);
-        toolBar.getItems().add(labelViews);
-
-        ToggleGroup toggleScaleY = new ToggleGroup();
-
-        RadioButton countsRB = new RadioButton("Counts");
-        countsRB.setToggleGroup(toggleScaleY);
-        countsRB.setSelected(true);
-//        countsRB.setPrefWidth(70);
-        toolBar.getItems().add(countsRB);
-        countsRB.selectedProperty().addListener(
-                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
-                    if (newVal){
-                        intensityUnits = TripoliConstants.IntensityUnits.COUNTS;
-                    }
-                    rebuildPlot();
-                });
-
-        RadioButton voltsRB = new RadioButton("Volts");
-        voltsRB.setToggleGroup(toggleScaleY);
-//        voltsRB.setPrefWidth(60);
-        toolBar.getItems().add(voltsRB);
-        voltsRB.selectedProperty().addListener(
-                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
-                    if (newVal){
-                        intensityUnits = TripoliConstants.IntensityUnits.VOLTS;
-                    }
-                    rebuildPlot();
-                });
-
-        RadioButton ampsRB = new RadioButton("Amps");
-        ampsRB.setToggleGroup(toggleScaleY);
-//        ampsRB.setPrefWidth(55);
-        toolBar.getItems().add(ampsRB);
-        ampsRB.selectedProperty().addListener(
-                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
-                    if (newVal){
-                        intensityUnits = TripoliConstants.IntensityUnits.AMPS;
-                    }
-                    rebuildPlot();
-                });
-
-
-        Label labelCorr = new Label("Corr:");
-        labelCorr.setAlignment(Pos.CENTER_RIGHT);
-        labelCorr.setPrefWidth(50);
-        toolBar.getItems().add(labelCorr);
-
-
-        baseLineCB = new CheckBox("BL");
-        baseLineCB.setSelected(false);
-//        baseLineCB.setPrefWidth(50);
-        toolBar.getItems().add(baseLineCB);
-        baseLineCB.selectedProperty().addListener(
-                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
-                        baselineCorr = newVal;
-                        if (! newVal){
-                            gainCB.setSelected(false);
-                        }
-                    rebuildPlot();
-                });
-
-        gainCB = new CheckBox("Gain");
-//        gainCB.setPrefWidth(50);
-        toolBar.getItems().add(gainCB);
-        gainCB.selectedProperty().addListener(
-                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
-                    gainCorr = newVal;
-                    if (newVal){
-                        baseLineCB.setSelected(true);
-                    }
-                    rebuildPlot();
-                });
-
-        Label labelScale = new Label("Scale:");
-        labelScale.setAlignment(Pos.CENTER_RIGHT);
-        labelScale.setPrefWidth(60);
-        toolBar.getItems().add(labelScale);
-
-        CheckBox logCB = new CheckBox("Log");
-//        logCB.setPrefWidth(50);
-        toolBar.getItems().add(logCB);
-        logCB.selectedProperty().addListener(
-                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
-                    logScale = newVal;
-                    rebuildPlot();
-                });
-
-
-
-        getChildren().addAll(toolBar);
-    }
-
-    private void rebuildPlot() {
-        for (Node plotPane : getChildren()) {
-            if (plotPane instanceof TripoliPlotPane) {
-                ((TripoliPlotPane) plotPane).updateSpeciesPlotted(speciesChecked, showFaradays, showPMs, showModels, intensityUnits, baselineCorr, gainCorr, logScale);
-            }
-        }
     }
 }

@@ -18,8 +18,8 @@
                 </Tab>
                 <Tab closable="false" text="OnPeak Intensities by Time">
                     <content>
-                        <AnchorPane fx:id="ogtSpeciesIntensitiesPlotAnchorPane" minHeight="600.0" minWidth="1000.0"
-                                    prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: lightgrey;"/>
+                        <AnchorPane fx:id="ogtSpeciesIntensitiesPlotAnchorPane" minHeight="625.0" minWidth="1000.0"
+                                    prefHeight="625.0" prefWidth="1000.0" style="-fx-background-color: lightgrey;"/>
                     </content>
                 </Tab>
             </tabs>

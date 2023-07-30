@@ -8,6 +8,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
+import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneOGTripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.SpeciesIntensitySessionPlot;
@@ -113,10 +114,10 @@ public class OGTripoliViewController {
 
     private void plotOnPeakIntensities() {
         ogtSpeciesIntensitiesPlotAnchorPane.getChildren().clear();
-        PlotWallPane plotsWallPane = PlotWallPane.createPlotWallPane("OGTripoliSession");
+        PlotWallPaneOGTripoli plotsWallPane = PlotWallPaneOGTripoli.createPlotWallPane("OGTripoliSession");
         PlotWallPane.menuOffset = 0.0;
         plotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-        plotsWallPane.setPrefSize(ogtSpeciesIntensitiesPlotAnchorPane.getPrefWidth(), ogtSpeciesIntensitiesPlotAnchorPane.getPrefHeight());
+        plotsWallPane.setPrefSize(ogtSpeciesIntensitiesPlotAnchorPane.getPrefWidth(), ogtSpeciesIntensitiesPlotAnchorPane.getPrefHeight() + PlotWallPaneOGTripoli.toolBarHeight * 2.0);
         ogtSpeciesIntensitiesPlotAnchorPane.getChildren().add(plotsWallPane);
 
         SingleBlockDataSetRecord[] singleBlockDataSetRecords = plottingData.singleBlockDataSetRecords();
@@ -138,7 +139,7 @@ public class OGTripoliViewController {
 
         Set<Detector> detectors = analysis.getAnalysisMethod().getSequenceTable().getMapOfDetectorsToSequenceCells().keySet();
         Map<Integer, Double> mapOfOrdinalDetectorsToResistance = new TreeMap<>();
-        for (Detector detector : detectors){
+        for (Detector detector : detectors) {
             mapOfOrdinalDetectorsToResistance.put(detector.getOrdinalIndex(), detector.getAmplifierResistanceInOhms());
         }
 
@@ -203,6 +204,7 @@ public class OGTripoliViewController {
         AbstractPlot plot = SpeciesIntensitySessionPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (SpeciesIntensitySessionBuilder) plotBuilder);
         tripoliPlotPane.addPlot(plot);
         plotsWallPane.buildOGTripoliToolBar(analysis.getAnalysisMethod().getSpeciesList());
+        plotsWallPane.buildScaleControlsToolbar();
         plotsWallPane.stackPlots();
     }
 }

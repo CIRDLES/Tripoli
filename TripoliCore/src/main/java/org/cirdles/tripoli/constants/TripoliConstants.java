@@ -67,21 +67,22 @@ public enum TripoliConstants {
         VOLTS(),
         AMPS();
 
-        public static double[] convertFromCountsToVolts(double [] counts, double[] amplifierResistance){
-            double [] volts = new double[counts.length];
-            for (int i = 0; i < volts.length; i ++){
+        public static double[] convertFromCountsToVolts(double[] counts, double[] amplifierResistance) {
+            double[] volts = new double[counts.length];
+            for (int i = 0; i < volts.length; i++) {
                 volts[i] = counts[i] / (ONE_COULOMB / amplifierResistance[i]);
             }
             return volts;
         }
 
-        public static double convertFromVoltsToCount(double count, double amplifierResistance){;
+        public static double convertFromVoltsToCount(double count, double amplifierResistance) {
+            ;
             return count * (ONE_COULOMB / amplifierResistance);
         }
 
-        public static double[] convertFromCountsToAmps(double [] counts){
-            double [] amps = new double[counts.length];
-            for (int i = 0; i < amps.length; i ++){
+        public static double[] convertFromCountsToAmps(double[] counts) {
+            double[] amps = new double[counts.length];
+            for (int i = 0; i < amps.length; i++) {
                 amps[i] = counts[i] / ONE_COULOMB;
             }
             return amps;
