@@ -207,7 +207,7 @@ public class TripoliPlotPane extends Pane {
             plot.repaint();
         });
 
-        plot.preparePanel();
+        plot.preparePanel(true, true);
         plot.repaint();
     }
 
@@ -247,7 +247,8 @@ public class TripoliPlotPane extends Pane {
         }
     }
 
-    public void updateSpeciesPlotted(boolean[] speciesChecked, boolean showFaradays, boolean showPMs, boolean showModels, TripoliConstants.IntensityUnits intensityUnits, boolean baselineCorr, boolean gainCorr, boolean logScale) {
+    public void updateSpeciesPlotted(
+            boolean[] speciesChecked, boolean showFaradays, boolean showPMs, boolean showModels, TripoliConstants.IntensityUnits intensityUnits, boolean baselineCorr, boolean gainCorr, boolean logScale, boolean reScaleX, boolean reScaleY) {
         if (!getChildren().isEmpty() && (getChildren().get(0) instanceof SpeciesIntensitySessionPlot)) {
             ((SpeciesIntensitySessionPlot) getChildren().get(0)).setSpeciesChecked(speciesChecked);
             ((SpeciesIntensitySessionPlot) getChildren().get(0)).setShowFaradays(showFaradays);
@@ -258,7 +259,7 @@ public class TripoliPlotPane extends Pane {
             ((SpeciesIntensitySessionPlot) getChildren().get(0)).setGainCorr(gainCorr);
             ((SpeciesIntensitySessionPlot) getChildren().get(0)).setLogScale(logScale);
 
-            ((SpeciesIntensitySessionPlot) getChildren().get(0)).refreshPanel(true, true);
+            ((SpeciesIntensitySessionPlot) getChildren().get(0)).refreshPanel(reScaleX, reScaleY);
         }
     }
 

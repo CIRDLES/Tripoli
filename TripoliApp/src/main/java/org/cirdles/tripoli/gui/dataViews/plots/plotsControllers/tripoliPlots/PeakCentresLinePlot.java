@@ -44,7 +44,7 @@ public class PeakCentresLinePlot extends AbstractPlot {
     }
 
     @Override
-    public void preparePanel() {
+    public void preparePanel(boolean reScaleX, boolean reScaleY) {
 
         xAxisData = peakCentreSessionRecord.blockIds();
         minX = xAxisData[0];
@@ -62,7 +62,7 @@ public class PeakCentresLinePlot extends AbstractPlot {
         setDisplayOffsetY(0.0);
         setDisplayOffsetX(0.0);
 
-        prepareExtents();
+        prepareExtents(true, true);
         calculateTics();
         this.repaint();
     }
@@ -75,7 +75,7 @@ public class PeakCentresLinePlot extends AbstractPlot {
     }
 
 
-    public void prepareExtents() {
+    public void prepareExtents(boolean reScaleX, boolean reScaleY) {
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.01);
         if (xMarginStretch == 0.0) {
             xMarginStretch = maxX * 0.01;

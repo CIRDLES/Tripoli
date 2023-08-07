@@ -61,7 +61,7 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
     }
 
     @Override
-    public void preparePanel() {
+    public void preparePanel(boolean reScaleX, boolean reScaleY) {
         // process blocks
         mapBlockIdToBlockRatioCyclesRecord = blockRatioCyclesSessionRecord.mapBlockIdToBlockRatioCyclesRecord();
         int cyclesPerBlock = blockRatioCyclesSessionRecord.cyclesPerBlock();
@@ -101,7 +101,7 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
         displayOffsetX = 0.0;
         displayOffsetY = 0.0;
 
-        prepareExtents();
+        prepareExtents(true, true);
         calculateTics();
         repaint();
     }
@@ -111,7 +111,7 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
         super.paint(g2d);
     }
 
-    public void prepareExtents() {
+    public void prepareExtents(boolean reScaleX, boolean reScaleY) {
         minX -= 2;
         maxX += 2;
 

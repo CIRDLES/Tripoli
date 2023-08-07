@@ -20,6 +20,8 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockDataSetRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
@@ -55,6 +57,8 @@ public class AnalysisMethod implements Serializable {
     private List<IsotopicRatio> derivedIsotopicRatiosList;
     private BiMap<IsotopicRatio, IsotopicRatio> biMapOfRatiosAndInverses = HashBiMap.create();
     private boolean useLinearKnots;
+    private final Map<Integer, SingleBlockDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, SingleBlockModelRecord> mapOfBlockIdToFinalModel = Collections.synchronizedSortedMap(new TreeMap<>());
 
     private AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
         this(methodName, massSpectrometerContext, BaselineTable.createEmptyBaselineTable(), SequenceTable.createEmptySequenceTable());
@@ -324,6 +328,14 @@ public class AnalysisMethod implements Serializable {
 
     public Map<String, Boolean> getMapOfRatioNamesToInvertedFlag() {
         return mapOfRatioNamesToInvertedFlag;
+    }
+
+    public Map<Integer, SingleBlockDataSetRecord> getMapOfBlockIdToRawData() {
+        return mapOfBlockIdToRawData;
+    }
+
+    public Map<Integer, SingleBlockModelRecord> getMapOfBlockIdToFinalModel() {
+        return mapOfBlockIdToFinalModel;
     }
 
     public void addRatioToIsotopicRatiosList(IsotopicRatio isotopicRatio) {

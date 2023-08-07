@@ -61,9 +61,6 @@ public record SingleBlockDataSetRecord(
             List<Integer> isotopeOrdinalIndicesAccumulatorList,
             java.util.Map<String, List<Double>> blockMapOfIdsToData) implements Serializable {
 
-        public int getCountOfDataElements() {
-            return intensityAccumulatorList.size();
-        }
 
     }
 

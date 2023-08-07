@@ -16,10 +16,17 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.species.IsotopicRatio;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import static java.lang.StrictMath.exp;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelInitForMCMC.modelInitData;
 
 /**
  * @author James F. Bowring
@@ -51,6 +58,178 @@ public class EnsemblesStore implements Serializable {
             double errorWeighted,
             double errorUnWeighted
     ) implements Serializable {
+
+        static synchronized SingleBlockModelRecord produceSummaryModelFromEnsembles(
+                List<EnsembleRecord> ensembleRecordsList, AnalysisMethod analysisMethod, SingleBlockDataSetRecord singleBlockRawDataSetRecord, SingleBlockModelRecord singleBlockModelRecord) {
+            List<IsotopicRatio> isotopicRatioList = analysisMethod.getIsotopicRatiosList();
+            int burn = 1;
+            int countOfEnsemblesUsed = ensembleRecordsList.size() - burn;
+
+            // log ratios
+            double[][] ensembleSetOfLogRatios = new double[isotopicRatioList.size()][countOfEnsemblesUsed];
+            double[][] ensembleRatios = new double[isotopicRatioList.size()][countOfEnsemblesUsed];
+            double[] logRatioMean = new double[isotopicRatioList.size()];
+            double[] logRatioStdDev = new double[isotopicRatioList.size()];
+            DescriptiveStatistics descriptiveStatisticsLogRatios = new DescriptiveStatistics();
+            for (int ratioIndex = 0; ratioIndex < isotopicRatioList.size(); ratioIndex++) {
+                for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
+                    ensembleSetOfLogRatios[ratioIndex][index - burn] = ensembleRecordsList.get(index).logRatios()[ratioIndex];
+                    descriptiveStatisticsLogRatios.addValue(ensembleSetOfLogRatios[ratioIndex][index - burn]);
+                    ensembleRatios[ratioIndex][index - burn] = exp(ensembleSetOfLogRatios[ratioIndex][index - burn]);
+                }
+                logRatioMean[ratioIndex] = descriptiveStatisticsLogRatios.getMean();
+                logRatioStdDev[ratioIndex] = descriptiveStatisticsLogRatios.getStandardDeviation();
+
+                isotopicRatioList.get(ratioIndex).setRatioValuesForBlockEnsembles(ensembleRatios[ratioIndex]);
+                isotopicRatioList.get(ratioIndex).setLogRatioValuesForBlockEnsembles(ensembleSetOfLogRatios[ratioIndex]);
+            }
+
+            // baseLines
+            int baselineSize = singleBlockModelRecord.faradayCount();
+            double[][] ensembleBaselines = new double[baselineSize][countOfEnsemblesUsed];
+            double[] baselinesMeans = new double[baselineSize];
+            double[] baselinesStdDev = new double[baselineSize];
+
+            for (int row = 0; row < baselineSize; row++) {
+                DescriptiveStatistics descriptiveStatisticsBaselines = new DescriptiveStatistics();
+                for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
+                    // todo: fix magic number
+                    ensembleBaselines[row][index - burn] = ensembleRecordsList.get(index).baseLine()[row];//TODO: Decide / 6.24e7 * 1e6;
+                    descriptiveStatisticsBaselines.addValue(ensembleBaselines[row][index - burn]);
+                }
+                baselinesMeans[row] = descriptiveStatisticsBaselines.getMean();
+                baselinesStdDev[row] = descriptiveStatisticsBaselines.getStandardDeviation();
+            }
+
+            // dalyFaraday gains
+            double[] ensembleDalyFaradayGain = new double[countOfEnsemblesUsed];
+            DescriptiveStatistics descriptiveStatisticsDalyFaradayGain = new DescriptiveStatistics();
+            for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
+                ensembleDalyFaradayGain[index - burn] = ensembleRecordsList.get(index).dfGain();
+                descriptiveStatisticsDalyFaradayGain.addValue(ensembleDalyFaradayGain[index - burn]);
+            }
+            double dalyFaradayGainMean = descriptiveStatisticsDalyFaradayGain.getMean();
+            double dalyFaradayGainStdDev = descriptiveStatisticsDalyFaradayGain.getStandardDeviation();
+
+            // Intensity
+            int knotsCount = singleBlockRawDataSetRecord.blockKnotInterpolationStore().toRawCopy2D()[0].length;
+            double[][] ensembleI0 = new double[knotsCount][countOfEnsemblesUsed];
+            double[] meansI0 = new double[knotsCount];
+            double[] stdDevI0 = new double[knotsCount];
+
+            for (int knotIndex = 0; knotIndex < knotsCount; knotIndex++) {
+                DescriptiveStatistics descriptiveStatisticsI0 = new DescriptiveStatistics();
+                for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
+                    ensembleI0[knotIndex][index - burn] = ensembleRecordsList.get(index).I0()[knotIndex];
+                    descriptiveStatisticsI0.addValue(ensembleI0[knotIndex][index - burn]);
+                }
+                meansI0[knotIndex] = descriptiveStatisticsI0.getMean();
+                stdDevI0[knotIndex] = descriptiveStatisticsI0.getStandardDeviation();
+            }
+
+
+            SingleBlockModelRecord summaryMCMCModel = new SingleBlockModelRecord(
+                    singleBlockRawDataSetRecord.blockNumber(),//original
+                    singleBlockModelRecord.mapDetectorOrdinalToFaradayIndex().size(),
+                    singleBlockRawDataSetRecord.onPeakStartingIndicesOfCycles().length,
+                    analysisMethod.getSpeciesList().size(),
+                    analysisMethod.retrieveHighestAbundanceSpecies(),
+                    baselinesMeans,//calculated
+                    baselinesStdDev,//calculated
+                    dalyFaradayGainMean,//calculated
+                    singleBlockModelRecord.mapDetectorOrdinalToFaradayIndex(),
+                    logRatioMean,//calculated
+                    singleBlockRawDataSetRecord.mapOfSpeciesToActiveCycles(),
+                    singleBlockModelRecord.mapLogRatiosToCycleStats(),
+                    null,//dataModel,
+                    singleBlockModelRecord.dataSignalNoiseArray(),
+                    meansI0,//calculated
+                    singleBlockModelRecord.intensities().clone()
+            );
+
+            double[] dataModel = modelInitData(summaryMCMCModel, singleBlockRawDataSetRecord);
+
+
+//            // start cycle-based math +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//            // TODO: this is copied from modelinit - need to refactor into one procedure
+//            for (int isotopeIndex = 0; isotopeIndex < countOfIsotopes; isotopeIndex++) {
+//            DescriptiveStatistics[] cycleStats = new DescriptiveStatistics[cycleCount];
+//            for (int dataArrayIndex = 0; dataArrayIndex < dataModel.length; dataArrayIndex++) {
+//                int cycle = singleBlockRawDataSetRecord.blockCycleArray()[dataArrayIndex] - 1;
+//                if (cycleStats[cycle] == null) {
+//                    cycleStats[cycle] = new DescriptiveStatistics();
+//                }
+//                // TODO: make this checks for both isotopes (eventually may include denominator as one that is excluded)
+//                if (singleBlockRawDataSetRecord.mapOfSpeciesToActiveCycles().get(analysisMethod.getSpeciesList().get(isotopeIndex))[cycle]) {
+//                    cycleStats[cycle].addValue(dataModel[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
+//                }
+//            }
+//
+//            Map<Integer, double[]> mapCyclesToStats = new TreeMap<>();
+//
+//            for (int cycleIndex = 0; cycleIndex < cycleStats.length; cycleIndex++) {
+//                // TODO: fix this - currently using ratios instead of logs for cycles - see ViewCycles in matlab
+//                double[] cycleLogRatioStats = new double[2];
+////                if (cycleStats[cycleIndex].getMean() >= Math.exp(proposalRangesRecord.priorLogRatio()[0][0])) {
+//                    cycleLogRatioStats[0] = (cycleStats[cycleIndex].getMean());
+//                    // TODO: does this mean active cycles??
+//                    cycleLogRatioStats[1] = cycleStats[cycleIndex].getStandardDeviation() / Math.sqrt(cycleStats[cycleIndex].getN());
+////                } else {
+////                    cycleLogRatioStats[0] = Math.exp(proposalRangesRecord.priorLogRatio()[0][0]);
+////                    cycleLogRatioStats[1] = 0.0;
+////                }
+//                mapCyclesToStats.put(cycleIndex, cycleLogRatioStats);
+//            }
+//            if (isotopeIndex == iden - 1) {
+//                denominatorMapCyclesToStats = mapCyclesToStats;
+//            } else {
+//                mapLogRatiosToCycleStats.put(analysisMethod.getIsotopicRatiosList().get(isotopeIndex), mapCyclesToStats);
+//            }
+//        }
+//
+//        // postprocess to correct by denominator isotope as per ViewCycles in matlab
+//        for (IsotopicRatio iRatio : mapLogRatiosToCycleStats.keySet()) {
+//            Map<Integer, double[]> numeratorMapCyclesToStats = mapLogRatiosToCycleStats.get(iRatio);
+//            for (int cycleIndex = 0; cycleIndex < numeratorMapCyclesToStats.keySet().size(); cycleIndex++) {
+//                numeratorMapCyclesToStats.get(cycleIndex)[0] /= denominatorMapCyclesToStats.get(cycleIndex)[0];
+//                double calcSterrCycleRatio =
+//                        numeratorMapCyclesToStats.get(cycleIndex)[1] = StrictMath.sqrt(StrictMath.pow(numeratorMapCyclesToStats.get(cycleIndex)[1], 2.0)
+//                                + StrictMath.pow(denominatorMapCyclesToStats.get(cycleIndex)[1], 2.0));
+//                numeratorMapCyclesToStats.get(cycleIndex)[1] = calcSterrCycleRatio;
+//            }
+//        }
+//
+//
+
+
+
+
+
+
+            SingleBlockModelRecord finalMCMCModel = new SingleBlockModelRecord(
+                    singleBlockRawDataSetRecord.blockNumber(),//original
+                    singleBlockModelRecord.mapDetectorOrdinalToFaradayIndex().size(),
+                    singleBlockRawDataSetRecord.onPeakStartingIndicesOfCycles().length,
+                    analysisMethod.getSpeciesList().size(),
+                    analysisMethod.retrieveHighestAbundanceSpecies(),
+                    baselinesMeans,//calculated
+                    baselinesStdDev,//calculated
+                    dalyFaradayGainMean,//calculated
+                    singleBlockModelRecord.mapDetectorOrdinalToFaradayIndex(),
+                    logRatioMean,//calculated
+                    singleBlockRawDataSetRecord.mapOfSpeciesToActiveCycles(),
+                    singleBlockModelRecord.mapLogRatiosToCycleStats(),
+                    dataModel,
+                    singleBlockModelRecord.dataSignalNoiseArray(),
+                    meansI0,//calculated
+                    singleBlockModelRecord.intensities().clone()
+            );
+
+
+            return finalMCMCModel;
+        }
+
+
         public String prettyPrintHeaderAsCSV(String indexTitle, List<IsotopicRatio> isotopicRatiosList) {
             String header = "";
             for (int i = 0; i < logRatios.length; i++) {

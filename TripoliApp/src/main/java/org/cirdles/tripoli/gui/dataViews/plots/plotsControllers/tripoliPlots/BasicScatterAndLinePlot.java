@@ -39,7 +39,7 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
     }
 
     @Override
-    public void preparePanel() {
+    public void preparePanel(boolean reScaleX, boolean reScaleY) {
         xAxisData = comboPlotBuilder.getxData();
         yAxisData = comboPlotBuilder.getyData();
         yAxisData2 = comboPlotBuilder.getyData2();
@@ -63,12 +63,12 @@ public class BasicScatterAndLinePlot extends AbstractPlot {
         setDisplayOffsetY(0.0);
         setDisplayOffsetX(0.0);
 
-        prepareExtents();
+        prepareExtents(true, true);
         calculateTics();
         repaint();
     }
 
-    public void prepareExtents() {
+    public void prepareExtents(boolean reScaleX, boolean reScaleY) {
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.01);
         if (0.0 == xMarginStretch) {
             xMarginStretch = maxX * 0.01;

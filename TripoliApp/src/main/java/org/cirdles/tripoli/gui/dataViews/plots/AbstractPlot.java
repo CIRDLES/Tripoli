@@ -229,7 +229,7 @@ public abstract class AbstractPlot extends Canvas {
 
     public abstract void plotStats(GraphicsContext g2d);
 
-    public void prepareExtents() {
+    public void prepareExtents(boolean reScaleX, boolean reScaleY) {
     }
 
     public void calculateTics() {
@@ -398,7 +398,7 @@ public abstract class AbstractPlot extends Canvas {
      */
     public void refreshPanel(boolean doReScale, boolean inLiveMode) {
         try {
-            preparePanel();
+            preparePanel(doReScale, true);
             repaint();
         } catch (Exception ignored) {
         }
@@ -407,7 +407,7 @@ public abstract class AbstractPlot extends Canvas {
     /**
      *
      */
-    public abstract void preparePanel();
+    public abstract void preparePanel(boolean reScaleX, boolean reScaleY);
 
     /**
      * @return the displayOffsetY

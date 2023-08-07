@@ -41,15 +41,14 @@ public class OGTripoliViewController {
     @FXML
     private AnchorPane ogtCycleRatioPlotsAnchorPane;
 
-    private AllBlockInitForOGTripoli.PlottingData plottingData;
+    public static  AllBlockInitForOGTripoli.PlottingData plottingData;
 
     @FXML
     void initialize() throws TripoliException {
         populatePlots();
     }
 
-    private void populatePlots() throws TripoliException {
-        plottingData = AllBlockInitForOGTripoli.initBlockModels(analysis);
+    private void populatePlots() {
         plotRatios();
         plotOnPeakIntensities();
     }

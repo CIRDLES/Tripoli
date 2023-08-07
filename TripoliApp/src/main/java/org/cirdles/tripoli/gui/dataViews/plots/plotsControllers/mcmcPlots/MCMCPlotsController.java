@@ -14,6 +14,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
+import org.cirdles.tripoli.gui.OGTripoliPlotsWindow;
+import org.cirdles.tripoli.gui.OGTripoliViewController;
+import org.cirdles.tripoli.gui.TripoliGUI;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
@@ -27,6 +30,7 @@ import org.cirdles.tripoli.plots.linePlots.*;
 import org.cirdles.tripoli.plots.sessionPlots.HistogramSessionBuilder;
 import org.cirdles.tripoli.plots.sessionPlots.PeakCentreSessionBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.MCMCProcess;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
@@ -48,6 +52,7 @@ public class MCMCPlotsController {
     public static AnalysisInterface analysis;
 
     public static AnalysisManagerCallbackI analysisManagerCallbackI;
+    public static OGTripoliPlotsWindow ogTripoliPlotsWindow;
 
     private static int MAX_BLOCK_COUNT = 2000;
     @FXML
@@ -183,6 +188,17 @@ public class MCMCPlotsController {
                         listViewOfBlocks.setDisable(false);
                         listViewOfBlocks.getSelectionModel().selectFirst();
                         progressBar.setProgress(1.0);
+
+                        // fire up OGTripoli style session plots
+                        AllBlockInitForOGTripoli.PlottingData plottingData = analysis.assemblePostProcessPlottingData();
+                        // ogTripoli view
+                        if (null != ogTripoliPlotsWindow) {
+                            ogTripoliPlotsWindow.close();
+                        }
+                        ogTripoliPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage);//, this);
+                        OGTripoliViewController.analysis = analysis;
+                        OGTripoliViewController.plottingData = plottingData;
+                        ogTripoliPlotsWindow.loadPlotsWindow();
                     }
                 }
             });
