@@ -37,7 +37,7 @@ enum SingleBlockModelInitForMCMC {
     ;
 
     static SingleBlockModelRecordWithCov initializeModelForSingleBlockMCMC(
-            AnalysisMethod analysisMethod, SingleBlockDataSetRecord singleBlockRawDataSetRecord, boolean provideCovariance) throws RecoverableCondition {
+            AnalysisMethod analysisMethod, SingleBlockRawDataSetRecord singleBlockRawDataSetRecord, boolean provideCovariance) throws RecoverableCondition {
         int baselineCount = singleBlockRawDataSetRecord.baselineDataSetMCMC().intensityAccumulatorList().size();
         int onPeakFaradayCount = singleBlockRawDataSetRecord.onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
         int onPeakPhotoMultCount = singleBlockRawDataSetRecord.onPeakPhotoMultiplierDataSetMCMC().intensityAccumulatorList().size();
@@ -51,7 +51,7 @@ enum SingleBlockModelInitForMCMC {
                 x0.BLstd(m,1) = std(d0.data(d0.blflag & d0.det_ind(:,m)));
             end
          */
-        SingleBlockDataSetRecord.SingleBlockDataRecord baselineDataSetMCMC = singleBlockRawDataSetRecord.baselineDataSetMCMC();
+        SingleBlockRawDataSetRecord.SingleBlockRawDataRecord baselineDataSetMCMC = singleBlockRawDataSetRecord.baselineDataSetMCMC();
         List<Integer> detectorOrdinalIndicesAccumulatorList = baselineDataSetMCMC.detectorOrdinalIndicesAccumulatorList();
         List<Double> intensityAccumulatorList = baselineDataSetMCMC.intensityAccumulatorList();
         Map<Integer, DescriptiveStatistics> mapBaselineDetectorIndicesToStatistics = new TreeMap<>(SERIALIZABLE_COMPARATOR);
@@ -88,7 +88,6 @@ enum SingleBlockModelInitForMCMC {
         // june 2023 new init line 14 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // june 2023 new init - will need to be user input
         int iden = indexOfMostAbundantIsotope + 1; // ordinal
-//        IsotopicRatio idenIden = new IsotopicRatio(analysisMethod.getSpeciesList().get(iden - 1), analysisMethod.getSpeciesList().get(iden - 1), false);
 
         //TODO: Fix this when using bbase
         //TODO: handle case of only 2 cycles, which blows up calculateDFGain since it thrwos out first and last
@@ -162,7 +161,7 @@ enum SingleBlockModelInitForMCMC {
             cyclesSortedArray[i] = cyclesArray[ddVer2sortIndices[i]];
         }
 
-        double[][] interpolatedKnotData_II = singleBlockRawDataSetRecord.blockKnotInterpolationStore().toRawCopy2D();
+        double[][] interpolatedKnotData_II = singleBlockRawDataSetRecord.blockKnotInterpolationArray();
         RealMatrix II = new BlockRealMatrix(interpolatedKnotData_II);
         DecompositionSolver solver = new QRDecomposition(II).getSolver();
         RealVector data = new ArrayRealVector(ddVer2SortedArray);
@@ -657,7 +656,7 @@ enum SingleBlockModelInitForMCMC {
 
     }
 
-    private static synchronized double calculateDFGain(int iden, double[] baselineMeansArray, Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex, SingleBlockDataSetRecord singleBlockDataSetRecord) {
+    private static synchronized double calculateDFGain(int iden, double[] baselineMeansArray, Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex, SingleBlockRawDataSetRecord singleBlockRawDataSetRecord) {
         // new DFGain calculator
         /*
         %x0.DFgain = user_DFgain;  %sb629 Now going to set according to data(?)
@@ -705,13 +704,13 @@ enum SingleBlockModelInitForMCMC {
 
          */
 
-        double[] d0_data = singleBlockDataSetRecord.blockRawDataArray();
-        int startIndexOfPhotoMultiplierData = singleBlockDataSetRecord.getCountOfBaselineIntensities() + singleBlockDataSetRecord.getCountOfOnPeakFaradayIntensities();
-        int[] d0_detVec = singleBlockDataSetRecord.blockDetectorOrdinalIndicesArray();
+        double[] d0_data = singleBlockRawDataSetRecord.blockRawDataArray();
+        int startIndexOfPhotoMultiplierData = singleBlockRawDataSetRecord.getCountOfBaselineIntensities() + singleBlockRawDataSetRecord.getCountOfOnPeakFaradayIntensities();
+        int[] d0_detVec = singleBlockRawDataSetRecord.blockDetectorOrdinalIndicesArray();
         List<Double> ddNoPMList = new ArrayList<>();
         List<Integer> tmpPMflagList = new ArrayList<>();
-        int[] isotopeOrdinalIndices = singleBlockDataSetRecord.blockIsotopeOrdinalIndicesArray();
-        int[] timeIndForSortingArray = singleBlockDataSetRecord.blockTimeIndicesArray();
+        int[] isotopeOrdinalIndices = singleBlockRawDataSetRecord.blockIsotopeOrdinalIndicesArray();
+        int[] timeIndForSortingArray = singleBlockRawDataSetRecord.blockTimeIndicesArray();
 
         List<Integer> tempTime = new ArrayList<>();
         for (int dataArrayIndex = 0; dataArrayIndex < d0_data.length; dataArrayIndex++) {
@@ -736,7 +735,7 @@ enum SingleBlockModelInitForMCMC {
         Arrays.sort(ddSortIndices, comparatorTime);
 
         double[] ddSortedArray = new double[ddNoPMArray.length];
-        double[][] interpolatedKnotData_II = singleBlockDataSetRecord.blockKnotInterpolationStore().toRawCopy2D();
+        double[][] interpolatedKnotData_II = singleBlockRawDataSetRecord.blockKnotInterpolationArray();
         List<double[]> IIFar = new ArrayList<>();
         List<double[]> IIPM = new ArrayList<>();
         List<Double> dataFar = new ArrayList<>();
@@ -778,16 +777,16 @@ enum SingleBlockModelInitForMCMC {
         solution = solver.solve(dataPMV);
         double[] intensityPM_I = solution.toArray();
 
-        DescriptiveStatistics dfGainDescriptiveStaqtistics = new DescriptiveStatistics();
+        DescriptiveStatistics dfGainDescriptiveStatistics = new DescriptiveStatistics();
         for (int row = 1; row < (intensityPM_I.length - 1); row++) {
-            dfGainDescriptiveStaqtistics.addValue(intensityPM_I[row] / intensityFar_I[row]);
+            dfGainDescriptiveStatistics.addValue(intensityPM_I[row] / intensityFar_I[row]);
         }
 
-        return dfGainDescriptiveStaqtistics.getMean();
+        return dfGainDescriptiveStatistics.getMean();
 
     }
 
-    public synchronized static double[] modelInitData(SingleBlockModelRecord singleBlockModelRecord_x, SingleBlockDataSetRecord singleBlockRawDataSetRecord) {
+    public synchronized static double[] modelInitData(SingleBlockModelRecord singleBlockModelRecord_x, SingleBlockRawDataSetRecord singleBlockRawDataSetRecord) {
         int baselineCount = singleBlockRawDataSetRecord.baselineDataSetMCMC().intensityAccumulatorList().size();
         int onPeakFaradayCount = singleBlockRawDataSetRecord.onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
         int onPeakPhotoMultCount = singleBlockRawDataSetRecord.onPeakPhotoMultiplierDataSetMCMC().intensityAccumulatorList().size();
@@ -796,7 +795,7 @@ enum SingleBlockModelInitForMCMC {
         int[] isotopeOrdinalIndicesArray = singleBlockRawDataSetRecord.blockIsotopeOrdinalIndicesArray();
         int[] timeIndForSortingArray = singleBlockRawDataSetRecord.blockTimeIndicesArray();
 
-        double[][] interpolatedKnotData_II = singleBlockRawDataSetRecord.blockKnotInterpolationStore().toRawCopy2D();
+        double[][] interpolatedKnotData_II = singleBlockRawDataSetRecord.blockKnotInterpolationArray();
         Matrix II = new Matrix(interpolatedKnotData_II);
         Matrix I = new Matrix(singleBlockModelRecord_x.I0(), singleBlockModelRecord_x.I0().length);
         Matrix intensityFn = II.times(I);
@@ -870,7 +869,7 @@ enum SingleBlockModelInitForMCMC {
 
     }
 
-    private static class ArrayIndexComparator implements Comparator<Integer>, Serializable {
+    public static class ArrayIndexComparator implements Comparator<Integer>, Serializable {
         private final int[] array;
 
         public ArrayIndexComparator(int[] array) {

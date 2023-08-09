@@ -43,7 +43,7 @@ public enum TripoliSerializer {
             objectOutputStream.writeObject(serializableObject);
         } catch (IOException ex) {
             throw new TripoliException("Cannot serialize object of " + serializableObject.getClass().getSimpleName() + " to: " + fileName
-                    + " because: " + ex.getMessage());
+                    + "\n\nbecause: " + ex.getMessage());
 
         } finally {
             if (null != objectOutputStream) {

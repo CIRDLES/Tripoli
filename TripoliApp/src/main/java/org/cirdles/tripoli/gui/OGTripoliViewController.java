@@ -19,12 +19,11 @@ import org.cirdles.tripoli.plots.sessionPlots.BlockRatioCyclesSessionBuilder;
 import org.cirdles.tripoli.plots.sessionPlots.SpeciesIntensitySessionBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.species.IsotopicRatio;
-import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.util.*;
 
@@ -35,16 +34,14 @@ import static org.cirdles.tripoli.sessions.analysis.Analysis.SKIP;
 
 public class OGTripoliViewController {
     public static AnalysisInterface analysis;
+    public static AllBlockInitForOGTripoli.PlottingData plottingData;
     @FXML
     public AnchorPane ogtSpeciesIntensitiesPlotAnchorPane;
-
     @FXML
     private AnchorPane ogtCycleRatioPlotsAnchorPane;
 
-    public static  AllBlockInitForOGTripoli.PlottingData plottingData;
-
     @FXML
-    void initialize() throws TripoliException {
+    void initialize() {
         populatePlots();
     }
 
@@ -108,6 +105,7 @@ public class OGTripoliViewController {
                     new Rectangle(minPlotWidth, minPlotHeight), blockRatioCyclesSessionBuilder.getBlockRatioCyclesSessionRecord());
             tripoliPlotPane.addPlot(plot);
         }
+        plotsWallPane.buildScaleControlsToolbar();
         plotsWallPane.stackPlots();
     }
 
@@ -119,10 +117,10 @@ public class OGTripoliViewController {
         plotsWallPane.setPrefSize(ogtSpeciesIntensitiesPlotAnchorPane.getPrefWidth(), ogtSpeciesIntensitiesPlotAnchorPane.getPrefHeight() + PlotWallPaneOGTripoli.toolBarHeight * 2.0);
         ogtSpeciesIntensitiesPlotAnchorPane.getChildren().add(plotsWallPane);
 
-        SingleBlockDataSetRecord[] singleBlockDataSetRecords = plottingData.singleBlockDataSetRecords();
+        SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = plottingData.singleBlockRawDataSetRecords();
         SingleBlockModelRecord[] singleBlockModelRecords = plottingData.singleBlockModelRecords();
         // only plotting onPeaks
-        int countOfBlocks = singleBlockDataSetRecords.length;
+        int countOfBlocks = singleBlockRawDataSetRecords.length;
         int countOfSpecies = analysis.getAnalysisMethod().getSpeciesList().size();
 
         // x-axis = time
@@ -148,15 +146,15 @@ public class OGTripoliViewController {
             double[] onPeakTimeStamps = blocksData.get(blockIndex + 1).onPeakTimeStamps();
 
             SingleBlockModelRecord singleBlockModelRecord = singleBlockModelRecords[blockIndex];
-            int countOfBaselineDataEntries = singleBlockDataSetRecords[blockIndex].getCountOfBaselineIntensities();
-            int countOfFaradayDataEntries = singleBlockDataSetRecords[blockIndex].getCountOfOnPeakFaradayIntensities();
+            int countOfBaselineDataEntries = singleBlockRawDataSetRecords[blockIndex].getCountOfBaselineIntensities();
+            int countOfFaradayDataEntries = singleBlockRawDataSetRecords[blockIndex].getCountOfOnPeakFaradayIntensities();
 
             double[] onPeakModelFaradayData = singleBlockModelRecord.getOnPeakDataModelFaradayArray(countOfBaselineDataEntries, countOfFaradayDataEntries);
             double[] baseLineVector = singleBlockModelRecord.baselineMeansArray();
             double dfGain = singleBlockModelRecord.detectorFaradayGain();
             Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex = singleBlockModelRecord.mapDetectorOrdinalToFaradayIndex();
 
-            SingleBlockDataSetRecord.SingleBlockDataRecord onPeakFaradayDataSet = singleBlockDataSetRecords[blockIndex].onPeakFaradayDataSetMCMC();
+            SingleBlockRawDataSetRecord.SingleBlockRawDataRecord onPeakFaradayDataSet = singleBlockRawDataSetRecords[blockIndex].onPeakFaradayDataSetMCMC();
             List<Double> intensityAccumulatorList = onPeakFaradayDataSet.intensityAccumulatorList();
             List<Integer> timeIndexAccumulatorList = onPeakFaradayDataSet.timeIndexAccumulatorList();
             List<Integer> isotopeOrdinalIndexAccumulatorList = onPeakFaradayDataSet.isotopeOrdinalIndicesAccumulatorList();
@@ -176,7 +174,7 @@ public class OGTripoliViewController {
 
             double[] onPeakModelPhotoMultiplierData = singleBlockModelRecord.getOnPeakDataModelPhotoMultiplierArray(countOfBaselineDataEntries, countOfFaradayDataEntries);
 
-            SingleBlockDataSetRecord.SingleBlockDataRecord onPeakPhotoMultiplierDataSet = singleBlockDataSetRecords[blockIndex].onPeakPhotoMultiplierDataSetMCMC();
+            SingleBlockRawDataSetRecord.SingleBlockRawDataRecord onPeakPhotoMultiplierDataSet = singleBlockRawDataSetRecords[blockIndex].onPeakPhotoMultiplierDataSetMCMC();
             intensityAccumulatorList = onPeakPhotoMultiplierDataSet.intensityAccumulatorList();
             timeIndexAccumulatorList = onPeakPhotoMultiplierDataSet.timeIndexAccumulatorList();
             isotopeOrdinalIndexAccumulatorList = onPeakPhotoMultiplierDataSet.isotopeOrdinalIndicesAccumulatorList();

@@ -30,7 +30,7 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
     private boolean[] zoomFlagsXY;
 
     private SpeciesIntensitySessionPlot(Rectangle bounds, SpeciesIntensitySessionBuilder speciesIntensitySessionBuilder) {
-        super(bounds, 75, 25,
+        super(bounds, 100, 25,
                 speciesIntensitySessionBuilder.getTitle(),
                 speciesIntensitySessionBuilder.getxAxisLabel(),
                 speciesIntensitySessionBuilder.getyAxisLabel());
@@ -183,20 +183,20 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
     }
 
     public void prepareExtents(boolean reScaleX, boolean reScaleY) {
-       if(reScaleX) {
-           double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.01);
-           if (0.0 == xMarginStretch) {
-               xMarginStretch = maxX * 0.01;
-           }
-           minX -= 50;//xMarginStretch;
-           maxX += 50;//xMarginStretch;
-       }
+        if (reScaleX) {
+            double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.01);
+            if (0.0 == xMarginStretch) {
+                xMarginStretch = maxX * 0.01;
+            }
+            minX -= 50;//xMarginStretch;
+            maxX += 50;//xMarginStretch;
+        }
 
-       if (reScaleY) {
-           double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.01);
-           maxY += yMarginStretch;
-           minY -= yMarginStretch;
-       }
+        if (reScaleY) {
+            double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.01);
+            maxY += yMarginStretch;
+            minY -= yMarginStretch;
+        }
     }
 
     @Override

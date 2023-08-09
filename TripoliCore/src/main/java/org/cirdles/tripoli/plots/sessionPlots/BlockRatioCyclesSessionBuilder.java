@@ -42,7 +42,7 @@ public class BlockRatioCyclesSessionBuilder extends PlotBuilder {
     public static BlockRatioCyclesSessionBuilder initializeBlockRatioCyclesSession(
             List<BlockRatioCyclesRecord> blockRatioCyclesRecordsList, String[] title, String xAxisLabel, String yAxisLabel) {
         BlockRatioCyclesSessionBuilder blockRatioCyclesSessionBuilder = new BlockRatioCyclesSessionBuilder(blockRatioCyclesRecordsList, title, xAxisLabel, yAxisLabel);
-        blockRatioCyclesSessionBuilder.blockRatioCyclesSessionRecord = blockRatioCyclesSessionBuilder.generateBlockRatioCyclesSession(blockRatioCyclesRecordsList);
+//        blockRatioCyclesSessionBuilder.blockRatioCyclesSessionRecord = blockRatioCyclesSessionBuilder.generateBlockRatioCyclesSession(blockRatioCyclesRecordsList);
         return blockRatioCyclesSessionBuilder;
     }
 

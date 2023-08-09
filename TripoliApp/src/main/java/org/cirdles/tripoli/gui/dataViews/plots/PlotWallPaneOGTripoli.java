@@ -104,7 +104,7 @@ public class PlotWallPaneOGTripoli extends Pane {
             speciesCheckBoxes[speciesIndex].selectedProperty().addListener(
                     (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                         speciesChecked[finalSpeciesIndex] = newVal;
-                        rebuildPlot(true, true);
+                        rebuildPlot(false, true);
                     });
         }
         speciesCheckBoxes[0].setSelected(true);
@@ -286,7 +286,7 @@ public class PlotWallPaneOGTripoli extends Pane {
     private void resetZoom() {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
-                ((TripoliPlotPane) plotPane).resetZoom(zoomFlagsXY);
+                ((TripoliPlotPane) plotPane).resetIntensitySessionZoom(zoomFlagsXY);
             }
         }
     }

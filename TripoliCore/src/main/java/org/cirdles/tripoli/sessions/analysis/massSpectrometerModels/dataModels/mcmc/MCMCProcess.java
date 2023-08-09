@@ -52,7 +52,7 @@ public class MCMCProcess {
     private final SingleBlockModelRecord singleBlockInitialModelRecord_X0;
     private final Matrix covarianceMatrix_C0;
     private final AnalysisMethod analysisMethod;
-    private final SingleBlockDataSetRecord singleBlockRawDataSetRecord;
+    private final SingleBlockRawDataSetRecord singleBlockRawDataSetRecord;
     List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
     private boolean hierarchical;
     private double tempering;
@@ -74,7 +74,7 @@ public class MCMCProcess {
 
     private MCMCProcess(
             AnalysisMethod analysisMethod,
-            SingleBlockDataSetRecord singleBlockRawDataSetRecord,
+            SingleBlockRawDataSetRecord singleBlockRawDataSetRecord,
             SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov) {
         this.analysisMethod = analysisMethod;
         this.singleBlockRawDataSetRecord = singleBlockRawDataSetRecord;
@@ -89,7 +89,7 @@ public class MCMCProcess {
 
     public static synchronized MCMCProcess createMCMCProcess(
             AnalysisMethod analysisMethod,
-            SingleBlockDataSetRecord singleBlockRawDataSetRecord,
+            SingleBlockRawDataSetRecord singleBlockRawDataSetRecord,
             SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov) {
         /*
             % MCMC Parameters
@@ -402,7 +402,11 @@ x=x0;
                 long interval1 = System.nanoTime() - prev;
                 prev = interval1 + prev;
 
-                MatrixStore<Double> intensity2 = singleBlockRawDataSetRecord.blockKnotInterpolationStore().multiply(storeFactory.columns(singleBlockUpdatedModelRecord_x2.I0()));
+
+                double[][] blockKnotInterpolationArray = singleBlockRawDataSetRecord.blockKnotInterpolationArray();
+                Primitive64Store blockKnotInterpolationStore = Primitive64Store.FACTORY.rows(blockKnotInterpolationArray);
+
+                MatrixStore<Double> intensity2 = blockKnotInterpolationStore.multiply(storeFactory.columns(singleBlockUpdatedModelRecord_x2.I0()));
 
                 double[] intensity2Array = intensity2.toRawCopy1D();
                 int[] timeIndicesArray = singleBlockRawDataSetRecord.blockTimeIndicesArray();

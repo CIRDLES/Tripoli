@@ -47,7 +47,7 @@ public enum SingleBlockDataModelPlot {
     public static final int PLOT_INDEX_RATIOS = 0;
 
     public static PlotBuilder[][] analysisAndPlotting(
-            SingleBlockDataSetRecord singleBlockRawDataSetRecord,
+            SingleBlockRawDataSetRecord singleBlockRawDataSetRecord,
             List<EnsemblesStore.EnsembleRecord> ensembleRecordsList,
             SingleBlockModelRecord singleBlockCurrentModelRecord_X,
             AnalysisMethod analysisMethod) {
@@ -207,8 +207,11 @@ public enum SingleBlockDataModelPlot {
         double[][] yDataIntensityMeans = new double[2][];
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         MatrixStore<Double> intensityMeansMatrix = storeFactory.columns(intensityMeans);
+
+        double[][] blockKnotInterpolationStoreArray = singleBlockRawDataSetRecord.blockKnotInterpolationArray();
+        Primitive64Store blockKnotInterpolationStore = Primitive64Store.FACTORY.rows(blockKnotInterpolationStoreArray);
         MatrixStore<Double> yDataMeanIntensitiesMatrix =
-                singleBlockRawDataSetRecord.blockKnotInterpolationStore().multiply(intensityMeansMatrix).multiply(1.0 / dalyFaradayGainMean);//(1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
+                blockKnotInterpolationStore.multiply(intensityMeansMatrix).multiply(1.0 / dalyFaradayGainMean);//(1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
         yDataIntensityMeans[0] = yDataMeanIntensitiesMatrix.toRawCopy1D();
         MatrixStore<Double> yDataTrueIntensitiesMatrix = intensityMeansMatrix.multiply(1.0 / dalyFaradayGainMean);//(1.0 / (dalyFaradayGainMean * 6.24e7)) * 1e6);
         yDataIntensityMeans[1] = yDataTrueIntensitiesMatrix.toRawCopy1D();

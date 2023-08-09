@@ -21,9 +21,10 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
 
 import java.io.IOException;
+
+import static org.cirdles.tripoli.gui.OGTripoliViewController.plottingData;
 
 /**
  * @author James F. Bowring
@@ -48,7 +49,7 @@ public class OGTripoliPlotsWindow {
         plottingStage = new Stage();
         plottingStage.setMinWidth(PLOT_WINDOW_WIDTH);
         plottingStage.setMinHeight(PLOT_WINDOW_HEIGHT);
-        plottingStage.setTitle("Tripoli Preview and Sculpt Data");
+//        plottingStage.setTitle("Tripoli Preview and Sculpt Data");
 
         plottingStage.setOnCloseRequest((WindowEvent e) -> {
             plottingStage.hide();
@@ -74,8 +75,8 @@ public class OGTripoliPlotsWindow {
                 iOException.printStackTrace();
             }
             plottingWindow = plottingStage.getScene().getWindow();
+            plottingStage.setTitle("Tripoli " + (plottingData.preview() ? "PREVIEW" : "REVIEW") + " and Sculpt Data");
             plottingStage.show();
-
         }
 
         // center on app window
