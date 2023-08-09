@@ -58,7 +58,7 @@ public record SingleBlockRawDataSetRecord(
             List<Double> timeAccumulatorList,
             List<Integer> timeIndexAccumulatorList,
             List<Integer> isotopeOrdinalIndicesAccumulatorList,
-            java.util.Map<String, List<Double>> blockMapOfIdsToData) implements Serializable {
+            Map<String, List<Double>> blockMapOfIdsToData) implements Serializable {
 
 
     }

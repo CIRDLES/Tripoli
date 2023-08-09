@@ -108,7 +108,7 @@ public class EnsemblesStore implements Serializable {
                 descriptiveStatisticsDalyFaradayGain.addValue(ensembleDalyFaradayGain[index - burn]);
             }
             double dalyFaradayGainMean = descriptiveStatisticsDalyFaradayGain.getMean();
-            double dalyFaradayGainStdDev = descriptiveStatisticsDalyFaradayGain.getStandardDeviation();
+//            double dalyFaradayGainStdDev = descriptiveStatisticsDalyFaradayGain.getStandardDeviation();
 
             // Intensity
             int knotsCount = singleBlockRawDataSetRecord.blockKnotInterpolationArray()[0].length;
