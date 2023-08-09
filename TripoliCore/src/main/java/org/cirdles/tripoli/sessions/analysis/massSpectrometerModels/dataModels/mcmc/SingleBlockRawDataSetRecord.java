@@ -17,7 +17,6 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
-import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.io.Serializable;
 import java.util.List;
@@ -26,12 +25,12 @@ import java.util.Map;
 /**
  * @author James F. Bowring
  */
-public record SingleBlockDataSetRecord(
+public record SingleBlockRawDataSetRecord(
         int blockNumber,
-        SingleBlockDataRecord baselineDataSetMCMC,
-        SingleBlockDataRecord onPeakFaradayDataSetMCMC,
-        SingleBlockDataRecord onPeakPhotoMultiplierDataSetMCMC,
-        Primitive64Store blockKnotInterpolationStore,
+        SingleBlockRawDataRecord baselineDataSetMCMC,
+        SingleBlockRawDataRecord onPeakFaradayDataSetMCMC,
+        SingleBlockRawDataRecord onPeakPhotoMultiplierDataSetMCMC,
+        double[][] blockKnotInterpolationArray,// Primitive64Store blockKnotInterpolationStore,
         int[] blockCycleArray,
         double[] blockRawDataArray,
         int[] blockDetectorOrdinalIndicesArray,
@@ -51,7 +50,7 @@ public record SingleBlockDataSetRecord(
     /**
      * @author James F. Bowring
      */
-    public record SingleBlockDataRecord(
+    public record SingleBlockRawDataRecord(
             int blockNumber,
             List<Integer> detectorOrdinalIndicesAccumulatorList,
             List<Integer> cycleAccumulatorList,
@@ -59,11 +58,8 @@ public record SingleBlockDataSetRecord(
             List<Double> timeAccumulatorList,
             List<Integer> timeIndexAccumulatorList,
             List<Integer> isotopeOrdinalIndicesAccumulatorList,
-            java.util.Map<String, List<Double>> blockMapOfIdsToData) implements Serializable {
+            Map<String, List<Double>> blockMapOfIdsToData) implements Serializable {
 
-        public int getCountOfDataElements() {
-            return intensityAccumulatorList.size();
-        }
 
     }
 

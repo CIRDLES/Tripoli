@@ -21,7 +21,10 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.plots.PlotBuilder;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.SingleBlockPeakDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
@@ -79,7 +82,6 @@ public class Analysis implements Serializable, AnalysisInterface {
     private String dataFilePathString;
     private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
-//    private String mcmcVersion;
 
 
     private Analysis() {
@@ -262,6 +264,27 @@ public class Analysis implements Serializable, AnalysisInterface {
         mapOfBlockToLogs.put(blockID, retVal);
 
         return retVal;
+    }
+
+
+    public AllBlockInitForOGTripoli.PlottingData assemblePostProcessPlottingData() {
+        Map<Integer, SingleBlockRawDataSetRecord> singleBlockRawDataSetRecordMap = analysisMethod.getMapOfBlockIdToRawData();
+        SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = new SingleBlockRawDataSetRecord[singleBlockRawDataSetRecordMap.keySet().size()];
+        int index = 0;
+        for (SingleBlockRawDataSetRecord singleBlockRawDataSetRecord : singleBlockRawDataSetRecordMap.values()) {
+            singleBlockRawDataSetRecords[index] = singleBlockRawDataSetRecord;
+            index++;
+        }
+
+        Map<Integer, SingleBlockModelRecord> singleBlockModelRecordMap = analysisMethod.getMapOfBlockIdToFinalModel();
+        SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[analysisMethod.getMapOfBlockIdToFinalModel().keySet().size()];
+        index = 0;
+        for (SingleBlockModelRecord singleBlockModelRecord : singleBlockModelRecordMap.values()) {
+            singleBlockModelRecords[index] = singleBlockModelRecord;
+            index++;
+        }
+
+        return new AllBlockInitForOGTripoli.PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, false);
     }
 
     public final String prettyPrintAnalysisSummary() {

@@ -37,7 +37,7 @@ import static org.cirdles.tripoli.utilities.mathUtilities.MathUtilities.roundedT
 public enum SingleBlockDataAccumulatorMCMC {
     ;
 
-    public static SingleBlockDataSetRecord.SingleBlockDataRecord accumulateBaselineDataPerBaselineTableSpecs(
+    public static SingleBlockRawDataSetRecord.SingleBlockRawDataRecord accumulateBaselineDataPerBaselineTableSpecs(
             MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord, AnalysisMethod analysisMethod) {
 
         BaselineTable baselineTable = analysisMethod.getBaselineTable();
@@ -83,7 +83,7 @@ public enum SingleBlockDataAccumulatorMCMC {
             }
         }
 
-        return new SingleBlockDataSetRecord.SingleBlockDataRecord(
+        return new SingleBlockRawDataSetRecord.SingleBlockRawDataRecord(
                 massSpecOutputSingleBlockRecord.blockID(),
                 detectorOrdinalIndicesAccumulatorList,
                 cycleAccumulatorList,
@@ -94,7 +94,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                 blockMapOfIdsToData);
     }
 
-    public static SingleBlockDataSetRecord.SingleBlockDataRecord accumulateOnPeakDataPerSequenceTableSpecs(
+    public static SingleBlockRawDataSetRecord.SingleBlockRawDataRecord accumulateOnPeakDataPerSequenceTableSpecs(
             MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord, AnalysisMethod analysisMethod, boolean isFaraday) {
 
         SequenceTable sequenceTable = analysisMethod.getSequenceTable();
@@ -149,7 +149,7 @@ public enum SingleBlockDataAccumulatorMCMC {
             }
         }
 
-        return new SingleBlockDataSetRecord.SingleBlockDataRecord(
+        return new SingleBlockRawDataSetRecord.SingleBlockRawDataRecord(
                 massSpecOutputSingleBlockRecord.blockID(),
                 detectorOrdinalIndicesAccumulatorList,
                 cycleAccumulatorList,

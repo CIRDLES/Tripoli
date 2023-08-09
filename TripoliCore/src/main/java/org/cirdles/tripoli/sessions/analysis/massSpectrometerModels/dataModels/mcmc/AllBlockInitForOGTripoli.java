@@ -36,26 +36,26 @@ public class AllBlockInitForOGTripoli {
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
 
         int countOfBlocks = analysis.getMapOfBlockIdToProcessStatus().keySet().size();
-        SingleBlockDataSetRecord[] singleBlockDataSetRecords = new SingleBlockDataSetRecord[countOfBlocks];
+        SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = new SingleBlockRawDataSetRecord[countOfBlocks];
         SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[countOfBlocks];
 
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
-            singleBlockDataSetRecords[blockIndex] = prepareSingleBlockDataForMCMC(blockIndex + 1, massSpecExtractedData, analysisMethod);
+            singleBlockRawDataSetRecords[blockIndex] = prepareSingleBlockDataForMCMC(blockIndex + 1, massSpecExtractedData, analysisMethod);
             SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithNoCov;
             try {
-                singleBlockInitialModelRecordWithNoCov = initializeModelForSingleBlockMCMC(analysis.getAnalysisMethod(), singleBlockDataSetRecords[blockIndex], false);
+                singleBlockInitialModelRecordWithNoCov = initializeModelForSingleBlockMCMC(analysis.getAnalysisMethod(), singleBlockRawDataSetRecords[blockIndex], false);
             } catch (RecoverableCondition e) {
                 throw new TripoliException("Ojalgo RecoverableCondition");
             }
             singleBlockModelRecords[blockIndex] = singleBlockInitialModelRecordWithNoCov.singleBlockModelRecord();
         }
 
-        return new PlottingData(singleBlockDataSetRecords, singleBlockModelRecords);
+        return new PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, true);
     }
 
     public record PlottingData(
-            SingleBlockDataSetRecord[] singleBlockDataSetRecords,
-            SingleBlockModelRecord[] singleBlockModelRecords
-    ) {
+            SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords,
+            SingleBlockModelRecord[] singleBlockModelRecords,
+            boolean preview) {
     }
 }

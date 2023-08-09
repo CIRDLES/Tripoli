@@ -28,6 +28,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPl
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
@@ -634,13 +635,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
 
-    public void reviewAndSculptDataAction() {
+    public void reviewAndSculptDataAction() throws TripoliException {
         // ogTripoli view
         if (null != ogTripoliPlotsWindow) {
             ogTripoliPlotsWindow.close();
         }
-        ogTripoliPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage);//, this);
+        ogTripoliPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage);
         OGTripoliViewController.analysis = analysis;
+        OGTripoliViewController.plottingData = AllBlockInitForOGTripoli.initBlockModels(analysis);
         ogTripoliPlotsWindow.loadPlotsWindow();
 
     }

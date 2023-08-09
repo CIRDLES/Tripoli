@@ -99,7 +99,7 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
     }
 
     @Override
-    public void preparePanel() {
+    public void preparePanel(boolean reScaleX, boolean reScaleY) {
         boolean inverted = analysisMethod.getMapOfRatioNamesToInvertedFlag().get(histogramRecord.title()[0]);
         if (inverted) {
             if (logMode) {
@@ -135,7 +135,7 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
         displayOffsetX = 0.0;
         displayOffsetY = 0.0;
 
-        prepareExtents();
+        prepareExtents(true, true);
         calculateTics();
         showYaxis = false;
         repaint();
@@ -146,7 +146,7 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
         super.paint(g2d);
     }
 
-    public void prepareExtents() {
+    public void prepareExtents(boolean reScaleX, boolean reScaleY) {
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.05);
         if (0.0 == xMarginStretch) {
             xMarginStretch = maxX * 0.01;

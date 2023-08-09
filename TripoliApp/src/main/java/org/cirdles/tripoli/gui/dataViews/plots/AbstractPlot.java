@@ -229,7 +229,7 @@ public abstract class AbstractPlot extends Canvas {
 
     public abstract void plotStats(GraphicsContext g2d);
 
-    public void prepareExtents() {
+    public void prepareExtents(boolean reScaleX, boolean reScaleY) {
     }
 
     public void calculateTics() {
@@ -271,7 +271,7 @@ public abstract class AbstractPlot extends Canvas {
                                 leftMargin, mapY(bigDecimalTicY.doubleValue()), leftMargin + plotWidth, mapY(bigDecimalTicY.doubleValue()));
                         // left side
                         Formatter fmt = new Formatter();
-                        fmt.format("%8.3g", bigDecimalTicY.doubleValue());
+                        fmt.format("%8.5g", bigDecimalTicY.doubleValue());
                         String yText = fmt.toString().trim();
                         text.setText(yText);
                         textWidth = (int) text.getLayoutBounds().getWidth();
@@ -396,9 +396,9 @@ public abstract class AbstractPlot extends Canvas {
      * @param doReScale  the value of doReScale
      * @param inLiveMode the value of inLiveMode
      */
-    public void refreshPanel(boolean doReScale, boolean inLiveMode) {
+    public void refreshPanel(boolean reScaleX, boolean reScaleY) {
         try {
-            preparePanel();
+            preparePanel(reScaleX, reScaleY);
             repaint();
         } catch (Exception ignored) {
         }
@@ -407,7 +407,7 @@ public abstract class AbstractPlot extends Canvas {
     /**
      *
      */
-    public abstract void preparePanel();
+    public abstract void preparePanel(boolean reScaleX, boolean reScaleY);
 
     /**
      * @return the displayOffsetY

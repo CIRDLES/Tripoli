@@ -23,6 +23,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.SpeciesIntensitySessionPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
@@ -207,7 +208,7 @@ public class TripoliPlotPane extends Pane {
             plot.repaint();
         });
 
-        plot.preparePanel();
+        plot.preparePanel(true, true);
         plot.repaint();
     }
 
@@ -247,7 +248,8 @@ public class TripoliPlotPane extends Pane {
         }
     }
 
-    public void updateSpeciesPlotted(boolean[] speciesChecked, boolean showFaradays, boolean showPMs, boolean showModels, TripoliConstants.IntensityUnits intensityUnits, boolean baselineCorr, boolean gainCorr, boolean logScale) {
+    public void updateSpeciesPlotted(
+            boolean[] speciesChecked, boolean showFaradays, boolean showPMs, boolean showModels, TripoliConstants.IntensityUnits intensityUnits, boolean baselineCorr, boolean gainCorr, boolean logScale, boolean reScaleX, boolean reScaleY) {
         if (!getChildren().isEmpty() && (getChildren().get(0) instanceof SpeciesIntensitySessionPlot)) {
             ((SpeciesIntensitySessionPlot) getChildren().get(0)).setSpeciesChecked(speciesChecked);
             ((SpeciesIntensitySessionPlot) getChildren().get(0)).setShowFaradays(showFaradays);
@@ -258,14 +260,24 @@ public class TripoliPlotPane extends Pane {
             ((SpeciesIntensitySessionPlot) getChildren().get(0)).setGainCorr(gainCorr);
             ((SpeciesIntensitySessionPlot) getChildren().get(0)).setLogScale(logScale);
 
-            ((SpeciesIntensitySessionPlot) getChildren().get(0)).refreshPanel(true, true);
+            ((SpeciesIntensitySessionPlot) getChildren().get(0)).refreshPanel(reScaleX, reScaleY);
         }
     }
 
-    public void resetZoom(boolean[] zoomFlagsXY) {
-        ((SpeciesIntensitySessionPlot) getChildren().get(0)).setZoomFlagsXY(zoomFlagsXY);
+    public void updateRatiosSessionPlotted(boolean logScale, boolean reScaleX, boolean reScaleY) {
+        if (!getChildren().isEmpty() && (getChildren().get(0) instanceof BlockRatioCyclesSessionPlot)) {
+            ((BlockRatioCyclesSessionPlot) getChildren().get(0)).setLogScale(logScale);
 
-//        ((SpeciesIntensitySessionPlot) getChildren().get(0)).refreshPanel(true, true);
+            ((BlockRatioCyclesSessionPlot) getChildren().get(0)).refreshPanel(reScaleX, reScaleY);
+        }
+    }
+
+    public void resetIntensitySessionZoom(boolean[] zoomFlagsXY) {
+        ((SpeciesIntensitySessionPlot) getChildren().get(0)).setZoomFlagsXY(zoomFlagsXY);
+    }
+
+    public void resetRatioSessionZoom(boolean[] zoomFlagsXY) {
+        ((BlockRatioCyclesSessionPlot) getChildren().get(0)).setZoomFlagsXY(zoomFlagsXY);
     }
 
     private record PlotLocation(

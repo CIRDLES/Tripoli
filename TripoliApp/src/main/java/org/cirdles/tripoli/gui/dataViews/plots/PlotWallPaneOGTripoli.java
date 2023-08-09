@@ -104,7 +104,7 @@ public class PlotWallPaneOGTripoli extends Pane {
             speciesCheckBoxes[speciesIndex].selectedProperty().addListener(
                     (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                         speciesChecked[finalSpeciesIndex] = newVal;
-                        rebuildPlot();
+                        rebuildPlot(false, true);
                     });
         }
         speciesCheckBoxes[0].setSelected(true);
@@ -115,7 +115,7 @@ public class PlotWallPaneOGTripoli extends Pane {
         showFaraday.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     showFaradays = newVal;
-                    rebuildPlot();
+                    rebuildPlot(false, true);
                 });
 
         CheckBox showPM = new CheckBox("PM");
@@ -124,7 +124,7 @@ public class PlotWallPaneOGTripoli extends Pane {
         showPM.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     showPMs = newVal;
-                    rebuildPlot();
+                    rebuildPlot(false, true);
                 });
 
         CheckBox showModel = new CheckBox("Model");
@@ -133,7 +133,7 @@ public class PlotWallPaneOGTripoli extends Pane {
         showModel.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     showModels = newVal;
-                    rebuildPlot();
+                    rebuildPlot(false, false);
                 });
 
         Label labelViews = new Label("Units:");
@@ -152,7 +152,7 @@ public class PlotWallPaneOGTripoli extends Pane {
                     if (newVal) {
                         intensityUnits = TripoliConstants.IntensityUnits.COUNTS;
                     }
-                    rebuildPlot();
+                    rebuildPlot(false, true);
                 });
 
         RadioButton voltsRB = new RadioButton("Volts");
@@ -163,7 +163,7 @@ public class PlotWallPaneOGTripoli extends Pane {
                     if (newVal) {
                         intensityUnits = TripoliConstants.IntensityUnits.VOLTS;
                     }
-                    rebuildPlot();
+                    rebuildPlot(false, true);
                 });
 
         RadioButton ampsRB = new RadioButton("Amps");
@@ -174,7 +174,7 @@ public class PlotWallPaneOGTripoli extends Pane {
                     if (newVal) {
                         intensityUnits = TripoliConstants.IntensityUnits.AMPS;
                     }
-                    rebuildPlot();
+                    rebuildPlot(false, true);
                 });
 
 
@@ -192,7 +192,7 @@ public class PlotWallPaneOGTripoli extends Pane {
                     if (!newVal) {
                         gainCB.setSelected(false);
                     }
-                    rebuildPlot();
+                    rebuildPlot(false, true);
                 });
 
         gainCB = new CheckBox("Gain");
@@ -203,7 +203,7 @@ public class PlotWallPaneOGTripoli extends Pane {
                     if (newVal) {
                         baseLineCB.setSelected(true);
                     }
-                    rebuildPlot();
+                    rebuildPlot(false, true);
                 });
 
         getChildren().addAll(toolBar);
@@ -224,7 +224,7 @@ public class PlotWallPaneOGTripoli extends Pane {
         logCB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     logScale = newVal;
-                    rebuildPlot();
+                    rebuildPlot(false, true);
                 });
 
         Label labelViews = new Label("Zoom:");
@@ -275,10 +275,10 @@ public class PlotWallPaneOGTripoli extends Pane {
         getChildren().add(toolBar);
     }
 
-    private void rebuildPlot() {
+    private void rebuildPlot(boolean reScaleX, boolean reScaleY) {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
-                ((TripoliPlotPane) plotPane).updateSpeciesPlotted(speciesChecked, showFaradays, showPMs, showModels, intensityUnits, baselineCorr, gainCorr, logScale);
+                ((TripoliPlotPane) plotPane).updateSpeciesPlotted(speciesChecked, showFaradays, showPMs, showModels, intensityUnits, baselineCorr, gainCorr, logScale, reScaleX, reScaleY);
             }
         }
     }
@@ -286,7 +286,7 @@ public class PlotWallPaneOGTripoli extends Pane {
     private void resetZoom() {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
-                ((TripoliPlotPane) plotPane).resetZoom(zoomFlagsXY);
+                ((TripoliPlotPane) plotPane).resetIntensitySessionZoom(zoomFlagsXY);
             }
         }
     }

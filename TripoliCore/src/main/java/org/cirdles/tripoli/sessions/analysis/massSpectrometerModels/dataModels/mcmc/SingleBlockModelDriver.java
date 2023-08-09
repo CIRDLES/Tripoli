@@ -46,16 +46,16 @@ public enum SingleBlockModelDriver {
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
         PlotBuilder[][] plotBuilder = new PlotBuilder[0][0];
 
-        SingleBlockDataSetRecord singleBlockDataSetRecord = prepareSingleBlockDataForMCMC(blockNumber, massSpecExtractedData, analysisMethod);
+        SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = prepareSingleBlockDataForMCMC(blockNumber, massSpecExtractedData, analysisMethod);
         SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov;
         try {
-            singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC(analysisMethod, singleBlockDataSetRecord, true);
+            singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC(analysisMethod, singleBlockRawDataSetRecord, true);
         } catch (RecoverableCondition e) {
             throw new TripoliException("Ojalgo RecoverableCondition");
         }
 
         if (null != singleBlockInitialModelRecordWithCov) {
-            MCMCProcess mcmcProcess = MCMCProcess.createMCMCProcess(analysisMethod, singleBlockDataSetRecord, singleBlockInitialModelRecordWithCov);
+            MCMCProcess mcmcProcess = MCMCProcess.createMCMCProcess(analysisMethod, singleBlockRawDataSetRecord, singleBlockInitialModelRecordWithCov);
             mcmcProcess.initializeMCMCProcess();
             plotBuilder = mcmcProcess.applyInversionWithAdaptiveMCMC(loggingCallback);
         }
@@ -63,8 +63,8 @@ public enum SingleBlockModelDriver {
         return plotBuilder;
     }
 
-    static SingleBlockDataSetRecord prepareSingleBlockDataForMCMC(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) {
-        SingleBlockDataSetRecord singleBlockDataSetRecord = null;
+    static SingleBlockRawDataSetRecord prepareSingleBlockDataForMCMC(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) {
+        SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = null;
         MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord = massSpecExtractedData.getBlocksData().get(blockNumber);
         if (massSpecOutputSingleBlockRecord != null) {
             Primitive64Store blockKnotInterpolationStore;
@@ -74,11 +74,11 @@ public enum SingleBlockModelDriver {
             } else {
                 blockKnotInterpolationStore = generateKnotsMatrixForBlock(massSpecOutputSingleBlockRecord, 3);
             }
-            SingleBlockDataSetRecord.SingleBlockDataRecord baselineDataSetMCMC =
+            SingleBlockRawDataSetRecord.SingleBlockRawDataRecord baselineDataSetMCMC =
                     SingleBlockDataAccumulatorMCMC.accumulateBaselineDataPerBaselineTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod);
-            SingleBlockDataSetRecord.SingleBlockDataRecord onPeakFaradayDataSetMCMC =
+            SingleBlockRawDataSetRecord.SingleBlockRawDataRecord onPeakFaradayDataSetMCMC =
                     SingleBlockDataAccumulatorMCMC.accumulateOnPeakDataPerSequenceTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod, true);
-            SingleBlockDataSetRecord.SingleBlockDataRecord onPeakPhotoMultiplierDataSetMCMC =
+            SingleBlockRawDataSetRecord.SingleBlockRawDataRecord onPeakPhotoMultiplierDataSetMCMC =
                     SingleBlockDataAccumulatorMCMC.accumulateOnPeakDataPerSequenceTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod, false);
 
             List<Integer> cycleList = new ArrayList<>();
@@ -142,12 +142,12 @@ public enum SingleBlockModelDriver {
                 mapOfSpeciesToActiveCycles.put(specie, activeCycles.clone());
             }
 
-            singleBlockDataSetRecord =
-                    new SingleBlockDataSetRecord(blockNumber, baselineDataSetMCMC, onPeakFaradayDataSetMCMC, onPeakPhotoMultiplierDataSetMCMC, blockKnotInterpolationStore,
+            singleBlockRawDataSetRecord =
+                    new SingleBlockRawDataSetRecord(blockNumber, baselineDataSetMCMC, onPeakFaradayDataSetMCMC, onPeakPhotoMultiplierDataSetMCMC, blockKnotInterpolationStore.toRawCopy2D(),
                             blockCycleArray, blockIntensityArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeIndicesArray,
                             onPeakStartingIndicesOfCycles, mapOfSpeciesToActiveCycles, blockMapIdsToDataTimes);
         }
-        return singleBlockDataSetRecord;
+        return singleBlockRawDataSetRecord;
     }
 
     private static Primitive64Store generateKnotsMatrixForBlock(
