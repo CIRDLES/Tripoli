@@ -644,16 +644,9 @@ enum SingleBlockModelInitForMCMC {
             diagC0[diagIndex][diagIndex] = StrictMath.sqrt(dfGainVar) * covarianceFactor;
 
             covarianceMatrix_C0 = new Matrix(diagC0);
-
-
-            System.out.println("completed init with covariance");
-        } else {
-            System.out.println("completed init with NO covariance");
         }
 
-
         return new SingleBlockModelRecordWithCov(calculatedX0, proposalRangesRecord, covarianceMatrix_C0);
-
     }
 
     private static synchronized double calculateDFGain(int iden, double[] baselineMeansArray, Map<Integer, Integer> mapDetectorOrdinalToFaradayIndex, SingleBlockRawDataSetRecord singleBlockRawDataSetRecord) {

@@ -147,6 +147,7 @@ public class EnsemblesStore implements Serializable {
             );
 
             double[] dataModel = modelInitData(summaryMCMCModel, singleBlockRawDataSetRecord);
+            double[] rawData = singleBlockRawDataSetRecord.blockRawDataArray();
 
             //prep for cycles
             int[] isotopeOrdinalIndicesAccumulatorArray = singleBlockRawDataSetRecord.blockIsotopeOrdinalIndicesArray();
@@ -167,14 +168,14 @@ public class EnsemblesStore implements Serializable {
                 ddver2List = new ArrayList<>();
                 cyclesList = new ArrayList<>();
                 tempTime = new ArrayList<>();
-                for (int dataArrayIndex = 0; dataArrayIndex < dataModel.length; dataArrayIndex++) {
+                for (int dataArrayIndex = 0; dataArrayIndex < rawData.length; dataArrayIndex++) {
                     if (isotopeOrdinalIndicesAccumulatorArray[dataArrayIndex] == isotopeIndex + 1) {
                         if (dataArrayIndex < startIndexOfPhotoMultiplierData) {
-                            double calculated = (dataModel[dataArrayIndex]
+                            double calculated = (rawData[dataArrayIndex]
                                     - baselinesMeans[singleBlockModelRecord.mapDetectorOrdinalToFaradayIndex().get(d0_detVec[dataArrayIndex])]) * dalyFaradayGainMean;
                             ddver2List.add(calculated);
                         } else {
-                            ddver2List.add(dataModel[dataArrayIndex]);
+                            ddver2List.add(rawData[dataArrayIndex]);
                         }
 
                         tempTime.add(timeIndForSortingArray[dataArrayIndex]);
@@ -201,7 +202,6 @@ public class EnsemblesStore implements Serializable {
                 // TODO: this is copied from SingleBlockModelInitForMCMC - need to refactor into one procedure
                 double[][] interpolatedKnotData_II = singleBlockRawDataSetRecord.blockKnotInterpolationArray();
                 Matrix II = new Matrix(interpolatedKnotData_II);
-//                Matrix I = new Matrix(singleBlockModelRecord.I0(), singleBlockModelRecord.I0().length);
                 Matrix I = new Matrix(meansI0, meansI0.length);
                 Matrix intensityFn = II.times(I);
 
