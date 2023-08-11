@@ -86,9 +86,12 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
             for (int i = 0; i < xAxisData.length; i++) {
                 xAxisData[i] = i + 1;
             }
+
+            displayOffsetX = 0.0;
+
+            minX = 1.0;
+            maxX = xAxisData.length;
         }
-        minX = 1.0;
-        maxX = xAxisData.length;
 
         yAxisData = new double[mapBlockIdToBlockRatioCyclesRecord.size() * cyclesPerBlock];
         oneSigmaForCycles = new double[mapBlockIdToBlockRatioCyclesRecord.size() * cyclesPerBlock];
@@ -118,12 +121,11 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
                 }
             }
 
-            displayOffsetX = 0.0;
             displayOffsetY = 0.0;
 
-            prepareExtents(true, true);
-        }
 
+        }
+        prepareExtents(reScaleX, reScaleY);
         showXaxis = false;
         showStats = true;
         calcStats();
@@ -152,7 +154,7 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
         if (reScaleY) {
             double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.10);
             if (yMarginStretch == 0.0) {
-                yMarginStretch = yAxisData[0] / 10.0;
+                yMarginStretch = yAxisData[0] / 100.0;
             }
             minY -= yMarginStretch;
             maxY += yMarginStretch;

@@ -383,7 +383,7 @@ public class MCMCPlotsController {
         convergeIntensityPlotsWallPane.buildToolBar();
         convergeIntensityPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         convergeIntensityAnchorPane.getChildren().add(convergeIntensityPlotsWallPane);
-        produceTripoliMultiLineLogXPlots(convergeIntensityLinesBuilder, convergeIntensityPlotsWallPane);
+        produceTripoliMultiLineIntensityPlots(convergeIntensityLinesBuilder, convergeIntensityPlotsWallPane);
         convergeIntensityPlotsWallPane.tilePlots();
 
         PlotWallPane peakShapeOverlayPlotWallPane = PlotWallPane.createPlotWallPane(null);
@@ -448,10 +448,10 @@ public class MCMCPlotsController {
         }
     }
 
-    private void produceTripoliMultiLineLogXPlots(PlotBuilder[] plotBuilder, PlotWallPane plotWallPane) {
+    private void produceTripoliMultiLineIntensityPlots(PlotBuilder[] plotBuilder, PlotWallPane plotWallPane) {
         for (int i = 0; i < plotBuilder.length; i++) {
             TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
-            AbstractPlot plot = MultiLinePlotLogX.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (MultiLinePlotBuilder) plotBuilder[i]);
+            AbstractPlot plot = MultiLineIntensityPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (MultiLinePlotBuilder) plotBuilder[i]);
             tripoliPlotPane.addPlot(plot);
         }
     }

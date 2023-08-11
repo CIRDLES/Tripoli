@@ -97,6 +97,8 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
         if (reScaleX) {
             minX = xAxisData[0];
             maxX = xAxisData[xAxisData.length - 1];
+
+            displayOffsetX = 0.0;
         }
 
         yData = new double[yDataCounts.length][yDataCounts[0].length];
@@ -160,11 +162,11 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                 }
             }
 
-            displayOffsetX = 0.0;
-            displayOffsetY = 0.0;
 
-            prepareExtents(reScaleX, reScaleY);
+            displayOffsetY = 0.0;
         }
+        prepareExtents(reScaleX, reScaleY);
+
         calculateTics();
 
         repaint();
@@ -205,7 +207,7 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
         g2d.setFill(dataColor.color());
         g2d.setStroke(dataColor.color());
 
-        g2d.setLineWidth(2.0);
+        g2d.setLineWidth(5.0);
 
         Color[] isotopeColors = {Color.BLUE, Color.GREEN, Color.BLACK, Color.PURPLE, Color.ORANGE};
         for (int isotopePlotSetIndex = 0; isotopePlotSetIndex < yData.length / 4; isotopePlotSetIndex++) {
@@ -246,7 +248,7 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
 
                 // plot PM
                 if (showPMs) {
-                    g2d.setLineDashes(5);
+                    g2d.setLineDashes(0);
                     boolean startedPlot = false;
                     g2d.setFill(isotopeColors[isotopePlotSetIndex]);
                     g2d.setStroke(isotopeColors[isotopePlotSetIndex]);
@@ -269,7 +271,7 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                                 }
                             } else {
                                 startedPlot = false;
-                                g2d.setStroke(Color.RED);
+                                g2d.setStroke(Color.AQUAMARINE);
                                 g2d.stroke();
                             }
                         }

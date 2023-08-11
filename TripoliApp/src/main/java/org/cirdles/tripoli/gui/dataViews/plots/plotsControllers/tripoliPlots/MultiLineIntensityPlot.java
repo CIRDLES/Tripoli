@@ -9,12 +9,8 @@ import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
-
-public class MultiLinePlotLogX extends AbstractPlot {
+public class MultiLineIntensityPlot extends AbstractPlot {
 
     private final MultiLinePlotBuilder multiLinePlotBuilder;
     private double[][] xData;
@@ -24,7 +20,7 @@ public class MultiLinePlotLogX extends AbstractPlot {
      * @param bounds
      * @param multiLinePlotBuilder
      */
-    private MultiLinePlotLogX(Rectangle bounds, MultiLinePlotBuilder multiLinePlotBuilder) {
+    private MultiLineIntensityPlot(Rectangle bounds, MultiLinePlotBuilder multiLinePlotBuilder) {
         super(bounds, 75, 25,
                 multiLinePlotBuilder.getTitle(),
                 multiLinePlotBuilder.getxAxisLabel(),
@@ -33,15 +29,15 @@ public class MultiLinePlotLogX extends AbstractPlot {
     }
 
     public static AbstractPlot generatePlot(Rectangle bounds, MultiLinePlotBuilder multiLinePlotBuilder) {
-        return new MultiLinePlotLogX(bounds, multiLinePlotBuilder);
+        return new MultiLineIntensityPlot(bounds, multiLinePlotBuilder);
     }
 
     @Override
     public void preparePanel(boolean reScaleX, boolean reScaleY) {
         xData = multiLinePlotBuilder.getxData();
         xAxisData = xData[0];
-        minX = Math.log(xData[0][0]);
-        maxX = Math.log(xData[0][xData[0].length - 1]);
+        minX = (xData[0][0]);
+        maxX = (xData[0][xData[0].length - 1]);
 
         yData = multiLinePlotBuilder.getyData();
         minY = Double.MAX_VALUE;
@@ -75,35 +71,35 @@ public class MultiLinePlotLogX extends AbstractPlot {
         minY -= yMarginStretch;
     }
 
-    @Override
-    public void calculateTics() {
-        // logarithmic ticsX
-        List<Double> xTicsList = new ArrayList<>();
-        int limitLog = (int) xData[0][xData[0].length - 1];
-        for (int logIndex = 1; logIndex <= limitLog; logIndex = logIndex * 10) {
-            xTicsList.add(Math.log(logIndex));
-        }
-        ticsX = new BigDecimal[xTicsList.size()];
-        for (int i = 0; i < xTicsList.size(); i++) {
-            ticsX[i] = new BigDecimal(Double.toString(xTicsList.get(i)));
-        }
-
-        if (0 == ticsX.length) {
-            ticsX = new BigDecimal[2];
-            ticsX[0] = new BigDecimal(Double.toString(minX));
-            ticsX[ticsX.length - 1] = new BigDecimal(Double.toString(maxX));
-        }
-
-        ticsY = TicGeneratorForAxes.generateTics(getDisplayMinY(), getDisplayMaxY(), (int) (plotHeight / 15.0));
-        if (0 == ticsY.length) {
-            ticsY = new BigDecimal[2];
-            ticsY[0] = new BigDecimal(Double.toString(minY));
-            ticsY[ticsY.length - 1] = new BigDecimal(Double.toString(maxY));
-        }
-
-        zoomChunkX = getDisplayRangeX() / 100.0;
-        zoomChunkY = getDisplayRangeY() / 100.0;
-    }
+//    @Override
+//    public void calculateTics() {
+//        // logarithmic ticsX
+//        List<Double> xTicsList = new ArrayList<>();
+//        int limitLog = (int) xData[0][xData[0].length - 1];
+//        for (int logIndex = 1; logIndex <= limitLog; logIndex = logIndex * 10) {
+//            xTicsList.add(Math.log(logIndex));
+//        }
+//        ticsX = new BigDecimal[xTicsList.size()];
+//        for (int i = 0; i < xTicsList.size(); i++) {
+//            ticsX[i] = new BigDecimal(Double.toString(xTicsList.get(i)));
+//        }
+//
+//        if (0 == ticsX.length) {
+//            ticsX = new BigDecimal[2];
+//            ticsX[0] = new BigDecimal(Double.toString(minX));
+//            ticsX[ticsX.length - 1] = new BigDecimal(Double.toString(maxX));
+//        }
+//
+//        ticsY = TicGeneratorForAxes.generateTics(getDisplayMinY(), getDisplayMaxY(), (int) (plotHeight / 15.0));
+//        if (0 == ticsY.length) {
+//            ticsY = new BigDecimal[2];
+//            ticsY[0] = new BigDecimal(Double.toString(minY));
+//            ticsY[ticsY.length - 1] = new BigDecimal(Double.toString(maxY));
+//        }
+//
+//        zoomChunkX = getDisplayRangeX() / 100.0;
+//        zoomChunkY = getDisplayRangeY() / 100.0;
+//    }
 
     @Override
     public void paint(GraphicsContext g2d) {
@@ -134,16 +130,16 @@ public class MultiLinePlotLogX extends AbstractPlot {
             g2d.beginPath();
             boolean startedPlot = false;
             for (int i = 0; i < xAxisData.length; i++) {
-                if (pointInPlot(Math.log(xAxisData[i]), yData[y][i])) {
+                if (pointInPlot((xAxisData[i]), yData[y][i])) {
                     if (!startedPlot) {
-                        g2d.moveTo(mapX(Math.log(xAxisData[i])), mapY(yData[y][i]));
+                        g2d.moveTo(mapX((xAxisData[i])), mapY(yData[y][i]));
                         startedPlot = true;
                     }
                     // line tracing through points
-                    g2d.lineTo(mapX(Math.log(xAxisData[i])), mapY(yData[y][i]));
+                    g2d.lineTo(mapX((xAxisData[i])), mapY(yData[y][i]));
                 } else {
                     // out of bounds
-                    g2d.moveTo(mapX(Math.log(xAxisData[i])), mapY(yData[y][i]) < topMargin ? topMargin : topMargin + plotHeight);
+                    g2d.moveTo(mapX((xAxisData[i])), mapY(yData[y][i]) < topMargin ? topMargin : topMargin + plotHeight);
                 }
             }
             g2d.stroke();

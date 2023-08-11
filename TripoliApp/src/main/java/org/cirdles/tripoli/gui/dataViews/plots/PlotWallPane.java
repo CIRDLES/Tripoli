@@ -223,7 +223,7 @@ public class PlotWallPane extends Pane {
         countsRB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     if (newVal) {
-                        zoomFlagsXY[0] = true;
+                        zoomFlagsXY[0] = false;
                         zoomFlagsXY[1] = true;
                     }
                     resetZoom();
