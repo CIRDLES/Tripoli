@@ -727,7 +727,7 @@ x=x0;
                     ensembleRecordsList, analysisMethod, singleBlockRawDataSetRecord, bestSingleBlockModelRecord);
             analysisMethod.getMapOfBlockIdToFinalModel()
                     .put(singleBlockCurrentModelRecord_X.blockNumber(), singleBlockModelRecordMCMC);
-        } else {
+        } else {// TODO: get this right and make it an option
             analysisMethod.getMapOfBlockIdToFinalModel()
                     .put(singleBlockCurrentModelRecord_X.blockNumber(), (bestSingleBlockModelRecord == null) ? singleBlockCurrentModelRecord_X : bestSingleBlockModelRecord);
         }

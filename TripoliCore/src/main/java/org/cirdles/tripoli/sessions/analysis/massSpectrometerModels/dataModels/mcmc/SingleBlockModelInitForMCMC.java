@@ -371,8 +371,8 @@ enum SingleBlockModelInitForMCMC {
                 countOfIsotopes,
                 analysisMethod.retrieveHighestAbundanceSpecies(),
                 baselineMeansArray,//calculated
-                baselineStandardDeviationsArray,
-                detectorFaradayGain,
+                baselineStandardDeviationsArray,//calculated
+                detectorFaradayGain,//calculated
                 mapDetectorOrdinalToFaradayIndex,
                 logRatios,//calculated
                 singleBlockRawDataSetRecord.mapOfSpeciesToActiveCycles(),
@@ -384,7 +384,7 @@ enum SingleBlockModelInitForMCMC {
         );
 
         double[] dataModel = modelInitData(originalX0, singleBlockRawDataSetRecord);
-        // note: this datamodel replicates matlab datamodel when using linear knots
+        // note: this datamodel replicates matlab datamodel when using linear knots on old 2 isotope data files
 
         SingleBlockModelRecord calculatedX0 = new SingleBlockModelRecord(
                 singleBlockRawDataSetRecord.blockNumber(),//original

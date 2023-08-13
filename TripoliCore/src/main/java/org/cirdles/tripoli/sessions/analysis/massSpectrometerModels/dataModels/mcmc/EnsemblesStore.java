@@ -128,9 +128,9 @@ public class EnsemblesStore implements Serializable {
 
 
             SingleBlockModelRecord summaryMCMCModel = new SingleBlockModelRecord(
-                    singleBlockRawDataSetRecord.blockNumber(),//original
-                    singleBlockModelRecord.mapDetectorOrdinalToFaradayIndex().size(),
-                    singleBlockRawDataSetRecord.onPeakStartingIndicesOfCycles().length,
+                    singleBlockModelRecord.blockNumber(),//original
+                    singleBlockModelRecord.faradayCount(),
+                    singleBlockModelRecord.cycleCount(),
                     analysisMethod.getSpeciesList().size(),
                     analysisMethod.retrieveHighestAbundanceSpecies(),
                     baselinesMeans,//calculated
@@ -138,7 +138,7 @@ public class EnsemblesStore implements Serializable {
                     dalyFaradayGainMean,//calculated
                     singleBlockModelRecord.mapDetectorOrdinalToFaradayIndex(),
                     logRatioMean,//calculated
-                    singleBlockRawDataSetRecord.mapOfSpeciesToActiveCycles(),
+                    singleBlockModelRecord.mapOfSpeciesToActiveCycles(),
                     singleBlockModelRecord.mapLogRatiosToCycleStats(),
                     null,//dataModel,
                     singleBlockModelRecord.dataSignalNoiseArray(),
@@ -213,7 +213,7 @@ public class EnsemblesStore implements Serializable {
                         cycleStats[cycle] = new DescriptiveStatistics();
                     }
                     // TODO: make this checks for both isotopes (eventually may include denominator as one that is excluded)
-                    if (singleBlockRawDataSetRecord.mapOfSpeciesToActiveCycles().get(analysisMethod.getSpeciesList().get(isotopeIndex))[cycle]) {
+                    if (singleBlockModelRecord.mapOfSpeciesToActiveCycles().get(analysisMethod.getSpeciesList().get(isotopeIndex))[cycle]) {
                         cycleStats[cycle].addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
                     }
                 }
@@ -254,9 +254,9 @@ public class EnsemblesStore implements Serializable {
 
 
             SingleBlockModelRecord finalMCMCModel = new SingleBlockModelRecord(
-                    singleBlockRawDataSetRecord.blockNumber(),//original
-                    singleBlockModelRecord.mapDetectorOrdinalToFaradayIndex().size(),
-                    singleBlockRawDataSetRecord.onPeakStartingIndicesOfCycles().length,
+                    singleBlockModelRecord.blockNumber(),//original
+                    singleBlockModelRecord.faradayCount(),
+                    singleBlockModelRecord.cycleCount(),
                     analysisMethod.getSpeciesList().size(),
                     analysisMethod.retrieveHighestAbundanceSpecies(),
                     baselinesMeans,//calculated
@@ -264,7 +264,7 @@ public class EnsemblesStore implements Serializable {
                     dalyFaradayGainMean,//calculated
                     singleBlockModelRecord.mapDetectorOrdinalToFaradayIndex(),
                     logRatioMean,//calculated
-                    singleBlockRawDataSetRecord.mapOfSpeciesToActiveCycles(),
+                    singleBlockModelRecord.mapOfSpeciesToActiveCycles(),
                     mapLogRatiosToCycleStats,
                     dataModel,
                     singleBlockModelRecord.dataSignalNoiseArray(),

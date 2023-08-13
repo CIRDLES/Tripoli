@@ -56,6 +56,8 @@ TripoliResources/
 
 META-INF/
 
+# Website docs
+!/docs/assets/publications/*.pdf
 # Resources
 !TripoliApp/src/main/resources/org/cirdles/tripoli/gui/css/*.css
 !TripoliApp/src/main/resources/org/cirdles/tripoli/gui/images/*.png
