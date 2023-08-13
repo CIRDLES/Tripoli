@@ -3,6 +3,7 @@ package org.cirdles.tripoli.sessions.analysis;
 import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.plots.PlotBuilder;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
@@ -57,6 +58,8 @@ public interface AnalysisInterface {
     void updateRatiosPlotBuilderDisplayStatus(int indexOfIsotopicRatio, boolean displayed);
 
     String uppdateLogsByBlock(int blockNumber, String logEntry);
+
+    public AllBlockInitForOGTripoli.PlottingData assemblePostProcessPlottingData();
 
     String getAnalysisName();
 

@@ -30,6 +30,9 @@ import org.cirdles.tripoli.plots.sessionPlots.BlockRatioCyclesSessionRecord;
 
 import java.util.Map;
 
+import static java.lang.StrictMath.log;
+import static java.lang.StrictMath.pow;
+
 /**
  * @author James F. Bowring
  */
@@ -40,20 +43,32 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
     private double[] oneSigmaForCycles;
     private double sessionMean;
     private double sessionOneSigma;
+    private boolean logScale;
+    private boolean[] zoomFlagsXY;
 
     private BlockRatioCyclesSessionPlot(Rectangle bounds, BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord) {
         super(bounds,
-                50, 25,
+                100, 25,
                 new String[]{blockRatioCyclesSessionRecord.title()[0]
-                        + "  " + "X\u0305" + "=" + String.format("%8.5g", blockRatioCyclesSessionRecord.sessionMean()).trim()
+                        + "  " + "X\u0305" + "=" + String.format("%8.8g", blockRatioCyclesSessionRecord.sessionMean()).trim()
                         , "\u00B1" + String.format("%8.5g", blockRatioCyclesSessionRecord.sessionOneSigma()).trim()},
                 blockRatioCyclesSessionRecord.xAxisLabel(),
                 blockRatioCyclesSessionRecord.yAxisLabel());
         this.blockRatioCyclesSessionRecord = blockRatioCyclesSessionRecord;
+        this.logScale = false;
+        this.zoomFlagsXY = new boolean[]{true, true};
     }
 
     public static AbstractPlot generatePlot(Rectangle bounds, BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord) {
         return new BlockRatioCyclesSessionPlot(bounds, blockRatioCyclesSessionRecord);
+    }
+
+    public void setLogScale(boolean logScale) {
+        this.logScale = logScale;
+    }
+
+    public void setZoomFlagsXY(boolean[] zoomFlagsXY) {
+        this.zoomFlagsXY = zoomFlagsXY;
     }
 
     public Map<Integer, BlockRatioCyclesRecord> getMapBlockIdToBlockRatioCyclesRecord() {
@@ -61,17 +76,22 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
     }
 
     @Override
-    public void preparePanel() {
+    public void preparePanel(boolean reScaleX, boolean reScaleY) {
         // process blocks
         mapBlockIdToBlockRatioCyclesRecord = blockRatioCyclesSessionRecord.mapBlockIdToBlockRatioCyclesRecord();
         int cyclesPerBlock = blockRatioCyclesSessionRecord.cyclesPerBlock();
 
-        xAxisData = new double[mapBlockIdToBlockRatioCyclesRecord.size() * cyclesPerBlock];
-        for (int i = 0; i < xAxisData.length; i++) {
-            xAxisData[i] = i + 1;
+        if (reScaleX) {
+            xAxisData = new double[mapBlockIdToBlockRatioCyclesRecord.size() * cyclesPerBlock];
+            for (int i = 0; i < xAxisData.length; i++) {
+                xAxisData[i] = i + 1;
+            }
+
+            displayOffsetX = 0.0;
+
+            minX = 1.0;
+            maxX = xAxisData.length;
         }
-        minX = 1.0;
-        maxX = xAxisData.length;
 
         yAxisData = new double[mapBlockIdToBlockRatioCyclesRecord.size() * cyclesPerBlock];
         oneSigmaForCycles = new double[mapBlockIdToBlockRatioCyclesRecord.size() * cyclesPerBlock];
@@ -81,29 +101,43 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
             System.arraycopy(blockRatioCyclesRecord.cycleRatioMeansData(), 0, yAxisData, (entry.getKey() - 1) * cyclesPerBlock, availableCyclesPerBlock);
             System.arraycopy(blockRatioCyclesRecord.cycleRatioOneSigmaData(), 0, oneSigmaForCycles, (entry.getKey() - 1) * cyclesPerBlock, availableCyclesPerBlock);
         }
-        // calculate ratio and unct across all included blocks
-        minY = Double.MAX_VALUE;
-        maxY = -Double.MAX_VALUE;
 
-        for (int i = 0; i < yAxisData.length; i++) {
-            int blockID = (i % mapBlockIdToBlockRatioCyclesRecord.size()) + 1;
-            if (mapBlockIdToBlockRatioCyclesRecord.get(blockID).blockIncluded() && (yAxisData[i] > 0)) {
-                minY = StrictMath.min(minY, yAxisData[i] - oneSigmaForCycles[i]);
-                maxY = StrictMath.max(maxY, yAxisData[i] + oneSigmaForCycles[i]);
+        if (logScale) {
+            for (int i = 0; i < yAxisData.length; i++) {
+                yAxisData[i] = pow(10.0, log(yAxisData[i]));
             }
         }
 
-        calcStats();
+        if (reScaleY) {
+            // calculate ratio and unct across all included blocks
+            minY = Double.MAX_VALUE;
+            maxY = -Double.MAX_VALUE;
 
+            for (int i = 0; i < yAxisData.length; i++) {
+                int blockID = (i / mapBlockIdToBlockRatioCyclesRecord.get(1).cyclesIncluded().length) + 1;
+                if (mapBlockIdToBlockRatioCyclesRecord.get(blockID).blockIncluded() && (yAxisData[i] > 0)) {
+                    minY = StrictMath.min(minY, yAxisData[i] - oneSigmaForCycles[i]);
+                    maxY = StrictMath.max(maxY, yAxisData[i] + oneSigmaForCycles[i]);
+                }
+            }
+
+            displayOffsetY = 0.0;
+
+
+        }
+        prepareExtents(reScaleX, reScaleY);
         showXaxis = false;
         showStats = true;
-
-        displayOffsetX = 0.0;
-        displayOffsetY = 0.0;
-
-        prepareExtents();
+        calcStats();
         calculateTics();
         repaint();
+    }
+
+    @Override
+    public void calculateTics() {
+        super.calculateTics();
+        zoomChunkX = zoomFlagsXY[0] ? zoomChunkX : 0.0;
+        zoomChunkY = zoomFlagsXY[1] ? zoomChunkY : 0.0;
     }
 
     @Override
@@ -111,13 +145,20 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
         super.paint(g2d);
     }
 
-    public void prepareExtents() {
-        minX -= 2;
-        maxX += 2;
+    public void prepareExtents(boolean reScaleX, boolean reScaleY) {
+        if (reScaleX) {
+            minX -= 2;
+            maxX += 2;
+        }
 
-        double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.10);
-        minY -= yMarginStretch;
-        maxY += yMarginStretch;
+        if (reScaleY) {
+            double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.10);
+            if (yMarginStretch == 0.0) {
+                yMarginStretch = yAxisData[0] / 100.0;
+            }
+            minY -= yMarginStretch;
+            maxY += yMarginStretch;
+        }
     }
 
     @Override
@@ -194,7 +235,7 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
     public void calcStats() {
         DescriptiveStatistics descriptiveStatsIncludedCycles = new DescriptiveStatistics();
         for (int i = 0; i < yAxisData.length; i++) {
-            int blockID = (i % mapBlockIdToBlockRatioCyclesRecord.size()) + 1;
+            int blockID = (i / mapBlockIdToBlockRatioCyclesRecord.get(1).cyclesIncluded().length) + 1;
             if (mapBlockIdToBlockRatioCyclesRecord.get(blockID).blockIncluded() && (yAxisData[i] != 0)) {
                 descriptiveStatsIncludedCycles.addValue(yAxisData[i]);
             }
@@ -203,7 +244,7 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
         sessionOneSigma = descriptiveStatsIncludedCycles.getStandardDeviation();
         plotTitle =
                 new String[]{blockRatioCyclesSessionRecord.title()[0]
-                        + "  " + "X\u0305" + "=" + String.format("%8.5g", sessionMean).trim()
+                        + "  " + "X\u0305" + "=" + String.format("%8.8g", sessionMean).trim()
                         , "\u00B1" + String.format("%8.5g", sessionOneSigma).trim()};
     }
 

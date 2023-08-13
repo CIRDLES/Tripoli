@@ -29,7 +29,7 @@ public class BasicScatterPlot extends AbstractPlot {
     }
 
     @Override
-    public void preparePanel() {
+    public void preparePanel(boolean reScaleX, boolean reScaleY) {
         xAxisData = intensityLinePlotBuilder.getxData();
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
@@ -46,7 +46,7 @@ public class BasicScatterPlot extends AbstractPlot {
         displayOffsetX = 0.0;
         displayOffsetY = 0.0;
 
-        prepareExtents();
+        prepareExtents(true, true);
         calculateTics();
         repaint();
     }
@@ -56,7 +56,7 @@ public class BasicScatterPlot extends AbstractPlot {
         super.paint(g2d);
     }
 
-    public void prepareExtents() {
+    public void prepareExtents(boolean reScaleX, boolean reScaleY) {
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.01);
         if (0.0 == xMarginStretch) {
             xMarginStretch = maxX * 0.01;

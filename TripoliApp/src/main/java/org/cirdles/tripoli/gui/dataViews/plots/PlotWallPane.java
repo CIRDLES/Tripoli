@@ -16,9 +16,10 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots;
 
+import javafx.beans.value.ObservableValue;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 
@@ -34,9 +35,14 @@ public class PlotWallPane extends Pane {
     public static final double toolBarHeight = 35.0;
     public static double menuOffset = 30.0;
     private String iD;
+    private boolean logScale;
+
+    private boolean[] zoomFlagsXY = new boolean[2];
 
     private PlotWallPane(String iD) {
         this.iD = iD;
+        zoomFlagsXY[0] = true;
+        zoomFlagsXY[1] = true;
     }
 
     public static PlotWallPane createPlotWallPane(String iD) {
@@ -183,5 +189,87 @@ public class PlotWallPane extends Pane {
 
         toolBar.getItems().addAll(button0, button5, button4, button1, button2, button3);
         getChildren().addAll(toolBar);
+    }
+
+    public void buildScaleControlsToolbar() {
+        ToolBar toolBar = new ToolBar();
+        toolBar.setPrefHeight(toolBarHeight);
+        toolBar.setLayoutY(0.0);
+
+        Label labelScale = new Label("Scale:");
+        labelScale.setAlignment(Pos.CENTER_RIGHT);
+        labelScale.setPrefWidth(60);
+        toolBar.getItems().add(labelScale);
+
+        CheckBox logCB = new CheckBox("Log");
+        toolBar.getItems().add(logCB);
+        logCB.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                    logScale = newVal;
+                    rebuildPlot(false, true);
+                });
+
+        Label labelViews = new Label("Zoom:");
+        labelViews.setAlignment(Pos.CENTER_RIGHT);
+        labelViews.setPrefWidth(50);
+        toolBar.getItems().add(labelViews);
+
+        ToggleGroup toggleScaleY = new ToggleGroup();
+
+        RadioButton countsRB = new RadioButton("Both");
+        countsRB.setToggleGroup(toggleScaleY);
+        countsRB.setSelected(true);
+        toolBar.getItems().add(countsRB);
+        countsRB.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                    if (newVal) {
+                        zoomFlagsXY[0] = false;
+                        zoomFlagsXY[1] = true;
+                    }
+                    resetZoom();
+                });
+
+        RadioButton xOnlyRB = new RadioButton("X-only");
+        xOnlyRB.setToggleGroup(toggleScaleY);
+        toolBar.getItems().add(xOnlyRB);
+        xOnlyRB.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                    if (newVal) {
+                        zoomFlagsXY[0] = true;
+                        zoomFlagsXY[1] = false;
+                    }
+                    resetZoom();
+                });
+
+        RadioButton yOnlyRB = new RadioButton("Y-only");
+        yOnlyRB.setToggleGroup(toggleScaleY);
+        toolBar.getItems().add(yOnlyRB);
+        yOnlyRB.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                    if (newVal) {
+                        zoomFlagsXY[0] = false;
+                        zoomFlagsXY[1] = true;
+                    }
+                    resetZoom();
+                });
+
+
+        getChildren().add(toolBar);
+    }
+
+    private void rebuildPlot(boolean reScaleX, boolean reScaleY) {
+        for (Node plotPane : getChildren()) {
+            if (plotPane instanceof TripoliPlotPane) {
+                ((TripoliPlotPane) plotPane).updateRatiosSessionPlotted(logScale, reScaleX, reScaleY);
+            }
+        }
+    }
+
+    private void resetZoom() {
+        for (Node plotPane : getChildren()) {
+            if (plotPane instanceof TripoliPlotPane) {
+                ((TripoliPlotPane) plotPane).resetRatioSessionZoom(zoomFlagsXY);
+            }
+        }
     }
 }

@@ -48,7 +48,7 @@ public class HistogramSessionPlot extends AbstractPlot {
     }
 
     @Override
-    public void preparePanel() {
+    public void preparePanel(boolean reScaleX, boolean reScaleY) {
         xAxisData = histogramSessionRecord.blockIds();
         minX = 0.0;
         maxX = histogramSessionRecord.blockCount() + 1;
@@ -66,7 +66,7 @@ public class HistogramSessionPlot extends AbstractPlot {
         displayOffsetX = 0.0;
         displayOffsetY = 0.0;
 
-        prepareExtents();
+        prepareExtents(true, true);
         calculateTics();
         repaint();
     }
@@ -76,7 +76,7 @@ public class HistogramSessionPlot extends AbstractPlot {
         super.paint(g2d);
     }
 
-    public void prepareExtents() {
+    public void prepareExtents(boolean reScaleX, boolean reScaleY) {
         double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.10);
         minY -= yMarginStretch;
         maxY += yMarginStretch;

@@ -255,8 +255,8 @@ public class PeakShapeDemoPlotsControllerTest {
                             (BeamShapeLinePlotBuilder) plots[0]
                     );
 
-                    gBeamLinePlot.preparePanel();
-                    beamShapeLinePlot.preparePanel();
+                    gBeamLinePlot.preparePanel(true, true);
+                    beamShapeLinePlot.preparePanel(true, true);
 
                     // Creates a rendered image of the beam shape and g-beam line plots
                     WritableImage writableImage1 = new WritableImage((int) beamShapeLinePlot.getWidth(), (int) beamShapeLinePlot.getHeight());

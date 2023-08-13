@@ -43,7 +43,7 @@ public class TripoliGUI extends Application {
 
     public static final String Tripoli_LOGO_SANS_TEXT_URL = "images/TripoliJune2022.png";
     public static Window primaryStageWindow;
-    protected static Stage primaryStage;
+    public static Stage primaryStage;
     protected static TripoliAboutWindow tripoliAboutWindow;
 
     public static void updateStageTitle(String fileName) {

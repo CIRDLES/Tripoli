@@ -43,7 +43,7 @@ public class GBeamLinePlot extends AbstractPlot {
     }
 
     @Override
-    public void preparePanel() {
+    public void preparePanel(boolean reScaleX, boolean reScaleY) {
         xAxisData = gBeamLinePlotBuilder.getxData();
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
@@ -63,7 +63,7 @@ public class GBeamLinePlot extends AbstractPlot {
         displayOffsetX = 0.0;
         displayOffsetY = 0.0;
 
-        prepareExtents();
+        prepareExtents(true, true);
         calculateTics();
 
         repaint();
@@ -75,7 +75,7 @@ public class GBeamLinePlot extends AbstractPlot {
     }
 
 
-    public void prepareExtents() {
+    public void prepareExtents(boolean reScaleX, boolean reScaleY) {
         double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.01);
         if (xMarginStretch == 0.0) {
             xMarginStretch = maxX * 0.01;

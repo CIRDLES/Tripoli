@@ -30,7 +30,7 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
     private boolean[] zoomFlagsXY;
 
     private SpeciesIntensitySessionPlot(Rectangle bounds, SpeciesIntensitySessionBuilder speciesIntensitySessionBuilder) {
-        super(bounds, 75, 25,
+        super(bounds, 100, 25,
                 speciesIntensitySessionBuilder.getTitle(),
                 speciesIntensitySessionBuilder.getxAxisLabel(),
                 speciesIntensitySessionBuilder.getyAxisLabel());
@@ -92,10 +92,14 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
     }
 
     @Override
-    public void preparePanel() {
+    public void preparePanel(boolean reScaleX, boolean reScaleY) {
         xAxisData = speciesIntensitySessionBuilder.getxData();
-        minX = xAxisData[0];
-        maxX = xAxisData[xAxisData.length - 1];
+        if (reScaleX) {
+            minX = xAxisData[0];
+            maxX = xAxisData[xAxisData.length - 1];
+
+            displayOffsetX = 0.0;
+        }
 
         yData = new double[yDataCounts.length][yDataCounts[0].length];
 
@@ -109,11 +113,9 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                             yData[row][col] -= baseLine[row][col];
                         }
 
-                        if (gainCorr) {
-                            if (dfGain[row][col] != 0.0) {
-                                yData[row][col] -= baseLine[row][col];
-                                yData[row][col] /= dfGain[row][col];
-                            }
+                        if ((gainCorr) && (dfGain[row][col] != 0.0)) {
+                            yData[row][col] -= baseLine[row][col];
+                            yData[row][col] /= dfGain[row][col];
                         }
 
                         if (logScale) {
@@ -142,27 +144,29 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
             }
         }
 
-        minY = Double.MAX_VALUE;
-        maxY = -Double.MAX_VALUE;
+        if (reScaleY) {
+            minY = Double.MAX_VALUE;
+            maxY = -Double.MAX_VALUE;
 
-        for (int row = 0; row < yData.length; row++) {
-            int speciesIndex = (row / 4);
-            if (speciesChecked[speciesIndex]) {
-                boolean plotFaradays = (showFaradays && (row >= speciesIndex * 4) && (row <= speciesIndex * 4 + 1));
-                boolean plotPMs = (showPMs && (row >= speciesIndex * 4 + 2) && (row <= speciesIndex * 4 + 3));
-                for (int col = 0; col < yData[row].length; col++) {
-                    if ((yData[row][col] != 0.0) && (plotFaradays || plotPMs)) {
-                        minY = min(minY, yData[row][col]);
-                        maxY = max(maxY, yData[row][col]);
+            for (int row = 0; row < yData.length; row++) {
+                int speciesIndex = (row / 4);
+                if (speciesChecked[speciesIndex]) {
+                    boolean plotFaradays = (showFaradays && (row >= speciesIndex * 4) && (row <= speciesIndex * 4 + 1));
+                    boolean plotPMs = (showPMs && (row >= speciesIndex * 4 + 2) && (row <= speciesIndex * 4 + 3));
+                    for (int col = 0; col < yData[row].length; col++) {
+                        if ((yData[row][col] != 0.0) && (plotFaradays || plotPMs)) {
+                            minY = min(minY, yData[row][col]);
+                            maxY = max(maxY, yData[row][col]);
+                        }
                     }
                 }
             }
+
+
+            displayOffsetY = 0.0;
         }
+        prepareExtents(reScaleX, reScaleY);
 
-        displayOffsetX = 0.0;
-        displayOffsetY = 0.0;
-
-        prepareExtents();
         calculateTics();
 
         repaint();
@@ -180,17 +184,21 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
         super.paint(g2d);
     }
 
-    public void prepareExtents() {
-        double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.01);
-        if (0.0 == xMarginStretch) {
-            xMarginStretch = maxX * 0.01;
+    public void prepareExtents(boolean reScaleX, boolean reScaleY) {
+        if (reScaleX) {
+            double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.01);
+            if (0.0 == xMarginStretch) {
+                xMarginStretch = maxX * 0.01;
+            }
+            minX -= 50;//xMarginStretch;
+            maxX += 50;//xMarginStretch;
         }
-        minX -= 50;//xMarginStretch;
-        maxX += 50;//xMarginStretch;
 
-        double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.01);
-        maxY += yMarginStretch;
-        minY -= yMarginStretch;
+        if (reScaleY) {
+            double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.01);
+            maxY += yMarginStretch;
+            minY -= yMarginStretch;
+        }
     }
 
     @Override
@@ -199,7 +207,7 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
         g2d.setFill(dataColor.color());
         g2d.setStroke(dataColor.color());
 
-        g2d.setLineWidth(2.0);
+        g2d.setLineWidth(5.0);
 
         Color[] isotopeColors = {Color.BLUE, Color.GREEN, Color.BLACK, Color.PURPLE, Color.ORANGE};
         for (int isotopePlotSetIndex = 0; isotopePlotSetIndex < yData.length / 4; isotopePlotSetIndex++) {
@@ -240,7 +248,7 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
 
                 // plot PM
                 if (showPMs) {
-                    g2d.setLineDashes(5);
+                    g2d.setLineDashes(0);
                     boolean startedPlot = false;
                     g2d.setFill(isotopeColors[isotopePlotSetIndex]);
                     g2d.setStroke(isotopeColors[isotopePlotSetIndex]);
@@ -251,7 +259,7 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                             g2d.fillOval(dataX - 1.5, dataY - 1.5, 3, 3);
                         }
 
-                        if (showModels) {
+                        if (showModels && !gainCorr) {
                             if ((i < xAxisData.length - 1) && (xAxisData[i + 1] - xAxisData[i] < 10.0)) {
                                 if ((yData[isotopePlotSetIndex * 4 + 3][i] != 0.0) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 3][i])) {
                                     if (!startedPlot) {
@@ -263,7 +271,7 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                                 }
                             } else {
                                 startedPlot = false;
-                                g2d.setStroke(Color.RED);
+                                g2d.setStroke(Color.AQUAMARINE);
                                 g2d.stroke();
                             }
                         }

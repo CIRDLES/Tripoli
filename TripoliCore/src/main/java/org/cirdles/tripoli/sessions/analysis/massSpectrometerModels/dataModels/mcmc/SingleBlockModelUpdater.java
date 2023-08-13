@@ -32,7 +32,7 @@ public class SingleBlockModelUpdater {
 
     private List<String> operations = ImmutableList.of("changer", "changeI", "changedfg", "changebl", "noise");
     private int countOfLogRatios;
-    private int countOfCycles;
+    private int countOfIntensities;
     private int countOfFaradays;
     private int countOfPhotoMultipliers;
     private int countOfTotalModelParameters;
@@ -94,10 +94,10 @@ public class SingleBlockModelUpdater {
          */
 
         countOfLogRatios = singleBlockInitialModelRecord_initial.logRatios().length;
-        countOfCycles = singleBlockInitialModelRecord_initial.I0().length;
+        countOfIntensities = singleBlockInitialModelRecord_initial.I0().length;
         countOfFaradays = singleBlockInitialModelRecord_initial.faradayCount();
         countOfPhotoMultipliers = 1;
-        countOfTotalModelParameters = countOfLogRatios + countOfCycles + countOfFaradays + countOfPhotoMultipliers;
+        countOfTotalModelParameters = countOfLogRatios + countOfIntensities + countOfFaradays + countOfPhotoMultipliers;
 
         double[] xx0 = new double[countOfTotalModelParameters];
         int[] xInd = new int[countOfTotalModelParameters];
@@ -105,22 +105,22 @@ public class SingleBlockModelUpdater {
         System.arraycopy(singleBlockInitialModelRecord_initial.logRatios(), 0, xx0, 0, countOfLogRatios);
         Arrays.fill(xInd, 1);
 
-        System.arraycopy(singleBlockInitialModelRecord_initial.I0(), 0, xx0, countOfLogRatios, countOfCycles);
-        int[] temp = new int[countOfCycles];
+        System.arraycopy(singleBlockInitialModelRecord_initial.I0(), 0, xx0, countOfLogRatios, countOfIntensities);
+        int[] temp = new int[countOfIntensities];
         Arrays.fill(temp, 2);
-        System.arraycopy(temp, 0, xInd, countOfLogRatios, countOfCycles);
+        System.arraycopy(temp, 0, xInd, countOfLogRatios, countOfIntensities);
 
-        System.arraycopy(singleBlockInitialModelRecord_initial.baselineMeansArray(), 0, xx0, countOfLogRatios + countOfCycles, countOfFaradays);
+        System.arraycopy(singleBlockInitialModelRecord_initial.baselineMeansArray(), 0, xx0, countOfLogRatios + countOfIntensities, countOfFaradays);
         temp = new int[countOfFaradays];
         Arrays.fill(temp, 3);
-        System.arraycopy(temp, 0, xInd, countOfLogRatios + countOfCycles, countOfFaradays);
+        System.arraycopy(temp, 0, xInd, countOfLogRatios + countOfIntensities, countOfFaradays);
 
         xx0[countOfTotalModelParameters - 1] = singleBlockInitialModelRecord_initial.detectorFaradayGain();
         xInd[countOfTotalModelParameters - 1] = 4;
 
         SingleBlockModelRecord singleBlockInitialModelRecord_initial2 = null;
         double[] updatedLogRatios = new double[countOfLogRatios];
-        double[] updatedIntensities = new double[countOfCycles];
+        double[] updatedIntensities = new double[countOfIntensities];
         double[] updatedBaselineMeans = new double[countOfFaradays];
         double updatedFaradayGain = 0.0;
 
@@ -155,7 +155,7 @@ public class SingleBlockModelUpdater {
                         if ((xx[row] > proposalRangesRecord.priorBaselineFaraday()[0][1]) || (xx[row] < proposalRangesRecord.priorBaselineFaraday()[0][0])) {
                             xx[row] = xx0[row];
                         }
-                        updatedBaselineMeans[row - countOfLogRatios - countOfCycles] = xx[row];
+                        updatedBaselineMeans[row - countOfLogRatios - countOfIntensities] = xx[row];
                     }
                     case 4 -> {
                         if ((xx[row] > proposalRangesRecord.priorDFgain()[0][1]) || (xx[row] < proposalRangesRecord.priorDFgain()[0][0])) {
@@ -179,7 +179,11 @@ public class SingleBlockModelUpdater {
                  */
             singleBlockInitialModelRecord_initial2 = new SingleBlockModelRecord(
                     singleBlockInitialModelRecord_initial.blockNumber(),
-                    singleBlockInitialModelRecord_initial.faradayCount(), 0, singleBlockInitialModelRecord_initial.isotopeCount(), singleBlockInitialModelRecord_initial.highestAbundanceSpecies(), updatedBaselineMeans,
+                    singleBlockInitialModelRecord_initial.faradayCount(),
+                    singleBlockInitialModelRecord_initial.cycleCount(),
+                    singleBlockInitialModelRecord_initial.isotopeCount(),
+                    singleBlockInitialModelRecord_initial.highestAbundanceSpecies(),
+                    updatedBaselineMeans,
                     singleBlockInitialModelRecord_initial.baselineStandardDeviationsArray().clone(),
                     updatedFaradayGain,
                     singleBlockInitialModelRecord_initial.mapDetectorOrdinalToFaradayIndex(),
@@ -189,7 +193,7 @@ public class SingleBlockModelUpdater {
                     singleBlockInitialModelRecord_initial.dataModelArray().clone(),
                     singleBlockInitialModelRecord_initial.dataSignalNoiseArray().clone(),
                     updatedIntensities,
-                    singleBlockInitialModelRecord_initial.intensities()
+                    singleBlockInitialModelRecord_initial.intensities().clone()
             );
         }
 
@@ -218,8 +222,8 @@ public class SingleBlockModelUpdater {
          */
         double[] xx = new double[countOfTotalModelParameters];
         System.arraycopy(singleBlockModelRecord.logRatios(), 0, xx, 0, countOfLogRatios);
-        System.arraycopy(singleBlockModelRecord.I0(), 0, xx, countOfLogRatios, countOfCycles);
-        System.arraycopy(singleBlockModelRecord.baselineMeansArray(), 0, xx, countOfLogRatios + countOfCycles, countOfFaradays);
+        System.arraycopy(singleBlockModelRecord.I0(), 0, xx, countOfLogRatios, countOfIntensities);
+        System.arraycopy(singleBlockModelRecord.baselineMeansArray(), 0, xx, countOfLogRatios + countOfIntensities, countOfFaradays);
         xx[countOfTotalModelParameters - 1] = singleBlockModelRecord.detectorFaradayGain();
 
         double[] xMeanTemp = dataModelMean.clone();
@@ -272,8 +276,8 @@ public class SingleBlockModelUpdater {
         int ensIndex = 0;
         for (EnsemblesStore.EnsembleRecord ens : ensembleRecordsList) {
             System.arraycopy(ens.logRatios(), 0, xAll[ensIndex], 0, countOfLogRatios);
-            System.arraycopy(ens.I0(), 0, xAll[ensIndex], countOfLogRatios, countOfCycles);
-            System.arraycopy(ens.baseLine(), 0, xAll[ensIndex], countOfLogRatios + countOfCycles, countOfFaradays);
+            System.arraycopy(ens.I0(), 0, xAll[ensIndex], countOfLogRatios, countOfIntensities);
+            System.arraycopy(ens.baseLine(), 0, xAll[ensIndex], countOfLogRatios + countOfIntensities, countOfFaradays);
             xAll[ensIndex][countOfTotalModelParameters - 1] = ens.dfGain();
             ensIndex++;
         }
