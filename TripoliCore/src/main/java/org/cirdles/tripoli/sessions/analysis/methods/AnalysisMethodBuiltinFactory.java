@@ -58,7 +58,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         burdickBlSyntheticData.addSpeciesToSpeciesList(pb206);
         burdickBlSyntheticData.addSpeciesToSpeciesList(pb208);
 
-        burdickBlSyntheticData.createListsOfIsotopicRatios();//(new IsotopicRatio(pb206, pb208, true));
+        burdickBlSyntheticData.createListsOfIsotopicRatios();
 
         DetectorSetup detectorSetup = DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_SYNTHETIC.getName());
 
@@ -90,8 +90,6 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
 
         sequenceCell = sequenceTable.accessSequenceCellForDetector(detectorSetup.getMapOfDetectors().get("H1"), "S1", 1, new ArrayList<>());
         sequenceCell.addTargetSpecies(pb208);
-
-
     }
 
     static {
@@ -104,10 +102,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         ku_204_5_6_7_8_Daly_AllFaradayPb.addSpeciesToSpeciesList(pb207);
         ku_204_5_6_7_8_Daly_AllFaradayPb.addSpeciesToSpeciesList(pb208);
 
-        ku_204_5_6_7_8_Daly_AllFaradayPb.addRatioToIsotopicRatiosList(new IsotopicRatio(pb204, pb208, true));
-        ku_204_5_6_7_8_Daly_AllFaradayPb.addRatioToIsotopicRatiosList(new IsotopicRatio(pb205, pb208, true));
-        ku_204_5_6_7_8_Daly_AllFaradayPb.addRatioToIsotopicRatiosList(new IsotopicRatio(pb206, pb208, true));
-        ku_204_5_6_7_8_Daly_AllFaradayPb.addRatioToIsotopicRatiosList(new IsotopicRatio(pb207, pb208, true));
+        ku_204_5_6_7_8_Daly_AllFaradayPb.createListsOfIsotopicRatios();
 
         DetectorSetup detectorSetup = DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_SYNTHETIC.getName());
         BaselineTable baselineTable = ku_204_5_6_7_8_Daly_AllFaradayPb.getBaselineTable();
@@ -228,33 +223,4 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
         sequenceCell.addTargetSpecies(pb208);
         sequenceCell.setBaselineReferences(new ArrayList<>(List.of("BL1")));
     }
-
-//    static {
-//        AnalysisMethod ku_PbDaly204_5_6_7_8 = AnalysisMethod.initializeAnalysisMethod(
-//                "KU_PbDaly204_5_6_7_8",
-//                DetectorSetupBuiltinModelFactory.massSpectrometersBuiltinMap.get(DetectorSetupBuiltinModelFactory.PHOENIX_SYNTHETIC));
-//        analysisMethodsBuiltinMap.put(ku_PbDaly204_5_6_7_8.getMethodName(), ku_PbDaly204_5_6_7_8);
-//    }
-//
-//
-//    static {
-//        AnalysisMethod ku_UoxideStaticFaraday = AnalysisMethod.initializeAnalysisMethod(
-//                "KU_UoxideStaticFaraday",
-//                DetectorSetupBuiltinModelFactory.massSpectrometersBuiltinMap.get(DetectorSetupBuiltinModelFactory.PHOENIX_SYNTHETIC));
-//        analysisMethodsBuiltinMap.put(ku_UoxideStaticFaraday.getMethodName(), ku_UoxideStaticFaraday);
-//    }
-
-//    static {
-//        AnalysisMethod garconDynNd1 = AnalysisMethod.initializeAnalysisMethod(
-//                "GarconDynNd1",
-//                DetectorSetupBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Triton"));
-//        analysisMethodsBuiltinMap.put(garconDynNd1.getMethodName(), garconDynNd1);
-//    }
-//
-//    static {
-//        AnalysisMethod garconDynNd2 = AnalysisMethod.initializeAnalysisMethod(
-//                "GarconDynNd2",
-//                DetectorSetupBuiltinModelFactory.massSpectrometersBuiltinMap.get("OP_Triton"));
-//        analysisMethodsBuiltinMap.put(garconDynNd2.getMethodName(), garconDynNd2);
-//    }
 }

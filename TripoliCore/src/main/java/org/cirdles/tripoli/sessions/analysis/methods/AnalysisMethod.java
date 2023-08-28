@@ -237,7 +237,7 @@ public class AnalysisMethod implements Serializable {
 
     public String prettyPrintMethodSummary(boolean onTwoLines) {
         StringBuilder retVal = new StringBuilder();
-        retVal.append("Method: ").append(methodName).append(SPACES_100, 0, 65 - methodName.length()).append(onTwoLines ? "\nSpecies: " : "  Species: ");
+        retVal.append("Method: ").append(methodName).append(SPACES_100, 0, 55 - methodName.length()).append(onTwoLines ? "\nSpecies: " : "  Species: ");
         List<SpeciesRecordInterface> speciesAlphabetic = new ArrayList<>(speciesList);
         Collections.sort(speciesAlphabetic, Comparator.comparing(s -> s.getAtomicMass()));
         for (SpeciesRecordInterface species : speciesAlphabetic) {

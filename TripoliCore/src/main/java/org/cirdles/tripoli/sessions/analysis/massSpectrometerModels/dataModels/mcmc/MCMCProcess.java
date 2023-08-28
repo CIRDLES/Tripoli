@@ -40,6 +40,7 @@ import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
 import static org.apache.commons.math3.special.Gamma.gamma;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelInitForMCMC.modelInitData;
 
 /**
  * @author James F. Bowring
@@ -385,36 +386,36 @@ x=x0;
                 double[] logRatios = singleBlockUpdatedModelRecord_x2.logRatios();
                 double detectorFaradayGain = singleBlockUpdatedModelRecord_x2.detectorFaradayGain();
 
-                for (int row = 0; row < countOfData; row++) {
-                    if (row < startingIndexOfPhotoMultiplierData) {
-                        int detectorIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndices[row]);
-                        updatedBaseLineArray[row] = updatedBaseLineMeansArray[detectorIndex];
-                        updatedDetectorFaradayArray[row] = 1.0 / detectorFaradayGain;
-                    }
-                    // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
-                    if (isotopeOrdinalIndicesArray[row] == 0) {
-                        updatedLogRatioArray[row] = 1.0;
-                    } else if (isotopeOrdinalIndicesArray[row] - 1 < logRatios.length) {
-                        updatedLogRatioArray[row] = exp(logRatios[isotopeOrdinalIndicesArray[row] - 1]);
-                    } else {
-                        updatedLogRatioArray[row] = 1.0;
-                    }
-                }
+//                for (int row = 0; row < countOfData; row++) {
+//                    if (row < startingIndexOfPhotoMultiplierData) {
+//                        int detectorIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndices[row]);
+//                        updatedBaseLineArray[row] = updatedBaseLineMeansArray[detectorIndex];
+//                        updatedDetectorFaradayArray[row] = 1.0 / detectorFaradayGain;
+//                    }
+//                    // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
+//                    if (isotopeOrdinalIndicesArray[row] == 0) {
+//                        updatedLogRatioArray[row] = 1.0;
+//                    } else if (isotopeOrdinalIndicesArray[row] - 1 < logRatios.length) {
+//                        updatedLogRatioArray[row] = exp(logRatios[isotopeOrdinalIndicesArray[row] - 1]);
+//                    } else {
+//                        updatedLogRatioArray[row] = 1.0;
+//                    }
+//                }
 
                 long interval1 = System.nanoTime() - prev;
                 prev = interval1 + prev;
 
 
-                double[][] blockKnotInterpolationArray = singleBlockRawDataSetRecord.blockKnotInterpolationArray();
-                Primitive64Store blockKnotInterpolationStore = Primitive64Store.FACTORY.rows(blockKnotInterpolationArray);
-
-                MatrixStore<Double> intensity2 = blockKnotInterpolationStore.multiply(storeFactory.columns(singleBlockUpdatedModelRecord_x2.I0()));
-
-                double[] intensity2Array = intensity2.toRawCopy1D();
-                int[] timeIndicesArray = singleBlockRawDataSetRecord.blockTimeIndicesArray();
-                for (int row = startingIndexOfFaradayData; row < countOfData; row++) {
-                    updatedIntensitiesArray[row] = intensity2Array[timeIndicesArray[row]];
-                }
+//                double[][] blockKnotInterpolationArray = singleBlockRawDataSetRecord.blockKnotInterpolationArray();
+//                Primitive64Store blockKnotInterpolationStore = Primitive64Store.FACTORY.rows(blockKnotInterpolationArray);
+//
+//                MatrixStore<Double> intensity2 = blockKnotInterpolationStore.multiply(storeFactory.columns(singleBlockUpdatedModelRecord_x2.I0()));
+//
+//                double[] intensity2Array = intensity2.toRawCopy1D();
+//                int[] timeIndicesArray = singleBlockRawDataSetRecord.blockTimeIndicesArray();
+//                for (int row = startingIndexOfFaradayData; row < countOfData; row++) {
+//                    updatedIntensitiesArray[row] = intensity2Array[timeIndicesArray[row]];
+//                }
 
                 long interval2 = System.nanoTime() - prev;
                 prev = interval2 + prev;
@@ -442,15 +443,15 @@ x=x0;
                 end
              */
                 double[] dataWithNoBaselineArray2 = new double[countOfData];
-                double[] dataArray2 = new double[countOfData];
+                double[] dataArray2 = modelInitData(singleBlockUpdatedModelRecord_x2, singleBlockRawDataSetRecord);
 
-                for (int row = 0; row < countOfData; row++) {
-                    double value = updatedDetectorFaradayArray[row] * updatedLogRatioArray[row] * updatedIntensitiesArray[row];
-                    dataWithNoBaselineArray2[row] = value;
-                    dataArray2[row] = value + updatedBaseLineArray[row];
-                }
+//                for (int row = 0; row < countOfData; row++) {
+//                    double value = updatedDetectorFaradayArray[row] * updatedLogRatioArray[row] * updatedIntensitiesArray[row];
+//                    dataWithNoBaselineArray2[row] = value;
+//                    dataArray2[row] = value + updatedBaseLineArray[row];
+//                }
 
-                double[] dataSignalNoiseArray2 = new double[countOfData];
+                double[] dataSignalNoiseArray2;
                 double E02 = 0.0;
                 double E = 0.0;
                 double E2 = 0.0;
@@ -548,7 +549,7 @@ x=x0;
                             singleBlockUpdatedModelRecord_x2.faradayCount(),
                             singleBlockUpdatedModelRecord_x2.cycleCount(),
                             singleBlockUpdatedModelRecord_x2.isotopeCount(),
-                            singleBlockUpdatedModelRecord_x2.highestAbundanceSpecies(),//   analysisMethod.retrieveHighestAbundanceSpecies(),
+                            singleBlockUpdatedModelRecord_x2.highestAbundanceSpecies(),
                             singleBlockUpdatedModelRecord_x2.baselineMeansArray().clone(),
                             singleBlockUpdatedModelRecord_x2.baselineStandardDeviationsArray().clone(),
                             singleBlockUpdatedModelRecord_x2.detectorFaradayGain(),
@@ -559,7 +560,7 @@ x=x0;
                             dataArray2.clone(),
                             dataSignalNoiseArray2.clone(),
                             singleBlockUpdatedModelRecord_x2.I0().clone(),
-                            intensity2.toRawCopy1D()
+                            singleBlockUpdatedModelRecord_x2.intensities()//intensity2.toRawCopy1D()
                     );
 
                     keptUpdates[operationIndex][0] = keptUpdates[operationIndex][0] + 1;

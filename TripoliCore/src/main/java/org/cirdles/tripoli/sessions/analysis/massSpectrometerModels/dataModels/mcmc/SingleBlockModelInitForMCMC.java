@@ -333,7 +333,7 @@ enum SingleBlockModelInitForMCMC {
         double[] dataWithNoBaselineArray = new double[totalIntensityCount];
         double[] dataSignalNoiseArray_Dsig = new double[totalIntensityCount];
         double[] ddd = new double[totalIntensityCount];
-        double reportInterval = 0.1;  //TODO: data-detected or input
+        double reportInterval = 1.0; //%sb629 Previously hardcoded, should be read from file
         int[] detectorOrdinalIndicesAccumulatorArray = singleBlockRawDataSetRecord.blockDetectorOrdinalIndicesArray();
 
         for (int dataArrayIndex = 0; dataArrayIndex < d0_data.length; dataArrayIndex++) {
@@ -779,22 +779,22 @@ enum SingleBlockModelInitForMCMC {
 
     }
 
-    public synchronized static double[] modelInitData(SingleBlockModelRecord singleBlockModelRecord_x, SingleBlockRawDataSetRecord singleBlockRawDataSetRecord) {
-        int baselineCount = singleBlockRawDataSetRecord.baselineDataSetMCMC().intensityAccumulatorList().size();
-        int onPeakFaradayCount = singleBlockRawDataSetRecord.onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
-        int onPeakPhotoMultCount = singleBlockRawDataSetRecord.onPeakPhotoMultiplierDataSetMCMC().intensityAccumulatorList().size();
+    public synchronized static double[] modelInitData(SingleBlockModelRecord singleBlockModelRecord_x, SingleBlockRawDataSetRecord singleBlockRawDataSetRecord_d0) {
+        int baselineCount = singleBlockRawDataSetRecord_d0.baselineDataSetMCMC().intensityAccumulatorList().size();
+        int onPeakFaradayCount = singleBlockRawDataSetRecord_d0.onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
+        int onPeakPhotoMultCount = singleBlockRawDataSetRecord_d0.onPeakPhotoMultiplierDataSetMCMC().intensityAccumulatorList().size();
         int totalIntensityCount = baselineCount + onPeakFaradayCount + onPeakPhotoMultCount;
 
-        int[] isotopeOrdinalIndicesArray = singleBlockRawDataSetRecord.blockIsotopeOrdinalIndicesArray();
-        int[] timeIndForSortingArray = singleBlockRawDataSetRecord.blockTimeIndicesArray();
+        int[] isotopeOrdinalIndicesArray = singleBlockRawDataSetRecord_d0.blockIsotopeOrdinalIndicesArray();
+        int[] timeIndForSortingArray = singleBlockRawDataSetRecord_d0.blockTimeIndicesArray();
 
-        double[][] interpolatedKnotData_II = singleBlockRawDataSetRecord.blockKnotInterpolationArray();
+        double[][] interpolatedKnotData_II = singleBlockRawDataSetRecord_d0.blockKnotInterpolationArray();
         Matrix II = new Matrix(interpolatedKnotData_II);
         Matrix I = new Matrix(singleBlockModelRecord_x.I0(), singleBlockModelRecord_x.I0().length);
         Matrix intensityFn = II.times(I);
 
         double[] dataModel = new double[totalIntensityCount];
-        int[] detectorOrdinalIndicesAccumulatorArray = singleBlockRawDataSetRecord.blockDetectorOrdinalIndicesArray();
+        int[] detectorOrdinalIndicesAccumulatorArray = singleBlockRawDataSetRecord_d0.blockDetectorOrdinalIndicesArray();
         for (int dataArrayIndex = 0; dataArrayIndex < totalIntensityCount; dataArrayIndex++) {
             int faradayIndex = 0;
             if (dataArrayIndex < baselineCount + onPeakFaradayCount) {
