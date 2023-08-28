@@ -48,8 +48,18 @@ public enum SessionBuiltinFactory {
         tripoliDemonstrationSession.setMutable(false);
         sessionsBuiltinMap.put(tripoliDemonstrationSession.getSessionName(), tripoliDemonstrationSession);
 
+        Analysis fiveIsotopes_12 = AnalysisInterface.initializeAnalysis("5 Isotope Demo_12", null, "5 Isotopes of Pb 12");
+        Path dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_12.txt");
+        try {
+            fiveIsotopes_12.extractMassSpecDataFromPath(dataFilePath);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |
+                 JAXBException | TripoliException e) {
+            // do nothing
+        }
+        tripoliDemonstrationSession.addAnalysis(fiveIsotopes_12);
+
         Analysis twoIsotopes_01 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_01", null, "Two Isotopes of Pb 01");
-        Path dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_01.txt");
+        dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_01.txt");
         try {
             twoIsotopes_01.extractMassSpecDataFromPath(dataFilePath);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |

@@ -26,7 +26,9 @@ application {
 }
 
 dependencies {
-   // implementation(files("./lib/cirdles.jar"))
+
+//    implementation(files("./lib/cirdles.jar"))
+
 
 
     implementation(project(":TripoliCore"))
