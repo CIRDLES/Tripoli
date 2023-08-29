@@ -293,7 +293,7 @@ public class AnalysisMethod implements Serializable {
     }
 
     public void sortSpeciesListByAbundance() {
-        Collections.sort(speciesList, Comparator.comparing(s -> s.getNaturalAbundancePercent()));
+        Collections.sort(speciesList, Comparator.comparing(s -> s.getMassNumber()));
     }
 
     public List<SpeciesRecordInterface> getSpeciesListSortedByMass() {

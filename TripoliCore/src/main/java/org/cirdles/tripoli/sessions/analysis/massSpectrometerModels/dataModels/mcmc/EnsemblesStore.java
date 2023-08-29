@@ -66,21 +66,14 @@ public class EnsemblesStore implements Serializable {
 
             // log ratios
             double[][] ensembleSetOfLogRatios = new double[isotopicRatioList.size()][countOfEnsemblesUsed];
-            double[][] ensembleRatios = new double[isotopicRatioList.size()][countOfEnsemblesUsed];
             double[] logRatioMean = new double[isotopicRatioList.size()];
-            double[] logRatioStdDev = new double[isotopicRatioList.size()];
-            DescriptiveStatistics descriptiveStatisticsLogRatios = new DescriptiveStatistics();
             for (int ratioIndex = 0; ratioIndex < isotopicRatioList.size(); ratioIndex++) {
+                DescriptiveStatistics descriptiveStatisticsLogRatios = new DescriptiveStatistics();
                 for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
                     ensembleSetOfLogRatios[ratioIndex][index - burn] = ensembleRecordsList.get(index).logRatios()[ratioIndex];
                     descriptiveStatisticsLogRatios.addValue(ensembleSetOfLogRatios[ratioIndex][index - burn]);
-                    ensembleRatios[ratioIndex][index - burn] = exp(ensembleSetOfLogRatios[ratioIndex][index - burn]);
                 }
                 logRatioMean[ratioIndex] = descriptiveStatisticsLogRatios.getMean();
-                logRatioStdDev[ratioIndex] = descriptiveStatisticsLogRatios.getStandardDeviation();
-
-                isotopicRatioList.get(ratioIndex).setRatioValuesForBlockEnsembles(ensembleRatios[ratioIndex]);
-                isotopicRatioList.get(ratioIndex).setLogRatioValuesForBlockEnsembles(ensembleSetOfLogRatios[ratioIndex]);
             }
 
             // baseLines
@@ -108,13 +101,11 @@ public class EnsemblesStore implements Serializable {
                 descriptiveStatisticsDalyFaradayGain.addValue(ensembleDalyFaradayGain[index - burn]);
             }
             double dalyFaradayGainMean = descriptiveStatisticsDalyFaradayGain.getMean();
-//            double dalyFaradayGainStdDev = descriptiveStatisticsDalyFaradayGain.getStandardDeviation();
 
             // Intensity
             int knotsCount = singleBlockRawDataSetRecord.blockKnotInterpolationArray()[0].length;
             double[][] ensembleI0 = new double[knotsCount][countOfEnsemblesUsed];
             double[] meansI0 = new double[knotsCount];
-            double[] stdDevI0 = new double[knotsCount];
 
             for (int knotIndex = 0; knotIndex < knotsCount; knotIndex++) {
                 DescriptiveStatistics descriptiveStatisticsI0 = new DescriptiveStatistics();
@@ -123,7 +114,6 @@ public class EnsemblesStore implements Serializable {
                     descriptiveStatisticsI0.addValue(ensembleI0[knotIndex][index - burn]);
                 }
                 meansI0[knotIndex] = descriptiveStatisticsI0.getMean();
-                stdDevI0[knotIndex] = descriptiveStatisticsI0.getStandardDeviation();
             }
 
 

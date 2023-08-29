@@ -730,7 +730,7 @@ x=x0;
                     .put(singleBlockCurrentModelRecord_X.blockNumber(), singleBlockModelRecordMCMC);
         } else {// TODO: get this right and make it an option
             analysisMethod.getMapOfBlockIdToFinalModel()
-                    .put(singleBlockCurrentModelRecord_X.blockNumber(), (bestSingleBlockModelRecord == null) ? singleBlockCurrentModelRecord_X : bestSingleBlockModelRecord);
+                    .put(singleBlockCurrentModelRecord_X.blockNumber(), (bestSingleBlockModelRecord == null) ? singleBlockCurrentModelRecord_X : singleBlockCurrentModelRecord_X);
         }
 
         return SingleBlockDataModelPlot.analysisAndPlotting(singleBlockRawDataSetRecord, ensembleRecordsList, singleBlockCurrentModelRecord_X, analysisMethod);
