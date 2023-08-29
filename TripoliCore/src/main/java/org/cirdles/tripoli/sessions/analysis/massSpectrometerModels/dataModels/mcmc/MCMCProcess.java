@@ -24,7 +24,6 @@ import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLabCholesky;
-import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
@@ -724,13 +723,13 @@ x=x0;
         analysisMethod.getMapOfBlockIdToRawData().put(singleBlockCurrentModelRecord_X.blockNumber(), singleBlockRawDataSetRecord);
 
         if (useAverageNotBestModel) {
-            SingleBlockModelRecord singleBlockModelRecordMCMC = EnsemblesStore.EnsembleRecord.produceSummaryModelFromEnsembles(
+            SingleBlockModelRecord singleBlockModelRecordMCMC = EnsemblesStore.produceSummaryModelFromEnsembleStore(
                     ensembleRecordsList, analysisMethod, singleBlockRawDataSetRecord, bestSingleBlockModelRecord);
             analysisMethod.getMapOfBlockIdToFinalModel()
                     .put(singleBlockCurrentModelRecord_X.blockNumber(), singleBlockModelRecordMCMC);
         } else {// TODO: get this right and make it an option
             analysisMethod.getMapOfBlockIdToFinalModel()
-                    .put(singleBlockCurrentModelRecord_X.blockNumber(), (bestSingleBlockModelRecord == null) ? singleBlockCurrentModelRecord_X : singleBlockCurrentModelRecord_X);
+                    .put(singleBlockCurrentModelRecord_X.blockNumber(), (bestSingleBlockModelRecord == null) ? singleBlockCurrentModelRecord_X : bestSingleBlockModelRecord);
         }
 
         return SingleBlockDataModelPlot.analysisAndPlotting(singleBlockRawDataSetRecord, ensembleRecordsList, singleBlockCurrentModelRecord_X, analysisMethod);
