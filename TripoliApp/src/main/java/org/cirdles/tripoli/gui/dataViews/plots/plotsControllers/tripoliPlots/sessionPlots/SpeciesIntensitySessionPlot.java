@@ -207,11 +207,43 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
         g2d.setFill(dataColor.color());
         g2d.setStroke(dataColor.color());
 
-        g2d.setLineWidth(5.0);
+        g2d.setLineWidth(2.0);
 
         Color[] isotopeColors = {Color.BLUE, Color.GREEN, Color.BLACK, Color.PURPLE, Color.ORANGE};
         for (int isotopePlotSetIndex = 0; isotopePlotSetIndex < yData.length / 4; isotopePlotSetIndex++) {
             if (speciesChecked[isotopePlotSetIndex]) {
+                // plot PM
+                if (showPMs) {
+                    g2d.setLineDashes(0);
+                    boolean startedPlot = false;
+                    g2d.setFill(isotopeColors[isotopePlotSetIndex]);
+                    g2d.setStroke(isotopeColors[isotopePlotSetIndex]);
+                    for (int i = 0; i < xAxisData.length; i++) {
+                        if ((yData[isotopePlotSetIndex * 4 + 2][i] != 0.0) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 2][i])) {
+                            double dataX = mapX(xAxisData[i]);
+                            double dataY = mapY(yData[isotopePlotSetIndex * 4 + 2][i]);
+                            g2d.fillOval(dataX - 1.5, dataY - 1.5, 3, 3);
+                        }
+
+                        if (showModels && !gainCorr) {
+                            if ((i < xAxisData.length - 1) && (xAxisData[i + 1] - xAxisData[i] < 10.0)) {
+                                if ((yData[isotopePlotSetIndex * 4 + 3][i] != 0.0) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 3][i])) {
+                                    if (!startedPlot) {
+                                        g2d.beginPath();
+                                        g2d.moveTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 3][i]));
+                                        startedPlot = true;
+                                    }
+                                    g2d.lineTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 3][i]));
+                                }
+                            } else {
+                                startedPlot = false;
+                                g2d.setStroke(Color.AQUAMARINE);
+                                g2d.stroke();
+                            }
+                        }
+                    }
+                    g2d.setStroke(isotopeColors[isotopePlotSetIndex]);
+                }
                 // plot Faraday
                 if (showFaradays) {
                     g2d.setLineDashes(0);
@@ -245,43 +277,8 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                     }
                     g2d.setStroke(isotopeColors[isotopePlotSetIndex]);
                 }
-
-                // plot PM
-                if (showPMs) {
-                    g2d.setLineDashes(0);
-                    boolean startedPlot = false;
-                    g2d.setFill(isotopeColors[isotopePlotSetIndex]);
-                    g2d.setStroke(isotopeColors[isotopePlotSetIndex]);
-                    for (int i = 0; i < xAxisData.length; i++) {
-                        if ((yData[isotopePlotSetIndex * 4 + 2][i] != 0.0) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 2][i])) {
-                            double dataX = mapX(xAxisData[i]);
-                            double dataY = mapY(yData[isotopePlotSetIndex * 4 + 2][i]);
-                            g2d.fillOval(dataX - 1.5, dataY - 1.5, 3, 3);
-                        }
-
-                        if (showModels && !gainCorr) {
-                            if ((i < xAxisData.length - 1) && (xAxisData[i + 1] - xAxisData[i] < 10.0)) {
-                                if ((yData[isotopePlotSetIndex * 4 + 3][i] != 0.0) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 3][i])) {
-                                    if (!startedPlot) {
-                                        g2d.beginPath();
-                                        g2d.moveTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 3][i]));
-                                        startedPlot = true;
-                                    }
-                                    g2d.lineTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 3][i]));
-                                }
-                            } else {
-                                startedPlot = false;
-                                g2d.setStroke(Color.AQUAMARINE);
-                                g2d.stroke();
-                            }
-                        }
-                    }
-                    g2d.setStroke(isotopeColors[isotopePlotSetIndex]);
-                }
             }
         }
-
-
     }
 
     @Override

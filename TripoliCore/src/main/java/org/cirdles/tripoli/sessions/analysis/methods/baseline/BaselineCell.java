@@ -28,18 +28,6 @@ public class BaselineCell implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 6371757007810524402L;
-
-    //    private void readObject ( ObjectInputStream stream ) throws IOException,
-//            ClassNotFoundException {
-//        stream.defaultReadObject();
-//
-//        ObjectStreamClass myObject = ObjectStreamClass.lookup(
-//                Class.forName( BaselineCell.class.getCanonicalName()) );
-//        long theSUID = myObject.getSerialVersionUID();
-//
-//        System.err.println( "Customized De-serialization of BaselineCell "
-//                + theSUID );
-//    }
     private String baselineID;
     private int baselineSequence;
     private double cellMass;

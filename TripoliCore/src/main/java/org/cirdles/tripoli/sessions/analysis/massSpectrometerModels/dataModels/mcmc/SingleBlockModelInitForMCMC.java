@@ -807,8 +807,9 @@ enum SingleBlockModelInitForMCMC {
             } else if (dataArrayIndex < baselineCount + onPeakFaradayCount) {
                 if (isotopeIndex < singleBlockModelRecord_x.logRatios().length) {
                     dataModel[dataArrayIndex] =
-                            StrictMath.exp(singleBlockModelRecord_x.logRatios()[isotopeIndex])
-                                    * (1.0 / singleBlockModelRecord_x.detectorFaradayGain()) * intensityFn.get(intensityIndex, 0)
+                            (StrictMath.exp(singleBlockModelRecord_x.logRatios()[isotopeIndex])
+                                    * (1.0 / singleBlockModelRecord_x.detectorFaradayGain())
+                                    * intensityFn.get(intensityIndex, 0))
                                     + singleBlockModelRecord_x.baselineMeansArray()[faradayIndex];
                 } else {
                     dataModel[dataArrayIndex] =
