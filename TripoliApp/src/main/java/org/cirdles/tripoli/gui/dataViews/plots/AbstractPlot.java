@@ -38,7 +38,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.His
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
 import java.math.BigDecimal;
-import java.util.Formatter;
+import java.text.DecimalFormat;
 
 /**
  * @author James F. Bowring
@@ -233,14 +233,14 @@ public abstract class AbstractPlot extends Canvas {
     }
 
     public void calculateTics() {
-        ticsX = TicGeneratorForAxes.generateTics(getDisplayMinX(), getDisplayMaxX(), (int) (plotWidth / 50.0));
+        ticsX = TicGeneratorForAxes.generateTics(getDisplayMinX(), getDisplayMaxX(), Math.max(4, (int) (plotWidth / 50.0)));
         if (0 == ticsX.length) {
             ticsX = new BigDecimal[2];
             ticsX[0] = new BigDecimal(Double.toString(minX));
             ticsX[ticsX.length - 1] = new BigDecimal(Double.toString(maxX));
         }
 
-        ticsY = TicGeneratorForAxes.generateTics(getDisplayMinY(), getDisplayMaxY(), (int) (plotHeight / 15.0));
+        ticsY = TicGeneratorForAxes.generateTics(getDisplayMinY(), getDisplayMaxY(), Math.max(4, (int) (plotHeight / 15.0)));
         if ((0 == ticsY.length) && !Double.isInfinite(minY)) {
             ticsY = new BigDecimal[2];
             ticsY[0] = new BigDecimal(Double.toString(minY));
@@ -270,9 +270,13 @@ public abstract class AbstractPlot extends Canvas {
                         g2d.strokeLine(
                                 leftMargin, mapY(bigDecimalTicY.doubleValue()), leftMargin + plotWidth, mapY(bigDecimalTicY.doubleValue()));
                         // left side
-                        Formatter fmt = new Formatter();
-                        fmt.format("%8.5g", bigDecimalTicY.doubleValue());
-                        String yText = fmt.toString().trim();
+//                        Formatter fmt = new Formatter();
+//                        fmt.format("%8.5g", bigDecimalTicY.doubleValue());
+//                        String yText = fmt.toString().trim();
+                        double ticValue = bigDecimalTicY.doubleValue();
+                        DecimalFormat df = new DecimalFormat((99999 < Math.abs(ticValue) || 1.0e-5 > Math.abs(ticValue)) ? "0.0####E0" : "#####0.#####");
+                        String yText =  (ticValue == 0.0) ? "0" : df.format(ticValue);
+
                         text.setText(yText);
                         textWidth = (int) text.getLayoutBounds().getWidth();
                         g2d.fillText(text.getText(),//
@@ -293,9 +297,15 @@ public abstract class AbstractPlot extends Canvas {
                             topMargin + plotHeight + 3);
                     // bottom
                     // http://www.java2s.com/Tutorials/Java/String/How_to_use_Java_Formatter_to_format_value_in_scientific_notation.htm#:~:text=%25e%20is%20for%20scientific%20notation,scientific%20notation%2C%20use%20%25e.
-                    Formatter fmt = new Formatter();
-                    fmt.format("%8.5g", ticsX[i].doubleValue());
-                    String xText = fmt.toString().trim();
+//                    Formatter fmt = new Formatter();
+//                    fmt.format("%8.5g", ticsX[i].doubleValue());
+//                    DecimalFormat df = new DecimalFormat("#####0.######");
+//                    String xText = df.format(ticsX[i].doubleValue());//fmt.toString().trim();
+
+                    double ticValue = ticsX[i].doubleValue();
+                    DecimalFormat df = new DecimalFormat((99999 < Math.abs(ticValue) || 1.0e-5 > Math.abs(ticValue)) ? "0.0####E0" : "#####0.#####");
+                    String xText = (ticValue == 0.0) ? "0" : df.format(ticValue);
+
                     g2d.fillText(xText,
                             (float) mapX(ticsX[i].doubleValue()) - 7.0f,
                             (float) topMargin + plotHeight + 10);
@@ -326,9 +336,9 @@ public abstract class AbstractPlot extends Canvas {
     private void labelAxisX(GraphicsContext g2d) {
         Paint savedPaint = g2d.getFill();
         g2d.setFill(Paint.valueOf("BLACK"));
-        g2d.setFont(Font.font("SansSerif", 11));
+        g2d.setFont(Font.font("SansSerif", 14));
         Text text = new Text();
-        text.setFont(Font.font("SansSerif", 11));
+        text.setFont(Font.font("SansSerif", 14));
         text.setText(plotAxisLabelX);
         int textWidth = (int) text.getLayoutBounds().getWidth();
         g2d.fillText(text.getText(), leftMargin + (plotWidth - textWidth) / 2.0, plotHeight + 2.0 * topMargin - 2.0);
@@ -338,9 +348,9 @@ public abstract class AbstractPlot extends Canvas {
     private void labelAxisY(GraphicsContext g2d) {
         Paint savedPaint = g2d.getFill();
         g2d.setFill(Paint.valueOf("BLACK"));
-        g2d.setFont(Font.font("SansSerif", 11));
+        g2d.setFont(Font.font("SansSerif", 14));
         Text text = new Text();
-        text.setFont(Font.font("SansSerif", 11));
+        text.setFont(Font.font("SansSerif", 14));
         text.setText(plotAxisLabelY);
         int textWidth = (int) text.getLayoutBounds().getWidth();
         g2d.rotate(-90.0);

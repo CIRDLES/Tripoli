@@ -195,7 +195,7 @@ public class OGTripoliViewController {
         }
 
         PlotBuilder plotBuilder = SpeciesIntensitySessionBuilder.initializeSpeciesIntensitySessionPlot(
-                xAxis, onPeakDataCounts, onPeakDataAmpResistance, onPeakBaseline, onPeakGain, new String[]{"Species Intensity by Session"}, "Time", "Intensity (counts)");
+                xAxis, onPeakDataCounts, onPeakDataAmpResistance, onPeakBaseline, onPeakGain, new String[]{"Species Intensity by Session"}, "Time (secs)", "Intensity (counts)");
 
         TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPane);
         AbstractPlot plot = SpeciesIntensitySessionPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (SpeciesIntensitySessionBuilder) plotBuilder);

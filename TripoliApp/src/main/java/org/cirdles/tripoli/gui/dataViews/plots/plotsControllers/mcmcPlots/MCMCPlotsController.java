@@ -323,12 +323,11 @@ public class MCMCPlotsController {
         PlotBuilder[] ratiosHistogramBuilder = plotBuildersTask.getRatiosHistogramBuilder();
         PlotBuilder[] baselineHistogramBuilder = plotBuildersTask.getBaselineHistogramBuilder();
         PlotBuilder[] dalyFaradayHistogramBuilder = plotBuildersTask.getDalyFaradayGainHistogramBuilder();
-        //PlotBuilder[] signalNoiseHistogramBuilder = plotBuildersTask.getSignalNoiseHistogramBuilder();
         PlotBuilder[] intensityLinePlotBuilder = plotBuildersTask.getMeanIntensityVsKnotsMultiLineBuilder();
 
         PlotBuilder[] convergeRatioPlotBuilder = plotBuildersTask.getConvergeRatioLineBuilder();
         PlotBuilder[] convergeBLFaradayLineBuilder = plotBuildersTask.getConvergeBLFaradayLineBuilder();
-//        PlotBuilder[] convergeNoiseFaradayLineBuilder = plotBuildersTask.getConvergeNoiseFaradayLineBuilder();
+
         PlotBuilder[] convergeErrWeightedMisfitBuilder = plotBuildersTask.getConvergeErrWeightedMisfitLineBuilder();
         PlotBuilder[] convergeErrRawMisfitBuilder = plotBuildersTask.getConvergeErrRawMisfitLineBuilder();
 
@@ -359,7 +358,7 @@ public class MCMCPlotsController {
         convergePlotsAnchorPane.getChildren().add(convergePlotsWallPane);
         produceTripoliLinePlots(convergeRatioPlotBuilder, convergePlotsWallPane);
         produceTripoliLinePlots(convergeBLFaradayLineBuilder, convergePlotsWallPane);
-//        produceTripoliLinePlots(convergeNoiseFaradayLineBuilder, convergePlotsWallPane);
+
         convergePlotsWallPane.tilePlots();
 
         PlotWallPane dataFitPlotsWallPane = PlotWallPane.createPlotWallPane(null);

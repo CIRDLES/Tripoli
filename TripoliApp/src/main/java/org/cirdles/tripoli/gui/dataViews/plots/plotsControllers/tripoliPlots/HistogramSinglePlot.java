@@ -79,10 +79,7 @@ public class HistogramSinglePlot extends AbstractPlot {
     }
 
     public void prepareExtents(boolean reScaleX, boolean reScaleY) {
-        double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.05);
-        if (0.0 == xMarginStretch) {
-            xMarginStretch = maxX * 0.01;
-        }
+        double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.0);
         minX -= xMarginStretch;
         maxX += xMarginStretch;
 

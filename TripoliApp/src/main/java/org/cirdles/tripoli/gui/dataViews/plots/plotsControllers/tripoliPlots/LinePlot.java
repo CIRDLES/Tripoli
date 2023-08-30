@@ -65,7 +65,7 @@ public class LinePlot extends AbstractPlot {
 
     @Override
     public void plotData(GraphicsContext g2d) {
-        g2d.setLineWidth(2.0);
+        g2d.setLineWidth(1.0);
         // new line plot
         g2d.setStroke(dataColor.color());
         g2d.beginPath();

@@ -54,7 +54,7 @@ public enum TicGeneratorForAxes {
 
         nfrac = (int) StrictMath.max(-StrictMath.floor(StrictMath.log10(d)), 0);
 
-        BigDecimal[] tics = new BigDecimal[0];
+        BigDecimal[] tics;
 
         try {
             tics = new BigDecimal[(int) ((ticMax + 0.5 * d - ticMin) / d) + 1];
@@ -64,6 +64,26 @@ public enum TicGeneratorForAxes {
                 index++;
             }
         } catch (Exception e) {
+            tics = new BigDecimal[0];
+        }
+
+        return formatTicsWhenAllInteger(tics);
+    }
+
+    private static boolean isIntegerValue(BigDecimal bd) {
+        return 0 == bd.signum() || 0 >= bd.scale() || 0 >= bd.stripTrailingZeros().scale();
+    }
+
+    private static BigDecimal[] formatTicsWhenAllInteger(BigDecimal[] origTics) {
+        BigDecimal[] tics = new BigDecimal[origTics.length];
+        for (int i = 0; i < origTics.length; i++) {
+            if (isIntegerValue(origTics[i])) {
+                tics[i] = origTics[i].setScale(0);
+            } else {
+                // at least one non-integer
+                tics = origTics.clone();
+                break;
+            }
         }
 
         return tics;
@@ -76,9 +96,7 @@ public enum TicGeneratorForAxes {
      * @return
      */
     public static double generateMarginAdjustment(double min, double max, double marginStretchFactor) {
-
         return marginStretchFactor * (max - min);
-
     }
 
     private static double niceNum(double x, boolean round) {

@@ -264,20 +264,13 @@ public enum SingleBlockDataModelPlot {
         plotBuilders[2][0] = HistogramBuilder.initializeHistogram(singleBlockRawDataSetRecord.blockNumber(), ensembleDalyFaradayGain,
                 25, new String[]{"Daly/Faraday Gain"}, "Gain", "Frequency", true);
 
-//        plotBuilders[3] = new PlotBuilder[ensembleSignalnoise.length];
-//        for (int i = 0; i < ensembleSignalnoise.length; i++) {
-//            plotBuilders[3][i] = HistogramBuilder.initializeHistogram(singleBlockRawDataSetRecord.blockNumber(), ensembleSignalnoise[i],
-//                    25, new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Signal Noise"}, "Noise hyperparameter", "Frequency", true);
-//        }
-
         plotBuilders[4][0] = MultiLinePlotBuilder.initializeLinePlot(
                 xDataIntensityMeans, yDataIntensityMeans, new String[]{"Mean Intensity w/ Knots"}, "Time Index", "Intensity (counts)", true);
 
-        // visualization converge ratio and others tabs
+        // visualization converge ratio and others TABS
         double[][] convergeIntensities = new double[knotsCount][ensembleRecordsList.size()];
         for (int index = 0; index < ensembleRecordsList.size(); index++) {
             for (int knotsIndex = 0; knotsIndex < knotsCount; knotsIndex++) {
-                // todo: fix this block indexing issue
                 convergeIntensities[knotsIndex][index] = ensembleRecordsList.get(index).I0()[knotsIndex];
             }
         }
@@ -285,7 +278,6 @@ public enum SingleBlockDataModelPlot {
         // new converge plots
         double[][] convergeSetOfLogRatios = new double[isotopicRatioList.size()][ensembleRecordsList.size()];
         double[][] convergeSetOfBaselines = new double[baselineSize][ensembleRecordsList.size()];
-//        double[][] convergeSetOfFaradayNoise = new double[baselineSize][ensembleRecordsList.size()];
         double[] convergeErrWeightedMisfit = new double[ensembleRecordsList.size()];
         double[] convergeErrRawMisfit = new double[ensembleRecordsList.size()];
         double[] xDataConvergeSavedIterations = new double[ensembleRecordsList.size()];
@@ -295,7 +287,6 @@ public enum SingleBlockDataModelPlot {
             }
             for (int faradayIndex = 0; faradayIndex < baselineSize; faradayIndex++) {
                 convergeSetOfBaselines[faradayIndex][ensembleIndex] = ensembleRecordsList.get(ensembleIndex).baseLine()[faradayIndex];
-//                convergeSetOfFaradayNoise[faradayIndex][ensembleIndex] = ensembleRecordsList.get(ensembleIndex).signalNoise()[faradayIndex];
             }
             convergeErrWeightedMisfit[ensembleIndex] = StrictMath.sqrt(ensembleRecordsList.get(ensembleIndex).errorWeighted());
             convergeErrRawMisfit[ensembleIndex] = StrictMath.sqrt(ensembleRecordsList.get(ensembleIndex).errorUnWeighted());
@@ -316,13 +307,6 @@ public enum SingleBlockDataModelPlot {
                     xDataConvergeSavedIterations, convergeSetOfBaselines[i],
                     new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Baseline"}, "Saved iterations", "Baseline Counts");
         }
-
-//        plotBuilders[11] = new PlotBuilder[convergeSetOfFaradayNoise.length];
-//        for (int i = 0; i < convergeSetOfFaradayNoise.length; i++) {
-//            plotBuilders[11][i] = LinePlotBuilder.initializeLinePlot(
-//                    xDataConvergeSavedIterations, convergeSetOfFaradayNoise[i],
-//                    new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Noise"}, "Saved iterations", "Noise");
-//        }
 
         plotBuilders[8][0] = LinePlotBuilder.initializeLinePlot(xDataConvergeSavedIterations, convergeErrWeightedMisfit, new String[]{"Converge Weighted Misfit"}, "Saved iterations", "Weighted Misfit");
 
@@ -440,12 +424,12 @@ public enum SingleBlockDataModelPlot {
         }
 
         plotBuilders[13][0] = ComboPlotBuilder.initializeLinePlot(
-                integrationTimes, dataOriginalCounts, dataArray, new String[]{"Observed Data"}, "Integration Time", "Intensity");
+                integrationTimes, dataOriginalCounts, dataArray, new String[]{"Observed Data"}, "Integration Time (secs)", "Intensity");
         plotBuilders[15][0] = ComboPlotBuilder.initializeLinePlotWithSubsets(
                 integrationTimes, dataOriginalCounts, dataArray, singleBlockRawDataSetRecord.blockMapIdsToDataTimes(),
-                new String[]{"Observed Data by Sequence"}, "Integration Time", "Intensity");
+                new String[]{"Observed Data by Sequence"}, "Integration Time (secs)", "Intensity");
         plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(
-                integrationTimes, yDataResiduals, dataCountsModelOneSigma_Dsig, new String[]{"Residual Data"}, "Integration Time", "Intensity");
+                integrationTimes, yDataResiduals, dataCountsModelOneSigma_Dsig, new String[]{"Residual Data"}, "Integration Time (secs)", "Intensity");
 
 
         // todo: missing additional elements of signalNoiseSigma (i.e., 0,11,11)
