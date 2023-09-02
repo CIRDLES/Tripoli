@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class SingleBlockModelUpdater {
 
-    private List<String> operations = ImmutableList.of("changer", "changeI", "changedfg", "changebl", "noise");
+    public List<String> operations = ImmutableList.of("changer", "changeI", "changedfg", "changebl", "noise");
     private int countOfLogRatios;
     private int countOfIntensities;
     private int countOfFaradays;

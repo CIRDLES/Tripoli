@@ -17,11 +17,14 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.HistogramSinglePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -196,6 +199,14 @@ public class PlotWallPane extends Pane {
         toolBar.setPrefHeight(toolBarHeight);
         toolBar.setLayoutY(0.0);
 
+        Button button0 = new Button("Restore Plots");
+        button0.setOnAction(event -> restoreAllPlots());
+        toolBar.getItems().add(button0);
+
+        Button button1 = new Button("Toggle Stats");
+        button1.setOnAction(event -> toggleShowStatsAllPlots());
+        toolBar.getItems().add(button1);
+
         Label labelScale = new Label("Scale:");
         labelScale.setAlignment(Pos.CENTER_RIGHT);
         labelScale.setPrefWidth(60);
@@ -223,7 +234,7 @@ public class PlotWallPane extends Pane {
         countsRB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     if (newVal) {
-                        zoomFlagsXY[0] = false;
+                        zoomFlagsXY[0] = true;
                         zoomFlagsXY[1] = true;
                     }
                     resetZoom();
@@ -269,6 +280,53 @@ public class PlotWallPane extends Pane {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
                 ((TripoliPlotPane) plotPane).resetRatioSessionZoom(zoomFlagsXY);
+            }
+        }
+    }
+
+    public void synchronizeRatioPlotsScroll(double zoomChunkX, double zoomChunkY){
+        ObservableList<Node> children = getChildren();
+        for (Node child : children){
+            if (child instanceof TripoliPlotPane){
+                BlockRatioCyclesSessionPlot childPlot = (BlockRatioCyclesSessionPlot)((TripoliPlotPane) child).getChildren().get(0);
+                childPlot.setZoomChunkX(zoomChunkX);
+                childPlot.setZoomChunkY(zoomChunkY);
+                childPlot.adjustZoom();
+            }
+        }
+    }
+
+    public void synchronizeRatioPlotsDrag(double x, double y) {
+        ObservableList<Node> children = getChildren();
+        for (Node child : children) {
+            if (child instanceof TripoliPlotPane) {
+                BlockRatioCyclesSessionPlot childPlot = (BlockRatioCyclesSessionPlot) ((TripoliPlotPane) child).getChildren().get(0);
+                childPlot.adjustOffsetsForDrag(x, y);
+            }
+        }
+    }
+
+    public void synchronizeMouseStartsOnPress(double x, double y){
+        ObservableList<Node> children = getChildren();
+        for (Node child : children) {
+            if (child instanceof TripoliPlotPane) {
+                BlockRatioCyclesSessionPlot childPlot = (BlockRatioCyclesSessionPlot) ((TripoliPlotPane) child).getChildren().get(0);
+                childPlot.adjustMouseStartsForPress(x, y);
+            }
+        }
+    }
+
+    public void synchronizeBlockToggle(int blockID){
+        ObservableList<Node> children = getChildren();
+        for (Node child : children) {
+            if (child instanceof TripoliPlotPane) {
+                if (child instanceof TripoliPlotPane) {
+                    BlockRatioCyclesSessionPlot childPlot = (BlockRatioCyclesSessionPlot) ((TripoliPlotPane) child).getChildren().get(0);
+                    childPlot.getMapBlockIdToBlockRatioCyclesRecord().put(
+                            blockID,
+                            childPlot.getMapBlockIdToBlockRatioCyclesRecord().get(blockID).toggleBlockIncluded());
+                    childPlot.repaint();
+                }
             }
         }
     }

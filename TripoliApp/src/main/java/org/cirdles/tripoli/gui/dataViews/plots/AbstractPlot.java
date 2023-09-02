@@ -35,6 +35,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.HistogramSinglePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
 import java.math.BigDecimal;
@@ -114,42 +115,53 @@ public abstract class AbstractPlot extends Canvas {
             @Override
             public void handle(ScrollEvent event) {
                 if (mouseInHouse(event.getX(), event.getY())) {
+                    // converting scroll as Y event
                     zoomChunkX = Math.abs(zoomChunkX) * Math.signum(event.getDeltaY());
                     zoomChunkY = Math.abs(zoomChunkY) * Math.signum(event.getDeltaY());
                     if (getDisplayRangeX() >= zoomChunkX) {
-                        minX += zoomChunkX;
-                        maxX -= zoomChunkX;
-                        minY += zoomChunkY;
-                        maxY -= zoomChunkY;
-
-                        calculateTics();
-                        repaint();
+                        if (event.getSource() instanceof BlockRatioCyclesSessionPlot){
+                            BlockRatioCyclesSessionPlot sourceBlockRatioCyclesSessionPlot = (BlockRatioCyclesSessionPlot)event.getSource();
+                            sourceBlockRatioCyclesSessionPlot.getParentWallPane().synchronizeRatioPlotsScroll( zoomChunkX, zoomChunkY);
+                        } else {
+                            adjustZoom();
+                        }
                     }
                 }
             }
         };
         addEventFilter(ScrollEvent.SCROLL, scrollEventEventHandler);
+
         EventHandler<MouseEvent> mouseDraggedEventHandler = e -> {
             if (mouseInHouse(e.getX(), e.getY())) {
-                displayOffsetX = displayOffsetX + (convertMouseXToValue(mouseStartX) - convertMouseXToValue(e.getX()));
-                mouseStartX = e.getX();
-
-                if (this instanceof HistogramSinglePlot) {
-                    displayOffsetY = Math.max(0.0, displayOffsetY + (convertMouseYToValue(mouseStartY) - convertMouseYToValue(e.getY())));
+                if (e.getSource() instanceof BlockRatioCyclesSessionPlot){
+                    BlockRatioCyclesSessionPlot sourceBlockRatioCyclesSessionPlot = (BlockRatioCyclesSessionPlot)e.getSource();
+                    sourceBlockRatioCyclesSessionPlot.getParentWallPane().synchronizeRatioPlotsDrag( e.getX(), e.getY());
                 } else {
-                    displayOffsetY = displayOffsetY + (convertMouseYToValue(mouseStartY) - convertMouseYToValue(e.getY()));
-                }
-                mouseStartY = e.getY();
+                    displayOffsetX = displayOffsetX + (convertMouseXToValue(mouseStartX) - convertMouseXToValue(e.getX()));
+                    mouseStartX = e.getX();
 
-                calculateTics();
-                repaint();
+                    if (this instanceof HistogramSinglePlot) {
+                        displayOffsetY = Math.max(0.0, displayOffsetY + (convertMouseYToValue(mouseStartY) - convertMouseYToValue(e.getY())));
+                    } else {
+                        displayOffsetY = displayOffsetY + (convertMouseYToValue(mouseStartY) - convertMouseYToValue(e.getY()));
+                    }
+                    mouseStartY = e.getY();
+
+                    calculateTics();
+                    repaint();
+                }
             }
         };
         addEventFilter(MouseEvent.MOUSE_DRAGGED, mouseDraggedEventHandler);
+
         EventHandler<MouseEvent> mousePressedEventHandler = e -> {
             if (mouseInHouse(e.getX(), e.getY()) && e.isPrimaryButtonDown()) {
-                mouseStartX = e.getX();
-                mouseStartY = e.getY();
+                if (e.getSource() instanceof BlockRatioCyclesSessionPlot){
+                    BlockRatioCyclesSessionPlot sourceBlockRatioCyclesSessionPlot = (BlockRatioCyclesSessionPlot)e.getSource();
+                    sourceBlockRatioCyclesSessionPlot.getParentWallPane().synchronizeMouseStartsOnPress( e.getX(), e.getY());
+                } else {
+                    adjustMouseStartsForPress(e.getX(), e.getY());
+                }
             }
         };
         addEventFilter(MouseEvent.MOUSE_PRESSED, mousePressedEventHandler);
@@ -561,10 +573,16 @@ public abstract class AbstractPlot extends Canvas {
         public void handle(MouseEvent mouseEvent) {
             plotContextMenu.hide();
             boolean isPrimary = (0 == mouseEvent.getButton().compareTo(MouseButton.PRIMARY));
+            boolean isBlockRatioCyclesSessionPlot = (mouseEvent.getSource() instanceof BlockRatioCyclesSessionPlot);
+            BlockRatioCyclesSessionPlot blockRatioCyclesSessionPlot = (BlockRatioCyclesSessionPlot)mouseEvent.getSource();
 
             if (mouseInHouse(mouseEvent.getX(), mouseEvent.getY())) {
-                if (isPrimary) {
-                    performPrimaryClick(mouseEvent.getX(), mouseEvent.getY());
+                if (isPrimary && isBlockRatioCyclesSessionPlot) {
+                    // determine blockID
+                    double xValue = convertMouseXToValue(mouseEvent.getX());
+                    int blockID = (int) ((xValue - 0.7) / blockRatioCyclesSessionPlot.getBlockRatioCyclesSessionRecord().cyclesPerBlock()) + 1;
+                    BlockRatioCyclesSessionPlot sourceBlockRatioCyclesSessionPlot = (BlockRatioCyclesSessionPlot)mouseEvent.getSource();
+                    sourceBlockRatioCyclesSessionPlot.getParentWallPane().synchronizeBlockToggle(blockID);
                 } else {
                     plotContextMenu.show((Node) mouseEvent.getSource(), Side.LEFT, mouseEvent.getX() - getLayoutX(), mouseEvent.getY() - getLayoutY());
                 }
@@ -572,4 +590,35 @@ public abstract class AbstractPlot extends Canvas {
         }
     }
 
+    public void setZoomChunkX(double zoomChunkX) {
+        this.zoomChunkX = zoomChunkX;
+    }
+
+    public void setZoomChunkY(double zoomChunkY) {
+        this.zoomChunkY = zoomChunkY;
+    }
+
+    public void adjustZoom(){
+        minX += zoomChunkX;
+        maxX -= zoomChunkX;
+        minY += zoomChunkY;
+        maxY -= zoomChunkY;
+
+        calculateTics();
+        repaint();
+    }
+
+    public void adjustOffsetsForDrag(double x, double y){
+        displayOffsetX = displayOffsetX + (convertMouseXToValue(mouseStartX) - convertMouseXToValue(x));
+        mouseStartX = x;
+        displayOffsetY = displayOffsetY + (convertMouseYToValue(mouseStartY) - convertMouseYToValue(y));
+        mouseStartY = y;
+        calculateTics();
+        repaint();
+    }
+
+    public void adjustMouseStartsForPress(double x, double y){
+        mouseStartX = x;
+        mouseStartY = y;
+    }
 }

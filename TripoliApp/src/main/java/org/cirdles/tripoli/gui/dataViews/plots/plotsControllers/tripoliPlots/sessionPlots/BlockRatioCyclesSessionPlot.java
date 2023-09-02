@@ -18,11 +18,14 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.se
 
 import javafx.collections.ObservableList;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
 import org.cirdles.tripoli.plots.compoundPlots.BlockRatioCyclesRecord;
@@ -38,17 +41,27 @@ import static java.lang.StrictMath.pow;
  */
 public class BlockRatioCyclesSessionPlot extends AbstractPlot {
 
+
     private final BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord;
+    public BlockRatioCyclesSessionRecord getBlockRatioCyclesSessionRecord() {
+        return blockRatioCyclesSessionRecord;
+    }
+
     private Map<Integer, BlockRatioCyclesRecord> mapBlockIdToBlockRatioCyclesRecord;
     private double[] oneSigmaForCycles;
     private double sessionMean;
     private double sessionOneSigma;
     private boolean logScale;
     private boolean[] zoomFlagsXY;
+    private PlotWallPane parentWallPane;
 
-    private BlockRatioCyclesSessionPlot(Rectangle bounds, BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord) {
+    public PlotWallPane getParentWallPane() {
+        return parentWallPane;
+    }
+
+    private BlockRatioCyclesSessionPlot(Rectangle bounds, BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord, PlotWallPane parentWallPane) {
         super(bounds,
-                100, 25,
+                75, 25,
                 new String[]{blockRatioCyclesSessionRecord.title()[0]
                         + "  " + "X\u0305" + "=" + String.format("%8.8g", blockRatioCyclesSessionRecord.sessionMean()).trim()
                         , "\u00B1" + String.format("%8.5g", blockRatioCyclesSessionRecord.sessionOneSigma()).trim()},
@@ -57,10 +70,11 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
         this.blockRatioCyclesSessionRecord = blockRatioCyclesSessionRecord;
         this.logScale = false;
         this.zoomFlagsXY = new boolean[]{true, true};
+        this.parentWallPane = parentWallPane;
     }
 
-    public static AbstractPlot generatePlot(Rectangle bounds, BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord) {
-        return new BlockRatioCyclesSessionPlot(bounds, blockRatioCyclesSessionRecord);
+    public static AbstractPlot generatePlot(Rectangle bounds, BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord, PlotWallPane parentWallPane) {
+        return new BlockRatioCyclesSessionPlot(bounds, blockRatioCyclesSessionRecord, parentWallPane);
     }
 
     public void setLogScale(boolean logScale) {
@@ -248,27 +262,8 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
                         , "\u00B1" + String.format("%8.5g", sessionOneSigma).trim()};
     }
 
-    public void performPrimaryClick(double mouseX, double mouseY) {
-        // determine blockID
-        double xValue = convertMouseXToValue(mouseX);
-        int blockId = (int) ((xValue - 0.7) / blockRatioCyclesSessionRecord.cyclesPerBlock()) + 1;
-        if (null != mapBlockIdToBlockRatioCyclesRecord.get(blockId)) {
-//            mapBlockIdToBlockRatioCyclesRecord.put(
-//                    blockId,
-//                    mapBlockIdToBlockRatioCyclesRecord.get(blockId).toggleBlockIncluded());
-//            repaint();
-//        }
-
-            ObservableList tripoliPlotPanes = this.getParent().getParent().getChildrenUnmodifiable();
-            for (Object child : tripoliPlotPanes) {
-                if (child instanceof TripoliPlotPane) {
-                    BlockRatioCyclesSessionPlot tripoliPlot = (BlockRatioCyclesSessionPlot) ((TripoliPlotPane) child).getChildren().get(0);
-                    tripoliPlot.getMapBlockIdToBlockRatioCyclesRecord().put(
-                            blockId,
-                            mapBlockIdToBlockRatioCyclesRecord.get(blockId).toggleBlockIncluded());
-                    tripoliPlot.repaint();
-                }
-            }
-        }
+    public void setupPlotContextMenu() {
+        // no menu for now
+        plotContextMenu = new ContextMenu();
     }
 }

@@ -102,7 +102,7 @@ public class OGTripoliViewController {
                             blockRatioCyclesRecords, new String[]{isotopicRatio.prettyPrint()},
                             "Blocks & Cycles by Time", "Ratio");
             AbstractPlot plot = BlockRatioCyclesSessionPlot.generatePlot(
-                    new Rectangle(minPlotWidth, minPlotHeight), blockRatioCyclesSessionBuilder.getBlockRatioCyclesSessionRecord());
+                    new Rectangle(minPlotWidth, minPlotHeight), blockRatioCyclesSessionBuilder.getBlockRatioCyclesSessionRecord(), plotsWallPane);
             tripoliPlotPane.addPlot(plot);
         }
         plotsWallPane.buildScaleControlsToolbar();
