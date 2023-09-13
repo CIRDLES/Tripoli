@@ -24,6 +24,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.HistogramSinglePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.LinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
 
 import java.util.List;
@@ -302,6 +303,17 @@ public class PlotWallPane extends Pane {
             if (child instanceof TripoliPlotPane) {
                 BlockRatioCyclesSessionPlot childPlot = (BlockRatioCyclesSessionPlot) ((TripoliPlotPane) child).getChildren().get(0);
                 childPlot.adjustOffsetsForDrag(x, y);
+            }
+        }
+    }
+
+    public void synchronizeConvergencePlotsShade(double x) {
+        ObservableList<Node> children = getChildren();
+        for (Node child : children) {
+            if (child instanceof TripoliPlotPane) {
+                LinePlot childPlot = (LinePlot) ((TripoliPlotPane) child).getChildren().get(0);
+                childPlot.setShadeWidth(x);
+                childPlot.repaint();
             }
         }
     }

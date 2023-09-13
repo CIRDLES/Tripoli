@@ -1,25 +1,44 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots;
 
+import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 
+import static javafx.scene.transform.Transform.translate;
+import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_MOVING_SHADE;
+
 public class LinePlot extends AbstractPlot {
     private final LinePlotBuilder linePlotBuilder;
+    private double shadeWidth;
 
+    public void setShadeWidth(double shadeWidth) {
+        this.shadeWidth = shadeWidth;
+    }
 
-    private LinePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
+    private PlotWallPane parentWallPane;
+
+    public PlotWallPane getParentWallPane() {
+        return parentWallPane;
+    }
+
+    private LinePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder, PlotWallPane parentWallPane) {
         super(bounds, 75, 25,
                 linePlotBuilder.getTitle(),
                 linePlotBuilder.getxAxisLabel(),
                 linePlotBuilder.getyAxisLabel());
         this.linePlotBuilder = linePlotBuilder;
+        this.parentWallPane = parentWallPane;
     }
 
-    public static AbstractPlot generatePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
-        return new LinePlot(bounds, linePlotBuilder);
+    public static AbstractPlot generatePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder, PlotWallPane parentWallPane) {
+        return new LinePlot(bounds, linePlotBuilder, parentWallPane);
     }
 
     @Override
@@ -48,6 +67,7 @@ public class LinePlot extends AbstractPlot {
     @Override
     public void paint(GraphicsContext g2d) {
         super.paint(g2d);
+        plotLeftShade(g2d);
     }
 
     public void prepareExtents(boolean reScaleX, boolean reScaleY) {
@@ -89,5 +109,22 @@ public class LinePlot extends AbstractPlot {
     @Override
     public void plotStats(GraphicsContext g2d) {
 
+    }
+
+
+    public void plotLeftShade(GraphicsContext g2d) {
+
+        g2d.setFill(TRIPOLI_MOVING_SHADE);
+        g2d.fillRect(mapX(0), mapY(maxY), mapX(shadeWidth) - mapX(0), mapY(minY) - mapY(maxY));
+
+        g2d.setFill(Color.RED);
+        g2d.fillArc(mapX(shadeWidth) - 40, (mapY(minY) - mapY(maxY)) / 2 + mapY(maxY) - 20, 40, 40, -75, 150, ArcType.CHORD);
+    }
+
+    public boolean mouseInShadeHandle(double x, double y) {
+        boolean inWidth = (x >= mapX(shadeWidth) - 20) && (x <= mapX(shadeWidth) + 20);
+        boolean inHeight = (y >= (mapY(minY) - mapY(maxY)) / 2 + mapY(maxY) - 20) && (y <= (mapY(minY) - mapY(maxY)) / 2 + mapY(maxY) + 20);
+
+        return inWidth && inHeight;
     }
 }

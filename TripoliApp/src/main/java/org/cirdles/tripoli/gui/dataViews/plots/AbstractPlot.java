@@ -35,6 +35,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.HistogramSinglePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.LinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
@@ -119,9 +120,9 @@ public abstract class AbstractPlot extends Canvas {
                     zoomChunkX = Math.abs(zoomChunkX) * Math.signum(event.getDeltaY());
                     zoomChunkY = Math.abs(zoomChunkY) * Math.signum(event.getDeltaY());
                     if (getDisplayRangeX() >= zoomChunkX) {
-                        if (event.getSource() instanceof BlockRatioCyclesSessionPlot){
-                            BlockRatioCyclesSessionPlot sourceBlockRatioCyclesSessionPlot = (BlockRatioCyclesSessionPlot)event.getSource();
-                            sourceBlockRatioCyclesSessionPlot.getParentWallPane().synchronizeRatioPlotsScroll( zoomChunkX, zoomChunkY);
+                        if (event.getSource() instanceof BlockRatioCyclesSessionPlot) {
+                            BlockRatioCyclesSessionPlot sourceBlockRatioCyclesSessionPlot = (BlockRatioCyclesSessionPlot) event.getSource();
+                            sourceBlockRatioCyclesSessionPlot.getParentWallPane().synchronizeRatioPlotsScroll(zoomChunkX, zoomChunkY);
                         } else {
                             adjustZoom();
                         }
@@ -133,9 +134,15 @@ public abstract class AbstractPlot extends Canvas {
 
         EventHandler<MouseEvent> mouseDraggedEventHandler = e -> {
             if (mouseInHouse(e.getX(), e.getY())) {
-                if (e.getSource() instanceof BlockRatioCyclesSessionPlot){
-                    BlockRatioCyclesSessionPlot sourceBlockRatioCyclesSessionPlot = (BlockRatioCyclesSessionPlot)e.getSource();
-                    sourceBlockRatioCyclesSessionPlot.getParentWallPane().synchronizeRatioPlotsDrag( e.getX(), e.getY());
+                if (e.getSource() instanceof BlockRatioCyclesSessionPlot) {
+                    BlockRatioCyclesSessionPlot sourceBlockRatioCyclesSessionPlot = (BlockRatioCyclesSessionPlot) e.getSource();
+                    sourceBlockRatioCyclesSessionPlot.getParentWallPane().synchronizeRatioPlotsDrag(e.getX(), e.getY());
+                } else if (e.getSource() instanceof LinePlot) {
+                    LinePlot sourceLinePlot = (LinePlot) e.getSource();
+                    if (sourceLinePlot.mouseInShadeHandle(e.getX(), e.getY())) {
+                        sourceLinePlot.getParentWallPane().synchronizeConvergencePlotsShade(convertMouseXToValue(e.getX()));
+                        mouseStartX = e.getX();
+                    }
                 } else {
                     displayOffsetX = displayOffsetX + (convertMouseXToValue(mouseStartX) - convertMouseXToValue(e.getX()));
                     mouseStartX = e.getX();
@@ -156,9 +163,9 @@ public abstract class AbstractPlot extends Canvas {
 
         EventHandler<MouseEvent> mousePressedEventHandler = e -> {
             if (mouseInHouse(e.getX(), e.getY()) && e.isPrimaryButtonDown()) {
-                if (e.getSource() instanceof BlockRatioCyclesSessionPlot){
-                    BlockRatioCyclesSessionPlot sourceBlockRatioCyclesSessionPlot = (BlockRatioCyclesSessionPlot)e.getSource();
-                    sourceBlockRatioCyclesSessionPlot.getParentWallPane().synchronizeMouseStartsOnPress( e.getX(), e.getY());
+                if (e.getSource() instanceof BlockRatioCyclesSessionPlot) {
+                    BlockRatioCyclesSessionPlot sourceBlockRatioCyclesSessionPlot = (BlockRatioCyclesSessionPlot) e.getSource();
+                    sourceBlockRatioCyclesSessionPlot.getParentWallPane().synchronizeMouseStartsOnPress(e.getX(), e.getY());
                 } else {
                     adjustMouseStartsForPress(e.getX(), e.getY());
                 }
@@ -282,12 +289,9 @@ public abstract class AbstractPlot extends Canvas {
                         g2d.strokeLine(
                                 leftMargin, mapY(bigDecimalTicY.doubleValue()), leftMargin + plotWidth, mapY(bigDecimalTicY.doubleValue()));
                         // left side
-//                        Formatter fmt = new Formatter();
-//                        fmt.format("%8.5g", bigDecimalTicY.doubleValue());
-//                        String yText = fmt.toString().trim();
                         double ticValue = bigDecimalTicY.doubleValue();
                         DecimalFormat df = new DecimalFormat((99999 < Math.abs(ticValue) || 1.0e-5 > Math.abs(ticValue)) ? "0.0####E0" : "#####0.#####");
-                        String yText =  (ticValue == 0.0) ? "0" : df.format(ticValue);
+                        String yText = (ticValue == 0.0) ? "0" : df.format(ticValue);
 
                         text.setText(yText);
                         textWidth = (int) text.getLayoutBounds().getWidth();
@@ -308,12 +312,6 @@ public abstract class AbstractPlot extends Canvas {
                             mapX(ticsX[i].doubleValue()),
                             topMargin + plotHeight + 3);
                     // bottom
-                    // http://www.java2s.com/Tutorials/Java/String/How_to_use_Java_Formatter_to_format_value_in_scientific_notation.htm#:~:text=%25e%20is%20for%20scientific%20notation,scientific%20notation%2C%20use%20%25e.
-//                    Formatter fmt = new Formatter();
-//                    fmt.format("%8.5g", ticsX[i].doubleValue());
-//                    DecimalFormat df = new DecimalFormat("#####0.######");
-//                    String xText = df.format(ticsX[i].doubleValue());//fmt.toString().trim();
-
                     double ticValue = ticsX[i].doubleValue();
                     DecimalFormat df = new DecimalFormat((99999 < Math.abs(ticValue) || 1.0e-5 > Math.abs(ticValue)) ? "0.0####E0" : "#####0.#####");
                     String xText = (ticValue == 0.0) ? "0" : df.format(ticValue);
@@ -564,32 +562,6 @@ public abstract class AbstractPlot extends Canvas {
         this.height = height;
     }
 
-    public void performPrimaryClick(double mouseX, double mouseY) {
-
-    }
-
-    class MouseClickEventHandler implements EventHandler<MouseEvent> {
-        @Override
-        public void handle(MouseEvent mouseEvent) {
-            plotContextMenu.hide();
-            boolean isPrimary = (0 == mouseEvent.getButton().compareTo(MouseButton.PRIMARY));
-            boolean isBlockRatioCyclesSessionPlot = (mouseEvent.getSource() instanceof BlockRatioCyclesSessionPlot);
-            BlockRatioCyclesSessionPlot blockRatioCyclesSessionPlot = (BlockRatioCyclesSessionPlot)mouseEvent.getSource();
-
-            if (mouseInHouse(mouseEvent.getX(), mouseEvent.getY())) {
-                if (isPrimary && isBlockRatioCyclesSessionPlot) {
-                    // determine blockID
-                    double xValue = convertMouseXToValue(mouseEvent.getX());
-                    int blockID = (int) ((xValue - 0.7) / blockRatioCyclesSessionPlot.getBlockRatioCyclesSessionRecord().cyclesPerBlock()) + 1;
-                    BlockRatioCyclesSessionPlot sourceBlockRatioCyclesSessionPlot = (BlockRatioCyclesSessionPlot)mouseEvent.getSource();
-                    sourceBlockRatioCyclesSessionPlot.getParentWallPane().synchronizeBlockToggle(blockID);
-                } else {
-                    plotContextMenu.show((Node) mouseEvent.getSource(), Side.LEFT, mouseEvent.getX() - getLayoutX(), mouseEvent.getY() - getLayoutY());
-                }
-            }
-        }
-    }
-
     public void setZoomChunkX(double zoomChunkX) {
         this.zoomChunkX = zoomChunkX;
     }
@@ -598,7 +570,7 @@ public abstract class AbstractPlot extends Canvas {
         this.zoomChunkY = zoomChunkY;
     }
 
-    public void adjustZoom(){
+    public void adjustZoom() {
         minX += zoomChunkX;
         maxX -= zoomChunkX;
         minY += zoomChunkY;
@@ -608,7 +580,7 @@ public abstract class AbstractPlot extends Canvas {
         repaint();
     }
 
-    public void adjustOffsetsForDrag(double x, double y){
+    public void adjustOffsetsForDrag(double x, double y) {
         displayOffsetX = displayOffsetX + (convertMouseXToValue(mouseStartX) - convertMouseXToValue(x));
         mouseStartX = x;
         displayOffsetY = displayOffsetY + (convertMouseYToValue(mouseStartY) - convertMouseYToValue(y));
@@ -617,8 +589,30 @@ public abstract class AbstractPlot extends Canvas {
         repaint();
     }
 
-    public void adjustMouseStartsForPress(double x, double y){
+    public void adjustMouseStartsForPress(double x, double y) {
         mouseStartX = x;
         mouseStartY = y;
+    }
+
+    class MouseClickEventHandler implements EventHandler<MouseEvent> {
+        @Override
+        public void handle(MouseEvent mouseEvent) {
+            plotContextMenu.hide();
+            boolean isPrimary = (0 == mouseEvent.getButton().compareTo(MouseButton.PRIMARY));
+            boolean isBlockRatioCyclesSessionPlot = (mouseEvent.getSource() instanceof BlockRatioCyclesSessionPlot);
+
+            if (mouseInHouse(mouseEvent.getX(), mouseEvent.getY())) {
+                if (isPrimary && isBlockRatioCyclesSessionPlot) {
+                    BlockRatioCyclesSessionPlot blockRatioCyclesSessionPlot = (BlockRatioCyclesSessionPlot) mouseEvent.getSource();
+                    // determine blockID
+                    double xValue = convertMouseXToValue(mouseEvent.getX());
+                    int blockID = (int) ((xValue - 0.7) / blockRatioCyclesSessionPlot.getBlockRatioCyclesSessionRecord().cyclesPerBlock()) + 1;
+                    BlockRatioCyclesSessionPlot sourceBlockRatioCyclesSessionPlot = (BlockRatioCyclesSessionPlot) mouseEvent.getSource();
+                    sourceBlockRatioCyclesSessionPlot.getParentWallPane().synchronizeBlockToggle(blockID);
+                } else if (!isPrimary) {
+                    plotContextMenu.show((Node) mouseEvent.getSource(), Side.LEFT, mouseEvent.getX() - getLayoutX(), mouseEvent.getY() - getLayoutY());
+                }
+            }
+        }
     }
 }
