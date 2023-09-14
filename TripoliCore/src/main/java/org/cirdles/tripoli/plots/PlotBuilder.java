@@ -30,6 +30,14 @@ public class PlotBuilder implements Serializable {
     protected String yAxisLabel;
     protected boolean displayed;
 
+    protected double shadeWidthForModelConvergence;
+    public double getShadeWidthForModelConvergence() {
+        return shadeWidthForModelConvergence;
+    }
+    public void setShadeWidthForModelConvergence(double shadeWidthForModelConvergence) {
+        this.shadeWidthForModelConvergence = shadeWidthForModelConvergence;
+    }
+
     public PlotBuilder() {
         this(new String[]{"NONE"}, "NONE", "NONE", false);
     }

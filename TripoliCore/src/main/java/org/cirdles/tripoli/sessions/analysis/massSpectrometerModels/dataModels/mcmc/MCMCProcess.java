@@ -21,6 +21,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.plots.PlotBuilder;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLabCholesky;
@@ -51,6 +52,7 @@ public class MCMCProcess {
     private static final int modelCount = maxIterationCount * stepCountForcedSave;
     private final SingleBlockModelRecord singleBlockInitialModelRecord_X0;
     private final Matrix covarianceMatrix_C0;
+    private AnalysisInterface analysis;
     private final AnalysisMethod analysisMethod;
     private final SingleBlockRawDataSetRecord singleBlockRawDataSetRecord;
     List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
@@ -74,10 +76,11 @@ public class MCMCProcess {
     private boolean useAverageNotBestModel;
 
     private MCMCProcess(
-            AnalysisMethod analysisMethod,
+            AnalysisInterface analysis,
             SingleBlockRawDataSetRecord singleBlockRawDataSetRecord,
             SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov, boolean useAverageNotBestModel) {
-        this.analysisMethod = analysisMethod;
+        this.analysis = analysis;
+        this.analysisMethod = analysis.getAnalysisMethod();
         this.singleBlockRawDataSetRecord = singleBlockRawDataSetRecord;
         singleBlockInitialModelRecord_X0 = singleBlockInitialModelRecordWithCov.singleBlockModelRecord();
         proposalRangesRecord = singleBlockInitialModelRecordWithCov.proposalRangesRecord();
@@ -90,8 +93,7 @@ public class MCMCProcess {
     }
 
     public static synchronized MCMCProcess createMCMCProcess(
-            AnalysisMethod analysisMethod,
-            SingleBlockRawDataSetRecord singleBlockRawDataSetRecord,
+            AnalysisInterface analysis, SingleBlockRawDataSetRecord singleBlockRawDataSetRecord,
             SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov) {
         /*
             % MCMC Parameters
@@ -111,7 +113,7 @@ public class MCMCProcess {
             Ndata=d0.Ndata; % Number of picks
             Nsig = d0.Nsig; % Number of noise variables
          */
-        MCMCProcess mcmcProcess = new MCMCProcess(analysisMethod, singleBlockRawDataSetRecord, singleBlockInitialModelRecordWithCov, true);
+        MCMCProcess mcmcProcess = new MCMCProcess(analysis, singleBlockRawDataSetRecord, singleBlockInitialModelRecordWithCov, true);
         return mcmcProcess;
     }
 
@@ -544,7 +546,7 @@ x=x0;
                     initialModelErrorUnWeighted_E0 = E02;
 
                     singleBlockCurrentModelRecord_X = new SingleBlockModelRecord(
-                            singleBlockUpdatedModelRecord_x2.blockNumber(),
+                            singleBlockUpdatedModelRecord_x2.blockID(),
                             singleBlockUpdatedModelRecord_x2.faradayCount(),
                             singleBlockUpdatedModelRecord_x2.cycleCount(),
                             singleBlockUpdatedModelRecord_x2.isotopeCount(),
@@ -609,7 +611,7 @@ x=x0;
                     if (E < minE) {
                         minE = E;
                         bestSingleBlockModelRecord = new SingleBlockModelRecord(
-                                singleBlockCurrentModelRecord_X.blockNumber(),
+                                singleBlockCurrentModelRecord_X.blockID(),
                                 singleBlockCurrentModelRecord_X.faradayCount(),
                                 singleBlockCurrentModelRecord_X.cycleCount(),
                                 singleBlockCurrentModelRecord_X.isotopeCount(),
@@ -656,7 +658,7 @@ x=x0;
 
                         loggingSnippet =
                                 modelIndex + " >%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
-                                        + "  BLOCK # " + singleBlockCurrentModelRecord_X.blockNumber()
+                                        + "  BLOCK # " + singleBlockCurrentModelRecord_X.blockID()
                                         + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
                                         + "\nError function = " + statsFormat.format(StrictMath.sqrt(initialModelErrorUnWeighted_E0 / countOfData))
                                         + "\nChange All Variables: " + modelsKeptLocal + " of " + modelsTotalLocal + " accepted (" + statsFormat.format(100.0 * modelsKept / modelsTotal) + "% total)"
@@ -697,7 +699,7 @@ x=x0;
 
                             if (rExit <= ExitCrit) {
                                 notConverged = false;
-                                String exitMessage = "Alert:  for BLOCK # " + singleBlockCurrentModelRecord_X.blockNumber() + ",  MCMC has converged after " + modelIndex + " iterations, with R = " + rExit;
+                                String exitMessage = "Alert:  for BLOCK # " + singleBlockCurrentModelRecord_X.blockID() + ",  MCMC has converged after " + modelIndex + " iterations, with R = " + rExit;
                                 System.err.println("\n" + exitMessage + "\n");
                                 loggingCallback.receiveLoggingSnippet(exitMessage);
                             }
@@ -711,7 +713,7 @@ x=x0;
         }// convergence check
 
         // Detroit 2023 printout ensembleRecordsList
-        Path path = Paths.get("EnsemblesForBlock_" + singleBlockCurrentModelRecord_X.blockNumber() + ".csv");
+        Path path = Paths.get("EnsemblesForBlock_" + singleBlockCurrentModelRecord_X.blockID() + ".csv");
         OutputStream stream = Files.newOutputStream(path);
         stream.write(ensembleRecordsList.get(0).prettyPrintHeaderAsCSV("Index", analysisMethod.getIsotopicRatiosList()).getBytes());
         for (int i = 0; i < ensembleRecordsList.size(); i++) {
@@ -720,18 +722,18 @@ x=x0;
         stream.close();
 
         // for session plotting
-        analysisMethod.getMapOfBlockIdToRawData().put(singleBlockCurrentModelRecord_X.blockNumber(), singleBlockRawDataSetRecord);
+        analysisMethod.getMapOfBlockIdToRawData().put(singleBlockCurrentModelRecord_X.blockID(), singleBlockRawDataSetRecord);
 
         if (useAverageNotBestModel) {
             SingleBlockModelRecord singleBlockModelRecordMCMC = EnsemblesStore.produceSummaryModelFromEnsembleStore(
-                    ensembleRecordsList, analysisMethod, singleBlockRawDataSetRecord, bestSingleBlockModelRecord);
+                    ensembleRecordsList, analysis, singleBlockRawDataSetRecord, bestSingleBlockModelRecord);
             analysisMethod.getMapOfBlockIdToFinalModel()
-                    .put(singleBlockCurrentModelRecord_X.blockNumber(), singleBlockModelRecordMCMC);
+                    .put(singleBlockCurrentModelRecord_X.blockID(), singleBlockModelRecordMCMC);
         } else {// TODO: get this right and make it an option
             analysisMethod.getMapOfBlockIdToFinalModel()
-                    .put(singleBlockCurrentModelRecord_X.blockNumber(), (bestSingleBlockModelRecord == null) ? singleBlockCurrentModelRecord_X : bestSingleBlockModelRecord);
+                    .put(singleBlockCurrentModelRecord_X.blockID(), (bestSingleBlockModelRecord == null) ? singleBlockCurrentModelRecord_X : bestSingleBlockModelRecord);
         }
 
-        return SingleBlockDataModelPlot.analysisAndPlotting(singleBlockRawDataSetRecord, ensembleRecordsList, singleBlockCurrentModelRecord_X, analysisMethod);
+        return SingleBlockDataModelPlot.analysisAndPlotting(singleBlockRawDataSetRecord, ensembleRecordsList, singleBlockCurrentModelRecord_X, analysis);
     }
 }

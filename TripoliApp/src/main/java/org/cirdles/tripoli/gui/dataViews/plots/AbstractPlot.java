@@ -36,8 +36,13 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.HistogramSinglePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.LinePlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.MultiLineIntensityPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
+import org.cirdles.tripoli.plots.PlotBuilder;
+import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
+import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -79,9 +84,14 @@ public abstract class AbstractPlot extends Canvas {
     protected boolean showYaxis;
     protected boolean showXaxis;
 
-    private AbstractPlot() {
+    protected PlotBuilder plotBuilder;;
+
+    public PlotBuilder getPlotBuilder() {
+        return plotBuilder;
     }
 
+    private AbstractPlot() {
+    }
 
     /**
      * @param bounds
@@ -139,9 +149,15 @@ public abstract class AbstractPlot extends Canvas {
                     sourceBlockRatioCyclesSessionPlot.getParentWallPane().synchronizeRatioPlotsDrag(e.getX(), e.getY());
                 } else if (e.getSource() instanceof LinePlot) {
                     LinePlot sourceLinePlot = (LinePlot) e.getSource();
-                    if (sourceLinePlot.mouseInShadeHandle(e.getX(), e.getY())) {
-                        sourceLinePlot.getParentWallPane().synchronizeConvergencePlotsShade(convertMouseXToValue(e.getX()));
-                        mouseStartX = e.getX();
+                    if (mouseInShadeHandle(plotBuilder.getShadeWidthForModelConvergence(), e.getX(), e.getY())) {
+                        plotBuilder.setShadeWidthForModelConvergence(convertMouseXToValue(e.getX()));
+                        sourceLinePlot.getParentWallPane().synchronizeConvergencePlotsShade(((LinePlotBuilder)plotBuilder).getBlockID(), convertMouseXToValue(e.getX()));
+                    }
+                } else if (e.getSource() instanceof MultiLineIntensityPlot) {
+                    MultiLineIntensityPlot sourceLinePlot = (MultiLineIntensityPlot) e.getSource();
+                    if (mouseInShadeHandle(plotBuilder.getShadeWidthForModelConvergence(), e.getX(), e.getY())) {
+                        plotBuilder.setShadeWidthForModelConvergence(convertMouseXToValue(e.getX()));
+                        sourceLinePlot.getParentWallPane().synchronizeConvergencePlotsShade(((MultiLinePlotBuilder)plotBuilder).getBlockID(), convertMouseXToValue(e.getX()));
                     }
                 } else {
                     displayOffsetX = displayOffsetX + (convertMouseXToValue(mouseStartX) - convertMouseXToValue(e.getX()));
@@ -232,6 +248,13 @@ public abstract class AbstractPlot extends Canvas {
 
         if (showStats) {
             plotStats(g2d);
+        }
+
+        if (this instanceof LinePlot) {
+            ((LinePlot) this).plotLeftShade(g2d);
+        }
+        if (this instanceof MultiLineIntensityPlot) {
+            ((MultiLineIntensityPlot) this).plotLeftShade(g2d);
         }
 
         drawAxes(g2d);
@@ -592,6 +615,13 @@ public abstract class AbstractPlot extends Canvas {
     public void adjustMouseStartsForPress(double x, double y) {
         mouseStartX = x;
         mouseStartY = y;
+    }
+
+    public boolean mouseInShadeHandle(double shadeWidthForModelConvergence, double x, double y) {
+        boolean inWidth = (x >= mapX(shadeWidthForModelConvergence) - 20) && (x <= mapX(shadeWidthForModelConvergence) + 20);
+        boolean inHeight = (y >= (mapY(minY) - mapY(maxY)) / 2 + mapY(maxY) - 20) && (y <= (mapY(minY) - mapY(maxY)) / 2 + mapY(maxY) + 20);
+
+        return inWidth && inHeight;
     }
 
     class MouseClickEventHandler implements EventHandler<MouseEvent> {

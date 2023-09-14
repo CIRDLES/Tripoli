@@ -23,9 +23,9 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.HistogramSinglePlot;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.LinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,17 +43,24 @@ public class PlotWallPane extends Pane {
 
     private boolean[] zoomFlagsXY = new boolean[2];
 
-    private PlotWallPane(String iD) {
+    private AnalysisInterface analysis;
+
+    public AnalysisInterface getAnalysis() {
+        return analysis;
+    }
+
+    private PlotWallPane(String iD, AnalysisInterface analysis) {
         this.iD = iD;
         zoomFlagsXY[0] = true;
         zoomFlagsXY[1] = true;
+        this.analysis = analysis;
     }
 
-    public static PlotWallPane createPlotWallPane(String iD) {
+    public static PlotWallPane createPlotWallPane(String iD, AnalysisInterface analysis) {
         if (iD == null) {
-            return new PlotWallPane("NONE");
+            return new PlotWallPane("NONE", analysis);
         } else {
-            return new PlotWallPane(iD);
+            return new PlotWallPane(iD, analysis);
         }
     }
 
@@ -307,13 +314,14 @@ public class PlotWallPane extends Pane {
         }
     }
 
-    public void synchronizeConvergencePlotsShade(double x) {
+    public void synchronizeConvergencePlotsShade(int blockID, double shadeWidth) {
+        ((Analysis)analysis).updateShadeWidthsForConvergenceLinePlots(blockID, shadeWidth);
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
-                LinePlot childPlot = (LinePlot) ((TripoliPlotPane) child).getChildren().get(0);
-                childPlot.setShadeWidth(x);
-                childPlot.repaint();
+                if (((TripoliPlotPane) child).getChildren().get(0) instanceof AbstractPlot) {
+                    ((AbstractPlot) ((TripoliPlotPane) child).getChildren().get(0)).repaint();
+                }
             }
         }
     }

@@ -24,6 +24,8 @@ import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
 import org.cirdles.tripoli.plots.linePlots.ComboPlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.species.IsotopicRatio;
@@ -49,33 +51,33 @@ public enum SingleBlockDataModelPlot {
     public static PlotBuilder[][] analysisAndPlotting(
             SingleBlockRawDataSetRecord singleBlockRawDataSetRecord,
             List<EnsemblesStore.EnsembleRecord> ensembleRecordsList,
-            SingleBlockModelRecord singleBlockCurrentModelRecord_X,
-            AnalysisMethod analysisMethod) {
+            SingleBlockModelRecord singleBlockCurrentModelRecord_X, AnalysisInterface analysis) {
+        AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
         List<IsotopicRatio> isotopicRatioList = analysisMethod.getIsotopicRatiosList();
 
         /*
             %% Analysis and Plotting
 
-            burn = 1000; % Number of models to discard
+            initialModelsBurnCount = 1000; % Number of models to discard
             ens_rat =[ensemble.lograt];
 
-            % Calculate mean and st dev of ratios after burn in time
-            ratmean = mean(ens_rat(:,burn:cnt),2);  % Log ratios
-            ratstd = std(ens_rat(:,burn:cnt),[],2);
+            % Calculate mean and st dev of ratios after initialModelsBurnCount in time
+            ratmean = mean(ens_rat(:,initialModelsBurnCount:cnt),2);  % Log ratios
+            ratstd = std(ens_rat(:,initialModelsBurnCount:cnt),[],2);
 
-            BLmean = mean(ens_BL(:,burn:cnt),2);  % Baselines
-            BLstd = std(ens_BL(:,burn:cnt),[],2);
+            BLmean = mean(ens_BL(:,initialModelsBurnCount:cnt),2);  % Baselines
+            BLstd = std(ens_BL(:,initialModelsBurnCount:cnt),[],2);
 
-            sigmean = mean(ens_sig(:,burn:cnt),2);   % Noise hyperparams
-            sigstd = std(ens_sig(:,burn:cnt),[],2);
+            sigmean = mean(ens_sig(:,initialModelsBurnCount:cnt),2);   % Noise hyperparams
+            sigstd = std(ens_sig(:,initialModelsBurnCount:cnt),[],2);
 
-            DFmean = mean(ens_DF(:,burn:cnt),2);   % Daly-Far gain
-            DFstd = std(ens_DF(:,burn:cnt),[],2);
+            DFmean = mean(ens_DF(:,initialModelsBurnCount:cnt),2);   % Daly-Far gain
+            DFstd = std(ens_DF(:,initialModelsBurnCount:cnt),[],2);
 
          */
-        int burn;// = 100;// 500;//1000;
-        burn = 1;//Math.min(100, ensembleRecordsList.size() - 50);
-        int countOfEnsemblesUsed = ensembleRecordsList.size() - burn;
+        int blockID = singleBlockCurrentModelRecord_X.blockID();
+        int initialModelsBurnCount = ((Analysis)analysis).getMapOfBlockIdToModelsBurnCount().get(singleBlockCurrentModelRecord_X.blockID());
+        int countOfEnsemblesUsed = ensembleRecordsList.size() - initialModelsBurnCount;
 
         // log ratios
         double[][] ensembleSetOfLogRatios = new double[isotopicRatioList.size()][countOfEnsemblesUsed];
@@ -84,10 +86,10 @@ public enum SingleBlockDataModelPlot {
         double[] logRatioStdDev = new double[isotopicRatioList.size()];
         DescriptiveStatistics descriptiveStatisticsLogRatios = new DescriptiveStatistics();
         for (int ratioIndex = 0; ratioIndex < isotopicRatioList.size(); ratioIndex++) {
-            for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
-                ensembleSetOfLogRatios[ratioIndex][index - burn] = ensembleRecordsList.get(index).logRatios()[ratioIndex];
-                descriptiveStatisticsLogRatios.addValue(ensembleSetOfLogRatios[ratioIndex][index - burn]);
-                ensembleRatios[ratioIndex][index - burn] = exp(ensembleSetOfLogRatios[ratioIndex][index - burn]);
+            for (int index = initialModelsBurnCount; index < countOfEnsemblesUsed + initialModelsBurnCount; index++) {
+                ensembleSetOfLogRatios[ratioIndex][index - initialModelsBurnCount] = ensembleRecordsList.get(index).logRatios()[ratioIndex];
+                descriptiveStatisticsLogRatios.addValue(ensembleSetOfLogRatios[ratioIndex][index - initialModelsBurnCount]);
+                ensembleRatios[ratioIndex][index - initialModelsBurnCount] = exp(ensembleSetOfLogRatios[ratioIndex][index - initialModelsBurnCount]);
             }
             logRatioMean[ratioIndex] = descriptiveStatisticsLogRatios.getMean();
             logRatioStdDev[ratioIndex] = descriptiveStatisticsLogRatios.getStandardDeviation();
@@ -95,6 +97,7 @@ public enum SingleBlockDataModelPlot {
             isotopicRatioList.get(ratioIndex).setRatioValuesForBlockEnsembles(ensembleRatios[ratioIndex]);
             isotopicRatioList.get(ratioIndex).setLogRatioValuesForBlockEnsembles(ensembleSetOfLogRatios[ratioIndex]);
         }
+
         // derived ratios
         List<IsotopicRatio> derivedIsotopicRatiosList = analysisMethod.getDerivedIsotopicRatiosList();
         int countOfDerivedRatios = derivedIsotopicRatiosList.size();
@@ -142,10 +145,10 @@ public enum SingleBlockDataModelPlot {
 
         for (int row = 0; row < baselineSize; row++) {
             DescriptiveStatistics descriptiveStatisticsBaselines = new DescriptiveStatistics();
-            for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
+            for (int index = initialModelsBurnCount; index < countOfEnsemblesUsed + initialModelsBurnCount; index++) {
                 // todo: fix magic number
-                ensembleBaselines[row][index - burn] = ensembleRecordsList.get(index).baseLine()[row];//TODO: Decide / 6.24e7 * 1e6;
-                descriptiveStatisticsBaselines.addValue(ensembleBaselines[row][index - burn]);
+                ensembleBaselines[row][index - initialModelsBurnCount] = ensembleRecordsList.get(index).baseLine()[row];//TODO: Decide / 6.24e7 * 1e6;
+                descriptiveStatisticsBaselines.addValue(ensembleBaselines[row][index - initialModelsBurnCount]);
             }
             baselinesMeans[row] = descriptiveStatisticsBaselines.getMean();
             baselinesStdDev[row] = descriptiveStatisticsBaselines.getStandardDeviation();
@@ -154,36 +157,20 @@ public enum SingleBlockDataModelPlot {
         // dalyFaraday gains
         double[] ensembleDalyFaradayGain = new double[countOfEnsemblesUsed];
         DescriptiveStatistics descriptiveStatisticsDalyFaradayGain = new DescriptiveStatistics();
-        for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
-            ensembleDalyFaradayGain[index - burn] = ensembleRecordsList.get(index).dfGain();
-            descriptiveStatisticsDalyFaradayGain.addValue(ensembleDalyFaradayGain[index - burn]);
+        for (int index = initialModelsBurnCount; index < countOfEnsemblesUsed + initialModelsBurnCount; index++) {
+            ensembleDalyFaradayGain[index - initialModelsBurnCount] = ensembleRecordsList.get(index).dfGain();
+            descriptiveStatisticsDalyFaradayGain.addValue(ensembleDalyFaradayGain[index - initialModelsBurnCount]);
         }
         double dalyFaradayGainMean = descriptiveStatisticsDalyFaradayGain.getMean();
         double dalyFaradayGainStdDev = descriptiveStatisticsDalyFaradayGain.getStandardDeviation();
-
-//        // signal noise
-//        int faradayCount = singleBlockCurrentModelRecord_X.faradayCount();
-//        double[][] ensembleSignalnoise = new double[faradayCount][countOfEnsemblesUsed];
-//        double[] signalNoiseMeans = new double[faradayCount];
-//        double[] signalNoiseStdDev = new double[faradayCount];
-//
-//        for (int row = 0; row < faradayCount; row++) {
-//            DescriptiveStatistics descriptiveStatisticsSignalNoise = new DescriptiveStatistics();
-//            for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
-//                ensembleSignalnoise[row][index - burn] = ensembleRecordsList.get(index).signalNoise()[row];
-//                descriptiveStatisticsSignalNoise.addValue(ensembleSignalnoise[row][index - burn]);
-//            }
-//            signalNoiseMeans[row] = descriptiveStatisticsSignalNoise.getMean();
-//            signalNoiseStdDev[row] = descriptiveStatisticsSignalNoise.getStandardDeviation();
-//        }
 
         /*
             for m=1:d0.Nblock
                 for n = 1:cnt;
                     ens_I{m}(:,n) =[ensemble(n).I{m}];
                 end
-                Imean{m} = mean(ens_I{m}(:,burn:cnt),2);
-                Istd{m} = std(ens_I{m}(:,burn:cnt),[],2);
+                Imean{m} = mean(ens_I{m}(:,initialModelsBurnCount:cnt),2);
+                Istd{m} = std(ens_I{m}(:,initialModelsBurnCount:cnt),[],2);
             end
          */
 
@@ -195,9 +182,9 @@ public enum SingleBlockDataModelPlot {
 
         for (int knotIndex = 0; knotIndex < knotsCount; knotIndex++) {
             DescriptiveStatistics descriptiveStatisticsIntensity = new DescriptiveStatistics();
-            for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
-                ensembleIntensity[knotIndex][index - burn] = ensembleRecordsList.get(index).I0()[knotIndex];
-                descriptiveStatisticsIntensity.addValue(ensembleIntensity[knotIndex][index - burn]);
+            for (int index = initialModelsBurnCount; index < countOfEnsemblesUsed + initialModelsBurnCount; index++) {
+                ensembleIntensity[knotIndex][index - initialModelsBurnCount] = ensembleRecordsList.get(index).I0()[knotIndex];
+                descriptiveStatisticsIntensity.addValue(ensembleIntensity[knotIndex][index - initialModelsBurnCount]);
             }
             intensityMeans[knotIndex] = descriptiveStatisticsIntensity.getMean();
             intensityStdDevs[knotIndex] = descriptiveStatisticsIntensity.getStandardDeviation();
@@ -236,7 +223,7 @@ public enum SingleBlockDataModelPlot {
         for (int i = 0; i < ensembleRatios.length; i++) {
             plotBuilders[PLOT_INDEX_RATIOS][i] =
                     RatioHistogramBuilder.initializeRatioHistogram(
-                            singleBlockRawDataSetRecord.blockNumber(),
+                            blockID,
                             isotopicRatioList.get(i),
                             biMapOfRatiosAndInverses.get(isotopicRatioList.get(i)),
                             25);
@@ -245,7 +232,7 @@ public enum SingleBlockDataModelPlot {
         for (int i = 0; i < derivedEnsembleRatios.length; i++) {
             plotBuilders[PLOT_INDEX_RATIOS][i + ensembleRatios.length] =
                     RatioHistogramBuilder.initializeRatioHistogram(
-                            singleBlockRawDataSetRecord.blockNumber(),
+                            blockID,
                             derivedIsotopicRatiosList.get(i),
                             (null != biMapOfRatiosAndInverses.get(derivedIsotopicRatiosList.get(i))) ?
                                     (biMapOfRatiosAndInverses.get(derivedIsotopicRatiosList.get(i))) :
@@ -257,15 +244,15 @@ public enum SingleBlockDataModelPlot {
         plotBuilders[1] = new PlotBuilder[ensembleBaselines.length];
         List<Detector> faradayDetectorsUsed = analysisMethod.getSequenceTable().findFaradayDetectorsUsed();
         for (int i = 0; i < ensembleBaselines.length; i++) {
-            plotBuilders[1][i] = HistogramBuilder.initializeHistogram(singleBlockRawDataSetRecord.blockNumber(), ensembleBaselines[i],
+            plotBuilders[1][i] = HistogramBuilder.initializeHistogram(blockID, ensembleBaselines[i],
                     25, new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Baseline"}, "Baseline Counts", "Frequency", true);
         }
 
-        plotBuilders[2][0] = HistogramBuilder.initializeHistogram(singleBlockRawDataSetRecord.blockNumber(), ensembleDalyFaradayGain,
+        plotBuilders[2][0] = HistogramBuilder.initializeHistogram(blockID, ensembleDalyFaradayGain,
                 25, new String[]{"Daly/Faraday Gain"}, "Gain", "Frequency", true);
 
         plotBuilders[4][0] = MultiLinePlotBuilder.initializeLinePlot(
-                xDataIntensityMeans, yDataIntensityMeans, new String[]{"Mean Intensity w/ Knots"}, "Time Index", "Intensity (counts)", true);
+                xDataIntensityMeans, yDataIntensityMeans, new String[]{"Mean Intensity w/ Knots"}, "Time Index", "Intensity (counts)", true, blockID);
 
         // visualization converge ratio and others TABS
         double[][] convergeIntensities = new double[knotsCount][ensembleRecordsList.size()];
@@ -298,23 +285,25 @@ public enum SingleBlockDataModelPlot {
         for (int i = 0; i < convergeSetOfLogRatios.length; i++) {
             plotBuilders[5][i] = LinePlotBuilder.initializeLinePlot(
                     xDataConvergeSavedIterations, convergeSetOfLogRatios[i],
-                    new String[]{isotopicRatioList.get(i).prettyPrint()}, "Saved iterations", "Log Ratio");
+                    new String[]{isotopicRatioList.get(i).prettyPrint()}, "Saved iterations", "Log Ratio", initialModelsBurnCount, blockID);
         }
 
         plotBuilders[6] = new PlotBuilder[convergeSetOfBaselines.length];
         for (int i = 0; i < convergeSetOfBaselines.length; i++) {
             plotBuilders[6][i] = LinePlotBuilder.initializeLinePlot(
                     xDataConvergeSavedIterations, convergeSetOfBaselines[i],
-                    new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Baseline"}, "Saved iterations", "Baseline Counts");
+                    new String[]{faradayDetectorsUsed.get(i).getDetectorName() + " Baseline"}, "Saved iterations", "Baseline Counts", initialModelsBurnCount, blockID);
         }
 
-        plotBuilders[8][0] = LinePlotBuilder.initializeLinePlot(xDataConvergeSavedIterations, convergeErrWeightedMisfit, new String[]{"Converge Weighted Misfit"}, "Saved iterations", "Weighted Misfit");
+        plotBuilders[8][0] = LinePlotBuilder.initializeLinePlot(xDataConvergeSavedIterations, convergeErrWeightedMisfit,
+                new String[]{"Converge Weighted Misfit"}, "Saved iterations", "Weighted Misfit", initialModelsBurnCount, blockID);
 
-        plotBuilders[9][0] = LinePlotBuilder.initializeLinePlot(xDataConvergeSavedIterations, convergeErrRawMisfit, new String[]{"Converge Raw Misfit"}, "Saved iterations", "Raw Misfit");
+        plotBuilders[9][0] = LinePlotBuilder.initializeLinePlot(xDataConvergeSavedIterations, convergeErrRawMisfit,
+                new String[]{"Converge Raw Misfit"}, "Saved iterations", "Raw Misfit", initialModelsBurnCount, blockID);
 
 
         plotBuilders[10][0] = MultiLinePlotBuilder.initializeLinePlot(
-                new double[][]{xDataConvergeSavedIterations}, convergeIntensities, new String[]{"Converge Intensity"}, "", "", false);
+                new double[][]{xDataConvergeSavedIterations}, convergeIntensities, new String[]{"Converge Intensity"}, "", "", false, blockID);
 
 
         // visualization data fit ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -395,7 +384,6 @@ public enum SingleBlockDataModelPlot {
             integrationTimes[dataArrayIndex] = timeAccumulatorList.get(intensityIndex);
         }
 
-//        isotopeOrdinalIndicesAccumulatorList = singleBlockRawDataSetRecord.baselineDataSetMCMC().isotopeOrdinalIndicesAccumulatorList();
         detectorOrdinalIndicesAccumulatorList = singleBlockRawDataSetRecord.baselineDataSetMCMC().detectorOrdinalIndicesAccumulatorList();
         timeIndexAccumulatorList = singleBlockRawDataSetRecord.baselineDataSetMCMC().timeIndexAccumulatorList();
         timeAccumulatorList = singleBlockRawDataSetRecord.baselineDataSetMCMC().timeAccumulatorList();
@@ -403,7 +391,6 @@ public enum SingleBlockDataModelPlot {
             int intensityIndex = timeIndexAccumulatorList.get(dataArrayIndex);
             int faradayIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(dataArrayIndex));
             dataArray[dataArrayIndex] = baselinesMeans[faradayIndex];
-//            dataWithNoBaselineArray[dataArrayIndex] = dataModelArray[dataArrayIndex] - baselinesMeans[faradayIndex];
 
             //TODO: WTF???
             double calculatedValue = StrictMath.sqrt(1.0//pow(xSig[faradayIndex], 2)
@@ -431,13 +418,10 @@ public enum SingleBlockDataModelPlot {
         plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(
                 integrationTimes, yDataResiduals, dataCountsModelOneSigma_Dsig, new String[]{"Residual Data"}, "Integration Time (secs)", "Intensity");
 
-
         // todo: missing additional elements of signalNoiseSigma (i.e., 0,11,11)
         System.err.println(logRatioMean + "         " + logRatioStdDev);
         System.err.println(baselinesMeans[0] + "         " + baselinesMeans[1] + "    " + baselinesStdDev[0] + "     " + baselinesStdDev[1]);
         System.err.println(dalyFaradayGainMean + "    " + dalyFaradayGainStdDev);
-//        System.err.println(signalNoiseMeans[0] + "         " + signalNoiseMeans[1] + "    " + signalNoiseStdDev[0] + "     " + signalNoiseStdDev[1]);
-
 
         return plotBuilders;
     }

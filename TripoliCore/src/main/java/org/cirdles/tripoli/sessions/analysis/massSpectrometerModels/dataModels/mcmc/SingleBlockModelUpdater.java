@@ -178,7 +178,7 @@ public class SingleBlockModelUpdater {
                     x2.sig = x.sig;
                  */
             singleBlockInitialModelRecord_initial2 = new SingleBlockModelRecord(
-                    singleBlockInitialModelRecord_initial.blockNumber(),
+                    singleBlockInitialModelRecord_initial.blockID(),
                     singleBlockInitialModelRecord_initial.faradayCount(),
                     singleBlockInitialModelRecord_initial.cycleCount(),
                     singleBlockInitialModelRecord_initial.isotopeCount(),

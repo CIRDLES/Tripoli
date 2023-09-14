@@ -84,6 +84,13 @@ public class Analysis implements Serializable, AnalysisInterface {
     private boolean mutable;
 
 
+    private final Map<Integer, Integer> mapOfBlockIdToModelsBurnCount = Collections.synchronizedSortedMap(new TreeMap<>());
+
+    public Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount() {
+        return mapOfBlockIdToModelsBurnCount;
+    }
+
+
     private Analysis() {
     }
 
@@ -123,6 +130,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             // initialize block processing state
             for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
                 mapOfBlockIdToProcessStatus.put(blockID, RUN);
+                mapOfBlockIdToModelsBurnCount.put(blockID, 0);
             }
         } else {
             // attempt to load specified method
@@ -224,6 +232,26 @@ public class Analysis implements Serializable, AnalysisInterface {
             }
         }
         return retVal;
+    }
+
+    public void updateShadeWidthsForConvergenceLinePlots(int blockID, double shadeWidth){
+        // PlotBuilder indices for convergence LinePlotBuilders = 5,6,8,9
+        // TODO: make these indices into constants
+        // PlotBuilder indices for convergence MultiLinePlotBuilders = 10
+        PlotBuilder[][] plotBuilders = mapOfBlockIdToPlots.get(blockID);
+        if (plotBuilders != null) {
+            updatePlotBuildersWithShades(plotBuilders[5], shadeWidth);
+            updatePlotBuildersWithShades(plotBuilders[6], shadeWidth);
+            updatePlotBuildersWithShades(plotBuilders[8], shadeWidth);
+            updatePlotBuildersWithShades(plotBuilders[9], shadeWidth);
+            updatePlotBuildersWithShades(plotBuilders[10], shadeWidth);
+        }
+    }
+
+    private void updatePlotBuildersWithShades(PlotBuilder[] linePlotBuilders, double shadeWidth){
+        for (int i = 0; i < linePlotBuilders.length; i ++){
+            linePlotBuilders[i].setShadeWidthForModelConvergence(shadeWidth);
+        }
     }
 
     @Override

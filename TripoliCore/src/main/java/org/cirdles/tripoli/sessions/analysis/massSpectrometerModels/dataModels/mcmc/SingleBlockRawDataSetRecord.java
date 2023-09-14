@@ -26,7 +26,7 @@ import java.util.Map;
  * @author James F. Bowring
  */
 public record SingleBlockRawDataSetRecord(
-        int blockNumber,
+        int blockID,
         SingleBlockRawDataRecord baselineDataSetMCMC,
         SingleBlockRawDataRecord onPeakFaradayDataSetMCMC,
         SingleBlockRawDataRecord onPeakPhotoMultiplierDataSetMCMC,
@@ -51,7 +51,7 @@ public record SingleBlockRawDataSetRecord(
      * @author James F. Bowring
      */
     public record SingleBlockRawDataRecord(
-            int blockNumber,
+            int blockID,
             List<Integer> detectorOrdinalIndicesAccumulatorList,
             List<Integer> cycleAccumulatorList,
             List<Double> intensityAccumulatorList,

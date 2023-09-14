@@ -18,6 +18,8 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.
 
 import jama.Matrix;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.species.IsotopicRatio;
 
@@ -39,19 +41,22 @@ public class EnsemblesStore implements Serializable {
         this.lastDataModelInit = lastDataModelInit;
     }
 
-    static synchronized SingleBlockModelRecord produceSummaryModelFromEnsembleStore(
-            List<EnsembleRecord> ensembleRecordsList, AnalysisMethod analysisMethod, SingleBlockRawDataSetRecord singleBlockRawDataSetRecord, SingleBlockModelRecord singleBlockModelRecord) {
+    static synchronized SingleBlockModelRecord  produceSummaryModelFromEnsembleStore(
+            List<EnsembleRecord> ensembleRecordsList,
+            AnalysisInterface analysis, SingleBlockRawDataSetRecord singleBlockRawDataSetRecord, SingleBlockModelRecord singleBlockModelRecord) {
+        AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
         List<IsotopicRatio> isotopicRatioList = analysisMethod.getIsotopicRatiosList();
-        int burn = ensembleRecordsList.size() / 10;
-        int countOfEnsemblesUsed = ensembleRecordsList.size() - burn;
+
+        int initialModelsBurnCount = ((Analysis)analysis).getMapOfBlockIdToModelsBurnCount().get(singleBlockModelRecord.blockID());
+        int countOfEnsemblesUsed = ensembleRecordsList.size() - initialModelsBurnCount;
         // log ratios
         double[][] ensembleSetOfLogRatios = new double[isotopicRatioList.size()][countOfEnsemblesUsed];
         double[] logRatioMean = new double[isotopicRatioList.size()];
         for (int ratioIndex = 0; ratioIndex < isotopicRatioList.size(); ratioIndex++) {
             DescriptiveStatistics descriptiveStatisticsLogRatios = new DescriptiveStatistics();
-            for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
-                ensembleSetOfLogRatios[ratioIndex][index - burn] = ensembleRecordsList.get(index).logRatios()[ratioIndex];
-                descriptiveStatisticsLogRatios.addValue(ensembleSetOfLogRatios[ratioIndex][index - burn]);
+            for (int index = initialModelsBurnCount; index < countOfEnsemblesUsed + initialModelsBurnCount; index++) {
+                ensembleSetOfLogRatios[ratioIndex][index - initialModelsBurnCount] = ensembleRecordsList.get(index).logRatios()[ratioIndex];
+                descriptiveStatisticsLogRatios.addValue(ensembleSetOfLogRatios[ratioIndex][index - initialModelsBurnCount]);
             }
             logRatioMean[ratioIndex] = descriptiveStatisticsLogRatios.getMean();
         }
@@ -64,10 +69,10 @@ public class EnsemblesStore implements Serializable {
 
         for (int row = 0; row < baselineSize; row++) {
             DescriptiveStatistics descriptiveStatisticsBaselines = new DescriptiveStatistics();
-            for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
+            for (int index = initialModelsBurnCount; index < countOfEnsemblesUsed + initialModelsBurnCount; index++) {
                 // todo: fix magic number
-                ensembleBaselines[row][index - burn] = ensembleRecordsList.get(index).baseLine()[row];//TODO: Decide / 6.24e7 * 1e6;
-                descriptiveStatisticsBaselines.addValue(ensembleBaselines[row][index - burn]);
+                ensembleBaselines[row][index - initialModelsBurnCount] = ensembleRecordsList.get(index).baseLine()[row];//TODO: Decide / 6.24e7 * 1e6;
+                descriptiveStatisticsBaselines.addValue(ensembleBaselines[row][index - initialModelsBurnCount]);
             }
             baselinesMeans[row] = descriptiveStatisticsBaselines.getMean();
             baselinesStdDev[row] = descriptiveStatisticsBaselines.getStandardDeviation();
@@ -76,9 +81,9 @@ public class EnsemblesStore implements Serializable {
         // dalyFaraday gains
         double[] ensembleDalyFaradayGain = new double[countOfEnsemblesUsed];
         DescriptiveStatistics descriptiveStatisticsDalyFaradayGain = new DescriptiveStatistics();
-        for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
-            ensembleDalyFaradayGain[index - burn] = ensembleRecordsList.get(index).dfGain();
-            descriptiveStatisticsDalyFaradayGain.addValue(ensembleDalyFaradayGain[index - burn]);
+        for (int index = initialModelsBurnCount; index < countOfEnsemblesUsed + initialModelsBurnCount; index++) {
+            ensembleDalyFaradayGain[index - initialModelsBurnCount] = ensembleRecordsList.get(index).dfGain();
+            descriptiveStatisticsDalyFaradayGain.addValue(ensembleDalyFaradayGain[index - initialModelsBurnCount]);
         }
         double dalyFaradayGainMean = descriptiveStatisticsDalyFaradayGain.getMean();
 
@@ -89,16 +94,16 @@ public class EnsemblesStore implements Serializable {
 
         for (int knotIndex = 0; knotIndex < knotsCount; knotIndex++) {
             DescriptiveStatistics descriptiveStatisticsI0 = new DescriptiveStatistics();
-            for (int index = burn; index < countOfEnsemblesUsed + burn; index++) {
-                ensembleI0[knotIndex][index - burn] = ensembleRecordsList.get(index).I0()[knotIndex];
-                descriptiveStatisticsI0.addValue(ensembleI0[knotIndex][index - burn]);
+            for (int index = initialModelsBurnCount; index < countOfEnsemblesUsed + initialModelsBurnCount; index++) {
+                ensembleI0[knotIndex][index - initialModelsBurnCount] = ensembleRecordsList.get(index).I0()[knotIndex];
+                descriptiveStatisticsI0.addValue(ensembleI0[knotIndex][index - initialModelsBurnCount]);
             }
             meansI0[knotIndex] = descriptiveStatisticsI0.getMean();
         }
 
 
         SingleBlockModelRecord summaryMCMCModel = new SingleBlockModelRecord(
-                singleBlockModelRecord.blockNumber(),//original
+                singleBlockModelRecord.blockID(),//original
                 singleBlockModelRecord.faradayCount(),
                 singleBlockModelRecord.cycleCount(),
                 analysisMethod.getSpeciesList().size(),
@@ -224,7 +229,7 @@ public class EnsemblesStore implements Serializable {
 
 
         SingleBlockModelRecord finalMCMCModel = new SingleBlockModelRecord(
-                singleBlockModelRecord.blockNumber(),//original
+                singleBlockModelRecord.blockID(),//original
                 singleBlockModelRecord.faradayCount(),
                 singleBlockModelRecord.cycleCount(),
                 analysisMethod.getSpeciesList().size(),
