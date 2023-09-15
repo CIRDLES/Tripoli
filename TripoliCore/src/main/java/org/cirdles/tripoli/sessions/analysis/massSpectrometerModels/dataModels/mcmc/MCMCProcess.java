@@ -52,10 +52,10 @@ public class MCMCProcess {
     private static final int modelCount = maxIterationCount * stepCountForcedSave;
     private final SingleBlockModelRecord singleBlockInitialModelRecord_X0;
     private final Matrix covarianceMatrix_C0;
-    private AnalysisInterface analysis;
     private final AnalysisMethod analysisMethod;
     private final SingleBlockRawDataSetRecord singleBlockRawDataSetRecord;
     List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
+    private AnalysisInterface analysis;
     private boolean hierarchical;
     private double tempering;
     private double[] baselineMultiplier;

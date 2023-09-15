@@ -42,7 +42,6 @@ import org.cirdles.tripoli.gui.utilities.TripoliColor;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
-import org.cirdles.tripoli.sessions.analysis.Analysis;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -84,11 +83,8 @@ public abstract class AbstractPlot extends Canvas {
     protected boolean showYaxis;
     protected boolean showXaxis;
 
-    protected PlotBuilder plotBuilder;;
-
-    public PlotBuilder getPlotBuilder() {
-        return plotBuilder;
-    }
+    protected PlotBuilder plotBuilder;
+    ;
 
     private AbstractPlot() {
     }
@@ -151,13 +147,13 @@ public abstract class AbstractPlot extends Canvas {
                     LinePlot sourceLinePlot = (LinePlot) e.getSource();
                     if (mouseInShadeHandle(plotBuilder.getShadeWidthForModelConvergence(), e.getX(), e.getY())) {
                         plotBuilder.setShadeWidthForModelConvergence(convertMouseXToValue(e.getX()));
-                        sourceLinePlot.getParentWallPane().synchronizeConvergencePlotsShade(((LinePlotBuilder)plotBuilder).getBlockID(), convertMouseXToValue(e.getX()));
+                        sourceLinePlot.getParentWallPane().synchronizeConvergencePlotsShade(((LinePlotBuilder) plotBuilder).getBlockID(), convertMouseXToValue(e.getX()));
                     }
                 } else if (e.getSource() instanceof MultiLineIntensityPlot) {
                     MultiLineIntensityPlot sourceLinePlot = (MultiLineIntensityPlot) e.getSource();
                     if (mouseInShadeHandle(plotBuilder.getShadeWidthForModelConvergence(), e.getX(), e.getY())) {
                         plotBuilder.setShadeWidthForModelConvergence(convertMouseXToValue(e.getX()));
-                        sourceLinePlot.getParentWallPane().synchronizeConvergencePlotsShade(((MultiLinePlotBuilder)plotBuilder).getBlockID(), convertMouseXToValue(e.getX()));
+                        sourceLinePlot.getParentWallPane().synchronizeConvergencePlotsShade(((MultiLinePlotBuilder) plotBuilder).getBlockID(), convertMouseXToValue(e.getX()));
                     }
                 } else {
                     displayOffsetX = displayOffsetX + (convertMouseXToValue(mouseStartX) - convertMouseXToValue(e.getX()));
@@ -189,6 +185,10 @@ public abstract class AbstractPlot extends Canvas {
         };
         addEventFilter(MouseEvent.MOUSE_PRESSED, mousePressedEventHandler);
         setOnMouseClicked(new MouseClickEventHandler());
+    }
+
+    public PlotBuilder getPlotBuilder() {
+        return plotBuilder;
     }
 
     public TripoliColor getDataColor() {

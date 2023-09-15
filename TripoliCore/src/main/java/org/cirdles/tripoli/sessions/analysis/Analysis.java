@@ -71,7 +71,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<Integer, String> mapOfBlockToLogs = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, Integer> mapOfBlockIdToProcessStatus = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, List<File>> blockPeakGroups = Collections.synchronizedSortedMap(new TreeMap<>());
-
+    private final Map<Integer, Integer> mapOfBlockIdToModelsBurnCount = Collections.synchronizedSortedMap(new TreeMap<>());
     private String analysisName;
     private String analystName;
     private String labName;
@@ -83,16 +83,9 @@ public class Analysis implements Serializable, AnalysisInterface {
     private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
 
-
-    private final Map<Integer, Integer> mapOfBlockIdToModelsBurnCount = Collections.synchronizedSortedMap(new TreeMap<>());
-
-    public Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount() {
-        return mapOfBlockIdToModelsBurnCount;
-    }
-
-
     private Analysis() {
     }
+
 
     protected Analysis(String analysisName, AnalysisMethod analysisMethod, String analysisSampleName) {
         this.analysisName = analysisName;
@@ -104,6 +97,10 @@ public class Analysis implements Serializable, AnalysisInterface {
         dataFilePathString = MISSING_STRING_FIELD;
         massSpecExtractedData = new MassSpecExtractedData();
         mutable = true;
+    }
+
+    public Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount() {
+        return mapOfBlockIdToModelsBurnCount;
     }
 
     public void extractMassSpecDataFromPath(Path dataFilePath)
@@ -127,7 +124,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             } else {
                 analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
             }
-            // initialize block processing state
+            // initialize block processing state - see parallel below
             for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
                 mapOfBlockIdToProcessStatus.put(blockID, RUN);
                 mapOfBlockIdToModelsBurnCount.put(blockID, 0);
@@ -150,6 +147,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             // initialize block processing state
             for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
                 mapOfBlockIdToProcessStatus.put(blockID, RUN);
+                mapOfBlockIdToModelsBurnCount.put(blockID, 0);
             }
 
             // collects the file objects from PeakCentres folder +++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -234,7 +232,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         return retVal;
     }
 
-    public void updateShadeWidthsForConvergenceLinePlots(int blockID, double shadeWidth){
+    public void updateShadeWidthsForConvergenceLinePlots(int blockID, double shadeWidth) {
         // PlotBuilder indices for convergence LinePlotBuilders = 5,6,8,9
         // TODO: make these indices into constants
         // PlotBuilder indices for convergence MultiLinePlotBuilders = 10
@@ -248,8 +246,8 @@ public class Analysis implements Serializable, AnalysisInterface {
         }
     }
 
-    private void updatePlotBuildersWithShades(PlotBuilder[] linePlotBuilders, double shadeWidth){
-        for (int i = 0; i < linePlotBuilders.length; i ++){
+    private void updatePlotBuildersWithShades(PlotBuilder[] linePlotBuilders, double shadeWidth) {
+        for (int i = 0; i < linePlotBuilders.length; i++) {
             linePlotBuilders[i].setShadeWidthForModelConvergence(shadeWidth);
         }
     }

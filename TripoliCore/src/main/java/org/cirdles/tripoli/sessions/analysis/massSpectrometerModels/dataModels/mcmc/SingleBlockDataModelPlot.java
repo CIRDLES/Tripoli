@@ -52,6 +52,7 @@ public enum SingleBlockDataModelPlot {
             SingleBlockRawDataSetRecord singleBlockRawDataSetRecord,
             List<EnsemblesStore.EnsembleRecord> ensembleRecordsList,
             SingleBlockModelRecord singleBlockCurrentModelRecord_X, AnalysisInterface analysis) {
+        
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
         List<IsotopicRatio> isotopicRatioList = analysisMethod.getIsotopicRatiosList();
 
@@ -76,7 +77,7 @@ public enum SingleBlockDataModelPlot {
 
          */
         int blockID = singleBlockCurrentModelRecord_X.blockID();
-        int initialModelsBurnCount = ((Analysis)analysis).getMapOfBlockIdToModelsBurnCount().get(singleBlockCurrentModelRecord_X.blockID());
+        int initialModelsBurnCount = ((Analysis) analysis).getMapOfBlockIdToModelsBurnCount().get(singleBlockCurrentModelRecord_X.blockID());
         int countOfEnsemblesUsed = ensembleRecordsList.size() - initialModelsBurnCount;
 
         // log ratios

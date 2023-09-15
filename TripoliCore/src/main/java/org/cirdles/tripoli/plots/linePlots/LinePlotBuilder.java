@@ -28,8 +28,12 @@ public class LinePlotBuilder extends PlotBuilder {
     private final double[] yData;
     private int blockID;
 
-    public int getBlockID() {
-        return blockID;
+    protected LinePlotBuilder(double[] xData, double[] yData, String[] title, String xAxisLabel, String yAxisLabel, int shadeWidthForModelConvergence, int blockID) {
+        super(title, xAxisLabel, yAxisLabel, true);
+        this.xData = xData;
+        this.yData = yData;
+        this.blockID = blockID;
+        this.shadeWidthForModelConvergence = shadeWidthForModelConvergence;
     }
 
 //
@@ -41,16 +45,12 @@ public class LinePlotBuilder extends PlotBuilder {
 //        this.shadeWidthForModelConvergence = 0;
 //    }
 
-    protected LinePlotBuilder(double[] xData, double[] yData, String[] title, String xAxisLabel, String yAxisLabel, int shadeWidthForModelConvergence, int blockID) {
-        super(title, xAxisLabel, yAxisLabel, true);
-        this.xData = xData;
-        this.yData = yData;
-        this.blockID = blockID;
-        this.shadeWidthForModelConvergence = shadeWidthForModelConvergence;
-    }
-
     public static LinePlotBuilder initializeLinePlot(double[] xData, double[] yData, String[] title, String xAxisLabel, String yAxisLabel, int shadeWidthForModelConvergence, int blockID) {
         return new LinePlotBuilder(xData, yData, title, xAxisLabel, yAxisLabel, shadeWidthForModelConvergence, blockID);
+    }
+
+    public int getBlockID() {
+        return blockID;
     }
 
     public double[] getyData() {

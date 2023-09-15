@@ -41,13 +41,13 @@ public class EnsemblesStore implements Serializable {
         this.lastDataModelInit = lastDataModelInit;
     }
 
-    static synchronized SingleBlockModelRecord  produceSummaryModelFromEnsembleStore(
+    static synchronized SingleBlockModelRecord produceSummaryModelFromEnsembleStore(
             List<EnsembleRecord> ensembleRecordsList,
             AnalysisInterface analysis, SingleBlockRawDataSetRecord singleBlockRawDataSetRecord, SingleBlockModelRecord singleBlockModelRecord) {
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
         List<IsotopicRatio> isotopicRatioList = analysisMethod.getIsotopicRatiosList();
 
-        int initialModelsBurnCount = ((Analysis)analysis).getMapOfBlockIdToModelsBurnCount().get(singleBlockModelRecord.blockID());
+        int initialModelsBurnCount = ((Analysis) analysis).getMapOfBlockIdToModelsBurnCount().get(singleBlockModelRecord.blockID());
         int countOfEnsemblesUsed = ensembleRecordsList.size() - initialModelsBurnCount;
         // log ratios
         double[][] ensembleSetOfLogRatios = new double[isotopicRatioList.size()][countOfEnsemblesUsed];

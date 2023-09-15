@@ -9,22 +9,17 @@ import javafx.scene.text.Text;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
 
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_MOVING_SHADE;
 
 
-public class MultiLineIntensityPlot extends AbstractPlot{
+public class MultiLineIntensityPlot extends AbstractPlot {
 
     private double[][] xData;
     private double[][] yData;
 
     private PlotWallPane parentWallPane;
-
-    public PlotWallPane getParentWallPane() {
-        return parentWallPane;
-    }
 
     /**
      * @param bounds
@@ -41,6 +36,10 @@ public class MultiLineIntensityPlot extends AbstractPlot{
 
     public static AbstractPlot generatePlot(Rectangle bounds, MultiLinePlotBuilder multiLinePlotBuilder, PlotWallPane parentWallPane) {
         return new MultiLineIntensityPlot(bounds, multiLinePlotBuilder, parentWallPane);
+    }
+
+    public PlotWallPane getParentWallPane() {
+        return parentWallPane;
     }
 
     @Override
@@ -134,6 +133,7 @@ public class MultiLineIntensityPlot extends AbstractPlot{
     public void plotStats(GraphicsContext g2d) {
 
     }
+
     public void plotLeftShade(GraphicsContext g2d) {
         g2d.setFill(TRIPOLI_MOVING_SHADE);
         g2d.fillRect(mapX(0), mapY(maxY), mapX(plotBuilder.getShadeWidthForModelConvergence()) - mapX(0), mapY(minY) - mapY(maxY));

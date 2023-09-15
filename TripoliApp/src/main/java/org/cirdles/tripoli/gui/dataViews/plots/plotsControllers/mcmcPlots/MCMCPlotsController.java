@@ -512,10 +512,10 @@ public class MCMCPlotsController {
     }
 
     public void convergeTabSelected(Event event) {
-        Tab tab = (Tab)event.getSource();
+        Tab tab = (Tab) event.getSource();
         if (tab.isSelected()) {
 
-            ((PlotWallPane)((AnchorPane)tab.getContent()).getChildren().get(0)).restoreAllPlots();
+            ((PlotWallPane) ((AnchorPane) tab.getContent()).getChildren().get(0)).restoreAllPlots();
         }
     }
 

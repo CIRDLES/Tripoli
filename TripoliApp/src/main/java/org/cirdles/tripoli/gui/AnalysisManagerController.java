@@ -27,6 +27,7 @@ import javafx.scene.text.TextFlow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
@@ -590,7 +591,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     @FXML
     private void selectMethodFileButtonAction() {
         try {
-            File selectedFile = selectMethodFile(TripoliGUI.primaryStage);
+            File selectedFile = selectMethodFile(null);
             if ((null != selectedFile) && (selectedFile.exists())) {
                 AnalysisMethod analysisMethod = analysis.extractAnalysisMethodfromPath(Path.of(selectedFile.toURI()));
                 String compareInfo = compareAnalysisMethodToDataFileSpecs(analysisMethod, analysis.getMassSpecExtractedData());
@@ -615,6 +616,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         // initialize block processing state
         for (Integer blockID : analysis.getMassSpecExtractedData().getBlocksData().keySet()) {
             analysis.getMapOfBlockIdToProcessStatus().put(blockID, RUN);
+            ((Analysis) analysis).getMapOfBlockIdToModelsBurnCount().put(blockID, 0);
         }
         populateAnalysisManagerGridPane();
     }

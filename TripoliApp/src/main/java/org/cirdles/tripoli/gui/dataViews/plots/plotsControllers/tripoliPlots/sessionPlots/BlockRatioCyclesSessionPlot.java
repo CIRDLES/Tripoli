@@ -16,10 +16,8 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots;
 
-import javafx.collections.ObservableList;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
@@ -27,7 +25,6 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
 import org.cirdles.tripoli.plots.compoundPlots.BlockRatioCyclesRecord;
 import org.cirdles.tripoli.plots.sessionPlots.BlockRatioCyclesSessionRecord;
 
@@ -43,10 +40,6 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
 
 
     private final BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord;
-    public BlockRatioCyclesSessionRecord getBlockRatioCyclesSessionRecord() {
-        return blockRatioCyclesSessionRecord;
-    }
-
     private Map<Integer, BlockRatioCyclesRecord> mapBlockIdToBlockRatioCyclesRecord;
     private double[] oneSigmaForCycles;
     private double sessionMean;
@@ -54,11 +47,6 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
     private boolean logScale;
     private boolean[] zoomFlagsXY;
     private PlotWallPane parentWallPane;
-
-    public PlotWallPane getParentWallPane() {
-        return parentWallPane;
-    }
-
     private BlockRatioCyclesSessionPlot(Rectangle bounds, BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord, PlotWallPane parentWallPane) {
         super(bounds,
                 75, 25,
@@ -75,6 +63,14 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
 
     public static AbstractPlot generatePlot(Rectangle bounds, BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord, PlotWallPane parentWallPane) {
         return new BlockRatioCyclesSessionPlot(bounds, blockRatioCyclesSessionRecord, parentWallPane);
+    }
+
+    public BlockRatioCyclesSessionRecord getBlockRatioCyclesSessionRecord() {
+        return blockRatioCyclesSessionRecord;
+    }
+
+    public PlotWallPane getParentWallPane() {
+        return parentWallPane;
     }
 
     public void setLogScale(boolean logScale) {

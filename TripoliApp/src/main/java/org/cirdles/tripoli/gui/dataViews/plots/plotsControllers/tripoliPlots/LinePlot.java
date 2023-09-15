@@ -7,7 +7,6 @@ import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_MOVING_SHADE;
@@ -15,10 +14,6 @@ import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_MOVI
 public class LinePlot extends AbstractPlot {
 
     private PlotWallPane parentWallPane;
-
-    public PlotWallPane getParentWallPane() {
-        return parentWallPane;
-    }
 
     private LinePlot(Rectangle bounds, LinePlotBuilder plotBuilder, PlotWallPane parentWallPane) {
         super(bounds, 75, 25,
@@ -32,6 +27,10 @@ public class LinePlot extends AbstractPlot {
 
     public static AbstractPlot generatePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder, PlotWallPane parentWallPane) {
         return new LinePlot(bounds, linePlotBuilder, parentWallPane);
+    }
+
+    public PlotWallPane getParentWallPane() {
+        return parentWallPane;
     }
 
     @Override

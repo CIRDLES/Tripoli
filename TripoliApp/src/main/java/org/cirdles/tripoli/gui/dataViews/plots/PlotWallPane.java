@@ -45,10 +45,6 @@ public class PlotWallPane extends Pane {
 
     private AnalysisInterface analysis;
 
-    public AnalysisInterface getAnalysis() {
-        return analysis;
-    }
-
     private PlotWallPane(String iD, AnalysisInterface analysis) {
         this.iD = iD;
         zoomFlagsXY[0] = true;
@@ -62,6 +58,10 @@ public class PlotWallPane extends Pane {
         } else {
             return new PlotWallPane(iD, analysis);
         }
+    }
+
+    public AnalysisInterface getAnalysis() {
+        return analysis;
     }
 
     public void tilePlots() {
@@ -292,11 +292,11 @@ public class PlotWallPane extends Pane {
         }
     }
 
-    public void synchronizeRatioPlotsScroll(double zoomChunkX, double zoomChunkY){
+    public void synchronizeRatioPlotsScroll(double zoomChunkX, double zoomChunkY) {
         ObservableList<Node> children = getChildren();
-        for (Node child : children){
-            if (child instanceof TripoliPlotPane){
-                BlockRatioCyclesSessionPlot childPlot = (BlockRatioCyclesSessionPlot)((TripoliPlotPane) child).getChildren().get(0);
+        for (Node child : children) {
+            if (child instanceof TripoliPlotPane) {
+                BlockRatioCyclesSessionPlot childPlot = (BlockRatioCyclesSessionPlot) ((TripoliPlotPane) child).getChildren().get(0);
                 childPlot.setZoomChunkX(zoomChunkX);
                 childPlot.setZoomChunkY(zoomChunkY);
                 childPlot.adjustZoom();
@@ -315,7 +315,7 @@ public class PlotWallPane extends Pane {
     }
 
     public void synchronizeConvergencePlotsShade(int blockID, double shadeWidth) {
-        ((Analysis)analysis).updateShadeWidthsForConvergenceLinePlots(blockID, shadeWidth);
+        ((Analysis) analysis).updateShadeWidthsForConvergenceLinePlots(blockID, shadeWidth);
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
@@ -326,7 +326,7 @@ public class PlotWallPane extends Pane {
         }
     }
 
-    public void synchronizeMouseStartsOnPress(double x, double y){
+    public void synchronizeMouseStartsOnPress(double x, double y) {
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
@@ -336,7 +336,7 @@ public class PlotWallPane extends Pane {
         }
     }
 
-    public void synchronizeBlockToggle(int blockID){
+    public void synchronizeBlockToggle(int blockID) {
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
