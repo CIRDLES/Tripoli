@@ -57,11 +57,14 @@ class TripoliSerializerTest {
 
             FileInputStream fileInputStream = new FileInputStream(serializedFile);
             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-            Object deserializedObject = objectInputStream.readObject();
+            Object deserializedWithJava = objectInputStream.readObject();
             objectInputStream.close();
 
+            Object deserializedWithTripoli = TripoliSerializer.getSerializedObjectFromFile(fileName, true);
+
             // Compare Serialized and Deserialized Object
-            assertEquals(testObject, deserializedObject);
+            assertEquals(testObject, deserializedWithJava);
+            assertEquals(testObject, deserializedWithTripoli);
 
         } catch (IOException ex) {
             fail("Exception occurred during test: " + ex.getMessage());
@@ -89,7 +92,6 @@ class TripoliSerializerTest {
         Session session1 = Session.initializeDefaultSession();
         Session session2 = Session.initializeDefaultSession();
 
-        // Override equals and hashCode in Session.java
         assertTrue(session1.equals(session2));
         assertEquals(session1.hashCode(), session2.hashCode());
     }
