@@ -33,21 +33,17 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
  */
 public class EnsemblesStore implements Serializable {
 
-    private final List<EnsembleRecord> ensembles;
-    private final SingleBlockModelRecord lastDataModelInit;
-
-    public EnsemblesStore(List<EnsembleRecord> ensembles, SingleBlockModelRecord lastDataModelInit) {
-        this.ensembles = ensembles;
-        this.lastDataModelInit = lastDataModelInit;
-    }
-
     static synchronized SingleBlockModelRecord produceSummaryModelFromEnsembleStore(
-            List<EnsembleRecord> ensembleRecordsList,
-            AnalysisInterface analysis, SingleBlockRawDataSetRecord singleBlockRawDataSetRecord, SingleBlockModelRecord singleBlockModelRecord) {
+            int blockID,
+            AnalysisInterface analysis,
+            SingleBlockModelRecord singleBlockModelRecord) {
+
+        List<EnsemblesStore.EnsembleRecord> ensembleRecordsList = ((Analysis)analysis).getMapBlockIDToEnsembles().get(blockID);
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
+        SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = analysisMethod.getMapOfBlockIdToRawData().get(blockID);
         List<IsotopicRatio> isotopicRatioList = analysisMethod.getIsotopicRatiosList();
 
-        int initialModelsBurnCount = ((Analysis) analysis).getMapOfBlockIdToModelsBurnCount().get(singleBlockModelRecord.blockID());
+        int initialModelsBurnCount = ((Analysis) analysis).getMapOfBlockIdToModelsBurnCount().get(blockID);
         int countOfEnsemblesUsed = ensembleRecordsList.size() - initialModelsBurnCount;
         // log ratios
         double[][] ensembleSetOfLogRatios = new double[isotopicRatioList.size()][countOfEnsemblesUsed];
@@ -62,7 +58,7 @@ public class EnsemblesStore implements Serializable {
         }
 
         // baseLines
-        int baselineSize = singleBlockModelRecord.faradayCount();
+        int baselineSize = analysisMethod.getSequenceTable().findFaradayDetectorsUsed().size();
         double[][] ensembleBaselines = new double[baselineSize][countOfEnsemblesUsed];
         double[] baselinesMeans = new double[baselineSize];
         double[] baselinesStdDev = new double[baselineSize];
@@ -103,9 +99,9 @@ public class EnsemblesStore implements Serializable {
 
 
         SingleBlockModelRecord summaryMCMCModel = new SingleBlockModelRecord(
-                singleBlockModelRecord.blockID(),//original
-                singleBlockModelRecord.faradayCount(),
-                singleBlockModelRecord.cycleCount(),
+                blockID,//original
+                baselineSize,
+                singleBlockRawDataSetRecord.onPeakStartingIndicesOfCycles().length,//singleBlockModelRecord.cycleCount(),
                 analysisMethod.getSpeciesList().size(),
                 analysisMethod.retrieveHighestAbundanceSpecies(),
                 baselinesMeans,//calculated
@@ -229,9 +225,9 @@ public class EnsemblesStore implements Serializable {
 
 
         SingleBlockModelRecord finalMCMCModel = new SingleBlockModelRecord(
-                singleBlockModelRecord.blockID(),//original
-                singleBlockModelRecord.faradayCount(),
-                singleBlockModelRecord.cycleCount(),
+                blockID,//original
+                baselineSize,
+                singleBlockRawDataSetRecord.onPeakStartingIndicesOfCycles().length,//singleBlockModelRecord.cycleCount(),
                 analysisMethod.getSpeciesList().size(),
                 analysisMethod.retrieveHighestAbundanceSpecies(),
                 baselinesMeans,//calculated
@@ -249,14 +245,6 @@ public class EnsemblesStore implements Serializable {
 
 
         return finalMCMCModel;
-    }
-
-    public List<EnsembleRecord> getEnsembles() {
-        return ensembles;
-    }
-
-    public SingleBlockModelRecord getLastDataModelInit() {
-        return lastDataModelInit;
     }
 
     public record EnsembleRecord(

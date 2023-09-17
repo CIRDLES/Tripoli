@@ -22,7 +22,6 @@ public class LinePlot extends AbstractPlot {
                 plotBuilder.getyAxisLabel());
         this.plotBuilder = plotBuilder;
         this.parentWallPane = parentWallPane;
-        plotBuilder.getShadeWidthForModelConvergence();
     }
 
     public static AbstractPlot generatePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder, PlotWallPane parentWallPane) {

@@ -48,7 +48,7 @@ public class PlotBuilder implements Serializable {
     }
 
     public void setShadeWidthForModelConvergence(double shadeWidthForModelConvergence) {
-        this.shadeWidthForModelConvergence = shadeWidthForModelConvergence;
+        this.shadeWidthForModelConvergence = Math.max(0.0, shadeWidthForModelConvergence);
     }
 
     public String[] getTitle() {

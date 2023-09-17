@@ -674,6 +674,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
     }
 
+    /**
+     * Restores block status buttons to their saved state
+     */
     public void restoreAllAction() {
         for (Node button : blockStatusHBox.getChildren()) {
             if ((button instanceof Button) && (null != analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())))) {

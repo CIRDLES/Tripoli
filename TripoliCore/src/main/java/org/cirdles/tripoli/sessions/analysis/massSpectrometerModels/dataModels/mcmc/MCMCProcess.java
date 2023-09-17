@@ -21,6 +21,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.plots.PlotBuilder;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
@@ -29,10 +30,6 @@ import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -54,7 +51,7 @@ public class MCMCProcess {
     private final Matrix covarianceMatrix_C0;
     private final AnalysisMethod analysisMethod;
     private final SingleBlockRawDataSetRecord singleBlockRawDataSetRecord;
-    List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
+    private List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
     private AnalysisInterface analysis;
     private boolean hierarchical;
     private double tempering;
@@ -376,16 +373,16 @@ x=x0;
                 double[] updatedBaseLineMeansArray = new double[baseLineMeansArray.length + 1];
                 System.arraycopy(baseLineMeansArray, 0, updatedBaseLineMeansArray, 0, updatedBaseLineMeansArray.length - 1);
 
-                double[] updatedBaseLineArray = new double[countOfData];
+//                double[] updatedBaseLineArray = new double[countOfData];
 
                 double[] updatedDetectorFaradayArray = new double[countOfData];
                 Arrays.fill(updatedDetectorFaradayArray, 1.0);
 
-                double[] updatedLogRatioArray = new double[countOfData];
-                double[] updatedIntensitiesArray = new double[countOfData];
-
-                double[] logRatios = singleBlockUpdatedModelRecord_x2.logRatios();
-                double detectorFaradayGain = singleBlockUpdatedModelRecord_x2.detectorFaradayGain();
+//                double[] updatedLogRatioArray = new double[countOfData];
+//                double[] updatedIntensitiesArray = new double[countOfData];
+//
+//                double[] logRatios = singleBlockUpdatedModelRecord_x2.logRatios();
+//                double detectorFaradayGain = singleBlockUpdatedModelRecord_x2.detectorFaradayGain();
 
 //                for (int row = 0; row < countOfData; row++) {
 //                    if (row < startingIndexOfPhotoMultiplierData) {
@@ -443,7 +440,7 @@ x=x0;
                     dE=temp^-1*(E2-E); % Change in misfit
                 end
              */
-                double[] dataWithNoBaselineArray2 = new double[countOfData];
+//                double[] dataWithNoBaselineArray2 = new double[countOfData];
                 double[] dataArray2 = modelInitData(singleBlockUpdatedModelRecord_x2, singleBlockRawDataSetRecord);
 
 //                for (int row = 0; row < countOfData; row++) {
@@ -712,21 +709,23 @@ x=x0;
             }// end model loop
         }// convergence check
 
-        // Detroit 2023 printout ensembleRecordsList
-        Path path = Paths.get("EnsemblesForBlock_" + singleBlockCurrentModelRecord_X.blockID() + ".csv");
-        OutputStream stream = Files.newOutputStream(path);
-        stream.write(ensembleRecordsList.get(0).prettyPrintHeaderAsCSV("Index", analysisMethod.getIsotopicRatiosList()).getBytes());
-        for (int i = 0; i < ensembleRecordsList.size(); i++) {
-            stream.write(ensembleRecordsList.get(i).prettyPrintAsCSV().getBytes());
-        }
-        stream.close();
+//        // Detroit 2023 printout ensembleRecordsList
+//        Path path = Paths.get("EnsemblesForBlock_" + singleBlockCurrentModelRecord_X.blockID() + ".csv");
+//        OutputStream stream = Files.newOutputStream(path);
+//        stream.write(ensembleRecordsList.get(0).prettyPrintHeaderAsCSV("Index", analysisMethod.getIsotopicRatiosList()).getBytes());
+//        for (int i = 0; i < ensembleRecordsList.size(); i++) {
+//            stream.write(ensembleRecordsList.get(i).prettyPrintAsCSV().getBytes());
+//        }
+//        stream.close();
 
         // for session plotting
+        // toDO: promote to analysis
         analysisMethod.getMapOfBlockIdToRawData().put(singleBlockCurrentModelRecord_X.blockID(), singleBlockRawDataSetRecord);
+        ((Analysis)analysis).getMapBlockIDToEnsembles().put(singleBlockCurrentModelRecord_X.blockID(), ensembleRecordsList);
 
         if (useAverageNotBestModel) {
             SingleBlockModelRecord singleBlockModelRecordMCMC = EnsemblesStore.produceSummaryModelFromEnsembleStore(
-                    ensembleRecordsList, analysis, singleBlockRawDataSetRecord, bestSingleBlockModelRecord);
+                    singleBlockCurrentModelRecord_X.blockID(), analysis, bestSingleBlockModelRecord);
             analysisMethod.getMapOfBlockIdToFinalModel()
                     .put(singleBlockCurrentModelRecord_X.blockID(), singleBlockModelRecordMCMC);
         } else {// TODO: get this right and make it an option
@@ -734,6 +733,6 @@ x=x0;
                     .put(singleBlockCurrentModelRecord_X.blockID(), (bestSingleBlockModelRecord == null) ? singleBlockCurrentModelRecord_X : bestSingleBlockModelRecord);
         }
 
-        return SingleBlockDataModelPlot.analysisAndPlotting(singleBlockRawDataSetRecord, ensembleRecordsList, singleBlockCurrentModelRecord_X, analysis);
+        return SingleBlockDataModelPlot.analysisAndPlotting(singleBlockCurrentModelRecord_X.blockID(), analysis);
     }
 }

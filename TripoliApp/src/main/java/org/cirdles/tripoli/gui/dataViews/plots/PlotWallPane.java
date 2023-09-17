@@ -23,12 +23,17 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.cirdles.tripoli.constants.TripoliConstants.PLOT_TAB_ENSEMBLES;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.BlockEnsemblesPlotter.blockEnsemblePlotEngine;
 
 /**
  * @author James F. Bowring
@@ -45,18 +50,21 @@ public class PlotWallPane extends Pane {
 
     private AnalysisInterface analysis;
 
-    private PlotWallPane(String iD, AnalysisInterface analysis) {
+    private MCMCPlotsControllerInterface mcmcPlotsControllerInterface;
+
+    private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsControllerInterface) {
         this.iD = iD;
         zoomFlagsXY[0] = true;
         zoomFlagsXY[1] = true;
         this.analysis = analysis;
+        this.mcmcPlotsControllerInterface = mcmcPlotsControllerInterface;
     }
 
-    public static PlotWallPane createPlotWallPane(String iD, AnalysisInterface analysis) {
+    public static PlotWallPane createPlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsControllerInterface) {
         if (iD == null) {
-            return new PlotWallPane("NONE", analysis);
+            return new PlotWallPane("NONE", analysis, mcmcPlotsControllerInterface);
         } else {
-            return new PlotWallPane(iD, analysis);
+            return new PlotWallPane(iD, analysis, mcmcPlotsControllerInterface);
         }
     }
 
@@ -168,6 +176,15 @@ public class PlotWallPane extends Pane {
         }
     }
 
+    public void applyBurnIn(){
+        int burnIn = (int) analysis.getMapOfBlockIdToPlots().get(MCMCPlotsController.currentBlockID)[5][0].getShadeWidthForModelConvergence();
+        int blockID = MCMCPlotsController.currentBlockID;
+        ((Analysis)analysis).getMapOfBlockIdToModelsBurnCount().put(blockID, burnIn);
+        blockEnsemblePlotEngine(blockID, analysis);
+        mcmcPlotsControllerInterface.plotEnsemblesEngine(analysis.getMapOfBlockIdToPlots().get(blockID));
+        mcmcPlotsControllerInterface.plotRatioSessionEngine();
+    }
+
     private int getCountOfPlots() {
         List<Node> plots = getChildren()
                 .stream()
@@ -199,6 +216,13 @@ public class PlotWallPane extends Pane {
         button5.setOnAction(event -> toggleRatiosLogRatios());
 
         toolBar.getItems().addAll(button0, button5, button4, button1, button2, button3);
+
+        if (iD.compareToIgnoreCase(PLOT_TAB_ENSEMBLES) == 0){
+            Button button6 = new Button("Apply BurnIn");
+            button6.setOnAction(event -> applyBurnIn());
+            toolBar.getItems().addAll(button6);
+        }
+
         getChildren().addAll(toolBar);
     }
 

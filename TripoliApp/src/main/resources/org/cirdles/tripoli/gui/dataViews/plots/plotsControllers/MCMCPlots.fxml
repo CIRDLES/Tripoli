@@ -57,7 +57,7 @@
                 <AnchorPane fx:id="logAnchorPane" />
             </Tab>
         </TabPane>
-        <SplitPane dividerPositions="0.15">
+        <SplitPane dividerPositions="0.25">
             <ScrollPane fx:id="listOfFilesScrollPane" />
             <VBox>
                 <children>

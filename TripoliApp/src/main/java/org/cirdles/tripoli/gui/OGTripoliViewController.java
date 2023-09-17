@@ -53,7 +53,7 @@ public class OGTripoliViewController {
     private void plotRatios() {
         ogtCycleRatioPlotsAnchorPane.getChildren().clear();
 
-        PlotWallPane plotsWallPane = PlotWallPane.createPlotWallPane("OGTripoliSession", analysis);
+        PlotWallPane plotsWallPane = PlotWallPane.createPlotWallPane("OGTripoliSession", analysis, null);
         PlotWallPane.menuOffset = 0.0;
         plotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         plotsWallPane.setPrefSize(ogtCycleRatioPlotsAnchorPane.getPrefWidth(), ogtCycleRatioPlotsAnchorPane.getPrefHeight());

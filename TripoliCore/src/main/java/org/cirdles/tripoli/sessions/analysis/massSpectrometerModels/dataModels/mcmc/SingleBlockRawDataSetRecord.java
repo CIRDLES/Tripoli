@@ -30,7 +30,7 @@ public record SingleBlockRawDataSetRecord(
         SingleBlockRawDataRecord baselineDataSetMCMC,
         SingleBlockRawDataRecord onPeakFaradayDataSetMCMC,
         SingleBlockRawDataRecord onPeakPhotoMultiplierDataSetMCMC,
-        double[][] blockKnotInterpolationArray,// Primitive64Store blockKnotInterpolationStore,
+        double[][] blockKnotInterpolationArray,
         int[] blockCycleArray,
         double[] blockRawDataArray,
         int[] blockDetectorOrdinalIndicesArray,
