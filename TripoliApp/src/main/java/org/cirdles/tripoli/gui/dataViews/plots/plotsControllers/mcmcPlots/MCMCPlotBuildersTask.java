@@ -56,12 +56,12 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     // TODO: refactor to all plotBuilders
     private PlotBuilder[][] plotBuilders;
 
-    public PlotBuilder[][] getPlotBuilders() {
-        return plotBuilders;
-    }
-
     public MCMCPlotBuildersTask(int blockID) {
         this.blockID = blockID;
+    }
+
+    public PlotBuilder[][] getPlotBuilders() {
+        return plotBuilders;
     }
 
     public boolean healthyPlotbuilder() {

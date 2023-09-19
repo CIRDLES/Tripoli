@@ -47,6 +47,7 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
     private boolean logScale;
     private boolean[] zoomFlagsXY;
     private PlotWallPane parentWallPane;
+
     private BlockRatioCyclesSessionPlot(Rectangle bounds, BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord, PlotWallPane parentWallPane) {
         super(bounds,
                 75, 25,

@@ -33,14 +33,14 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
  */
 public class EnsemblesStore implements Serializable {
 
-    static synchronized SingleBlockModelRecord produceSummaryModelFromEnsembleStore(
+    public static synchronized void produceSummaryModelFromEnsembleStore(
             int blockID,
-            AnalysisInterface analysis,
-            SingleBlockModelRecord singleBlockModelRecord) {
+            AnalysisInterface analysis) {
 
-        List<EnsemblesStore.EnsembleRecord> ensembleRecordsList = ((Analysis)analysis).getMapBlockIDToEnsembles().get(blockID);
+        List<EnsemblesStore.EnsembleRecord> ensembleRecordsList = ((Analysis) analysis).getMapBlockIDToEnsembles().get(blockID);
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
         SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = analysisMethod.getMapOfBlockIdToRawData().get(blockID);
+        SingleBlockModelRecord singleBlockModelRecord = analysisMethod.getMapOfBlockIdToFinalModel().get(blockID);
         List<IsotopicRatio> isotopicRatioList = analysisMethod.getIsotopicRatiosList();
 
         int initialModelsBurnCount = ((Analysis) analysis).getMapOfBlockIdToModelsBurnCount().get(blockID);
@@ -109,7 +109,7 @@ public class EnsemblesStore implements Serializable {
                 dalyFaradayGainMean,//calculated
                 singleBlockModelRecord.mapDetectorOrdinalToFaradayIndex(),
                 logRatioMean,//calculated
-                singleBlockModelRecord.mapOfSpeciesToActiveCycles(),
+                singleBlockRawDataSetRecord.mapOfSpeciesToActiveCycles(),//singleBlockModelRecord.mapOfSpeciesToActiveCycles(),
                 singleBlockModelRecord.mapLogRatiosToCycleStats(),
                 null,//dataModel,
                 singleBlockModelRecord.dataSignalNoiseArray(),
@@ -235,7 +235,7 @@ public class EnsemblesStore implements Serializable {
                 dalyFaradayGainMean,//calculated
                 singleBlockModelRecord.mapDetectorOrdinalToFaradayIndex(),
                 logRatioMean,//calculated
-                singleBlockModelRecord.mapOfSpeciesToActiveCycles(),
+                singleBlockRawDataSetRecord.mapOfSpeciesToActiveCycles(),//singleBlockModelRecord.mapOfSpeciesToActiveCycles(),
                 mapLogRatiosToCycleStats,
                 dataModel,
                 singleBlockModelRecord.dataSignalNoiseArray(),
@@ -244,7 +244,7 @@ public class EnsemblesStore implements Serializable {
         );
 
 
-        return finalMCMCModel;
+        analysisMethod.getMapOfBlockIdToFinalModel().put(blockID, finalMCMCModel);
     }
 
     public record EnsembleRecord(
@@ -268,9 +268,6 @@ public class EnsemblesStore implements Serializable {
                 header += "BL-" + i + ",";
             }
             header += "DFGain,";
-//            for (int i = 0; i < signalNoise.length; i++) {
-//                header += "SigNoise-" + i + ",";
-//            }
             header += "errorWeighted,";
             header += "errorUnWeighted \n";
 
@@ -289,9 +286,6 @@ public class EnsemblesStore implements Serializable {
                 data += baseLine[i] + ",";
             }
             data += dfGain() + ",";
-//            for (int i = 0; i < signalNoise.length; i++) {
-//                data += signalNoise[i] + ",";
-//            }
             data += errorWeighted + ",";
             data += errorUnWeighted + "\n";
 

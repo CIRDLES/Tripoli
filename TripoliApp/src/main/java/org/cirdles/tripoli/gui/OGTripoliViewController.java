@@ -35,25 +35,26 @@ import static org.cirdles.tripoli.sessions.analysis.Analysis.SKIP;
 public class OGTripoliViewController {
     public static AnalysisInterface analysis;
     public static AllBlockInitForOGTripoli.PlottingData plottingData;
+    public static AnalysisManagerCallbackI analysisManagerCallbackI;
     @FXML
     public AnchorPane ogtSpeciesIntensitiesPlotAnchorPane;
     @FXML
     private AnchorPane ogtCycleRatioPlotsAnchorPane;
 
     @FXML
-    void initialize() {
+    public void initialize() {
         populatePlots();
     }
 
-    private void populatePlots() {
+    public void populatePlots() {
         plotRatios();
         plotOnPeakIntensities();
     }
 
-    private void plotRatios() {
+    public void plotRatios() {
         ogtCycleRatioPlotsAnchorPane.getChildren().clear();
 
-        PlotWallPane plotsWallPane = PlotWallPane.createPlotWallPane("OGTripoliSession", analysis, null);
+        PlotWallPane plotsWallPane = PlotWallPane.createPlotWallPane("OGTripoliSession", analysis, null, analysisManagerCallbackI);
         PlotWallPane.menuOffset = 0.0;
         plotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         plotsWallPane.setPrefSize(ogtCycleRatioPlotsAnchorPane.getPrefWidth(), ogtCycleRatioPlotsAnchorPane.getPrefHeight());

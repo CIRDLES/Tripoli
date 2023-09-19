@@ -14,10 +14,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
-import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
-import org.cirdles.tripoli.gui.OGTripoliPlotsWindow;
-import org.cirdles.tripoli.gui.OGTripoliViewController;
-import org.cirdles.tripoli.gui.TripoliGUI;
+import org.cirdles.tripoli.gui.*;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
@@ -55,7 +52,6 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
     public static int currentBlockID = 0;
 
     public static AnalysisManagerCallbackI analysisManagerCallbackI;
-    public static OGTripoliPlotsWindow ogTripoliPlotsWindow;
 
     private static int MAX_BLOCK_COUNT = 2000;
     @FXML
@@ -201,13 +197,13 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
                         // fire up OGTripoli style session plots
                         AllBlockInitForOGTripoli.PlottingData plottingData = analysis.assemblePostProcessPlottingData();
                         // ogTripoli view
-                        if (null != ogTripoliPlotsWindow) {
-                            ogTripoliPlotsWindow.close();
+                        if (null != AnalysisManagerController.ogTripoliPlotsWindow) {
+                            AnalysisManagerController.ogTripoliPlotsWindow.close();
                         }
-                        ogTripoliPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage);
+                        AnalysisManagerController.ogTripoliPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, analysisManagerCallbackI);
                         OGTripoliViewController.analysis = analysis;
                         OGTripoliViewController.plottingData = plottingData;
-                        ogTripoliPlotsWindow.loadPlotsWindow();
+                        AnalysisManagerController.ogTripoliPlotsWindow.loadPlotsWindow();
                     }
                 }
             });
@@ -262,7 +258,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
         }
 
         ratioSessionAnchorPane.getChildren().removeAll();
-        PlotWallPane ratiosSessionPlotsWallPane = PlotWallPane.createPlotWallPane(null, analysis, this);
+        PlotWallPane ratiosSessionPlotsWallPane = PlotWallPane.createPlotWallPane(null, analysis, this, analysisManagerCallbackI);
         ratiosSessionPlotsWallPane.buildToolBar();
         ratiosSessionPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         ratioSessionAnchorPane.getChildren().add(ratiosSessionPlotsWallPane);
@@ -298,7 +294,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
         }
         // TODO add peak session pane to fxml and controller
         peakSessionAnchorPane.getChildren().removeAll();
-        PlotWallPane peakSessionPlotWallPlane = PlotWallPane.createPlotWallPane(null, analysis, this);
+        PlotWallPane peakSessionPlotWallPlane = PlotWallPane.createPlotWallPane(null, analysis, this, null);
         peakSessionPlotWallPlane.buildToolBar();
         peakSessionPlotWallPlane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         peakSessionAnchorPane.getChildren().add(peakSessionPlotWallPlane);
@@ -359,9 +355,9 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
 
 
         // plotting revision +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        plotEnsemblesEngine(((MCMCPlotBuildersTask)plotBuildersTask).getPlotBuilders());
+        plotEnsemblesEngine(((MCMCPlotBuildersTask) plotBuildersTask).getPlotBuilders());
 
-        PlotWallPane convergePlotsWallPane = PlotWallPane.createPlotWallPane(null, analysis, this);
+        PlotWallPane convergePlotsWallPane = PlotWallPane.createPlotWallPane(null, analysis, this, null);
         convergePlotsWallPane.buildToolBar();
         convergePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         convergePlotsAnchorPane.getChildren().add(convergePlotsWallPane);
@@ -369,7 +365,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
         produceTripoliLinePlots(convergeBLFaradayLineBuilder, convergePlotsWallPane);
         convergePlotsWallPane.tilePlots();
 
-        PlotWallPane dataFitPlotsWallPane = PlotWallPane.createPlotWallPane(null, analysis, this);
+        PlotWallPane dataFitPlotsWallPane = PlotWallPane.createPlotWallPane(null, analysis, this, null);
         dataFitPlotsWallPane.buildToolBar();
         dataFitPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         dataFitPlotsAnchorPane.getChildren().add(dataFitPlotsWallPane);
@@ -378,7 +374,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
         produceTripoliBasicScatterAndLinePlots(residualDataPlotBuilder, dataFitPlotsWallPane);
         dataFitPlotsWallPane.stackPlots();
 
-        PlotWallPane convergeErrorPlotsWallPane = PlotWallPane.createPlotWallPane(null, analysis, this);
+        PlotWallPane convergeErrorPlotsWallPane = PlotWallPane.createPlotWallPane(null, analysis, this, null);
         convergeErrorPlotsWallPane.buildToolBar();
         convergeErrorPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         convergeErrorPlotsAnchorPane.getChildren().add(convergeErrorPlotsWallPane);
@@ -386,14 +382,14 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
         produceTripoliLinePlots(convergeErrWeightedMisfitBuilder, convergeErrorPlotsWallPane);
         convergeErrorPlotsWallPane.tilePlots();
 
-        PlotWallPane convergeIntensityPlotsWallPane = PlotWallPane.createPlotWallPane(null, analysis, this);
+        PlotWallPane convergeIntensityPlotsWallPane = PlotWallPane.createPlotWallPane(null, analysis, this, null);
         convergeIntensityPlotsWallPane.buildToolBar();
         convergeIntensityPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         convergeIntensityAnchorPane.getChildren().add(convergeIntensityPlotsWallPane);
         produceTripoliMultiLineIntensityPlots(convergeIntensityLinesBuilder, convergeIntensityPlotsWallPane);
         convergeIntensityPlotsWallPane.tilePlots();
 
-        PlotWallPane peakShapeOverlayPlotWallPane = PlotWallPane.createPlotWallPane(null, analysis, this);
+        PlotWallPane peakShapeOverlayPlotWallPane = PlotWallPane.createPlotWallPane(null, analysis, this, null);
         peakShapeOverlayPlotWallPane.buildToolBar();
         peakShapeOverlayPlotWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         beamShapeAnchorPane.getChildren().add(peakShapeOverlayPlotWallPane);
@@ -419,7 +415,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
         PlotBuilder[] dalyFaradayHistogramBuilder = plotBuilders[PLOT_INDEX_DFGAINS];
         PlotBuilder[] intensityLinePlotBuilder = plotBuilders[PLOT_INDEX_MEANINTENSITIES];
 
-        PlotWallPane ensemblePlotsWallPane = PlotWallPane.createPlotWallPane(PLOT_TAB_ENSEMBLES, analysis, this);
+        PlotWallPane ensemblePlotsWallPane = PlotWallPane.createPlotWallPane(PLOT_TAB_ENSEMBLES, analysis, this, analysisManagerCallbackI);
         ensemblePlotsWallPane.buildToolBar();
         ensemblePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         ensemblePlotsAnchorPane.getChildren().add(ensemblePlotsWallPane);
@@ -525,11 +521,10 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
 
     public void convergeTabSelected(Event event) {
         Tab tab = (Tab) event.getSource();
-        if (tab.isSelected()) {
+        if (tab.isSelected() && !((AnchorPane) tab.getContent()).getChildren().isEmpty()) {
             ((PlotWallPane) ((AnchorPane) tab.getContent()).getChildren().get(0)).restoreAllPlots();
         }
     }
-
 
     static class BlockDisplayID extends ListCell<String> {
         @Override

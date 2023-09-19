@@ -721,17 +721,23 @@ x=x0;
         // for session plotting
         // toDO: promote to analysis
         analysisMethod.getMapOfBlockIdToRawData().put(singleBlockCurrentModelRecord_X.blockID(), singleBlockRawDataSetRecord);
-        ((Analysis)analysis).getMapBlockIDToEnsembles().put(singleBlockCurrentModelRecord_X.blockID(), ensembleRecordsList);
+        ((Analysis) analysis).getMapBlockIDToEnsembles().put(singleBlockCurrentModelRecord_X.blockID(), ensembleRecordsList);
+
+        // default strategy
+        analysisMethod.getMapOfBlockIdToFinalModel()
+                .put(singleBlockCurrentModelRecord_X.blockID(), (bestSingleBlockModelRecord == null) ? singleBlockCurrentModelRecord_X : bestSingleBlockModelRecord);
 
         if (useAverageNotBestModel) {
-            SingleBlockModelRecord singleBlockModelRecordMCMC = EnsemblesStore.produceSummaryModelFromEnsembleStore(
-                    singleBlockCurrentModelRecord_X.blockID(), analysis, bestSingleBlockModelRecord);
-            analysisMethod.getMapOfBlockIdToFinalModel()
-                    .put(singleBlockCurrentModelRecord_X.blockID(), singleBlockModelRecordMCMC);
-        } else {// TODO: get this right and make it an option
-            analysisMethod.getMapOfBlockIdToFinalModel()
-                    .put(singleBlockCurrentModelRecord_X.blockID(), (bestSingleBlockModelRecord == null) ? singleBlockCurrentModelRecord_X : bestSingleBlockModelRecord);
+//            SingleBlockModelRecord singleBlockModelRecordMCMC =
+            EnsemblesStore.produceSummaryModelFromEnsembleStore(
+                    singleBlockCurrentModelRecord_X.blockID(), analysis);
+//            analysisMethod.getMapOfBlockIdToFinalModel()
+//                    .put(singleBlockCurrentModelRecord_X.blockID(), singleBlockModelRecordMCMC);
         }
+//        else {// TODO: get this right and make it an option
+//            analysisMethod.getMapOfBlockIdToFinalModel()
+//                    .put(singleBlockCurrentModelRecord_X.blockID(), (bestSingleBlockModelRecord == null) ? singleBlockCurrentModelRecord_X : bestSingleBlockModelRecord);
+//        }
 
         return SingleBlockDataModelPlot.analysisAndPlotting(singleBlockCurrentModelRecord_X.blockID(), analysis);
     }

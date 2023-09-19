@@ -46,9 +46,7 @@ import java.util.regex.Pattern;
 
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_SYNTHETIC;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
-import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
-import static org.cirdles.tripoli.constants.TripoliConstants.SPACES_100;
-import static org.cirdles.tripoli.constants.TripoliConstants.PLOT_INDEX_RATIOS;
+import static org.cirdles.tripoli.constants.TripoliConstants.*;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB;
 
@@ -69,11 +67,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<Integer, Integer> mapOfBlockIdToProcessStatus = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, List<File>> blockPeakGroups = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, Integer> mapOfBlockIdToModelsBurnCount = Collections.synchronizedSortedMap(new TreeMap<>());
-    private final Map<Integer,  List<EnsemblesStore.EnsembleRecord>> mapBlockIDToEnsembles = Collections.synchronizedSortedMap(new TreeMap<>());
-    public Map<Integer, List<EnsemblesStore.EnsembleRecord>> getMapBlockIDToEnsembles() {
-        return mapBlockIDToEnsembles;
-    }
-
+    private final Map<Integer, List<EnsemblesStore.EnsembleRecord>> mapBlockIDToEnsembles = Collections.synchronizedSortedMap(new TreeMap<>());
     private String analysisName;
     private String analystName;
     private String labName;
@@ -84,10 +78,8 @@ public class Analysis implements Serializable, AnalysisInterface {
     private String dataFilePathString;
     private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
-
     private Analysis() {
     }
-
 
     protected Analysis(String analysisName, AnalysisMethod analysisMethod, String analysisSampleName) {
         this.analysisName = analysisName;
@@ -99,6 +91,10 @@ public class Analysis implements Serializable, AnalysisInterface {
         dataFilePathString = MISSING_STRING_FIELD;
         massSpecExtractedData = new MassSpecExtractedData();
         mutable = true;
+    }
+
+    public Map<Integer, List<EnsemblesStore.EnsembleRecord>> getMapBlockIDToEnsembles() {
+        return mapBlockIDToEnsembles;
     }
 
     public Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount() {
@@ -305,7 +301,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         }
 
         Map<Integer, SingleBlockModelRecord> singleBlockModelRecordMap = analysisMethod.getMapOfBlockIdToFinalModel();
-        SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[analysisMethod.getMapOfBlockIdToFinalModel().keySet().size()];
+        SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[singleBlockModelRecordMap.keySet().size()];
         index = 0;
         for (SingleBlockModelRecord singleBlockModelRecord : singleBlockModelRecordMap.values()) {
             singleBlockModelRecords[index] = singleBlockModelRecord;

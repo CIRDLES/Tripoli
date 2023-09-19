@@ -23,11 +23,13 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,28 +45,31 @@ public class PlotWallPane extends Pane {
     public static final double gridCellDim = 2.0;
     public static final double toolBarHeight = 35.0;
     public static double menuOffset = 30.0;
+    AnalysisManagerCallbackI analysisManagerCallbackI;
     private String iD;
     private boolean logScale;
-
     private boolean[] zoomFlagsXY = new boolean[2];
-
     private AnalysisInterface analysis;
-
     private MCMCPlotsControllerInterface mcmcPlotsControllerInterface;
 
-    private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsControllerInterface) {
+    private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsControllerInterface, AnalysisManagerCallbackI analysisManagerCallbackI) {
         this.iD = iD;
         zoomFlagsXY[0] = true;
         zoomFlagsXY[1] = true;
         this.analysis = analysis;
         this.mcmcPlotsControllerInterface = mcmcPlotsControllerInterface;
+        this.analysisManagerCallbackI = analysisManagerCallbackI;
     }
 
-    public static PlotWallPane createPlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsControllerInterface) {
+    public static PlotWallPane createPlotWallPane(
+            String iD,
+            AnalysisInterface analysis,
+            MCMCPlotsControllerInterface mcmcPlotsControllerInterface,
+            AnalysisManagerCallbackI analysisManagerCallbackI) {
         if (iD == null) {
-            return new PlotWallPane("NONE", analysis, mcmcPlotsControllerInterface);
+            return new PlotWallPane("NONE", analysis, mcmcPlotsControllerInterface, analysisManagerCallbackI);
         } else {
-            return new PlotWallPane(iD, analysis, mcmcPlotsControllerInterface);
+            return new PlotWallPane(iD, analysis, mcmcPlotsControllerInterface, analysisManagerCallbackI);
         }
     }
 
@@ -176,13 +181,19 @@ public class PlotWallPane extends Pane {
         }
     }
 
-    public void applyBurnIn(){
+    public void applyBurnIn() {
         int burnIn = (int) analysis.getMapOfBlockIdToPlots().get(MCMCPlotsController.currentBlockID)[5][0].getShadeWidthForModelConvergence();
         int blockID = MCMCPlotsController.currentBlockID;
-        ((Analysis)analysis).getMapOfBlockIdToModelsBurnCount().put(blockID, burnIn);
+        ((Analysis) analysis).getMapOfBlockIdToModelsBurnCount().put(blockID, burnIn);
         blockEnsemblePlotEngine(blockID, analysis);
         mcmcPlotsControllerInterface.plotEnsemblesEngine(analysis.getMapOfBlockIdToPlots().get(blockID));
         mcmcPlotsControllerInterface.plotRatioSessionEngine();
+        EnsemblesStore.produceSummaryModelFromEnsembleStore(blockID, analysis);
+
+        // fire up OGTripoli style session plots
+        if (analysisManagerCallbackI != null) {
+            analysisManagerCallbackI.reviewAndSculptDataAction();
+        }
     }
 
     private int getCountOfPlots() {
@@ -217,7 +228,7 @@ public class PlotWallPane extends Pane {
 
         toolBar.getItems().addAll(button0, button5, button4, button1, button2, button3);
 
-        if (iD.compareToIgnoreCase(PLOT_TAB_ENSEMBLES) == 0){
+        if (iD.compareToIgnoreCase(PLOT_TAB_ENSEMBLES) == 0) {
             Button button6 = new Button("Apply BurnIn");
             button6.setOnAction(event -> applyBurnIn());
             toolBar.getItems().addAll(button6);
