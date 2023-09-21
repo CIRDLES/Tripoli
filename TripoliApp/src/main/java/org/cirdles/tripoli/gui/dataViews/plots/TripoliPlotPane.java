@@ -144,8 +144,8 @@ public class TripoliPlotPane extends Pane {
         tripoliPlotPane.widthProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                ((AbstractPlot)tripoliPlotPane.getChildren().get(0)).setWidthF((Double) newValue);
-                ((AbstractPlot)tripoliPlotPane.getChildren().get(0)).refreshPanel(false, false);
+                ((AbstractPlot) tripoliPlotPane.getChildren().get(0)).setWidthF((Double) newValue);
+                ((AbstractPlot) tripoliPlotPane.getChildren().get(0)).refreshPanel(false, false);
             }
         });
 

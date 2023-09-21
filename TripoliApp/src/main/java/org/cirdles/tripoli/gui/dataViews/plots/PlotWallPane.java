@@ -16,7 +16,6 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots;
 
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;

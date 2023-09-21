@@ -27,7 +27,6 @@ import javafx.scene.text.TextFlow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
-import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
@@ -114,14 +113,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     @FXML
     private Button addRatioButton;
 
-    public static void closePlotWindows(){
-        if (ogTripoliPreviewPlotsWindow != null){
+    public static void closePlotWindows() {
+        if (ogTripoliPreviewPlotsWindow != null) {
             ogTripoliPreviewPlotsWindow.close();
         }
-        if (ogTripoliPlotsWindow != null){
+        if (ogTripoliPlotsWindow != null) {
             ogTripoliPlotsWindow.close();
         }
-        if (MCMCPlotsWindow != null){
+        if (MCMCPlotsWindow != null) {
             MCMCPlotsWindow.close();
         }
     }

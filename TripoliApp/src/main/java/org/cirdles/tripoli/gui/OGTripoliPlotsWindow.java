@@ -66,10 +66,10 @@ public class OGTripoliPlotsWindow {
             } catch (IOException iOException) {
                 iOException.printStackTrace();
             }
-                plottingWindow = plottingStage.getScene().getWindow();
-                plottingStage.setTitle("Tripoli " + (plottingData.preview() ? "PREVIEW" : "REVIEW") + " and Sculpt Data");
-                ((OGTripoliViewController) loader.getController()).populatePlots();
-                plottingStage.show();
+            plottingWindow = plottingStage.getScene().getWindow();
+            plottingStage.setTitle("Tripoli " + (plottingData.preview() ? "PREVIEW" : "REVIEW") + " and Sculpt Data");
+            ((OGTripoliViewController) loader.getController()).populatePlots();
+            plottingStage.show();
 
         }
 
