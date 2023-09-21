@@ -54,7 +54,7 @@ public enum BlockEnsemblesPlotter {
         int countOfEnsemblesUsed = ensembleRecordsList.size() - initialModelsBurnCount;
 
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
-        SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = analysisMethod.getMapOfBlockIdToRawData().get(blockID);
+        SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = analysis.getMapOfBlockIdToRawData().get(blockID);
         List<IsotopicRatio> isotopicRatioList = analysisMethod.getIsotopicRatiosList();
 
         /*

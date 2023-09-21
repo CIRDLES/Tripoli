@@ -43,10 +43,10 @@ public enum SingleBlockDataModelPlot {
             int blockID,
             AnalysisInterface analysis) {
 
-        List<EnsemblesStore.EnsembleRecord> ensembleRecordsList = ((Analysis) analysis).getMapBlockIDToEnsembles().get(blockID);
+        List<EnsemblesStore.EnsembleRecord> ensembleRecordsList = analysis.getMapBlockIDToEnsembles().get(blockID);
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
-        SingleBlockModelRecord singleBlockCurrentModelRecord_X = analysisMethod.getMapOfBlockIdToFinalModel().get(blockID);
-        SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = analysisMethod.getMapOfBlockIdToRawData().get(blockID);
+        SingleBlockModelRecord singleBlockCurrentModelRecord_X = analysis.getMapOfBlockIdToFinalModel().get(blockID);
+        SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = analysis.getMapOfBlockIdToRawData().get(blockID);
 
         PlotBuilder[][] plotBuilders = new PlotBuilder[16][1];
         analysis.getMapOfBlockIdToPlots().put(blockID, plotBuilders);

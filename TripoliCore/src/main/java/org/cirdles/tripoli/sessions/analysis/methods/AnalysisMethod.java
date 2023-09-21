@@ -48,8 +48,6 @@ public class AnalysisMethod implements Serializable {
     @Serial
     private static final long serialVersionUID = -642166785514147638L;
     private final MassSpectrometerContextEnum massSpectrometerContext;
-    private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
-    private final Map<Integer, SingleBlockModelRecord> mapOfBlockIdToFinalModel = Collections.synchronizedSortedMap(new TreeMap<>());
     public Map<String, Boolean> mapOfRatioNamesToInvertedFlag;
     private String methodName;
     private BaselineTable baselineTable;
@@ -328,14 +326,6 @@ public class AnalysisMethod implements Serializable {
 
     public Map<String, Boolean> getMapOfRatioNamesToInvertedFlag() {
         return mapOfRatioNamesToInvertedFlag;
-    }
-
-    public Map<Integer, SingleBlockRawDataSetRecord> getMapOfBlockIdToRawData() {
-        return mapOfBlockIdToRawData;
-    }
-
-    public Map<Integer, SingleBlockModelRecord> getMapOfBlockIdToFinalModel() {
-        return mapOfBlockIdToFinalModel;
     }
 
     public void addRatioToIsotopicRatiosList(IsotopicRatio isotopicRatio) {

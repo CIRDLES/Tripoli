@@ -39,8 +39,8 @@ public class EnsemblesStore implements Serializable {
 
         List<EnsemblesStore.EnsembleRecord> ensembleRecordsList = ((Analysis) analysis).getMapBlockIDToEnsembles().get(blockID);
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
-        SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = analysisMethod.getMapOfBlockIdToRawData().get(blockID);
-        SingleBlockModelRecord singleBlockModelRecord = analysisMethod.getMapOfBlockIdToFinalModel().get(blockID);
+        SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = analysis.getMapOfBlockIdToRawData().get(blockID);
+        SingleBlockModelRecord singleBlockModelRecord = analysis.getMapOfBlockIdToFinalModel().get(blockID);
         List<IsotopicRatio> isotopicRatioList = analysisMethod.getIsotopicRatiosList();
 
         int initialModelsBurnCount = ((Analysis) analysis).getMapOfBlockIdToModelsBurnCount().get(blockID);
@@ -244,7 +244,7 @@ public class EnsemblesStore implements Serializable {
         );
 
 
-        analysisMethod.getMapOfBlockIdToFinalModel().put(blockID, finalMCMCModel);
+        analysis.getMapOfBlockIdToFinalModel().put(blockID, finalMCMCModel);
     }
 
     public record EnsembleRecord(

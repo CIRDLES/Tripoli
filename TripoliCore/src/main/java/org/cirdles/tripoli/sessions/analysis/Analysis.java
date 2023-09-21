@@ -68,6 +68,8 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<Integer, List<File>> blockPeakGroups = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, Integer> mapOfBlockIdToModelsBurnCount = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, List<EnsemblesStore.EnsembleRecord>> mapBlockIDToEnsembles = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, SingleBlockModelRecord> mapOfBlockIdToFinalModel = Collections.synchronizedSortedMap(new TreeMap<>());
     private String analysisName;
     private String analystName;
     private String labName;
@@ -292,7 +294,7 @@ public class Analysis implements Serializable, AnalysisInterface {
 
 
     public AllBlockInitForOGTripoli.PlottingData assemblePostProcessPlottingData() {
-        Map<Integer, SingleBlockRawDataSetRecord> singleBlockRawDataSetRecordMap = analysisMethod.getMapOfBlockIdToRawData();
+        Map<Integer, SingleBlockRawDataSetRecord> singleBlockRawDataSetRecordMap = getMapOfBlockIdToRawData();
         SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = new SingleBlockRawDataSetRecord[singleBlockRawDataSetRecordMap.keySet().size()];
         int index = 0;
         for (SingleBlockRawDataSetRecord singleBlockRawDataSetRecord : singleBlockRawDataSetRecordMap.values()) {
@@ -300,7 +302,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             index++;
         }
 
-        Map<Integer, SingleBlockModelRecord> singleBlockModelRecordMap = analysisMethod.getMapOfBlockIdToFinalModel();
+        Map<Integer, SingleBlockModelRecord> singleBlockModelRecordMap = getMapOfBlockIdToFinalModel();
         SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[singleBlockModelRecordMap.keySet().size()];
         index = 0;
         for (SingleBlockModelRecord singleBlockModelRecord : singleBlockModelRecordMap.values()) {
@@ -460,4 +462,14 @@ public class Analysis implements Serializable, AnalysisInterface {
     public Map<Integer, PlotBuilder[]> getMapOfBlockIdToPeakPlots() {
         return mapOfBlockIdToPeakPlots;
     }
+
+
+    public Map<Integer, SingleBlockRawDataSetRecord> getMapOfBlockIdToRawData() {
+        return mapOfBlockIdToRawData;
+    }
+
+    public Map<Integer, SingleBlockModelRecord> getMapOfBlockIdToFinalModel() {
+        return mapOfBlockIdToFinalModel;
+    }
+
 }

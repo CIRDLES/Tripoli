@@ -16,6 +16,8 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.control.ColorPicker;
@@ -135,8 +137,19 @@ public class TripoliPlotPane extends Pane {
 
     public static TripoliPlotPane makePlotPane(Pane plotWallPane) {
         TripoliPlotPane tripoliPlotPane = new TripoliPlotPane(plotWallPane);
-        tripoliPlotPane.setPrefSize(minPlotWidth, minPlotHeight);
-        tripoliPlotPane.setLayoutX(40.0);
+
+//        tripoliPlotPane.prefWidthProperty().bind(plotWallPane.widthProperty());
+//        tripoliPlotPane.prefHeightProperty().bind(plotWallPane.heightProperty());
+
+        tripoliPlotPane.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                ((AbstractPlot)tripoliPlotPane.getChildren().get(0)).setWidthF((Double) newValue);
+                ((AbstractPlot)tripoliPlotPane.getChildren().get(0)).refreshPanel(false, false);
+            }
+        });
+
+        tripoliPlotPane.setLayoutX(0.0);
         tripoliPlotPane.setLayoutY(40.0);
         tripoliPlotPane.initializePlotPane();
 
@@ -157,14 +170,14 @@ public class TripoliPlotPane extends Pane {
         if (null == plotLocation) {
             plotLocation = new PlotLocation(getLayoutX(), getLayoutY(), getPrefWidth(), getPrefHeight());
             setLayoutX(gridCellDim);
-            setPrefWidth(plotWallPane.getWidth() - 2 * gridCellDim);
+//            setPrefWidth(plotWallPane.getWidth() - 2 * gridCellDim);
             setLayoutY(gridCellDim);
-            setPrefHeight(plotWallPane.getHeight() - 2 * gridCellDim);
+//            setPrefHeight(plotWallPane.getHeight() - 2 * gridCellDim);
         } else {
             setLayoutX(plotLocation.x());
-            setPrefWidth(plotLocation.w());
+//            setPrefWidth(plotLocation.w());
             setLayoutY(plotLocation.y());
-            setPrefHeight(plotLocation.h());
+//            setPrefHeight(plotLocation.h());
             plotLocation = null;
         }
         updatePlot();
@@ -172,9 +185,9 @@ public class TripoliPlotPane extends Pane {
 
     public void snapToGrid() {
         setLayoutX(getLayoutX() - (getLayoutX() % gridCellDim));
-        setPrefWidth(getPrefWidth() - (getPrefWidth() % gridCellDim));
+//        setPrefWidth(getPrefWidth() - (getPrefWidth() % gridCellDim));
         setLayoutY(getLayoutY() - (getLayoutY() % gridCellDim));
-        setPrefHeight(getPrefHeight() - (getPrefHeight() % gridCellDim));
+//        setPrefHeight(getPrefHeight() - (getPrefHeight() % gridCellDim));
 
         updatePlot();
     }
@@ -194,9 +207,9 @@ public class TripoliPlotPane extends Pane {
         plot.setWidthF(getWidth());
         plot.setHeightF(getHeight());
 
-        plot.widthProperty().bind(prefWidthProperty());
+        plot.widthProperty().bind(widthProperty());
         widthProperty().addListener((observable, oldValue, newValue) -> {
-            plot.setWidthF(newValue.doubleValue());
+//            plot.setWidthF(newValue.doubleValue());
             plot.updatePlotSize();
             plot.repaint();
         });

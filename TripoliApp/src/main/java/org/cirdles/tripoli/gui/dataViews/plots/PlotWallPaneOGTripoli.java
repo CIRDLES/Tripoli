@@ -80,9 +80,9 @@ public class PlotWallPaneOGTripoli extends Pane {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
                 plotPane.setLayoutY(gridCellDim + toolBarHeight * 2.0 + tileHeight * plotIndex);
-                ((Pane) plotPane).setPrefHeight(tileHeight);
+//                ((Pane) plotPane).setPrefHeight(tileHeight);
                 plotPane.setLayoutX(gridCellDim);
-                ((Pane) plotPane).setPrefWidth(tileWidth);
+//                ((Pane) plotPane).setPrefWidth(tileWidth);
 
                 ((TripoliPlotPane) plotPane).snapToGrid();
 

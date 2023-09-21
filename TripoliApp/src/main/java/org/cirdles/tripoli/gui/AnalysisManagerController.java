@@ -389,6 +389,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     private void populateAnalysisMethodRatioBuilderPane() {
         addRatioButton.setStyle(addRatioButton.getStyle() + ";-fx-font-size:15");
+        numeratorMassesListTextFlow.getChildren().clear();
+        denominatorMassesListTextFlow.getChildren().clear();
         if (null != analysis.getAnalysisMethod()) {
             activeRatiosList = new TreeSet<>();
             List<SpeciesRecordInterface> species = analysis.getAnalysisMethod().getSpeciesListSortedByMass();
@@ -629,7 +631,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         // initialize block processing state
         for (Integer blockID : analysis.getMassSpecExtractedData().getBlocksData().keySet()) {
             analysis.getMapOfBlockIdToProcessStatus().put(blockID, RUN);
-            ((Analysis) analysis).getMapOfBlockIdToModelsBurnCount().put(blockID, 0);
+            analysis.getMapOfBlockIdToModelsBurnCount().put(blockID, 0);
         }
         populateAnalysisManagerGridPane();
     }

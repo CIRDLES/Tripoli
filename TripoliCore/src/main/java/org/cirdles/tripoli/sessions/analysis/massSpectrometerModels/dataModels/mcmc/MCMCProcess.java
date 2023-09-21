@@ -251,7 +251,7 @@ x=x0;
 
         initialModelErrorWeighted_E = 0.0;
         initialModelErrorUnWeighted_E0 = 0.0;
-
+        // TODO: confirm need for next loop
         for (int row = 0; row < dataSignalNoiseArray.length; row++) {
             double calculatedValue = StrictMath.pow(singleBlockRawDataSetRecord.blockRawDataArray()[row] - dataArray[row], 2);
             initialModelErrorWeighted_E = initialModelErrorWeighted_E + (calculatedValue * baselineMultiplier[row] / dataSignalNoiseArray[row] / TT.get(1, 0));
@@ -720,11 +720,11 @@ x=x0;
 
         // for session plotting
         // toDO: promote to analysis
-        analysisMethod.getMapOfBlockIdToRawData().put(singleBlockCurrentModelRecord_X.blockID(), singleBlockRawDataSetRecord);
+        analysis.getMapOfBlockIdToRawData().put(singleBlockCurrentModelRecord_X.blockID(), singleBlockRawDataSetRecord);
         ((Analysis) analysis).getMapBlockIDToEnsembles().put(singleBlockCurrentModelRecord_X.blockID(), ensembleRecordsList);
 
         // default strategy
-        analysisMethod.getMapOfBlockIdToFinalModel()
+        analysis.getMapOfBlockIdToFinalModel()
                 .put(singleBlockCurrentModelRecord_X.blockID(), (bestSingleBlockModelRecord == null) ? singleBlockCurrentModelRecord_X : bestSingleBlockModelRecord);
 
         if (useAverageNotBestModel) {

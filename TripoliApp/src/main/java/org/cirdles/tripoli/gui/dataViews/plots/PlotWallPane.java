@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots;
 
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -59,6 +60,7 @@ public class PlotWallPane extends Pane {
         this.analysis = analysis;
         this.mcmcPlotsControllerInterface = mcmcPlotsControllerInterface;
         this.analysisManagerCallbackI = analysisManagerCallbackI;
+
     }
 
     public static PlotWallPane createPlotWallPane(
@@ -106,29 +108,33 @@ public class PlotWallPane extends Pane {
     }
 
     public void stackPlots() {
-        double tileWidth;
-        double displayHeight;
-        if (iD.compareToIgnoreCase("OGTripoliSession") == 0) {
-            tileWidth = ((AnchorPane) getParent()).getPrefWidth() - gridCellDim * 2.0;
-            displayHeight = (((AnchorPane) getParent()).getPrefHeight() - toolBarHeight) / getCountOfPlots();
-        } else {
-            tileWidth = (getParent().getBoundsInParent().getWidth() - gridCellDim * 2.0);
-            displayHeight = (getParent().getBoundsInParent().getHeight() - toolBarHeight) / getCountOfPlots();
-        }
+        if (getParent() != null) {
+            double tileWidth;
+            double displayHeight;
+            if (iD.compareToIgnoreCase("OGTripoliSession") == 0) {
+                double parentWidth = Math.max(((AnchorPane) getParent()).getPrefWidth(), ((AnchorPane) getParent()).getMinWidth());
+                tileWidth = parentWidth - gridCellDim * 2.0;
+                double parentHeight = Math.max(((AnchorPane) getParent()).getPrefHeight(), ((AnchorPane) getParent()).getMinHeight());
+                displayHeight = (parentHeight - toolBarHeight) / getCountOfPlots();
+            } else {
+                tileWidth = (getParent().getBoundsInParent().getWidth() - gridCellDim * 2.0);
+                displayHeight = (getParent().getBoundsInParent().getHeight() - toolBarHeight) / getCountOfPlots();
+            }
 
-        double tileHeight = displayHeight - displayHeight % gridCellDim;
+            double tileHeight = displayHeight - displayHeight % gridCellDim;
 
-        int plotIndex = 0;
-        for (Node plotPane : getChildren()) {
-            if (plotPane instanceof TripoliPlotPane) {
-                plotPane.setLayoutY(gridCellDim + toolBarHeight + tileHeight * plotIndex);
-                ((Pane) plotPane).setPrefHeight(tileHeight);
-                plotPane.setLayoutX(gridCellDim);
-                ((Pane) plotPane).setPrefWidth(tileWidth);
+            int plotIndex = 0;
+            for (Node plotPane : getChildren()) {
+                if (plotPane instanceof TripoliPlotPane) {
+                    plotPane.setLayoutY(gridCellDim + toolBarHeight + tileHeight * plotIndex);
+                    ((Pane) plotPane).setPrefHeight(tileHeight);
+                    plotPane.setLayoutX(gridCellDim);
+                    ((Pane) plotPane).setPrefWidth(tileWidth);
 
-                ((TripoliPlotPane) plotPane).snapToGrid();
+                    ((TripoliPlotPane) plotPane).snapToGrid();
 
-                plotIndex++;
+                    plotIndex++;
+                }
             }
         }
     }
