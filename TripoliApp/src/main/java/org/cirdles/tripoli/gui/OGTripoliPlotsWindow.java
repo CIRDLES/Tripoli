@@ -68,7 +68,7 @@ public class OGTripoliPlotsWindow {
             }
             plottingWindow = plottingStage.getScene().getWindow();
             plottingStage.setTitle("Tripoli " + (plottingData.preview() ? "PREVIEW" : "REVIEW") + " and Sculpt Data");
-            ((OGTripoliViewController) loader.getController()).populatePlots();
+//            ((OGTripoliViewController) loader.getController()).populatePlots();
             plottingStage.show();
 
         }
