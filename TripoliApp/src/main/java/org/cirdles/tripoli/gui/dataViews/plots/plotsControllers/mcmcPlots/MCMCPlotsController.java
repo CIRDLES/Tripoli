@@ -287,6 +287,13 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
             }
         }
 
+        plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+            ratiosSessionPlotsWallPane.repeatLayoutStyle();
+        });
+        plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+            ratiosSessionPlotsWallPane.repeatLayoutStyle();
+        });
+
 
         if (ratioSessionAnchorPane.getChildren().isEmpty()) {
             ratiosSessionPlotsWallPane = PlotWallPane.createPlotWallPane(null, analysis, this, analysisManagerCallbackI);
@@ -384,7 +391,6 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
             convergeIntensityPlotsWallPane.repeatLayoutStyle();
             ensemblePlotsWallPane.repeatLayoutStyle();
             dataFitPlotsWallPane.repeatLayoutStyle();
-            ratiosSessionPlotsWallPane.repeatLayoutStyle();
         });
         plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
             convergePlotsWallPane.repeatLayoutStyle();
@@ -392,7 +398,6 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
             convergeIntensityPlotsWallPane.repeatLayoutStyle();
             ensemblePlotsWallPane.repeatLayoutStyle();
             dataFitPlotsWallPane.repeatLayoutStyle();
-            ratiosSessionPlotsWallPane.repeatLayoutStyle();
         });
 
 
