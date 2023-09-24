@@ -1,34 +1,44 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 
+import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_MOVING_SHADE;
+
 public class LinePlot extends AbstractPlot {
-    private final LinePlotBuilder linePlotBuilder;
 
+    private PlotWallPane parentWallPane;
 
-    private LinePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
+    private LinePlot(Rectangle bounds, LinePlotBuilder plotBuilder, PlotWallPane parentWallPane) {
         super(bounds, 75, 25,
-                linePlotBuilder.getTitle(),
-                linePlotBuilder.getxAxisLabel(),
-                linePlotBuilder.getyAxisLabel());
-        this.linePlotBuilder = linePlotBuilder;
+                plotBuilder.getTitle(),
+                plotBuilder.getxAxisLabel(),
+                plotBuilder.getyAxisLabel());
+        this.plotBuilder = plotBuilder;
+        this.parentWallPane = parentWallPane;
     }
 
-    public static AbstractPlot generatePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder) {
-        return new LinePlot(bounds, linePlotBuilder);
+    public static AbstractPlot generatePlot(Rectangle bounds, LinePlotBuilder linePlotBuilder, PlotWallPane parentWallPane) {
+        return new LinePlot(bounds, linePlotBuilder, parentWallPane);
+    }
+
+    public PlotWallPane getParentWallPane() {
+        return parentWallPane;
     }
 
     @Override
     public void preparePanel(boolean reScaleX, boolean reScaleY) {
-        xAxisData = linePlotBuilder.getxData();
+        xAxisData = ((LinePlotBuilder) plotBuilder).getxData();
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
 
-        yAxisData = linePlotBuilder.getyData();
+        yAxisData = ((LinePlotBuilder) plotBuilder).getyData();
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 
@@ -65,7 +75,7 @@ public class LinePlot extends AbstractPlot {
 
     @Override
     public void plotData(GraphicsContext g2d) {
-        g2d.setLineWidth(2.0);
+        g2d.setLineWidth(1.0);
         // new line plot
         g2d.setStroke(dataColor.color());
         g2d.beginPath();
@@ -90,4 +100,13 @@ public class LinePlot extends AbstractPlot {
     public void plotStats(GraphicsContext g2d) {
 
     }
+
+    public void plotLeftShade(GraphicsContext g2d) {
+        g2d.setFill(TRIPOLI_MOVING_SHADE);
+        g2d.fillRect(mapX(0), mapY(maxY), mapX(plotBuilder.getShadeWidthForModelConvergence()) - mapX(0), mapY(minY) - mapY(maxY));
+
+        g2d.setFill(Color.RED);
+        g2d.fillArc(mapX(plotBuilder.getShadeWidthForModelConvergence()) - 40, (mapY(minY) - mapY(maxY)) / 2 + mapY(maxY) - 20, 40, 40, -75, 150, ArcType.CHORD);
+    }
+
 }

@@ -56,8 +56,7 @@ public class CorrelationMatrixModel extends AbstractMatrixModel {
     /**
      * @param correlations
      */
-    public void initializeCorrelations(
-            Map<String, BigDecimal> correlations) {
+    public void initializeCorrelations(Map<String, BigDecimal> correlations) {
 
         boolean retVal = !(getRows().isEmpty() || getCols().isEmpty());
         if (retVal) {

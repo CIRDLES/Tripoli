@@ -33,23 +33,16 @@ public class OGTripoliPlotsWindow {
 
     public static final double PLOT_WINDOW_WIDTH = 1000.0;
     public static final double PLOT_WINDOW_HEIGHT = 700.0;
-    public static final double SCROLLBAR_THICKNESS = 15.0;
 
-    private final double xOffset = 0;
-    private final double yOffset = 0;
     public Stage plottingStage;
     public Window plottingWindow;
     private Stage primaryStage;
 
-    private OGTripoliPlotsWindow() {
-    }
-
-    public OGTripoliPlotsWindow(Stage primaryStage) {//}, AnalysisManagerCallbackI analysisManagerCallbackI) {
+    public OGTripoliPlotsWindow(Stage primaryStage, AnalysisManagerCallbackI analysisManagerCallbackI) {
         this.primaryStage = primaryStage;
         plottingStage = new Stage();
         plottingStage.setMinWidth(PLOT_WINDOW_WIDTH);
         plottingStage.setMinHeight(PLOT_WINDOW_HEIGHT);
-//        plottingStage.setTitle("Tripoli Preview and Sculpt Data");
 
         plottingStage.setOnCloseRequest((WindowEvent e) -> {
             plottingStage.hide();
@@ -57,7 +50,7 @@ public class OGTripoliPlotsWindow {
             e.consume();
         });
 
-        //    MCMCPlotsController.analysisManagerCallbackI = analysisManagerCallbackI;
+        OGTripoliViewController.analysisManagerCallbackI = analysisManagerCallbackI;
     }
 
     public void close() {
@@ -66,17 +59,18 @@ public class OGTripoliPlotsWindow {
 
     public void loadPlotsWindow() {
         if (!plottingStage.isShowing()) {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/OGTripoliView.fxml"));
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/OGTripoliView.fxml"));
                 Scene scene = new Scene(loader.load());
                 plottingStage.setScene(scene);
-
             } catch (IOException iOException) {
                 iOException.printStackTrace();
             }
             plottingWindow = plottingStage.getScene().getWindow();
             plottingStage.setTitle("Tripoli " + (plottingData.preview() ? "PREVIEW" : "REVIEW") + " and Sculpt Data");
+//            ((OGTripoliViewController) loader.getController()).populatePlots();
             plottingStage.show();
+
         }
 
         // center on app window

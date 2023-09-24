@@ -1,9 +1,13 @@
 package org.cirdles.tripoli.gui;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
@@ -35,29 +39,61 @@ import static org.cirdles.tripoli.sessions.analysis.Analysis.SKIP;
 public class OGTripoliViewController {
     public static AnalysisInterface analysis;
     public static AllBlockInitForOGTripoli.PlottingData plottingData;
+    public static AnalysisManagerCallbackI analysisManagerCallbackI;
+    @FXML
+    public VBox plotWindowVBox;
+    @FXML
+    public TabPane plotTabPane;
     @FXML
     public AnchorPane ogtSpeciesIntensitiesPlotAnchorPane;
     @FXML
     private AnchorPane ogtCycleRatioPlotsAnchorPane;
 
     @FXML
-    void initialize() {
+    public void initialize() {
+        plotWindowVBox.widthProperty().addListener((observable, oldValue, newValue) -> {
+            plotTabPane.setMinWidth((Double) newValue);
+            ogtCycleRatioPlotsAnchorPane.setMinWidth((Double) newValue);
+            ogtSpeciesIntensitiesPlotAnchorPane.setMinWidth((Double) newValue);
+        });
+
+        plotWindowVBox.heightProperty().addListener((observable, oldValue, newValue) -> {
+            plotTabPane.setMinHeight(((Double) newValue) - 30.0);
+            ogtCycleRatioPlotsAnchorPane.setMinHeight(((Double) newValue) - 65.0);
+            ogtSpeciesIntensitiesPlotAnchorPane.setMinHeight(((Double) newValue) - 100.0);
+        });
+
         populatePlots();
     }
 
-    private void populatePlots() {
+    public void populatePlots() {
         plotRatios();
         plotOnPeakIntensities();
     }
 
-    private void plotRatios() {
+    public void plotRatios() {
         ogtCycleRatioPlotsAnchorPane.getChildren().clear();
 
-        PlotWallPane plotsWallPane = PlotWallPane.createPlotWallPane("OGTripoliSession");
+        PlotWallPane plotsWallPane = PlotWallPane.createPlotWallPane("OGTripoliSession", analysis, null, analysisManagerCallbackI);
         PlotWallPane.menuOffset = 0.0;
         plotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-        plotsWallPane.setPrefSize(ogtCycleRatioPlotsAnchorPane.getPrefWidth(), ogtCycleRatioPlotsAnchorPane.getPrefHeight());
+
+        plotsWallPane.prefWidthProperty().bind(ogtCycleRatioPlotsAnchorPane.widthProperty());
+        plotsWallPane.prefHeightProperty().bind(ogtCycleRatioPlotsAnchorPane.heightProperty());
+
         ogtCycleRatioPlotsAnchorPane.getChildren().add(plotsWallPane);
+        plotWindowVBox.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                plotsWallPane.stackPlots();
+            }
+        });
+        plotWindowVBox.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                plotsWallPane.stackPlots();
+            }
+        });
 
         SingleBlockModelRecord[] singleBlockModelRecords = plottingData.singleBlockModelRecords();
         int countOfOnPeakCycles = singleBlockModelRecords[0].cycleCount();
@@ -82,6 +118,7 @@ public class OGTripoliViewController {
 
         for (IsotopicRatio isotopicRatio : ratiosToPlot) {
             TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPane);
+
             List<BlockRatioCyclesRecord> blockRatioCyclesRecords = new ArrayList<>();
             for (int blockIndex = 0; blockIndex < singleBlockModelRecords.length; blockIndex++) {
                 int blockStatus = analysis.getMapOfBlockIdToProcessStatus().get(blockIndex + 1);
@@ -102,8 +139,11 @@ public class OGTripoliViewController {
                             blockRatioCyclesRecords, new String[]{isotopicRatio.prettyPrint()},
                             "Blocks & Cycles by Time", "Ratio");
             AbstractPlot plot = BlockRatioCyclesSessionPlot.generatePlot(
-                    new Rectangle(minPlotWidth, minPlotHeight), blockRatioCyclesSessionBuilder.getBlockRatioCyclesSessionRecord());
+                    new Rectangle(minPlotWidth, minPlotHeight), blockRatioCyclesSessionBuilder.getBlockRatioCyclesSessionRecord(), plotsWallPane);
+
             tripoliPlotPane.addPlot(plot);
+            plot.refreshPanel(false, false);
+
         }
         plotsWallPane.buildScaleControlsToolbar();
         plotsWallPane.stackPlots();
@@ -115,7 +155,24 @@ public class OGTripoliViewController {
         PlotWallPane.menuOffset = 0.0;
         plotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
         plotsWallPane.setPrefSize(ogtSpeciesIntensitiesPlotAnchorPane.getPrefWidth(), ogtSpeciesIntensitiesPlotAnchorPane.getPrefHeight() + PlotWallPaneOGTripoli.toolBarHeight * 2.0);
+
+        plotsWallPane.prefWidthProperty().bind(ogtSpeciesIntensitiesPlotAnchorPane.widthProperty());
+        plotsWallPane.prefHeightProperty().bind(ogtSpeciesIntensitiesPlotAnchorPane.heightProperty());
+
         ogtSpeciesIntensitiesPlotAnchorPane.getChildren().add(plotsWallPane);
+
+        plotWindowVBox.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                plotsWallPane.stackPlots();
+            }
+        });
+        plotWindowVBox.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                plotsWallPane.stackPlots();
+            }
+        });
 
         SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = plottingData.singleBlockRawDataSetRecords();
         SingleBlockModelRecord[] singleBlockModelRecords = plottingData.singleBlockModelRecords();
@@ -195,11 +252,13 @@ public class OGTripoliViewController {
         }
 
         PlotBuilder plotBuilder = SpeciesIntensitySessionBuilder.initializeSpeciesIntensitySessionPlot(
-                xAxis, onPeakDataCounts, onPeakDataAmpResistance, onPeakBaseline, onPeakGain, new String[]{"Species Intensity by Session"}, "Time", "Intensity (counts)");
+                xAxis, onPeakDataCounts, onPeakDataAmpResistance, onPeakBaseline, onPeakGain, new String[]{"Species Intensity by Session"}, "Time (secs)", "Intensity (counts)");
 
         TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPane);
         AbstractPlot plot = SpeciesIntensitySessionPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (SpeciesIntensitySessionBuilder) plotBuilder);
         tripoliPlotPane.addPlot(plot);
+        plot.refreshPanel(false, false);
+
         plotsWallPane.buildOGTripoliToolBar(analysis.getAnalysisMethod().getSpeciesList());
         plotsWallPane.buildScaleControlsToolbar();
         plotsWallPane.stackPlots();

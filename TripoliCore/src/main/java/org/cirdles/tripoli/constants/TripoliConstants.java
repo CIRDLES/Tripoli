@@ -60,6 +60,13 @@ public enum TripoliConstants {
      */
     public static final double ELEMENTARY_CHARGE_E = 1.602176634e-19;
     public static final double ONE_COULOMB = 1.0 / ELEMENTARY_CHARGE_E; // s.b. 6.2415091e18 == 6.2415090744607631E18
+    public static final int PLOT_INDEX_RATIOS = 0;
+    public static final int PLOT_INDEX_BASELINES = 1;
+    public static final int PLOT_INDEX_DFGAINS = 2;
+    public static final int PLOT_INDEX_MEANINTENSITIES = 4;
+    public static final String PLOT_TAB_ENSEMBLES = "Ensembles";
+    public static final String PLOT_TAB_CONVERGE = "Converge";
+    public static final String PLOT_TAB_CONVERGE_INTENSITY = "Converge Intensity";
 
 
     public static enum IntensityUnits {

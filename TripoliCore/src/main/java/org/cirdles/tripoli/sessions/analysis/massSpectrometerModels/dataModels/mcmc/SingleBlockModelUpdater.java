@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class SingleBlockModelUpdater {
 
-    private List<String> operations = ImmutableList.of("changer", "changeI", "changedfg", "changebl", "noise");
+    public List<String> operations = ImmutableList.of("changer", "changeI", "changedfg", "changebl", "noise");
     private int countOfLogRatios;
     private int countOfIntensities;
     private int countOfFaradays;
@@ -178,7 +178,7 @@ public class SingleBlockModelUpdater {
                     x2.sig = x.sig;
                  */
             singleBlockInitialModelRecord_initial2 = new SingleBlockModelRecord(
-                    singleBlockInitialModelRecord_initial.blockNumber(),
+                    singleBlockInitialModelRecord_initial.blockID(),
                     singleBlockInitialModelRecord_initial.faradayCount(),
                     singleBlockInitialModelRecord_initial.cycleCount(),
                     singleBlockInitialModelRecord_initial.isotopeCount(),
