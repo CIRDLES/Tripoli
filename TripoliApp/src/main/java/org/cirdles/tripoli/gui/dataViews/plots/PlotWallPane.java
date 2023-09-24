@@ -402,10 +402,8 @@ public class PlotWallPane extends Pane {
         ((Analysis) analysis).updateShadeWidthsForConvergenceLinePlots(blockID, shadeWidth);
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
-            if (child instanceof TripoliPlotPane) {
-                if (((TripoliPlotPane) child).getChildren().get(0) instanceof AbstractPlot) {
-                    ((AbstractPlot) ((TripoliPlotPane) child).getChildren().get(0)).repaint();
-                }
+            if ((child instanceof TripoliPlotPane) && (((TripoliPlotPane) child).getChildren().get(0) instanceof AbstractPlot)) {
+                ((AbstractPlot) ((TripoliPlotPane) child).getChildren().get(0)).repaint();
             }
         }
     }
@@ -424,13 +422,11 @@ public class PlotWallPane extends Pane {
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
-                if (child instanceof TripoliPlotPane) {
-                    BlockRatioCyclesSessionPlot childPlot = (BlockRatioCyclesSessionPlot) ((TripoliPlotPane) child).getChildren().get(0);
-                    childPlot.getMapBlockIdToBlockRatioCyclesRecord().put(
-                            blockID,
-                            childPlot.getMapBlockIdToBlockRatioCyclesRecord().get(blockID).toggleBlockIncluded());
-                    childPlot.repaint();
-                }
+                BlockRatioCyclesSessionPlot childPlot = (BlockRatioCyclesSessionPlot) ((TripoliPlotPane) child).getChildren().get(0);
+                childPlot.getMapBlockIdToBlockRatioCyclesRecord().put(
+                        blockID,
+                        childPlot.getMapBlockIdToBlockRatioCyclesRecord().get(blockID).toggleBlockIncluded());
+                childPlot.repaint();
             }
         }
     }
