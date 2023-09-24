@@ -22,6 +22,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
@@ -44,8 +45,9 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
             HistogramRecord invertedRatioHistogramRecord,
             HistogramRecord logRatioHistogramRecord,
             HistogramRecord logInvertedRatioHistogramRecord,
-            AnalysisMethod analysisMethod) {
-        super(bounds, histogramRecord);
+            AnalysisMethod analysisMethod,
+            PlotWallPane parentWallPane) {
+        super(bounds, histogramRecord, parentWallPane);
         this.analysisMethod = analysisMethod;
 
         // these can be changed by user in plot
@@ -65,8 +67,9 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
             HistogramRecord invertedRatioHistogramRecord,
             HistogramRecord logRatioHistogramRecord,
             HistogramRecord logInvertedRatioHistogramRecord,
-            AnalysisMethod analysisMethod) {
-        return new RatioHistogramPlot(bounds, ratioHistogramRecord, invertedRatioHistogramRecord, logRatioHistogramRecord, logInvertedRatioHistogramRecord, analysisMethod);
+            AnalysisMethod analysisMethod,
+            PlotWallPane parentWallPane) {
+        return new RatioHistogramPlot(bounds, ratioHistogramRecord, invertedRatioHistogramRecord, logRatioHistogramRecord, logInvertedRatioHistogramRecord, analysisMethod, parentWallPane);
     }
 
     private void extendPlotContextMenu() {

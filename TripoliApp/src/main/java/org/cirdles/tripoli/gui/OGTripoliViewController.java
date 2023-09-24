@@ -40,10 +40,8 @@ public class OGTripoliViewController {
     public static AnalysisInterface analysis;
     public static AllBlockInitForOGTripoli.PlottingData plottingData;
     public static AnalysisManagerCallbackI analysisManagerCallbackI;
-
     @FXML
     public VBox plotWindowVBox;
-
     @FXML
     public TabPane plotTabPane;
     @FXML
@@ -64,16 +62,6 @@ public class OGTripoliViewController {
             ogtCycleRatioPlotsAnchorPane.setMinHeight(((Double) newValue) - 65.0);
             ogtSpeciesIntensitiesPlotAnchorPane.setMinHeight(((Double) newValue) - 100.0);
         });
-
-//        plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
-//            ogtCycleRatioPlotsAnchorPane.setMinWidth((Double) newValue);
-//            ogtSpeciesIntensitiesPlotAnchorPane.setMinWidth((Double) newValue);
-//        });
-//
-//        plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-//            ogtCycleRatioPlotsAnchorPane.setMinHeight(((Double) newValue) - 65.0);
-//            ogtSpeciesIntensitiesPlotAnchorPane.setMinHeight(((Double) newValue) - 65.0);
-//        });
 
         populatePlots();
     }
@@ -274,9 +262,5 @@ public class OGTripoliViewController {
         plotsWallPane.buildOGTripoliToolBar(analysis.getAnalysisMethod().getSpeciesList());
         plotsWallPane.buildScaleControlsToolbar();
         plotsWallPane.stackPlots();
-
-
     }
-
-
 }

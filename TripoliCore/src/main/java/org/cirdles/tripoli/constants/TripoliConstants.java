@@ -65,6 +65,8 @@ public enum TripoliConstants {
     public static final int PLOT_INDEX_DFGAINS = 2;
     public static final int PLOT_INDEX_MEANINTENSITIES = 4;
     public static final String PLOT_TAB_ENSEMBLES = "Ensembles";
+    public static final String PLOT_TAB_CONVERGE = "Converge";
+    public static final String PLOT_TAB_CONVERGE_INTENSITY = "Converge Intensity";
 
 
     public static enum IntensityUnits {

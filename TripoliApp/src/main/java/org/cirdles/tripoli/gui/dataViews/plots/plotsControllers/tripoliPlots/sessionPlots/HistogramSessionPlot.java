@@ -34,7 +34,7 @@ public class HistogramSessionPlot extends AbstractPlot {
 
     private HistogramSessionPlot(Rectangle bounds, HistogramSessionRecord histogramSessionRecord) {
         super(bounds,
-                40, 25,
+                75, 25,
                 new String[]{histogramSessionRecord.title()[0]
                         + "  " + "X\u0305" + "=" + String.format("%8.5g", histogramSessionRecord.sessionMean()).trim()
                         , "\u00B1" + String.format("%8.5g", histogramSessionRecord.sessionOneSigma()).trim()},
