@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 public record SingleBlockModelRecord(
-        int blockNumber,
+        int blockID,
         int faradayCount,
         int cycleCount,
         int isotopeCount,

@@ -95,7 +95,7 @@ enum SingleBlockModelInitForMCMC {
         try {
             detectorFaradayGain = calculateDFGain(iden, baselineMeansArray, mapDetectorOrdinalToFaradayIndex, singleBlockRawDataSetRecord);
         } catch (Exception e) {
-            System.out.println("BAD GAIN:  BLOCK# " + singleBlockRawDataSetRecord.blockNumber());
+            System.out.println("BAD GAIN:  BLOCK# " + singleBlockRawDataSetRecord.blockID());
         }
 
         /*
@@ -365,7 +365,7 @@ enum SingleBlockModelInitForMCMC {
         }
 
         SingleBlockModelRecord originalX0 = new SingleBlockModelRecord(
-                singleBlockRawDataSetRecord.blockNumber(),
+                singleBlockRawDataSetRecord.blockID(),
                 mapDetectorOrdinalToFaradayIndex.size(),
                 cycleCount,
                 countOfIsotopes,
@@ -387,7 +387,7 @@ enum SingleBlockModelInitForMCMC {
         // note: this datamodel replicates matlab datamodel when using linear knots on old 2 isotope data files
 
         SingleBlockModelRecord calculatedX0 = new SingleBlockModelRecord(
-                singleBlockRawDataSetRecord.blockNumber(),//original
+                singleBlockRawDataSetRecord.blockID(),//original
                 mapDetectorOrdinalToFaradayIndex.size(),
                 cycleCount,
                 countOfIsotopes,
@@ -442,7 +442,7 @@ enum SingleBlockModelInitForMCMC {
                     testLogRatios[logRatioIndex] = logRatios[logRatioIndex] + testLR[ii];
 
                     SingleBlockModelRecord testX0 = new SingleBlockModelRecord(
-                            singleBlockRawDataSetRecord.blockNumber(),
+                            singleBlockRawDataSetRecord.blockID(),
                             mapDetectorOrdinalToFaradayIndex.size(),
                             cycleCount,
                             countOfIsotopes,
@@ -504,7 +504,7 @@ enum SingleBlockModelInitForMCMC {
                     testIntensity[intensityIndex] = intensity_I[intensityIndex] + testI[ii];
 
                     SingleBlockModelRecord testX0 = new SingleBlockModelRecord(
-                            singleBlockRawDataSetRecord.blockNumber(),
+                            singleBlockRawDataSetRecord.blockID(),
                             mapDetectorOrdinalToFaradayIndex.size(), cycleCount, countOfIsotopes, analysisMethod.retrieveHighestAbundanceSpecies(), baselineMeansArray,
                             baselineStandardDeviationsArray,
                             detectorFaradayGain,
@@ -549,7 +549,7 @@ enum SingleBlockModelInitForMCMC {
                 double testDFGain = detectorFaradayGain + testDF[ii];
 
                 SingleBlockModelRecord testX0 = new SingleBlockModelRecord(
-                        singleBlockRawDataSetRecord.blockNumber(),
+                        singleBlockRawDataSetRecord.blockID(),
                         mapDetectorOrdinalToFaradayIndex.size(), cycleCount, countOfIsotopes, analysisMethod.retrieveHighestAbundanceSpecies(), baselineMeansArray,
                         baselineStandardDeviationsArray,
                         testDFGain,
@@ -600,7 +600,7 @@ enum SingleBlockModelInitForMCMC {
                     testBaseLineMeans[baseLineIndex] = baselineMeansArray[baseLineIndex] + testBL[ii];
 
                     SingleBlockModelRecord testX0 = new SingleBlockModelRecord(
-                            singleBlockRawDataSetRecord.blockNumber(),
+                            singleBlockRawDataSetRecord.blockID(),
                             mapDetectorOrdinalToFaradayIndex.size(),
                             cycleCount,
                             countOfIsotopes,

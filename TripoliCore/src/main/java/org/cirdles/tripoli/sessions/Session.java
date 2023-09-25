@@ -66,13 +66,6 @@ public class Session implements Serializable {
 
     public static Session initializeDefaultSession() throws JAXBException {
         Session session = new Session();
-//        Path phoenixAnalysisMethodDataFilePath = Paths.get("Sm147to150_S6_v2.TIMSAM");
-//
-//        JAXBContext jaxbContext = JAXBContext.newInstance(PhoenixAnalysisMethod.class);
-//        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-//        PhoenixAnalysisMethod phoenixAnalysisMethod = (PhoenixAnalysisMethod) jaxbUnmarshaller.unmarshal(phoenixAnalysisMethodDataFilePath.toFile());
-//
-//        session.addAnalysis(initializeAnalysis("Test Analysis", createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod), new Sample("")));
         session.addAnalysis(initializeNewAnalysis());
         return session;
     }

@@ -12,7 +12,6 @@ import java.util.TreeMap;
 
 public class MassSpecExtractedData implements Serializable {
 
-
     private MassSpectrometerContextEnum massSpectrometerContext;
     private MassSpecExtractedHeader header;
     private String[] columnHeaders;

@@ -67,8 +67,10 @@ public class PlotWallPaneOGTripoli extends Pane {
         double tileWidth;
         double displayHeight;
         if (iD.compareToIgnoreCase("OGTripoliSession") == 0) {
-            tileWidth = ((AnchorPane) getParent()).getPrefWidth() - gridCellDim * 2.0;
-            displayHeight = (((AnchorPane) getParent()).getPrefHeight() - toolBarHeight * 2.0);
+            double parentWidth = Math.max(((AnchorPane) getParent()).getPrefWidth(), ((AnchorPane) getParent()).getMinWidth());
+            tileWidth = parentWidth - gridCellDim * 2.0;
+            double parentHeight = Math.max(((AnchorPane) getParent()).getPrefHeight(), ((AnchorPane) getParent()).getMinHeight());
+            displayHeight = (parentHeight - toolBarHeight);
         } else {
             tileWidth = (getParent().getBoundsInParent().getWidth() - gridCellDim * 1.0);
             displayHeight = (getParent().getBoundsInParent().getHeight() - toolBarHeight);

@@ -111,7 +111,7 @@ public class TripoliGUIController implements Initializable {
         } catch (TripoliException squidException) {
             TripoliMessageDialog.showWarningDialog(squidException.getMessage(), primaryStageWindow);
         }
-        //  todo:      confirmSaveOnProjectClose();
+        //  todo:      confirmSaveOnSessionClose();
         System.out.println("Tripoli quitting normally.");
         Platform.exit();
         System.exit(0);
@@ -155,6 +155,8 @@ public class TripoliGUIController implements Initializable {
         for (Node manager : splashAnchor.getChildren()) {
             manager.setVisible(false);
         }
+
+        AnalysisManagerController.closePlotWindows();
 
         // prevent stacking of panes
         splashAnchor.getChildren().remove(sessionManagerUI);

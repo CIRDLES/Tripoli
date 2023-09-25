@@ -30,6 +30,8 @@ public class PlotBuilder implements Serializable {
     protected String yAxisLabel;
     protected boolean displayed;
 
+    protected double shadeWidthForModelConvergence;
+
     public PlotBuilder() {
         this(new String[]{"NONE"}, "NONE", "NONE", false);
     }
@@ -39,6 +41,14 @@ public class PlotBuilder implements Serializable {
         this.xAxisLabel = xAxisLabel;
         this.yAxisLabel = yAxisLabel;
         this.displayed = displayed;
+    }
+
+    public double getShadeWidthForModelConvergence() {
+        return shadeWidthForModelConvergence;
+    }
+
+    public void setShadeWidthForModelConvergence(double shadeWidthForModelConvergence) {
+        this.shadeWidthForModelConvergence = Math.max(0.0, shadeWidthForModelConvergence);
     }
 
     public String[] getTitle() {
