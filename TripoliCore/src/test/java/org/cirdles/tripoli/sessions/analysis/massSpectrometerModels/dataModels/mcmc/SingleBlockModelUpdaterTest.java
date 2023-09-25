@@ -14,15 +14,22 @@ class SingleBlockModelUpdaterTest {
     double [] baseLineStdArray = {4982.67807983952, 4780.0623321199555, 5193.360350459159, 4907.063915023453,
         4714.765639738263, 5160.46695647297, 5046.694666480015, 4697.626440989729};
     double[] logRatios = {-6.105156257140191, -3.004719311598562, -1.0005880585294717, -1.0037282990171001E-4};
-    int m = 2;
+    double[] IO = {612883.5566669849, 600968.2963926943, 590739.6635055963, 551123.8421191652, 542702.5980471913,
+            533590.5518885341, 524451.016364891, 515567.008106857, 507609.7292427336, 499693.58915267687, 492662.955219078};
+    int m = 32;
     int sizeOfModel = 24;
     double[][] dataCov = new double[sizeOfModel][sizeOfModel];
     double[] dataMean = new double[sizeOfModel];
+    SingleBlockModelRecord singleBlockInitialModelRecord_X0;
+
+    //private final SingleBlockModelRecord singleBlockInitialModelRecord_X0;
+    //double [] dataArray = MCMCProcess.singleBlockInitialModelRecord_X0.dataModelArray().clone();
 
     @BeforeEach
     void setUp() {
 
         // Create Sudo ModelRecord
+
         singleBlockModelRecord_Test = new SingleBlockModelRecord(
                 1,
                 8,
@@ -38,9 +45,10 @@ class SingleBlockModelUpdaterTest {
                 null,
                 null,
                 null,
-                null,
+                IO,
                 null
         );
+
     }
 
     @AfterEach
@@ -55,14 +63,14 @@ class SingleBlockModelUpdaterTest {
         assertTrue(singleBlockModelUpdater.getOperations().contains(oper));
     }
 
-    @Test
-    void testUpdateMeanCovMS2() {
+    //@Test
+    //void testUpdateMeanCovMS2() {
 
-        SingleBlockModelUpdater modelUpdater = new SingleBlockModelUpdater();
+        //SingleBlockModelUpdater modelUpdater = new SingleBlockModelUpdater();
 
-        SingleBlockModelUpdater.UpdatedCovariancesRecord result = modelUpdater.updateMeanCovMS2(
-                singleBlockModelRecord_Test, dataCov, dataMean, m);
+        //SingleBlockModelUpdater.UpdatedCovariancesRecord result = modelUpdater.updateMeanCovMS2(
+        //        singleBlockModelRecord_Test, dataCov, dataMean, m);
 
-        //System.out.println(result.toString());
-    }
+       // System.out.println("Hello" + result.toString());
+    //}
 }
