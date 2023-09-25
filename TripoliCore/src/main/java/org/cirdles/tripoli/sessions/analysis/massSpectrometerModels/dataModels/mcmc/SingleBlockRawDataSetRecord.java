@@ -26,11 +26,11 @@ import java.util.Map;
  * @author James F. Bowring
  */
 public record SingleBlockRawDataSetRecord(
-        int blockNumber,
+        int blockID,
         SingleBlockRawDataRecord baselineDataSetMCMC,
         SingleBlockRawDataRecord onPeakFaradayDataSetMCMC,
         SingleBlockRawDataRecord onPeakPhotoMultiplierDataSetMCMC,
-        double[][] blockKnotInterpolationArray,// Primitive64Store blockKnotInterpolationStore,
+        double[][] blockKnotInterpolationArray,
         int[] blockCycleArray,
         double[] blockRawDataArray,
         int[] blockDetectorOrdinalIndicesArray,
@@ -51,7 +51,7 @@ public record SingleBlockRawDataSetRecord(
      * @author James F. Bowring
      */
     public record SingleBlockRawDataRecord(
-            int blockNumber,
+            int blockID,
             List<Integer> detectorOrdinalIndicesAccumulatorList,
             List<Integer> cycleAccumulatorList,
             List<Double> intensityAccumulatorList,

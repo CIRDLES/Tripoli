@@ -21,10 +21,7 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.plots.PlotBuilder;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.*;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.SingleBlockPeakDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
@@ -49,9 +46,7 @@ import java.util.regex.Pattern;
 
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_SYNTHETIC;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
-import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
-import static org.cirdles.tripoli.constants.TripoliConstants.SPACES_100;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockDataModelPlot.PLOT_INDEX_RATIOS;
+import static org.cirdles.tripoli.constants.TripoliConstants.*;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB;
 
@@ -71,7 +66,10 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<Integer, String> mapOfBlockToLogs = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, Integer> mapOfBlockIdToProcessStatus = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, List<File>> blockPeakGroups = Collections.synchronizedSortedMap(new TreeMap<>());
-
+    private final Map<Integer, Integer> mapOfBlockIdToModelsBurnCount = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, List<EnsemblesStore.EnsembleRecord>> mapBlockIDToEnsembles = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, SingleBlockModelRecord> mapOfBlockIdToFinalModel = Collections.synchronizedSortedMap(new TreeMap<>());
     private String analysisName;
     private String analystName;
     private String labName;
@@ -82,7 +80,6 @@ public class Analysis implements Serializable, AnalysisInterface {
     private String dataFilePathString;
     private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
-
 
     private Analysis() {
     }
@@ -97,6 +94,14 @@ public class Analysis implements Serializable, AnalysisInterface {
         dataFilePathString = MISSING_STRING_FIELD;
         massSpecExtractedData = new MassSpecExtractedData();
         mutable = true;
+    }
+
+    public Map<Integer, List<EnsemblesStore.EnsembleRecord>> getMapBlockIDToEnsembles() {
+        return mapBlockIDToEnsembles;
+    }
+
+    public Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount() {
+        return mapOfBlockIdToModelsBurnCount;
     }
 
     public void extractMassSpecDataFromPath(Path dataFilePath)
@@ -120,9 +125,10 @@ public class Analysis implements Serializable, AnalysisInterface {
             } else {
                 analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
             }
-            // initialize block processing state
+            // initialize block processing state - see parallel below
             for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
                 mapOfBlockIdToProcessStatus.put(blockID, RUN);
+                mapOfBlockIdToModelsBurnCount.put(blockID, 0);
             }
         } else {
             // attempt to load specified method
@@ -142,6 +148,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             // initialize block processing state
             for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
                 mapOfBlockIdToProcessStatus.put(blockID, RUN);
+                mapOfBlockIdToModelsBurnCount.put(blockID, 0);
             }
 
             // collects the file objects from PeakCentres folder +++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -226,6 +233,26 @@ public class Analysis implements Serializable, AnalysisInterface {
         return retVal;
     }
 
+    public void updateShadeWidthsForConvergenceLinePlots(int blockID, double shadeWidth) {
+        // PlotBuilder indices for convergence LinePlotBuilders = 5,6,8,9
+        // TODO: make these indices into constants
+        // PlotBuilder indices for convergence MultiLinePlotBuilders = 10
+        PlotBuilder[][] plotBuilders = mapOfBlockIdToPlots.get(blockID);
+        if (plotBuilders != null) {
+            updatePlotBuildersWithShades(plotBuilders[5], shadeWidth);
+            updatePlotBuildersWithShades(plotBuilders[6], shadeWidth);
+            updatePlotBuildersWithShades(plotBuilders[8], shadeWidth);
+            updatePlotBuildersWithShades(plotBuilders[9], shadeWidth);
+            updatePlotBuildersWithShades(plotBuilders[10], shadeWidth);
+        }
+    }
+
+    private void updatePlotBuildersWithShades(PlotBuilder[] linePlotBuilders, double shadeWidth) {
+        for (int i = 0; i < linePlotBuilders.length; i++) {
+            linePlotBuilders[i].setShadeWidthForModelConvergence(shadeWidth);
+        }
+    }
+
     @Override
     public PlotBuilder[] updatePeakPlotsByBlock(int blockID) throws TripoliException {
         PlotBuilder[] retVal;
@@ -268,7 +295,7 @@ public class Analysis implements Serializable, AnalysisInterface {
 
 
     public AllBlockInitForOGTripoli.PlottingData assemblePostProcessPlottingData() {
-        Map<Integer, SingleBlockRawDataSetRecord> singleBlockRawDataSetRecordMap = analysisMethod.getMapOfBlockIdToRawData();
+        Map<Integer, SingleBlockRawDataSetRecord> singleBlockRawDataSetRecordMap = getMapOfBlockIdToRawData();
         SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = new SingleBlockRawDataSetRecord[singleBlockRawDataSetRecordMap.keySet().size()];
         int index = 0;
         for (SingleBlockRawDataSetRecord singleBlockRawDataSetRecord : singleBlockRawDataSetRecordMap.values()) {
@@ -276,8 +303,8 @@ public class Analysis implements Serializable, AnalysisInterface {
             index++;
         }
 
-        Map<Integer, SingleBlockModelRecord> singleBlockModelRecordMap = analysisMethod.getMapOfBlockIdToFinalModel();
-        SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[analysisMethod.getMapOfBlockIdToFinalModel().keySet().size()];
+        Map<Integer, SingleBlockModelRecord> singleBlockModelRecordMap = getMapOfBlockIdToFinalModel();
+        SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[singleBlockModelRecordMap.keySet().size()];
         index = 0;
         for (SingleBlockModelRecord singleBlockModelRecord : singleBlockModelRecordMap.values()) {
             singleBlockModelRecords[index] = singleBlockModelRecord;
@@ -436,4 +463,14 @@ public class Analysis implements Serializable, AnalysisInterface {
     public Map<Integer, PlotBuilder[]> getMapOfBlockIdToPeakPlots() {
         return mapOfBlockIdToPeakPlots;
     }
+
+
+    public Map<Integer, SingleBlockRawDataSetRecord> getMapOfBlockIdToRawData() {
+        return mapOfBlockIdToRawData;
+    }
+
+    public Map<Integer, SingleBlockModelRecord> getMapOfBlockIdToFinalModel() {
+        return mapOfBlockIdToFinalModel;
+    }
+
 }
