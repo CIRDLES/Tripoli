@@ -119,7 +119,7 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                         }
 
                         if (logScale) {
-                            yData[row][col] = pow(10.0, log(yData[row][col]));
+                            yData[row][col] = (yData[row][col] > 0.0) ? log(yData[row][col]) : 0.0;
                         }
                     }
                 }

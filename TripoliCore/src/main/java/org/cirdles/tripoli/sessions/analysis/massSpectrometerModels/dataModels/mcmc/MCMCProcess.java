@@ -30,6 +30,10 @@ import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -709,14 +713,14 @@ x=x0;
             }// end model loop
         }// convergence check
 
-//        // Detroit 2023 printout ensembleRecordsList
-//        Path path = Paths.get("EnsemblesForBlock_" + singleBlockCurrentModelRecord_X.blockID() + ".csv");
-//        OutputStream stream = Files.newOutputStream(path);
-//        stream.write(ensembleRecordsList.get(0).prettyPrintHeaderAsCSV("Index", analysisMethod.getIsotopicRatiosList()).getBytes());
-//        for (int i = 0; i < ensembleRecordsList.size(); i++) {
-//            stream.write(ensembleRecordsList.get(i).prettyPrintAsCSV().getBytes());
-//        }
-//        stream.close();
+        // Detroit 2023 printout ensembleRecordsList
+        Path path = Paths.get("EnsemblesForBlock_" + singleBlockCurrentModelRecord_X.blockID() + ".csv");
+        OutputStream stream = Files.newOutputStream(path);
+        stream.write(ensembleRecordsList.get(0).prettyPrintHeaderAsCSV("Index", analysisMethod.getIsotopicRatiosList()).getBytes());
+        for (int i = 0; i < ensembleRecordsList.size(); i++) {
+            stream.write(ensembleRecordsList.get(i).prettyPrintAsCSV().getBytes());
+        }
+        stream.close();
 
         // for session plotting
         // toDO: promote to analysis
