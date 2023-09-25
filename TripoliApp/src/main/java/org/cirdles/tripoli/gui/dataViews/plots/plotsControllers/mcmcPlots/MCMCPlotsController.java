@@ -112,6 +112,8 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
     private PlotWallPane ensemblePlotsWallPane;
     private PlotWallPane dataFitPlotsWallPane;
     private PlotWallPane ratiosSessionPlotsWallPane;
+    private PlotWallPane peakShapeOverlayPlotWallPane;
+    private PlotWallPane peakSessionPlotWallPlane;
 
 
     private ListView<String> listViewOfBlocks = new ListView<>();
@@ -133,6 +135,8 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
             ensemblePlotsAnchorPane.setMinWidth((Double) newValue);
             dataFitPlotsAnchorPane.setMinWidth((Double) newValue);
             ratioSessionAnchorPane.setMinWidth((Double) newValue);
+            beamShapeAnchorPane.setMinWidth((Double) newValue);
+            peakSessionAnchorPane.setMinWidth((Double) newValue);
         });
 
         plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
@@ -142,6 +146,8 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
             ensemblePlotsAnchorPane.setMinHeight((Double) newValue - TOOLBAR_HEIGHT);
             dataFitPlotsAnchorPane.setMinHeight((Double) newValue - TOOLBAR_HEIGHT);
             ratioSessionAnchorPane.setMinHeight((Double) newValue - TOOLBAR_HEIGHT);
+            beamShapeAnchorPane.setMinHeight((Double) newValue - TOOLBAR_HEIGHT);
+            peakSessionAnchorPane.setMinHeight((Double) newValue - TOOLBAR_HEIGHT);
         });
 
         plotTabPane.prefWidthProperty().bind(masterVBox.widthProperty());
@@ -336,12 +342,23 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
                 }
             }
         }
+        plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+            peakSessionPlotWallPlane.repeatLayoutStyle();
+        });
+        plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+            peakSessionPlotWallPlane.repeatLayoutStyle();
+        });
         // TODO add peak session pane to fxml and controller
-        peakSessionAnchorPane.getChildren().removeAll();
-        PlotWallPane peakSessionPlotWallPlane = PlotWallPane.createPlotWallPane(null, analysis, this, null);
-        peakSessionPlotWallPlane.buildToolBar();
-        peakSessionPlotWallPlane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-        peakSessionAnchorPane.getChildren().add(peakSessionPlotWallPlane);
+
+        if (peakSessionAnchorPane.getChildren().isEmpty()) {
+            peakSessionPlotWallPlane = PlotWallPane.createPlotWallPane(null, analysis, this, null);
+            peakSessionPlotWallPlane.buildToolBar();
+            peakSessionPlotWallPlane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+            peakSessionAnchorPane.getChildren().add(peakSessionPlotWallPlane);
+        } else {
+            peakSessionPlotWallPlane = (PlotWallPane) peakSessionAnchorPane.getChildren().get(0);
+            peakSessionPlotWallPlane.clearTripoliPanes();
+        }
         for (Map.Entry<String, List<PeakShapesOverlayRecord>> entry : mapPeakNameToSessionRecords.entrySet()) {
             PeakCentreSessionBuilder peakCentreSessionBuilder = initializePeakCentreSession(analysis.getMapOfBlockIdToPeakPlots().size(),
                     entry.getValue(),
@@ -354,43 +371,32 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
             tripoliPlotPane.addPlot(plot);
         }
         peakSessionPlotWallPlane.stackPlots();
-
     }
 
     private synchronized void plotBlockEngine(Task<String> plotBuildersTaska) {
         analysisManagerCallbackI.callbackRefreshBlocksStatus();
 
-
-        if (!beamShapeAnchorPane.getChildren().isEmpty()) {
-            beamShapeAnchorPane.getChildren().remove(0);
-        }
-
         PlotBuildersTaskInterface plotBuildersTask = (PlotBuildersTaskInterface) plotBuildersTaska;
-
-        PlotBuilder[] peakShapeOverlayBuilder = plotBuildersTask.getPeakShapesBuilder();
 
         PlotBuilder[] convergeRatioPlotBuilder = plotBuildersTask.getConvergeRatioLineBuilder();
         PlotBuilder[] convergeBLFaradayLineBuilder = plotBuildersTask.getConvergeBLFaradayLineBuilder();
-
-        PlotBuilder[] convergeErrWeightedMisfitBuilder = plotBuildersTask.getConvergeErrWeightedMisfitLineBuilder();
         PlotBuilder[] convergeErrRawMisfitBuilder = plotBuildersTask.getConvergeErrRawMisfitLineBuilder();
-
+        PlotBuilder[] convergeErrWeightedMisfitBuilder = plotBuildersTask.getConvergeErrWeightedMisfitLineBuilder();
+        PlotBuilder[] convergeIntensityLinesBuilder = plotBuildersTask.getConvergeIntensityLinesBuilder();
         PlotBuilder[] observedDataPlotBuilder = plotBuildersTask.getObservedDataLineBuilder();
+        PlotBuilder[] observedDataWithSubsetsLineBuilder = plotBuildersTask.getObservedDataWithSubsetsLineBuilder();
         PlotBuilder[] residualDataPlotBuilder = plotBuildersTask.getResidualDataLineBuilder();
 
-        PlotBuilder[] convergeIntensityLinesBuilder = plotBuildersTask.getConvergeIntensityLinesBuilder();
-
-        PlotBuilder[] observedDataWithSubsetsLineBuilder = plotBuildersTask.getObservedDataWithSubsetsLineBuilder();
-
+        PlotBuilder[] peakShapeOverlayBuilder = plotBuildersTask.getPeakShapesBuilder();
 
         // plotting ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
         plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
             convergePlotsWallPane.repeatLayoutStyle();
             convergeErrorPlotsWallPane.repeatLayoutStyle();
             convergeIntensityPlotsWallPane.repeatLayoutStyle();
             ensemblePlotsWallPane.repeatLayoutStyle();
             dataFitPlotsWallPane.repeatLayoutStyle();
+            peakShapeOverlayPlotWallPane.restoreAllPlots();
         });
         plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
             convergePlotsWallPane.repeatLayoutStyle();
@@ -398,6 +404,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
             convergeIntensityPlotsWallPane.repeatLayoutStyle();
             ensemblePlotsWallPane.repeatLayoutStyle();
             dataFitPlotsWallPane.repeatLayoutStyle();
+            peakShapeOverlayPlotWallPane.repeatLayoutStyle();
         });
 
 
@@ -467,13 +474,19 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
         produceTripoliBasicScatterAndLinePlots(residualDataPlotBuilder, dataFitPlotsWallPane);
         dataFitPlotsWallPane.stackPlots();
 
-
-//        PlotWallPane peakShapeOverlayPlotWallPane = PlotWallPane.createPlotWallPane(null, analysis, this, null);
-//        peakShapeOverlayPlotWallPane.buildToolBar();
-//        peakShapeOverlayPlotWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-//        beamShapeAnchorPane.getChildren().add(peakShapeOverlayPlotWallPane);
-//        producePeakShapesOverlayPlot(peakShapeOverlayBuilder, peakShapeOverlayPlotWallPane);
-//        peakShapeOverlayPlotWallPane.tilePlots();
+        if (beamShapeAnchorPane.getChildren().isEmpty()) {
+            peakShapeOverlayPlotWallPane = PlotWallPane.createPlotWallPane(null, analysis, this, null);
+            peakShapeOverlayPlotWallPane.buildToolBar();
+            peakShapeOverlayPlotWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+            peakShapeOverlayPlotWallPane.prefWidthProperty().bind(beamShapeAnchorPane.widthProperty());
+            peakShapeOverlayPlotWallPane.prefHeightProperty().bind(beamShapeAnchorPane.heightProperty());
+            beamShapeAnchorPane.getChildren().add(peakShapeOverlayPlotWallPane);
+        } else {
+            peakShapeOverlayPlotWallPane = (PlotWallPane) beamShapeAnchorPane.getChildren().get(0);
+            peakShapeOverlayPlotWallPane.clearTripoliPanes();
+        }
+        producePeakShapesOverlayPlot(peakShapeOverlayBuilder, peakShapeOverlayPlotWallPane);
+        peakShapeOverlayPlotWallPane.tilePlots();
     }
 
 
