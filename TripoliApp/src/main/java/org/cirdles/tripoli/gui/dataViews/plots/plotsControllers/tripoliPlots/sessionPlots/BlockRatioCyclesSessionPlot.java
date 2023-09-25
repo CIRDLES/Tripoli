@@ -30,9 +30,6 @@ import org.cirdles.tripoli.plots.sessionPlots.BlockRatioCyclesSessionRecord;
 
 import java.util.Map;
 
-import static java.lang.StrictMath.log;
-import static java.lang.StrictMath.pow;
-
 /**
  * @author James F. Bowring
  */
@@ -113,11 +110,12 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
             System.arraycopy(blockRatioCyclesRecord.cycleRatioOneSigmaData(), 0, oneSigmaForCycles, (entry.getKey() - 1) * cyclesPerBlock, availableCyclesPerBlock);
         }
 
-        if (logScale) {
-            for (int i = 0; i < yAxisData.length; i++) {
-                yAxisData[i] = pow(10.0, log(yAxisData[i]));
-            }
-        }
+//        if (logScale) {
+//            for (int i = 0; i < yAxisData.length; i++) {
+//                yAxisData[i] =  (yAxisData[i] > 0.0) ? log(yAxisData[i]) : 0.0;
+//                oneSigmaForCycles[i] = (oneSigmaForCycles[i] > 0.0) ? log(oneSigmaForCycles[i]) : 0.0;
+//            }
+//        }
 
         if (reScaleY) {
             // calculate ratio and unct across all included blocks

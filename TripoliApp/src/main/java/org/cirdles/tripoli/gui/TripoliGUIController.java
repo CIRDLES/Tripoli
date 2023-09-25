@@ -85,8 +85,6 @@ public class TripoliGUIController implements Initializable {
     @FXML // fx:id="versionLabel"
     private Label versionLabel; // Value injected by FXMLLoader
     @FXML
-    private MenuItem openRecentSessionMenuItem;
-    @FXML
     private MenuItem sessionManagerMenuItem;
     @FXML
     private MenuItem newSessionMenuItem;
@@ -138,7 +136,6 @@ public class TripoliGUIController implements Initializable {
     private void showStartingMenus() {
         sessionManagerMenuItem.setDisable(true);
         newSessionMenuItem.setDisable(false);
-        openRecentSessionMenuItem.setDisable(true);
         saveSessionMenuItem.setDisable(true);
         saveSessionAsMenuItem.setDisable(true);
         closeSessionMenuItem.setDisable(true);
@@ -252,9 +249,6 @@ public class TripoliGUIController implements Initializable {
                 throw new IOException();
             }
         }
-    }
-
-    public void openRecentSessionMenuItemAction() {
     }
 
     public void openDemonstrationSessionMenuItemAction() throws IOException, TripoliException {
