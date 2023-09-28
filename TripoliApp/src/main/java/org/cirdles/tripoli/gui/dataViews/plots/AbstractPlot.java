@@ -435,6 +435,10 @@ public abstract class AbstractPlot extends Canvas {
         return ((mapX(x) >= leftMargin) && (mapX(x) <= (leftMargin + plotWidth)) && (mapY(y) >= topMargin) && (mapY(y) <= (topMargin + plotHeight)));
     }
 
+    public boolean xInPlot(double x) {
+        return ((mapX(x) >= leftMargin) && (mapX(x) <= (leftMargin + plotWidth)));
+    }
+
     /**
      * @param doReScale  the value of doReScale
      * @param inLiveMode the value of inLiveMode

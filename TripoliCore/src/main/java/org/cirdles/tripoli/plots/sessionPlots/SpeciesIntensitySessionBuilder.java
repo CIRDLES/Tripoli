@@ -27,27 +27,35 @@ public class SpeciesIntensitySessionBuilder extends PlotBuilder {
     private final double[][] ampResistance;
     private final double[][] baseLine;
     private final double[][] dfGain;
+    private final int[] xAxisBlockIDs;
 
-    protected SpeciesIntensitySessionBuilder(double[] xData, double[][] yData, double[][] ampResistance, double[][] baseLine, double[][] dfGain, String[] title, String xAxisLabel, String yAxisLabel) {
+    protected SpeciesIntensitySessionBuilder(double[] xData, int[] xAxisBlockIDs, double[][] yData, double[][] ampResistance, double[][] baseLine, double[][] dfGain, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel, true);
         this.xData = xData;
+        this.xAxisBlockIDs = xAxisBlockIDs;
         this.yData = yData;
         this.ampResistance = ampResistance;
         this.baseLine = baseLine;
         this.dfGain = dfGain;
     }
 
-    public static SpeciesIntensitySessionBuilder initializeSpeciesIntensitySessionPlot(double[] xData, double[][] yData, double[][] ampResistance, double[][] baseLine, double[][] dfGain, String[] title, String xAxisLabel, String yAxisLabel) {
-        return new SpeciesIntensitySessionBuilder(xData, yData, ampResistance, baseLine, dfGain, title, xAxisLabel, yAxisLabel);
+    public static SpeciesIntensitySessionBuilder initializeSpeciesIntensitySessionPlot(
+            double[] xData, int[] xAxisBlockIDs, double[][] yData, double[][] ampResistance, double[][] baseLine, double[][] dfGain, String[] title, String xAxisLabel, String yAxisLabel) {
+        return new SpeciesIntensitySessionBuilder(xData, xAxisBlockIDs, yData, ampResistance, baseLine, dfGain, title, xAxisLabel, yAxisLabel);
+    }
+
+    public double[] getxData() {
+        return xData;
+    }
+
+    public int[] getxAxisBlockIDs() {
+        return xAxisBlockIDs;
     }
 
     public double[][] getyData() {
         return yData;
     }
 
-    public double[] getxData() {
-        return xData;
-    }
 
     public double[][] getAmpResistance() {
         return ampResistance;

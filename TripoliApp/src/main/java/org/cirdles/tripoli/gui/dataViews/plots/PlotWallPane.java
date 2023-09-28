@@ -299,6 +299,18 @@ public class PlotWallPane extends Pane {
         button1.setOnAction(event -> toggleShowStatsAllPlots());
         toolBar.getItems().add(button1);
 
+        Button tileButton = new Button("Tile Plots");
+        tileButton.setOnAction(event -> tilePlots());
+        toolBar.getItems().add(tileButton);
+
+        Button stackButton = new Button("Stack Plots");
+        stackButton.setOnAction(event -> stackPlots());
+        toolBar.getItems().add(stackButton);
+
+        Button cascadeButton = new Button("Cascade Plots");
+        cascadeButton.setOnAction(event -> cascadePlots());
+        toolBar.getItems().add(cascadeButton);
+
         Label labelScale = new Label("Scale:");
         labelScale.setAlignment(Pos.CENTER_RIGHT);
         labelScale.setPrefWidth(60);

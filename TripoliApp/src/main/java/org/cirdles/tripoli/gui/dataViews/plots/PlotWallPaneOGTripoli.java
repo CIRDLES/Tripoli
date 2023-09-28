@@ -216,6 +216,10 @@ public class PlotWallPaneOGTripoli extends Pane {
         toolBar.setPrefHeight(toolBarHeight);
         toolBar.setLayoutY(toolBarHeight);
 
+        Button restoreButton = new Button("Restore Plot");
+        restoreButton.setOnAction(event -> rebuildPlot(true, true));
+        toolBar.getItems().add(restoreButton);
+
         Label labelScale = new Label("Scale:");
         labelScale.setAlignment(Pos.CENTER_RIGHT);
         labelScale.setPrefWidth(60);

@@ -145,7 +145,9 @@ public class OGTripoliViewController {
             plot.refreshPanel(false, false);
 
         }
+        plotsWallPane.buildToolBar();
         plotsWallPane.buildScaleControlsToolbar();
+
         plotsWallPane.stackPlots();
     }
 
@@ -182,6 +184,7 @@ public class OGTripoliViewController {
 
         // x-axis = time
         double[] xAxis = analysis.getMassSpecExtractedData().calculateSessionTimes();
+        int[] xAxisBlockIDs = analysis.getMassSpecExtractedData().assignBlockIdToSessionTime();
 
         // alternating faraday, model, pm, and model rows (4-tuple for each species)
 
@@ -252,7 +255,7 @@ public class OGTripoliViewController {
         }
 
         PlotBuilder plotBuilder = SpeciesIntensitySessionBuilder.initializeSpeciesIntensitySessionPlot(
-                xAxis, onPeakDataCounts, onPeakDataAmpResistance, onPeakBaseline, onPeakGain, new String[]{"Species Intensity by Session"}, "Time (secs)", "Intensity (counts)");
+                xAxis, xAxisBlockIDs, onPeakDataCounts, onPeakDataAmpResistance, onPeakBaseline, onPeakGain, new String[]{"Species Intensity by Session"}, "Time (secs)", "Intensity (counts)");
 
         TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPane);
         AbstractPlot plot = SpeciesIntensitySessionPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (SpeciesIntensitySessionBuilder) plotBuilder);

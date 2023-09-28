@@ -21,6 +21,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
@@ -29,6 +30,8 @@ import org.cirdles.tripoli.plots.compoundPlots.BlockRatioCyclesRecord;
 import org.cirdles.tripoli.plots.sessionPlots.BlockRatioCyclesSessionRecord;
 
 import java.util.Map;
+
+import static java.lang.StrictMath.log;
 
 /**
  * @author James F. Bowring
@@ -110,12 +113,14 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
             System.arraycopy(blockRatioCyclesRecord.cycleRatioOneSigmaData(), 0, oneSigmaForCycles, (entry.getKey() - 1) * cyclesPerBlock, availableCyclesPerBlock);
         }
 
-//        if (logScale) {
-//            for (int i = 0; i < yAxisData.length; i++) {
-//                yAxisData[i] =  (yAxisData[i] > 0.0) ? log(yAxisData[i]) : 0.0;
-//                oneSigmaForCycles[i] = (oneSigmaForCycles[i] > 0.0) ? log(oneSigmaForCycles[i]) : 0.0;
-//            }
-//        }
+        plotAxisLabelY = "Ratio";
+        if (logScale) {
+            for (int i = 0; i < yAxisData.length; i++) {
+                yAxisData[i] = (yAxisData[i] > 0.0) ? log(yAxisData[i]) : 0.0;
+                oneSigmaForCycles[i] = (oneSigmaForCycles[i] > 0.0) ? log(oneSigmaForCycles[i]) : 0.0;
+            }
+            plotAxisLabelY = "Log Ratio";
+        }
 
         if (reScaleY) {
             // calculate ratio and unct across all included blocks
@@ -124,9 +129,13 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
 
             for (int i = 0; i < yAxisData.length; i++) {
                 int blockID = (i / mapBlockIdToBlockRatioCyclesRecord.get(1).cyclesIncluded().length) + 1;
+                // TODO: handle logratio uncertainties
                 if (mapBlockIdToBlockRatioCyclesRecord.get(blockID).blockIncluded() && (yAxisData[i] > 0)) {
                     minY = StrictMath.min(minY, yAxisData[i] - oneSigmaForCycles[i]);
                     maxY = StrictMath.max(maxY, yAxisData[i] + oneSigmaForCycles[i]);
+                } else {
+                    minY = StrictMath.min(minY, yAxisData[i]);
+                    maxY = StrictMath.max(maxY, yAxisData[i]);
                 }
             }
 
@@ -201,16 +210,28 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
                 }
             }
         }
-        // block delimeters
+        // block delimiters
         g2d.setStroke(Color.BLACK);
         g2d.setLineWidth(0.5);
+        int blockID = 0;
         for (int i = 0; i < xAxisData.length; i += cyclesPerBlock) {
             double dataX = mapX(xAxisData[i] - 0.5);
-            g2d.strokeLine(dataX, mapY(minY), dataX, mapY(maxY));
+            g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
+            blockID++;
+            showBlockID(g2d, Integer.toString(blockID), mapX(xAxisData[i]));
         }
         double dataX = mapX(xAxisData[xAxisData.length - 1] + 0.5);
-        g2d.strokeLine(dataX, mapY(minY), dataX, mapY(maxY));
+        g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
 
+    }
+
+    private void showBlockID(GraphicsContext g2d, String blockID, double xPosition) {
+        Paint savedPaint = g2d.getFill();
+        g2d.setFill(Paint.valueOf("BLACK"));
+        g2d.setFont(Font.font("SansSerif", 10));
+
+        g2d.fillText("BL#" + blockID, xPosition, topMargin + plotHeight + 10);
+        g2d.setFill(savedPaint);
     }
 
     public void plotStats(GraphicsContext g2d) {
