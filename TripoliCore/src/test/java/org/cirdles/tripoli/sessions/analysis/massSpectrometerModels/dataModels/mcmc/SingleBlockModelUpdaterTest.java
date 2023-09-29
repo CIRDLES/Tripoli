@@ -48,7 +48,6 @@ class SingleBlockModelUpdaterTest {
                 IO,
                 new double[0]
         );
-
     }
 
     @AfterEach
