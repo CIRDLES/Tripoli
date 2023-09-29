@@ -8,7 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SingleBlockModelUpdaterTest {
 
+
+    // THESE NUMBERS NEED TO BE FROM MATLAB!!
+
     SingleBlockModelRecord singleBlockModelRecord_Test;
+    SingleBlockModelRecord singleBlockModelRecord;
     double [] baseLineMeansArray = {-399826.3822187037, -299757.32392412674, -199690.25908550684, -99956.0760771712,
         -103.29832749570951, 100073.76977221946, 200116.9173358956, 299425.4414813997};
     double [] baseLineStdArray = {4982.67807983952, 4780.0623321199555, 5193.360350459159, 4907.063915023453,
@@ -17,13 +21,9 @@ class SingleBlockModelUpdaterTest {
     double[] IO = {612883.5566669849, 600968.2963926943, 590739.6635055963, 551123.8421191652, 542702.5980471913,
             533590.5518885341, 524451.016364891, 515567.008106857, 507609.7292427336, 499693.58915267687, 492662.955219078};
     int m = 32;
-    int sizeOfModel = 24;
+    int sizeOfModel = 20;
     double[][] dataCov = new double[sizeOfModel][sizeOfModel];
     double[] dataMean = new double[sizeOfModel];
-    SingleBlockModelRecord singleBlockInitialModelRecord_X0;
-
-    //private final SingleBlockModelRecord singleBlockInitialModelRecord_X0;
-    //double [] dataArray = MCMCProcess.singleBlockInitialModelRecord_X0.dataModelArray().clone();
 
     @BeforeEach
     void setUp() {
@@ -43,10 +43,10 @@ class SingleBlockModelUpdaterTest {
                 logRatios,
                 null,
                 null,
-                null,
-                null,
+                new double[0],
+                new double[0],
                 IO,
-                null
+                new double[0]
         );
 
     }
@@ -63,14 +63,16 @@ class SingleBlockModelUpdaterTest {
         assertTrue(singleBlockModelUpdater.getOperations().contains(oper));
     }
 
-    //@Test
-    //void testUpdateMeanCovMS2() {
+    @Test
+    void testUpdateMeanCovMS2() {
 
-        //SingleBlockModelUpdater modelUpdater = new SingleBlockModelUpdater();
+        SingleBlockModelUpdater modelUpdater = new SingleBlockModelUpdater();
+        singleBlockModelRecord = modelUpdater.updateMSv2("changer", singleBlockModelRecord_Test,
+                ProposedModelParameters.buildProposalRangesRecord(null), new double[20], true);
 
-        //SingleBlockModelUpdater.UpdatedCovariancesRecord result = modelUpdater.updateMeanCovMS2(
-        //        singleBlockModelRecord_Test, dataCov, dataMean, m);
+        SingleBlockModelUpdater.UpdatedCovariancesRecord result = modelUpdater.updateMeanCovMS2(
+                singleBlockModelRecord, dataCov, dataMean, m);
 
-       // System.out.println("Hello" + result.toString());
-    //}
+        System.out.println(result.toString());
+    }
 }
