@@ -213,12 +213,14 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
         // block delimiters
         g2d.setStroke(Color.BLACK);
         g2d.setLineWidth(0.5);
-        int blockID = 0;
+        int blockID = 1;
         for (int i = 0; i < xAxisData.length; i += cyclesPerBlock) {
-            double dataX = mapX(xAxisData[i] - 0.5);
-            g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
+            if (xInPlot(xAxisData[i])) {
+                double dataX = mapX(xAxisData[i] - 0.5);
+                g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
+                showBlockID(g2d, Integer.toString(blockID), mapX(xAxisData[i]));
+            }
             blockID++;
-            showBlockID(g2d, Integer.toString(blockID), mapX(xAxisData[i]));
         }
         double dataX = mapX(xAxisData[xAxisData.length - 1] + 0.5);
         g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);

@@ -25,7 +25,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
@@ -222,8 +221,8 @@ public class PlotWallPane extends Pane {
     }
 
     public void applyBurnIn() {
-        int burnIn = (int) analysis.getMapOfBlockIdToPlots().get(MCMCPlotsController.currentBlockID)[5][0].getShadeWidthForModelConvergence();
-        int blockID = MCMCPlotsController.currentBlockID;
+        int burnIn = (int) analysis.getMapOfBlockIdToPlots().get(mcmcPlotsControllerInterface.getCurrentBlockID())[5][0].getShadeWidthForModelConvergence();
+        int blockID = mcmcPlotsControllerInterface.getCurrentBlockID();
         analysis.getMapOfBlockIdToModelsBurnCount().put(blockID, burnIn);
         blockEnsemblePlotEngine(blockID, analysis);
         mcmcPlotsControllerInterface.plotEnsemblesEngine(analysis.getMapOfBlockIdToPlots().get(blockID));

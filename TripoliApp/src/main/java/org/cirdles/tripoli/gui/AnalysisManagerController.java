@@ -26,6 +26,8 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliPlotsWindow;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
@@ -60,7 +62,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     public static AnalysisInterface analysis;
     public static MCMCPlotsWindow MCMCPlotsWindow;
-    public static OGTripoliPlotsWindow ogTripoliPlotsWindow;
+    public static OGTripoliPlotsWindow ogTripoliReviewPlotsWindow;
     public static OGTripoliPlotsWindow ogTripoliPreviewPlotsWindow;
     private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
     public Tab detectorDetailTab;
@@ -117,8 +119,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         if (ogTripoliPreviewPlotsWindow != null) {
             ogTripoliPreviewPlotsWindow.close();
         }
-        if (ogTripoliPlotsWindow != null) {
-            ogTripoliPlotsWindow.close();
+        if (ogTripoliReviewPlotsWindow != null) {
+            ogTripoliReviewPlotsWindow.close();
         }
         if (MCMCPlotsWindow != null) {
             MCMCPlotsWindow.close();
@@ -190,9 +192,11 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         MCMCPlotsController.analysis = analysis;
+        OGTripoliViewController.analysis = analysis;
         analysisManagerGridPane.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_YELLOW));
 
         populateAnalysisManagerGridPane();
+        setupListeners();
     }
 
     private void setupListeners() {
@@ -646,7 +650,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             MCMCPlotsWindow.close();
         }
         MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage, this);
-        MCMCPlotsController.analysis = analysis;
         MCMCPlotsWindow.loadPlotsWindow();
     }
 
@@ -656,22 +659,19 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         if (null != ogTripoliPreviewPlotsWindow) {
             ogTripoliPreviewPlotsWindow.close();
         }
-        ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this);
-        OGTripoliViewController.analysis = analysis;
-        OGTripoliViewController.plottingData = AllBlockInitForOGTripoli.initBlockModels(analysis);
+        AllBlockInitForOGTripoli.PlottingData plottingData = AllBlockInitForOGTripoli.initBlockModels(analysis);
+        ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
         ogTripoliPreviewPlotsWindow.loadPlotsWindow();
-
     }
 
     public void reviewAndSculptDataAction() {
         // fire up OGTripoli style session plots
-        if (null != ogTripoliPlotsWindow) {
-            ogTripoliPlotsWindow.close();
+        if (null != ogTripoliReviewPlotsWindow) {
+            ogTripoliReviewPlotsWindow.close();
         }
-        ogTripoliPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this);
         AllBlockInitForOGTripoli.PlottingData plottingData = analysis.assemblePostProcessPlottingData();
-        OGTripoliViewController.plottingData = plottingData;
-        ogTripoliPlotsWindow.loadPlotsWindow();
+        ogTripoliReviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
+        ogTripoliReviewPlotsWindow.loadPlotsWindow();
     }
 
     public void selectRunAllAction() {

@@ -299,7 +299,9 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
             }
             if (xAxisBlockIDs[i] > blockID) {
                 blockID++;
-                showBlockID(g2d, Integer.toString(blockID), mapX(xAxisData[i]));
+                if (xInPlot(xAxisData[i])) {
+                    showBlockID(g2d, Integer.toString(blockID), mapX(xAxisData[i]));
+                }
             }
 
         }

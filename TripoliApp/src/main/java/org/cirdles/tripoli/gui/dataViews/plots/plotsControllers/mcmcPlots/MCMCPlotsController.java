@@ -14,10 +14,14 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
-import org.cirdles.tripoli.gui.*;
+import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
+import org.cirdles.tripoli.gui.AnalysisManagerController;
+import org.cirdles.tripoli.gui.TripoliGUI;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliPlotsWindow;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.*;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.HistogramSessionPlot;
 import org.cirdles.tripoli.plots.PlotBuilder;
@@ -49,45 +53,34 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
 
     private static final int TOOLBAR_HEIGHT = 30;
     public static AnalysisInterface analysis;
-    public static int currentBlockID = 0;
-
     public static AnalysisManagerCallbackI analysisManagerCallbackI;
-
     private static int MAX_BLOCK_COUNT = 2000;
-
+    private int currentBlockID = 0;
     @FXML
-    public AnchorPane logAnchorPane;
+    private AnchorPane logAnchorPane;
     @FXML
-    public ProgressBar progressBar;
+    private ProgressBar progressBar;
     @FXML
-    public Tab convergencesTab;
+    private Tab convergencesTab;
     @FXML
-    public Tab convergeErrorTab;
+    private Tab convergeErrorTab;
     @FXML
-    public Tab convergeIntensityTab;
-
+    private Tab convergeIntensityTab;
     private Service[] services;
     @FXML
     private ResourceBundle resources;
     @FXML
     private URL location;
-
-
     @FXML
     private TextArea eventLogTextArea;
-
     @FXML
     private ScrollPane listOfFilesScrollPane;
-
     @FXML
     private VBox masterVBox;
-
     @FXML
     private TabPane plotTabPane;
-
     @FXML
     private ToolBar toolbar;
-
     @FXML
     private AnchorPane convergePlotsAnchorPane;
     @FXML
@@ -104,8 +97,6 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
     private AnchorPane ratioSessionAnchorPane;
     @FXML
     private AnchorPane peakSessionAnchorPane;
-
-
     private PlotWallPane convergePlotsWallPane;
     private PlotWallPane convergeErrorPlotsWallPane;
     private PlotWallPane convergeIntensityPlotsWallPane;
@@ -114,9 +105,11 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
     private PlotWallPane ratiosSessionPlotsWallPane;
     private PlotWallPane peakShapeOverlayPlotWallPane;
     private PlotWallPane peakSessionPlotWallPlane;
-
-
     private ListView<String> listViewOfBlocks = new ListView<>();
+
+    public int getCurrentBlockID() {
+        return currentBlockID;
+    }
 
     public void plotIncomingAction() {
         processDataFileAndShowPlotsOfMCMC(analysis);
@@ -232,14 +225,13 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
 
                         // fire up OGTripoli style session plots
                         AllBlockInitForOGTripoli.PlottingData plottingData = analysis.assemblePostProcessPlottingData();
-                        // ogTripoli view
-                        if (null != AnalysisManagerController.ogTripoliPlotsWindow) {
-                            AnalysisManagerController.ogTripoliPlotsWindow.close();
+                        if (null != AnalysisManagerController.ogTripoliReviewPlotsWindow) {
+                            AnalysisManagerController.ogTripoliReviewPlotsWindow.close();
                         }
-                        AnalysisManagerController.ogTripoliPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, analysisManagerCallbackI);
+                        AnalysisManagerController.ogTripoliReviewPlotsWindow =
+                                new OGTripoliPlotsWindow(TripoliGUI.primaryStage, analysisManagerCallbackI, plottingData);
                         OGTripoliViewController.analysis = analysis;
-                        OGTripoliViewController.plottingData = plottingData;
-                        AnalysisManagerController.ogTripoliPlotsWindow.loadPlotsWindow();
+                        AnalysisManagerController.ogTripoliReviewPlotsWindow.loadPlotsWindow();
                     }
                 }
             });

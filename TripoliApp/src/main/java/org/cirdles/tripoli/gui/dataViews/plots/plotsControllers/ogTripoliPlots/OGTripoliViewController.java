@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.gui;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -10,6 +10,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneOGTripoli;
@@ -38,16 +39,20 @@ import static org.cirdles.tripoli.sessions.analysis.Analysis.SKIP;
 
 public class OGTripoliViewController {
     public static AnalysisInterface analysis;
-    public static AllBlockInitForOGTripoli.PlottingData plottingData;
     public static AnalysisManagerCallbackI analysisManagerCallbackI;
+    private AllBlockInitForOGTripoli.PlottingData plottingData;
     @FXML
-    public VBox plotWindowVBox;
+    private VBox plotWindowVBox;
     @FXML
-    public TabPane plotTabPane;
+    private TabPane plotTabPane;
     @FXML
-    public AnchorPane ogtSpeciesIntensitiesPlotAnchorPane;
+    private AnchorPane ogtSpeciesIntensitiesPlotAnchorPane;
     @FXML
     private AnchorPane ogtCycleRatioPlotsAnchorPane;
+
+    public void setPlottingData(AllBlockInitForOGTripoli.PlottingData plottingData) {
+        this.plottingData = plottingData;
+    }
 
     @FXML
     public void initialize() {
@@ -63,7 +68,9 @@ public class OGTripoliViewController {
             ogtSpeciesIntensitiesPlotAnchorPane.setMinHeight(((Double) newValue) - 100.0);
         });
 
-        populatePlots();
+        if (plottingData != null) {
+            populatePlots();
+        }
     }
 
     public void populatePlots() {
@@ -121,7 +128,8 @@ public class OGTripoliViewController {
 
             List<BlockRatioCyclesRecord> blockRatioCyclesRecords = new ArrayList<>();
             for (int blockIndex = 0; blockIndex < singleBlockModelRecords.length; blockIndex++) {
-                int blockStatus = analysis.getMapOfBlockIdToProcessStatus().get(blockIndex + 1);
+                Integer blockID = blockIndex + 1;
+                int blockStatus = analysis.getMapOfBlockIdToProcessStatus().get(blockID);
                 blockRatioCyclesRecords.add(BlockRatioCyclesBuilder.initializeBlockCycles(
                         blockIndex + 1,
                         singleBlockModelRecords[blockIndex].assembleCycleMeansForRatio(isotopicRatio),
@@ -203,7 +211,8 @@ public class OGTripoliViewController {
         Map<Integer, MassSpecOutputSingleBlockRecord> blocksData = analysis.getMassSpecExtractedData().getBlocksData();
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
 
-            double[] onPeakTimeStamps = blocksData.get(blockIndex + 1).onPeakTimeStamps();
+            Integer blockID = blockIndex + 1;
+            double[] onPeakTimeStamps = blocksData.get(blockID).onPeakTimeStamps();
 
             SingleBlockModelRecord singleBlockModelRecord = singleBlockModelRecords[blockIndex];
             int countOfBaselineDataEntries = singleBlockRawDataSetRecords[blockIndex].getCountOfBaselineIntensities();
