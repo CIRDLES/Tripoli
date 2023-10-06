@@ -26,7 +26,7 @@ import javafx.scene.layout.Pane;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
@@ -431,14 +431,19 @@ public class PlotWallPane extends Pane {
 
     public void synchronizeBlockToggle(int blockID) {
         ObservableList<Node> children = getChildren();
+        boolean included = false;
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
                 BlockRatioCyclesSessionPlot childPlot = (BlockRatioCyclesSessionPlot) ((TripoliPlotPane) child).getChildren().get(0);
-                childPlot.getMapBlockIdToBlockRatioCyclesRecord().put(
-                        blockID,
-                        childPlot.getMapBlockIdToBlockRatioCyclesRecord().get(blockID).toggleBlockIncluded());
-                childPlot.repaint();
+                if (childPlot.getMapBlockIdToBlockRatioCyclesRecord().get(blockID) != null) {
+                    childPlot.getMapBlockIdToBlockRatioCyclesRecord().put(
+                            blockID,
+                            childPlot.getMapBlockIdToBlockRatioCyclesRecord().get(blockID).toggleBlockIncluded());
+                    childPlot.repaint();
+                    included = childPlot.getMapBlockIdToBlockRatioCyclesRecord().get(blockID).blockIncluded();
+                }
             }
         }
+        analysisManagerCallbackI.callBackSetBlockIncludedStatus(blockID, included);
     }
 }

@@ -50,12 +50,13 @@ public class AllBlockInitForOGTripoli {
             singleBlockModelRecords[blockIndex] = singleBlockInitialModelRecordWithNoCov.singleBlockModelRecord();
         }
 
-        return new PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, true);
+        return new PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, singleBlockModelRecords[0].cycleCount(), true);
     }
 
     public record PlottingData(
             SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords,
             SingleBlockModelRecord[] singleBlockModelRecords,
+            int cycleCount,
             boolean preview) {
     }
 }

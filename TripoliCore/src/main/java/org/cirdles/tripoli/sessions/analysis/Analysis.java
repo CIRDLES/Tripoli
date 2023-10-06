@@ -129,6 +129,9 @@ public class Analysis implements Serializable, AnalysisInterface {
             for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
                 mapOfBlockIdToProcessStatus.put(blockID, RUN);
                 mapOfBlockIdToModelsBurnCount.put(blockID, 0);
+                mapBlockIDToEnsembles.put(blockID, new ArrayList<>());
+                mapOfBlockIdToRawData.put(blockID, null);
+                mapOfBlockIdToFinalModel.put(blockID, null);
             }
         } else {
             // attempt to load specified method
@@ -149,6 +152,9 @@ public class Analysis implements Serializable, AnalysisInterface {
             for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
                 mapOfBlockIdToProcessStatus.put(blockID, RUN);
                 mapOfBlockIdToModelsBurnCount.put(blockID, 0);
+                mapBlockIDToEnsembles.put(blockID, new ArrayList<>());
+                mapOfBlockIdToRawData.put(blockID, null);
+                mapOfBlockIdToFinalModel.put(blockID, null);
             }
 
             // collects the file objects from PeakCentres folder +++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -295,23 +301,23 @@ public class Analysis implements Serializable, AnalysisInterface {
 
 
     public AllBlockInitForOGTripoli.PlottingData assemblePostProcessPlottingData() {
-        Map<Integer, SingleBlockRawDataSetRecord> singleBlockRawDataSetRecordMap = getMapOfBlockIdToRawData();
-        SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = new SingleBlockRawDataSetRecord[singleBlockRawDataSetRecordMap.keySet().size()];
-        int index = 0;
+        Map<Integer, SingleBlockRawDataSetRecord> singleBlockRawDataSetRecordMap = mapOfBlockIdToRawData;
+        SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = new SingleBlockRawDataSetRecord[mapOfBlockIdToProcessStatus.keySet().size()];
         for (SingleBlockRawDataSetRecord singleBlockRawDataSetRecord : singleBlockRawDataSetRecordMap.values()) {
-            singleBlockRawDataSetRecords[index] = singleBlockRawDataSetRecord;
-            index++;
+            singleBlockRawDataSetRecords[singleBlockRawDataSetRecord.blockID() - 1] = singleBlockRawDataSetRecord;
         }
 
-        Map<Integer, SingleBlockModelRecord> singleBlockModelRecordMap = getMapOfBlockIdToFinalModel();
-        SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[singleBlockModelRecordMap.keySet().size()];
-        index = 0;
+        int cycleCount = 0;
+        Map<Integer, SingleBlockModelRecord> singleBlockModelRecordMap = mapOfBlockIdToFinalModel;
+        SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[mapOfBlockIdToProcessStatus.keySet().size()];
         for (SingleBlockModelRecord singleBlockModelRecord : singleBlockModelRecordMap.values()) {
-            singleBlockModelRecords[index] = singleBlockModelRecord;
-            index++;
+            singleBlockModelRecords[singleBlockModelRecord.blockID() - 1] = singleBlockModelRecord;
+            if ((singleBlockModelRecord != null) && (cycleCount == 0)) {
+                cycleCount = singleBlockModelRecord.cycleCount();
+            }
         }
 
-        return new AllBlockInitForOGTripoli.PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, false);
+        return new AllBlockInitForOGTripoli.PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, cycleCount, false);
     }
 
     public final String prettyPrintAnalysisSummary() {

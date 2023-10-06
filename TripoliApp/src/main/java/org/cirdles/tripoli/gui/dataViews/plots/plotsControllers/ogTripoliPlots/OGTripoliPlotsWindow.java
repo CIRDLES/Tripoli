@@ -38,7 +38,6 @@ public class OGTripoliPlotsWindow {
     private Window plottingWindow;
     private Stage primaryStage;
     private AllBlockInitForOGTripoli.PlottingData plottingData;
-
     public OGTripoliPlotsWindow(Stage primaryStage, AnalysisManagerCallbackI analysisManagerCallbackI, AllBlockInitForOGTripoli.PlottingData plottingData) {
         this.primaryStage = primaryStage;
         plottingStage = new Stage();
@@ -55,8 +54,8 @@ public class OGTripoliPlotsWindow {
         this.plottingData = plottingData;
     }
 
-    public AllBlockInitForOGTripoli.PlottingData getPlottingData() {
-        return plottingData;
+    public OGTripoliViewController getOgTripoliViewController() {
+        return ogTripoliViewController;
     }
 
     public void setPlottingData(AllBlockInitForOGTripoli.PlottingData plottingData) {

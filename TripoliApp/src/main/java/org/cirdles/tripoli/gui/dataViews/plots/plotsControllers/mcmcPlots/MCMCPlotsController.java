@@ -31,7 +31,6 @@ import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
 import org.cirdles.tripoli.plots.linePlots.*;
 import org.cirdles.tripoli.plots.sessionPlots.HistogramSessionBuilder;
 import org.cirdles.tripoli.plots.sessionPlots.PeakCentreSessionBuilder;
-import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.MCMCProcess;
@@ -623,12 +622,12 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
                 setText(null);
             } else {
                 int blockID = Integer.parseInt(blockIDtext);
-                if (((Analysis) analysis).getMapBlockIDToEnsembles().isEmpty()) {
+                if (analysis.getMapBlockIDToEnsembles().isEmpty()) {
                     setText("Block# " + blockID);
                 } else {
                     setText("Block# " + blockID
-                            + " {BurnIn = " + ((Analysis) analysis).getMapOfBlockIdToModelsBurnCount().get(blockID)
-                            + " of " + ((Analysis) analysis).getMapBlockIDToEnsembles().get(blockID).size() + " models}");
+                            + " {BurnIn = " + analysis.getMapOfBlockIdToModelsBurnCount().get(blockID)
+                            + " of " + analysis.getMapBlockIDToEnsembles().get(blockID).size() + " models}");
                 }
             }
         }

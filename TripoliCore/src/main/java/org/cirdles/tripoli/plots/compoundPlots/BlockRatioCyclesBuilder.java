@@ -35,7 +35,8 @@ public class BlockRatioCyclesBuilder extends PlotBuilder {
     }
 
     public static BlockRatioCyclesBuilder initializeBlockCycles(
-            int blockID, double[] cycleLogRatioMeansData, double[] cycleLogRatioOneSigmaData, boolean[] cyclesIncluded, String[] title, String xAxisLabel, String yAxisLabel, boolean displayed, boolean blockIncluded) {
+            int blockID, double[] cycleLogRatioMeansData, double[] cycleLogRatioOneSigmaData, boolean[] cyclesIncluded,
+            String[] title, String xAxisLabel, String yAxisLabel, boolean displayed, boolean blockIncluded) {
         BlockRatioCyclesBuilder blockRatioCyclesBuilder = new BlockRatioCyclesBuilder(blockID, title, xAxisLabel, yAxisLabel, displayed);
         blockRatioCyclesBuilder.blockRatioCyclesRecord = blockRatioCyclesBuilder.generateBlockCyclesPlot(blockID, cycleLogRatioMeansData, cycleLogRatioOneSigmaData, cyclesIncluded, title, xAxisLabel, blockIncluded);
         return blockRatioCyclesBuilder;

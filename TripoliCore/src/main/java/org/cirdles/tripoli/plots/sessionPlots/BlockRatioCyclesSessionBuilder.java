@@ -34,7 +34,7 @@ public class BlockRatioCyclesSessionBuilder extends PlotBuilder {
     public BlockRatioCyclesSessionBuilder() {
     }
 
-    public BlockRatioCyclesSessionBuilder(List<BlockRatioCyclesRecord> blockRatioCyclesRecords, String[] title, String xAxisLabel, String yAxisLabel) {
+    private BlockRatioCyclesSessionBuilder(List<BlockRatioCyclesRecord> blockRatioCyclesRecords, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel, true);
         blockRatioCyclesSessionRecord = generateBlockRatioCyclesSession(blockRatioCyclesRecords);
     }
@@ -42,7 +42,7 @@ public class BlockRatioCyclesSessionBuilder extends PlotBuilder {
     public static BlockRatioCyclesSessionBuilder initializeBlockRatioCyclesSession(
             List<BlockRatioCyclesRecord> blockRatioCyclesRecordsList, String[] title, String xAxisLabel, String yAxisLabel) {
         BlockRatioCyclesSessionBuilder blockRatioCyclesSessionBuilder = new BlockRatioCyclesSessionBuilder(blockRatioCyclesRecordsList, title, xAxisLabel, yAxisLabel);
-//        blockRatioCyclesSessionBuilder.blockRatioCyclesSessionRecord = blockRatioCyclesSessionBuilder.generateBlockRatioCyclesSession(blockRatioCyclesRecordsList);
+
         return blockRatioCyclesSessionBuilder;
     }
 
@@ -52,11 +52,17 @@ public class BlockRatioCyclesSessionBuilder extends PlotBuilder {
 //        DescriptiveStatistics descriptiveStatisticsRatiosByBlock = new DescriptiveStatistics();
 
         Map<Integer, BlockRatioCyclesRecord> mapBlockIdToBlockRatioCyclesRecord = new TreeMap<>();
+        int blockIndex = 0;
         for (BlockRatioCyclesRecord blockRatioCyclesRecord : blockRatioCyclesRecordsList) {
-            mapBlockIdToBlockRatioCyclesRecord.put(blockRatioCyclesRecord.blockID(), blockRatioCyclesRecord);
+            if (blockRatioCyclesRecord != null) {
+                mapBlockIdToBlockRatioCyclesRecord.put(blockRatioCyclesRecord.blockID(), blockRatioCyclesRecord);
 //            histogramMeans.add(histogramRecord.mean());
 //            descriptiveStatisticsRatiosByBlock.addValue(histogramRecord.mean());
 //            histogramOneSigma.add(histogramRecord.standardDeviation());
+            } else {
+                mapBlockIdToBlockRatioCyclesRecord.put(blockIndex + 1, null);
+            }
+            blockIndex++;
         }
 //        double[] blockIds = blockIdList.stream().mapToDouble(d -> d).toArray();
 //        double[] blockMeans = histogramMeans.stream().mapToDouble(d -> d).toArray();

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.sessionPlots;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
@@ -37,8 +37,6 @@ import static java.lang.StrictMath.log;
  * @author James F. Bowring
  */
 public class BlockRatioCyclesSessionPlot extends AbstractPlot {
-
-
     private final BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord;
     private Map<Integer, BlockRatioCyclesRecord> mapBlockIdToBlockRatioCyclesRecord;
     private double[] oneSigmaForCycles;
@@ -108,9 +106,11 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
         oneSigmaForCycles = new double[mapBlockIdToBlockRatioCyclesRecord.size() * cyclesPerBlock];
         for (Map.Entry<Integer, BlockRatioCyclesRecord> entry : mapBlockIdToBlockRatioCyclesRecord.entrySet()) {
             BlockRatioCyclesRecord blockRatioCyclesRecord = entry.getValue();
-            int availableCyclesPerBlock = blockRatioCyclesRecord.cycleRatioMeansData().length;
-            System.arraycopy(blockRatioCyclesRecord.cycleRatioMeansData(), 0, yAxisData, (entry.getKey() - 1) * cyclesPerBlock, availableCyclesPerBlock);
-            System.arraycopy(blockRatioCyclesRecord.cycleRatioOneSigmaData(), 0, oneSigmaForCycles, (entry.getKey() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+            if (blockRatioCyclesRecord != null) {
+                int availableCyclesPerBlock = blockRatioCyclesRecord.cycleRatioMeansData().length;
+                System.arraycopy(blockRatioCyclesRecord.cycleRatioMeansData(), 0, yAxisData, (blockRatioCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+                System.arraycopy(blockRatioCyclesRecord.cycleRatioOneSigmaData(), 0, oneSigmaForCycles, (blockRatioCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+            }
         }
 
         plotAxisLabelY = "Ratio";
@@ -130,13 +130,14 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
             for (int i = 0; i < yAxisData.length; i++) {
                 int blockID = (i / mapBlockIdToBlockRatioCyclesRecord.get(1).cyclesIncluded().length) + 1;
                 // TODO: handle logratio uncertainties
-                if (mapBlockIdToBlockRatioCyclesRecord.get(blockID).blockIncluded() && (yAxisData[i] > 0)) {
+                if ((mapBlockIdToBlockRatioCyclesRecord.get(blockID) != null) && mapBlockIdToBlockRatioCyclesRecord.get(blockID).blockIncluded() && (yAxisData[i] > 0)) {
                     minY = StrictMath.min(minY, yAxisData[i] - oneSigmaForCycles[i]);
                     maxY = StrictMath.max(maxY, yAxisData[i] + oneSigmaForCycles[i]);
-                } else {
-                    minY = StrictMath.min(minY, yAxisData[i]);
-                    maxY = StrictMath.max(maxY, yAxisData[i]);
                 }
+//                else {
+//                    minY = StrictMath.min(minY, yAxisData[i]);
+//                    maxY = StrictMath.max(maxY, yAxisData[i]);
+//                }
             }
 
             displayOffsetY = 0.0;
@@ -189,24 +190,26 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
 
         for (int i = 0; i < xAxisData.length; i++) {
             if (pointInPlot(xAxisData[i], yAxisData[i])) {
-                int blockId = (int) ((xAxisData[i] - 0.7) / cyclesPerBlock) + 1;
-                g2d.setFill(dataColor.color());
-                g2d.setStroke(dataColor.color());
-                if (!mapBlockIdToBlockRatioCyclesRecord.get(blockId).blockIncluded()) {
-                    g2d.setFill(Color.RED);
-                    g2d.setStroke(Color.RED);
-                }
-                double dataX = mapX(xAxisData[i]);
-                double dataY = mapY(yAxisData[i]);
-                double dataYplusSigma = mapY(yAxisData[i] + oneSigmaForCycles[i]);
-                double dataYminusSigma = mapY(yAxisData[i] - oneSigmaForCycles[i]);
+                int blockID = (int) ((xAxisData[i] - 0.7) / cyclesPerBlock) + 1;
+                if (mapBlockIdToBlockRatioCyclesRecord.get(blockID) != null) {
+                    g2d.setFill(dataColor.color());
+                    g2d.setStroke(dataColor.color());
+                    if (!mapBlockIdToBlockRatioCyclesRecord.get(blockID).blockIncluded()) {
+                        g2d.setFill(Color.RED);
+                        g2d.setStroke(Color.RED);
+                    }
+                    double dataX = mapX(xAxisData[i]);
+                    double dataY = mapY(yAxisData[i]);
+                    double dataYplusSigma = mapY(yAxisData[i] + oneSigmaForCycles[i]);
+                    double dataYminusSigma = mapY(yAxisData[i] - oneSigmaForCycles[i]);
 
-                if (yAxisData[i] > 0) {
-                    g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
-                    g2d.strokeLine(dataX, dataY, dataX, dataYplusSigma);
-                    g2d.strokeLine(dataX, dataY, dataX, dataYminusSigma);
-                } else {
-                    g2d.strokeOval(dataX - 2.0, dataY - 2.0, 4, 4);
+                    if (yAxisData[i] > 0) {
+                        g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
+                        g2d.strokeLine(dataX, dataY, dataX, dataYplusSigma);
+                        g2d.strokeLine(dataX, dataY, dataX, dataYminusSigma);
+                    } else {
+                        g2d.strokeOval(dataX - 2.0, dataY - 2.0, 4, 4);
+                    }
                 }
             }
         }
@@ -268,8 +271,10 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
         DescriptiveStatistics descriptiveStatsIncludedCycles = new DescriptiveStatistics();
         for (int i = 0; i < yAxisData.length; i++) {
             int blockID = (i / mapBlockIdToBlockRatioCyclesRecord.get(1).cyclesIncluded().length) + 1;
-            if (mapBlockIdToBlockRatioCyclesRecord.get(blockID).blockIncluded() && (yAxisData[i] != 0)) {
-                descriptiveStatsIncludedCycles.addValue(yAxisData[i]);
+            if (mapBlockIdToBlockRatioCyclesRecord.get(blockID) != null) {
+                if (mapBlockIdToBlockRatioCyclesRecord.get(blockID).blockIncluded() && (yAxisData[i] != 0)) {
+                    descriptiveStatsIncludedCycles.addValue(yAxisData[i]);
+                }
             }
         }
         sessionMean = descriptiveStatsIncludedCycles.getMean();

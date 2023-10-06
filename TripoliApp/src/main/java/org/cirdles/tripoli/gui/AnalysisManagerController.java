@@ -702,7 +702,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     /**
      * Restores block status buttons to their saved state
      */
-    public void restoreAllAction() {
+    public void refreshAllBlocksStatusAction() {
         for (Node button : blockStatusHBox.getChildren()) {
             if ((button instanceof Button) && (null != analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())))) {
                 tuneButton((Button) button, analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())));
@@ -715,7 +715,19 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
      */
     @Override
     public void callbackRefreshBlocksStatus() {
-        restoreAllAction();
+        refreshAllBlocksStatusAction();
+    }
+
+    @Override
+    public void callBackSetBlockIncludedStatus(int blockID, boolean included) {
+        analysis.getMapOfBlockIdToProcessStatus().put(blockID, included ? RUN : SKIP);
+        populateBlocksStatus();
+        if (ogTripoliReviewPlotsWindow != null) {
+            ogTripoliReviewPlotsWindow.getOgTripoliViewController().populatePlots();
+        }
+        if (ogTripoliPreviewPlotsWindow != null) {
+            ogTripoliPreviewPlotsWindow.getOgTripoliViewController().populatePlots();
+        }
     }
 
     private void updateAnalysisRatios(IsotopicRatio ratio, boolean displayed) {

@@ -86,7 +86,7 @@
                 style="-fx-text-fill: RED;" text="Run None"/>
         <Button layoutX="321.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectShowsAction"
                 style="-fx-text-fill: GREEN;" text="Shows Only"/>
-        <Button layoutX="433.0" layoutY="7.0" mnemonicParsing="false" onAction="#restoreAllAction"
+        <Button layoutX="433.0" layoutY="7.0" mnemonicParsing="false" onAction="#refreshAllBlocksStatusAction"
                 style="-fx-text-fill: RED;" text="Restore All"/>
         <Button id="MCMC" fx:id="reviewSculptData" layoutX="527.0" layoutY="7.0" mnemonicParsing="false"
                 onAction="#previewAndSculptDataAction" style="-fx-text-fill: RED;" text="Preview and Sculpt Data"/>
