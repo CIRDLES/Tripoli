@@ -720,7 +720,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     @Override
     public void callBackSetBlockIncludedStatus(int blockID, boolean included) {
-        analysis.getMapOfBlockIdToProcessStatus().put(blockID, included ? RUN : SKIP);
+        boolean isProcessed = (analysis.getMapOfBlockIdToPlots().get(blockID) != null);
+        analysis.getMapOfBlockIdToProcessStatus().put(blockID, included ? (isProcessed ? SHOW : RUN) : SKIP);
         populateBlocksStatus();
         if (ogTripoliReviewPlotsWindow != null) {
             ogTripoliReviewPlotsWindow.getOgTripoliViewController().populatePlots();

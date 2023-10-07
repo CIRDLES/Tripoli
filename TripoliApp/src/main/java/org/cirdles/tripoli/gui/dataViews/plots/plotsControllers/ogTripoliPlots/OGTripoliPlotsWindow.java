@@ -38,6 +38,7 @@ public class OGTripoliPlotsWindow {
     private Window plottingWindow;
     private Stage primaryStage;
     private AllBlockInitForOGTripoli.PlottingData plottingData;
+
     public OGTripoliPlotsWindow(Stage primaryStage, AnalysisManagerCallbackI analysisManagerCallbackI, AllBlockInitForOGTripoli.PlottingData plottingData) {
         this.primaryStage = primaryStage;
         plottingStage = new Stage();

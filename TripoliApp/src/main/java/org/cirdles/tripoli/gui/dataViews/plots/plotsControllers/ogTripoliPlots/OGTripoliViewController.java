@@ -131,8 +131,10 @@ public class OGTripoliViewController {
                 if (singleBlockModelRecords[blockIndex] != null) {
                     Integer blockID = singleBlockModelRecords[blockIndex].blockID();
                     int blockStatus = analysis.getMapOfBlockIdToProcessStatus().get(blockID);
+                    boolean processed = (analysis.getMapOfBlockIdToPlots().get(blockID) != null);
                     blockRatioCyclesRecords.add(BlockRatioCyclesBuilder.initializeBlockCycles(
                             blockID,
+                            processed,
                             singleBlockModelRecords[blockIndex].assembleCycleMeansForRatio(isotopicRatio),
                             singleBlockModelRecords[blockIndex].assembleCycleStdDevForRatio(isotopicRatio),
                             DUMMY_CYCLES_INCLUDED,

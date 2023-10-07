@@ -117,7 +117,8 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
         if (logScale) {
             for (int i = 0; i < yAxisData.length; i++) {
                 yAxisData[i] = (yAxisData[i] > 0.0) ? log(yAxisData[i]) : 0.0;
-                oneSigmaForCycles[i] = (oneSigmaForCycles[i] > 0.0) ? log(oneSigmaForCycles[i]) : 0.0;
+                // TODO: uncertainties for logs
+                oneSigmaForCycles[i] = 0.0;
             }
             plotAxisLabelY = "Log Ratio";
         }
@@ -130,14 +131,10 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
             for (int i = 0; i < yAxisData.length; i++) {
                 int blockID = (i / mapBlockIdToBlockRatioCyclesRecord.get(1).cyclesIncluded().length) + 1;
                 // TODO: handle logratio uncertainties
-                if ((mapBlockIdToBlockRatioCyclesRecord.get(blockID) != null) && mapBlockIdToBlockRatioCyclesRecord.get(blockID).blockIncluded() && (yAxisData[i] > 0)) {
+                if ((mapBlockIdToBlockRatioCyclesRecord.get(blockID) != null)) {
                     minY = StrictMath.min(minY, yAxisData[i] - oneSigmaForCycles[i]);
                     maxY = StrictMath.max(maxY, yAxisData[i] + oneSigmaForCycles[i]);
                 }
-//                else {
-//                    minY = StrictMath.min(minY, yAxisData[i]);
-//                    maxY = StrictMath.max(maxY, yAxisData[i]);
-//                }
             }
 
             displayOffsetY = 0.0;
@@ -221,7 +218,7 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
             if (xInPlot(xAxisData[i])) {
                 double dataX = mapX(xAxisData[i] - 0.5);
                 g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
-                showBlockID(g2d, Integer.toString(blockID), mapX(xAxisData[i]));
+                showBlockID(g2d, blockID, mapX(xAxisData[i]));
             }
             blockID++;
         }
@@ -230,12 +227,18 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
 
     }
 
-    private void showBlockID(GraphicsContext g2d, String blockID, double xPosition) {
+    private void showBlockID(GraphicsContext g2d, int blockID, double xPosition) {
+        boolean processed = (mapBlockIdToBlockRatioCyclesRecord.get(blockID) != null) ? mapBlockIdToBlockRatioCyclesRecord.get(blockID).processed() : false;
         Paint savedPaint = g2d.getFill();
-        g2d.setFill(Paint.valueOf("BLACK"));
+        if (processed) {
+            g2d.setFill(Paint.valueOf("GREEN"));
+        } else {
+            g2d.setFill(Paint.valueOf("BLACK"));
+        }
+
         g2d.setFont(Font.font("SansSerif", 10));
 
-        g2d.fillText("BL#" + blockID, xPosition, topMargin + plotHeight + 10);
+        g2d.fillText("BL#" + Integer.toString(blockID), xPosition, topMargin + plotHeight + 10);
         g2d.setFill(savedPaint);
     }
 

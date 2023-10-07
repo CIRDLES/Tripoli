@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public record BlockRatioCyclesRecord(
         int blockID,
+        boolean processed,
         boolean blockIncluded,
         boolean[] cyclesIncluded,
         double[] cycleRatioMeansData,
@@ -17,6 +18,7 @@ public record BlockRatioCyclesRecord(
     public BlockRatioCyclesRecord toggleBlockIncluded() {
         return new BlockRatioCyclesRecord(
                 blockID,
+                processed,
                 !blockIncluded,
                 cyclesIncluded,
                 cycleRatioMeansData,
