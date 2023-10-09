@@ -637,6 +637,7 @@ public abstract class AbstractPlot extends Canvas {
 
             if (mouseInHouse(mouseEvent.getX(), mouseEvent.getY())) {
                 if (!isPrimary && isBlockRatioCyclesSessionPlot) {
+                    // TODO:  remove duplicate code
                     BlockRatioCyclesSessionPlot blockRatioCyclesSessionPlot = (BlockRatioCyclesSessionPlot) mouseEvent.getSource();
                     // determine blockID
                     double xValue = convertMouseXToValue(mouseEvent.getX());

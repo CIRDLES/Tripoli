@@ -1,7 +1,5 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
@@ -89,18 +87,8 @@ public class OGTripoliViewController {
         plotsWallPane.prefHeightProperty().bind(ogtCycleRatioPlotsAnchorPane.heightProperty());
 
         ogtCycleRatioPlotsAnchorPane.getChildren().add(plotsWallPane);
-        plotWindowVBox.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                plotsWallPane.stackPlots();
-            }
-        });
-        plotWindowVBox.heightProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                plotsWallPane.stackPlots();
-            }
-        });
+        plotWindowVBox.widthProperty().addListener((observable, oldValue, newValue) -> plotsWallPane.stackPlots());
+        plotWindowVBox.heightProperty().addListener((observable, oldValue, newValue) -> plotsWallPane.stackPlots());
 
         SingleBlockModelRecord[] singleBlockModelRecords = plottingData.singleBlockModelRecords();
         int countOfOnPeakCycles = plottingData.cycleCount();
@@ -135,6 +123,7 @@ public class OGTripoliViewController {
                     blockRatioCyclesRecords.add(BlockRatioCyclesBuilder.initializeBlockCycles(
                             blockID,
                             processed,
+                            singleBlockModelRecords[blockIndex].detectorFaradayGain(),
                             singleBlockModelRecords[blockIndex].assembleCycleMeansForRatio(isotopicRatio),
                             singleBlockModelRecords[blockIndex].assembleCycleStdDevForRatio(isotopicRatio),
                             DUMMY_CYCLES_INCLUDED,
@@ -149,7 +138,7 @@ public class OGTripoliViewController {
             }
             BlockRatioCyclesSessionBuilder blockRatioCyclesSessionBuilder =
                     BlockRatioCyclesSessionBuilder.initializeBlockRatioCyclesSession(
-                            blockRatioCyclesRecords, new String[]{isotopicRatio.prettyPrint()},
+                            isotopicRatio, blockRatioCyclesRecords,
                             "Blocks & Cycles by Time", "Ratio");
             AbstractPlot plot = BlockRatioCyclesSessionPlot.generatePlot(
                     new Rectangle(minPlotWidth, minPlotHeight), blockRatioCyclesSessionBuilder.getBlockRatioCyclesSessionRecord(), plotsWallPane);
@@ -176,18 +165,8 @@ public class OGTripoliViewController {
 
         ogtSpeciesIntensitiesPlotAnchorPane.getChildren().add(plotsWallPane);
 
-        plotWindowVBox.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                plotsWallPane.stackPlots();
-            }
-        });
-        plotWindowVBox.heightProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                plotsWallPane.stackPlots();
-            }
-        });
+        plotWindowVBox.widthProperty().addListener((observable, oldValue, newValue) -> plotsWallPane.stackPlots());
+        plotWindowVBox.heightProperty().addListener((observable, oldValue, newValue) -> plotsWallPane.stackPlots());
 
         SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = plottingData.singleBlockRawDataSetRecords();
         SingleBlockModelRecord[] singleBlockModelRecords = plottingData.singleBlockModelRecords();

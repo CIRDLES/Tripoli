@@ -41,7 +41,9 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
     private Map<Integer, BlockRatioCyclesRecord> mapBlockIdToBlockRatioCyclesRecord;
     private double[] oneSigmaForCycles;
     private double sessionMean;
-    private double sessionOneSigma;
+    private double sessionOneSigmaAbs;
+    private double sessionDalyFaradayGainMean;
+    private double sessionDalyFaradayGainOneSigmaAbs;
     private boolean logScale;
     private boolean[] zoomFlagsXY;
     private PlotWallPane parentWallPane;
@@ -246,11 +248,11 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
         calcStats();
 
         Paint saveFill = g2d.getFill();
-        // todo: promote color to constant
+        // TODO: promote color to constant
         g2d.setFill(Color.rgb(255, 251, 194));
         g2d.setGlobalAlpha(0.6);
         double mean = sessionMean;
-        double stdDev = sessionOneSigma;
+        double stdDev = sessionOneSigmaAbs;
 
         double leftX = mapX(minX);
         if (leftX < leftMargin) leftX = leftMargin;
@@ -272,20 +274,34 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
 
     public void calcStats() {
         DescriptiveStatistics descriptiveStatsIncludedCycles = new DescriptiveStatistics();
+        DescriptiveStatistics descriptiveStatsIncludedDFGains = new DescriptiveStatistics();
         for (int i = 0; i < yAxisData.length; i++) {
             int blockID = (i / mapBlockIdToBlockRatioCyclesRecord.get(1).cyclesIncluded().length) + 1;
             if (mapBlockIdToBlockRatioCyclesRecord.get(blockID) != null) {
                 if (mapBlockIdToBlockRatioCyclesRecord.get(blockID).blockIncluded() && (yAxisData[i] != 0)) {
                     descriptiveStatsIncludedCycles.addValue(yAxisData[i]);
                 }
+                if (mapBlockIdToBlockRatioCyclesRecord.get(blockID).blockIncluded()) {
+                    descriptiveStatsIncludedDFGains.addValue(mapBlockIdToBlockRatioCyclesRecord.get(blockID).dalyFaradayGain());
+                }
             }
         }
         sessionMean = descriptiveStatsIncludedCycles.getMean();
-        sessionOneSigma = descriptiveStatsIncludedCycles.getStandardDeviation();
+        blockRatioCyclesSessionRecord.isotopicRatio().setAnalysisMean(sessionMean);
+
+        sessionOneSigmaAbs = descriptiveStatsIncludedCycles.getStandardDeviation();
+        blockRatioCyclesSessionRecord.isotopicRatio().setAnalysisOneSigmaAbs(sessionOneSigmaAbs);
+
+        sessionDalyFaradayGainMean = descriptiveStatsIncludedDFGains.getMean();
+        blockRatioCyclesSessionRecord.isotopicRatio().setAnalysisDalyFaradayGainMean(sessionDalyFaradayGainMean);
+
+        sessionDalyFaradayGainOneSigmaAbs = descriptiveStatsIncludedDFGains.getStandardDeviation();
+        blockRatioCyclesSessionRecord.isotopicRatio().setAnalysisDalyFaradayGainOneSigmaAbs(sessionDalyFaradayGainOneSigmaAbs);
+
         plotTitle =
                 new String[]{blockRatioCyclesSessionRecord.title()[0]
                         + "  " + "X\u0305" + "=" + String.format("%8.8g", sessionMean).trim()
-                        , "\u00B1" + String.format("%8.5g", sessionOneSigma).trim()};
+                        , "\u00B1" + String.format("%8.5g", sessionOneSigmaAbs).trim()};
     }
 
     public void setupPlotContextMenu() {

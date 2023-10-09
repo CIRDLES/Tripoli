@@ -18,6 +18,7 @@ package org.cirdles.tripoli.plots.sessionPlots;
 
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.compoundPlots.BlockRatioCyclesRecord;
+import org.cirdles.tripoli.species.IsotopicRatio;
 
 import java.util.List;
 import java.util.Map;
@@ -31,22 +32,23 @@ public class BlockRatioCyclesSessionBuilder extends PlotBuilder {
 //    private static final long serialVersionUID = 9180059676626735662L;
     private BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord;
 
+
     public BlockRatioCyclesSessionBuilder() {
     }
 
-    private BlockRatioCyclesSessionBuilder(List<BlockRatioCyclesRecord> blockRatioCyclesRecords, String[] title, String xAxisLabel, String yAxisLabel) {
-        super(title, xAxisLabel, yAxisLabel, true);
-        blockRatioCyclesSessionRecord = generateBlockRatioCyclesSession(blockRatioCyclesRecords);
+    private BlockRatioCyclesSessionBuilder(IsotopicRatio isotopicRatio, List<BlockRatioCyclesRecord> blockRatioCyclesRecords, String xAxisLabel, String yAxisLabel) {
+        super(new String[]{isotopicRatio.prettyPrint()}, xAxisLabel, yAxisLabel, true);
+        blockRatioCyclesSessionRecord = generateBlockRatioCyclesSession(isotopicRatio, blockRatioCyclesRecords);
     }
 
     public static BlockRatioCyclesSessionBuilder initializeBlockRatioCyclesSession(
-            List<BlockRatioCyclesRecord> blockRatioCyclesRecordsList, String[] title, String xAxisLabel, String yAxisLabel) {
-        BlockRatioCyclesSessionBuilder blockRatioCyclesSessionBuilder = new BlockRatioCyclesSessionBuilder(blockRatioCyclesRecordsList, title, xAxisLabel, yAxisLabel);
+            IsotopicRatio isotopicRatio, List<BlockRatioCyclesRecord> blockRatioCyclesRecordsList, String xAxisLabel, String yAxisLabel) {
+        BlockRatioCyclesSessionBuilder blockRatioCyclesSessionBuilder = new BlockRatioCyclesSessionBuilder(isotopicRatio, blockRatioCyclesRecordsList, xAxisLabel, yAxisLabel);
 
         return blockRatioCyclesSessionBuilder;
     }
 
-    private BlockRatioCyclesSessionRecord generateBlockRatioCyclesSession(List<BlockRatioCyclesRecord> blockRatioCyclesRecordsList) {
+    private BlockRatioCyclesSessionRecord generateBlockRatioCyclesSession(IsotopicRatio isotopicRatio, List<BlockRatioCyclesRecord> blockRatioCyclesRecordsList) {
 //        List<Double> histogramMeans = new ArrayList<>();
 //        List<Double> histogramOneSigma = new ArrayList<>();
 //        DescriptiveStatistics descriptiveStatisticsRatiosByBlock = new DescriptiveStatistics();
@@ -69,8 +71,10 @@ public class BlockRatioCyclesSessionBuilder extends PlotBuilder {
 //        double[] blockOneSigmas = histogramOneSigma.stream().mapToDouble(d -> d).toArray();
 
         return new BlockRatioCyclesSessionRecord(
-                mapBlockIdToBlockRatioCyclesRecord,
+                isotopicRatio, mapBlockIdToBlockRatioCyclesRecord,
                 blockRatioCyclesRecordsList.get(0).cyclesIncluded().length,
+                0.0,
+                0.0,
                 1,
                 1,
                 title,

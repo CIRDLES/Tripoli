@@ -57,6 +57,16 @@ public class MassSpecExtractedData implements Serializable {
         );
     }
 
+    public String printHeader() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Software Version: " + header.softwareVersion() + "\n");
+        sb.append("Sample: " + "unknown" + "\n");
+        sb.append("Fraction: " + "unknown" + "\n");
+        sb.append("Method Name: " + header.methodName() + "\n");
+        sb.append("Time Zero: " + header.localDateTimeZero() + "\n\n");
+        return sb.toString();
+    }
+
     public void populateColumnNamesList(List<String[]> columnNames) {
         if (columnNames.isEmpty()) {
             columnHeaders = new String[0];

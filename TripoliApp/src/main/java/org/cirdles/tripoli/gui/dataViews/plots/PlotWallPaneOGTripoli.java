@@ -194,7 +194,7 @@ public class PlotWallPaneOGTripoli extends Pane {
                     if (!newVal) {
                         gainCB.setSelected(false);
                     }
-                    rebuildPlot(false, true);
+                    rebuildPlot(false, false);
                 });
 
         gainCB = new CheckBox("Gain");
@@ -205,7 +205,7 @@ public class PlotWallPaneOGTripoli extends Pane {
                     if (newVal) {
                         baseLineCB.setSelected(true);
                     }
-                    rebuildPlot(false, true);
+                    rebuildPlot(false, false);
                 });
 
         getChildren().addAll(toolBar);

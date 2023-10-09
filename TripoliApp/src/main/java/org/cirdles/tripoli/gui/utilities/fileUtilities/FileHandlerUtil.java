@@ -5,17 +5,24 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.Session;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.file.SessionFileUtilities;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliPersistentState;
 import static org.cirdles.tripoli.utilities.file.FileNameFixer.fixFileName;
@@ -141,5 +148,47 @@ public enum FileHandlerUtil {
 
         resourceFile = chooser.showDialog(ownerWindow);
         return resourceFile;
+    }
+
+
+    public static void saveEnsembleData(AnalysisInterface analysis, Window ownerWindow)
+            throws IOException, TripoliException {
+
+        DirectoryChooser dirChooser = new DirectoryChooser();
+        dirChooser.setTitle("Select Ensemble Reports Folder");
+        File userHome = new File(File.separator + TripoliPersistentState.getExistingPersistentState().getMRUSessionFolderPath());
+        dirChooser.setInitialDirectory(userHome.isDirectory() ? userHome : null);
+        File directory = dirChooser.showDialog(ownerWindow);
+
+        Map<Integer, List<EnsemblesStore.EnsembleRecord>> mapOfBlockIDtoEnsembles = analysis.getMapBlockIDToEnsembles();
+        for (Integer blockID : mapOfBlockIDtoEnsembles.keySet()) {
+            // Detroit 2023 printout ensembleRecordsList
+            List<EnsemblesStore.EnsembleRecord> ensembleRecordsList = mapOfBlockIDtoEnsembles.get(blockID);
+            if (!ensembleRecordsList.isEmpty()) {
+                Path path = Paths.get(directory + File.separator + "EnsemblesForBlock_" + blockID + ".csv");
+                OutputStream stream = Files.newOutputStream(path);
+                stream.write(ensembleRecordsList.get(0).prettyPrintHeaderAsCSV("Index", analysis.getAnalysisMethod().getIsotopicRatiosList()).getBytes());
+                for (int i = 0; i < ensembleRecordsList.size(); i++) {
+                    stream.write(ensembleRecordsList.get(i).prettyPrintAsCSV().getBytes());
+                }
+
+                stream.close();
+            }
+        }
+    }
+
+    public static void saveAnalysisReport(AnalysisInterface analysis, Window ownerWindow)
+            throws IOException, TripoliException {
+
+        DirectoryChooser dirChooser = new DirectoryChooser();
+        dirChooser.setTitle("Select Reports Folder");
+        File userHome = new File(File.separator + TripoliPersistentState.getExistingPersistentState().getMRUSessionFolderPath());
+        dirChooser.setInitialDirectory(userHome.isDirectory() ? userHome : null);
+        File directory = dirChooser.showDialog(ownerWindow);
+
+        Path path = Paths.get(directory + File.separator + "AnalysisReport" + ".csv");
+        OutputStream stream = Files.newOutputStream(path);
+        stream.write(((Analysis) analysis).produceReportTemplateOne().getBytes());
+        stream.close();
     }
 }
