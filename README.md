@@ -1,7 +1,9 @@
 <img src="https://github.com/CIRDLES/cirdles.github.com/blob/master/assets/icons/TripoliJune2022.png" alt="Tripoli Logo" width="100">
 
-Tripoli
+Tripoli    
 ==========
+We are developing Tripoli here - consider contributing to our project!
+-----
 
 [![Build Status](https://app.travis-ci.com/CIRDLES/Tripoli.svg?branch=main)](https://app.travis-ci.com/CIRDLES/Tripoli)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ba56cb4ee23948cc8a75a8b85f107fc5)](https://www.codacy.com/gh/CIRDLES/Tripoli/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=CIRDLES/Tripoli&amp;utm_campaign=Badge_Grade)
