@@ -84,6 +84,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     @FXML
     public Button reviewSculptData;
     @FXML
+    public ToolBar processingToolBar;
+    @FXML
     private GridPane analysisManagerGridPane;
     @FXML
     private TextField analysisNameTextField;
@@ -251,6 +253,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         populateAnalysisMethodRatioSelectorPane();
         populateAnalysisMethodRatioBuilderPane();
+
+        processingToolBar.setDisable(analysis.getAnalysisMethod() == null);
     }
 
     private void populateAnalysisDataFields() {
@@ -527,11 +531,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     private void populateBlocksStatus() {
         blockStatusHBox.getChildren().clear();
-        var massSpecExtractedData = analysis.getMassSpecExtractedData();
-        Map<Integer, MassSpecOutputSingleBlockRecord> blocksData = massSpecExtractedData.getBlocksData();
-        for (MassSpecOutputSingleBlockRecord block : blocksData.values()) {
-            Button blockStatusButton = blockStatusButtonFactory(block.blockID());
-            blockStatusHBox.getChildren().add(blockStatusButton);
+        if (analysis.getAnalysisMethod() != null) {
+            var massSpecExtractedData = analysis.getMassSpecExtractedData();
+            Map<Integer, MassSpecOutputSingleBlockRecord> blocksData = massSpecExtractedData.getBlocksData();
+            for (MassSpecOutputSingleBlockRecord block : blocksData.values()) {
+                Button blockStatusButton = blockStatusButtonFactory(block.blockID());
+                blockStatusHBox.getChildren().add(blockStatusButton);
+            }
         }
     }
 
@@ -592,13 +598,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         try {
             File selectedFile = selectDataFile(TripoliGUI.primaryStage);
             if (null != selectedFile) {
-                analysis.setAnalysisMethod(null);
+                removeMethod();
                 try {
                     analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
                 } catch (TripoliException e) {
                     //TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
                 }
                 populateAnalysisManagerGridPane();
+                processingToolBar.setDisable(analysis.getAnalysisMethod() == null);
             }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |
                  JAXBException | TripoliException e) {
@@ -606,6 +613,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
     }
 
+    private void removeMethod(){
+        analysis.resetAnalysis();
+        populateAnalysisMethodGridPane();
+        populateBlocksStatus();
+
+    }
     @FXML
     private void selectMethodFileButtonAction() {
         try {
@@ -630,7 +643,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         } catch (TripoliException | IOException | JAXBException e) {
             TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
         }
-
+        processingToolBar.setDisable(analysis.getAnalysisMethod() == null);
         // initialize block processing state
         for (Integer blockID : analysis.getMassSpecExtractedData().getBlocksData().keySet()) {
             analysis.getMapOfBlockIdToProcessStatus().put(blockID, RUN);

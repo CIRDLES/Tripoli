@@ -106,6 +106,23 @@ public class Analysis implements Serializable, AnalysisInterface {
         return mapOfBlockIdToModelsBurnCount;
     }
 
+    /**
+     *
+     */
+    @Override
+    public void resetAnalysis() {
+        analysisMethod = null;
+        mapOfBlockIdToPlots.clear();
+        mapOfBlockIdToPeakPlots.clear();
+        mapOfBlockToLogs.clear();
+        mapOfBlockIdToProcessStatus.clear();
+        blockPeakGroups.clear();
+        mapOfBlockIdToModelsBurnCount.clear();
+        mapBlockIDToEnsembles.clear();
+        mapOfBlockIdToRawData.clear();
+        mapOfBlockIdToFinalModel.clear();
+    }
+
     public void extractMassSpecDataFromPath(Path dataFilePath)
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, JAXBException, TripoliException {
         dataFilePathString = dataFilePath.toString();
