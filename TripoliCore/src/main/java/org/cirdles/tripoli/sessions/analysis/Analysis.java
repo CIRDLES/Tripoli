@@ -28,6 +28,8 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
+import org.cirdles.tripoli.species.IsotopicRatio;
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -129,6 +131,9 @@ public class Analysis implements Serializable, AnalysisInterface {
             for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
                 mapOfBlockIdToProcessStatus.put(blockID, RUN);
                 mapOfBlockIdToModelsBurnCount.put(blockID, 0);
+                mapBlockIDToEnsembles.put(blockID, new ArrayList<>());
+                mapOfBlockIdToRawData.put(blockID, null);
+                mapOfBlockIdToFinalModel.put(blockID, null);
             }
         } else {
             // attempt to load specified method
@@ -149,6 +154,9 @@ public class Analysis implements Serializable, AnalysisInterface {
             for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
                 mapOfBlockIdToProcessStatus.put(blockID, RUN);
                 mapOfBlockIdToModelsBurnCount.put(blockID, 0);
+                mapBlockIDToEnsembles.put(blockID, new ArrayList<>());
+                mapOfBlockIdToRawData.put(blockID, null);
+                mapOfBlockIdToFinalModel.put(blockID, null);
             }
 
             // collects the file objects from PeakCentres folder +++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -295,23 +303,27 @@ public class Analysis implements Serializable, AnalysisInterface {
 
 
     public AllBlockInitForOGTripoli.PlottingData assemblePostProcessPlottingData() {
-        Map<Integer, SingleBlockRawDataSetRecord> singleBlockRawDataSetRecordMap = getMapOfBlockIdToRawData();
-        SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = new SingleBlockRawDataSetRecord[singleBlockRawDataSetRecordMap.keySet().size()];
+        Map<Integer, SingleBlockRawDataSetRecord> singleBlockRawDataSetRecordMap = mapOfBlockIdToRawData;
+        SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = new SingleBlockRawDataSetRecord[mapOfBlockIdToProcessStatus.keySet().size()];
         int index = 0;
         for (SingleBlockRawDataSetRecord singleBlockRawDataSetRecord : singleBlockRawDataSetRecordMap.values()) {
             singleBlockRawDataSetRecords[index] = singleBlockRawDataSetRecord;
             index++;
         }
 
-        Map<Integer, SingleBlockModelRecord> singleBlockModelRecordMap = getMapOfBlockIdToFinalModel();
-        SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[singleBlockModelRecordMap.keySet().size()];
+        int cycleCount = 0;
+        Map<Integer, SingleBlockModelRecord> singleBlockModelRecordMap = mapOfBlockIdToFinalModel;
+        SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[mapOfBlockIdToProcessStatus.keySet().size()];
         index = 0;
         for (SingleBlockModelRecord singleBlockModelRecord : singleBlockModelRecordMap.values()) {
             singleBlockModelRecords[index] = singleBlockModelRecord;
             index++;
+            if ((singleBlockModelRecord != null) && (cycleCount == 0)) {
+                cycleCount = singleBlockModelRecord.cycleCount();
+            }
         }
 
-        return new AllBlockInitForOGTripoli.PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, false);
+        return new AllBlockInitForOGTripoli.PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, cycleCount, false);
     }
 
     public final String prettyPrintAnalysisSummary() {
@@ -364,6 +376,25 @@ public class Analysis implements Serializable, AnalysisInterface {
                 sb.append(onPeakName + " ");
             }
         }
+
+        return sb.toString();
+    }
+
+    public final String produceReportTemplateOne() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(massSpecExtractedData.printHeader());
+
+        sb.append("Measurement Outputs - Fraction\n");
+        sb.append("Name, Mean, Standard Error (1s abs), Number Included, Number Total\n");
+
+        for (SpeciesRecordInterface species : analysisMethod.getSpeciesList()) {
+            sb.append("intensity " + species.prettyPrintShortForm() + " (cps), , , , \n");
+        }
+        for (IsotopicRatio ratio : analysisMethod.getIsotopicRatiosList()) {
+            sb.append(ratio.prettyPrint() + "," + ratio.getAnalysisMean() + "," + ratio.getAnalysisOneSigmaAbs() + ", , \n");
+        }
+
+        sb.append("D/F Gain" + "," + analysisMethod.getIsotopicRatiosList().get(0).getAnalysisDalyFaradayGainMean() + "," + analysisMethod.getIsotopicRatiosList().get(0).getAnalysisDalyFaradayGainOneSigmaAbs() + ", , \n");
 
         return sb.toString();
     }

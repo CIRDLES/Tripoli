@@ -6,4 +6,6 @@ public interface MCMCPlotsControllerInterface {
     public void plotEnsemblesEngine(PlotBuilder[][] plotBuilders);
 
     public void plotRatioSessionEngine();
+
+    public int getCurrentBlockID();
 }

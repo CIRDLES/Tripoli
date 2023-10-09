@@ -1,10 +1,11 @@
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.sessionPlots;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
@@ -186,16 +187,16 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
 
     public void prepareExtents(boolean reScaleX, boolean reScaleY) {
         if (reScaleX) {
-            double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.01);
+            double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.05);
             if (0.0 == xMarginStretch) {
                 xMarginStretch = maxX * 0.01;
             }
-            minX -= 50;//xMarginStretch;
-            maxX += 50;//xMarginStretch;
+            minX -= xMarginStretch;
+            maxX += xMarginStretch;
         }
 
         if (reScaleY) {
-            double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.01);
+            double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.05);
             maxY += yMarginStretch;
             minY -= yMarginStretch;
         }
@@ -214,6 +215,7 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
             if (speciesChecked[isotopePlotSetIndex]) {
                 // plot PM
                 if (showPMs) {
+                    g2d.closePath();
                     g2d.setLineDashes(0);
                     boolean startedPlot = false;
                     g2d.setFill(isotopeColors[isotopePlotSetIndex]);
@@ -236,9 +238,11 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                                     g2d.lineTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 3][i]));
                                 }
                             } else {
-                                startedPlot = false;
-                                g2d.setStroke(Color.AQUAMARINE);
-                                g2d.stroke();
+                                if (startedPlot) {
+                                    startedPlot = false;
+                                    g2d.setStroke(Color.AQUAMARINE);
+                                    g2d.stroke();
+                                }
                             }
                         }
                     }
@@ -246,6 +250,7 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                 }
                 // plot Faraday
                 if (showFaradays) {
+                    g2d.closePath();
                     g2d.setLineDashes(0);
                     boolean startedPlot = false;
                     g2d.setFill(isotopeColors[isotopePlotSetIndex]);
@@ -269,9 +274,11 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                                     g2d.lineTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 1][i]));
                                 }
                             } else {
-                                startedPlot = false;
-                                g2d.setStroke(Color.RED);
-                                g2d.stroke();
+                                if (startedPlot) {
+                                    startedPlot = false;
+                                    g2d.setStroke(Color.RED);
+                                    g2d.stroke();
+                                }
                             }
                         }
                     }
@@ -279,7 +286,38 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                 }
             }
         }
+
+        // block delimiters
+        int[] xAxisBlockIDs = speciesIntensitySessionBuilder.getxAxisBlockIDs();
+        g2d.setStroke(Color.BLACK);
+        g2d.setLineWidth(0.5);
+        int blockID = 0;
+        for (int i = 0; i < xAxisBlockIDs.length; i++) {
+            double dataX = mapX(xAxisData[i]) - 5.0;
+            if ((xAxisBlockIDs[i] > blockID) && xInPlot(xAxisData[i])) {
+                g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
+            }
+            if (xAxisBlockIDs[i] > blockID) {
+                blockID++;
+                if (xInPlot(xAxisData[i])) {
+                    showBlockID(g2d, Integer.toString(blockID), mapX(xAxisData[i]));
+                }
+            }
+
+        }
+        double dataX = mapX(xAxisData[xAxisData.length - 1]) + 5;
+        g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
     }
+
+    private void showBlockID(GraphicsContext g2d, String blockID, double xPosition) {
+        Paint savedPaint = g2d.getFill();
+        g2d.setFill(Paint.valueOf("BLACK"));
+        g2d.setFont(Font.font("SansSerif", 10));
+
+        g2d.fillText("BL#" + blockID, xPosition, topMargin);
+        g2d.setFill(savedPaint);
+    }
+
 
     @Override
     public void plotStats(GraphicsContext g2d) {
@@ -289,11 +327,11 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
     @Override
     public void setupPlotContextMenu() {
         plotContextMenu = new ContextMenu();
-        MenuItem plotContextMenuItem1 = new MenuItem("Restore plot");
-        plotContextMenuItem1.setOnAction((mouseEvent) -> {
-            refreshPanel(true, true);
-        });
-
-        plotContextMenu.getItems().addAll(plotContextMenuItem1);
+//        MenuItem plotContextMenuItem1 = new MenuItem("Toggle block");
+//        plotContextMenuItem1.setOnAction((mouseEvent) -> {
+//            refreshPanel(true, true);
+//        });
+//
+//        plotContextMenu.getItems().addAll(plotContextMenuItem1);
     }
 }

@@ -34,10 +34,10 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.HistogramSinglePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.LinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.MultiLineIntensityPlot;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
@@ -435,6 +435,10 @@ public abstract class AbstractPlot extends Canvas {
         return ((mapX(x) >= leftMargin) && (mapX(x) <= (leftMargin + plotWidth)) && (mapY(y) >= topMargin) && (mapY(y) <= (topMargin + plotHeight)));
     }
 
+    public boolean xInPlot(double x) {
+        return ((mapX(x) >= leftMargin) && (mapX(x) <= (leftMargin + plotWidth)));
+    }
+
     /**
      * @param doReScale  the value of doReScale
      * @param inLiveMode the value of inLiveMode
@@ -632,7 +636,8 @@ public abstract class AbstractPlot extends Canvas {
             boolean isBlockRatioCyclesSessionPlot = (mouseEvent.getSource() instanceof BlockRatioCyclesSessionPlot);
 
             if (mouseInHouse(mouseEvent.getX(), mouseEvent.getY())) {
-                if (isPrimary && isBlockRatioCyclesSessionPlot) {
+                if (!isPrimary && isBlockRatioCyclesSessionPlot) {
+                    // TODO:  remove duplicate code
                     BlockRatioCyclesSessionPlot blockRatioCyclesSessionPlot = (BlockRatioCyclesSessionPlot) mouseEvent.getSource();
                     // determine blockID
                     double xValue = convertMouseXToValue(mouseEvent.getX());

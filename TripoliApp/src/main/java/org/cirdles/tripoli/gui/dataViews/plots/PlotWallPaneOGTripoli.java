@@ -194,7 +194,7 @@ public class PlotWallPaneOGTripoli extends Pane {
                     if (!newVal) {
                         gainCB.setSelected(false);
                     }
-                    rebuildPlot(false, true);
+                    rebuildPlot(false, false);
                 });
 
         gainCB = new CheckBox("Gain");
@@ -205,7 +205,7 @@ public class PlotWallPaneOGTripoli extends Pane {
                     if (newVal) {
                         baseLineCB.setSelected(true);
                     }
-                    rebuildPlot(false, true);
+                    rebuildPlot(false, false);
                 });
 
         getChildren().addAll(toolBar);
@@ -215,6 +215,10 @@ public class PlotWallPaneOGTripoli extends Pane {
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);
         toolBar.setLayoutY(toolBarHeight);
+
+        Button restoreButton = new Button("Restore Plot");
+        restoreButton.setOnAction(event -> rebuildPlot(true, true));
+        toolBar.getItems().add(restoreButton);
 
         Label labelScale = new Label("Scale:");
         labelScale.setAlignment(Pos.CENTER_RIGHT);

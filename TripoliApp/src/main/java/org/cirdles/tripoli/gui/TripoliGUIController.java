@@ -46,8 +46,11 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.utilities.BrowserControl.urlEncode;
+import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.saveAnalysisReport;
+import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.saveEnsembleData;
 import static org.cirdles.tripoli.sessions.SessionBuiltinFactory.TRIPOLI_DEMONSTRATION_SESSION;
 import static org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer.serializeObjectToFile;
 
@@ -406,5 +409,13 @@ public class TripoliGUIController implements Initializable {
 
 
     public void newAnalysisMenuItemOnAction() {
+    }
+
+    public void generateMCMCDetailsPerBlockAction() throws IOException, TripoliException {
+        saveEnsembleData(analysis, null);
+    }
+
+    public void reportTemplateOneAction() throws TripoliException, IOException {
+        saveAnalysisReport(analysis, null);
     }
 }
