@@ -693,8 +693,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     public void selectShowsAction() {
         for (Node button : blockStatusHBox.getChildren()) {
-            if ((button instanceof Button) && (0 == analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())))) {
+            if ((button instanceof Button) && (null != analysis.getMapOfBlockIdToPlots().get(Integer.parseInt(button.getId())))) {
                 tuneButton((Button) button, SHOW);
+            } else if(null == analysis.getMapOfBlockIdToPlots().get(Integer.parseInt(button.getId()))){
+                tuneButton((Button) button, SKIP);
             }
         }
     }
