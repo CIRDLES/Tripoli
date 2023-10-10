@@ -27,6 +27,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow;
@@ -40,8 +41,11 @@ import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -78,7 +82,14 @@ public class TripoliGUIController implements Initializable {
 
     @FXML
     public MenuItem openSessionMenuItem;
+    @FXML
     public Menu openRecentSessionMenu;
+    @FXML
+    public HBox newVersionAnnounceHBox;
+    @FXML
+    public HBox latestVersionHBox;
+    @FXML
+    public Label newVersionLabel;
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
     @FXML // URL location of the FXML file that was given to the FXMLLoader
@@ -134,8 +145,40 @@ public class TripoliGUIController implements Initializable {
         buildSessionMenuMRU();
         showStartingMenus();
 
+        detectLatestVersion();
+
     }
 
+    private void detectLatestVersion(){
+        try {
+            URL url = new URL("https://raw.githubusercontent.com/CIRDLES/Tripoli/main/buildSrc/src/main/kotlin/common-build.gradle.kts");
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            con.setRequestProperty("Content-Type", "application/txt");
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer content = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                if (inputLine.contains("val mavenVersion")) {
+                    content.append(inputLine);
+                }
+            }
+            con.disconnect();
+            String[] contentString = content.toString().split("\"");
+            String latestVersion = contentString[1];
+            if (Tripoli.VERSION.compareToIgnoreCase(latestVersion) == -1){
+                latestVersionHBox.setVisible(true);
+                newVersionLabel.setText("New Version v" + latestVersion + " at:");
+            } else {
+                latestVersionHBox.setVisible(false);
+            }
+
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
     private void showStartingMenus() {
         sessionManagerMenuItem.setDisable(true);
         newSessionMenuItem.setDisable(false);
@@ -417,5 +460,9 @@ public class TripoliGUIController implements Initializable {
 
     public void reportTemplateOneAction() throws TripoliException, IOException {
         saveAnalysisReport(analysis, null);
+    }
+
+    public void visitLatestVersionAction() {
+        BrowserControl.showURI("https://github.com/CIRDLES/Tripoli/releases/latest");
     }
 }

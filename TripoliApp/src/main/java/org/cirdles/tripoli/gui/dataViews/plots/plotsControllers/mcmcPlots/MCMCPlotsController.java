@@ -365,7 +365,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
     }
 
     private synchronized void plotBlockEngine(Task<String> plotBuildersTaska) {
-        analysisManagerCallbackI.callbackRefreshBlocksStatus();
+//        analysisManagerCallbackI.callbackRefreshBlocksStatus();
 
         PlotBuildersTaskInterface plotBuildersTask = (PlotBuildersTaskInterface) plotBuildersTaska;
 
