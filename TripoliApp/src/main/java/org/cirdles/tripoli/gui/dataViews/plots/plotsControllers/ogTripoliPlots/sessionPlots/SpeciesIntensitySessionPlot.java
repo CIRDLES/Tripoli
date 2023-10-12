@@ -1,7 +1,11 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.sessionPlots;
 
+import com.google.common.primitives.Booleans;
+import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
@@ -11,16 +15,30 @@ import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.sessionPlots.SpeciesIntensitySessionBuilder;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static java.lang.StrictMath.*;
 
 public class SpeciesIntensitySessionPlot extends AbstractPlot {
     private final SpeciesIntensitySessionBuilder speciesIntensitySessionBuilder;
     private final double[][] dfGain;
+    private final double[][] yDataCounts;
+    private final double[][] ampResistance;
+    private final double[][] baseLine;
     TripoliConstants.IntensityUnits intensityUnits = TripoliConstants.IntensityUnits.COUNTS;
-    private double[][] yDataCounts;
+    EventHandler<MouseEvent> mousePressedEventHandler = e -> {
+        if (mouseInHouse(e.getX(), e.getY()) && e.isPrimaryButtonDown()) {
+            if (e.getSource() instanceof BlockRatioCyclesSessionPlot sourceBlockRatioCyclesSessionPlot) {
+                sourceBlockRatioCyclesSessionPlot.getParentWallPane().synchronizeMouseStartsOnPress(e.getX(), e.getY());
+            } else {
+                adjustMouseStartsForPress(e.getX(), e.getY());
+            }
+        }
+    };
     private double[][] yData;
-    private double[][] ampResistance;
-    private double[][] baseLine;
+    private boolean[][] included;
     private boolean[] speciesChecked;
     private boolean showFaradays;
     private boolean showPMs;
@@ -30,25 +48,39 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
     private boolean logScale;
     private boolean[] zoomFlagsXY;
 
+    private double selectorBoxX = 0.0;
+    private double selectorBoxY = 0.0;
+
     private SpeciesIntensitySessionPlot(Rectangle bounds, SpeciesIntensitySessionBuilder speciesIntensitySessionBuilder) {
         super(bounds, 100, 25,
                 speciesIntensitySessionBuilder.getTitle(),
                 speciesIntensitySessionBuilder.getxAxisLabel(),
                 speciesIntensitySessionBuilder.getyAxisLabel());
         this.speciesIntensitySessionBuilder = speciesIntensitySessionBuilder;
-        this.yDataCounts = speciesIntensitySessionBuilder.getyData();
-        this.ampResistance = speciesIntensitySessionBuilder.getAmpResistance();
-        this.baseLine = speciesIntensitySessionBuilder.getBaseLine();
-        this.dfGain = speciesIntensitySessionBuilder.getDfGain();
-        this.speciesChecked = new boolean[yDataCounts.length / 4];
-        this.speciesChecked[0] = true;
-        this.showFaradays = true;
-        this.showPMs = true;
-        this.showModels = true;
-        this.baselineCorr = false;
-        this.gainCorr = false;
-        this.logScale = false;
-        this.zoomFlagsXY = new boolean[]{true, true};
+        yDataCounts = speciesIntensitySessionBuilder.getyData();
+        ampResistance = speciesIntensitySessionBuilder.getAmpResistance();
+        baseLine = speciesIntensitySessionBuilder.getBaseLine();
+        dfGain = speciesIntensitySessionBuilder.getDfGain();
+        speciesChecked = new boolean[yDataCounts.length / 4];
+        speciesChecked[0] = true;
+        showFaradays = true;
+        showPMs = true;
+        showModels = true;
+        baselineCorr = true;
+        gainCorr = true;
+        logScale = false;
+        zoomFlagsXY = new boolean[]{true, true};
+
+
+        setOnMouseClicked(new MouseClickEventHandler());
+
+        removeEventFilter(MouseEvent.MOUSE_DRAGGED, mouseDraggedEventHandler);
+        setOnMouseDragged(new MouseDraggedEventHandler());
+
+        removeEventFilter(MouseEvent.MOUSE_PRESSED, mousePressedEventHandler);
+        setOnMousePressed(new MousePressedEventHandler());
+
+        setOnMouseReleased(new MouseReleasedEventHandler());
 
     }
 
@@ -103,6 +135,7 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
         }
 
         yData = new double[yDataCounts.length][yDataCounts[0].length];
+        included = speciesIntensitySessionBuilder.getIncluded();
 
         for (int row = 0; row < yData.length; row++) {
             int speciesIndex = (row / 4);
@@ -115,7 +148,6 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                         }
 
                         if ((gainCorr) && (dfGain[row][col] != 0.0)) {
-                            yData[row][col] -= baseLine[row][col];
                             yData[row][col] /= dfGain[row][col];
                         }
 
@@ -163,7 +195,6 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                 }
             }
 
-
             displayOffsetY = 0.0;
         }
         prepareExtents(reScaleX, reScaleY);
@@ -207,7 +238,6 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
 
         g2d.setFill(dataColor.color());
         g2d.setStroke(dataColor.color());
-
         g2d.setLineWidth(2.0);
 
         Color[] isotopeColors = {Color.BLUE, Color.GREEN, Color.BLACK, Color.PURPLE, Color.ORANGE};
@@ -224,12 +254,19 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                         if ((yData[isotopePlotSetIndex * 4 + 2][i] != 0.0) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 2][i])) {
                             double dataX = mapX(xAxisData[i]);
                             double dataY = mapY(yData[isotopePlotSetIndex * 4 + 2][i]);
-                            g2d.fillOval(dataX - 1.5, dataY - 1.5, 3, 3);
+                            if (included[isotopePlotSetIndex][i]) {
+                                g2d.fillOval(dataX - 2.0, Math.abs(dataY) - 2.0, 4, 4);
+                            } else {
+                                g2d.setFill(Color.RED);
+                                g2d.fillOval(dataX - 2.0, Math.abs(dataY) - 2.0, 4, 4);
+                                g2d.setFill(isotopeColors[isotopePlotSetIndex]);
+                            }
                         }
 
+                        g2d.setLineWidth(2.0);
                         if (showModels && !gainCorr) {
-                            if ((i < xAxisData.length - 1) && (xAxisData[i + 1] - xAxisData[i] < 10.0)) {
-                                if ((yData[isotopePlotSetIndex * 4 + 3][i] != 0.0) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 3][i])) {
+                            if ((i < xAxisData.length - 1) && (10.0 > xAxisData[i + 1] - xAxisData[i])) {
+                                if ((0.0 != yData[isotopePlotSetIndex * 4 + 3][i]) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 3][i])) {
                                     if (!startedPlot) {
                                         g2d.beginPath();
                                         g2d.moveTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 3][i]));
@@ -259,13 +296,19 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                         if ((yData[isotopePlotSetIndex * 4][i] != 0.0) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4][i])) {
                             double dataX = mapX(xAxisData[i]);
                             double dataY = mapY(yData[isotopePlotSetIndex * 4][i]);
-                            g2d.fillOval(dataX - 1.5, dataY - 1.5, 3, 3);
+                            if (included[isotopePlotSetIndex][i]) {
+                                g2d.fillOval(dataX - 2.0, Math.abs(dataY) - 2.0, 4, 4);
+                            } else {
+                                g2d.setFill(Color.RED);
+                                g2d.fillOval(dataX - 2.0, Math.abs(dataY) - 2.0, 4, 4);
+                                g2d.setFill(isotopeColors[isotopePlotSetIndex]);
+                            }
                         }
 
                         if (showModels) {
                             // TODO: make this 10.0 more robust for finding block separations
-                            if ((i < xAxisData.length - 1) && (xAxisData[i + 1] - xAxisData[i] < 10.0)) {
-                                if ((yData[isotopePlotSetIndex * 4 + 1][i] != 0.0) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 1][i])) {
+                            if ((i < xAxisData.length - 1) && (10.0 > xAxisData[i + 1] - xAxisData[i])) {
+                                if ((0.0 != yData[isotopePlotSetIndex * 4 + 1][i]) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 1][i])) {
                                     if (!startedPlot) {
                                         g2d.beginPath();
                                         g2d.moveTo(mapX(xAxisData[i]), mapY(yData[isotopePlotSetIndex * 4 + 1][i]));
@@ -286,6 +329,12 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
                 }
             }
         }
+
+        //plot selectorbox
+        g2d.setStroke(Color.RED);
+        g2d.setLineWidth(0.5);
+        g2d.strokeRect(Math.min(mouseStartX, selectorBoxX), Math.min(mouseStartY, selectorBoxY), Math.abs(selectorBoxX - mouseStartX), Math.abs(selectorBoxY - mouseStartY));
+
 
         // block delimiters
         int[] xAxisBlockIDs = speciesIntensitySessionBuilder.getxAxisBlockIDs();
@@ -318,7 +367,6 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
         g2d.setFill(savedPaint);
     }
 
-
     @Override
     public void plotStats(GraphicsContext g2d) {
 
@@ -327,11 +375,112 @@ public class SpeciesIntensitySessionPlot extends AbstractPlot {
     @Override
     public void setupPlotContextMenu() {
         plotContextMenu = new ContextMenu();
-//        MenuItem plotContextMenuItem1 = new MenuItem("Toggle block");
-//        plotContextMenuItem1.setOnAction((mouseEvent) -> {
-//            refreshPanel(true, true);
-//        });
-//
-//        plotContextMenu.getItems().addAll(plotContextMenuItem1);
+    }
+
+    private int onlyOneSpeciesShown() {
+        int isotopeIndex = -1;
+        if (Booleans.countTrue(speciesChecked) == 1) {
+            isotopeIndex = Booleans.indexOf(speciesChecked, true);
+        }
+
+        return isotopeIndex;
+    }
+
+    class MouseClickEventHandler implements EventHandler<MouseEvent> {
+        @Override
+        public void handle(MouseEvent mouseEvent) {
+            boolean isPrimary = (0 == mouseEvent.getButton().compareTo(MouseButton.PRIMARY));
+            if (isPrimary) {
+                repaint();
+            }
+        }
+    }
+
+    class MouseDraggedEventHandler implements EventHandler<MouseEvent> {
+        @Override
+        public void handle(MouseEvent e) {
+            if (mouseInHouse(e.getX(), e.getY()) && onlyOneSpeciesShown() >= 0) {
+                selectorBoxX = e.getX();
+                selectorBoxY = e.getY();
+                repaint();
+            }
+        }
+    }
+
+    class MousePressedEventHandler implements EventHandler<MouseEvent> {
+        /**
+         * @param e the event which occurred
+         */
+        @Override
+        public void handle(MouseEvent e) {
+            if (mouseInHouse(e.getX(), e.getY()) && e.isPrimaryButtonDown()) {
+                adjustMouseStartsForPress(e.getX(), e.getY());
+                selectorBoxX = mouseStartX;
+                selectorBoxY = mouseStartY;
+            }
+        }
+    }
+
+    class MouseReleasedEventHandler implements EventHandler<MouseEvent> {
+        /**
+         * @param e the event which occurred
+         */
+        @Override
+        public void handle(MouseEvent e) {
+            boolean isPrimary = (0 == e.getButton().compareTo(MouseButton.PRIMARY));
+            if (mouseInHouse(e.getX(), e.getY()) && isPrimary) {
+                int isotopeIndex = onlyOneSpeciesShown();
+                if (isotopeIndex >= 0) {
+                    // process contained datapoints
+                    selectorBoxX = e.getX();
+                    selectorBoxY = e.getY();
+                    double timeLeft = convertMouseXToValue(Math.min(mouseStartX, selectorBoxX));
+                    double timeRight = convertMouseXToValue(Math.max(mouseStartX, selectorBoxX));
+                    int indexLeft = Math.max(1, Math.abs(Arrays.binarySearch(xAxisData, timeLeft))) - 1;
+                    int indexRight = Math.max(1, Math.abs(Arrays.binarySearch(xAxisData, timeRight))) - 2;
+                    if (indexRight < indexLeft) {
+                        indexRight = indexLeft;
+                    }
+
+                    double intensityTop = convertMouseYToValue(Math.min(mouseStartY, selectorBoxY));
+                    double intensityBottom = convertMouseYToValue(Math.max(mouseStartY, selectorBoxY));
+
+                   List<Boolean> statusList = new ArrayList<>();
+                    for (int index = indexLeft; index <= indexRight; index++) {
+                        // faraday
+                        if ((yData[isotopeIndex * 4][index] < intensityTop) && (yData[isotopeIndex * 4][index] > intensityBottom)){// && (yData[isotopeIndex * 4][index] != 0.0)) {
+                            included[isotopeIndex][index] = !included[isotopeIndex][index];
+                            statusList.add(included[isotopeIndex][index]);
+                        }
+                        // photomultiplier
+                        if ((yData[isotopeIndex * 4 + 2][index] < intensityTop) && (yData[isotopeIndex * 4 + 2][index] > intensityBottom)){// && (yData[isotopeIndex * 4 + 2][index] != 0.0)) {
+                            included[isotopeIndex][index] = !included[isotopeIndex][index];
+                            statusList.add(included[isotopeIndex][index]);
+                        }
+                    }
+                    boolean majorityValue = false;
+                    boolean[] status = Booleans.toArray(statusList);
+                    int countIncluded = Booleans.countTrue(status);
+                    if ((countIncluded > 0) && (countIncluded > status.length / 2)){
+                        majorityValue = countIncluded > status.length / 2;
+                        for (int index = indexLeft; index <= indexRight; index++) {
+                            // faraday
+                            if ((yData[isotopeIndex * 4][index] < intensityTop) && (yData[isotopeIndex * 4][index] > intensityBottom)){// && (yData[isotopeIndex * 4][index] != 0.0)) {
+                                included[isotopeIndex][index] = majorityValue;
+                            }
+                            // photomultiplier
+                            if ((yData[isotopeIndex * 4 + 2][index] < intensityTop) && (yData[isotopeIndex * 4 + 2][index] > intensityBottom)){// && (yData[isotopeIndex * 4 + 2][index] != 0.0)) {
+                                included[isotopeIndex][index] = majorityValue;
+                            }
+                        }
+                    }
+                }
+                repaint();
+
+                adjustMouseStartsForPress(e.getX(), e.getY());
+                selectorBoxX = mouseStartX;
+                selectorBoxY = mouseStartY;
+            }
+        }
     }
 }

@@ -28,20 +28,22 @@ public class SpeciesIntensitySessionBuilder extends PlotBuilder {
     private final double[][] baseLine;
     private final double[][] dfGain;
     private final int[] xAxisBlockIDs;
+    private final boolean[][] included;
 
-    protected SpeciesIntensitySessionBuilder(double[] xData, int[] xAxisBlockIDs, double[][] yData, double[][] ampResistance, double[][] baseLine, double[][] dfGain, String[] title, String xAxisLabel, String yAxisLabel) {
+    protected SpeciesIntensitySessionBuilder(double[] xData, int[] xAxisBlockIDs, double[][] yData, boolean[][] included, double[][] ampResistance, double[][] baseLine, double[][] dfGain, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel, true);
         this.xData = xData;
         this.xAxisBlockIDs = xAxisBlockIDs;
         this.yData = yData;
+        this.included = included;
         this.ampResistance = ampResistance;
         this.baseLine = baseLine;
         this.dfGain = dfGain;
     }
 
     public static SpeciesIntensitySessionBuilder initializeSpeciesIntensitySessionPlot(
-            double[] xData, int[] xAxisBlockIDs, double[][] yData, double[][] ampResistance, double[][] baseLine, double[][] dfGain, String[] title, String xAxisLabel, String yAxisLabel) {
-        return new SpeciesIntensitySessionBuilder(xData, xAxisBlockIDs, yData, ampResistance, baseLine, dfGain, title, xAxisLabel, yAxisLabel);
+            double[] xData, int[] xAxisBlockIDs, double[][] yData, boolean[][] included, double[][] ampResistance, double[][] baseLine, double[][] dfGain, String[] title, String xAxisLabel, String yAxisLabel) {
+        return new SpeciesIntensitySessionBuilder(xData, xAxisBlockIDs, yData, included, ampResistance, baseLine, dfGain, title, xAxisLabel, yAxisLabel);
     }
 
     public double[] getxData() {
@@ -56,6 +58,9 @@ public class SpeciesIntensitySessionBuilder extends PlotBuilder {
         return yData;
     }
 
+    public boolean[][] getIncluded() {
+        return included;
+    }
 
     public double[][] getAmpResistance() {
         return ampResistance;

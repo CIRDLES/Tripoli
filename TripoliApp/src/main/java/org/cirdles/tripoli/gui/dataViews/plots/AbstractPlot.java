@@ -83,6 +83,8 @@ public abstract class AbstractPlot extends Canvas {
     protected boolean showYaxis;
     protected boolean showXaxis;
 
+    protected EventHandler<MouseEvent> mouseDraggedEventHandler;
+
     protected PlotBuilder plotBuilder;
     ;
 
@@ -138,7 +140,7 @@ public abstract class AbstractPlot extends Canvas {
         };
         addEventFilter(ScrollEvent.SCROLL, scrollEventEventHandler);
 
-        EventHandler<MouseEvent> mouseDraggedEventHandler = e -> {
+        mouseDraggedEventHandler = e -> {
             if (mouseInHouse(e.getX(), e.getY())) {
                 if (e.getSource() instanceof BlockRatioCyclesSessionPlot) {
                     BlockRatioCyclesSessionPlot sourceBlockRatioCyclesSessionPlot = (BlockRatioCyclesSessionPlot) e.getSource();

@@ -44,6 +44,7 @@ public enum SingleBlockDataAccumulatorMCMC {
         List<Integer> detectorOrdinalIndicesAccumulatorList = new ArrayList<>();
         List<Integer> cycleAccumulatorList = new ArrayList<>();
         List<Double> intensityAccumulatorList = new ArrayList<>();
+        List<Boolean> intensityIncludedAccumulatorList = new ArrayList<>();
         List<Double> timeAccumulatorList = new ArrayList<>();
         List<Integer> timeIndexAccumulatorList = new ArrayList<>();
         List<Integer> isotopeOrdinalIndicesAccumulatorList = new ArrayList<>();
@@ -75,6 +76,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                         }
                         cycleAccumulatorList.add(baseLineCycleNumbers[index]);
                         intensityAccumulatorList.add(intensity);
+                        intensityIncludedAccumulatorList.add(true);
                         timeAccumulatorList.add(baseLineTimeStamps[index]);
                         timeIndexAccumulatorList.add(index);
                         isotopeOrdinalIndicesAccumulatorList.add(0);
@@ -88,10 +90,12 @@ public enum SingleBlockDataAccumulatorMCMC {
                 detectorOrdinalIndicesAccumulatorList,
                 cycleAccumulatorList,
                 intensityAccumulatorList,
+                intensityIncludedAccumulatorList,
                 timeAccumulatorList,
                 timeIndexAccumulatorList,
                 isotopeOrdinalIndicesAccumulatorList,
-                blockMapOfSequenceIdsToData);
+                blockMapOfSequenceIdsToData
+        );
     }
 
     public static SingleBlockRawDataSetRecord.SingleBlockRawDataRecord accumulateOnPeakDataPerSequenceTableSpecs(
@@ -103,6 +107,7 @@ public enum SingleBlockDataAccumulatorMCMC {
         List<Integer> detectorOrdinalIndicesAccumulatorList = new ArrayList<>();
         List<Integer> cycleAccumulatorList = new ArrayList<>();
         List<Double> intensityAccumulatorList = new ArrayList<>();
+        List<Boolean> intensityIncludedAccumulatorList = new ArrayList<>();
         List<Double> timeAccumulatorList = new ArrayList<>();
         List<Integer> timeIndexAccumulatorList = new ArrayList<>();
         List<Integer> isotopeOrdinalIndicesAccumulatorList = new ArrayList<>();
@@ -139,6 +144,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                             intensity = TripoliConstants.IntensityUnits.convertFromVoltsToCount(intensity, amplifierResistance);
                         }
                         intensityAccumulatorList.add(intensity);
+                        intensityIncludedAccumulatorList.add(true);
                         timeAccumulatorList.add(onPeakTimeStamps[index]);
                         timeIndexAccumulatorList.add(index);
                         isotopeOrdinalIndicesAccumulatorList.add(speciesOrdinalIndex);
@@ -153,10 +159,11 @@ public enum SingleBlockDataAccumulatorMCMC {
                 detectorOrdinalIndicesAccumulatorList,
                 cycleAccumulatorList,
                 intensityAccumulatorList,
-                timeAccumulatorList,
+                intensityIncludedAccumulatorList, timeAccumulatorList,
                 timeIndexAccumulatorList,
                 isotopeOrdinalIndicesAccumulatorList,
-                blockMapOfSequenceIdsToData);
+                blockMapOfSequenceIdsToData
+        );
     }
 
 }
