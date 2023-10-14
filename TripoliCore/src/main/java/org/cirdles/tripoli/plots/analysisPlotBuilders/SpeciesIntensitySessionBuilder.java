@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.plots.sessionPlots;
+package org.cirdles.tripoli.plots.analysisPlotBuilders;
 
 import org.cirdles.tripoli.plots.PlotBuilder;
-import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 
 public class SpeciesIntensitySessionBuilder extends PlotBuilder {
@@ -33,21 +32,21 @@ public class SpeciesIntensitySessionBuilder extends PlotBuilder {
     private final int[] xAxisBlockIDs;
     private boolean[][] onPeakDataIncludedAllBlocks;
 
-    protected SpeciesIntensitySessionBuilder(AnalysisInterface analysis, double[] xData, int[] xAxisBlockIDs, double[][] yData, double[][] ampResistance, double[][] baseLine, double[][] dfGain, String[] title, String xAxisLabel, String yAxisLabel) {
+    protected SpeciesIntensitySessionBuilder(AnalysisInterface analysis, double[] xData, boolean[][] onPeakDataIncludedAllBlocks, int[] xAxisBlockIDs, double[][] yData, double[][] ampResistance, double[][] baseLine, double[][] dfGain, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel, true);
         this.analysis = analysis;
         this.xData = xData;
         this.xAxisBlockIDs = xAxisBlockIDs;
         this.yData = yData;
-        this.onPeakDataIncludedAllBlocks = ((Analysis)analysis).getOnPeakDataIncludedAllBlocks();
+        this.onPeakDataIncludedAllBlocks = onPeakDataIncludedAllBlocks;
         this.ampResistance = ampResistance;
         this.baseLine = baseLine;
         this.dfGain = dfGain;
     }
 
     public static SpeciesIntensitySessionBuilder initializeSpeciesIntensitySessionPlot(
-            AnalysisInterface analysis, double[] xData, int[] xAxisBlockIDs, double[][] yData, double[][] ampResistance, double[][] baseLine, double[][] dfGain, String[] title, String xAxisLabel, String yAxisLabel) {
-        return new SpeciesIntensitySessionBuilder(analysis, xData, xAxisBlockIDs, yData, ampResistance, baseLine, dfGain, title, xAxisLabel, yAxisLabel);
+            AnalysisInterface analysis, double[] xData, boolean[][] onPeakDataIncludedAllBlocks, int[] xAxisBlockIDs, double[][] yData, double[][] ampResistance, double[][] baseLine, double[][] dfGain, String[] title, String xAxisLabel, String yAxisLabel) {
+        return new SpeciesIntensitySessionBuilder(analysis, xData, onPeakDataIncludedAllBlocks, xAxisBlockIDs, yData, ampResistance, baseLine, dfGain, title, xAxisLabel, yAxisLabel);
     }
 
     public AnalysisInterface getAnalysis() {

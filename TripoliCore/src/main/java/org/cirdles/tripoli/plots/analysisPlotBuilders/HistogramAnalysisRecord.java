@@ -1,11 +1,11 @@
-package org.cirdles.tripoli.plots.sessionPlots;
+package org.cirdles.tripoli.plots.analysisPlotBuilders;
 
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 
 import java.io.Serializable;
 import java.util.Map;
 
-public record HistogramSessionRecord(
+public record HistogramAnalysisRecord(
         int blockCount,
         Map<Integer, HistogramRecord> mapBlockIdToHistogramRecord,
         double[] blockIds,

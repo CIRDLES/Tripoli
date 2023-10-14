@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.analysisPlots;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -22,39 +22,39 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.plots.sessionPlots.HistogramSessionRecord;
+import org.cirdles.tripoli.plots.analysisPlotBuilders.HistogramAnalysisRecord;
 
 /**
  * @author James F. Bowring
  */
-public class HistogramSessionPlot extends AbstractPlot {
+public class HistogramAnalysisPlot extends AbstractPlot {
 
-    private final HistogramSessionRecord histogramSessionRecord;
+    private final HistogramAnalysisRecord histogramAnalysisRecord;
     private double[] oneSigma;
 
-    private HistogramSessionPlot(Rectangle bounds, HistogramSessionRecord histogramSessionRecord) {
+    private HistogramAnalysisPlot(Rectangle bounds, HistogramAnalysisRecord histogramAnalysisRecord) {
         super(bounds,
                 75, 25,
-                new String[]{histogramSessionRecord.title()[0]
-                        + "  " + "X\u0305" + "=" + String.format("%8.5g", histogramSessionRecord.sessionMean()).trim()
-                        , "\u00B1" + String.format("%8.5g", histogramSessionRecord.sessionOneSigma()).trim()},
-                histogramSessionRecord.xAxisLabel(),
-                histogramSessionRecord.yAxisLabel());
-        this.histogramSessionRecord = histogramSessionRecord;
+                new String[]{histogramAnalysisRecord.title()[0]
+                        + "  " + "X\u0305" + "=" + String.format("%8.5g", histogramAnalysisRecord.sessionMean()).trim()
+                        , "\u00B1" + String.format("%8.5g", histogramAnalysisRecord.sessionOneSigma()).trim()},
+                histogramAnalysisRecord.xAxisLabel(),
+                histogramAnalysisRecord.yAxisLabel());
+        this.histogramAnalysisRecord = histogramAnalysisRecord;
     }
 
-    public static AbstractPlot generatePlot(Rectangle bounds, HistogramSessionRecord histogramSessionRecord) {
-        return new HistogramSessionPlot(bounds, histogramSessionRecord);
+    public static AbstractPlot generatePlot(Rectangle bounds, HistogramAnalysisRecord histogramAnalysisRecord) {
+        return new HistogramAnalysisPlot(bounds, histogramAnalysisRecord);
     }
 
     @Override
     public void preparePanel(boolean reScaleX, boolean reScaleY) {
-        xAxisData = histogramSessionRecord.blockIds();
+        xAxisData = histogramAnalysisRecord.blockIds();
         minX = 0.0;
-        maxX = histogramSessionRecord.blockCount() + 1;
+        maxX = histogramAnalysisRecord.blockCount() + 1;
 
-        yAxisData = histogramSessionRecord.blockMeans();
-        oneSigma = histogramSessionRecord.blockOneSigmas();
+        yAxisData = histogramAnalysisRecord.blockMeans();
+        oneSigma = histogramAnalysisRecord.blockOneSigmas();
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 
@@ -108,8 +108,8 @@ public class HistogramSessionPlot extends AbstractPlot {
         // todo: promote color to constant
         g2d.setFill(Color.rgb(255, 251, 194));
         g2d.setGlobalAlpha(0.6);
-        double mean = histogramSessionRecord.sessionMean();
-        double stdDev = histogramSessionRecord.sessionOneSigma();
+        double mean = histogramAnalysisRecord.sessionMean();
+        double stdDev = histogramAnalysisRecord.sessionOneSigma();
 
         double leftX = mapX(minX);
         if (leftX < leftMargin) leftX = leftMargin;

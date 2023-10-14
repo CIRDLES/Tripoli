@@ -24,8 +24,8 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import org.cirdles.tripoli.constants.TripoliConstants;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.sessionPlots.SpeciesIntensitySessionPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.BlockRatioCyclesSessionPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensitySessionPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 

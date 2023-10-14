@@ -29,6 +29,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPl
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
@@ -628,6 +629,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 String compareInfo = compareAnalysisMethodToDataFileSpecs(analysisMethod, analysis.getMassSpecExtractedData());
                 if (compareInfo.isBlank()) {
                     analysis.setMethod(analysisMethod);
+                    ((Analysis)analysis).initializeBlockProcessing();
                     TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedFile.getParent());
                 } else {
                     boolean choice = showChoiceDialog(
@@ -636,6 +638,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                                     + "\n\nProceed?", TripoliGUI.primaryStage);
                     if (choice) {
                         analysis.setMethod(analysisMethod);
+                        ((Analysis)analysis).initializeBlockProcessing();
                         TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedFile.getParent());
                     }
                 }

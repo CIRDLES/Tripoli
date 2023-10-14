@@ -34,7 +34,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.BlockRatioCyclesSessionPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.HistogramSinglePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.LinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.MultiLineIntensityPlot;
@@ -67,6 +67,7 @@ public abstract class AbstractPlot extends Canvas {
     protected double maxY;
 
     protected ContextMenu plotContextMenu;
+    protected MenuItem plotContextMenuItemSculpt;
     protected double mouseStartX;
     protected double mouseStartY;
     protected BigDecimal[] ticsX;

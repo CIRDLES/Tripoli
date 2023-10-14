@@ -37,7 +37,7 @@
             <Tab closable="false" text="Ensembles">
                 <AnchorPane fx:id="ensemblePlotsAnchorPane"/>
             </Tab>
-            <Tab closable="false" onSelectionChanged="#plotRatioSessionEngine" text="Ratio Session">
+            <Tab closable="false" onSelectionChanged="#plotRatioSessionEngine" text="Analysis Ratios">
                 <AnchorPane fx:id="ratioSessionAnchorPane"/>
             </Tab>
             <Tab closable="false" text="DataFit">
@@ -46,8 +46,8 @@
             <Tab closable="false" text="Beam Shape">
                 <AnchorPane fx:id="beamShapeAnchorPane"/>
             </Tab>
-            <Tab closable="false" onSelectionChanged="#plotPeakSessionEngine" text="Peak Shape Session">
-                <AnchorPane fx:id="peakSessionAnchorPane"/>
+            <Tab closable="false" onSelectionChanged="#plotPeakSessionEngine" text="Analysis Peak Shapes">
+                <AnchorPane fx:id="peakAnalysisAnchorPane"/>
             </Tab>
             <Tab closable="false" text="Log">
                 <AnchorPane fx:id="logAnchorPane"/>

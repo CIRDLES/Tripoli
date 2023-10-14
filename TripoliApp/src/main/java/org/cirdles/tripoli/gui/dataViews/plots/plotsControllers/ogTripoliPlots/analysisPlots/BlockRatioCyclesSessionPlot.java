@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.sessionPlots;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
@@ -26,8 +26,8 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.plots.compoundPlots.BlockRatioCyclesRecord;
-import org.cirdles.tripoli.plots.sessionPlots.BlockRatioCyclesSessionRecord;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockRatioCyclesRecord;
+import org.cirdles.tripoli.plots.analysisPlotBuilders.BlockRatioCyclesSessionRecord;
 
 import java.util.Map;
 

@@ -1,6 +1,6 @@
-package org.cirdles.tripoli.plots.sessionPlots;
+package org.cirdles.tripoli.plots.analysisPlotBuilders;
 
-import org.cirdles.tripoli.plots.compoundPlots.BlockRatioCyclesRecord;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockRatioCyclesRecord;
 
 import java.io.Serializable;
 import java.util.Map;

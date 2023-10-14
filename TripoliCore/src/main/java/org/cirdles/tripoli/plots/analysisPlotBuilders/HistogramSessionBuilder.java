@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.plots.sessionPlots;
+package org.cirdles.tripoli.plots.analysisPlotBuilders;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.plots.PlotBuilder;
@@ -31,7 +31,7 @@ import java.util.TreeMap;
 public class HistogramSessionBuilder extends PlotBuilder {
     //    @Serial
 //    private static final long serialVersionUID = 9180059676626735662L;
-    private HistogramSessionRecord histogramSessionRecord;
+    private HistogramAnalysisRecord histogramAnalysisRecord;
     private int blockCount;
 
     public HistogramSessionBuilder() {
@@ -40,17 +40,17 @@ public class HistogramSessionBuilder extends PlotBuilder {
     public HistogramSessionBuilder(int blockCount, List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel, true);
         this.blockCount = blockCount;
-        histogramSessionRecord = generateHistogramSession(histogramRecords);
+        histogramAnalysisRecord = generateHistogramSession(histogramRecords);
     }
 
     public static HistogramSessionBuilder initializeHistogramSession(
             int blockCount, List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
         HistogramSessionBuilder histogramSessionBuilder = new HistogramSessionBuilder(blockCount, histogramRecords, title, xAxisLabel, yAxisLabel);
-        histogramSessionBuilder.histogramSessionRecord = histogramSessionBuilder.generateHistogramSession(histogramRecords);
+        histogramSessionBuilder.histogramAnalysisRecord = histogramSessionBuilder.generateHistogramSession(histogramRecords);
         return histogramSessionBuilder;
     }
 
-    private HistogramSessionRecord generateHistogramSession(List<HistogramRecord> histogramRecords) {
+    private HistogramAnalysisRecord generateHistogramSession(List<HistogramRecord> histogramRecords) {
         List<Double> blockIdList = new ArrayList<>();
         List<Double> histogramMeans = new ArrayList<>();
         List<Double> histogramOneSigma = new ArrayList<>();
@@ -68,7 +68,7 @@ public class HistogramSessionBuilder extends PlotBuilder {
         double[] blockMeans = histogramMeans.stream().mapToDouble(d -> d).toArray();
         double[] blockOneSigmas = histogramOneSigma.stream().mapToDouble(d -> d).toArray();
 
-        return new HistogramSessionRecord(
+        return new HistogramAnalysisRecord(
                 blockCount,
                 mapBlockIdToHistogramRecord,
                 blockIds,
@@ -82,7 +82,7 @@ public class HistogramSessionBuilder extends PlotBuilder {
         );
     }
 
-    public HistogramSessionRecord getHistogramSessionRecord() {
-        return histogramSessionRecord;
+    public HistogramAnalysisRecord getHistogramSessionRecord() {
+        return histogramAnalysisRecord;
     }
 }

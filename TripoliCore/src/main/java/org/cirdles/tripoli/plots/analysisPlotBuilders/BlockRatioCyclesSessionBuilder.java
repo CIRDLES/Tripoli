@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.plots.sessionPlots;
+package org.cirdles.tripoli.plots.analysisPlotBuilders;
 
 import org.cirdles.tripoli.plots.PlotBuilder;
-import org.cirdles.tripoli.plots.compoundPlots.BlockRatioCyclesRecord;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockRatioCyclesRecord;
 import org.cirdles.tripoli.species.IsotopicRatio;
 
 import java.util.List;
