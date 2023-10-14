@@ -25,12 +25,12 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.O
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.*;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.analysisPlots.HistogramAnalysisPlot;
 import org.cirdles.tripoli.plots.PlotBuilder;
+import org.cirdles.tripoli.plots.analysisPlotBuilders.HistogramAnalysisBuilder;
+import org.cirdles.tripoli.plots.analysisPlotBuilders.PeakCentreAnalysisBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
 import org.cirdles.tripoli.plots.linePlots.*;
-import org.cirdles.tripoli.plots.analysisPlotBuilders.HistogramSessionBuilder;
-import org.cirdles.tripoli.plots.analysisPlotBuilders.PeakCentreAnalysisBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.MCMCProcess;
@@ -44,7 +44,7 @@ import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHei
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
-import static org.cirdles.tripoli.plots.analysisPlotBuilders.HistogramSessionBuilder.initializeHistogramSession;
+import static org.cirdles.tripoli.plots.analysisPlotBuilders.HistogramAnalysisBuilder.initializeHistogramAnalysis;
 import static org.cirdles.tripoli.plots.analysisPlotBuilders.PeakCentreAnalysisBuilder.initializeAnalysisPeakCentres;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.*;
 
@@ -304,10 +304,10 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
             ratiosSessionPlotsWallPane.clearTripoliPanes();
         }
         for (Map.Entry<String, List<HistogramRecord>> entry : mapRatioNameToSessionRecords.entrySet()) {
-            HistogramSessionBuilder histogramSessionBuilder = initializeHistogramSession(
+            HistogramAnalysisBuilder histogramAnalysisBuilder = initializeHistogramAnalysis(
                     analysis.getMapOfBlockIdToProcessStatus().size(), entry.getValue(), entry.getValue().get(0).title(), "Block ID", "Ratio");
             TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(ratiosSessionPlotsWallPane);
-            AbstractPlot plot = HistogramAnalysisPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), histogramSessionBuilder.getHistogramSessionRecord());
+            AbstractPlot plot = HistogramAnalysisPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), histogramAnalysisBuilder.getHistogramAnalysisRecord());
             tripoliPlotPane.addPlot(plot);
         }
         ratiosSessionPlotsWallPane.stackPlots();

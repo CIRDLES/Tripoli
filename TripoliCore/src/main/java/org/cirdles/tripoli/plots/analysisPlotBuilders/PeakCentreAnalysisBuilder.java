@@ -19,7 +19,7 @@ public class PeakCentreAnalysisBuilder extends PlotBuilder {
     protected PeakCentreAnalysisBuilder(int blockCount, List<PeakShapesOverlayRecord> peakShapesOverlayRecords, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel, true);
         this.blockCount = blockCount;
-        peakCentreAnalysisRecord = generatePeakCentreSession(peakShapesOverlayRecords);
+        peakCentreAnalysisRecord = generatePeakCentreAnalysis(peakShapesOverlayRecords);
 
     }
 
@@ -30,12 +30,12 @@ public class PeakCentreAnalysisBuilder extends PlotBuilder {
                                                                           String xAxisLabel,
                                                                           String yAxisLabel) {
         PeakCentreAnalysisBuilder peakCentreAnalysisBuilder = new PeakCentreAnalysisBuilder(blockCount, peakShapesOverlayRecords, title, xAxisLabel, yAxisLabel);
-        peakCentreAnalysisBuilder.peakCentreAnalysisRecord = peakCentreAnalysisBuilder.generatePeakCentreSession(peakShapesOverlayRecords);
+        peakCentreAnalysisBuilder.peakCentreAnalysisRecord = peakCentreAnalysisBuilder.generatePeakCentreAnalysis(peakShapesOverlayRecords);
         return peakCentreAnalysisBuilder;
     }
 
 
-    private PeakCentreAnalysisRecord generatePeakCentreSession(List<PeakShapesOverlayRecord> peakShapesOverlayRecords) {
+    private PeakCentreAnalysisRecord generatePeakCentreAnalysis(List<PeakShapesOverlayRecord> peakShapesOverlayRecords) {
         List<Double> blockIdList = new ArrayList<>();
         List<Double> peakWidths = new ArrayList<>();
 

@@ -28,29 +28,29 @@ import java.util.TreeMap;
 /**
  * @author James F. Bowring
  */
-public class HistogramSessionBuilder extends PlotBuilder {
+public class HistogramAnalysisBuilder extends PlotBuilder {
     //    @Serial
 //    private static final long serialVersionUID = 9180059676626735662L;
     private HistogramAnalysisRecord histogramAnalysisRecord;
     private int blockCount;
 
-    public HistogramSessionBuilder() {
+    public HistogramAnalysisBuilder() {
     }
 
-    public HistogramSessionBuilder(int blockCount, List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
+    public HistogramAnalysisBuilder(int blockCount, List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel, true);
         this.blockCount = blockCount;
-        histogramAnalysisRecord = generateHistogramSession(histogramRecords);
+        histogramAnalysisRecord = generateHistogramAnalysis(histogramRecords);
     }
 
-    public static HistogramSessionBuilder initializeHistogramSession(
+    public static HistogramAnalysisBuilder initializeHistogramAnalysis(
             int blockCount, List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
-        HistogramSessionBuilder histogramSessionBuilder = new HistogramSessionBuilder(blockCount, histogramRecords, title, xAxisLabel, yAxisLabel);
-        histogramSessionBuilder.histogramAnalysisRecord = histogramSessionBuilder.generateHistogramSession(histogramRecords);
-        return histogramSessionBuilder;
+        HistogramAnalysisBuilder histogramAnalysisBuilder = new HistogramAnalysisBuilder(blockCount, histogramRecords, title, xAxisLabel, yAxisLabel);
+        histogramAnalysisBuilder.histogramAnalysisRecord = histogramAnalysisBuilder.generateHistogramAnalysis(histogramRecords);
+        return histogramAnalysisBuilder;
     }
 
-    private HistogramAnalysisRecord generateHistogramSession(List<HistogramRecord> histogramRecords) {
+    private HistogramAnalysisRecord generateHistogramAnalysis(List<HistogramRecord> histogramRecords) {
         List<Double> blockIdList = new ArrayList<>();
         List<Double> histogramMeans = new ArrayList<>();
         List<Double> histogramOneSigma = new ArrayList<>();
@@ -82,7 +82,7 @@ public class HistogramSessionBuilder extends PlotBuilder {
         );
     }
 
-    public HistogramAnalysisRecord getHistogramSessionRecord() {
+    public HistogramAnalysisRecord getHistogramAnalysisRecord() {
         return histogramAnalysisRecord;
     }
 }

@@ -5,14 +5,14 @@ import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockRatioCyclesRecord;
 import java.io.Serializable;
 import java.util.Map;
 
-public record BlockRatioCyclesSessionRecord(
+public record BlockAnalysisRatioCyclesRecord(
         org.cirdles.tripoli.species.IsotopicRatio isotopicRatio,
         Map<Integer, BlockRatioCyclesRecord> mapBlockIdToBlockRatioCyclesRecord,
         int cyclesPerBlock,
-        double sessionDalyFaradayGainMean,
-        double sessionDalyFaradayGainOneSigmaAbs,
-        double sessionMean,
-        double sessionOneSigma,
+        double analysisDalyFaradayGainMean,
+        double analysisDalyFaradayGainOneSigmaAbs,
+        double analysisMean,
+        double analysisOneSigma,
         String[] title,
         String xAxisLabel,
         String yAxisLabel

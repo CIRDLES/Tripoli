@@ -11,8 +11,8 @@ public record HistogramAnalysisRecord(
         double[] blockIds,
         double[] blockMeans,
         double[] blockOneSigmas,
-        double sessionMean,
-        double sessionOneSigma,
+        double analysisMean,
+        double analysisOneSigma,
         String[] title,
         String xAxisLabel,
         String yAxisLabel

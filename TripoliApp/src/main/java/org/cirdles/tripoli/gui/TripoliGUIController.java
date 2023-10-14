@@ -149,7 +149,7 @@ public class TripoliGUIController implements Initializable {
 
     }
 
-    private void detectLatestVersion(){
+    private void detectLatestVersion() {
         try {
             URL url = new URL("https://raw.githubusercontent.com/CIRDLES/Tripoli/main/buildSrc/src/main/kotlin/common-build.gradle.kts");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -167,7 +167,7 @@ public class TripoliGUIController implements Initializable {
             con.disconnect();
             String[] contentString = content.toString().split("\"");
             String latestVersion = contentString[1];
-            if (Tripoli.VERSION.compareToIgnoreCase(latestVersion) == -1){
+            if (Tripoli.VERSION.compareToIgnoreCase(latestVersion) == -1) {
                 latestVersionHBox.setVisible(true);
                 newVersionLabel.setText("New Version v" + latestVersion + " at:");
             } else {
@@ -179,6 +179,7 @@ public class TripoliGUIController implements Initializable {
             throw new RuntimeException(e);
         }
     }
+
     private void showStartingMenus() {
         sessionManagerMenuItem.setDisable(true);
         newSessionMenuItem.setDisable(false);

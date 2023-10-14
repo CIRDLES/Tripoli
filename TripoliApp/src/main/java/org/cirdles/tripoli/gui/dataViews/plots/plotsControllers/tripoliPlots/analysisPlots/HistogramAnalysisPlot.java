@@ -36,8 +36,8 @@ public class HistogramAnalysisPlot extends AbstractPlot {
         super(bounds,
                 75, 25,
                 new String[]{histogramAnalysisRecord.title()[0]
-                        + "  " + "X\u0305" + "=" + String.format("%8.5g", histogramAnalysisRecord.sessionMean()).trim()
-                        , "\u00B1" + String.format("%8.5g", histogramAnalysisRecord.sessionOneSigma()).trim()},
+                        + "  " + "X\u0305" + "=" + String.format("%8.5g", histogramAnalysisRecord.analysisMean()).trim()
+                        , "\u00B1" + String.format("%8.5g", histogramAnalysisRecord.analysisOneSigma()).trim()},
                 histogramAnalysisRecord.xAxisLabel(),
                 histogramAnalysisRecord.yAxisLabel());
         this.histogramAnalysisRecord = histogramAnalysisRecord;
@@ -108,8 +108,8 @@ public class HistogramAnalysisPlot extends AbstractPlot {
         // todo: promote color to constant
         g2d.setFill(Color.rgb(255, 251, 194));
         g2d.setGlobalAlpha(0.6);
-        double mean = histogramAnalysisRecord.sessionMean();
-        double stdDev = histogramAnalysisRecord.sessionOneSigma();
+        double mean = histogramAnalysisRecord.analysisMean();
+        double stdDev = histogramAnalysisRecord.analysisOneSigma();
 
         double leftX = mapX(minX);
         if (leftX < leftMargin) leftX = leftMargin;

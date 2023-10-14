@@ -30,9 +30,9 @@ import javafx.scene.paint.Stop;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_STARTING_YELLOW;
 

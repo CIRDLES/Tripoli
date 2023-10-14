@@ -27,28 +27,28 @@ import java.util.TreeMap;
 /**
  * @author James F. Bowring
  */
-public class BlockRatioCyclesSessionBuilder extends PlotBuilder {
+public class BlockAnalysisRatioCyclesBuilder extends PlotBuilder {
     //    @Serial
 //    private static final long serialVersionUID = 9180059676626735662L;
-    private BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord;
+    private BlockAnalysisRatioCyclesRecord blockAnalysisRatioCyclesRecord;
 
 
-    public BlockRatioCyclesSessionBuilder() {
+    public BlockAnalysisRatioCyclesBuilder() {
     }
 
-    private BlockRatioCyclesSessionBuilder(IsotopicRatio isotopicRatio, List<BlockRatioCyclesRecord> blockRatioCyclesRecords, String xAxisLabel, String yAxisLabel) {
+    private BlockAnalysisRatioCyclesBuilder(IsotopicRatio isotopicRatio, List<BlockRatioCyclesRecord> blockRatioCyclesRecords, String xAxisLabel, String yAxisLabel) {
         super(new String[]{isotopicRatio.prettyPrint()}, xAxisLabel, yAxisLabel, true);
-        blockRatioCyclesSessionRecord = generateBlockRatioCyclesSession(isotopicRatio, blockRatioCyclesRecords);
+        blockAnalysisRatioCyclesRecord = generateBlockAnalysisRatioCycles(isotopicRatio, blockRatioCyclesRecords);
     }
 
-    public static BlockRatioCyclesSessionBuilder initializeBlockRatioCyclesSession(
+    public static BlockAnalysisRatioCyclesBuilder initializeBlockAnalysisRatioCycles(
             IsotopicRatio isotopicRatio, List<BlockRatioCyclesRecord> blockRatioCyclesRecordsList, String xAxisLabel, String yAxisLabel) {
-        BlockRatioCyclesSessionBuilder blockRatioCyclesSessionBuilder = new BlockRatioCyclesSessionBuilder(isotopicRatio, blockRatioCyclesRecordsList, xAxisLabel, yAxisLabel);
+        BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder = new BlockAnalysisRatioCyclesBuilder(isotopicRatio, blockRatioCyclesRecordsList, xAxisLabel, yAxisLabel);
 
-        return blockRatioCyclesSessionBuilder;
+        return blockAnalysisRatioCyclesBuilder;
     }
 
-    private BlockRatioCyclesSessionRecord generateBlockRatioCyclesSession(IsotopicRatio isotopicRatio, List<BlockRatioCyclesRecord> blockRatioCyclesRecordsList) {
+    private BlockAnalysisRatioCyclesRecord generateBlockAnalysisRatioCycles(IsotopicRatio isotopicRatio, List<BlockRatioCyclesRecord> blockRatioCyclesRecordsList) {
 //        List<Double> histogramMeans = new ArrayList<>();
 //        List<Double> histogramOneSigma = new ArrayList<>();
 //        DescriptiveStatistics descriptiveStatisticsRatiosByBlock = new DescriptiveStatistics();
@@ -70,8 +70,9 @@ public class BlockRatioCyclesSessionBuilder extends PlotBuilder {
 //        double[] blockMeans = histogramMeans.stream().mapToDouble(d -> d).toArray();
 //        double[] blockOneSigmas = histogramOneSigma.stream().mapToDouble(d -> d).toArray();
 
-        return new BlockRatioCyclesSessionRecord(
-                isotopicRatio, mapBlockIdToBlockRatioCyclesRecord,
+        return new BlockAnalysisRatioCyclesRecord(
+                isotopicRatio,
+                mapBlockIdToBlockRatioCyclesRecord,
                 blockRatioCyclesRecordsList.get(0).cyclesIncluded().length,
                 0.0,
                 0.0,
@@ -83,7 +84,7 @@ public class BlockRatioCyclesSessionBuilder extends PlotBuilder {
         );
     }
 
-    public BlockRatioCyclesSessionRecord getBlockRatioCyclesSessionRecord() {
-        return blockRatioCyclesSessionRecord;
+    public BlockAnalysisRatioCyclesRecord getBlockAnalysisRatioCyclesRecord() {
+        return blockAnalysisRatioCyclesRecord;
     }
 }

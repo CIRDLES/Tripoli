@@ -26,8 +26,8 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
+import org.cirdles.tripoli.plots.analysisPlotBuilders.BlockAnalysisRatioCyclesRecord;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockRatioCyclesRecord;
-import org.cirdles.tripoli.plots.analysisPlotBuilders.BlockRatioCyclesSessionRecord;
 
 import java.util.Map;
 
@@ -36,8 +36,8 @@ import static java.lang.StrictMath.log;
 /**
  * @author James F. Bowring
  */
-public class BlockRatioCyclesSessionPlot extends AbstractPlot {
-    private final BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord;
+public class BlockRatioCyclesAnalysisPlot extends AbstractPlot {
+    private final BlockAnalysisRatioCyclesRecord blockAnalysisRatioCyclesRecord;
     private Map<Integer, BlockRatioCyclesRecord> mapBlockIdToBlockRatioCyclesRecord;
     private double[] oneSigmaForCycles;
     private double sessionMean;
@@ -48,26 +48,26 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
     private boolean[] zoomFlagsXY;
     private PlotWallPane parentWallPane;
 
-    private BlockRatioCyclesSessionPlot(Rectangle bounds, BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord, PlotWallPane parentWallPane) {
+    private BlockRatioCyclesAnalysisPlot(Rectangle bounds, BlockAnalysisRatioCyclesRecord blockAnalysisRatioCyclesRecord, PlotWallPane parentWallPane) {
         super(bounds,
                 75, 25,
-                new String[]{blockRatioCyclesSessionRecord.title()[0]
-                        + "  " + "X\u0305" + "=" + String.format("%8.8g", blockRatioCyclesSessionRecord.sessionMean()).trim()
-                        , "\u00B1" + String.format("%8.5g", blockRatioCyclesSessionRecord.sessionOneSigma()).trim()},
-                blockRatioCyclesSessionRecord.xAxisLabel(),
-                blockRatioCyclesSessionRecord.yAxisLabel());
-        this.blockRatioCyclesSessionRecord = blockRatioCyclesSessionRecord;
+                new String[]{blockAnalysisRatioCyclesRecord.title()[0]
+                        + "  " + "X\u0305" + "=" + String.format("%8.8g", blockAnalysisRatioCyclesRecord.analysisMean()).trim()
+                        , "\u00B1" + String.format("%8.5g", blockAnalysisRatioCyclesRecord.analysisOneSigma()).trim()},
+                blockAnalysisRatioCyclesRecord.xAxisLabel(),
+                blockAnalysisRatioCyclesRecord.yAxisLabel());
+        this.blockAnalysisRatioCyclesRecord = blockAnalysisRatioCyclesRecord;
         this.logScale = false;
         this.zoomFlagsXY = new boolean[]{true, true};
         this.parentWallPane = parentWallPane;
     }
 
-    public static AbstractPlot generatePlot(Rectangle bounds, BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord, PlotWallPane parentWallPane) {
-        return new BlockRatioCyclesSessionPlot(bounds, blockRatioCyclesSessionRecord, parentWallPane);
+    public static AbstractPlot generatePlot(Rectangle bounds, BlockAnalysisRatioCyclesRecord blockAnalysisRatioCyclesRecord, PlotWallPane parentWallPane) {
+        return new BlockRatioCyclesAnalysisPlot(bounds, blockAnalysisRatioCyclesRecord, parentWallPane);
     }
 
-    public BlockRatioCyclesSessionRecord getBlockRatioCyclesSessionRecord() {
-        return blockRatioCyclesSessionRecord;
+    public BlockAnalysisRatioCyclesRecord getBlockRatioCyclesSessionRecord() {
+        return blockAnalysisRatioCyclesRecord;
     }
 
     public PlotWallPane getParentWallPane() {
@@ -89,8 +89,8 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
     @Override
     public void preparePanel(boolean reScaleX, boolean reScaleY) {
         // process blocks
-        mapBlockIdToBlockRatioCyclesRecord = blockRatioCyclesSessionRecord.mapBlockIdToBlockRatioCyclesRecord();
-        int cyclesPerBlock = blockRatioCyclesSessionRecord.cyclesPerBlock();
+        mapBlockIdToBlockRatioCyclesRecord = blockAnalysisRatioCyclesRecord.mapBlockIdToBlockRatioCyclesRecord();
+        int cyclesPerBlock = blockAnalysisRatioCyclesRecord.cyclesPerBlock();
 
         if (reScaleX) {
             xAxisData = new double[mapBlockIdToBlockRatioCyclesRecord.size() * cyclesPerBlock];
@@ -185,7 +185,7 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
         g2d.setStroke(dataColor.color());
         g2d.setLineWidth(1.0);
 
-        int cyclesPerBlock = blockRatioCyclesSessionRecord.cyclesPerBlock();
+        int cyclesPerBlock = blockAnalysisRatioCyclesRecord.cyclesPerBlock();
 
         for (int i = 0; i < xAxisData.length; i++) {
             if (pointInPlot(xAxisData[i], yAxisData[i])) {
@@ -287,19 +287,19 @@ public class BlockRatioCyclesSessionPlot extends AbstractPlot {
             }
         }
         sessionMean = descriptiveStatsIncludedCycles.getMean();
-        blockRatioCyclesSessionRecord.isotopicRatio().setAnalysisMean(sessionMean);
+        blockAnalysisRatioCyclesRecord.isotopicRatio().setAnalysisMean(sessionMean);
 
         sessionOneSigmaAbs = descriptiveStatsIncludedCycles.getStandardDeviation();
-        blockRatioCyclesSessionRecord.isotopicRatio().setAnalysisOneSigmaAbs(sessionOneSigmaAbs);
+        blockAnalysisRatioCyclesRecord.isotopicRatio().setAnalysisOneSigmaAbs(sessionOneSigmaAbs);
 
         sessionDalyFaradayGainMean = descriptiveStatsIncludedDFGains.getMean();
-        blockRatioCyclesSessionRecord.isotopicRatio().setAnalysisDalyFaradayGainMean(sessionDalyFaradayGainMean);
+        blockAnalysisRatioCyclesRecord.isotopicRatio().setAnalysisDalyFaradayGainMean(sessionDalyFaradayGainMean);
 
         sessionDalyFaradayGainOneSigmaAbs = descriptiveStatsIncludedDFGains.getStandardDeviation();
-        blockRatioCyclesSessionRecord.isotopicRatio().setAnalysisDalyFaradayGainOneSigmaAbs(sessionDalyFaradayGainOneSigmaAbs);
+        blockAnalysisRatioCyclesRecord.isotopicRatio().setAnalysisDalyFaradayGainOneSigmaAbs(sessionDalyFaradayGainOneSigmaAbs);
 
         plotTitle =
-                new String[]{blockRatioCyclesSessionRecord.title()[0]
+                new String[]{blockAnalysisRatioCyclesRecord.title()[0]
                         + "  " + "X\u0305" + "=" + String.format("%8.8g", sessionMean).trim()
                         , "\u00B1" + String.format("%8.5g", sessionOneSigmaAbs).trim()};
     }

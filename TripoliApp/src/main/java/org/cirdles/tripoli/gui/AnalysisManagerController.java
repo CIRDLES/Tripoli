@@ -614,12 +614,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
     }
 
-    private void removeMethod(){
+    private void removeMethod() {
         analysis.resetAnalysis();
         populateAnalysisMethodGridPane();
         populateBlocksStatus();
 
     }
+
     @FXML
     private void selectMethodFileButtonAction() {
         try {
@@ -629,7 +630,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 String compareInfo = compareAnalysisMethodToDataFileSpecs(analysisMethod, analysis.getMassSpecExtractedData());
                 if (compareInfo.isBlank()) {
                     analysis.setMethod(analysisMethod);
-                    ((Analysis)analysis).initializeBlockProcessing();
+                    ((Analysis) analysis).initializeBlockProcessing();
                     TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedFile.getParent());
                 } else {
                     boolean choice = showChoiceDialog(
@@ -638,7 +639,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                                     + "\n\nProceed?", TripoliGUI.primaryStage);
                     if (choice) {
                         analysis.setMethod(analysisMethod);
-                        ((Analysis)analysis).initializeBlockProcessing();
+                        ((Analysis) analysis).initializeBlockProcessing();
                         TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedFile.getParent());
                     }
                 }
@@ -711,7 +712,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         for (Node button : blockStatusHBox.getChildren()) {
             if ((button instanceof Button) && (null != analysis.getMapOfBlockIdToPlots().get(Integer.parseInt(button.getId())))) {
                 tuneButton((Button) button, SHOW);
-            } else if(null == analysis.getMapOfBlockIdToPlots().get(Integer.parseInt(button.getId()))){
+            } else if (null == analysis.getMapOfBlockIdToPlots().get(Integer.parseInt(button.getId()))) {
                 tuneButton((Button) button, SKIP);
             }
         }
