@@ -33,7 +33,7 @@ public record SingleBlockRawDataSetRecord(
         double[][] blockKnotInterpolationArray,
         int[] blockCycleArray,
         double[] blockRawDataArray,
-        boolean[] blockIncludedDataArray, int[] blockDetectorOrdinalIndicesArray,
+        int[] blockDetectorOrdinalIndicesArray,
         int[] blockIsotopeOrdinalIndicesArray,
         int[] blockTimeIndicesArray,
         int[] onPeakStartingIndicesOfCycles,
@@ -56,7 +56,7 @@ public record SingleBlockRawDataSetRecord(
             List<Integer> detectorOrdinalIndicesAccumulatorList,
             List<Integer> cycleAccumulatorList,
             List<Double> intensityAccumulatorList,
-            List<Boolean> intensityIncludedAccumulatorList, List<Double> timeAccumulatorList,
+            List<Double> timeAccumulatorList,
             List<Integer> timeIndexAccumulatorList,
             List<Integer> isotopeOrdinalIndicesAccumulatorList,
             Map<String, List<Double>> blockMapOfIdsToData

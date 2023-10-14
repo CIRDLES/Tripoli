@@ -19,6 +19,8 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.
 import jama.Matrix;
 import org.apache.commons.math3.linear.*;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLab;
@@ -37,7 +39,8 @@ enum SingleBlockModelInitForMCMC {
     ;
 
     static SingleBlockModelRecordWithCov initializeModelForSingleBlockMCMC(
-            AnalysisMethod analysisMethod, SingleBlockRawDataSetRecord singleBlockRawDataSetRecord, boolean provideCovariance) throws RecoverableCondition {
+            AnalysisInterface analysis, AnalysisMethod analysisMethod, SingleBlockRawDataSetRecord singleBlockRawDataSetRecord, boolean provideCovariance) throws RecoverableCondition {
+
         int baselineCount = singleBlockRawDataSetRecord.baselineDataSetMCMC().intensityAccumulatorList().size();
         int onPeakFaradayCount = singleBlockRawDataSetRecord.onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
         int onPeakPhotoMultCount = singleBlockRawDataSetRecord.onPeakPhotoMultiplierDataSetMCMC().intensityAccumulatorList().size();

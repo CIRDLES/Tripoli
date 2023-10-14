@@ -72,6 +72,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<Integer, List<EnsemblesStore.EnsembleRecord>> mapBlockIDToEnsembles = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockModelRecord> mapOfBlockIdToFinalModel = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, boolean[][]> mapOfBlockIdToIncludedPeakData = Collections.synchronizedSortedMap(new TreeMap<>());
     private String analysisName;
     private String analystName;
     private String labName;
@@ -82,6 +83,26 @@ public class Analysis implements Serializable, AnalysisInterface {
     private String dataFilePathString;
     private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
+
+   private boolean[][] onPeakDataIncludedAllBlocks = new boolean[1][1];
+
+    public boolean[][] getOnPeakDataIncludedAllBlocks() {
+        return onPeakDataIncludedAllBlocks;
+    }
+
+    public void setOnPeakDataIncludedAllBlocks(boolean[][] onPeakDataIncludedAllBlocks) {
+        this.onPeakDataIncludedAllBlocks = onPeakDataIncludedAllBlocks;
+    }
+
+    public boolean[] calcDataIncluded(){
+        int baseLineCount = mapOfBlockIdToRawData.get(1).baselineDataSetMCMC().intensityAccumulatorList().size();
+        int faradayCount = mapOfBlockIdToRawData.get(1).onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
+        int photoMultiplierCount = mapOfBlockIdToRawData.get(1).onPeakPhotoMultiplierDataSetMCMC().intensityAccumulatorList().size();
+        boolean [] dataIncluded = new boolean[baseLineCount + faradayCount + photoMultiplierCount];
+
+
+        return dataIncluded;
+    }
 
     private Analysis() {
     }
@@ -145,12 +166,26 @@ public class Analysis implements Serializable, AnalysisInterface {
                 analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
             }
             // initialize block processing state - see parallel below
+            onPeakDataIncludedAllBlocks = new boolean[analysisMethod.getSpeciesListSortedByMass().size()][];
+            for (int index = 0; index < onPeakDataIncludedAllBlocks.length; index++){
+                boolean[] row = new boolean[massSpecExtractedData.calculateSessionTimes().length];
+                Arrays.fill(row, true);
+                onPeakDataIncludedAllBlocks[index] = row;
+            }
             for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
                 mapOfBlockIdToProcessStatus.put(blockID, RUN);
                 mapOfBlockIdToModelsBurnCount.put(blockID, 0);
                 mapBlockIDToEnsembles.put(blockID, new ArrayList<>());
                 mapOfBlockIdToRawData.put(blockID, null);
                 mapOfBlockIdToFinalModel.put(blockID, null);
+
+                boolean[][] blockIncludedOnPeak = new boolean[analysisMethod.getSpeciesListSortedByMass().size()][];
+                for (int index = 0; index < blockIncludedOnPeak.length; index++){
+                    boolean[] row = new boolean[massSpecExtractedData.getBlocksData().get(blockID).onPeakIntensities().length];
+                    Arrays.fill(row, true);
+                    blockIncludedOnPeak[index] = row;
+                }
+                mapOfBlockIdToIncludedPeakData.put(blockID, blockIncludedOnPeak);
             }
         } else {
             // attempt to load specified method
@@ -167,13 +202,27 @@ public class Analysis implements Serializable, AnalysisInterface {
                                 + "\n\n at location: " + Path.of(dataFilePathString).getParent().getParent().toString() + File.separator + "Methods");
             }
 
-            // initialize block processing state
+            // initialize block processing state - see parallel above
+            onPeakDataIncludedAllBlocks = new boolean[analysisMethod.getSpeciesListSortedByMass().size()][];
+            for (int index = 0; index < onPeakDataIncludedAllBlocks.length; index++){
+                boolean[] row = new boolean[massSpecExtractedData.calculateSessionTimes().length];
+                Arrays.fill(row, true);
+                onPeakDataIncludedAllBlocks[index] = row;
+            }
             for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
                 mapOfBlockIdToProcessStatus.put(blockID, RUN);
                 mapOfBlockIdToModelsBurnCount.put(blockID, 0);
                 mapBlockIDToEnsembles.put(blockID, new ArrayList<>());
                 mapOfBlockIdToRawData.put(blockID, null);
                 mapOfBlockIdToFinalModel.put(blockID, null);
+
+                boolean[][] blockIncludedOnPeak = new boolean[analysisMethod.getSpeciesListSortedByMass().size()][];
+                for (int index = 0; index < blockIncludedOnPeak.length; index++){
+                    boolean[] row = new boolean[massSpecExtractedData.getBlocksData().get(blockID).onPeakIntensities().length];
+                    Arrays.fill(row, true);
+                    blockIncludedOnPeak[index] = row;
+                }
+                mapOfBlockIdToIncludedPeakData.put(blockID, blockIncludedOnPeak);
             }
 
             // collects the file objects from PeakCentres folder +++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -521,4 +570,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         return mapOfBlockIdToFinalModel;
     }
 
+    public Map<Integer, boolean[][]> getMapOfBlockIdToIncludedPeakData() {
+        return mapOfBlockIdToIncludedPeakData;
+    }
 }

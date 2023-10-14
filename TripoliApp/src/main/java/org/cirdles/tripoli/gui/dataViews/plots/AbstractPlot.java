@@ -84,6 +84,7 @@ public abstract class AbstractPlot extends Canvas {
     protected boolean showXaxis;
 
     protected EventHandler<MouseEvent> mouseDraggedEventHandler;
+    protected EventHandler<ScrollEvent> scrollEventEventHandler;
 
     protected PlotBuilder plotBuilder;
     ;
@@ -120,7 +121,7 @@ public abstract class AbstractPlot extends Canvas {
 
         setupPlotContextMenu();
 
-        EventHandler<ScrollEvent> scrollEventEventHandler = new EventHandler<>() {
+        scrollEventEventHandler = new EventHandler<>() {
             @Override
             public void handle(ScrollEvent event) {
                 if (mouseInHouse(event.getX(), event.getY())) {

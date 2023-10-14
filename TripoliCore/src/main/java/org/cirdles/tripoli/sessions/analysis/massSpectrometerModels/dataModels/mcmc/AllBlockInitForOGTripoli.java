@@ -43,7 +43,7 @@ public class AllBlockInitForOGTripoli {
             singleBlockRawDataSetRecords[blockIndex] = prepareSingleBlockDataForMCMC(blockIndex + 1, massSpecExtractedData, analysisMethod);
             SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithNoCov;
             try {
-                singleBlockInitialModelRecordWithNoCov = initializeModelForSingleBlockMCMC(analysis.getAnalysisMethod(), singleBlockRawDataSetRecords[blockIndex], false);
+                singleBlockInitialModelRecordWithNoCov = initializeModelForSingleBlockMCMC(analysis, analysis.getAnalysisMethod(), singleBlockRawDataSetRecords[blockIndex], false);
             } catch (RecoverableCondition e) {
                 throw new TripoliException("Ojalgo RecoverableCondition");
             }
