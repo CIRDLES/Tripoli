@@ -230,7 +230,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     public void initializeBlockProcessing() {
         for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
             mapOfBlockIdToProcessStatus.put(blockID, RUN);
-            mapOfBlockIdToModelsBurnCount.put(blockID, 0);
+//            mapOfBlockIdToModelsBurnCount.put(blockID, 0);
             mapBlockIDToEnsembles.put(blockID, new ArrayList<>());
             mapOfBlockIdToRawData.put(blockID, null);
             mapOfBlockIdToFinalModel.put(blockID, null);

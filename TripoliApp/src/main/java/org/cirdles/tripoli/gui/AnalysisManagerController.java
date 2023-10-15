@@ -651,7 +651,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         // initialize block processing state
         for (Integer blockID : analysis.getMassSpecExtractedData().getBlocksData().keySet()) {
             analysis.getMapOfBlockIdToProcessStatus().put(blockID, RUN);
-            analysis.getMapOfBlockIdToModelsBurnCount().put(blockID, 0);
         }
         populateAnalysisManagerGridPane();
     }

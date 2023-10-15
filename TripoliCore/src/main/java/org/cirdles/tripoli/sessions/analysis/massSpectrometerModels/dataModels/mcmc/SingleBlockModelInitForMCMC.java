@@ -148,7 +148,7 @@ enum SingleBlockModelInitForMCMC {
         int[] isotopeOrdinalIndices = singleBlockRawDataSetRecord.blockIsotopeOrdinalIndicesArray();
         int[] timeIndForSortingArray = singleBlockRawDataSetRecord.blockTimeIndicesArray();
         for (int dataArrayIndex = 0; dataArrayIndex < d0_data.length; dataArrayIndex++) {
-//            if (blockAllDataIncluded[dataArrayIndex]) {
+
             if (isotopeOrdinalIndices[dataArrayIndex] == iden) {
                 if (dataArrayIndex < startIndexOfPhotoMultiplierData) {
                     double calculated = (d0_data[dataArrayIndex] - baselineMeansArray[mapDetectorOrdinalToFaradayIndex.get(d0_detVec[dataArrayIndex])]) * detectorFaradayGain;
@@ -159,7 +159,7 @@ enum SingleBlockModelInitForMCMC {
                 tempTime.add(timeIndForSortingArray[dataArrayIndex]);
                 cyclesList.add(blockCycles[dataArrayIndex]);
             }
-//            }
+
         }
 
         double[] ddVer2Array = ddver2List.stream().mapToDouble(d -> d).toArray();

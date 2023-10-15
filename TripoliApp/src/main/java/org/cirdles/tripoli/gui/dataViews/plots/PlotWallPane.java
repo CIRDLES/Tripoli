@@ -229,7 +229,7 @@ public class PlotWallPane extends Pane {
         mcmcPlotsControllerInterface.plotRatioSessionEngine();
         EnsemblesStore.produceSummaryModelFromEnsembleStore(blockID, analysis);
 
-        // fire up OGTripoli style session plots
+        // fire up OGTripoli style analysis plots
         if (null != analysisManagerCallbackI) {
             analysisManagerCallbackI.reviewAndSculptDataAction();
         }

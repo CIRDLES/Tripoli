@@ -708,19 +708,11 @@ x=x0;
             }// end model loop
         }// convergence check
 
-//        // Detroit 2023 printout ensembleRecordsList
-//        Path path = Paths.get("EnsemblesForBlock_" + singleBlockCurrentModelRecord_X.blockID() + ".csv");
-//        OutputStream stream = Files.newOutputStream(path);
-//        stream.write(ensembleRecordsList.get(0).prettyPrintHeaderAsCSV("Index", analysisMethod.getIsotopicRatiosList()).getBytes());
-//        for (int i = 0; i < ensembleRecordsList.size(); i++) {
-//            stream.write(ensembleRecordsList.get(i).prettyPrintAsCSV().getBytes());
-//        }
-//        stream.close();
-
-        // for session plotting
-        // TODO: promote to analysis
+        // for analysis plotting
+        // TODO: move to analysis class?
         analysis.getMapOfBlockIdToRawData().put(singleBlockCurrentModelRecord_X.blockID(), singleBlockRawDataSetRecord);
         analysis.getMapBlockIDToEnsembles().put(singleBlockCurrentModelRecord_X.blockID(), ensembleRecordsList);
+        analysis.getMapOfBlockIdToModelsBurnCount().put(singleBlockCurrentModelRecord_X.blockID(), ensembleRecordsList.size() / 10);
 
         // default strategy
         analysis.getMapOfBlockIdToFinalModel()
