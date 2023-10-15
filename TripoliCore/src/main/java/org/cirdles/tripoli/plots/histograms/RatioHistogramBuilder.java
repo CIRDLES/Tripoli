@@ -24,6 +24,7 @@ import org.cirdles.tripoli.species.IsotopicRatio;
 public class RatioHistogramBuilder extends HistogramBuilder {
     private static final long serialVersionUID = 2597311797768082265L;
 
+    private IsotopicRatio ratio;
     private HistogramRecord invertedRatioHistogramRecord;
     private HistogramRecord logRatioHistogramRecord;
     private HistogramRecord logInvertedRatioHistogramRecord;
@@ -31,6 +32,7 @@ public class RatioHistogramBuilder extends HistogramBuilder {
 
     private RatioHistogramBuilder(int blockID, String[] title, String xAxisLabel, String yAxisLabel, boolean displayed) {
         super(blockID, title, xAxisLabel, yAxisLabel, displayed);
+        ratio = null;
         histogramRecord = null;
         invertedRatioHistogramRecord = null;
         logRatioHistogramRecord = null;
@@ -40,6 +42,7 @@ public class RatioHistogramBuilder extends HistogramBuilder {
 
     public static RatioHistogramBuilder initializeRatioHistogram(int blockID, IsotopicRatio ratio, IsotopicRatio invertedRatio, int binCount) {
         RatioHistogramBuilder ratioHistogramBuilder = new RatioHistogramBuilder(blockID, new String[]{ratio.prettyPrint()}, "Ratios", "Frequency", ratio.isDisplayed());
+        ratioHistogramBuilder.ratio = ratio;
         ratioHistogramBuilder.histogramRecord = ratioHistogramBuilder.generateHistogram(blockID, ratio.getRatioValuesForBlockEnsembles(), binCount, new String[]{ratio.prettyPrint()}, "Ratio");
         ratioHistogramBuilder.invertedRatioHistogramRecord = ratioHistogramBuilder.generateHistogram(blockID, invertedRatio.getRatioValuesForBlockEnsembles(), binCount, new String[]{invertedRatio.prettyPrint()}, "Ratio");
         ratioHistogramBuilder.logRatioHistogramRecord = ratioHistogramBuilder.generateHistogram(blockID, ratio.getLogRatioValuesForBlockEnsembles(), binCount, new String[]{"Log " + ratio.prettyPrint()}, "LogRatio");
@@ -57,5 +60,9 @@ public class RatioHistogramBuilder extends HistogramBuilder {
 
     public HistogramRecord getLogInvertedRatioHistogramRecord() {
         return logInvertedRatioHistogramRecord;
+    }
+
+    public IsotopicRatio getRatio() {
+        return ratio;
     }
 }

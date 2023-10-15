@@ -19,6 +19,7 @@ package org.cirdles.tripoli.plots.analysisPlotBuilders;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
+import org.cirdles.tripoli.species.IsotopicRatio;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,45 +38,52 @@ public class HistogramAnalysisBuilder extends PlotBuilder {
     public HistogramAnalysisBuilder() {
     }
 
-    public HistogramAnalysisBuilder(int blockCount, List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
+    private HistogramAnalysisBuilder(int blockCount, List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel, true);
         this.blockCount = blockCount;
-        histogramAnalysisRecord = generateHistogramAnalysis(histogramRecords);
+//        histogramAnalysisRecord = generateHistogramAnalysis(ratio, histogramRecords);
     }
 
     public static HistogramAnalysisBuilder initializeHistogramAnalysis(
-            int blockCount, List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
+            int blockCount, IsotopicRatio ratio, List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
         HistogramAnalysisBuilder histogramAnalysisBuilder = new HistogramAnalysisBuilder(blockCount, histogramRecords, title, xAxisLabel, yAxisLabel);
-        histogramAnalysisBuilder.histogramAnalysisRecord = histogramAnalysisBuilder.generateHistogramAnalysis(histogramRecords);
+        histogramAnalysisBuilder.histogramAnalysisRecord = histogramAnalysisBuilder.generateHistogramAnalysis(ratio, histogramRecords);
         return histogramAnalysisBuilder;
     }
 
-    private HistogramAnalysisRecord generateHistogramAnalysis(List<HistogramRecord> histogramRecords) {
+    private HistogramAnalysisRecord generateHistogramAnalysis(IsotopicRatio ratio, List<HistogramRecord> histogramRecords) {
         List<Double> blockIdList = new ArrayList<>();
         List<Double> histogramMeans = new ArrayList<>();
         List<Double> histogramOneSigma = new ArrayList<>();
-        DescriptiveStatistics descriptiveStatisticsRatiosByBlock = new DescriptiveStatistics();
+        DescriptiveStatistics descriptiveStatisticsAnalysisRatios = new DescriptiveStatistics();
 
         Map<Integer, HistogramRecord> mapBlockIdToHistogramRecord = new TreeMap<>();
         for (HistogramRecord histogramRecord : histogramRecords) {
             mapBlockIdToHistogramRecord.put(histogramRecord.blockID(), histogramRecord);
             blockIdList.add((double) histogramRecord.blockID());
             histogramMeans.add(histogramRecord.mean());
-            descriptiveStatisticsRatiosByBlock.addValue(histogramRecord.mean());
+            descriptiveStatisticsAnalysisRatios.addValue(histogramRecord.mean());
             histogramOneSigma.add(histogramRecord.standardDeviation());
         }
         double[] blockIds = blockIdList.stream().mapToDouble(d -> d).toArray();
         double[] blockMeans = histogramMeans.stream().mapToDouble(d -> d).toArray();
         double[] blockOneSigmas = histogramOneSigma.stream().mapToDouble(d -> d).toArray();
 
+        double analysisRatiosMean = descriptiveStatisticsAnalysisRatios.getMean();
+        double analysisRatiosOneSigma = descriptiveStatisticsAnalysisRatios.getStandardDeviation();
+
+        ratio.setAnalysisMean(analysisRatiosMean);
+        ratio.setAnalysisOneSigmaAbs(analysisRatiosOneSigma);
+
         return new HistogramAnalysisRecord(
+                ratio,
                 blockCount,
                 mapBlockIdToHistogramRecord,
                 blockIds,
                 blockMeans,
                 blockOneSigmas,
-                descriptiveStatisticsRatiosByBlock.getMean(),
-                descriptiveStatisticsRatiosByBlock.getStandardDeviation(),
+                analysisRatiosMean,
+                analysisRatiosOneSigma,
                 title,
                 "Block Number",
                 "Ratio"

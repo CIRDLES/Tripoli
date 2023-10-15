@@ -717,24 +717,24 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
     }
 
-//    /**
-//     * Restores block status buttons to their saved state
-//     */
-//    public void refreshAllBlocksStatusAction() {
-//        for (Node button : blockStatusHBox.getChildren()) {
-//            if ((button instanceof Button) && (null != analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())))) {
-//                tuneButton((Button) button, analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())));
-//            }
-//        }
-//    }
-//
-//    /**
-//     *
-//     */
-//    @Override
-//    public void callbackRefreshBlocksStatus() {
-//        refreshAllBlocksStatusAction();
-//    }
+    /**
+     * Restores block status buttons to their saved state
+     */
+    public void refreshAllBlocksStatusAction() {
+        for (Node button : blockStatusHBox.getChildren()) {
+            if ((button instanceof Button) && (null != analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())))) {
+                tuneButton((Button) button, analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())));
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void callbackRefreshBlocksStatus() {
+        refreshAllBlocksStatusAction();
+    }
 
     @Override
     public void callBackSetBlockIncludedStatus(int blockID, boolean included) {

@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 public record HistogramAnalysisRecord(
-        int blockCount,
+        org.cirdles.tripoli.species.IsotopicRatio ratio, int blockCount,
         Map<Integer, HistogramRecord> mapBlockIdToHistogramRecord,
         double[] blockIds,
         double[] blockMeans,

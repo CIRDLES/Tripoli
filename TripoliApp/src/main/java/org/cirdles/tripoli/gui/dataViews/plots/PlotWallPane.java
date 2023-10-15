@@ -239,7 +239,7 @@ public class PlotWallPane extends Pane {
         int burnIn = (int) analysis.getMapOfBlockIdToPlots().get(mcmcPlotsControllerInterface.getCurrentBlockID())[5][0].getShadeWidthForModelConvergence();
         int blockIDCount = analysis.getMapOfBlockIdToPlots().keySet().size() + 1;
         for (int blockID = 1; blockID < blockIDCount; blockID++) {
-            ((Analysis)analysis).updateShadeWidthsForConvergenceLinePlots(blockID, burnIn);
+            ((Analysis) analysis).updateShadeWidthsForConvergenceLinePlots(blockID, burnIn);
             analysis.getMapOfBlockIdToModelsBurnCount().put(blockID, burnIn);
             blockEnsemblePlotEngine(blockID, analysis);
             mcmcPlotsControllerInterface.plotEnsemblesEngine(analysis.getMapOfBlockIdToPlots().get(blockID));
@@ -398,7 +398,7 @@ public class PlotWallPane extends Pane {
     private void rebuildPlot(boolean reScaleX, boolean reScaleY) {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
-                ((TripoliPlotPane) plotPane).updateRatiosSessionPlotted(logScale, reScaleX, reScaleY);
+                ((TripoliPlotPane) plotPane).updateAnalysisRatiosPlotted(logScale, reScaleX, reScaleY);
             }
         }
     }
@@ -406,7 +406,7 @@ public class PlotWallPane extends Pane {
     private void resetZoom() {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
-                ((TripoliPlotPane) plotPane).resetRatioSessionZoom(zoomFlagsXY);
+                ((TripoliPlotPane) plotPane).resetAnalysisRatioZoom(zoomFlagsXY);
             }
         }
     }

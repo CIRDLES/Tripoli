@@ -274,7 +274,7 @@ public class TripoliPlotPane extends Pane {
         }
     }
 
-    public void updateRatiosSessionPlotted(boolean logScale, boolean reScaleX, boolean reScaleY) {
+    public void updateAnalysisRatiosPlotted(boolean logScale, boolean reScaleX, boolean reScaleY) {
         if (!getChildren().isEmpty() && (getChildren().get(0) instanceof BlockRatioCyclesAnalysisPlot)) {
             ((BlockRatioCyclesAnalysisPlot) getChildren().get(0)).setLogScale(logScale);
 
@@ -282,11 +282,11 @@ public class TripoliPlotPane extends Pane {
         }
     }
 
-    public void resetIntensitySessionZoom(boolean[] zoomFlagsXY) {
+    public void resetAnalysisIntensityZoom(boolean[] zoomFlagsXY) {
         ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setZoomFlagsXY(zoomFlagsXY);
     }
 
-    public void resetRatioSessionZoom(boolean[] zoomFlagsXY) {
+    public void resetAnalysisRatioZoom(boolean[] zoomFlagsXY) {
         ((BlockRatioCyclesAnalysisPlot) getChildren().get(0)).setZoomFlagsXY(zoomFlagsXY);
     }
 

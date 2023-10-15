@@ -293,7 +293,7 @@ public class PlotWallPaneOGTripoli extends Pane {
     private void resetZoom() {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
-                ((TripoliPlotPane) plotPane).resetIntensitySessionZoom(zoomFlagsXY);
+                ((TripoliPlotPane) plotPane).resetAnalysisIntensityZoom(zoomFlagsXY);
             }
         }
     }

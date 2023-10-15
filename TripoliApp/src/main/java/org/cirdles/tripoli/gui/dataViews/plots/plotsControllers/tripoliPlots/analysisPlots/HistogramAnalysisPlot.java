@@ -30,7 +30,7 @@ import org.cirdles.tripoli.plots.analysisPlotBuilders.HistogramAnalysisRecord;
 public class HistogramAnalysisPlot extends AbstractPlot {
 
     private final HistogramAnalysisRecord histogramAnalysisRecord;
-    private double[] oneSigma;
+    private double[] yAxisDataOneSigma;
 
     private HistogramAnalysisPlot(Rectangle bounds, HistogramAnalysisRecord histogramAnalysisRecord) {
         super(bounds,
@@ -54,13 +54,13 @@ public class HistogramAnalysisPlot extends AbstractPlot {
         maxX = histogramAnalysisRecord.blockCount() + 1;
 
         yAxisData = histogramAnalysisRecord.blockMeans();
-        oneSigma = histogramAnalysisRecord.blockOneSigmas();
+        yAxisDataOneSigma = histogramAnalysisRecord.blockOneSigmas();
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 
         for (int i = 0; i < yAxisData.length; i++) {
-            minY = StrictMath.min(minY, yAxisData[i] - oneSigma[i]);
-            maxY = StrictMath.max(maxY, yAxisData[i] + oneSigma[i]);
+            minY = StrictMath.min(minY, yAxisData[i] - yAxisDataOneSigma[i]);
+            maxY = StrictMath.max(maxY, yAxisData[i] + yAxisDataOneSigma[i]);
         }
 
         displayOffsetX = 0.0;
@@ -92,8 +92,8 @@ public class HistogramAnalysisPlot extends AbstractPlot {
             if (pointInPlot(xAxisData[i], yAxisData[i])) {
                 double dataX = mapX(xAxisData[i]);
                 double dataY = mapY(yAxisData[i]);
-                double dataYplusSigma = mapY(yAxisData[i] + oneSigma[i]);
-                double dataYminusSigma = mapY(yAxisData[i] - oneSigma[i]);
+                double dataYplusSigma = mapY(yAxisData[i] + yAxisDataOneSigma[i]);
+                double dataYminusSigma = mapY(yAxisData[i] - yAxisDataOneSigma[i]);
 
                 g2d.fillOval(dataX - 2.5, dataY - 2.5, 5, 5);
                 g2d.strokeLine(dataX, dataY, dataX, dataYplusSigma);

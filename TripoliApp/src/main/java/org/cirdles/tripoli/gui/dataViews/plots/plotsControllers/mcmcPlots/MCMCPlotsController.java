@@ -34,6 +34,7 @@ import org.cirdles.tripoli.plots.linePlots.*;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.MCMCProcess;
+import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
 import java.net.URL;
@@ -264,18 +265,19 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
     @FXML
     public void plotRatioSessionEngine() {
         Map<Integer, PlotBuilder[][]> mapOfBlockIdToPlots = analysis.getMapOfBlockIdToPlots();
-        Map<String, List<HistogramRecord>> mapRatioNameToSessionRecords = new TreeMap<>();
+        Map<IsotopicRatio, List<HistogramRecord>> mapRatioNameToAnalysisRecords = new TreeMap<>();
         Iterator<Map.Entry<Integer, PlotBuilder[][]>> iterator = mapOfBlockIdToPlots.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<Integer, PlotBuilder[][]> entry = iterator.next();
             if (analysis.getMapOfBlockIdToProcessStatus().get(entry.getKey()) == SHOW) {
                 PlotBuilder[] ratiosPlotBuilder = entry.getValue()[PLOT_INDEX_RATIOS];
                 for (PlotBuilder ratioPlotBuilder : ratiosPlotBuilder) {
+                    IsotopicRatio ratio = ((RatioHistogramBuilder) ratioPlotBuilder).getRatio();
                     if (ratioPlotBuilder.isDisplayed()) {
                         String ratioName = ratioPlotBuilder.getTitle()[0];
-                        mapRatioNameToSessionRecords.computeIfAbsent(ratioName, k -> new ArrayList<>());
+                        mapRatioNameToAnalysisRecords.computeIfAbsent(ratio, k -> new ArrayList<>());
                         boolean useInvertedRatio = analysis.getAnalysisMethod().getMapOfRatioNamesToInvertedFlag().get(ratioName);
-                        mapRatioNameToSessionRecords.get(ratioName).add(
+                        mapRatioNameToAnalysisRecords.get(ratio).add(
                                 useInvertedRatio ?
                                         ((RatioHistogramBuilder) ratioPlotBuilder).getInvertedRatioHistogramRecord()
                                         : ((RatioHistogramBuilder) ratioPlotBuilder).getHistogramRecord());
@@ -303,9 +305,10 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
             ratiosSessionPlotsWallPane = (PlotWallPane) ratioSessionAnchorPane.getChildren().get(0);
             ratiosSessionPlotsWallPane.clearTripoliPanes();
         }
-        for (Map.Entry<String, List<HistogramRecord>> entry : mapRatioNameToSessionRecords.entrySet()) {
+
+        for (Map.Entry<IsotopicRatio, List<HistogramRecord>> entry : mapRatioNameToAnalysisRecords.entrySet()) {
             HistogramAnalysisBuilder histogramAnalysisBuilder = initializeHistogramAnalysis(
-                    analysis.getMapOfBlockIdToProcessStatus().size(), entry.getValue(), entry.getValue().get(0).title(), "Block ID", "Ratio");
+                    analysis.getMapOfBlockIdToProcessStatus().size(), entry.getKey(), entry.getValue(), entry.getValue().get(0).title(), "Block ID", "Ratio");
             TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(ratiosSessionPlotsWallPane);
             AbstractPlot plot = HistogramAnalysisPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), histogramAnalysisBuilder.getHistogramAnalysisRecord());
             tripoliPlotPane.addPlot(plot);
@@ -365,7 +368,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
     }
 
     private synchronized void plotBlockEngine(Task<String> plotBuildersTaska) {
-//        analysisManagerCallbackI.callbackRefreshBlocksStatus();
+        analysisManagerCallbackI.callbackRefreshBlocksStatus();
 
         PlotBuildersTaskInterface plotBuildersTask = (PlotBuildersTaskInterface) plotBuildersTaska;
 

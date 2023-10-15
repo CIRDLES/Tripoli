@@ -287,10 +287,8 @@ public class BlockRatioCyclesAnalysisPlot extends AbstractPlot {
             }
         }
         sessionMean = descriptiveStatsIncludedCycles.getMean();
-        blockAnalysisRatioCyclesRecord.isotopicRatio().setAnalysisMean(sessionMean);
 
         sessionOneSigmaAbs = descriptiveStatsIncludedCycles.getStandardDeviation();
-        blockAnalysisRatioCyclesRecord.isotopicRatio().setAnalysisOneSigmaAbs(sessionOneSigmaAbs);
 
         sessionDalyFaradayGainMean = descriptiveStatsIncludedDFGains.getMean();
         blockAnalysisRatioCyclesRecord.isotopicRatio().setAnalysisDalyFaradayGainMean(sessionDalyFaradayGainMean);
