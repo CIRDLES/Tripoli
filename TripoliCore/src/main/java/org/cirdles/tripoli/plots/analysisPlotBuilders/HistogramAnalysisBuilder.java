@@ -38,15 +38,14 @@ public class HistogramAnalysisBuilder extends PlotBuilder {
     public HistogramAnalysisBuilder() {
     }
 
-    private HistogramAnalysisBuilder(int blockCount, List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
+    private HistogramAnalysisBuilder(int blockCount, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel, true);
         this.blockCount = blockCount;
-//        histogramAnalysisRecord = generateHistogramAnalysis(ratio, histogramRecords);
     }
 
     public static HistogramAnalysisBuilder initializeHistogramAnalysis(
             int blockCount, IsotopicRatio ratio, List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
-        HistogramAnalysisBuilder histogramAnalysisBuilder = new HistogramAnalysisBuilder(blockCount, histogramRecords, title, xAxisLabel, yAxisLabel);
+        HistogramAnalysisBuilder histogramAnalysisBuilder = new HistogramAnalysisBuilder(blockCount, title, xAxisLabel, yAxisLabel);
         histogramAnalysisBuilder.histogramAnalysisRecord = histogramAnalysisBuilder.generateHistogramAnalysis(ratio, histogramRecords);
         return histogramAnalysisBuilder;
     }

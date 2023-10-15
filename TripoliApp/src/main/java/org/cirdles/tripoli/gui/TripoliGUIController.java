@@ -173,10 +173,8 @@ public class TripoliGUIController implements Initializable {
             } else {
                 latestVersionHBox.setVisible(false);
             }
-
-
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            //throw new RuntimeException(e);
         }
     }
 

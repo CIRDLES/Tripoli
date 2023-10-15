@@ -365,10 +365,8 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
         int blockID = 0;
         for (int i = 0; i < xAxisBlockIDs.length; i++) {
             double dataX = mapX(xAxisData[i]) - 5.0;
-            if (!inSculptorMode) {
-                if ((xAxisBlockIDs[i] > blockID) && xInPlot(xAxisData[i])) {
-                    g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
-                }
+            if (!inSculptorMode && (xAxisBlockIDs[i] > blockID) && xInPlot(xAxisData[i])) {
+                g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
             }
             if (xAxisBlockIDs[i] > blockID) {
                 blockID++;
