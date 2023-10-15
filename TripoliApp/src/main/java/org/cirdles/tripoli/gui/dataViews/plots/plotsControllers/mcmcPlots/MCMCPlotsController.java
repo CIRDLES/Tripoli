@@ -218,7 +218,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
                         showLogsEngine(finalBlockIndex);
                     }
                     if (activeServices.isEmpty()) {
-                        if (blocksToProcess.size() > 1) plotRatioSessionEngine();
+                        //if (blocksToProcess.size() > 1) plotRatioSessionEngine();
                         listViewOfBlocks.setDisable(false);
                         listViewOfBlocks.getSelectionModel().selectFirst();
                         progressBar.setProgress(1.0);

@@ -19,6 +19,7 @@ package org.cirdles.tripoli.sessions.analysis;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.*;
@@ -83,6 +84,12 @@ public class Analysis implements Serializable, AnalysisInterface {
     private String dataFilePathString;
     private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
+
+    private DescriptiveStatistics[] analysisSpeciesStats = new DescriptiveStatistics[1];
+
+    public void setAnalysisSpeciesStats(DescriptiveStatistics[] analysisSpeciesStats) {
+        this.analysisSpeciesStats = analysisSpeciesStats;
+    }
 
     private Analysis() {
     }
@@ -424,14 +431,23 @@ public class Analysis implements Serializable, AnalysisInterface {
         sb.append("Measurement Outputs - Fraction\n");
         sb.append("Name, Mean, Standard Error (1s abs), Number Included, Number Total\n");
 
+        int speciesIndex = 0;
         for (SpeciesRecordInterface species : analysisMethod.getSpeciesList()) {
-            sb.append("intensity " + species.prettyPrintShortForm() + " (cps), , , , \n");
+            sb.append("intensity " + species.prettyPrintShortForm() + " (cps)" + ","
+                    + analysisSpeciesStats[speciesIndex].getMean() + ","
+                    + analysisSpeciesStats[speciesIndex].getStandardDeviation() + ", , \n");
+
+            speciesIndex++;
         }
         for (IsotopicRatio ratio : analysisMethod.getIsotopicRatiosList()) {
-            sb.append(ratio.prettyPrint() + "," + ratio.getAnalysisMean() + "," + ratio.getAnalysisOneSigmaAbs() + ", , \n");
+            sb.append(ratio.prettyPrint() + ","
+                    + ratio.getAnalysisMean() + ","
+                    + ratio.getAnalysisOneSigmaAbs() + ", , \n");
         }
 
-        sb.append("D/F Gain" + "," + analysisMethod.getIsotopicRatiosList().get(0).getAnalysisDalyFaradayGainMean() + "," + analysisMethod.getIsotopicRatiosList().get(0).getAnalysisDalyFaradayGainOneSigmaAbs() + ", , \n");
+        sb.append("D/F Gain" + ","
+                + analysisMethod.getIsotopicRatiosList().get(0).getAnalysisDalyFaradayGainMean() + ","
+                + analysisMethod.getIsotopicRatiosList().get(0).getAnalysisDalyFaradayGainOneSigmaAbs() + ", , \n");
 
         return sb.toString();
     }

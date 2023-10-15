@@ -8,6 +8,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
@@ -187,7 +188,6 @@ public class OGTripoliViewController {
         double[][] onPeakBaseline = new double[countOfSpecies * 4][xAxis.length];
         double[][] onPeakGain = new double[countOfSpecies * 4][xAxis.length];
 
-
         Set<Detector> detectors = analysis.getAnalysisMethod().getSequenceTable().getMapOfDetectorsToSequenceCells().keySet();
         Map<Integer, Double> mapOfOrdinalDetectorsToResistance = new TreeMap<>();
         for (Detector detector : detectors) {
@@ -234,7 +234,6 @@ public class OGTripoliViewController {
 
                 SingleBlockRawDataSetRecord.SingleBlockRawDataRecord onPeakPhotoMultiplierDataSet = singleBlockRawDataSetRecords[blockIndex].onPeakPhotoMultiplierDataSetMCMC();
                 intensityAccumulatorList = onPeakPhotoMultiplierDataSet.intensityAccumulatorList();
-                ;
                 timeIndexAccumulatorList = onPeakPhotoMultiplierDataSet.timeIndexAccumulatorList();
                 isotopeOrdinalIndexAccumulatorList = onPeakPhotoMultiplierDataSet.isotopeOrdinalIndicesAccumulatorList();
                 detectorOrdinalIndicesAccumulatorList = onPeakPhotoMultiplierDataSet.detectorOrdinalIndicesAccumulatorList();
@@ -254,6 +253,24 @@ public class OGTripoliViewController {
                 }
             }
         }
+
+        // accumulate intensity statistics
+        DescriptiveStatistics[] intensityStatistics = new DescriptiveStatistics[countOfSpecies];
+        for (int speciesIndex = 0; speciesIndex < countOfSpecies; speciesIndex++){
+            intensityStatistics[speciesIndex] = new DescriptiveStatistics();
+        }
+        for (int speciesIndex = 0; speciesIndex < countOfSpecies; speciesIndex++) {
+            for (int xIndex = 0; xIndex < xAxis.length; xIndex++) {
+                if (onPeakDataCounts[speciesIndex * 4][xIndex] != 0.0) {
+                    intensityStatistics[speciesIndex].addValue(onPeakDataCounts[speciesIndex * 4][xIndex] - onPeakBaseline[speciesIndex * 4][xIndex]);
+                }
+                if (onPeakDataCounts[speciesIndex * 4 + 2][xIndex] != 0.0) {
+                    intensityStatistics[speciesIndex].addValue(onPeakDataCounts[speciesIndex * 4 + 2][xIndex] / onPeakGain[speciesIndex * 4 + 2][xIndex]);
+                }
+            }
+        }
+
+        ((Analysis)analysis).setAnalysisSpeciesStats(intensityStatistics);
 
         PlotBuilder plotBuilder = SpeciesIntensityAnalysisBuilder.initializeSpeciesIntensityAnalysisPlot(
                 analysis, xAxis, onPeakDataIncludedAllBlocks, xAxisBlockIDs, onPeakDataCounts, onPeakDataAmpResistance, onPeakBaseline, onPeakGain,
