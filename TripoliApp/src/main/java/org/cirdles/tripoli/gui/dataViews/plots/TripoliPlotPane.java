@@ -24,8 +24,8 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import org.cirdles.tripoli.constants.TripoliConstants;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.sessionPlots.SpeciesIntensitySessionPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.BlockRatioCyclesAnalysisPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
@@ -260,34 +260,34 @@ public class TripoliPlotPane extends Pane {
 
     public void updateSpeciesPlotted(
             boolean[] speciesChecked, boolean showFaradays, boolean showPMs, boolean showModels, TripoliConstants.IntensityUnits intensityUnits, boolean baselineCorr, boolean gainCorr, boolean logScale, boolean reScaleX, boolean reScaleY) {
-        if (!getChildren().isEmpty() && (getChildren().get(0) instanceof SpeciesIntensitySessionPlot)) {
-            ((SpeciesIntensitySessionPlot) getChildren().get(0)).setSpeciesChecked(speciesChecked);
-            ((SpeciesIntensitySessionPlot) getChildren().get(0)).setShowFaradays(showFaradays);
-            ((SpeciesIntensitySessionPlot) getChildren().get(0)).setShowPMs(showPMs);
-            ((SpeciesIntensitySessionPlot) getChildren().get(0)).setShowModels(showModels);
-            ((SpeciesIntensitySessionPlot) getChildren().get(0)).setIntensityUnits(intensityUnits);
-            ((SpeciesIntensitySessionPlot) getChildren().get(0)).setBaselineCorr(baselineCorr);
-            ((SpeciesIntensitySessionPlot) getChildren().get(0)).setGainCorr(gainCorr);
-            ((SpeciesIntensitySessionPlot) getChildren().get(0)).setLogScale(logScale);
+        if (!getChildren().isEmpty() && (getChildren().get(0) instanceof SpeciesIntensityAnalysisPlot)) {
+            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setSpeciesChecked(speciesChecked);
+            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setShowFaradays(showFaradays);
+            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setShowPMs(showPMs);
+            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setShowModels(showModels);
+            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setIntensityUnits(intensityUnits);
+            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setBaselineCorr(baselineCorr);
+            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setGainCorr(gainCorr);
+            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setLogScale(logScale);
 
-            ((SpeciesIntensitySessionPlot) getChildren().get(0)).refreshPanel(reScaleX, reScaleY);
+            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).refreshPanel(reScaleX, reScaleY);
         }
     }
 
-    public void updateRatiosSessionPlotted(boolean logScale, boolean reScaleX, boolean reScaleY) {
-        if (!getChildren().isEmpty() && (getChildren().get(0) instanceof BlockRatioCyclesSessionPlot)) {
-            ((BlockRatioCyclesSessionPlot) getChildren().get(0)).setLogScale(logScale);
+    public void updateAnalysisRatiosPlotted(boolean logScale, boolean reScaleX, boolean reScaleY) {
+        if (!getChildren().isEmpty() && (getChildren().get(0) instanceof BlockRatioCyclesAnalysisPlot)) {
+            ((BlockRatioCyclesAnalysisPlot) getChildren().get(0)).setLogScale(logScale);
 
-            ((BlockRatioCyclesSessionPlot) getChildren().get(0)).refreshPanel(reScaleX, reScaleY);
+            ((BlockRatioCyclesAnalysisPlot) getChildren().get(0)).refreshPanel(reScaleX, reScaleY);
         }
     }
 
-    public void resetIntensitySessionZoom(boolean[] zoomFlagsXY) {
-        ((SpeciesIntensitySessionPlot) getChildren().get(0)).setZoomFlagsXY(zoomFlagsXY);
+    public void resetAnalysisIntensityZoom(boolean[] zoomFlagsXY) {
+        ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setZoomFlagsXY(zoomFlagsXY);
     }
 
-    public void resetRatioSessionZoom(boolean[] zoomFlagsXY) {
-        ((BlockRatioCyclesSessionPlot) getChildren().get(0)).setZoomFlagsXY(zoomFlagsXY);
+    public void resetAnalysisRatioZoom(boolean[] zoomFlagsXY) {
+        ((BlockRatioCyclesAnalysisPlot) getChildren().get(0)).setZoomFlagsXY(zoomFlagsXY);
     }
 
     private record PlotLocation(

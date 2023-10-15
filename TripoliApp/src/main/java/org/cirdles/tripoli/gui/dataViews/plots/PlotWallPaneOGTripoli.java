@@ -43,8 +43,8 @@ public class PlotWallPaneOGTripoli extends Pane {
     private boolean showPMs = true;
     private boolean showModels = true;
     private TripoliConstants.IntensityUnits intensityUnits = TripoliConstants.IntensityUnits.COUNTS;
-    private boolean baselineCorr;
-    private boolean gainCorr;
+    private boolean baselineCorr = true;
+    private boolean gainCorr = true;
     private boolean logScale;
 
     private boolean[] zoomFlagsXY = new boolean[2];
@@ -186,7 +186,7 @@ public class PlotWallPaneOGTripoli extends Pane {
         toolBar.getItems().add(labelCorr);
 
         baseLineCB = new CheckBox("BL");
-        baseLineCB.setSelected(false);
+        baseLineCB.setSelected(true);
         toolBar.getItems().add(baseLineCB);
         baseLineCB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
@@ -198,6 +198,7 @@ public class PlotWallPaneOGTripoli extends Pane {
                 });
 
         gainCB = new CheckBox("Gain");
+        gainCB.setSelected(true);
         toolBar.getItems().add(gainCB);
         gainCB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
@@ -292,7 +293,7 @@ public class PlotWallPaneOGTripoli extends Pane {
     private void resetZoom() {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
-                ((TripoliPlotPane) plotPane).resetIntensitySessionZoom(zoomFlagsXY);
+                ((TripoliPlotPane) plotPane).resetAnalysisIntensityZoom(zoomFlagsXY);
             }
         }
     }

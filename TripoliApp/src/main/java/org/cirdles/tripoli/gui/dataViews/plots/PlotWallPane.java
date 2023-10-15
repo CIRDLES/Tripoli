@@ -26,7 +26,7 @@ import javafx.scene.layout.Pane;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.sessionPlots.BlockRatioCyclesSessionPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.BlockRatioCyclesAnalysisPlot;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
@@ -229,7 +229,27 @@ public class PlotWallPane extends Pane {
         mcmcPlotsControllerInterface.plotRatioSessionEngine();
         EnsemblesStore.produceSummaryModelFromEnsembleStore(blockID, analysis);
 
-        // fire up OGTripoli style session plots
+        // fire up OGTripoli style analysis plots
+        if (null != analysisManagerCallbackI) {
+            analysisManagerCallbackI.reviewAndSculptDataAction();
+        }
+    }
+
+    public void applyBurnInAllBlocks() {
+        int burnIn = (int) analysis.getMapOfBlockIdToPlots().get(mcmcPlotsControllerInterface.getCurrentBlockID())[5][0].getShadeWidthForModelConvergence();
+        int blockIDCount = analysis.getMapOfBlockIdToPlots().keySet().size() + 1;
+        for (int blockID = 1; blockID < blockIDCount; blockID++) {
+            ((Analysis) analysis).updateShadeWidthsForConvergenceLinePlots(blockID, burnIn);
+            analysis.getMapOfBlockIdToModelsBurnCount().put(blockID, burnIn);
+            blockEnsemblePlotEngine(blockID, analysis);
+            mcmcPlotsControllerInterface.plotEnsemblesEngine(analysis.getMapOfBlockIdToPlots().get(blockID));
+//            mcmcPlotsControllerInterface.plotRatioSessionEngine();
+            EnsemblesStore.produceSummaryModelFromEnsembleStore(blockID, analysis);
+        }
+
+        mcmcPlotsControllerInterface.plotRatioSessionEngine();
+
+        // fire up OGTripoli style analysis plots
         if (null != analysisManagerCallbackI) {
             analysisManagerCallbackI.reviewAndSculptDataAction();
         }
@@ -277,9 +297,13 @@ public class PlotWallPane extends Pane {
         }
 
         if (0 == iD.compareToIgnoreCase(PLOT_TAB_ENSEMBLES)) {
-            Button button6 = new Button("Apply BurnIn");
-            button6.setOnAction(event -> applyBurnIn());
-            toolBar.getItems().addAll(button6);
+            Button applyBurnInButton = new Button("Apply BurnIn");
+            applyBurnInButton.setOnAction(event -> applyBurnIn());
+            toolBar.getItems().addAll(applyBurnInButton);
+
+            Button applyBurnAllBlocksButton = new Button("Apply BurnIn All Blocks");
+            applyBurnAllBlocksButton.setOnAction(event -> applyBurnInAllBlocks());
+            toolBar.getItems().addAll(applyBurnAllBlocksButton);
         }
 
         getChildren().addAll(toolBar);
@@ -374,7 +398,7 @@ public class PlotWallPane extends Pane {
     private void rebuildPlot(boolean reScaleX, boolean reScaleY) {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
-                ((TripoliPlotPane) plotPane).updateRatiosSessionPlotted(logScale, reScaleX, reScaleY);
+                ((TripoliPlotPane) plotPane).updateAnalysisRatiosPlotted(logScale, reScaleX, reScaleY);
             }
         }
     }
@@ -382,7 +406,7 @@ public class PlotWallPane extends Pane {
     private void resetZoom() {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
-                ((TripoliPlotPane) plotPane).resetRatioSessionZoom(zoomFlagsXY);
+                ((TripoliPlotPane) plotPane).resetAnalysisRatioZoom(zoomFlagsXY);
             }
         }
     }
@@ -391,7 +415,7 @@ public class PlotWallPane extends Pane {
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
-                BlockRatioCyclesSessionPlot childPlot = (BlockRatioCyclesSessionPlot) ((TripoliPlotPane) child).getChildren().get(0);
+                BlockRatioCyclesAnalysisPlot childPlot = (BlockRatioCyclesAnalysisPlot) ((TripoliPlotPane) child).getChildren().get(0);
                 childPlot.setZoomChunkX(zoomChunkX);
                 childPlot.setZoomChunkY(zoomChunkY);
                 childPlot.adjustZoom();
@@ -403,7 +427,7 @@ public class PlotWallPane extends Pane {
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
-                BlockRatioCyclesSessionPlot childPlot = (BlockRatioCyclesSessionPlot) ((TripoliPlotPane) child).getChildren().get(0);
+                BlockRatioCyclesAnalysisPlot childPlot = (BlockRatioCyclesAnalysisPlot) ((TripoliPlotPane) child).getChildren().get(0);
                 childPlot.adjustOffsetsForDrag(x, y);
             }
         }
@@ -423,7 +447,7 @@ public class PlotWallPane extends Pane {
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
-                BlockRatioCyclesSessionPlot childPlot = (BlockRatioCyclesSessionPlot) ((TripoliPlotPane) child).getChildren().get(0);
+                BlockRatioCyclesAnalysisPlot childPlot = (BlockRatioCyclesAnalysisPlot) ((TripoliPlotPane) child).getChildren().get(0);
                 childPlot.adjustMouseStartsForPress(x, y);
             }
         }
@@ -434,7 +458,7 @@ public class PlotWallPane extends Pane {
         boolean included = false;
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
-                BlockRatioCyclesSessionPlot childPlot = (BlockRatioCyclesSessionPlot) ((TripoliPlotPane) child).getChildren().get(0);
+                BlockRatioCyclesAnalysisPlot childPlot = (BlockRatioCyclesAnalysisPlot) ((TripoliPlotPane) child).getChildren().get(0);
                 if (childPlot.getMapBlockIdToBlockRatioCyclesRecord().get(blockID) != null) {
                     childPlot.getMapBlockIdToBlockRatioCyclesRecord().put(
                             blockID,

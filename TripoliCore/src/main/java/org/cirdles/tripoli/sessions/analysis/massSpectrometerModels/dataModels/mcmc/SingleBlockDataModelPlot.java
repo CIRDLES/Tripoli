@@ -55,7 +55,7 @@ public enum SingleBlockDataModelPlot {
         int knotsCount = ensembleRecordsList.get(0).I0().length;
         int baselineSize = analysisMethod.getSequenceTable().findFaradayDetectorsUsed().size();
         double[] baselinesMeans = singleBlockCurrentModelRecord_X.baselineMeansArray();
-        int initialModelsBurnCount = 0;
+        int initialModelsBurnCount = analysis.getMapOfBlockIdToModelsBurnCount().get(blockID);
         List<Detector> faradayDetectorsUsed = analysisMethod.getSequenceTable().findFaradayDetectorsUsed();
 
         // visualization converge ratio and others TABS
@@ -107,7 +107,7 @@ public enum SingleBlockDataModelPlot {
 
 
         plotBuilders[10][0] = MultiLinePlotBuilder.initializeLinePlot(
-                new double[][]{xDataConvergeSavedIterations}, convergeIntensities, new String[]{"Converge Intensity"}, "", "", false, blockID);
+                new double[][]{xDataConvergeSavedIterations}, convergeIntensities, new String[]{"Converge Intensity"}, "Saved iterations", "Knots by color", false, blockID);
 
 
         // visualization data fit ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

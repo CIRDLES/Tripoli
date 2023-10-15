@@ -116,11 +116,13 @@ public interface AnalysisInterface {
 
     Map<Integer, PlotBuilder[]> getMapOfBlockIdToPeakPlots();
 
-    public Map<Integer, SingleBlockRawDataSetRecord> getMapOfBlockIdToRawData();
+    Map<Integer, SingleBlockRawDataSetRecord> getMapOfBlockIdToRawData();
 
-    public Map<Integer, SingleBlockModelRecord> getMapOfBlockIdToFinalModel();
+    Map<Integer, SingleBlockModelRecord> getMapOfBlockIdToFinalModel();
 
-    public Map<Integer, List<EnsemblesStore.EnsembleRecord>> getMapBlockIDToEnsembles();
+    Map<Integer, List<EnsemblesStore.EnsembleRecord>> getMapBlockIDToEnsembles();
 
-    public Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount();
+    Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount();
+
+    void resetAnalysis();
 }

@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.plots.compoundPlots;
+package org.cirdles.tripoli.plots.compoundPlotBuilders;
 
 import java.io.Serializable;
 

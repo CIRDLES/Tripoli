@@ -29,6 +29,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPl
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
@@ -83,6 +84,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public ToggleGroup knotsToggleGroup;
     @FXML
     public Button reviewSculptData;
+    @FXML
+    public ToolBar processingToolBar;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -251,6 +254,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         populateAnalysisMethodRatioSelectorPane();
         populateAnalysisMethodRatioBuilderPane();
+
+        processingToolBar.setDisable(analysis.getAnalysisMethod() == null);
     }
 
     private void populateAnalysisDataFields() {
@@ -527,11 +532,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     private void populateBlocksStatus() {
         blockStatusHBox.getChildren().clear();
-        var massSpecExtractedData = analysis.getMassSpecExtractedData();
-        Map<Integer, MassSpecOutputSingleBlockRecord> blocksData = massSpecExtractedData.getBlocksData();
-        for (MassSpecOutputSingleBlockRecord block : blocksData.values()) {
-            Button blockStatusButton = blockStatusButtonFactory(block.blockID());
-            blockStatusHBox.getChildren().add(blockStatusButton);
+        if (analysis.getAnalysisMethod() != null) {
+            var massSpecExtractedData = analysis.getMassSpecExtractedData();
+            Map<Integer, MassSpecOutputSingleBlockRecord> blocksData = massSpecExtractedData.getBlocksData();
+            for (MassSpecOutputSingleBlockRecord block : blocksData.values()) {
+                Button blockStatusButton = blockStatusButtonFactory(block.blockID());
+                blockStatusHBox.getChildren().add(blockStatusButton);
+            }
         }
     }
 
@@ -592,18 +599,26 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         try {
             File selectedFile = selectDataFile(TripoliGUI.primaryStage);
             if (null != selectedFile) {
-                analysis.setAnalysisMethod(null);
+                removeMethod();
                 try {
                     analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
                 } catch (TripoliException e) {
                     //TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
                 }
                 populateAnalysisManagerGridPane();
+                processingToolBar.setDisable(analysis.getAnalysisMethod() == null);
             }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |
                  JAXBException | TripoliException e) {
             TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
         }
+    }
+
+    private void removeMethod() {
+        analysis.resetAnalysis();
+        populateAnalysisMethodGridPane();
+        populateBlocksStatus();
+
     }
 
     @FXML
@@ -615,6 +630,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 String compareInfo = compareAnalysisMethodToDataFileSpecs(analysisMethod, analysis.getMassSpecExtractedData());
                 if (compareInfo.isBlank()) {
                     analysis.setMethod(analysisMethod);
+                    ((Analysis) analysis).initializeBlockProcessing();
                     TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedFile.getParent());
                 } else {
                     boolean choice = showChoiceDialog(
@@ -623,6 +639,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                                     + "\n\nProceed?", TripoliGUI.primaryStage);
                     if (choice) {
                         analysis.setMethod(analysisMethod);
+                        ((Analysis) analysis).initializeBlockProcessing();
                         TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedFile.getParent());
                     }
                 }
@@ -630,11 +647,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         } catch (TripoliException | IOException | JAXBException e) {
             TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
         }
-
+        processingToolBar.setDisable(analysis.getAnalysisMethod() == null);
         // initialize block processing state
         for (Integer blockID : analysis.getMassSpecExtractedData().getBlocksData().keySet()) {
             analysis.getMapOfBlockIdToProcessStatus().put(blockID, RUN);
-            analysis.getMapOfBlockIdToModelsBurnCount().put(blockID, 0);
         }
         populateAnalysisManagerGridPane();
     }
@@ -693,8 +709,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     public void selectShowsAction() {
         for (Node button : blockStatusHBox.getChildren()) {
-            if ((button instanceof Button) && (0 == analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())))) {
+            if ((button instanceof Button) && (null != analysis.getMapOfBlockIdToPlots().get(Integer.parseInt(button.getId())))) {
                 tuneButton((Button) button, SHOW);
+            } else if (null == analysis.getMapOfBlockIdToPlots().get(Integer.parseInt(button.getId()))) {
+                tuneButton((Button) button, SKIP);
             }
         }
     }

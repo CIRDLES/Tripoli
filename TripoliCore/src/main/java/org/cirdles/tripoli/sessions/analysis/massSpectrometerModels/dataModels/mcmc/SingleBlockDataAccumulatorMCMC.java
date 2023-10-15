@@ -91,7 +91,8 @@ public enum SingleBlockDataAccumulatorMCMC {
                 timeAccumulatorList,
                 timeIndexAccumulatorList,
                 isotopeOrdinalIndicesAccumulatorList,
-                blockMapOfSequenceIdsToData);
+                blockMapOfSequenceIdsToData
+        );
     }
 
     public static SingleBlockRawDataSetRecord.SingleBlockRawDataRecord accumulateOnPeakDataPerSequenceTableSpecs(
@@ -156,7 +157,8 @@ public enum SingleBlockDataAccumulatorMCMC {
                 timeAccumulatorList,
                 timeIndexAccumulatorList,
                 isotopeOrdinalIndicesAccumulatorList,
-                blockMapOfSequenceIdsToData);
+                blockMapOfSequenceIdsToData
+        );
     }
 
 }
