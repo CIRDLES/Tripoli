@@ -37,7 +37,7 @@ public class EnsemblesStore implements Serializable {
             int blockID,
             AnalysisInterface analysis) {
 
-        List<EnsemblesStore.EnsembleRecord> ensembleRecordsList = ((Analysis) analysis).getMapBlockIDToEnsembles().get(blockID);
+        List<EnsemblesStore.EnsembleRecord> ensembleRecordsList = analysis.getMapBlockIDToEnsembles().get(blockID);
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
         SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = analysis.getMapOfBlockIdToRawData().get(blockID);
         SingleBlockModelRecord singleBlockModelRecord = analysis.getMapOfBlockIdToFinalModel().get(blockID);

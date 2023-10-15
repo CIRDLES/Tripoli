@@ -235,6 +235,26 @@ public class PlotWallPane extends Pane {
         }
     }
 
+    public void applyBurnInAllBlocks() {
+        int burnIn = (int) analysis.getMapOfBlockIdToPlots().get(mcmcPlotsControllerInterface.getCurrentBlockID())[5][0].getShadeWidthForModelConvergence();
+        int blockIDCount = analysis.getMapOfBlockIdToPlots().keySet().size() + 1;
+        for (int blockID = 1; blockID < blockIDCount; blockID++) {
+            ((Analysis)analysis).updateShadeWidthsForConvergenceLinePlots(blockID, burnIn);
+            analysis.getMapOfBlockIdToModelsBurnCount().put(blockID, burnIn);
+            blockEnsemblePlotEngine(blockID, analysis);
+            mcmcPlotsControllerInterface.plotEnsemblesEngine(analysis.getMapOfBlockIdToPlots().get(blockID));
+//            mcmcPlotsControllerInterface.plotRatioSessionEngine();
+            EnsemblesStore.produceSummaryModelFromEnsembleStore(blockID, analysis);
+        }
+
+        mcmcPlotsControllerInterface.plotRatioSessionEngine();
+
+        // fire up OGTripoli style analysis plots
+        if (null != analysisManagerCallbackI) {
+            analysisManagerCallbackI.reviewAndSculptDataAction();
+        }
+    }
+
     private int getCountOfPlots() {
         List<Node> plots = getChildren()
                 .stream()
@@ -277,9 +297,13 @@ public class PlotWallPane extends Pane {
         }
 
         if (0 == iD.compareToIgnoreCase(PLOT_TAB_ENSEMBLES)) {
-            Button button6 = new Button("Apply BurnIn");
-            button6.setOnAction(event -> applyBurnIn());
-            toolBar.getItems().addAll(button6);
+            Button applyBurnInButton = new Button("Apply BurnIn");
+            applyBurnInButton.setOnAction(event -> applyBurnIn());
+            toolBar.getItems().addAll(applyBurnInButton);
+
+            Button applyBurnAllBlocksButton = new Button("Apply BurnIn All Blocks");
+            applyBurnAllBlocksButton.setOnAction(event -> applyBurnInAllBlocks());
+            toolBar.getItems().addAll(applyBurnAllBlocksButton);
         }
 
         getChildren().addAll(toolBar);
