@@ -41,6 +41,9 @@ public enum ConstantsTripoliApp {
     //https://docs.oracle.com/javase/8/javafx/api/javafx/scene/paint/Color.html
     public static final String[] TRIPOLI_PALLETTE_FOUR = {"RED", "BLUE", "GREEN", "BLACK", "ORANGE", "INDIGO", "#35978f", "#01665e"};
 
+    // Added by Dan Johnson
+    //  aqua,beige,purple,lime-green,red,orange,cyan
+    public static final String[] TRIPOLI_PALLETTE_FIVE_A = {"#0d84a5","#f6c85f","#6f4e7c","#9ed866","#ca472f","#ffa056","#8dddd0"};
     public static final Color TRIPOLI_MOVING_SHADE = new Color(255.0 / 256.0, 182.0 / 256.0, 193.0 / 256.0, 0.5);
 
     public static @NonNls String convertColorToHex(Color color) {
