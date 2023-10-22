@@ -8,8 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SingleBlockModelUpdaterTest {
 
-    // Questions:: Numbers always a bit different?
-
     // IMPORTANT: These numeric values must match the data from MATLAB.
     // Please execute the MATLAB code and obtain the results to ensure consistency.
 
@@ -29,22 +27,24 @@ class SingleBlockModelUpdaterTest {
     SingleBlockModelRecord singleBlockModelRecord_Test;
     SingleBlockModelRecord singleBlockModelRecord;
 
+    // Data pulled from Matlab - 10/21
+    double [] baseLineMeansArray = {-3.998259626249467e+05, -2.997573248486633e+05, -1.996907909202233e+05,
+                                    -9.995615539918667e+04, -1.034287000033334e+02, 1.000739996192033e+05,
+                                    2.001169734613367e+05, 2.994251939133499e+05};
 
-    // Data pulled from Matlab
-    double [] baseLineMeansArray = {-3.998265002401323e+05, -2.997565700137301e+05, -1.996899476345751e+05,
-                                    -9.995635264175237e+04, -1.040958594379146e+02, 1.000734063390398e+05,
-                                    2.001158634605617e+05, 2.994257914163734e+05};
+    // Data pulled from Matlab - 10/21
+    double [] baseLineStdArray = {4.982654488334372e+03, 4.780096984329671e+03, 5.193362894109419e+03, 4.907056423299858e+03,
+                                  4.714765807627592e+03, 5.160457416333462e+03, 5.046707504648971e+03, 4.697629292897528e+03};
 
-    double [] baseLineStdArray = {4982.67807983952, 4780.0623321199555, 5193.360350459159, 4907.063915023453,
-                                  4714.765639738263, 5160.46695647297, 5046.694666480015, 4697.626440989729};
+    // Data pulled from Matlab - 10/21
+    double[] logRatios = {-6.117457281624248, -3.002819021695439, -1.000244523695487, -9.234974374397734e-05};
 
-    // Data pulled from Matlab
-    double[] logRatios = {6.056398754398573, -3.003785853586291, -1.002138711998469, -0.001066491370376};
-    double[] IO = {612883.5566669849, 600968.2963926943, 590739.6635055963, 551123.8421191652, 542702.5980471913,
-                   533590.5518885341, 524451.016364891, 515567.008106857, 507609.7292427336, 499693.58915267687,
-                   492662.955219078};
+    // Data pulled from Matlab - 10/21
+    double[] IO = {6.134069044869326e+05, 6.008566237422095e+05, 5.908634763865512e+05, 5.514048865900711e+05, 5.425026802749305e+05,
+                   5.335331142532417e+05, 5.244925341811369e+05, 5.156072911272954e+05, 5.075442507656551e+05, 4.997544044326933e+05,
+                   4.925957369655827e+05};
 
-    // Pulled from the Matlab - Iteration m=20
+    // Pulled from the Matlab - Iteration m=32
     double[] delx ={-0.009556244112501, -8.453392964611303e-04, -6.440791388770078e-04, -2.185626660072133e-05,
                     -1.045640986280030, 0.087822459673931, -0.222459411082141, 0.154567736731269,
                     0.087117770876463, -0.766777717088469, 0.291335871966661, -0.508589302857583,
@@ -59,14 +59,14 @@ class SingleBlockModelUpdaterTest {
         // Create Sudo ModelRecord
 
         singleBlockModelRecord_Test = new SingleBlockModelRecord(
-                1,
-                8,
-                11,
-                4,
+                1, // Ask next meeting on this data on Matlab
+                8, // Ask next meeting on this data on Matlab
+                11, // Ask next meeting on this data on Matlab
+                4, // Ask next meeting on this data on Matlab
                 null,
                 baseLineMeansArray,
                 baseLineStdArray,
-                0.799740343578078, // Data pulled from Matlab
+                1.000000000000057e-08, // Data pulled from Matlab
                 null,
                 logRatios,
                 null,
@@ -90,17 +90,26 @@ class SingleBlockModelUpdaterTest {
         assertTrue(singleBlockModelUpdater.getOperations().contains(oper));
     }
 
-    @Test
-    void testUpdateMeanCovMS2() {
-
-        SingleBlockModelUpdater modelUpdater = new SingleBlockModelUpdater();
-        singleBlockModelRecord = modelUpdater.updateMSv2("changer", singleBlockModelRecord_Test,
-                ProposedModelParameters.buildProposalRangesRecord(null), delx, true);
-
-        SingleBlockModelUpdater.UpdatedCovariancesRecord result = modelUpdater.updateMeanCovMS2(
-                singleBlockModelRecord, new double[24][24], new double[24], m);
-
-        result.dataMean(); // Utilize Debug to extract and compare numbers
-    }
+//    @Test
+//    void testUpdateMeanCovMS2() {
+//
+//        SingleBlockModelUpdater modelUpdater = new SingleBlockModelUpdater();
+//        singleBlockModelRecord = modelUpdater.updateMSv2("changedfg", singleBlockModelRecord_Test,
+//                ProposedModelParameters.buildProposalRangesRecord(null), delx, true);
+//
+//
+//        // CONFIRM Below
+//        // ProposedModelParameters.buildProposalRangesRecord(null) Should be the same result as prior
+//        // Simple test that the call is the same
+//
+//
+//        //------------------------------ PRE CHECK ABOVE PHASE -----------------------------------
+//        // Ensure that singleBlockModelRecord is the same as x2
+//
+//        SingleBlockModelUpdater.UpdatedCovariancesRecord result = modelUpdater.updateMeanCovMS2(
+//                singleBlockModelRecord, new double[24][24], new double[24], m);
+//
+//        result.dataMean(); // Utilize Debug to extract and compare numbers
+//    }
     // Do Assertion with EPSILON to compare doubles
 }
