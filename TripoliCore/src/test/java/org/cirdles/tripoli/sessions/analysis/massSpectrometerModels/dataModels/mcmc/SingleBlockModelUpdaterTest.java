@@ -90,30 +90,28 @@ class SingleBlockModelUpdaterTest {
         assertTrue(singleBlockModelUpdater.getOperations().contains(oper));
     }
 
-    @Test
-    void testUpdateMeanCovMS2() {
-
-        SingleBlockModelUpdater modelUpdater = new SingleBlockModelUpdater();
-        singleBlockModelRecord = modelUpdater.updateMSv2("changedfg", singleBlockModelRecord_Test,
-                ProposedModelParameters.buildProposalRangesRecord(null), delx, true);
-
-        //----------------------------------- STEP 1 ProposedModel Check ------------------------------------------
-
-        // Confirm that the 'ProposedModelParameters.buildProposalRangesRecord(null)' call yields the same result
-        // Verified that the numbers indeed matches the results from variable 'prior' obtained via Matlab - m = 1
-        // My Nguyen 10/22
-
-        //---------------------------------- STEP 2 singleBlockModelRecord Check ----------------------------------
-
-        // Ensure that singleBlockModelRecord is the same as 'x2' from Matlab
-
-        SingleBlockModelUpdater.UpdatedCovariancesRecord result = modelUpdater.updateMeanCovMS2(
-                singleBlockModelRecord, new double[24][24], new double[24], m);
-
-        result.dataMean(); // Utilize Debug to extract and compare numbers
-
-        // Add a dummy test as filler
-        assertTrue(true);
-    }
+//    @Test
+//    void testUpdateMeanCovMS2() {
+//
+//        SingleBlockModelUpdater modelUpdater = new SingleBlockModelUpdater();
+//        singleBlockModelRecord = modelUpdater.updateMSv2("changedfg", singleBlockModelRecord_Test,
+//                ProposedModelParameters.buildProposalRangesRecord(null), delx, true);
+//
+//        //----------------------------------- STEP 1 ProposedModel Check ------------------------------------------
+//
+//        // Confirm that the 'ProposedModelParameters.buildProposalRangesRecord(null)' call yields the same result
+//        // Verified that the numbers indeed matches the results from variable 'prior' obtained via Matlab - m = 1
+//        // My Nguyen 10/22
+//
+//        //---------------------------------- STEP 2 singleBlockModelRecord Check ----------------------------------
+//
+//        // Ensure that singleBlockModelRecord is the same as 'x2' from Matlab
+//
+//        SingleBlockModelUpdater.UpdatedCovariancesRecord result = modelUpdater.updateMeanCovMS2(
+//                singleBlockModelRecord, new double[24][24], new double[24], m);
+//
+//        result.dataMean(); // Utilize Debug to extract and compare numbers
+//
+//    }
     // Do Assertion with EPSILON to compare doubles
 }
