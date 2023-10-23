@@ -44,13 +44,13 @@ class SingleBlockModelUpdaterTest {
                    5.335331142532417e+05, 5.244925341811369e+05, 5.156072911272954e+05, 5.075442507656551e+05, 4.997544044326933e+05,
                    4.925957369655827e+05};
 
-    // Pulled from the Matlab - Iteration m=32
-    double[] delx ={-0.009556244112501, -8.453392964611303e-04, -6.440791388770078e-04, -2.185626660072133e-05,
-                    -1.045640986280030, 0.087822459673931, -0.222459411082141, 0.154567736731269,
-                    0.087117770876463, -0.766777717088469, 0.291335871966661, -0.508589302857583,
-                    0.662983661354333, -0.093586365905196, 0.013207356934307, 0.031816815709793,
-                    -0.184676755618735, 0.002282455871744, 0.015234880367027, 0.430669700488954,
-                    0.269364586726657, -0.225588804480196, -0.435922411140821, -2.067198196469684e-04};
+    // Pulled from the Matlab - Iteration m=1
+    double[] delx ={0.012819918042855, -0.002522883826911, 3.935264800372901e-04, 1.454957603494240e-04,
+            -1.077723039283252, -0.155257802641788, 0.051309012094972, 0.731607236842978,
+            0.484253710141819, -0.504649362912455, 0.972666278739997, 0.303149131444137,
+            -0.014099257508162, 0.280949206906329, -0.103641649512469, -0.037798167587677,
+            0.506248636267279, 0.392192426857346, 0.290672536067569, 0.123634068116009,
+            -0.280785436272478, 0.158800537540473, 0.496492908288080, 9.979502297411170e-05};
     int m = 20; // Iteration 20
 
     @BeforeEach
@@ -90,26 +90,30 @@ class SingleBlockModelUpdaterTest {
         assertTrue(singleBlockModelUpdater.getOperations().contains(oper));
     }
 
-//    @Test
-//    void testUpdateMeanCovMS2() {
-//
-//        SingleBlockModelUpdater modelUpdater = new SingleBlockModelUpdater();
-//        singleBlockModelRecord = modelUpdater.updateMSv2("changedfg", singleBlockModelRecord_Test,
-//                ProposedModelParameters.buildProposalRangesRecord(null), delx, true);
-//
-//
-//        // CONFIRM Below
-//        // ProposedModelParameters.buildProposalRangesRecord(null) Should be the same result as prior
-//        // Simple test that the call is the same
-//
-//
-//        //------------------------------ PRE CHECK ABOVE PHASE -----------------------------------
-//        // Ensure that singleBlockModelRecord is the same as x2
-//
-//        SingleBlockModelUpdater.UpdatedCovariancesRecord result = modelUpdater.updateMeanCovMS2(
-//                singleBlockModelRecord, new double[24][24], new double[24], m);
-//
-//        result.dataMean(); // Utilize Debug to extract and compare numbers
-//    }
+    @Test
+    void testUpdateMeanCovMS2() {
+
+        SingleBlockModelUpdater modelUpdater = new SingleBlockModelUpdater();
+        singleBlockModelRecord = modelUpdater.updateMSv2("changedfg", singleBlockModelRecord_Test,
+                ProposedModelParameters.buildProposalRangesRecord(null), delx, true);
+
+        //----------------------------------- STEP 1 ProposedModel Check ------------------------------------------
+
+        // Confirm that the 'ProposedModelParameters.buildProposalRangesRecord(null)' call yields the same result
+        // Verified that the numbers indeed matches the results from variable 'prior' obtained via Matlab - m = 1
+        // My Nguyen 10/22
+
+        //---------------------------------- STEP 2 singleBlockModelRecord Check ----------------------------------
+
+        // Ensure that singleBlockModelRecord is the same as 'x2' from Matlab
+
+        SingleBlockModelUpdater.UpdatedCovariancesRecord result = modelUpdater.updateMeanCovMS2(
+                singleBlockModelRecord, new double[24][24], new double[24], m);
+
+        result.dataMean(); // Utilize Debug to extract and compare numbers
+
+        // Add a dummy test as filler
+        assertTrue(true);
+    }
     // Do Assertion with EPSILON to compare doubles
 }
