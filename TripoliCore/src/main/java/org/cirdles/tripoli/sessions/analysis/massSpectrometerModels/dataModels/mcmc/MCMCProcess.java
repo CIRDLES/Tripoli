@@ -712,7 +712,7 @@ x=x0;
         // TODO: move to analysis class?
         analysis.getMapOfBlockIdToRawData().put(singleBlockCurrentModelRecord_X.blockID(), singleBlockRawDataSetRecord);
         analysis.getMapBlockIDToEnsembles().put(singleBlockCurrentModelRecord_X.blockID(), ensembleRecordsList);
-        analysis.getMapOfBlockIdToModelsBurnCount().put(singleBlockCurrentModelRecord_X.blockID(), ensembleRecordsList.size() / 10);
+        analysis.getMapOfBlockIdToModelsBurnCount().put(singleBlockCurrentModelRecord_X.blockID(), ensembleRecordsList.size() / 2);
 
         // default strategy
         analysis.getMapOfBlockIdToFinalModel()

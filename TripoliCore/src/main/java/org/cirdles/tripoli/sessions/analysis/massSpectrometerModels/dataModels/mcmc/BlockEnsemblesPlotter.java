@@ -245,7 +245,7 @@ public enum BlockEnsemblesPlotter {
                 25, new String[]{"Daly/Faraday Gain"}, "Gain", "Frequency", true);
 
         plotBuilders[PLOT_INDEX_MEANINTENSITIES][0] = MultiLinePlotBuilder.initializeLinePlot(
-                xDataIntensityMeans, yDataIntensityMeans, new String[]{"Mean Intensity w/ Knots"}, "Time Index", "Intensity (counts)", true, blockID);
+                xDataIntensityMeans, yDataIntensityMeans, new String[]{"Mean Intensity w/ Knots"}, "Time Index", "Intensity (counts)", true, blockID, 0);
     }
 
 }

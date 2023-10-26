@@ -107,7 +107,7 @@ public enum SingleBlockDataModelPlot {
 
 
         plotBuilders[10][0] = MultiLinePlotBuilder.initializeLinePlot(
-                new double[][]{xDataConvergeSavedIterations}, convergeIntensities, new String[]{"Converge Intensity"}, "Saved iterations", "Knots by color", false, blockID);
+                new double[][]{xDataConvergeSavedIterations}, convergeIntensities, new String[]{"Converge Intensity"}, "Saved iterations", "Knots by color", false, blockID, initialModelsBurnCount);
 
 
         // visualization data fit ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
