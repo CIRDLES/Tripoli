@@ -109,7 +109,7 @@ public class PlotWallPaneOGTripoli extends Pane {
                         rebuildPlot(false, true);
                     });
         }
-        speciesCheckBoxes[0].setSelected(true);
+        speciesCheckBoxes[speciesCheckBoxes.length - 1].setSelected(true);
 
         CheckBox showFaraday = new CheckBox("F");
         showFaraday.setSelected(true);

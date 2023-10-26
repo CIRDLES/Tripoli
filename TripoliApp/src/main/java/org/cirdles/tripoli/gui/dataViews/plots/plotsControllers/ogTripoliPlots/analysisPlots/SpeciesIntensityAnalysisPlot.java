@@ -71,7 +71,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
         baseLine = speciesIntensityAnalysisBuilder.getBaseLine();
         dfGain = speciesIntensityAnalysisBuilder.getDfGain();
         speciesChecked = new boolean[yDataCounts.length / 4];
-        speciesChecked[0] = true;
+        speciesChecked[speciesChecked.length - 1] = true;
         showFaradays = true;
         showPMs = true;
         showModels = true;
@@ -79,6 +79,8 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
         gainCorr = true;
         logScale = false;
         zoomFlagsXY = new boolean[]{true, true};
+        // TODO: make this a user pref
+        yAxisTickSpread = 45.0;
 
 
         setOnMouseClicked(new MouseClickEventHandler());
@@ -217,6 +219,13 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
 
             displayOffsetY = 0.0;
         }
+
+        if (logScale) {
+            plotAxisLabelY = "Log-" +  speciesIntensityAnalysisBuilder.getyAxisLabel();
+        } else {
+            plotAxisLabelY = speciesIntensityAnalysisBuilder.getyAxisLabel();
+        }
+
         prepareExtents(reScaleX, reScaleY);
 
         calculateTics();
