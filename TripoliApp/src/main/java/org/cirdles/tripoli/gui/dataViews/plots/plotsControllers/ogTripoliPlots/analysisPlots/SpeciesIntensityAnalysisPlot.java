@@ -219,6 +219,13 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
 
             displayOffsetY = 0.0;
         }
+
+        if (logScale) {
+            plotAxisLabelY = "Log-" +  speciesIntensityAnalysisBuilder.getyAxisLabel();
+        } else {
+            plotAxisLabelY = speciesIntensityAnalysisBuilder.getyAxisLabel();
+        }
+
         prepareExtents(reScaleX, reScaleY);
 
         calculateTics();
