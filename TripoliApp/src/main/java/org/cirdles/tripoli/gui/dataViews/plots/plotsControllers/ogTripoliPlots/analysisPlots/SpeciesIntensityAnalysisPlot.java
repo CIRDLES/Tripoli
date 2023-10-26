@@ -71,7 +71,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
         baseLine = speciesIntensityAnalysisBuilder.getBaseLine();
         dfGain = speciesIntensityAnalysisBuilder.getDfGain();
         speciesChecked = new boolean[yDataCounts.length / 4];
-        speciesChecked[0] = true;
+        speciesChecked[speciesChecked.length - 1] = true;
         showFaradays = true;
         showPMs = true;
         showModels = true;
