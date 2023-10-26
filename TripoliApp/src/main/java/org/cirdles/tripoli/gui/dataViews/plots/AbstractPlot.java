@@ -88,7 +88,7 @@ public abstract class AbstractPlot extends Canvas {
     protected EventHandler<ScrollEvent> scrollEventEventHandler;
 
     protected PlotBuilder plotBuilder;
-    ;
+    protected double yAxisTickSpread = 15.0;
 
     private AbstractPlot() {
     }
@@ -286,7 +286,7 @@ public abstract class AbstractPlot extends Canvas {
             ticsX[ticsX.length - 1] = new BigDecimal(Double.toString(maxX));
         }
 
-        ticsY = TicGeneratorForAxes.generateTics(getDisplayMinY(), getDisplayMaxY(), Math.max(4, (int) (plotHeight / 15.0)));
+        ticsY = TicGeneratorForAxes.generateTics(getDisplayMinY(), getDisplayMaxY(), Math.max(4, (int) (plotHeight / yAxisTickSpread)));
         if ((0 == ticsY.length) && !Double.isInfinite(minY)) {
             ticsY = new BigDecimal[2];
             ticsY[0] = new BigDecimal(Double.toString(minY));

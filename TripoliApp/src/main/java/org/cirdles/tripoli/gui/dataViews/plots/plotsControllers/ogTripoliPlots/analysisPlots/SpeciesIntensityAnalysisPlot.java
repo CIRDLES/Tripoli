@@ -79,6 +79,8 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
         gainCorr = true;
         logScale = false;
         zoomFlagsXY = new boolean[]{true, true};
+        // TODO: make this a user pref
+        yAxisTickSpread = 45.0;
 
 
         setOnMouseClicked(new MouseClickEventHandler());
