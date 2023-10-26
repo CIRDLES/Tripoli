@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
@@ -14,90 +15,101 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
-import org.cirdles.tripoli.gui.OGTripoliPlotsWindow;
-import org.cirdles.tripoli.gui.OGTripoliViewController;
+import org.cirdles.tripoli.gui.AnalysisManagerController;
 import org.cirdles.tripoli.gui.TripoliGUI;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliPlotsWindow;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.*;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.sessionPlots.HistogramSessionPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.analysisPlots.HistogramAnalysisPlot;
 import org.cirdles.tripoli.plots.PlotBuilder;
+import org.cirdles.tripoli.plots.analysisPlotBuilders.HistogramAnalysisBuilder;
+import org.cirdles.tripoli.plots.analysisPlotBuilders.PeakCentreAnalysisBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
 import org.cirdles.tripoli.plots.linePlots.*;
-import org.cirdles.tripoli.plots.sessionPlots.HistogramSessionBuilder;
-import org.cirdles.tripoli.plots.sessionPlots.PeakCentreSessionBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.MCMCProcess;
+import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
 import java.net.URL;
 import java.util.*;
 
+import static org.cirdles.tripoli.constants.TripoliConstants.*;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHeight;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
-import static org.cirdles.tripoli.plots.sessionPlots.HistogramSessionBuilder.initializeHistogramSession;
-import static org.cirdles.tripoli.plots.sessionPlots.PeakCentreSessionBuilder.initializePeakCentreSession;
+import static org.cirdles.tripoli.plots.analysisPlotBuilders.HistogramAnalysisBuilder.initializeHistogramAnalysis;
+import static org.cirdles.tripoli.plots.analysisPlotBuilders.PeakCentreAnalysisBuilder.initializeAnalysisPeakCentres;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.*;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockDataModelPlot.PLOT_INDEX_RATIOS;
 
-public class MCMCPlotsController {
+public class MCMCPlotsController implements MCMCPlotsControllerInterface {
 
-    private static final int TAB_HEIGHT = 35;
+    private static final int TOOLBAR_HEIGHT = 30;
     public static AnalysisInterface analysis;
-
     public static AnalysisManagerCallbackI analysisManagerCallbackI;
-    public static OGTripoliPlotsWindow ogTripoliPlotsWindow;
-
     private static int MAX_BLOCK_COUNT = 2000;
+    private int currentBlockID = 0;
     @FXML
-    public AnchorPane dataFitPlotsAnchorPane;
+    private AnchorPane logAnchorPane;
     @FXML
-    public AnchorPane convergeErrorPlotsAnchorPane;
+    private ProgressBar progressBar;
     @FXML
-    public AnchorPane beamShapeAnchorPane;
+    private Tab convergencesTab;
     @FXML
-    public AnchorPane ratioSessionAnchorPane;
+    private Tab convergeErrorTab;
     @FXML
-    public AnchorPane peakSessionAnchorPane;
-    @FXML
-    public AnchorPane logAnchorPane;
-    @FXML
-    public ProgressBar progressBar;
+    private Tab convergeIntensityTab;
     private Service[] services;
     @FXML
     private ResourceBundle resources;
     @FXML
     private URL location;
     @FXML
-    private AnchorPane convergeIntensityAnchorPane;
-
-    @FXML
     private TextArea eventLogTextArea;
-
     @FXML
     private ScrollPane listOfFilesScrollPane;
-
     @FXML
     private VBox masterVBox;
-
     @FXML
     private TabPane plotTabPane;
-
     @FXML
     private ToolBar toolbar;
-
     @FXML
     private AnchorPane convergePlotsAnchorPane;
     @FXML
+    private AnchorPane convergeErrorPlotsAnchorPane;
+    @FXML
+    private AnchorPane convergeIntensityAnchorPane;
+    @FXML
     private AnchorPane ensemblePlotsAnchorPane;
-
+    @FXML
+    private AnchorPane dataFitPlotsAnchorPane;
+    @FXML
+    private AnchorPane beamShapeAnchorPane;
+    @FXML
+    private AnchorPane ratioSessionAnchorPane;
+    @FXML
+    private AnchorPane peakAnalysisAnchorPane;
+    private PlotWallPane convergePlotsWallPane;
+    private PlotWallPane convergeErrorPlotsWallPane;
+    private PlotWallPane convergeIntensityPlotsWallPane;
+    private PlotWallPane ensemblePlotsWallPane;
+    private PlotWallPane dataFitPlotsWallPane;
+    private PlotWallPane ratiosSessionPlotsWallPane;
+    private PlotWallPane peakShapeOverlayPlotWallPane;
+    private PlotWallPane peakAnalysisPlotWallPlane;
     private ListView<String> listViewOfBlocks = new ListView<>();
+
+    public int getCurrentBlockID() {
+        return currentBlockID;
+    }
 
     public void plotIncomingAction() {
         processDataFileAndShowPlotsOfMCMC(analysis);
@@ -107,7 +119,29 @@ public class MCMCPlotsController {
     void initialize() {
         eventLogTextArea.setText("Using MCMC with max of 100000 iterations");
         masterVBox.setPrefSize(PLOT_WINDOW_WIDTH, PLOT_WINDOW_HEIGHT);
-        toolbar.setPrefSize(PLOT_WINDOW_WIDTH, 30.0);
+        toolbar.setPrefSize(PLOT_WINDOW_WIDTH, TOOLBAR_HEIGHT);
+
+        plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+            convergePlotsAnchorPane.setMinWidth((Double) newValue);
+            convergeErrorPlotsAnchorPane.setMinWidth((Double) newValue);
+            convergeIntensityAnchorPane.setMinWidth((Double) newValue);
+            ensemblePlotsAnchorPane.setMinWidth((Double) newValue);
+            dataFitPlotsAnchorPane.setMinWidth((Double) newValue);
+            ratioSessionAnchorPane.setMinWidth((Double) newValue);
+            beamShapeAnchorPane.setMinWidth((Double) newValue);
+            peakAnalysisAnchorPane.setMinWidth((Double) newValue);
+        });
+
+        plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+            convergePlotsAnchorPane.setMinHeight(((Double) newValue) - TOOLBAR_HEIGHT);
+            convergeErrorPlotsAnchorPane.setMinHeight(((Double) newValue) - TOOLBAR_HEIGHT);
+            convergeIntensityAnchorPane.setMinHeight((Double) newValue - TOOLBAR_HEIGHT);
+            ensemblePlotsAnchorPane.setMinHeight((Double) newValue - TOOLBAR_HEIGHT);
+            dataFitPlotsAnchorPane.setMinHeight((Double) newValue - TOOLBAR_HEIGHT);
+            ratioSessionAnchorPane.setMinHeight((Double) newValue - TOOLBAR_HEIGHT);
+            beamShapeAnchorPane.setMinHeight((Double) newValue - TOOLBAR_HEIGHT);
+            peakAnalysisAnchorPane.setMinHeight((Double) newValue - TOOLBAR_HEIGHT);
+        });
 
         plotTabPane.prefWidthProperty().bind(masterVBox.widthProperty());
         plotTabPane.prefHeightProperty().bind(masterVBox.heightProperty());
@@ -120,7 +154,7 @@ public class MCMCPlotsController {
         List<String> blocksByName = new ArrayList<>();
         for (Integer blockID : analysis.getMapOfBlockIdToProcessStatus().keySet()) {
             if (SKIP != analysis.getMapOfBlockIdToProcessStatus().get(blockID)) {
-                blocksByName.add("Block # " + blockID);
+                blocksByName.add("" + blockID);
             }
         }
 
@@ -184,21 +218,20 @@ public class MCMCPlotsController {
                         showLogsEngine(finalBlockIndex);
                     }
                     if (activeServices.isEmpty()) {
-                        if (blocksToProcess.size() > 1) plotRatioSessionEngine();
+                        //if (blocksToProcess.size() > 1) plotRatioSessionEngine();
                         listViewOfBlocks.setDisable(false);
                         listViewOfBlocks.getSelectionModel().selectFirst();
                         progressBar.setProgress(1.0);
 
                         // fire up OGTripoli style session plots
                         AllBlockInitForOGTripoli.PlottingData plottingData = analysis.assemblePostProcessPlottingData();
-                        // ogTripoli view
-                        if (null != ogTripoliPlotsWindow) {
-                            ogTripoliPlotsWindow.close();
+                        if (null != AnalysisManagerController.ogTripoliReviewPlotsWindow) {
+                            AnalysisManagerController.ogTripoliReviewPlotsWindow.close();
                         }
-                        ogTripoliPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage);//, this);
+                        AnalysisManagerController.ogTripoliReviewPlotsWindow =
+                                new OGTripoliPlotsWindow(TripoliGUI.primaryStage, analysisManagerCallbackI, plottingData);
                         OGTripoliViewController.analysis = analysis;
-                        OGTripoliViewController.plottingData = plottingData;
-                        ogTripoliPlotsWindow.loadPlotsWindow();
+                        AnalysisManagerController.ogTripoliReviewPlotsWindow.loadPlotsWindow();
                     }
                 }
             });
@@ -230,20 +263,21 @@ public class MCMCPlotsController {
     }
 
     @FXML
-    private void plotRatioSessionEngine() {
+    public void plotRatioSessionEngine() {
         Map<Integer, PlotBuilder[][]> mapOfBlockIdToPlots = analysis.getMapOfBlockIdToPlots();
-        Map<String, List<HistogramRecord>> mapRatioNameToSessionRecords = new TreeMap<>();
+        Map<IsotopicRatio, List<HistogramRecord>> mapRatioNameToAnalysisRecords = new TreeMap<>();
         Iterator<Map.Entry<Integer, PlotBuilder[][]>> iterator = mapOfBlockIdToPlots.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<Integer, PlotBuilder[][]> entry = iterator.next();
             if (analysis.getMapOfBlockIdToProcessStatus().get(entry.getKey()) == SHOW) {
                 PlotBuilder[] ratiosPlotBuilder = entry.getValue()[PLOT_INDEX_RATIOS];
                 for (PlotBuilder ratioPlotBuilder : ratiosPlotBuilder) {
+                    IsotopicRatio ratio = ((RatioHistogramBuilder) ratioPlotBuilder).getRatio();
                     if (ratioPlotBuilder.isDisplayed()) {
                         String ratioName = ratioPlotBuilder.getTitle()[0];
-                        mapRatioNameToSessionRecords.computeIfAbsent(ratioName, k -> new ArrayList<>());
+                        mapRatioNameToAnalysisRecords.computeIfAbsent(ratio, k -> new ArrayList<>());
                         boolean useInvertedRatio = analysis.getAnalysisMethod().getMapOfRatioNamesToInvertedFlag().get(ratioName);
-                        mapRatioNameToSessionRecords.get(ratioName).add(
+                        mapRatioNameToAnalysisRecords.get(ratio).add(
                                 useInvertedRatio ?
                                         ((RatioHistogramBuilder) ratioPlotBuilder).getInvertedRatioHistogramRecord()
                                         : ((RatioHistogramBuilder) ratioPlotBuilder).getHistogramRecord());
@@ -252,16 +286,31 @@ public class MCMCPlotsController {
             }
         }
 
-        ratioSessionAnchorPane.getChildren().removeAll();
-        PlotWallPane ratiosSessionPlotsWallPane = PlotWallPane.createPlotWallPane(null);
-        ratiosSessionPlotsWallPane.buildToolBar();
-        ratiosSessionPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-        ratioSessionAnchorPane.getChildren().add(ratiosSessionPlotsWallPane);
-        for (Map.Entry<String, List<HistogramRecord>> entry : mapRatioNameToSessionRecords.entrySet()) {
-            HistogramSessionBuilder histogramSessionBuilder = initializeHistogramSession(
-                    analysis.getMapOfBlockIdToProcessStatus().size(), entry.getValue(), entry.getValue().get(0).title(), "Block ID", "Ratio");
+        plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+            ratiosSessionPlotsWallPane.repeatLayoutStyle();
+        });
+        plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+            ratiosSessionPlotsWallPane.repeatLayoutStyle();
+        });
+
+
+        if (ratioSessionAnchorPane.getChildren().isEmpty()) {
+            ratiosSessionPlotsWallPane = PlotWallPane.createPlotWallPane(null, analysis, this, analysisManagerCallbackI);
+            ratiosSessionPlotsWallPane.buildToolBar();
+            ratiosSessionPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+            ratiosSessionPlotsWallPane.prefWidthProperty().bind(ratioSessionAnchorPane.widthProperty());
+            ratiosSessionPlotsWallPane.prefHeightProperty().bind(ratioSessionAnchorPane.heightProperty());
+            ratioSessionAnchorPane.getChildren().add(ratiosSessionPlotsWallPane);
+        } else {
+            ratiosSessionPlotsWallPane = (PlotWallPane) ratioSessionAnchorPane.getChildren().get(0);
+            ratiosSessionPlotsWallPane.clearTripoliPanes();
+        }
+
+        for (Map.Entry<IsotopicRatio, List<HistogramRecord>> entry : mapRatioNameToAnalysisRecords.entrySet()) {
+            HistogramAnalysisBuilder histogramAnalysisBuilder = initializeHistogramAnalysis(
+                    analysis.getMapOfBlockIdToProcessStatus().size(), entry.getKey(), entry.getValue(), entry.getValue().get(0).title(), "Block ID", "Ratio");
             TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(ratiosSessionPlotsWallPane);
-            AbstractPlot plot = HistogramSessionPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), histogramSessionBuilder.getHistogramSessionRecord());
+            AbstractPlot plot = HistogramAnalysisPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), histogramAnalysisBuilder.getHistogramAnalysisRecord());
             tripoliPlotPane.addPlot(plot);
         }
         ratiosSessionPlotsWallPane.stackPlots();
@@ -271,7 +320,7 @@ public class MCMCPlotsController {
     @FXML
     private void plotPeakSessionEngine() {
         Map<Integer, PlotBuilder[]> mapOfPeakPlotsToBlock = analysis.getMapOfBlockIdToPeakPlots();
-        Map<String, List<PeakShapesOverlayRecord>> mapPeakNameToSessionRecords = new TreeMap<>();
+        Map<String, List<PeakShapesOverlayRecord>> mapPeakNameToAnalysisRecords = new TreeMap<>();
         Iterator<Map.Entry<Integer, PlotBuilder[]>> iterator = mapOfPeakPlotsToBlock.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<Integer, PlotBuilder[]> entry = iterator.next();
@@ -280,118 +329,185 @@ public class MCMCPlotsController {
                 for (PlotBuilder peakPlotBuilder : peaksPlotBuilder) {
                     if (peakPlotBuilder.isDisplayed()) {
                         String peakName = peakPlotBuilder.getTitle()[1];
-                        mapPeakNameToSessionRecords.computeIfAbsent(peakName, k -> new ArrayList<>());
-                        mapPeakNameToSessionRecords.get(peakName).add(((PeakShapesOverlayBuilder) peakPlotBuilder).getPeakShapesOverlayRecord());
+                        mapPeakNameToAnalysisRecords.computeIfAbsent(peakName, k -> new ArrayList<>());
+                        mapPeakNameToAnalysisRecords.get(peakName).add(((PeakShapesOverlayBuilder) peakPlotBuilder).getPeakShapesOverlayRecord());
 
                     }
                 }
             }
         }
-        // TODO add peak session pane to fxml and controller
-        peakSessionAnchorPane.getChildren().removeAll();
-        PlotWallPane peakSessionPlotWallPlane = PlotWallPane.createPlotWallPane(null);
-        peakSessionPlotWallPlane.buildToolBar();
-        peakSessionPlotWallPlane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-        peakSessionAnchorPane.getChildren().add(peakSessionPlotWallPlane);
-        for (Map.Entry<String, List<PeakShapesOverlayRecord>> entry : mapPeakNameToSessionRecords.entrySet()) {
-            PeakCentreSessionBuilder peakCentreSessionBuilder = initializePeakCentreSession(analysis.getMapOfBlockIdToPeakPlots().size(),
+        plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+            peakAnalysisPlotWallPlane.repeatLayoutStyle();
+        });
+        plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+            peakAnalysisPlotWallPlane.repeatLayoutStyle();
+        });
+        // TODO add peak analysis pane to fxml and controller
+
+        if (peakAnalysisAnchorPane.getChildren().isEmpty()) {
+            peakAnalysisPlotWallPlane = PlotWallPane.createPlotWallPane(null, analysis, this, null);
+            peakAnalysisPlotWallPlane.buildToolBar();
+            peakAnalysisPlotWallPlane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+            peakAnalysisAnchorPane.getChildren().add(peakAnalysisPlotWallPlane);
+        } else {
+            peakAnalysisPlotWallPlane = (PlotWallPane) peakAnalysisAnchorPane.getChildren().get(0);
+            peakAnalysisPlotWallPlane.clearTripoliPanes();
+        }
+        for (Map.Entry<String, List<PeakShapesOverlayRecord>> entry : mapPeakNameToAnalysisRecords.entrySet()) {
+            PeakCentreAnalysisBuilder peakCentreAnalysisBuilder = initializeAnalysisPeakCentres(analysis.getMapOfBlockIdToPeakPlots().size(),
                     entry.getValue(),
                     new String[]{entry.getValue().get(0).title()[1]},
                     "Block ID",
                     "Peak Widths");
 
-            TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(peakSessionPlotWallPlane);
-            AbstractPlot plot = PeakCentresLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), peakCentreSessionBuilder.getPeakCentreSessionRecord());
+            TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(peakAnalysisPlotWallPlane);
+            AbstractPlot plot = PeakCentresLinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), peakCentreAnalysisBuilder.getPeakCentreAnalysisRecord());
             tripoliPlotPane.addPlot(plot);
         }
-        peakSessionPlotWallPlane.stackPlots();
-
+        peakAnalysisPlotWallPlane.stackPlots();
     }
 
     private synchronized void plotBlockEngine(Task<String> plotBuildersTaska) {
         analysisManagerCallbackI.callbackRefreshBlocksStatus();
 
-        ensemblePlotsAnchorPane.getChildren().removeAll();
-        convergePlotsAnchorPane.getChildren().removeAll();
-        dataFitPlotsAnchorPane.getChildren().removeAll();
-        convergeErrorPlotsAnchorPane.getChildren().removeAll();
-        convergeIntensityAnchorPane.getChildren().removeAll();
-        beamShapeAnchorPane.getChildren().removeAll();
-
         PlotBuildersTaskInterface plotBuildersTask = (PlotBuildersTaskInterface) plotBuildersTaska;
-        PlotBuilder[] peakShapeOverlayBuilder = plotBuildersTask.getPeakShapesBuilder();
-        PlotBuilder[] ratiosHistogramBuilder = plotBuildersTask.getRatiosHistogramBuilder();
-        PlotBuilder[] baselineHistogramBuilder = plotBuildersTask.getBaselineHistogramBuilder();
-        PlotBuilder[] dalyFaradayHistogramBuilder = plotBuildersTask.getDalyFaradayGainHistogramBuilder();
-        //PlotBuilder[] signalNoiseHistogramBuilder = plotBuildersTask.getSignalNoiseHistogramBuilder();
-        PlotBuilder[] intensityLinePlotBuilder = plotBuildersTask.getMeanIntensityVsKnotsMultiLineBuilder();
 
         PlotBuilder[] convergeRatioPlotBuilder = plotBuildersTask.getConvergeRatioLineBuilder();
         PlotBuilder[] convergeBLFaradayLineBuilder = plotBuildersTask.getConvergeBLFaradayLineBuilder();
-//        PlotBuilder[] convergeNoiseFaradayLineBuilder = plotBuildersTask.getConvergeNoiseFaradayLineBuilder();
-        PlotBuilder[] convergeErrWeightedMisfitBuilder = plotBuildersTask.getConvergeErrWeightedMisfitLineBuilder();
         PlotBuilder[] convergeErrRawMisfitBuilder = plotBuildersTask.getConvergeErrRawMisfitLineBuilder();
-
+        PlotBuilder[] convergeErrWeightedMisfitBuilder = plotBuildersTask.getConvergeErrWeightedMisfitLineBuilder();
+        PlotBuilder[] convergeIntensityLinesBuilder = plotBuildersTask.getConvergeIntensityLinesBuilder();
         PlotBuilder[] observedDataPlotBuilder = plotBuildersTask.getObservedDataLineBuilder();
+        PlotBuilder[] observedDataWithSubsetsLineBuilder = plotBuildersTask.getObservedDataWithSubsetsLineBuilder();
         PlotBuilder[] residualDataPlotBuilder = plotBuildersTask.getResidualDataLineBuilder();
 
-        PlotBuilder[] convergeIntensityLinesBuilder = plotBuildersTask.getConvergeIntensityLinesBuilder();
+        PlotBuilder[] peakShapeOverlayBuilder = plotBuildersTask.getPeakShapesBuilder();
 
-        PlotBuilder[] observedDataWithSubsetsLineBuilder = plotBuildersTask.getObservedDataWithSubsetsLineBuilder();
+        // plotting ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+            convergePlotsWallPane.repeatLayoutStyle();
+            convergeErrorPlotsWallPane.repeatLayoutStyle();
+            convergeIntensityPlotsWallPane.repeatLayoutStyle();
+            ensemblePlotsWallPane.repeatLayoutStyle();
+            dataFitPlotsWallPane.repeatLayoutStyle();
+            peakShapeOverlayPlotWallPane.restoreAllPlots();
+        });
+        plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+            convergePlotsWallPane.repeatLayoutStyle();
+            convergeErrorPlotsWallPane.repeatLayoutStyle();
+            convergeIntensityPlotsWallPane.repeatLayoutStyle();
+            ensemblePlotsWallPane.repeatLayoutStyle();
+            dataFitPlotsWallPane.repeatLayoutStyle();
+            peakShapeOverlayPlotWallPane.repeatLayoutStyle();
+        });
 
 
-        // plotting revision +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        PlotWallPane ensemblePlotsWallPane = PlotWallPane.createPlotWallPane(null);
-        ensemblePlotsWallPane.buildToolBar();
-        ensemblePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-        ensemblePlotsAnchorPane.getChildren().add(ensemblePlotsWallPane);
-        produceTripoliRatioHistogramPlots(ratiosHistogramBuilder, ensemblePlotsWallPane);
-        produceTripoliHistogramPlots(baselineHistogramBuilder, ensemblePlotsWallPane);
-        produceTripoliHistogramPlots(dalyFaradayHistogramBuilder, ensemblePlotsWallPane);
-        //produceTripoliHistogramPlots(signalNoiseHistogramBuilder, ensemblePlotsWallPane);
-        produceTripoliMultiLinePlots(intensityLinePlotBuilder, ensemblePlotsWallPane);
-        ensemblePlotsWallPane.setPrefSize(ensemblePlotsAnchorPane.getPrefWidth(), ensemblePlotsAnchorPane.getPrefHeight());
-        ensemblePlotsWallPane.tilePlots();
-
-        PlotWallPane convergePlotsWallPane = PlotWallPane.createPlotWallPane(null);
-        convergePlotsWallPane.buildToolBar();
-        convergePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-        convergePlotsAnchorPane.getChildren().add(convergePlotsWallPane);
+        if (convergePlotsAnchorPane.getChildren().isEmpty()) {
+            convergePlotsWallPane = PlotWallPane.createPlotWallPane(PLOT_TAB_CONVERGE, analysis, this, null);
+            convergePlotsWallPane.buildToolBar();
+            convergePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+            convergePlotsWallPane.prefWidthProperty().bind(convergePlotsAnchorPane.widthProperty());
+            convergePlotsWallPane.prefHeightProperty().bind(convergePlotsAnchorPane.heightProperty());
+            convergePlotsAnchorPane.getChildren().add(convergePlotsWallPane);
+        } else {
+            convergePlotsWallPane = (PlotWallPane) convergePlotsAnchorPane.getChildren().get(0);
+            convergePlotsWallPane.clearTripoliPanes();
+        }
         produceTripoliLinePlots(convergeRatioPlotBuilder, convergePlotsWallPane);
         produceTripoliLinePlots(convergeBLFaradayLineBuilder, convergePlotsWallPane);
-//        produceTripoliLinePlots(convergeNoiseFaradayLineBuilder, convergePlotsWallPane);
         convergePlotsWallPane.tilePlots();
 
-        PlotWallPane dataFitPlotsWallPane = PlotWallPane.createPlotWallPane(null);
-        dataFitPlotsWallPane.buildToolBar();
-        dataFitPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-        dataFitPlotsAnchorPane.getChildren().add(dataFitPlotsWallPane);
+
+        if (convergeErrorPlotsAnchorPane.getChildren().isEmpty()) {
+            convergeErrorPlotsWallPane = PlotWallPane.createPlotWallPane(PLOT_TAB_CONVERGE, analysis, this, null);
+            convergeErrorPlotsWallPane.buildToolBar();
+            convergeErrorPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+            convergeErrorPlotsWallPane.prefWidthProperty().bind(convergeErrorPlotsAnchorPane.widthProperty());
+            convergeErrorPlotsWallPane.prefHeightProperty().bind(convergeErrorPlotsAnchorPane.heightProperty());
+            convergeErrorPlotsAnchorPane.getChildren().add(convergeErrorPlotsWallPane);
+        } else {
+            convergeErrorPlotsWallPane = (PlotWallPane) convergeErrorPlotsAnchorPane.getChildren().get(0);
+            convergeErrorPlotsWallPane.clearTripoliPanes();
+        }
+        produceTripoliLinePlots(convergeErrRawMisfitBuilder, convergeErrorPlotsWallPane);
+        produceTripoliLinePlots(convergeErrWeightedMisfitBuilder, convergeErrorPlotsWallPane);
+        convergeErrorPlotsWallPane.tilePlots();
+
+
+        if (convergeIntensityAnchorPane.getChildren().isEmpty()) {
+            convergeIntensityPlotsWallPane = PlotWallPane.createPlotWallPane(PLOT_TAB_CONVERGE_INTENSITY, analysis, this, null);
+            convergeIntensityPlotsWallPane.buildToolBar();
+            convergeIntensityPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+            convergeIntensityPlotsWallPane.prefWidthProperty().bind(convergeIntensityAnchorPane.widthProperty());
+            convergeIntensityPlotsWallPane.prefHeightProperty().bind(convergeIntensityAnchorPane.heightProperty());
+            convergeIntensityAnchorPane.getChildren().add(convergeIntensityPlotsWallPane);
+        } else {
+            convergeIntensityPlotsWallPane = (PlotWallPane) convergeIntensityAnchorPane.getChildren().get(0);
+            convergeIntensityPlotsWallPane.clearTripoliPanes();
+        }
+        produceTripoliMultiLineIntensityPlots(convergeIntensityLinesBuilder, convergeIntensityPlotsWallPane);
+        convergeIntensityPlotsWallPane.tilePlots();
+
+
+        plotEnsemblesEngine(((MCMCPlotBuildersTask) plotBuildersTask).getPlotBuilders());
+
+
+        if (dataFitPlotsAnchorPane.getChildren().isEmpty()) {
+            dataFitPlotsWallPane = PlotWallPane.createPlotWallPane(null, analysis, this, null);
+            dataFitPlotsWallPane.buildToolBar();
+            dataFitPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+            dataFitPlotsWallPane.prefWidthProperty().bind(dataFitPlotsAnchorPane.widthProperty());
+            dataFitPlotsWallPane.prefHeightProperty().bind(dataFitPlotsAnchorPane.heightProperty());
+            dataFitPlotsAnchorPane.getChildren().add(dataFitPlotsWallPane);
+        } else {
+            dataFitPlotsWallPane = (PlotWallPane) dataFitPlotsAnchorPane.getChildren().get(0);
+            dataFitPlotsWallPane.clearTripoliPanes();
+        }
         produceTripoliBasicScatterAndLinePlots(observedDataPlotBuilder, dataFitPlotsWallPane);
         produceTripoliBasicScatterAndLinePlots(observedDataWithSubsetsLineBuilder, dataFitPlotsWallPane);
         produceTripoliBasicScatterAndLinePlots(residualDataPlotBuilder, dataFitPlotsWallPane);
         dataFitPlotsWallPane.stackPlots();
 
-        PlotWallPane convergeErrorPlotsWallPane = PlotWallPane.createPlotWallPane(null);
-        convergeErrorPlotsWallPane.buildToolBar();
-        convergeErrorPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-        convergeErrorPlotsAnchorPane.getChildren().add(convergeErrorPlotsWallPane);
-        produceTripoliLinePlots(convergeErrRawMisfitBuilder, convergeErrorPlotsWallPane);
-        produceTripoliLinePlots(convergeErrWeightedMisfitBuilder, convergeErrorPlotsWallPane);
-        convergeErrorPlotsWallPane.tilePlots();
-
-        PlotWallPane convergeIntensityPlotsWallPane = PlotWallPane.createPlotWallPane(null);
-        convergeIntensityPlotsWallPane.buildToolBar();
-        convergeIntensityPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-        convergeIntensityAnchorPane.getChildren().add(convergeIntensityPlotsWallPane);
-        produceTripoliMultiLineIntensityPlots(convergeIntensityLinesBuilder, convergeIntensityPlotsWallPane);
-        convergeIntensityPlotsWallPane.tilePlots();
-
-        PlotWallPane peakShapeOverlayPlotWallPane = PlotWallPane.createPlotWallPane(null);
-        peakShapeOverlayPlotWallPane.buildToolBar();
-        peakShapeOverlayPlotWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-        beamShapeAnchorPane.getChildren().add(peakShapeOverlayPlotWallPane);
+        if (beamShapeAnchorPane.getChildren().isEmpty()) {
+            peakShapeOverlayPlotWallPane = PlotWallPane.createPlotWallPane(null, analysis, this, null);
+            peakShapeOverlayPlotWallPane.buildToolBar();
+            peakShapeOverlayPlotWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+            peakShapeOverlayPlotWallPane.prefWidthProperty().bind(beamShapeAnchorPane.widthProperty());
+            peakShapeOverlayPlotWallPane.prefHeightProperty().bind(beamShapeAnchorPane.heightProperty());
+            beamShapeAnchorPane.getChildren().add(peakShapeOverlayPlotWallPane);
+        } else {
+            peakShapeOverlayPlotWallPane = (PlotWallPane) beamShapeAnchorPane.getChildren().get(0);
+            peakShapeOverlayPlotWallPane.clearTripoliPanes();
+        }
         producePeakShapesOverlayPlot(peakShapeOverlayBuilder, peakShapeOverlayPlotWallPane);
         peakShapeOverlayPlotWallPane.tilePlots();
+    }
+
+
+    public void plotEnsemblesEngine(PlotBuilder[][] plotBuilders) {
+        PlotBuilder[] ratiosHistogramBuilder = plotBuilders[PLOT_INDEX_RATIOS];
+        PlotBuilder[] baselineHistogramBuilder = plotBuilders[PLOT_INDEX_BASELINES];
+        PlotBuilder[] dalyFaradayHistogramBuilder = plotBuilders[PLOT_INDEX_DFGAINS];
+        PlotBuilder[] intensityLinePlotBuilder = plotBuilders[PLOT_INDEX_MEANINTENSITIES];
+
+        if (ensemblePlotsAnchorPane.getChildren().isEmpty()) {
+            ensemblePlotsWallPane = PlotWallPane.createPlotWallPane(PLOT_TAB_ENSEMBLES, analysis, this, analysisManagerCallbackI);
+            ensemblePlotsWallPane.buildToolBar();
+            ensemblePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+            ensemblePlotsWallPane.prefWidthProperty().bind(ensemblePlotsAnchorPane.widthProperty());
+            ensemblePlotsWallPane.prefHeightProperty().bind(ensemblePlotsAnchorPane.heightProperty());
+            ensemblePlotsAnchorPane.getChildren().add(ensemblePlotsWallPane);
+        } else {
+            ensemblePlotsWallPane = (PlotWallPane) ensemblePlotsAnchorPane.getChildren().get(0);
+            ensemblePlotsWallPane.clearTripoliPanes();
+        }
+        produceTripoliRatioHistogramPlots(ratiosHistogramBuilder, ensemblePlotsWallPane);
+        produceTripoliHistogramPlots(baselineHistogramBuilder, ensemblePlotsWallPane);
+        produceTripoliHistogramPlots(dalyFaradayHistogramBuilder, ensemblePlotsWallPane);
+        produceTripoliMultiLinePlots(intensityLinePlotBuilder, ensemblePlotsWallPane);
+        ensemblePlotsWallPane.repeatLayoutStyle();
+
+        listViewOfBlocks.refresh();
     }
 
     private synchronized void showLogsEngine(int blockNumber) {
@@ -401,6 +517,7 @@ public class MCMCPlotsController {
         logAnchorPane.getChildren().removeAll();
         logAnchorPane.getChildren().add(logTextArea);
     }
+
 
     private void produceTripoliRatioHistogramPlots(PlotBuilder[] plotBuilder, PlotWallPane plotWallPane) {
         for (int i = 0; i < plotBuilder.length; i++) {
@@ -415,7 +532,8 @@ public class MCMCPlotsController {
                         plotRecord, invertedPlotRecord,
                         logRatioHistogramRecord,
                         logInvertedRatioHistogramRecord,
-                        analysis.getAnalysisMethod());
+                        analysis.getAnalysisMethod(),
+                        plotWallPane);
                 tripoliPlotPane.addPlot(plot);
             }
         }
@@ -426,7 +544,7 @@ public class MCMCPlotsController {
             if (plotBuilder[i].isDisplayed()) {
                 HistogramRecord plotRecord = ((HistogramBuilder) plotBuilder[i]).getHistogramRecord();
                 TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
-                AbstractPlot plot = HistogramSinglePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), plotRecord);
+                AbstractPlot plot = HistogramSinglePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), plotRecord, plotWallPane);
                 tripoliPlotPane.addPlot(plot);
             }
         }
@@ -435,7 +553,7 @@ public class MCMCPlotsController {
     private void produceTripoliLinePlots(PlotBuilder[] plotBuilder, PlotWallPane plotWallPane) {
         for (int i = 0; i < plotBuilder.length; i++) {
             TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
-            AbstractPlot plot = LinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (LinePlotBuilder) plotBuilder[i]);
+            AbstractPlot plot = LinePlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (LinePlotBuilder) plotBuilder[i], plotWallPane);
             tripoliPlotPane.addPlot(plot);
         }
     }
@@ -451,7 +569,7 @@ public class MCMCPlotsController {
     private void produceTripoliMultiLineIntensityPlots(PlotBuilder[] plotBuilder, PlotWallPane plotWallPane) {
         for (int i = 0; i < plotBuilder.length; i++) {
             TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
-            AbstractPlot plot = MultiLineIntensityPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (MultiLinePlotBuilder) plotBuilder[i]);
+            AbstractPlot plot = MultiLineIntensityPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (MultiLinePlotBuilder) plotBuilder[i], plotWallPane);
             tripoliPlotPane.addPlot(plot);
         }
     }
@@ -473,9 +591,7 @@ public class MCMCPlotsController {
                 tripoliPlotPane.addPlot(plot);
             }
         }
-
     }
-
 
     public void viewSelectedBlockAction() {
         int blockIndex = listViewOfBlocks.getSelectionModel().getSelectedIndex();
@@ -483,23 +599,39 @@ public class MCMCPlotsController {
     }
 
     public void viewSelectedBlock(int blockIndex) {
+        currentBlockID = blockIndex + 1;
         Task<String> mcmcPlotBuildersTask = ((MCMCUpdatesService) services[blockIndex]).getPlotBuilderTask();
         if ((null != mcmcPlotBuildersTask)
                 && mcmcPlotBuildersTask.isDone()
                 && ((MCMCPlotBuildersTask) mcmcPlotBuildersTask).healthyPlotbuilder()) {
             plotBlockEngine(mcmcPlotBuildersTask);
             showLogsEngine(blockIndex);
+            listViewOfBlocks.refresh();
+        }
+    }
+
+    public void convergeTabSelected(Event event) {
+        Tab tab = (Tab) event.getSource();
+        if (tab.isSelected() && !((AnchorPane) tab.getContent()).getChildren().isEmpty()) {
+            ((PlotWallPane) ((AnchorPane) tab.getContent()).getChildren().get(0)).restoreAllPlots();
         }
     }
 
     static class BlockDisplayID extends ListCell<String> {
         @Override
-        protected void updateItem(String blockID, boolean empty) {
-            super.updateItem(blockID, empty);
-            if (null == blockID || empty) {
+        protected void updateItem(String blockIDtext, boolean empty) {
+            super.updateItem(blockIDtext, empty);
+            if (null == blockIDtext || empty) {
                 setText(null);
             } else {
-                setText(blockID);
+                int blockID = Integer.parseInt(blockIDtext);
+                if (analysis.getMapBlockIDToEnsembles().isEmpty()) {
+                    setText("Block# " + blockID);
+                } else {
+                    setText("Block# " + blockID
+                            + " {BurnIn = " + analysis.getMapOfBlockIdToModelsBurnCount().get(blockID)
+                            + " of " + analysis.getMapBlockIDToEnsembles().get(blockID).size() + " models}");
+                }
             }
         }
     }

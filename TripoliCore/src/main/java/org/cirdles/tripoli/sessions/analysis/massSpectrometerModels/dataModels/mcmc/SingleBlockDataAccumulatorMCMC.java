@@ -47,7 +47,7 @@ public enum SingleBlockDataAccumulatorMCMC {
         List<Double> timeAccumulatorList = new ArrayList<>();
         List<Integer> timeIndexAccumulatorList = new ArrayList<>();
         List<Integer> isotopeOrdinalIndicesAccumulatorList = new ArrayList<>();
-        Map<String, List<Double>> blockMapOfIdsToData = new TreeMap<>();
+        Map<String, List<Double>> blockMapOfSequenceIdsToData = new TreeMap<>();
 
         int[] baseLineCycleNumbers = massSpecOutputSingleBlockRecord.baselineCycleNumbers();
         double[][] baselineIntensities = massSpecOutputSingleBlockRecord.baselineIntensities();
@@ -91,7 +91,8 @@ public enum SingleBlockDataAccumulatorMCMC {
                 timeAccumulatorList,
                 timeIndexAccumulatorList,
                 isotopeOrdinalIndicesAccumulatorList,
-                blockMapOfIdsToData);
+                blockMapOfSequenceIdsToData
+        );
     }
 
     public static SingleBlockRawDataSetRecord.SingleBlockRawDataRecord accumulateOnPeakDataPerSequenceTableSpecs(
@@ -106,7 +107,7 @@ public enum SingleBlockDataAccumulatorMCMC {
         List<Double> timeAccumulatorList = new ArrayList<>();
         List<Integer> timeIndexAccumulatorList = new ArrayList<>();
         List<Integer> isotopeOrdinalIndicesAccumulatorList = new ArrayList<>();
-        Map<String, List<Double>> blockMapOfIdsToData = new TreeMap<>();
+        Map<String, List<Double>> blockMapOfSequenceIdsToData = new TreeMap<>();
 
         int[] onPeakCycleNumbers = massSpecOutputSingleBlockRecord.onPeakCycleNumbers();
         double[][] onPeakIntensities = massSpecOutputSingleBlockRecord.onPeakIntensities();
@@ -121,8 +122,8 @@ public enum SingleBlockDataAccumulatorMCMC {
                 List<SequenceCell> sequenceCells = detectorToSequenceCellMap.get(detector);
                 for (SequenceCell sequenceCell : sequenceCells) {
                     String onPeakID = sequenceCell.getSequenceId();
-                    if (!blockMapOfIdsToData.containsKey(onPeakID)) {
-                        blockMapOfIdsToData.put(onPeakID, new ArrayList<>());
+                    if (!blockMapOfSequenceIdsToData.containsKey(onPeakID)) {
+                        blockMapOfSequenceIdsToData.put(onPeakID, new ArrayList<>());
                     }
                     SpeciesRecordInterface targetSpecies = sequenceCell.getTargetSpecies();
                     int speciesOrdinalIndex = speciesList.indexOf(targetSpecies) + 1;
@@ -133,7 +134,6 @@ public enum SingleBlockDataAccumulatorMCMC {
                         // TODO: revisit this
                         double intensity = roundedToSize(onPeakIntensities[index][detectorDataColumnIndex], 10);
                         cycleAccumulatorList.add(onPeakCycleNumbers[index]);
-//                        double intensity = onPeakIntensities[index][detectorDataColumnIndex];
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
                         if (MassSpectrometerContextEnum.PHOENIX == analysisMethod.getMassSpectrometerContext() && isFaraday) {
                             // convert all volts to counts to bring all files into alignment
@@ -143,7 +143,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                         timeAccumulatorList.add(onPeakTimeStamps[index]);
                         timeIndexAccumulatorList.add(index);
                         isotopeOrdinalIndicesAccumulatorList.add(speciesOrdinalIndex);
-                        blockMapOfIdsToData.get(onPeakID).add(onPeakTimeStamps[index]);
+                        blockMapOfSequenceIdsToData.get(onPeakID).add(onPeakTimeStamps[index]);
                     }
                 }
             }
@@ -157,7 +157,8 @@ public enum SingleBlockDataAccumulatorMCMC {
                 timeAccumulatorList,
                 timeIndexAccumulatorList,
                 isotopeOrdinalIndicesAccumulatorList,
-                blockMapOfIdsToData);
+                blockMapOfSequenceIdsToData
+        );
     }
 
 }

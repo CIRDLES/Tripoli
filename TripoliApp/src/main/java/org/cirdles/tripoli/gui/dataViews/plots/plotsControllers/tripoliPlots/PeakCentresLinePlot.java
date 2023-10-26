@@ -16,21 +16,21 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.plots.sessionPlots.PeakCentreSessionRecord;
+import org.cirdles.tripoli.plots.analysisPlotBuilders.PeakCentreAnalysisRecord;
 
 
 public class PeakCentresLinePlot extends AbstractPlot {
-    private final PeakCentreSessionRecord peakCentreSessionRecord;
+    private final PeakCentreAnalysisRecord peakCentreAnalysisRecord;
     public int indexOfSelectedSpot;
 
 
     /**
      * @param bounds
-     * @param peakCentreSessionRecord
+     * @param peakCentreAnalysisRecord
      */
-    private PeakCentresLinePlot(Rectangle bounds, PeakCentreSessionRecord peakCentreSessionRecord) {
-        super(bounds, 50, 30, peakCentreSessionRecord.title(), peakCentreSessionRecord.xAxisLabel(), peakCentreSessionRecord.yAxisLabel());
-        this.peakCentreSessionRecord = peakCentreSessionRecord;
+    private PeakCentresLinePlot(Rectangle bounds, PeakCentreAnalysisRecord peakCentreAnalysisRecord) {
+        super(bounds, 50, 30, peakCentreAnalysisRecord.title(), peakCentreAnalysisRecord.xAxisLabel(), peakCentreAnalysisRecord.yAxisLabel());
+        this.peakCentreAnalysisRecord = peakCentreAnalysisRecord;
 
         setupPlotContextMenu();
         this.setOnMouseMoved(new MouseMovedHandler());
@@ -39,18 +39,18 @@ public class PeakCentresLinePlot extends AbstractPlot {
 
     }
 
-    public static AbstractPlot generatePlot(Rectangle bounds, PeakCentreSessionRecord peakCentreSessionRecord) {
-        return new PeakCentresLinePlot(bounds, peakCentreSessionRecord);
+    public static AbstractPlot generatePlot(Rectangle bounds, PeakCentreAnalysisRecord peakCentreAnalysisRecord) {
+        return new PeakCentresLinePlot(bounds, peakCentreAnalysisRecord);
     }
 
     @Override
     public void preparePanel(boolean reScaleX, boolean reScaleY) {
 
-        xAxisData = peakCentreSessionRecord.blockIds();
+        xAxisData = peakCentreAnalysisRecord.blockIds();
         minX = xAxisData[0];
         maxX = xAxisData[xAxisData.length - 1];
 
-        yAxisData = peakCentreSessionRecord.blockPeakWidths();
+        yAxisData = peakCentreAnalysisRecord.blockPeakWidths();
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 

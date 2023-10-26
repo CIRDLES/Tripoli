@@ -19,18 +19,18 @@ package org.cirdles.tripoli.sessions.analysis;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.plots.PlotBuilder;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.*;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.SingleBlockPeakDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
+import org.cirdles.tripoli.species.IsotopicRatio;
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -49,9 +49,7 @@ import java.util.regex.Pattern;
 
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_SYNTHETIC;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
-import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
-import static org.cirdles.tripoli.constants.TripoliConstants.SPACES_100;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockDataModelPlot.PLOT_INDEX_RATIOS;
+import static org.cirdles.tripoli.constants.TripoliConstants.*;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB;
 
@@ -71,7 +69,11 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<Integer, String> mapOfBlockToLogs = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, Integer> mapOfBlockIdToProcessStatus = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, List<File>> blockPeakGroups = Collections.synchronizedSortedMap(new TreeMap<>());
-
+    private final Map<Integer, Integer> mapOfBlockIdToModelsBurnCount = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, List<EnsemblesStore.EnsembleRecord>> mapBlockIDToEnsembles = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, SingleBlockModelRecord> mapOfBlockIdToFinalModel = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, boolean[][]> mapOfBlockIdToIncludedPeakData = Collections.synchronizedSortedMap(new TreeMap<>());
     private String analysisName;
     private String analystName;
     private String labName;
@@ -83,6 +85,11 @@ public class Analysis implements Serializable, AnalysisInterface {
     private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
 
+    private DescriptiveStatistics[] analysisSpeciesStats = new DescriptiveStatistics[1];
+
+    public void setAnalysisSpeciesStats(DescriptiveStatistics[] analysisSpeciesStats) {
+        this.analysisSpeciesStats = analysisSpeciesStats;
+    }
 
     private Analysis() {
     }
@@ -97,6 +104,41 @@ public class Analysis implements Serializable, AnalysisInterface {
         dataFilePathString = MISSING_STRING_FIELD;
         massSpecExtractedData = new MassSpecExtractedData();
         mutable = true;
+    }
+
+    public boolean[] calcDataIncluded() {
+        int baseLineCount = mapOfBlockIdToRawData.get(1).baselineDataSetMCMC().intensityAccumulatorList().size();
+        int faradayCount = mapOfBlockIdToRawData.get(1).onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
+        int photoMultiplierCount = mapOfBlockIdToRawData.get(1).onPeakPhotoMultiplierDataSetMCMC().intensityAccumulatorList().size();
+        boolean[] dataIncluded = new boolean[baseLineCount + faradayCount + photoMultiplierCount];
+
+
+        return dataIncluded;
+    }
+
+    public Map<Integer, List<EnsemblesStore.EnsembleRecord>> getMapBlockIDToEnsembles() {
+        return mapBlockIDToEnsembles;
+    }
+
+    public Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount() {
+        return mapOfBlockIdToModelsBurnCount;
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void resetAnalysis() {
+        analysisMethod = null;
+        mapOfBlockIdToPlots.clear();
+        mapOfBlockIdToPeakPlots.clear();
+        mapOfBlockToLogs.clear();
+        mapOfBlockIdToProcessStatus.clear();
+        blockPeakGroups.clear();
+        mapOfBlockIdToModelsBurnCount.clear();
+        mapBlockIDToEnsembles.clear();
+        mapOfBlockIdToRawData.clear();
+        mapOfBlockIdToFinalModel.clear();
     }
 
     public void extractMassSpecDataFromPath(Path dataFilePath)
@@ -120,10 +162,9 @@ public class Analysis implements Serializable, AnalysisInterface {
             } else {
                 analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
             }
-            // initialize block processing state
-            for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
-                mapOfBlockIdToProcessStatus.put(blockID, RUN);
-            }
+
+            initializeBlockProcessing();
+
         } else {
             // attempt to load specified method
             File selectedMethodFile = new File((Path.of(dataFilePathString).getParent().getParent().toString()
@@ -139,10 +180,7 @@ public class Analysis implements Serializable, AnalysisInterface {
                                 + "\n\n at location: " + Path.of(dataFilePathString).getParent().getParent().toString() + File.separator + "Methods");
             }
 
-            // initialize block processing state
-            for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
-                mapOfBlockIdToProcessStatus.put(blockID, RUN);
-            }
+            initializeBlockProcessing();
 
             // collects the file objects from PeakCentres folder +++++++++++++++++++++++++++++++++++++++++++++++++++++++
             List<File> fileList = new ArrayList<>();
@@ -196,6 +234,27 @@ public class Analysis implements Serializable, AnalysisInterface {
         }
     }
 
+    public void initializeBlockProcessing() {
+        for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
+            mapOfBlockIdToProcessStatus.put(blockID, RUN);
+//            mapOfBlockIdToModelsBurnCount.put(blockID, 0);
+            mapBlockIDToEnsembles.put(blockID, new ArrayList<>());
+            mapOfBlockIdToRawData.put(blockID, null);
+            mapOfBlockIdToFinalModel.put(blockID, null);
+
+            if (analysisMethod != null) {
+                boolean[][] blockIncludedOnPeak = new boolean[analysisMethod.getSpeciesListSortedByMass().size()][];
+                for (int index = 0; index < blockIncludedOnPeak.length; index++) {
+                    boolean[] row = new boolean[massSpecExtractedData.getBlocksData().get(blockID).onPeakIntensities().length];
+                    Arrays.fill(row, true);
+                    blockIncludedOnPeak[index] = row;
+                }
+                mapOfBlockIdToIncludedPeakData.put(blockID, blockIncludedOnPeak);
+            }
+        }
+    }
+
+
     public AnalysisMethod extractAnalysisMethodfromPath(Path phoenixAnalysisMethodDataFilePath) throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(PhoenixAnalysisMethod.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
@@ -224,6 +283,26 @@ public class Analysis implements Serializable, AnalysisInterface {
             }
         }
         return retVal;
+    }
+
+    public void updateShadeWidthsForConvergenceLinePlots(int blockID, double shadeWidth) {
+        // PlotBuilder indices for convergence LinePlotBuilders = 5,6,8,9
+        // TODO: make these indices into constants
+        // PlotBuilder indices for convergence MultiLinePlotBuilders = 10
+        PlotBuilder[][] plotBuilders = mapOfBlockIdToPlots.get(blockID);
+        if (plotBuilders != null) {
+            updatePlotBuildersWithShades(plotBuilders[5], shadeWidth);
+            updatePlotBuildersWithShades(plotBuilders[6], shadeWidth);
+            updatePlotBuildersWithShades(plotBuilders[8], shadeWidth);
+            updatePlotBuildersWithShades(plotBuilders[9], shadeWidth);
+            updatePlotBuildersWithShades(plotBuilders[10], shadeWidth);
+        }
+    }
+
+    private void updatePlotBuildersWithShades(PlotBuilder[] linePlotBuilders, double shadeWidth) {
+        for (int i = 0; i < linePlotBuilders.length; i++) {
+            linePlotBuilders[i].setShadeWidthForModelConvergence(shadeWidth);
+        }
     }
 
     @Override
@@ -268,23 +347,27 @@ public class Analysis implements Serializable, AnalysisInterface {
 
 
     public AllBlockInitForOGTripoli.PlottingData assemblePostProcessPlottingData() {
-        Map<Integer, SingleBlockRawDataSetRecord> singleBlockRawDataSetRecordMap = analysisMethod.getMapOfBlockIdToRawData();
-        SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = new SingleBlockRawDataSetRecord[singleBlockRawDataSetRecordMap.keySet().size()];
+        Map<Integer, SingleBlockRawDataSetRecord> singleBlockRawDataSetRecordMap = mapOfBlockIdToRawData;
+        SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = new SingleBlockRawDataSetRecord[mapOfBlockIdToProcessStatus.keySet().size()];
         int index = 0;
         for (SingleBlockRawDataSetRecord singleBlockRawDataSetRecord : singleBlockRawDataSetRecordMap.values()) {
             singleBlockRawDataSetRecords[index] = singleBlockRawDataSetRecord;
             index++;
         }
 
-        Map<Integer, SingleBlockModelRecord> singleBlockModelRecordMap = analysisMethod.getMapOfBlockIdToFinalModel();
-        SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[analysisMethod.getMapOfBlockIdToFinalModel().keySet().size()];
+        int cycleCount = 0;
+        Map<Integer, SingleBlockModelRecord> singleBlockModelRecordMap = mapOfBlockIdToFinalModel;
+        SingleBlockModelRecord[] singleBlockModelRecords = new SingleBlockModelRecord[mapOfBlockIdToProcessStatus.keySet().size()];
         index = 0;
         for (SingleBlockModelRecord singleBlockModelRecord : singleBlockModelRecordMap.values()) {
             singleBlockModelRecords[index] = singleBlockModelRecord;
             index++;
+            if ((singleBlockModelRecord != null) && (cycleCount == 0)) {
+                cycleCount = singleBlockModelRecord.cycleCount();
+            }
         }
 
-        return new AllBlockInitForOGTripoli.PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, false);
+        return new AllBlockInitForOGTripoli.PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, cycleCount, false);
     }
 
     public final String prettyPrintAnalysisSummary() {
@@ -337,6 +420,34 @@ public class Analysis implements Serializable, AnalysisInterface {
                 sb.append(onPeakName + " ");
             }
         }
+
+        return sb.toString();
+    }
+
+    public final String produceReportTemplateOne() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(massSpecExtractedData.printHeader());
+
+        sb.append("Measurement Outputs - Fraction\n");
+        sb.append("Name, Mean, Standard Error (1s abs), Number Included, Number Total\n");
+
+        int speciesIndex = 0;
+        for (SpeciesRecordInterface species : analysisMethod.getSpeciesList()) {
+            sb.append("intensity " + species.prettyPrintShortForm() + " (cps)" + ","
+                    + analysisSpeciesStats[speciesIndex].getMean() + ","
+                    + analysisSpeciesStats[speciesIndex].getStandardDeviation() + ", , \n");
+
+            speciesIndex++;
+        }
+        for (IsotopicRatio ratio : analysisMethod.getIsotopicRatiosList()) {
+            sb.append(ratio.prettyPrint() + ","
+                    + ratio.getAnalysisMean() + ","
+                    + ratio.getAnalysisOneSigmaAbs() + ", , \n");
+        }
+
+        sb.append("D/F Gain" + ","
+                + analysisMethod.getIsotopicRatiosList().get(0).getAnalysisDalyFaradayGainMean() + ","
+                + analysisMethod.getIsotopicRatiosList().get(0).getAnalysisDalyFaradayGainOneSigmaAbs() + ", , \n");
 
         return sb.toString();
     }
@@ -435,5 +546,18 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public Map<Integer, PlotBuilder[]> getMapOfBlockIdToPeakPlots() {
         return mapOfBlockIdToPeakPlots;
+    }
+
+
+    public Map<Integer, SingleBlockRawDataSetRecord> getMapOfBlockIdToRawData() {
+        return mapOfBlockIdToRawData;
+    }
+
+    public Map<Integer, SingleBlockModelRecord> getMapOfBlockIdToFinalModel() {
+        return mapOfBlockIdToFinalModel;
+    }
+
+    public Map<Integer, boolean[][]> getMapOfBlockIdToIncludedPeakData() {
+        return mapOfBlockIdToIncludedPeakData;
     }
 }

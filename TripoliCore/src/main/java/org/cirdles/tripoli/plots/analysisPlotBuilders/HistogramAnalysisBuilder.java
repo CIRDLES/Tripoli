@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.plots.sessionPlots;
+package org.cirdles.tripoli.plots.analysisPlotBuilders;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
+import org.cirdles.tripoli.species.IsotopicRatio;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,61 +29,67 @@ import java.util.TreeMap;
 /**
  * @author James F. Bowring
  */
-public class HistogramSessionBuilder extends PlotBuilder {
+public class HistogramAnalysisBuilder extends PlotBuilder {
     //    @Serial
 //    private static final long serialVersionUID = 9180059676626735662L;
-    private HistogramSessionRecord histogramSessionRecord;
+    private HistogramAnalysisRecord histogramAnalysisRecord;
     private int blockCount;
 
-    public HistogramSessionBuilder() {
+    public HistogramAnalysisBuilder() {
     }
 
-    public HistogramSessionBuilder(int blockCount, List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
+    private HistogramAnalysisBuilder(int blockCount, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel, true);
         this.blockCount = blockCount;
-        histogramSessionRecord = generateHistogramSession(histogramRecords);
     }
 
-    public static HistogramSessionBuilder initializeHistogramSession(
-            int blockCount, List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
-        HistogramSessionBuilder histogramSessionBuilder = new HistogramSessionBuilder(blockCount, histogramRecords, title, xAxisLabel, yAxisLabel);
-        histogramSessionBuilder.histogramSessionRecord = histogramSessionBuilder.generateHistogramSession(histogramRecords);
-        return histogramSessionBuilder;
+    public static HistogramAnalysisBuilder initializeHistogramAnalysis(
+            int blockCount, IsotopicRatio ratio, List<HistogramRecord> histogramRecords, String[] title, String xAxisLabel, String yAxisLabel) {
+        HistogramAnalysisBuilder histogramAnalysisBuilder = new HistogramAnalysisBuilder(blockCount, title, xAxisLabel, yAxisLabel);
+        histogramAnalysisBuilder.histogramAnalysisRecord = histogramAnalysisBuilder.generateHistogramAnalysis(ratio, histogramRecords);
+        return histogramAnalysisBuilder;
     }
 
-    private HistogramSessionRecord generateHistogramSession(List<HistogramRecord> histogramRecords) {
+    private HistogramAnalysisRecord generateHistogramAnalysis(IsotopicRatio ratio, List<HistogramRecord> histogramRecords) {
         List<Double> blockIdList = new ArrayList<>();
         List<Double> histogramMeans = new ArrayList<>();
         List<Double> histogramOneSigma = new ArrayList<>();
-        DescriptiveStatistics descriptiveStatisticsRatiosByBlock = new DescriptiveStatistics();
+        DescriptiveStatistics descriptiveStatisticsAnalysisRatios = new DescriptiveStatistics();
 
         Map<Integer, HistogramRecord> mapBlockIdToHistogramRecord = new TreeMap<>();
         for (HistogramRecord histogramRecord : histogramRecords) {
             mapBlockIdToHistogramRecord.put(histogramRecord.blockID(), histogramRecord);
             blockIdList.add((double) histogramRecord.blockID());
             histogramMeans.add(histogramRecord.mean());
-            descriptiveStatisticsRatiosByBlock.addValue(histogramRecord.mean());
+            descriptiveStatisticsAnalysisRatios.addValue(histogramRecord.mean());
             histogramOneSigma.add(histogramRecord.standardDeviation());
         }
         double[] blockIds = blockIdList.stream().mapToDouble(d -> d).toArray();
         double[] blockMeans = histogramMeans.stream().mapToDouble(d -> d).toArray();
         double[] blockOneSigmas = histogramOneSigma.stream().mapToDouble(d -> d).toArray();
 
-        return new HistogramSessionRecord(
+        double analysisRatiosMean = descriptiveStatisticsAnalysisRatios.getMean();
+        double analysisRatiosOneSigma = descriptiveStatisticsAnalysisRatios.getStandardDeviation();
+
+        ratio.setAnalysisMean(analysisRatiosMean);
+        ratio.setAnalysisOneSigmaAbs(analysisRatiosOneSigma);
+
+        return new HistogramAnalysisRecord(
+                ratio,
                 blockCount,
                 mapBlockIdToHistogramRecord,
                 blockIds,
                 blockMeans,
                 blockOneSigmas,
-                descriptiveStatisticsRatiosByBlock.getMean(),
-                descriptiveStatisticsRatiosByBlock.getStandardDeviation(),
+                analysisRatiosMean,
+                analysisRatiosOneSigma,
                 title,
                 "Block Number",
                 "Ratio"
         );
     }
 
-    public HistogramSessionRecord getHistogramSessionRecord() {
-        return histogramSessionRecord;
+    public HistogramAnalysisRecord getHistogramAnalysisRecord() {
+        return histogramAnalysisRecord;
     }
 }

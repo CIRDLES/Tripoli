@@ -41,12 +41,20 @@ public enum ConstantsTripoliApp {
     //https://docs.oracle.com/javase/8/javafx/api/javafx/scene/paint/Color.html
     public static final String[] TRIPOLI_PALLETTE_FOUR = {"RED", "BLUE", "GREEN", "BLACK", "ORANGE", "INDIGO", "#35978f", "#01665e"};
 
+    public static final Color TRIPOLI_MOVING_SHADE = new Color(255.0 / 256.0, 182.0 / 256.0, 193.0 / 256.0, 0.5);
+
     public static @NonNls String convertColorToHex(Color color) {
         String red = Integer.toHexString((int) (color.getRed() * 255));
         String green = Integer.toHexString((int) (color.getGreen() * 255));
         String blue = Integer.toHexString((int) (color.getBlue() * 255));
 
         return "#" + red + green + blue;
+    }
+
+    public static enum PlotLayoutStyle {
+        TILE(),
+        STACK(),
+        CASCADE();
     }
 
 

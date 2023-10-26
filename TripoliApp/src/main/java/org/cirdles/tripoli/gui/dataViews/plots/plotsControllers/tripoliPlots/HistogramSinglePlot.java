@@ -21,6 +21,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 
@@ -31,8 +32,9 @@ public class HistogramSinglePlot extends AbstractPlot {
 
     protected HistogramRecord histogramRecord;
     protected double binWidth;
+    private PlotWallPane parentWallPane;
 
-    protected HistogramSinglePlot(Rectangle bounds, HistogramRecord histogramRecord) {
+    protected HistogramSinglePlot(Rectangle bounds, HistogramRecord histogramRecord, PlotWallPane parentWallPane) {
         super(bounds,
                 40, 25,
                 new String[]{histogramRecord.title()[0]
@@ -41,12 +43,17 @@ public class HistogramSinglePlot extends AbstractPlot {
                 histogramRecord.xAxisLabel(),
                 histogramRecord.yAxisLabel());
         this.histogramRecord = histogramRecord;
+        this.parentWallPane = parentWallPane;
         // these can be changed by user in plot
         binWidth = histogramRecord.binWidth();
     }
 
-    public static AbstractPlot generatePlot(Rectangle bounds, HistogramRecord histogramRecord) {
-        return new HistogramSinglePlot(bounds, histogramRecord);
+    public static AbstractPlot generatePlot(Rectangle bounds, HistogramRecord histogramRecord, PlotWallPane parentWallPane) {
+        return new HistogramSinglePlot(bounds, histogramRecord, parentWallPane);
+    }
+
+    public PlotWallPane getParentWallPane() {
+        return parentWallPane;
     }
 
     @Override
@@ -79,10 +86,7 @@ public class HistogramSinglePlot extends AbstractPlot {
     }
 
     public void prepareExtents(boolean reScaleX, boolean reScaleY) {
-        double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.05);
-        if (0.0 == xMarginStretch) {
-            xMarginStretch = maxX * 0.01;
-        }
+        double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.0);
         minX -= xMarginStretch;
         maxX += xMarginStretch;
 

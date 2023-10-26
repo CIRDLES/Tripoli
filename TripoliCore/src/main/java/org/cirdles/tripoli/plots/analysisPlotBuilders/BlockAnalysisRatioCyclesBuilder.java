@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.plots.sessionPlots;
+package org.cirdles.tripoli.plots.analysisPlotBuilders;
 
 import org.cirdles.tripoli.plots.PlotBuilder;
-import org.cirdles.tripoli.plots.compoundPlots.BlockRatioCyclesRecord;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockRatioCyclesRecord;
+import org.cirdles.tripoli.species.IsotopicRatio;
 
 import java.util.List;
 import java.util.Map;
@@ -26,45 +27,55 @@ import java.util.TreeMap;
 /**
  * @author James F. Bowring
  */
-public class BlockRatioCyclesSessionBuilder extends PlotBuilder {
+public class BlockAnalysisRatioCyclesBuilder extends PlotBuilder {
     //    @Serial
 //    private static final long serialVersionUID = 9180059676626735662L;
-    private BlockRatioCyclesSessionRecord blockRatioCyclesSessionRecord;
+    private BlockAnalysisRatioCyclesRecord blockAnalysisRatioCyclesRecord;
 
-    public BlockRatioCyclesSessionBuilder() {
+
+    public BlockAnalysisRatioCyclesBuilder() {
     }
 
-    public BlockRatioCyclesSessionBuilder(List<BlockRatioCyclesRecord> blockRatioCyclesRecords, String[] title, String xAxisLabel, String yAxisLabel) {
-        super(title, xAxisLabel, yAxisLabel, true);
-        blockRatioCyclesSessionRecord = generateBlockRatioCyclesSession(blockRatioCyclesRecords);
+    private BlockAnalysisRatioCyclesBuilder(IsotopicRatio isotopicRatio, List<BlockRatioCyclesRecord> blockRatioCyclesRecords, String xAxisLabel, String yAxisLabel) {
+        super(new String[]{isotopicRatio.prettyPrint()}, xAxisLabel, yAxisLabel, true);
+        blockAnalysisRatioCyclesRecord = generateBlockAnalysisRatioCycles(isotopicRatio, blockRatioCyclesRecords);
     }
 
-    public static BlockRatioCyclesSessionBuilder initializeBlockRatioCyclesSession(
-            List<BlockRatioCyclesRecord> blockRatioCyclesRecordsList, String[] title, String xAxisLabel, String yAxisLabel) {
-        BlockRatioCyclesSessionBuilder blockRatioCyclesSessionBuilder = new BlockRatioCyclesSessionBuilder(blockRatioCyclesRecordsList, title, xAxisLabel, yAxisLabel);
-//        blockRatioCyclesSessionBuilder.blockRatioCyclesSessionRecord = blockRatioCyclesSessionBuilder.generateBlockRatioCyclesSession(blockRatioCyclesRecordsList);
-        return blockRatioCyclesSessionBuilder;
+    public static BlockAnalysisRatioCyclesBuilder initializeBlockAnalysisRatioCycles(
+            IsotopicRatio isotopicRatio, List<BlockRatioCyclesRecord> blockRatioCyclesRecordsList, String xAxisLabel, String yAxisLabel) {
+        BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder = new BlockAnalysisRatioCyclesBuilder(isotopicRatio, blockRatioCyclesRecordsList, xAxisLabel, yAxisLabel);
+
+        return blockAnalysisRatioCyclesBuilder;
     }
 
-    private BlockRatioCyclesSessionRecord generateBlockRatioCyclesSession(List<BlockRatioCyclesRecord> blockRatioCyclesRecordsList) {
+    private BlockAnalysisRatioCyclesRecord generateBlockAnalysisRatioCycles(IsotopicRatio isotopicRatio, List<BlockRatioCyclesRecord> blockRatioCyclesRecordsList) {
 //        List<Double> histogramMeans = new ArrayList<>();
 //        List<Double> histogramOneSigma = new ArrayList<>();
 //        DescriptiveStatistics descriptiveStatisticsRatiosByBlock = new DescriptiveStatistics();
 
         Map<Integer, BlockRatioCyclesRecord> mapBlockIdToBlockRatioCyclesRecord = new TreeMap<>();
+        int blockIndex = 0;
         for (BlockRatioCyclesRecord blockRatioCyclesRecord : blockRatioCyclesRecordsList) {
-            mapBlockIdToBlockRatioCyclesRecord.put(blockRatioCyclesRecord.blockID(), blockRatioCyclesRecord);
+            if (blockRatioCyclesRecord != null) {
+                mapBlockIdToBlockRatioCyclesRecord.put(blockRatioCyclesRecord.blockID(), blockRatioCyclesRecord);
 //            histogramMeans.add(histogramRecord.mean());
 //            descriptiveStatisticsRatiosByBlock.addValue(histogramRecord.mean());
 //            histogramOneSigma.add(histogramRecord.standardDeviation());
+            } else {
+                mapBlockIdToBlockRatioCyclesRecord.put(blockIndex + 1, null);
+            }
+            blockIndex++;
         }
 //        double[] blockIds = blockIdList.stream().mapToDouble(d -> d).toArray();
 //        double[] blockMeans = histogramMeans.stream().mapToDouble(d -> d).toArray();
 //        double[] blockOneSigmas = histogramOneSigma.stream().mapToDouble(d -> d).toArray();
 
-        return new BlockRatioCyclesSessionRecord(
+        return new BlockAnalysisRatioCyclesRecord(
+                isotopicRatio,
                 mapBlockIdToBlockRatioCyclesRecord,
                 blockRatioCyclesRecordsList.get(0).cyclesIncluded().length,
+                0.0,
+                0.0,
                 1,
                 1,
                 title,
@@ -73,7 +84,7 @@ public class BlockRatioCyclesSessionBuilder extends PlotBuilder {
         );
     }
 
-    public BlockRatioCyclesSessionRecord getBlockRatioCyclesSessionRecord() {
-        return blockRatioCyclesSessionRecord;
+    public BlockAnalysisRatioCyclesRecord getBlockAnalysisRatioCyclesRecord() {
+        return blockAnalysisRatioCyclesRecord;
     }
 }

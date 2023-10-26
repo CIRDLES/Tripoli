@@ -5,13 +5,9 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class MassSpecExtractedData implements Serializable {
-
 
     private MassSpectrometerContextEnum massSpectrometerContext;
     private MassSpecExtractedHeader header;
@@ -61,6 +57,16 @@ public class MassSpecExtractedData implements Serializable {
         );
     }
 
+    public String printHeader() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Software Version: " + header.softwareVersion() + "\n");
+        sb.append("Sample: " + "unknown" + "\n");
+        sb.append("Fraction: " + "unknown" + "\n");
+        sb.append("Method Name: " + header.methodName() + "\n");
+        sb.append("Time Zero: " + header.localDateTimeZero() + "\n\n");
+        return sb.toString();
+    }
+
     public void populateColumnNamesList(List<String[]> columnNames) {
         if (columnNames.isEmpty()) {
             columnHeaders = new String[0];
@@ -108,6 +114,21 @@ public class MassSpecExtractedData implements Serializable {
             totalSize += blockRecord.onPeakTimeStamps().length;
         }
         return times;
+    }
+
+    public int[] assignBlockIdToSessionTime() {
+        int totalSize = 0;
+        for (MassSpecOutputSingleBlockRecord blockRecord : blocksData.values()) {
+            totalSize += blockRecord.onPeakTimeStamps().length;
+        }
+        int[] blockIDs = new int[totalSize];
+        totalSize = 0;
+        for (MassSpecOutputSingleBlockRecord blockRecord : blocksData.values()) {
+            double[] blockTimes = blockRecord.onPeakTimeStamps();
+            Arrays.fill(blockIDs, totalSize, totalSize + blockTimes.length, blockRecord.blockID());
+            totalSize += blockRecord.onPeakTimeStamps().length;
+        }
+        return blockIDs;
     }
 
     public MassSpectrometerContextEnum getMassSpectrometerContext() {

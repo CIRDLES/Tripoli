@@ -26,11 +26,11 @@ import java.util.Map;
  * @author James F. Bowring
  */
 public record SingleBlockRawDataSetRecord(
-        int blockNumber,
+        int blockID,
         SingleBlockRawDataRecord baselineDataSetMCMC,
         SingleBlockRawDataRecord onPeakFaradayDataSetMCMC,
         SingleBlockRawDataRecord onPeakPhotoMultiplierDataSetMCMC,
-        double[][] blockKnotInterpolationArray,// Primitive64Store blockKnotInterpolationStore,
+        double[][] blockKnotInterpolationArray,
         int[] blockCycleArray,
         double[] blockRawDataArray,
         int[] blockDetectorOrdinalIndicesArray,
@@ -38,7 +38,8 @@ public record SingleBlockRawDataSetRecord(
         int[] blockTimeIndicesArray,
         int[] onPeakStartingIndicesOfCycles,
         Map<SpeciesRecordInterface, boolean[]> mapOfSpeciesToActiveCycles,
-        Map<String, List<Double>> blockMapIdsToDataTimes) implements Serializable {
+        Map<String, List<Double>> blockMapIdsToDataTimes
+) implements Serializable {
     public int getCountOfBaselineIntensities() {
         return baselineDataSetMCMC().intensityAccumulatorList().size();
     }
@@ -51,17 +52,14 @@ public record SingleBlockRawDataSetRecord(
      * @author James F. Bowring
      */
     public record SingleBlockRawDataRecord(
-            int blockNumber,
+            int blockID,
             List<Integer> detectorOrdinalIndicesAccumulatorList,
             List<Integer> cycleAccumulatorList,
             List<Double> intensityAccumulatorList,
             List<Double> timeAccumulatorList,
             List<Integer> timeIndexAccumulatorList,
             List<Integer> isotopeOrdinalIndicesAccumulatorList,
-            Map<String, List<Double>> blockMapOfIdsToData) implements Serializable {
-
-
+            Map<String, List<Double>> blockMapOfIdsToData
+    ) implements Serializable {
     }
-
-
 }

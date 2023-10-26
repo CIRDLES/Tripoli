@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui;
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
+import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
 
 import java.io.IOException;
-
-import static org.cirdles.tripoli.gui.OGTripoliViewController.plottingData;
 
 /**
  * @author James F. Bowring
@@ -33,23 +33,17 @@ public class OGTripoliPlotsWindow {
 
     public static final double PLOT_WINDOW_WIDTH = 1000.0;
     public static final double PLOT_WINDOW_HEIGHT = 700.0;
-    public static final double SCROLLBAR_THICKNESS = 15.0;
-
-    private final double xOffset = 0;
-    private final double yOffset = 0;
-    public Stage plottingStage;
-    public Window plottingWindow;
+    protected OGTripoliViewController ogTripoliViewController;
+    private Stage plottingStage;
+    private Window plottingWindow;
     private Stage primaryStage;
+    private AllBlockInitForOGTripoli.PlottingData plottingData;
 
-    private OGTripoliPlotsWindow() {
-    }
-
-    public OGTripoliPlotsWindow(Stage primaryStage) {//}, AnalysisManagerCallbackI analysisManagerCallbackI) {
+    public OGTripoliPlotsWindow(Stage primaryStage, AnalysisManagerCallbackI analysisManagerCallbackI, AllBlockInitForOGTripoli.PlottingData plottingData) {
         this.primaryStage = primaryStage;
         plottingStage = new Stage();
         plottingStage.setMinWidth(PLOT_WINDOW_WIDTH);
         plottingStage.setMinHeight(PLOT_WINDOW_HEIGHT);
-//        plottingStage.setTitle("Tripoli Preview and Sculpt Data");
 
         plottingStage.setOnCloseRequest((WindowEvent e) -> {
             plottingStage.hide();
@@ -57,7 +51,16 @@ public class OGTripoliPlotsWindow {
             e.consume();
         });
 
-        //    MCMCPlotsController.analysisManagerCallbackI = analysisManagerCallbackI;
+        OGTripoliViewController.analysisManagerCallbackI = analysisManagerCallbackI;
+        this.plottingData = plottingData;
+    }
+
+    public OGTripoliViewController getOgTripoliViewController() {
+        return ogTripoliViewController;
+    }
+
+    public void setPlottingData(AllBlockInitForOGTripoli.PlottingData plottingData) {
+        this.plottingData = plottingData;
     }
 
     public void close() {
@@ -66,16 +69,20 @@ public class OGTripoliPlotsWindow {
 
     public void loadPlotsWindow() {
         if (!plottingStage.isShowing()) {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/OGTripoliView.fxml"));
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/OGTripoliView.fxml"));
                 Scene scene = new Scene(loader.load());
                 plottingStage.setScene(scene);
-
             } catch (IOException iOException) {
                 iOException.printStackTrace();
             }
             plottingWindow = plottingStage.getScene().getWindow();
             plottingStage.setTitle("Tripoli " + (plottingData.preview() ? "PREVIEW" : "REVIEW") + " and Sculpt Data");
+
+            ogTripoliViewController = loader.getController();
+            ogTripoliViewController.setPlottingData(plottingData);
+            ogTripoliViewController.populatePlots();
+
             plottingStage.show();
         }
 

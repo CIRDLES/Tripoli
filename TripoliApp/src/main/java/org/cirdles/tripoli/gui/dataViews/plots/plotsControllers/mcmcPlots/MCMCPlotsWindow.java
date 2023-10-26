@@ -48,7 +48,7 @@ public class MCMCPlotsWindow {
         plottingStage = new Stage();
         plottingStage.setMinWidth(PLOT_WINDOW_WIDTH);
         plottingStage.setMinHeight(PLOT_WINDOW_HEIGHT);
-        plottingStage.setTitle("Tripoli Demo1 of MCMC");
+        plottingStage.setTitle("Tripoli MCMC Results");
 
         plottingStage.setOnCloseRequest((WindowEvent e) -> {
             plottingStage.hide();

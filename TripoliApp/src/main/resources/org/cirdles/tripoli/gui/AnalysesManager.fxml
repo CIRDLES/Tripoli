@@ -75,32 +75,40 @@
                promptText="Data File Path Name" GridPane.columnIndex="1" GridPane.hgrow="NEVER" GridPane.rowIndex="3"/>
     <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0"
            style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Actions:" GridPane.rowIndex="8"/>
-    <ToolBar maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="1085.0"
-             style="-fx-background-color: transparent;" GridPane.columnIndex="1" GridPane.rowIndex="8">
-        <Button mnemonicParsing="false" onAction="#selectDataFileButtonAction" text="Load Data File"/>
-        <Button layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectMethodFileButtonAction"
-                text="Load Method File"/>
-        <Button layoutX="225.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectRunAllAction"
-                style="-fx-text-fill: RED;" text="Run All"/>
-        <Button layoutX="225.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectRunNoneAction"
-                style="-fx-text-fill: RED;" text="Run None"/>
-        <Button layoutX="321.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectShowsAction"
-                style="-fx-text-fill: GREEN;" text="Shows Only"/>
-        <Button layoutX="433.0" layoutY="7.0" mnemonicParsing="false" onAction="#restoreAllAction"
-                style="-fx-text-fill: RED;" text="Restore All"/>
-        <Button id="MCMC" fx:id="reviewSculptData" layoutX="527.0" layoutY="7.0" mnemonicParsing="false"
-                onAction="#reviewAndSculptDataAction" style="-fx-text-fill: RED;" text="Preview and Sculpt Data"/>
-        <Button id="MCMC" fx:id="mcmcButton" layoutX="609.0" layoutY="7.0" mnemonicParsing="false"
-                onAction="#initializeMonteCarloTechniqueAction" style="-fx-text-fill: RED;"
-                text="Process / Plot Blocks using MCMC"/>
-        <RadioButton mnemonicParsing="false" onAction="#knotsChoiceAction" selected="true" text="Linear">
-            <toggleGroup>
-                <ToggleGroup fx:id="knotsToggleGroup"/>
-            </toggleGroup>
-        </RadioButton>
-        <RadioButton mnemonicParsing="false" onAction="#knotsChoiceAction" text="Cubic"
-                     toggleGroup="$knotsToggleGroup"/>
-    </ToolBar>
+    <HBox GridPane.columnIndex="1" GridPane.rowIndex="8">
+        <children>
+            <ToolBar maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="230.0"
+                     style="-fx-background-color: transparent;">
+                <Button mnemonicParsing="false" onAction="#selectDataFileButtonAction" text="Load Data File"/>
+                <Button layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectMethodFileButtonAction"
+                        text="Load Method File"/>
+            </ToolBar>
+            <ToolBar fx:id="processingToolBar" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="845.0"
+                     style="-fx-background-color: transparent;">
+                <items>
+                    <Button layoutX="225.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectRunAllAction"
+                            style="-fx-text-fill: RED;" text="Run All"/>
+                    <Button layoutX="225.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectRunNoneAction"
+                            style="-fx-text-fill: RED;" text="Run None"/>
+                    <Button layoutX="321.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectShowsAction"
+                            style="-fx-text-fill: GREEN;" text="Shows Only"/>
+                    <Button id="MCMC" fx:id="reviewSculptData" layoutX="527.0" layoutY="7.0" mnemonicParsing="false"
+                            onAction="#previewAndSculptDataAction" style="-fx-text-fill: RED;"
+                            text="Preview and Sculpt Data"/>
+                    <Button id="MCMC" fx:id="mcmcButton" layoutX="609.0" layoutY="7.0" mnemonicParsing="false"
+                            onAction="#initializeMonteCarloTechniqueAction" style="-fx-text-fill: RED;"
+                            text="Process / Plot Blocks using MCMC"/>
+                    <RadioButton mnemonicParsing="false" onAction="#knotsChoiceAction" selected="true" text="Linear">
+                        <toggleGroup>
+                            <ToggleGroup fx:id="knotsToggleGroup"/>
+                        </toggleGroup>
+                    </RadioButton>
+                    <RadioButton mnemonicParsing="false" onAction="#knotsChoiceAction" text="Cubic"
+                                 toggleGroup="$knotsToggleGroup"/>
+                </items>
+            </ToolBar>
+        </children>
+    </HBox>
     <Label prefHeight="58.0" prefWidth="114.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;"
            text="Analysis Method with Detector Details from Data File:" textAlignment="RIGHT" wrapText="true"
            GridPane.rowIndex="6"/>

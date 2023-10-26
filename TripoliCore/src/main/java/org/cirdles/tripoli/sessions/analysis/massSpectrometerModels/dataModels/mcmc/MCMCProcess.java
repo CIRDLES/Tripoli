@@ -21,18 +21,14 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.plots.PlotBuilder;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLabCholesky;
-import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -40,6 +36,7 @@ import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
 import static org.apache.commons.math3.special.Gamma.gamma;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelInitForMCMC.modelInitData;
 
 /**
  * @author James F. Bowring
@@ -53,7 +50,8 @@ public class MCMCProcess {
     private final Matrix covarianceMatrix_C0;
     private final AnalysisMethod analysisMethod;
     private final SingleBlockRawDataSetRecord singleBlockRawDataSetRecord;
-    List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
+    private List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
+    private AnalysisInterface analysis;
     private boolean hierarchical;
     private double tempering;
     private double[] baselineMultiplier;
@@ -74,10 +72,11 @@ public class MCMCProcess {
     private boolean useAverageNotBestModel;
 
     private MCMCProcess(
-            AnalysisMethod analysisMethod,
+            AnalysisInterface analysis,
             SingleBlockRawDataSetRecord singleBlockRawDataSetRecord,
             SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov, boolean useAverageNotBestModel) {
-        this.analysisMethod = analysisMethod;
+        this.analysis = analysis;
+        this.analysisMethod = analysis.getAnalysisMethod();
         this.singleBlockRawDataSetRecord = singleBlockRawDataSetRecord;
         singleBlockInitialModelRecord_X0 = singleBlockInitialModelRecordWithCov.singleBlockModelRecord();
         proposalRangesRecord = singleBlockInitialModelRecordWithCov.proposalRangesRecord();
@@ -90,8 +89,7 @@ public class MCMCProcess {
     }
 
     public static synchronized MCMCProcess createMCMCProcess(
-            AnalysisMethod analysisMethod,
-            SingleBlockRawDataSetRecord singleBlockRawDataSetRecord,
+            AnalysisInterface analysis, SingleBlockRawDataSetRecord singleBlockRawDataSetRecord,
             SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov) {
         /*
             % MCMC Parameters
@@ -111,7 +109,7 @@ public class MCMCProcess {
             Ndata=d0.Ndata; % Number of picks
             Nsig = d0.Nsig; % Number of noise variables
          */
-        MCMCProcess mcmcProcess = new MCMCProcess(analysisMethod, singleBlockRawDataSetRecord, singleBlockInitialModelRecordWithCov, true);
+        MCMCProcess mcmcProcess = new MCMCProcess(analysis, singleBlockRawDataSetRecord, singleBlockInitialModelRecordWithCov, true);
         return mcmcProcess;
     }
 
@@ -252,7 +250,7 @@ x=x0;
 
         initialModelErrorWeighted_E = 0.0;
         initialModelErrorUnWeighted_E0 = 0.0;
-
+        // TODO: confirm need for next loop
         for (int row = 0; row < dataSignalNoiseArray.length; row++) {
             double calculatedValue = StrictMath.pow(singleBlockRawDataSetRecord.blockRawDataArray()[row] - dataArray[row], 2);
             initialModelErrorWeighted_E = initialModelErrorWeighted_E + (calculatedValue * baselineMultiplier[row] / dataSignalNoiseArray[row] / TT.get(1, 0));
@@ -374,47 +372,47 @@ x=x0;
                 double[] updatedBaseLineMeansArray = new double[baseLineMeansArray.length + 1];
                 System.arraycopy(baseLineMeansArray, 0, updatedBaseLineMeansArray, 0, updatedBaseLineMeansArray.length - 1);
 
-                double[] updatedBaseLineArray = new double[countOfData];
+//                double[] updatedBaseLineArray = new double[countOfData];
 
                 double[] updatedDetectorFaradayArray = new double[countOfData];
                 Arrays.fill(updatedDetectorFaradayArray, 1.0);
 
-                double[] updatedLogRatioArray = new double[countOfData];
-                double[] updatedIntensitiesArray = new double[countOfData];
+//                double[] updatedLogRatioArray = new double[countOfData];
+//                double[] updatedIntensitiesArray = new double[countOfData];
+//
+//                double[] logRatios = singleBlockUpdatedModelRecord_x2.logRatios();
+//                double detectorFaradayGain = singleBlockUpdatedModelRecord_x2.detectorFaradayGain();
 
-                double[] logRatios = singleBlockUpdatedModelRecord_x2.logRatios();
-                double detectorFaradayGain = singleBlockUpdatedModelRecord_x2.detectorFaradayGain();
-
-                for (int row = 0; row < countOfData; row++) {
-                    if (row < startingIndexOfPhotoMultiplierData) {
-                        int detectorIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndices[row]);
-                        updatedBaseLineArray[row] = updatedBaseLineMeansArray[detectorIndex];
-                        updatedDetectorFaradayArray[row] = 1.0 / detectorFaradayGain;
-                    }
-                    // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
-                    if (isotopeOrdinalIndicesArray[row] == 0) {
-                        updatedLogRatioArray[row] = 1.0;
-                    } else if (isotopeOrdinalIndicesArray[row] - 1 < logRatios.length) {
-                        updatedLogRatioArray[row] = exp(logRatios[isotopeOrdinalIndicesArray[row] - 1]);
-                    } else {
-                        updatedLogRatioArray[row] = 1.0;
-                    }
-                }
+//                for (int row = 0; row < countOfData; row++) {
+//                    if (row < startingIndexOfPhotoMultiplierData) {
+//                        int detectorIndex = mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndices[row]);
+//                        updatedBaseLineArray[row] = updatedBaseLineMeansArray[detectorIndex];
+//                        updatedDetectorFaradayArray[row] = 1.0 / detectorFaradayGain;
+//                    }
+//                    // Oct 2022 per email from Noah, eliminate the iden/iden ratio to guarantee positive definite  covariance matrix >> isotope count - 1
+//                    if (isotopeOrdinalIndicesArray[row] == 0) {
+//                        updatedLogRatioArray[row] = 1.0;
+//                    } else if (isotopeOrdinalIndicesArray[row] - 1 < logRatios.length) {
+//                        updatedLogRatioArray[row] = exp(logRatios[isotopeOrdinalIndicesArray[row] - 1]);
+//                    } else {
+//                        updatedLogRatioArray[row] = 1.0;
+//                    }
+//                }
 
                 long interval1 = System.nanoTime() - prev;
                 prev = interval1 + prev;
 
 
-                double[][] blockKnotInterpolationArray = singleBlockRawDataSetRecord.blockKnotInterpolationArray();
-                Primitive64Store blockKnotInterpolationStore = Primitive64Store.FACTORY.rows(blockKnotInterpolationArray);
-
-                MatrixStore<Double> intensity2 = blockKnotInterpolationStore.multiply(storeFactory.columns(singleBlockUpdatedModelRecord_x2.I0()));
-
-                double[] intensity2Array = intensity2.toRawCopy1D();
-                int[] timeIndicesArray = singleBlockRawDataSetRecord.blockTimeIndicesArray();
-                for (int row = startingIndexOfFaradayData; row < countOfData; row++) {
-                    updatedIntensitiesArray[row] = intensity2Array[timeIndicesArray[row]];
-                }
+//                double[][] blockKnotInterpolationArray = singleBlockRawDataSetRecord.blockKnotInterpolationArray();
+//                Primitive64Store blockKnotInterpolationStore = Primitive64Store.FACTORY.rows(blockKnotInterpolationArray);
+//
+//                MatrixStore<Double> intensity2 = blockKnotInterpolationStore.multiply(storeFactory.columns(singleBlockUpdatedModelRecord_x2.I0()));
+//
+//                double[] intensity2Array = intensity2.toRawCopy1D();
+//                int[] timeIndicesArray = singleBlockRawDataSetRecord.blockTimeIndicesArray();
+//                for (int row = startingIndexOfFaradayData; row < countOfData; row++) {
+//                    updatedIntensitiesArray[row] = intensity2Array[timeIndicesArray[row]];
+//                }
 
                 long interval2 = System.nanoTime() - prev;
                 prev = interval2 + prev;
@@ -441,16 +439,16 @@ x=x0;
                     dE=temp^-1*(E2-E); % Change in misfit
                 end
              */
-                double[] dataWithNoBaselineArray2 = new double[countOfData];
-                double[] dataArray2 = new double[countOfData];
+//                double[] dataWithNoBaselineArray2 = new double[countOfData];
+                double[] dataArray2 = modelInitData(singleBlockUpdatedModelRecord_x2, singleBlockRawDataSetRecord);
 
-                for (int row = 0; row < countOfData; row++) {
-                    double value = updatedDetectorFaradayArray[row] * updatedLogRatioArray[row] * updatedIntensitiesArray[row];
-                    dataWithNoBaselineArray2[row] = value;
-                    dataArray2[row] = value + updatedBaseLineArray[row];
-                }
+//                for (int row = 0; row < countOfData; row++) {
+//                    double value = updatedDetectorFaradayArray[row] * updatedLogRatioArray[row] * updatedIntensitiesArray[row];
+//                    dataWithNoBaselineArray2[row] = value;
+//                    dataArray2[row] = value + updatedBaseLineArray[row];
+//                }
 
-                double[] dataSignalNoiseArray2 = new double[countOfData];
+                double[] dataSignalNoiseArray2;
                 double E02 = 0.0;
                 double E = 0.0;
                 double E2 = 0.0;
@@ -544,11 +542,11 @@ x=x0;
                     initialModelErrorUnWeighted_E0 = E02;
 
                     singleBlockCurrentModelRecord_X = new SingleBlockModelRecord(
-                            singleBlockUpdatedModelRecord_x2.blockNumber(),
+                            singleBlockUpdatedModelRecord_x2.blockID(),
                             singleBlockUpdatedModelRecord_x2.faradayCount(),
                             singleBlockUpdatedModelRecord_x2.cycleCount(),
                             singleBlockUpdatedModelRecord_x2.isotopeCount(),
-                            singleBlockUpdatedModelRecord_x2.highestAbundanceSpecies(),//   analysisMethod.retrieveHighestAbundanceSpecies(),
+                            singleBlockUpdatedModelRecord_x2.highestAbundanceSpecies(),
                             singleBlockUpdatedModelRecord_x2.baselineMeansArray().clone(),
                             singleBlockUpdatedModelRecord_x2.baselineStandardDeviationsArray().clone(),
                             singleBlockUpdatedModelRecord_x2.detectorFaradayGain(),
@@ -559,7 +557,7 @@ x=x0;
                             dataArray2.clone(),
                             dataSignalNoiseArray2.clone(),
                             singleBlockUpdatedModelRecord_x2.I0().clone(),
-                            intensity2.toRawCopy1D()
+                            singleBlockUpdatedModelRecord_x2.intensities()//intensity2.toRawCopy1D()
                     );
 
                     keptUpdates[operationIndex][0] = keptUpdates[operationIndex][0] + 1;
@@ -609,7 +607,7 @@ x=x0;
                     if (E < minE) {
                         minE = E;
                         bestSingleBlockModelRecord = new SingleBlockModelRecord(
-                                singleBlockCurrentModelRecord_X.blockNumber(),
+                                singleBlockCurrentModelRecord_X.blockID(),
                                 singleBlockCurrentModelRecord_X.faradayCount(),
                                 singleBlockCurrentModelRecord_X.cycleCount(),
                                 singleBlockCurrentModelRecord_X.isotopeCount(),
@@ -656,7 +654,7 @@ x=x0;
 
                         loggingSnippet =
                                 modelIndex + " >%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
-                                        + "  BLOCK # " + singleBlockCurrentModelRecord_X.blockNumber()
+                                        + "  BLOCK # " + singleBlockCurrentModelRecord_X.blockID()
                                         + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
                                         + "\nError function = " + statsFormat.format(StrictMath.sqrt(initialModelErrorUnWeighted_E0 / countOfData))
                                         + "\nChange All Variables: " + modelsKeptLocal + " of " + modelsTotalLocal + " accepted (" + statsFormat.format(100.0 * modelsKept / modelsTotal) + "% total)"
@@ -697,7 +695,7 @@ x=x0;
 
                             if (rExit <= ExitCrit) {
                                 notConverged = false;
-                                String exitMessage = "Alert:  for BLOCK # " + singleBlockCurrentModelRecord_X.blockNumber() + ",  MCMC has converged after " + modelIndex + " iterations, with R = " + rExit;
+                                String exitMessage = "Alert:  for BLOCK # " + singleBlockCurrentModelRecord_X.blockID() + ",  MCMC has converged after " + modelIndex + " iterations, with R = " + rExit;
                                 System.err.println("\n" + exitMessage + "\n");
                                 loggingCallback.receiveLoggingSnippet(exitMessage);
                             }
@@ -710,28 +708,28 @@ x=x0;
             }// end model loop
         }// convergence check
 
-        // Detroit 2023 printout ensembleRecordsList
-        Path path = Paths.get("EnsemblesForBlock_" + singleBlockCurrentModelRecord_X.blockNumber() + ".csv");
-        OutputStream stream = Files.newOutputStream(path);
-        stream.write(ensembleRecordsList.get(0).prettyPrintHeaderAsCSV("Index", analysisMethod.getIsotopicRatiosList()).getBytes());
-        for (int i = 0; i < ensembleRecordsList.size(); i++) {
-            stream.write(ensembleRecordsList.get(i).prettyPrintAsCSV().getBytes());
-        }
-        stream.close();
+        // for analysis plotting
+        // TODO: move to analysis class?
+        analysis.getMapOfBlockIdToRawData().put(singleBlockCurrentModelRecord_X.blockID(), singleBlockRawDataSetRecord);
+        analysis.getMapBlockIDToEnsembles().put(singleBlockCurrentModelRecord_X.blockID(), ensembleRecordsList);
+        analysis.getMapOfBlockIdToModelsBurnCount().put(singleBlockCurrentModelRecord_X.blockID(), ensembleRecordsList.size() / 2);
 
-        // for session plotting
-        analysisMethod.getMapOfBlockIdToRawData().put(singleBlockCurrentModelRecord_X.blockNumber(), singleBlockRawDataSetRecord);
+        // default strategy
+        analysis.getMapOfBlockIdToFinalModel()
+                .put(singleBlockCurrentModelRecord_X.blockID(), (bestSingleBlockModelRecord == null) ? singleBlockCurrentModelRecord_X : bestSingleBlockModelRecord);
 
         if (useAverageNotBestModel) {
-            SingleBlockModelRecord singleBlockModelRecordMCMC = EnsemblesStore.EnsembleRecord.produceSummaryModelFromEnsembles(
-                    ensembleRecordsList, analysisMethod, singleBlockRawDataSetRecord, bestSingleBlockModelRecord);
-            analysisMethod.getMapOfBlockIdToFinalModel()
-                    .put(singleBlockCurrentModelRecord_X.blockNumber(), singleBlockModelRecordMCMC);
-        } else {// TODO: get this right and make it an option
-            analysisMethod.getMapOfBlockIdToFinalModel()
-                    .put(singleBlockCurrentModelRecord_X.blockNumber(), (bestSingleBlockModelRecord == null) ? singleBlockCurrentModelRecord_X : bestSingleBlockModelRecord);
+//            SingleBlockModelRecord singleBlockModelRecordMCMC =
+            EnsemblesStore.produceSummaryModelFromEnsembleStore(
+                    singleBlockCurrentModelRecord_X.blockID(), analysis);
+//            analysisMethod.getMapOfBlockIdToFinalModel()
+//                    .put(singleBlockCurrentModelRecord_X.blockID(), singleBlockModelRecordMCMC);
         }
+//        else {// TODO: get this right and make it an option
+//            analysisMethod.getMapOfBlockIdToFinalModel()
+//                    .put(singleBlockCurrentModelRecord_X.blockID(), (bestSingleBlockModelRecord == null) ? singleBlockCurrentModelRecord_X : bestSingleBlockModelRecord);
+//        }
 
-        return SingleBlockDataModelPlot.analysisAndPlotting(singleBlockRawDataSetRecord, ensembleRecordsList, singleBlockCurrentModelRecord_X, analysisMethod);
+        return SingleBlockDataModelPlot.analysisAndPlotting(singleBlockCurrentModelRecord_X.blockID(), analysis);
     }
 }

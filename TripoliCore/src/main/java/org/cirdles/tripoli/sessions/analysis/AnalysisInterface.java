@@ -4,6 +4,9 @@ import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
@@ -112,4 +115,14 @@ public interface AnalysisInterface {
     Map<Integer, PlotBuilder[][]> getMapOfBlockIdToPlots();
 
     Map<Integer, PlotBuilder[]> getMapOfBlockIdToPeakPlots();
+
+    Map<Integer, SingleBlockRawDataSetRecord> getMapOfBlockIdToRawData();
+
+    Map<Integer, SingleBlockModelRecord> getMapOfBlockIdToFinalModel();
+
+    Map<Integer, List<EnsemblesStore.EnsembleRecord>> getMapBlockIDToEnsembles();
+
+    Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount();
+
+    void resetAnalysis();
 }

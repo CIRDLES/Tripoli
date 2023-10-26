@@ -21,37 +21,39 @@
 <VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="masterVBox" minHeight="600.0" minWidth="1000.0" prefHeight="600.0"
       prefWidth="1000.0" stylesheets="@../../../css/newcss.css" xmlns="http://javafx.com/javafx/17"
       fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController">
-    <SplitPane dividerPositions="0.7633410672853829" minHeight="565.0" minWidth="1000.0" orientation="VERTICAL">
+    <SplitPane dividerPositions="0.8" minHeight="565.0" minWidth="1000.0" orientation="VERTICAL" VBox.vgrow="ALWAYS">
         <TabPane fx:id="plotTabPane">
+            <Tab fx:id="convergencesTab" closable="false" onSelectionChanged="#convergeTabSelected" text="Convergences">
+                <AnchorPane fx:id="convergePlotsAnchorPane"/>
+            </Tab>
+            <Tab fx:id="convergeErrorTab" closable="false" onSelectionChanged="#convergeTabSelected"
+                 text="Converge_Error">
+                <AnchorPane fx:id="convergeErrorPlotsAnchorPane"/>
+            </Tab>
+            <Tab fx:id="convergeIntensityTab" closable="false" onSelectionChanged="#convergeTabSelected"
+                 text="Converge_Intensity">
+                <AnchorPane fx:id="convergeIntensityAnchorPane"/>
+            </Tab>
             <Tab closable="false" text="Ensembles">
                 <AnchorPane fx:id="ensemblePlotsAnchorPane"/>
             </Tab>
-            <Tab closable="false" text="Convergences">
-                <AnchorPane fx:id="convergePlotsAnchorPane"/>
+            <Tab closable="false" onSelectionChanged="#plotRatioSessionEngine" text="Analysis Ratios">
+                <AnchorPane fx:id="ratioSessionAnchorPane"/>
             </Tab>
             <Tab closable="false" text="DataFit">
                 <AnchorPane fx:id="dataFitPlotsAnchorPane"/>
             </Tab>
-            <Tab closable="false" text="Converge_Error">
-                <AnchorPane fx:id="convergeErrorPlotsAnchorPane"/>
-            </Tab>
-            <Tab closable="false" text="Converge_Intensity">
-                <AnchorPane fx:id="convergeIntensityAnchorPane"/>
-            </Tab>
-            <Tab closable="false" onSelectionChanged="#plotRatioSessionEngine" text="Ratio Session">
-                <AnchorPane fx:id="ratioSessionAnchorPane"/>
-            </Tab>
             <Tab closable="false" text="Beam Shape">
                 <AnchorPane fx:id="beamShapeAnchorPane"/>
             </Tab>
-            <Tab closable="false" onSelectionChanged="#plotPeakSessionEngine" text="Peak Shape Session">
-                <AnchorPane fx:id="peakSessionAnchorPane"/>
+            <Tab closable="false" onSelectionChanged="#plotPeakSessionEngine" text="Analysis Peak Shapes">
+                <AnchorPane fx:id="peakAnalysisAnchorPane"/>
             </Tab>
             <Tab closable="false" text="Log">
                 <AnchorPane fx:id="logAnchorPane"/>
             </Tab>
         </TabPane>
-        <SplitPane dividerPositions="0.15">
+        <SplitPane dividerPositions="0.25" maxHeight="200.0" prefHeight="172.0" prefWidth="1000.0">
             <ScrollPane fx:id="listOfFilesScrollPane"/>
             <VBox>
                 <children>

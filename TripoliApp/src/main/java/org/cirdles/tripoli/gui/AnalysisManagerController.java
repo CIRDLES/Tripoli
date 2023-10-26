@@ -26,7 +26,10 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliPlotsWindow;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
@@ -60,7 +63,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     public static AnalysisInterface analysis;
     public static MCMCPlotsWindow MCMCPlotsWindow;
-    public static OGTripoliPlotsWindow ogTripoliPlotsWindow;
+    public static OGTripoliPlotsWindow ogTripoliReviewPlotsWindow;
+    public static OGTripoliPlotsWindow ogTripoliPreviewPlotsWindow;
     private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
     public Tab detectorDetailTab;
     public TabPane analysiMethodTabPane;
@@ -80,6 +84,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public ToggleGroup knotsToggleGroup;
     @FXML
     public Button reviewSculptData;
+    @FXML
+    public ToolBar processingToolBar;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -111,6 +117,18 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private List<IsotopicRatio> allRatios;
     @FXML
     private Button addRatioButton;
+
+    public static void closePlotWindows() {
+        if (ogTripoliPreviewPlotsWindow != null) {
+            ogTripoliPreviewPlotsWindow.close();
+        }
+        if (ogTripoliReviewPlotsWindow != null) {
+            ogTripoliReviewPlotsWindow.close();
+        }
+        if (MCMCPlotsWindow != null) {
+            MCMCPlotsWindow.close();
+        }
+    }
 
     public static StackPane makeMassStackPane(String massName, String color) {
         Text massText = new Text(massName);
@@ -177,9 +195,11 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         MCMCPlotsController.analysis = analysis;
+        OGTripoliViewController.analysis = analysis;
         analysisManagerGridPane.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_YELLOW));
 
         populateAnalysisManagerGridPane();
+        setupListeners();
     }
 
     private void setupListeners() {
@@ -234,6 +254,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         populateAnalysisMethodRatioSelectorPane();
         populateAnalysisMethodRatioBuilderPane();
+
+        processingToolBar.setDisable(analysis.getAnalysisMethod() == null);
     }
 
     private void populateAnalysisDataFields() {
@@ -375,6 +397,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     private void populateAnalysisMethodRatioBuilderPane() {
         addRatioButton.setStyle(addRatioButton.getStyle() + ";-fx-font-size:15");
+        numeratorMassesListTextFlow.getChildren().clear();
+        denominatorMassesListTextFlow.getChildren().clear();
         if (null != analysis.getAnalysisMethod()) {
             activeRatiosList = new TreeSet<>();
             List<SpeciesRecordInterface> species = analysis.getAnalysisMethod().getSpeciesListSortedByMass();
@@ -508,11 +532,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     private void populateBlocksStatus() {
         blockStatusHBox.getChildren().clear();
-        var massSpecExtractedData = analysis.getMassSpecExtractedData();
-        Map<Integer, MassSpecOutputSingleBlockRecord> blocksData = massSpecExtractedData.getBlocksData();
-        for (MassSpecOutputSingleBlockRecord block : blocksData.values()) {
-            Button blockStatusButton = blockStatusButtonFactory(block.blockID());
-            blockStatusHBox.getChildren().add(blockStatusButton);
+        if (analysis.getAnalysisMethod() != null) {
+            var massSpecExtractedData = analysis.getMassSpecExtractedData();
+            Map<Integer, MassSpecOutputSingleBlockRecord> blocksData = massSpecExtractedData.getBlocksData();
+            for (MassSpecOutputSingleBlockRecord block : blocksData.values()) {
+                Button blockStatusButton = blockStatusButtonFactory(block.blockID());
+                blockStatusHBox.getChildren().add(blockStatusButton);
+            }
         }
     }
 
@@ -573,13 +599,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         try {
             File selectedFile = selectDataFile(TripoliGUI.primaryStage);
             if (null != selectedFile) {
-                analysis.setAnalysisMethod(null);
+                removeMethod();
                 try {
                     analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
                 } catch (TripoliException e) {
                     //TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
                 }
                 populateAnalysisManagerGridPane();
+                processingToolBar.setDisable(analysis.getAnalysisMethod() == null);
             }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |
                  JAXBException | TripoliException e) {
@@ -587,15 +614,23 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
     }
 
+    private void removeMethod() {
+        analysis.resetAnalysis();
+        populateAnalysisMethodGridPane();
+        populateBlocksStatus();
+
+    }
+
     @FXML
     private void selectMethodFileButtonAction() {
         try {
-            File selectedFile = selectMethodFile(TripoliGUI.primaryStage);
+            File selectedFile = selectMethodFile(null);
             if ((null != selectedFile) && (selectedFile.exists())) {
                 AnalysisMethod analysisMethod = analysis.extractAnalysisMethodfromPath(Path.of(selectedFile.toURI()));
                 String compareInfo = compareAnalysisMethodToDataFileSpecs(analysisMethod, analysis.getMassSpecExtractedData());
                 if (compareInfo.isBlank()) {
                     analysis.setMethod(analysisMethod);
+                    ((Analysis) analysis).initializeBlockProcessing();
                     TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedFile.getParent());
                 } else {
                     boolean choice = showChoiceDialog(
@@ -604,6 +639,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                                     + "\n\nProceed?", TripoliGUI.primaryStage);
                     if (choice) {
                         analysis.setMethod(analysisMethod);
+                        ((Analysis) analysis).initializeBlockProcessing();
                         TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedFile.getParent());
                     }
                 }
@@ -611,7 +647,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         } catch (TripoliException | IOException | JAXBException e) {
             TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
         }
-
+        processingToolBar.setDisable(analysis.getAnalysisMethod() == null);
         // initialize block processing state
         for (Integer blockID : analysis.getMassSpecExtractedData().getBlocksData().keySet()) {
             analysis.getMapOfBlockIdToProcessStatus().put(blockID, RUN);
@@ -630,21 +666,28 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             MCMCPlotsWindow.close();
         }
         MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage, this);
-        MCMCPlotsController.analysis = analysis;
         MCMCPlotsWindow.loadPlotsWindow();
     }
 
 
-    public void reviewAndSculptDataAction() throws TripoliException {
+    public void previewAndSculptDataAction() throws TripoliException {
         // ogTripoli view
-        if (null != ogTripoliPlotsWindow) {
-            ogTripoliPlotsWindow.close();
+        if (null != ogTripoliPreviewPlotsWindow) {
+            ogTripoliPreviewPlotsWindow.close();
         }
-        ogTripoliPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage);
-        OGTripoliViewController.analysis = analysis;
-        OGTripoliViewController.plottingData = AllBlockInitForOGTripoli.initBlockModels(analysis);
-        ogTripoliPlotsWindow.loadPlotsWindow();
+        AllBlockInitForOGTripoli.PlottingData plottingData = AllBlockInitForOGTripoli.initBlockModels(analysis);
+        ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
+        ogTripoliPreviewPlotsWindow.loadPlotsWindow();
+    }
 
+    public void reviewAndSculptDataAction() {
+        // fire up OGTripoli style session plots
+        if (null != ogTripoliReviewPlotsWindow) {
+            ogTripoliReviewPlotsWindow.close();
+        }
+        AllBlockInitForOGTripoli.PlottingData plottingData = analysis.assemblePostProcessPlottingData();
+        ogTripoliReviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
+        ogTripoliReviewPlotsWindow.loadPlotsWindow();
     }
 
     public void selectRunAllAction() {
@@ -666,13 +709,18 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     public void selectShowsAction() {
         for (Node button : blockStatusHBox.getChildren()) {
-            if ((button instanceof Button) && (0 == analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())))) {
+            if ((button instanceof Button) && (null != analysis.getMapOfBlockIdToPlots().get(Integer.parseInt(button.getId())))) {
                 tuneButton((Button) button, SHOW);
+            } else if (null == analysis.getMapOfBlockIdToPlots().get(Integer.parseInt(button.getId()))) {
+                tuneButton((Button) button, SKIP);
             }
         }
     }
 
-    public void restoreAllAction() {
+    /**
+     * Restores block status buttons to their saved state
+     */
+    public void refreshAllBlocksStatusAction() {
         for (Node button : blockStatusHBox.getChildren()) {
             if ((button instanceof Button) && (null != analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())))) {
                 tuneButton((Button) button, analysis.getMapOfBlockIdToProcessStatus().get(Integer.parseInt(button.getId())));
@@ -685,7 +733,20 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
      */
     @Override
     public void callbackRefreshBlocksStatus() {
-        restoreAllAction();
+        refreshAllBlocksStatusAction();
+    }
+
+    @Override
+    public void callBackSetBlockIncludedStatus(int blockID, boolean included) {
+        boolean isProcessed = (analysis.getMapOfBlockIdToPlots().get(blockID) != null);
+        analysis.getMapOfBlockIdToProcessStatus().put(blockID, included ? (isProcessed ? SHOW : RUN) : SKIP);
+        populateBlocksStatus();
+        if (ogTripoliReviewPlotsWindow != null) {
+            ogTripoliReviewPlotsWindow.getOgTripoliViewController().populatePlots();
+        }
+        if (ogTripoliPreviewPlotsWindow != null) {
+            ogTripoliPreviewPlotsWindow.getOgTripoliViewController().populatePlots();
+        }
     }
 
     private void updateAnalysisRatios(IsotopicRatio ratio, boolean displayed) {

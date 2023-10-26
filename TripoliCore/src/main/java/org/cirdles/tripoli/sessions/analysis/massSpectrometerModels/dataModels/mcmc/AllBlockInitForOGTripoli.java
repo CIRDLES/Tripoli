@@ -43,19 +43,20 @@ public class AllBlockInitForOGTripoli {
             singleBlockRawDataSetRecords[blockIndex] = prepareSingleBlockDataForMCMC(blockIndex + 1, massSpecExtractedData, analysisMethod);
             SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithNoCov;
             try {
-                singleBlockInitialModelRecordWithNoCov = initializeModelForSingleBlockMCMC(analysis.getAnalysisMethod(), singleBlockRawDataSetRecords[blockIndex], false);
+                singleBlockInitialModelRecordWithNoCov = initializeModelForSingleBlockMCMC(analysis, analysis.getAnalysisMethod(), singleBlockRawDataSetRecords[blockIndex], false);
             } catch (RecoverableCondition e) {
                 throw new TripoliException("Ojalgo RecoverableCondition");
             }
             singleBlockModelRecords[blockIndex] = singleBlockInitialModelRecordWithNoCov.singleBlockModelRecord();
         }
 
-        return new PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, true);
+        return new PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, singleBlockModelRecords[0].cycleCount(), true);
     }
 
     public record PlottingData(
             SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords,
             SingleBlockModelRecord[] singleBlockModelRecords,
+            int cycleCount,
             boolean preview) {
     }
 }

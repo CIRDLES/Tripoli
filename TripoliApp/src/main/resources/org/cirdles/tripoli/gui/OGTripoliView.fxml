@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" minHeight="600.0" minWidth="1000.0" prefHeight="600.0" prefWidth="1000.0"
-      xmlns="http://javafx.com/javafx/17" fx:controller="org.cirdles.tripoli.gui.OGTripoliViewController">
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="plotWindowVBox" prefHeight="600.0" prefWidth="1000.0"
+      xmlns="http://javafx.com/javafx/17"
+      fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController">
     <children>
-        <TabPane>
+        <TabPane fx:id="plotTabPane">
             <tabs>
                 <Tab closable="false" text="Ratios by Cycles and Blocks">
                     <content>
-                        <AnchorPane fx:id="ogtCycleRatioPlotsAnchorPane" minHeight="600.0" minWidth="1000.0"
-                                    prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: lightgrey;">
+                        <AnchorPane fx:id="ogtCycleRatioPlotsAnchorPane" prefHeight="579.0" prefWidth="1000.0"
+                                    style="-fx-background-color: lightgrey;">
                         </AnchorPane>
                     </content>
                 </Tab>
                 <Tab closable="false" text="OnPeak Intensities by Time">
                     <content>
-                        <AnchorPane fx:id="ogtSpeciesIntensitiesPlotAnchorPane" minHeight="625.0" minWidth="1000.0"
-                                    prefHeight="625.0" prefWidth="1000.0" style="-fx-background-color: lightgrey;"/>
+                        <AnchorPane fx:id="ogtSpeciesIntensitiesPlotAnchorPane"
+                                    style="-fx-background-color: lightgrey;"/>
                     </content>
                 </Tab>
             </tabs>

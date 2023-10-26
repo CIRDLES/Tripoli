@@ -26,21 +26,22 @@ public class LinePlotBuilder extends PlotBuilder {
     private static final long serialVersionUID = 5549376854790308330L;
     private final double[] xData;
     private final double[] yData;
+    private int blockID;
 
-    public LinePlotBuilder(String[] title, String xAxisLabel, String yAxisLabel) {
-        super(title, xAxisLabel, yAxisLabel, true);
-        xData = new double[0];
-        yData = new double[0];
-    }
-
-    protected LinePlotBuilder(double[] xData, double[] yData, String[] title, String xAxisLabel, String yAxisLabel) {
+    protected LinePlotBuilder(double[] xData, double[] yData, String[] title, String xAxisLabel, String yAxisLabel, int shadeWidthForModelConvergence, int blockID) {
         super(title, xAxisLabel, yAxisLabel, true);
         this.xData = xData;
         this.yData = yData;
+        this.blockID = blockID;
+        this.shadeWidthForModelConvergence = shadeWidthForModelConvergence;
     }
 
-    public static LinePlotBuilder initializeLinePlot(double[] xData, double[] yData, String[] title, String xAxisLabel, String yAxisLabel) {
-        return new LinePlotBuilder(xData, yData, title, xAxisLabel, yAxisLabel);
+    public static LinePlotBuilder initializeLinePlot(double[] xData, double[] yData, String[] title, String xAxisLabel, String yAxisLabel, int shadeWidthForModelConvergence, int blockID) {
+        return new LinePlotBuilder(xData, yData, title, xAxisLabel, yAxisLabel, shadeWidthForModelConvergence, blockID);
+    }
+
+    public int getBlockID() {
+        return blockID;
     }
 
     public double[] getyData() {
@@ -49,5 +50,9 @@ public class LinePlotBuilder extends PlotBuilder {
 
     public double[] getxData() {
         return xData;
+    }
+
+    public double getShadeWidthForModelConvergence() {
+        return shadeWidthForModelConvergence;
     }
 }

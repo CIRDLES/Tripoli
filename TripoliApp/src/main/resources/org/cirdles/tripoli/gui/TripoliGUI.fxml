@@ -21,6 +21,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
 <VBox xmlns:fx="http://javafx.com/fxml/1" prefHeight="725.0" prefWidth="1250.0" stylesheets="@css/tripoli.css"
       xmlns="http://javafx.com/javafx/17" fx:controller="org.cirdles.tripoli.gui.TripoliGUIController">
     <MenuBar prefHeight="17.0" prefWidth="1234.0" VBox.vgrow="NEVER">
@@ -34,8 +35,6 @@
             <MenuItem fx:id="openSessionMenuItem" mnemonicParsing="false" onAction="#openSessionMenuItemAction"
                       text="Open Session"/>
             <Menu fx:id="openRecentSessionMenu" mnemonicParsing="false" text="Open Recent Session"/>
-            <MenuItem fx:id="openRecentSessionMenuItem" mnemonicParsing="false"
-                      onAction="#openRecentSessionMenuItemAction" text="Open Recent Session"/>
             <MenuItem mnemonicParsing="false" onAction="#openDemonstrationSessionMenuItemAction"
                       text="Open Demonstration Session"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
@@ -52,8 +51,17 @@
         <Menu fx:id="analysisMenu" mnemonicParsing="false" text="Analysis">
             <MenuItem mnemonicParsing="false" onAction="#manageAnalysisMenuItemAction" text="Manage Analysis"/>
             <MenuItem mnemonicParsing="false" onAction="#newAnalysisMenuItemOnAction" text="New Analysis"/>
-            <MenuItem mnemonicParsing="false" text="Import Analysis"/>
-            <MenuItem mnemonicParsing="false" text="Export Analysis"/>
+            <MenuItem disable="true" mnemonicParsing="false" text="Import Analysis"/>
+            <MenuItem disable="true" mnemonicParsing="false" text="Export Analysis"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <Menu mnemonicParsing="false" text="Analysis Reports">
+                <items>
+                    <MenuItem mnemonicParsing="false" onAction="#generateMCMCDetailsPerBlockAction"
+                              text="Generate  MCMC details per block"/>
+                    <MenuItem mnemonicParsing="false" onAction="#reportTemplateOneAction"
+                              text="Generate Report  using Template 1"/>
+                </items>
+            </Menu>
         </Menu>
         <Menu fx:id="methodsMenu" mnemonicParsing="false" text="Methods">
             <Menu mnemonicParsing="false" text="New Method from ...">
@@ -89,7 +97,7 @@
         <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                     AnchorPane.topAnchor="0.0">
             <center>
-                <HBox alignment="CENTER" prefHeight="691.0" prefWidth="1234.0">
+                <HBox fx:id="newVersionAnnounceHBox" alignment="CENTER" prefHeight="691.0" prefWidth="1234.0">
                     <VBox alignment="CENTER">
                         <opaqueInsets>
                             <Insets/>
@@ -114,6 +122,25 @@
                     </VBox>
                 </HBox>
             </center>
+            <bottom>
+                <HBox fx:id="latestVersionHBox" BorderPane.alignment="CENTER">
+                    <children>
+                        <Label fx:id="newVersionLabel" alignment="CENTER_RIGHT" prefHeight="56.0" prefWidth="506.0"
+                               style="-fx-text-fill: red;" text="New Version v0.0.0 at: ">
+                            <font>
+                                <Font size="24.0"/>
+                            </font>
+                        </Label>
+                        <Hyperlink onAction="#visitLatestVersionAction" prefHeight="56.0" prefWidth="754.0"
+                                   style="-fx-border-color: transparent;"
+                                   text="https://github.com/CIRDLES/Tripoli/releases/latest">
+                            <font>
+                                <Font size="24.0"/>
+                            </font>
+                        </Hyperlink>
+                    </children>
+                </HBox>
+            </bottom>
         </BorderPane>
     </AnchorPane>
 </VBox>

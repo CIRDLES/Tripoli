@@ -41,21 +41,21 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public enum SingleBlockModelDriver {
     ;
 
-    public static PlotBuilder[][] buildAndRunModelForSingleBlock(int blockNumber, AnalysisInterface analysis, LoggingCallbackInterface loggingCallback) throws TripoliException, IOException {
+    public static PlotBuilder[][] buildAndRunModelForSingleBlock(int blockID, AnalysisInterface analysis, LoggingCallbackInterface loggingCallback) throws TripoliException, IOException {
         MassSpecExtractedData massSpecExtractedData = analysis.getMassSpecExtractedData();
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
         PlotBuilder[][] plotBuilder = new PlotBuilder[0][0];
 
-        SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = prepareSingleBlockDataForMCMC(blockNumber, massSpecExtractedData, analysisMethod);
+        SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = prepareSingleBlockDataForMCMC(blockID, massSpecExtractedData, analysisMethod);
         SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov;
         try {
-            singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC(analysisMethod, singleBlockRawDataSetRecord, true);
+            singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC(analysis, analysisMethod, singleBlockRawDataSetRecord, true);
         } catch (RecoverableCondition e) {
             throw new TripoliException("Ojalgo RecoverableCondition");
         }
 
         if (null != singleBlockInitialModelRecordWithCov) {
-            MCMCProcess mcmcProcess = MCMCProcess.createMCMCProcess(analysisMethod, singleBlockRawDataSetRecord, singleBlockInitialModelRecordWithCov);
+            MCMCProcess mcmcProcess = MCMCProcess.createMCMCProcess(analysis, singleBlockRawDataSetRecord, singleBlockInitialModelRecordWithCov);
             mcmcProcess.initializeMCMCProcess();
             plotBuilder = mcmcProcess.applyInversionWithAdaptiveMCMC(loggingCallback);
         }
@@ -91,7 +91,7 @@ public enum SingleBlockModelDriver {
             blockIntensityList.addAll(baselineDataSetMCMC.intensityAccumulatorList());
             blockIntensityList.addAll(onPeakFaradayDataSetMCMC.intensityAccumulatorList());
             blockIntensityList.addAll(onPeakPhotoMultiplierDataSetMCMC.intensityAccumulatorList());
-            double[] blockIntensityArray = Doubles.toArray(blockIntensityList);
+            double[] blockRawDataArray = Doubles.toArray(blockIntensityList);
 
             List<Integer> blockDetectorOrdinalIndicesList = new ArrayList<>();
             blockDetectorOrdinalIndicesList.addAll(baselineDataSetMCMC.detectorOrdinalIndicesAccumulatorList());
@@ -112,7 +112,6 @@ public enum SingleBlockModelDriver {
             int[] blockTimeIndicesArray = blockTimeIndicesList.stream().mapToInt(i -> i).toArray();
 
             int[] onPeakStartingIndicesOfCycles = massSpecOutputSingleBlockRecord.onPeakStartingIndicesOfCycles();
-
 
             Map<String, List<Double>> blockMapIdsToDataTimes = new TreeMap<>();
             for (String id : onPeakFaradayDataSetMCMC.blockMapOfIdsToData().keySet()) {
@@ -144,7 +143,7 @@ public enum SingleBlockModelDriver {
 
             singleBlockRawDataSetRecord =
                     new SingleBlockRawDataSetRecord(blockNumber, baselineDataSetMCMC, onPeakFaradayDataSetMCMC, onPeakPhotoMultiplierDataSetMCMC, blockKnotInterpolationStore.toRawCopy2D(),
-                            blockCycleArray, blockIntensityArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeIndicesArray,
+                            blockCycleArray, blockRawDataArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeIndicesArray,
                             onPeakStartingIndicesOfCycles, mapOfSpeciesToActiveCycles, blockMapIdsToDataTimes);
         }
         return singleBlockRawDataSetRecord;

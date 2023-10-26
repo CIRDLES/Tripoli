@@ -27,19 +27,23 @@ public class MultiLinePlotBuilder extends PlotBuilder {
     private double[][] xData;
     private double[][] yData;
     private boolean markerInLastLine;
+    private int blockID;
 
-    public MultiLinePlotBuilder() {
-    }
-
-    private MultiLinePlotBuilder(double[][] xData, double[][] yData, String[] title, String xAxisLabel, String yAxisLabel, boolean markerInLastLine) {
+    private MultiLinePlotBuilder(double[][] xData, double[][] yData, String[] title, String xAxisLabel, String yAxisLabel, boolean markerInLastLine, int blockID, int shadeWidthForModelConvergence) {
         super(title, xAxisLabel, yAxisLabel, true);
         this.xData = xData;
         this.yData = yData;
         this.markerInLastLine = markerInLastLine;
+        this.blockID = blockID;
+        this.shadeWidthForModelConvergence = shadeWidthForModelConvergence;
     }
 
-    public static MultiLinePlotBuilder initializeLinePlot(double[][] xData, double[][] yData, String[] title, String xAxisLabel, String yAxisLabel, boolean markerInLastLine) {
-        return new MultiLinePlotBuilder(xData, yData, title, xAxisLabel, yAxisLabel, markerInLastLine);
+    public static MultiLinePlotBuilder initializeLinePlot(double[][] xData, double[][] yData, String[] title, String xAxisLabel, String yAxisLabel, boolean markerInLastLine, int blockID, int shadeWidthForModelConvergence) {
+        return new MultiLinePlotBuilder(xData, yData, title, xAxisLabel, yAxisLabel, markerInLastLine, blockID, shadeWidthForModelConvergence);
+    }
+
+    public int getBlockID() {
+        return blockID;
     }
 
     public double[][] getyData() {

@@ -21,7 +21,7 @@ import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockDataModelPlot.PLOT_INDEX_RATIOS;
+import static org.cirdles.tripoli.constants.TripoliConstants.*;
 
 /**
  * @author James F. Bowring
@@ -29,7 +29,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface, PlotBuildersTaskInterface {
     public static AnalysisInterface analysis;
     private final int blockID;
-    // ensemble plots
+    //  plotBuilders
     private PlotBuilder[] ratiosHistogramBuilder;
     private PlotBuilder[] baselineHistogramBuilder;
     private PlotBuilder[] dalyFaradayGainHistogramBuilder;
@@ -53,8 +53,15 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     private PlotBuilder[] observedDataWithSubsetsLineBuilder;
     private PlotBuilder[] peakShapesBuilder;
 
+    // TODO: refactor to all plotBuilders
+    private PlotBuilder[][] plotBuilders;
+
     public MCMCPlotBuildersTask(int blockID) {
         this.blockID = blockID;
+    }
+
+    public PlotBuilder[][] getPlotBuilders() {
+        return plotBuilders;
     }
 
     public boolean healthyPlotbuilder() {
@@ -80,11 +87,6 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     public PlotBuilder[] getDalyFaradayGainHistogramBuilder() {
         return dalyFaradayGainHistogramBuilder.clone();
     }
-
-//    @Override
-//    public PlotBuilder[] getSignalNoiseHistogramBuilder() {
-//        return signalNoiseHistogramBuilder.clone();
-//    }
 
     @Override
     public PlotBuilder[] getMeanIntensityVsKnotsMultiLineBuilder() {
@@ -126,43 +128,36 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         return convergeIntensityLinesBuilder;
     }
 
-//    @Override
-//    public PlotBuilder[] getConvergeNoiseFaradayLineBuilder() {
-//        return convergeNoiseFaradayLineBuilder.clone();
-//    }
-
     public PlotBuilder[] getObservedDataWithSubsetsLineBuilder() {
         return observedDataWithSubsetsLineBuilder;
     }
 
     @Override
     public synchronized String call() throws Exception {
-        PlotBuilder[][] plots = analysis.updatePlotsByBlock(blockID, this);
-
+        plotBuilders = analysis.updatePlotsByBlock(blockID, this);
 
         peakShapesBuilder = analysis.updatePeakPlotsByBlock(blockID);
-        ratiosHistogramBuilder = plots[PLOT_INDEX_RATIOS];
-        baselineHistogramBuilder = plots[1];
-        dalyFaradayGainHistogramBuilder = plots[2];
-//        signalNoiseHistogramBuilder = plots[3];
-        meanIntensityVsKnotsMultiLineBuilder = plots[4];
+        ratiosHistogramBuilder = plotBuilders[PLOT_INDEX_RATIOS];
+        baselineHistogramBuilder = plotBuilders[PLOT_INDEX_BASELINES];
+        dalyFaradayGainHistogramBuilder = plotBuilders[PLOT_INDEX_DFGAINS];
+        meanIntensityVsKnotsMultiLineBuilder = plotBuilders[PLOT_INDEX_MEANINTENSITIES];
 
-        convergeRatioLineBuilder = plots[5];
+        convergeRatioLineBuilder = plotBuilders[5];
 
-        convergeBLFaradayLineBuilder = plots[6];
+        convergeBLFaradayLineBuilder = plotBuilders[6];
 
-        convergeErrWeightedMisfitLineBuilder = plots[8];
-        convergeErrRawMisfitLineBuilder = plots[9];
-        convergeIntensityLinesBuilder = plots[10];
+        convergeErrWeightedMisfitLineBuilder = plotBuilders[8];
+        convergeErrRawMisfitLineBuilder = plotBuilders[9];
+        convergeIntensityLinesBuilder = plotBuilders[10];
 
-        //convergeNoiseFaradayLineBuilder = plots[11];
+        //convergeNoiseFaradayLineBuilder = plotBuilders[11];
 
-        observedDataLineBuilder = plots[13];
-        residualDataLineBuilder = plots[14];
+        observedDataLineBuilder = plotBuilders[13];
+        residualDataLineBuilder = plotBuilders[14];
 
-        observedDataWithSubsetsLineBuilder = plots[15];
+        observedDataWithSubsetsLineBuilder = plotBuilders[15];
 
-        return analysis.getDataFilePathString() + "Block # " + blockID + "\n\n\tDONE - view tabs for various plots";
+        return analysis.getDataFilePathString() + "Block # " + blockID + "\n\n\tDONE - view tabs for various plotBuilders";
     }
 
     @Override
