@@ -46,7 +46,7 @@ public class PeakShapePlotsWindow {
         plottingStage = new Stage();
         plottingStage.setMinWidth(PLOT_WINDOW_WIDTH);
         plottingStage.setMinHeight(PLOT_WINDOW_HEIGHT);
-        plottingStage.setTitle("Tripoli Demo2 of PeakShape");
+        plottingStage.setTitle("Tripoli View of PeakShapes");
 
         plottingStage.setOnCloseRequest((WindowEvent e) -> {
             plottingStage.hide();

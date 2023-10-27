@@ -1,9 +1,11 @@
-package org.cirdles.tripoli.plots.compoundPlots;
+package org.cirdles.tripoli.plots.compoundPlotBuilders;
 
 import java.io.Serializable;
 
 public record BlockRatioCyclesRecord(
         int blockID,
+        boolean processed,
+        double dalyFaradayGain,
         boolean blockIncluded,
         boolean[] cyclesIncluded,
         double[] cycleRatioMeansData,
@@ -17,6 +19,8 @@ public record BlockRatioCyclesRecord(
     public BlockRatioCyclesRecord toggleBlockIncluded() {
         return new BlockRatioCyclesRecord(
                 blockID,
+                processed,
+                dalyFaradayGain,
                 !blockIncluded,
                 cyclesIncluded,
                 cycleRatioMeansData,

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.plots.compoundPlots;
+package org.cirdles.tripoli.plots.compoundPlotBuilders;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.plots.PlotBuilder;
@@ -28,20 +28,21 @@ public class BlockRatioCyclesBuilder extends PlotBuilder {
 //    private static final long serialVersionUID = 9180059676626735662L;
     protected BlockRatioCyclesRecord blockRatioCyclesRecord;
 
-    protected BlockRatioCyclesBuilder(int blockID, String[] title, String xAxisLabel, String yAxisLabel, boolean displayed) {
+    protected BlockRatioCyclesBuilder(int blockID, boolean processed, double dalyFaradayGain, String[] title, String xAxisLabel, String yAxisLabel, boolean displayed) {
         super(title, xAxisLabel, yAxisLabel, displayed);
-        blockRatioCyclesRecord = generateBlockCyclesPlot(blockID, new double[0], new double[0], new boolean[0], new String[]{""}, xAxisLabel, true);
+        blockRatioCyclesRecord = generateBlockCyclesPlot(blockID, processed, dalyFaradayGain, new double[0], new double[0], new boolean[0], new String[]{""}, xAxisLabel, true);
         this.displayed = displayed;
     }
 
     public static BlockRatioCyclesBuilder initializeBlockCycles(
-            int blockID, double[] cycleLogRatioMeansData, double[] cycleLogRatioOneSigmaData, boolean[] cyclesIncluded, String[] title, String xAxisLabel, String yAxisLabel, boolean displayed, boolean blockIncluded) {
-        BlockRatioCyclesBuilder blockRatioCyclesBuilder = new BlockRatioCyclesBuilder(blockID, title, xAxisLabel, yAxisLabel, displayed);
-        blockRatioCyclesBuilder.blockRatioCyclesRecord = blockRatioCyclesBuilder.generateBlockCyclesPlot(blockID, cycleLogRatioMeansData, cycleLogRatioOneSigmaData, cyclesIncluded, title, xAxisLabel, blockIncluded);
+            int blockID, boolean processed, double dalyFaradayGain, double[] cycleLogRatioMeansData, double[] cycleLogRatioOneSigmaData, boolean[] cyclesIncluded,
+            String[] title, String xAxisLabel, String yAxisLabel, boolean displayed, boolean blockIncluded) {
+        BlockRatioCyclesBuilder blockRatioCyclesBuilder = new BlockRatioCyclesBuilder(blockID, processed, dalyFaradayGain, title, xAxisLabel, yAxisLabel, displayed);
+        blockRatioCyclesBuilder.blockRatioCyclesRecord = blockRatioCyclesBuilder.generateBlockCyclesPlot(blockID, processed, dalyFaradayGain, cycleLogRatioMeansData, cycleLogRatioOneSigmaData, cyclesIncluded, title, xAxisLabel, blockIncluded);
         return blockRatioCyclesBuilder;
     }
 
-    protected BlockRatioCyclesRecord generateBlockCyclesPlot(int blockID, double[] cycleLogRatioMeansdata, double[] cycleLogRatioOneSigmaData, boolean[] cyclesIncluded, String[] title, String xAxisLabel, boolean blockIncluded) {
+    protected BlockRatioCyclesRecord generateBlockCyclesPlot(int blockID, boolean processed, double dalyFaradayGain, double[] cycleLogRatioMeansdata, double[] cycleLogRatioOneSigmaData, boolean[] cyclesIncluded, String[] title, String xAxisLabel, boolean blockIncluded) {
         DescriptiveStatistics descriptiveStatisticsRatios = new DescriptiveStatistics();
         for (int index = 0; index < cycleLogRatioMeansdata.length; index++) {
             if (cyclesIncluded[index]) {
@@ -51,6 +52,8 @@ public class BlockRatioCyclesBuilder extends PlotBuilder {
 
         return new BlockRatioCyclesRecord(
                 blockID,
+                processed,
+                dalyFaradayGain,
                 blockIncluded,
                 cyclesIncluded,
                 cycleLogRatioMeansdata,

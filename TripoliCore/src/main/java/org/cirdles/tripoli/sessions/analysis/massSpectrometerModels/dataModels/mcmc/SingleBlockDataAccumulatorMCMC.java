@@ -91,7 +91,8 @@ public enum SingleBlockDataAccumulatorMCMC {
                 timeAccumulatorList,
                 timeIndexAccumulatorList,
                 isotopeOrdinalIndicesAccumulatorList,
-                blockMapOfSequenceIdsToData);
+                blockMapOfSequenceIdsToData
+        );
     }
 
     public static SingleBlockRawDataSetRecord.SingleBlockRawDataRecord accumulateOnPeakDataPerSequenceTableSpecs(
@@ -133,7 +134,6 @@ public enum SingleBlockDataAccumulatorMCMC {
                         // TODO: revisit this
                         double intensity = roundedToSize(onPeakIntensities[index][detectorDataColumnIndex], 10);
                         cycleAccumulatorList.add(onPeakCycleNumbers[index]);
-//                        double intensity = onPeakIntensities[index][detectorDataColumnIndex];
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
                         if (MassSpectrometerContextEnum.PHOENIX == analysisMethod.getMassSpectrometerContext() && isFaraday) {
                             // convert all volts to counts to bring all files into alignment
@@ -157,7 +157,8 @@ public enum SingleBlockDataAccumulatorMCMC {
                 timeAccumulatorList,
                 timeIndexAccumulatorList,
                 isotopeOrdinalIndicesAccumulatorList,
-                blockMapOfSequenceIdsToData);
+                blockMapOfSequenceIdsToData
+        );
     }
 
 }
