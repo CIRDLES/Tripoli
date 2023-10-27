@@ -37,7 +37,7 @@ class SingleBlockModelUpdaterTest {
                                   4.714765807627592e+03, 5.160457416333462e+03, 5.046707504648971e+03, 4.697629292897528e+03};
 
     // Data pulled from Matlab - 10/21
-    double[] logRatios = {-6.117457281624248, -3.002819021695439, -1.000244523695487, -9.234974374397734e-05};
+    double[] logRatios = {0.013755458519046, 8.963225834300329e-06, 2.500000000000005e-07, 2.500000000000005e-07};
 
     // Data pulled from Matlab - 10/21
     double[] IO = {6.134069044869326e+05, 6.008566237422095e+05, 5.908634763865512e+05, 5.514048865900711e+05, 5.425026802749305e+05,
@@ -51,7 +51,8 @@ class SingleBlockModelUpdaterTest {
             -0.014099257508162, 0.280949206906329, -0.103641649512469, -0.037798167587677,
             0.506248636267279, 0.392192426857346, 0.290672536067569, 0.123634068116009,
             -0.280785436272478, 0.158800537540473, 0.496492908288080, 9.979502297411170e-05};
-    int m = 20; // Iteration 20
+    int m20 = 20; // Iteration 20
+    int m1 = 1;
 
     @BeforeEach
     void setUp() {
@@ -66,7 +67,7 @@ class SingleBlockModelUpdaterTest {
                 null,
                 baseLineMeansArray,
                 baseLineStdArray,
-                1.000000000000057e-08, // Data pulled from Matlab
+                0.799914882904334, // Data pulled from Matlab
                 null,
                 logRatios,
                 null,
@@ -105,13 +106,27 @@ class SingleBlockModelUpdaterTest {
 //
 //        //---------------------------------- STEP 2 singleBlockModelRecord Check ----------------------------------
 //
-//        // Ensure that singleBlockModelRecord is the same as 'x2' from Matlab
+//        // Ensure that singleBlockModelRecord is the same as 'x2' - step with F8 to m2 from Matlab
+//        //
+//        // -------------------------------------------Matlab Results-----------------------------------------------
+//        // x2.lograt = -6.104637363581394, -3.005341905522350, -0.999850997215450, 5.314601660544664e-05
+//        //
+//        // I = 6.134058267638932e+05, 6.008564684844068e+05, 5.908635276955633e+05, 5.514056181973080e+05,
+//        //     5.425031645286407e+05, 5.335326096038788e+05, 5.244935068474156e+05, 5.156075942764268e+05,
+//        //     5.075442366663976e+05, 4.997546853819002e+05, 4.925956333239331e+05
+//        //
+//        // x2.BL = -3.998260004231143e+05, -2.997568186000270e+05, -1.996903987277965e+05, -9.995586472665060e+04,
+//        //         -1.033050659352174e+02, 1.000737188337671e+05, 2.001171322618742e+05, 2.994256904062582e+05
+//        // DFGain = 0.800014677927308 - Does not match
+//        //
+//        // Confirm that the 'singleBlockModelRecord' yields the same result used from Matlab - m = 2
+//        // My Nguyen 10/26
 //
 //        SingleBlockModelUpdater.UpdatedCovariancesRecord result = modelUpdater.updateMeanCovMS2(
-//                singleBlockModelRecord, new double[24][24], new double[24], m);
+//                singleBlockModelRecord, new double[24][24], new double[24], m1);
 //
 //        result.dataMean(); // Utilize Debug to extract and compare numbers
 //
 //    }
-    // Do Assertion with EPSILON to compare doubles
+//    // Do Assertion with EPSILON to compare doubles
 }
