@@ -95,6 +95,14 @@ public class HistogramSinglePlot extends AbstractPlot {
         // minY stays 0.0
     }
 
+    /**
+     * @param g2d
+     */
+    @Override
+    public void showLegend(GraphicsContext g2d) {
+
+    }
+
     @Override
     public void plotData(GraphicsContext g2d) {
         // plot bins

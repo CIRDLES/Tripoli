@@ -73,6 +73,14 @@ public class LinePlot extends AbstractPlot {
         minY -= yMarginStretch;
     }
 
+    /**
+     * @param g2d
+     */
+    @Override
+    public void showLegend(GraphicsContext g2d) {
+
+    }
+
     @Override
     public void plotData(GraphicsContext g2d) {
         g2d.setLineWidth(1.0);

@@ -196,6 +196,14 @@ public class PeakShapesOverlayPlot extends AbstractPlot {
         minY -= yMarginStretch;
     }
 
+    /**
+     * @param g2d
+     */
+    @Override
+    public void showLegend(GraphicsContext g2d) {
+
+    }
+
     @Override
     public void plotStats(GraphicsContext g2d) {
 

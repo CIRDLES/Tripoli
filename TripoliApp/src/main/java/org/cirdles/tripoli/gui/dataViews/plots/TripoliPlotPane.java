@@ -29,7 +29,8 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.a
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
-import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.*;
+import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.gridCellDim;
+import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.menuOffset;
 
 /**
  * @author James F. Bowring
@@ -76,7 +77,7 @@ public class TripoliPlotPane extends Pane {
     private final EventHandler<MouseEvent> mouseReleasedEventHandler = e -> {
         snapToGrid();
     };
-    private Pane plotWallPane;
+    private PlotWallPaneInterface plotWallPane;
     private final EventHandler<MouseEvent> mouseDraggedEventHandler = e -> {
         Pane targetPane = (Pane) e.getSource();
         double deltaX = e.getSceneX() - mouseStartX;
@@ -84,21 +85,21 @@ public class TripoliPlotPane extends Pane {
         if ((deltaX != 0) && (deltaY != 0)) {
             if (oneEdgesNorthWest) {
                 if (0.0 < deltaX) {
-                    targetPane.setLayoutX(Math.min(targetPane.getLayoutX() + deltaX, plotWallPane.getWidth() - targetPane.getWidth() - gridCellDim));
+                    targetPane.setLayoutX(Math.min(targetPane.getLayoutX() + deltaX, ((Pane) plotWallPane).getWidth() - targetPane.getWidth() - gridCellDim));
                 } else {
                     targetPane.setLayoutX(Math.max(targetPane.getLayoutX() + deltaX, gridCellDim));
                 }
 
                 if (0.0 < deltaY) {
-                    targetPane.setLayoutY(Math.min(targetPane.getLayoutY() + deltaY, plotWallPane.getHeight() - targetPane.getHeight() - gridCellDim));
+                    targetPane.setLayoutY(Math.min(targetPane.getLayoutY() + deltaY, ((Pane) plotWallPane).getHeight() - targetPane.getHeight() - gridCellDim));
                 } else {
-                    targetPane.setLayoutY(Math.max(targetPane.getLayoutY() + deltaY, gridCellDim + toolBarHeight));
+                    targetPane.setLayoutY(Math.max(targetPane.getLayoutY() + deltaY, gridCellDim + plotWallPane.getToolBarHeight()));
                 }
             }
 
             if (onEdgeEast) {
                 if (0.0 < deltaX) {
-                    targetPane.setPrefWidth(Math.min(plotWallPane.getWidth() - targetPane.getLayoutX() - gridCellDim, targetPane.getWidth() + deltaX + 0.4));
+                    targetPane.setPrefWidth(Math.min(((Pane) plotWallPane).getWidth() - targetPane.getLayoutX() - gridCellDim, targetPane.getWidth() + deltaX + 0.4));
                 } else {
                     targetPane.setPrefWidth(Math.max(minPlotWidth, targetPane.getWidth() + deltaX - 0.6));
                 }
@@ -106,7 +107,7 @@ public class TripoliPlotPane extends Pane {
 
             if (onEdgeSouth) {
                 if (0.0 < deltaY) {
-                    targetPane.setPrefHeight(Math.min(plotWallPane.getHeight() - targetPane.getLayoutY() - gridCellDim, targetPane.getHeight() + deltaY + 0.4));
+                    targetPane.setPrefHeight(Math.min(((Pane) plotWallPane).getHeight() - targetPane.getLayoutY() - gridCellDim, targetPane.getHeight() + deltaY + 0.4));
                 } else {
                     // shrinking
                     targetPane.setPrefHeight(Math.max(minPlotHeight, targetPane.getHeight() + deltaY - 0.6));
@@ -126,16 +127,20 @@ public class TripoliPlotPane extends Pane {
             mouseStartY = e.getSceneY();
         }
         if (e.isPrimaryButtonDown() && 2 == e.getClickCount()) {
-            toggleFullSize();
+            if (getChildren().get(0) instanceof SpeciesIntensityAnalysisPlot) {
+
+            } else {
+                toggleFullSize();
+            }
         }
         toFront();
     };
 
-    private TripoliPlotPane(Pane plotWallPane) {
+    private TripoliPlotPane(PlotWallPaneInterface plotWallPane) {
         this.plotWallPane = plotWallPane;
     }
 
-    public static TripoliPlotPane makePlotPane(Pane plotWallPane) {
+    public static TripoliPlotPane makePlotPane(PlotWallPaneInterface plotWallPane) {
         TripoliPlotPane tripoliPlotPane = new TripoliPlotPane(plotWallPane);
 
         tripoliPlotPane.widthProperty().addListener(new ChangeListener<Number>() {
@@ -151,7 +156,7 @@ public class TripoliPlotPane extends Pane {
         tripoliPlotPane.initializePlotPane();
 
         tripoliPlotPane.setStyle(tripoliPlotPane.getStyle() + ";-fx-background-color:RED;");
-        plotWallPane.getChildren().addAll(tripoliPlotPane);
+        ((Pane) plotWallPane).getChildren().addAll(tripoliPlotPane);
 
         return tripoliPlotPane;
     }
@@ -167,9 +172,9 @@ public class TripoliPlotPane extends Pane {
         if (null == plotLocation) {
             plotLocation = new PlotLocation(getLayoutX(), getLayoutY(), getPrefWidth(), getPrefHeight());
             setLayoutX(gridCellDim);
-            setPrefWidth(plotWallPane.getWidth() - 2 * gridCellDim);
-            setLayoutY(gridCellDim);
-            setPrefHeight(plotWallPane.getHeight() - 2 * gridCellDim);
+            setPrefWidth(((Pane) plotWallPane).getWidth() - 2 * gridCellDim);
+            setLayoutY(gridCellDim + plotWallPane.getToolBarCount() * plotWallPane.getToolBarHeight());
+            setPrefHeight(((Pane) plotWallPane).getHeight() - 2 * gridCellDim - plotWallPane.getToolBarCount() * plotWallPane.getToolBarHeight());
         } else {
             setLayoutX(plotLocation.x());
             setPrefWidth(plotLocation.w());

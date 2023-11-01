@@ -40,18 +40,20 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 /**
  * @author James F. Bowring
  */
-public class PlotWallPane extends Pane {
+public class PlotWallPane extends Pane implements PlotWallPaneInterface {
 
     public static final double gridCellDim = 2.0;
-    public static final double toolBarHeight = 35.0;
     public static double menuOffset = 30.0;
     private final String iD;
     private final boolean[] zoomFlagsXY = new boolean[2];
     private final AnalysisInterface analysis;
     private final MCMCPlotsControllerInterface mcmcPlotsControllerInterface;
     AnalysisManagerCallbackI analysisManagerCallbackI;
+    private double toolBarHeight;
+    private int toolBarCount;
     private boolean logScale;
     private ConstantsTripoliApp.PlotLayoutStyle plotLayoutStyle;
+
 
     private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsControllerInterface, AnalysisManagerCallbackI analysisManagerCallbackI) {
         this.iD = iD;
@@ -64,7 +66,7 @@ public class PlotWallPane extends Pane {
 
     }
 
-    public static PlotWallPane createPlotWallPane(
+    public static PlotWallPaneInterface createPlotWallPane(
             String iD,
             AnalysisInterface analysis,
             MCMCPlotsControllerInterface mcmcPlotsControllerInterface,
@@ -393,6 +395,24 @@ public class PlotWallPane extends Pane {
 
 
         getChildren().add(toolBar);
+    }
+
+    @Override
+    public double getToolBarHeight() {
+        return toolBarHeight;
+    }
+
+    public void setToolBarHeight(double toolBarHeight) {
+        this.toolBarHeight = toolBarHeight;
+    }
+
+    @Override
+    public int getToolBarCount() {
+        return toolBarCount;
+    }
+
+    public void setToolBarCount(int toolBarCount) {
+        this.toolBarCount = toolBarCount;
     }
 
     private void rebuildPlot(boolean reScaleX, boolean reScaleY) {

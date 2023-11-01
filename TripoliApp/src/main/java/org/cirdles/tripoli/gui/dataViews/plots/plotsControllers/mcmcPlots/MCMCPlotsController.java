@@ -295,7 +295,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
 
 
         if (ratioSessionAnchorPane.getChildren().isEmpty()) {
-            ratiosSessionPlotsWallPane = PlotWallPane.createPlotWallPane(null, analysis, this, analysisManagerCallbackI);
+            ratiosSessionPlotsWallPane = (PlotWallPane) PlotWallPane.createPlotWallPane(null, analysis, this, analysisManagerCallbackI);
             ratiosSessionPlotsWallPane.buildToolBar();
             ratiosSessionPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
             ratiosSessionPlotsWallPane.prefWidthProperty().bind(ratioSessionAnchorPane.widthProperty());
@@ -345,7 +345,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
         // TODO add peak analysis pane to fxml and controller
 
         if (peakAnalysisAnchorPane.getChildren().isEmpty()) {
-            peakAnalysisPlotWallPlane = PlotWallPane.createPlotWallPane(null, analysis, this, null);
+            peakAnalysisPlotWallPlane = (PlotWallPane) PlotWallPane.createPlotWallPane(null, analysis, this, null);
             peakAnalysisPlotWallPlane.buildToolBar();
             peakAnalysisPlotWallPlane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
             peakAnalysisAnchorPane.getChildren().add(peakAnalysisPlotWallPlane);
@@ -403,7 +403,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
 
 
         if (convergePlotsAnchorPane.getChildren().isEmpty()) {
-            convergePlotsWallPane = PlotWallPane.createPlotWallPane(PLOT_TAB_CONVERGE, analysis, this, null);
+            convergePlotsWallPane = (PlotWallPane) PlotWallPane.createPlotWallPane(PLOT_TAB_CONVERGE, analysis, this, null);
             convergePlotsWallPane.buildToolBar();
             convergePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
             convergePlotsWallPane.prefWidthProperty().bind(convergePlotsAnchorPane.widthProperty());
@@ -419,7 +419,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
 
 
         if (convergeErrorPlotsAnchorPane.getChildren().isEmpty()) {
-            convergeErrorPlotsWallPane = PlotWallPane.createPlotWallPane(PLOT_TAB_CONVERGE, analysis, this, null);
+            convergeErrorPlotsWallPane = (PlotWallPane) PlotWallPane.createPlotWallPane(PLOT_TAB_CONVERGE, analysis, this, null);
             convergeErrorPlotsWallPane.buildToolBar();
             convergeErrorPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
             convergeErrorPlotsWallPane.prefWidthProperty().bind(convergeErrorPlotsAnchorPane.widthProperty());
@@ -435,7 +435,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
 
 
         if (convergeIntensityAnchorPane.getChildren().isEmpty()) {
-            convergeIntensityPlotsWallPane = PlotWallPane.createPlotWallPane(PLOT_TAB_CONVERGE_INTENSITY, analysis, this, null);
+            convergeIntensityPlotsWallPane = (PlotWallPane) PlotWallPane.createPlotWallPane(PLOT_TAB_CONVERGE_INTENSITY, analysis, this, null);
             convergeIntensityPlotsWallPane.buildToolBar();
             convergeIntensityPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
             convergeIntensityPlotsWallPane.prefWidthProperty().bind(convergeIntensityAnchorPane.widthProperty());
@@ -453,7 +453,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
 
 
         if (dataFitPlotsAnchorPane.getChildren().isEmpty()) {
-            dataFitPlotsWallPane = PlotWallPane.createPlotWallPane(null, analysis, this, null);
+            dataFitPlotsWallPane = (PlotWallPane) PlotWallPane.createPlotWallPane(null, analysis, this, null);
             dataFitPlotsWallPane.buildToolBar();
             dataFitPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
             dataFitPlotsWallPane.prefWidthProperty().bind(dataFitPlotsAnchorPane.widthProperty());
@@ -469,7 +469,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
         dataFitPlotsWallPane.stackPlots();
 
         if (beamShapeAnchorPane.getChildren().isEmpty()) {
-            peakShapeOverlayPlotWallPane = PlotWallPane.createPlotWallPane(null, analysis, this, null);
+            peakShapeOverlayPlotWallPane = (PlotWallPane) PlotWallPane.createPlotWallPane(null, analysis, this, null);
             peakShapeOverlayPlotWallPane.buildToolBar();
             peakShapeOverlayPlotWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
             peakShapeOverlayPlotWallPane.prefWidthProperty().bind(beamShapeAnchorPane.widthProperty());
@@ -491,7 +491,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
         PlotBuilder[] intensityLinePlotBuilder = plotBuilders[PLOT_INDEX_MEANINTENSITIES];
 
         if (ensemblePlotsAnchorPane.getChildren().isEmpty()) {
-            ensemblePlotsWallPane = PlotWallPane.createPlotWallPane(PLOT_TAB_ENSEMBLES, analysis, this, analysisManagerCallbackI);
+            ensemblePlotsWallPane = (PlotWallPane) PlotWallPane.createPlotWallPane(PLOT_TAB_ENSEMBLES, analysis, this, analysisManagerCallbackI);
             ensemblePlotsWallPane.buildToolBar();
             ensemblePlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
             ensemblePlotsWallPane.prefWidthProperty().bind(ensemblePlotsAnchorPane.widthProperty());
