@@ -64,7 +64,7 @@ public class OGTripoliViewController {
             ogtSpeciesIntensitiesPlotAnchorPane.setMinHeight(((Double) newValue) - plotsWallPaneIntensities.getToolBarCount() * plotsWallPaneIntensities.getToolBarHeight() - 30.0);
         });
 
-        if (plottingData != null) {
+        if (null != plottingData) {
             populatePlots();
         }
     }
@@ -116,10 +116,10 @@ public class OGTripoliViewController {
 
             List<BlockRatioCyclesRecord> blockRatioCyclesRecords = new ArrayList<>();
             for (int blockIndex = 0; blockIndex < singleBlockModelRecords.length; blockIndex++) {
-                if (singleBlockModelRecords[blockIndex] != null) {
+                if (null != singleBlockModelRecords[blockIndex]) {
                     Integer blockID = singleBlockModelRecords[blockIndex].blockID();
                     int blockStatus = analysis.getMapOfBlockIdToProcessStatus().get(blockID);
-                    boolean processed = (analysis.getMapOfBlockIdToPlots().get(blockID) != null);
+                    boolean processed = (null != analysis.getMapOfBlockIdToPlots().get(blockID));
                     blockRatioCyclesRecords.add(BlockRatioCyclesBuilder.initializeBlockCycles(
                             blockID,
                             processed,
@@ -131,7 +131,7 @@ public class OGTripoliViewController {
                             "Blocks & Cycles by Time",
                             "Ratio",
                             true,
-                            blockStatus != SKIP).getBlockCyclesRecord());
+                            SKIP != blockStatus).getBlockCyclesRecord());
                 } else {
                     blockRatioCyclesRecords.add(null);
                 }
@@ -159,9 +159,6 @@ public class OGTripoliViewController {
         plotsWallPaneIntensities.setToolBarCount(2);
         plotsWallPaneIntensities.setToolBarHeight(35.0);
         ((Pane) plotsWallPaneIntensities).setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-//        ((Pane)plotsWallPaneIntensities).setPrefSize(
-//                ogtSpeciesIntensitiesPlotAnchorPane.getPrefWidth(),
-//                ogtSpeciesIntensitiesPlotAnchorPane.getPrefHeight() + plotsWallPaneIntensities.getToolBarCount() * plotsWallPaneIntensities.getToolBarHeight());
 
         ((Pane) plotsWallPaneIntensities).prefWidthProperty().bind(ogtSpeciesIntensitiesPlotAnchorPane.widthProperty());
         ((Pane) plotsWallPaneIntensities).prefHeightProperty().bind(ogtSpeciesIntensitiesPlotAnchorPane.heightProperty());
@@ -198,7 +195,7 @@ public class OGTripoliViewController {
         Map<Integer, MassSpecOutputSingleBlockRecord> blocksData = analysis.getMassSpecExtractedData().getBlocksData();
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
 
-            if (singleBlockModelRecords[blockIndex] != null) {
+            if (null != singleBlockModelRecords[blockIndex]) {
                 Integer blockID = singleBlockModelRecords[blockIndex].blockID();
                 double[] onPeakTimeStamps = blocksData.get(blockID).onPeakTimeStamps();
 
@@ -262,10 +259,10 @@ public class OGTripoliViewController {
         }
         for (int speciesIndex = 0; speciesIndex < countOfSpecies; speciesIndex++) {
             for (int xIndex = 0; xIndex < xAxis.length; xIndex++) {
-                if (onPeakDataCounts[speciesIndex * 4][xIndex] != 0.0) {
+                if (0.0 != onPeakDataCounts[speciesIndex * 4][xIndex]) {
                     intensityStatistics[speciesIndex].addValue(onPeakDataCounts[speciesIndex * 4][xIndex] - onPeakBaseline[speciesIndex * 4][xIndex]);
                 }
-                if (onPeakDataCounts[speciesIndex * 4 + 2][xIndex] != 0.0) {
+                if (0.0 != onPeakDataCounts[speciesIndex * 4 + 2][xIndex]) {
                     intensityStatistics[speciesIndex].addValue(onPeakDataCounts[speciesIndex * 4 + 2][xIndex] / onPeakGain[speciesIndex * 4 + 2][xIndex]);
                 }
             }
@@ -279,6 +276,7 @@ public class OGTripoliViewController {
 
         TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPaneIntensities);
         AbstractPlot plot = SpeciesIntensityAnalysisPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), (SpeciesIntensityAnalysisBuilder) plotBuilder);
+
         tripoliPlotPane.addPlot(plot);
         plot.refreshPanel(false, false);
 
