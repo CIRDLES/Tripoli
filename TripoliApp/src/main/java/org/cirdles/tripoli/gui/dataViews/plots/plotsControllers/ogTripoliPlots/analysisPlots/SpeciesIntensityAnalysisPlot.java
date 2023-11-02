@@ -3,6 +3,7 @@ package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.
 import com.google.common.primitives.Booleans;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -33,6 +34,9 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
     private final double[][] yDataCounts;
     private final double[][] ampResistance;
     private final double[][] baseLine;
+    private final Tooltip tooltip;
+    private final String tooltipTextSculpt = "Double click to Sculpt selected Block.";
+    private final String tooltipTextExitSculpt = "Right Mouse to PAN, Double-click to EXIT Sculpting.";
     TripoliConstants.IntensityUnits intensityUnits = TripoliConstants.IntensityUnits.COUNTS;
     EventHandler<MouseEvent> mousePressedEventHandler = e -> {
         if (mouseInHouse(e.getX(), e.getY()) && e.isPrimaryButtonDown()) {
@@ -55,6 +59,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
     private int sculptBlockID;
     private boolean showSelectionBox;
     private int countOfPreviousBlockIncludedData;
+
 
     private SpeciesIntensityAnalysisPlot(Rectangle bounds, SpeciesIntensityAnalysisBuilder speciesIntensityAnalysisBuilder) {
         super(bounds, 100, 25,
@@ -79,6 +84,9 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
         yAxisTickSpread = 45.0;
 
         setOnMouseClicked(new MouseClickEventHandler());
+
+        tooltip = new Tooltip(tooltipTextSculpt);
+        Tooltip.install(this, tooltip);
     }
 
     public static AbstractPlot generatePlot(Rectangle bounds, SpeciesIntensityAnalysisBuilder speciesIntensityAnalysisBuilder) {
@@ -501,19 +509,19 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
             if (isPrimary & 2 == mouseEvent.getClickCount() && mouseInHouse(mouseEvent.getX(), mouseEvent.getY())) {
                 if (inSculptorMode) {
                     inSculptorMode = false;
+                    sculptBlockID = 0;
                     refreshPanel(true, true);
                     ((PlotWallPaneOGTripoli) getParent().getParent()).removeSculptingHBox();
+                    tooltip.setText(tooltipTextSculpt);
                 } else {
                     ((PlotWallPaneOGTripoli) getParent().getParent()).removeSculptingHBox();
                     if (0 < Booleans.countTrue(speciesChecked)) {
                         sculptBlockID = speciesIntensityAnalysisBuilder.getxAxisBlockIDs()
                                 [Math.max(2, Math.abs(Arrays.binarySearch(xAxisData, convertMouseXToValue(mouseEvent.getX())))) - 2];
                         ((PlotWallPaneOGTripoli) getParent().getParent()).builtSculptingHBox(
-                                "Intensity Sculpting Block # " + sculptBlockID + "  >> Right Mouse to PAN, Double-click to EXIT.");
+                                "Intensity Sculpting Block # " + sculptBlockID + "  >> " + tooltipTextExitSculpt);
                         sculptBlock();
-                    } else {
-                        sculptBlockID = 0;
-                        ((PlotWallPaneOGTripoli) getParent().getParent()).builtSculptingHBox("Currently, sculpting supports only one species at a time.");
+                        tooltip.setText(tooltipTextExitSculpt);
                     }
                 }
             }
