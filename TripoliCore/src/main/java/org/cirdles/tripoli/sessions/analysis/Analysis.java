@@ -87,10 +87,6 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     private DescriptiveStatistics[] analysisSpeciesStats = new DescriptiveStatistics[1];
 
-    public void setAnalysisSpeciesStats(DescriptiveStatistics[] analysisSpeciesStats) {
-        this.analysisSpeciesStats = analysisSpeciesStats;
-    }
-
     private Analysis() {
     }
 
@@ -104,6 +100,10 @@ public class Analysis implements Serializable, AnalysisInterface {
         dataFilePathString = MISSING_STRING_FIELD;
         massSpecExtractedData = new MassSpecExtractedData();
         mutable = true;
+    }
+
+    public void setAnalysisSpeciesStats(DescriptiveStatistics[] analysisSpeciesStats) {
+        this.analysisSpeciesStats = analysisSpeciesStats;
     }
 
     public boolean[] calcDataIncluded() {

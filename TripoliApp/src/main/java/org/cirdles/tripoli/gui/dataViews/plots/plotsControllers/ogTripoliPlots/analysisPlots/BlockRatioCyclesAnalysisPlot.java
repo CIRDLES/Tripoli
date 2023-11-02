@@ -25,6 +25,7 @@ import javafx.scene.text.Font;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
+import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.BlockAnalysisRatioCyclesRecord;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockRatioCyclesRecord;
@@ -46,7 +47,7 @@ public class BlockRatioCyclesAnalysisPlot extends AbstractPlot {
     private double sessionDalyFaradayGainOneSigmaAbs;
     private boolean logScale;
     private boolean[] zoomFlagsXY;
-    private PlotWallPane parentWallPane;
+    private PlotWallPaneInterface parentWallPane;
 
     private BlockRatioCyclesAnalysisPlot(Rectangle bounds, BlockAnalysisRatioCyclesRecord blockAnalysisRatioCyclesRecord, PlotWallPane parentWallPane) {
         super(bounds,
@@ -70,7 +71,7 @@ public class BlockRatioCyclesAnalysisPlot extends AbstractPlot {
         return blockAnalysisRatioCyclesRecord;
     }
 
-    public PlotWallPane getParentWallPane() {
+    public PlotWallPaneInterface getParentWallPane() {
         return parentWallPane;
     }
 
@@ -156,6 +157,14 @@ public class BlockRatioCyclesAnalysisPlot extends AbstractPlot {
         super.calculateTics();
         zoomChunkX = zoomFlagsXY[0] ? zoomChunkX : 0.0;
         zoomChunkY = zoomFlagsXY[1] ? zoomChunkY : 0.0;
+    }
+
+    /**
+     * @param g2d
+     */
+    @Override
+    public void showLegend(GraphicsContext g2d) {
+
     }
 
     @Override

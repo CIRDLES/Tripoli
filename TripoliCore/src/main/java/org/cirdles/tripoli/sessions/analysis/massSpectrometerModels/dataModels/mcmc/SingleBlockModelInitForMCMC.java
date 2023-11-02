@@ -54,6 +54,7 @@ enum SingleBlockModelInitForMCMC {
 
         for (int isotopeIndex = 0; isotopeIndex < blockOnPeakIncluded.length; isotopeIndex++) {
             for (int intensityIndex = 0; intensityIndex < blockOnPeakIncluded[isotopeIndex].length; intensityIndex++) {
+                // TODO: confirm boolean operation '&'
                 blockAllDataIncluded[baselineCount + intensityIndex] &= blockOnPeakIncluded[isotopeIndex][intensityIndex];
             }
         }

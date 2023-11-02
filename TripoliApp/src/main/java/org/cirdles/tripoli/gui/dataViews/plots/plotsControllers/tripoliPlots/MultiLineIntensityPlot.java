@@ -81,6 +81,14 @@ public class MultiLineIntensityPlot extends AbstractPlot {
         minY -= yMarginStretch;
     }
 
+    /**
+     * @param g2d
+     */
+    @Override
+    public void showLegend(GraphicsContext g2d) {
+
+    }
+
     @Override
     public void paint(GraphicsContext g2d) {
         super.paint(g2d);

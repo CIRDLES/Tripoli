@@ -24,6 +24,7 @@ public enum TripoliConstants {
 
     public static final String TRIPOLI_LOGO_SANS_TEXT_URL = "org/cirdles/tripoli/gui/images/TripoliJune2022.png";
     public static final String TRIPOLI_RATIO_FLIPPER_URL = "org/cirdles/tripoli/gui/images/RotateFlip.png";
+    public static final String TRIPOLI_MICHAELANGELO_URL = "org/cirdles/tripoli/gui/images/noun-michelangelo-5298215.png";
 
     public static final File TRIPOLI_RESOURCES_FOLDER = new File("TripoliResources");
     public static final File SCHEMA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "Schema");

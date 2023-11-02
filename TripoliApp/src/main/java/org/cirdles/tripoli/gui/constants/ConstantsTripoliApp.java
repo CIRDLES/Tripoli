@@ -42,7 +42,9 @@ public enum ConstantsTripoliApp {
     public static final String[] TRIPOLI_PALLETTE_FOUR = {"RED", "BLUE", "GREEN", "BLACK", "ORANGE", "INDIGO", "#35978f", "#01665e"};
 
     //  aqua,beige,purple,lime-green,red,orange,cyan
-    public static final String[] TRIPOLI_PALLETTE_FIVE = {"#0d84a5","#f6c85f","#6f4e7c","#9ed866","#ca472f","#ffa056","#8dddd0"};
+    // JFB: Moved red to end since using red to toss points
+    //    https://chartio.com/learn/charts/how-to-choose-colors-data-visualization/
+    public static final String[] TRIPOLI_PALLETTE_FIVE = {"#0d84a5", "#f6c85f", "#6f4e7c", "#9ed866", "#ffa056", "#8dddd0", "#ca472f"};
     public static final Color TRIPOLI_MOVING_SHADE = new Color(255.0 / 256.0, 182.0 / 256.0, 193.0 / 256.0, 0.5);
 
     public static @NonNls String convertColorToHex(Color color) {
