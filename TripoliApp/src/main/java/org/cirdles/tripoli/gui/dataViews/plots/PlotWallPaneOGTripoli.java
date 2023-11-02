@@ -86,7 +86,7 @@ public class PlotWallPaneOGTripoli extends Pane implements PlotWallPaneInterface
             displayHeight = (getParent().getBoundsInParent().getHeight() - toolBarHeight);
         }
 
-        double tileHeight = displayHeight;// - displayHeight % gridCellDim;
+        double tileHeight = displayHeight;
 
         int plotIndex = 0;
         for (Node plotPane : getChildren()) {
@@ -95,24 +95,11 @@ public class PlotWallPaneOGTripoli extends Pane implements PlotWallPaneInterface
                 ((Pane) plotPane).setPrefHeight(tileHeight);
                 plotPane.setLayoutX(gridCellDim);
                 ((Pane) plotPane).setPrefWidth(tileWidth);
-
                 ((TripoliPlotPane) plotPane).snapToGrid();
-
                 plotIndex++;
             }
         }
     }
-
-
-    private void treatSpeciesCheckBoxesAsRadioButtons(int finalSpeciesIndex, List<SpeciesRecordInterface> species) {
-        for (int speciesIndex = 0; speciesIndex < species.size(); speciesIndex++) {
-            if (speciesIndex != finalSpeciesIndex) {
-                speciesCheckBoxes[speciesIndex].setSelected(false);
-                speciesChecked[speciesIndex] = false;
-            }
-        }
-    }
-
 
     public void buildOGTripoliToolBar(List<SpeciesRecordInterface> species) {
         ToolBar toolBar = new ToolBar();
@@ -127,13 +114,11 @@ public class PlotWallPaneOGTripoli extends Pane implements PlotWallPaneInterface
             speciesCheckBoxes[speciesIndex].selectedProperty().addListener(
                     (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                         speciesChecked[finalSpeciesIndex] = newVal;
-                        if (newVal && ((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).isInSculptorMode()) {
-                            treatSpeciesCheckBoxesAsRadioButtons(finalSpeciesIndex, species);
+                        if (((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).isInSculptorMode()) {
                             ((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).setInSculptorMode(false);
                             ((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).sculptBlock();
                         }
                         rebuildPlot(false, true);
-
                     });
         }
         speciesCheckBoxes[speciesCheckBoxes.length - 1].setSelected(true);
