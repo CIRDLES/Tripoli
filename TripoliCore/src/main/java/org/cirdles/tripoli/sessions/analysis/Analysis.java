@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis;
 
+import com.google.common.primitives.Booleans;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
@@ -424,6 +425,26 @@ public class Analysis implements Serializable, AnalysisInterface {
         return sb.toString();
     }
 
+    private int[][] calculateSpeciesIncludedCounts(){
+        int speciesCount = analysisMethod.getSpeciesList().size();
+        int blockCount = massSpecExtractedData.getBlocksData().size();
+        // 2 rows per species: 0 = total; 1 = included; column 0 is for totals
+        int [][] speciesIncludedCounts = new int[2 * speciesCount][blockCount + 1];
+        for (int blockID = 1; blockID <= blockCount; blockID++){
+            for (int speciesIndex = 0; speciesIndex < speciesCount;speciesIndex++) {
+                speciesIncludedCounts[speciesIndex * 2][blockID] = getMapOfBlockIdToIncludedPeakData().get(blockID)[speciesIndex].length;
+                speciesIncludedCounts[speciesIndex * 2][0] += speciesIncludedCounts[speciesIndex * 2][blockID];
+
+                speciesIncludedCounts[speciesIndex * 2 + 1][blockID] = Booleans.countTrue(getMapOfBlockIdToIncludedPeakData().get(blockID)[speciesIndex]);
+                speciesIncludedCounts[speciesIndex * 2 + 1][0] += speciesIncludedCounts[speciesIndex * 2 + 1][blockID];
+            }
+        }
+
+        return speciesIncludedCounts;
+    }
+
+
+
     public final String produceReportTemplateOne() {
         StringBuilder sb = new StringBuilder();
         sb.append(massSpecExtractedData.printHeader());
@@ -432,10 +453,13 @@ public class Analysis implements Serializable, AnalysisInterface {
         sb.append("Name, Mean, Standard Error (1s abs), Number Included, Number Total\n");
 
         int speciesIndex = 0;
+        int [][] calculatedSpeciesIncludedCounts = calculateSpeciesIncludedCounts();
         for (SpeciesRecordInterface species : analysisMethod.getSpeciesList()) {
             sb.append("intensity " + species.prettyPrintShortForm() + " (cps)" + ","
                     + analysisSpeciesStats[speciesIndex].getMean() + ","
-                    + analysisSpeciesStats[speciesIndex].getStandardDeviation() + ", , \n");
+                    + analysisSpeciesStats[speciesIndex].getStandardDeviation() + ","
+                    + calculatedSpeciesIncludedCounts[speciesIndex * 2 + 1][0] + ","
+                    + calculatedSpeciesIncludedCounts[speciesIndex * 2 + 0][0] + "\n");
 
             speciesIndex++;
         }

@@ -47,18 +47,6 @@ enum SingleBlockModelInitForMCMC {
         int totalIntensityCount = baselineCount + onPeakFaradayCount + onPeakPhotoMultCount;
         int countOfIsotopes = analysisMethod.getSpeciesList().size();
 
-        // build data included array
-        boolean[][] blockOnPeakIncluded = ((Analysis) analysis).getMapOfBlockIdToIncludedPeakData().get(singleBlockRawDataSetRecord.blockID());
-        boolean[] blockAllDataIncluded = new boolean[totalIntensityCount];
-        Arrays.fill(blockAllDataIncluded, true);
-
-        for (int isotopeIndex = 0; isotopeIndex < blockOnPeakIncluded.length; isotopeIndex++) {
-            for (int intensityIndex = 0; intensityIndex < blockOnPeakIncluded[isotopeIndex].length; intensityIndex++) {
-                // TODO: confirm boolean operation '&'
-                blockAllDataIncluded[baselineCount + intensityIndex] &= blockOnPeakIncluded[isotopeIndex][intensityIndex];
-            }
-        }
-
         // Baseline statistics *****************************************************************************************
         /*
             for m=1:d0.Nfar%+1
@@ -97,8 +85,8 @@ enum SingleBlockModelInitForMCMC {
 
         // TODO:Fix this per Noah
         // NOTE: the speciesList has been sorted by increasing abundances in the original analysisMethod setup
-        //  the ratios are between each species and the most abundant species, with one less ratio than species
-        int indexOfMostAbundantIsotope = countOfIsotopes - 1;//          mapPhotoMultiplierIsotopeIndicesToStatistics.size() - 1;
+        //  the ratios are between each species and the most abundant species, with one less ratio than species count
+        int indexOfMostAbundantIsotope = countOfIsotopes - 1;
 
         // june 2023 new init line 14 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // june 2023 new init - will need to be user input
@@ -223,6 +211,9 @@ enum SingleBlockModelInitForMCMC {
         double[] logRatios = new double[analysisMethod.getIsotopicRatiosList().size()];
         Map<IsotopicRatio, Map<Integer, double[]>> mapLogRatiosToCycleStats = new TreeMap<>();
 
+        // get data included array ***********************************************************************************
+        boolean[][] blockOnPeakIncluded = ((Analysis) analysis).getMapOfBlockIdToIncludedPeakData().get(singleBlockRawDataSetRecord.blockID());
+
         Map<Integer, double[]> denominatorMapCyclesToStats = new TreeMap<>();
         for (int isotopeIndex = 0; isotopeIndex < countOfIsotopes; isotopeIndex++) {
             ddver2List = new ArrayList<>();
@@ -258,7 +249,9 @@ enum SingleBlockModelInitForMCMC {
             DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics();
             for (int dataArrayIndex = 0; dataArrayIndex < ddVer2SortedArray.length; dataArrayIndex++) {
                 //TODO: Check for cycle active - see below where stats accumulator checks
-                descriptiveStatistics.addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
+                if (blockOnPeakIncluded[isotopeIndex][dataArrayIndex] && blockOnPeakIncluded[indexOfMostAbundantIsotope] [dataArrayIndex]) {
+                    descriptiveStatistics.addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
+                }
             }
             // only use most abundant isotope (denominator or iden) for cycle-based calculations
             if (isotopeIndex < logRatios.length) {
@@ -293,7 +286,7 @@ enum SingleBlockModelInitForMCMC {
                 }
                 mapCyclesToStats.put(cycleIndex, cycleLogRatioStats);
             }
-            if (isotopeIndex == iden - 1) {
+            if (isotopeIndex == indexOfMostAbundantIsotope) {
                 denominatorMapCyclesToStats = mapCyclesToStats;
             } else {
                 mapLogRatiosToCycleStats.put(analysisMethod.getIsotopicRatiosList().get(isotopeIndex), mapCyclesToStats);
