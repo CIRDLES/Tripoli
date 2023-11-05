@@ -62,7 +62,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
 
 
     private SpeciesIntensityAnalysisPlot(Rectangle bounds, SpeciesIntensityAnalysisBuilder speciesIntensityAnalysisBuilder) {
-        super(bounds, 100, 25,
+        super(bounds, 100, 35,
                 speciesIntensityAnalysisBuilder.getTitle(),
                 speciesIntensityAnalysisBuilder.getxAxisLabel(),
                 speciesIntensityAnalysisBuilder.getyAxisLabel());
@@ -392,7 +392,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
         int blockID = 0;
         for (int i = 0; i < xAxisBlockIDs.length; i++) {
             double dataX = mapX(xAxisData[i]) - 5.0;
-            if (!inSculptorMode && (xAxisBlockIDs[i] > blockID) && xInPlot(xAxisData[i])) {
+            if ((xAxisBlockIDs[i] > blockID) && xInPlot(xAxisData[i])) {
                 g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
             }
             if (xAxisBlockIDs[i] > blockID) {
@@ -403,10 +403,10 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
             }
 
         }
-        if (!inSculptorMode) {
+//        if (!inSculptorMode) {
             double dataX = mapX(xAxisData[xAxisData.length - 1]) + 5;
             g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
-        }
+//        }
     }
 
     private void showBlockID(GraphicsContext g2d, String blockID, double xPosition) {
@@ -441,46 +441,46 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
             // zoom into block
             countOfPreviousBlockIncludedData = 0;
             for (int prevBlockID = 1; prevBlockID < sculptBlockID; prevBlockID++) {
-                countOfPreviousBlockIncludedData += ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(prevBlockID)[0].length;
+                countOfPreviousBlockIncludedData += ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(prevBlockID)[0].length;// + 1;
             }
-            displayOffsetX = xAxisData[countOfPreviousBlockIncludedData] - minX - 5;
-            // find index of last intensity in block is found in photoMultiplier data first species * 4 + 2
-            int sculptedSpeciesIndex = Booleans.indexOf(speciesChecked, true);
-            int countOfIntensities = ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[0].length;
-            for (int i = ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[0].length; 0 < i; i--) {
-                if (0.0 == yData[sculptedSpeciesIndex * 4 + 2][countOfPreviousBlockIncludedData + i - 1]) {
-                    countOfIntensities--;
-                } else
-                    break;
-            }
-            maxX = xAxisData[countOfPreviousBlockIncludedData
-                    + countOfIntensities - 1]
-                    - displayOffsetX + 5;
-
-            minY = Double.MAX_VALUE;
-            maxY = -Double.MAX_VALUE;
-            for (int i = 1; i < ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[0].length; i++) {
-                for (sculptedSpeciesIndex = 0; sculptedSpeciesIndex < speciesChecked.length; sculptedSpeciesIndex++) {
-                    if (speciesChecked[sculptedSpeciesIndex]) {
-                        // faraday
-                        if (0.0 != yData[sculptedSpeciesIndex * 4][countOfPreviousBlockIncludedData + i - 1]) {
-                            minY = Math.min(minY, yData[sculptedSpeciesIndex * 4][countOfPreviousBlockIncludedData + i - 1]);
-                            maxY = Math.max(maxY, yData[sculptedSpeciesIndex * 4][countOfPreviousBlockIncludedData + i - 1]);
-                        }
-                        // photoMultiplier
-                        if (0.0 != yData[sculptedSpeciesIndex * 4 + 2][countOfPreviousBlockIncludedData + i - 1]) {
-                            minY = Math.min(minY, yData[sculptedSpeciesIndex * 4 + 2][countOfPreviousBlockIncludedData + i - 1]);
-                            maxY = Math.max(maxY, yData[sculptedSpeciesIndex * 4 + 2][countOfPreviousBlockIncludedData + i - 1]);
-                        }
-                    }
-                }
-            }
-            double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.05);
-            maxY += yMarginStretch;
-            minY -= yMarginStretch;
-            displayOffsetY = 0.0;
-
-            refreshPanel(false, false);
+//            displayOffsetX = xAxisData[countOfPreviousBlockIncludedData] - minX - 5;
+//            // find index of last intensity in block is found in photoMultiplier data first species * 4 + 2
+//            int sculptedSpeciesIndex = Booleans.indexOf(speciesChecked, true);
+//            int countOfIntensities = ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[0].length;
+//            for (int i = ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[0].length; 0 < i; i--) {
+//                if (0.0 == yData[sculptedSpeciesIndex * 4 + 2][countOfPreviousBlockIncludedData + i - 1]) {
+//                    countOfIntensities--;
+//                } else
+//                    break;
+//            }
+//            maxX = xAxisData[countOfPreviousBlockIncludedData
+//                    + countOfIntensities - 1]
+//                    - displayOffsetX + 10;
+//
+//            minY = Double.MAX_VALUE;
+//            maxY = -Double.MAX_VALUE;
+//            for (int i = 1; i < ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[0].length; i++) {
+//                for (sculptedSpeciesIndex = 0; sculptedSpeciesIndex < speciesChecked.length; sculptedSpeciesIndex++) {
+//                    if (speciesChecked[sculptedSpeciesIndex]) {
+//                        // faraday
+//                        if (0.0 != yData[sculptedSpeciesIndex * 4][countOfPreviousBlockIncludedData + i - 1]) {
+//                            minY = Math.min(minY, yData[sculptedSpeciesIndex * 4][countOfPreviousBlockIncludedData + i - 1]);
+//                            maxY = Math.max(maxY, yData[sculptedSpeciesIndex * 4][countOfPreviousBlockIncludedData + i - 1]);
+//                        }
+//                        // photoMultiplier
+//                        if (0.0 != yData[sculptedSpeciesIndex * 4 + 2][countOfPreviousBlockIncludedData + i - 1]) {
+//                            minY = Math.min(minY, yData[sculptedSpeciesIndex * 4 + 2][countOfPreviousBlockIncludedData + i - 1]);
+//                            maxY = Math.max(maxY, yData[sculptedSpeciesIndex * 4 + 2][countOfPreviousBlockIncludedData + i - 1]);
+//                        }
+//                    }
+//                }
+//            }
+//            double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.05);
+//            maxY += yMarginStretch;
+//            minY -= yMarginStretch;
+//            displayOffsetY = 0.0;
+//
+//            refreshPanel(false, false);
         } else {
             inSculptorMode = false;
             showSelectionBox = false;
@@ -519,7 +519,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                         sculptBlockID = speciesIntensityAnalysisBuilder.getxAxisBlockIDs()
                                 [Math.max(2, Math.abs(Arrays.binarySearch(xAxisData, convertMouseXToValue(mouseEvent.getX())))) - 2];
                         ((PlotWallPaneOGTripoli) getParent().getParent()).builtSculptingHBox(
-                                "Intensity Sculpting Block # " + sculptBlockID + "  >> " + tooltipTextExitSculpt);
+                                "Intensity Sculpting " + "  >> " + tooltipTextExitSculpt);
                         sculptBlock();
                         tooltip.setText(tooltipTextExitSculpt);
                     }
@@ -533,8 +533,15 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
         public void handle(MouseEvent e) {
             if (e.isPrimaryButtonDown()) {
                 if (mouseInHouse(e.getX(), e.getY())) {
-                    selectorBoxX = e.getX();
-                    selectorBoxY = e.getY();
+
+//                    int currentSculptBlockID = speciesIntensityAnalysisBuilder.getxAxisBlockIDs()
+//                            [Math.max(2, Math.abs(Arrays.binarySearch(xAxisData, convertMouseXToValue(e.getX())))) - 2];
+                    int currentSculptBlockID = determineSculptBlock(e.getX());
+                    if ((currentSculptBlockID == sculptBlockID)){
+                        selectorBoxX = e.getX();
+                        selectorBoxY = e.getY();
+                    }
+
                     showSelectionBox = true;
                 }
             } else {
@@ -560,11 +567,42 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                 adjustMouseStartsForPress(e.getX(), e.getY());
                 selectorBoxX = mouseStartX;
                 selectorBoxY = mouseStartY;
+                sculptBlockID = determineSculptBlock(e.getX());
+//                double mouseTime = convertMouseXToValue(e.getX());
+//                int xAxisIndexOfMouse = Math.abs(Arrays.binarySearch(xAxisData, mouseTime));
+//                double t0 = xAxisData[xAxisIndexOfMouse];
+//                double t2 = xAxisData[xAxisIndexOfMouse - 2];
+//                if ((t0 - t2) > 5.0){
+//                    // in between blocks
+//                    if (Math.abs(mouseTime - t2) > Math.abs(mouseTime - t0)){
+//                        sculptBlockID = speciesIntensityAnalysisBuilder.getxAxisBlockIDs()[xAxisIndexOfMouse];
+//                    } else {
+//                        sculptBlockID = speciesIntensityAnalysisBuilder.getxAxisBlockIDs()[xAxisIndexOfMouse - 2];
+//                    }
+//
+//                }
+                inSculptorMode = false;
+                sculptBlock();
             } else {
                 showSelectionBox = false;
                 adjustMouseStartsForPress(e.getX(), e.getY());
             }
         }
+    }
+
+    private int determineSculptBlock(double mouseX){
+        double mouseTime = convertMouseXToValue(mouseX);
+        int xAxisIndexOfMouse = Math.min(xAxisData.length - 1,   Math.abs(Arrays.binarySearch(xAxisData, mouseTime)));
+        double t0 = xAxisData[xAxisIndexOfMouse];
+        double t2 = xAxisData[(xAxisIndexOfMouse >= 2)? (xAxisIndexOfMouse - 2) : 0];
+        int sculptBlockIDCalc = speciesIntensityAnalysisBuilder.getxAxisBlockIDs()[(xAxisIndexOfMouse >= 2)? (xAxisIndexOfMouse - 2) : 0];
+        if ((t0 - t2) > 5.0){
+            // in between blocks
+            if (Math.abs(mouseTime - t2) > Math.abs(mouseTime - t0)){
+                sculptBlockIDCalc = speciesIntensityAnalysisBuilder.getxAxisBlockIDs()[xAxisIndexOfMouse];
+            }
+        }
+        return sculptBlockIDCalc;
     }
 
     class MouseReleasedEventHandlerSculpt implements EventHandler<MouseEvent> {
@@ -593,22 +631,25 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                 for (int isotopeIndex = 0; isotopeIndex < speciesChecked.length; isotopeIndex++) {
                     if (speciesChecked[isotopeIndex]) {
                         List<Boolean> statusList = new ArrayList<>();
-                        for (int index = indexLeft; index <= indexRight; index++) {
-                            // faraday
-                            if ((yData[isotopeIndex * 4][index] < intensityTop) && (yData[isotopeIndex * 4][index] > intensityBottom) && (0.0 != yData[isotopeIndex * 4][index])) {
-                                onPeakDataIncludedAllBlocks[isotopeIndex][index] = !onPeakDataIncludedAllBlocks[isotopeIndex][index];
-                                statusList.add(onPeakDataIncludedAllBlocks[isotopeIndex][index]);
+                        boolean [] includedPeakData = ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[isotopeIndex];
+                        for (int index = indexLeft + 1; index < indexRight; index++) {
+                            if ( (0 <= (index - countOfPreviousBlockIncludedData)) && ((index - countOfPreviousBlockIncludedData) < includedPeakData.length)) {
+                                // faraday
+                                if ((yData[isotopeIndex * 4][index] < intensityTop) && (yData[isotopeIndex * 4][index] > intensityBottom) && (0.0 != yData[isotopeIndex * 4][index])) {
+                                    onPeakDataIncludedAllBlocks[isotopeIndex][index] = !onPeakDataIncludedAllBlocks[isotopeIndex][index];
+                                    statusList.add(onPeakDataIncludedAllBlocks[isotopeIndex][index]);
 
-                                ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[isotopeIndex][index - countOfPreviousBlockIncludedData]
-                                        = !((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[isotopeIndex][index - countOfPreviousBlockIncludedData];
-                            }
-                            // photoMultiplier
-                            if ((yData[isotopeIndex * 4 + 2][index] < intensityTop) && (yData[isotopeIndex * 4 + 2][index] > intensityBottom) && (0.0 != yData[isotopeIndex * 4 + 2][index])) {
-                                onPeakDataIncludedAllBlocks[isotopeIndex][index] = !onPeakDataIncludedAllBlocks[isotopeIndex][index];
-                                statusList.add(onPeakDataIncludedAllBlocks[isotopeIndex][index]);
+                                    includedPeakData[index - countOfPreviousBlockIncludedData]
+                                            = !includedPeakData[index - countOfPreviousBlockIncludedData];
+                                }
+                                // photoMultiplier
+                                if ((yData[isotopeIndex * 4 + 2][index] < intensityTop) && (yData[isotopeIndex * 4 + 2][index] > intensityBottom) && (0.0 != yData[isotopeIndex * 4 + 2][index])) {
+                                    onPeakDataIncludedAllBlocks[isotopeIndex][index] = !onPeakDataIncludedAllBlocks[isotopeIndex][index];
+                                    statusList.add(onPeakDataIncludedAllBlocks[isotopeIndex][index]);
 
-                                ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[isotopeIndex][index - countOfPreviousBlockIncludedData]
-                                        = !((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[isotopeIndex][index - countOfPreviousBlockIncludedData];
+                                    includedPeakData[index - countOfPreviousBlockIncludedData]
+                                            = !includedPeakData[index - countOfPreviousBlockIncludedData];
+                                }
                             }
                         }
 
@@ -618,19 +659,21 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                         if ((0 < countIncluded) && (countIncluded > status.length / 2)) {
                             majorityValue = countIncluded > status.length / 2;
                             for (int index = indexLeft; index <= indexRight; index++) {
-                                // faraday
-                                if ((yData[isotopeIndex * 4][index] < intensityTop) && (yData[isotopeIndex * 4][index] > intensityBottom) && (0.0 != yData[isotopeIndex * 4][index])) {
-                                    onPeakDataIncludedAllBlocks[isotopeIndex][index] = majorityValue;
+                                if ( (0 <= (index - countOfPreviousBlockIncludedData)) && ((index - countOfPreviousBlockIncludedData) < includedPeakData.length)) {
+                                    // faraday
+                                    if ((yData[isotopeIndex * 4][index] < intensityTop) && (yData[isotopeIndex * 4][index] > intensityBottom) && (0.0 != yData[isotopeIndex * 4][index])) {
+                                        onPeakDataIncludedAllBlocks[isotopeIndex][index] = majorityValue;
 
-                                    ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[isotopeIndex][index - countOfPreviousBlockIncludedData]
-                                            = majorityValue;
-                                }
-                                // photomultiplier
-                                if ((yData[isotopeIndex * 4 + 2][index] < intensityTop) && (yData[isotopeIndex * 4 + 2][index] > intensityBottom) && (0.0 != yData[isotopeIndex * 4 + 2][index])) {
-                                    onPeakDataIncludedAllBlocks[isotopeIndex][index] = majorityValue;
+                                        ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[isotopeIndex][index - countOfPreviousBlockIncludedData]
+                                                = majorityValue;
+                                    }
+                                    // photomultiplier
+                                    if ((yData[isotopeIndex * 4 + 2][index] < intensityTop) && (yData[isotopeIndex * 4 + 2][index] > intensityBottom) && (0.0 != yData[isotopeIndex * 4 + 2][index])) {
+                                        onPeakDataIncludedAllBlocks[isotopeIndex][index] = majorityValue;
 
-                                    ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[isotopeIndex][index - countOfPreviousBlockIncludedData]
-                                            = majorityValue;
+                                        ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[isotopeIndex][index - countOfPreviousBlockIncludedData]
+                                                = majorityValue;
+                                    }
                                 }
                             }
                         }
