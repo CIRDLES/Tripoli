@@ -73,7 +73,7 @@ public enum BlockEnsemblesPlotter {
             sigmean = mean(ens_sig(:,initialModelsBurnCount:cnt),2);   % Noise hyperparams
             sigstd = std(ens_sig(:,initialModelsBurnCount:cnt),[],2);
 
-            DFmean = mean(ens_DF(:,initialModelsBurnCount:cnt),2);   % Daly-Far gain
+            DFmean = mean(ens_DF(:,initialModelsBurnCount:cnt),2);   % Daly-Far gainCorr
             DFstd = std(ens_DF(:,initialModelsBurnCount:cnt),[],2);
 
          */

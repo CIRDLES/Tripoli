@@ -27,8 +27,7 @@ public class SpeciesIntensityAnalysisBuilder extends PlotBuilder {
     private final double[][] baseLine;
     private final double[][] dfGain;
     private final int[] xAxisBlockIDs;
-    //    @Serial
-//    private static final long serialVersionUID = 5549376854790308330L;
+
     private AnalysisInterface analysis;
     private boolean[][] onPeakDataIncludedAllBlocks;
 
@@ -84,4 +83,16 @@ public class SpeciesIntensityAnalysisBuilder extends PlotBuilder {
     public double[][] getDfGain() {
         return dfGain;
     }
+
+    public record PlotSpecsSpeciesIntensityAnalysis(
+            boolean[] speciesChecked,
+            boolean showFaradays,
+            boolean showPMs,
+            boolean showModels,
+            boolean baselineCorr,
+            boolean gainCorr,
+            boolean logScale
+    ) {
+    }
+
 }
