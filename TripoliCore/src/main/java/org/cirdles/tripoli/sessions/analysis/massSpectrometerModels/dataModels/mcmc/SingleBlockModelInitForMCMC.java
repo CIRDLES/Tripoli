@@ -249,7 +249,7 @@ enum SingleBlockModelInitForMCMC {
             DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics();
             for (int dataArrayIndex = 0; dataArrayIndex < ddVer2SortedArray.length; dataArrayIndex++) {
                 //TODO: Check for cycle active - see below where stats accumulator checks
-                if (blockOnPeakIncluded[isotopeIndex][dataArrayIndex] && blockOnPeakIncluded[indexOfMostAbundantIsotope] [dataArrayIndex]) {
+                if (blockOnPeakIncluded[isotopeIndex][dataArrayIndex] && blockOnPeakIncluded[indexOfMostAbundantIsotope][dataArrayIndex]) {
                     descriptiveStatistics.addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
                 }
             }
@@ -700,7 +700,7 @@ enum SingleBlockModelInitForMCMC {
             % Take average of DFgain for all blocks
             x0.DFgain = mean(BlockDFgain);
 
-            % Warning if user DF gain is different from calculation
+            % Warning if user DF gainCorr is different from calculation
             if 100*abs(x0.DFgain - user_DFgain)/user_DFgain > 5
                 disp(sprintf('Warning, discrepancy with user-specified DF Gain %.4f %.4f',user_DFgain,x0.DFgain))
             end

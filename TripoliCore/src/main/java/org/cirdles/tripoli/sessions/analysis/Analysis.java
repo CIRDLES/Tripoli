@@ -23,6 +23,7 @@ import jakarta.xml.bind.Unmarshaller;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.plots.PlotBuilder;
+import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.*;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.SingleBlockPeakDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
@@ -85,7 +86,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private String dataFilePathString;
     private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
-
+    private SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis plotSpecsSpeciesIntensityAnalysis;
     private DescriptiveStatistics[] analysisSpeciesStats = new DescriptiveStatistics[1];
 
     private Analysis() {
@@ -101,6 +102,18 @@ public class Analysis implements Serializable, AnalysisInterface {
         dataFilePathString = MISSING_STRING_FIELD;
         massSpecExtractedData = new MassSpecExtractedData();
         mutable = true;
+        if (analysisMethod != null) {
+            plotSpecsSpeciesIntensityAnalysis = new SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis(
+                    new boolean[analysisMethod.getSpeciesList().size()], true, true, true, true, true, false);
+        }
+    }
+
+    public SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis getPlotSpecsSpeciesIntensityAnalysis() {
+        return plotSpecsSpeciesIntensityAnalysis;
+    }
+
+    public void setPlotSpecsSpeciesIntensityAnalysis(SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis plotSpecsSpeciesIntensityAnalysis) {
+        this.plotSpecsSpeciesIntensityAnalysis = plotSpecsSpeciesIntensityAnalysis;
     }
 
     public void setAnalysisSpeciesStats(DescriptiveStatistics[] analysisSpeciesStats) {
@@ -425,13 +438,13 @@ public class Analysis implements Serializable, AnalysisInterface {
         return sb.toString();
     }
 
-    private int[][] calculateSpeciesIncludedCounts(){
+    private int[][] calculateSpeciesIncludedCounts() {
         int speciesCount = analysisMethod.getSpeciesList().size();
         int blockCount = massSpecExtractedData.getBlocksData().size();
         // 2 rows per species: 0 = total; 1 = included; column 0 is for totals
-        int [][] speciesIncludedCounts = new int[2 * speciesCount][blockCount + 1];
-        for (int blockID = 1; blockID <= blockCount; blockID++){
-            for (int speciesIndex = 0; speciesIndex < speciesCount;speciesIndex++) {
+        int[][] speciesIncludedCounts = new int[2 * speciesCount][blockCount + 1];
+        for (int blockID = 1; blockID <= blockCount; blockID++) {
+            for (int speciesIndex = 0; speciesIndex < speciesCount; speciesIndex++) {
                 speciesIncludedCounts[speciesIndex * 2][blockID] = getMapOfBlockIdToIncludedPeakData().get(blockID)[speciesIndex].length;
                 speciesIncludedCounts[speciesIndex * 2][0] += speciesIncludedCounts[speciesIndex * 2][blockID];
 
@@ -444,7 +457,6 @@ public class Analysis implements Serializable, AnalysisInterface {
     }
 
 
-
     public final String produceReportTemplateOne() {
         StringBuilder sb = new StringBuilder();
         sb.append(massSpecExtractedData.printHeader());
@@ -453,7 +465,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         sb.append("Name, Mean, Standard Error (1s abs), Number Included, Number Total\n");
 
         int speciesIndex = 0;
-        int [][] calculatedSpeciesIncludedCounts = calculateSpeciesIncludedCounts();
+        int[][] calculatedSpeciesIncludedCounts = calculateSpeciesIncludedCounts();
         for (SpeciesRecordInterface species : analysisMethod.getSpeciesList()) {
             sb.append("intensity " + species.prettyPrintShortForm() + " (cps)" + ","
                     + analysisSpeciesStats[speciesIndex].getMean() + ","

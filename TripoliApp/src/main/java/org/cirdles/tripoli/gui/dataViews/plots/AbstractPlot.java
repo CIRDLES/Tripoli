@@ -161,15 +161,14 @@ public abstract class AbstractPlot extends Canvas {
                     }
                 } else {
                     displayOffsetX = displayOffsetX + (convertMouseXToValue(mouseStartX) - convertMouseXToValue(e.getX()));
-                    mouseStartX = e.getX();
 
                     if (this instanceof HistogramSinglePlot) {
                         displayOffsetY = Math.max(0.0, displayOffsetY + (convertMouseYToValue(mouseStartY) - convertMouseYToValue(e.getY())));
                     } else {
                         displayOffsetY = displayOffsetY + (convertMouseYToValue(mouseStartY) - convertMouseYToValue(e.getY()));
                     }
-                    mouseStartY = e.getY();
 
+                    adjustMouseStartsForPress(e.getX(), e.getY());
                     calculateTics();
                     repaint();
                 }

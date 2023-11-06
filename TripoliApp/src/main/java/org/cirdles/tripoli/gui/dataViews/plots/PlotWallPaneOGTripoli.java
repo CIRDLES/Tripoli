@@ -116,7 +116,7 @@ public class PlotWallPaneOGTripoli extends Pane implements PlotWallPaneInterface
                         speciesChecked[finalSpeciesIndex] = newVal;
                         if (((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).isInSculptorMode()) {
                             ((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).setInSculptorMode(false);
-                            ((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).sculptBlock();
+                            ((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).sculptBlock(false);
                         }
                         rebuildPlot(false, true);
                     });
@@ -242,7 +242,7 @@ public class PlotWallPaneOGTripoli extends Pane implements PlotWallPaneInterface
         restoreButton.setOnAction(event -> {
             if (((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).isInSculptorMode()) {
                 ((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).setInSculptorMode(false);
-                ((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).sculptBlock();
+                ((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).sculptBlock(false);
             } else {
                 rebuildPlot(true, true);
             }

@@ -589,7 +589,7 @@ x=x0;
                         ensemble(cnt).I{mm}=x.I{mm}; % Intensity by block
                     end
                     ensemble(cnt).BL=x.BL;  % Baselines
-                    ensemble(cnt).DFgain=x.DFgain;  %Daly-Faraday gain
+                    ensemble(cnt).DFgain=x.DFgain;  %Daly-Faraday gainCorr
                     ensemble(cnt).sig=x.sig;  % Noise hyperparameter
                     ensemble(cnt).E=E;  % Misfit
                     ensemble(cnt).E0=E0; % Unweighted misfit
