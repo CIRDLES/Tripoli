@@ -524,7 +524,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
         double t0 = xAxisData[xAxisIndexOfMouse];
         double t2 = xAxisData[(xAxisIndexOfMouse >= 2) ? (xAxisIndexOfMouse - 2) : 0];
         int sculptBlockIDCalc = speciesIntensityAnalysisBuilder.getxAxisBlockIDs()[(xAxisIndexOfMouse >= 2) ? (xAxisIndexOfMouse - 2) : 0];
-        if (((t0 - t2) > 5.0) && (Math.abs(mouseTime - t2) > Math.abs(mouseTime - t0)))) {
+        if (((t0 - t2) > 5.0) && (Math.abs(mouseTime - t2) > Math.abs(mouseTime - t0))) {
             // in between blocks
             sculptBlockIDCalc = speciesIntensityAnalysisBuilder.getxAxisBlockIDs()[xAxisIndexOfMouse];
         }
