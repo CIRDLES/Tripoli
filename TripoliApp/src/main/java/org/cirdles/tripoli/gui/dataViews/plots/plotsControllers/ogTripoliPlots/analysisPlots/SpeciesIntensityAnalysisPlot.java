@@ -524,11 +524,9 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
         double t0 = xAxisData[xAxisIndexOfMouse];
         double t2 = xAxisData[(xAxisIndexOfMouse >= 2) ? (xAxisIndexOfMouse - 2) : 0];
         int sculptBlockIDCalc = speciesIntensityAnalysisBuilder.getxAxisBlockIDs()[(xAxisIndexOfMouse >= 2) ? (xAxisIndexOfMouse - 2) : 0];
-        if ((t0 - t2) > 5.0) {
+        if (((t0 - t2) > 5.0) && (Math.abs(mouseTime - t2) > Math.abs(mouseTime - t0)))) {
             // in between blocks
-            if (Math.abs(mouseTime - t2) > Math.abs(mouseTime - t0)) {
-                sculptBlockIDCalc = speciesIntensityAnalysisBuilder.getxAxisBlockIDs()[xAxisIndexOfMouse];
-            }
+            sculptBlockIDCalc = speciesIntensityAnalysisBuilder.getxAxisBlockIDs()[xAxisIndexOfMouse];
         }
         return sculptBlockIDCalc;
     }
@@ -600,12 +598,10 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
             } else {
                 if (mouseInHouse(e.getX(), e.getY()) && !e.isPrimaryButtonDown()) {
                     // right mouse PAN
-                    if (mouseInHouse(e.getX(), e.getY()) && !e.isPrimaryButtonDown()) {
-                        showZoomBox = false;
-                        displayOffsetX = displayOffsetX + (convertMouseXToValue(mouseStartX) - convertMouseXToValue(e.getX()));
-                        adjustMouseStartsForPress(e.getX(), e.getY());
-                        calculateTics();
-                    }
+                    showZoomBox = false;
+                    displayOffsetX = displayOffsetX + (convertMouseXToValue(mouseStartX) - convertMouseXToValue(e.getX()));
+                    adjustMouseStartsForPress(e.getX(), e.getY());
+                    calculateTics();
                 }
             }
             repaint();
