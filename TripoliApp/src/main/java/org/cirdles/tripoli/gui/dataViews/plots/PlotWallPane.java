@@ -228,7 +228,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         analysis.getMapOfBlockIdToModelsBurnCount().put(blockID, burnIn);
         blockEnsemblePlotEngine(blockID, analysis);
         mcmcPlotsControllerInterface.plotEnsemblesEngine(analysis.getMapOfBlockIdToPlots().get(blockID));
-        mcmcPlotsControllerInterface.plotRatioSessionEngine();
+        mcmcPlotsControllerInterface.plotAnalysisRatioEngine();
         EnsemblesStore.produceSummaryModelFromEnsembleStore(blockID, analysis);
 
         // fire up OGTripoli style analysis plots
@@ -245,11 +245,11 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
             analysis.getMapOfBlockIdToModelsBurnCount().put(blockID, burnIn);
             blockEnsemblePlotEngine(blockID, analysis);
             mcmcPlotsControllerInterface.plotEnsemblesEngine(analysis.getMapOfBlockIdToPlots().get(blockID));
-//            mcmcPlotsControllerInterface.plotRatioSessionEngine();
+//            mcmcPlotsControllerInterface.plotAnalysisRatioEngine();
             EnsemblesStore.produceSummaryModelFromEnsembleStore(blockID, analysis);
         }
 
-        mcmcPlotsControllerInterface.plotRatioSessionEngine();
+        mcmcPlotsControllerInterface.plotAnalysisRatioEngine();
 
         // fire up OGTripoli style analysis plots
         if (null != analysisManagerCallbackI) {

@@ -36,6 +36,8 @@ public class IsotopicRatio implements Serializable, Comparable {
     private double analysisDalyFaradayGainOneSigmaAbs = 0.0;
     private double[] ratioValuesForBlockEnsembles;
     private double[] logRatioValuesForBlockEnsembles;
+    private double logRatioMeanForBlockEnsembles;
+    private double logRationStdDeviationForBlockEnsembles;
     private boolean displayed;
 
     public IsotopicRatio(SpeciesRecordInterface numerator, SpeciesRecordInterface denominator, boolean displayed) {
@@ -110,6 +112,22 @@ public class IsotopicRatio implements Serializable, Comparable {
 
     public void setLogRatioValuesForBlockEnsembles(double[] logRatioValuesForBlockEnsembles) {
         this.logRatioValuesForBlockEnsembles = logRatioValuesForBlockEnsembles;
+    }
+
+    public double getLogRatioMeanForBlockEnsembles() {
+        return logRatioMeanForBlockEnsembles;
+    }
+
+    public void setLogRatioMeanForBlockEnsembles(double logRatioMeanForBlockEnsembles) {
+        this.logRatioMeanForBlockEnsembles = logRatioMeanForBlockEnsembles;
+    }
+
+    public double getLogRationStdDeviationForBlockEnsembles() {
+        return logRationStdDeviationForBlockEnsembles;
+    }
+
+    public void setLogRationStdDeviationForBlockEnsembles(double logRationStdDeviationForBlockEnsembles) {
+        this.logRationStdDeviationForBlockEnsembles = logRationStdDeviationForBlockEnsembles;
     }
 
     public double getAnalysisMean() {

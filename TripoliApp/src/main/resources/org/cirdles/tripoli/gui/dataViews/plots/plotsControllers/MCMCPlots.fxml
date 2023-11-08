@@ -37,7 +37,7 @@
             <Tab closable="false" text="Ensembles">
                 <AnchorPane fx:id="ensemblePlotsAnchorPane"/>
             </Tab>
-            <Tab closable="false" onSelectionChanged="#plotRatioSessionEngine" text="Analysis Ratios">
+            <Tab closable="false" onSelectionChanged="#plotAnalysisRatioEngine" text="Analysis Ratios">
                 <AnchorPane fx:id="ratioSessionAnchorPane"/>
             </Tab>
             <Tab closable="false" text="DataFit">

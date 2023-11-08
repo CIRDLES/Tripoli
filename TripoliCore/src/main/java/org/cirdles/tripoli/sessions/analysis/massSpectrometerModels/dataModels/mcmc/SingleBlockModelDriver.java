@@ -19,6 +19,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.
 import com.google.common.primitives.Doubles;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.SingleBlockModelInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
@@ -33,7 +34,7 @@ import org.ojalgo.matrix.store.Primitive64Store;
 import java.io.IOException;
 import java.util.*;
 
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelInitForMCMC.initializeModelForSingleBlockMCMC;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.SingleBlockModelInitForMCMC.initializeModelForSingleBlockMCMC;
 
 /**
  * @author James F. Bowring
@@ -63,7 +64,7 @@ public enum SingleBlockModelDriver {
         return plotBuilder;
     }
 
-    static SingleBlockRawDataSetRecord prepareSingleBlockDataForMCMC(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) {
+    public static SingleBlockRawDataSetRecord prepareSingleBlockDataForMCMC(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) {
         SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = null;
         MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord = massSpecExtractedData.getBlocksData().get(blockNumber);
         if (massSpecOutputSingleBlockRecord != null) {

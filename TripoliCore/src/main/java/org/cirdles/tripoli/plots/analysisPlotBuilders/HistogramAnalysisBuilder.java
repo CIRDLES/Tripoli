@@ -30,8 +30,6 @@ import java.util.TreeMap;
  * @author James F. Bowring
  */
 public class HistogramAnalysisBuilder extends PlotBuilder {
-    //    @Serial
-//    private static final long serialVersionUID = 9180059676626735662L;
     private HistogramAnalysisRecord histogramAnalysisRecord;
     private int blockCount;
 

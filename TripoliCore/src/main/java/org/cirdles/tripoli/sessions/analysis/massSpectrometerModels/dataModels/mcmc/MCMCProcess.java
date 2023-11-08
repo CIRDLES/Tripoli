@@ -22,6 +22,7 @@ import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.SingleBlockModelInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLabCholesky;
@@ -36,7 +37,7 @@ import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static java.lang.StrictMath.exp;
 import static org.apache.commons.math3.special.Gamma.gamma;
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelInitForMCMC.modelInitData;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.SingleBlockModelInitForMCMC.modelInitData;
 
 /**
  * @author James F. Bowring

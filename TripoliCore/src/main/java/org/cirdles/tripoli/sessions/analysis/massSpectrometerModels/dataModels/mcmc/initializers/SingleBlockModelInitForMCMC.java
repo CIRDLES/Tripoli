@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers;
 
 import jama.Matrix;
 import org.apache.commons.math3.linear.*;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLab;
@@ -35,10 +38,10 @@ import static org.cirdles.tripoli.utilities.comparators.SerializableIntegerCompa
 /**
  * @author James F. Bowring
  */
-enum SingleBlockModelInitForMCMC {
+public enum SingleBlockModelInitForMCMC {
     ;
 
-    static SingleBlockModelRecordWithCov initializeModelForSingleBlockMCMC(
+    public static SingleBlockModelRecordWithCov initializeModelForSingleBlockMCMC(
             AnalysisInterface analysis, AnalysisMethod analysisMethod, SingleBlockRawDataSetRecord singleBlockRawDataSetRecord, boolean provideCovariance) throws RecoverableCondition {
 
         int baselineCount = singleBlockRawDataSetRecord.baselineDataSetMCMC().intensityAccumulatorList().size();
@@ -46,6 +49,12 @@ enum SingleBlockModelInitForMCMC {
         int onPeakPhotoMultCount = singleBlockRawDataSetRecord.onPeakPhotoMultiplierDataSetMCMC().intensityAccumulatorList().size();
         int totalIntensityCount = baselineCount + onPeakFaradayCount + onPeakPhotoMultCount;
         int countOfIsotopes = analysisMethod.getSpeciesList().size();
+
+        // TODO:Fix this per Noah
+        // NOTE: the speciesList has been sorted by increasing abundances in the original analysisMethod setup
+        //  the ratios are between each species and the most abundant species, with one less ratio than species count
+        int indexOfMostAbundantIsotope = countOfIsotopes - 1;
+        int iden = indexOfMostAbundantIsotope + 1; // ordinal
 
         // Baseline statistics *****************************************************************************************
         /*
@@ -83,15 +92,10 @@ enum SingleBlockModelInitForMCMC {
 
         double meanOfBaseLineMeansStdDev = meanOfBaseLineMeansStdDevDescriptiveStatistics.getMean();
 
-        // TODO:Fix this per Noah
-        // NOTE: the speciesList has been sorted by increasing abundances in the original analysisMethod setup
-        //  the ratios are between each species and the most abundant species, with one less ratio than species count
-        int indexOfMostAbundantIsotope = countOfIsotopes - 1;
+
 
         // june 2023 new init line 14 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // june 2023 new init - will need to be user input
-        int iden = indexOfMostAbundantIsotope + 1; // ordinal
-
         //TODO: Fix this when using bbase
         //TODO: handle case of only 2 cycles, which blows up calculateDFGain since it thrwos out first and last
         double detectorFaradayGain = 0.9;
