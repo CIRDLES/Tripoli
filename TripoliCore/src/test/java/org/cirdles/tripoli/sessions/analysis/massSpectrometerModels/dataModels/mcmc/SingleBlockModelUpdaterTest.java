@@ -141,8 +141,8 @@ class SingleBlockModelUpdaterTest {
         double delta = 1e-7;
         assertArrayEquals(matLabBaseLineArray, actualArray, delta);
 
-        SingleBlockModelUpdater.UpdatedCovariancesRecord result = modelUpdater.updateMeanCovMS2(
-                singleBlockModelRecord, new double[24][24], new double[24], m1);
+        // SingleBlockModelUpdater.UpdatedCovariancesRecord resultPhaseTwo = modelUpdater.updateMeanCovMS2(
+        //        singleBlockModelRecord, new double[24][24], new double[24], m1);
 
         //result.dataMean(); // Utilize Debug to extract and compare numbers
 
