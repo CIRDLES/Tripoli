@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 class SingleBlockModelUpdaterTest {
 
@@ -57,9 +58,7 @@ class SingleBlockModelUpdaterTest {
     @BeforeEach
     void setUp() {
 
-        // Create Sudo ModelRecord
-
-        singleBlockModelRecord_Test = new SingleBlockModelRecord(
+                singleBlockModelRecord_Test = new SingleBlockModelRecord(
                 1, // Ask next meeting on this data on Matlab
                 8, // Ask next meeting on this data on Matlab
                 11, // Ask next meeting on this data on Matlab
@@ -91,42 +90,61 @@ class SingleBlockModelUpdaterTest {
         assertTrue(singleBlockModelUpdater.getOperations().contains(oper));
     }
 
-//    @Test
-//    void testUpdateMeanCovMS2() {
-//
-//        SingleBlockModelUpdater modelUpdater = new SingleBlockModelUpdater();
-//        singleBlockModelRecord = modelUpdater.updateMSv2("changedfg", singleBlockModelRecord_Test,
-//                ProposedModelParameters.buildProposalRangesRecord(null), delx, true);
-//
-//        //----------------------------------- STEP 1 ProposedModel Check ------------------------------------------
-//
-//        // Confirm that the 'ProposedModelParameters.buildProposalRangesRecord(null)' call yields the same result
-//        // Verified that the numbers indeed matches the results from variable 'prior' obtained via Matlab - m = 1
-//        // My Nguyen 10/22
-//
-//        //---------------------------------- STEP 2 singleBlockModelRecord Check ----------------------------------
-//
-//        // Ensure that singleBlockModelRecord is the same as 'x2' - step with F8 to m2 from Matlab
-//        //
-//        // -------------------------------------------Matlab Results-----------------------------------------------
-//        // x2.lograt = -6.104637363581394, -3.005341905522350, -0.999850997215450, 5.314601660544664e-05
-//        //
-//        // I = 6.134058267638932e+05, 6.008564684844068e+05, 5.908635276955633e+05, 5.514056181973080e+05,
-//        //     5.425031645286407e+05, 5.335326096038788e+05, 5.244935068474156e+05, 5.156075942764268e+05,
-//        //     5.075442366663976e+05, 4.997546853819002e+05, 4.925956333239331e+05
-//        //
-//        // x2.BL = -3.998260004231143e+05, -2.997568186000270e+05, -1.996903987277965e+05, -9.995586472665060e+04,
-//        //         -1.033050659352174e+02, 1.000737188337671e+05, 2.001171322618742e+05, 2.994256904062582e+05
-//        // DFGain = 0.800014677927308 - Does not match
-//        //
-//        // Confirm that the 'singleBlockModelRecord' yields the same result used from Matlab - m = 2
-//        // My Nguyen 10/26
-//
-//        SingleBlockModelUpdater.UpdatedCovariancesRecord result = modelUpdater.updateMeanCovMS2(
-//                singleBlockModelRecord, new double[24][24], new double[24], m1);
-//
-//        result.dataMean(); // Utilize Debug to extract and compare numbers
-//
-//    }
-//    // Do Assertion with EPSILON to compare doubles
+    @Test
+    void testUpdateMeanCovMS2() {
+
+        SingleBlockModelUpdater modelUpdater = new SingleBlockModelUpdater();
+        singleBlockModelRecord = modelUpdater.updateMSv2("changedfg", singleBlockModelRecord_Test,
+                ProposedModelParameters.buildProposalRangesRecord(null), delx, true);
+
+        //----------------------------------- STEP 1 ProposedModel Check ------------------------------------------
+
+        // Confirm that the 'ProposedModelParameters.buildProposalRangesRecord(null)' call yields the same result
+        // Verified that the numbers indeed matches the results from variable 'prior' obtained via Matlab - m = 1
+        // My Nguyen 10/22
+
+        //---------------------------------- STEP 2 singleBlockModelRecord Check ----------------------------------
+
+        // Ensure that singleBlockModelRecord is the same as 'x2' - step with F8 to m2 from Matlab
+        //
+        // -------------------------------------------Matlab Results-----------------------------------------------
+        //
+        // Confirm that the 'singleBlockModelRecord' yields the same result used from Matlab - m = 2
+        //
+        // x2.lograt = -6.104637363581394, -3.005341905522350, -0.999850997215450, 5.314601660544664e-05
+        //
+        // x2.BL = -3.998260004231143e+05, -2.997568186000270e+05, -1.996903987277965e+05, -9.995586472665060e+04,
+        //         -1.033050659352174e+02, 1.000737188337671e+05, 2.001171322618742e+05, 2.994256904062582e+05
+        //
+        // I = 6.134058267638932e+05, 6.008564684844068e+05, 5.908635276955633e+05, 5.514056181973080e+05,
+        //     5.425031645286407e+05, 5.335326096038788e+05, 5.244935068474156e+05, 5.156075942764268e+05,
+        //     5.075442366663976e+05, 4.997546853819002e+05, 4.925956333239331e+05
+        //
+        // TODO: Future work (Re-investigate DFGain calculation)
+        // The current value (0.800014677927308) does not match the corresponding MATLAB result.
+        //
+        // My Nguyen 10/26
+
+        double[] matLabBaseLineArray = {
+                -3.998260004231143e+05,
+                -2.997568186000270e+05,
+                -1.996903987277965e+05,
+                -9.995586472665060e+04,
+                -1.033050659352174e+02,
+                1.000737188337671e+05,
+                2.001171322618742e+05,
+                2.994256904062582e+05
+        };
+
+        double[] actualArray = singleBlockModelRecord.baselineMeansArray();
+
+        double delta = 1e-7;
+        assertArrayEquals(matLabBaseLineArray, actualArray, delta);
+
+        SingleBlockModelUpdater.UpdatedCovariancesRecord result = modelUpdater.updateMeanCovMS2(
+                singleBlockModelRecord, new double[24][24], new double[24], m1);
+
+        //result.dataMean(); // Utilize Debug to extract and compare numbers
+
+    }
 }
