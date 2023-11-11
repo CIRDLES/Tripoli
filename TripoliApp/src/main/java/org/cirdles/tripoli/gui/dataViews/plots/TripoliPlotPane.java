@@ -27,6 +27,7 @@ import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.BlockRatioCyclesAnalysisPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.analysisPlots.AnalysisRatioPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.gridCellDim;
@@ -253,8 +254,13 @@ public class TripoliPlotPane extends Pane {
     public void toggleRatiosLogRatios() {
         if (!getChildren().isEmpty() && (getChildren().get(0) instanceof RatioHistogramPlot)) {
             ((RatioHistogramPlot) getChildren().get(0)).toggleRatiosLogRatios();
-            ((RatioHistogramPlot) getChildren().get(0)).repaint();
+//            ((RatioHistogramPlot) getChildren().get(0)).repaint();
         }
+        if (!getChildren().isEmpty() && (getChildren().get(0) instanceof AnalysisRatioPlot)) {
+            ((AnalysisRatioPlot) getChildren().get(0)).toggleRatiosLogRatios();
+//            ((AnalysisRatioPlot) getChildren().get(0)).repaint();
+        }
+
     }
 
     public void restorePlot() {

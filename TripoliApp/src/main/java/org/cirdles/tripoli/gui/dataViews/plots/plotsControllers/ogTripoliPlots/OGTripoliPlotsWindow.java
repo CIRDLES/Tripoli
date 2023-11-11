@@ -69,7 +69,7 @@ public class OGTripoliPlotsWindow {
 
     public void loadPlotsWindow() {
         if (!plottingStage.isShowing()) {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/OGTripoliView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/dataViews/plots/plotsControllers/OGTripoliView.fxml"));
             try {
                 Scene scene = new Scene(loader.load());
                 plottingStage.setScene(scene);

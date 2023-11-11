@@ -50,12 +50,12 @@ public enum BlockEnsemblesPlotter {
         PlotBuilder[][] plotBuilders = analysis.getMapOfBlockIdToPlots().get(blockID);
         int initialModelsBurnCount = analysis.getMapOfBlockIdToModelsBurnCount().get(blockID).intValue();
 
-        List<EnsemblesStore.EnsembleRecord> ensembleRecordsList = ((Analysis) analysis).getMapBlockIDToEnsembles().get(blockID);
+        List<EnsemblesStore.EnsembleRecord> ensembleRecordsList = analysis.getMapBlockIDToEnsembles().get(blockID);
         int countOfEnsemblesUsed = ensembleRecordsList.size() - initialModelsBurnCount;
 
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
         SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = analysis.getMapOfBlockIdToRawData().get(blockID);
-        List<IsotopicRatio> isotopicRatioList = analysisMethod.getIsotopicRatiosList();
+        List<IsotopicRatio> blockIsotopicRatioList = analysisMethod.getCloneOfIsotopicRatiosList();
 
         /*
             %% Analysis and Plotting
@@ -79,28 +79,22 @@ public enum BlockEnsemblesPlotter {
          */
 
         // log ratios
-        double[][] ensembleSetOfLogRatios = new double[isotopicRatioList.size()][countOfEnsemblesUsed];
-        double[][] ensembleSetOfRatios = new double[isotopicRatioList.size()][countOfEnsemblesUsed];
-        DescriptiveStatistics descriptiveStatisticsLogRatios = new DescriptiveStatistics();
-        for (int ratioIndex = 0; ratioIndex < isotopicRatioList.size(); ratioIndex++) {
+        double[][] ensembleSetOfLogRatios = new double[blockIsotopicRatioList.size()][countOfEnsemblesUsed];
+        double[][] ensembleSetOfRatios = new double[blockIsotopicRatioList.size()][countOfEnsemblesUsed];
+        for (int ratioIndex = 0; ratioIndex < blockIsotopicRatioList.size(); ratioIndex++) {
             for (int index = initialModelsBurnCount; index < countOfEnsemblesUsed + initialModelsBurnCount; index++) {
                 ensembleSetOfLogRatios[ratioIndex][index - initialModelsBurnCount] = ensembleRecordsList.get(index).logRatios()[ratioIndex];
-                descriptiveStatisticsLogRatios.addValue(ensembleSetOfLogRatios[ratioIndex][index - initialModelsBurnCount]);
                 ensembleSetOfRatios[ratioIndex][index - initialModelsBurnCount] = exp(ensembleSetOfLogRatios[ratioIndex][index - initialModelsBurnCount]);
             }
-            isotopicRatioList.get(ratioIndex).setRatioValuesForBlockEnsembles(ensembleSetOfRatios[ratioIndex]);
-
-            isotopicRatioList.get(ratioIndex).setLogRatioValuesForBlockEnsembles(ensembleSetOfLogRatios[ratioIndex]);
-            isotopicRatioList.get(ratioIndex).setLogRatioMeanForBlockEnsembles(descriptiveStatisticsLogRatios.getMean());
-            isotopicRatioList.get(ratioIndex).setLogRationStdDeviationForBlockEnsembles(descriptiveStatisticsLogRatios.getStandardDeviation());
+            blockIsotopicRatioList.get(ratioIndex).setRatioValuesForBlockEnsembles(ensembleSetOfRatios[ratioIndex]);
+            blockIsotopicRatioList.get(ratioIndex).setLogRatioValuesForBlockEnsembles(ensembleSetOfLogRatios[ratioIndex]);
         }
 
         // derived ratios
-        List<IsotopicRatio> derivedIsotopicRatiosList = analysisMethod.getDerivedIsotopicRatiosList();
+        List<IsotopicRatio> derivedIsotopicRatiosList = analysisMethod.getCloneOfDerivedIsotopicRatiosList();
         int countOfDerivedRatios = derivedIsotopicRatiosList.size();
         double[][] derivedEnsembleSetOfRatios = new double[countOfDerivedRatios][countOfEnsemblesUsed];
         double[][] derivedEnsembleSetOfLogRatios = new double[countOfDerivedRatios][countOfEnsemblesUsed];
-        descriptiveStatisticsLogRatios = new DescriptiveStatistics();
         int derivedRatioIndex = 0;
         // derive the ratios
         for (IsotopicRatio isotopicRatio : derivedIsotopicRatiosList) {
@@ -109,37 +103,31 @@ public enum BlockEnsemblesPlotter {
             SpeciesRecordInterface highestAbundanceSpecies = analysisMethod.retrieveHighestAbundanceSpecies();
             if (numerator != highestAbundanceSpecies) {
                 IsotopicRatio numeratorRatio = new IsotopicRatio(numerator, highestAbundanceSpecies, false);
-                int indexNumeratorRatio = isotopicRatioList.indexOf(numeratorRatio);
+                int indexNumeratorRatio = blockIsotopicRatioList.indexOf(numeratorRatio);
                 IsotopicRatio denominatorRatio = new IsotopicRatio(denominator, highestAbundanceSpecies, false);
-                int indexDenominatorRatio = isotopicRatioList.indexOf(denominatorRatio);
+                int indexDenominatorRatio = blockIsotopicRatioList.indexOf(denominatorRatio);
                 for (int ensembleIndex = initialModelsBurnCount; ensembleIndex < countOfEnsemblesUsed + initialModelsBurnCount; ensembleIndex++) {
-                    derivedEnsembleSetOfRatios[derivedRatioIndex][ensembleIndex - initialModelsBurnCount] =
-                            ensembleSetOfRatios[indexNumeratorRatio][ensembleIndex - initialModelsBurnCount] / ensembleSetOfRatios[indexDenominatorRatio][ensembleIndex - initialModelsBurnCount];
                     derivedEnsembleSetOfLogRatios[derivedRatioIndex][ensembleIndex - initialModelsBurnCount] =
-                            StrictMath.log(derivedEnsembleSetOfRatios[derivedRatioIndex][ensembleIndex - initialModelsBurnCount]);
-                    descriptiveStatisticsLogRatios.addValue(derivedEnsembleSetOfLogRatios[derivedRatioIndex][ensembleIndex - initialModelsBurnCount]);
+                            ensembleSetOfLogRatios[indexNumeratorRatio][ensembleIndex - initialModelsBurnCount] - ensembleSetOfLogRatios[indexDenominatorRatio][ensembleIndex - initialModelsBurnCount];
+                    derivedEnsembleSetOfRatios[derivedRatioIndex][ensembleIndex - initialModelsBurnCount] =
+                            exp(derivedEnsembleSetOfLogRatios[derivedRatioIndex][ensembleIndex - initialModelsBurnCount]);
                 }
             } else {
                 // assume we are dealing with the inverses of isotopicRatiosList
                 IsotopicRatio targetRatio = new IsotopicRatio(denominator, highestAbundanceSpecies, false);
-                int indexOfTargetRatio = isotopicRatioList.indexOf(targetRatio);
+                int indexOfTargetRatio = blockIsotopicRatioList.indexOf(targetRatio);
                 for (int ensembleIndex = initialModelsBurnCount; ensembleIndex < countOfEnsemblesUsed + initialModelsBurnCount; ensembleIndex++) {
-                    derivedEnsembleSetOfRatios[derivedRatioIndex][ensembleIndex - initialModelsBurnCount] =
-                            1.0 / ensembleSetOfRatios[indexOfTargetRatio][ensembleIndex - initialModelsBurnCount];
                     derivedEnsembleSetOfLogRatios[derivedRatioIndex][ensembleIndex - initialModelsBurnCount] =
-                            StrictMath.log(derivedEnsembleSetOfRatios[derivedRatioIndex][ensembleIndex - initialModelsBurnCount]);
-                    descriptiveStatisticsLogRatios.addValue(derivedEnsembleSetOfLogRatios[derivedRatioIndex][ensembleIndex - initialModelsBurnCount]);
+                            -(ensembleSetOfLogRatios[indexOfTargetRatio][ensembleIndex - initialModelsBurnCount]);
+                    derivedEnsembleSetOfRatios[derivedRatioIndex][ensembleIndex - initialModelsBurnCount] =
+                            exp(derivedEnsembleSetOfLogRatios[derivedRatioIndex][ensembleIndex - initialModelsBurnCount]);
                 }
             }
             derivedIsotopicRatiosList.get(derivedRatioIndex).setRatioValuesForBlockEnsembles(derivedEnsembleSetOfRatios[derivedRatioIndex]);
-
             derivedIsotopicRatiosList.get(derivedRatioIndex).setLogRatioValuesForBlockEnsembles(derivedEnsembleSetOfLogRatios[derivedRatioIndex]);
-            derivedIsotopicRatiosList.get(derivedRatioIndex).setLogRatioMeanForBlockEnsembles(descriptiveStatisticsLogRatios.getMean());
-            derivedIsotopicRatiosList.get(derivedRatioIndex).setLogRationStdDeviationForBlockEnsembles(descriptiveStatisticsLogRatios.getStandardDeviation());
 
             derivedRatioIndex++;
         }
-
 
         // baseLines
         int baselineSize = analysisMethod.getSequenceTable().findFaradayDetectorsUsed().size();
@@ -162,6 +150,8 @@ public enum BlockEnsemblesPlotter {
             descriptiveStatisticsDalyFaradayGain.addValue(ensembleDalyFaradayGain[index - initialModelsBurnCount]);
         }
         double dalyFaradayGainMean = descriptiveStatisticsDalyFaradayGain.getMean();
+        ((Analysis) analysis).setAnalysisDalyFaradayGainMean(dalyFaradayGainMean);
+        ((Analysis) analysis).setAnalysisDalyFaradayGainMeanOneSigmaAbs(descriptiveStatisticsDalyFaradayGain.getStandardDeviation());
 
         /*
             for m=1:d0.Nblock
@@ -222,10 +212,10 @@ public enum BlockEnsemblesPlotter {
             plotBuilders[PLOT_INDEX_RATIOS][i] =
                     RatioHistogramBuilder.initializeRatioHistogram(
                             blockID,
-                            isotopicRatioList.get(i),
-                            biMapOfRatiosAndInverses.get(isotopicRatioList.get(i)),
+                            blockIsotopicRatioList.get(i),
+                            biMapOfRatiosAndInverses.get(blockIsotopicRatioList.get(i)),
                             25);
-            analysisMethod.getMapOfRatioNamesToInvertedFlag().put(isotopicRatioList.get(i).prettyPrint(), false);
+            analysisMethod.getMapOfRatioNamesToInvertedFlag().put(blockIsotopicRatioList.get(i).prettyPrint(), false);
         }
         for (int i = 0; i < derivedEnsembleSetOfRatios.length; i++) {
             plotBuilders[PLOT_INDEX_RATIOS][i + ensembleSetOfRatios.length] =

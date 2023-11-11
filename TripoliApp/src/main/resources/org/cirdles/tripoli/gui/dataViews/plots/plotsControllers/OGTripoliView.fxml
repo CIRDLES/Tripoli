@@ -5,7 +5,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="plotWindowVBox" prefHeight="600.0" prefWidth="1000.0"
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="plotWindowVBox" prefHeight="600.0" prefWidth="1200.0"
       xmlns="http://javafx.com/javafx/17"
       fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController">
     <children>

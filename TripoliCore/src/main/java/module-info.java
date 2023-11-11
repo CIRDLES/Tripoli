@@ -25,6 +25,7 @@ module Tripoli.TripoliCore {
     requires commons.lang3;
     requires jakarta.xml.bind;
     requires java.xml.bind;
+    requires jblas;
 
 
     exports org.cirdles.tripoli;
@@ -58,4 +59,5 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.plots.analysisPlotBuilders;
     exports org.cirdles.tripoli.plots.compoundPlotBuilders;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers;
+    exports org.cirdles.tripoli.utilities.mathUtilities.weightedMeans;
 }

@@ -23,17 +23,18 @@ import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.*;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.analysisPlots.HistogramAnalysisPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.analysisPlots.AnalysisRatioPlot;
 import org.cirdles.tripoli.plots.PlotBuilder;
-import org.cirdles.tripoli.plots.analysisPlotBuilders.HistogramAnalysisBuilder;
+import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioRecord;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.PeakCentreAnalysisBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
 import org.cirdles.tripoli.plots.linePlots.*;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.MCMCProcess;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
@@ -45,7 +46,6 @@ import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHei
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
-import static org.cirdles.tripoli.plots.analysisPlotBuilders.HistogramAnalysisBuilder.initializeHistogramAnalysis;
 import static org.cirdles.tripoli.plots.analysisPlotBuilders.PeakCentreAnalysisBuilder.initializeAnalysisPeakCentres;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.*;
 
@@ -60,12 +60,6 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
     private AnchorPane logAnchorPane;
     @FXML
     private ProgressBar progressBar;
-    @FXML
-    private Tab convergencesTab;
-    @FXML
-    private Tab convergeErrorTab;
-    @FXML
-    private Tab convergeIntensityTab;
     private Service[] services;
     @FXML
     private ResourceBundle resources;
@@ -113,6 +107,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
 
     public void plotIncomingAction() {
         processDataFileAndShowPlotsOfMCMC(analysis);
+
     }
 
     @FXML
@@ -218,10 +213,10 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
                         showLogsEngine(finalBlockIndex);
                     }
                     if (activeServices.isEmpty()) {
-                        //if (blocksToProcess.size() > 1) plotAnalysisRatioEngine();
                         listViewOfBlocks.setDisable(false);
                         listViewOfBlocks.getSelectionModel().selectFirst();
                         progressBar.setProgress(1.0);
+                        ((Analysis) analysis).analysisRatioEngine();
 
                         // fire up OGTripoli style session plots
                         AllBlockInitForOGTripoli.PlottingData plottingData = analysis.assemblePostProcessPlottingData();
@@ -238,6 +233,8 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
             services[finalBlockIndex].setOnFailed(evt -> {
                 listViewOfBlocks.setDisable(false);
                 listViewOfBlocks.getSelectionModel().selectFirst();
+                progressBar.setProgress(1.0);
+                ((Analysis) analysis).analysisRatioEngine();
             });
         }
 
@@ -264,35 +261,12 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
 
     @FXML
     public void plotAnalysisRatioEngine() {
-        Map<Integer, PlotBuilder[][]> mapOfBlockIdToPlots = analysis.getMapOfBlockIdToPlots();
-        Map<IsotopicRatio, List<HistogramRecord>> mapRatioNameToAnalysisRecords = new TreeMap<>();
-        Iterator<Map.Entry<Integer, PlotBuilder[][]>> iterator = mapOfBlockIdToPlots.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Integer, PlotBuilder[][]> entry = iterator.next();
-            if (analysis.getMapOfBlockIdToProcessStatus().get(entry.getKey()) == SHOW) {
-                PlotBuilder[] ratiosPlotBuilder = entry.getValue()[PLOT_INDEX_RATIOS];
-                for (PlotBuilder ratioPlotBuilder : ratiosPlotBuilder) {
-                    IsotopicRatio ratio = ((RatioHistogramBuilder) ratioPlotBuilder).getRatio();
-                    if (ratioPlotBuilder.isDisplayed()) {
-                        String ratioName = ratioPlotBuilder.getTitle()[0];
-                        mapRatioNameToAnalysisRecords.computeIfAbsent(ratio, k -> new ArrayList<>());
-                        boolean useInvertedRatio = analysis.getAnalysisMethod().getMapOfRatioNamesToInvertedFlag().get(ratioName);
-                        mapRatioNameToAnalysisRecords.get(ratio).add(
-                                useInvertedRatio ?
-                                        ((RatioHistogramBuilder) ratioPlotBuilder).getInvertedRatioHistogramRecord()
-                                        : ((RatioHistogramBuilder) ratioPlotBuilder).getHistogramRecord());
-                    }
-                }
-            }
-        }
-
         plotTabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
             ratiosSessionPlotsWallPane.repeatLayoutStyle();
         });
         plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
             ratiosSessionPlotsWallPane.repeatLayoutStyle();
         });
-
 
         if (ratioSessionAnchorPane.getChildren().isEmpty()) {
             ratiosSessionPlotsWallPane = (PlotWallPane) PlotWallPane.createPlotWallPane(null, analysis, this, analysisManagerCallbackI);
@@ -308,14 +282,14 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
             ratiosSessionPlotsWallPane.clearTripoliPanes();
         }
 
-        for (Map.Entry<IsotopicRatio, List<HistogramRecord>> entry : mapRatioNameToAnalysisRecords.entrySet()) {
-            HistogramAnalysisBuilder histogramAnalysisBuilder = initializeHistogramAnalysis(
-                    analysis.getMapOfBlockIdToProcessStatus().size(), entry.getKey(), entry.getValue(), entry.getValue().get(0).title(), "Block ID", "Ratio");
+        for (Map.Entry<IsotopicRatio, AnalysisRatioRecord> entry : ((Analysis) analysis).getMapOfRatioToAnalysisRatioRecord().entrySet()) {
+            AbstractPlot plot = AnalysisRatioPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), entry.getValue());
             TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(ratiosSessionPlotsWallPane);
-            AbstractPlot plot = HistogramAnalysisPlot.generatePlot(new Rectangle(minPlotWidth, minPlotHeight), histogramAnalysisBuilder.getHistogramAnalysisRecord());
             tripoliPlotPane.addPlot(plot);
         }
-        ratiosSessionPlotsWallPane.stackPlots();
+
+        ratiosSessionPlotsWallPane.tilePlots();
+        ratiosSessionPlotsWallPane.toggleShowStatsAllPlots();
     }
 
     // plotting engine for peak sessions
@@ -333,7 +307,6 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
                         String peakName = peakPlotBuilder.getTitle()[1];
                         mapPeakNameToAnalysisRecords.computeIfAbsent(peakName, k -> new ArrayList<>());
                         mapPeakNameToAnalysisRecords.get(peakName).add(((PeakShapesOverlayBuilder) peakPlotBuilder).getPeakShapesOverlayRecord());
-
                     }
                 }
             }
@@ -344,7 +317,6 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
         plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
             peakAnalysisPlotWallPlane.repeatLayoutStyle();
         });
-        // TODO add peak analysis pane to fxml and controller
 
         if (peakAnalysisAnchorPane.getChildren().isEmpty()) {
             peakAnalysisPlotWallPlane = (PlotWallPane) PlotWallPane.createPlotWallPane(null, analysis, this, null);
@@ -374,7 +346,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
     private synchronized void plotBlockEngine(Task<String> plotBuildersTaska) {
         analysisManagerCallbackI.callbackRefreshBlocksStatus();
 
-        PlotBuildersTaskInterface plotBuildersTask = (PlotBuildersTaskInterface) plotBuildersTaska;
+        MCMCPlotBuildersTaskInterface plotBuildersTask = (MCMCPlotBuildersTaskInterface) plotBuildersTaska;
 
         PlotBuilder[] convergeRatioPlotBuilder = plotBuildersTask.getConvergeRatioLineBuilder();
         PlotBuilder[] convergeBLFaradayLineBuilder = plotBuildersTask.getConvergeBLFaradayLineBuilder();
@@ -497,7 +469,6 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
         peakShapeOverlayPlotWallPane.tilePlots();
     }
 
-
     public void plotEnsemblesEngine(PlotBuilder[][] plotBuilders) {
         PlotBuilder[] ratiosHistogramBuilder = plotBuilders[PLOT_INDEX_RATIOS];
         PlotBuilder[] baselineHistogramBuilder = plotBuilders[PLOT_INDEX_BASELINES];
@@ -534,14 +505,13 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
         logAnchorPane.getChildren().add(logTextArea);
     }
 
-
     private void produceTripoliRatioHistogramPlots(PlotBuilder[] plotBuilder, PlotWallPane plotWallPane) {
         for (int i = 0; i < plotBuilder.length; i++) {
             if (plotBuilder[i].isDisplayed()) {
                 HistogramRecord plotRecord = ((RatioHistogramBuilder) plotBuilder[i]).getHistogramRecord();
                 HistogramRecord invertedPlotRecord = ((RatioHistogramBuilder) plotBuilder[i]).getInvertedRatioHistogramRecord();
                 HistogramRecord logRatioHistogramRecord = ((RatioHistogramBuilder) plotBuilder[i]).getLogRatioHistogramRecord();
-                HistogramRecord logInvertedRatioHistogramRecord = ((RatioHistogramBuilder) plotBuilder[i]).getLogInvertedRatioHistogramRecord();
+                HistogramRecord logInvertedRatioHistogramRecord = ((RatioHistogramBuilder) plotBuilder[i]).getInvertedLogRatioHistogramRecord();
                 TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotWallPane);
                 AbstractPlot plot = RatioHistogramPlot.generatePlot(
                         new Rectangle(minPlotWidth, minPlotHeight),
@@ -644,8 +614,9 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
                 if (analysis.getMapBlockIDToEnsembles().isEmpty()) {
                     setText("Block# " + blockID);
                 } else {
+                    Integer burnCount = analysis.getMapOfBlockIdToModelsBurnCount().get(blockID);
                     setText("Block# " + blockID
-                            + " {BurnIn = " + analysis.getMapOfBlockIdToModelsBurnCount().get(blockID)
+                            + " {BurnIn = " + ((burnCount == null) ? 0 : burnCount)
                             + " of " + analysis.getMapBlockIDToEnsembles().get(blockID).size() + " models}");
                 }
             }

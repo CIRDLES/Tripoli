@@ -101,6 +101,22 @@ public class PlotWallPaneOGTripoli extends Pane implements PlotWallPaneInterface
         }
     }
 
+    /**
+     *
+     */
+    @Override
+    public void tilePlots() {
+        // not applicable
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void toggleShowStatsAllPlots() {
+        // not used
+    }
+
     public void buildOGTripoliToolBar(List<SpeciesRecordInterface> species) {
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);

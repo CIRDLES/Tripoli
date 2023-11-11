@@ -227,7 +227,7 @@ public class TripoliGUIController implements Initializable {
         sessionManagerMenuItem.setDisable(false);
         saveSessionAsMenuItem.setDisable(false);
         closeSessionMenuItem.setDisable(false);
-        analysisMenu.setDisable(false);
+        analysisMenu.setDisable(true);
     }
 
     private void buildSessionMenuMRU() {

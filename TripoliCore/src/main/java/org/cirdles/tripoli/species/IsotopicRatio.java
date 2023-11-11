@@ -30,14 +30,8 @@ public class IsotopicRatio implements Serializable, Comparable {
     private static final long serialVersionUID = 676151940943728743L;
     private final SpeciesRecordInterface numerator;
     private final SpeciesRecordInterface denominator;
-    private double analysisMean = 0.0;
-    private double analysisOneSigmaAbs = 0.0;
-    private double analysisDalyFaradayGainMean = 0.0;
-    private double analysisDalyFaradayGainOneSigmaAbs = 0.0;
     private double[] ratioValuesForBlockEnsembles;
     private double[] logRatioValuesForBlockEnsembles;
-    private double logRatioMeanForBlockEnsembles;
-    private double logRationStdDeviationForBlockEnsembles;
     private boolean displayed;
 
     public IsotopicRatio(SpeciesRecordInterface numerator, SpeciesRecordInterface denominator, boolean displayed) {
@@ -112,54 +106,6 @@ public class IsotopicRatio implements Serializable, Comparable {
 
     public void setLogRatioValuesForBlockEnsembles(double[] logRatioValuesForBlockEnsembles) {
         this.logRatioValuesForBlockEnsembles = logRatioValuesForBlockEnsembles;
-    }
-
-    public double getLogRatioMeanForBlockEnsembles() {
-        return logRatioMeanForBlockEnsembles;
-    }
-
-    public void setLogRatioMeanForBlockEnsembles(double logRatioMeanForBlockEnsembles) {
-        this.logRatioMeanForBlockEnsembles = logRatioMeanForBlockEnsembles;
-    }
-
-    public double getLogRationStdDeviationForBlockEnsembles() {
-        return logRationStdDeviationForBlockEnsembles;
-    }
-
-    public void setLogRationStdDeviationForBlockEnsembles(double logRationStdDeviationForBlockEnsembles) {
-        this.logRationStdDeviationForBlockEnsembles = logRationStdDeviationForBlockEnsembles;
-    }
-
-    public double getAnalysisMean() {
-        return analysisMean;
-    }
-
-    public void setAnalysisMean(double analysisMean) {
-        this.analysisMean = analysisMean;
-    }
-
-    public double getAnalysisOneSigmaAbs() {
-        return analysisOneSigmaAbs;
-    }
-
-    public void setAnalysisOneSigmaAbs(double analysisOneSigmaAbs) {
-        this.analysisOneSigmaAbs = analysisOneSigmaAbs;
-    }
-
-    public double getAnalysisDalyFaradayGainMean() {
-        return analysisDalyFaradayGainMean;
-    }
-
-    public void setAnalysisDalyFaradayGainMean(double analysisDalyFaradayGainMean) {
-        this.analysisDalyFaradayGainMean = analysisDalyFaradayGainMean;
-    }
-
-    public double getAnalysisDalyFaradayGainOneSigmaAbs() {
-        return analysisDalyFaradayGainOneSigmaAbs;
-    }
-
-    public void setAnalysisDalyFaradayGainOneSigmaAbs(double analysisDalyFaradayGainOneSigmaAbs) {
-        this.analysisDalyFaradayGainOneSigmaAbs = analysisDalyFaradayGainOneSigmaAbs;
     }
 
     //    private void readObject(ObjectInputStream stream) throws IOException,

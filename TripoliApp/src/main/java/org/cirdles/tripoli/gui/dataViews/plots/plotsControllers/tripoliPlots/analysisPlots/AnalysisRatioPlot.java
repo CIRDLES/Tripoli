@@ -22,45 +22,63 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.plots.analysisPlotBuilders.HistogramAnalysisRecord;
+import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioRecord;
 
 /**
  * @author James F. Bowring
  */
-public class HistogramAnalysisPlot extends AbstractPlot {
+public class AnalysisRatioPlot extends AbstractPlot {
 
-    private final HistogramAnalysisRecord histogramAnalysisRecord;
-    private double[] yAxisDataOneSigma;
+    private final AnalysisRatioRecord analysisRatioRecord;
+    private double[][] yAxisDataOneSigma;
+    private boolean logRatioMode;
 
-    private HistogramAnalysisPlot(Rectangle bounds, HistogramAnalysisRecord histogramAnalysisRecord) {
+    private AnalysisRatioPlot(Rectangle bounds, AnalysisRatioRecord analysisRatioRecord) {
         super(bounds,
                 75, 25,
-                new String[]{histogramAnalysisRecord.title()[0]
-                        + "  " + "X\u0305" + "=" + String.format("%8.5g", histogramAnalysisRecord.analysisMean()).trim()
-                        , "\u00B1" + String.format("%8.5g", histogramAnalysisRecord.analysisOneSigma()).trim()},
-                histogramAnalysisRecord.xAxisLabel(),
-                histogramAnalysisRecord.yAxisLabel());
-        this.histogramAnalysisRecord = histogramAnalysisRecord;
+                new String[]{analysisRatioRecord.title()[0]},
+                analysisRatioRecord.xAxisLabel(),
+                analysisRatioRecord.yAxisLabel());
+        this.analysisRatioRecord = analysisRatioRecord;
+        this.logRatioMode = false;
     }
 
-    public static AbstractPlot generatePlot(Rectangle bounds, HistogramAnalysisRecord histogramAnalysisRecord) {
-        return new HistogramAnalysisPlot(bounds, histogramAnalysisRecord);
+    public static AbstractPlot generatePlot(Rectangle bounds, AnalysisRatioRecord analysisRatioRecord) {
+        return new AnalysisRatioPlot(bounds, analysisRatioRecord);
     }
 
     @Override
     public void preparePanel(boolean reScaleX, boolean reScaleY) {
-        xAxisData = histogramAnalysisRecord.blockIds();
+        xAxisData = analysisRatioRecord.blockIds();
         minX = 0.0;
-        maxX = histogramAnalysisRecord.blockCount() + 1;
+        maxX = analysisRatioRecord.blockCount() + 1;
 
-        yAxisData = histogramAnalysisRecord.blockMeans();
-        yAxisDataOneSigma = histogramAnalysisRecord.blockOneSigmas();
+        if (logRatioMode) {
+            yAxisData = analysisRatioRecord.blockLogRatioMeans();
+            yAxisDataOneSigma = new double[2][];
+            yAxisDataOneSigma[0] = analysisRatioRecord.blockLogRatioOneSigmas();
+            yAxisDataOneSigma[1] = analysisRatioRecord.blockLogRatioOneSigmas();
+            plotTitle = new String[]{analysisRatioRecord.title()[0]
+                    + "  " + "x\u0304" + "=" + String.format("%8.8g", (analysisRatioRecord.weightedMeanRecord().logRatioWeightedMean())).trim()
+                    , "\u00B1" + String.format("%8.5g", (analysisRatioRecord.weightedMeanRecord().logRatioOneSigmaAbs())).trim()
+                    + (Double.isNaN(analysisRatioRecord.weightedMeanRecord().logRatioReducedChiSquareStatistic()) ? ""
+                    : "  \u03C7" + "=" + String.format("%8.5g", (analysisRatioRecord.weightedMeanRecord().logRatioReducedChiSquareStatistic())))};
+            plotAxisLabelY = "LogRatio";
+        } else {
+            yAxisData = analysisRatioRecord.blockRatioMeans();
+            yAxisDataOneSigma = analysisRatioRecord.blockRatioOneSigmas();
+            plotTitle = new String[]{analysisRatioRecord.title()[0].replace("Log", "")
+                    + "  " + "x\u0304" + "=" + String.format("%8.8g", (analysisRatioRecord.weightedMeanRecord().ratioWeightedMean())).trim()
+                    , "+" + String.format("%8.5g", (analysisRatioRecord.weightedMeanRecord().ratioHigherOneSigmaAbs())).trim()
+                    + "  -" + String.format("%8.5g", (analysisRatioRecord.weightedMeanRecord().ratioLowerOneSigmaAbs())).trim()};
+            plotAxisLabelY = "Ratio";
+        }
         minY = Double.MAX_VALUE;
         maxY = -Double.MAX_VALUE;
 
         for (int i = 0; i < yAxisData.length; i++) {
-            minY = StrictMath.min(minY, yAxisData[i] - yAxisDataOneSigma[i]);
-            maxY = StrictMath.max(maxY, yAxisData[i] + yAxisDataOneSigma[i]);
+            maxY = StrictMath.max(maxY, yAxisData[i] + yAxisDataOneSigma[0][i]);
+            minY = StrictMath.min(minY, yAxisData[i] - yAxisDataOneSigma[1][i]);
         }
 
         displayOffsetX = 0.0;
@@ -100,8 +118,8 @@ public class HistogramAnalysisPlot extends AbstractPlot {
             if (pointInPlot(xAxisData[i], yAxisData[i])) {
                 double dataX = mapX(xAxisData[i]);
                 double dataY = mapY(yAxisData[i]);
-                double dataYplusSigma = mapY(yAxisData[i] + yAxisDataOneSigma[i]);
-                double dataYminusSigma = mapY(yAxisData[i] - yAxisDataOneSigma[i]);
+                double dataYplusSigma = mapY(yAxisData[i] + yAxisDataOneSigma[0][i]);
+                double dataYminusSigma = mapY(yAxisData[i] - yAxisDataOneSigma[1][i]);
 
                 g2d.fillOval(dataX - 2.5, dataY - 2.5, 5, 5);
                 g2d.strokeLine(dataX, dataY, dataX, dataYplusSigma);
@@ -111,13 +129,20 @@ public class HistogramAnalysisPlot extends AbstractPlot {
     }
 
     public void plotStats(GraphicsContext g2d) {
-
         Paint saveFill = g2d.getFill();
         // todo: promote color to constant
         g2d.setFill(Color.rgb(255, 251, 194));
         g2d.setGlobalAlpha(0.6);
-        double mean = histogramAnalysisRecord.analysisMean();
-        double stdDev = histogramAnalysisRecord.analysisOneSigma();
+        double mean;
+        double stdDev;
+        if (logRatioMode) {
+            mean = (analysisRatioRecord.weightedMeanRecord().logRatioWeightedMean());
+            stdDev = (analysisRatioRecord.weightedMeanRecord().logRatioOneSigmaAbs());
+        } else {
+            mean = (analysisRatioRecord.weightedMeanRecord().ratioWeightedMean());
+            // TODO: make this two-sided
+            stdDev = (analysisRatioRecord.weightedMeanRecord().ratioHigherOneSigmaAbs());
+        }
 
         double leftX = mapX(minX);
         if (leftX < leftMargin) leftX = leftMargin;
@@ -135,6 +160,10 @@ public class HistogramAnalysisPlot extends AbstractPlot {
             g2d.setLineWidth(1.0);
             g2d.strokeLine(leftX, mapY(mean), rightX, mapY(mean));
         }
+    }
 
+    public void toggleRatiosLogRatios() {
+        logRatioMode = !logRatioMode;
+        refreshPanel(true, true);
     }
 }

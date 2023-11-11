@@ -23,8 +23,15 @@ import jakarta.xml.bind.Unmarshaller;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.plots.PlotBuilder;
+import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioPlotBuilder;
+import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioRecord;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.*;
+import org.cirdles.tripoli.plots.histograms.HistogramRecord;
+import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.SingleBlockPeakDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
@@ -53,6 +60,7 @@ import java.util.regex.Pattern;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_SYNTHETIC;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
 import static org.cirdles.tripoli.constants.TripoliConstants.*;
+import static org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioPlotBuilder.initializeAnalysisRatioPlotBuilder;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB;
 
@@ -66,7 +74,6 @@ public class Analysis implements Serializable, AnalysisInterface {
     @Serial
     private static final long serialVersionUID = 5737165372498262402L;
 
-
     private final Map<Integer, PlotBuilder[][]> mapOfBlockIdToPlots = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, PlotBuilder[]> mapOfBlockIdToPeakPlots = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, String> mapOfBlockToLogs = Collections.synchronizedSortedMap(new TreeMap<>());
@@ -77,6 +84,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockModelRecord> mapOfBlockIdToFinalModel = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, boolean[][]> mapOfBlockIdToIncludedPeakData = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<IsotopicRatio, AnalysisRatioRecord> mapOfRatioToAnalysisRatioRecord = Collections.synchronizedSortedMap(new TreeMap<>());
     private String analysisName;
     private String analystName;
     private String labName;
@@ -88,7 +96,9 @@ public class Analysis implements Serializable, AnalysisInterface {
     private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
     private SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis plotSpecsSpeciesIntensityAnalysis;
-    private DescriptiveStatistics[] analysisSpeciesStats = new DescriptiveStatistics[1];
+    private DescriptiveStatistics[] analysisSpeciesStats = new DescriptiveStatistics[0];
+    private double analysisDalyFaradayGainMean;
+    private double analysisDalyFaradayGainMeanOneSigmaAbs;
 
     private Analysis() {
     }
@@ -103,33 +113,31 @@ public class Analysis implements Serializable, AnalysisInterface {
         dataFilePathString = MISSING_STRING_FIELD;
         massSpecExtractedData = new MassSpecExtractedData();
         mutable = true;
-        if (analysisMethod != null) {
+        if (null != analysisMethod) {
             plotSpecsSpeciesIntensityAnalysis = new SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis(
                     new boolean[analysisMethod.getSpeciesList().size()], true, true, true, true, true, false);
         }
     }
-
-    public SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis getPlotSpecsSpeciesIntensityAnalysis() {
-        return plotSpecsSpeciesIntensityAnalysis;
-    }
-
-    public void setPlotSpecsSpeciesIntensityAnalysis(SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis plotSpecsSpeciesIntensityAnalysis) {
-        this.plotSpecsSpeciesIntensityAnalysis = plotSpecsSpeciesIntensityAnalysis;
-    }
+//
+//    public SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis getPlotSpecsSpeciesIntensityAnalysis() {
+//        return plotSpecsSpeciesIntensityAnalysis;
+//    }
+//
+//    public void setPlotSpecsSpeciesIntensityAnalysis(SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis plotSpecsSpeciesIntensityAnalysis) {
+//        this.plotSpecsSpeciesIntensityAnalysis = plotSpecsSpeciesIntensityAnalysis;
+//    }
 
     public void setAnalysisSpeciesStats(DescriptiveStatistics[] analysisSpeciesStats) {
         this.analysisSpeciesStats = analysisSpeciesStats;
     }
 
-    public boolean[] calcDataIncluded() {
-        int baseLineCount = mapOfBlockIdToRawData.get(1).baselineDataSetMCMC().intensityAccumulatorList().size();
-        int faradayCount = mapOfBlockIdToRawData.get(1).onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
-        int photoMultiplierCount = mapOfBlockIdToRawData.get(1).onPeakPhotoMultiplierDataSetMCMC().intensityAccumulatorList().size();
-        boolean[] dataIncluded = new boolean[baseLineCount + faradayCount + photoMultiplierCount];
-
-
-        return dataIncluded;
-    }
+//    public boolean[] calcDataIncluded() {
+//        int baseLineCount = mapOfBlockIdToRawData.get(1).baselineDataSetMCMC().intensityAccumulatorList().size();
+//        int faradayCount = mapOfBlockIdToRawData.get(1).onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
+//        int photoMultiplierCount = mapOfBlockIdToRawData.get(1).onPeakPhotoMultiplierDataSetMCMC().intensityAccumulatorList().size();
+//        boolean[] dataIncluded = new boolean[baseLineCount + faradayCount + photoMultiplierCount];
+//        return dataIncluded;
+//    }
 
     public Map<Integer, List<EnsemblesStore.EnsembleRecord>> getMapBlockIDToEnsembles() {
         return mapBlockIDToEnsembles;
@@ -257,7 +265,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             mapOfBlockIdToRawData.put(blockID, null);
             mapOfBlockIdToFinalModel.put(blockID, null);
 
-            if (analysisMethod != null) {
+            if (null != analysisMethod) {
                 boolean[][] blockIncludedOnPeak = new boolean[analysisMethod.getSpeciesListSortedByMass().size()][];
                 for (int index = 0; index < blockIncludedOnPeak.length; index++) {
                     boolean[] row = new boolean[massSpecExtractedData.getBlocksData().get(blockID).onPeakIntensities().length];
@@ -305,7 +313,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         // TODO: make these indices into constants
         // PlotBuilder indices for convergence MultiLinePlotBuilders = 10
         PlotBuilder[][] plotBuilders = mapOfBlockIdToPlots.get(blockID);
-        if (plotBuilders != null) {
+        if (null != plotBuilders) {
             updatePlotBuildersWithShades(plotBuilders[5], shadeWidth);
             updatePlotBuildersWithShades(plotBuilders[6], shadeWidth);
             updatePlotBuildersWithShades(plotBuilders[8], shadeWidth);
@@ -377,7 +385,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         for (SingleBlockModelRecord singleBlockModelRecord : singleBlockModelRecordMap.values()) {
             singleBlockModelRecords[index] = singleBlockModelRecord;
             index++;
-            if ((singleBlockModelRecord != null) && (cycleCount == 0)) {
+            if ((null != singleBlockModelRecord) && (0 == cycleCount)) {
                 cycleCount = singleBlockModelRecord.cycleCount();
             }
         }
@@ -440,25 +448,57 @@ public class Analysis implements Serializable, AnalysisInterface {
     }
 
     private int[][] calculateSpeciesIncludedCounts() {
-        int speciesCount = analysisMethod.getSpeciesList().size();
-        int blockCount = massSpecExtractedData.getBlocksData().size();
-        // 2 rows per species: 0 = total; 1 = included; column 0 is for totals
-        int[][] speciesIncludedCounts = new int[2 * speciesCount][blockCount + 1];
-        for (int blockID = 1; blockID <= blockCount; blockID++) {
-            for (int speciesIndex = 0; speciesIndex < speciesCount; speciesIndex++) {
-                speciesIncludedCounts[speciesIndex * 2][blockID] = getMapOfBlockIdToIncludedPeakData().get(blockID)[speciesIndex].length;
-                speciesIncludedCounts[speciesIndex * 2][0] += speciesIncludedCounts[speciesIndex * 2][blockID];
+        int[][] speciesIncludedCounts = new int[0][0];
+        if (analysisMethod != null) {
+            int speciesCount = analysisMethod.getSpeciesList().size();
+            int blockCount = massSpecExtractedData.getBlocksData().size();
+            // 2 rows per species: 0 = total; 1 = included; column 0 is for totals
+            speciesIncludedCounts = new int[2 * speciesCount][blockCount + 1];
+            for (int blockID = 1; blockID <= blockCount; blockID++) {
+                for (int speciesIndex = 0; speciesIndex < speciesCount; speciesIndex++) {
+                    speciesIncludedCounts[speciesIndex * 2][blockID] = mapOfBlockIdToIncludedPeakData.get(blockID)[speciesIndex].length;
+                    speciesIncludedCounts[speciesIndex * 2][0] += speciesIncludedCounts[speciesIndex * 2][blockID];
 
-                speciesIncludedCounts[speciesIndex * 2 + 1][blockID] = Booleans.countTrue(getMapOfBlockIdToIncludedPeakData().get(blockID)[speciesIndex]);
-                speciesIncludedCounts[speciesIndex * 2 + 1][0] += speciesIncludedCounts[speciesIndex * 2 + 1][blockID];
+                    speciesIncludedCounts[speciesIndex * 2 + 1][blockID] = Booleans.countTrue(mapOfBlockIdToIncludedPeakData.get(blockID)[speciesIndex]);
+                    speciesIncludedCounts[speciesIndex * 2 + 1][0] += speciesIncludedCounts[speciesIndex * 2 + 1][blockID];
+                }
             }
         }
 
         return speciesIncludedCounts;
     }
 
+    public void analysisRatioEngine() {
+        Map<IsotopicRatio, List<HistogramRecord>> mapRatioToAnalysisLogRatioRecords = new TreeMap<>();
+        Iterator<Map.Entry<Integer, PlotBuilder[][]>> iterator = mapOfBlockIdToPlots.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, PlotBuilder[][]> entry = iterator.next();
+            if (SHOW == mapOfBlockIdToProcessStatus.get(entry.getKey())) {
+                PlotBuilder[] ratiosPlotBuilder = entry.getValue()[PLOT_INDEX_RATIOS];
+                for (PlotBuilder ratioPlotBuilder : ratiosPlotBuilder) {
+                    IsotopicRatio ratio = ((RatioHistogramBuilder) ratioPlotBuilder).getRatio();
+                    if (ratioPlotBuilder.isDisplayed()) {
+                        String ratioName = ratioPlotBuilder.getTitle()[0];
+                        mapRatioToAnalysisLogRatioRecords.computeIfAbsent(ratio, k -> new ArrayList<>());
+                        boolean useInvertedRatio = analysisMethod.getMapOfRatioNamesToInvertedFlag().get(ratioName);
+                        mapRatioToAnalysisLogRatioRecords.get(ratio).add(
+                                useInvertedRatio ?
+                                        ((RatioHistogramBuilder) ratioPlotBuilder).getInvertedLogRatioHistogramRecord()
+                                        : ((RatioHistogramBuilder) ratioPlotBuilder).getLogRatioHistogramRecord());
+
+                        AnalysisRatioPlotBuilder analysisRatioPlotBuilder = initializeAnalysisRatioPlotBuilder(
+                                mapOfBlockIdToProcessStatus.size(), ratio, mapRatioToAnalysisLogRatioRecords.get(ratio), mapRatioToAnalysisLogRatioRecords.get(ratio).get(0).title(), "Block ID", "Ratio");
+                        AnalysisRatioRecord analysisRatioRecord = analysisRatioPlotBuilder.getAnalysisRatioRecord();
+                        mapOfRatioToAnalysisRatioRecord.put(ratio, analysisRatioRecord);
+                    }
+                }
+            }
+        }
+    }
+
 
     public final String produceReportTemplateOne() {
+
         StringBuilder sb = new StringBuilder();
         sb.append(massSpecExtractedData.printHeader());
 
@@ -468,23 +508,39 @@ public class Analysis implements Serializable, AnalysisInterface {
         int speciesIndex = 0;
         int[][] calculatedSpeciesIncludedCounts = calculateSpeciesIncludedCounts();
         for (SpeciesRecordInterface species : analysisMethod.getSpeciesList()) {
-            sb.append("intensity " + species.prettyPrintShortForm() + " (cps)" + ","
-                    + analysisSpeciesStats[speciesIndex].getMean() + ","
-                    + analysisSpeciesStats[speciesIndex].getStandardDeviation() + ","
-                    + calculatedSpeciesIncludedCounts[speciesIndex * 2 + 1][0] + ","
-                    + calculatedSpeciesIncludedCounts[speciesIndex * 2 + 0][0] + "\n");
-
+            if ((analysisSpeciesStats.length > speciesIndex) && (analysisSpeciesStats[speciesIndex] != null)) {
+                sb.append("intensity " + species.prettyPrintShortForm() + " (cps)" + ","
+                        + analysisSpeciesStats[speciesIndex].getMean() + ","
+                        + analysisSpeciesStats[speciesIndex].getStandardDeviation() + ","
+                        + calculatedSpeciesIncludedCounts[speciesIndex * 2 + 1][0] + ","
+                        + calculatedSpeciesIncludedCounts[speciesIndex * 2][0] + "\n");
+            }
             speciesIndex++;
         }
+
         for (IsotopicRatio ratio : analysisMethod.getIsotopicRatiosList()) {
-            sb.append(ratio.prettyPrint() + ","
-                    + ratio.getAnalysisMean() + ","
-                    + ratio.getAnalysisOneSigmaAbs() + ", , \n");
+            AnalysisRatioRecord analysisRatioRecord = mapOfRatioToAnalysisRatioRecord.get(ratio);
+            if (null != analysisRatioRecord) {
+                sb.append(ratio.prettyPrint() + ","
+                        + analysisRatioRecord.weightedMeanRecord().ratioWeightedMean() + ","
+                        + analysisRatioRecord.weightedMeanRecord().ratioHigherOneSigmaAbs()
+                        + ", , \n");
+            }
+        }
+        for (IsotopicRatio ratio : analysisMethod.getDerivedIsotopicRatiosList()) {
+            AnalysisRatioRecord analysisRatioRecord = mapOfRatioToAnalysisRatioRecord.get(ratio);
+            if (null != analysisRatioRecord) {
+                sb.append(ratio.prettyPrint() + ","
+                        + analysisRatioRecord.weightedMeanRecord().ratioWeightedMean() + ","
+                        + analysisRatioRecord.weightedMeanRecord().ratioHigherOneSigmaAbs()
+                        + ", , \n");
+            }
         }
 
         sb.append("D/F Gain" + ","
-                + analysisMethod.getIsotopicRatiosList().get(0).getAnalysisDalyFaradayGainMean() + ","
-                + analysisMethod.getIsotopicRatiosList().get(0).getAnalysisDalyFaradayGainOneSigmaAbs() + ", , \n");
+                + analysisDalyFaradayGainMean + ","
+                + analysisDalyFaradayGainMeanOneSigmaAbs
+                + ", , \n");
 
         return sb.toString();
     }
@@ -596,5 +652,17 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public Map<Integer, boolean[][]> getMapOfBlockIdToIncludedPeakData() {
         return mapOfBlockIdToIncludedPeakData;
+    }
+
+    public Map<IsotopicRatio, AnalysisRatioRecord> getMapOfRatioToAnalysisRatioRecord() {
+        return mapOfRatioToAnalysisRatioRecord;
+    }
+
+    public void setAnalysisDalyFaradayGainMean(double analysisDalyFaradayGainMean) {
+        this.analysisDalyFaradayGainMean = analysisDalyFaradayGainMean;
+    }
+
+    public void setAnalysisDalyFaradayGainMeanOneSigmaAbs(double analysisDalyFaradayGainMeanOneSigmaAbs) {
+        this.analysisDalyFaradayGainMeanOneSigmaAbs = analysisDalyFaradayGainMeanOneSigmaAbs;
     }
 }
