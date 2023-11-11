@@ -28,8 +28,6 @@ import java.util.TreeMap;
  * @author James F. Bowring
  */
 public class BlockAnalysisRatioCyclesBuilder extends PlotBuilder {
-    //    @Serial
-//    private static final long serialVersionUID = 9180059676626735662L;
     private BlockAnalysisRatioCyclesRecord blockAnalysisRatioCyclesRecord;
 
 
@@ -67,8 +65,8 @@ public class BlockAnalysisRatioCyclesBuilder extends PlotBuilder {
             blockIndex++;
         }
 //        double[] blockIds = blockIdList.stream().mapToDouble(d -> d).toArray();
-//        double[] blockMeans = histogramMeans.stream().mapToDouble(d -> d).toArray();
-//        double[] blockOneSigmas = histogramOneSigma.stream().mapToDouble(d -> d).toArray();
+//        double[] blockLogRatioMeans = histogramMeans.stream().mapToDouble(d -> d).toArray();
+//        double[] blockLogRatioOneSigmas = histogramOneSigma.stream().mapToDouble(d -> d).toArray();
 
         return new BlockAnalysisRatioCyclesRecord(
                 isotopicRatio,

@@ -355,17 +355,18 @@ public abstract class AbstractPlot extends Canvas {
 
     public void showTitle(GraphicsContext g2d) {
         Paint savedPaint = g2d.getFill();
-        Font titleFont = Font.font("Monospaced Bold", 12);
+        Font titleFont = Font.font("Courier Bold", 12);
         g2d.setFont(titleFont);
         g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText(plotTitle[0], leftMargin, 12);
+        double titleLeftX = 15;
+        g2d.fillText(plotTitle[0], titleLeftX, 12);
         if (2 == plotTitle.length) {
             Text textTitle1 = new Text(plotTitle[0].split("\\.")[0]);
             textTitle1.setFont(titleFont);
             Text textTitle2 = new Text(plotTitle[1].split("\\.")[0]);
             textTitle2.setFont(titleFont);
             double offset = textTitle1.getLayoutBounds().getWidth() - textTitle2.getLayoutBounds().getWidth();
-            g2d.fillText(plotTitle[1], leftMargin + offset, 22);
+            g2d.fillText(plotTitle[1], titleLeftX + offset, 22);
         }
         g2d.setFill(savedPaint);
     }

@@ -38,7 +38,7 @@ public class HistogramSinglePlot extends AbstractPlot {
         super(bounds,
                 40, 25,
                 new String[]{histogramRecord.title()[0]
-                        + "  " + "X\u0305" + "=" + String.format("%8.5g", histogramRecord.mean()).trim()
+                        + "  " + "x\u0304" + "=" + String.format("%8.5g", histogramRecord.mean()).trim()
                         , "\u00B1" + String.format("%8.5g", histogramRecord.standardDeviation()).trim()},
                 histogramRecord.xAxisLabel(),
                 histogramRecord.yAxisLabel());

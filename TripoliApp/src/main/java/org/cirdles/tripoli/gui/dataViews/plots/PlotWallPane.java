@@ -47,7 +47,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private final String iD;
     private final boolean[] zoomFlagsXY = new boolean[2];
     private final AnalysisInterface analysis;
-    private final MCMCPlotsControllerInterface mcmcPlotsControllerInterface;
+    private final MCMCPlotsControllerInterface mcmcPlotsController;
     AnalysisManagerCallbackI analysisManagerCallbackI;
     private double toolBarHeight;
     private int toolBarCount;
@@ -55,12 +55,12 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private ConstantsTripoliApp.PlotLayoutStyle plotLayoutStyle;
 
 
-    private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsControllerInterface, AnalysisManagerCallbackI analysisManagerCallbackI) {
+    private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsController, AnalysisManagerCallbackI analysisManagerCallbackI) {
         this.iD = iD;
         zoomFlagsXY[0] = true;
         zoomFlagsXY[1] = true;
         this.analysis = analysis;
-        this.mcmcPlotsControllerInterface = mcmcPlotsControllerInterface;
+        this.mcmcPlotsController = mcmcPlotsController;
         this.analysisManagerCallbackI = analysisManagerCallbackI;
         plotLayoutStyle = ConstantsTripoliApp.PlotLayoutStyle.TILE;
 
@@ -69,12 +69,12 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     public static PlotWallPaneInterface createPlotWallPane(
             String iD,
             AnalysisInterface analysis,
-            MCMCPlotsControllerInterface mcmcPlotsControllerInterface,
+            MCMCPlotsControllerInterface mcmcPlotsController,
             AnalysisManagerCallbackI analysisManagerCallbackI) {
         if (null == iD) {
-            return new PlotWallPane("NONE", analysis, mcmcPlotsControllerInterface, analysisManagerCallbackI);
+            return new PlotWallPane("NONE", analysis, mcmcPlotsController, analysisManagerCallbackI);
         } else {
-            return new PlotWallPane(iD, analysis, mcmcPlotsControllerInterface, analysisManagerCallbackI);
+            return new PlotWallPane(iD, analysis, mcmcPlotsController, analysisManagerCallbackI);
         }
     }
 
@@ -223,12 +223,14 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     }
 
     public void applyBurnIn() {
-        int burnIn = (int) analysis.getMapOfBlockIdToPlots().get(mcmcPlotsControllerInterface.getCurrentBlockID())[5][0].getShadeWidthForModelConvergence();
-        int blockID = mcmcPlotsControllerInterface.getCurrentBlockID();
+        int burnIn = (int) analysis.getMapOfBlockIdToPlots().get(mcmcPlotsController.getCurrentBlockID())[5][0].getShadeWidthForModelConvergence();
+        int blockID = mcmcPlotsController.getCurrentBlockID();
         analysis.getMapOfBlockIdToModelsBurnCount().put(blockID, burnIn);
+
         blockEnsemblePlotEngine(blockID, analysis);
-        mcmcPlotsControllerInterface.plotEnsemblesEngine(analysis.getMapOfBlockIdToPlots().get(blockID));
-        mcmcPlotsControllerInterface.plotRatioSessionEngine();
+        mcmcPlotsController.plotEnsemblesEngine(analysis.getMapOfBlockIdToPlots().get(blockID));
+        ((Analysis) analysis).analysisRatioEngine();
+        mcmcPlotsController.plotAnalysisRatioEngine();
         EnsemblesStore.produceSummaryModelFromEnsembleStore(blockID, analysis);
 
         // fire up OGTripoli style analysis plots
@@ -238,18 +240,20 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     }
 
     public void applyBurnInAllBlocks() {
-        int burnIn = (int) analysis.getMapOfBlockIdToPlots().get(mcmcPlotsControllerInterface.getCurrentBlockID())[5][0].getShadeWidthForModelConvergence();
+        int burnIn = (int) analysis.getMapOfBlockIdToPlots().get(mcmcPlotsController.getCurrentBlockID())[5][0].getShadeWidthForModelConvergence();
         int blockIDCount = analysis.getMapOfBlockIdToPlots().keySet().size() + 1;
+
         for (int blockID = 1; blockID < blockIDCount; blockID++) {
             ((Analysis) analysis).updateShadeWidthsForConvergenceLinePlots(blockID, burnIn);
             analysis.getMapOfBlockIdToModelsBurnCount().put(blockID, burnIn);
             blockEnsemblePlotEngine(blockID, analysis);
-            mcmcPlotsControllerInterface.plotEnsemblesEngine(analysis.getMapOfBlockIdToPlots().get(blockID));
-//            mcmcPlotsControllerInterface.plotRatioSessionEngine();
+            mcmcPlotsController.plotEnsemblesEngine(analysis.getMapOfBlockIdToPlots().get(blockID));
+//            mcmcPlotsController.analysisRatioEngine();
             EnsemblesStore.produceSummaryModelFromEnsembleStore(blockID, analysis);
         }
 
-        mcmcPlotsControllerInterface.plotRatioSessionEngine();
+        ((Analysis) analysis).analysisRatioEngine();
+        mcmcPlotsController.plotAnalysisRatioEngine();
 
         // fire up OGTripoli style analysis plots
         if (null != analysisManagerCallbackI) {

@@ -15,4 +15,8 @@ public interface PlotWallPaneInterface {
 
     public void stackPlots();
 
+    public void tilePlots();
+
+    public void toggleShowStatsAllPlots();
+
 }

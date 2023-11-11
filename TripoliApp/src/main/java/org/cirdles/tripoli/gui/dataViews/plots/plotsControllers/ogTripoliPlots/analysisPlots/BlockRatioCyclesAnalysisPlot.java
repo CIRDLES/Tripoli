@@ -22,6 +22,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
@@ -53,7 +54,7 @@ public class BlockRatioCyclesAnalysisPlot extends AbstractPlot {
         super(bounds,
                 75, 25,
                 new String[]{blockAnalysisRatioCyclesRecord.title()[0]
-                        + "  " + "X\u0305" + "=" + String.format("%8.8g", blockAnalysisRatioCyclesRecord.analysisMean()).trim()
+                        + "  " + "x\u0304" + "=" + String.format("%8.8g", blockAnalysisRatioCyclesRecord.analysisMean()).trim()
                         , "\u00B1" + String.format("%8.5g", blockAnalysisRatioCyclesRecord.analysisOneSigma()).trim()},
                 blockAnalysisRatioCyclesRecord.xAxisLabel(),
                 blockAnalysisRatioCyclesRecord.yAxisLabel());
@@ -247,7 +248,7 @@ public class BlockRatioCyclesAnalysisPlot extends AbstractPlot {
             g2d.setFill(Paint.valueOf("BLACK"));
         }
 
-        g2d.setFont(Font.font("SansSerif", 10));
+        g2d.setFont(Font.font("SansSerif", FontWeight.EXTRA_BOLD, 10));
 
         g2d.fillText("BL#" + Integer.toString(blockID), xPosition, topMargin + plotHeight + 10);
         g2d.setFill(savedPaint);
@@ -300,14 +301,12 @@ public class BlockRatioCyclesAnalysisPlot extends AbstractPlot {
         sessionOneSigmaAbs = descriptiveStatsIncludedCycles.getStandardDeviation();
 
         sessionDalyFaradayGainMean = descriptiveStatsIncludedDFGains.getMean();
-        blockAnalysisRatioCyclesRecord.isotopicRatio().setAnalysisDalyFaradayGainMean(sessionDalyFaradayGainMean);
 
         sessionDalyFaradayGainOneSigmaAbs = descriptiveStatsIncludedDFGains.getStandardDeviation();
-        blockAnalysisRatioCyclesRecord.isotopicRatio().setAnalysisDalyFaradayGainOneSigmaAbs(sessionDalyFaradayGainOneSigmaAbs);
 
         plotTitle =
                 new String[]{blockAnalysisRatioCyclesRecord.title()[0]
-                        + "  " + "X\u0305" + "=" + String.format("%8.8g", sessionMean).trim()
+                        + "  " + "x\u0304" + "=" + String.format("%8.8g", sessionMean).trim()
                         , "\u00B1" + String.format("%8.5g", sessionOneSigmaAbs).trim()};
     }
 

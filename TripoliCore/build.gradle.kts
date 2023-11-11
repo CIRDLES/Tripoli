@@ -69,6 +69,10 @@ dependencies {
     // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
     implementation("org.apache.logging.log4j:log4j-core:2.20.0")
 
+    // https://mvnrepository.com/artifact/org.jblas/jblas
+    implementation("org.jblas:jblas:1.2.5")
+
+
 
     testImplementation("com.github.cirdles:commons:bc38781605")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
@@ -98,6 +102,8 @@ extraJavaModuleInfo {
     automaticModule("com.zaxxer:SparseBitSet", "SparseBitSet")
     automaticModule("jama-master-SNAPSHOT.jar", "jama")
     automaticModule("org.ojalgo:ojalgo", "ojalgo")
+
+    automaticModule("org.jblas:jblas", "jblas")
 
     //automaticModule("javax.xml.bind:jaxb-api", "jaxb.api")//javax.xml.bind:jaxb-api:2.3.1
 }

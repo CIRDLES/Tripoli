@@ -314,8 +314,24 @@ public class AnalysisMethod implements Serializable {
         return isotopicRatiosList;
     }
 
+    public List<IsotopicRatio> getCloneOfIsotopicRatiosList() {
+        List<IsotopicRatio> cloneOfIsotopicRatios = new ArrayList<>();
+        for (IsotopicRatio ir : isotopicRatiosList) {
+            cloneOfIsotopicRatios.add(new IsotopicRatio(ir.getNumerator(), ir.getDenominator(), ir.isDisplayed()));
+        }
+        return cloneOfIsotopicRatios;
+    }
+
     public List<IsotopicRatio> getDerivedIsotopicRatiosList() {
         return derivedIsotopicRatiosList;
+    }
+
+    public List<IsotopicRatio> getCloneOfDerivedIsotopicRatiosList() {
+        List<IsotopicRatio> cloneOfDerivedIsotopicRatios = new ArrayList<>();
+        for (IsotopicRatio ir : derivedIsotopicRatiosList) {
+            cloneOfDerivedIsotopicRatios.add(new IsotopicRatio(ir.getNumerator(), ir.getDenominator(), ir.isDisplayed()));
+        }
+        return cloneOfDerivedIsotopicRatios;
     }
 
     public BiMap<IsotopicRatio, IsotopicRatio> getBiMapOfRatiosAndInverses() {

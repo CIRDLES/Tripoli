@@ -69,7 +69,7 @@ public enum ProposedModelParameters {
         );
     }
 
-    record ProposalRangesRecord(
+    public record ProposalRangesRecord(
             double[][] priorBaselineFaraday,
             double[][] priorBaselineDaly,
             double[][] priorLogRatio,

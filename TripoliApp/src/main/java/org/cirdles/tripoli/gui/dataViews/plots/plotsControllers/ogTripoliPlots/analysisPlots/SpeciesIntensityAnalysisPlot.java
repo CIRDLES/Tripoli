@@ -421,7 +421,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
 
     private void showBlockID(GraphicsContext g2d, String blockID, double xPosition) {
         Paint savedPaint = g2d.getFill();
-        g2d.setFill(Paint.valueOf("BLACK"));
+        g2d.setFill(Paint.valueOf("GREEN"));
         g2d.setFont(Font.font("SansSerif", FontWeight.EXTRA_BOLD, 10));
         g2d.fillText("BL#" + blockID, xPosition, 30);
         g2d.setFill(savedPaint);
@@ -708,6 +708,9 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                 zoomBoxX = mouseStartX;
                 zoomBoxY = mouseStartY;
 
+            } else {
+                zoomBoxX = mouseStartX;
+                zoomBoxY = mouseStartY;
             }
             repaint();
         }
