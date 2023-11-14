@@ -28,7 +28,7 @@ public enum ProposedModelParameters {
             prior.BLdaly = [0 0];   % Daly baseline (no baseline uncertainty)
             prior.lograt = [-20 20]; % Log ratio
             prior.I = [0 1.5*max([x0.I{:}])];  % Intensity
-            prior.DFgain = [0.8 1.0];  % Daly-Faraday gain
+            prior.DFgain = [0.8 1.0];  % Daly-Faraday gainCorr
 
             prior.sig = [0 1e6];  % Noise hyperparameter for Faraday
             prior.sigdaly = [0 0]; % Gaussian noise on Daly
@@ -42,7 +42,7 @@ public enum ProposedModelParameters {
             prior.BLdaly = [0 0];   % Daly baseline (no baseline uncertainty)
             prior.lograt = [-20 20]; % Log ratio
             prior.I = [0 inf];  % Intensity
-            prior.DFgain = [0 inf];  % Daly-Faraday gain
+            prior.DFgain = [0 inf];  % Daly-Faraday gainCorr
 
             prior.sig = [0 1e6];  % Noise hyperparameter for Faraday
             prior.sigdaly = [0 0]; % Gaussian noise on Daly
@@ -69,7 +69,7 @@ public enum ProposedModelParameters {
         );
     }
 
-    record ProposalRangesRecord(
+    public record ProposalRangesRecord(
             double[][] priorBaselineFaraday,
             double[][] priorBaselineDaly,
             double[][] priorLogRatio,

@@ -74,6 +74,14 @@ public class MultiLinePlot extends AbstractPlot {
         minY -= yMarginStretch;
     }
 
+    /**
+     * @param g2d
+     */
+    @Override
+    public void showLegend(GraphicsContext g2d) {
+
+    }
+
     @Override
     public void plotData(GraphicsContext g2d) {
         // new line plots

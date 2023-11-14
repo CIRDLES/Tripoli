@@ -48,7 +48,7 @@
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem mnemonicParsing="false" onAction="#quitAction" text="Quit"/>
         </Menu>
-        <Menu fx:id="analysisMenu" mnemonicParsing="false" text="Analysis">
+        <Menu fx:id="analysisMenu" disable="true" mnemonicParsing="false" text="Analysis">
             <MenuItem mnemonicParsing="false" onAction="#manageAnalysisMenuItemAction" text="Manage Analysis"/>
             <MenuItem mnemonicParsing="false" onAction="#newAnalysisMenuItemOnAction" text="New Analysis"/>
             <MenuItem disable="true" mnemonicParsing="false" text="Import Analysis"/>
@@ -63,7 +63,7 @@
                 </items>
             </Menu>
         </Menu>
-        <Menu fx:id="methodsMenu" mnemonicParsing="false" text="Methods">
+        <Menu fx:id="methodsMenu" disable="true" mnemonicParsing="false" text="Methods">
             <Menu mnemonicParsing="false" text="New Method from ...">
                 <MenuItem mnemonicParsing="false" text="Current Method"/>
                 <MenuItem mnemonicParsing="false" text="Empty Method"/>
@@ -72,7 +72,7 @@
                 <MenuItem mnemonicParsing="false" text="Tripoli Built-In Methods Library"/>
             </Menu>
         </Menu>
-        <Menu fx:id="parametersMenu" mnemonicParsing="false" text="Parameters">
+        <Menu fx:id="parametersMenu" disable="true" mnemonicParsing="false" text="Parameters">
             <MenuItem mnemonicParsing="false" text="Tracer Models"/>
         </Menu>
         <Menu mnemonicParsing="false" text="Resources">

@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers;
 
 import jama.Matrix;
 import org.apache.commons.math3.linear.*;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLab;
@@ -35,10 +38,10 @@ import static org.cirdles.tripoli.utilities.comparators.SerializableIntegerCompa
 /**
  * @author James F. Bowring
  */
-enum SingleBlockModelInitForMCMC {
+public enum SingleBlockModelInitForMCMC {
     ;
 
-    static SingleBlockModelRecordWithCov initializeModelForSingleBlockMCMC(
+    public static SingleBlockModelRecordWithCov initializeModelForSingleBlockMCMC(
             AnalysisInterface analysis, AnalysisMethod analysisMethod, SingleBlockRawDataSetRecord singleBlockRawDataSetRecord, boolean provideCovariance) throws RecoverableCondition {
 
         int baselineCount = singleBlockRawDataSetRecord.baselineDataSetMCMC().intensityAccumulatorList().size();
@@ -47,16 +50,11 @@ enum SingleBlockModelInitForMCMC {
         int totalIntensityCount = baselineCount + onPeakFaradayCount + onPeakPhotoMultCount;
         int countOfIsotopes = analysisMethod.getSpeciesList().size();
 
-        // build data included array
-        boolean[][] blockOnPeakIncluded = ((Analysis) analysis).getMapOfBlockIdToIncludedPeakData().get(singleBlockRawDataSetRecord.blockID());
-        boolean[] blockAllDataIncluded = new boolean[totalIntensityCount];
-        Arrays.fill(blockAllDataIncluded, true);
-
-        for (int isotopeIndex = 0; isotopeIndex < blockOnPeakIncluded.length; isotopeIndex++) {
-            for (int intensityIndex = 0; intensityIndex < blockOnPeakIncluded[isotopeIndex].length; intensityIndex++) {
-                blockAllDataIncluded[baselineCount + intensityIndex] &= blockOnPeakIncluded[isotopeIndex][intensityIndex];
-            }
-        }
+        // TODO:Fix this per Noah
+        // NOTE: the speciesList has been sorted by increasing abundances in the original analysisMethod setup
+        //  the ratios are between each species and the most abundant species, with one less ratio than species count
+        int indexOfMostAbundantIsotope = countOfIsotopes - 1;
+        int iden = indexOfMostAbundantIsotope + 1; // ordinal
 
         // Baseline statistics *****************************************************************************************
         /*
@@ -94,15 +92,9 @@ enum SingleBlockModelInitForMCMC {
 
         double meanOfBaseLineMeansStdDev = meanOfBaseLineMeansStdDevDescriptiveStatistics.getMean();
 
-        // TODO:Fix this per Noah
-        // NOTE: the speciesList has been sorted by increasing abundances in the original analysisMethod setup
-        //  the ratios are between each species and the most abundant species, with one less ratio than species
-        int indexOfMostAbundantIsotope = countOfIsotopes - 1;//          mapPhotoMultiplierIsotopeIndicesToStatistics.size() - 1;
 
         // june 2023 new init line 14 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // june 2023 new init - will need to be user input
-        int iden = indexOfMostAbundantIsotope + 1; // ordinal
-
         //TODO: Fix this when using bbase
         //TODO: handle case of only 2 cycles, which blows up calculateDFGain since it thrwos out first and last
         double detectorFaradayGain = 0.9;
@@ -222,6 +214,9 @@ enum SingleBlockModelInitForMCMC {
         double[] logRatios = new double[analysisMethod.getIsotopicRatiosList().size()];
         Map<IsotopicRatio, Map<Integer, double[]>> mapLogRatiosToCycleStats = new TreeMap<>();
 
+        // get data included array ***********************************************************************************
+        boolean[][] blockOnPeakIncluded = ((Analysis) analysis).getMapOfBlockIdToIncludedPeakData().get(singleBlockRawDataSetRecord.blockID());
+
         Map<Integer, double[]> denominatorMapCyclesToStats = new TreeMap<>();
         for (int isotopeIndex = 0; isotopeIndex < countOfIsotopes; isotopeIndex++) {
             ddver2List = new ArrayList<>();
@@ -257,7 +252,9 @@ enum SingleBlockModelInitForMCMC {
             DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics();
             for (int dataArrayIndex = 0; dataArrayIndex < ddVer2SortedArray.length; dataArrayIndex++) {
                 //TODO: Check for cycle active - see below where stats accumulator checks
-                descriptiveStatistics.addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
+                if (blockOnPeakIncluded[isotopeIndex][dataArrayIndex] && blockOnPeakIncluded[indexOfMostAbundantIsotope][dataArrayIndex]) {
+                    descriptiveStatistics.addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
+                }
             }
             // only use most abundant isotope (denominator or iden) for cycle-based calculations
             if (isotopeIndex < logRatios.length) {
@@ -292,7 +289,7 @@ enum SingleBlockModelInitForMCMC {
                 }
                 mapCyclesToStats.put(cycleIndex, cycleLogRatioStats);
             }
-            if (isotopeIndex == iden - 1) {
+            if (isotopeIndex == indexOfMostAbundantIsotope) {
                 denominatorMapCyclesToStats = mapCyclesToStats;
             } else {
                 mapLogRatiosToCycleStats.put(analysisMethod.getIsotopicRatiosList().get(isotopeIndex), mapCyclesToStats);
@@ -706,7 +703,7 @@ enum SingleBlockModelInitForMCMC {
             % Take average of DFgain for all blocks
             x0.DFgain = mean(BlockDFgain);
 
-            % Warning if user DF gain is different from calculation
+            % Warning if user DF gainCorr is different from calculation
             if 100*abs(x0.DFgain - user_DFgain)/user_DFgain > 5
                 disp(sprintf('Warning, discrepancy with user-specified DF Gain %.4f %.4f',user_DFgain,x0.DFgain))
             end

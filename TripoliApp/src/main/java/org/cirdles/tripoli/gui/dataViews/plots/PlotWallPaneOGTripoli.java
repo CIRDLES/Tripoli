@@ -17,26 +17,33 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import org.cirdles.tripoli.constants.TripoliConstants;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.util.List;
 
+import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_MICHAELANGELO_URL;
+
 /**
  * @author James F. Bowring
  */
-public class PlotWallPaneOGTripoli extends Pane {
+public class PlotWallPaneOGTripoli extends Pane implements PlotWallPaneInterface {
 
     public static final double gridCellDim = 2.0;
-    public static final double toolBarHeight = 35.0;
     public static double menuOffset = 30.0;
     CheckBox baseLineCB;
     CheckBox gainCB;
+    private double toolBarHeight;
+    private int toolBarCount;
     private String iD;
     private boolean[] speciesChecked = new boolean[0];
     private boolean showFaradays = true;
@@ -49,13 +56,16 @@ public class PlotWallPaneOGTripoli extends Pane {
 
     private boolean[] zoomFlagsXY = new boolean[2];
 
+    private ToolBar scaleControlsToolbar;
+    private CheckBox[] speciesCheckBoxes;
+
     private PlotWallPaneOGTripoli(String iD) {
         this.iD = iD;
         zoomFlagsXY[0] = true;
         zoomFlagsXY[1] = true;
     }
 
-    public static PlotWallPaneOGTripoli createPlotWallPane(String iD) {
+    public static PlotWallPaneInterface createPlotWallPane(String iD) {
         if (iD == null) {
             return new PlotWallPaneOGTripoli("NONE");
         } else {
@@ -76,7 +86,7 @@ public class PlotWallPaneOGTripoli extends Pane {
             displayHeight = (getParent().getBoundsInParent().getHeight() - toolBarHeight);
         }
 
-        double tileHeight = displayHeight;// - displayHeight % gridCellDim;
+        double tileHeight = displayHeight;
 
         int plotIndex = 0;
         for (Node plotPane : getChildren()) {
@@ -85,12 +95,26 @@ public class PlotWallPaneOGTripoli extends Pane {
                 ((Pane) plotPane).setPrefHeight(tileHeight);
                 plotPane.setLayoutX(gridCellDim);
                 ((Pane) plotPane).setPrefWidth(tileWidth);
-
                 ((TripoliPlotPane) plotPane).snapToGrid();
-
                 plotIndex++;
             }
         }
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void tilePlots() {
+        // not applicable
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void toggleShowStatsAllPlots() {
+        // not used
     }
 
     public void buildOGTripoliToolBar(List<SpeciesRecordInterface> species) {
@@ -98,7 +122,7 @@ public class PlotWallPaneOGTripoli extends Pane {
         toolBar.setPrefHeight(toolBarHeight);
         speciesChecked = new boolean[species.size()];
 
-        CheckBox[] speciesCheckBoxes = new CheckBox[species.size()];
+        speciesCheckBoxes = new CheckBox[species.size()];
         for (int speciesIndex = 0; speciesIndex < species.size(); speciesIndex++) {
             speciesCheckBoxes[speciesIndex] = new CheckBox(species.get(speciesIndex).prettyPrintShortForm().trim());
             toolBar.getItems().add(speciesCheckBoxes[speciesIndex]);
@@ -106,6 +130,10 @@ public class PlotWallPaneOGTripoli extends Pane {
             speciesCheckBoxes[speciesIndex].selectedProperty().addListener(
                     (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                         speciesChecked[finalSpeciesIndex] = newVal;
+                        if (((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).isInSculptorMode()) {
+                            ((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).setInSculptorMode(false);
+                            ((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).sculptBlock(false);
+                        }
                         rebuildPlot(false, true);
                     });
         }
@@ -209,25 +237,41 @@ public class PlotWallPaneOGTripoli extends Pane {
                     rebuildPlot(false, false);
                 });
 
-        getChildren().addAll(toolBar);
+        getChildren().add(0, toolBar);
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void buildToolBar() {
+
     }
 
     public void buildScaleControlsToolbar() {
-        ToolBar toolBar = new ToolBar();
-        toolBar.setPrefHeight(toolBarHeight);
-        toolBar.setLayoutY(toolBarHeight);
+        scaleControlsToolbar = new ToolBar();
+        scaleControlsToolbar.setPrefHeight(toolBarHeight);
+        scaleControlsToolbar.setLayoutY(toolBarHeight);
 
         Button restoreButton = new Button("Restore Plot");
-        restoreButton.setOnAction(event -> rebuildPlot(true, true));
-        toolBar.getItems().add(restoreButton);
+
+        restoreButton.setOnAction(event -> {
+            if (((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).isInSculptorMode()) {
+                ((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).setInSculptorMode(false);
+                ((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).sculptBlock(false);
+            } else {
+                rebuildPlot(true, true);
+            }
+        });
+        scaleControlsToolbar.getItems().add(restoreButton);
 
         Label labelScale = new Label("Scale:");
         labelScale.setAlignment(Pos.CENTER_RIGHT);
         labelScale.setPrefWidth(60);
-        toolBar.getItems().add(labelScale);
+        scaleControlsToolbar.getItems().add(labelScale);
 
         CheckBox logCB = new CheckBox("Log");
-        toolBar.getItems().add(logCB);
+        scaleControlsToolbar.getItems().add(logCB);
         logCB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     logScale = newVal;
@@ -237,14 +281,14 @@ public class PlotWallPaneOGTripoli extends Pane {
         Label labelViews = new Label("Zoom:");
         labelViews.setAlignment(Pos.CENTER_RIGHT);
         labelViews.setPrefWidth(50);
-        toolBar.getItems().add(labelViews);
+        scaleControlsToolbar.getItems().add(labelViews);
 
         ToggleGroup toggleScaleY = new ToggleGroup();
 
         RadioButton countsRB = new RadioButton("Both");
         countsRB.setToggleGroup(toggleScaleY);
         countsRB.setSelected(true);
-        toolBar.getItems().add(countsRB);
+        scaleControlsToolbar.getItems().add(countsRB);
         countsRB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     if (newVal) {
@@ -256,7 +300,7 @@ public class PlotWallPaneOGTripoli extends Pane {
 
         RadioButton voltsRB = new RadioButton("X-only");
         voltsRB.setToggleGroup(toggleScaleY);
-        toolBar.getItems().add(voltsRB);
+        scaleControlsToolbar.getItems().add(voltsRB);
         voltsRB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     if (newVal) {
@@ -268,7 +312,7 @@ public class PlotWallPaneOGTripoli extends Pane {
 
         RadioButton ampsRB = new RadioButton("Y-only");
         ampsRB.setToggleGroup(toggleScaleY);
-        toolBar.getItems().add(ampsRB);
+        scaleControlsToolbar.getItems().add(ampsRB);
         ampsRB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     if (newVal) {
@@ -278,9 +322,36 @@ public class PlotWallPaneOGTripoli extends Pane {
                     resetZoom();
                 });
 
-
-        getChildren().add(toolBar);
+        scaleControlsToolbar.setPadding(new Insets(0, 0, 0, 10));
+        getChildren().add(1, scaleControlsToolbar);
     }
+
+    public void builtSculptingHBox(String message) {
+        // Michaelangelo sculpting
+        final ImageView michaelangeloImageView = new ImageView();
+        Image ratioFlipper = new Image(TRIPOLI_MICHAELANGELO_URL);
+        michaelangeloImageView.setImage(ratioFlipper);
+        michaelangeloImageView.setFitHeight(30);
+        michaelangeloImageView.setFitWidth(30);
+        HBox sculptHBox = new HBox(michaelangeloImageView);
+        sculptHBox.setAlignment(Pos.CENTER);
+        sculptHBox.setPadding(new Insets(0, 10, 0, 10));
+        sculptHBox.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+        sculptHBox.getChildren().add(new Label(message));
+        sculptHBox.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, null, null)));
+        scaleControlsToolbar.getItems().add(sculptHBox);
+    }
+
+    public void removeSculptingHBox() {
+        Node targetHBox = null;
+        for (Node node : scaleControlsToolbar.getItems()) {
+            if (node instanceof HBox) {
+                targetHBox = node;
+            }
+        }
+        scaleControlsToolbar.getItems().remove(targetHBox);
+    }
+
 
     private void rebuildPlot(boolean reScaleX, boolean reScaleY) {
         for (Node plotPane : getChildren()) {
@@ -296,5 +367,25 @@ public class PlotWallPaneOGTripoli extends Pane {
                 ((TripoliPlotPane) plotPane).resetAnalysisIntensityZoom(zoomFlagsXY);
             }
         }
+    }
+
+    @Override
+    public double getToolBarHeight() {
+        return toolBarHeight;
+    }
+
+    @Override
+    public void setToolBarHeight(double toolBarHeight) {
+        this.toolBarHeight = toolBarHeight;
+    }
+
+    @Override
+    public int getToolBarCount() {
+        return toolBarCount;
+    }
+
+    @Override
+    public void setToolBarCount(int toolBarCount) {
+        this.toolBarCount = toolBarCount;
     }
 }

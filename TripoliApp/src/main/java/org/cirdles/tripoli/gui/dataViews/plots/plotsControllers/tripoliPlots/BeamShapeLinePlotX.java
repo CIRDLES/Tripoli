@@ -89,6 +89,14 @@ public class BeamShapeLinePlotX extends AbstractPlot {
         minY -= yMarginStretch;
     }
 
+    /**
+     * @param g2d
+     */
+    @Override
+    public void showLegend(GraphicsContext g2d) {
+
+    }
+
     @Override
     public void plotData(GraphicsContext g2d) {
         g2d.setLineWidth(2.2);

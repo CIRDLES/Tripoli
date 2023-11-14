@@ -64,7 +64,7 @@ public class PeakShapeDemoPlotsControllerTest {
 
     AbstractPlot peakCentreLinePlot;
 
-    PlotWallPane ensemblePlotsWallPane = PlotWallPane.createPlotWallPane(null, null, null, null);
+    PlotWallPane ensemblePlotsWallPane = (PlotWallPane) PlotWallPane.createPlotWallPane(null, null, null, null);
     @FXML
     private ScrollPane resourceListScrollPane;
 

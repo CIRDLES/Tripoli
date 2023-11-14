@@ -26,7 +26,7 @@ import static org.cirdles.tripoli.constants.TripoliConstants.*;
 /**
  * @author James F. Bowring
  */
-public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface, PlotBuildersTaskInterface {
+public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbackInterface, MCMCPlotBuildersTaskInterface {
     public static AnalysisInterface analysis;
     private final int blockID;
     //  plotBuilders

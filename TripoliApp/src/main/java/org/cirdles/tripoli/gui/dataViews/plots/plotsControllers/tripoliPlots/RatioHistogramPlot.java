@@ -35,7 +35,7 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
     private final HistogramRecord invertedRatioHistogramRecord;
     private HistogramRecord histogramRecordActive;
     private HistogramRecord logRatioHistogramRecord;
-    private HistogramRecord logInvertedRatioHistogramRecord;
+    private HistogramRecord invertedLogRatioHistogramRecord;
     private AnalysisMethod analysisMethod;
     private boolean logMode;
 
@@ -44,7 +44,7 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
             HistogramRecord histogramRecord,
             HistogramRecord invertedRatioHistogramRecord,
             HistogramRecord logRatioHistogramRecord,
-            HistogramRecord logInvertedRatioHistogramRecord,
+            HistogramRecord invertedLogRatioHistogramRecord,
             AnalysisMethod analysisMethod,
             PlotWallPane parentWallPane) {
         super(bounds, histogramRecord, parentWallPane);
@@ -53,10 +53,9 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
         // these can be changed by user in plot
         this.invertedRatioHistogramRecord = invertedRatioHistogramRecord;
         this.logRatioHistogramRecord = logRatioHistogramRecord;
-        this.logInvertedRatioHistogramRecord = logInvertedRatioHistogramRecord;
+        this.invertedLogRatioHistogramRecord = invertedLogRatioHistogramRecord;
 
         this.logMode = false;
-//        this.inverted = false;
 
         extendPlotContextMenu();
     }
@@ -106,7 +105,7 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
         boolean inverted = analysisMethod.getMapOfRatioNamesToInvertedFlag().get(histogramRecord.title()[0]);
         if (inverted) {
             if (logMode) {
-                histogramRecordActive = logInvertedRatioHistogramRecord;
+                histogramRecordActive = invertedLogRatioHistogramRecord;
             } else {
                 histogramRecordActive = invertedRatioHistogramRecord;
             }
@@ -119,7 +118,7 @@ public class RatioHistogramPlot extends HistogramSinglePlot {
         }
 
         plotTitle = new String[]{histogramRecordActive.title()[0]
-                + "  " + "X\u0305" + "=" + String.format("%8.5g", histogramRecordActive.mean()).trim()
+                + "  " + "x\u0304" + "=" + String.format("%8.5g", histogramRecordActive.mean()).trim()
                 , "\u00B1" + String.format("%8.5g", histogramRecordActive.standardDeviation()).trim()};
         plotAxisLabelX = histogramRecordActive.xAxisLabel();
         xAxisData = histogramRecordActive.binCenters();

@@ -71,7 +71,7 @@ public enum TicGeneratorForAxes {
     }
 
     private static boolean isIntegerValue(BigDecimal bd) {
-        return (bd !=null) &&( 0 == bd.signum() || 0 >= bd.scale() || 0 >= bd.stripTrailingZeros().scale());
+        return (bd != null) && (0 == bd.signum() || 0 >= bd.scale() || 0 >= bd.stripTrailingZeros().scale());
     }
 
     private static BigDecimal[] formatTicsWhenAllInteger(BigDecimal[] origTics) {

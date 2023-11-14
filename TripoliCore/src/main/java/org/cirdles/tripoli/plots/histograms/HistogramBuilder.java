@@ -43,12 +43,12 @@ public class HistogramBuilder extends PlotBuilder {
     }
 
     protected HistogramRecord generateHistogram(int blockID, double[] data, int binCount, String[] title, String xAxisLabel) {
-        DescriptiveStatistics descriptiveStatisticsRatios = new DescriptiveStatistics();
+        DescriptiveStatistics descriptiveStatisticsData = new DescriptiveStatistics();
         for (int index = 0; index < data.length; index++) {
-            descriptiveStatisticsRatios.addValue(data[index]);
+            descriptiveStatisticsData.addValue(data[index]);
         }
-        double dataMax = descriptiveStatisticsRatios.getMax();
-        double dataMin = descriptiveStatisticsRatios.getMin();
+        double dataMax = descriptiveStatisticsData.getMax();
+        double dataMin = descriptiveStatisticsData.getMin();
 
         double[] binCounts = new double[binCount];
         double binWidth = (dataMax - dataMin) / binCount;
@@ -73,8 +73,8 @@ public class HistogramBuilder extends PlotBuilder {
         return new HistogramRecord(
                 blockID,
                 data,
-                descriptiveStatisticsRatios.getMean(),
-                descriptiveStatisticsRatios.getStandardDeviation(),
+                descriptiveStatisticsData.getMean(),
+                descriptiveStatisticsData.getStandardDeviation(),
                 binCount,
                 binCounts,
                 binWidth,

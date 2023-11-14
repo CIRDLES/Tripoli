@@ -88,6 +88,14 @@ public class PeakCentresLinePlot extends AbstractPlot {
         minY -= yMarginStretch;
     }
 
+    /**
+     * @param g2d
+     */
+    @Override
+    public void showLegend(GraphicsContext g2d) {
+
+    }
+
     @Override
     public void plotData(GraphicsContext g2d) {
         if (yAxisData.length != 1) {

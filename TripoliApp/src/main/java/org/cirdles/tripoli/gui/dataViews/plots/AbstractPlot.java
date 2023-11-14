@@ -132,7 +132,7 @@ public abstract class AbstractPlot extends Canvas {
                     if (getDisplayRangeX() >= zoomChunkX) {
                         if (event.getSource() instanceof BlockRatioCyclesAnalysisPlot) {
                             BlockRatioCyclesAnalysisPlot sourceBlockRatioCyclesAnalysisPlot = (BlockRatioCyclesAnalysisPlot) event.getSource();
-                            sourceBlockRatioCyclesAnalysisPlot.getParentWallPane().synchronizeRatioPlotsScroll(zoomChunkX, zoomChunkY);
+                            ((PlotWallPane) sourceBlockRatioCyclesAnalysisPlot.getParentWallPane()).synchronizeRatioPlotsScroll(zoomChunkX, zoomChunkY);
                         } else {
                             adjustZoom();
                         }
@@ -146,7 +146,7 @@ public abstract class AbstractPlot extends Canvas {
             if (mouseInHouse(e.getX(), e.getY())) {
                 if (e.getSource() instanceof BlockRatioCyclesAnalysisPlot) {
                     BlockRatioCyclesAnalysisPlot sourceBlockRatioCyclesAnalysisPlot = (BlockRatioCyclesAnalysisPlot) e.getSource();
-                    sourceBlockRatioCyclesAnalysisPlot.getParentWallPane().synchronizeRatioPlotsDrag(e.getX(), e.getY());
+                    ((PlotWallPane) sourceBlockRatioCyclesAnalysisPlot.getParentWallPane()).synchronizeRatioPlotsDrag(e.getX(), e.getY());
                 } else if (e.getSource() instanceof LinePlot) {
                     LinePlot sourceLinePlot = (LinePlot) e.getSource();
                     if (mouseInShadeHandle(plotBuilder.getShadeWidthForModelConvergence(), e.getX(), e.getY())) {
@@ -161,15 +161,14 @@ public abstract class AbstractPlot extends Canvas {
                     }
                 } else {
                     displayOffsetX = displayOffsetX + (convertMouseXToValue(mouseStartX) - convertMouseXToValue(e.getX()));
-                    mouseStartX = e.getX();
 
                     if (this instanceof HistogramSinglePlot) {
                         displayOffsetY = Math.max(0.0, displayOffsetY + (convertMouseYToValue(mouseStartY) - convertMouseYToValue(e.getY())));
                     } else {
                         displayOffsetY = displayOffsetY + (convertMouseYToValue(mouseStartY) - convertMouseYToValue(e.getY()));
                     }
-                    mouseStartY = e.getY();
 
+                    adjustMouseStartsForPress(e.getX(), e.getY());
                     calculateTics();
                     repaint();
                 }
@@ -181,7 +180,7 @@ public abstract class AbstractPlot extends Canvas {
             if (mouseInHouse(e.getX(), e.getY()) && e.isPrimaryButtonDown()) {
                 if (e.getSource() instanceof BlockRatioCyclesAnalysisPlot) {
                     BlockRatioCyclesAnalysisPlot sourceBlockRatioCyclesAnalysisPlot = (BlockRatioCyclesAnalysisPlot) e.getSource();
-                    sourceBlockRatioCyclesAnalysisPlot.getParentWallPane().synchronizeMouseStartsOnPress(e.getX(), e.getY());
+                    ((PlotWallPane) sourceBlockRatioCyclesAnalysisPlot.getParentWallPane()).synchronizeMouseStartsOnPress(e.getX(), e.getY());
                 } else {
                     adjustMouseStartsForPress(e.getX(), e.getY());
                 }
@@ -265,6 +264,7 @@ public abstract class AbstractPlot extends Canvas {
         labelAxisX(g2d);
         labelAxisY(g2d);
         showTitle(g2d);
+        showLegend(g2d);
     }
 
     public void repaint() {
@@ -355,20 +355,23 @@ public abstract class AbstractPlot extends Canvas {
 
     public void showTitle(GraphicsContext g2d) {
         Paint savedPaint = g2d.getFill();
-        Font titleFont = Font.font("Monospaced Bold", 12);
+        Font titleFont = Font.font("Courier Bold", 12);
         g2d.setFont(titleFont);
         g2d.setFill(Paint.valueOf("RED"));
-        g2d.fillText(plotTitle[0], leftMargin, topMargin - 12);
+        double titleLeftX = 15;
+        g2d.fillText(plotTitle[0], titleLeftX, 12);
         if (2 == plotTitle.length) {
             Text textTitle1 = new Text(plotTitle[0].split("\\.")[0]);
             textTitle1.setFont(titleFont);
             Text textTitle2 = new Text(plotTitle[1].split("\\.")[0]);
             textTitle2.setFont(titleFont);
             double offset = textTitle1.getLayoutBounds().getWidth() - textTitle2.getLayoutBounds().getWidth();
-            g2d.fillText(plotTitle[1], leftMargin + offset, topMargin - 2);
+            g2d.fillText(plotTitle[1], titleLeftX + offset, 22);
         }
         g2d.setFill(savedPaint);
     }
+
+    public abstract void showLegend(GraphicsContext g2d);
 
     private void labelAxisX(GraphicsContext g2d) {
         Paint savedPaint = g2d.getFill();
@@ -647,7 +650,7 @@ public abstract class AbstractPlot extends Canvas {
                     double xValue = convertMouseXToValue(mouseEvent.getX());
                     int blockID = (int) ((xValue - 0.7) / blockRatioCyclesAnalysisPlot.getBlockRatioCyclesSessionRecord().cyclesPerBlock()) + 1;
                     BlockRatioCyclesAnalysisPlot sourceBlockRatioCyclesAnalysisPlot = (BlockRatioCyclesAnalysisPlot) mouseEvent.getSource();
-                    sourceBlockRatioCyclesAnalysisPlot.getParentWallPane().synchronizeBlockToggle(blockID);
+                    ((PlotWallPane) sourceBlockRatioCyclesAnalysisPlot.getParentWallPane()).synchronizeBlockToggle(blockID);
                 } else if (!isPrimary) {
                     plotContextMenu.show((Node) mouseEvent.getSource(), Side.LEFT, mouseEvent.getX() - getLayoutX(), mouseEvent.getY() - getLayoutY());
                 }

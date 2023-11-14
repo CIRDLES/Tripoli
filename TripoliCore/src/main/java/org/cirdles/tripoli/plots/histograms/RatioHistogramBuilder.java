@@ -27,7 +27,7 @@ public class RatioHistogramBuilder extends HistogramBuilder {
     private IsotopicRatio ratio;
     private HistogramRecord invertedRatioHistogramRecord;
     private HistogramRecord logRatioHistogramRecord;
-    private HistogramRecord logInvertedRatioHistogramRecord;
+    private HistogramRecord invertedLogRatioHistogramRecord;
 
 
     private RatioHistogramBuilder(int blockID, String[] title, String xAxisLabel, String yAxisLabel, boolean displayed) {
@@ -36,7 +36,7 @@ public class RatioHistogramBuilder extends HistogramBuilder {
         histogramRecord = null;
         invertedRatioHistogramRecord = null;
         logRatioHistogramRecord = null;
-        logInvertedRatioHistogramRecord = null;
+        invertedLogRatioHistogramRecord = null;
         this.displayed = displayed;
     }
 
@@ -46,7 +46,7 @@ public class RatioHistogramBuilder extends HistogramBuilder {
         ratioHistogramBuilder.histogramRecord = ratioHistogramBuilder.generateHistogram(blockID, ratio.getRatioValuesForBlockEnsembles(), binCount, new String[]{ratio.prettyPrint()}, "Ratio");
         ratioHistogramBuilder.invertedRatioHistogramRecord = ratioHistogramBuilder.generateHistogram(blockID, invertedRatio.getRatioValuesForBlockEnsembles(), binCount, new String[]{invertedRatio.prettyPrint()}, "Ratio");
         ratioHistogramBuilder.logRatioHistogramRecord = ratioHistogramBuilder.generateHistogram(blockID, ratio.getLogRatioValuesForBlockEnsembles(), binCount, new String[]{"Log " + ratio.prettyPrint()}, "LogRatio");
-        ratioHistogramBuilder.logInvertedRatioHistogramRecord = ratioHistogramBuilder.generateHistogram(blockID, invertedRatio.getLogRatioValuesForBlockEnsembles(), binCount, new String[]{"Log " + invertedRatio.prettyPrint()}, "LogRatio");
+        ratioHistogramBuilder.invertedLogRatioHistogramRecord = ratioHistogramBuilder.generateHistogram(blockID, invertedRatio.getLogRatioValuesForBlockEnsembles(), binCount, new String[]{"Log " + invertedRatio.prettyPrint()}, "LogRatio");
         return ratioHistogramBuilder;
     }
 
@@ -58,8 +58,8 @@ public class RatioHistogramBuilder extends HistogramBuilder {
         return logRatioHistogramRecord;
     }
 
-    public HistogramRecord getLogInvertedRatioHistogramRecord() {
-        return logInvertedRatioHistogramRecord;
+    public HistogramRecord getInvertedLogRatioHistogramRecord() {
+        return invertedLogRatioHistogramRecord;
     }
 
     public IsotopicRatio getRatio() {
