@@ -315,8 +315,8 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                         }
 
                         g2d.setLineWidth(2.0);
-                        if (showModels && !gainCorr) {
-                            if ((i < xAxisData.length - 1) && (10.0 > xAxisData[i + 1] - xAxisData[i])) {
+                        if (showModels) {
+                            if ((i < xAxisData.length - 1) && (yData[isotopePlotSetIndex * 4 + 3][i] != 0.0)) {
                                 if ((0.0 != yData[isotopePlotSetIndex * 4 + 3][i]) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 3][i])) {
                                     if (!startedPlot) {
                                         g2d.beginPath();
@@ -358,7 +358,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
 
                         if (showModels) {
                             // TODO: make this 10.0 more robust for finding block separations
-                            if ((i < xAxisData.length - 1) && (10.0 > xAxisData[i + 1] - xAxisData[i])) {
+                            if ((i < xAxisData.length - 1) && (yData[isotopePlotSetIndex * 4 + 1][i] != 0.0)) {
                                 if ((0.0 != yData[isotopePlotSetIndex * 4 + 1][i]) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 1][i])) {
                                     if (!startedPlot) {
                                         g2d.beginPath();
@@ -413,10 +413,9 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
             }
 
         }
-//        if (!inSculptorMode) {
+
         double dataX = mapX(xAxisData[xAxisData.length - 1]) + 5;
         g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
-//        }
     }
 
     private void showBlockID(GraphicsContext g2d, String blockID, double xPosition) {
