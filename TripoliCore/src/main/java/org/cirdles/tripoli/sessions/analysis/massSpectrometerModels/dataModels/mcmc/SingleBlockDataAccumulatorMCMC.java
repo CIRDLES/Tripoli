@@ -69,7 +69,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                         // TODO: Revisit this
                         double intensity = roundedToSize(baselineIntensities[index][detectorDataColumnIndex], 6);
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
-                        if (MassSpectrometerContextEnum.PHOENIX == analysisMethod.getMassSpectrometerContext()) {
+                        if (MassSpectrometerContextEnum.PHOENIX_FULL == analysisMethod.getMassSpectrometerContext()) {
                             // convert all volts to counts to bring all files into alignment
                             intensity = TripoliConstants.IntensityUnits.convertFromVoltsToCount(intensity, amplifierResistance);
                         }
@@ -135,7 +135,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                         double intensity = roundedToSize(onPeakIntensities[index][detectorDataColumnIndex], 10);
                         cycleAccumulatorList.add(onPeakCycleNumbers[index]);
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
-                        if (MassSpectrometerContextEnum.PHOENIX == analysisMethod.getMassSpectrometerContext() && isFaraday) {
+                        if (MassSpectrometerContextEnum.PHOENIX_FULL == analysisMethod.getMassSpectrometerContext() && isFaraday) {
                             // convert all volts to counts to bring all files into alignment
                             intensity = TripoliConstants.IntensityUnits.convertFromVoltsToCount(intensity, amplifierResistance);
                         }

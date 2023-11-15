@@ -48,7 +48,7 @@ class DataSourceProcessorOPPhoenixTest {
         Path dataFile = RESOURCE_EXTRACTOR
                 .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_05.txt").toPath();
         MassSpecExtractedData massSpecExtractedData = extractMetaAndBlockDataFromFileVersion_1_0(dataFile);
-        massSpecExtractedData.setMassSpectrometerContext(MassSpectrometerContextEnum.PHOENIX_SYNTHETIC);
+        massSpecExtractedData.setMassSpectrometerContext(MassSpectrometerContextEnum.PHOENIX_FULL_SYNTHETIC);
 
 
 //        DataSourceProcessor_PhoenixSyntheticTextFile dataSourceProcessorOPPhoenix

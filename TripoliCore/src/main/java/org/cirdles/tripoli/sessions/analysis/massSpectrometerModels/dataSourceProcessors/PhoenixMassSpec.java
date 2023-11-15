@@ -189,6 +189,110 @@ public enum PhoenixMassSpec {
         return massSpecExtractedData;
     }
 
+    /**
+     * Called by reflection from Analysis.extractMassSpecDataFromPath
+     *
+     * @param inputDataFile
+     * @return
+     * @throws IOException
+     */
+    @SuppressWarnings("unused")
+    public static MassSpecExtractedData extractDataFromFileVersion_2_TIMSDP(Path inputDataFile) throws IOException {
+        MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
+        List<String> contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
+        // test for version 1.20
+        if ((!contentsByLine.get(2).trim().startsWith("Version,1.")) && (!contentsByLine.get(2).trim().startsWith("Version,2."))) {
+            throw new IOException("Expecting Version 1.2.n of data file.");
+        } else {
+            // first pass is to assemble data by blocks
+            List<String[]> headerByLineSplit = new ArrayList<>();
+            List<String[]> detectorsByLineSplit = new ArrayList<>();
+            List<String[]> columnNamesSplit = new ArrayList<>();
+            List<List<String>> dataByBlocks = new ArrayList<>();
+            List<String> dataByBlock = new ArrayList<>();
+
+            int phase = 0;
+            int currentBlockID = 1;
+            for (String line : contentsByLine) {
+                if (!line.trim().isBlank()) {
+                    if (line.startsWith("#COLLECTORS")) {
+                        massSpecExtractedData.populateHeader(headerByLineSplit);
+                        phase = 1;
+                    } else if (line.startsWith("#SAMPLELIST")) {
+                        massSpecExtractedData.populateDetectors(detectorsByLineSplit);
+                        phase = -1;
+                    } else if (line.startsWith("#USERTABLES")) {
+                        phase = -1;
+                    } else if (line.startsWith("#BASELINES")) {
+                        phase = -1;
+                    } else if (line.startsWith("#CYCLES")) {
+                        phase = 3;
+                    } else if (line.startsWith("#BLOCKS")) {
+                        phase = 8;
+                    }else if (line.startsWith("#SUMMARY")) {
+                        phase = -1;
+                    } else if (line.startsWith("#FUNCTIONS")) {
+                        phase = -1;
+                    } else if (line.startsWith("#END")) {
+                        phase = -1;
+                    }
+
+                    switch (phase) {
+                        case -1 -> {}
+                        case 0 -> headerByLineSplit.add(line.split(","));
+                        case 1 -> phase = 2;
+                        case 2 -> detectorsByLineSplit.add(line.split(","));
+                        case 3 -> phase = 4;
+                        case 4 -> {
+                            columnNamesSplit.add(line.split(","));
+                            massSpecExtractedData.populateColumnNamesList(columnNamesSplit);
+                            phase = 5;
+                        }
+                        case 6 -> phase = 7;
+                        case 7 -> phase = 8;
+//CyclesToMeasure,12
+                        case 55 -> {
+
+                        }
+                        case 5, 8 -> {
+                            String[] lineSplit = line.split(",");
+                            int blockID = (Integer.parseInt(lineSplit[0].trim()) - 1) / 12 + 1;
+                            if (blockID != currentBlockID) {
+                                //  save off block and prepare for next block new for BL and add to for OPeak
+                                if (8 == phase) {
+                                    dataByBlocks.get(currentBlockID - 1).addAll(dataByBlock);
+                                    massSpecExtractedData.addBlockRecord(
+                                            parseAndBuildSingleBlockRecord(2, currentBlockID, dataByBlocks.get(currentBlockID - 1)));
+                                } else {
+                                    dataByBlocks.add(dataByBlock);
+                                }
+                                dataByBlock = new ArrayList<>();
+                                currentBlockID = blockID;
+                            }
+                            dataByBlock.add(line);
+                        }
+                    }
+                } else if ((5 == phase) && !dataByBlock.isEmpty()) {
+                    // clean up last block
+                    dataByBlocks.add(dataByBlock);
+                    dataByBlock = new ArrayList<>();
+                    currentBlockID = 1;
+                } else if ((8 == phase) && !dataByBlock.isEmpty()) {
+                    // clean up last block
+                    // check for missing baseline action
+                    if (dataByBlocks.isEmpty()) {
+                        dataByBlocks.add(dataByBlock);
+                    } else {
+                        dataByBlocks.get(currentBlockID - 1).addAll(dataByBlock);
+                    }
+                    massSpecExtractedData.addBlockRecord(
+                            parseAndBuildSingleBlockRecord(2, currentBlockID, dataByBlocks.get(currentBlockID - 1)));
+                }
+            }
+        }
+        return massSpecExtractedData;
+    }
+
     private static MassSpecOutputSingleBlockRecord parseAndBuildSingleBlockRecord(int version, int blockNumber, List<String> blockData) {
         List<String> sequenceIDByLineSplit = new ArrayList<>();
         List<String> cycleNumberByLineSplit = new ArrayList<>();

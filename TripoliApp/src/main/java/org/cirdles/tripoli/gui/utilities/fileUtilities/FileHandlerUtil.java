@@ -95,12 +95,14 @@ public enum FileHandlerUtil {
         File dataFile = fileChooser.showOpenDialog(ownerWindow);
 
         if (null != dataFile) {
-            if (dataFile.getName().toLowerCase(Locale.US).endsWith(".txt")) {
+            if (dataFile.getName().toLowerCase(Locale.US).endsWith(".txt")
+                    || dataFile.getName().toLowerCase(Locale.US).endsWith(".exp")
+                    || dataFile.getName().toLowerCase(Locale.US).endsWith(".timsdp")) {
                 retVal = dataFile;
                 tripoliPersistentState.setMRUDataFile(dataFile);
                 tripoliPersistentState.setMRUDataFileFolderPath(dataFile.getParent());
             } else {
-                throw new TripoliException("Filename does not end with '.txt'");
+                throw new TripoliException("Filename does not end with one of: '.txt', '.exp', 'TIMSDP'.");
             }
         }
         return retVal;

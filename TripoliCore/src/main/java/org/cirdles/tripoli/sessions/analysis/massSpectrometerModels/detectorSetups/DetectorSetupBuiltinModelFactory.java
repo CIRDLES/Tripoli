@@ -19,7 +19,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSet
 import java.util.Map;
 import java.util.TreeMap;
 
-import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_SYNTHETIC;
+import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_FULL_SYNTHETIC;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector.AmplifierTypeEnum.RESISTANCE;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector.AmplifierTypeEnum.VIRTUAL;
 
@@ -34,7 +34,7 @@ public enum DetectorSetupBuiltinModelFactory {
     static {
 
         DetectorSetup detectorSetup = DetectorSetup.initializeDetectorSetup();
-        detectorSetupBuiltinMap.put(PHOENIX_SYNTHETIC.getName(), detectorSetup);
+        detectorSetupBuiltinMap.put(PHOENIX_FULL_SYNTHETIC.getName(), detectorSetup);
 
         detectorSetup.addDetector(Detector.initializeDetector(Detector.DetectorTypeEnum.FARADAY, "L5", 0,
                 RESISTANCE, 1.0e11, 0.0, 1.0, 0.0));
