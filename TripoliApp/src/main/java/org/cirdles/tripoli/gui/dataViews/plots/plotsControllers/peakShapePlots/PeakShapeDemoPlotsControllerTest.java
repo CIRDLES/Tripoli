@@ -463,7 +463,7 @@ public class PeakShapeDemoPlotsControllerTest {
                 PlotBuilder[] plots = BeamShapeTestDriver.modelTest(resourceBrowserTarget.toPath(), this::populateListOfResources);
                 PeakShapeOutputDataRecord peakShapeOutputDataRecord =
                         PeakShapeProcessor_PhoenixTextFile.initializeWithMassSpectrometer(
-                                        massSpectrometerModelBuiltinMap.get(MassSpectrometerContextEnum.PHOENIX.getMassSpectrometerName()))
+                                        massSpectrometerModelBuiltinMap.get(MassSpectrometerContextEnum.PHOENIX_FULL.getMassSpectrometerName()))
                                 .prepareInputDataModelFromFile(resourceBrowserTarget.toPath());
 
 

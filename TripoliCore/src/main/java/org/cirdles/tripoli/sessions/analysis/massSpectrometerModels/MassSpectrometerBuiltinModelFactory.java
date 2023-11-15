@@ -19,7 +19,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX;
+import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_FULL;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
 
 /**
@@ -31,11 +31,11 @@ public enum MassSpectrometerBuiltinModelFactory {
     public static Map<String, MassSpectrometerModel> massSpectrometerModelBuiltinMap = new TreeMap<>();
 
     static {
-        MassSpectrometerModel massSpectrometerModelPhoenix = MassSpectrometerModel.initializeMassSpectrometer(PHOENIX);
+        MassSpectrometerModel massSpectrometerModelPhoenix = MassSpectrometerModel.initializeMassSpectrometer(PHOENIX_FULL);
         massSpectrometerModelPhoenix.setCollectorWidthMM(0.95135);
         massSpectrometerModelPhoenix.setEffectiveRadiusMagnetMM(540.0);
         massSpectrometerModelPhoenix.setTheoreticalBeamWidthMM(0.35);
-        massSpectrometerModelBuiltinMap.put(PHOENIX.getMassSpectrometerName(), massSpectrometerModelPhoenix);
+        massSpectrometerModelBuiltinMap.put(PHOENIX_FULL.getMassSpectrometerName(), massSpectrometerModelPhoenix);
 
         MassSpectrometerModel massSpectrometerModelUnknown = MassSpectrometerModel.initializeMassSpectrometer(UNKNOWN);
         massSpectrometerModelBuiltinMap.put(UNKNOWN.getMassSpectrometerName(), massSpectrometerModelUnknown);

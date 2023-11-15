@@ -26,7 +26,7 @@ public enum BeamShapeTestDriver {
 
     public static PlotBuilder[] modelTest(Path dataFile, LoggingCallbackInterface loggingCallback) throws IOException {
         PeakShapeProcessor_PhoenixTextFile peakShapeProcessor_PhoenixTextFile
-                = PeakShapeProcessor_PhoenixTextFile.initializeWithMassSpectrometer(massSpectrometerModelBuiltinMap.get(MassSpectrometerContextEnum.PHOENIX.getMassSpectrometerName()));
+                = PeakShapeProcessor_PhoenixTextFile.initializeWithMassSpectrometer(massSpectrometerModelBuiltinMap.get(MassSpectrometerContextEnum.PHOENIX_FULL.getMassSpectrometerName()));
         PeakShapeOutputDataRecord peakShapeOutputDataRecord = peakShapeProcessor_PhoenixTextFile.prepareInputDataModelFromFile(dataFile);
         PlotBuilder[] peakShapeLinePlotBuilder = new LinePlotBuilder[0];
 

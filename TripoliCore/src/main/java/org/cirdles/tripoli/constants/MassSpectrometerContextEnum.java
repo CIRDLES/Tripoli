@@ -25,14 +25,21 @@ import java.util.List;
  * @author James F. Bowring
  */
 public enum MassSpectrometerContextEnum {
-    PHOENIX("Phoenix", "Phoenix",
+    PHOENIX_FULL("Phoenix Full", "Phoenix",
             "#HEADER, Analysis, Version, Filename, MethodName, MethodPath, IsoWorksMethod, FolderPath",
             PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_2"),
-    PHOENIX_SYNTHETIC("Phoenix_Synthetic", "Phoenix",
+    PHOENIX_TIMSDP("Phoenix TIMSDP", "Phoenix",
+            "#HEADER, Analysis, Version, Filename, MethodName, MethodPath, FolderPath, IsoWorksMethod, TFEMode, TFEMonitorPeak",
+            PhoenixMassSpec.class, "extractDataFromFileVersion_2_TIMSDP"),
+    PHOENIX_FULL_SYNTHETIC("Phoenix Full_Synthetic", "Phoenix",
             "Version, Filename, Sample, Sample, Sample, Analysis, User, Method",
             PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_0"),
+    TRITON_EXP("Triton EXP", "Triton",
+            "Triton Analysis Data Report",
+            PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_2"),
     UNKNOWN("UNKNOWN", "UNKNOWN", "",
             null, "");
+//Triton Analysis Data Report
 
     private final String name;
     private final String massSpectrometerName;

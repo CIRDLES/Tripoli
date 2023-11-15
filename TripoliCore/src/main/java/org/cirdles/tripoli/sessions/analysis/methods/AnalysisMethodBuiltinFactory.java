@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_SYNTHETIC;
+import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_FULL_SYNTHETIC;
 
 /**
  * @author James F. Bowring
@@ -51,7 +51,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
     public static Map<String, AnalysisMethod> analysisMethodsBuiltinMap = new TreeMap<>();
 
     static {
-        AnalysisMethod burdickBlSyntheticData = AnalysisMethod.initializeAnalysisMethod(BURDICK_BL_SYNTHETIC_DATA, PHOENIX_SYNTHETIC);
+        AnalysisMethod burdickBlSyntheticData = AnalysisMethod.initializeAnalysisMethod(BURDICK_BL_SYNTHETIC_DATA, PHOENIX_FULL_SYNTHETIC);
         analysisMethodsBuiltinMap.put(burdickBlSyntheticData.getMethodName(), burdickBlSyntheticData);
 
         burdickBlSyntheticData.addSpeciesToSpeciesList(pb206);
@@ -59,7 +59,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
 
         burdickBlSyntheticData.createListsOfIsotopicRatios();
 
-        DetectorSetup detectorSetup = DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_SYNTHETIC.getName());
+        DetectorSetup detectorSetup = DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_FULL_SYNTHETIC.getName());
 
         BaselineTable baselineTable = burdickBlSyntheticData.getBaselineTable();
         baselineTable.setSequenceCount(1);
@@ -92,7 +92,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
     }
 
     static {
-        AnalysisMethod ku_204_5_6_7_8_Daly_AllFaradayPb = AnalysisMethod.initializeAnalysisMethod(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB, PHOENIX_SYNTHETIC);
+        AnalysisMethod ku_204_5_6_7_8_Daly_AllFaradayPb = AnalysisMethod.initializeAnalysisMethod(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB, PHOENIX_FULL_SYNTHETIC);
         analysisMethodsBuiltinMap.put(ku_204_5_6_7_8_Daly_AllFaradayPb.getMethodName(), ku_204_5_6_7_8_Daly_AllFaradayPb);
 
         ku_204_5_6_7_8_Daly_AllFaradayPb.addSpeciesToSpeciesList(pb204);
@@ -103,7 +103,7 @@ public final class AnalysisMethodBuiltinFactory implements Serializable {
 
         ku_204_5_6_7_8_Daly_AllFaradayPb.createListsOfIsotopicRatios();
 
-        DetectorSetup detectorSetup = DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_SYNTHETIC.getName());
+        DetectorSetup detectorSetup = DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_FULL_SYNTHETIC.getName());
         BaselineTable baselineTable = ku_204_5_6_7_8_Daly_AllFaradayPb.getBaselineTable();
         baselineTable.setSequenceCount(1);
 
