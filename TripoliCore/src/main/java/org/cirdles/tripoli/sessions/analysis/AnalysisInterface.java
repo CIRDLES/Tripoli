@@ -7,7 +7,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedDataFull;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -94,9 +94,9 @@ public interface AnalysisInterface {
 
     void setMethod(AnalysisMethod analysisMethod);
 
-    MassSpecExtractedDataFull getMassSpecExtractedData();
+    MassSpecExtractedData getMassSpecExtractedData();
 
-    void setMassSpecExtractedData(MassSpecExtractedDataFull massSpecExtractedDataFull);
+    void setMassSpecExtractedData(MassSpecExtractedData massSpecExtractedData);
 
     AnalysisMethod getAnalysisMethod();
 

@@ -20,7 +20,7 @@ import com.google.common.primitives.Doubles;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.SingleBlockModelInitForMCMC;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedDataFull;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
@@ -43,11 +43,11 @@ public enum SingleBlockModelDriver {
     ;
 
     public static PlotBuilder[][] buildAndRunModelForSingleBlock(int blockID, AnalysisInterface analysis, LoggingCallbackInterface loggingCallback) throws TripoliException, IOException {
-        MassSpecExtractedDataFull massSpecExtractedDataFull = analysis.getMassSpecExtractedData();
+        MassSpecExtractedData massSpecExtractedData = analysis.getMassSpecExtractedData();
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
         PlotBuilder[][] plotBuilder = new PlotBuilder[0][0];
 
-        SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = prepareSingleBlockDataForMCMC(blockID, massSpecExtractedDataFull, analysisMethod);
+        SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = prepareSingleBlockDataForMCMC(blockID, massSpecExtractedData, analysisMethod);
         SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov;
         try {
             singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC(analysis, analysisMethod, singleBlockRawDataSetRecord, true);
@@ -64,9 +64,9 @@ public enum SingleBlockModelDriver {
         return plotBuilder;
     }
 
-    public static SingleBlockRawDataSetRecord prepareSingleBlockDataForMCMC(int blockNumber, MassSpecExtractedDataFull massSpecExtractedDataFull, AnalysisMethod analysisMethod) {
+    public static SingleBlockRawDataSetRecord prepareSingleBlockDataForMCMC(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) {
         SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = null;
-        MassSpecOutputBlockRecordFull massSpecOutputBlockRecordFull = massSpecExtractedDataFull.getBlocksData().get(blockNumber);
+        MassSpecOutputBlockRecordFull massSpecOutputBlockRecordFull = massSpecExtractedData.getBlocksDataFull().get(blockNumber);
         if (massSpecOutputBlockRecordFull != null) {
             Primitive64Store blockKnotInterpolationStore;
             if (analysisMethod.isUseLinearKnots()) {

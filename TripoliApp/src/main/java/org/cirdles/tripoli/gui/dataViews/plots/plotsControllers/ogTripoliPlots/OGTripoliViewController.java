@@ -192,7 +192,7 @@ public class OGTripoliViewController {
             mapOfOrdinalDetectorsToResistance.put(detector.getOrdinalIndex(), detector.getAmplifierResistanceInOhms());
         }
 
-        Map<Integer, MassSpecOutputBlockRecordFull> blocksData = analysis.getMassSpecExtractedData().getBlocksData();
+        Map<Integer, MassSpecOutputBlockRecordFull> blocksData = analysis.getMassSpecExtractedData().getBlocksDataFull();
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
 
             if (null != singleBlockModelRecords[blockIndex]) {

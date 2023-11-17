@@ -534,7 +534,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         blockStatusHBox.getChildren().clear();
         if (analysis.getAnalysisMethod() != null) {
             var massSpecExtractedData = analysis.getMassSpecExtractedData();
-            Map<Integer, MassSpecOutputBlockRecordFull> blocksData = massSpecExtractedData.getBlocksData();
+            Map<Integer, MassSpecOutputBlockRecordFull> blocksData = massSpecExtractedData.getBlocksDataFull();
             for (MassSpecOutputBlockRecordFull block : blocksData.values()) {
                 Button blockStatusButton = blockStatusButtonFactory(block.blockID());
                 blockStatusHBox.getChildren().add(blockStatusButton);
@@ -649,7 +649,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
         processingToolBar.setDisable(analysis.getAnalysisMethod() == null);
         // initialize block processing state
-        for (Integer blockID : analysis.getMassSpecExtractedData().getBlocksData().keySet()) {
+        for (Integer blockID : analysis.getMassSpecExtractedData().getBlocksDataFull().keySet()) {
             analysis.getMapOfBlockIdToProcessStatus().put(blockID, RUN);
         }
         populateAnalysisManagerGridPane();

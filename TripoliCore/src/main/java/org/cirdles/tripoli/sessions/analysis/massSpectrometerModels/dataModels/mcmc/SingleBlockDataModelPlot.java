@@ -223,6 +223,4 @@ public enum SingleBlockDataModelPlot {
 
         return plotBuilders;
     }
-
-
 }

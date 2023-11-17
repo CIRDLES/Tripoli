@@ -34,7 +34,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.SingleBlockPeakDriver;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedDataFull;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
@@ -93,7 +93,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private String analysisSampleDescription;
     // note: Path is not serializable
     private String dataFilePathString;
-    private MassSpecExtractedDataFull massSpecExtractedDataFull;
+    private MassSpecExtractedData massSpecExtractedData;
     private boolean mutable;
     private SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis plotSpecsSpeciesIntensityAnalysis;
     private DescriptiveStatistics[] analysisSpeciesStats = new DescriptiveStatistics[0];
@@ -111,33 +111,17 @@ public class Analysis implements Serializable, AnalysisInterface {
         labName = MISSING_STRING_FIELD;
         analysisSampleDescription = MISSING_STRING_FIELD;
         dataFilePathString = MISSING_STRING_FIELD;
-        massSpecExtractedDataFull = new MassSpecExtractedDataFull();
+        massSpecExtractedData = new MassSpecExtractedData();
         mutable = true;
         if (null != analysisMethod) {
             plotSpecsSpeciesIntensityAnalysis = new SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis(
                     new boolean[analysisMethod.getSpeciesList().size()], true, true, true, true, true, false);
         }
     }
-//
-//    public SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis getPlotSpecsSpeciesIntensityAnalysis() {
-//        return plotSpecsSpeciesIntensityAnalysis;
-//    }
-//
-//    public void setPlotSpecsSpeciesIntensityAnalysis(SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis plotSpecsSpeciesIntensityAnalysis) {
-//        this.plotSpecsSpeciesIntensityAnalysis = plotSpecsSpeciesIntensityAnalysis;
-//    }
 
     public void setAnalysisSpeciesStats(DescriptiveStatistics[] analysisSpeciesStats) {
         this.analysisSpeciesStats = analysisSpeciesStats;
     }
-
-//    public boolean[] calcDataIncluded() {
-//        int baseLineCount = mapOfBlockIdToRawData.get(1).baselineDataSetMCMC().intensityAccumulatorList().size();
-//        int faradayCount = mapOfBlockIdToRawData.get(1).onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
-//        int photoMultiplierCount = mapOfBlockIdToRawData.get(1).onPeakPhotoMultiplierDataSetMCMC().intensityAccumulatorList().size();
-//        boolean[] dataIncluded = new boolean[baseLineCount + faradayCount + photoMultiplierCount];
-//        return dataIncluded;
-//    }
 
     public Map<Integer, List<EnsemblesStore.EnsembleRecord>> getMapBlockIDToEnsembles() {
         return mapBlockIDToEnsembles;
@@ -171,16 +155,16 @@ public class Analysis implements Serializable, AnalysisInterface {
         if (0 != massSpectrometerContext.compareTo(UNKNOWN)) {
             Class<?> clazz = massSpectrometerContext.getClazz();
             Method method = clazz.getMethod(massSpectrometerContext.getMethodName(), Path.class);
-            massSpecExtractedDataFull = (MassSpecExtractedDataFull) method.invoke(null, dataFilePath);
+            massSpecExtractedData = (MassSpecExtractedData) method.invoke(null, dataFilePath);
         } else {
-            massSpecExtractedDataFull = new MassSpecExtractedDataFull();
+            massSpecExtractedData = new MassSpecExtractedData();
         }
-        massSpecExtractedDataFull.setMassSpectrometerContext(massSpectrometerContext);
+        massSpecExtractedData.setMassSpectrometerContext(massSpectrometerContext);
 
         // TODO: remove this temp hack for synthetic demos
         if (0 == massSpectrometerContext.compareTo(PHOENIX_FULL_SYNTHETIC)) {
-            massSpecExtractedDataFull.setDetectorSetup(DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_FULL_SYNTHETIC.getName()));
-            if (massSpecExtractedDataFull.getHeader().methodName().toUpperCase(Locale.ROOT).contains("SYNTHETIC")) {
+            massSpecExtractedData.setDetectorSetup(DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_FULL_SYNTHETIC.getName()));
+            if (massSpecExtractedData.getHeader().methodName().toUpperCase(Locale.ROOT).contains("SYNTHETIC")) {
                 analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(BURDICK_BL_SYNTHETIC_DATA);
             } else {
                 analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
@@ -191,7 +175,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         } else {
             // attempt to load specified method
             File selectedMethodFile = new File((Path.of(dataFilePathString).getParent().getParent().toString()
-                    + File.separator + "Methods" + File.separator + massSpecExtractedDataFull.getHeader().methodName()).toLowerCase(Locale.getDefault()));
+                    + File.separator + "Methods" + File.separator + massSpecExtractedData.getHeader().methodName()).toLowerCase(Locale.getDefault()));
             File getPeakCentresFolder = new File((Path.of(dataFilePathString).getParent().toString()
                     + File.separator + "PeakCentres"));
             if (selectedMethodFile.exists()) {
@@ -199,7 +183,7 @@ public class Analysis implements Serializable, AnalysisInterface {
                 TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedMethodFile.getParent());
             } else {
                 throw new TripoliException(
-                        "Method File not found: " + massSpecExtractedDataFull.getHeader().methodName()
+                        "Method File not found: " + massSpecExtractedData.getHeader().methodName()
                                 + "\n\n at location: " + Path.of(dataFilePathString).getParent().getParent().toString() + File.separator + "Methods");
             }
 
@@ -258,9 +242,8 @@ public class Analysis implements Serializable, AnalysisInterface {
     }
 
     public void initializeBlockProcessing() {
-        for (Integer blockID : massSpecExtractedDataFull.getBlocksData().keySet()) {
+        for (Integer blockID : massSpecExtractedData.getBlocksDataFull().keySet()) {
             mapOfBlockIdToProcessStatus.put(blockID, RUN);
-//            mapOfBlockIdToModelsBurnCount.put(blockID, 0);
             mapBlockIDToEnsembles.put(blockID, new ArrayList<>());
             mapOfBlockIdToRawData.put(blockID, null);
             mapOfBlockIdToFinalModel.put(blockID, null);
@@ -268,7 +251,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             if (null != analysisMethod) {
                 boolean[][] blockIncludedOnPeak = new boolean[analysisMethod.getSpeciesListSortedByMass().size()][];
                 for (int index = 0; index < blockIncludedOnPeak.length; index++) {
-                    boolean[] row = new boolean[massSpecExtractedDataFull.getBlocksData().get(blockID).onPeakIntensities().length];
+                    boolean[] row = new boolean[massSpecExtractedData.getBlocksDataFull().get(blockID).onPeakIntensities().length];
                     Arrays.fill(row, true);
                     blockIncludedOnPeak[index] = row;
                 }
@@ -282,7 +265,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         JAXBContext jaxbContext = JAXBContext.newInstance(PhoenixAnalysisMethod.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         PhoenixAnalysisMethod phoenixAnalysisMethod = (PhoenixAnalysisMethod) jaxbUnmarshaller.unmarshal(phoenixAnalysisMethodDataFilePath.toFile());
-        return AnalysisMethod.createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod, massSpecExtractedDataFull.getDetectorSetup(), massSpecExtractedDataFull.getMassSpectrometerContext());
+        return AnalysisMethod.createAnalysisMethodFromPhoenixAnalysisMethod(phoenixAnalysisMethod, massSpecExtractedData.getDetectorSetup(), massSpecExtractedData.getMassSpectrometerContext());
     }
 
 
@@ -402,17 +385,17 @@ public class Analysis implements Serializable, AnalysisInterface {
     public final String prettyPrintAnalysisMetaData() {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("%30s", "Mass Spectrometer: "))
-                .append(String.format("%-15s", massSpecExtractedDataFull.getMassSpectrometerContext().getMassSpectrometerName()))
-                .append(String.format("%-30s", "Context: " + massSpecExtractedDataFull.getMassSpectrometerContext().getName()));
-        if (0 == massSpecExtractedDataFull.getMassSpectrometerContext().compareTo(UNKNOWN)) {
+                .append(String.format("%-15s", massSpecExtractedData.getMassSpectrometerContext().getMassSpectrometerName()))
+                .append(String.format("%-30s", "Context: " + massSpecExtractedData.getMassSpectrometerContext().getName()));
+        if (0 == massSpecExtractedData.getMassSpectrometerContext().compareTo(UNKNOWN)) {
             sb.append("\n\n\n\t\t\t\t   >>>  Unable to parse data file.  <<<");
         } else {
-            sb.append(String.format("%30s", "Software Version: ")).append(massSpecExtractedDataFull.getHeader().softwareVersion())
-                    .append("\n").append(String.format("%30s", "File Name: ")).append(String.format("%-45s", massSpecExtractedDataFull.getHeader().filename()))
-                    .append(String.format("%30s", "Corrected?: ")).append(massSpecExtractedDataFull.getHeader().isCorrected())
-                    .append("\n").append(String.format("%30s", "Method Name: ")).append(String.format("%-45s", massSpecExtractedDataFull.getHeader().methodName()))
-                    .append(String.format("%30s", "BChannels?: ")).append(massSpecExtractedDataFull.getHeader().hasBChannels())
-                    .append("\n").append(String.format("%30s", "Time Zero: ")).append(String.format("%-45s", massSpecExtractedDataFull.getHeader().localDateTimeZero()));
+            sb.append(String.format("%30s", "Software Version: ")).append(massSpecExtractedData.getHeader().softwareVersion())
+                    .append("\n").append(String.format("%30s", "File Name: ")).append(String.format("%-45s", massSpecExtractedData.getHeader().filename()))
+                    .append(String.format("%30s", "Corrected?: ")).append(massSpecExtractedData.getHeader().isCorrected())
+                    .append("\n").append(String.format("%30s", "Method Name: ")).append(String.format("%-45s", massSpecExtractedData.getHeader().methodName()))
+                    .append(String.format("%30s", "BChannels?: ")).append(massSpecExtractedData.getHeader().hasBChannels())
+                    .append("\n").append(String.format("%30s", "Time Zero: ")).append(String.format("%-45s", massSpecExtractedData.getHeader().localDateTimeZero()));
         }
 
         return sb.toString();
@@ -420,25 +403,25 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public final String prettyPrintAnalysisDataSummary() {
         StringBuilder sb = new StringBuilder();
-        if (massSpecExtractedDataFull.getBlocksData().isEmpty()) {
+        if (massSpecExtractedData.getBlocksDataFull().isEmpty()) {
             sb.append("No data extracted.");
         } else {
             sb.append(String.format("%30s", "Column headers: "));
-            for (String header : massSpecExtractedDataFull.getColumnHeaders()) {
+            for (String header : massSpecExtractedData.getColumnHeaders()) {
                 sb.append(header + " ");
             }
             sb.append("\n");
             sb.append(String.format("%30s", "Block count: "))
-                    .append(String.format("%-3s", massSpecExtractedDataFull.getBlocksData().size()))
-                    .append(String.format("%-55s", "each with count of integrations for Baseline = " + massSpecExtractedDataFull.getBlocksData().get(1).baselineIDs().length))
-                    .append(String.format("%-30s", "and Onpeak = " + massSpecExtractedDataFull.getBlocksData().get(1).onPeakIDs().length));
+                    .append(String.format("%-3s", massSpecExtractedData.getBlocksDataFull().size()))
+                    .append(String.format("%-55s", "each with count of integrations for Baseline = " + massSpecExtractedData.getBlocksDataFull().get(1).baselineIDs().length))
+                    .append(String.format("%-30s", "and Onpeak = " + massSpecExtractedData.getBlocksDataFull().get(1).onPeakIDs().length));
             sb.append(String.format("\n%30s", "Baseline sequences: "));
-            Set<String> baselineNames = new TreeSet<>(List.of(massSpecExtractedDataFull.getBlocksData().get(1).baselineIDs()));
+            Set<String> baselineNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksDataFull().get(1).baselineIDs()));
             for (String baselineName : baselineNames) {
                 sb.append(baselineName + " ");
             }
             sb.append(String.format("\n%30s", "Onpeak sequences: "));
-            Set<String> onPeakNames = new TreeSet<>(List.of(massSpecExtractedDataFull.getBlocksData().get(1).onPeakIDs()));
+            Set<String> onPeakNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksDataFull().get(1).onPeakIDs()));
             for (String onPeakName : onPeakNames) {
                 sb.append(onPeakName + " ");
             }
@@ -451,7 +434,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         int[][] speciesIncludedCounts = new int[0][0];
         if (analysisMethod != null) {
             int speciesCount = analysisMethod.getSpeciesList().size();
-            int blockCount = massSpecExtractedDataFull.getBlocksData().size();
+            int blockCount = massSpecExtractedData.getBlocksDataFull().size();
             // 2 rows per species: 0 = total; 1 = included; column 0 is for totals
             speciesIncludedCounts = new int[2 * speciesCount][blockCount + 1];
             for (int blockID = 1; blockID <= blockCount; blockID++) {
@@ -500,7 +483,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     public final String produceReportTemplateOne() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append(massSpecExtractedDataFull.printHeader());
+        sb.append(massSpecExtractedData.printHeader());
 
         sb.append("Measurement Outputs - Fraction\n");
         sb.append("Name, Mean, Standard Error (1s abs), Number Included, Number Total\n");
@@ -597,12 +580,12 @@ public class Analysis implements Serializable, AnalysisInterface {
         this.analysisMethod = analysisMethod;
     }
 
-    public MassSpecExtractedDataFull getMassSpecExtractedData() {
-        return massSpecExtractedDataFull;
+    public MassSpecExtractedData getMassSpecExtractedData() {
+        return massSpecExtractedData;
     }
 
-    public void setMassSpecExtractedData(MassSpecExtractedDataFull massSpecExtractedDataFull) {
-        this.massSpecExtractedDataFull = massSpecExtractedDataFull;
+    public void setMassSpecExtractedData(MassSpecExtractedData massSpecExtractedData) {
+        this.massSpecExtractedData = massSpecExtractedData;
     }
 
     public AnalysisMethod getAnalysisMethod() {
