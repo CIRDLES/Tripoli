@@ -7,15 +7,15 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 import java.io.Serializable;
 import java.util.*;
 
-public class MassSpecExtractedData implements Serializable {
+public class MassSpecExtractedDataFull implements Serializable {
 
     private MassSpectrometerContextEnum massSpectrometerContext;
     private MassSpecExtractedHeader header;
     private String[] columnHeaders;
     private DetectorSetup detectorSetup;
-    private Map<Integer, MassSpecOutputSingleBlockRecord> blocksData;
+    private Map<Integer, MassSpecOutputBlockRecordFull> blocksData;
 
-    public MassSpecExtractedData() {
+    public MassSpecExtractedDataFull() {
         massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
         populateHeader(new ArrayList<>());
         populateColumnNamesList(new ArrayList<>());
@@ -23,8 +23,8 @@ public class MassSpecExtractedData implements Serializable {
         blocksData = new TreeMap<>();
     }
 
-    public void addBlockRecord(MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord) {
-        blocksData.put(massSpecOutputSingleBlockRecord.blockID(), massSpecOutputSingleBlockRecord);
+    public void addBlockRecord(MassSpecOutputBlockRecordFull massSpecOutputBlockRecordFull) {
+        blocksData.put(massSpecOutputBlockRecordFull.blockID(), massSpecOutputBlockRecordFull);
     }
 
     public void populateHeader(List<String[]> headerData) {
@@ -102,12 +102,12 @@ public class MassSpecExtractedData implements Serializable {
 
     public double[] calculateSessionTimes() {
         int totalSize = 0;
-        for (MassSpecOutputSingleBlockRecord blockRecord : blocksData.values()) {
+        for (MassSpecOutputBlockRecordFull blockRecord : blocksData.values()) {
             totalSize += blockRecord.onPeakTimeStamps().length;
         }
         double[] times = new double[totalSize];
         totalSize = 0;
-        for (MassSpecOutputSingleBlockRecord blockRecord : blocksData.values()) {
+        for (MassSpecOutputBlockRecordFull blockRecord : blocksData.values()) {
             double[] blockTimes = blockRecord.onPeakTimeStamps();
 
             System.arraycopy(blockTimes, 0, times, totalSize, blockTimes.length);
@@ -118,12 +118,12 @@ public class MassSpecExtractedData implements Serializable {
 
     public int[] assignBlockIdToSessionTime() {
         int totalSize = 0;
-        for (MassSpecOutputSingleBlockRecord blockRecord : blocksData.values()) {
+        for (MassSpecOutputBlockRecordFull blockRecord : blocksData.values()) {
             totalSize += blockRecord.onPeakTimeStamps().length;
         }
         int[] blockIDs = new int[totalSize];
         totalSize = 0;
-        for (MassSpecOutputSingleBlockRecord blockRecord : blocksData.values()) {
+        for (MassSpecOutputBlockRecordFull blockRecord : blocksData.values()) {
             double[] blockTimes = blockRecord.onPeakTimeStamps();
             Arrays.fill(blockIDs, totalSize, totalSize + blockTimes.length, blockRecord.blockID());
             totalSize += blockRecord.onPeakTimeStamps().length;
@@ -159,7 +159,7 @@ public class MassSpecExtractedData implements Serializable {
         this.detectorSetup = detectorSetup;
     }
 
-    public Map<Integer, MassSpecOutputSingleBlockRecord> getBlocksData() {
+    public Map<Integer, MassSpecOutputBlockRecordFull> getBlocksData() {
         return blocksData;
     }
 

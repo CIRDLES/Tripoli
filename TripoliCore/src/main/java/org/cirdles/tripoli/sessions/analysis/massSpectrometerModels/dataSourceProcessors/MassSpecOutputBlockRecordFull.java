@@ -36,7 +36,7 @@ import java.util.Map;
  * @param onPeakMasses
  * @param onPeakStartingIndicesOfCycles
  */
-public record MassSpecOutputSingleBlockRecord(
+public record MassSpecOutputBlockRecordFull(
         int blockID,
         double[][] baselineIntensities,
         String[] baselineIDs,

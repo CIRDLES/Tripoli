@@ -32,7 +32,7 @@ import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
@@ -534,8 +534,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         blockStatusHBox.getChildren().clear();
         if (analysis.getAnalysisMethod() != null) {
             var massSpecExtractedData = analysis.getMassSpecExtractedData();
-            Map<Integer, MassSpecOutputSingleBlockRecord> blocksData = massSpecExtractedData.getBlocksData();
-            for (MassSpecOutputSingleBlockRecord block : blocksData.values()) {
+            Map<Integer, MassSpecOutputBlockRecordFull> blocksData = massSpecExtractedData.getBlocksData();
+            for (MassSpecOutputBlockRecordFull block : blocksData.values()) {
                 Button blockStatusButton = blockStatusButtonFactory(block.blockID());
                 blockStatusHBox.getChildren().add(blockStatusButton);
             }

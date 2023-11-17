@@ -20,7 +20,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedDataFull;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
@@ -182,18 +182,18 @@ public class AnalysisMethod implements Serializable {
         return analysisMethod;
     }
 
-    public static String compareAnalysisMethodToDataFileSpecs(AnalysisMethod analysisMethod, MassSpecExtractedData massSpecExtractedData) {
+    public static String compareAnalysisMethodToDataFileSpecs(AnalysisMethod analysisMethod, MassSpecExtractedDataFull massSpecExtractedDataFull) {
         String retVal = "";
-        if (0 != analysisMethod.methodName.compareToIgnoreCase(massSpecExtractedData.getHeader().methodName())) {
+        if (0 != analysisMethod.methodName.compareToIgnoreCase(massSpecExtractedDataFull.getHeader().methodName())) {
             retVal += "Method name: " + analysisMethod.methodName + " differs from data file's method name. \n";
         }
 
-        Set<String> baselineNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksData().get(1).baselineIDs()));
+        Set<String> baselineNames = new TreeSet<>(List.of(massSpecExtractedDataFull.getBlocksData().get(1).baselineIDs()));
         if (analysisMethod.baselineTable.getSequenceCount() != baselineNames.size()) {
             retVal += "Baseline table has " + analysisMethod.baselineTable.getSequenceCount() + " sequences. \n";
         }
 
-        Set<String> onPeakNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksData().get(1).onPeakIDs()));
+        Set<String> onPeakNames = new TreeSet<>(List.of(massSpecExtractedDataFull.getBlocksData().get(1).onPeakIDs()));
         if (analysisMethod.sequenceTable.getSequenceCount() != onPeakNames.size()) {
             retVal += "Sequence table has " + analysisMethod.sequenceTable.getSequenceCount() + " sequences. \n";
         }
