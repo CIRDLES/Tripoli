@@ -27,12 +27,18 @@ public class SpeciesIntensityAnalysisBuilder extends PlotBuilder {
     private final double[][] baseLine;
     private final double[][] dfGain;
     private final int[] xAxisBlockIDs;
+    private final boolean showResiduals;
 
     private AnalysisInterface analysis;
     private boolean[][] onPeakDataIncludedAllBlocks;
+    private double[][] onPeakDataSignalNoiseArray;
 
-    protected SpeciesIntensityAnalysisBuilder(AnalysisInterface analysis, double[] xData, boolean[][] onPeakDataIncludedAllBlocks, int[] xAxisBlockIDs, double[][] yData, double[][] ampResistance, double[][] baseLine, double[][] dfGain, String[] title, String xAxisLabel, String yAxisLabel) {
+    protected SpeciesIntensityAnalysisBuilder(boolean showResiduals, AnalysisInterface analysis, double[] xData,
+                                              boolean[][] onPeakDataIncludedAllBlocks, int[] xAxisBlockIDs, double[][] yData,
+                                              double[][] ampResistance, double[][] baseLine, double[][] dfGain,
+                                              double[][] onPeakDataSignalNoiseArray, String[] title, String xAxisLabel, String yAxisLabel) {
         super(title, xAxisLabel, yAxisLabel, true);
+        this.showResiduals = showResiduals;
         this.analysis = analysis;
         this.xData = xData;
         this.xAxisBlockIDs = xAxisBlockIDs;
@@ -41,11 +47,15 @@ public class SpeciesIntensityAnalysisBuilder extends PlotBuilder {
         this.ampResistance = ampResistance;
         this.baseLine = baseLine;
         this.dfGain = dfGain;
+        this.onPeakDataSignalNoiseArray = onPeakDataSignalNoiseArray;
     }
 
     public static SpeciesIntensityAnalysisBuilder initializeSpeciesIntensityAnalysisPlot(
-            AnalysisInterface analysis, double[] xData, boolean[][] onPeakDataIncludedAllBlocks, int[] xAxisBlockIDs, double[][] yData, double[][] ampResistance, double[][] baseLine, double[][] dfGain, String[] title, String xAxisLabel, String yAxisLabel) {
-        return new SpeciesIntensityAnalysisBuilder(analysis, xData, onPeakDataIncludedAllBlocks, xAxisBlockIDs, yData, ampResistance, baseLine, dfGain, title, xAxisLabel, yAxisLabel);
+            boolean showResiduals, AnalysisInterface analysis, double[] xData, boolean[][] onPeakDataIncludedAllBlocks,
+            int[] xAxisBlockIDs, double[][] yData, double[][] ampResistance, double[][] baseLine, double[][] dfGain,
+            double[][] onPeakDataSignalNoiseArray, String[] title, String xAxisLabel, String yAxisLabel) {
+        return new SpeciesIntensityAnalysisBuilder(showResiduals, analysis, xData, onPeakDataIncludedAllBlocks,
+                xAxisBlockIDs, yData, ampResistance, baseLine, dfGain, onPeakDataSignalNoiseArray, title, xAxisLabel, yAxisLabel);
     }
 
     public AnalysisInterface getAnalysis() {
@@ -82,6 +92,14 @@ public class SpeciesIntensityAnalysisBuilder extends PlotBuilder {
 
     public double[][] getDfGain() {
         return dfGain;
+    }
+
+    public boolean isShowResiduals() {
+        return showResiduals;
+    }
+
+    public double[][] getOnPeakDataSignalNoiseArray() {
+        return onPeakDataSignalNoiseArray;
     }
 
     public record PlotSpecsSpeciesIntensityAnalysis(

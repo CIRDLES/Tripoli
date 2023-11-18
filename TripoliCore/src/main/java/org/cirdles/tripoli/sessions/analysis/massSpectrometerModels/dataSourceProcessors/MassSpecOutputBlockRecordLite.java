@@ -19,7 +19,6 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 import java.io.Serializable;
 
 /**
- *
  * @param blockID
  * @param timeStamps
  * @param cycleData

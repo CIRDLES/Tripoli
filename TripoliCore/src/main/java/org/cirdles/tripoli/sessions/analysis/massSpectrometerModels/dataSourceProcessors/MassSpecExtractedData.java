@@ -11,6 +11,21 @@ import java.io.Serializable;
 import java.util.*;
 
 public class MassSpecExtractedData implements Serializable {
+    private MassSpectrometerContextEnum massSpectrometerContext;
+    private MassSpecExtractedHeader header;
+    private String[] columnHeaders;
+    private DetectorSetup detectorSetup;
+    private Map<Integer, MassSpecOutputBlockRecordFull> blocksDataFull;
+    private Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite;
+    public MassSpecExtractedData() {
+        massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
+        populateHeader(new ArrayList<>());
+        populateColumnNamesList(new ArrayList<>());
+        populateDetectors(new ArrayList<>());
+        blocksDataFull = new TreeMap<>();
+        blocksDataLite = new TreeMap<>();
+    }
+
     private void readObject(ObjectInputStream stream) throws IOException,
             ClassNotFoundException {
         stream.defaultReadObject();
@@ -21,22 +36,6 @@ public class MassSpecExtractedData implements Serializable {
 
         System.out.println("Customized De-serialization of MassSpecExtractedData "
                 + theSUID);
-    }
-
-    private MassSpectrometerContextEnum massSpectrometerContext;
-    private MassSpecExtractedHeader header;
-    private String[] columnHeaders;
-    private DetectorSetup detectorSetup;
-    private Map<Integer, MassSpecOutputBlockRecordFull> blocksDataFull;
-    private Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite;
-
-    public MassSpecExtractedData() {
-        massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
-        populateHeader(new ArrayList<>());
-        populateColumnNamesList(new ArrayList<>());
-        populateDetectors(new ArrayList<>());
-        blocksDataFull = new TreeMap<>();
-        blocksDataLite = new TreeMap<>();
     }
 
     public void addBlockRecord(MassSpecOutputBlockRecordFull massSpecOutputBlockRecordFull) {

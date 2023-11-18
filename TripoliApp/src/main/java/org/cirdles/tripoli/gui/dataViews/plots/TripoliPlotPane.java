@@ -270,7 +270,8 @@ public class TripoliPlotPane extends Pane {
     }
 
     public void updateSpeciesPlotted(
-            boolean[] speciesChecked, boolean showFaradays, boolean showPMs, boolean showModels, TripoliConstants.IntensityUnits intensityUnits, boolean baselineCorr, boolean gainCorr, boolean logScale, boolean reScaleX, boolean reScaleY) {
+            boolean[] speciesChecked, boolean showFaradays, boolean showPMs, boolean showModels,
+            boolean showUncertainties, TripoliConstants.IntensityUnits intensityUnits, boolean baselineCorr, boolean gainCorr, boolean logScale, boolean reScaleX, boolean reScaleY) {
         if (!getChildren().isEmpty() && (getChildren().get(0) instanceof SpeciesIntensityAnalysisPlot)) {
             ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setSpeciesChecked(speciesChecked);
             ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setShowFaradays(showFaradays);
@@ -280,6 +281,7 @@ public class TripoliPlotPane extends Pane {
             ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setBaselineCorr(baselineCorr);
             ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setGainCorr(gainCorr);
             ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setLogScale(logScale);
+            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setShowUncertainties(showUncertainties);
 
             ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).refreshPanel(reScaleX, reScaleY);
         }

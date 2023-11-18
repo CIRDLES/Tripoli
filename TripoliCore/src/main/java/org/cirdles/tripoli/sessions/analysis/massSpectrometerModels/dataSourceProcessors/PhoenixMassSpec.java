@@ -257,7 +257,7 @@ public enum PhoenixMassSpec {
                             String[] lineSplit = line.split(",");
                             int blockID = (Integer.parseInt(lineSplit[0].trim()) - 1) / cyclesPerBlock + 1;
                             if (blockID != currentBlockID) {
-                                    dataByBlocks.add(dataByBlock);
+                                dataByBlocks.add(dataByBlock);
                                 massSpecExtractedData.addBlockLiteRecord(
                                         parseAndBuildSingleBlockTIMSDPRecord(currentBlockID, dataByBlocks.get(currentBlockID - 1)));
                                 currentBlockID++;

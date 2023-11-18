@@ -15,7 +15,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
-import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneOGTripoli;
+import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneIntensities;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
@@ -39,6 +39,9 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
     private final String tooltipTextExitSculpt = "Right Mouse to PAN, Double-click to EXIT Sculpting.";
     TripoliConstants.IntensityUnits intensityUnits = TripoliConstants.IntensityUnits.COUNTS;
     private double[][] yData;
+    private double[][] residuals;
+    private boolean showResiduals;
+    private boolean showUncertainties = false;
     private boolean[][] onPeakDataIncludedAllBlocks;
     private boolean[] speciesChecked;
     private boolean showFaradays;
@@ -58,6 +61,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
     private boolean showZoomBox;
     private double zoomBoxX;
     private double zoomBoxY;
+    private double[][] oneSigmaResiduals;
 
 
     private SpeciesIntensityAnalysisPlot(Rectangle bounds, SpeciesIntensityAnalysisBuilder speciesIntensityAnalysisBuilder) {
@@ -67,6 +71,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                 speciesIntensityAnalysisBuilder.getyAxisLabel());
         this.speciesIntensityAnalysisBuilder = speciesIntensityAnalysisBuilder;
         yDataCounts = speciesIntensityAnalysisBuilder.getyData();
+        residuals = new double[yDataCounts.length / 2][yDataCounts[0].length];
         ampResistance = speciesIntensityAnalysisBuilder.getAmpResistance();
         baseLine = speciesIntensityAnalysisBuilder.getBaseLine();
         dfGain = speciesIntensityAnalysisBuilder.getDfGain();
@@ -142,10 +147,15 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
         this.zoomFlagsXY = zoomFlagsXY;
     }
 
+    public void setShowUncertainties(boolean showUncertainties) {
+        this.showUncertainties = showUncertainties;
+    }
+
     @Override
     public void preparePanel(boolean reScaleXin, boolean reScaleYin) {
         boolean reScaleX = !inSculptorMode && reScaleXin;
         boolean reScaleY = !inSculptorMode && reScaleYin;
+        showResiduals = speciesIntensityAnalysisBuilder.isShowResiduals();
 
         xAxisData = speciesIntensityAnalysisBuilder.getxData();
         if (reScaleX) {
@@ -166,6 +176,17 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
 
         yData = new double[yDataCounts.length][yDataCounts[0].length];
         onPeakDataIncludedAllBlocks = speciesIntensityAnalysisBuilder.getOnPeakDataIncludedAllBlocks();
+
+        if (showResiduals) {
+            double[][] onPeakDataSignalNoiseArray = speciesIntensityAnalysisBuilder.getOnPeakDataSignalNoiseArray();
+            oneSigmaResiduals = new double[onPeakDataSignalNoiseArray.length][onPeakDataSignalNoiseArray[0].length];
+            for (int speciesIndex = 0; speciesIndex < onPeakDataSignalNoiseArray.length; speciesIndex++) {
+                for (int col = 0; col < onPeakDataSignalNoiseArray[0].length; col++) {
+                    oneSigmaResiduals[speciesIndex][col] = 2.0 * StrictMath.sqrt(onPeakDataSignalNoiseArray[speciesIndex][col]);
+                }
+            }
+        }
+
 
         for (int row = 0; row < yData.length; row++) {
             for (int col = 0; col < yData[0].length; col++) {
@@ -188,26 +209,42 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
 
         switch (intensityUnits) {
             case VOLTS -> {
-                plotAxisLabelY = "Intensity (volts)";
+                plotAxisLabelY = showResiduals ? "Residuals (volts)" : "Intensity (volts)";
                 for (int row = 0; row < yData.length; row++) {
                     yData[row] = TripoliConstants.IntensityUnits.convertFromCountsToVolts(yData[row], ampResistance[row / 4]);
+                    if (showResiduals) {
+                        oneSigmaResiduals[row] = TripoliConstants.IntensityUnits.convertFromCountsToVolts(oneSigmaResiduals[row], ampResistance[row / 4]);
+                    }
                 }
             }
             case AMPS -> {
-                plotAxisLabelY = "Intensity (amps)";
+                plotAxisLabelY = showResiduals ? "Residuals (amps)" : "Intensity (amps)";
                 for (int row = 0; row < yData.length; row++) {
                     yData[row] = TripoliConstants.IntensityUnits.convertFromCountsToAmps(yData[row]);
+                    if (showResiduals) {
+                        oneSigmaResiduals[row] = TripoliConstants.IntensityUnits.convertFromCountsToAmps(oneSigmaResiduals[row]);
+                    }
                 }
             }
             case COUNTS -> {
-                plotAxisLabelY = "Intensity (counts)";
+                plotAxisLabelY = showResiduals ? "Residuals (counts)" : "Intensity (counts)";
             }
         }
+
+        // calculate residuals for each faraday and pm == 2-tuples - yData has already been scaled, so residuals are too
+        for (int speciesIndex = 0; speciesIndex < residuals.length / 2; speciesIndex++) {
+            for (int col = 0; col < yData[0].length; col++) {
+                residuals[speciesIndex * 2][col] = yData[speciesIndex * 4][col] - yData[speciesIndex * 4 + 1][col];
+                residuals[speciesIndex * 2 + 1][col] = yData[speciesIndex * 4 + 2][col] - yData[speciesIndex * 4 + 3][col];
+            }
+        }
+
 
         if (reScaleY) {
             minY = Double.MAX_VALUE;
             maxY = -Double.MAX_VALUE;
 
+            // todo: separate loops
             for (int row = 0; row < yData.length; row++) {
                 int speciesIndex = (row / 4);
                 if (speciesChecked[speciesIndex]) {
@@ -215,8 +252,13 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                     boolean plotPMs = (showPMs && (row >= speciesIndex * 4 + 2) && (row <= speciesIndex * 4 + 3));
                     for (int col = 0; col < yData[row].length; col++) {
                         if (!Double.isNaN(yData[row][col]) && (0.0 != yData[row][col]) && (plotFaradays || plotPMs)) {
-                            minY = min(minY, yData[row][col]);
-                            maxY = max(maxY, yData[row][col]);
+                            if (showResiduals) {
+                                minY = min(minY, residuals[row / 2][col] - oneSigmaResiduals[speciesIndex][col]);
+                                maxY = max(maxY, residuals[row / 2][col] + oneSigmaResiduals[speciesIndex][col]);
+                            } else {
+                                minY = min(minY, yData[row][col]);
+                                maxY = max(maxY, yData[row][col]);
+                            }
                         }
                     }
                 }
@@ -226,9 +268,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
         }
 
         if (logScale) {
-            plotAxisLabelY = "Log-" + speciesIntensityAnalysisBuilder.getyAxisLabel();
-        } else {
-            plotAxisLabelY = speciesIntensityAnalysisBuilder.getyAxisLabel();
+            plotAxisLabelY = "Log-" + plotAxisLabelY;
         }
 
         prepareExtents(reScaleX, reScaleY);
@@ -302,9 +342,16 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                     g2d.setFill(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).darker());
                     g2d.setStroke(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).darker());
                     for (int i = 0; i < xAxisData.length; i++) {
-                        if ((0.0 != yData[isotopePlotSetIndex * 4 + 2][i]) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 2][i])) {
+                        if ((0.0 != yData[isotopePlotSetIndex * 4 + 2][i])
+                                && (pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 2][i])
+                                || pointInPlot(xAxisData[i], residuals[isotopePlotSetIndex * 2 + 1][i]))) {
                             double dataX = mapX(xAxisData[i]);
-                            double dataY = mapY(yData[isotopePlotSetIndex * 4 + 2][i]);
+                            double dataY = 0.0;
+                            if (showResiduals) {
+                                dataY = mapY(residuals[isotopePlotSetIndex * 2 + 1][i]);
+                            } else {
+                                dataY = mapY(yData[isotopePlotSetIndex * 4 + 2][i]);
+                            }
                             if (onPeakDataIncludedAllBlocks[isotopePlotSetIndex][i]) {
                                 g2d.fillOval(dataX - 2.0, Math.abs(dataY) - 2.0, 4, 4);
                             } else {
@@ -312,10 +359,17 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                                 g2d.fillOval(dataX - 2.0, Math.abs(dataY) - 2.0, 4, 4);
                                 g2d.setFill(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).darker());
                             }
+                            if (showResiduals && showUncertainties) {
+                                g2d.setLineWidth(0.5);
+                                g2d.strokeLine(dataX,
+                                        mapY(Math.max(residuals[isotopePlotSetIndex * 2 + 1][i] - oneSigmaResiduals[isotopePlotSetIndex][i], minY)),
+                                        dataX,
+                                        mapY(Math.min(residuals[isotopePlotSetIndex * 2 + 1][i] + oneSigmaResiduals[isotopePlotSetIndex][i], maxY)));
+                            }
                         }
 
                         g2d.setLineWidth(2.0);
-                        if (showModels) {
+                        if (showModels && !showResiduals) {
                             if ((i < xAxisData.length - 1) && (yData[isotopePlotSetIndex * 4 + 3][i] != 0.0)) {
                                 if ((0.0 != yData[isotopePlotSetIndex * 4 + 3][i]) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 3][i])) {
                                     if (!startedPlot) {
@@ -344,9 +398,16 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                     g2d.setFill(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).brighter());
                     g2d.setStroke(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).brighter());
                     for (int i = 0; i < xAxisData.length; i++) {
-                        if ((0.0 != yData[isotopePlotSetIndex * 4][i]) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4][i])) {
+                        if ((0.0 != yData[isotopePlotSetIndex * 4][i])
+                                && (pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4][i])
+                                || pointInPlot(xAxisData[i], residuals[isotopePlotSetIndex * 2][i]))) {
                             double dataX = mapX(xAxisData[i]);
-                            double dataY = mapY(yData[isotopePlotSetIndex * 4][i]);
+                            double dataY = 0.0;
+                            if (showResiduals) {
+                                dataY = mapY(residuals[isotopePlotSetIndex * 2][i]);
+                            } else {
+                                dataY = mapY(yData[isotopePlotSetIndex * 4][i]);
+                            }
                             if (onPeakDataIncludedAllBlocks[isotopePlotSetIndex][i]) {
                                 g2d.fillOval(dataX - 2.0, Math.abs(dataY) - 2.0, 4, 4);
                             } else {
@@ -354,10 +415,16 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                                 g2d.fillOval(dataX - 2.0, Math.abs(dataY) - 2.0, 4, 4);
                                 g2d.setFill(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).brighter());
                             }
+                            if (showResiduals && showUncertainties) {
+                                g2d.setLineWidth(0.5);
+                                g2d.strokeLine(dataX,
+                                        mapY(Math.max(residuals[isotopePlotSetIndex * 2][i] - oneSigmaResiduals[isotopePlotSetIndex][i], minY)),
+                                        dataX,
+                                        mapY(Math.min(residuals[isotopePlotSetIndex * 2][i] + oneSigmaResiduals[isotopePlotSetIndex][i], maxY)));
+                            }
                         }
 
-                        if (showModels) {
-                            // TODO: make this 10.0 more robust for finding block separations
+                        if (showModels && !showResiduals) {
                             if ((i < xAxisData.length - 1) && (yData[isotopePlotSetIndex * 4 + 1][i] != 0.0)) {
                                 if ((0.0 != yData[isotopePlotSetIndex * 4 + 1][i]) && pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 1][i])) {
                                     if (!startedPlot) {
@@ -472,13 +539,23 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                         if (speciesChecked[sculptedSpeciesIndex]) {
                             // faraday
                             if (0.0 != yData[sculptedSpeciesIndex * 4][countOfPreviousBlockIncludedData + i - 1]) {
-                                minY = Math.min(minY, yData[sculptedSpeciesIndex * 4][countOfPreviousBlockIncludedData + i - 1]);
-                                maxY = Math.max(maxY, yData[sculptedSpeciesIndex * 4][countOfPreviousBlockIncludedData + i - 1]);
+                                if (showResiduals) {
+                                    minY = min(minY, residuals[sculptedSpeciesIndex * 2][countOfPreviousBlockIncludedData + i - 1]);
+                                    maxY = max(maxY, residuals[sculptedSpeciesIndex * 2][countOfPreviousBlockIncludedData + i - 1]);
+                                } else {
+                                    minY = Math.min(minY, yData[sculptedSpeciesIndex * 4][countOfPreviousBlockIncludedData + i - 1]);
+                                    maxY = Math.max(maxY, yData[sculptedSpeciesIndex * 4][countOfPreviousBlockIncludedData + i - 1]);
+                                }
                             }
                             // photoMultiplier
                             if (0.0 != yData[sculptedSpeciesIndex * 4 + 2][countOfPreviousBlockIncludedData + i - 1]) {
-                                minY = Math.min(minY, yData[sculptedSpeciesIndex * 4 + 2][countOfPreviousBlockIncludedData + i - 1]);
-                                maxY = Math.max(maxY, yData[sculptedSpeciesIndex * 4 + 2][countOfPreviousBlockIncludedData + i - 1]);
+                                if (showResiduals) {
+                                    minY = min(minY, residuals[sculptedSpeciesIndex * 1][countOfPreviousBlockIncludedData + i - 1]);
+                                    maxY = max(maxY, residuals[sculptedSpeciesIndex * 1][countOfPreviousBlockIncludedData + i - 1]);
+                                } else {
+                                    minY = Math.min(minY, yData[sculptedSpeciesIndex * 4 + 2][countOfPreviousBlockIncludedData + i - 1]);
+                                    maxY = Math.max(maxY, yData[sculptedSpeciesIndex * 4 + 2][countOfPreviousBlockIncludedData + i - 1]);
+                                }
                             }
                         }
                     }
@@ -544,15 +621,15 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                         zoomBoxX = mouseStartX;
                         zoomBoxY = mouseStartY;
                         refreshPanel(true, true);
-                        ((PlotWallPaneOGTripoli) getParent().getParent()).removeSculptingHBox();
+                        ((PlotWallPaneIntensities) getParent().getParent()).removeSculptingHBox();
                         tooltip.setText(tooltipTextSculpt);
                     } else {
                         inZoomBoxMode = false;
                         showZoomBox = false;
-                        ((PlotWallPaneOGTripoli) getParent().getParent()).removeSculptingHBox();
+                        ((PlotWallPaneIntensities) getParent().getParent()).removeSculptingHBox();
                         if (0 < Booleans.countTrue(speciesChecked)) {
                             sculptBlockID = determineSculptBlock(mouseEvent.getX());
-                            ((PlotWallPaneOGTripoli) getParent().getParent()).builtSculptingHBox(
+                            ((PlotWallPaneIntensities) getParent().getParent()).builtSculptingHBox(
                                     "Intensity Sculpting " + "  >> " + tooltipTextExitSculpt);
                             sculptBlock(mouseInBlockLabel(mouseEvent.getX(), mouseEvent.getY()));
                             tooltip.setText(tooltipTextExitSculpt);
@@ -745,20 +822,20 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                         for (int index = indexLeft + 1; index < indexRight; index++) {
                             if ((0 <= (index - countOfPreviousBlockIncludedData)) && ((index - countOfPreviousBlockIncludedData) < includedPeakData.length)) {
                                 // faraday
-                                if ((yData[isotopeIndex * 4][index] < intensityTop) && (yData[isotopeIndex * 4][index] > intensityBottom) && (0.0 != yData[isotopeIndex * 4][index])) {
+                                if ((((yData[isotopeIndex * 4][index] < intensityTop) && (yData[isotopeIndex * 4][index] > intensityBottom) && !showResiduals)
+                                        || ((residuals[isotopeIndex * 2][index] < intensityTop) && (residuals[isotopeIndex * 2][index] > intensityBottom) && showResiduals))
+                                        && (0.0 != yData[isotopeIndex * 4][index])) {
                                     onPeakDataIncludedAllBlocks[isotopeIndex][index] = !onPeakDataIncludedAllBlocks[isotopeIndex][index];
                                     statusList.add(onPeakDataIncludedAllBlocks[isotopeIndex][index]);
-
-                                    includedPeakData[index - countOfPreviousBlockIncludedData]
-                                            = !includedPeakData[index - countOfPreviousBlockIncludedData];
+                                    includedPeakData[index - countOfPreviousBlockIncludedData] = !includedPeakData[index - countOfPreviousBlockIncludedData];
                                 }
                                 // photoMultiplier
-                                if ((yData[isotopeIndex * 4 + 2][index] < intensityTop) && (yData[isotopeIndex * 4 + 2][index] > intensityBottom) && (0.0 != yData[isotopeIndex * 4 + 2][index])) {
+                                if ((((yData[isotopeIndex * 4 + 2][index] < intensityTop) && (yData[isotopeIndex * 4 + 2][index] > intensityBottom) && !showResiduals)
+                                        || ((residuals[isotopeIndex * 2 + 1][index] < intensityTop) && (residuals[isotopeIndex * 2 + 1][index] > intensityBottom) && showResiduals))
+                                        && (0.0 != yData[isotopeIndex * 4 + 2][index])) {
                                     onPeakDataIncludedAllBlocks[isotopeIndex][index] = !onPeakDataIncludedAllBlocks[isotopeIndex][index];
                                     statusList.add(onPeakDataIncludedAllBlocks[isotopeIndex][index]);
-
-                                    includedPeakData[index - countOfPreviousBlockIncludedData]
-                                            = !includedPeakData[index - countOfPreviousBlockIncludedData];
+                                    includedPeakData[index - countOfPreviousBlockIncludedData] = !includedPeakData[index - countOfPreviousBlockIncludedData];
                                 }
                             }
                         }

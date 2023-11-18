@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -22,6 +21,11 @@
                     <content>
                         <AnchorPane fx:id="ogtSpeciesIntensitiesPlotAnchorPane"
                                     style="-fx-background-color: lightgrey;"/>
+                    </content>
+                </Tab>
+                <Tab closable="false" text="OnPeak Residuals by Time">
+                    <content>
+                        <AnchorPane fx:id="ogtSpeciesResidualsPlotAnchorPane" style="-fx-background-color: lightgrey;"/>
                     </content>
                 </Tab>
             </tabs>

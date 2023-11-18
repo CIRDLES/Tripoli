@@ -48,11 +48,24 @@ public record SingleBlockModelRecord(
         return onPeakDataModelFaradayArray;
     }
 
+    public double[] getOnPeakFaradayDataSignalNoiseArray(int countOfBaselineDataEntries, int countOfFaradayDataEntries) {
+        double[] onPeakDataSignalNoiseArray = new double[countOfFaradayDataEntries];
+        System.arraycopy(dataSignalNoiseArray, countOfBaselineDataEntries, onPeakDataSignalNoiseArray, 0, countOfFaradayDataEntries);
+        return onPeakDataSignalNoiseArray;
+    }
+
     public double[] getOnPeakDataModelPhotoMultiplierArray(int countOfBaselineDataEntries, int countOfFaradayDataEntries) {
         double[] onPeakDataModelPhotoMultiplierArray = new double[countOfFaradayDataEntries];
         System.arraycopy(dataModelArray, countOfBaselineDataEntries + countOfFaradayDataEntries,
                 onPeakDataModelPhotoMultiplierArray, 0, dataModelArray.length - countOfBaselineDataEntries - countOfFaradayDataEntries);
         return onPeakDataModelPhotoMultiplierArray;
+    }
+
+    public double[] getOnPeakPhotoMultiplierDataSignalNoiseArray(int countOfBaselineDataEntries, int countOfFaradayDataEntries) {
+        double[] onPeakPhotoMultiplierDataSignalNoiseArray = new double[countOfFaradayDataEntries];
+        System.arraycopy(dataSignalNoiseArray, countOfBaselineDataEntries + countOfFaradayDataEntries,
+                onPeakPhotoMultiplierDataSignalNoiseArray, 0, dataSignalNoiseArray.length - countOfBaselineDataEntries - countOfFaradayDataEntries);
+        return onPeakPhotoMultiplierDataSignalNoiseArray;
     }
 
     public int sizeOfModel() {
