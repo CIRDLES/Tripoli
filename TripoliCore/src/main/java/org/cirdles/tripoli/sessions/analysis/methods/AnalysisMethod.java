@@ -188,12 +188,12 @@ public class AnalysisMethod implements Serializable {
             retVal += "Method name: " + analysisMethod.methodName + " differs from data file's method name. \n";
         }
 
-        Set<String> baselineNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksData().get(1).baselineIDs()));
+        Set<String> baselineNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksDataFull().get(1).baselineIDs()));
         if (analysisMethod.baselineTable.getSequenceCount() != baselineNames.size()) {
             retVal += "Baseline table has " + analysisMethod.baselineTable.getSequenceCount() + " sequences. \n";
         }
 
-        Set<String> onPeakNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksData().get(1).onPeakIDs()));
+        Set<String> onPeakNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksDataFull().get(1).onPeakIDs()));
         if (analysisMethod.sequenceTable.getSequenceCount() != onPeakNames.size()) {
             retVal += "Sequence table has " + analysisMethod.sequenceTable.getSequenceCount() + " sequences. \n";
         }

@@ -118,26 +118,10 @@ public class Analysis implements Serializable, AnalysisInterface {
                     new boolean[analysisMethod.getSpeciesList().size()], true, true, true, true, true, false);
         }
     }
-//
-//    public SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis getPlotSpecsSpeciesIntensityAnalysis() {
-//        return plotSpecsSpeciesIntensityAnalysis;
-//    }
-//
-//    public void setPlotSpecsSpeciesIntensityAnalysis(SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis plotSpecsSpeciesIntensityAnalysis) {
-//        this.plotSpecsSpeciesIntensityAnalysis = plotSpecsSpeciesIntensityAnalysis;
-//    }
 
     public void setAnalysisSpeciesStats(DescriptiveStatistics[] analysisSpeciesStats) {
         this.analysisSpeciesStats = analysisSpeciesStats;
     }
-
-//    public boolean[] calcDataIncluded() {
-//        int baseLineCount = mapOfBlockIdToRawData.get(1).baselineDataSetMCMC().intensityAccumulatorList().size();
-//        int faradayCount = mapOfBlockIdToRawData.get(1).onPeakFaradayDataSetMCMC().intensityAccumulatorList().size();
-//        int photoMultiplierCount = mapOfBlockIdToRawData.get(1).onPeakPhotoMultiplierDataSetMCMC().intensityAccumulatorList().size();
-//        boolean[] dataIncluded = new boolean[baseLineCount + faradayCount + photoMultiplierCount];
-//        return dataIncluded;
-//    }
 
     public Map<Integer, List<EnsemblesStore.EnsembleRecord>> getMapBlockIDToEnsembles() {
         return mapBlockIDToEnsembles;
@@ -258,9 +242,8 @@ public class Analysis implements Serializable, AnalysisInterface {
     }
 
     public void initializeBlockProcessing() {
-        for (Integer blockID : massSpecExtractedData.getBlocksData().keySet()) {
+        for (Integer blockID : massSpecExtractedData.getBlocksDataFull().keySet()) {
             mapOfBlockIdToProcessStatus.put(blockID, RUN);
-//            mapOfBlockIdToModelsBurnCount.put(blockID, 0);
             mapBlockIDToEnsembles.put(blockID, new ArrayList<>());
             mapOfBlockIdToRawData.put(blockID, null);
             mapOfBlockIdToFinalModel.put(blockID, null);
@@ -268,7 +251,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             if (null != analysisMethod) {
                 boolean[][] blockIncludedOnPeak = new boolean[analysisMethod.getSpeciesListSortedByMass().size()][];
                 for (int index = 0; index < blockIncludedOnPeak.length; index++) {
-                    boolean[] row = new boolean[massSpecExtractedData.getBlocksData().get(blockID).onPeakIntensities().length];
+                    boolean[] row = new boolean[massSpecExtractedData.getBlocksDataFull().get(blockID).onPeakIntensities().length];
                     Arrays.fill(row, true);
                     blockIncludedOnPeak[index] = row;
                 }
@@ -420,7 +403,7 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public final String prettyPrintAnalysisDataSummary() {
         StringBuilder sb = new StringBuilder();
-        if (massSpecExtractedData.getBlocksData().isEmpty()) {
+        if (massSpecExtractedData.getBlocksDataFull().isEmpty()) {
             sb.append("No data extracted.");
         } else {
             sb.append(String.format("%30s", "Column headers: "));
@@ -429,16 +412,16 @@ public class Analysis implements Serializable, AnalysisInterface {
             }
             sb.append("\n");
             sb.append(String.format("%30s", "Block count: "))
-                    .append(String.format("%-3s", massSpecExtractedData.getBlocksData().size()))
-                    .append(String.format("%-55s", "each with count of integrations for Baseline = " + massSpecExtractedData.getBlocksData().get(1).baselineIDs().length))
-                    .append(String.format("%-30s", "and Onpeak = " + massSpecExtractedData.getBlocksData().get(1).onPeakIDs().length));
+                    .append(String.format("%-3s", massSpecExtractedData.getBlocksDataFull().size()))
+                    .append(String.format("%-55s", "each with count of integrations for Baseline = " + massSpecExtractedData.getBlocksDataFull().get(1).baselineIDs().length))
+                    .append(String.format("%-30s", "and Onpeak = " + massSpecExtractedData.getBlocksDataFull().get(1).onPeakIDs().length));
             sb.append(String.format("\n%30s", "Baseline sequences: "));
-            Set<String> baselineNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksData().get(1).baselineIDs()));
+            Set<String> baselineNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksDataFull().get(1).baselineIDs()));
             for (String baselineName : baselineNames) {
                 sb.append(baselineName + " ");
             }
             sb.append(String.format("\n%30s", "Onpeak sequences: "));
-            Set<String> onPeakNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksData().get(1).onPeakIDs()));
+            Set<String> onPeakNames = new TreeSet<>(List.of(massSpecExtractedData.getBlocksDataFull().get(1).onPeakIDs()));
             for (String onPeakName : onPeakNames) {
                 sb.append(onPeakName + " ");
             }
@@ -451,7 +434,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         int[][] speciesIncludedCounts = new int[0][0];
         if (analysisMethod != null) {
             int speciesCount = analysisMethod.getSpeciesList().size();
-            int blockCount = massSpecExtractedData.getBlocksData().size();
+            int blockCount = massSpecExtractedData.getBlocksDataFull().size();
             // 2 rows per species: 0 = total; 1 = included; column 0 is for totals
             speciesIncludedCounts = new int[2 * speciesCount][blockCount + 1];
             for (int blockID = 1; blockID <= blockCount; blockID++) {

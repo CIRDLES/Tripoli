@@ -36,7 +36,7 @@ import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_MICHAELANGE
 /**
  * @author James F. Bowring
  */
-public class PlotWallPaneOGTripoli extends Pane implements PlotWallPaneInterface {
+public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterface {
 
     public static final double gridCellDim = 2.0;
     public static double menuOffset = 30.0;
@@ -58,8 +58,9 @@ public class PlotWallPaneOGTripoli extends Pane implements PlotWallPaneInterface
 
     private ToolBar scaleControlsToolbar;
     private CheckBox[] speciesCheckBoxes;
+    private boolean showUncertainties = false;
 
-    private PlotWallPaneOGTripoli(String iD) {
+    private PlotWallPaneIntensities(String iD) {
         this.iD = iD;
         zoomFlagsXY[0] = true;
         zoomFlagsXY[1] = true;
@@ -67,9 +68,9 @@ public class PlotWallPaneOGTripoli extends Pane implements PlotWallPaneInterface
 
     public static PlotWallPaneInterface createPlotWallPane(String iD) {
         if (iD == null) {
-            return new PlotWallPaneOGTripoli("NONE");
+            return new PlotWallPaneIntensities("NONE");
         } else {
-            return new PlotWallPaneOGTripoli(iD);
+            return new PlotWallPaneIntensities(iD);
         }
     }
 
@@ -117,7 +118,7 @@ public class PlotWallPaneOGTripoli extends Pane implements PlotWallPaneInterface
         // not used
     }
 
-    public void buildOGTripoliToolBar(List<SpeciesRecordInterface> species) {
+    public void buildIntensitiesPlotToolBar(boolean showResiduals, List<SpeciesRecordInterface> species) {
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);
         speciesChecked = new boolean[species.size()];
@@ -157,14 +158,25 @@ public class PlotWallPaneOGTripoli extends Pane implements PlotWallPaneInterface
                     rebuildPlot(false, true);
                 });
 
-        CheckBox showModel = new CheckBox("Model");
-        showModel.setSelected(true);
-        toolBar.getItems().add(showModel);
-        showModel.selectedProperty().addListener(
-                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
-                    showModels = newVal;
-                    rebuildPlot(false, false);
-                });
+        if (showResiduals) {
+            CheckBox showUnct = new CheckBox("Unct");
+            showUnct.setSelected(false);
+            toolBar.getItems().add(showUnct);
+            showUnct.selectedProperty().addListener(
+                    (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                        showUncertainties = newVal;
+                        rebuildPlot(false, false);
+                    });
+        } else {
+            CheckBox showModel = new CheckBox("Model");
+            showModel.setSelected(true);
+            toolBar.getItems().add(showModel);
+            showModel.selectedProperty().addListener(
+                    (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                        showModels = newVal;
+                        rebuildPlot(false, false);
+                    });
+        }
 
         Label labelViews = new Label("Units:");
         labelViews.setAlignment(Pos.CENTER_RIGHT);
@@ -356,7 +368,8 @@ public class PlotWallPaneOGTripoli extends Pane implements PlotWallPaneInterface
     private void rebuildPlot(boolean reScaleX, boolean reScaleY) {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
-                ((TripoliPlotPane) plotPane).updateSpeciesPlotted(speciesChecked, showFaradays, showPMs, showModels, intensityUnits, baselineCorr, gainCorr, logScale, reScaleX, reScaleY);
+                ((TripoliPlotPane) plotPane).updateSpeciesPlotted(
+                        speciesChecked, showFaradays, showPMs, showModels, showUncertainties, intensityUnits, baselineCorr, gainCorr, logScale, reScaleX, reScaleY);
             }
         }
     }

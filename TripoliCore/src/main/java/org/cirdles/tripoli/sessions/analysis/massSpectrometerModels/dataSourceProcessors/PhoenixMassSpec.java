@@ -200,6 +200,7 @@ public enum PhoenixMassSpec {
     public static MassSpecExtractedData extractDataFromFileVersion_2_TIMSDP(Path inputDataFile) throws IOException {
         MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
         List<String> contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
+        List<List<String>> dataByBlocks = new ArrayList<>();
         // test for version 1.20
         if ((!contentsByLine.get(2).trim().startsWith("Version,1.")) && (!contentsByLine.get(2).trim().startsWith("Version,2."))) {
             throw new IOException("Expecting Version 1.2.n of data file.");
@@ -208,7 +209,6 @@ public enum PhoenixMassSpec {
             List<String[]> headerByLineSplit = new ArrayList<>();
             List<String[]> detectorsByLineSplit = new ArrayList<>();
             List<String[]> columnNamesSplit = new ArrayList<>();
-            List<List<String>> dataByBlocks = new ArrayList<>();
             List<String> dataByBlock = new ArrayList<>();
 
             int phase = 0;
@@ -218,10 +218,11 @@ public enum PhoenixMassSpec {
                     if (line.startsWith("#COLLECTORS")) {
                         massSpecExtractedData.populateHeader(headerByLineSplit);
                         phase = 1;
-                    } else if (line.startsWith("#SAMPLELIST")) {
-                        massSpecExtractedData.populateDetectors(detectorsByLineSplit);
-                        phase = -1;
                     } else if (line.startsWith("#USERTABLES")) {
+                        massSpecExtractedData.populateDetectors(detectorsByLineSplit); // indeterminate location
+                        phase = -1;
+                    } else if (line.startsWith("#SAMPLELIST")) {
+                        massSpecExtractedData.populateDetectors(detectorsByLineSplit); // indeterminate location
                         phase = -1;
                     } else if (line.startsWith("#BASELINES")) {
                         phase = -1;
@@ -229,7 +230,7 @@ public enum PhoenixMassSpec {
                         phase = 3;
                     } else if (line.startsWith("#BLOCKS")) {
                         phase = 8;
-                    }else if (line.startsWith("#SUMMARY")) {
+                    } else if (line.startsWith("#SUMMARY")) {
                         phase = -1;
                     } else if (line.startsWith("#FUNCTIONS")) {
                         phase = -1;
@@ -238,7 +239,8 @@ public enum PhoenixMassSpec {
                     }
 
                     switch (phase) {
-                        case -1 -> {}
+                        case -1 -> {
+                        }
                         case 0 -> headerByLineSplit.add(line.split(","));
                         case 1 -> phase = 2;
                         case 2 -> detectorsByLineSplit.add(line.split(","));
@@ -250,50 +252,35 @@ public enum PhoenixMassSpec {
                         }
                         case 6 -> phase = 7;
                         case 7 -> phase = 8;
-//CyclesToMeasure,12
-                        case 55 -> {
-
-                        }
-                        case 5, 8 -> {
+                        case 5 -> {
+                            int cyclesPerBlock = massSpecExtractedData.getHeader().cyclesPerBlock();
                             String[] lineSplit = line.split(",");
-                            int blockID = (Integer.parseInt(lineSplit[0].trim()) - 1) / 12 + 1;
+                            int blockID = (Integer.parseInt(lineSplit[0].trim()) - 1) / cyclesPerBlock + 1;
                             if (blockID != currentBlockID) {
-                                //  save off block and prepare for next block new for BL and add to for OPeak
-                                if (8 == phase) {
-                                    dataByBlocks.get(currentBlockID - 1).addAll(dataByBlock);
-                                    massSpecExtractedData.addBlockRecord(
-                                            parseAndBuildSingleBlockRecord(2, currentBlockID, dataByBlocks.get(currentBlockID - 1)));
-                                } else {
-                                    dataByBlocks.add(dataByBlock);
-                                }
+                                dataByBlocks.add(dataByBlock);
+                                massSpecExtractedData.addBlockLiteRecord(
+                                        parseAndBuildSingleBlockTIMSDPRecord(currentBlockID, dataByBlocks.get(currentBlockID - 1)));
+                                currentBlockID++;
                                 dataByBlock = new ArrayList<>();
-                                currentBlockID = blockID;
+                                dataByBlock.add(line);
+                            } else {
+                                dataByBlock.add(line);
                             }
-                            dataByBlock.add(line);
+                        }
+                        case 8 -> {
+                            dataByBlocks.add(dataByBlock);
+                            massSpecExtractedData.addBlockLiteRecord(
+                                    parseAndBuildSingleBlockTIMSDPRecord(currentBlockID, dataByBlocks.get(currentBlockID - 1)));
+                            phase = -1;
                         }
                     }
-                } else if ((5 == phase) && !dataByBlock.isEmpty()) {
-                    // clean up last block
-                    dataByBlocks.add(dataByBlock);
-                    dataByBlock = new ArrayList<>();
-                    currentBlockID = 1;
-                } else if ((8 == phase) && !dataByBlock.isEmpty()) {
-                    // clean up last block
-                    // check for missing baseline action
-                    if (dataByBlocks.isEmpty()) {
-                        dataByBlocks.add(dataByBlock);
-                    } else {
-                        dataByBlocks.get(currentBlockID - 1).addAll(dataByBlock);
-                    }
-                    massSpecExtractedData.addBlockRecord(
-                            parseAndBuildSingleBlockRecord(2, currentBlockID, dataByBlocks.get(currentBlockID - 1)));
                 }
             }
         }
         return massSpecExtractedData;
     }
 
-    private static MassSpecOutputSingleBlockRecord parseAndBuildSingleBlockRecord(int version, int blockNumber, List<String> blockData) {
+    private static MassSpecOutputBlockRecordFull parseAndBuildSingleBlockRecord(int version, int blockNumber, List<String> blockData) {
         List<String> sequenceIDByLineSplit = new ArrayList<>();
         List<String> cycleNumberByLineSplit = new ArrayList<>();
         List<String> integrationNumberByLineSplit = new ArrayList<>();
@@ -301,8 +288,8 @@ public enum PhoenixMassSpec {
         List<String> massByLineSplit = new ArrayList<>();
         List<String[]> detectorDataByLineSplit = new ArrayList<>();
 
-        // version 1:  ID,Block,Cycle,Integ,Time,Mass,Low5,Low4,Low3,Low2,Ax Fara,Axial,High1,High2,High3,High4
-        // version 2:  ID,Block,Cycle,Integ,PeakID,AxMass,Time,PM,RS,L5,L4,L3,L2,Ax,H1,H2,H3,H4
+        // version 1:  PhoenixFull_Synthetic ID,Block,Cycle,Integ,Time,Mass,DATA[Low5,Low4,Low3,Low2,Ax Fara,Axial,High1,High2,High3,High4]
+        // version 2:  PhoenixFull ID,Block,Cycle,Integ,PeakID,AxMass,Time,DATA[PM,RS,L5,L4,L3,L2,Ax,H1,H2,H3,H4]
         for (String line : blockData) {
             String[] lineSplit = line.split(",");
             sequenceIDByLineSplit.add(lineSplit[0].trim());
@@ -323,7 +310,50 @@ public enum PhoenixMassSpec {
                 detectorDataByLineSplit);
     }
 
-    private static MassSpecOutputSingleBlockRecord buildSingleBlockRecord(
+    private static MassSpecOutputBlockRecordLite parseAndBuildSingleBlockTIMSDPRecord(int blockNumber, List<String> blockData) {
+        List<String> cycleNumberByLineSplit = new ArrayList<>();
+        List<String> timeStampByLineSplit = new ArrayList<>();
+        List<String[]> cycleDataByLineSplit = new ArrayList<>();
+        // version 1:  PhoenixTIMSDP Cycle,Time, DATA[custom fields]
+        for (String line : blockData) {
+            String[] lineSplit = line.split(",");
+            cycleNumberByLineSplit.add(lineSplit[0].trim());
+            timeStampByLineSplit.add(lineSplit[1].trim());
+            cycleDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 2, lineSplit.length));
+        }
+
+        return buildSingleBlockTIMSDPRecord(
+                blockNumber,
+                cycleNumberByLineSplit,
+                timeStampByLineSplit,
+                cycleDataByLineSplit);
+    }
+
+    private static MassSpecOutputBlockRecordLite buildSingleBlockTIMSDPRecord(
+            int blockID,
+            List<String> cycleNumberByLineSplit,
+            List<String> timeStampByLineSplit,
+            List<String[]> cycleDataByLineSplit) {
+
+        int[] cycleNumbers = convertListOfNumbersAsStringsToIntegerArray(cycleNumberByLineSplit);
+        double[] timeStamps = convertListOfNumbersAsStringsToDoubleArray(timeStampByLineSplit);
+        double[][] cycleData = new double[cycleDataByLineSplit.size()][];
+        int index = 0;
+        for (String[] numbersAsStrings : cycleDataByLineSplit) {
+            cycleData[index] = Arrays.stream(numbersAsStrings)
+                    .mapToDouble(Double::parseDouble)
+                    .toArray();
+            index++;
+        }
+
+        return new MassSpecOutputBlockRecordLite(
+                blockID,
+                cycleNumbers,
+                timeStamps,
+                cycleData);
+    }
+
+    private static MassSpecOutputBlockRecordFull buildSingleBlockRecord(
             int blockID,
             List<String> sequenceIDByLineSplit,
             List<String> cycleNumberByLineSplit,
@@ -407,7 +437,7 @@ public enum PhoenixMassSpec {
             }
         }
 
-        return new MassSpecOutputSingleBlockRecord(
+        return new MassSpecOutputBlockRecordFull(
                 blockID,
                 baselineIntensities,
                 baselineIDs,

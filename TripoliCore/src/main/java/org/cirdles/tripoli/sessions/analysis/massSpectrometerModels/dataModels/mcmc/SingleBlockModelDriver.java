@@ -21,7 +21,7 @@ import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.SingleBlockModelInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputSingleBlockRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
@@ -66,21 +66,21 @@ public enum SingleBlockModelDriver {
 
     public static SingleBlockRawDataSetRecord prepareSingleBlockDataForMCMC(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) {
         SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = null;
-        MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord = massSpecExtractedData.getBlocksData().get(blockNumber);
-        if (massSpecOutputSingleBlockRecord != null) {
+        MassSpecOutputBlockRecordFull massSpecOutputBlockRecordFull = massSpecExtractedData.getBlocksDataFull().get(blockNumber);
+        if (massSpecOutputBlockRecordFull != null) {
             Primitive64Store blockKnotInterpolationStore;
             if (analysisMethod.isUseLinearKnots()) {
                 // TODO: the following line invokes a replication of the linear knots from Burdick's matlab code
-                blockKnotInterpolationStore = generateLinearKnotsMatrixReplicaOfBurdickMatLab(massSpecOutputSingleBlockRecord);
+                blockKnotInterpolationStore = generateLinearKnotsMatrixReplicaOfBurdickMatLab(massSpecOutputBlockRecordFull);
             } else {
-                blockKnotInterpolationStore = generateKnotsMatrixForBlock(massSpecOutputSingleBlockRecord, 3);
+                blockKnotInterpolationStore = generateKnotsMatrixForBlock(massSpecOutputBlockRecordFull, 3);
             }
             SingleBlockRawDataSetRecord.SingleBlockRawDataRecord baselineDataSetMCMC =
-                    SingleBlockDataAccumulatorMCMC.accumulateBaselineDataPerBaselineTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod);
+                    SingleBlockDataAccumulatorMCMC.accumulateBaselineDataPerBaselineTableSpecs(massSpecOutputBlockRecordFull, analysisMethod);
             SingleBlockRawDataSetRecord.SingleBlockRawDataRecord onPeakFaradayDataSetMCMC =
-                    SingleBlockDataAccumulatorMCMC.accumulateOnPeakDataPerSequenceTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod, true);
+                    SingleBlockDataAccumulatorMCMC.accumulateOnPeakDataPerSequenceTableSpecs(massSpecOutputBlockRecordFull, analysisMethod, true);
             SingleBlockRawDataSetRecord.SingleBlockRawDataRecord onPeakPhotoMultiplierDataSetMCMC =
-                    SingleBlockDataAccumulatorMCMC.accumulateOnPeakDataPerSequenceTableSpecs(massSpecOutputSingleBlockRecord, analysisMethod, false);
+                    SingleBlockDataAccumulatorMCMC.accumulateOnPeakDataPerSequenceTableSpecs(massSpecOutputBlockRecordFull, analysisMethod, false);
 
             List<Integer> cycleList = new ArrayList<>();
             cycleList.addAll(baselineDataSetMCMC.cycleAccumulatorList());
@@ -112,7 +112,7 @@ public enum SingleBlockModelDriver {
             blockTimeIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC.timeIndexAccumulatorList());
             int[] blockTimeIndicesArray = blockTimeIndicesList.stream().mapToInt(i -> i).toArray();
 
-            int[] onPeakStartingIndicesOfCycles = massSpecOutputSingleBlockRecord.onPeakStartingIndicesOfCycles();
+            int[] onPeakStartingIndicesOfCycles = massSpecOutputBlockRecordFull.onPeakStartingIndicesOfCycles();
 
             Map<String, List<Double>> blockMapIdsToDataTimes = new TreeMap<>();
             for (String id : onPeakFaradayDataSetMCMC.blockMapOfIdsToData().keySet()) {
@@ -151,14 +151,14 @@ public enum SingleBlockModelDriver {
     }
 
     private static Primitive64Store generateKnotsMatrixForBlock(
-            MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord, int basisDegree) {
+            MassSpecOutputBlockRecordFull massSpecOutputBlockRecordFull, int basisDegree) {
 
-        int knotCount = massSpecOutputSingleBlockRecord.onPeakStartingIndicesOfCycles().length + 1;
-        double[] timeStamps = massSpecOutputSingleBlockRecord.onPeakTimeStamps();
+        int knotCount = massSpecOutputBlockRecordFull.onPeakStartingIndicesOfCycles().length + 1;
+        double[] timeStamps = massSpecOutputBlockRecordFull.onPeakTimeStamps();
 
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         Primitive64Store bBaseOutput = SplineBasisModel.bBase(
-                storeFactory.rows(massSpecOutputSingleBlockRecord.onPeakTimeStamps()),
+                storeFactory.rows(massSpecOutputBlockRecordFull.onPeakTimeStamps()),
                 timeStamps[0],
                 timeStamps[timeStamps.length - 1],
                 knotCount - basisDegree,
@@ -167,16 +167,16 @@ public enum SingleBlockModelDriver {
         return bBaseOutput;
     }
 
-    private static Primitive64Store generateLinearKnotsMatrixReplicaOfBurdickMatLab(MassSpecOutputSingleBlockRecord massSpecOutputSingleBlockRecord) {
+    private static Primitive64Store generateLinearKnotsMatrixReplicaOfBurdickMatLab(MassSpecOutputBlockRecordFull massSpecOutputBlockRecordFull) {
         // build InterpMat for block using linear approach
         // the general approach for a block is to create a knot at the start of each cycle and
         // linearly interpolate between knots to create fractional placement of each recorded timestamp
         // which takes the form of (1 - fractional distance of time with knot range, fractional distance of time with knot range)
 
-        int[] onPeakStartingIndicesOfCycles = massSpecOutputSingleBlockRecord.onPeakStartingIndicesOfCycles();
+        int[] onPeakStartingIndicesOfCycles = massSpecOutputBlockRecordFull.onPeakStartingIndicesOfCycles();
         int cycleCount = onPeakStartingIndicesOfCycles.length;
         int knotCount = cycleCount + 1;
-        int onPeakDataEntriesCount = massSpecOutputSingleBlockRecord.onPeakCycleNumbers().length;
+        int onPeakDataEntriesCount = massSpecOutputBlockRecordFull.onPeakCycleNumbers().length;
 
         double[][] interpMatArrayForBlock = new double[knotCount][onPeakDataEntriesCount];
         for (int cycleIndex = 0; cycleIndex < cycleCount; cycleIndex++) {
@@ -191,7 +191,7 @@ public enum SingleBlockModelDriver {
                 startOfNextCycleIndex = onPeakStartingIndicesOfCycles[cycleIndex + 1];
             }
 
-            double[] timeStamp = massSpecOutputSingleBlockRecord.onPeakTimeStamps();
+            double[] timeStamp = massSpecOutputBlockRecordFull.onPeakTimeStamps();
             int countOfEntries = onPeakStartingIndicesOfCycles[cycleIndex] - onPeakStartingIndicesOfCycles[0];
             double deltaTimeStamp = timeStamp[startOfNextCycleIndex] - timeStamp[startOfCycleIndex];
 

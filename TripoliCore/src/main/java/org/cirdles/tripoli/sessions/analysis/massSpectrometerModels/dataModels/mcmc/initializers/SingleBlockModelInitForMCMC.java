@@ -477,7 +477,7 @@ public enum SingleBlockModelInitForMCMC {
                         eTmp[ii] = calcError(singleBlockRawDataSetRecord.blockRawDataArray(), dataModel, dataSignalNoiseArray_Dsig);
                         minETmp = Math.min(eTmp[ii], minETmp);
                     } catch (Exception e) {
-                        System.err.println("Dsig error during init line 302");
+                        System.err.println("Dsig error during init line 476");
                     }
                 }
                 logRatioVar[logRatioIndex] = Math.max(calcVariance(eTmp, minETmp, testLR), minvarLR);
