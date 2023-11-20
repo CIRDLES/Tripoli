@@ -84,8 +84,6 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
     @FXML
     private AnchorPane ensemblePlotsAnchorPane;
     @FXML
-    private AnchorPane dataFitPlotsAnchorPane;
-    @FXML
     private AnchorPane beamShapeAnchorPane;
     @FXML
     private AnchorPane ratioSessionAnchorPane;
@@ -121,7 +119,6 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
             convergeErrorPlotsAnchorPane.setMinWidth((Double) newValue);
             convergeIntensityAnchorPane.setMinWidth((Double) newValue);
             ensemblePlotsAnchorPane.setMinWidth((Double) newValue);
-            dataFitPlotsAnchorPane.setMinWidth((Double) newValue);
             ratioSessionAnchorPane.setMinWidth((Double) newValue);
             beamShapeAnchorPane.setMinWidth((Double) newValue);
             peakAnalysisAnchorPane.setMinWidth((Double) newValue);
@@ -132,7 +129,6 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
             convergeErrorPlotsAnchorPane.setMinHeight(((Double) newValue) - TOOLBAR_HEIGHT);
             convergeIntensityAnchorPane.setMinHeight((Double) newValue - TOOLBAR_HEIGHT);
             ensemblePlotsAnchorPane.setMinHeight((Double) newValue - TOOLBAR_HEIGHT);
-            dataFitPlotsAnchorPane.setMinHeight((Double) newValue - TOOLBAR_HEIGHT);
             ratioSessionAnchorPane.setMinHeight((Double) newValue - TOOLBAR_HEIGHT);
             beamShapeAnchorPane.setMinHeight((Double) newValue - TOOLBAR_HEIGHT);
             peakAnalysisAnchorPane.setMinHeight((Double) newValue - TOOLBAR_HEIGHT);
@@ -353,9 +349,6 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
         PlotBuilder[] convergeErrRawMisfitBuilder = plotBuildersTask.getConvergeErrRawMisfitLineBuilder();
         PlotBuilder[] convergeErrWeightedMisfitBuilder = plotBuildersTask.getConvergeErrWeightedMisfitLineBuilder();
         PlotBuilder[] convergeIntensityLinesBuilder = plotBuildersTask.getConvergeIntensityLinesBuilder();
-        PlotBuilder[] observedDataPlotBuilder = plotBuildersTask.getObservedDataLineBuilder();
-        PlotBuilder[] observedDataWithSubsetsLineBuilder = plotBuildersTask.getObservedDataWithSubsetsLineBuilder();
-        PlotBuilder[] residualDataPlotBuilder = plotBuildersTask.getResidualDataLineBuilder();
 
         PlotBuilder[] peakShapeOverlayBuilder = plotBuildersTask.getPeakShapesBuilder();
 
@@ -432,25 +425,6 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
 
 
         plotEnsemblesEngine(((MCMCPlotBuildersTask) plotBuildersTask).getPlotBuilders());
-
-
-        if (dataFitPlotsAnchorPane.getChildren().isEmpty()) {
-            dataFitPlotsWallPane = (PlotWallPane) PlotWallPane.createPlotWallPane(null, analysis, this, null);
-            dataFitPlotsWallPane.buildToolBar();
-            dataFitPlotsWallPane.setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
-            dataFitPlotsWallPane.prefWidthProperty().bind(dataFitPlotsAnchorPane.widthProperty());
-            dataFitPlotsWallPane.prefHeightProperty().bind(dataFitPlotsAnchorPane.heightProperty());
-            dataFitPlotsWallPane.setToolBarCount(2);
-            dataFitPlotsWallPane.setToolBarHeight(35.0);
-            dataFitPlotsAnchorPane.getChildren().add(dataFitPlotsWallPane);
-        } else {
-            dataFitPlotsWallPane = (PlotWallPane) dataFitPlotsAnchorPane.getChildren().get(0);
-            dataFitPlotsWallPane.clearTripoliPanes();
-        }
-        produceTripoliBasicScatterAndLinePlots(observedDataPlotBuilder, dataFitPlotsWallPane);
-        produceTripoliBasicScatterAndLinePlots(observedDataWithSubsetsLineBuilder, dataFitPlotsWallPane);
-        produceTripoliBasicScatterAndLinePlots(residualDataPlotBuilder, dataFitPlotsWallPane);
-        dataFitPlotsWallPane.stackPlots();
 
         if (beamShapeAnchorPane.getChildren().isEmpty()) {
             peakShapeOverlayPlotWallPane = (PlotWallPane) PlotWallPane.createPlotWallPane(null, analysis, this, null);

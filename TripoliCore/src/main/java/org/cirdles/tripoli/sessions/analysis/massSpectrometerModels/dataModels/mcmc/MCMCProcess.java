@@ -731,6 +731,6 @@ x=x0;
 //                    .put(singleBlockCurrentModelRecord_X.blockID(), (bestSingleBlockModelRecord == null) ? singleBlockCurrentModelRecord_X : bestSingleBlockModelRecord);
 //        }
 
-        return SingleBlockDataModelPlot.analysisAndPlotting(singleBlockCurrentModelRecord_X.blockID(), analysis);
+        return SingleBlockDataModelPlotter.analysisAndPlotting(singleBlockCurrentModelRecord_X.blockID(), analysis);
     }
 }

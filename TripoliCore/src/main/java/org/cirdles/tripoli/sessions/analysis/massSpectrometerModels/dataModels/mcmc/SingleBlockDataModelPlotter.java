@@ -35,7 +35,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 /**
  * @author James F. Bowring
  */
-public enum SingleBlockDataModelPlot {
+public enum SingleBlockDataModelPlotter {
     ;
 
     public synchronized static PlotBuilder[][] analysisAndPlotting(
@@ -205,21 +205,21 @@ public enum SingleBlockDataModelPlot {
         }
 
 
-        double[] dataOriginalCounts = singleBlockRawDataSetRecord.blockRawDataArray().clone();
-        double[] yDataResiduals = new double[dataOriginalCounts.length];
+//        double[] dataOriginalCounts = singleBlockRawDataSetRecord.blockRawDataArray().clone();
+//        double[] yDataResiduals = new double[dataOriginalCounts.length];
 
-        Arrays.sort(integrationTimes);
-        for (int i = 0; i < dataOriginalCounts.length; i++) {
-            yDataResiduals[i] = dataOriginalCounts[i] - dataArray[i];
-        }
-
-        plotBuilders[13][0] = ComboPlotBuilder.initializeLinePlot(
-                integrationTimes, dataOriginalCounts, dataArray, new String[]{"Observed Data"}, "Integration Time (secs)", "Intensity");
-        plotBuilders[15][0] = ComboPlotBuilder.initializeLinePlotWithSubsets(
-                integrationTimes, dataOriginalCounts, dataArray, singleBlockRawDataSetRecord.blockMapIdsToDataTimes(),
-                new String[]{"Observed Data by Sequence"}, "Integration Time (secs)", "Intensity");
-        plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(
-                integrationTimes, yDataResiduals, dataCountsModelOneSigma_Dsig, new String[]{"Residual Data"}, "Integration Time (secs)", "Intensity");
+//        Arrays.sort(integrationTimes);
+//        for (int i = 0; i < dataOriginalCounts.length; i++) {
+//            yDataResiduals[i] = dataOriginalCounts[i] - dataArray[i];
+//        }
+//
+//        plotBuilders[13][0] = ComboPlotBuilder.initializeLinePlot(
+//                integrationTimes, dataOriginalCounts, dataArray, new String[]{"Observed Data"}, "Integration Time (secs)", "Intensity");
+//        plotBuilders[15][0] = ComboPlotBuilder.initializeLinePlotWithSubsets(
+//                integrationTimes, dataOriginalCounts, dataArray, singleBlockRawDataSetRecord.blockMapIdsToDataTimes(),
+//                new String[]{"Observed Data by Sequence"}, "Integration Time (secs)", "Intensity");
+//        plotBuilders[14][0] = ComboPlotBuilder.initializeLinePlotWithOneSigma(
+//                integrationTimes, yDataResiduals, dataCountsModelOneSigma_Dsig, new String[]{"Residual Data"}, "Integration Time (secs)", "Intensity");
 
         return plotBuilders;
     }

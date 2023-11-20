@@ -33,13 +33,9 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     private PlotBuilder[] ratiosHistogramBuilder;
     private PlotBuilder[] baselineHistogramBuilder;
     private PlotBuilder[] dalyFaradayGainHistogramBuilder;
-    private PlotBuilder[] signalNoiseHistogramBuilder;
     private PlotBuilder[] meanIntensityVsKnotsMultiLineBuilder;
 
     private PlotBuilder[] convergeRatioLineBuilder;
-
-    private PlotBuilder[] observedDataLineBuilder;
-    private PlotBuilder[] residualDataLineBuilder;
 
     private PlotBuilder[] convergeBLFaradayLineBuilder;
 
@@ -48,9 +44,6 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
 
     private PlotBuilder[] convergeIntensityLinesBuilder;
 
-    private PlotBuilder[] convergeNoiseFaradayLineBuilder;
-
-    private PlotBuilder[] observedDataWithSubsetsLineBuilder;
     private PlotBuilder[] peakShapesBuilder;
 
     // TODO: refactor to all plotBuilders
@@ -74,38 +67,8 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
     }
 
     @Override
-    public PlotBuilder[] getRatiosHistogramBuilder() {
-        return ratiosHistogramBuilder.clone();
-    }
-
-    @Override
-    public PlotBuilder[] getBaselineHistogramBuilder() {
-        return baselineHistogramBuilder.clone();
-    }
-
-    @Override
-    public PlotBuilder[] getDalyFaradayGainHistogramBuilder() {
-        return dalyFaradayGainHistogramBuilder.clone();
-    }
-
-    @Override
-    public PlotBuilder[] getMeanIntensityVsKnotsMultiLineBuilder() {
-        return meanIntensityVsKnotsMultiLineBuilder.clone();
-    }
-
-    @Override
     public PlotBuilder[] getConvergeRatioLineBuilder() {
         return convergeRatioLineBuilder.clone();
-    }
-
-    @Override
-    public PlotBuilder[] getObservedDataLineBuilder() {
-        return observedDataLineBuilder.clone();
-    }
-
-    @Override
-    public PlotBuilder[] getResidualDataLineBuilder() {
-        return residualDataLineBuilder.clone();
     }
 
     @Override
@@ -128,10 +91,6 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         return convergeIntensityLinesBuilder;
     }
 
-    public PlotBuilder[] getObservedDataWithSubsetsLineBuilder() {
-        return observedDataWithSubsetsLineBuilder;
-    }
-
     @Override
     public synchronized String call() throws Exception {
         plotBuilders = analysis.updatePlotsByBlock(blockID, this);
@@ -149,13 +108,6 @@ public class MCMCPlotBuildersTask extends Task<String> implements LoggingCallbac
         convergeErrWeightedMisfitLineBuilder = plotBuilders[8];
         convergeErrRawMisfitLineBuilder = plotBuilders[9];
         convergeIntensityLinesBuilder = plotBuilders[10];
-
-        //convergeNoiseFaradayLineBuilder = plotBuilders[11];
-
-        observedDataLineBuilder = plotBuilders[13];
-        residualDataLineBuilder = plotBuilders[14];
-
-        observedDataWithSubsetsLineBuilder = plotBuilders[15];
 
         return analysis.getDataFilePathString() + "Block # " + blockID + "\n\n\tDONE - view tabs for various plotBuilders";
     }
