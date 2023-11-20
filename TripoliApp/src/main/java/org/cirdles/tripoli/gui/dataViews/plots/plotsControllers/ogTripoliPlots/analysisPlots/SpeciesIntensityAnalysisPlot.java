@@ -182,7 +182,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
             oneSigmaResiduals = new double[onPeakDataSignalNoiseArray.length][onPeakDataSignalNoiseArray[0].length];
             for (int speciesIndex = 0; speciesIndex < onPeakDataSignalNoiseArray.length; speciesIndex++) {
                 for (int col = 0; col < onPeakDataSignalNoiseArray[0].length; col++) {
-                    oneSigmaResiduals[speciesIndex][col] = 2.0 * StrictMath.sqrt(onPeakDataSignalNoiseArray[speciesIndex][col]);
+                    oneSigmaResiduals[speciesIndex][col] = 2.0 * sqrt(onPeakDataSignalNoiseArray[speciesIndex][col]);
                 }
             }
         }
@@ -361,10 +361,16 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                             }
                             if (showResiduals && showUncertainties) {
                                 g2d.setLineWidth(0.5);
+//                                g2d.strokeLine(dataX,
+//                                        mapY(Math.max(residuals[isotopePlotSetIndex * 2 + 1][i] - oneSigmaResiduals[isotopePlotSetIndex][i], minY)),
+//                                        dataX,
+//                                        mapY(Math.min(residuals[isotopePlotSetIndex * 2 + 1][i] + oneSigmaResiduals[isotopePlotSetIndex][i], maxY)));
+
+                                g2d.setStroke(Color.BLACK);
                                 g2d.strokeLine(dataX,
-                                        mapY(Math.max(residuals[isotopePlotSetIndex * 2 + 1][i] - oneSigmaResiduals[isotopePlotSetIndex][i], minY)),
+                                        mapY(Math.max(0.0 - oneSigmaResiduals[isotopePlotSetIndex][i], minY)),
                                         dataX,
-                                        mapY(Math.min(residuals[isotopePlotSetIndex * 2 + 1][i] + oneSigmaResiduals[isotopePlotSetIndex][i], maxY)));
+                                        mapY(Math.min(0.0 + oneSigmaResiduals[isotopePlotSetIndex][i], maxY)));
                             }
                         }
 
@@ -417,10 +423,16 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                             }
                             if (showResiduals && showUncertainties) {
                                 g2d.setLineWidth(0.5);
+//                                g2d.strokeLine(dataX,
+//                                        mapY(Math.max(residuals[isotopePlotSetIndex * 2][i] - oneSigmaResiduals[isotopePlotSetIndex][i], minY)),
+//                                        dataX,
+//                                        mapY(Math.min(residuals[isotopePlotSetIndex * 2][i] + oneSigmaResiduals[isotopePlotSetIndex][i], maxY)));
+
+                                g2d.setStroke(Color.BLACK);
                                 g2d.strokeLine(dataX,
-                                        mapY(Math.max(residuals[isotopePlotSetIndex * 2][i] - oneSigmaResiduals[isotopePlotSetIndex][i], minY)),
+                                        mapY(Math.max(0.0 - oneSigmaResiduals[isotopePlotSetIndex][i], minY)),
                                         dataX,
-                                        mapY(Math.min(residuals[isotopePlotSetIndex * 2][i] + oneSigmaResiduals[isotopePlotSetIndex][i], maxY)));
+                                        mapY(Math.min(0.0 + oneSigmaResiduals[isotopePlotSetIndex][i], maxY)));
                             }
                         }
 

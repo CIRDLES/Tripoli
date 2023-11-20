@@ -7,21 +7,7 @@ public interface MCMCPlotBuildersTaskInterface {
 
     PlotBuilder[] getPeakShapesBuilder();
 
-    PlotBuilder[] getRatiosHistogramBuilder();
-
-    PlotBuilder[] getBaselineHistogramBuilder();
-
-    PlotBuilder[] getDalyFaradayGainHistogramBuilder();
-
-//    PlotBuilder[] getSignalNoiseHistogramBuilder();
-
-    PlotBuilder[] getMeanIntensityVsKnotsMultiLineBuilder();
-
     PlotBuilder[] getConvergeRatioLineBuilder();
-
-    PlotBuilder[] getObservedDataLineBuilder();
-
-    PlotBuilder[] getResidualDataLineBuilder();
 
     PlotBuilder[] getConvergeBLFaradayLineBuilder();
 
@@ -30,10 +16,6 @@ public interface MCMCPlotBuildersTaskInterface {
     PlotBuilder[] getConvergeErrRawMisfitLineBuilder();
 
     PlotBuilder[] getConvergeIntensityLinesBuilder();
-
-//    PlotBuilder[] getConvergeNoiseFaradayLineBuilder();
-
-    PlotBuilder[] getObservedDataWithSubsetsLineBuilder();
 
     String call() throws Exception;
 
