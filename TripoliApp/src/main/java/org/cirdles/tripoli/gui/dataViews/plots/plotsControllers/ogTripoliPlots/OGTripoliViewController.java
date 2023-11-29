@@ -219,6 +219,7 @@ public class OGTripoliViewController {
 
             if (null != singleBlockModelRecords[blockIndex]) {
                 Integer blockID = singleBlockModelRecords[blockIndex].blockID();
+                DataExporter.exportData(analysis, blockID);
                 double[] onPeakTimeStamps = blocksData.get(blockID).onPeakTimeStamps();
 
                 SingleBlockModelRecord singleBlockModelRecord = singleBlockModelRecords[blockIndex];

@@ -360,7 +360,7 @@ public enum SingleBlockModelInitForMCMC {
                     } else {
                         ddd[dataArrayIndex] = intensityFn.get(intensityIndex, 0);
                     }
-                    dataSignalNoiseArray_Dsig[dataArrayIndex] = ddd[dataArrayIndex] / reportInterval;
+                    dataSignalNoiseArray_Dsig[dataArrayIndex] = ddd[dataArrayIndex] / reportInterval * 2.0;// TODO: per PI discussion 21 Nov 2023
                 } else {
                     if (isotopeIndex < logRatios.length) {
                         ddd[dataArrayIndex] = StrictMath.exp(logRatios[isotopeIndex]) * (1.0 / detectorFaradayGain) * intensityFn.get(intensityIndex, 0);

@@ -106,6 +106,12 @@ public enum SingleBlockModelDriver {
             blockIsotopeOrdinalIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC.isotopeOrdinalIndicesAccumulatorList());
             int[] blockIsotopeOrdinalIndicesArray = blockIsotopeOrdinalIndicesList.stream().mapToInt(i -> i).toArray();
 
+            List<Double> blockTimeList = new ArrayList<>();
+            blockTimeList.addAll(baselineDataSetMCMC.timeAccumulatorList());
+            blockTimeList.addAll(onPeakFaradayDataSetMCMC.timeAccumulatorList());
+            blockTimeList.addAll(onPeakPhotoMultiplierDataSetMCMC.timeAccumulatorList());
+            double[] blockTimeArray = blockTimeList.stream().mapToDouble(i -> i).toArray();
+
             List<Integer> blockTimeIndicesList = new ArrayList<>();
             blockTimeIndicesList.addAll(baselineDataSetMCMC.timeIndexAccumulatorList());
             blockTimeIndicesList.addAll(onPeakFaradayDataSetMCMC.timeIndexAccumulatorList());
@@ -144,7 +150,7 @@ public enum SingleBlockModelDriver {
 
             singleBlockRawDataSetRecord =
                     new SingleBlockRawDataSetRecord(blockNumber, baselineDataSetMCMC, onPeakFaradayDataSetMCMC, onPeakPhotoMultiplierDataSetMCMC, blockKnotInterpolationStore.toRawCopy2D(),
-                            blockCycleArray, blockRawDataArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeIndicesArray,
+                            blockTimeArray, blockCycleArray, blockRawDataArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeIndicesArray,
                             onPeakStartingIndicesOfCycles, mapOfSpeciesToActiveCycles, blockMapIdsToDataTimes);
         }
         return singleBlockRawDataSetRecord;

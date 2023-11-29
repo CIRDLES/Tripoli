@@ -67,7 +67,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                     for (Integer index : baselineIndices) {
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
                         // TODO: Revisit this
-                        double intensity = roundedToSize(baselineIntensities[index][detectorDataColumnIndex], 6);
+                        double intensity = roundedToSize(baselineIntensities[index][detectorDataColumnIndex], 12);
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
                         if (MassSpectrometerContextEnum.PHOENIX_FULL == analysisMethod.getMassSpectrometerContext()) {
                             // convert all volts to counts to bring all files into alignment
@@ -75,7 +75,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                         }
                         cycleAccumulatorList.add(baseLineCycleNumbers[index]);
                         intensityAccumulatorList.add(intensity);
-                        timeAccumulatorList.add(baseLineTimeStamps[index]);
+                        timeAccumulatorList.add(0.0);//TODO: Scott's code has 0s here baseLineTimeStamps[index]);
                         timeIndexAccumulatorList.add(index);
                         isotopeOrdinalIndicesAccumulatorList.add(0);
                     }
@@ -132,7 +132,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                     for (Integer index : onPeakIndices) {
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
                         // TODO: revisit this
-                        double intensity = roundedToSize(onPeakIntensities[index][detectorDataColumnIndex], 10);
+                        double intensity = roundedToSize(onPeakIntensities[index][detectorDataColumnIndex], 12);
                         cycleAccumulatorList.add(onPeakCycleNumbers[index]);
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
                         if (MassSpectrometerContextEnum.PHOENIX_FULL == analysisMethod.getMassSpectrometerContext() && isFaraday) {

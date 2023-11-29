@@ -31,7 +31,7 @@ public record SingleBlockRawDataSetRecord(
         SingleBlockRawDataRecord onPeakFaradayDataSetMCMC,
         SingleBlockRawDataRecord onPeakPhotoMultiplierDataSetMCMC,
         double[][] blockKnotInterpolationArray,
-        int[] blockCycleArray,
+        double[] blockTimeArray, int[] blockCycleArray,
         double[] blockRawDataArray,
         int[] blockDetectorOrdinalIndicesArray,
         int[] blockIsotopeOrdinalIndicesArray,
