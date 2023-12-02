@@ -47,6 +47,7 @@ public enum SingleBlockDataAccumulatorMCMC {
         List<Double> timeAccumulatorList = new ArrayList<>();
         List<Integer> timeIndexAccumulatorList = new ArrayList<>();
         List<Integer> isotopeOrdinalIndicesAccumulatorList = new ArrayList<>();
+        List<Boolean> includedIntensitiesList = new ArrayList<>();
         Map<String, List<Double>> blockMapOfSequenceIdsToData = new TreeMap<>();
 
         int[] baseLineCycleNumbers = massSpecOutputBlockRecordFull.baselineCycleNumbers();
@@ -78,6 +79,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                         timeAccumulatorList.add(0.0);//TODO: Scott's code has 0s here baseLineTimeStamps[index]);
                         timeIndexAccumulatorList.add(index);
                         isotopeOrdinalIndicesAccumulatorList.add(0);
+                        includedIntensitiesList.add(false);
                     }
                 }
             }
@@ -91,6 +93,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                 timeAccumulatorList,
                 timeIndexAccumulatorList,
                 isotopeOrdinalIndicesAccumulatorList,
+                includedIntensitiesList,
                 blockMapOfSequenceIdsToData
         );
     }
@@ -107,6 +110,7 @@ public enum SingleBlockDataAccumulatorMCMC {
         List<Double> timeAccumulatorList = new ArrayList<>();
         List<Integer> timeIndexAccumulatorList = new ArrayList<>();
         List<Integer> isotopeOrdinalIndicesAccumulatorList = new ArrayList<>();
+        List<Boolean> includedIntensitiesList = new ArrayList<>();
         Map<String, List<Double>> blockMapOfSequenceIdsToData = new TreeMap<>();
 
         int[] onPeakCycleNumbers = massSpecOutputBlockRecordFull.onPeakCycleNumbers();
@@ -144,6 +148,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                         timeIndexAccumulatorList.add(index);
                         isotopeOrdinalIndicesAccumulatorList.add(speciesOrdinalIndex);
                         blockMapOfSequenceIdsToData.get(onPeakID).add(onPeakTimeStamps[index]);
+                        includedIntensitiesList.add(true);
                     }
                 }
             }
@@ -157,6 +162,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                 timeAccumulatorList,
                 timeIndexAccumulatorList,
                 isotopeOrdinalIndicesAccumulatorList,
+                includedIntensitiesList,
                 blockMapOfSequenceIdsToData
         );
     }

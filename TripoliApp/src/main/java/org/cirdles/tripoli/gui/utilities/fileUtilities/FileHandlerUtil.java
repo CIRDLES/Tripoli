@@ -3,6 +3,7 @@ package org.cirdles.tripoli.gui.utilities.fileUtilities;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.MCMCVectorExporter;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
@@ -153,7 +154,7 @@ public enum FileHandlerUtil {
     }
 
 
-    public static void saveEnsembleData(AnalysisInterface analysis, Window ownerWindow)
+    public static void saveEnsembleDataDetails(AnalysisInterface analysis, Window ownerWindow)
             throws IOException, TripoliException {
 
         DirectoryChooser dirChooser = new DirectoryChooser();
@@ -178,6 +179,34 @@ public enum FileHandlerUtil {
             }
         }
     }
+
+    public static void saveMCMCDataVectors(AnalysisInterface analysis, Window ownerWindow)
+            throws IOException, TripoliException {
+
+        DirectoryChooser dirChooser = new DirectoryChooser();
+        dirChooser.setTitle("Select MCMC Data Vectors Reports Folder");
+        File userHome = new File(File.separator + TripoliPersistentState.getExistingPersistentState().getMRUSessionFolderPath());
+        dirChooser.setInitialDirectory(userHome.isDirectory() ? userHome : null);
+        File directory = dirChooser.showDialog(ownerWindow);
+
+        for (Integer blockID : analysis.getMapOfBlockIdToRawData().keySet()) {
+            // Issue # 196
+            MCMCVectorExporter.DataVectorsRecord dataVectorsRecord = MCMCVectorExporter.exportData(analysis, blockID);
+
+            if (null != dataVectorsRecord) {
+                Path path = Paths.get(directory + File.separator + "MCMCVectorsForBlock_" + blockID + ".csv");
+                OutputStream stream = Files.newOutputStream(path);
+                stream.write(dataVectorsRecord.prettyPrintHeaderAsCSV().getBytes());
+                int countOfData = dataVectorsRecord.baselineFlags().length;
+                for (int i = 0; i < countOfData; i++) {
+                    stream.write(dataVectorsRecord.prettyPrintAsCSV(i).getBytes());
+                }
+
+                stream.close();
+            }
+        }
+    }
+
 
     public static void saveAnalysisReport(AnalysisInterface analysis, Window ownerWindow)
             throws IOException, TripoliException {

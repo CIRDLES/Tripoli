@@ -53,8 +53,7 @@ import java.util.ResourceBundle;
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.utilities.BrowserControl.urlEncode;
-import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.saveAnalysisReport;
-import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.saveEnsembleData;
+import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.*;
 import static org.cirdles.tripoli.sessions.SessionBuiltinFactory.TRIPOLI_DEMONSTRATION_SESSION;
 import static org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer.serializeObjectToFile;
 
@@ -454,7 +453,10 @@ public class TripoliGUIController implements Initializable {
     }
 
     public void generateMCMCDetailsPerBlockAction() throws IOException, TripoliException {
-        saveEnsembleData(analysis, null);
+        saveEnsembleDataDetails(analysis, null);
+    }
+    public void generateMCMCVectorsPerBlockAction() throws TripoliException, IOException {
+        saveMCMCDataVectors(analysis, null);
     }
 
     public void reportTemplateOneAction() throws TripoliException, IOException {
@@ -464,4 +466,6 @@ public class TripoliGUIController implements Initializable {
     public void visitLatestVersionAction() {
         BrowserControl.showURI("https://github.com/CIRDLES/Tripoli/releases/latest");
     }
+
+
 }

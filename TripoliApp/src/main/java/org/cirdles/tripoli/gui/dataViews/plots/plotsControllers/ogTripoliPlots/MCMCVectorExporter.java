@@ -21,7 +21,7 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
+import org.cirdles.tripoli.species.IsotopicRatio;
 
 import java.util.Arrays;
 import java.util.List;
@@ -45,15 +45,12 @@ rejected true/false (d0.Include)
 modeled intensities using the average of MCMC models (d = ModelMSData(x, d0))
 All eight columns should be the same length. If Tripoli handles the baseline and on-peak data separately, then they could be output in separate CSV files.
  */
-public class DataExporter {
+public class MCMCVectorExporter {
 
-
-
-    public static void exportData(AnalysisInterface analysis, int blockID){
+    public static DataVectorsRecord exportData(AnalysisInterface analysis, int blockID){
         int blockIndex = blockID - 1;
         AllBlockInitForOGTripoli.PlottingData plottingData = analysis.assemblePostProcessPlottingData();
         SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = plottingData.singleBlockRawDataSetRecords();
-
 
         SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = singleBlockRawDataSetRecords[blockIndex];
         SingleBlockModelRecord[] singleBlockModelRecords = plottingData.singleBlockModelRecords();
@@ -63,37 +60,64 @@ public class DataExporter {
         double[] measuredIntensityUncertainties = singleBlockModelRecords[blockIndex].dataSignalNoiseArray();
         int[] isotopeIndices = singleBlockRawDataSetRecord.blockIsotopeOrdinalIndicesArray();
         int[] detectorIndices = singleBlockRawDataSetRecord.blockDetectorOrdinalIndicesArray();
-        int[] baselineFlag = new int[time.length];
+        int[] baselineFlags = new int[time.length];
         int countOfBaselineDataEntries = singleBlockRawDataSetRecords[blockIndex].getCountOfBaselineIntensities();
-        Arrays.fill(baselineFlag, countOfBaselineDataEntries, time.length - 1, 1 );
+        Arrays.fill(baselineFlags, 0, countOfBaselineDataEntries, 1 );
         int[] cycleIndices = singleBlockRawDataSetRecord.blockCycleArray();
-        // included
-        boolean[] includedIntensities = new boolean[time.length];
 
         boolean[][] intensityIncludedAccumulatorArray = ((Analysis) analysis).getMapOfBlockIdToIncludedPeakData().get(blockID);
         int countOfIsotopes = intensityIncludedAccumulatorArray.length;
-        int countOfFaradayDataEntries = singleBlockRawDataSetRecords[blockIndex].getCountOfOnPeakFaradayIntensities() / countOfIsotopes;
-        int dataCount = countOfBaselineDataEntries;// / countOfIsotopes;
-        int countOfTimes = intensityIncludedAccumulatorArray[0].length;
-        for (int isotopeIndex = 0; isotopeIndex < countOfIsotopes; isotopeIndex++){
-            for (int col = 0; col < countOfFaradayDataEntries; col++) {
-                includedIntensities[dataCount] = intensityIncludedAccumulatorArray[isotopeIndex][col];
-                dataCount++;
-            }
+        boolean[] includedIntensities = ((Analysis)analysis).getMapOfBlockIdToIncludedIntensities().get(blockID);
+
+        double[] modeledIntensities = singleBlockModelRecords[blockID - 1].dataModelArray();
+
+        return new DataVectorsRecord(
+                time, measuredIntensities, measuredIntensityUncertainties, isotopeIndices, detectorIndices, baselineFlags, cycleIndices, includedIntensities, modeledIntensities);
+    }
+
+    public record DataVectorsRecord(
+            double[] time,
+            double[] measuredIntensities,
+            double[] measuredIntensityUncertainties,
+            int[] isotopeIndices,
+            int[] detectorIndices,
+            int[] baselineFlags,
+            int[] cycleIndices,
+            boolean[] includedIntensities,
+            double[] modeledIntensities
+    ){
+
+        public String prettyPrintHeaderAsCSV() {
+            String header = "";
+
+            header += "time,";
+            header += "measuredIntensities,";
+            header += "measuredIntensityUncertainties,";
+            header += "isotopeIndices,";
+            header += "detectorIndices,";
+            header += "baselineFlags,";
+            header += "cycleIndices,";
+            header += "includedIntensities,";
+            header += "modeledIntensities \n";
+
+            return header;
         }
-        for (int isotopeIndex = 0; isotopeIndex < countOfIsotopes; isotopeIndex++){
-            for (int col = countOfFaradayDataEntries; col < countOfTimes; col++) {
-                includedIntensities[dataCount] = intensityIncludedAccumulatorArray[isotopeIndex][col];
-                dataCount++;
-            }
+
+        public String prettyPrintAsCSV(int index) {
+            String data = "";
+
+            data += time()[index] + ",";
+            data += measuredIntensities()[index] + ",";
+            data += measuredIntensityUncertainties()[index] + ",";
+            data += isotopeIndices()[index] + ",";
+            data += detectorIndices()[index] + ",";
+            data += baselineFlags()[index] + ",";
+            data += cycleIndices()[index] + ",";
+            data += includedIntensities()[index] + ",";
+            data += modeledIntensities()[index] + "\n";
+
+            return data;
         }
-
-
-        double[] modeledData = singleBlockModelRecords[blockID - 1].dataModelArray();
-
-
-
-        double[] data = null;
     }
 
 }

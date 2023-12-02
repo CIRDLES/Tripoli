@@ -4,13 +4,12 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectStreamClass;
-import java.io.Serializable;
+import java.io.*;
 import java.util.*;
 
 public class MassSpecExtractedData implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -3958694419007139380L;
     private MassSpectrometerContextEnum massSpectrometerContext;
     private MassSpecExtractedHeader header;
     private String[] columnHeaders;
@@ -26,17 +25,17 @@ public class MassSpecExtractedData implements Serializable {
         blocksDataLite = new TreeMap<>();
     }
 
-    private void readObject(ObjectInputStream stream) throws IOException,
-            ClassNotFoundException {
-        stream.defaultReadObject();
-
-        ObjectStreamClass myObject = ObjectStreamClass.lookup(
-                Class.forName(MassSpecExtractedData.class.getCanonicalName()));
-        long theSUID = myObject.getSerialVersionUID();
-
-        System.out.println("Customized De-serialization of MassSpecExtractedData "
-                + theSUID);
-    }
+//    private void readObject(ObjectInputStream stream) throws IOException,
+//            ClassNotFoundException {
+//        stream.defaultReadObject();
+//
+//        ObjectStreamClass myObject = ObjectStreamClass.lookup(
+//                Class.forName(MassSpecExtractedData.class.getCanonicalName()));
+//        long theSUID = myObject.getSerialVersionUID();
+//
+//        System.out.println("Customized De-serialization of MassSpecExtractedData "
+//                + theSUID);
+//    }
 
     public void addBlockRecord(MassSpecOutputBlockRecordFull massSpecOutputBlockRecordFull) {
         blocksDataFull.put(massSpecOutputBlockRecordFull.blockID(), massSpecOutputBlockRecordFull);
