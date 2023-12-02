@@ -77,7 +77,9 @@ public record SingleBlockModelRecord(
         double[] cycleMeans = new double[cycleCount];
         if (mapCycleToStats != null) {
             for (int cycleIndex = 0; cycleIndex < mapCycleToStats.keySet().size(); cycleIndex++) {
-                cycleMeans[cycleIndex] = mapCycleToStats.get(cycleIndex)[0];
+                if (null != mapCycleToStats.get(cycleIndex)) {
+                    cycleMeans[cycleIndex] = mapCycleToStats.get(cycleIndex)[0];
+                }
             }
         } else {
             cycleMeans = calculateDerivedRatioMean(ratio);
@@ -90,7 +92,9 @@ public record SingleBlockModelRecord(
         double[] cycleStdDev = new double[cycleCount];
         if (mapCycleToStats != null) {
             for (int cycleIndex = 0; cycleIndex < mapCycleToStats.keySet().size(); cycleIndex++) {
-                cycleStdDev[cycleIndex] = mapCycleToStats.get(cycleIndex)[1];
+                if (null != mapCycleToStats.get(cycleIndex)) {
+                    cycleStdDev[cycleIndex] = mapCycleToStats.get(cycleIndex)[1];
+                }
             }
         } else {
             cycleStdDev = calculateDerivedRatioOneSigma(ratio);

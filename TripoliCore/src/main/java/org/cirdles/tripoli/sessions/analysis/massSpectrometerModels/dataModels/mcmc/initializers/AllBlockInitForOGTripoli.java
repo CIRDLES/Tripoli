@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers;
 
+import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
@@ -43,6 +44,10 @@ public class AllBlockInitForOGTripoli {
 
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
             singleBlockRawDataSetRecords[blockIndex] = prepareSingleBlockDataForMCMC(blockIndex + 1, massSpecExtractedData, analysisMethod);
+            analysis.getMapOfBlockIdToRawData().put(blockIndex + 1, singleBlockRawDataSetRecords[blockIndex]);
+
+            ((Analysis) analysis).getMapOfBlockIdToIncludedIntensities().put(blockIndex + 1, singleBlockRawDataSetRecords[blockIndex].blockIncludedIntensitiesArray());
+
             SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithNoCov;
             try {
                 singleBlockInitialModelRecordWithNoCov = initializeModelForSingleBlockMCMC(analysis, analysis.getAnalysisMethod(), singleBlockRawDataSetRecords[blockIndex], false);

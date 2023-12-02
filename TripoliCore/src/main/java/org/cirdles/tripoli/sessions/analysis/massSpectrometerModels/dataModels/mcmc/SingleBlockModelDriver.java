@@ -18,6 +18,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.
 
 import com.google.common.primitives.Doubles;
 import org.cirdles.tripoli.plots.PlotBuilder;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.SingleBlockModelInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
@@ -48,6 +49,8 @@ public enum SingleBlockModelDriver {
         PlotBuilder[][] plotBuilder = new PlotBuilder[0][0];
 
         SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = prepareSingleBlockDataForMCMC(blockID, massSpecExtractedData, analysisMethod);
+        ((Analysis) analysis).getMapOfBlockIdToIncludedIntensities().put(blockID, singleBlockRawDataSetRecord.blockIncludedIntensitiesArray());
+
         SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov;
         try {
             singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC(analysis, analysisMethod, singleBlockRawDataSetRecord, true);
@@ -94,6 +97,15 @@ public enum SingleBlockModelDriver {
             blockIntensityList.addAll(onPeakPhotoMultiplierDataSetMCMC.intensityAccumulatorList());
             double[] blockRawDataArray = Doubles.toArray(blockIntensityList);
 
+            List<Boolean> blockIncludedIntensityList = new ArrayList<>();
+            blockIncludedIntensityList.addAll(baselineDataSetMCMC.includedIntensitiesList());
+            blockIncludedIntensityList.addAll(onPeakFaradayDataSetMCMC.includedIntensitiesList());
+            blockIncludedIntensityList.addAll(onPeakPhotoMultiplierDataSetMCMC.includedIntensitiesList());
+            boolean[] blockIncludedIntensitiesArray = new boolean[blockIncludedIntensityList.size()];
+            for (int i = 0; i < blockIncludedIntensitiesArray.length; i++) {
+                blockIncludedIntensitiesArray[i] = blockIncludedIntensityList.get(i);
+            }
+
             List<Integer> blockDetectorOrdinalIndicesList = new ArrayList<>();
             blockDetectorOrdinalIndicesList.addAll(baselineDataSetMCMC.detectorOrdinalIndicesAccumulatorList());
             blockDetectorOrdinalIndicesList.addAll(onPeakFaradayDataSetMCMC.detectorOrdinalIndicesAccumulatorList());
@@ -105,6 +117,12 @@ public enum SingleBlockModelDriver {
             blockIsotopeOrdinalIndicesList.addAll(onPeakFaradayDataSetMCMC.isotopeOrdinalIndicesAccumulatorList());
             blockIsotopeOrdinalIndicesList.addAll(onPeakPhotoMultiplierDataSetMCMC.isotopeOrdinalIndicesAccumulatorList());
             int[] blockIsotopeOrdinalIndicesArray = blockIsotopeOrdinalIndicesList.stream().mapToInt(i -> i).toArray();
+
+            List<Double> blockTimeList = new ArrayList<>();
+            blockTimeList.addAll(baselineDataSetMCMC.timeAccumulatorList());
+            blockTimeList.addAll(onPeakFaradayDataSetMCMC.timeAccumulatorList());
+            blockTimeList.addAll(onPeakPhotoMultiplierDataSetMCMC.timeAccumulatorList());
+            double[] blockTimeArray = blockTimeList.stream().mapToDouble(i -> i).toArray();
 
             List<Integer> blockTimeIndicesList = new ArrayList<>();
             blockTimeIndicesList.addAll(baselineDataSetMCMC.timeIndexAccumulatorList());
@@ -144,7 +162,7 @@ public enum SingleBlockModelDriver {
 
             singleBlockRawDataSetRecord =
                     new SingleBlockRawDataSetRecord(blockNumber, baselineDataSetMCMC, onPeakFaradayDataSetMCMC, onPeakPhotoMultiplierDataSetMCMC, blockKnotInterpolationStore.toRawCopy2D(),
-                            blockCycleArray, blockRawDataArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeIndicesArray,
+                            blockTimeArray, blockCycleArray, blockRawDataArray, blockIncludedIntensitiesArray, blockDetectorOrdinalIndicesArray, blockIsotopeOrdinalIndicesArray, blockTimeIndicesArray,
                             onPeakStartingIndicesOfCycles, mapOfSpeciesToActiveCycles, blockMapIdsToDataTimes);
         }
         return singleBlockRawDataSetRecord;

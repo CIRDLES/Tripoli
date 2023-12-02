@@ -58,6 +58,8 @@
                 <items>
                     <MenuItem mnemonicParsing="false" onAction="#generateMCMCDetailsPerBlockAction"
                               text="Generate  MCMC details per block"/>
+                    <MenuItem mnemonicParsing="false" onAction="#generateMCMCVectorsPerBlockAction"
+                              text="Generate  MCMC vectors per block"/>
                     <MenuItem mnemonicParsing="false" onAction="#reportTemplateOneAction"
                               text="Generate Report  using Template 1"/>
                 </items>

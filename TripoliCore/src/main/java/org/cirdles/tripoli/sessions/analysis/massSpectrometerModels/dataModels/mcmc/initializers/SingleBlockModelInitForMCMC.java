@@ -214,9 +214,6 @@ public enum SingleBlockModelInitForMCMC {
         double[] logRatios = new double[analysisMethod.getIsotopicRatiosList().size()];
         Map<IsotopicRatio, Map<Integer, double[]>> mapLogRatiosToCycleStats = new TreeMap<>();
 
-        // get data included array ***********************************************************************************
-        boolean[][] blockOnPeakIncluded = ((Analysis) analysis).getMapOfBlockIdToIncludedPeakData().get(singleBlockRawDataSetRecord.blockID());
-
         Map<Integer, double[]> denominatorMapCyclesToStats = new TreeMap<>();
         for (int isotopeIndex = 0; isotopeIndex < countOfIsotopes; isotopeIndex++) {
             ddver2List = new ArrayList<>();
@@ -249,6 +246,9 @@ public enum SingleBlockModelInitForMCMC {
                 cyclesSortedArray[i] = cyclesArray[ddVer2sortIndices[i]];
             }
 
+            // get data included array ***********************************************************************************
+            boolean[][] blockOnPeakIncluded = ((Analysis) analysis).getMapOfBlockIdToIncludedPeakData().get(singleBlockRawDataSetRecord.blockID());
+
             DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics();
             for (int dataArrayIndex = 0; dataArrayIndex < ddVer2SortedArray.length; dataArrayIndex++) {
                 //TODO: Check for cycle active - see below where stats accumulator checks
@@ -269,7 +269,8 @@ public enum SingleBlockModelInitForMCMC {
                     cycleStats[cycle] = new DescriptiveStatistics();
                 }
                 // TODO: make this a check for both isotopes (eventually may include denominator as one that is excluded)
-                if (singleBlockRawDataSetRecord.mapOfSpeciesToActiveCycles().get(analysisMethod.getSpeciesList().get(isotopeIndex))[cycle]) {
+                if (singleBlockRawDataSetRecord.mapOfSpeciesToActiveCycles().get(analysisMethod.getSpeciesList().get(isotopeIndex))[cycle]
+                        && blockOnPeakIncluded[isotopeIndex][dataArrayIndex] && blockOnPeakIncluded[indexOfMostAbundantIsotope][dataArrayIndex]) {
                     cycleStats[cycle].addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
                 }
             }
@@ -277,17 +278,19 @@ public enum SingleBlockModelInitForMCMC {
             Map<Integer, double[]> mapCyclesToStats = new TreeMap<>();
 
             for (int cycleIndex = 0; cycleIndex < cycleStats.length; cycleIndex++) {
-                // TODO: fix this - currently using ratios instead of logs for cycles - see ViewCycles in matlab
-                double[] cycleLogRatioStats = new double[2];
-                if (cycleStats[cycleIndex].getMean() >= Math.exp(proposalRangesRecord.priorLogRatio()[0][0])) {
-                    cycleLogRatioStats[0] = (cycleStats[cycleIndex].getMean());
-                    // TODO: does this mean active cycles??
-                    cycleLogRatioStats[1] = cycleStats[cycleIndex].getStandardDeviation() / Math.sqrt(cycleStats[cycleIndex].getN());
-                } else {
-                    cycleLogRatioStats[0] = Math.exp(proposalRangesRecord.priorLogRatio()[0][0]);
-                    cycleLogRatioStats[1] = 0.0;
+                if (cycleStats[cycleIndex].getN() > 1) {
+                    // TODO: fix this - currently using ratios instead of logs for cycles - see ViewCycles in matlab
+                    double[] cycleLogRatioStats = new double[2];
+                    if (cycleStats[cycleIndex].getMean() >= Math.exp(proposalRangesRecord.priorLogRatio()[0][0])) {
+                        cycleLogRatioStats[0] = (cycleStats[cycleIndex].getMean());
+                        // TODO: does this mean active cycles??
+                        cycleLogRatioStats[1] = cycleStats[cycleIndex].getStandardDeviation() / Math.sqrt(cycleStats[cycleIndex].getN());
+                    } else {
+                        cycleLogRatioStats[0] = Math.exp(proposalRangesRecord.priorLogRatio()[0][0]);
+                        cycleLogRatioStats[1] = 0.0;
+                    }
+                    mapCyclesToStats.put(cycleIndex, cycleLogRatioStats);
                 }
-                mapCyclesToStats.put(cycleIndex, cycleLogRatioStats);
             }
             if (isotopeIndex == indexOfMostAbundantIsotope) {
                 denominatorMapCyclesToStats = mapCyclesToStats;
@@ -360,7 +363,7 @@ public enum SingleBlockModelInitForMCMC {
                     } else {
                         ddd[dataArrayIndex] = intensityFn.get(intensityIndex, 0);
                     }
-                    dataSignalNoiseArray_Dsig[dataArrayIndex] = ddd[dataArrayIndex] / reportInterval;
+                    dataSignalNoiseArray_Dsig[dataArrayIndex] = ddd[dataArrayIndex] / reportInterval * 2.0;// TODO: per PI discussion 21 Nov 2023
                 } else {
                     if (isotopeIndex < logRatios.length) {
                         ddd[dataArrayIndex] = StrictMath.exp(logRatios[isotopeIndex]) * (1.0 / detectorFaradayGain) * intensityFn.get(intensityIndex, 0);

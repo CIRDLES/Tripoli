@@ -84,6 +84,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockModelRecord> mapOfBlockIdToFinalModel = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, boolean[][]> mapOfBlockIdToIncludedPeakData = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, boolean[]> mapOfBlockIdToIncludedIntensities = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<IsotopicRatio, AnalysisRatioRecord> mapOfRatioToAnalysisRatioRecord = Collections.synchronizedSortedMap(new TreeMap<>());
     private String analysisName;
     private String analystName;
@@ -635,6 +636,10 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public Map<Integer, boolean[][]> getMapOfBlockIdToIncludedPeakData() {
         return mapOfBlockIdToIncludedPeakData;
+    }
+
+    public Map<Integer, boolean[]> getMapOfBlockIdToIncludedIntensities() {
+        return mapOfBlockIdToIncludedIntensities;
     }
 
     public Map<IsotopicRatio, AnalysisRatioRecord> getMapOfRatioToAnalysisRatioRecord() {

@@ -47,6 +47,7 @@ public enum SingleBlockDataAccumulatorMCMC {
         List<Double> timeAccumulatorList = new ArrayList<>();
         List<Integer> timeIndexAccumulatorList = new ArrayList<>();
         List<Integer> isotopeOrdinalIndicesAccumulatorList = new ArrayList<>();
+        List<Boolean> includedIntensitiesList = new ArrayList<>();
         Map<String, List<Double>> blockMapOfSequenceIdsToData = new TreeMap<>();
 
         int[] baseLineCycleNumbers = massSpecOutputBlockRecordFull.baselineCycleNumbers();
@@ -67,7 +68,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                     for (Integer index : baselineIndices) {
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
                         // TODO: Revisit this
-                        double intensity = roundedToSize(baselineIntensities[index][detectorDataColumnIndex], 6);
+                        double intensity = roundedToSize(baselineIntensities[index][detectorDataColumnIndex], 12);
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
                         if (MassSpectrometerContextEnum.PHOENIX_FULL == analysisMethod.getMassSpectrometerContext()) {
                             // convert all volts to counts to bring all files into alignment
@@ -75,9 +76,10 @@ public enum SingleBlockDataAccumulatorMCMC {
                         }
                         cycleAccumulatorList.add(baseLineCycleNumbers[index]);
                         intensityAccumulatorList.add(intensity);
-                        timeAccumulatorList.add(baseLineTimeStamps[index]);
+                        timeAccumulatorList.add(0.0);//TODO: Scott's code has 0s here baseLineTimeStamps[index]);
                         timeIndexAccumulatorList.add(index);
                         isotopeOrdinalIndicesAccumulatorList.add(0);
+                        includedIntensitiesList.add(false);
                     }
                 }
             }
@@ -91,6 +93,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                 timeAccumulatorList,
                 timeIndexAccumulatorList,
                 isotopeOrdinalIndicesAccumulatorList,
+                includedIntensitiesList,
                 blockMapOfSequenceIdsToData
         );
     }
@@ -107,6 +110,7 @@ public enum SingleBlockDataAccumulatorMCMC {
         List<Double> timeAccumulatorList = new ArrayList<>();
         List<Integer> timeIndexAccumulatorList = new ArrayList<>();
         List<Integer> isotopeOrdinalIndicesAccumulatorList = new ArrayList<>();
+        List<Boolean> includedIntensitiesList = new ArrayList<>();
         Map<String, List<Double>> blockMapOfSequenceIdsToData = new TreeMap<>();
 
         int[] onPeakCycleNumbers = massSpecOutputBlockRecordFull.onPeakCycleNumbers();
@@ -132,7 +136,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                     for (Integer index : onPeakIndices) {
                         detectorOrdinalIndicesAccumulatorList.add(detectorDataColumnIndex);
                         // TODO: revisit this
-                        double intensity = roundedToSize(onPeakIntensities[index][detectorDataColumnIndex], 10);
+                        double intensity = roundedToSize(onPeakIntensities[index][detectorDataColumnIndex], 12);
                         cycleAccumulatorList.add(onPeakCycleNumbers[index]);
                         double amplifierResistance = detector.getAmplifierResistanceInOhms();
                         if (MassSpectrometerContextEnum.PHOENIX_FULL == analysisMethod.getMassSpectrometerContext() && isFaraday) {
@@ -144,6 +148,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                         timeIndexAccumulatorList.add(index);
                         isotopeOrdinalIndicesAccumulatorList.add(speciesOrdinalIndex);
                         blockMapOfSequenceIdsToData.get(onPeakID).add(onPeakTimeStamps[index]);
+                        includedIntensitiesList.add(true);
                     }
                 }
             }
@@ -157,6 +162,7 @@ public enum SingleBlockDataAccumulatorMCMC {
                 timeAccumulatorList,
                 timeIndexAccumulatorList,
                 isotopeOrdinalIndicesAccumulatorList,
+                includedIntensitiesList,
                 blockMapOfSequenceIdsToData
         );
     }
