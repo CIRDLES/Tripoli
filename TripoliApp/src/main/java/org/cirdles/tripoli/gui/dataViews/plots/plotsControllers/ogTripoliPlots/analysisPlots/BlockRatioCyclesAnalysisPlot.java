@@ -42,10 +42,10 @@ public class BlockRatioCyclesAnalysisPlot extends AbstractPlot {
     private final BlockAnalysisRatioCyclesRecord blockAnalysisRatioCyclesRecord;
     private Map<Integer, BlockRatioCyclesRecord> mapBlockIdToBlockRatioCyclesRecord;
     private double[] oneSigmaForCycles;
-    private double sessionMean;
-    private double sessionOneSigmaAbs;
-    private double sessionDalyFaradayGainMean;
-    private double sessionDalyFaradayGainOneSigmaAbs;
+    private double analysisMean;
+    private double analysisOneSigmaAbs;
+    private double analysisDalyFaradayGainMean;
+    private double analysisDalyFaradayGainOneSigmaAbs;
     private boolean logScale;
     private boolean[] zoomFlagsXY;
     private PlotWallPaneInterface parentWallPane;
@@ -261,8 +261,8 @@ public class BlockRatioCyclesAnalysisPlot extends AbstractPlot {
         // TODO: promote color to constant
         g2d.setFill(Color.rgb(255, 251, 194));
         g2d.setGlobalAlpha(0.6);
-        double mean = sessionMean;
-        double stdDev = sessionOneSigmaAbs;
+        double mean = analysisMean;
+        double stdDev = analysisOneSigmaAbs;
 
         double leftX = mapX(minX);
         if (leftX < leftMargin) leftX = leftMargin;
@@ -296,18 +296,18 @@ public class BlockRatioCyclesAnalysisPlot extends AbstractPlot {
                 }
             }
         }
-        sessionMean = descriptiveStatsIncludedCycles.getMean();
+        analysisMean = descriptiveStatsIncludedCycles.getMean();
 
-        sessionOneSigmaAbs = descriptiveStatsIncludedCycles.getStandardDeviation();
+        analysisOneSigmaAbs = descriptiveStatsIncludedCycles.getStandardDeviation();
 
-        sessionDalyFaradayGainMean = descriptiveStatsIncludedDFGains.getMean();
+        analysisDalyFaradayGainMean = descriptiveStatsIncludedDFGains.getMean();
 
-        sessionDalyFaradayGainOneSigmaAbs = descriptiveStatsIncludedDFGains.getStandardDeviation();
+        analysisDalyFaradayGainOneSigmaAbs = descriptiveStatsIncludedDFGains.getStandardDeviation();
 
         plotTitle =
                 new String[]{blockAnalysisRatioCyclesRecord.title()[0]
-                        + "  " + "x\u0304" + "=" + String.format("%8.8g", sessionMean).trim()
-                        , "\u00B1" + String.format("%8.5g", sessionOneSigmaAbs).trim()};
+                        + "  " + "x\u0304" + "=" + String.format("%8.8g", analysisMean).trim()
+                        , "\u00B1" + String.format("%8.5g", analysisOneSigmaAbs).trim()};
     }
 
     public void setupPlotContextMenu() {

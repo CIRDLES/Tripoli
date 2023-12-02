@@ -836,7 +836,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                         for (int index = indexLeft; index < indexRight; index++) {
                             if ((0 <= (index - countOfPreviousBlockIncludedData)) && ((index - countOfPreviousBlockIncludedData) < includedPeakData.length)) {
                                 // faraday
-                                if ((((yData[isotopeIndex * 4][index] < intensityTop) && (yData[isotopeIndex * 4][index] > intensityBottom) && !showResiduals)
+                                if (showFaradays && (((yData[isotopeIndex * 4][index] < intensityTop) && (yData[isotopeIndex * 4][index] > intensityBottom) && !showResiduals)
                                         || ((residuals[isotopeIndex * 2][index] < intensityTop) && (residuals[isotopeIndex * 2][index] > intensityBottom) && showResiduals))
                                         && (0.0 != yData[isotopeIndex * 4][index])) {
                                     onPeakDataIncludedAllBlocks[isotopeIndex][index] = !onPeakDataIncludedAllBlocks[isotopeIndex][index];
@@ -844,7 +844,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                                     includedPeakData[index - countOfPreviousBlockIncludedData] = !includedPeakData[index - countOfPreviousBlockIncludedData];
                                 }
                                 // photoMultiplier
-                                if ((((yData[isotopeIndex * 4 + 2][index] < intensityTop) && (yData[isotopeIndex * 4 + 2][index] > intensityBottom) && !showResiduals)
+                                if (showPMs && (((yData[isotopeIndex * 4 + 2][index] < intensityTop) && (yData[isotopeIndex * 4 + 2][index] > intensityBottom) && !showResiduals)
                                         || ((residuals[isotopeIndex * 2 + 1][index] < intensityTop) && (residuals[isotopeIndex * 2 + 1][index] > intensityBottom) && showResiduals))
                                         && (0.0 != yData[isotopeIndex * 4 + 2][index])) {
                                     onPeakDataIncludedAllBlocks[isotopeIndex][index] = !onPeakDataIncludedAllBlocks[isotopeIndex][index];
@@ -857,23 +857,21 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                         boolean[] status = Booleans.toArray(statusList);
                         int countIncluded = Booleans.countTrue(status);
                         boolean majorityValue = countIncluded > status.length / 2;
-                        if ((0 <= countIncluded)) {// && majorityValue) {
-                            for (int index = indexLeft; index <= indexRight; index++) {
-                                if ((0 <= (index - countOfPreviousBlockIncludedData)) && ((index - countOfPreviousBlockIncludedData) < includedPeakData.length)) {
-                                    // faraday
-                                    if ((yData[isotopeIndex * 4][index] < intensityTop) && (yData[isotopeIndex * 4][index] > intensityBottom) && (0.0 != yData[isotopeIndex * 4][index])) {
-                                        onPeakDataIncludedAllBlocks[isotopeIndex][index] = majorityValue;
+                        for (int index = indexLeft; index <= indexRight; index++) {
+                            if ((0 <= (index - countOfPreviousBlockIncludedData)) && ((index - countOfPreviousBlockIncludedData) < includedPeakData.length)) {
+                                // faraday
+                                if (showFaradays && (yData[isotopeIndex * 4][index] < intensityTop) && (yData[isotopeIndex * 4][index] > intensityBottom) && (0.0 != yData[isotopeIndex * 4][index])) {
+                                    onPeakDataIncludedAllBlocks[isotopeIndex][index] = majorityValue;
 
-                                        ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[isotopeIndex][index - countOfPreviousBlockIncludedData]
-                                                = majorityValue;
-                                    }
-                                    // photomultiplier
-                                    if ((yData[isotopeIndex * 4 + 2][index] < intensityTop) && (yData[isotopeIndex * 4 + 2][index] > intensityBottom) && (0.0 != yData[isotopeIndex * 4 + 2][index])) {
-                                        onPeakDataIncludedAllBlocks[isotopeIndex][index] = majorityValue;
+                                    ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[isotopeIndex][index - countOfPreviousBlockIncludedData]
+                                            = majorityValue;
+                                }
+                                // photomultiplier
+                                if (showPMs && (yData[isotopeIndex * 4 + 2][index] < intensityTop) && (yData[isotopeIndex * 4 + 2][index] > intensityBottom) && (0.0 != yData[isotopeIndex * 4 + 2][index])) {
+                                    onPeakDataIncludedAllBlocks[isotopeIndex][index] = majorityValue;
 
-                                        ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[isotopeIndex][index - countOfPreviousBlockIncludedData]
-                                                = majorityValue;
-                                    }
+                                    ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[isotopeIndex][index - countOfPreviousBlockIncludedData]
+                                            = majorityValue;
                                 }
                             }
                         }

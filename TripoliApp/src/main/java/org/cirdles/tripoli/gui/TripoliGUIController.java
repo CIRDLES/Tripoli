@@ -453,11 +453,11 @@ public class TripoliGUIController implements Initializable {
     }
 
     public void generateMCMCDetailsPerBlockAction() throws IOException, TripoliException {
-        saveEnsembleDataDetails(analysis, null);
+        reportEnsembleDataDetails(analysis, null);
     }
 
     public void generateMCMCVectorsPerBlockAction() throws TripoliException, IOException {
-        saveMCMCDataVectors(analysis, null);
+        reportMCMCDataVectors(analysis, null);
     }
 
     public void reportTemplateOneAction() throws TripoliException, IOException {

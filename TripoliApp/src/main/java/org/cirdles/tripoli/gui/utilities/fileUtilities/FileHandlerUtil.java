@@ -154,7 +154,7 @@ public enum FileHandlerUtil {
     }
 
 
-    public static void saveEnsembleDataDetails(AnalysisInterface analysis, Window ownerWindow)
+    public static void reportEnsembleDataDetails(AnalysisInterface analysis, Window ownerWindow)
             throws IOException, TripoliException {
 
         DirectoryChooser dirChooser = new DirectoryChooser();
@@ -180,7 +180,7 @@ public enum FileHandlerUtil {
         }
     }
 
-    public static void saveMCMCDataVectors(AnalysisInterface analysis, Window ownerWindow)
+    public static void reportMCMCDataVectors(AnalysisInterface analysis, Window ownerWindow)
             throws IOException, TripoliException {
 
         DirectoryChooser dirChooser = new DirectoryChooser();
