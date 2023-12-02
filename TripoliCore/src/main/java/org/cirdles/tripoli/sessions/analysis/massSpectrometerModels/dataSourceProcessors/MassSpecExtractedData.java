@@ -4,7 +4,8 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 
-import java.io.*;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.*;
 
 public class MassSpecExtractedData implements Serializable {
@@ -16,6 +17,7 @@ public class MassSpecExtractedData implements Serializable {
     private DetectorSetup detectorSetup;
     private Map<Integer, MassSpecOutputBlockRecordFull> blocksDataFull;
     private Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite;
+
     public MassSpecExtractedData() {
         massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
         populateHeader(new ArrayList<>());

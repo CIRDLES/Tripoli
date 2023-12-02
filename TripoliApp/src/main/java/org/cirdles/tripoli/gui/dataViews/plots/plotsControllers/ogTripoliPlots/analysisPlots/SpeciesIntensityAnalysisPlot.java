@@ -857,7 +857,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                         boolean[] status = Booleans.toArray(statusList);
                         int countIncluded = Booleans.countTrue(status);
                         boolean majorityValue = countIncluded > status.length / 2;
-                        if ((0 <= countIncluded)){// && majorityValue) {
+                        if ((0 <= countIncluded)) {// && majorityValue) {
                             for (int index = indexLeft; index <= indexRight; index++) {
                                 if ((0 <= (index - countOfPreviousBlockIncludedData)) && ((index - countOfPreviousBlockIncludedData) < includedPeakData.length)) {
                                     // faraday
@@ -886,9 +886,9 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                 boolean[] includedIntensities = new boolean[blockIsotopeOrdinalIndicesArray.length];
                 double[] blockTimeArray = analysis.getMapOfBlockIdToRawData().get(sculptBlockID).blockTimeArray();
 
-                for (int index = 0; index < blockIsotopeOrdinalIndicesArray.length; index++){
+                for (int index = 0; index < blockIsotopeOrdinalIndicesArray.length; index++) {
                     int isotopeIndex = blockIsotopeOrdinalIndicesArray[index] - 1;
-                    if (isotopeIndex >= 0){
+                    if (isotopeIndex >= 0) {
                         double time = blockTimeArray[index];
                         int timeIndx = binarySearch(xTimes, time);
                         includedIntensities[index] = onPeakDataIncludedAllBlocks[isotopeIndex][timeIndx];

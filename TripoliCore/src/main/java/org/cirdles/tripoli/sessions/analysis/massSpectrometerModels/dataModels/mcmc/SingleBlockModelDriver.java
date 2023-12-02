@@ -49,7 +49,7 @@ public enum SingleBlockModelDriver {
         PlotBuilder[][] plotBuilder = new PlotBuilder[0][0];
 
         SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = prepareSingleBlockDataForMCMC(blockID, massSpecExtractedData, analysisMethod);
-        ((Analysis)analysis).getMapOfBlockIdToIncludedIntensities().put(blockID, singleBlockRawDataSetRecord.blockIncludedIntensitiesArray());
+        ((Analysis) analysis).getMapOfBlockIdToIncludedIntensities().put(blockID, singleBlockRawDataSetRecord.blockIncludedIntensitiesArray());
 
         SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov;
         try {
@@ -102,7 +102,7 @@ public enum SingleBlockModelDriver {
             blockIncludedIntensityList.addAll(onPeakFaradayDataSetMCMC.includedIntensitiesList());
             blockIncludedIntensityList.addAll(onPeakPhotoMultiplierDataSetMCMC.includedIntensitiesList());
             boolean[] blockIncludedIntensitiesArray = new boolean[blockIncludedIntensityList.size()];
-            for (int i = 0; i < blockIncludedIntensitiesArray.length; i ++){
+            for (int i = 0; i < blockIncludedIntensitiesArray.length; i++) {
                 blockIncludedIntensitiesArray[i] = blockIncludedIntensityList.get(i);
             }
 

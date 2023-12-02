@@ -142,7 +142,7 @@ public class EnsemblesStore implements Serializable {
             tempTime = new ArrayList<>();
             for (int dataArrayIndex = 0; dataArrayIndex < rawData.length; dataArrayIndex++) {
                 if ((isotopeOrdinalIndicesAccumulatorArray[dataArrayIndex] == isotopeIndex + 1)
-                && ((Analysis)analysis).getMapOfBlockIdToIncludedIntensities().get(blockID)[dataArrayIndex]){
+                        && ((Analysis) analysis).getMapOfBlockIdToIncludedIntensities().get(blockID)[dataArrayIndex]) {
                     if (dataArrayIndex < startIndexOfPhotoMultiplierData) {
                         double calculated = (rawData[dataArrayIndex]
                                 - baselinesMeans[singleBlockModelRecord.mapDetectorOrdinalToFaradayIndex().get(d0_detVec[dataArrayIndex])]) * dalyFaradayGainMean;

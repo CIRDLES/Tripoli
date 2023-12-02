@@ -46,7 +46,7 @@ public class AllBlockInitForOGTripoli {
             singleBlockRawDataSetRecords[blockIndex] = prepareSingleBlockDataForMCMC(blockIndex + 1, massSpecExtractedData, analysisMethod);
             analysis.getMapOfBlockIdToRawData().put(blockIndex + 1, singleBlockRawDataSetRecords[blockIndex]);
 
-            ((Analysis)analysis).getMapOfBlockIdToIncludedIntensities().put(blockIndex + 1, singleBlockRawDataSetRecords[blockIndex].blockIncludedIntensitiesArray());
+            ((Analysis) analysis).getMapOfBlockIdToIncludedIntensities().put(blockIndex + 1, singleBlockRawDataSetRecords[blockIndex].blockIncludedIntensitiesArray());
 
             SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithNoCov;
             try {

@@ -21,10 +21,8 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
-import org.cirdles.tripoli.species.IsotopicRatio;
 
 import java.util.Arrays;
-import java.util.List;
 
 
 /**
@@ -47,7 +45,7 @@ All eight columns should be the same length. If Tripoli handles the baseline and
  */
 public class MCMCVectorExporter {
 
-    public static DataVectorsRecord exportData(AnalysisInterface analysis, int blockID){
+    public static DataVectorsRecord exportData(AnalysisInterface analysis, int blockID) {
         int blockIndex = blockID - 1;
         AllBlockInitForOGTripoli.PlottingData plottingData = analysis.assemblePostProcessPlottingData();
         SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = plottingData.singleBlockRawDataSetRecords();
@@ -55,19 +53,19 @@ public class MCMCVectorExporter {
         SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = singleBlockRawDataSetRecords[blockIndex];
         SingleBlockModelRecord[] singleBlockModelRecords = plottingData.singleBlockModelRecords();
 
-        double[] time =  singleBlockRawDataSetRecord.blockTimeArray();
-        double[] measuredIntensities =  singleBlockRawDataSetRecord.blockRawDataArray();
+        double[] time = singleBlockRawDataSetRecord.blockTimeArray();
+        double[] measuredIntensities = singleBlockRawDataSetRecord.blockRawDataArray();
         double[] measuredIntensityUncertainties = singleBlockModelRecords[blockIndex].dataSignalNoiseArray();
         int[] isotopeIndices = singleBlockRawDataSetRecord.blockIsotopeOrdinalIndicesArray();
         int[] detectorIndices = singleBlockRawDataSetRecord.blockDetectorOrdinalIndicesArray();
         int[] baselineFlags = new int[time.length];
         int countOfBaselineDataEntries = singleBlockRawDataSetRecords[blockIndex].getCountOfBaselineIntensities();
-        Arrays.fill(baselineFlags, 0, countOfBaselineDataEntries, 1 );
+        Arrays.fill(baselineFlags, 0, countOfBaselineDataEntries, 1);
         int[] cycleIndices = singleBlockRawDataSetRecord.blockCycleArray();
 
         boolean[][] intensityIncludedAccumulatorArray = ((Analysis) analysis).getMapOfBlockIdToIncludedPeakData().get(blockID);
         int countOfIsotopes = intensityIncludedAccumulatorArray.length;
-        boolean[] includedIntensities = ((Analysis)analysis).getMapOfBlockIdToIncludedIntensities().get(blockID);
+        boolean[] includedIntensities = ((Analysis) analysis).getMapOfBlockIdToIncludedIntensities().get(blockID);
 
         double[] modeledIntensities = singleBlockModelRecords[blockID - 1].dataModelArray();
 
@@ -85,7 +83,7 @@ public class MCMCVectorExporter {
             int[] cycleIndices,
             boolean[] includedIntensities,
             double[] modeledIntensities
-    ){
+    ) {
 
         public String prettyPrintHeaderAsCSV() {
             String header = "";
