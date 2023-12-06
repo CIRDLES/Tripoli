@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots;
+package org.cirdles.tripoli.parallelTasks;
 
-import javafx.concurrent.Task;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
-
-import static org.cirdles.tripoli.constants.TripoliConstants.*;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 /**
  * @author James F. Bowring
  */
-public class MCMCPlotBuildersTask extends Task<String> implements MCMCPlotBuildersTaskInterface {
+
+public class ParallelMCMCTask implements Runnable {
+
     public static AnalysisInterface analysis;
     private final int blockID;
     //  plotBuilders
@@ -46,7 +45,7 @@ public class MCMCPlotBuildersTask extends Task<String> implements MCMCPlotBuilde
     // TODO: refactor to all plotBuilders
     private PlotBuilder[][] plotBuilders;
 
-    public MCMCPlotBuildersTask(int blockID) {
+    public ParallelMCMCTask(int blockID) {
         this.blockID = blockID;
     }
 
@@ -58,61 +57,42 @@ public class MCMCPlotBuildersTask extends Task<String> implements MCMCPlotBuilde
         return (ratiosHistogramBuilder != null);
     }
 
-    @Override
     public PlotBuilder[] getPeakShapesBuilder() {
         return peakShapesBuilder.clone();
     }
 
-    @Override
     public PlotBuilder[] getConvergeRatioLineBuilder() {
         return convergeRatioLineBuilder.clone();
     }
 
-    @Override
     public PlotBuilder[] getConvergeBLFaradayLineBuilder() {
         return convergeBLFaradayLineBuilder.clone();
     }
 
-    @Override
     public PlotBuilder[] getConvergeErrWeightedMisfitLineBuilder() {
         return convergeErrWeightedMisfitLineBuilder.clone();
     }
 
-    @Override
     public PlotBuilder[] getConvergeErrRawMisfitLineBuilder() {
         return convergeErrRawMisfitLineBuilder.clone();
     }
 
-    @Override
     public PlotBuilder[] getConvergeIntensityLinesBuilder() {
         return convergeIntensityLinesBuilder;
     }
 
-    @Override
-    public synchronized String call() throws Exception {
-        plotBuilders = analysis.updatePlotsByBlock(blockID);
-
-        peakShapesBuilder = analysis.updatePeakPlotsByBlock(blockID);
-        ratiosHistogramBuilder = plotBuilders[PLOT_INDEX_RATIOS];
-
-        convergeRatioLineBuilder = plotBuilders[5];
-
-        convergeBLFaradayLineBuilder = plotBuilders[6];
-
-        convergeErrWeightedMisfitLineBuilder = plotBuilders[8];
-        convergeErrRawMisfitLineBuilder = plotBuilders[9];
-        convergeIntensityLinesBuilder = plotBuilders[10];
-
-        return analysis.getDataFilePathString() + "Block # " + blockID + "\n\n\tDONE - view tabs for various plotBuilders";
-    }
-
-    @Override
-    public void receiveLoggingSnippet(String loggingSnippet) {
-        updateValue(loggingSnippet);
-        analysis.uppdateLogsByBlock(blockID, loggingSnippet);
+    public  void run() {
+                System.out.println(Thread.currentThread().getName()
+                + " is executing this code");
+        try {
+            plotBuilders = analysis.updatePlotsByBlock2(blockID);
+        } catch (TripoliException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public int getBlockID() {
         return blockID;
     }
+
 }

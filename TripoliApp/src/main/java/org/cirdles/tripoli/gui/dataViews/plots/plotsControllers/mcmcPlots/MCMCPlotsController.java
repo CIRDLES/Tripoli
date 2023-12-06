@@ -24,6 +24,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.O
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.*;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.analysisPlots.AnalysisRatioPlot;
+import org.cirdles.tripoli.parallelTasks.ParallelMCMCTask;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioRecord;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.PeakCentreAnalysisBuilder;
@@ -254,6 +255,46 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
             services[blockIndex].start();
         }
     }
+
+    public synchronized void processDataFileAndShowPlotsOfMCMC2(AnalysisInterface analysis) {
+        ParallelMCMCTask.analysis = analysis;
+        // check process status
+        List<Integer> blocksToProcess = new ArrayList<>();
+
+        for (Integer blockID : analysis.getMapOfBlockIdToProcessStatus().keySet()) {
+            if (SKIP != analysis.getMapOfBlockIdToProcessStatus().get(blockID)) {
+                blocksToProcess.add(blockID);
+            }
+        }
+
+        int countOfBlocks = blocksToProcess.size();
+        Thread[] blockProcessThreads = new Thread[countOfBlocks];
+        ParallelMCMCTask[] parallelMCMCTasks = new ParallelMCMCTask[countOfBlocks];
+        for (int blockIndex = 0; blockIndex< countOfBlocks; blockIndex ++){
+            parallelMCMCTasks[blockIndex] = new ParallelMCMCTask(blockIndex + 1);
+            blockProcessThreads[blockIndex] = new Thread(parallelMCMCTasks[blockIndex], "Block # " + (blockIndex + 1));
+        }
+
+        Set<Integer> activeThreads = new TreeSet<>();
+        for (int blockIndex = 0; blockIndex< countOfBlocks; blockIndex ++){
+            activeThreads.add(blockIndex);
+            blockProcessThreads[blockIndex].start();
+        }
+
+        do {
+            for (int blockIndex = 0; blockIndex< countOfBlocks; blockIndex ++){
+                if (!blockProcessThreads[blockIndex].isAlive()){
+                    activeThreads.remove(blockIndex);
+                }
+            }
+        } while (!activeThreads.isEmpty());
+
+        for (int blockIndex = 0; blockIndex< countOfBlocks; blockIndex ++){
+            System.out.println("Thread " + blockIndex + 1 + "  " + parallelMCMCTasks[blockIndex].getPlotBuilders().length);
+        }
+
+    }
+
 
     @FXML
     public void plotAnalysisRatioEngine() {

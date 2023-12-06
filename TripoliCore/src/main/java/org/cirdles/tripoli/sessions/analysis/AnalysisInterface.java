@@ -9,7 +9,6 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
-import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.IOException;
@@ -54,7 +53,7 @@ public interface AnalysisInterface {
 
     AnalysisMethod extractAnalysisMethodfromPath(Path phoenixAnalysisMethodDataFilePath) throws JAXBException;
 
-    PlotBuilder[][] updatePlotsByBlock(int blockNumber, LoggingCallbackInterface loggingCallback) throws TripoliException;
+    PlotBuilder[][] updatePlotsByBlock(int blockNumber) throws TripoliException;
 
     PlotBuilder[] updatePeakPlotsByBlock(int blockNumber) throws TripoliException;
 
@@ -125,4 +124,6 @@ public interface AnalysisInterface {
     Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount();
 
     void resetAnalysis();
+
+    PlotBuilder[][] updatePlotsByBlock2(int blockID) throws TripoliException;
 }

@@ -25,7 +25,6 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourcePr
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
-import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.mathUtilities.SplineBasisModel;
 import org.ojalgo.RecoverableCondition;
@@ -43,7 +42,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public enum SingleBlockModelDriver {
     ;
 
-    public static PlotBuilder[][] buildAndRunModelForSingleBlock(int blockID, AnalysisInterface analysis, LoggingCallbackInterface loggingCallback) throws TripoliException, IOException {
+    public static PlotBuilder[][] buildAndRunModelForSingleBlock(int blockID, AnalysisInterface analysis) throws TripoliException, IOException {
         MassSpecExtractedData massSpecExtractedData = analysis.getMassSpecExtractedData();
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
         PlotBuilder[][] plotBuilder = new PlotBuilder[0][0];
@@ -61,11 +60,36 @@ public enum SingleBlockModelDriver {
         if (null != singleBlockInitialModelRecordWithCov) {
             MCMCProcess mcmcProcess = MCMCProcess.createMCMCProcess(analysis, singleBlockRawDataSetRecord, singleBlockInitialModelRecordWithCov);
             mcmcProcess.initializeMCMCProcess();
-            plotBuilder = mcmcProcess.applyInversionWithAdaptiveMCMC(loggingCallback);
+            plotBuilder = mcmcProcess.applyInversionWithAdaptiveMCMC();
         }
 
         return plotBuilder;
     }
+
+    public static PlotBuilder[][] buildAndRunModelForSingleBlock2(int blockID, AnalysisInterface analysis) throws TripoliException {
+        MassSpecExtractedData massSpecExtractedData = analysis.getMassSpecExtractedData();
+        AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
+        PlotBuilder[][] plotBuilder = new PlotBuilder[0][0];
+
+        SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = prepareSingleBlockDataForMCMC(blockID, massSpecExtractedData, analysisMethod);
+        ((Analysis) analysis).getMapOfBlockIdToIncludedIntensities().put(blockID, singleBlockRawDataSetRecord.blockIncludedIntensitiesArray());
+
+        SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov;
+        try {
+            singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC(analysis, analysisMethod, singleBlockRawDataSetRecord, true);
+        } catch (RecoverableCondition e) {
+            throw new TripoliException("Ojalgo RecoverableCondition");
+        }
+
+        if (null != singleBlockInitialModelRecordWithCov) {
+            MCMCProcess mcmcProcess = MCMCProcess.createMCMCProcess(analysis, singleBlockRawDataSetRecord, singleBlockInitialModelRecordWithCov);
+            mcmcProcess.initializeMCMCProcess();
+            plotBuilder = mcmcProcess.applyInversionWithAdaptiveMCMC();
+        }
+
+        return plotBuilder;
+    }
+
 
     public static SingleBlockRawDataSetRecord prepareSingleBlockDataForMCMC(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) {
         SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = null;
