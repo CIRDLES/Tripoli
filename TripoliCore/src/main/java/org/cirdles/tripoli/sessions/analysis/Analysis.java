@@ -42,7 +42,6 @@ import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassS
 import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
-import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
@@ -73,6 +72,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     public static final int RUN = 1;
     @Serial
     private static final long serialVersionUID = 5737165372498262402L;
+    public static final PlotBuilder[][] EMPTY_PLOTBUILDERS = new PlotBuilder[0][];
 
     private final Map<Integer, PlotBuilder[][]> mapOfBlockIdToPlots = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, PlotBuilder[]> mapOfBlockIdToPeakPlots = Collections.synchronizedSortedMap(new TreeMap<>());
@@ -270,24 +270,41 @@ public class Analysis implements Serializable, AnalysisInterface {
     }
 
 
-    public PlotBuilder[][] updatePlotsByBlock(int blockID, LoggingCallbackInterface loggingCallback) throws TripoliException {
-        PlotBuilder[][] retVal = new PlotBuilder[0][];
+    public PlotBuilder[][] updatePlotsByBlock(int blockID) throws TripoliException {
+        PlotBuilder[][] retVal = EMPTY_PLOTBUILDERS;
         if (RUN == mapOfBlockIdToProcessStatus.get(blockID)) {
             mapOfBlockIdToPlots.remove(blockID);
         }
         if (mapOfBlockIdToPlots.containsKey(blockID)) {
             retVal = mapOfBlockIdToPlots.get(blockID);
-            loggingCallback.receiveLoggingSnippet("1000 >%");
+//            loggingCallback.receiveLoggingSnippet("1000 >%");
         } else {
             try {
                 PlotBuilder[][] plotBuilders;
-                plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock(blockID, this, loggingCallback);
+                plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock(blockID, this);
                 mapOfBlockIdToPlots.put(blockID, plotBuilders);
                 mapOfBlockIdToProcessStatus.put(blockID, SHOW);
                 retVal = mapOfBlockIdToPlots.get(blockID);
             } catch (IOException e) {
                 System.out.println("PROBLEM EXPORTING ENSEMBLES");
             }
+        }
+        return retVal;
+    }
+
+    public PlotBuilder[][] updatePlotsByBlock2(int blockID) throws TripoliException {
+        PlotBuilder[][] retVal = EMPTY_PLOTBUILDERS;
+        if (RUN == mapOfBlockIdToProcessStatus.get(blockID)) {
+            mapOfBlockIdToPlots.remove(blockID);
+        }
+        if (mapOfBlockIdToPlots.containsKey(blockID)) {
+            retVal = mapOfBlockIdToPlots.get(blockID);
+        } else {
+            PlotBuilder[][] plotBuilders;
+            plotBuilders = SingleBlockModelDriver.buildAndRunModelForSingleBlock2(blockID, this);
+            mapOfBlockIdToPlots.put(blockID, plotBuilders);
+            mapOfBlockIdToProcessStatus.put(blockID, SHOW);
+            retVal = mapOfBlockIdToPlots.get(blockID);
         }
         return retVal;
     }

@@ -24,12 +24,10 @@ import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.SingleBlockModelInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
-import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLabCholesky;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.Primitive64Store;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -259,7 +257,7 @@ x=x0;
         }
     }
 
-    public synchronized PlotBuilder[][] applyInversionWithAdaptiveMCMC(LoggingCallbackInterface loggingCallback) throws IOException {
+    public synchronized PlotBuilder[][] applyInversionWithAdaptiveMCMC() {
 
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         SingleBlockModelRecord singleBlockCurrentModelRecord_X = singleBlockInitialModelRecord_X0;//.clone();
@@ -667,7 +665,9 @@ x=x0;
                                         + " Interval5 " + (interval5 / 1000));
 
                         System.err.println("\n" + loggingSnippet + "\n");
-                        loggingCallback.receiveLoggingSnippet(loggingSnippet);
+//                        if (null != loggingCallback) {
+//                            loggingCallback.receiveLoggingSnippet(loggingSnippet);
+//                        }
 
                         for (int i = 0; 5 > i; i++) {
                             keptUpdates[i][0] = 0;
@@ -698,7 +698,9 @@ x=x0;
                                 notConverged = false;
                                 String exitMessage = "Alert:  for BLOCK # " + singleBlockCurrentModelRecord_X.blockID() + ",  MCMC has converged after " + modelIndex + " iterations, with R = " + rExit;
                                 System.err.println("\n" + exitMessage + "\n");
-                                loggingCallback.receiveLoggingSnippet(exitMessage);
+//                                if (null != loggingCallback) {
+//                                    loggingCallback.receiveLoggingSnippet(exitMessage);
+//                                }
                             }
                         }
 
