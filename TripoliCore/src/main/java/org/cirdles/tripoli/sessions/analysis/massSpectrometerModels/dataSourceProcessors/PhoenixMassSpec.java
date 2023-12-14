@@ -37,12 +37,17 @@ public enum PhoenixMassSpec {
      * @throws IOException
      */
     @SuppressWarnings("unused")
-    public static MassSpecExtractedData extractMetaAndBlockDataFromFileVersion_1_0(Path inputDataFile) throws IOException {
+    public static MassSpecExtractedData extractMetaAndBlockDataFromFileVersion_1_0(Path inputDataFile) {
         MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
-        List<String> contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
+        List<String> contentsByLine;
+        try {
+            contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         // test for version 1.00
         if (0 != contentsByLine.get(0).trim().compareToIgnoreCase("Version,1.00")) {
-            throw new IOException("Expecting Version 1.0 of data file.");
+            //  throw new IOException("Expecting Version 1.0 of data file.");
         } else {
             List<String[]> headerByLineSplit = new ArrayList<>();
             List<String[]> columnNamesSplit = new ArrayList<>();
@@ -71,17 +76,21 @@ public enum PhoenixMassSpec {
                             phase = 3;
                         }
                         case 3 -> {
-                            String[] lineSplit = line.split(",");
-                            // each block gets treated as a singleton block #1
-                            int blockNumber = Integer.parseInt(lineSplit[1].trim());
-                            if (blockNumber != currentBlockNumber) {
-                                //  save off block and prepare for next block
-                                massSpecExtractedData.addBlockRecord(
-                                        parseAndBuildSingleBlockRecord(1, currentBlockNumber, dataByBlock));
-                                dataByBlock = new ArrayList<>();
-                                currentBlockNumber = blockNumber;
+                            try {
+                                String[] lineSplit = line.split(",");
+                                // each block gets treated as a singleton block #1
+                                int blockNumber = Integer.parseInt(lineSplit[1].trim());
+                                if (blockNumber != currentBlockNumber) {
+                                    //  save off block and prepare for next block
+                                    massSpecExtractedData.addBlockRecord(
+                                            parseAndBuildSingleBlockRecord(1, currentBlockNumber, dataByBlock));
+                                    dataByBlock = new ArrayList<>();
+                                    currentBlockNumber = blockNumber;
+                                }
+                                dataByBlock.add(line);
+                            } catch (Exception e) {
+                                System.out.println("HELP");
                             }
-                            dataByBlock.add(line);
                         }
                         case 4 -> {
                             // test if complete block by checking last entry's cycle number != 0
@@ -290,6 +299,7 @@ public enum PhoenixMassSpec {
 
         // version 1:  PhoenixFull_Synthetic ID,Block,Cycle,Integ,Time,Mass,DATA[Low5,Low4,Low3,Low2,Ax Fara,Axial,High1,High2,High3,High4]
         // version 2:  PhoenixFull ID,Block,Cycle,Integ,PeakID,AxMass,Time,DATA[PM,RS,L5,L4,L3,L2,Ax,H1,H2,H3,H4]
+        int count = 0;
         for (String line : blockData) {
             String[] lineSplit = line.split(",");
             sequenceIDByLineSplit.add(lineSplit[0].trim());
@@ -298,6 +308,7 @@ public enum PhoenixMassSpec {
             timeStampByLineSplit.add(lineSplit[(1 == version) ? 4 : 6].trim());
             massByLineSplit.add(lineSplit[5].trim());
             detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, ((1 == version) ? 6 : 7), lineSplit.length));
+            count++;
         }
 
         return buildSingleBlockRecord(
