@@ -20,6 +20,7 @@ import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -43,7 +44,7 @@ class DataSourceProcessorOPPhoenixTest {
 
     @Test
     @Order(1)
-    void prepareInputDataModelFromFileTwoIsotopes() throws IOException {
+    void prepareInputDataModelFromFileTwoIsotopes() throws TripoliException {
         System.err.println("Testing Synthetic Data 2 isotopes.");
         Path dataFile = RESOURCE_EXTRACTOR
                 .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData/SyntheticDataset_05.txt").toPath();
