@@ -216,8 +216,10 @@ public class OGTripoliViewController {
 
         Map<Integer, MassSpecOutputBlockRecordFull> blocksData = analysis.getMassSpecExtractedData().getBlocksDataFull();
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
-
+            double[][] blockIncluedIntensities = new double[countOfSpecies][];
             if (null != singleBlockModelRecords[blockIndex]) {
+                int countOfBaselineIntensities = singleBlockRawDataSetRecords[blockIndex].getCountOfBaselineIntensities();
+                int countOfFaradayIntensities = singleBlockRawDataSetRecords[blockIndex].getCountOfOnPeakFaradayIntensities();
                 Integer blockID = singleBlockModelRecords[blockIndex].blockID();
                 if (!plottingData.preview()) MCMCVectorExporter.exportData(analysis, blockID);
                 double[] onPeakTimeStamps = blocksData.get(blockID).onPeakTimeStamps();
@@ -225,7 +227,7 @@ public class OGTripoliViewController {
                 SingleBlockModelRecord singleBlockModelRecord = singleBlockModelRecords[blockIndex];
                 int countOfBaselineDataEntries = singleBlockRawDataSetRecords[blockIndex].getCountOfBaselineIntensities();
                 int countOfFaradayDataEntries = singleBlockRawDataSetRecords[blockIndex].getCountOfOnPeakFaradayIntensities();
-                boolean[][] intensityIncludedAccumulatorArray = ((Analysis) analysis).getMapOfBlockIdToIncludedPeakData().get(blockID);
+                boolean[] intensityIncludedArray = ((Analysis) analysis).getMapOfBlockIdToIncludedIntensities().get(blockID);
 
                 double[] onPeakModelFaradayData = singleBlockModelRecord.getOnPeakDataModelFaradayArray(countOfBaselineDataEntries, countOfFaradayDataEntries);
                 double[] onPeakFaradayDataSignalNoise = singleBlockModelRecord.getOnPeakFaradayDataSignalNoiseArray(countOfBaselineDataEntries, countOfFaradayDataEntries);
@@ -249,7 +251,7 @@ public class OGTripoliViewController {
                     onPeakDataAmpResistance[intensitySpeciesIndex][timeIndx] = mapOfOrdinalDetectorsToResistance.get(detectorOrdinalIndicesAccumulatorList.get(onPeakDataIndex));
                     onPeakBaseline[intensitySpeciesIndex * 4][timeIndx] = baseLineVector[mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(onPeakDataIndex))];
                     onPeakBaseline[intensitySpeciesIndex * 4 + 1][timeIndx] = baseLineVector[mapDetectorOrdinalToFaradayIndex.get(detectorOrdinalIndicesAccumulatorList.get(onPeakDataIndex))];
-                    onPeakDataIncludedAllBlocks[intensitySpeciesIndex][timeIndx] = intensityIncludedAccumulatorArray[intensitySpeciesIndex][timeIndex];
+                    onPeakDataIncludedAllBlocks[intensitySpeciesIndex][timeIndx] = intensityIncludedArray[countOfBaselineIntensities + onPeakDataIndex];
                     onPeakDataSignalNoiseArray[intensitySpeciesIndex][timeIndx] = onPeakFaradayDataSignalNoise[onPeakDataIndex];
                 }
 
@@ -273,10 +275,12 @@ public class OGTripoliViewController {
                     //TODO: address this: onPeakBaseline is  zero for PM for now
                     onPeakGain[intensitySpeciesIndex * 4 + 2][timeIndx] = dfGain;
                     onPeakGain[intensitySpeciesIndex * 4 + 3][timeIndx] = dfGain;
-                    onPeakDataIncludedAllBlocks[intensitySpeciesIndex][timeIndx] = intensityIncludedAccumulatorArray[intensitySpeciesIndex][timeIndex];
+                    onPeakDataIncludedAllBlocks[intensitySpeciesIndex][timeIndx] = intensityIncludedArray[countOfBaselineIntensities + countOfFaradayIntensities + onPeakDataIndex];
                     onPeakDataSignalNoiseArray[intensitySpeciesIndex][timeIndx] = onPeakPhotoMultiplierDataSignalNoise[onPeakDataIndex];
                 }
             }
+            // block specific
+
         }
 
         // accumulate intensity statistics

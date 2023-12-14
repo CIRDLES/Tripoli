@@ -43,17 +43,21 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public enum SingleBlockModelDriver {
     ;
 
-    public static PlotBuilder[][] buildAndRunModelForSingleBlock(int blockID, AnalysisInterface analysis, LoggingCallbackInterface loggingCallback) throws TripoliException, IOException {
+    public static PlotBuilder[][] buildAndRunModelForSingleBlock(
+            int blockID, AnalysisInterface analysis, LoggingCallbackInterface loggingCallback) throws TripoliException, IOException {
         MassSpecExtractedData massSpecExtractedData = analysis.getMassSpecExtractedData();
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
         PlotBuilder[][] plotBuilder = new PlotBuilder[0][0];
 
         SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = prepareSingleBlockDataForMCMC(blockID, massSpecExtractedData, analysisMethod);
-        ((Analysis) analysis).getMapOfBlockIdToIncludedIntensities().put(blockID, singleBlockRawDataSetRecord.blockIncludedIntensitiesArray());
+        if (null == ((Analysis) analysis).getMapOfBlockIdToIncludedIntensities().get(blockID)) {
+            ((Analysis) analysis).getMapOfBlockIdToIncludedIntensities().put(blockID, singleBlockRawDataSetRecord.blockIncludedIntensitiesArray());
+        }
 
         SingleBlockModelInitForMCMC.SingleBlockModelRecordWithCov singleBlockInitialModelRecordWithCov;
         try {
-            singleBlockInitialModelRecordWithCov = initializeModelForSingleBlockMCMC(analysis, analysisMethod, singleBlockRawDataSetRecord, true);
+            singleBlockInitialModelRecordWithCov
+                    = initializeModelForSingleBlockMCMC(analysis, analysisMethod, singleBlockRawDataSetRecord, true);
         } catch (RecoverableCondition e) {
             throw new TripoliException("Ojalgo RecoverableCondition");
         }
@@ -63,7 +67,6 @@ public enum SingleBlockModelDriver {
             mcmcProcess.initializeMCMCProcess();
             plotBuilder = mcmcProcess.applyInversionWithAdaptiveMCMC(loggingCallback);
         }
-
         return plotBuilder;
     }
 

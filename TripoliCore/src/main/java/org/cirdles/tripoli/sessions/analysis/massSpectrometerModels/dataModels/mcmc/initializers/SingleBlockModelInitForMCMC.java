@@ -50,6 +50,17 @@ public enum SingleBlockModelInitForMCMC {
         int totalIntensityCount = baselineCount + onPeakFaradayCount + onPeakPhotoMultCount;
         int countOfIsotopes = analysisMethod.getSpeciesList().size();
 
+        if (null != analysisMethod && (null == ((Analysis) analysis).getMapOfBlockIdToIncludedPeakData().get(singleBlockRawDataSetRecord.blockID()))) {
+            boolean[][] blockIncludedOnPeak = new boolean[countOfIsotopes][];
+            for (int index = 0; index < countOfIsotopes; index++) {
+                boolean[] row = new boolean[analysis.getMassSpecExtractedData().getBlocksDataFull().get(singleBlockRawDataSetRecord.blockID()).onPeakIntensities().length];
+                Arrays.fill(row, true);
+                blockIncludedOnPeak[index] = row;
+            }
+            ((Analysis) analysis).getMapOfBlockIdToIncludedPeakData().put(singleBlockRawDataSetRecord.blockID(), blockIncludedOnPeak);
+        }
+
+
         // TODO:Fix this per Noah
         // NOTE: the speciesList has been sorted by increasing abundances in the original analysisMethod setup
         //  the ratios are between each species and the most abundant species, with one less ratio than species count
@@ -115,24 +126,20 @@ public enum SingleBlockModelInitForMCMC {
 
             dd(~d0.axflag(dind)) = (dd(~d0.axflag(dind)) - x0.BL(tmpdetvec(~d0.axflag(dind))))*x0.DFgain ;
 
-
             tmptime = d0.time_ind(dind);
             [~,dsort]=sort(tmptime);
 
             dd=dd(dsort);
 
-            %I0=(II'*II)^-1*II'*dd;
             I0=II\dd;  % Solve least squares problem for initial intensity values
 
-            %x0.I{m} =  tmpDenIso*ones(Nknots(m),1);
-            %x0.I{m} = linspace(maxtmpCounts(m,iden),mintmpCounts(m,iden),d0.Nknots(m))';
             x0.I{m} = I0;
         end
          */
         double[] d0_data = singleBlockRawDataSetRecord.blockRawDataArray();
         int[] d0_detVec = singleBlockRawDataSetRecord.blockDetectorOrdinalIndicesArray();
         int startIndexOfPhotoMultiplierData = baselineCount + onPeakFaradayCount;
-        List<Double> ddver2List = new ArrayList<>();
+        List<Double> ddList = new ArrayList<>();
         int[] blockCycles = singleBlockRawDataSetRecord.blockCycleArray();
         List<Integer> tempTime = new ArrayList<>();
         List<Integer> cyclesList = new ArrayList<>();
@@ -140,39 +147,36 @@ public enum SingleBlockModelInitForMCMC {
         int[] isotopeOrdinalIndices = singleBlockRawDataSetRecord.blockIsotopeOrdinalIndicesArray();
         int[] timeIndForSortingArray = singleBlockRawDataSetRecord.blockTimeIndicesArray();
         for (int dataArrayIndex = 0; dataArrayIndex < d0_data.length; dataArrayIndex++) {
-
             if (isotopeOrdinalIndices[dataArrayIndex] == iden) {
                 if (dataArrayIndex < startIndexOfPhotoMultiplierData) {
                     double calculated = (d0_data[dataArrayIndex] - baselineMeansArray[mapDetectorOrdinalToFaradayIndex.get(d0_detVec[dataArrayIndex])]) * detectorFaradayGain;
-                    ddver2List.add(calculated);
+                    ddList.add(calculated);
                 } else {
-                    ddver2List.add(d0_data[dataArrayIndex]);
+                    ddList.add(d0_data[dataArrayIndex]);
                 }
                 tempTime.add(timeIndForSortingArray[dataArrayIndex]);
                 cyclesList.add(blockCycles[dataArrayIndex]);
             }
-
         }
 
-        double[] ddVer2Array = ddver2List.stream().mapToDouble(d -> d).toArray();
+        double[] ddArray = ddList.stream().mapToDouble(d -> d).toArray();
         int[] cyclesArray = cyclesList.stream().mapToInt(d -> d).toArray();
-
         int[] tempTimeIndicesArray = tempTime.stream().mapToInt(d -> d).toArray();
         ArrayIndexComparator comparatorTime = new ArrayIndexComparator(tempTimeIndicesArray);
-        Integer[] ddVer2sortIndices = comparatorTime.createIndexArray();
-        Arrays.sort(ddVer2sortIndices, comparatorTime);
+        Integer[] ddSortIndices = comparatorTime.createIndexArray();
+        Arrays.sort(ddSortIndices, comparatorTime);
 
-        double[] ddVer2SortedArray = new double[ddVer2Array.length];
+        double[] ddSortedArray = new double[ddArray.length];
         int[] cyclesSortedArray = new int[cyclesArray.length];
-        for (int i = 0; i < ddVer2Array.length; i++) {
-            ddVer2SortedArray[i] = ddVer2Array[ddVer2sortIndices[i]];
-            cyclesSortedArray[i] = cyclesArray[ddVer2sortIndices[i]];
+        for (int i = 0; i < ddArray.length; i++) {
+            ddSortedArray[i] = ddArray[ddSortIndices[i]];
+            cyclesSortedArray[i] = cyclesArray[ddSortIndices[i]];
         }
 
         double[][] interpolatedKnotData_II = singleBlockRawDataSetRecord.blockKnotInterpolationArray();
         RealMatrix II = new BlockRealMatrix(interpolatedKnotData_II);
         DecompositionSolver solver = new QRDecomposition(II).getSolver();
-        RealVector data = new ArrayRealVector(ddVer2SortedArray);
+        RealVector data = new ArrayRealVector(ddSortedArray);
         RealVector solution = solver.solve(data);
         double[] intensity_I = solution.toArray();
 
@@ -185,93 +189,100 @@ public enum SingleBlockModelInitForMCMC {
         /*
         %% Initialize Log Isotope Ratios
         for m=1:d0.Nblock
-            II = d0.InterpMat{m};
-            IntensityFn = II*x0.I{m};
+        II = d0.InterpMat{m};
+        IntensityFn = II*x0.I{m};
+        %IntensityFn = IntensityFn(d0.IncludeMat{m});  %sb726 include
 
-            for ii = 1:d0.Niso-1
-                dind = (d0.iso_ind(:,ii) &   d0.block(:,m));
-                dd=d0.data(dind);
-                tmpdetvec = d0.det_vec(dind);
+        for ii = 1:d0.Niso-1
+           % dind = (d0.iso_ind(:,ii) &   d0.block(:,m) & d0.Include); %sb726 include
+            dind = (d0.iso_ind(:,ii) &   d0.block(:,m));
+            dd=d0.data(dind);
+            tmpdetvec = d0.det_vec(dind);
 
-                dd(~d0.axflag(dind)) = (dd(~d0.axflag(dind)) - x0.BL(tmpdetvec(~d0.axflag(dind))))*x0.DFgain ;
+            dd(~d0.axflag(dind)) = (dd(~d0.axflag(dind)) - x0.BL(tmpdetvec(~d0.axflag(dind))))*x0.DFgain ;
 
-                tmptime = d0.time_ind(dind);
-                [~,dsort]=sort(tmptime);
+            tmptime = d0.time_ind(dind);
+            [tsort,dsort]=sort(tmptime);
 
-                dd=dd(dsort);
+            dd=dd(dsort);
 
-                IsoBlockMean(ii,m) = log(mean(dd./IntensityFn));
-
-            end
+            IsoBlockMean(ii,m) = log(mean(dd./IntensityFn(tsort)));
+            %IsoBlockMean(ii,m) = MeanofLogs(dd,IntensityFn,mean(x0.BLstd).^2);
         end
 
         for ii=1:d0.Niso-1
-            x0.lograt(ii,1) = mean(IsoBlockMean(ii,:));
+            x0.lograt(ii,1) = max(mean(IsoBlockMean(ii,:)),(prior.lograt(1)));
         end
          */
-        int[] isotopeOrdinalIndicesAccumulatorArray = singleBlockRawDataSetRecord.blockIsotopeOrdinalIndicesArray();
         int cycleCount = singleBlockRawDataSetRecord.onPeakStartingIndicesOfCycles().length;
         double[] logRatios = new double[analysisMethod.getIsotopicRatiosList().size()];
         Map<IsotopicRatio, Map<Integer, double[]>> mapLogRatiosToCycleStats = new TreeMap<>();
 
         Map<Integer, double[]> denominatorMapCyclesToStats = new TreeMap<>();
         for (int isotopeIndex = 0; isotopeIndex < countOfIsotopes; isotopeIndex++) {
-            ddver2List = new ArrayList<>();
+            ddList = new ArrayList<>();
             cyclesList = new ArrayList<>();
             tempTime = new ArrayList<>();
             for (int dataArrayIndex = 0; dataArrayIndex < d0_data.length; dataArrayIndex++) {
-                if (isotopeOrdinalIndicesAccumulatorArray[dataArrayIndex] == isotopeIndex + 1) {
+                if (isotopeOrdinalIndices[dataArrayIndex] == (isotopeIndex + 1)) {
                     if (dataArrayIndex < startIndexOfPhotoMultiplierData) {
                         double calculated = (d0_data[dataArrayIndex] - baselineMeansArray[mapDetectorOrdinalToFaradayIndex.get(d0_detVec[dataArrayIndex])]) * detectorFaradayGain;
-                        ddver2List.add(calculated);
+                        ddList.add(calculated);
                     } else {
-                        ddver2List.add(d0_data[dataArrayIndex]);
+                        ddList.add(d0_data[dataArrayIndex]);
                     }
                     tempTime.add(timeIndForSortingArray[dataArrayIndex]);
                     cyclesList.add(blockCycles[dataArrayIndex]);
                 }
             }
 
-            ddVer2Array = ddver2List.stream().mapToDouble(d -> d).toArray();
+            ddArray = ddList.stream().mapToDouble(d -> d).toArray();
             cyclesArray = cyclesList.stream().mapToInt(d -> d).toArray();
             tempTimeIndicesArray = tempTime.stream().mapToInt(d -> d).toArray();
-            comparatorTime = new ArrayIndexComparator(tempTimeIndicesArray);
-            ddVer2sortIndices = comparatorTime.createIndexArray();
-            Arrays.sort(ddVer2sortIndices, comparatorTime);
+            ArrayIndexComparator comparatorTimeIso = new ArrayIndexComparator(tempTimeIndicesArray);
+            ddSortIndices = comparatorTimeIso.createIndexArray();
+            Arrays.sort(ddSortIndices, comparatorTimeIso);
 
-            ddVer2SortedArray = new double[ddVer2Array.length];
-            cyclesSortedArray = new int[ddVer2Array.length];
-            for (int i = 0; i < ddVer2Array.length; i++) {
-                ddVer2SortedArray[i] = ddVer2Array[ddVer2sortIndices[i]];
-                cyclesSortedArray[i] = cyclesArray[ddVer2sortIndices[i]];
+            ddSortedArray = new double[ddArray.length];
+            cyclesSortedArray = new int[ddArray.length];
+            for (int i = 0; i < ddArray.length; i++) {
+                ddSortedArray[i] = ddArray[ddSortIndices[i]];
+                cyclesSortedArray[i] = cyclesArray[ddSortIndices[i]];
             }
 
             // get data included array ***********************************************************************************
             boolean[][] blockOnPeakIncluded = ((Analysis) analysis).getMapOfBlockIdToIncludedPeakData().get(singleBlockRawDataSetRecord.blockID());
-
             DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics();
-            for (int dataArrayIndex = 0; dataArrayIndex < ddVer2SortedArray.length; dataArrayIndex++) {
+            for (int dataArrayIndex = 0; dataArrayIndex < ddSortedArray.length; dataArrayIndex++) {
                 //TODO: Check for cycle active - see below where stats accumulator checks
                 if (blockOnPeakIncluded[isotopeIndex][dataArrayIndex] && blockOnPeakIncluded[indexOfMostAbundantIsotope][dataArrayIndex]) {
-                    descriptiveStatistics.addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
+                    descriptiveStatistics.addValue(
+                            ddSortedArray[dataArrayIndex] / intensityFn.get(comparatorTimeIso.array[dataArrayIndex], 0));
                 }
             }
             // only use most abundant isotope (denominator or iden) for cycle-based calculations
+            // TODO: ddsortedArray and intensityfn agree exactly with matlab, but logratios differ slightly
             if (isotopeIndex < logRatios.length) {
                 logRatios[isotopeIndex] = StrictMath.log(Math.max(descriptiveStatistics.getMean(), Math.exp(proposalRangesRecord.priorLogRatio()[0][0])));
             }
 
-            // start cycle-based math
+            // start cycle-based math //////////////////////////////////////////////////////////////////////////////////
             DescriptiveStatistics[] cycleStats = new DescriptiveStatistics[cycleCount];
-            for (int dataArrayIndex = 0; dataArrayIndex < ddVer2SortedArray.length; dataArrayIndex++) {
+            for (int dataArrayIndex = 0; dataArrayIndex < ddSortedArray.length; dataArrayIndex++) {
                 int cycle = cyclesSortedArray[dataArrayIndex] - 1;
                 if (cycleStats[cycle] == null) {
                     cycleStats[cycle] = new DescriptiveStatistics();
                 }
-                // TODO: make this a check for both isotopes (eventually may include denominator as one that is excluded)
-                if (singleBlockRawDataSetRecord.mapOfSpeciesToActiveCycles().get(analysisMethod.getSpeciesList().get(isotopeIndex))[cycle]
-                        && blockOnPeakIncluded[isotopeIndex][dataArrayIndex] && blockOnPeakIncluded[indexOfMostAbundantIsotope][dataArrayIndex]) {
-                    cycleStats[cycle].addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
+
+                // cycleStats[cycle] descriptivestats collects ratios for cycle  see matlab line 34
+//                if (singleBlockRawDataSetRecord.mapOfSpeciesToActiveCycles().get(analysisMethod.getSpeciesList().get(isotopeIndex))[cycle]
+//                        && blockOnPeakIncluded[isotopeIndex][dataArrayIndex] && blockOnPeakIncluded[indexOfMostAbundantIsotope][dataArrayIndex]) {
+//                    cycleStats[cycle].addValue(ddSortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
+//                }
+
+                // todo: cyclestats on example match for 204 and 205, but are larger for 206,7,8 compared to matlab
+                if (blockOnPeakIncluded[isotopeIndex][dataArrayIndex] && blockOnPeakIncluded[indexOfMostAbundantIsotope][dataArrayIndex]) {
+                    cycleStats[cycle].addValue(ddSortedArray[dataArrayIndex] / intensityFn.get(comparatorTimeIso.array[dataArrayIndex], 0));
                 }
             }
 
@@ -284,30 +295,36 @@ public enum SingleBlockModelInitForMCMC {
                     if (cycleStats[cycleIndex].getMean() >= Math.exp(proposalRangesRecord.priorLogRatio()[0][0])) {
                         cycleLogRatioStats[0] = (cycleStats[cycleIndex].getMean());
                         // TODO: does this mean active cycles??
-                        cycleLogRatioStats[1] = cycleStats[cycleIndex].getStandardDeviation() / Math.sqrt(cycleStats[cycleIndex].getN());
+                        cycleLogRatioStats[1] = cycleStats[cycleIndex].getStandardDeviation() / Math.sqrt(cycleStats[cycleIndex].getN());//Math.sqrt(cyclesSortedArray.length / cycleStats.length);
                     } else {
                         cycleLogRatioStats[0] = Math.exp(proposalRangesRecord.priorLogRatio()[0][0]);
                         cycleLogRatioStats[1] = 0.0;
                     }
                     mapCyclesToStats.put(cycleIndex, cycleLogRatioStats);
+                } else {
+                    double[] cycleLogRatioStats = {0, 0};
+                    mapCyclesToStats.put(cycleIndex, cycleLogRatioStats);
                 }
+
             }
             if (isotopeIndex == indexOfMostAbundantIsotope) {
                 denominatorMapCyclesToStats = mapCyclesToStats;
             } else {
                 mapLogRatiosToCycleStats.put(analysisMethod.getIsotopicRatiosList().get(isotopeIndex), mapCyclesToStats);
             }
-        }
+
+        } // isotopeIndex
 
         // postprocess to correct by denominator isotope as per ViewCycles in matlab
         for (IsotopicRatio iRatio : mapLogRatiosToCycleStats.keySet()) {
             Map<Integer, double[]> numeratorMapCyclesToStats = mapLogRatiosToCycleStats.get(iRatio);
             for (int cycleIndex = 0; cycleIndex < numeratorMapCyclesToStats.keySet().size(); cycleIndex++) {
-                numeratorMapCyclesToStats.get(cycleIndex)[0] /= denominatorMapCyclesToStats.get(cycleIndex)[0];
-                double calcSterrCycleRatio =
-                        numeratorMapCyclesToStats.get(cycleIndex)[1] = StrictMath.sqrt(StrictMath.pow(numeratorMapCyclesToStats.get(cycleIndex)[1], 2.0)
-                                + StrictMath.pow(denominatorMapCyclesToStats.get(cycleIndex)[1], 2.0));
-                numeratorMapCyclesToStats.get(cycleIndex)[1] = calcSterrCycleRatio;
+                if ((numeratorMapCyclesToStats.get(cycleIndex)[0] != 0.0) && (denominatorMapCyclesToStats.get(cycleIndex)[0] != 0.0)) {
+                    numeratorMapCyclesToStats.get(cycleIndex)[0] /= denominatorMapCyclesToStats.get(cycleIndex)[0]; //line 59
+                    numeratorMapCyclesToStats.get(cycleIndex)[1] =
+                            StrictMath.sqrt(StrictMath.pow(numeratorMapCyclesToStats.get(cycleIndex)[1], 2.0)
+                                    + StrictMath.pow(denominatorMapCyclesToStats.get(cycleIndex)[1], 2.0));
+                }
             }
         }
 
@@ -354,7 +371,7 @@ public enum SingleBlockModelInitForMCMC {
 
         for (int dataArrayIndex = 0; dataArrayIndex < d0_data.length; dataArrayIndex++) {
             intensityIndex = timeIndForSortingArray[dataArrayIndex];
-            int isotopeIndex = isotopeOrdinalIndicesAccumulatorArray[dataArrayIndex] - 1;
+            int isotopeIndex = isotopeOrdinalIndices[dataArrayIndex] - 1;
 
             if (0 <= isotopeIndex) {
                 if (dataArrayIndex >= startIndexOfPhotoMultiplierData) {
@@ -364,7 +381,7 @@ public enum SingleBlockModelInitForMCMC {
                         ddd[dataArrayIndex] = intensityFn.get(intensityIndex, 0);
                     }
                     dataSignalNoiseArray_Dsig[dataArrayIndex] = ddd[dataArrayIndex] / reportInterval * 2.0;// TODO: per PI discussion 21 Nov 2023
-                } else {
+                } else if (dataArrayIndex >= baselineCount) {
                     if (isotopeIndex < logRatios.length) {
                         ddd[dataArrayIndex] = StrictMath.exp(logRatios[isotopeIndex]) * (1.0 / detectorFaradayGain) * intensityFn.get(intensityIndex, 0);
                     } else {
@@ -448,7 +465,7 @@ public enum SingleBlockModelInitForMCMC {
 
             double[] logRatioVar = new double[logRatios.length];
             for (int logRatioIndex = 0; logRatioIndex < logRatios.length; logRatioIndex++) {
-                double[] testLR = MatLab.linspace(-0.5, 0.5, 1001).toRawCopy1D();
+                double[] testLR = MatLab.linspace(-0.5, 0.5, 101).toRawCopy1D();
                 double delta_testLR = testLR[1] - testLR[0];
                 double minvarLR = Math.pow(delta_testLR / 2.0, 2.0);
                 double[] eTmp = new double[testLR.length];
@@ -884,6 +901,10 @@ public enum SingleBlockModelInitForMCMC {
 
         public ArrayIndexComparator(int[] array) {
             this.array = array;
+        }
+
+        public int[] getArray() {
+            return array;
         }
 
         public Integer[] createIndexArray() {

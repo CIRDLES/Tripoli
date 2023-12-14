@@ -249,15 +249,16 @@ public class Analysis implements Serializable, AnalysisInterface {
             mapOfBlockIdToRawData.put(blockID, null);
             mapOfBlockIdToFinalModel.put(blockID, null);
 
-            if (null != analysisMethod) {
-                boolean[][] blockIncludedOnPeak = new boolean[analysisMethod.getSpeciesListSortedByMass().size()][];
-                for (int index = 0; index < blockIncludedOnPeak.length; index++) {
-                    boolean[] row = new boolean[massSpecExtractedData.getBlocksDataFull().get(blockID).onPeakIntensities().length];
-                    Arrays.fill(row, true);
-                    blockIncludedOnPeak[index] = row;
-                }
-                mapOfBlockIdToIncludedPeakData.put(blockID, blockIncludedOnPeak);
-            }
+
+//            if (null != analysisMethod) {
+//                boolean[][] blockIncludedOnPeak = new boolean[analysisMethod.getSpeciesListSortedByMass().size()][];
+//                for (int index = 0; index < blockIncludedOnPeak.length; index++) {
+//                    boolean[] row = new boolean[massSpecExtractedData.getBlocksDataFull().get(blockID).onPeakIntensities().length];
+//                    Arrays.fill(row, true);
+//                    blockIncludedOnPeak[index] = row;
+//                }
+//                mapOfBlockIdToIncludedPeakData.put(blockID, blockIncludedOnPeak);
+//            }
         }
     }
 
