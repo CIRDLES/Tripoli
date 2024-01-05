@@ -174,6 +174,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             }
 
             initializeBlockProcessing();
+            initializeSpeciesColorMap();
 
         } else {
             // attempt to load specified method
@@ -191,6 +192,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             }
 
             initializeBlockProcessing();
+            initializeSpeciesColorMap();
 
             // collects the file objects from PeakCentres folder +++++++++++++++++++++++++++++++++++++++++++++++++++++++
             List<File> fileList = new ArrayList<>();
@@ -244,7 +246,19 @@ public class Analysis implements Serializable, AnalysisInterface {
         }
     }
 
-
+    /**
+     * Initializes <code>mapOfSpeciesToColors</code> to default values
+     */
+    private void initializeSpeciesColorMap() {
+        for (int i = 0; i < analysisMethod.getSpeciesList().size(); ++i) {
+            mapOfSpeciesToColors.put(
+                    Integer.valueOf(i),
+                    new SpeciesColors(FARADAY_DEFAULT_HEX_COLORS[i],
+                            PM_DEFAULT_HEX_COLORS[i],
+                            FARADAY_MODEL_DEFAULT_HEX_COLOR ,
+                            PM_MODEL_DEFAULT_HEX_COLOR));
+        }
+    }
 
     public void initializeBlockProcessing() {
         for (Integer blockID : massSpecExtractedData.getBlocksDataFull().keySet()) {
@@ -648,6 +662,10 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public Map<IsotopicRatio, AnalysisRatioRecord> getMapOfRatioToAnalysisRatioRecord() {
         return mapOfRatioToAnalysisRatioRecord;
+    }
+
+    public Map<Integer, SpeciesColors> getMapOfSpeciesToColors() {
+        return mapOfSpeciesToColors;
     }
 
     public void setAnalysisDalyFaradayGainMean(double analysisDalyFaradayGainMean) {

@@ -19,11 +19,13 @@ import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneIntensities;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
+import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.StrictMath.*;
 import static java.util.Arrays.binarySearch;
@@ -292,7 +294,20 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
     @Override
     public void showLegend(GraphicsContext g2d) {
         Paint savedPaint = g2d.getFill();
-        List<SpeciesRecordInterface> speciesList = speciesIntensityAnalysisBuilder.getAnalysis().getAnalysisMethod().getSpeciesList();
+//        List<SpeciesRecordInterface> speciesList = speciesIntensityAnalysisBuilder.getAnalysis().getAnalysisMethod().getSpeciesList();
+//        Analysis analysis = (Analysis) speciesIntensityAnalysisBuilder.getAnalysis();
+//        Map<Integer, SpeciesColors> mapOfSpeciesToColors = analysis.getMapOfSpeciesToColors();
+//        for (int i = 0; i < mapOfSpeciesToColors.size(); ++i) {
+//            String speciesName = speciesList.get(i).prettyPrintShortForm();
+//            SpeciesColors colors = mapOfSpeciesToColors.get(Integer.valueOf(i));
+//            System.out.printf("Species: %s%nFaraday: %s%nPM: %s%nFaraday Model: %s%nPM Model: %s%n",
+//                    speciesName,
+//                    colors.faradayHexColor(),
+//                    colors.pmHexColor(),
+//                    colors.faradayModelHexColor(),
+//                    colors.pmModelHexColor()
+//                    );
+//        }
         for (int isotopePlotSetIndex = 0; isotopePlotSetIndex < yData.length / 4; isotopePlotSetIndex++) {
             if (speciesChecked[isotopePlotSetIndex]) {
                 g2d.setFill(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]));//.brighter());
