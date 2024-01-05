@@ -550,7 +550,8 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
             // zoom into block
             countOfPreviousBlockIncludedData = 0;
             for (int prevBlockID = 1; prevBlockID < sculptBlockID; prevBlockID++) {
-                countOfPreviousBlockIncludedData += ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(prevBlockID)[0].length;
+                countOfPreviousBlockIncludedData +=
+                        speciesIntensityAnalysisBuilder.getAnalysis().getMassSpecExtractedData().getBlocksDataFull().get(prevBlockID).onPeakIntensities().length;
             }
 
             if (zoomBlock) {
@@ -885,14 +886,14 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                                 // faraday
                                 if (showFaradays && (yData[isotopeIndex * 4][index] < intensityTop) && (yData[isotopeIndex * 4][index] > intensityBottom) && (0.0 != yData[isotopeIndex * 4][index])) {
                                     onPeakDataIncludedAllBlocks[isotopeIndex][index] = majorityValue;
-
+                                    includedPeakData[index - countOfPreviousBlockIncludedData] = majorityValue;
                                     ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[isotopeIndex][index - countOfPreviousBlockIncludedData]
                                             = majorityValue;
                                 }
                                 // photomultiplier
                                 if (showPMs && (yData[isotopeIndex * 4 + 2][index] < intensityTop) && (yData[isotopeIndex * 4 + 2][index] > intensityBottom) && (0.0 != yData[isotopeIndex * 4 + 2][index])) {
                                     onPeakDataIncludedAllBlocks[isotopeIndex][index] = majorityValue;
-
+                                    includedPeakData[index - countOfPreviousBlockIncludedData] = majorityValue;
                                     ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[isotopeIndex][index - countOfPreviousBlockIncludedData]
                                             = majorityValue;
                                 }
@@ -901,6 +902,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                     }
                 }
 
+                // update included vector per block
                 Analysis analysis = ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis());
                 double[] xTimes = analysis.getMassSpecExtractedData().calculateSessionTimes();
                 int[] blockIsotopeOrdinalIndicesArray = analysis.getMapOfBlockIdToRawData().get(sculptBlockID).blockIsotopeOrdinalIndicesArray();

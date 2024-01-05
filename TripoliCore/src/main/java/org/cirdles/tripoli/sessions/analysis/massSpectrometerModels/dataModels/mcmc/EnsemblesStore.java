@@ -178,10 +178,9 @@ public class EnsemblesStore implements Serializable {
             Matrix I = new Matrix(meansI0, meansI0.length);
             Matrix intensityFn = II.times(I);
 
-            DescriptiveStatistics[] cycleStats = new DescriptiveStatistics[summaryMCMCModel.cycleCount()];
-
             // get data included array ***********************************************************************************
             boolean[][] blockOnPeakIncluded = ((Analysis) analysis).getMapOfBlockIdToIncludedPeakData().get(singleBlockRawDataSetRecord.blockID());
+            DescriptiveStatistics[] cycleStats = new DescriptiveStatistics[summaryMCMCModel.cycleCount()];
             int countOfIsotopes = analysisMethod.getSpeciesList().size();
             int indexOfMostAbundantIsotope = countOfIsotopes - 1;
 
@@ -193,10 +192,9 @@ public class EnsemblesStore implements Serializable {
                 // TODO: make this checks for both isotopes (eventually may include denominator as one that is excluded)
                 if (singleBlockModelRecord.mapOfSpeciesToActiveCycles().get(analysisMethod.getSpeciesList().get(isotopeIndex))[cycle]
                         && blockOnPeakIncluded[isotopeIndex][dataArrayIndex] && blockOnPeakIncluded[indexOfMostAbundantIsotope][dataArrayIndex]) {
-                    cycleStats[cycle].addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(dataArrayIndex, 0));
+                    cycleStats[cycle].addValue(ddVer2SortedArray[dataArrayIndex] / intensityFn.get(comparatorTime.getArray()[dataArrayIndex], 0));
                 }
             }
-
 
             Map<Integer, double[]> mapCyclesToStats = new TreeMap<>();
 
