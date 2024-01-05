@@ -7,8 +7,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
+import javafx.scene.paint.*;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -295,15 +294,26 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
     public void showLegend(GraphicsContext g2d) {
         Paint savedPaint = g2d.getFill();
         List<SpeciesRecordInterface> speciesList = speciesIntensityAnalysisBuilder.getAnalysis().getAnalysisMethod().getSpeciesList();
+        Map<Integer, SpeciesColors> mapOfSpeciesToColors = ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).
+                getMapOfSpeciesToColors();
         for (int isotopePlotSetIndex = 0; isotopePlotSetIndex < yData.length / 4; isotopePlotSetIndex++) {
             if (speciesChecked[isotopePlotSetIndex]) {
-                g2d.setFill(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]));//.brighter());
+//                g2d.setFill(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]));//.brighter());
+//                g2d.setFill(Color.web(mapOfSpeciesToColors.get(Integer.valueOf(isotopePlotSetIndex)).speciesHexColor()));
+                setGradientForFill(g2d, mapOfSpeciesToColors.get(isotopePlotSetIndex));
                 Text text = new Text(speciesList.get(isotopePlotSetIndex).prettyPrintShortForm());
                 g2d.setFont(Font.font("Monospaced", FontWeight.BOLD, 20));
                 g2d.fillText(text.getText(), 5, 150 - isotopePlotSetIndex * 22);
                 g2d.setFill(savedPaint);
             }
         }
+    }
+
+    private static void setGradientForFill(GraphicsContext g2d, SpeciesColors speciesColors) {
+        Color pmColor = Color.web(speciesColors.pmHexColor());
+        Color faradayColor = Color.web(speciesColors.faradayHexColor());
+        Stop[] stops = new Stop[] { new Stop(.1, pmColor), new Stop(.9, faradayColor)};
+        g2d.setFill(new LinearGradient(0,0,1,1,true, CycleMethod.NO_CYCLE, stops));
     }
 
     @Override

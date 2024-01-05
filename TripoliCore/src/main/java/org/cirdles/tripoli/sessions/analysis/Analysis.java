@@ -253,7 +253,8 @@ public class Analysis implements Serializable, AnalysisInterface {
         for (int i = 0; i < analysisMethod.getSpeciesList().size(); ++i) {
             mapOfSpeciesToColors.put(
                     Integer.valueOf(i),
-                    new SpeciesColors(FARADAY_DEFAULT_HEX_COLORS[i],
+                    new SpeciesColors(
+                            FARADAY_DEFAULT_HEX_COLORS[i],
                             PM_DEFAULT_HEX_COLORS[i],
                             FARADAY_MODEL_DEFAULT_HEX_COLOR ,
                             PM_MODEL_DEFAULT_HEX_COLOR));
