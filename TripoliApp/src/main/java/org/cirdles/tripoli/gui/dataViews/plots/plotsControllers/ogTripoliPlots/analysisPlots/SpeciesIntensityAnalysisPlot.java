@@ -309,6 +309,11 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
         }
     }
 
+    /**
+     * Creates a gradient effect for the legend between the Faraday and photomultiplier colors
+     * @param g2d The 2-dimensional graphics context
+     * @param speciesColors The colors
+     */
     private static void setGradientForFill(GraphicsContext g2d, SpeciesColors speciesColors) {
         Color pmColor = Color.web(speciesColors.pmHexColor());
         Color faradayColor = Color.web(speciesColors.faradayHexColor());

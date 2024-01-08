@@ -17,19 +17,30 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
+import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_MICHAELANGELO_URL;
 
@@ -118,7 +129,8 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         // not used
     }
 
-    public void buildIntensitiesPlotToolBar(boolean showResiduals, List<SpeciesRecordInterface> species) {
+    public void buildIntensitiesPlotToolBar(boolean showResiduals, List<SpeciesRecordInterface> species,
+                                            Map<Integer, SpeciesColors> mapOfSpeciesToColors) {
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);
         speciesChecked = new boolean[species.size()];
@@ -248,6 +260,71 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
                     }
                     rebuildPlot(false, false);
                 });
+
+        //  Verbose construction of the species-color window
+        Button button = new Button("Customize Colors");
+        toolBar.getItems().add(button);
+        button.setOnAction(event -> {
+
+            VBox root = new VBox();
+            root.setStyle("-fx-background-color: linen");
+
+            for (int speciesIndex = 0; speciesIndex < species.size(); ++speciesIndex) {
+                SpeciesColorPane pane = new SpeciesColorPane(species.get(speciesIndex).prettyPrintShortForm().trim(),
+                        mapOfSpeciesToColors.get(speciesIndex));
+                VBox vBox = new VBox();
+                pane.getChildren().add(vBox);
+                //  Make title For the species
+                Text speciesTitle = new Text(pane.getSpeciesName());
+                speciesTitle.setFont(Font.font(24));
+                vBox.setAlignment(Pos.CENTER);
+                vBox.getChildren().add(speciesTitle);
+
+                // Make HBox for the different colors
+                HBox hBox = new HBox();
+                vBox.getChildren().add(hBox);
+                hBox.setAlignment(Pos.CENTER);
+
+                //  Faraday
+                Label faradayLabel = new Label("Faraday");
+                faradayLabel.setStyle(String.format("-fx-background-color: %s;",
+                        pane.getSpeciesColors().faradayHexColor()));
+                faradayLabel.addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+                    System.out.println(mouseEvent);
+                    // How do I get the color dialog without using ColorPicker?
+                    ColorPicker colorPicker = new ColorPicker(Color.web(pane.getSpeciesColors().faradayHexColor()));
+                    colorPicker.fireEvent(new ActionEvent());
+                });
+                hBox.getChildren().add(faradayLabel);
+
+                // PM
+                Label pmLabel = new Label("Photomultiplier");
+                pmLabel.setStyle(String.format("-fx-background-color: %s;",
+                        pane.getSpeciesColors().pmHexColor()));
+                hBox.getChildren().add(pmLabel);
+
+                // FaradayModel
+                Label faradayModel = new Label("Faraday Model");
+                faradayModel.setStyle(String.format("-fx-background-color: %s;",
+                        pane.getSpeciesColors().faradayModelHexColor()));
+                hBox.getChildren().add(faradayModel);
+
+                // PM Model
+                Label pmModel = new Label("PM Model");
+                pmModel.setStyle(String.format("-fx-background-color: %s;",
+                        pane.getSpeciesColors().pmModelHexColor()));
+                hBox.getChildren().add(pmModel);
+                root.getChildren().add(pane);
+            }
+
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            stage.setScene(scene);
+            stage.setTitle("Color Window");
+            stage.show();
+
+        });
+        //  END OF verbose construction of species-color window
 
         getChildren().add(0, toolBar);
     }
