@@ -75,6 +75,12 @@ public enum TripoliConstants {
     public static final String PM_MODEL_DEFAULT_HEX_COLOR = "#7fffd4";
     public static final String FARADAY_MODEL_DEFAULT_HEX_COLOR = "#ff0000";
 
+    public static enum PlotType {
+        FARADAY_POINT,
+        PM_POINT,
+        FARADAY_MODEL,
+        PM_MODEL
+    }
     public static enum IntensityUnits {
         COUNTS(),
         VOLTS(),

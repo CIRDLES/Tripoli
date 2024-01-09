@@ -292,8 +292,6 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
                 faradayLabel.addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
                     System.out.println(mouseEvent);
                     // How do I get the color dialog without using ColorPicker?
-                    ColorPicker colorPicker = new ColorPicker(Color.web(pane.getSpeciesColors().faradayHexColor()));
-                    colorPicker.fireEvent(new ActionEvent());
                 });
                 hBox.getChildren().add(faradayLabel);
 
