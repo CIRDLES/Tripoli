@@ -272,46 +272,47 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
             for (int speciesIndex = 0; speciesIndex < species.size(); ++speciesIndex) {
                 SpeciesColorPane pane = new SpeciesColorPane(species.get(speciesIndex).prettyPrintShortForm().trim(),
                         mapOfSpeciesToColors.get(speciesIndex));
-                VBox vBox = new VBox();
-                pane.getChildren().add(vBox);
-                //  Make title For the species
-                Text speciesTitle = new Text(pane.getSpeciesName());
-                speciesTitle.setFont(Font.font(24));
-                vBox.setAlignment(Pos.CENTER);
-                vBox.getChildren().add(speciesTitle);
+//                VBox vBox = new VBox();
+//                pane.getChildren().add(vBox);
+//                //  Make title For the species
+//                Text speciesTitle = new Text(pane.getSpeciesName());
+//                speciesTitle.setFont(Font.font(24));
+//                vBox.setAlignment(Pos.CENTER);
+//                vBox.getChildren().add(speciesTitle);
+//
+//                // Make HBox for the different colors
+//                HBox hBox = new HBox();
+//                vBox.getChildren().add(hBox);
+//                hBox.setAlignment(Pos.CENTER);
+//
+//                //  Faraday
+//                Label faradayLabel = new Label("Faraday");
+//                faradayLabel.setStyle(String.format("-fx-background-color: %s;",
+//                        pane.getSpeciesColors().faradayHexColor()));
+//                faradayLabel.addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+//                    System.out.println(mouseEvent);
+//                    // How do I get the color dialog without using ColorPicker?
+//                });
+//                hBox.getChildren().add(faradayLabel);
+//
+//                // PM
+//                Label pmLabel = new Label("Photomultiplier");
+//                pmLabel.setStyle(String.format("-fx-background-color: %s;",
+//                        pane.getSpeciesColors().pmHexColor()));
+//                hBox.getChildren().add(pmLabel);
+//
+//                // FaradayModel
+//                Label faradayModel = new Label("Faraday Model");
+//                faradayModel.setStyle(String.format("-fx-background-color: %s;",
+//                        pane.getSpeciesColors().faradayModelHexColor()));
+//                hBox.getChildren().add(faradayModel);
+//
+//                // PM Model
+//                Label pmModel = new Label("PM Model");
+//                pmModel.setStyle(String.format("-fx-background-color: %s;",
+//                        pane.getSpeciesColors().pmModelHexColor()));
+//                hBox.getChildren().add(pmModel);
 
-                // Make HBox for the different colors
-                HBox hBox = new HBox();
-                vBox.getChildren().add(hBox);
-                hBox.setAlignment(Pos.CENTER);
-
-                //  Faraday
-                Label faradayLabel = new Label("Faraday");
-                faradayLabel.setStyle(String.format("-fx-background-color: %s;",
-                        pane.getSpeciesColors().faradayHexColor()));
-                faradayLabel.addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
-                    System.out.println(mouseEvent);
-                    // How do I get the color dialog without using ColorPicker?
-                });
-                hBox.getChildren().add(faradayLabel);
-
-                // PM
-                Label pmLabel = new Label("Photomultiplier");
-                pmLabel.setStyle(String.format("-fx-background-color: %s;",
-                        pane.getSpeciesColors().pmHexColor()));
-                hBox.getChildren().add(pmLabel);
-
-                // FaradayModel
-                Label faradayModel = new Label("Faraday Model");
-                faradayModel.setStyle(String.format("-fx-background-color: %s;",
-                        pane.getSpeciesColors().faradayModelHexColor()));
-                hBox.getChildren().add(faradayModel);
-
-                // PM Model
-                Label pmModel = new Label("PM Model");
-                pmModel.setStyle(String.format("-fx-background-color: %s;",
-                        pane.getSpeciesColors().pmModelHexColor()));
-                hBox.getChildren().add(pmModel);
                 root.getChildren().add(pane);
             }
 

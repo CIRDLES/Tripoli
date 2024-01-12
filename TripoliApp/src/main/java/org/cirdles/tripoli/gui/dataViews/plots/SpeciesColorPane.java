@@ -1,9 +1,14 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
+import javafx.geometry.Pos;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.species.SpeciesColors;
 
 public class SpeciesColorPane extends Pane {
@@ -12,17 +17,44 @@ public class SpeciesColorPane extends Pane {
 
     private String speciesName;
     private SpeciesColors speciesColors;
+    private ColorPicker colorPicker;
 
     public SpeciesColorPane(String speciesName, SpeciesColors speciesColors) {
         super();
         this.speciesName = speciesName;
         this.speciesColors = speciesColors;
+        this.colorPicker = new ColorPicker(Color.web(speciesColors.faradayHexColor()));
         VBox vBox = initializeAndAddVbox();
+        vBox.getChildren().add(initializeAndAddHbox());
+    }
 
+    private HBox initializeAndAddHbox() {
+        HBox hBox = new HBox();
+        VBox vBox = new VBox();
+        hBox.getChildren().add(vBox);
+        vBox.getChildren().add(new ColorRow(
+                TripoliConstants.DetectorPlotFlavor.FARADAY_POINT,
+                speciesColors.faradayHexColor()
+        ));
+        vBox.getChildren().add(new ColorRow(
+                TripoliConstants.DetectorPlotFlavor.PM_POINT,
+                speciesColors.pmHexColor()
+        ));
+        vBox.getChildren().add(new ColorRow(
+                TripoliConstants.DetectorPlotFlavor.FARADAY_MODEL,
+                speciesColors.faradayModelHexColor()
+        ));
+        vBox.getChildren().add(new ColorRow(
+                TripoliConstants.DetectorPlotFlavor.PM_MODEL,
+                speciesColors.pmModelHexColor()
+        ));
+        hBox.getChildren().add(colorPicker);
+        return hBox;
     }
 
     private VBox initializeAndAddVbox() {
         VBox vBox = new VBox();
+        vBox.setAlignment(Pos.CENTER);
         Text title = new Text(speciesName);
         title.setFont(Font.font(TITLE_FONT_SIZE));
         vBox.getChildren().add(title);
