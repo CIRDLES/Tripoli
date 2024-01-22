@@ -1,11 +1,16 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.text.Font;
 import org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 
+
 public class ColorRow extends HBox {
+
+    public static final double ROW_HEIGHT = 25;
     private DetectorPlotFlavor plotFlavor;
     private String hexColor;
 
@@ -14,6 +19,9 @@ public class ColorRow extends HBox {
         this.plotFlavor = plotFlavor;
         this.hexColor = hexColor;
         layoutElements();
+        this.setPrefHeight(ROW_HEIGHT);
+        ColorRow reference = this;
+
     }
 
     private void layoutElements() {
@@ -22,11 +30,15 @@ public class ColorRow extends HBox {
         setStyle("-fx-alignment: center");
         setStyle(styleBuilder.toString());
         Label title = new Label(plotFlavor.getName());
+        title.setMinWidth(150);
+        title.setPrefHeight(ROW_HEIGHT);
         getChildren().addAll(title, createColorPatch());
     }
     private Label createColorPatch() {
-        Label label = new Label(" ".repeat(plotFlavor.getName().length()));
+        Label label = new Label();
         label.setStyle("-fx-background-color: " + hexColor);
+        label.setPrefWidth(100);
+        label.setPrefHeight(ROW_HEIGHT);
         return label;
     }
 

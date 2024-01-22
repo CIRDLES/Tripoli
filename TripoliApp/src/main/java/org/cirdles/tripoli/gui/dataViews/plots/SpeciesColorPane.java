@@ -1,7 +1,10 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -26,6 +29,15 @@ public class SpeciesColorPane extends Pane {
         this.colorPicker = new ColorPicker(Color.web(speciesColors.faradayHexColor()));
         VBox vBox = initializeAndAddVbox();
         vBox.getChildren().add(initializeAndAddHbox());
+        this.addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+//                System.out.println(event.getSource());
+//                System.out.println(event.getPickResult());
+//                System.out.println(event);
+                System.out.println(((Node) event.getTarget()).getParent());
+                event.consume();
+            }
+        });
     }
 
     private HBox initializeAndAddHbox() {
@@ -49,6 +61,8 @@ public class SpeciesColorPane extends Pane {
                 speciesColors.pmModelHexColor()
         ));
         hBox.getChildren().add(colorPicker);
+        colorPicker.setPrefHeight(ColorRow.ROW_HEIGHT * 4);
+        colorPicker.setStyle("-fx-text-fill:"  + TripoliConstants.DetectorPlotFlavor.FARADAY_POINT);
         return hBox;
     }
 
