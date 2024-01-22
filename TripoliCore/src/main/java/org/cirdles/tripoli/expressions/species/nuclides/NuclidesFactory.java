@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.species.nuclides;
+package org.cirdles.tripoli.expressions.species.nuclides;
 
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
-import org.cirdles.tripoli.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;

@@ -20,6 +20,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.expressions.userFunctionsCase1.UserFunction;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
@@ -28,9 +29,9 @@ import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineTable;
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceTable;
-import org.cirdles.tripoli.species.IsotopicRatio;
-import org.cirdles.tripoli.species.SpeciesRecordInterface;
-import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
+import org.cirdles.tripoli.expressions.species.IsotopicRatio;
+import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.expressions.species.nuclides.NuclidesFactory;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -54,6 +55,7 @@ public class AnalysisMethod implements Serializable {
     private List<IsotopicRatio> isotopicRatiosList;
     private List<IsotopicRatio> derivedIsotopicRatiosList;
     private BiMap<IsotopicRatio, IsotopicRatio> biMapOfRatiosAndInverses = HashBiMap.create();
+    private List<UserFunction> userFunctions;
     private boolean useLinearKnots;
 
     private AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
@@ -69,11 +71,27 @@ public class AnalysisMethod implements Serializable {
         isotopicRatiosList = new ArrayList<>();
         derivedIsotopicRatiosList = new ArrayList<>();
         mapOfRatioNamesToInvertedFlag = new TreeMap<>();
+        userFunctions = new ArrayList<>();
         this.useLinearKnots = true;
     }
 
     public static AnalysisMethod initializeAnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
         return new AnalysisMethod(methodName, massSpectrometerContext);
+    }
+
+    public static AnalysisMethod createAnalysisMethodFromCase1(
+            MassSpecExtractedData massSpecExtractedData) {
+        AnalysisMethod analysisMethod = new AnalysisMethod("Derived for Case1", massSpecExtractedData.getMassSpectrometerContext());
+        String[] columnHeaders = massSpecExtractedData.getColumnHeaders();
+        // ignore first two columns: Cycle, Time
+        String regex = "[^alpha].*\\d?:?\\(?\\d{2,3}.{0,2}\\/\\d?:?\\d{2,3}.{0,2}.*";
+        for (int i = 2; i < columnHeaders.length; i++){
+            System.out.println(columnHeaders[i] + "   " + columnHeaders[i].matches(regex));
+            UserFunction userFunction = new UserFunction(columnHeaders[i].trim(), i, columnHeaders[i].matches(regex));
+            analysisMethod.getUserFunctions().add(userFunction);
+        }
+
+        return analysisMethod;
     }
 
     public static AnalysisMethod createAnalysisMethodFromPhoenixAnalysisMethod(
@@ -288,6 +306,8 @@ public class AnalysisMethod implements Serializable {
         }
     }
 
+
+
     public void sortSpeciesListByAbundance() {
         Collections.sort(speciesList, Comparator.comparing(s -> s.getMassNumber()));
     }
@@ -340,6 +360,10 @@ public class AnalysisMethod implements Serializable {
 
     public Map<String, Boolean> getMapOfRatioNamesToInvertedFlag() {
         return mapOfRatioNamesToInvertedFlag;
+    }
+
+    public List<UserFunction> getUserFunctions() {
+        return userFunctions;
     }
 
     public void addRatioToIsotopicRatiosList(IsotopicRatio isotopicRatio) {

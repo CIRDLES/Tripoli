@@ -37,8 +37,8 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
-import org.cirdles.tripoli.species.IsotopicRatio;
-import org.cirdles.tripoli.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.expressions.species.IsotopicRatio;
+import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
@@ -86,6 +86,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public Button reviewSculptData;
     @FXML
     public ToolBar processingToolBar;
+    public Tab baselineTableTab;
+    public Tab sequenceTableTab;
+    public Tab selectRatiosToPlotTab;
+    public Tab selectColumnsToPlot;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -198,7 +202,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         OGTripoliViewController.analysis = analysis;
         analysisManagerGridPane.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_YELLOW));
 
-        populateAnalysisManagerGridPane();
+        populateAnalysisManagerGridPane(0);
         setupListeners();
     }
 
@@ -225,7 +229,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         });
     }
 
-    private void populateAnalysisManagerGridPane() {
+    private void populateAnalysisManagerGridPane(int caseNumber) {
         analysisNameTextField.setEditable(analysis.isMutable());
         analysisNameTextField.setText(analysis.getAnalysisName());
 
@@ -248,12 +252,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             populateAnalysisDataFields();
         }
 
-        populateAnalysisMethodGridPane();
+        if (caseNumber >1) {
+            populateAnalysisMethodGridPane();
+            populateBlocksStatus();
+            populateAnalysisMethodRatioSelectorPane();
+            populateAnalysisMethodRatioBuilderPane();
+        } else {
 
-        populateBlocksStatus();
-
-        populateAnalysisMethodRatioSelectorPane();
-        populateAnalysisMethodRatioBuilderPane();
+        }
 
         processingToolBar.setDisable(analysis.getAnalysisMethod() == null);
     }
@@ -605,7 +611,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 } catch (TripoliException e) {
                     //TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
                 }
-                populateAnalysisManagerGridPane();
+
+                // Proceed based on analysis case per https://docs.google.com/drawings/d/1U6-8LC55mHjHv8N7p6MAfKcdW8NibJSei3iTMT7E1A8/edit?usp=sharing
+                populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
+
                 processingToolBar.setDisable(analysis.getAnalysisMethod() == null);
             }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |
@@ -652,7 +661,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         for (Integer blockID : analysis.getMassSpecExtractedData().getBlocksDataFull().keySet()) {
             analysis.getMapOfBlockIdToProcessStatus().put(blockID, RUN);
         }
-        populateAnalysisManagerGridPane();
+        populateAnalysisManagerGridPane(0);
     }
 
     @FXML

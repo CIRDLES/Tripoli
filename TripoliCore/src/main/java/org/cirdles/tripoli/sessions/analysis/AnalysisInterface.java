@@ -125,4 +125,6 @@ public interface AnalysisInterface {
     Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount();
 
     void resetAnalysis();
+
+    int getAnalysisCaseNumber();
 }

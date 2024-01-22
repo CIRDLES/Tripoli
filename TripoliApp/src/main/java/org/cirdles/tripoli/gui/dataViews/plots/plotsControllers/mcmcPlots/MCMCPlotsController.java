@@ -35,7 +35,7 @@ import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.MCMCProcess;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
-import org.cirdles.tripoli.species.IsotopicRatio;
+import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
 import java.net.URL;

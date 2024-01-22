@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.species.nuclides;
+package org.cirdles.tripoli.expressions.userFunctionsCase1;
 
 import java.io.Serializable;
 
 /**
  * @author James F. Bowring
  */
-public final class NuclidesChart implements Serializable {
+public class UserFunction implements Serializable {
+    private String name;
+    private int columnIndex;
+    private boolean isotopicRatio;
 
-
+    public UserFunction(String name, int columnIndex, boolean isotopicRatio) {
+        this.name = name;
+        this.columnIndex =columnIndex;
+        this.isotopicRatio = isotopicRatio;
+    }
 }

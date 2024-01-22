@@ -19,7 +19,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneIntensities;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
-import org.cirdles.tripoli.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 
 import java.util.ArrayList;
 import java.util.Arrays;

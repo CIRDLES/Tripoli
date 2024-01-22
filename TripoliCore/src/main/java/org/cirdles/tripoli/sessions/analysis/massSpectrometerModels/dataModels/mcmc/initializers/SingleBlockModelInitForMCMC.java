@@ -25,7 +25,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
-import org.cirdles.tripoli.species.IsotopicRatio;
+import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLab;
 import org.ojalgo.RecoverableCondition;
 

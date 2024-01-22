@@ -16,7 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.methods.sequence;
 
-import org.cirdles.tripoli.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 
 import java.io.Serial;
 import java.io.Serializable;

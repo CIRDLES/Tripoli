@@ -22,7 +22,7 @@ import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.SingleBlockModelInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
-import org.cirdles.tripoli.species.IsotopicRatio;
+import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 
 import java.io.Serializable;
 import java.util.*;

@@ -22,8 +22,8 @@ import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineTable;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceTable;
-import org.cirdles.tripoli.species.SpeciesRecordInterface;
-import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
+import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.expressions.species.nuclides.NuclidesFactory;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.Serializable;

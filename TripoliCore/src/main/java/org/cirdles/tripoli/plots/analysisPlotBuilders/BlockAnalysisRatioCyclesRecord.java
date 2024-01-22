@@ -1,12 +1,13 @@
 package org.cirdles.tripoli.plots.analysisPlotBuilders;
 
+import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockRatioCyclesRecord;
 
 import java.io.Serializable;
 import java.util.Map;
 
 public record BlockAnalysisRatioCyclesRecord(
-        org.cirdles.tripoli.species.IsotopicRatio isotopicRatio,
+        IsotopicRatio isotopicRatio,
         Map<Integer, BlockRatioCyclesRecord> mapBlockIdToBlockRatioCyclesRecord,
         int cyclesPerBlock,
         double analysisDalyFaradayGainMean,

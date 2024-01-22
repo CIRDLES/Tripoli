@@ -22,7 +22,7 @@ import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
-import org.cirdles.tripoli.species.IsotopicRatio;
+import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 
 import java.util.List;
 import java.util.Map;

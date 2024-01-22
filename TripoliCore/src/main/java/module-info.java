@@ -32,12 +32,12 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.valueModels;
     exports org.cirdles.tripoli.utilities.stateUtilities;
     exports org.cirdles.tripoli.utilities.exceptions;
-    exports org.cirdles.tripoli.species.nuclides;
+    exports org.cirdles.tripoli.expressions.species.nuclides;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
     exports org.cirdles.tripoli.sessions.analysis.methods;
     exports org.cirdles.tripoli.sessions.analysis.methods.baseline;
     exports org.cirdles.tripoli.sessions.analysis.methods.sequence;
-    exports org.cirdles.tripoli.species;
+    exports org.cirdles.tripoli.expressions.species;
     exports org.cirdles.tripoli.elements;
     exports org.cirdles.tripoli.utilities.callbacks;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
