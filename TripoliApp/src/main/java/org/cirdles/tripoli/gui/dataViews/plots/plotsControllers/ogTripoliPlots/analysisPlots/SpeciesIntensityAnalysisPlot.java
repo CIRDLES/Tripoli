@@ -28,7 +28,6 @@ import java.util.Map;
 
 import static java.lang.StrictMath.*;
 import static java.util.Arrays.binarySearch;
-import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_PALLETTE_FIVE;
 
 public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
     private final SpeciesIntensityAnalysisBuilder speciesIntensityAnalysisBuilder;
@@ -103,6 +102,19 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
 
     public static AbstractPlot generatePlot(Rectangle bounds, SpeciesIntensityAnalysisBuilder speciesIntensityAnalysisBuilder) {
         return new SpeciesIntensityAnalysisPlot(bounds, speciesIntensityAnalysisBuilder);
+    }
+
+    /**
+     * Creates a gradient effect for the legend between the Faraday and photomultiplier colors
+     *
+     * @param g2d           The 2-dimensional graphics context
+     * @param speciesColors The colors
+     */
+    private static void setGradientForFill(GraphicsContext g2d, SpeciesColors speciesColors) {
+        Color pmColor = Color.web(speciesColors.pmHexColor());
+        Color faradayColor = Color.web(speciesColors.faradayHexColor());
+        Stop[] stops = new Stop[]{new Stop(.1, pmColor), new Stop(.9, faradayColor)};
+        g2d.setFill(new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE, stops));
     }
 
     public boolean isInSculptorMode() {
@@ -307,18 +319,6 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                 g2d.setFill(savedPaint);
             }
         }
-    }
-
-    /**
-     * Creates a gradient effect for the legend between the Faraday and photomultiplier colors
-     * @param g2d The 2-dimensional graphics context
-     * @param speciesColors The colors
-     */
-    private static void setGradientForFill(GraphicsContext g2d, SpeciesColors speciesColors) {
-        Color pmColor = Color.web(speciesColors.pmHexColor());
-        Color faradayColor = Color.web(speciesColors.faradayHexColor());
-        Stop[] stops = new Stop[] { new Stop(.1, pmColor), new Stop(.9, faradayColor)};
-        g2d.setFill(new LinearGradient(0,0,1,1,true, CycleMethod.NO_CYCLE, stops));
     }
 
     @Override

@@ -3,6 +3,7 @@ package org.cirdles.tripoli.gui.dataViews.plots;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -31,9 +32,12 @@ public class SpeciesColorPane extends Pane {
         vBox.getChildren().add(initializeAndAddHbox());
         this.addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-//                System.out.println(event.getSource());
-//                System.out.println(event.getPickResult());
-//                System.out.println(event);
+                Parent parent = ((Node) event.getTarget()).getParent();
+                if (parent instanceof ColorRow) {
+                    ColorRow row = (ColorRow) parent;
+                    colorPicker.setOnAction(event1 -> {
+                    });
+                }
                 System.out.println(((Node) event.getTarget()).getParent());
                 event.consume();
             }
@@ -62,7 +66,6 @@ public class SpeciesColorPane extends Pane {
         ));
         hBox.getChildren().add(colorPicker);
         colorPicker.setPrefHeight(ColorRow.ROW_HEIGHT * 4);
-        colorPicker.setStyle("-fx-text-fill:"  + TripoliConstants.DetectorPlotFlavor.FARADAY_POINT);
         return hBox;
     }
 

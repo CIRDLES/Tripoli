@@ -1,9 +1,6 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 
@@ -34,6 +31,7 @@ public class ColorRow extends HBox {
         title.setPrefHeight(ROW_HEIGHT);
         getChildren().addAll(title, createColorPatch());
     }
+
     private Label createColorPatch() {
         Label label = new Label();
         label.setStyle("-fx-background-color: " + hexColor);
