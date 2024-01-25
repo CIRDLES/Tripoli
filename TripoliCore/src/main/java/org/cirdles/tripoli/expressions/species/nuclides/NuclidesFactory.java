@@ -103,7 +103,7 @@ public final class NuclidesFactory implements Serializable {
         List<SpeciesRecordInterface> nuclides = nuclidesListByElementMap.get(elementName);
         List<SpeciesRecordInterface> targetNuclideList = nuclides
                 .stream()
-                .filter(nuclide -> ((nuclide instanceof NuclideRecord) && ((NuclideRecord) nuclide).getMassNumber() == massNumber)).toList();
+                .filter(nuclide -> ((nuclide instanceof NuclideRecord) && nuclide.getMassNumber() == massNumber)).toList();
         return targetNuclideList.get(0);
     }
 }

@@ -22,12 +22,15 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.expressions.species.IsotopicRatio;
+import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioPlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioRecord;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteOneSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
@@ -39,8 +42,6 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
-import org.cirdles.tripoli.expressions.species.IsotopicRatio;
-import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -82,6 +83,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<Integer, Integer> mapOfBlockIdToModelsBurnCount = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, List<EnsemblesStore.EnsembleRecord>> mapBlockIDToEnsembles = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, SingleBlockRawDataLiteOneSetRecord> mapOfBlockIdToRawDataLiteOne = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockModelRecord> mapOfBlockIdToFinalModel = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, boolean[][]> mapOfBlockIdToIncludedPeakData = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, boolean[]> mapOfBlockIdToIncludedIntensities = Collections.synchronizedSortedMap(new TreeMap<>());
@@ -146,6 +148,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         mapOfBlockIdToModelsBurnCount.clear();
         mapBlockIDToEnsembles.clear();
         mapOfBlockIdToRawData.clear();
+        mapOfBlockIdToRawDataLiteOne.clear();
         mapOfBlockIdToFinalModel.clear();
     }
 
@@ -252,6 +255,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             mapOfBlockIdToProcessStatus.put(blockID, RUN);
             mapBlockIDToEnsembles.put(blockID, new ArrayList<>());
             mapOfBlockIdToRawData.put(blockID, null);
+            mapOfBlockIdToRawDataLiteOne.put(blockID, null);
             mapOfBlockIdToFinalModel.put(blockID, null);
 
 
@@ -380,7 +384,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             }
         }
 
-        return new AllBlockInitForOGTripoli.PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, cycleCount, false);
+        return new AllBlockInitForOGTripoli.PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, null, cycleCount, false, 4);
     }
 
     public final String prettyPrintAnalysisSummary() {
@@ -646,6 +650,10 @@ public class Analysis implements Serializable, AnalysisInterface {
         return mapOfBlockIdToRawData;
     }
 
+    public Map<Integer, SingleBlockRawDataLiteOneSetRecord> getMapOfBlockIdToRawDataLiteOne() {
+        return mapOfBlockIdToRawDataLiteOne;
+    }
+
     public Map<Integer, SingleBlockModelRecord> getMapOfBlockIdToFinalModel() {
         return mapOfBlockIdToFinalModel;
     }
@@ -670,7 +678,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         this.analysisDalyFaradayGainMeanOneSigmaAbs = analysisDalyFaradayGainMeanOneSigmaAbs;
     }
 
-    public int getAnalysisCaseNumber(){
+    public int getAnalysisCaseNumber() {
         return massSpecExtractedData.getMassSpectrometerContext().getCaseNumber();
     }
 }

@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.triton;
 
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.IOException;
@@ -28,7 +31,7 @@ import java.util.stream.Collectors;
 /**
  * @author James F. Bowring
  */
-public enum PhoenixMassSpec {
+public enum TritonMassSpec {
     ;
 
     /**

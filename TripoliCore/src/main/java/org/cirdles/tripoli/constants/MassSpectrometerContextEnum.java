@@ -16,7 +16,8 @@
 
 package org.cirdles.tripoli.constants;
 
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.PhoenixMassSpec;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixMassSpec;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.triton.TritonMassSpec;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,18 +28,18 @@ import java.util.List;
 public enum MassSpectrometerContextEnum {
     PHOENIX_FULL("Phoenix Full", "Phoenix",
             "#HEADER, Analysis, Version, Filename, MethodName, MethodPath, IsoWorksMethod, FolderPath",
-            PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_2",3),
+            PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_2", 4),
     PHOENIX_TIMSDP_CASE1("Phoenix TIMSDP", "Phoenix",
             "#HEADER, Analysis, Version, Filename, MethodName, MethodPath, FolderPath, IsoWorksMethod, TFEMode, TFEMonitorPeak",
-            PhoenixMassSpec.class, "extractDataFromFileVersion_2_TIMSDP",1),
+            PhoenixMassSpec.class, "extractDataFromFileVersion_2_TIMSDP", 1),
     PHOENIX_FULL_SYNTHETIC("Phoenix Full_Synthetic", "Phoenix",
             "Version, Filename, Sample, Sample, Sample, Analysis, User, Method",
-            PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_0",3),
+            PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_0", 4),
     TRITON_EXP("Triton EXP", "Triton",
             "Triton Analysis Data Report",
-            PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_2",1),
+            TritonMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_2", 1),
     UNKNOWN("UNKNOWN", "UNKNOWN", "",
-            null, "",0);
+            null, "", 0);
 //Triton Analysis Data Report
 
     private final String name;

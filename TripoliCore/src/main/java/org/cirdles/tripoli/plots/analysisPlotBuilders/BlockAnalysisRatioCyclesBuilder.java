@@ -18,7 +18,6 @@ package org.cirdles.tripoli.plots.analysisPlotBuilders;
 
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockRatioCyclesRecord;
-import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 
 import java.util.List;
 import java.util.Map;
@@ -34,19 +33,19 @@ public class BlockAnalysisRatioCyclesBuilder extends PlotBuilder {
     public BlockAnalysisRatioCyclesBuilder() {
     }
 
-    private BlockAnalysisRatioCyclesBuilder(IsotopicRatio isotopicRatio, List<BlockRatioCyclesRecord> blockRatioCyclesRecords, String xAxisLabel, String yAxisLabel) {
-        super(new String[]{isotopicRatio.prettyPrint()}, xAxisLabel, yAxisLabel, true);
-        blockAnalysisRatioCyclesRecord = generateBlockAnalysisRatioCycles(isotopicRatio, blockRatioCyclesRecords);
+    private BlockAnalysisRatioCyclesBuilder(String plotTitle, List<BlockRatioCyclesRecord> blockRatioCyclesRecords, String xAxisLabel, String yAxisLabel) {
+        super(new String[]{plotTitle}, xAxisLabel, yAxisLabel, true);
+        blockAnalysisRatioCyclesRecord = generateBlockAnalysisRatioCycles(blockRatioCyclesRecords);
     }
 
     public static BlockAnalysisRatioCyclesBuilder initializeBlockAnalysisRatioCycles(
-            IsotopicRatio isotopicRatio, List<BlockRatioCyclesRecord> blockRatioCyclesRecordsList, String xAxisLabel, String yAxisLabel) {
-        BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder = new BlockAnalysisRatioCyclesBuilder(isotopicRatio, blockRatioCyclesRecordsList, xAxisLabel, yAxisLabel);
+            String plotTitle, List<BlockRatioCyclesRecord> blockRatioCyclesRecordsList, String xAxisLabel, String yAxisLabel) {
+        BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder = new BlockAnalysisRatioCyclesBuilder(plotTitle, blockRatioCyclesRecordsList, xAxisLabel, yAxisLabel);
 
         return blockAnalysisRatioCyclesBuilder;
     }
 
-    private BlockAnalysisRatioCyclesRecord generateBlockAnalysisRatioCycles(IsotopicRatio isotopicRatio, List<BlockRatioCyclesRecord> blockRatioCyclesRecordsList) {
+    private BlockAnalysisRatioCyclesRecord generateBlockAnalysisRatioCycles(List<BlockRatioCyclesRecord> blockRatioCyclesRecordsList) {
 //        List<Double> histogramMeans = new ArrayList<>();
 //        List<Double> histogramOneSigma = new ArrayList<>();
 //        DescriptiveStatistics descriptiveStatisticsRatiosByBlock = new DescriptiveStatistics();
@@ -69,7 +68,6 @@ public class BlockAnalysisRatioCyclesBuilder extends PlotBuilder {
 //        double[] blockLogRatioOneSigmas = histogramOneSigma.stream().mapToDouble(d -> d).toArray();
 
         return new BlockAnalysisRatioCyclesRecord(
-                isotopicRatio,
                 mapBlockIdToBlockRatioCyclesRecord,
                 blockRatioCyclesRecordsList.get(0).cyclesIncluded().length,
                 0.0,

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.expressions.userFunctionsCase1;
+package org.cirdles.tripoli.expressions.userFunctionsOne;
 
 import java.io.Serializable;
 
@@ -28,7 +28,19 @@ public class UserFunction implements Serializable {
 
     public UserFunction(String name, int columnIndex, boolean isotopicRatio) {
         this.name = name;
-        this.columnIndex =columnIndex;
+        this.columnIndex = columnIndex;
         this.isotopicRatio = isotopicRatio;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getColumnIndex() {
+        return columnIndex;
+    }
+
+    public boolean isIsotopicRatio() {
+        return isotopicRatio;
     }
 }

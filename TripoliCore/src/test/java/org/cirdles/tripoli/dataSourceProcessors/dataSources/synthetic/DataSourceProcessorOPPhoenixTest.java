@@ -23,10 +23,9 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourcePr
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.junit.jupiter.api.*;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
-import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.PhoenixMassSpec.extractMetaAndBlockDataFromFileVersion_1_0;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixMassSpec.extractMetaAndBlockDataFromFileVersion_1_0;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DataSourceProcessorOPPhoenixTest {
