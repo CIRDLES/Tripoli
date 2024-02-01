@@ -23,7 +23,7 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.expressions.species.nuclides.NuclidesFactory;
-import org.cirdles.tripoli.expressions.userFunctionsOne.UserFunction;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
@@ -87,7 +87,7 @@ public class AnalysisMethod implements Serializable {
         String regex = "[^alpha].*\\d?:?\\(?\\d{2,3}.{0,2}\\/\\d?:?\\d{2,3}.{0,2}.*";
         for (int i = 2; i < columnHeaders.length; i++) {
             System.out.println(columnHeaders[i] + "   " + columnHeaders[i].matches(regex));
-            UserFunction userFunction = new UserFunction(columnHeaders[i].trim(), i - 2, columnHeaders[i].matches(regex));
+            UserFunction userFunction = new UserFunction(columnHeaders[i].trim(), i - 2, columnHeaders[i].matches(regex), columnHeaders[i].matches(regex));
             analysisMethod.getUserFunctions().add(userFunction);
         }
 
@@ -263,7 +263,7 @@ public class AnalysisMethod implements Serializable {
                 retVal.append("\n\t\t" + ratio.prettyPrint());
             }
             for (UserFunction userFunction : userFunctions) {
-                if (userFunction.isIsotopicRatio()) {
+                if (userFunction.isTreatAsIsotopicRatio()) {
                     retVal.append("\n\t\t" + userFunction.getName());
                 }
             }

@@ -35,7 +35,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.SingleBlockPeakDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
@@ -363,7 +363,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     }
 
 
-    public AllBlockInitForOGTripoli.PlottingData assemblePostProcessPlottingData() {
+    public AllBlockInitForMCMC.PlottingData assemblePostProcessPlottingData() {
         Map<Integer, SingleBlockRawDataSetRecord> singleBlockRawDataSetRecordMap = mapOfBlockIdToRawData;
         SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = new SingleBlockRawDataSetRecord[mapOfBlockIdToProcessStatus.keySet().size()];
         int index = 0;
@@ -384,7 +384,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             }
         }
 
-        return new AllBlockInitForOGTripoli.PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, null, cycleCount, false, 4);
+        return new AllBlockInitForMCMC.PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, null, cycleCount, false, 4);
     }
 
     public final String prettyPrintAnalysisSummary() {

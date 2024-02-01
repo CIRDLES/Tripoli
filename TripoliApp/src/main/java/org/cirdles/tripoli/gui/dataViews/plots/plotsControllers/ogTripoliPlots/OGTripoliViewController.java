@@ -1,28 +1,29 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
-import org.cirdles.tripoli.expressions.userFunctionsOne.UserFunction;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.dataViews.plots.*;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.BlockRatioCyclesAnalysisPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.BlockAnalysisRatioCyclesBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
-import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockRatioCyclesBuilder;
-import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockRatioCyclesRecord;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockCyclesBuilder;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockCyclesRecord;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteOneSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 
@@ -31,14 +32,17 @@ import java.util.*;
 import static java.util.Arrays.binarySearch;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHeight;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
+import static org.cirdles.tripoli.gui.utilities.UIUtilities.showTab;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.SKIP;
 
 public class OGTripoliViewController {
     public static AnalysisInterface analysis;
     public static AnalysisManagerCallbackI analysisManagerCallbackI;
+    public Tab onPeakResidualsTab;
+    public Tab onPeakIntensitiesTab;
     @FXML
     private AnchorPane ogtSpeciesResidualsPlotAnchorPane;
-    private AllBlockInitForOGTripoli.PlottingData plottingData;
+    private AllBlockInitForMCMC.PlottingData plottingData;
     @FXML
     private VBox plotWindowVBox;
     @FXML
@@ -51,7 +55,7 @@ public class OGTripoliViewController {
     private PlotWallPaneInterface plotsWallPaneIntensities;
     private PlotWallPaneInterface plotsWallPaneResiduals;
 
-    public void setPlottingData(AllBlockInitForOGTripoli.PlottingData plottingData) {
+    public void setPlottingData(AllBlockInitForMCMC.PlottingData plottingData) {
         this.plottingData = plottingData;
     }
 
@@ -60,16 +64,28 @@ public class OGTripoliViewController {
         plotWindowVBox.widthProperty().addListener((observable, oldValue, newValue) -> {
             plotTabPane.setMinWidth((Double) newValue);
             ogtCycleRatioPlotsAnchorPane.setMinWidth((Double) newValue);
-            ogtSpeciesIntensitiesPlotAnchorPane.setMinWidth((Double) newValue);
-            ogtSpeciesResidualsPlotAnchorPane.setMinWidth((Double) newValue);
+            if (analysis.getAnalysisCaseNumber() > 1) {
+                ogtSpeciesIntensitiesPlotAnchorPane.setMinWidth((Double) newValue);
+                ogtSpeciesResidualsPlotAnchorPane.setMinWidth((Double) newValue);
+            }
         });
 
         plotWindowVBox.heightProperty().addListener((observable, oldValue, newValue) -> {
             plotTabPane.setMinHeight(((Double) newValue) - 30.0);
             ogtCycleRatioPlotsAnchorPane.setMinHeight(((Double) newValue) - plotsWallPaneRatios.getToolBarCount() * plotsWallPaneRatios.getToolBarHeight() - 30.0);
-            ogtSpeciesIntensitiesPlotAnchorPane.setMinHeight(((Double) newValue) - plotsWallPaneIntensities.getToolBarCount() * plotsWallPaneIntensities.getToolBarHeight() - 30.0);
-            ogtSpeciesResidualsPlotAnchorPane.setMinHeight(((Double) newValue) - plotsWallPaneResiduals.getToolBarCount() * plotsWallPaneResiduals.getToolBarHeight() - 30.0);
+            if (analysis.getAnalysisCaseNumber() > 1) {
+                ogtSpeciesIntensitiesPlotAnchorPane.setMinHeight(((Double) newValue) - plotsWallPaneIntensities.getToolBarCount() * plotsWallPaneIntensities.getToolBarHeight() - 30.0);
+                ogtSpeciesResidualsPlotAnchorPane.setMinHeight(((Double) newValue) - plotsWallPaneResiduals.getToolBarCount() * plotsWallPaneResiduals.getToolBarHeight() - 30.0);
+            }
         });
+
+        if (analysis.getAnalysisCaseNumber() == 1) {
+            plotTabPane.getTabs().remove(onPeakIntensitiesTab);
+            plotTabPane.getTabs().remove(onPeakResidualsTab);
+        } else {
+            showTab(plotTabPane, 1, onPeakIntensitiesTab);
+            showTab(plotTabPane, 1, onPeakResidualsTab);
+        }
 
         if (null != plottingData) {
             populatePlots();
@@ -109,10 +125,10 @@ public class OGTripoliViewController {
                 DUMMY_CYCLES_INCLUDED = new boolean[countOfOnPeakCycles];
                 Arrays.fill(DUMMY_CYCLES_INCLUDED, true);
 
-                // build list of ratios to plot
+                // build list of userFunctions to plot
                 List<UserFunction> ratiosToPlot = new ArrayList<>();
                 for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
-                    if (userFunction.isIsotopicRatio()) {
+                    if (userFunction.isDisplayed()) {
                         ratiosToPlot.add(userFunction);
                     }
                 }
@@ -120,33 +136,30 @@ public class OGTripoliViewController {
                 for (UserFunction userFunction : ratiosToPlot) {
                     TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPaneRatios);
 
-                    List<BlockRatioCyclesRecord> blockRatioCyclesRecords = new ArrayList<>();
+                    List<BlockCyclesRecord> blockCyclesRecords = new ArrayList<>();
                     for (int blockIndex = 0; blockIndex < singleBlockRawDataLiteOneSetRecords.length; blockIndex++) {
                         if (null != singleBlockRawDataLiteOneSetRecords[blockIndex]) {
                             Integer blockID = singleBlockRawDataLiteOneSetRecords[blockIndex].blockID();
                             int blockStatus = 0;//analysis.getMapOfBlockIdToProcessStatus().get(blockID);
                             boolean processed = (null != analysis.getMapOfBlockIdToPlots().get(blockID));
-                            blockRatioCyclesRecords.add(BlockRatioCyclesBuilder.initializeBlockCycles(
+                            blockCyclesRecords.add(BlockCyclesBuilder.initializeBlockCycles(
                                     blockID,
-                                    processed,
-                                    0.0,
-                                    singleBlockRawDataLiteOneSetRecords[blockIndex].assembleCycleMeansForUserFunction(userFunction),
+                                    SKIP != blockStatus, processed,
+                                    DUMMY_CYCLES_INCLUDED, singleBlockRawDataLiteOneSetRecords[blockIndex].assembleCycleMeansForUserFunction(userFunction),
                                     singleBlockRawDataLiteOneSetRecords[blockIndex].assembleCycleStdDevForUserFunction(userFunction),
-                                    DUMMY_CYCLES_INCLUDED,
                                     new String[]{userFunction.getName()},
-                                    "Blocks & Cycles by Time",
-                                    "Ratio",
                                     true,
-                                    SKIP != blockStatus).getBlockCyclesRecord());
+                                    userFunction.isTreatAsIsotopicRatio()).getBlockCyclesRecord());
                         } else {
-                            blockRatioCyclesRecords.add(null);
+                            blockCyclesRecords.add(null);
                         }
                     }
                     BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder =
                             BlockAnalysisRatioCyclesBuilder.initializeBlockAnalysisRatioCycles(
-                                    userFunction.getName(), blockRatioCyclesRecords,
-                                    "Blocks & Cycles by Time", "Ratio");
-                    AbstractPlot plot = BlockRatioCyclesAnalysisPlot.generatePlot(
+                                    userFunction.getName(),
+                                    blockCyclesRecords,
+                                    userFunction.isTreatAsIsotopicRatio());
+                    AbstractPlot plot = AnalysisBlockCyclesPlot.generatePlot(
                             new Rectangle(minPlotWidth, minPlotHeight), blockAnalysisRatioCyclesBuilder.getBlockAnalysisRatioCyclesRecord(), (PlotWallPane) plotsWallPaneRatios);
 
                     tripoliPlotPane.addPlot(plot);
@@ -179,33 +192,29 @@ public class OGTripoliViewController {
                 for (IsotopicRatio isotopicRatio : isotopicRatiosToPlot) {
                     TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPaneRatios);
 
-                    List<BlockRatioCyclesRecord> blockRatioCyclesRecords = new ArrayList<>();
+                    List<BlockCyclesRecord> blockCyclesRecords = new ArrayList<>();
                     for (int blockIndex = 0; blockIndex < singleBlockModelRecords.length; blockIndex++) {
                         if (null != singleBlockModelRecords[blockIndex]) {
                             Integer blockID = singleBlockModelRecords[blockIndex].blockID();
                             int blockStatus = analysis.getMapOfBlockIdToProcessStatus().get(blockID);
                             boolean processed = (null != analysis.getMapOfBlockIdToPlots().get(blockID));
-                            blockRatioCyclesRecords.add(BlockRatioCyclesBuilder.initializeBlockCycles(
+                            blockCyclesRecords.add(BlockCyclesBuilder.initializeBlockCycles(
                                     blockID,
-                                    processed,
-                                    singleBlockModelRecords[blockIndex].detectorFaradayGain(),
-                                    singleBlockModelRecords[blockIndex].assembleCycleMeansForRatio(isotopicRatio),
+                                    SKIP != blockStatus, processed,
+                                    DUMMY_CYCLES_INCLUDED, singleBlockModelRecords[blockIndex].assembleCycleMeansForRatio(isotopicRatio),
                                     singleBlockModelRecords[blockIndex].assembleCycleStdDevForRatio(isotopicRatio),
-                                    DUMMY_CYCLES_INCLUDED,
                                     new String[]{isotopicRatio.prettyPrint()},
-                                    "Blocks & Cycles by Time",
-                                    "Ratio",
                                     true,
-                                    SKIP != blockStatus).getBlockCyclesRecord());
+                                    true).getBlockCyclesRecord());
                         } else {
-                            blockRatioCyclesRecords.add(null);
+                            blockCyclesRecords.add(null);
                         }
                     }
                     BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder =
                             BlockAnalysisRatioCyclesBuilder.initializeBlockAnalysisRatioCycles(
-                                    isotopicRatio.prettyPrint(), blockRatioCyclesRecords,
-                                    "Blocks & Cycles by Time", "Ratio");
-                    AbstractPlot plot = BlockRatioCyclesAnalysisPlot.generatePlot(
+                                    isotopicRatio.prettyPrint(), blockCyclesRecords,
+                                    true);
+                    AbstractPlot plot = AnalysisBlockCyclesPlot.generatePlot(
                             new Rectangle(minPlotWidth, minPlotHeight), blockAnalysisRatioCyclesBuilder.getBlockAnalysisRatioCyclesRecord(), (PlotWallPane) plotsWallPaneRatios);
 
                     tripoliPlotPane.addPlot(plot);

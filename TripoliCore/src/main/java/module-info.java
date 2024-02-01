@@ -60,7 +60,7 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.plots.compoundPlotBuilders;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers;
     exports org.cirdles.tripoli.utilities.mathUtilities.weightedMeans;
-    exports org.cirdles.tripoli.expressions.userFunctionsOne;
+    exports org.cirdles.tripoli.expressions.userFunctions;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix;

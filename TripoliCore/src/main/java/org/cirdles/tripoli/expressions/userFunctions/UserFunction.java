@@ -14,22 +14,29 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.expressions.userFunctionsOne;
+package org.cirdles.tripoli.expressions.userFunctions;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
  * @author James F. Bowring
  */
 public class UserFunction implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -5408855769497340457L;
     private String name;
     private int columnIndex;
-    private boolean isotopicRatio;
+    private boolean treatAsIsotopicRatio;
+    private boolean displayed;
+    private boolean inverted;
 
-    public UserFunction(String name, int columnIndex, boolean isotopicRatio) {
+    public UserFunction(String name, int columnIndex, boolean treatAsIsotopicRatio, boolean displayed) {
         this.name = name;
         this.columnIndex = columnIndex;
-        this.isotopicRatio = isotopicRatio;
+        this.treatAsIsotopicRatio = treatAsIsotopicRatio;
+        this.displayed = displayed;
+        this.inverted = false;
     }
 
     public String getName() {
@@ -40,7 +47,23 @@ public class UserFunction implements Serializable {
         return columnIndex;
     }
 
-    public boolean isIsotopicRatio() {
-        return isotopicRatio;
+    public boolean isTreatAsIsotopicRatio() {
+        return treatAsIsotopicRatio;
+    }
+
+    public boolean isDisplayed() {
+        return displayed;
+    }
+
+    public void setDisplayed(boolean displayed) {
+        this.displayed = displayed;
+    }
+
+    public boolean isInverted() {
+        return inverted;
+    }
+
+    public void setInverted(boolean inverted) {
+        this.inverted = inverted;
     }
 }

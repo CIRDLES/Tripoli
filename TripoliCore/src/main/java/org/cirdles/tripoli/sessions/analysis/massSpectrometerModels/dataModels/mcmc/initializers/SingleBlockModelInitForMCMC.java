@@ -363,7 +363,6 @@ public enum SingleBlockModelInitForMCMC {
 
          */
 
-        double[] dataWithNoBaselineArray = new double[totalIntensityCount];
         double[] dataSignalNoiseArray_Dsig = new double[totalIntensityCount];
         double[] ddd = new double[totalIntensityCount];
         double reportInterval = 0.1; //%sb629 Previously hardcoded, should be read from file

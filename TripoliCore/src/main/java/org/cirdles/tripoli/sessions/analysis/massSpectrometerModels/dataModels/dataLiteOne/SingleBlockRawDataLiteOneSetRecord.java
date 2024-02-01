@@ -16,7 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne;
 
-import org.cirdles.tripoli.expressions.userFunctionsOne.UserFunction;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 
 /**
  * @author James F. Bowring

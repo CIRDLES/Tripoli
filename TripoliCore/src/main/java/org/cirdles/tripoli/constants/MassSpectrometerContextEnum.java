@@ -37,10 +37,9 @@ public enum MassSpectrometerContextEnum {
             PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_0", 4),
     TRITON_EXP("Triton EXP", "Triton",
             "Triton Analysis Data Report",
-            TritonMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_2", 1),
+            TritonMassSpec.class, "extractMetaAndBlockDataFromFileTriton", 1),
     UNKNOWN("UNKNOWN", "UNKNOWN", "",
             null, "", 0);
-//Triton Analysis Data Report
 
     private final String name;
     private final String massSpectrometerName;

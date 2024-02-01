@@ -32,7 +32,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 /**
  * @author James F. Bowring
  */
-public class AllBlockInitForOGTripoli {
+public class AllBlockInitForMCMC {
 
     public static PlottingData initBlockModels(AnalysisInterface analysis) throws TripoliException {
         // check process status

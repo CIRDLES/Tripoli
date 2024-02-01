@@ -18,7 +18,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.
 
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteOneSetRecord;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
@@ -28,7 +28,7 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
  * @author James F. Bowring
  */
 public class AllBlockInitForDataLiteOne {
-    public static AllBlockInitForOGTripoli.PlottingData initBlockModels(AnalysisInterface analysis) throws TripoliException {
+    public static AllBlockInitForMCMC.PlottingData initBlockModels(AnalysisInterface analysis) throws TripoliException {
         // check process status
         MassSpecExtractedData massSpecExtractedData = analysis.getMassSpecExtractedData();
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
@@ -41,7 +41,7 @@ public class AllBlockInitForDataLiteOne {
             analysis.getMapOfBlockIdToRawDataLiteOne().put(blockIndex + 1, singleBlockRawDataLiteOneSetRecords[blockIndex]);
         }
 
-        return new AllBlockInitForOGTripoli.PlottingData(
+        return new AllBlockInitForMCMC.PlottingData(
                 null, null, singleBlockRawDataLiteOneSetRecords, singleBlockRawDataLiteOneSetRecords[0].cycleCount(), true, 1);
     }
 

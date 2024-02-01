@@ -26,7 +26,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
-import org.cirdles.tripoli.expressions.userFunctionsOne.UserFunction;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliPlotsWindow;
@@ -35,7 +35,7 @@ import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
@@ -56,6 +56,7 @@ import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIEL
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_RATIO_FLIPPER_URL;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
 import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDialog;
+import static org.cirdles.tripoli.gui.utilities.UIUtilities.showTab;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectDataFile;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectMethodFile;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.*;
@@ -127,13 +128,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private Button addRatioButton;
 
     public static void closePlotWindows() {
-        if (ogTripoliPreviewPlotsWindow != null) {
+        if (null != ogTripoliPreviewPlotsWindow) {
             ogTripoliPreviewPlotsWindow.close();
         }
-        if (ogTripoliReviewPlotsWindow != null) {
+        if (null != ogTripoliReviewPlotsWindow) {
             ogTripoliReviewPlotsWindow.close();
         }
-        if (MCMCPlotsWindow != null) {
+        if (null != MCMCPlotsWindow) {
             MCMCPlotsWindow.close();
         }
     }
@@ -170,7 +171,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         ratioVBox.setPadding(new Insets(1, 5, 1, 5));
         ratioVBox.setStyle(ratioVBox.getStyle() + "-fx-border-color: black;");
 
-        final ImageView ratioFlipperImageView = new ImageView();
+        ImageView ratioFlipperImageView = new ImageView();
         Image ratioFlipper = new Image(TRIPOLI_RATIO_FLIPPER_URL);
         ratioFlipperImageView.setImage(ratioFlipper);
         ratioFlipperImageView.setFitHeight(16);
@@ -269,28 +270,24 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 analysiMethodTabPane.getTabs().remove(baselineTableTab);
                 analysiMethodTabPane.getTabs().remove(sequenceTableTab);
                 analysiMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
-                showAnalysisMethodTab(1, selectColumnsToPlot);
+                showTab(analysiMethodTabPane, 1, selectColumnsToPlot);
                 populateAnalysisMethodColumnsSelectorPane();
+                processingToolBar.setVisible(false);
             }
             case 2, 3, 4 -> {
-                showAnalysisMethodTab(1, detectorDetailTab);
-                showAnalysisMethodTab(2, baselineTableTab);
-                showAnalysisMethodTab(3, sequenceTableTab);
-                showAnalysisMethodTab(4, selectRatiosToPlotTab);
+                showTab(analysiMethodTabPane, 1, detectorDetailTab);
+                showTab(analysiMethodTabPane, 2, baselineTableTab);
+                showTab(analysiMethodTabPane, 3, sequenceTableTab);
+                showTab(analysiMethodTabPane, 4, selectRatiosToPlotTab);
                 analysiMethodTabPane.getTabs().remove(selectColumnsToPlot);
                 populateAnalysisMethodGridPane();
                 populateAnalysisMethodRatioBuilderPane();
                 populateBlocksStatus();
+                processingToolBar.setVisible(true);
             }
         }
 
-        processingToolBar.setDisable(analysis.getAnalysisMethod() == null);
-    }
-
-    private void showAnalysisMethodTab(int index, Tab tab) {
-        if (!analysiMethodTabPane.getTabs().contains(tab)) {
-            analysiMethodTabPane.getTabs().add(index, tab);
-        }
+        processingToolBar.setDisable(null == analysis.getAnalysisMethod());
     }
 
     private void populateAnalysisDataFields() {
@@ -423,13 +420,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             }
         };
         ChangeListener<Boolean> allRatiosInvertedChangeListener = (observable, oldValue, newValue) -> {
-            for (CheckBox checkBoxRatio : ratioInvertedCheckBoxList) {
-                checkBoxRatio.setSelected((Boolean) newValue);
+            for (CheckBox checkBoxInvertedRatio : ratioInvertedCheckBoxList) {
+                checkBoxInvertedRatio.setSelected(newValue);
             }
         };
         ChangeListener<Boolean> allFunctionsChangeListener = (observable, oldValue, newValue) -> {
             for (CheckBox checkBoxRatio : functionCheckBoxList) {
-                checkBoxRatio.setSelected((Boolean) newValue);
+                checkBoxRatio.setSelected(newValue);
             }
         };
 
@@ -439,10 +436,32 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         hBox.setPadding(new Insets(5, 5, 5, 5));
         hBox.setAlignment(Pos.CENTER);
         CheckBox checkBoxSelectAllRatios = new CheckBox("Select all");
+        int count = 0;
+        int selected = 0;
+        for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
+            if (userFunction.isTreatAsIsotopicRatio()) {
+                count++;
+                selected += userFunction.isDisplayed() ? 1 : 0;
+            }
+            checkBoxSelectAllRatios.setSelected(selected == count);
+            checkBoxSelectAllRatios.setIndeterminate((0 < selected) && (selected < count));
+        }
         checkBoxSelectAllRatios.selectedProperty().addListener(allRatiosChangeListener);
         hBox.getChildren().add(checkBoxSelectAllRatios);
+
         hBox.getChildren().add(new Label("Isotopic Ratios"));
+
         CheckBox checkBoxSelectAllRatiosInverted = new CheckBox("Invert all");
+        count = 0;
+        selected = 0;
+        for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
+            if (userFunction.isTreatAsIsotopicRatio()) {
+                count++;
+                selected += userFunction.isInverted() ? 1 : 0;
+            }
+            checkBoxSelectAllRatiosInverted.setSelected(selected == count);
+            checkBoxSelectAllRatiosInverted.setIndeterminate((0 < selected) && (selected < count));
+        }
         checkBoxSelectAllRatiosInverted.selectedProperty().addListener(allRatiosInvertedChangeListener);
         hBox.getChildren().add(checkBoxSelectAllRatiosInverted);
         hBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
@@ -454,6 +473,16 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         hBox.setAlignment(Pos.CENTER);
         hBox.setPadding(new Insets(5, 5, 5, 5));
         CheckBox checkBoxSelectAllFunctions = new CheckBox("Select all");
+        count = 0;
+        selected = 0;
+        for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
+            if (!userFunction.isTreatAsIsotopicRatio()) {
+                count++;
+                selected += userFunction.isDisplayed() ? 1 : 0;
+            }
+            checkBoxSelectAllFunctions.setSelected(selected == count);
+            checkBoxSelectAllFunctions.setIndeterminate((0 < selected) && (selected < count));
+        }
         checkBoxSelectAllFunctions.selectedProperty().addListener(allFunctionsChangeListener);
         hBox.getChildren().add(checkBoxSelectAllFunctions);
         hBox.getChildren().add(new Label("User Functions"));
@@ -461,21 +490,20 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         functionsVBox.getChildren().add(hBox);
 
         for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
-            if (userFunction.isIsotopicRatio()) {
+            if (userFunction.isTreatAsIsotopicRatio()) {
                 hBox = new HBox();
                 CheckBox checkBoxRatio = new CheckBox(userFunction.getName());
+                checkBoxRatio.setUserData(userFunction);
+                checkBoxRatio.setSelected(userFunction.isDisplayed());
                 checkBoxRatio.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                    int selected = 0;
+                    ((UserFunction) checkBoxRatio.getUserData()).setDisplayed(newValue);
+                    int selectedR = 0;
                     for (CheckBox checkBoxRatio2 : ratioCheckBoxList) {
-                        selected += (checkBoxRatio2.isSelected() ? 1 : 0);
+                        selectedR += (checkBoxRatio2.isSelected() ? 1 : 0);
                     }
                     checkBoxSelectAllRatios.selectedProperty().removeListener(allRatiosChangeListener);
-                    checkBoxSelectAllRatios.setSelected((selected == ratioCheckBoxList.size()) ? true : false);
-                    if ((selected > 0) && (selected < ratioCheckBoxList.size())) {
-                        checkBoxSelectAllRatios.setIndeterminate(true);
-                    } else {
-                        checkBoxSelectAllRatios.setIndeterminate(false);
-                    }
+                    checkBoxSelectAllRatios.setSelected(selectedR == ratioCheckBoxList.size());
+                    checkBoxSelectAllRatios.setIndeterminate((0 < selectedR) && (selectedR < ratioCheckBoxList.size()));
                     checkBoxSelectAllRatios.selectedProperty().addListener(allRatiosChangeListener);
 
                 });
@@ -483,18 +511,17 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 checkBoxRatio.setPrefWidth(175);
 
                 CheckBox checkBoxInvert = new CheckBox("Invert");
+                checkBoxInvert.setUserData(userFunction);
+                checkBoxInvert.setSelected(userFunction.isInverted());
                 checkBoxInvert.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                    int selected = 0;
+                    ((UserFunction) checkBoxInvert.getUserData()).setInverted(newValue);
+                    int selectedI = 0;
                     for (CheckBox checkBoxRatioInverted : ratioInvertedCheckBoxList) {
-                        selected += (checkBoxRatioInverted.isSelected() ? 1 : 0);
+                        selectedI += (checkBoxRatioInverted.isSelected() ? 1 : 0);
                     }
                     checkBoxSelectAllRatiosInverted.selectedProperty().removeListener(allRatiosInvertedChangeListener);
-                    checkBoxSelectAllRatiosInverted.setSelected((selected == ratioInvertedCheckBoxList.size()) ? true : false);
-                    if ((selected > 0) && (selected < ratioCheckBoxList.size())) {
-                        checkBoxSelectAllRatiosInverted.setIndeterminate(true);
-                    } else {
-                        checkBoxSelectAllRatiosInverted.setIndeterminate(false);
-                    }
+                    checkBoxSelectAllRatiosInverted.setSelected(selectedI == ratioInvertedCheckBoxList.size());
+                    checkBoxSelectAllRatiosInverted.setIndeterminate((0 < selectedI) && (selectedI < ratioCheckBoxList.size()));
                     checkBoxSelectAllRatiosInverted.selectedProperty().addListener(allRatiosInvertedChangeListener);
 
                 });
@@ -509,18 +536,17 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             } else {
                 hBox = new HBox();
                 CheckBox checkBoxFunction = new CheckBox(userFunction.getName());
+                checkBoxFunction.setUserData(userFunction);
+                checkBoxFunction.setSelected(userFunction.isDisplayed());
                 checkBoxFunction.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                    int selected = 0;
+                    ((UserFunction) checkBoxFunction.getUserData()).setDisplayed(newValue);
+                    int selectedF = 0;
                     for (CheckBox checkBoxRatio2 : functionCheckBoxList) {
-                        selected += (checkBoxRatio2.isSelected() ? 1 : 0);
+                        selectedF += (checkBoxRatio2.isSelected() ? 1 : 0);
                     }
                     checkBoxSelectAllFunctions.selectedProperty().removeListener(allFunctionsChangeListener);
-                    checkBoxSelectAllFunctions.setSelected((selected == functionCheckBoxList.size()) ? true : false);
-                    if ((selected > 0) && (selected < functionCheckBoxList.size())) {
-                        checkBoxSelectAllFunctions.setIndeterminate(true);
-                    } else {
-                        checkBoxSelectAllFunctions.setIndeterminate(false);
-                    }
+                    checkBoxSelectAllFunctions.setSelected(selectedF == functionCheckBoxList.size());
+                    checkBoxSelectAllFunctions.setIndeterminate((0 < selectedF) && (selectedF < functionCheckBoxList.size()));
                     checkBoxSelectAllFunctions.selectedProperty().addListener(allFunctionsChangeListener);
 
                 });
@@ -532,26 +558,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 functionsVBox.getChildren().add(hBox);
             }
         }
-
-    }
-
-    private void populateAnalysisMethodRatioSelectorPane() {
-        if (null != analysis.getAnalysisMethod()) {
-            List<IsotopicRatio> allRatios = new ArrayList<>();
-            allRatios.addAll(analysis.getAnalysisMethod().getIsotopicRatiosList());
-            allRatios.addAll(analysis.getAnalysisMethod().getDerivedIsotopicRatiosList());
-            Collections.sort(allRatios, IsotopicRatio::compareTo);
-
-            int ratioCount = 0;
-            for (IsotopicRatio ratio : allRatios) {
-                CheckBox ratioCheckbox = new CheckBox(ratio.prettyPrint());
-                ratioCheckbox.setSelected(ratio.isDisplayed());
-                ratioCheckbox.setUserData(ratio);
-                ratioCheckbox.selectedProperty().addListener(new CheckBoxChangeListener(ratioCheckbox));
-                ratioCount++;
-            }
-        }
-
     }
 
     private void populateAnalysisMethodRatioBuilderPane() {
@@ -674,24 +680,16 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private void invertProposedRatio() {
         SpeciesRecordInterface num = (SpeciesRecordInterface) ((VBox) proposedRatioVBox.getChildren().get(0)).getChildren().get(0).getUserData();
         SpeciesRecordInterface den = (SpeciesRecordInterface) ((VBox) proposedRatioVBox.getChildren().get(0)).getChildren().get(2).getUserData();
-        ((Text) ((VBox) proposedRatioVBox.getChildren().get(0)).getChildren().get(0)).setText(den == null ? " ? " : den.prettyPrintShortForm());
-        if (den != null) {
-            ((VBox) proposedRatioVBox.getChildren().get(0)).getChildren().get(0).setUserData(den);
-        } else {
-            ((VBox) proposedRatioVBox.getChildren().get(0)).getChildren().get(0).setUserData(null);
-        }
-        ((Text) ((VBox) proposedRatioVBox.getChildren().get(0)).getChildren().get(2)).setText(num == null ? " ? " : num.prettyPrintShortForm());
-        if (num != null) {
-            ((VBox) proposedRatioVBox.getChildren().get(0)).getChildren().get(2).setUserData(num);
-        } else {
-            ((VBox) proposedRatioVBox.getChildren().get(0)).getChildren().get(2).setUserData(null);
-        }
+        ((Text) ((VBox) proposedRatioVBox.getChildren().get(0)).getChildren().get(0)).setText(null == den ? " ? " : den.prettyPrintShortForm());
+        ((VBox) proposedRatioVBox.getChildren().get(0)).getChildren().get(0).setUserData(den);
+        ((Text) ((VBox) proposedRatioVBox.getChildren().get(0)).getChildren().get(2)).setText(null == num ? " ? " : num.prettyPrintShortForm());
+        ((VBox) proposedRatioVBox.getChildren().get(0)).getChildren().get(2).setUserData(num);
         addRatioButton.setDisable(!checkLegalityOfProposedRatio());
     }
 
     private void populateBlocksStatus() {
         blockStatusHBox.getChildren().clear();
-        if (analysis.getAnalysisMethod() != null) {
+        if (null != analysis.getAnalysisMethod()) {
             var massSpecExtractedData = analysis.getMassSpecExtractedData();
             Map<Integer, MassSpecOutputBlockRecordFull> blocksData = massSpecExtractedData.getBlocksDataFull();
             for (MassSpecOutputBlockRecordFull block : blocksData.values()) {
@@ -768,7 +766,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 // Proceed based on analysis case per https://docs.google.com/drawings/d/1U6-8LC55mHjHv8N7p6MAfKcdW8NibJSei3iTMT7E1A8/edit?usp=sharing
                 populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
 
-                processingToolBar.setDisable(analysis.getAnalysisMethod() == null);
+                processingToolBar.setDisable(null == analysis.getAnalysisMethod());
             }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |
                  JAXBException | TripoliException e) {
@@ -809,7 +807,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         } catch (TripoliException | IOException | JAXBException e) {
             TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
         }
-        processingToolBar.setDisable(analysis.getAnalysisMethod() == null);
+        processingToolBar.setDisable(null == analysis.getAnalysisMethod());
         // initialize block processing state
         for (Integer blockID : analysis.getMassSpecExtractedData().getBlocksDataFull().keySet()) {
             analysis.getMapOfBlockIdToProcessStatus().put(blockID, RUN);
@@ -838,7 +836,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             ogTripoliPreviewPlotsWindow.close();
         }
 
-        AllBlockInitForOGTripoli.PlottingData plottingData = null;
+        AllBlockInitForMCMC.PlottingData plottingData = null;
         switch (analysis.getAnalysisCaseNumber()) {
             case 0 -> {
             }
@@ -850,7 +848,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             case 3 -> {
             }
             case 4 -> {
-                plottingData = AllBlockInitForOGTripoli.initBlockModels(analysis);
+                plottingData = AllBlockInitForMCMC.initBlockModels(analysis);
             }
         }
 
@@ -863,7 +861,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         if (null != ogTripoliReviewPlotsWindow) {
             ogTripoliReviewPlotsWindow.close();
         }
-        AllBlockInitForOGTripoli.PlottingData plottingData = analysis.assemblePostProcessPlottingData();
+        AllBlockInitForMCMC.PlottingData plottingData = analysis.assemblePostProcessPlottingData();
         ogTripoliReviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
         ogTripoliReviewPlotsWindow.loadPlotsWindow();
     }
@@ -916,13 +914,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     @Override
     public void callBackSetBlockIncludedStatus(int blockID, boolean included) {
-        boolean isProcessed = (analysis.getMapOfBlockIdToPlots().get(blockID) != null);
+        boolean isProcessed = (null != analysis.getMapOfBlockIdToPlots().get(blockID));
         analysis.getMapOfBlockIdToProcessStatus().put(blockID, included ? (isProcessed ? SHOW : RUN) : SKIP);
         populateBlocksStatus();
-        if (ogTripoliReviewPlotsWindow != null) {
+        if (null != ogTripoliReviewPlotsWindow) {
             ogTripoliReviewPlotsWindow.getOgTripoliViewController().populatePlots();
         }
-        if (ogTripoliPreviewPlotsWindow != null) {
+        if (null != ogTripoliPreviewPlotsWindow) {
             ogTripoliPreviewPlotsWindow.getOgTripoliViewController().populatePlots();
         }
     }

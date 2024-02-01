@@ -16,15 +16,13 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import org.cirdles.tripoli.constants.TripoliConstants;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.BlockRatioCyclesAnalysisPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.analysisPlots.AnalysisRatioPlot;
@@ -144,12 +142,9 @@ public class TripoliPlotPane extends Pane {
     public static TripoliPlotPane makePlotPane(PlotWallPaneInterface plotWallPane) {
         TripoliPlotPane tripoliPlotPane = new TripoliPlotPane(plotWallPane);
 
-        tripoliPlotPane.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                ((AbstractPlot) tripoliPlotPane.getChildren().get(0)).setWidthF((Double) newValue);
-                ((AbstractPlot) tripoliPlotPane.getChildren().get(0)).refreshPanel(false, false);
-            }
+        tripoliPlotPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+            ((AbstractPlot) tripoliPlotPane.getChildren().get(0)).setWidthF((Double) newValue);
+            ((AbstractPlot) tripoliPlotPane.getChildren().get(0)).refreshPanel(false, false);
         });
 
         tripoliPlotPane.setLayoutX(0.0);
@@ -288,10 +283,10 @@ public class TripoliPlotPane extends Pane {
     }
 
     public void updateAnalysisRatiosPlotted(boolean logScale, boolean reScaleX, boolean reScaleY) {
-        if (!getChildren().isEmpty() && (getChildren().get(0) instanceof BlockRatioCyclesAnalysisPlot)) {
-            ((BlockRatioCyclesAnalysisPlot) getChildren().get(0)).setLogScale(logScale);
+        if (!getChildren().isEmpty() && (getChildren().get(0) instanceof AnalysisBlockCyclesPlot)) {
+            ((AnalysisBlockCyclesPlot) getChildren().get(0)).setLogScale(logScale);
 
-            ((BlockRatioCyclesAnalysisPlot) getChildren().get(0)).refreshPanel(reScaleX, reScaleY);
+            ((AnalysisBlockCyclesPlot) getChildren().get(0)).refreshPanel(reScaleX, reScaleY);
         }
     }
 
@@ -300,7 +295,7 @@ public class TripoliPlotPane extends Pane {
     }
 
     public void resetAnalysisRatioZoom(boolean[] zoomFlagsXY) {
-        ((BlockRatioCyclesAnalysisPlot) getChildren().get(0)).setZoomFlagsXY(zoomFlagsXY);
+        ((AnalysisBlockCyclesPlot) getChildren().get(0)).setZoomFlagsXY(zoomFlagsXY);
     }
 
     private record PlotLocation(
