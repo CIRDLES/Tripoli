@@ -1,15 +1,10 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.ColorPicker;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.constants.TripoliConstants;
@@ -21,11 +16,13 @@ public class SpeciesColorPane extends Pane {
 
     private String speciesName;
     private SpeciesColors speciesColors;
+    private ColorPicker colorPickerReference;
 
-    public SpeciesColorPane(String speciesName, SpeciesColors speciesColors) {
+    public SpeciesColorPane(String speciesName, SpeciesColors speciesColors, ColorPicker colorPickerReference) {
         super();
         this.speciesName = speciesName;
-        this.speciesColors = speciesColors;;
+        this.speciesColors = speciesColors;
+        this.colorPickerReference = colorPickerReference;
         VBox vBox = initializeAndAddVbox();
         vBox.getChildren().add(initializeAndAddHbox());
 
@@ -36,20 +33,24 @@ public class SpeciesColorPane extends Pane {
         VBox vBox = new VBox();
         hBox.getChildren().add(vBox);
         vBox.getChildren().add(new ColorRow(
-                TripoliConstants.DetectorPlotFlavor.FARADAY_POINT,
-                speciesColors.faradayHexColor()
+                TripoliConstants.DetectorPlotFlavor.FARADAY_DATA,
+                speciesColors.faradayHexColor(),
+                this.colorPickerReference
         ));
         vBox.getChildren().add(new ColorRow(
-                TripoliConstants.DetectorPlotFlavor.PM_POINT,
-                speciesColors.pmHexColor()
+                TripoliConstants.DetectorPlotFlavor.PM_DATA,
+                speciesColors.pmHexColor(),
+                this.colorPickerReference
         ));
         vBox.getChildren().add(new ColorRow(
                 TripoliConstants.DetectorPlotFlavor.FARADAY_MODEL,
-                speciesColors.faradayModelHexColor()
+                speciesColors.faradayModelHexColor(),
+                this.colorPickerReference
         ));
         vBox.getChildren().add(new ColorRow(
                 TripoliConstants.DetectorPlotFlavor.PM_MODEL,
-                speciesColors.pmModelHexColor()
+                speciesColors.pmModelHexColor(),
+                this.colorPickerReference
         ));
         return hBox;
     }

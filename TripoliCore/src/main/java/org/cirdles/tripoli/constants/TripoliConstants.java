@@ -76,8 +76,8 @@ public enum TripoliConstants {
     public static final String FARADAY_MODEL_DEFAULT_HEX_COLOR = "#ff0000";
 
     public enum DetectorPlotFlavor {
-        FARADAY_POINT("Faraday Data"),
-        PM_POINT("Photomultiplier Data"),
+        FARADAY_DATA("Faraday Data"),
+        PM_DATA("Photomultiplier Data"),
         FARADAY_MODEL("Faraday Model"),
         PM_MODEL("Photomultiplier Model");
 

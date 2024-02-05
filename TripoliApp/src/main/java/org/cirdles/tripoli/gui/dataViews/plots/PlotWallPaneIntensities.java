@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -269,7 +270,8 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
 
             for (int speciesIndex = 0; speciesIndex < species.size(); ++speciesIndex) {
                 SpeciesColorPane pane = new SpeciesColorPane(species.get(speciesIndex).prettyPrintShortForm().trim(),
-                        mapOfSpeciesToColors.get(speciesIndex));
+                        mapOfSpeciesToColors.get(speciesIndex),
+                        colorPicker);
 //                VBox vBox = new VBox();
 //                pane.getChildren().add(vBox);
 //                //  Make title For the species
@@ -318,7 +320,15 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
                 System.out.println(e);
                 // Lets figure out which SpeciesColorPane got clicked
                 for(Node node : root.getChildren()) {
-                    System.out.println(node);
+                    Bounds localBounds = node.getBoundsInLocal();
+                    Bounds sceneBounds = node.localToScene(localBounds);
+                    if (sceneBounds.contains(e.getSceneX(), e.getSceneY()) && node instanceof SpeciesColorPane) {
+                        for (Node childNode : ((SpeciesColorPane) node).getChildren()) {
+                            if (childNode instanceof ColorRow && childNode.localToScene(childNode.getBoundsInLocal()).contains(e.getSceneX(), e.getSceneY())){
+                                System.out.println(((ColorRow) childNode).getHexColor() );
+                            }
+                        }
+                    }
                 }
                 e.consume();
             });
