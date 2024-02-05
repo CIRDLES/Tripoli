@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.species;
+package org.cirdles.tripoli.expressions.species;
 
 import org.jetbrains.annotations.NotNull;
 

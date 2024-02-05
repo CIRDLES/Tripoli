@@ -58,6 +58,7 @@ public class MassSpecExtractedData implements Serializable {
         String localDateTimeZero = "LocalDateTime.MIN";
         for (String[] headerStrings : headerData) {
             switch (headerStrings[0].trim().toUpperCase()) {
+                // Phoenix
                 case "VERSION" -> softwareVersion = headerStrings[1].trim();
                 case "FILENAME" -> filename = headerStrings[1].trim();
                 case "METHODNAME" -> methodName = headerStrings[1].trim();
@@ -68,6 +69,10 @@ public class MassSpecExtractedData implements Serializable {
                         hasBChannels = Boolean.parseBoolean(headerStrings[1].trim().toUpperCase().replace("YES", "TRUE"));
                 case "TIMEZERO" -> localDateTimeZero = headerStrings[1].trim();
                 case "CYCLESTOMEASURE" -> cyclesPerBlock = Integer.parseInt(headerStrings[1].trim());
+
+                // Triton
+                case "DATA VERSION" -> softwareVersion = headerStrings[1].trim();
+                case "DATE" -> localDateTimeZero = headerStrings[1].trim();
             }
         }
         header = new MassSpecExtractedHeader(
@@ -77,7 +82,7 @@ public class MassSpecExtractedData implements Serializable {
                 isCorrected,
                 hasBChannels,
                 localDateTimeZero,
-                cyclesPerBlock
+                (cyclesPerBlock == 0) ? 10 : cyclesPerBlock //TODO: fix this hack for triton
         );
     }
 

@@ -17,13 +17,13 @@
                         </AnchorPane>
                     </content>
                 </Tab>
-                <Tab closable="false" text="OnPeak Intensities by Time">
+                <Tab fx:id="onPeakIntensitiesTab" closable="false" text="OnPeak Intensities by Time">
                     <content>
                         <AnchorPane fx:id="ogtSpeciesIntensitiesPlotAnchorPane"
                                     style="-fx-background-color: lightgrey;"/>
                     </content>
                 </Tab>
-                <Tab closable="false" text="OnPeak Residuals by Time">
+                <Tab fx:id="onPeakResidualsTab" closable="false" text="OnPeak Residuals by Time">
                     <content>
                         <AnchorPane fx:id="ogtSpeciesResidualsPlotAnchorPane" style="-fx-background-color: lightgrey;"/>
                     </content>

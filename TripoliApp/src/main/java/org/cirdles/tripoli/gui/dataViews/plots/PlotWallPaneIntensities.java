@@ -26,8 +26,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.cirdles.tripoli.constants.TripoliConstants;
+import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
-import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.util.List;
 

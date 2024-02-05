@@ -32,9 +32,9 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import org.cirdles.tripoli.elements.ElementRecord;
 import org.cirdles.tripoli.elements.ElementsFactory;
-import org.cirdles.tripoli.species.SpeciesRecordInterface;
-import org.cirdles.tripoli.species.nuclides.NuclideRecord;
-import org.cirdles.tripoli.species.nuclides.NuclidesFactory;
+import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.expressions.species.nuclides.NuclideRecord;
+import org.cirdles.tripoli.expressions.species.nuclides.NuclidesFactory;
 
 import java.io.IOException;
 import java.net.URL;
