@@ -287,8 +287,9 @@ public class TripoliPlotPane extends Pane {
         }
     }
 
-    public void updateAnalysisRatiosPlotted(boolean logScale, boolean reScaleX, boolean reScaleY) {
+    public void updateAnalysisRatiosPlotted(boolean blockMode, boolean logScale, boolean reScaleX, boolean reScaleY) {
         if (plot != null && (plot instanceof AnalysisBlockCyclesPlot)) {
+            ((AnalysisBlockCyclesPlot) plot).setBlockMode(blockMode);
             ((AnalysisBlockCyclesPlot) plot).setLogScale(logScale);
             plot.refreshPanel(reScaleX, reScaleY);
         }

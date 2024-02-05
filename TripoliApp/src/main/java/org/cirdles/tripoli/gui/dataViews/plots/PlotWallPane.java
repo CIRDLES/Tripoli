@@ -52,6 +52,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private double toolBarHeight;
     private int toolBarCount;
     private boolean logScale;
+    private boolean blockMode;
     private ConstantsTripoliApp.PlotLayoutStyle plotLayoutStyle;
 
 
@@ -63,6 +64,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         this.mcmcPlotsController = mcmcPlotsController;
         this.analysisManagerCallbackI = analysisManagerCallbackI;
         plotLayoutStyle = ConstantsTripoliApp.PlotLayoutStyle.TILE;
+        this.blockMode = true;
 
     }
 
@@ -160,6 +162,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
             }
         }
         plotLayoutStyle = ConstantsTripoliApp.PlotLayoutStyle.STACK;
+    }
+
+    public void synchPlots(){
+
     }
 
     public void cascadePlots() {
@@ -340,6 +346,23 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         cascadeButton.setOnAction(event -> cascadePlots());
         toolBar.getItems().add(cascadeButton);
 
+        Button synchButton = new Button("Synch Plots");
+        synchButton.setOnAction(event -> synchPlots());
+        toolBar.getItems().add(synchButton);
+
+        Label labelMode = new Label("Mode:");
+        labelMode.setAlignment(Pos.CENTER_RIGHT);
+        labelMode.setPrefWidth(60);
+        toolBar.getItems().add(labelMode);
+
+        CheckBox cycleCB = new CheckBox("Cycle");
+        toolBar.getItems().add(cycleCB);
+        cycleCB.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                    blockMode = !newVal;
+                    rebuildPlot(false, true);
+                });
+
         Label labelScale = new Label("Scale:");
         labelScale.setAlignment(Pos.CENTER_RIGHT);
         labelScale.setPrefWidth(60);
@@ -353,10 +376,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
                     rebuildPlot(false, true);
                 });
 
-        Label labelViews = new Label("Zoom:");
-        labelViews.setAlignment(Pos.CENTER_RIGHT);
-        labelViews.setPrefWidth(50);
-        toolBar.getItems().add(labelViews);
+        Label labelZoom = new Label("Zoom:");
+        labelZoom.setAlignment(Pos.CENTER_RIGHT);
+        labelZoom.setPrefWidth(50);
+        toolBar.getItems().add(labelZoom);
 
         ToggleGroup toggleScaleY = new ToggleGroup();
 
@@ -422,7 +445,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private void rebuildPlot(boolean reScaleX, boolean reScaleY) {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
-                ((TripoliPlotPane) plotPane).updateAnalysisRatiosPlotted(logScale, reScaleX, reScaleY);
+                ((TripoliPlotPane) plotPane).updateAnalysisRatiosPlotted(blockMode, logScale, reScaleX, reScaleY);
             }
         }
     }
