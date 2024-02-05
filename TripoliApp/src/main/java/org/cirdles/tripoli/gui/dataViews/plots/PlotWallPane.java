@@ -458,14 +458,18 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         }
     }
 
-    public void synchronizeRatioPlotsScroll(double zoomChunkX, double zoomChunkY) {
+    public void synchronizeRatioPlotsScroll(AnalysisBlockCyclesPlot sourceAnalysisBlockCyclesPlot, double zoomChunkX, double zoomChunkY) {
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
                 AnalysisBlockCyclesPlot childPlot = (AnalysisBlockCyclesPlot) ((TripoliPlotPane) child).getPlot();
-                childPlot.setZoomChunkX(zoomChunkX);
-                childPlot.setZoomChunkY(zoomChunkY);
-                childPlot.adjustZoom();
+                if (childPlot != sourceAnalysisBlockCyclesPlot) {
+                    childPlot.setZoomChunkX(zoomChunkX);
+                    childPlot.setZoomChunkY(zoomChunkY);
+                    childPlot.adjustZoom();
+                } else {
+                    childPlot.adjustZoomSelf();
+                }
             }
         }
     }
@@ -485,7 +489,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if ((child instanceof TripoliPlotPane) && (((TripoliPlotPane) child).getPlot() instanceof AbstractPlot)) {
-                ((AbstractPlot) ((TripoliPlotPane) child).getPlot()).repaint();
+                ((TripoliPlotPane) child).getPlot().repaint();
             }
         }
     }

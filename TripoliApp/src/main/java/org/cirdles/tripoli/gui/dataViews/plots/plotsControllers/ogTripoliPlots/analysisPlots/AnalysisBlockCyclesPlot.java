@@ -57,7 +57,6 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
     private boolean logScale;
     private boolean[] zoomFlagsXY;
     private PlotWallPaneInterface parentWallPane;
-//    private BlockStatsRecord[] blockStatsRecords;
     private boolean isRatio;
     private boolean blockMode;
     private AnalysisStatsRecord analysisStatsRecord;
@@ -74,7 +73,6 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
         this.logScale = false;
         this.zoomFlagsXY = new boolean[]{true, true};
         this.parentWallPane = parentWallPane;
-//        this.blockStatsRecords = new BlockStatsRecord[0];
         this.isRatio = analysisBlockCyclesRecord.isRatio();
         this.blockMode = true;
     }
@@ -467,22 +465,49 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
         } else {
             double mean = analysisStatsRecord.cycleModeMean();
             double stdDev = analysisStatsRecord.cycleModeStandardDeviation();
-            double stdErr = analysisStatsRecord.cycleModeStandardDeviation();
+            double stdErr = analysisStatsRecord.cycleModeStandardError();
+            double meanPlusOneStandardDeviation = mean + stdDev;
+            double meanPlusTwoStandardDeviation = mean + 2.0 * stdDev;
+            double meanPlusTwoStandardError = mean + 2.0 * stdErr;
+            double meanMinusOneStandardDeviation = mean - stdDev;
+            double meanMinusTwoStandardDeviation = mean - 2.0 * stdDev;
+            double meanMinusTwoStandardError = mean - 2.0 * stdErr;
 
             double leftX = mapX(xAxisData[0] - 0.5);
             if (leftX < leftMargin) leftX = leftMargin;
             double rightX = mapX(xAxisData[xAxisData.length - 1] + 0.5);
             if (rightX > leftMargin + plotWidth) rightX = leftMargin + plotWidth;
 
-            double plottedTwoSigmaHeight = Math.min(mapY(mean - stdDev), topMargin + plotHeight) - Math.max(mapY(mean + stdDev), topMargin);
-            g2d.fillRect(leftX, Math.max(mapY(mean + stdDev), topMargin), rightX - leftX, plottedTwoSigmaHeight);
+            if (isRatio && !logScale){
+                GeometricMeanStatsRecord  geometricMeanStatsRecord = generateGeometricMeanStats(mean, stdDev, stdErr);
+                mean = geometricMeanStatsRecord.geoMean();
+                meanPlusOneStandardDeviation = geometricMeanStatsRecord.geoMeanPlusOneStdDev();
+                meanPlusTwoStandardDeviation = geometricMeanStatsRecord.geomeanPlusTwoStdDev();
+                meanPlusTwoStandardError = geometricMeanStatsRecord.geoMeanPlusTwoStdErr();
+                meanMinusOneStandardDeviation = geometricMeanStatsRecord.geoMeanMinusOneStdDev();
+                meanMinusTwoStandardDeviation = geometricMeanStatsRecord.geoMeanMinusTwoStdDev();
+                meanMinusTwoStandardError = geometricMeanStatsRecord.geoMeanMinusTwoStdErr();
+            }
+
+            double plottedTwoSigmaHeight = Math.min(mapY(meanMinusTwoStandardDeviation), topMargin + plotHeight) - Math.max(mapY(meanPlusTwoStandardDeviation), topMargin);
+            g2d.setFill(OGTRIPOLI_TWOSIGMA);
+            g2d.fillRect(leftX, Math.max(mapY(meanPlusTwoStandardDeviation), topMargin), rightX - leftX, plottedTwoSigmaHeight);
+
+            double plottedOneSigmaHeight = Math.min(mapY(meanMinusOneStandardDeviation), topMargin + plotHeight) - Math.max(mapY(meanPlusOneStandardDeviation), topMargin);
+            g2d.setFill(OGTRIPOLI_ONESIGMA);
+            g2d.fillRect(leftX, Math.max(mapY(meanPlusOneStandardDeviation), topMargin), rightX - leftX, plottedOneSigmaHeight);
+
+            double plottedTwoStdErrHeight = Math.min(mapY(meanMinusTwoStandardError), topMargin + plotHeight) - Math.max(mapY(meanPlusTwoStandardError), topMargin);
+            g2d.setFill(OGTRIPOLI_TWOSTDERR);
+            g2d.fillRect(leftX, Math.max(mapY(meanPlusTwoStandardError), topMargin), rightX - leftX, plottedTwoStdErrHeight);
 
             boolean meanIsPlottable = (mapY(mean) >= topMargin) && (mapY(mean) <= topMargin + plotHeight);
-            if (meanIsPlottable) {
-                g2d.setStroke(Color.RED);
+            if (meanIsPlottable && (leftX <= rightX)) {
+                g2d.setStroke(OGTRIPOLI_MEAN);
                 g2d.setLineWidth(1.5);
                 g2d.strokeLine(leftX, mapY(mean), rightX, mapY(mean));
             }
+            int totalCycles = analysisStatsRecord.countOfTotalCycles();
         }
         g2d.setFill(saveFill);
         g2d.setGlobalAlpha(1.0);
