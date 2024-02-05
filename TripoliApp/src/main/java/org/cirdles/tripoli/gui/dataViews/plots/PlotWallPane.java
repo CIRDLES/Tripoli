@@ -439,7 +439,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
-                AnalysisBlockCyclesPlot childPlot = (AnalysisBlockCyclesPlot) ((TripoliPlotPane) child).getChildren().get(0);
+                AnalysisBlockCyclesPlot childPlot = (AnalysisBlockCyclesPlot) ((TripoliPlotPane) child).getPlot();
                 childPlot.setZoomChunkX(zoomChunkX);
                 childPlot.setZoomChunkY(zoomChunkY);
                 childPlot.adjustZoom();
@@ -451,7 +451,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
-                AnalysisBlockCyclesPlot childPlot = (AnalysisBlockCyclesPlot) ((TripoliPlotPane) child).getChildren().get(0);
+                AnalysisBlockCyclesPlot childPlot = (AnalysisBlockCyclesPlot) ((TripoliPlotPane) child).getPlot();
                 childPlot.adjustOffsetsForDrag(x, y);
             }
         }
@@ -461,8 +461,8 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         ((Analysis) analysis).updateShadeWidthsForConvergenceLinePlots(blockID, shadeWidth);
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
-            if ((child instanceof TripoliPlotPane) && (((TripoliPlotPane) child).getChildren().get(0) instanceof AbstractPlot)) {
-                ((AbstractPlot) ((TripoliPlotPane) child).getChildren().get(0)).repaint();
+            if ((child instanceof TripoliPlotPane) && (((TripoliPlotPane) child).getPlot() instanceof AbstractPlot)) {
+                ((AbstractPlot) ((TripoliPlotPane) child).getPlot()).repaint();
             }
         }
     }
@@ -471,7 +471,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
-                AnalysisBlockCyclesPlot childPlot = (AnalysisBlockCyclesPlot) ((TripoliPlotPane) child).getChildren().get(0);
+                AnalysisBlockCyclesPlot childPlot = (AnalysisBlockCyclesPlot) ((TripoliPlotPane) child).getPlot();
                 childPlot.adjustMouseStartsForPress(x, y);
             }
         }
@@ -482,7 +482,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         boolean included = false;
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
-                AnalysisBlockCyclesPlot childPlot = (AnalysisBlockCyclesPlot) ((TripoliPlotPane) child).getChildren().get(0);
+                AnalysisBlockCyclesPlot childPlot = (AnalysisBlockCyclesPlot) ((TripoliPlotPane) child).getPlot();
                 if (childPlot.getMapBlockIdToBlockCyclesRecord().get(blockID) != null) {
                     childPlot.getMapBlockIdToBlockCyclesRecord().put(
                             blockID,

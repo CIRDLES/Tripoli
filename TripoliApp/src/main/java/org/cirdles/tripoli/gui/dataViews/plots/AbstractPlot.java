@@ -264,7 +264,9 @@ public abstract class AbstractPlot extends Canvas {
         drawAxes(g2d);
         labelAxisX(g2d);
         labelAxisY(g2d);
-        showTitle(g2d);
+        if (!(this instanceof AnalysisBlockCyclesPlot)) {
+            showTitle(g2d);
+        }
         showLegend(g2d);
     }
 
@@ -395,7 +397,7 @@ public abstract class AbstractPlot extends Canvas {
         text.setText(plotAxisLabelY);
         int textWidth = (int) text.getLayoutBounds().getWidth();
         g2d.rotate(-90.0);
-        g2d.fillText(text.getText(), -(2.0 * topMargin + plotHeight) / 2.0 - textWidth / 2.0, 12);
+        g2d.fillText(text.getText(), -(2.0 * topMargin + plotHeight) / 2.0 - textWidth / 2.0, leftMargin - 40);
         g2d.rotate(90.0);
         g2d.setFill(savedPaint);
     }

@@ -18,6 +18,8 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.
 
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 
+import java.io.Serializable;
+
 /**
  * @author James F. Bowring
  */
@@ -25,7 +27,7 @@ public record SingleBlockRawDataLiteOneSetRecord(
         int blockID,
         int cycleCount,
         double[][] blockRawDataLiteArray
-) {
+) implements Serializable {
 
     public double[] assembleCycleMeansForUserFunction(UserFunction userFunction) {
         double[] cycleMeans = new double[cycleCount];
