@@ -3,10 +3,11 @@ package org.cirdles.tripoli.sessions.analysis;
 import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.plots.PlotBuilder;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteOneSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
@@ -62,7 +63,7 @@ public interface AnalysisInterface {
 
     String uppdateLogsByBlock(int blockNumber, String logEntry);
 
-    public AllBlockInitForOGTripoli.PlottingData assemblePostProcessPlottingData();
+    public AllBlockInitForMCMC.PlottingData assemblePostProcessPlottingData();
 
     String getAnalysisName();
 
@@ -118,6 +119,8 @@ public interface AnalysisInterface {
 
     Map<Integer, SingleBlockRawDataSetRecord> getMapOfBlockIdToRawData();
 
+    public Map<Integer, SingleBlockRawDataLiteOneSetRecord> getMapOfBlockIdToRawDataLiteOne();
+
     Map<Integer, SingleBlockModelRecord> getMapOfBlockIdToFinalModel();
 
     Map<Integer, List<EnsemblesStore.EnsembleRecord>> getMapBlockIDToEnsembles();
@@ -125,4 +128,6 @@ public interface AnalysisInterface {
     Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount();
 
     void resetAnalysis();
+
+    int getAnalysisCaseNumber();
 }

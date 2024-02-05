@@ -16,15 +16,13 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import org.cirdles.tripoli.constants.TripoliConstants;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.BlockRatioCyclesAnalysisPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.analysisPlots.AnalysisRatioPlot;
@@ -45,6 +43,13 @@ public class TripoliPlotPane extends Pane {
     static boolean onEdgeEast;
     static boolean onEdgeSouth;
     static boolean oneEdgesNorthWest;
+    private PlotWallPaneInterface plotWallPane;
+    private AbstractPlot plot;
+
+    public AbstractPlot getPlot() {
+        return plot;
+    }
+
     private final EventHandler<MouseEvent> mouseMovedEventHandler = e -> {
         Pane targetPane = (Pane) e.getSource();
         targetPane.setCursor(Cursor.DEFAULT);
@@ -78,7 +83,7 @@ public class TripoliPlotPane extends Pane {
     private final EventHandler<MouseEvent> mouseReleasedEventHandler = e -> {
         snapToGrid();
     };
-    private PlotWallPaneInterface plotWallPane;
+
     private final EventHandler<MouseEvent> mouseDraggedEventHandler = e -> {
         Pane targetPane = (Pane) e.getSource();
         double deltaX = e.getSceneX() - mouseStartX;
@@ -117,7 +122,7 @@ public class TripoliPlotPane extends Pane {
 
             updatePlot();
 
-            mouseStartX = e.getSceneX(); // use deltas??
+            mouseStartX = e.getSceneX();
             mouseStartY = e.getSceneY();
         }
     };
@@ -128,7 +133,7 @@ public class TripoliPlotPane extends Pane {
             mouseStartY = e.getSceneY();
         }
         if (e.isPrimaryButtonDown() && 2 == e.getClickCount()) {
-            if (getChildren().get(0) instanceof SpeciesIntensityAnalysisPlot) {
+            if (plot instanceof SpeciesIntensityAnalysisPlot) {
 
             } else {
                 toggleFullSize();
@@ -144,12 +149,9 @@ public class TripoliPlotPane extends Pane {
     public static TripoliPlotPane makePlotPane(PlotWallPaneInterface plotWallPane) {
         TripoliPlotPane tripoliPlotPane = new TripoliPlotPane(plotWallPane);
 
-        tripoliPlotPane.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                ((AbstractPlot) tripoliPlotPane.getChildren().get(0)).setWidthF((Double) newValue);
-                ((AbstractPlot) tripoliPlotPane.getChildren().get(0)).refreshPanel(false, false);
-            }
+        tripoliPlotPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+            tripoliPlotPane.getPlot().setWidthF((Double) newValue);
+            tripoliPlotPane.getPlot().refreshPanel(false, false);
         });
 
         tripoliPlotPane.setLayoutX(0.0);
@@ -163,9 +165,9 @@ public class TripoliPlotPane extends Pane {
     }
 
     private void updatePlot() {
-        if (!getChildren().isEmpty()) {
-            ((AbstractPlot) getChildren().get(0)).updatePlotSize(getPrefWidth(), getPrefHeight());
-            ((AbstractPlot) getChildren().get(0)).calculateTics();
+        if (plot != null) {
+            plot.updatePlotSize(getPrefWidth(), getPrefHeight());
+            plot.calculateTics();
         }
     }
 
@@ -203,6 +205,7 @@ public class TripoliPlotPane extends Pane {
     }
 
     public void addPlot(AbstractPlot plot) {
+        this.plot = plot;
         getChildren().add(plot);
 
         plot.setLayoutX(0.0);
@@ -245,62 +248,58 @@ public class TripoliPlotPane extends Pane {
     }
 
     public void toggleShowStats() {
-        if (!getChildren().isEmpty()) {
-            ((AbstractPlot) getChildren().get(0)).toggleShowStats();
-            ((AbstractPlot) getChildren().get(0)).repaint();
+        if (plot != null) {
+            plot.toggleShowStats();
+            plot.repaint();
         }
     }
 
     public void toggleRatiosLogRatios() {
-        if (!getChildren().isEmpty() && (getChildren().get(0) instanceof RatioHistogramPlot)) {
-            ((RatioHistogramPlot) getChildren().get(0)).toggleRatiosLogRatios();
-//            ((RatioHistogramPlot) getChildren().get(0)).repaint();
+        if (plot != null && (plot instanceof RatioHistogramPlot)) {
+            ((RatioHistogramPlot) plot).toggleRatiosLogRatios();
         }
-        if (!getChildren().isEmpty() && (getChildren().get(0) instanceof AnalysisRatioPlot)) {
-            ((AnalysisRatioPlot) getChildren().get(0)).toggleRatiosLogRatios();
-//            ((AnalysisRatioPlot) getChildren().get(0)).repaint();
+        if (plot != null && (plot instanceof AnalysisRatioPlot)) {
+            ((AnalysisRatioPlot) plot).toggleRatiosLogRatios();
         }
 
     }
 
     public void restorePlot() {
-        if (!getChildren().isEmpty()) {
-            ((AbstractPlot) getChildren().get(0)).refreshPanel(true, true);
+        if (plot != null) {
+            plot.refreshPanel(true, true);
         }
     }
 
     public void updateSpeciesPlotted(
             boolean[] speciesChecked, boolean showFaradays, boolean showPMs, boolean showModels,
             boolean showUncertainties, TripoliConstants.IntensityUnits intensityUnits, boolean baselineCorr, boolean gainCorr, boolean logScale, boolean reScaleX, boolean reScaleY) {
-        if (!getChildren().isEmpty() && (getChildren().get(0) instanceof SpeciesIntensityAnalysisPlot)) {
-            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setSpeciesChecked(speciesChecked);
-            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setShowFaradays(showFaradays);
-            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setShowPMs(showPMs);
-            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setShowModels(showModels);
-            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setIntensityUnits(intensityUnits);
-            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setBaselineCorr(baselineCorr);
-            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setGainCorr(gainCorr);
-            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setLogScale(logScale);
-            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setShowUncertainties(showUncertainties);
-
-            ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).refreshPanel(reScaleX, reScaleY);
+        if (plot != null && (plot instanceof SpeciesIntensityAnalysisPlot)) {
+            ((SpeciesIntensityAnalysisPlot) plot).setSpeciesChecked(speciesChecked);
+            ((SpeciesIntensityAnalysisPlot) plot).setShowFaradays(showFaradays);
+            ((SpeciesIntensityAnalysisPlot) plot).setShowPMs(showPMs);
+            ((SpeciesIntensityAnalysisPlot) plot).setShowModels(showModels);
+            ((SpeciesIntensityAnalysisPlot) plot).setIntensityUnits(intensityUnits);
+            ((SpeciesIntensityAnalysisPlot) plot).setBaselineCorr(baselineCorr);
+            ((SpeciesIntensityAnalysisPlot) plot).setGainCorr(gainCorr);
+            ((SpeciesIntensityAnalysisPlot) plot).setLogScale(logScale);
+            ((SpeciesIntensityAnalysisPlot) plot).setShowUncertainties(showUncertainties);
+            plot.refreshPanel(reScaleX, reScaleY);
         }
     }
 
     public void updateAnalysisRatiosPlotted(boolean logScale, boolean reScaleX, boolean reScaleY) {
-        if (!getChildren().isEmpty() && (getChildren().get(0) instanceof BlockRatioCyclesAnalysisPlot)) {
-            ((BlockRatioCyclesAnalysisPlot) getChildren().get(0)).setLogScale(logScale);
-
-            ((BlockRatioCyclesAnalysisPlot) getChildren().get(0)).refreshPanel(reScaleX, reScaleY);
+        if (plot != null && (plot instanceof AnalysisBlockCyclesPlot)) {
+            ((AnalysisBlockCyclesPlot) plot).setLogScale(logScale);
+            plot.refreshPanel(reScaleX, reScaleY);
         }
     }
 
     public void resetAnalysisIntensityZoom(boolean[] zoomFlagsXY) {
-        ((SpeciesIntensityAnalysisPlot) getChildren().get(0)).setZoomFlagsXY(zoomFlagsXY);
+        ((SpeciesIntensityAnalysisPlot) plot).setZoomFlagsXY(zoomFlagsXY);
     }
 
     public void resetAnalysisRatioZoom(boolean[] zoomFlagsXY) {
-        ((BlockRatioCyclesAnalysisPlot) getChildren().get(0)).setZoomFlagsXY(zoomFlagsXY);
+        ((AnalysisBlockCyclesPlot) plot).setZoomFlagsXY(zoomFlagsXY);
     }
 
     private record PlotLocation(

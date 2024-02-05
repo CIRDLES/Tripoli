@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.ogtripoli;
+package org.cirdles.tripoli.expressions.species.nuclides;
 
-public interface OGTripoliMassSpecDataFileInterface {
-    boolean testFileValidity();
+import java.io.Serializable;
+
+/**
+ * @author James F. Bowring
+ */
+public final class NuclidesChart implements Serializable {
+
+
 }

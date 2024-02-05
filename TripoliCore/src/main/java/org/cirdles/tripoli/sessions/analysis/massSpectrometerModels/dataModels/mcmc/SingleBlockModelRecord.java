@@ -16,8 +16,8 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
-import org.cirdles.tripoli.species.IsotopicRatio;
-import org.cirdles.tripoli.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.expressions.species.IsotopicRatio;
+import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 
 import java.io.Serializable;
 import java.util.Map;

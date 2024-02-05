@@ -17,9 +17,9 @@
 package org.cirdles.tripoli.plots.analysisPlotBuilders;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
-import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.mathUtilities.weightedMeans.WeighteMeanOfLogRatio;
 
 import java.util.ArrayList;

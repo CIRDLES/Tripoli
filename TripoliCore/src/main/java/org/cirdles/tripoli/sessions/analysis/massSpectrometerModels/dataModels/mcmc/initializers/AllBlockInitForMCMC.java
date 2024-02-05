@@ -18,6 +18,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.
 
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteOneSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
@@ -31,7 +32,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 /**
  * @author James F. Bowring
  */
-public class AllBlockInitForOGTripoli {
+public class AllBlockInitForMCMC {
 
     public static PlottingData initBlockModels(AnalysisInterface analysis) throws TripoliException {
         // check process status
@@ -60,13 +61,15 @@ public class AllBlockInitForOGTripoli {
             singleBlockModelRecords[blockIndex] = singleBlockInitialModelRecordWithNoCov.singleBlockModelRecord();
         }
 
-        return new PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, singleBlockModelRecords[0].cycleCount(), true);
+        return new PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, null, singleBlockModelRecords[0].cycleCount(), true, 4);
     }
 
     public record PlottingData(
             SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords,
             SingleBlockModelRecord[] singleBlockModelRecords,
+            SingleBlockRawDataLiteOneSetRecord[] singleBlockRawDataLiteOneSetRecords,
             int cycleCount,
-            boolean preview) {
+            boolean preview,
+            int analysisCaseNumber) {
     }
 }

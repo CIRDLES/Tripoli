@@ -1,5 +1,6 @@
 package org.cirdles.tripoli.plots.analysisPlotBuilders;
 
+import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.utilities.mathUtilities.weightedMeans.WeighteMeanOfLogRatio;
 
@@ -9,7 +10,7 @@ import java.util.Map;
 import static java.lang.StrictMath.exp;
 
 public record AnalysisRatioRecord(
-        org.cirdles.tripoli.species.IsotopicRatio ratio, int blockCount,
+        IsotopicRatio ratio, int blockCount,
         Map<Integer, HistogramRecord> mapBlockIdToHistogramRecord,
         double[] blockIds,
         double[] blockLogRatioMeans,
