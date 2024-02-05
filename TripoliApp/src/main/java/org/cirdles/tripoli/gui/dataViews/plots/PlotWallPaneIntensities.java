@@ -20,10 +20,12 @@ import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -312,6 +314,14 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
             }
 
             root.setFillWidth(true);
+            root.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+                System.out.println(e);
+                // Lets figure out which SpeciesColorPane got clicked
+                for(Node node : root.getChildren()) {
+                    System.out.println(node);
+                }
+                e.consume();
+            });
             colorPicker.prefWidthProperty().bind(root.widthProperty());
             root.getChildren().add(colorPicker);
 

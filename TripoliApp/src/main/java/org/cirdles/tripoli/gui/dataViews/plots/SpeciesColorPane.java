@@ -28,12 +28,7 @@ public class SpeciesColorPane extends Pane {
         this.speciesColors = speciesColors;;
         VBox vBox = initializeAndAddVbox();
         vBox.getChildren().add(initializeAndAddHbox());
-        this.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
-            Parent parent = ((Node) event.getTarget()).getParent();
-            // TODO get a hold of the reference for colorpicker
-            System.out.println(((Node) event.getTarget()).getParent());
-            event.consume();
-        });
+
     }
 
     private HBox initializeAndAddHbox() {

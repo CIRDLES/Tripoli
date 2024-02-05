@@ -17,8 +17,6 @@ public class ColorRow extends HBox {
         this.hexColor = hexColor;
         layoutElements();
         this.setPrefHeight(ROW_HEIGHT);
-        ColorRow reference = this;
-
     }
 
     private void layoutElements() {
