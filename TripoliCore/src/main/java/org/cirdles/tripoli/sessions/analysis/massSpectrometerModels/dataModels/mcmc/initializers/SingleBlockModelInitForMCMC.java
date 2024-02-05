@@ -19,13 +19,13 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.
 import jama.Matrix;
 import org.apache.commons.math3.linear.*;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.ProposedModelParameters;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
-import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLab;
 import org.ojalgo.RecoverableCondition;
 
@@ -363,7 +363,6 @@ public enum SingleBlockModelInitForMCMC {
 
          */
 
-        double[] dataWithNoBaselineArray = new double[totalIntensityCount];
         double[] dataSignalNoiseArray_Dsig = new double[totalIntensityCount];
         double[] ddd = new double[totalIntensityCount];
         double reportInterval = 0.1; //%sb629 Previously hardcoded, should be read from file

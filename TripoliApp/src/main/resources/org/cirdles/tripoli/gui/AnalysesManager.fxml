@@ -77,13 +77,16 @@
            style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Actions:" GridPane.rowIndex="8"/>
     <HBox GridPane.columnIndex="1" GridPane.rowIndex="8">
         <children>
-            <ToolBar maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="230.0"
+            <ToolBar maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="392.0"
                      style="-fx-background-color: transparent;">
                 <Button mnemonicParsing="false" onAction="#selectDataFileButtonAction" text="Load Data File"/>
                 <Button layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectMethodFileButtonAction"
                         text="Load Method File"/>
+                <Button id="MCMC" fx:id="reviewSculptData" mnemonicParsing="false"
+                        onAction="#previewAndSculptDataAction" style="-fx-text-fill: RED;"
+                        text="Preview and Sculpt Data"/>
             </ToolBar>
-            <ToolBar fx:id="processingToolBar" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="845.0"
+            <ToolBar fx:id="processingToolBar" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="701.0"
                      style="-fx-background-color: transparent;">
                 <items>
                     <Button layoutX="225.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectRunAllAction"
@@ -92,9 +95,6 @@
                             style="-fx-text-fill: RED;" text="Run None"/>
                     <Button layoutX="321.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectShowsAction"
                             style="-fx-text-fill: GREEN;" text="Shows Only"/>
-                    <Button id="MCMC" fx:id="reviewSculptData" layoutX="527.0" layoutY="7.0" mnemonicParsing="false"
-                            onAction="#previewAndSculptDataAction" style="-fx-text-fill: RED;"
-                            text="Preview and Sculpt Data"/>
                     <Button id="MCMC" fx:id="mcmcButton" layoutX="609.0" layoutY="7.0" mnemonicParsing="false"
                             onAction="#initializeMonteCarloTechniqueAction" style="-fx-text-fill: RED;"
                             text="Process / Plot Blocks using MCMC"/>
@@ -122,11 +122,11 @@
               GridPane.rowIndex="5"/>
     <TabPane fx:id="analysiMethodTabPane" style="-fx-border-color: BLACK;" tabMaxHeight="20.0" tabMinHeight="20.0"
              GridPane.columnIndex="1" GridPane.rowIndex="6">
-        <Tab closable="false" text="About">
+        <Tab id="tab0" closable="false" text="About">
             <TextArea fx:id="aboutAnalysisTextArea" editable="false" prefHeight="200.0" prefWidth="200.0"
                       text="No analysis method"/>
         </Tab>
-        <Tab fx:id="detectorDetailTab" closable="false" text="Detector Details">
+        <Tab id="tab1" fx:id="detectorDetailTab" closable="false" text="Detector Details">
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
                 <GridPane fx:id="analysisDetectorsGridPane" gridLinesVisible="true"
                           style="-fx-background-color: WHITE;">
@@ -139,7 +139,7 @@
                 </GridPane>
             </ScrollPane>
         </Tab>
-        <Tab closable="false" text="Baseline Table">
+        <Tab id="tab2" fx:id="baselineTableTab" closable="false" text="Baseline Table">
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
                 <GridPane fx:id="baselineTableGridPane" gridLinesVisible="true" style="-fx-background-color: WHITE;">
                     <columnConstraints>
@@ -151,7 +151,7 @@
                 </GridPane>
             </ScrollPane>
         </Tab>
-        <Tab closable="false" text="Sequence Table">
+        <Tab id="tab3" fx:id="sequenceTableTab" closable="false" text="Sequence Table">
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
                 <GridPane fx:id="sequenceTableGridPane" gridLinesVisible="true" style="-fx-background-color: WHITE;">
                     <columnConstraints>
@@ -163,9 +163,9 @@
                 </GridPane>
             </ScrollPane>
         </Tab>
-        <Tab closable="false" text="Select Ratios to plot ">
+        <Tab id="tab4" fx:id="selectRatiosToPlotTab" closable="false" text="Select Ratios to plot ">
             <content>
-                <GridPane fx:id="selectRatiosGridPane1" style="-fx-background-color: bisque;">
+                <GridPane style="-fx-background-color: bisque;">
                     <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
@@ -237,6 +237,24 @@
                         </HBox>
                     </children>
                 </GridPane>
+            </content>
+        </Tab>
+        <Tab fx:id="selectColumnsToPlot" closable="false" text="SelectColumns to Plot">
+            <content>
+                <SplitPane dividerPositions="0.5" prefHeight="242.0" prefWidth="1065.0">
+                    <items>
+                        <ScrollPane hbarPolicy="NEVER">
+                            <content>
+                                <VBox fx:id="ratiosVBox" prefHeight="239.0" prefWidth="527.0"/>
+                            </content>
+                        </ScrollPane>
+                        <ScrollPane hbarPolicy="NEVER">
+                            <content>
+                                <VBox fx:id="functionsVBox" prefHeight="239.0" prefWidth="527.0"/>
+                            </content>
+                        </ScrollPane>
+                    </items>
+                </SplitPane>
             </content>
         </Tab>
     </TabPane>

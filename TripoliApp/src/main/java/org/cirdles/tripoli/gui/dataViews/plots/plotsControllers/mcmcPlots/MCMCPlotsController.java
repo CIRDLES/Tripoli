@@ -14,6 +14,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.AnalysisManagerController;
 import org.cirdles.tripoli.gui.TripoliGUI;
@@ -34,8 +35,7 @@ import org.cirdles.tripoli.plots.linePlots.*;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.MCMCProcess;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
-import org.cirdles.tripoli.species.IsotopicRatio;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 
 import java.net.URL;
@@ -215,7 +215,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
                         ((Analysis) analysis).analysisRatioEngine();
 
                         // fire up OGTripoli style session plots
-                        AllBlockInitForOGTripoli.PlottingData plottingData = analysis.assemblePostProcessPlottingData();
+                        AllBlockInitForMCMC.PlottingData plottingData = analysis.assemblePostProcessPlottingData();
                         if (null != AnalysisManagerController.ogTripoliReviewPlotsWindow) {
                             AnalysisManagerController.ogTripoliReviewPlotsWindow.close();
                         }

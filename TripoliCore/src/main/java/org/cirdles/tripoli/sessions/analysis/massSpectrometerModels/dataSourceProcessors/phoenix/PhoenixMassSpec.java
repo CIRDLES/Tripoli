@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
+package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix;
+
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -37,13 +42,13 @@ public enum PhoenixMassSpec {
      * @throws IOException
      */
     @SuppressWarnings("unused")
-    public static MassSpecExtractedData extractMetaAndBlockDataFromFileVersion_1_0(Path inputDataFile) {
+    public static MassSpecExtractedData extractMetaAndBlockDataFromFileVersion_1_0(Path inputDataFile) throws TripoliException {
         MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
         List<String> contentsByLine;
         try {
             contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new TripoliException(e);
         }
         // test for version 1.00
         if (0 != contentsByLine.get(0).trim().compareToIgnoreCase("Version,1.00")) {
@@ -299,7 +304,7 @@ public enum PhoenixMassSpec {
 
         // version 1:  PhoenixFull_Synthetic ID,Block,Cycle,Integ,Time,Mass,DATA[Low5,Low4,Low3,Low2,Ax Fara,Axial,High1,High2,High3,High4]
         // version 2:  PhoenixFull ID,Block,Cycle,Integ,PeakID,AxMass,Time,DATA[PM,RS,L5,L4,L3,L2,Ax,H1,H2,H3,H4]
-        int count = 0;
+//        int count = 0;
         for (String line : blockData) {
             String[] lineSplit = line.split(",");
             sequenceIDByLineSplit.add(lineSplit[0].trim());
@@ -308,7 +313,7 @@ public enum PhoenixMassSpec {
             timeStampByLineSplit.add(lineSplit[(1 == version) ? 4 : 6].trim());
             massByLineSplit.add(lineSplit[5].trim());
             detectorDataByLineSplit.add(Arrays.copyOfRange(lineSplit, ((1 == version) ? 6 : 7), lineSplit.length));
-            count++;
+//            count++;
         }
 
         return buildSingleBlockRecord(

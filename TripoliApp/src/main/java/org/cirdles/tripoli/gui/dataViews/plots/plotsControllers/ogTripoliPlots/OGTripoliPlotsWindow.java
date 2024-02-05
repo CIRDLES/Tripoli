@@ -22,7 +22,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 
 import java.io.IOException;
 
@@ -37,9 +37,9 @@ public class OGTripoliPlotsWindow {
     private Stage plottingStage;
     private Window plottingWindow;
     private Stage primaryStage;
-    private AllBlockInitForOGTripoli.PlottingData plottingData;
+    private AllBlockInitForMCMC.PlottingData plottingData;
 
-    public OGTripoliPlotsWindow(Stage primaryStage, AnalysisManagerCallbackI analysisManagerCallbackI, AllBlockInitForOGTripoli.PlottingData plottingData) {
+    public OGTripoliPlotsWindow(Stage primaryStage, AnalysisManagerCallbackI analysisManagerCallbackI, AllBlockInitForMCMC.PlottingData plottingData) {
         this.primaryStage = primaryStage;
         plottingStage = new Stage();
         plottingStage.setMinWidth(PLOT_WINDOW_WIDTH);
@@ -59,7 +59,7 @@ public class OGTripoliPlotsWindow {
         return ogTripoliViewController;
     }
 
-    public void setPlottingData(AllBlockInitForOGTripoli.PlottingData plottingData) {
+    public void setPlottingData(AllBlockInitForMCMC.PlottingData plottingData) {
         this.plottingData = plottingData;
     }
 

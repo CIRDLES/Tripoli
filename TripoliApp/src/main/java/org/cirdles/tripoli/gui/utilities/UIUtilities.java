@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.species.nuclides;
+package org.cirdles.tripoli.gui.utilities;
 
-import java.io.Serializable;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 
 /**
  * @author James F. Bowring
  */
-public final class NuclidesChart implements Serializable {
-
-
+public class UIUtilities {
+    public static void showTab(TabPane tabPane, int index, Tab tab) {
+        if (!tabPane.getTabs().contains(tab)) {
+            tabPane.getTabs().add(index, tab);
+        }
+    }
 }
