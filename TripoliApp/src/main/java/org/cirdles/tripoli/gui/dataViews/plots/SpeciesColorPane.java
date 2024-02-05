@@ -21,26 +21,18 @@ public class SpeciesColorPane extends Pane {
 
     private String speciesName;
     private SpeciesColors speciesColors;
-    private ColorPicker colorPicker;
 
     public SpeciesColorPane(String speciesName, SpeciesColors speciesColors) {
         super();
         this.speciesName = speciesName;
-        this.speciesColors = speciesColors;
-        this.colorPicker = new ColorPicker(Color.web(speciesColors.faradayHexColor()));
+        this.speciesColors = speciesColors;;
         VBox vBox = initializeAndAddVbox();
         vBox.getChildren().add(initializeAndAddHbox());
-        this.addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-                Parent parent = ((Node) event.getTarget()).getParent();
-                if (parent instanceof ColorRow) {
-                    ColorRow row = (ColorRow) parent;
-                    colorPicker.setOnAction(event1 -> {
-                    });
-                }
-                System.out.println(((Node) event.getTarget()).getParent());
-                event.consume();
-            }
+        this.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
+            Parent parent = ((Node) event.getTarget()).getParent();
+            // TODO get a hold of the reference for colorpicker
+            System.out.println(((Node) event.getTarget()).getParent());
+            event.consume();
         });
     }
 
@@ -64,8 +56,6 @@ public class SpeciesColorPane extends Pane {
                 TripoliConstants.DetectorPlotFlavor.PM_MODEL,
                 speciesColors.pmModelHexColor()
         ));
-        hBox.getChildren().add(colorPicker);
-        colorPicker.setPrefHeight(ColorRow.ROW_HEIGHT * 4);
         return hBox;
     }
 

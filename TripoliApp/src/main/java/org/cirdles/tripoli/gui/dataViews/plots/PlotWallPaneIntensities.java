@@ -261,6 +261,8 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         button.setOnAction(event -> {
 
             VBox root = new VBox();
+            root.setAlignment(Pos.CENTER);
+            ColorPicker colorPicker = new ColorPicker();
             root.setStyle("-fx-background-color: linen");
 
             for (int speciesIndex = 0; speciesIndex < species.size(); ++speciesIndex) {
@@ -305,10 +307,13 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
 //                Label pmModel = new Label("PM Model");
 //                pmModel.setStyle(String.format("-fx-background-color: %s;",
 //                        pane.getSpeciesColors().pmModelHexColor()));
-//                hBox.getChildren().add(pmModel);
-
+//                hBox.getChildren().add(pmModel);;
                 root.getChildren().add(pane);
             }
+
+            root.setFillWidth(true);
+            colorPicker.prefWidthProperty().bind(root.widthProperty());
+            root.getChildren().add(colorPicker);
 
             Scene scene = new Scene(root);
             Stage stage = new Stage();
