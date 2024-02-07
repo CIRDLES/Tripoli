@@ -126,13 +126,13 @@ public abstract class AbstractPlot extends Canvas {
             @Override
             public void handle(ScrollEvent event) {
                 if (mouseInHouse(event.getX(), event.getY())) {
-                    // converting scroll as Y event
+                    // converting scroll as Y event since scroller button works on Y
                     zoomChunkX = Math.abs(zoomChunkX) * Math.signum(event.getDeltaY());
                     zoomChunkY = Math.abs(zoomChunkY) * Math.signum(event.getDeltaY());
                     if (getDisplayRangeX() >= zoomChunkX) {
                         if (event.getSource() instanceof AnalysisBlockCyclesPlot) {
                             AnalysisBlockCyclesPlot sourceAnalysisBlockCyclesPlot = (AnalysisBlockCyclesPlot) event.getSource();
-                            ((PlotWallPane) sourceAnalysisBlockCyclesPlot.getParentWallPane()).synchronizeRatioPlotsScroll(zoomChunkX, zoomChunkY);
+                            ((PlotWallPane) sourceAnalysisBlockCyclesPlot.getParentWallPane()).synchronizeRatioPlotsScroll(sourceAnalysisBlockCyclesPlot, zoomChunkX, zoomChunkY);
                         } else {
                             adjustZoom();
                         }
@@ -600,11 +600,11 @@ public abstract class AbstractPlot extends Canvas {
     }
 
     public void setZoomChunkX(double zoomChunkX) {
-        this.zoomChunkX = zoomChunkX;
+        this.zoomChunkX = this.zoomChunkX * -Math.signum(zoomChunkX);
     }
 
     public void setZoomChunkY(double zoomChunkY) {
-        this.zoomChunkY = zoomChunkY;
+        this.zoomChunkY = this.zoomChunkY * -Math.signum(zoomChunkY);
     }
 
     public void adjustZoom() {
@@ -612,6 +612,16 @@ public abstract class AbstractPlot extends Canvas {
         maxX -= zoomChunkX;
         minY += zoomChunkY;
         maxY -= zoomChunkY;
+
+        calculateTics();
+        repaint();
+    }
+
+    public void adjustZoomSelf() {
+        minX += -zoomChunkX;
+        maxX -= -zoomChunkX;
+        minY += -zoomChunkY;
+        maxY -= -zoomChunkY;
 
         calculateTics();
         repaint();

@@ -22,13 +22,12 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
-import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 /**
  * @author James F. Bowring
  */
 public class AllBlockInitForDataLiteOne {
-    public static AllBlockInitForMCMC.PlottingData initBlockModels(AnalysisInterface analysis) throws TripoliException {
+    public static AllBlockInitForMCMC.PlottingData initBlockModels(AnalysisInterface analysis) {
         // check process status
         MassSpecExtractedData massSpecExtractedData = analysis.getMassSpecExtractedData();
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
@@ -37,7 +36,7 @@ public class AllBlockInitForDataLiteOne {
         SingleBlockRawDataLiteOneSetRecord[] singleBlockRawDataLiteOneSetRecords = new SingleBlockRawDataLiteOneSetRecord[countOfBlocks];
 
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
-            singleBlockRawDataLiteOneSetRecords[blockIndex] = prepareSingleBlockDataLiteCaseOne(blockIndex + 1, massSpecExtractedData, analysisMethod);
+            singleBlockRawDataLiteOneSetRecords[blockIndex] = prepareSingleBlockDataLiteCaseOne(blockIndex + 1, massSpecExtractedData);
             analysis.getMapOfBlockIdToRawDataLiteOne().put(blockIndex + 1, singleBlockRawDataLiteOneSetRecords[blockIndex]);
         }
 
@@ -45,7 +44,7 @@ public class AllBlockInitForDataLiteOne {
                 null, null, singleBlockRawDataLiteOneSetRecords, singleBlockRawDataLiteOneSetRecords[0].cycleCount(), true, 1);
     }
 
-    private static SingleBlockRawDataLiteOneSetRecord prepareSingleBlockDataLiteCaseOne(int blockID, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) {
+    private static SingleBlockRawDataLiteOneSetRecord prepareSingleBlockDataLiteCaseOne(int blockID, MassSpecExtractedData massSpecExtractedData) {
         MassSpecOutputBlockRecordLite massSpecOutputBlockRecordLite = massSpecExtractedData.getBlocksDataLite().get(blockID);
         SingleBlockRawDataLiteOneSetRecord singleBlockRawDataLiteOneSetRecord = new SingleBlockRawDataLiteOneSetRecord(
                 blockID, massSpecOutputBlockRecordLite.cycleNumbers().length, massSpecOutputBlockRecordLite.cycleData()

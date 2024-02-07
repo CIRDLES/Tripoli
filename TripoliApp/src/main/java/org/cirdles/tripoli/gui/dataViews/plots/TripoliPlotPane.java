@@ -43,13 +43,6 @@ public class TripoliPlotPane extends Pane {
     static boolean onEdgeEast;
     static boolean onEdgeSouth;
     static boolean oneEdgesNorthWest;
-    private PlotWallPaneInterface plotWallPane;
-    private AbstractPlot plot;
-
-    public AbstractPlot getPlot() {
-        return plot;
-    }
-
     private final EventHandler<MouseEvent> mouseMovedEventHandler = e -> {
         Pane targetPane = (Pane) e.getSource();
         targetPane.setCursor(Cursor.DEFAULT);
@@ -79,11 +72,11 @@ public class TripoliPlotPane extends Pane {
             targetPane.setCursor(Cursor.OPEN_HAND);
         }
     };
-
+    private PlotWallPaneInterface plotWallPane;
+    private AbstractPlot plot;
     private final EventHandler<MouseEvent> mouseReleasedEventHandler = e -> {
         snapToGrid();
     };
-
     private final EventHandler<MouseEvent> mouseDraggedEventHandler = e -> {
         Pane targetPane = (Pane) e.getSource();
         double deltaX = e.getSceneX() - mouseStartX;
@@ -162,6 +155,10 @@ public class TripoliPlotPane extends Pane {
         ((Pane) plotWallPane).getChildren().addAll(tripoliPlotPane);
 
         return tripoliPlotPane;
+    }
+
+    public AbstractPlot getPlot() {
+        return plot;
     }
 
     private void updatePlot() {
@@ -287,8 +284,9 @@ public class TripoliPlotPane extends Pane {
         }
     }
 
-    public void updateAnalysisRatiosPlotted(boolean logScale, boolean reScaleX, boolean reScaleY) {
+    public void updateAnalysisRatiosPlotted(boolean blockMode, boolean logScale, boolean reScaleX, boolean reScaleY) {
         if (plot != null && (plot instanceof AnalysisBlockCyclesPlot)) {
+            ((AnalysisBlockCyclesPlot) plot).setBlockMode(blockMode);
             ((AnalysisBlockCyclesPlot) plot).setLogScale(logScale);
             plot.refreshPanel(reScaleX, reScaleY);
         }
