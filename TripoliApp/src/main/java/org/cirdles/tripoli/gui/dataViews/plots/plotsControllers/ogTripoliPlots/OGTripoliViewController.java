@@ -112,8 +112,8 @@ public class OGTripoliViewController {
         ((Pane) plotsWallPaneRatios).prefHeightProperty().bind(ogtCycleRatioPlotsAnchorPane.heightProperty());
 
         ogtCycleRatioPlotsAnchorPane.getChildren().add(((Pane) plotsWallPaneRatios));
-        plotWindowVBox.widthProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneRatios.stackPlots());
-        plotWindowVBox.heightProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneRatios.stackPlots());
+        plotWindowVBox.widthProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneRatios.tilePlots());
+        plotWindowVBox.heightProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneRatios.tilePlots());
 
         boolean[] DUMMY_CYCLES_INCLUDED;
 
@@ -225,7 +225,7 @@ public class OGTripoliViewController {
 
         plotsWallPaneRatios.buildToolBar();
         plotsWallPaneRatios.buildScaleControlsToolbar();
-        plotsWallPaneRatios.stackPlots();
+        plotsWallPaneRatios.tilePlots();
     }
 
     private void plotOnPeakIntensitiesAndResiduals() {

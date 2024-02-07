@@ -21,7 +21,7 @@ public record AnalysisStatsRecord(
         double wmDenominator = 0.0;
         double weightedMeanC = 0.0;
         double weightedMeanOneSigmaSquaredC;
-        double weighteMeanOneSigmaC;
+        double weightedMeanOneSigmaC;
         double chiSquaredTerm = 0.0;
         double chiSquaredC;
 
@@ -45,12 +45,7 @@ public record AnalysisStatsRecord(
         }
         weightedMeanC = wmNumerator / wmDenominator;
         weightedMeanOneSigmaSquaredC = 1.0 / wmDenominator;
-        weighteMeanOneSigmaC = StrictMath.sqrt(weightedMeanOneSigmaSquaredC);
-
-        double cycleModeMean = cycleModeDescriptiveStats.getMean();
-        double cycleModeVariance = cycleModeDescriptiveStats.getVariance();
-        double cycleModeStandardDeviation = cycleModeDescriptiveStats.getStandardDeviation();
-        double cycleModeStandardError = StrictMath.sqrt(cycleModeVariance / cycleModeDescriptiveStats.getN());
+        weightedMeanOneSigmaC = StrictMath.sqrt(weightedMeanOneSigmaSquaredC);
 
         for (int i = 0; i < blockStatsRecords.length; i++) {
             if (blockStatsRecords[i].blockIncluded()) {
@@ -60,11 +55,17 @@ public record AnalysisStatsRecord(
         }
         chiSquaredC = chiSquaredTerm / (countOfIncludedBlocks - 1);
 
+
+        double cycleModeMean = cycleModeDescriptiveStats.getMean();
+        double cycleModeVariance = cycleModeDescriptiveStats.getVariance();
+        double cycleModeStandardDeviation = cycleModeDescriptiveStats.getStandardDeviation();
+        double cycleModeStandardError = StrictMath.sqrt(cycleModeVariance / cycleModeDescriptiveStats.getN());
+
         return new AnalysisStatsRecord(
                 blockStatsRecords[0].isRatio(),
                 blockStatsRecords,
                 weightedMeanC,
-                weighteMeanOneSigmaC,
+                weightedMeanOneSigmaC,
                 chiSquaredC,
                 countOfIncludedBlocks,
                 cycleModeMean,

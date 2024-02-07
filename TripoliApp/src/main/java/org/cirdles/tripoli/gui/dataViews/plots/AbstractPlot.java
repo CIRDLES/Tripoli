@@ -267,7 +267,7 @@ public abstract class AbstractPlot extends Canvas {
         if (!(this instanceof AnalysisBlockCyclesPlot)) {
             showTitle(g2d);
         }
-        //showLegend(g2d);
+        showLegend(g2d);
     }
 
     public void repaint() {
