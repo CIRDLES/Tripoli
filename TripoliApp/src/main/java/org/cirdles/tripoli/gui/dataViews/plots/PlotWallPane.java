@@ -164,7 +164,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         plotLayoutStyle = ConstantsTripoliApp.PlotLayoutStyle.STACK;
     }
 
-    public void synchPlots(){
+    public void synchPlots() {
 
     }
 

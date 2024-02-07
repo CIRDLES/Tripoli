@@ -180,7 +180,6 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
      */
     @Override
     public void showLegend(GraphicsContext g2d) {
-        Paint savedPaint = g2d.getFill();
         int textLeft = 5;
         int textTop = 18;
         int textDeltaY = 22;
@@ -191,10 +190,10 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
         g2d.setFill(Paint.valueOf("RED"));
         g2d.setFont(Font.font("SansSerif", 16));
         String title = analysisBlockCyclesRecord.title()[0];
-        if (isRatio && logScale){
+        if (isRatio && logScale) {
             title = "LogRatio " + title;
         }
-        if (isRatio && !logScale){
+        if (isRatio && !logScale) {
             title = "Ratio " + title;
         }
         g2d.fillText(title, textLeft, textTop);
@@ -238,7 +237,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                     }
                     g2d.fillText("%\u03C3  =" + sigmaPctString, textLeft + 0, textTop += textDeltaY);
                     g2d.fillText("x\u0304", textLeft + 20, textTop + 6);
-                    if (sigmaMinusPctString.length() >0) {
+                    if (sigmaMinusPctString.length() > 0) {
                         g2d.fillText("     " + sigmaMinusPctString, textLeft + 0, textTop += textDeltaY);
                     }
 
@@ -289,7 +288,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                     }
                     g2d.fillText("%\u03C3  =" + errPctString, textLeft + 0, textTop += textDeltaY);
                     g2d.fillText("x\u0304", textLeft + 20, textTop + 6);
-                    if (errMinusPctString.length() >0) {
+                    if (errMinusPctString.length() > 0) {
                         g2d.fillText("     " + errMinusPctString, textLeft + 0, textTop += textDeltaY);
                     }
 
@@ -307,7 +306,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                         sigmaMinusPctString = "-" + minusSigmaPct;
                     }
                     g2d.fillText("%\u03C3  =" + sigmaPctString, textLeft + 0, textTop += textDeltaY);
-                    if (sigmaMinusPctString.length() >0) {
+                    if (sigmaMinusPctString.length() > 0) {
                         g2d.fillText("     " + sigmaMinusPctString, textLeft + 0, textTop += textDeltaY);
                     }
 
@@ -414,29 +413,29 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                 }
             }
         }
-            g2d.fillText("Legend:", textLeft + 5, textTop += textDeltaY * 2);
-            g2d.setFill(OGTRIPOLI_TWOSIGMA);
-            g2d.fillRect(textLeft + 10, textTop + textDeltaY, 25, 50);
-            g2d.setFill(Paint.valueOf("BLACK"));
-            g2d.fillText("2\u03C3", textLeft + 15, textTop + 2 * textDeltaY);
+        g2d.fillText("Legend:", textLeft + 5, textTop += textDeltaY * 2);
+        g2d.setFill(OGTRIPOLI_TWOSIGMA);
+        g2d.fillRect(textLeft + 10, textTop + textDeltaY, 25, 50);
+        g2d.setFill(Paint.valueOf("BLACK"));
+        g2d.fillText("2\u03C3", textLeft + 15, textTop + 2 * textDeltaY);
 
-            g2d.setFill(OGTRIPOLI_ONESIGMA);
-            g2d.fillRect(textLeft + 35, textTop + textDeltaY + 25, 25, 25);
-            g2d.setFill(Paint.valueOf("BLACK"));
-            g2d.fillText("\u03C3", textLeft + 42, textTop + 2.9 * textDeltaY);
+        g2d.setFill(OGTRIPOLI_ONESIGMA);
+        g2d.fillRect(textLeft + 35, textTop + textDeltaY + 25, 25, 25);
+        g2d.setFill(Paint.valueOf("BLACK"));
+        g2d.fillText("\u03C3", textLeft + 42, textTop + 2.9 * textDeltaY);
 
-            g2d.setFill(OGTRIPOLI_TWOSTDERR);
-            g2d.fillRect(textLeft + 60, textTop + textDeltaY + 25, 25, 25);
-            g2d.setFill(Paint.valueOf("BLACK"));
-            g2d.fillText("2\u03C3", textLeft + 62, textTop + 2.9 * textDeltaY);
-            g2d.setFont(normalEight);
-            g2d.fillText("x\u0304", textLeft + 80, textTop + 2.9 * textDeltaY + 6);
-            g2d.setFont(normalFourteen);
+        g2d.setFill(OGTRIPOLI_TWOSTDERR);
+        g2d.fillRect(textLeft + 60, textTop + textDeltaY + 25, 25, 25);
+        g2d.setFill(Paint.valueOf("BLACK"));
+        g2d.fillText("2\u03C3", textLeft + 62, textTop + 2.9 * textDeltaY);
+        g2d.setFont(normalEight);
+        g2d.fillText("x\u0304", textLeft + 80, textTop + 2.9 * textDeltaY + 6);
+        g2d.setFont(normalFourteen);
 
-            g2d.setStroke(OGTRIPOLI_MEAN);
-            g2d.setLineWidth(1.5);
-            g2d.strokeLine(textLeft + 5, textTop + textDeltaY + 50, textLeft + 90, textTop + textDeltaY + 50);
-            g2d.fillText("x\u0304", textLeft + 95, textTop + 2.9 * textDeltaY + 12);
+        g2d.setStroke(OGTRIPOLI_MEAN);
+        g2d.setLineWidth(1.5);
+        g2d.strokeLine(textLeft + 5, textTop + textDeltaY + 50, textLeft + 90, textTop + textDeltaY + 50);
+        g2d.fillText("x\u0304", textLeft + 95, textTop + 2.9 * textDeltaY + 12);
     }
 
     /**
@@ -490,28 +489,26 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
         int cyclesPerBlock = analysisBlockCyclesRecord.cyclesPerBlock();
 
         for (int i = 0; i < xAxisData.length; i++) {
-            if (pointInPlot(xAxisData[i], yAxisData[i])) {
-                int blockID = (int) ((xAxisData[i] - 0.7) / cyclesPerBlock) + 1;
-                if (mapBlockIdToBlockCyclesRecord.get(blockID) != null) {
-                    g2d.setFill(dataColor.color());
-                    g2d.setStroke(dataColor.color());
-                    if (!mapBlockIdToBlockCyclesRecord.get(blockID).blockIncluded()) {
-                        g2d.setFill(Color.RED);
-                        g2d.setStroke(Color.RED);
-                    }
-                    double dataX = mapX(xAxisData[i]);
-                    double dataY = mapY(yAxisData[i]);
-                    // TODO: refine for ratio mode
-                    double dataYplusSigma = mapY(yAxisData[i] + oneSigmaForCycles[i]);
-                    double dataYminusSigma = mapY(yAxisData[i] - oneSigmaForCycles[i]);
+            int blockID = (int) ((xAxisData[i] - 0.7) / cyclesPerBlock) + 1;
+            if (pointInPlot(xAxisData[i], yAxisData[i]) && (mapBlockIdToBlockCyclesRecord.get(blockID) != null)) {
+                g2d.setFill(dataColor.color());
+                g2d.setStroke(dataColor.color());
+                if (!mapBlockIdToBlockCyclesRecord.get(blockID).blockIncluded()) {
+                    g2d.setFill(Color.RED);
+                    g2d.setStroke(Color.RED);
+                }
+                double dataX = mapX(xAxisData[i]);
+                double dataY = mapY(yAxisData[i]);
+                // TODO: refine for ratio mode
+                double dataYplusSigma = mapY(yAxisData[i] + oneSigmaForCycles[i]);
+                double dataYminusSigma = mapY(yAxisData[i] - oneSigmaForCycles[i]);
 
-                    if (yAxisData[i] > 0) {
-                        g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
-                        g2d.strokeLine(dataX, dataY, dataX, dataYplusSigma);
-                        g2d.strokeLine(dataX, dataY, dataX, dataYminusSigma);
-                    } else {
-                        g2d.strokeOval(dataX - 2.0, dataY - 2.0, 4, 4);
-                    }
+                if (yAxisData[i] > 0) {
+                    g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
+                    g2d.strokeLine(dataX, dataY, dataX, dataYplusSigma);
+                    g2d.strokeLine(dataX, dataY, dataX, dataYminusSigma);
+                } else {
+                    g2d.strokeOval(dataX - 2.0, dataY - 2.0, 4, 4);
                 }
             }
         }

@@ -616,6 +616,7 @@ public abstract class AbstractPlot extends Canvas {
         calculateTics();
         repaint();
     }
+
     public void adjustZoomSelf() {
         minX += -zoomChunkX;
         maxX -= -zoomChunkX;
