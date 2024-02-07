@@ -648,7 +648,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                 g2d.setLineWidth(1.5);
                 g2d.strokeLine(leftX, mapY(mean), rightX, mapY(mean));
             }
-            int totalCycles = analysisStatsRecord.countOfTotalCycles();
+//            int totalCycles = analysisStatsRecord.countOfTotalCycles();
         }
         g2d.setFill(saveFill);
         g2d.setGlobalAlpha(1.0);
