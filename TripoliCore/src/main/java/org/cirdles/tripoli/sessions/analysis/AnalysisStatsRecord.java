@@ -21,7 +21,7 @@ public record AnalysisStatsRecord(
         double wmDenominator = 0.0;
         double weightedMeanC = 0.0;
         double weightedMeanOneSigmaSquaredC;
-        double weighteMeanOneSigmaC;
+        double weightedMeanOneSigmaC;
         double chiSquaredTerm = 0.0;
         double chiSquaredC;
 
@@ -31,9 +31,9 @@ public record AnalysisStatsRecord(
             if (blockStatsRecords[i].blockIncluded()) {
                 wmNumerator += blockStatsRecords[i].mean() / StrictMath.pow(blockStatsRecords[i].standardDeviation(), 2);
                 wmDenominator += 1.0 / StrictMath.pow(blockStatsRecords[i].standardDeviation(), 2);
-                for (int cycleIndex = 0; cycleIndex < blockStatsRecords[i].cycleMeansData().length; cycleIndex++){
-                    if (blockStatsRecords[i].cyclesIncluded()[cycleIndex]){
-                        if (blockStatsRecords[0].isRatio()){
+                for (int cycleIndex = 0; cycleIndex < blockStatsRecords[i].cycleMeansData().length; cycleIndex++) {
+                    if (blockStatsRecords[i].cyclesIncluded()[cycleIndex]) {
+                        if (blockStatsRecords[0].isRatio()) {
                             cycleModeDescriptiveStats.addValue(StrictMath.log(blockStatsRecords[i].cycleMeansData()[cycleIndex]));
                         } else {
                             cycleModeDescriptiveStats.addValue(blockStatsRecords[i].cycleMeansData()[cycleIndex]);
@@ -45,31 +45,32 @@ public record AnalysisStatsRecord(
         }
         weightedMeanC = wmNumerator / wmDenominator;
         weightedMeanOneSigmaSquaredC = 1.0 / wmDenominator;
-        weighteMeanOneSigmaC = StrictMath.sqrt(weightedMeanOneSigmaSquaredC);
+        weightedMeanOneSigmaC = StrictMath.sqrt(weightedMeanOneSigmaSquaredC);
+
+        for (int i = 0; i < blockStatsRecords.length; i++) {
+            if (blockStatsRecords[i].blockIncluded()) {
+                chiSquaredTerm += StrictMath.pow(blockStatsRecords[i].mean() - weightedMeanC, 2) / weightedMeanOneSigmaSquaredC;
+                countOfIncludedBlocks++;
+            }
+        }
+        chiSquaredC = chiSquaredTerm / (countOfIncludedBlocks - 1);
+
 
         double cycleModeMean = cycleModeDescriptiveStats.getMean();
         double cycleModeVariance = cycleModeDescriptiveStats.getVariance();
         double cycleModeStandardDeviation = cycleModeDescriptiveStats.getStandardDeviation();
         double cycleModeStandardError = StrictMath.sqrt(cycleModeVariance / cycleModeDescriptiveStats.getN());
 
-        for (int i = 0; i < blockStatsRecords.length; i++) {
-            if (blockStatsRecords[i].blockIncluded()) {
-                chiSquaredTerm += StrictMath.pow(blockStatsRecords[i].mean() - weightedMeanC , 2) / weightedMeanOneSigmaSquaredC;
-                countOfIncludedBlocks++;
-            }
-        }
-        chiSquaredC = chiSquaredTerm / (countOfIncludedBlocks - 1);
-
         return new AnalysisStatsRecord(
                 blockStatsRecords[0].isRatio(),
                 blockStatsRecords,
                 weightedMeanC,
-                weighteMeanOneSigmaC,
+                weightedMeanOneSigmaC,
                 chiSquaredC,
                 countOfIncludedBlocks,
                 cycleModeMean,
                 cycleModeVariance,
                 cycleModeStandardDeviation,
-                cycleModeStandardError, countOfTotalCycles, (int)cycleModeDescriptiveStats.getN());
+                cycleModeStandardError, countOfTotalCycles, (int) cycleModeDescriptiveStats.getN());
     }
 }
