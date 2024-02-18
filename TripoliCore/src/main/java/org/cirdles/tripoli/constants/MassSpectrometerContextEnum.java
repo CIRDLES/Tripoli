@@ -16,8 +16,7 @@
 
 package org.cirdles.tripoli.constants;
 
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixMassSpec;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.triton.TritonMassSpec;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.PhoenixMassSpec;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,33 +27,32 @@ import java.util.List;
 public enum MassSpectrometerContextEnum {
     PHOENIX_FULL("Phoenix Full", "Phoenix",
             "#HEADER, Analysis, Version, Filename, MethodName, MethodPath, IsoWorksMethod, FolderPath",
-            PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_2", 4),
-    PHOENIX_TIMSDP_CASE1("Phoenix TIMSDP", "Phoenix",
+            PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_2"),
+    PHOENIX_TIMSDP("Phoenix TIMSDP", "Phoenix",
             "#HEADER, Analysis, Version, Filename, MethodName, MethodPath, FolderPath, IsoWorksMethod, TFEMode, TFEMonitorPeak",
-            PhoenixMassSpec.class, "extractDataFromFileVersion_2_TIMSDP", 1),
+            PhoenixMassSpec.class, "extractDataFromFileVersion_2_TIMSDP"),
     PHOENIX_FULL_SYNTHETIC("Phoenix Full_Synthetic", "Phoenix",
             "Version, Filename, Sample, Sample, Sample, Analysis, User, Method",
-            PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_0", 4),
+            PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_0"),
     TRITON_EXP("Triton EXP", "Triton",
             "Triton Analysis Data Report",
-            TritonMassSpec.class, "extractMetaAndBlockDataFromFileTriton", 1),
+            PhoenixMassSpec.class, "extractMetaAndBlockDataFromFileVersion_1_2"),
     UNKNOWN("UNKNOWN", "UNKNOWN", "",
-            null, "", 0);
+            null, "");
+//Triton Analysis Data Report
 
     private final String name;
     private final String massSpectrometerName;
     private final String keyWordsList;
     private final Class<?> clazz;
     private final String methodName;
-    private int caseNumber;
 
-    MassSpectrometerContextEnum(String name, String massSpectrometerName, String keyWordsList, Class<?> clazz, String methodName, int caseNumber) {
+    MassSpectrometerContextEnum(String name, String massSpectrometerName, String keyWordsList, Class<?> clazz, String methodName) {
         this.name = name;
         this.massSpectrometerName = massSpectrometerName;
         this.keyWordsList = keyWordsList;
         this.clazz = clazz;
         this.methodName = methodName;
-        this.caseNumber = caseNumber;
     }
 
     public String getName() {
@@ -75,9 +73,5 @@ public enum MassSpectrometerContextEnum {
 
     public String getMethodName() {
         return methodName;
-    }
-
-    public int getCaseNumber() {
-        return caseNumber;
     }
 }

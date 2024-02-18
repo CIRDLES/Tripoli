@@ -22,8 +22,6 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
-import org.cirdles.tripoli.expressions.species.IsotopicRatio;
-import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioPlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioRecord;
@@ -35,7 +33,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.SingleBlockPeakDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
@@ -45,7 +43,6 @@ import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassS
 import org.cirdles.tripoli.species.IsotopicRatio;
 import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.species.SpeciesRecordInterface;
-
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -170,34 +167,32 @@ public class Analysis implements Serializable, AnalysisInterface {
         }
         massSpecExtractedData.setMassSpectrometerContext(massSpectrometerContext);
 
-        if (massSpectrometerContext.getCaseNumber() > 1) {
-            // TODO: remove this temp hack for synthetic demos
-            if (0 == massSpectrometerContext.compareTo(PHOENIX_FULL_SYNTHETIC)) {
-                massSpecExtractedData.setDetectorSetup(DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_FULL_SYNTHETIC.getName()));
-                if (massSpecExtractedData.getHeader().methodName().toUpperCase(Locale.ROOT).contains("SYNTHETIC")) {
-                    analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(BURDICK_BL_SYNTHETIC_DATA);
-                } else {
-                    analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
-                }
-              
+        // TODO: remove this temp hack for synthetic demos
+        if (0 == massSpectrometerContext.compareTo(PHOENIX_FULL_SYNTHETIC)) {
+            massSpecExtractedData.setDetectorSetup(DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_FULL_SYNTHETIC.getName()));
+            if (massSpecExtractedData.getHeader().methodName().toUpperCase(Locale.ROOT).contains("SYNTHETIC")) {
+                analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(BURDICK_BL_SYNTHETIC_DATA);
+            } else {
+                analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
+            }
+
             initializeBlockProcessing();
             initializeSpeciesColorMap();
 
+        } else {
+            // attempt to load specified method
+            File selectedMethodFile = new File((Path.of(dataFilePathString).getParent().getParent().toString()
+                    + File.separator + "Methods" + File.separator + massSpecExtractedData.getHeader().methodName()).toLowerCase(Locale.getDefault()));
+            File getPeakCentresFolder = new File((Path.of(dataFilePathString).getParent().toString()
+                    + File.separator + "PeakCentres"));
+            if (selectedMethodFile.exists()) {
+                analysisMethod = extractAnalysisMethodfromPath(Path.of(selectedMethodFile.toURI()));
+                TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedMethodFile.getParent());
             } else {
-                // attempt to load specified method
-                File selectedMethodFile = new File((Path.of(dataFilePathString).getParent().getParent().toString()
-                        + File.separator + "Methods" + File.separator + massSpecExtractedData.getHeader().methodName()).toLowerCase(Locale.getDefault()));
-                File getPeakCentresFolder = new File((Path.of(dataFilePathString).getParent().toString()
-                        + File.separator + "PeakCentres"));
-                if (selectedMethodFile.exists()) {
-                    analysisMethod = extractAnalysisMethodfromPath(Path.of(selectedMethodFile.toURI()));
-                    TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedMethodFile.getParent());
-                } else {
-                    throw new TripoliException(
-                            "Method File not found: " + massSpecExtractedData.getHeader().methodName()
-                                    + "\n\n at location: " + Path.of(dataFilePathString).getParent().getParent().toString() + File.separator + "Methods");
-                }
-
+                throw new TripoliException(
+                        "Method File not found: " + massSpecExtractedData.getHeader().methodName()
+                                + "\n\n at location: " + Path.of(dataFilePathString).getParent().getParent().toString() + File.separator + "Methods");
+            }
 
             initializeBlockProcessing();
             initializeSpeciesColorMap();
@@ -212,48 +207,45 @@ public class Analysis implements Serializable, AnalysisInterface {
                     if (m.matches()) {
                         fileList.add(file);
                     }
+                }
 
-                    IntuitiveStringComparator<String> intuitiveStringComparator = new IntuitiveStringComparator<>();
-                    fileList.sort((file1, file2) -> intuitiveStringComparator.compare(file1.getName(), file2.getName()));
-                    if (0 < blockPeakGroups.size()) {
-                        for (Integer blockID : blockPeakGroups.keySet()) {
-                            blockPeakGroups.get(blockID).clear();
-                        }
+                IntuitiveStringComparator<String> intuitiveStringComparator = new IntuitiveStringComparator<>();
+                fileList.sort((file1, file2) -> intuitiveStringComparator.compare(file1.getName(), file2.getName()));
+                if (0 < blockPeakGroups.size()) {
+                    for (Integer blockID : blockPeakGroups.keySet()) {
+                        blockPeakGroups.get(blockID).clear();
                     }
+                }
 
-                    // groups isotopic files that are in the same block
-                    if (!fileList.isEmpty()) {
-                        File[] files = fileList.toArray(new File[0]);
+                // groups isotopic files that are in the same block
+                if (!fileList.isEmpty()) {
+                    File[] files = fileList.toArray(new File[0]);
 
-                        p = Pattern.compile("-S(.*?)C1");
+                    p = Pattern.compile("-S(.*?)C1");
 
-                        for (File file : files) {
+                    for (File file : files) {
 
-                            Matcher groupMatch = p.matcher(file.getName());
-                            if (groupMatch.find()) {
-                                int value = Integer.parseInt(groupMatch.group(1).substring(2));
-                                if (blockPeakGroups.containsKey(value)) {
-                                    blockPeakGroups.get(value).add(file);
-                                } else {
-                                    blockPeakGroups.put(value, new ArrayList<>());
-                                    blockPeakGroups.get(value).add(file);
-                                }
+                        Matcher groupMatch = p.matcher(file.getName());
+                        if (groupMatch.find()) {
+                            int value = Integer.parseInt(groupMatch.group(1).substring(2));
+                            if (blockPeakGroups.containsKey(value)) {
+                                blockPeakGroups.get(value).add(file);
+                            } else {
+                                blockPeakGroups.put(value, new ArrayList<>());
+                                blockPeakGroups.get(value).add(file);
                             }
                         }
-
-                        for (Map.Entry<Integer, List<File>> entry : blockPeakGroups.entrySet()) {
-                            List<File> peakFile = entry.getValue();
-                            peakFile.sort((file1, file2) -> intuitiveStringComparator.compare(file1.getName(), file2.getName()));
-                        }
                     }
-                } else {
-                    throw new TripoliException(
-                            "PeakCentres folder not found at location: " + Path.of(dataFilePathString).getParent().toString() + File.separator + "PeakCentres");
+
+                    for (Map.Entry<Integer, List<File>> entry : blockPeakGroups.entrySet()) {
+                        List<File> peakFile = entry.getValue();
+                        peakFile.sort((file1, file2) -> intuitiveStringComparator.compare(file1.getName(), file2.getName()));
+                    }
                 }
+            } else {
+                throw new TripoliException(
+                        "PeakCentres folder not found at location: " + Path.of(dataFilePathString).getParent().toString() + File.separator + "PeakCentres");
             }
-        } else {
-            // case1
-            analysisMethod = AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData);
         }
     }
 
@@ -277,7 +269,6 @@ public class Analysis implements Serializable, AnalysisInterface {
             mapOfBlockIdToProcessStatus.put(blockID, RUN);
             mapBlockIDToEnsembles.put(blockID, new ArrayList<>());
             mapOfBlockIdToRawData.put(blockID, null);
-            mapOfBlockIdToRawDataLiteOne.put(blockID, null);
             mapOfBlockIdToFinalModel.put(blockID, null);
 
 
@@ -385,7 +376,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     }
 
 
-    public AllBlockInitForMCMC.PlottingData assemblePostProcessPlottingData() {
+    public AllBlockInitForOGTripoli.PlottingData assemblePostProcessPlottingData() {
         Map<Integer, SingleBlockRawDataSetRecord> singleBlockRawDataSetRecordMap = mapOfBlockIdToRawData;
         SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = new SingleBlockRawDataSetRecord[mapOfBlockIdToProcessStatus.keySet().size()];
         int index = 0;
@@ -406,7 +397,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             }
         }
 
-        return new AllBlockInitForMCMC.PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, null, cycleCount, false, 4);
+        return new AllBlockInitForOGTripoli.PlottingData(singleBlockRawDataSetRecords, singleBlockModelRecords, cycleCount, false);
     }
 
     public final String prettyPrintAnalysisSummary() {
@@ -436,23 +427,13 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public final String prettyPrintAnalysisDataSummary() {
         StringBuilder sb = new StringBuilder();
-        if (getAnalysisCaseNumber() == 1) {
-            sb.append(String.format("%30s", "Column headers: "));
-            for (String header : massSpecExtractedData.getColumnHeaders()) {
-                sb.append(header + ", ");
-            }
-            sb.replace(sb.length() - 2, sb.length(), "");
-            sb.append("\n");
-            sb.append(String.format("%30s", "Block count: "))
-                    .append(String.format("%-3s", massSpecExtractedData.getBlocksDataLite().size()))
-                    .append(String.format("%-3s", "each with " + massSpecExtractedData.getBlocksDataLite().get(1).cycleNumbers().length) + " cycles");
-            sb.append("\n");
+        if (massSpecExtractedData.getBlocksDataFull().isEmpty()) {
+            sb.append("No data extracted.");
         } else {
             sb.append(String.format("%30s", "Column headers: "));
             for (String header : massSpecExtractedData.getColumnHeaders()) {
-                sb.append(header + ", ");
+                sb.append(header + " ");
             }
-            sb.replace(sb.length() - 2, sb.length(), "");
             sb.append("\n");
             sb.append(String.format("%30s", "Block count: "))
                     .append(String.format("%-3s", massSpecExtractedData.getBlocksDataFull().size()))
@@ -702,9 +683,5 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public void setAnalysisDalyFaradayGainMeanOneSigmaAbs(double analysisDalyFaradayGainMeanOneSigmaAbs) {
         this.analysisDalyFaradayGainMeanOneSigmaAbs = analysisDalyFaradayGainMeanOneSigmaAbs;
-    }
-
-    public int getAnalysisCaseNumber() {
-        return massSpecExtractedData.getMassSpectrometerContext().getCaseNumber();
     }
 }

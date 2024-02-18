@@ -16,7 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne;
 
-import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
+//import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 
 import java.io.Serializable;
 
@@ -28,17 +28,17 @@ public record SingleBlockRawDataLiteOneSetRecord(
         int cycleCount,
         double[][] blockRawDataLiteArray
 ) implements Serializable {
+//
+//    public double[] assembleCycleMeansForUserFunction(UserFunction userFunction) {
+//        double[] cycleMeans = new double[cycleCount];
+//        for (int i = 0; i < cycleCount; i++) {
+//            cycleMeans[i] = blockRawDataLiteArray()[i][userFunction.getColumnIndex()];
+//        }
+//
+//        return cycleMeans;
+//    }
 
-    public double[] assembleCycleMeansForUserFunction(UserFunction userFunction) {
-        double[] cycleMeans = new double[cycleCount];
-        for (int i = 0; i < cycleCount; i++) {
-            cycleMeans[i] = blockRawDataLiteArray()[i][userFunction.getColumnIndex()];
-        }
-
-        return cycleMeans;
-    }
-
-    public double[] assembleCycleStdDevForUserFunction(UserFunction userFunction) {
-        return new double[cycleCount];
-    }
+//    public double[] assembleCycleStdDevForUserFunction(UserFunction userFunction) {
+//        return new double[cycleCount];
+//    }
 }

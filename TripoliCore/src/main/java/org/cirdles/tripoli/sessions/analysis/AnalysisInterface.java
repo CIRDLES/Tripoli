@@ -7,7 +7,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.d
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
@@ -63,7 +63,7 @@ public interface AnalysisInterface {
 
     String uppdateLogsByBlock(int blockNumber, String logEntry);
 
-    public AllBlockInitForMCMC.PlottingData assemblePostProcessPlottingData();
+    public AllBlockInitForOGTripoli.PlottingData assemblePostProcessPlottingData();
 
     String getAnalysisName();
 
@@ -119,8 +119,8 @@ public interface AnalysisInterface {
 
     Map<Integer, SingleBlockRawDataSetRecord> getMapOfBlockIdToRawData();
 
-    public Map<Integer, SingleBlockRawDataLiteOneSetRecord> getMapOfBlockIdToRawDataLiteOne();
 
+    public Map<Integer, SingleBlockRawDataLiteOneSetRecord> getMapOfBlockIdToRawDataLiteOne();
     Map<Integer, SingleBlockModelRecord> getMapOfBlockIdToFinalModel();
 
     Map<Integer, List<EnsemblesStore.EnsembleRecord>> getMapBlockIDToEnsembles();
@@ -128,6 +128,4 @@ public interface AnalysisInterface {
     Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount();
 
     void resetAnalysis();
-
-    int getAnalysisCaseNumber();
 }

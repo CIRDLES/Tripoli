@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.expressions.species.nuclides;
+package org.cirdles.tripoli.species.nuclides;
 
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
-import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
@@ -103,7 +103,7 @@ public final class NuclidesFactory implements Serializable {
         List<SpeciesRecordInterface> nuclides = nuclidesListByElementMap.get(elementName);
         List<SpeciesRecordInterface> targetNuclideList = nuclides
                 .stream()
-                .filter(nuclide -> ((nuclide instanceof NuclideRecord) && nuclide.getMassNumber() == massNumber)).toList();
+                .filter(nuclide -> ((nuclide instanceof NuclideRecord) && ((NuclideRecord) nuclide).getMassNumber() == massNumber)).toList();
         return targetNuclideList.get(0);
     }
 }

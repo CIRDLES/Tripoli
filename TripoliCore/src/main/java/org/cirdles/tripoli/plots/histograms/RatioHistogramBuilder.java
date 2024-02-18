@@ -16,7 +16,7 @@
 
 package org.cirdles.tripoli.plots.histograms;
 
-import org.cirdles.tripoli.expressions.species.IsotopicRatio;
+import org.cirdles.tripoli.species.IsotopicRatio;
 
 /**
  * @author James F. Bowring

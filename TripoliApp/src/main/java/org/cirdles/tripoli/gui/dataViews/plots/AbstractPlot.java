@@ -34,7 +34,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.BlockRatioCyclesAnalysisPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.HistogramSinglePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.LinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.MultiLineIntensityPlot;
@@ -130,9 +130,9 @@ public abstract class AbstractPlot extends Canvas {
                     zoomChunkX = Math.abs(zoomChunkX) * Math.signum(event.getDeltaY());
                     zoomChunkY = Math.abs(zoomChunkY) * Math.signum(event.getDeltaY());
                     if (getDisplayRangeX() >= zoomChunkX) {
-                        if (event.getSource() instanceof AnalysisBlockCyclesPlot) {
-                            AnalysisBlockCyclesPlot sourceAnalysisBlockCyclesPlot = (AnalysisBlockCyclesPlot) event.getSource();
-                            ((PlotWallPane) sourceAnalysisBlockCyclesPlot.getParentWallPane()).synchronizeRatioPlotsScroll(sourceAnalysisBlockCyclesPlot, zoomChunkX, zoomChunkY);
+                        if (event.getSource() instanceof BlockRatioCyclesAnalysisPlot) {
+                            BlockRatioCyclesAnalysisPlot sourceBlockRatioCyclesAnalysisPlot = (BlockRatioCyclesAnalysisPlot) event.getSource();
+                            ((PlotWallPane) sourceBlockRatioCyclesAnalysisPlot.getParentWallPane()).synchronizeRatioPlotsScroll(zoomChunkX, zoomChunkY);
                         } else {
                             adjustZoom();
                         }
@@ -144,9 +144,9 @@ public abstract class AbstractPlot extends Canvas {
 
         mouseDraggedEventHandler = e -> {
             if (mouseInHouse(e.getX(), e.getY())) {
-                if (e.getSource() instanceof AnalysisBlockCyclesPlot) {
-                    AnalysisBlockCyclesPlot sourceAnalysisBlockCyclesPlot = (AnalysisBlockCyclesPlot) e.getSource();
-                    ((PlotWallPane) sourceAnalysisBlockCyclesPlot.getParentWallPane()).synchronizeRatioPlotsDrag(e.getX(), e.getY());
+                if (e.getSource() instanceof BlockRatioCyclesAnalysisPlot) {
+                    BlockRatioCyclesAnalysisPlot sourceBlockRatioCyclesAnalysisPlot = (BlockRatioCyclesAnalysisPlot) e.getSource();
+                    ((PlotWallPane) sourceBlockRatioCyclesAnalysisPlot.getParentWallPane()).synchronizeRatioPlotsDrag(e.getX(), e.getY());
                 } else if (e.getSource() instanceof LinePlot) {
                     LinePlot sourceLinePlot = (LinePlot) e.getSource();
                     if (mouseInShadeHandle(plotBuilder.getShadeWidthForModelConvergence(), e.getX(), e.getY())) {
@@ -178,9 +178,9 @@ public abstract class AbstractPlot extends Canvas {
 
         EventHandler<MouseEvent> mousePressedEventHandler = e -> {
             if (mouseInHouse(e.getX(), e.getY()) && e.isPrimaryButtonDown()) {
-                if (e.getSource() instanceof AnalysisBlockCyclesPlot) {
-                    AnalysisBlockCyclesPlot sourceAnalysisBlockCyclesPlot = (AnalysisBlockCyclesPlot) e.getSource();
-                    ((PlotWallPane) sourceAnalysisBlockCyclesPlot.getParentWallPane()).synchronizeMouseStartsOnPress(e.getX(), e.getY());
+                if (e.getSource() instanceof BlockRatioCyclesAnalysisPlot) {
+                    BlockRatioCyclesAnalysisPlot sourceBlockRatioCyclesAnalysisPlot = (BlockRatioCyclesAnalysisPlot) e.getSource();
+                    ((PlotWallPane) sourceBlockRatioCyclesAnalysisPlot.getParentWallPane()).synchronizeMouseStartsOnPress(e.getX(), e.getY());
                 } else {
                     adjustMouseStartsForPress(e.getX(), e.getY());
                 }
@@ -247,12 +247,11 @@ public abstract class AbstractPlot extends Canvas {
         drawBorder(g2d);
         drawPlotLimits(g2d);
 
-//        plotData(g2d);
+        plotData(g2d);
 
         if (showStats) {
             plotStats(g2d);
         }
-        plotData(g2d);
 
         if (this instanceof LinePlot) {
             ((LinePlot) this).plotLeftShade(g2d);
@@ -264,9 +263,7 @@ public abstract class AbstractPlot extends Canvas {
         drawAxes(g2d);
         labelAxisX(g2d);
         labelAxisY(g2d);
-        if (!(this instanceof AnalysisBlockCyclesPlot)) {
-            showTitle(g2d);
-        }
+        showTitle(g2d);
         showLegend(g2d);
     }
 
@@ -397,7 +394,7 @@ public abstract class AbstractPlot extends Canvas {
         text.setText(plotAxisLabelY);
         int textWidth = (int) text.getLayoutBounds().getWidth();
         g2d.rotate(-90.0);
-        g2d.fillText(text.getText(), -(2.0 * topMargin + plotHeight) / 2.0 - textWidth / 2.0, leftMargin - 40);
+        g2d.fillText(text.getText(), -(2.0 * topMargin + plotHeight) / 2.0 - textWidth / 2.0, 12);
         g2d.rotate(90.0);
         g2d.setFill(savedPaint);
     }
@@ -449,10 +446,7 @@ public abstract class AbstractPlot extends Canvas {
         return ((mapX(x) >= leftMargin) && (mapX(x) <= (leftMargin + plotWidth)));
     }
 
-    /**
-     * @param doReScale  the value of doReScale
-     * @param inLiveMode the value of inLiveMode
-     */
+
     public void refreshPanel(boolean reScaleX, boolean reScaleY) {
         try {
             preparePanel(reScaleX, reScaleY);
@@ -653,17 +647,17 @@ public abstract class AbstractPlot extends Canvas {
         public void handle(MouseEvent mouseEvent) {
             plotContextMenu.hide();
             boolean isPrimary = (0 == mouseEvent.getButton().compareTo(MouseButton.PRIMARY));
-            boolean isBlockRatioCyclesSessionPlot = (mouseEvent.getSource() instanceof AnalysisBlockCyclesPlot);
+            boolean isBlockRatioCyclesSessionPlot = (mouseEvent.getSource() instanceof BlockRatioCyclesAnalysisPlot);
 
             if (mouseInHouse(mouseEvent.getX(), mouseEvent.getY())) {
                 if (!isPrimary && isBlockRatioCyclesSessionPlot) {
                     // TODO:  remove duplicate code
-                    AnalysisBlockCyclesPlot analysisBlockCyclesPlot = (AnalysisBlockCyclesPlot) mouseEvent.getSource();
+                    BlockRatioCyclesAnalysisPlot blockRatioCyclesAnalysisPlot = (BlockRatioCyclesAnalysisPlot) mouseEvent.getSource();
                     // determine blockID
                     double xValue = convertMouseXToValue(mouseEvent.getX());
-                    int blockID = (int) ((xValue - 0.7) / analysisBlockCyclesPlot.getBlockRatioCyclesSessionRecord().cyclesPerBlock()) + 1;
-                    AnalysisBlockCyclesPlot sourceAnalysisBlockCyclesPlot = (AnalysisBlockCyclesPlot) mouseEvent.getSource();
-                    ((PlotWallPane) sourceAnalysisBlockCyclesPlot.getParentWallPane()).synchronizeBlockToggle(blockID);
+                    int blockID = (int) ((xValue - 0.7) / blockRatioCyclesAnalysisPlot.getBlockRatioCyclesSessionRecord().cyclesPerBlock()) + 1;
+                    BlockRatioCyclesAnalysisPlot sourceBlockRatioCyclesAnalysisPlot = (BlockRatioCyclesAnalysisPlot) mouseEvent.getSource();
+                    ((PlotWallPane) sourceBlockRatioCyclesAnalysisPlot.getParentWallPane()).synchronizeBlockToggle(blockID);
                 } else if (!isPrimary) {
                     plotContextMenu.show((Node) mouseEvent.getSource(), Side.LEFT, mouseEvent.getX() - getLayoutX(), mouseEvent.getY() - getLayoutY());
                 }

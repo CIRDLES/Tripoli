@@ -5,21 +5,21 @@ import java.io.Serializable;
 public record BlockCyclesRecord(
         int blockID,
         boolean processed,
+        double dalyFaradayGain,
         boolean blockIncluded,
         boolean[] cyclesIncluded,
-        double[] cycleMeansData,
-        double[] cycleOneSigmaData,
-        String[] title
+        double[] cycleRatioMeansData,
+        double[] cycleRatioOneSigmaData
 ) implements Serializable {
     public BlockCyclesRecord toggleBlockIncluded() {
         return new BlockCyclesRecord(
                 blockID,
                 processed,
+                dalyFaradayGain,
                 !blockIncluded,
                 cyclesIncluded,
-                cycleMeansData,
-                cycleOneSigmaData,
-                title
+                cycleRatioMeansData,
+                cycleRatioOneSigmaData
         );
     }
 }
