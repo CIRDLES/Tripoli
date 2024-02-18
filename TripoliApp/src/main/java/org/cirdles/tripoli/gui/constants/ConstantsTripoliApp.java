@@ -51,7 +51,7 @@ public enum ConstantsTripoliApp {
     public static final Color OGTRIPOLI_ONESIGMA = new Color(255.0 / 256.0, 234.0 / 256.0, 0.0 / 256.0, 1.0);
     public static final Color OGTRIPOLI_ONESIGMA_SEMI = new Color(255.0 / 256.0, 234.0 / 256.0, 0.0 / 256.0, 0.25);
     public static final Color OGTRIPOLI_TWOSTDERR = new Color(144.0 / 256.0, 238.0 / 256.0, 143.0 / 256.0, 1.0);
-    public static final Color OGTRIPOLI_MEAN =  Color.RED;//    new Color(3.0 / 256.0, 1.0 / 256.0, 255.0 / 256.0, 1.0);
+    public static final Color OGTRIPOLI_MEAN = Color.RED;//    new Color(3.0 / 256.0, 1.0 / 256.0, 255.0 / 256.0, 1.0);
 
     public static @NonNls String convertColorToHex(Color color) {
         String red = Integer.toHexString((int) (color.getRed() * 255));
