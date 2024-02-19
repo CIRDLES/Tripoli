@@ -11,6 +11,15 @@ public record BlockCyclesRecord(
         double[] cycleOneSigmaData,
         String[] title
 ) implements Serializable {
+
+    public double[] invertedCycleMeansData(){
+        double [] invertedRatios = new double[cycleMeansData.length];
+        for (int i = 0; i < cycleMeansData.length; i ++){
+            invertedRatios[i] = Math.exp(-Math.log(cycleMeansData[i]));
+        }
+        return invertedRatios;
+    }
+
     public BlockCyclesRecord toggleBlockIncluded() {
         return new BlockCyclesRecord(
                 blockID,

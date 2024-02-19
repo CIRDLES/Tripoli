@@ -123,6 +123,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
 
         yAxisData = new double[mapBlockIdToBlockCyclesRecord.size() * cyclesPerBlock];
         oneSigmaForCycles = new double[mapBlockIdToBlockCyclesRecord.size() * cyclesPerBlock];
+//        boolean doInvert = analysisBlockCyclesRecord.
         for (Map.Entry<Integer, BlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
             BlockCyclesRecord blockCyclesRecord = entry.getValue();
             if (blockCyclesRecord != null) {
@@ -310,8 +311,8 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                         g2d.fillText("     " + sigmaMinusPctString, textLeft + 0, textTop += textDeltaY);
                     }
 
-                    int countIncluded = analysisStatsRecord.countOfIncludedBlocks();
-                    g2d.fillText("n  = " + countIncluded + "/" + analysisStatsRecord.blockStatsRecords().length, textLeft + 10, textTop += textDeltaY);
+                    int countIncluded = analysisStatsRecord.countOfIncludedCycles();
+                    g2d.fillText("n  = " + countIncluded + "/" + analysisStatsRecord.countOfTotalCycles(), textLeft + 10, textTop += textDeltaY);
 
                     boolean meanIsPlottable = (mapY(geoMean) >= topMargin) && (mapY(geoMean) <= topMargin + plotHeight);
                     if (meanIsPlottable) {
@@ -508,7 +509,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                     g2d.strokeLine(dataX, dataY, dataX, dataYplusSigma);
                     g2d.strokeLine(dataX, dataY, dataX, dataYminusSigma);
                 } else {
-                    g2d.strokeOval(dataX - 2.0, dataY - 2.0, 4, 4);
+                    g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
                 }
             }
         }
