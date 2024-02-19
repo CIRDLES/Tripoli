@@ -285,18 +285,8 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
 
             Scene scene = new Scene(root);
             Stage stage = new Stage();
-//            stage.setOnCloseRequest(closeRequest -> {
-//                System.err.println("Trying to close window...");
-//                for(int speciesIndex = 0; speciesIndex < species.size(); ++speciesIndex) {
-//                    SpeciesColorPane pane = (SpeciesColorPane) root.getChildren().get(speciesIndex);
-//                    mapOfSpeciesToColors.put(speciesIndex, pane.reportNewSpeciesColors());
-//                }
-//                rebuildPlot(true, true);
-//            });
             stage.initModality(Modality.APPLICATION_MODAL);
-//            stage.setOnCloseRequest(closeRequestEvent -> {
-//
-//            });
+
             stage.setScene(scene);
             stage.setTitle("Color Window");
             stage.show();

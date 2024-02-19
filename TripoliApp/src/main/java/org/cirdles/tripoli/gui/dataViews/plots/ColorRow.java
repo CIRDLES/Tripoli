@@ -48,6 +48,7 @@ public class ColorRow extends HBox {
             colorChangeListener.setColorRow(this);
             colorPickerReference.valueProperty().addListener(colorChangeListener);
             colorPickerReference.valueProperty().setValue(Color.web(hexColor));
+            colorPickerReference.valueProperty().set(Color.web(hexColor));
         });
     }
 

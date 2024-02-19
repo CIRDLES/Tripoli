@@ -6,6 +6,7 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.constants.TripoliConstants;
@@ -72,6 +73,12 @@ public class SpeciesColorPane extends Pane {
                 this.colorPickerReference,
                 this
         ));
+        this.colorPickerReference.getCustomColors().addAll(
+                Color.web(speciesColors.faradayHexColor()),
+                Color.web(speciesColors.pmHexColor()),
+                Color.web(speciesColors.faradayModelHexColor()),
+                Color.web(speciesColors.pmModelHexColor())
+        );
         return hBox;
     }
 
