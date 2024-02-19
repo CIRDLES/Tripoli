@@ -42,7 +42,8 @@ public class UserFunction implements Serializable {
     public String getName() {
         return name;
     }
-    public String showInvertedRatioName(){
+
+    public String showInvertedRatioName() {
         String retVal = name;
         if (treatAsIsotopicRatio) {
             String[] nameSplit = name.split("/");

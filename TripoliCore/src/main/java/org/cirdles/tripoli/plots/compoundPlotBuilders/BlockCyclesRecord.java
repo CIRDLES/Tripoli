@@ -12,9 +12,9 @@ public record BlockCyclesRecord(
         String[] title
 ) implements Serializable {
 
-    public double[] invertedCycleMeansData(){
-        double [] invertedRatios = new double[cycleMeansData.length];
-        for (int i = 0; i < cycleMeansData.length; i ++){
+    public double[] invertedCycleMeansData() {
+        double[] invertedRatios = new double[cycleMeansData.length];
+        for (int i = 0; i < cycleMeansData.length; i++) {
             invertedRatios[i] = Math.exp(-Math.log(cycleMeansData[i]));
         }
         return invertedRatios;

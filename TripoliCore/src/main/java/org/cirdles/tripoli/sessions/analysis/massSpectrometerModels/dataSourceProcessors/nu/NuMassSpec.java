@@ -68,7 +68,7 @@ public enum NuMassSpec {
                     } else {
                         columnNamesSplit.add(line.split("\t")[1]);
                     }
-                } else if( NumberUtils.isCreatable(line.split("\t")[0]) ){
+                } else if (NumberUtils.isCreatable(line.split("\t")[0])) {
                     massSpecExtractedData.populateColumnNamesListNu(columnNamesSplit);
                     phase = 5;
                 } else if (line.startsWith("***")) {

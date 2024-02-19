@@ -92,8 +92,8 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
                 .filter(plot -> plot instanceof TripoliPlotPane)
                 .collect(Collectors.toList());
 
-        double rowTileCount  = Math.floor(Math.sqrt(plotPanes.size()));
-        int columnTileCount = (int)Math.ceil(plotPanes.size() / rowTileCount);
+        double rowTileCount = Math.floor(Math.sqrt(plotPanes.size()));
+        int columnTileCount = (int) Math.ceil(plotPanes.size() / rowTileCount);
 
         double parentWidth = Math.max(((AnchorPane) getParent()).getPrefWidth(), ((AnchorPane) getParent()).getMinWidth());
         double displayWidth = (parentWidth - gridCellDim * 2.0) / columnTileCount;
