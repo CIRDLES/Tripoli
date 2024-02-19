@@ -23,7 +23,7 @@ public class ColorRow extends HBox {
         private ColorRow currentRowReference;
         @Override
         public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
-            currentRowReference.setHexColor(HexColorConverter.getHexColor(newValue));
+            currentRowReference.setHexColor(HexColorConverter.getHexColor(observable.getValue()));
             currentRowReference.getColorPatch().setStyle("-fx-background-color: " + currentRowReference.getHexColor());
         }
         public void setColorRow(ColorRow reference) {this.currentRowReference = reference;}
