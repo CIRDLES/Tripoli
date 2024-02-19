@@ -23,6 +23,8 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
@@ -90,22 +92,22 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
                 .filter(plot -> plot instanceof TripoliPlotPane)
                 .collect(Collectors.toList());
 
-        double widthTileCount = Math.min(5, plotPanes.size());
-        double heightTileCount = Math.ceil(plotPanes.size() / widthTileCount);
+        double rowTileCount = Math.floor(Math.sqrt(plotPanes.size()));
+        int columnTileCount = (int) Math.ceil(plotPanes.size() / rowTileCount);
 
         double parentWidth = Math.max(((AnchorPane) getParent()).getPrefWidth(), ((AnchorPane) getParent()).getMinWidth());
-        double displayWidth = (parentWidth - gridCellDim * 2.0) / widthTileCount;
+        double displayWidth = (parentWidth - gridCellDim * 2.0) / columnTileCount;
         double tileWidth = displayWidth - displayWidth % gridCellDim;
 
         double parentHeight = Math.max(((AnchorPane) getParent()).getPrefHeight(), ((AnchorPane) getParent()).getMinHeight());
-        double displayHeight = (parentHeight - toolBarHeight - gridCellDim * heightTileCount) / heightTileCount;
+        double displayHeight = (parentHeight - toolBarHeight - gridCellDim * rowTileCount) / rowTileCount;
         double tileHeight = displayHeight - displayHeight % gridCellDim;
 
         int plotIndex = 0;
         for (Node plot : plotPanes) {
-            plot.setLayoutY(gridCellDim + toolBarHeight + tileHeight * Math.floor(plotIndex / widthTileCount));
+            plot.setLayoutY(gridCellDim + toolBarHeight + tileHeight * Math.floor(plotIndex / columnTileCount));
             ((Pane) plot).setPrefHeight(tileHeight);
-            plot.setLayoutX(gridCellDim + tileWidth * (plotIndex % widthTileCount));
+            plot.setLayoutX(gridCellDim + tileWidth * (plotIndex % columnTileCount));
             ((Pane) plot).setPrefWidth(tileWidth);
 
             ((TripoliPlotPane) plot).snapToGrid();
@@ -168,39 +170,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
 
     }
 
-    public void cascadePlots() {
-
-        double cascadeLap = 20.0;
-
-        double parentWidth = Math.max(((AnchorPane) getParent()).getPrefWidth(), ((AnchorPane) getParent()).getMinWidth());
-        double displayWidth = parentWidth - cascadeLap * (getCountOfPlots() - 1);
-        double tileWidth = displayWidth - gridCellDim;
-
-        double parentHeight = Math.max(((AnchorPane) getParent()).getPrefHeight(), ((AnchorPane) getParent()).getMinHeight());
-        double displayHeight = parentHeight - toolBarHeight - cascadeLap * (getCountOfPlots() - 1);
-        double tileHeight = displayHeight - gridCellDim;
-
-        int plotIndex = 0;
-        for (Node plotPane : getChildren()) {
-            if (plotPane instanceof TripoliPlotPane) {
-                plotPane.setLayoutY(gridCellDim + toolBarHeight + cascadeLap * plotIndex);
-                ((Pane) plotPane).setPrefHeight(tileHeight);
-                plotPane.setLayoutX(gridCellDim + cascadeLap * plotIndex);
-                ((Pane) plotPane).setPrefWidth(tileWidth);
-
-                ((TripoliPlotPane) plotPane).snapToGrid();
-
-                plotIndex++;
-            }
-        }
-        plotLayoutStyle = ConstantsTripoliApp.PlotLayoutStyle.CASCADE;
-    }
-
     public void repeatLayoutStyle() {
         switch (plotLayoutStyle) {
             case TILE -> tilePlots();
             case STACK -> stackPlots();
-            case CASCADE -> cascadePlots();
         }
     }
 
@@ -254,7 +227,6 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
             analysis.getMapOfBlockIdToModelsBurnCount().put(blockID, burnIn);
             blockEnsemblePlotEngine(blockID, analysis);
             mcmcPlotsController.plotEnsemblesEngine(analysis.getMapOfBlockIdToPlots().get(blockID));
-//            mcmcPlotsController.analysisRatioEngine();
             EnsemblesStore.produceSummaryModelFromEnsembleStore(blockID, analysis);
         }
 
@@ -302,10 +274,6 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
             Button stackButton = new Button("Stack Plots");
             stackButton.setOnAction(event -> stackPlots());
             toolBar.getItems().add(stackButton);
-
-            Button cascadeButton = new Button("Cascade Plots");
-            cascadeButton.setOnAction(event -> cascadePlots());
-            toolBar.getItems().add(cascadeButton);
         }
 
         if (0 == iD.compareToIgnoreCase(PLOT_TAB_ENSEMBLES)) {
@@ -322,37 +290,40 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     }
 
     public void buildScaleControlsToolbar() {
+        Font commandFont = Font.font("Sansserif", FontWeight.BOLD, 12);
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);
         toolBar.setLayoutY(0.0);
 
         Button button0 = new Button("Restore Plots");
+        button0.setFont(commandFont);
         button0.setOnAction(event -> restoreAllPlots());
         toolBar.getItems().add(button0);
 
         Button button1 = new Button("Toggle Stats");
+        button1.setFont(commandFont);
         button1.setOnAction(event -> toggleShowStatsAllPlots());
         toolBar.getItems().add(button1);
 
         Button tileButton = new Button("Tile Plots");
+        tileButton.setFont(commandFont);
         tileButton.setOnAction(event -> tilePlots());
         toolBar.getItems().add(tileButton);
 
         Button stackButton = new Button("Stack Plots");
+        stackButton.setFont(commandFont);
         stackButton.setOnAction(event -> stackPlots());
         toolBar.getItems().add(stackButton);
 
-        Button cascadeButton = new Button("Cascade Plots");
-        cascadeButton.setOnAction(event -> cascadePlots());
-        toolBar.getItems().add(cascadeButton);
-
         Button synchButton = new Button("Synch Plots");
+        synchButton.setFont(commandFont);
         synchButton.setOnAction(event -> synchPlots());
         toolBar.getItems().add(synchButton);
 
         Label labelMode = new Label("Mode:");
+        labelMode.setFont(commandFont);
         labelMode.setAlignment(Pos.CENTER_RIGHT);
-        labelMode.setPrefWidth(60);
+        labelMode.setPrefWidth(50);
         toolBar.getItems().add(labelMode);
 
         CheckBox cycleCB = new CheckBox("Cycle");
@@ -363,9 +334,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
                     rebuildPlot(false, true);
                 });
 
-        Label labelScale = new Label("Scale:");
+        Label labelScale = new Label("Ratio Scale:");
+        labelScale.setFont(commandFont);
         labelScale.setAlignment(Pos.CENTER_RIGHT);
-        labelScale.setPrefWidth(60);
+        labelScale.setPrefWidth(80);
         toolBar.getItems().add(labelScale);
 
         CheckBox logCB = new CheckBox("Log");
@@ -377,6 +349,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
                 });
 
         Label labelZoom = new Label("Zoom:");
+        labelZoom.setFont(commandFont);
         labelZoom.setAlignment(Pos.CENTER_RIGHT);
         labelZoom.setPrefWidth(50);
         toolBar.getItems().add(labelZoom);
