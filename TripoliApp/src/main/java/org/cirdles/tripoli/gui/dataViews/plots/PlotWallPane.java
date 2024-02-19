@@ -26,7 +26,7 @@ import javafx.scene.layout.Pane;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.BlockRatioCyclesAnalysisPlot;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
@@ -445,7 +445,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private void rebuildPlot(boolean reScaleX, boolean reScaleY) {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
-                ((TripoliPlotPane) plotPane).updateAnalysisRatiosPlotted(blockMode, logScale, reScaleX, reScaleY);
+                ((TripoliPlotPane) plotPane).updateAnalysisRatiosPlotted( logScale, reScaleX, reScaleY);
             }
         }
     }
@@ -458,18 +458,15 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         }
     }
 
-    public void synchronizeRatioPlotsScroll(AnalysisBlockCyclesPlot sourceAnalysisBlockCyclesPlot, double zoomChunkX, double zoomChunkY) {
+    public void synchronizeRatioPlotsScroll( double zoomChunkX, double zoomChunkY) {
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
-                AnalysisBlockCyclesPlot childPlot = (AnalysisBlockCyclesPlot) ((TripoliPlotPane) child).getPlot();
-                if (childPlot != sourceAnalysisBlockCyclesPlot) {
-                    childPlot.setZoomChunkX(zoomChunkX);
-                    childPlot.setZoomChunkY(zoomChunkY);
-                    childPlot.adjustZoom();
-                } else {
-                    childPlot.adjustZoomSelf();
-                }
+
+                BlockRatioCyclesAnalysisPlot childPlot = (BlockRatioCyclesAnalysisPlot) ((TripoliPlotPane) child).getChildren().get(0);
+                childPlot.setZoomChunkX(zoomChunkX);
+                childPlot.setZoomChunkY(zoomChunkY);
+                childPlot.adjustZoom();
             }
         }
     }
@@ -478,7 +475,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
-                AnalysisBlockCyclesPlot childPlot = (AnalysisBlockCyclesPlot) ((TripoliPlotPane) child).getPlot();
+                BlockRatioCyclesAnalysisPlot childPlot = (BlockRatioCyclesAnalysisPlot) ((TripoliPlotPane) child).getChildren().get(0);
                 childPlot.adjustOffsetsForDrag(x, y);
             }
         }
@@ -498,7 +495,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
-                AnalysisBlockCyclesPlot childPlot = (AnalysisBlockCyclesPlot) ((TripoliPlotPane) child).getPlot();
+                BlockRatioCyclesAnalysisPlot childPlot = (BlockRatioCyclesAnalysisPlot) ((TripoliPlotPane) child).getChildren().get(0);
                 childPlot.adjustMouseStartsForPress(x, y);
             }
         }
@@ -509,13 +506,13 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         boolean included = false;
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
-                AnalysisBlockCyclesPlot childPlot = (AnalysisBlockCyclesPlot) ((TripoliPlotPane) child).getPlot();
-                if (childPlot.getMapBlockIdToBlockCyclesRecord().get(blockID) != null) {
-                    childPlot.getMapBlockIdToBlockCyclesRecord().put(
+                BlockRatioCyclesAnalysisPlot childPlot = (BlockRatioCyclesAnalysisPlot) ((TripoliPlotPane) child).getChildren().get(0);
+                if (childPlot.getMapBlockIdToBlockRatioCyclesRecord().get(blockID) != null) {
+                    childPlot.getMapBlockIdToBlockRatioCyclesRecord().put(
                             blockID,
-                            childPlot.getMapBlockIdToBlockCyclesRecord().get(blockID).toggleBlockIncluded());
+                            childPlot.getMapBlockIdToBlockRatioCyclesRecord().get(blockID).toggleBlockIncluded());
                     childPlot.repaint();
-                    included = childPlot.getMapBlockIdToBlockCyclesRecord().get(blockID).blockIncluded();
+                    included = childPlot.getMapBlockIdToBlockRatioCyclesRecord().get(blockID).blockIncluded();
                 }
             }
         }

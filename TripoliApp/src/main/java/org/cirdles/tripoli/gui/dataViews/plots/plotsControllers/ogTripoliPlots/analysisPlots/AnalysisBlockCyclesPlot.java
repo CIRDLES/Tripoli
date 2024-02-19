@@ -125,11 +125,11 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
         oneSigmaForCycles = new double[mapBlockIdToBlockCyclesRecord.size() * cyclesPerBlock];
         for (Map.Entry<Integer, BlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
             BlockCyclesRecord blockCyclesRecord = entry.getValue();
-            if (blockCyclesRecord != null) {
-                int availableCyclesPerBlock = blockCyclesRecord.cycleMeansData().length;
-                System.arraycopy(blockCyclesRecord.cycleMeansData(), 0, yAxisData, (blockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
-                System.arraycopy(blockCyclesRecord.cycleOneSigmaData(), 0, oneSigmaForCycles, (blockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
-            }
+//            if (blockCyclesRecord != null) {
+//                int availableCyclesPerBlock = blockCyclesRecord.cycleMeansData().length;
+//                System.arraycopy(blockCyclesRecord.cycleMeansData(), 0, yAxisData, (blockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+//                System.arraycopy(blockCyclesRecord.cycleOneSigmaData(), 0, oneSigmaForCycles, (blockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+//            }
         }
 
         plotAxisLabelY = analysisBlockCyclesRecord.isRatio() ? "Ratio" : "Function";
@@ -662,10 +662,10 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
         int arrayIndex = 0;
         for (Map.Entry<Integer, BlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
             BlockCyclesRecord blockCyclesRecord = entry.getValue();
-            if (blockCyclesRecord != null) {
-                blockStatsRecords[arrayIndex] = BlockStatsRecord.generateBlockStatsRecord(
-                        entry.getKey(), blockCyclesRecord.blockIncluded(), isRatio, blockCyclesRecord.cycleMeansData(), blockCyclesRecord.cyclesIncluded());
-            }
+//            if (blockCyclesRecord != null) {
+//                blockStatsRecords[arrayIndex] = BlockStatsRecord.generateBlockStatsRecord(
+//                        entry.getKey(), blockCyclesRecord.blockIncluded(), isRatio, blockCyclesRecord.cycleMeansData(), blockCyclesRecord.cyclesIncluded());
+//            }
             arrayIndex++;
         }
         analysisStatsRecord = AnalysisStatsRecord.generateAnalysisStatsRecord(blockStatsRecords);

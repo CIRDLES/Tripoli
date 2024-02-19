@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.expressions.species.nuclides;
+package org.cirdles.tripoli.species.nuclides;
 
-import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;

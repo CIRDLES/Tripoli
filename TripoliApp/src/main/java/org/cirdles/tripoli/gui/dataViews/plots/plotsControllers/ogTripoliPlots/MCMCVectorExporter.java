@@ -20,7 +20,7 @@ import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForOGTripoli;
 
 import java.util.Arrays;
 
@@ -47,7 +47,7 @@ public class MCMCVectorExporter {
 
     public static DataVectorsRecord exportData(AnalysisInterface analysis, int blockID) {
         int blockIndex = blockID - 1;
-        AllBlockInitForMCMC.PlottingData plottingData = analysis.assemblePostProcessPlottingData();
+        AllBlockInitForOGTripoli.PlottingData plottingData = analysis.assemblePostProcessPlottingData();
         SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords = plottingData.singleBlockRawDataSetRecords();
 
         SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = singleBlockRawDataSetRecords[blockIndex];

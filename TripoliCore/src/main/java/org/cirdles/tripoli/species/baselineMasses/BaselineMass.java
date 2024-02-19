@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.expressions.species.baselineMasses;
+package org.cirdles.tripoli.species.baselineMasses;
 
-import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
 import org.jetbrains.annotations.NotNull;
 
 /**

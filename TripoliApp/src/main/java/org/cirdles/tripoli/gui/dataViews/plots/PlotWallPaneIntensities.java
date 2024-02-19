@@ -17,19 +17,27 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.cirdles.tripoli.constants.TripoliConstants;
-import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
+import org.cirdles.tripoli.species.SpeciesColors;
+import org.cirdles.tripoli.species.SpeciesRecordInterface;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_MICHAELANGELO_URL;
 
@@ -118,7 +126,8 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         // not used
     }
 
-    public void buildIntensitiesPlotToolBar(boolean showResiduals, List<SpeciesRecordInterface> species) {
+    public void buildIntensitiesPlotToolBar(boolean showResiduals, List<SpeciesRecordInterface> species,
+                                            Map<Integer, SpeciesColors> mapOfSpeciesToColors) {
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);
         speciesChecked = new boolean[species.size()];
@@ -249,6 +258,42 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
                     rebuildPlot(false, false);
                 });
 
+        //  Verbose construction of the species-color window
+        Button button = new Button("Customize Colors");
+        toolBar.getItems().add(button);
+        button.setOnAction(event -> {
+
+            VBox root = new VBox();
+            root.setAlignment(Pos.CENTER);
+            ColorPicker colorPicker = new ColorPicker();
+            // Listen to the colorpicker
+            root.setStyle("-fx-background-color: linen");
+
+            for (int speciesIndex = 0; speciesIndex < species.size(); ++speciesIndex) {
+                SpeciesColorPane pane = new SpeciesColorPane(speciesIndex,
+                        mapOfSpeciesToColors,
+                        species.get(speciesIndex).prettyPrintShortForm().trim(),
+                        mapOfSpeciesToColors.get(speciesIndex),
+                        colorPicker,
+                        this);
+                root.getChildren().add(pane);
+            }
+
+            root.setFillWidth(true);
+            colorPicker.prefWidthProperty().bind(root.widthProperty());
+            root.getChildren().add(colorPicker);
+
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+
+            stage.setScene(scene);
+            stage.setTitle("Color Window");
+            stage.show();
+
+        });
+        //  END OF verbose construction of species-color window
+
         getChildren().add(0, toolBar);
     }
 
@@ -365,7 +410,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     }
 
 
-    private void rebuildPlot(boolean reScaleX, boolean reScaleY) {
+    public void rebuildPlot(boolean reScaleX, boolean reScaleY) {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
                 ((TripoliPlotPane) plotPane).updateSpeciesPlotted(
@@ -373,6 +418,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
             }
         }
     }
+
 
     private void resetZoom() {
         for (Node plotPane : getChildren()) {

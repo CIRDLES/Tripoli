@@ -18,6 +18,7 @@ package org.cirdles.tripoli.plots.analysisPlotBuilders;
 
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockCyclesRecord;
+import org.cirdles.tripoli.species.IsotopicRatio;
 
 import java.util.List;
 import java.util.Map;
@@ -27,44 +28,61 @@ import java.util.TreeMap;
  * @author James F. Bowring
  */
 public class BlockAnalysisRatioCyclesBuilder extends PlotBuilder {
-    private AnalysisBlockCyclesRecord analysisBlockCyclesRecord;
+    private BlockAnalysisRatioCyclesRecord blockAnalysisRatioCyclesRecord;
 
 
     public BlockAnalysisRatioCyclesBuilder() {
     }
 
-    private BlockAnalysisRatioCyclesBuilder(String plotTitle, List<BlockCyclesRecord> blockCyclesRecords, boolean isRatio) {
-        super(new String[]{plotTitle}, "NONE", "NONE", true);
-        analysisBlockCyclesRecord = generateAnalysisBlockCyclesRecord(blockCyclesRecords, isRatio);
+    private BlockAnalysisRatioCyclesBuilder(IsotopicRatio isotopicRatio, List<BlockCyclesRecord> blockRatioCyclesRecords, String xAxisLabel, String yAxisLabel) {
+        super(new String[]{isotopicRatio.prettyPrint()}, xAxisLabel, yAxisLabel, true);
+        blockAnalysisRatioCyclesRecord = generateBlockAnalysisRatioCycles(isotopicRatio, blockRatioCyclesRecords);
     }
 
     public static BlockAnalysisRatioCyclesBuilder initializeBlockAnalysisRatioCycles(
-            String plotTitle, List<BlockCyclesRecord> blockCyclesRecordsList, boolean isRatio) {
-        BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder = new BlockAnalysisRatioCyclesBuilder(plotTitle, blockCyclesRecordsList, isRatio);
+            IsotopicRatio isotopicRatio, List<BlockCyclesRecord> blockRatioCyclesRecordsList, String xAxisLabel, String yAxisLabel) {
+        BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder = new BlockAnalysisRatioCyclesBuilder(isotopicRatio, blockRatioCyclesRecordsList, xAxisLabel, yAxisLabel);
 
         return blockAnalysisRatioCyclesBuilder;
     }
 
-    private AnalysisBlockCyclesRecord generateAnalysisBlockCyclesRecord(List<BlockCyclesRecord> blockCyclesRecordsList, boolean isRatio) {
-        Map<Integer, BlockCyclesRecord> mapBlockIdToBlockCyclesRecord = new TreeMap<>();
+    private BlockAnalysisRatioCyclesRecord generateBlockAnalysisRatioCycles(IsotopicRatio isotopicRatio, List<BlockCyclesRecord> blockRatioCyclesRecordsList) {
+//        List<Double> histogramMeans = new ArrayList<>();
+//        List<Double> histogramOneSigma = new ArrayList<>();
+//        DescriptiveStatistics descriptiveStatisticsRatiosByBlock = new DescriptiveStatistics();
+
+        Map<Integer, BlockCyclesRecord> mapBlockIdToBlockRatioCyclesRecord = new TreeMap<>();
         int blockIndex = 0;
-        for (BlockCyclesRecord blockCyclesRecord : blockCyclesRecordsList) {
-            if (blockCyclesRecord != null) {
-                mapBlockIdToBlockCyclesRecord.put(blockCyclesRecord.blockID(), blockCyclesRecord);
+        for (BlockCyclesRecord blockRatioCyclesRecord : blockRatioCyclesRecordsList) {
+            if (blockRatioCyclesRecord != null) {
+                mapBlockIdToBlockRatioCyclesRecord.put(blockRatioCyclesRecord.blockID(), blockRatioCyclesRecord);
+//            histogramMeans.add(histogramRecord.mean());
+//            descriptiveStatisticsRatiosByBlock.addValue(histogramRecord.mean());
+//            histogramOneSigma.add(histogramRecord.standardDeviation());
             } else {
-                mapBlockIdToBlockCyclesRecord.put(blockIndex + 1, null);
+                mapBlockIdToBlockRatioCyclesRecord.put(blockIndex + 1, null);
             }
             blockIndex++;
         }
+//        double[] blockIds = blockIdList.stream().mapToDouble(d -> d).toArray();
+//        double[] blockLogRatioMeans = histogramMeans.stream().mapToDouble(d -> d).toArray();
+//        double[] blockLogRatioOneSigmas = histogramOneSigma.stream().mapToDouble(d -> d).toArray();
 
-        return new AnalysisBlockCyclesRecord(
-                mapBlockIdToBlockCyclesRecord,
-                blockCyclesRecordsList.get(0).cyclesIncluded().length,//??? just included?
+        return new BlockAnalysisRatioCyclesRecord(
+                isotopicRatio,
+                mapBlockIdToBlockRatioCyclesRecord,
+                blockRatioCyclesRecordsList.get(0).cyclesIncluded().length,
+                0.0,
+                0.0,
+                1,
+                1,
                 title,
-                isRatio);
+                "Blocks & Cycles by Time",
+                "Ratio"
+        );
     }
 
-    public AnalysisBlockCyclesRecord getBlockAnalysisRatioCyclesRecord() {
-        return analysisBlockCyclesRecord;
+    public BlockAnalysisRatioCyclesRecord getBlockAnalysisRatioCyclesRecord() {
+        return blockAnalysisRatioCyclesRecord;
     }
 }

@@ -155,10 +155,10 @@ public class MCMCProcess {
 
         baselineMultiplier = new double[singleBlockInitialModelRecord_X0.dataModelArray().length];
         Arrays.fill(baselineMultiplier, 1.0);
-        //TODO: review this - removed 24 Jan 2024 during PI meeting - no real effect
-//        for (int row = startingIndexOfPhotoMultiplierData; row < singleBlockInitialModelRecord_X0.dataModelArray().length; row++) {
-//            baselineMultiplier[row] = 0.1;
-//        }
+        //TODO: review this
+        for (int row = startingIndexOfPhotoMultiplierData; row < singleBlockInitialModelRecord_X0.dataModelArray().length; row++) {
+            baselineMultiplier[row] = 0.1;
+        }
 
         keptUpdates = new int[5][4];
         ensembleRecordsList = new ArrayList<>();
