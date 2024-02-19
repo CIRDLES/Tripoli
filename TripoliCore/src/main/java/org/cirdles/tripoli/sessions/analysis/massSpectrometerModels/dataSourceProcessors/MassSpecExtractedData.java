@@ -50,7 +50,7 @@ public class MassSpecExtractedData implements Serializable {
     public void populateHeader(List<String[]> headerData) {
         String softwareVersion = "";
         String filename = "";
-        String sampleName = "";
+//        String sampleName = "";
         String methodName = "";
         boolean isCorrected = false;
         boolean hasBChannels = false;
@@ -77,7 +77,7 @@ public class MassSpecExtractedData implements Serializable {
 
                 // Nu
                 case "VERSION NUMBER" -> softwareVersion = headerStrings[1].trim();
-                case "SAMPLE NAME" -> sampleName = headerStrings[1].trim();
+//                case "SAMPLE NAME" -> sampleName = headerStrings[1].trim();
                 case "ANALYSIS FILE NAME" -> filename = headerStrings[1].trim();
                 case "NUMBER OF MEASUREMENTS PER BLOCK" -> cyclesPerBlock = Integer.parseInt(headerStrings[1].trim());
             }
