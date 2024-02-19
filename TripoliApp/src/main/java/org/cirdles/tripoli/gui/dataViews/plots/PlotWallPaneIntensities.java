@@ -270,9 +270,12 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
             root.setStyle("-fx-background-color: linen");
 
             for (int speciesIndex = 0; speciesIndex < species.size(); ++speciesIndex) {
-                SpeciesColorPane pane = new SpeciesColorPane(species.get(speciesIndex).prettyPrintShortForm().trim(),
+                SpeciesColorPane pane = new SpeciesColorPane(speciesIndex,
+                        mapOfSpeciesToColors,
+                        species.get(speciesIndex).prettyPrintShortForm().trim(),
                         mapOfSpeciesToColors.get(speciesIndex),
-                        colorPicker);
+                        colorPicker,
+                        this);
                 root.getChildren().add(pane);
             }
 
@@ -282,14 +285,14 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
 
             Scene scene = new Scene(root);
             Stage stage = new Stage();
-            stage.setOnCloseRequest(closeRequest -> {
-                System.err.println("Trying to close window...");
-                for(int speciesIndex = 0; speciesIndex < species.size(); ++speciesIndex) {
-                    SpeciesColorPane pane = (SpeciesColorPane) root.getChildren().get(speciesIndex);
-                    mapOfSpeciesToColors.put(speciesIndex, pane.reportNewSpeciesColors());
-                }
-                rebuildPlot(true, true);
-            });
+//            stage.setOnCloseRequest(closeRequest -> {
+//                System.err.println("Trying to close window...");
+//                for(int speciesIndex = 0; speciesIndex < species.size(); ++speciesIndex) {
+//                    SpeciesColorPane pane = (SpeciesColorPane) root.getChildren().get(speciesIndex);
+//                    mapOfSpeciesToColors.put(speciesIndex, pane.reportNewSpeciesColors());
+//                }
+//                rebuildPlot(true, true);
+//            });
             stage.initModality(Modality.APPLICATION_MODAL);
 //            stage.setOnCloseRequest(closeRequestEvent -> {
 //
@@ -417,7 +420,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     }
 
 
-    private void rebuildPlot(boolean reScaleX, boolean reScaleY) {
+    public void rebuildPlot(boolean reScaleX, boolean reScaleY) {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
                 ((TripoliPlotPane) plotPane).updateSpeciesPlotted(
@@ -425,6 +428,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
             }
         }
     }
+
 
     private void resetZoom() {
         for (Node plotPane : getChildren()) {

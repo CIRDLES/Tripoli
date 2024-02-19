@@ -17,6 +17,7 @@ public class ColorRow extends HBox {
     private String hexColor;
     private Label colorPatch;
     private ColorPicker colorPickerReference;
+    private SpeciesColorPane speciesColorPaneReference;
 
     private static class ColorChangeListener implements ChangeListener<Color> {
 
@@ -24,17 +25,22 @@ public class ColorRow extends HBox {
         @Override
         public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
             currentRowReference.setHexColor(HexColorConverter.getHexColor(observable.getValue()));
+            currentRowReference.getSpeciesColorPaneReference().requestRebuildPlot();
             currentRowReference.getColorPatch().setStyle("-fx-background-color: " + currentRowReference.getHexColor());
         }
         public void setColorRow(ColorRow reference) {this.currentRowReference = reference;}
     }
     private static final ColorChangeListener colorChangeListener = new ColorChangeListener();
 
-    public ColorRow(DetectorPlotFlavor plotFlavor, String hexColor, ColorPicker colorPickerReference) {
+    public ColorRow(DetectorPlotFlavor plotFlavor,
+                    String hexColor,
+                    ColorPicker colorPickerReference,
+                    SpeciesColorPane speciesColorPaneReference) {
         super();
         this.plotFlavor = plotFlavor;
         this.hexColor = hexColor;
         this.colorPickerReference = colorPickerReference;
+        this.speciesColorPaneReference = speciesColorPaneReference;
         layoutElements();
         this.setPrefHeight(ROW_HEIGHT);
         this.setOnMouseClicked(event -> {
@@ -86,6 +92,10 @@ public class ColorRow extends HBox {
 
     public void setColorPickerReference(ColorPicker colorPickerReference) {
         this.colorPickerReference = colorPickerReference;
+    }
+
+    public SpeciesColorPane getSpeciesColorPaneReference() {
+        return speciesColorPaneReference;
     }
 
     public Label getColorPatch() {

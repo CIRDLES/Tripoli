@@ -6,7 +6,6 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.constants.TripoliConstants;
@@ -19,16 +18,27 @@ public class SpeciesColorPane extends Pane {
 
     private static final double TITLE_FONT_SIZE = 19;
 
+    private int speciesIndex;
     private String speciesName;
     private SpeciesColors speciesColors;
     private ColorPicker colorPickerReference;
+    private PlotWallPaneIntensities plotWallPaneReference;
+    private Map<Integer, SpeciesColors> mapOfSpeciesToColors;
     private VBox colorRowContainer;
 
-    public SpeciesColorPane(String speciesName, SpeciesColors speciesColors, ColorPicker colorPickerReference) {
+    public SpeciesColorPane(int speciesIndex,
+                            Map<Integer, SpeciesColors> mapOfSpeciesToColors,
+                            String speciesName,
+                            SpeciesColors speciesColors,
+                            ColorPicker colorPickerReference,
+                            PlotWallPaneIntensities plotWallPaneReference) {
         super();
+        this.speciesIndex = speciesIndex;
+        this.mapOfSpeciesToColors = mapOfSpeciesToColors;
         this.speciesName = speciesName;
         this.speciesColors = speciesColors;
         this.colorPickerReference = colorPickerReference;
+        this.plotWallPaneReference = plotWallPaneReference;
         VBox vBox = initializeAndAddVbox();
         vBox.getChildren().add(initializeAndAddHbox());
 
@@ -41,22 +51,26 @@ public class SpeciesColorPane extends Pane {
         colorRowContainer.getChildren().add(new ColorRow(
                 TripoliConstants.DetectorPlotFlavor.FARADAY_DATA,
                 speciesColors.faradayHexColor(),
-                this.colorPickerReference
+                this.colorPickerReference,
+                this
         ));
         colorRowContainer.getChildren().add(new ColorRow(
                 TripoliConstants.DetectorPlotFlavor.PM_DATA,
                 speciesColors.pmHexColor(),
-                this.colorPickerReference
+                this.colorPickerReference,
+                this
         ));
         colorRowContainer.getChildren().add(new ColorRow(
                 TripoliConstants.DetectorPlotFlavor.FARADAY_MODEL,
                 speciesColors.faradayModelHexColor(),
-                this.colorPickerReference
+                this.colorPickerReference,
+                this
         ));
         colorRowContainer.getChildren().add(new ColorRow(
                 TripoliConstants.DetectorPlotFlavor.PM_MODEL,
                 speciesColors.pmModelHexColor(),
-                this.colorPickerReference
+                this.colorPickerReference,
+                this
         ));
         return hBox;
     }
@@ -71,6 +85,10 @@ public class SpeciesColorPane extends Pane {
         return vBox;
     }
 
+    public void requestRebuildPlot() {
+        mapOfSpeciesToColors.put(speciesIndex, reportNewSpeciesColors());
+        plotWallPaneReference.rebuildPlot(false,false);
+    }
     public String getSpeciesName() {
         return speciesName;
     }
