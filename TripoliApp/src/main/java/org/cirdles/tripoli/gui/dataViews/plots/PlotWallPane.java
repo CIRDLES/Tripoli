@@ -21,8 +21,8 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
@@ -166,10 +166,6 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         plotLayoutStyle = ConstantsTripoliApp.PlotLayoutStyle.STACK;
     }
 
-    public void synchPlots() {
-
-    }
-
     public void repeatLayoutStyle() {
         switch (plotLayoutStyle) {
             case TILE -> tilePlots();
@@ -290,9 +286,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     }
 
     public void buildScaleControlsToolbar() {
-        Font commandFont = Font.font("Sansserif", FontWeight.BOLD, 12);
+        Font commandFont = Font.font("SansSerif", FontWeight.BOLD, 12);
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);
+        toolBar.setStyle(toolBar.getStyle() + ";-fx-background-color:LINEN");
         toolBar.setLayoutY(0.0);
 
         Button button0 = new Button("Restore Plots");
@@ -314,11 +311,6 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         stackButton.setFont(commandFont);
         stackButton.setOnAction(event -> stackPlots());
         toolBar.getItems().add(stackButton);
-
-        Button synchButton = new Button("Synch Plots");
-        synchButton.setFont(commandFont);
-        synchButton.setOnAction(event -> synchPlots());
-        toolBar.getItems().add(synchButton);
 
         Label labelMode = new Label("Mode:");
         labelMode.setFont(commandFont);

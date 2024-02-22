@@ -33,19 +33,19 @@ public class BlockAnalysisRatioCyclesBuilder extends PlotBuilder {
     public BlockAnalysisRatioCyclesBuilder() {
     }
 
-    private BlockAnalysisRatioCyclesBuilder(String plotTitle, List<BlockCyclesRecord> blockCyclesRecords, boolean isRatio) {
+    private BlockAnalysisRatioCyclesBuilder(String plotTitle, List<BlockCyclesRecord> blockCyclesRecords, boolean isRatio, boolean isInverted) {
         super(new String[]{plotTitle}, "NONE", "NONE", true);
-        analysisBlockCyclesRecord = generateAnalysisBlockCyclesRecord(blockCyclesRecords, isRatio);
+        analysisBlockCyclesRecord = generateAnalysisBlockCyclesRecord(blockCyclesRecords, isRatio, isInverted);
     }
 
     public static BlockAnalysisRatioCyclesBuilder initializeBlockAnalysisRatioCycles(
-            String plotTitle, List<BlockCyclesRecord> blockCyclesRecordsList, boolean isRatio) {
-        BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder = new BlockAnalysisRatioCyclesBuilder(plotTitle, blockCyclesRecordsList, isRatio);
+            String plotTitle, List<BlockCyclesRecord> blockCyclesRecordsList, boolean isRatio, boolean isInverted) {
+        BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder = new BlockAnalysisRatioCyclesBuilder(plotTitle, blockCyclesRecordsList, isRatio, isInverted);
 
         return blockAnalysisRatioCyclesBuilder;
     }
 
-    private AnalysisBlockCyclesRecord generateAnalysisBlockCyclesRecord(List<BlockCyclesRecord> blockCyclesRecordsList, boolean isRatio) {
+    private AnalysisBlockCyclesRecord generateAnalysisBlockCyclesRecord(List<BlockCyclesRecord> blockCyclesRecordsList, boolean isRatio, boolean isInverted) {
         Map<Integer, BlockCyclesRecord> mapBlockIdToBlockCyclesRecord = new TreeMap<>();
         int blockIndex = 0;
         for (BlockCyclesRecord blockCyclesRecord : blockCyclesRecordsList) {
@@ -61,7 +61,8 @@ public class BlockAnalysisRatioCyclesBuilder extends PlotBuilder {
                 mapBlockIdToBlockCyclesRecord,
                 blockCyclesRecordsList.get(0).cyclesIncluded().length,
                 title,
-                isRatio);
+                isRatio,
+                isInverted);
     }
 
     public AnalysisBlockCyclesRecord getBlockAnalysisRatioCyclesRecord() {

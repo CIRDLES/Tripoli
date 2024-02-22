@@ -123,12 +123,16 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
 
         yAxisData = new double[mapBlockIdToBlockCyclesRecord.size() * cyclesPerBlock];
         oneSigmaForCycles = new double[mapBlockIdToBlockCyclesRecord.size() * cyclesPerBlock];
-//        boolean doInvert = analysisBlockCyclesRecord.
+        boolean doInvert = analysisBlockCyclesRecord.isInverted() && analysisBlockCyclesRecord.isRatio();
         for (Map.Entry<Integer, BlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
             BlockCyclesRecord blockCyclesRecord = entry.getValue();
             if (blockCyclesRecord != null) {
                 int availableCyclesPerBlock = blockCyclesRecord.cycleMeansData().length;
-                System.arraycopy(blockCyclesRecord.cycleMeansData(), 0, yAxisData, (blockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+                if (doInvert){
+                    System.arraycopy(blockCyclesRecord.invertedCycleMeansData(), 0, yAxisData, (blockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+                } else {
+                    System.arraycopy(blockCyclesRecord.cycleMeansData(), 0, yAxisData, (blockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+                }
                 System.arraycopy(blockCyclesRecord.cycleOneSigmaData(), 0, oneSigmaForCycles, (blockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
             }
         }
@@ -190,7 +194,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
 
         g2d.setFill(Paint.valueOf("RED"));
         g2d.setFont(Font.font("SansSerif", 16));
-        String title = analysisBlockCyclesRecord.title()[0];
+        String title = analysisBlockCyclesRecord.updatedTitle()[0];
         if (isRatio && logScale) {
             title = "LogRatio " + title;
         }
@@ -669,22 +673,22 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
             BlockCyclesRecord blockCyclesRecord = entry.getValue();
             if (blockCyclesRecord != null) {
                 blockStatsRecords[arrayIndex] = BlockStatsRecord.generateBlockStatsRecord(
-                        entry.getKey(), blockCyclesRecord.blockIncluded(), isRatio, blockCyclesRecord.cycleMeansData(), blockCyclesRecord.cyclesIncluded());
+                        entry.getKey(), blockCyclesRecord.blockIncluded(), isRatio, analysisBlockCyclesRecord.isInverted(), blockCyclesRecord.cycleMeansData(), blockCyclesRecord.cyclesIncluded());
             }
             arrayIndex++;
         }
         analysisStatsRecord = AnalysisStatsRecord.generateAnalysisStatsRecord(blockStatsRecords);
 
-        // CYCLE MODE
-        DescriptiveStatistics descriptiveStatsIncludedCycles = new DescriptiveStatistics();
-        for (int i = 0; i < yAxisData.length; i++) {
-            int blockID = (i / mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length) + 1;
-            if (mapBlockIdToBlockCyclesRecord.get(blockID) != null) {
-                if (mapBlockIdToBlockCyclesRecord.get(blockID).blockIncluded() && (yAxisData[i] != 0)) {
-                    descriptiveStatsIncludedCycles.addValue(yAxisData[i]);
-                }
-            }
-        }
+//        // CYCLE MODE
+//        DescriptiveStatistics descriptiveStatsIncludedCycles = new DescriptiveStatistics();
+//        for (int i = 0; i < yAxisData.length; i++) {
+//            int blockID = (i / mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length) + 1;
+//            if (mapBlockIdToBlockCyclesRecord.get(blockID) != null) {
+//                if (mapBlockIdToBlockCyclesRecord.get(blockID).blockIncluded() && (yAxisData[i] != 0)) {
+//                    descriptiveStatsIncludedCycles.addValue(yAxisData[i]);
+//                }
+//            }
+//        }
 //        analysisMean = descriptiveStatsIncludedCycles.getMean();
 //
 //        analysisOneSigmaAbs = descriptiveStatsIncludedCycles.getStandardDeviation();

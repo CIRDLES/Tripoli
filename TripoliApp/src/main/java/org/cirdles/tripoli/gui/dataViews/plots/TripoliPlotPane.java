@@ -18,9 +18,15 @@ package org.cirdles.tripoli.gui.dataViews.plots;
 
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
+import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.ToolBar;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
@@ -34,7 +40,7 @@ import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.menuOffset;
 /**
  * @author James F. Bowring
  */
-public class TripoliPlotPane extends Pane {
+public class TripoliPlotPane extends BorderPane {
 
     public static double minPlotWidth = 175.0;
     public static double minPlotHeight = 100.0;
@@ -203,12 +209,39 @@ public class TripoliPlotPane extends Pane {
 
     public void addPlot(AbstractPlot plot) {
         this.plot = plot;
-        getChildren().add(plot);
+        Font buttonFont = Font.font("SansSerif", FontWeight.BOLD, 10);
 
-        plot.setLayoutX(0.0);
-        plot.setLayoutY(0.0);
-        plot.setWidthF(getWidth());
-        plot.setHeightF(getHeight());
+        Pane plotPane = new Pane();
+        plotPane.getChildren().add(plot);
+        setCenter(plotPane);
+
+        ToolBar toolBar = new ToolBar();
+        toolBar.setMinHeight(30);
+        toolBar.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+        toolBar.setStyle(toolBar.getStyle() + ";-fx-background-color:WHITE");
+
+        Button restoreButton = new Button("Restore");
+        restoreButton.setFont(buttonFont);
+        restoreButton.setOnAction(event -> restorePlot());
+        toolBar.getItems().add(restoreButton);
+
+        Button synchButton = new Button("Synch");
+        synchButton.setFont(buttonFont);
+        toolBar.getItems().add(synchButton);
+
+        Button ignoreDiscardsButton = new Button("Ignore Discards");
+        ignoreDiscardsButton.setFont(buttonFont);
+        toolBar.getItems().add(ignoreDiscardsButton);
+
+        Button chauvenetButton = new Button("Chauvenet");
+        chauvenetButton.setFont(buttonFont);
+        toolBar.getItems().add(chauvenetButton);
+
+        Button toggleStatsButton = new Button("Toggle Stats");
+        toggleStatsButton.setFont(buttonFont);
+        toolBar.getItems().add(toggleStatsButton);
+
+        setBottom(toolBar);
 
         plot.widthProperty().bind(widthProperty());
         widthProperty().addListener((observable, oldValue, newValue) -> {
@@ -217,9 +250,9 @@ public class TripoliPlotPane extends Pane {
             plot.repaint();
         });
 
-        plot.heightProperty().bind(prefHeightProperty());
+        plot.heightProperty().bind(heightProperty().subtract(30));
         heightProperty().addListener((observable, oldValue, newValue) -> {
-            plot.setHeightF(newValue.doubleValue());
+            plot.setHeightF(newValue.doubleValue()-30);
             plot.updatePlotSize();
             plot.repaint();
         });

@@ -34,7 +34,11 @@ public record AnalysisStatsRecord(
                 for (int cycleIndex = 0; cycleIndex < blockStatsRecords[i].cycleMeansData().length; cycleIndex++) {
                     if (blockStatsRecords[i].cyclesIncluded()[cycleIndex]) {
                         if (blockStatsRecords[0].isRatio()) {
-                            cycleModeDescriptiveStats.addValue(StrictMath.log(blockStatsRecords[i].cycleMeansData()[cycleIndex]));
+                            if (blockStatsRecords[0].isRatio() && blockStatsRecords[0].isInverted()) {
+                                cycleModeDescriptiveStats.addValue(-StrictMath.log(blockStatsRecords[i].cycleMeansData()[cycleIndex]));
+                            } else {
+                                cycleModeDescriptiveStats.addValue(StrictMath.log(blockStatsRecords[i].cycleMeansData()[cycleIndex]));
+                            }
                         } else {
                             cycleModeDescriptiveStats.addValue(blockStatsRecords[i].cycleMeansData()[cycleIndex]);
                         }
@@ -71,6 +75,8 @@ public record AnalysisStatsRecord(
                 cycleModeMean,
                 cycleModeVariance,
                 cycleModeStandardDeviation,
-                cycleModeStandardError, countOfTotalCycles, (int) cycleModeDescriptiveStats.getN());
+                cycleModeStandardError,
+                countOfTotalCycles,
+                (int) cycleModeDescriptiveStats.getN());
     }
 }

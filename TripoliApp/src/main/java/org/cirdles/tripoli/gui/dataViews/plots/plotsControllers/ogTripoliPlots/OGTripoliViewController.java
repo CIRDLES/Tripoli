@@ -158,7 +158,7 @@ public class OGTripoliViewController {
                             BlockAnalysisRatioCyclesBuilder.initializeBlockAnalysisRatioCycles(
                                     userFunction.getName(),
                                     blockCyclesRecords,
-                                    userFunction.isTreatAsIsotopicRatio());
+                                    userFunction.isTreatAsIsotopicRatio(), userFunction.isInverted());
                     AbstractPlot plot = AnalysisBlockCyclesPlot.generatePlot(
                             new Rectangle(minPlotWidth, minPlotHeight), blockAnalysisRatioCyclesBuilder.getBlockAnalysisRatioCyclesRecord(), (PlotWallPane) plotsWallPaneRatios);
 
@@ -213,7 +213,7 @@ public class OGTripoliViewController {
                     BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder =
                             BlockAnalysisRatioCyclesBuilder.initializeBlockAnalysisRatioCycles(
                                     isotopicRatio.prettyPrint(), blockCyclesRecords,
-                                    true);
+                                    true, false);
                     AbstractPlot plot = AnalysisBlockCyclesPlot.generatePlot(
                             new Rectangle(minPlotWidth, minPlotHeight), blockAnalysisRatioCyclesBuilder.getBlockAnalysisRatioCyclesRecord(), (PlotWallPane) plotsWallPaneRatios);
 

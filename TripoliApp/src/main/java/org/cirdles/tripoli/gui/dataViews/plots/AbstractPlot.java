@@ -90,7 +90,7 @@ public abstract class AbstractPlot extends Canvas {
     protected PlotBuilder plotBuilder;
     protected double yAxisTickSpread = 15.0;
 
-    private AbstractPlot() {
+    AbstractPlot() {
     }
 
     /**
