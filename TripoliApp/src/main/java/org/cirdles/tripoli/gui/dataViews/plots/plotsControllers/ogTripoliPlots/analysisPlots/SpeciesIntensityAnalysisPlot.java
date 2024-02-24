@@ -37,7 +37,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
     private final double[][] baseLine;
     private final Tooltip tooltip;
     private final String tooltipTextSculpt = "Double click to Sculpt selected Block.";
-    private final String tooltipTextExitSculpt = "Right Mouse to PAN, Double-click to EXIT Sculpting.";
+    private final String tooltipTextExitSculpt = "Right Mouse to PAN, Shift-click toggles block, Dbl-click to EXIT Sculpting.";
     TripoliConstants.IntensityUnits intensityUnits = TripoliConstants.IntensityUnits.COUNTS;
     private double[][] yData;
     private double[][] residuals;
@@ -635,15 +635,15 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                         zoomBoxX = mouseStartX;
                         zoomBoxY = mouseStartY;
                         refreshPanel(true, true);
-                        ((PlotWallPaneIntensities) getParent().getParent()).removeSculptingHBox();
+                        ((PlotWallPaneIntensities) getParent().getParent().getParent()).removeSculptingHBox();
                         tooltip.setText(tooltipTextSculpt);
                     } else {
                         inZoomBoxMode = false;
                         showZoomBox = false;
-                        ((PlotWallPaneIntensities) getParent().getParent()).removeSculptingHBox();
+                        ((PlotWallPaneIntensities) getParent().getParent().getParent()).removeSculptingHBox();
                         if (0 < Booleans.countTrue(speciesChecked)) {
                             sculptBlockID = determineSculptBlock(mouseEvent.getX());
-                            ((PlotWallPaneIntensities) getParent().getParent()).builtSculptingHBox(
+                            ((PlotWallPaneIntensities) getParent().getParent().getParent()).builtSculptingHBox(
                                     "Intensity Sculpting " + "  >> " + tooltipTextExitSculpt);
                             sculptBlock(mouseInBlockLabel(mouseEvent.getX(), mouseEvent.getY()));
                             tooltip.setText(tooltipTextExitSculpt);

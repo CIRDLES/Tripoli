@@ -24,7 +24,6 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneInterface;
@@ -128,7 +127,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
             BlockCyclesRecord blockCyclesRecord = entry.getValue();
             if (blockCyclesRecord != null) {
                 int availableCyclesPerBlock = blockCyclesRecord.cycleMeansData().length;
-                if (doInvert){
+                if (doInvert) {
                     System.arraycopy(blockCyclesRecord.invertedCycleMeansData(), 0, yAxisData, (blockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
                 } else {
                     System.arraycopy(blockCyclesRecord.cycleMeansData(), 0, yAxisData, (blockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);

@@ -12,9 +12,9 @@ public record AnalysisBlockCyclesRecord(
         boolean isRatio,
         boolean isInverted) implements Serializable {
 
-    public String[] updatedTitle(){
+    public String[] updatedTitle() {
         String[] retVal = title.clone();
-        if (isInverted && isRatio){
+        if (isInverted && isRatio) {
             String[] nameSplit = retVal[0].split("/");
             retVal[0] = nameSplit[1] + "/" + nameSplit[0];
         }

@@ -28,7 +28,7 @@ public record BlockStatsRecord(
         DescriptiveStatistics descriptiveStatisticsBlockStats = new DescriptiveStatistics();
         for (int i = 0; i < cycleMeansData.length; i++) {
             if (isRatio) {
-                if(isInverted){
+                if (isInverted) {
                     descriptiveStatisticsBlockStats.addValue(-StrictMath.log(cycleMeansData[i]));
                 } else {
                     descriptiveStatisticsBlockStats.addValue(StrictMath.log(cycleMeansData[i]));
