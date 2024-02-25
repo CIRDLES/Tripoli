@@ -50,7 +50,6 @@ public class MassSpecExtractedData implements Serializable {
     public void populateHeader(List<String[]> headerData) {
         String softwareVersion = "";
         String filename = "";
-//        String sampleName = "";
         String methodName = "";
         boolean isCorrected = false;
         boolean hasBChannels = false;
@@ -74,12 +73,6 @@ public class MassSpecExtractedData implements Serializable {
                 // Triton
                 case "DATA VERSION" -> softwareVersion = headerStrings[1].trim();
                 case "DATE" -> localDateTimeZero = headerStrings[1].trim();
-
-                // Nu
-                case "VERSION NUMBER" -> softwareVersion = headerStrings[1].trim();
-//                case "SAMPLE NAME" -> sampleName = headerStrings[1].trim();
-                case "ANALYSIS FILE NAME" -> filename = headerStrings[1].trim();
-                case "NUMBER OF MEASUREMENTS PER BLOCK" -> cyclesPerBlock = Integer.parseInt(headerStrings[1].trim());
             }
         }
         header = new MassSpecExtractedHeader(
@@ -108,14 +101,6 @@ public class MassSpecExtractedData implements Serializable {
             columnHeaders = new String[0];
         } else {
             columnHeaders = columnNames.get(0);
-        }
-    }
-
-    public void populateColumnNamesListNu(List<String> columnNames) {
-        if (columnNames.isEmpty()) {
-            columnHeaders = new String[0];
-        } else {
-            columnHeaders = columnNames.toArray(new String[0]);
         }
     }
 

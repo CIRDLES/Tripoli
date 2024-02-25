@@ -510,7 +510,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 ratioCheckBoxList.add(checkBoxRatio);
                 checkBoxRatio.setPrefWidth(175);
 
-                CheckBox checkBoxInvert = new CheckBox("Invert to: " + userFunction.showInvertedRatioName());
+                CheckBox checkBoxInvert = new CheckBox("Invert");
                 checkBoxInvert.setUserData(userFunction);
                 checkBoxInvert.setSelected(userFunction.isInverted());
                 checkBoxInvert.selectedProperty().addListener((observable, oldValue, newValue) -> {

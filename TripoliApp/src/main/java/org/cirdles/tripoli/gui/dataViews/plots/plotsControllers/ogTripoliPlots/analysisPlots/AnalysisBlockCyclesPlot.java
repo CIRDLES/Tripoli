@@ -123,7 +123,6 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
 
         yAxisData = new double[mapBlockIdToBlockCyclesRecord.size() * cyclesPerBlock];
         oneSigmaForCycles = new double[mapBlockIdToBlockCyclesRecord.size() * cyclesPerBlock];
-//        boolean doInvert = analysisBlockCyclesRecord.
         for (Map.Entry<Integer, BlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
             BlockCyclesRecord blockCyclesRecord = entry.getValue();
             if (blockCyclesRecord != null) {
@@ -244,11 +243,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
 
 
                     double chiSquared = analysisStatsRecord.blockModeChiSquared();
-                    if (Double.isNaN(chiSquared)) {
-                        twoSigString = "NaN";
-                    } else {
-                        twoSigString = ((chiSquared >= 10) ? "" : " ") + (new BigDecimal(chiSquared).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).toPlainString();
-                    }
+                    twoSigString = ((chiSquared >= 10) ? "" : " ") + (new BigDecimal(chiSquared).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).toPlainString();
                     g2d.fillText("\u03A7  =" + twoSigString, textLeft + 10, textTop += textDeltaY);
                     g2d.setFont(normalEight);
                     g2d.fillText("red", textLeft + 18, textTop + 6);
@@ -315,8 +310,8 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                         g2d.fillText("     " + sigmaMinusPctString, textLeft + 0, textTop += textDeltaY);
                     }
 
-                    int countIncluded = analysisStatsRecord.countOfIncludedCycles();
-                    g2d.fillText("n  = " + countIncluded + "/" + analysisStatsRecord.countOfTotalCycles(), textLeft + 10, textTop += textDeltaY);
+                    int countIncluded = analysisStatsRecord.countOfIncludedBlocks();
+                    g2d.fillText("n  = " + countIncluded + "/" + analysisStatsRecord.blockStatsRecords().length, textLeft + 10, textTop += textDeltaY);
 
                     boolean meanIsPlottable = (mapY(geoMean) >= topMargin) && (mapY(geoMean) <= topMargin + plotHeight);
                     if (meanIsPlottable) {
@@ -513,7 +508,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                     g2d.strokeLine(dataX, dataY, dataX, dataYplusSigma);
                     g2d.strokeLine(dataX, dataY, dataX, dataYminusSigma);
                 } else {
-                    g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
+                    g2d.strokeOval(dataX - 2.0, dataY - 2.0, 4, 4);
                 }
             }
         }

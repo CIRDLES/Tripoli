@@ -59,7 +59,7 @@ public class BlockAnalysisRatioCyclesBuilder extends PlotBuilder {
 
         return new AnalysisBlockCyclesRecord(
                 mapBlockIdToBlockCyclesRecord,
-                blockCyclesRecordsList.get(0).cyclesIncluded().length,
+                blockCyclesRecordsList.get(0).cyclesIncluded().length,//??? just included?
                 title,
                 isRatio);
     }
