@@ -43,6 +43,15 @@ public class UserFunction implements Serializable {
         return name;
     }
 
+    public String showInvertedRatioName() {
+        String retVal = name;
+        if (treatAsIsotopicRatio) {
+            String[] nameSplit = name.split("/");
+            retVal = nameSplit[1] + "/" + nameSplit[0];
+        }
+        return retVal;
+    }
+
     public int getColumnIndex() {
         return columnIndex;
     }

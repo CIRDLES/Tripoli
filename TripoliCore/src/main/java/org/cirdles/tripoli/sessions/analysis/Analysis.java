@@ -42,6 +42,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
+import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -88,6 +89,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<Integer, boolean[][]> mapOfBlockIdToIncludedPeakData = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, boolean[]> mapOfBlockIdToIncludedIntensities = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<IsotopicRatio, AnalysisRatioRecord> mapOfRatioToAnalysisRatioRecord = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
     private String analysisName;
     private String analystName;
     private String labName;
@@ -150,6 +152,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         mapOfBlockIdToRawData.clear();
         mapOfBlockIdToRawDataLiteOne.clear();
         mapOfBlockIdToFinalModel.clear();
+        mapOfSpeciesToColors.clear();
     }
 
     public void extractMassSpecDataFromPath(Path dataFilePath)
@@ -668,6 +671,10 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public Map<IsotopicRatio, AnalysisRatioRecord> getMapOfRatioToAnalysisRatioRecord() {
         return mapOfRatioToAnalysisRatioRecord;
+    }
+
+    public Map<Integer, SpeciesColors> getMapOfSpeciesToColors() {
+        return mapOfSpeciesToColors;
     }
 
     public void setAnalysisDalyFaradayGainMean(double analysisDalyFaradayGainMean) {

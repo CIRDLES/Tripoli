@@ -63,8 +63,7 @@ public enum ConstantsTripoliApp {
 
     public static enum PlotLayoutStyle {
         TILE(),
-        STACK(),
-        CASCADE();
+        STACK();
     }
 
 

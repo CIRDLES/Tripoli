@@ -69,6 +69,24 @@ public enum TripoliConstants {
     public static final String PLOT_TAB_CONVERGE = "Converge";
     public static final String PLOT_TAB_CONVERGE_INTENSITY = "Converge Intensity";
 
+    public static enum DetectorPlotFlavor {
+
+        PM_DATA("PM Data"),
+        PM_MODEL("PM Model"),
+        FARADAY_DATA("Faraday Data"),
+        FARADAY_MODEL("Faraday Model");
+
+        private final String name;
+
+        DetectorPlotFlavor(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+    }
 
     public static enum IntensityUnits {
         COUNTS(),

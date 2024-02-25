@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.constants;
 
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.nu.NuMassSpec;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixMassSpec;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.triton.TritonMassSpec;
 
@@ -38,6 +39,9 @@ public enum MassSpectrometerContextEnum {
     TRITON_EXP("Triton EXP", "Triton",
             "Triton Analysis Data Report",
             TritonMassSpec.class, "extractMetaAndBlockDataFromFileTriton", 1),
+    NUTIMS_TXT_CASE1("Nu TIMS", "NU",
+            "Version, Sample, Analysis, Number of measurements, Total, Number of answers, Caption",
+            NuMassSpec.class, "extractMetaAndBlockDataFromFileNu", 1),
     UNKNOWN("UNKNOWN", "UNKNOWN", "",
             null, "", 0);
 
