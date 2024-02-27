@@ -160,7 +160,7 @@ public class MassSpecExtractedData implements Serializable {
         return times;
     }
 
-    public int[] assignBlockIdToSessionTime() {
+    public int[] assignBlockIdToSessionTimeFull() {
         int totalSize = 0;
         for (MassSpecOutputBlockRecordFull blockRecord : blocksDataFull.values()) {
             totalSize += blockRecord.onPeakTimeStamps().length;
@@ -171,6 +171,21 @@ public class MassSpecExtractedData implements Serializable {
             double[] blockTimes = blockRecord.onPeakTimeStamps();
             Arrays.fill(blockIDs, totalSize, totalSize + blockTimes.length, blockRecord.blockID());
             totalSize += blockRecord.onPeakTimeStamps().length;
+        }
+        return blockIDs;
+    }
+
+    public int[] assignBlockIdToSessionTimeLite() {
+        int totalSize = 0;
+        for (MassSpecOutputBlockRecordLite blockRecord : blocksDataLite.values()) {
+            totalSize += blockRecord.timeStamps().length;
+        }
+        int[] blockIDs = new int[totalSize];
+        totalSize = 0;
+        for (MassSpecOutputBlockRecordLite blockRecord : blocksDataLite.values()) {
+            double[] blockTimes = blockRecord.timeStamps();
+            Arrays.fill(blockIDs, totalSize, totalSize + blockTimes.length, blockRecord.blockID());
+            totalSize += blockRecord.timeStamps().length;
         }
         return blockIDs;
     }

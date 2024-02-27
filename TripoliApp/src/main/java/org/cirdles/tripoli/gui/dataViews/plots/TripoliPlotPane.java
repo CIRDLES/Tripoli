@@ -16,11 +16,20 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.ToolBar;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
@@ -30,19 +39,23 @@ import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.gridCellDim;
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.menuOffset;
+import static org.cirdles.tripoli.sessions.analysis.Analysis.RUN;
 
 /**
  * @author James F. Bowring
  */
-public class TripoliPlotPane extends Pane {
+public class TripoliPlotPane extends BorderPane {
 
     public static double minPlotWidth = 175.0;
     public static double minPlotHeight = 100.0;
+    private double plotToolBarHeight = 0;
     static double mouseStartX;
     static double mouseStartY;
     static boolean onEdgeEast;
     static boolean onEdgeSouth;
     static boolean oneEdgesNorthWest;
+    private CheckBox cycleCB;
+    private CheckBoxChangeListener cycleCheckBoxChangeListener  = new CheckBoxChangeListener(cycleCB);
     private final EventHandler<MouseEvent> mouseMovedEventHandler = e -> {
         Pane targetPane = (Pane) e.getSource();
         targetPane.setCursor(Cursor.DEFAULT);
@@ -121,18 +134,20 @@ public class TripoliPlotPane extends Pane {
     };
     private PlotLocation plotLocation;
     private final EventHandler<MouseEvent> mouseClickedEventHandler = e -> {
-        if (e.isPrimaryButtonDown() && 1 == e.getClickCount()) {
-            mouseStartX = e.getSceneX();
-            mouseStartY = e.getSceneY();
-        }
-        if (e.isPrimaryButtonDown() && 2 == e.getClickCount()) {
-            if (plot instanceof SpeciesIntensityAnalysisPlot) {
-
-            } else {
-                toggleFullSize();
+        if (getPlot().mouseInHouse(e.getX(), e.getY())) {
+            if (e.isPrimaryButtonDown() && 1 == e.getClickCount()) {
+                mouseStartX = e.getSceneX();
+                mouseStartY = e.getSceneY();
             }
+            if (e.isSecondaryButtonDown() && 2 == e.getClickCount()) {
+                if (plot instanceof SpeciesIntensityAnalysisPlot) {
+
+                } else {
+                    toggleFullSize();
+                }
+            }
+            toFront();
         }
-        toFront();
     };
 
     private TripoliPlotPane(PlotWallPaneInterface plotWallPane) {
@@ -163,7 +178,7 @@ public class TripoliPlotPane extends Pane {
 
     private void updatePlot() {
         if (plot != null) {
-            plot.updatePlotSize(getPrefWidth(), getPrefHeight());
+            plot.updatePlotSize(getPrefWidth(), getPrefHeight() - plotToolBarHeight);
             plot.calculateTics();
         }
     }
@@ -203,12 +218,53 @@ public class TripoliPlotPane extends Pane {
 
     public void addPlot(AbstractPlot plot) {
         this.plot = plot;
-        getChildren().add(plot);
 
-        plot.setLayoutX(0.0);
-        plot.setLayoutY(0.0);
-        plot.setWidthF(getWidth());
-        plot.setHeightF(getHeight());
+        Pane plotPane = new Pane();
+        plotPane.getChildren().add(plot);
+        setCenter(plotPane);
+
+        boolean isBlockCyclesPlot = (plot instanceof AnalysisBlockCyclesPlot);
+        plotToolBarHeight = isBlockCyclesPlot ? 30 : 0;
+        if (isBlockCyclesPlot) {
+            Font toolBarFont = Font.font("SansSerif", FontWeight.BOLD, 10);
+
+            ToolBar plotToolBar = new ToolBar();
+            plotToolBar.setMinHeight(plotToolBarHeight);
+            plotToolBar.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+            plotToolBar.setStyle(plotToolBar.getStyle() + ";-fx-background-color:WHITE");
+
+            Button replotButton = new Button("Replot");
+            replotButton.setFont(toolBarFont);
+            replotButton.setOnAction(event -> replot());
+            plotToolBar.getItems().add(replotButton);
+
+            Button resetDataButton = new Button("Reset Data");
+            resetDataButton.setFont(toolBarFont);
+            resetDataButton.setOnAction(event -> resetData());
+            plotToolBar.getItems().add(resetDataButton);
+
+            Button chauvenetButton = new Button("Chauvenet");
+            chauvenetButton.setFont(toolBarFont);
+            plotToolBar.getItems().add(chauvenetButton);
+
+            Button toggleStatsButton = new Button("Toggle Stats");
+            toggleStatsButton.setFont(toolBarFont);
+            toggleStatsButton.setOnAction(event -> toggleShowStats());
+            plotToolBar.getItems().add(toggleStatsButton);
+
+            cycleCB = new CheckBox("Cycle");
+            plotToolBar.getItems().add(cycleCB);
+            cycleCB.selectedProperty().addListener(cycleCheckBoxChangeListener);
+
+            Button synchButton = new Button("SYNCH");
+            synchButton.setFont(toolBarFont);
+            synchButton.setOnAction(event -> synch());
+            plotToolBar.getItems().add(synchButton);
+
+
+
+            setBottom(plotToolBar);
+        }
 
         plot.widthProperty().bind(widthProperty());
         widthProperty().addListener((observable, oldValue, newValue) -> {
@@ -217,9 +273,9 @@ public class TripoliPlotPane extends Pane {
             plot.repaint();
         });
 
-        plot.heightProperty().bind(prefHeightProperty());
+        plot.heightProperty().bind(heightProperty().subtract(plotToolBarHeight));
         heightProperty().addListener((observable, oldValue, newValue) -> {
-            plot.setHeightF(newValue.doubleValue());
+            plot.setHeightF(newValue.doubleValue() - plotToolBarHeight);
             plot.updatePlotSize();
             plot.repaint();
         });
@@ -261,9 +317,32 @@ public class TripoliPlotPane extends Pane {
 
     }
 
-    public void restorePlot() {
+    public void replot() {
         if (plot != null) {
             plot.refreshPanel(true, true);
+        }
+    }
+
+    public void resetData() {
+        if (plot != null && (plot instanceof AnalysisBlockCyclesPlot)) {
+            ((AnalysisBlockCyclesPlot) plot).resetData();
+            plot.refreshPanel(true, true);
+        }
+    }
+
+    public void synch(){
+        for (Integer blockID : ((AnalysisBlockCyclesPlot)plot).getMapBlockIdToBlockCyclesRecord().keySet()){
+            boolean blockIncluded = ((AnalysisBlockCyclesPlot)plot).getMapBlockIdToBlockCyclesRecord().get(blockID).blockIncluded();
+            for (Node node : ((PlotWallPane)getParent()).getChildren()){
+                if ((node instanceof TripoliPlotPane) && (node != this)){
+                    AnalysisBlockCyclesPlot plot = ((AnalysisBlockCyclesPlot)((TripoliPlotPane)node).getPlot());
+                    plot.getMapBlockIdToBlockCyclesRecord().put(
+                            blockID,
+                            plot.getMapBlockIdToBlockCyclesRecord().get(blockID).changeBlockIncluded(blockIncluded));
+                    plot.getAnalysisBlockCyclesRecord().mapOfBlockIdToProcessStatus().put(blockID, RUN);
+                    plot.repaint();
+                }
+            }
         }
     }
 
@@ -288,7 +367,30 @@ public class TripoliPlotPane extends Pane {
         if (plot != null && (plot instanceof AnalysisBlockCyclesPlot)) {
             ((AnalysisBlockCyclesPlot) plot).setBlockMode(blockMode);
             ((AnalysisBlockCyclesPlot) plot).setLogScale(logScale);
+
+            cycleCB.selectedProperty().removeListener(cycleCheckBoxChangeListener);
+            cycleCB.setSelected(!blockMode);
+            cycleCB.selectedProperty().addListener(cycleCheckBoxChangeListener);
+
             plot.refreshPanel(reScaleX, reScaleY);
+        }
+    }
+
+    private class CheckBoxChangeListener implements ChangeListener<Boolean> {
+        private final CheckBox checkBox;
+
+        public CheckBoxChangeListener(CheckBox checkBox) {
+            this.checkBox = checkBox;
+        }
+
+        /**
+         * @param observable The {@code ObservableValue} which value changed
+         * @param oldValue   The old value
+         * @param newValue   The new value
+         */
+        @Override
+        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                updateAnalysisRatiosPlotted(!newValue, false, false, true);
         }
     }
 

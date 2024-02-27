@@ -6,7 +6,7 @@ public record BlockStatsRecord(
         int blockID,
         boolean blockIncluded,
         boolean isRatio,
-        double[] cycleMeansData,
+        boolean isInverted, double[] cycleMeansData,
         boolean[] cyclesIncluded,
         double mean,
         double variance,
@@ -20,14 +20,19 @@ public record BlockStatsRecord(
      * @param blockID
      * @param blockIncluded
      * @param isRatio
-     * @param data
+     * @param isInverted
+     * @param cycleMeansData
      * @return
      */
-    public static BlockStatsRecord generateBlockStatsRecord(int blockID, boolean blockIncluded, boolean isRatio, double[] cycleMeansData, boolean[] cyclesIncluded) {
+    public static BlockStatsRecord generateBlockStatsRecord(int blockID, boolean blockIncluded, boolean isRatio, boolean isInverted, double[] cycleMeansData, boolean[] cyclesIncluded) {
         DescriptiveStatistics descriptiveStatisticsBlockStats = new DescriptiveStatistics();
         for (int i = 0; i < cycleMeansData.length; i++) {
             if (isRatio) {
-                descriptiveStatisticsBlockStats.addValue(StrictMath.log(cycleMeansData[i]));
+                if (isInverted) {
+                    descriptiveStatisticsBlockStats.addValue(-StrictMath.log(cycleMeansData[i]));
+                } else {
+                    descriptiveStatisticsBlockStats.addValue(StrictMath.log(cycleMeansData[i]));
+                }
             } else {
                 descriptiveStatisticsBlockStats.addValue(cycleMeansData[i]);
             }
@@ -41,6 +46,7 @@ public record BlockStatsRecord(
                 blockID,
                 blockIncluded,
                 isRatio,
+                isInverted,
                 cycleMeansData,
                 cyclesIncluded,
                 mean,

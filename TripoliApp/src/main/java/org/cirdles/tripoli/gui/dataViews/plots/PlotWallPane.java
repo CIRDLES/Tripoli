@@ -29,13 +29,19 @@ import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlot;
+import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.cirdles.tripoli.Tripoli.TRIPOLI_RESOURCE_EXTRACTOR;
 import static org.cirdles.tripoli.constants.TripoliConstants.*;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.BlockEnsemblesPlotter.blockEnsemblePlotEngine;
 
@@ -166,10 +172,6 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         plotLayoutStyle = ConstantsTripoliApp.PlotLayoutStyle.STACK;
     }
 
-    public void synchPlots() {
-
-    }
-
     public void repeatLayoutStyle() {
         switch (plotLayoutStyle) {
             case TILE -> tilePlots();
@@ -177,10 +179,18 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         }
     }
 
-    public void restoreAllPlots() {
+    public void replotAll() {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
-                ((TripoliPlotPane) plotPane).restorePlot();
+                ((TripoliPlotPane) plotPane).replot();
+            }
+        }
+    }
+
+    public void resetDataAll() {
+        for (Node plotPane : getChildren()) {
+            if (plotPane instanceof TripoliPlotPane) {
+                ((TripoliPlotPane) plotPane).resetData();
             }
         }
     }
@@ -252,7 +262,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         toolBar.setPrefHeight(toolBarHeight);
 
         Button restoreButton = new Button("Restore Plots");
-        restoreButton.setOnAction(event -> restoreAllPlots());
+        restoreButton.setOnAction(event -> replotAll());
         toolBar.getItems().add(restoreButton);
 
         if ((0 != iD.compareToIgnoreCase(PLOT_TAB_CONVERGE))
@@ -290,20 +300,39 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     }
 
     public void buildScaleControlsToolbar() {
-        Font commandFont = Font.font("Sansserif", FontWeight.BOLD, 12);
+        Font commandFont = Font.font("SansSerif", FontWeight.BOLD, 12);
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);
+        toolBar.setStyle(toolBar.getStyle() + ";-fx-background-color:LINEN");
         toolBar.setLayoutY(0.0);
 
-        Button button0 = new Button("Restore Plots");
-        button0.setFont(commandFont);
-        button0.setOnAction(event -> restoreAllPlots());
-        toolBar.getItems().add(button0);
+        Button infoButton = new Button("?");
+        infoButton.setFont(commandFont);
+        infoButton.setOnAction(event -> {
+            Path resourcePath = TRIPOLI_RESOURCE_EXTRACTOR.extractResourceAsPath("docs/ogTripoliHelp.md");
+            BrowserControl.showURI(resourcePath.toString());
+        });
+        toolBar.getItems().add(infoButton);
 
-        Button button1 = new Button("Toggle Stats");
-        button1.setFont(commandFont);
-        button1.setOnAction(event -> toggleShowStatsAllPlots());
-        toolBar.getItems().add(button1);
+        Button replotAllButton = new Button("Replot All");
+        replotAllButton.setFont(commandFont);
+        replotAllButton.setOnAction(event -> replotAll());
+        toolBar.getItems().add(replotAllButton);
+
+        Button resetAllDataButton = new Button("Reset All Data");
+        resetAllDataButton.setFont(commandFont);
+        resetAllDataButton.setOnAction(event -> resetDataAll());
+        toolBar.getItems().add(resetAllDataButton);
+
+        Button chauvenetButton = new Button("Chauvenet");
+        chauvenetButton.setFont(commandFont);
+//        chauvenetButton.setOnAction(event -> replotAll());
+        toolBar.getItems().add(chauvenetButton);
+
+        Button toggleStatsButton = new Button("Toggle Stats");
+        toggleStatsButton.setFont(commandFont);
+        toggleStatsButton.setOnAction(event -> toggleShowStatsAllPlots());
+        toolBar.getItems().add(toggleStatsButton);
 
         Button tileButton = new Button("Tile Plots");
         tileButton.setFont(commandFont);
@@ -314,11 +343,6 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         stackButton.setFont(commandFont);
         stackButton.setOnAction(event -> stackPlots());
         toolBar.getItems().add(stackButton);
-
-        Button synchButton = new Button("Synch Plots");
-        synchButton.setFont(commandFont);
-        synchButton.setOnAction(event -> synchPlots());
-        toolBar.getItems().add(synchButton);
 
         Label labelMode = new Label("Mode:");
         labelMode.setFont(commandFont);

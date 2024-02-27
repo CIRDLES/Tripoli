@@ -31,4 +31,28 @@ public record BlockCyclesRecord(
                 title
         );
     }
+
+    public BlockCyclesRecord setBlockIncluded() {
+        return new BlockCyclesRecord(
+                blockID,
+                processed,
+                true,
+                cyclesIncluded,
+                cycleMeansData,
+                cycleOneSigmaData,
+                title
+        );
+    }
+
+    public BlockCyclesRecord changeBlockIncluded(boolean blockIncluded) {
+        return new BlockCyclesRecord(
+                blockID,
+                processed,
+                blockIncluded,
+                cyclesIncluded,
+                cycleMeansData,
+                cycleOneSigmaData,
+                title
+        );
+    }
 }
