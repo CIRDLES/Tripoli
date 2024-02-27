@@ -23,6 +23,8 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourcePr
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 
+import static org.cirdles.tripoli.sessions.analysis.Analysis.RUN;
+
 /**
  * @author James F. Bowring
  */
@@ -47,7 +49,7 @@ public class AllBlockInitForDataLiteOne {
     private static SingleBlockRawDataLiteOneSetRecord prepareSingleBlockDataLiteCaseOne(int blockID, MassSpecExtractedData massSpecExtractedData) {
         MassSpecOutputBlockRecordLite massSpecOutputBlockRecordLite = massSpecExtractedData.getBlocksDataLite().get(blockID);
         SingleBlockRawDataLiteOneSetRecord singleBlockRawDataLiteOneSetRecord = new SingleBlockRawDataLiteOneSetRecord(
-                blockID, massSpecOutputBlockRecordLite.cycleNumbers().length, massSpecOutputBlockRecordLite.cycleData()
+                blockID, true, massSpecOutputBlockRecordLite.cycleNumbers().length, massSpecOutputBlockRecordLite.cycleData()
         );
 
         return singleBlockRawDataLiteOneSetRecord;

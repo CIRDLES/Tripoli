@@ -359,7 +359,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
             convergeIntensityPlotsWallPane.repeatLayoutStyle();
             ensemblePlotsWallPane.repeatLayoutStyle();
             dataFitPlotsWallPane.repeatLayoutStyle();
-            peakShapeOverlayPlotWallPane.restoreAllPlots();
+            peakShapeOverlayPlotWallPane.replotAll();
         });
         plotTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
             convergePlotsWallPane.repeatLayoutStyle();
@@ -573,7 +573,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
     public void convergeTabSelected(Event event) {
         Tab tab = (Tab) event.getSource();
         if (tab.isSelected() && !((AnchorPane) tab.getContent()).getChildren().isEmpty()) {
-            ((PlotWallPane) ((AnchorPane) tab.getContent()).getChildren().get(0)).restoreAllPlots();
+            ((PlotWallPane) ((AnchorPane) tab.getContent()).getChildren().get(0)).replotAll();
         }
     }
 

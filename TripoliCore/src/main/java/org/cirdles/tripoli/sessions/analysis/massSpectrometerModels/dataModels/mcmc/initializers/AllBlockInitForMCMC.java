@@ -26,6 +26,8 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.ojalgo.RecoverableCondition;
 
+import java.io.Serializable;
+
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver.prepareSingleBlockDataForMCMC;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.SingleBlockModelInitForMCMC.initializeModelForSingleBlockMCMC;
 
@@ -70,6 +72,6 @@ public class AllBlockInitForMCMC {
             SingleBlockRawDataLiteOneSetRecord[] singleBlockRawDataLiteOneSetRecords,
             int cycleCount,
             boolean preview,
-            int analysisCaseNumber) {
+            int analysisCaseNumber) implements Serializable {
     }
 }

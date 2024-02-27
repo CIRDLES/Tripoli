@@ -140,12 +140,14 @@ public class OGTripoliViewController {
                     for (int blockIndex = 0; blockIndex < singleBlockRawDataLiteOneSetRecords.length; blockIndex++) {
                         if (null != singleBlockRawDataLiteOneSetRecords[blockIndex]) {
                             Integer blockID = singleBlockRawDataLiteOneSetRecords[blockIndex].blockID();
-                            int blockStatus = 0;//analysis.getMapOfBlockIdToProcessStatus().get(blockID);
+                            int blockStatus = analysis.getMapOfBlockIdToProcessStatus().get(blockID);
                             boolean processed = (null != analysis.getMapOfBlockIdToPlots().get(blockID));
                             blockCyclesRecords.add(BlockCyclesBuilder.initializeBlockCycles(
                                     blockID,
-                                    SKIP != blockStatus, processed,
-                                    DUMMY_CYCLES_INCLUDED, singleBlockRawDataLiteOneSetRecords[blockIndex].assembleCycleMeansForUserFunction(userFunction),
+                                    SKIP != blockStatus,
+                                    processed,
+                                    DUMMY_CYCLES_INCLUDED,
+                                    singleBlockRawDataLiteOneSetRecords[blockIndex].assembleCycleMeansForUserFunction(userFunction),
                                     singleBlockRawDataLiteOneSetRecords[blockIndex].assembleCycleStdDevForUserFunction(userFunction),
                                     new String[]{userFunction.getName()},
                                     true,
@@ -158,7 +160,10 @@ public class OGTripoliViewController {
                             BlockAnalysisRatioCyclesBuilder.initializeBlockAnalysisRatioCycles(
                                     userFunction.getName(),
                                     blockCyclesRecords,
-                                    userFunction.isTreatAsIsotopicRatio(), userFunction.isInverted());
+                                    analysis.getMapOfBlockIdToProcessStatus(),
+                                    analysis.getMassSpecExtractedData().assignBlockIdToSessionTimeLite(),
+                                    userFunction.isTreatAsIsotopicRatio(),
+                                    userFunction.isInverted());
                     AbstractPlot plot = AnalysisBlockCyclesPlot.generatePlot(
                             new Rectangle(minPlotWidth, minPlotHeight), blockAnalysisRatioCyclesBuilder.getBlockAnalysisRatioCyclesRecord(), (PlotWallPane) plotsWallPaneRatios);
 
@@ -200,8 +205,10 @@ public class OGTripoliViewController {
                             boolean processed = (null != analysis.getMapOfBlockIdToPlots().get(blockID));
                             blockCyclesRecords.add(BlockCyclesBuilder.initializeBlockCycles(
                                     blockID,
-                                    SKIP != blockStatus, processed,
-                                    DUMMY_CYCLES_INCLUDED, singleBlockModelRecords[blockIndex].assembleCycleMeansForRatio(isotopicRatio),
+                                    SKIP != blockStatus,
+                                    processed,
+                                    DUMMY_CYCLES_INCLUDED,
+                                    singleBlockModelRecords[blockIndex].assembleCycleMeansForRatio(isotopicRatio),
                                     singleBlockModelRecords[blockIndex].assembleCycleStdDevForRatio(isotopicRatio),
                                     new String[]{isotopicRatio.prettyPrint()},
                                     true,
@@ -213,7 +220,10 @@ public class OGTripoliViewController {
                     BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder =
                             BlockAnalysisRatioCyclesBuilder.initializeBlockAnalysisRatioCycles(
                                     isotopicRatio.prettyPrint(), blockCyclesRecords,
-                                    true, false);
+                                    analysis.getMapOfBlockIdToProcessStatus(),
+                                    analysis.getMassSpecExtractedData().assignBlockIdToSessionTimeLite(),
+                                    true,
+                                    false);
                     AbstractPlot plot = AnalysisBlockCyclesPlot.generatePlot(
                             new Rectangle(minPlotWidth, minPlotHeight), blockAnalysisRatioCyclesBuilder.getBlockAnalysisRatioCyclesRecord(), (PlotWallPane) plotsWallPaneRatios);
 
@@ -268,7 +278,7 @@ public class OGTripoliViewController {
 
         // x-axis = time
         double[] xAxis = analysis.getMassSpecExtractedData().calculateSessionTimes();
-        int[] xAxisBlockIDs = analysis.getMassSpecExtractedData().assignBlockIdToSessionTime();
+        int[] xAxisBlockIDs = analysis.getMassSpecExtractedData().assignBlockIdToSessionTimeFull();
 
         // alternating faraday, model, pm, and model rows (4-tuple for each species)
 

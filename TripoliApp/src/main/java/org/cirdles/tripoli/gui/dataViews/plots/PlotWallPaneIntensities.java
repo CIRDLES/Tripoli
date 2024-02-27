@@ -268,9 +268,9 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         Button restoreButton = new Button("Restore Plot");
 
         restoreButton.setOnAction(event -> {
-            if (((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).isInSculptorMode()) {
-                ((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).setInSculptorMode(false);
-                ((SpeciesIntensityAnalysisPlot) ((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getChildren().get(0)).sculptBlock(false);
+            if (((SpeciesIntensityAnalysisPlot) ((Pane)((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getCenter()).getChildren().get(0)).isInSculptorMode()) {
+                ((SpeciesIntensityAnalysisPlot) ((Pane)((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getCenter()).getChildren().get(0)).setInSculptorMode(false);
+                ((SpeciesIntensityAnalysisPlot) ((Pane)((TripoliPlotPane) getChildren().get(getChildren().size() - 1)).getCenter()).getChildren().get(0)).sculptBlock(false);
             } else {
                 rebuildPlot(true, true);
             }

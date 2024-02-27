@@ -27,25 +27,22 @@ import java.util.TreeMap;
  * @author James F. Bowring
  */
 public class BlockAnalysisRatioCyclesBuilder extends PlotBuilder {
-    private AnalysisBlockCyclesRecord analysisBlockCyclesRecord;
+    private AnalysisBlockCyclesRecord analysisBlockCyclesRecord = null;
 
-
-    public BlockAnalysisRatioCyclesBuilder() {
-    }
-
-    private BlockAnalysisRatioCyclesBuilder(String plotTitle, List<BlockCyclesRecord> blockCyclesRecords, boolean isRatio, boolean isInverted) {
+    private BlockAnalysisRatioCyclesBuilder(String plotTitle, Map<Integer, Integer> mapOfBlockIdToProcessStatus, List<BlockCyclesRecord> blockCyclesRecords, boolean isRatio, boolean isInverted, int[] xAxisBlockIDs) {
         super(new String[]{plotTitle}, "NONE", "NONE", true);
-        analysisBlockCyclesRecord = generateAnalysisBlockCyclesRecord(blockCyclesRecords, isRatio, isInverted);
+        analysisBlockCyclesRecord = generateAnalysisBlockCyclesRecord(blockCyclesRecords, mapOfBlockIdToProcessStatus, xAxisBlockIDs, isRatio, isInverted);
     }
 
     public static BlockAnalysisRatioCyclesBuilder initializeBlockAnalysisRatioCycles(
-            String plotTitle, List<BlockCyclesRecord> blockCyclesRecordsList, boolean isRatio, boolean isInverted) {
-        BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder = new BlockAnalysisRatioCyclesBuilder(plotTitle, blockCyclesRecordsList, isRatio, isInverted);
+            String plotTitle, List<BlockCyclesRecord> blockCyclesRecordsList, Map<Integer, Integer> mapOfBlockIdToProcessStatus, int[] xAxisBlockIDs, boolean isRatio, boolean isInverted) {
+        BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder =
+                new BlockAnalysisRatioCyclesBuilder(plotTitle, mapOfBlockIdToProcessStatus, blockCyclesRecordsList, isRatio, isInverted, xAxisBlockIDs);
 
         return blockAnalysisRatioCyclesBuilder;
     }
 
-    private AnalysisBlockCyclesRecord generateAnalysisBlockCyclesRecord(List<BlockCyclesRecord> blockCyclesRecordsList, boolean isRatio, boolean isInverted) {
+    private AnalysisBlockCyclesRecord generateAnalysisBlockCyclesRecord(List<BlockCyclesRecord> blockCyclesRecordsList, Map<Integer, Integer> mapOfBlockIdToProcessStatus, int[] xAxisBlockIDs, boolean isRatio, boolean isInverted) {
         Map<Integer, BlockCyclesRecord> mapBlockIdToBlockCyclesRecord = new TreeMap<>();
         int blockIndex = 0;
         for (BlockCyclesRecord blockCyclesRecord : blockCyclesRecordsList) {
@@ -59,7 +56,9 @@ public class BlockAnalysisRatioCyclesBuilder extends PlotBuilder {
 
         return new AnalysisBlockCyclesRecord(
                 mapBlockIdToBlockCyclesRecord,
+                mapOfBlockIdToProcessStatus,
                 blockCyclesRecordsList.get(0).cyclesIncluded().length,
+                xAxisBlockIDs,
                 title,
                 isRatio,
                 isInverted);

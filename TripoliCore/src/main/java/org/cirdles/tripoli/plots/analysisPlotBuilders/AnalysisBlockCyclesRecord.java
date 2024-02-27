@@ -7,7 +7,9 @@ import java.util.Map;
 
 public record AnalysisBlockCyclesRecord(
         Map<Integer, BlockCyclesRecord> mapBlockIdToBlockCyclesRecord,
+        Map<Integer, Integer> mapOfBlockIdToProcessStatus,
         int cyclesPerBlock,
+        int[] xAxisBlockIDs,
         String[] title,
         boolean isRatio,
         boolean isInverted) implements Serializable {
