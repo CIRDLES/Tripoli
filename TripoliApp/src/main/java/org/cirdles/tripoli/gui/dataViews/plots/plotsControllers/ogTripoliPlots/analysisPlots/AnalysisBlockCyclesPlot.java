@@ -263,7 +263,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                     } else {
                         twoSigString = ((chiSquared >= 10) ? "" : " ") + (new BigDecimal(chiSquared).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).toPlainString();
                     }
-                    g2d.fillText("\u03A7  =" + twoSigString, textLeft + 10, textTop += textDeltaY);
+                    g2d.fillText("\u03C7  =" + twoSigString, textLeft + 10, textTop += textDeltaY);
                     g2d.setFont(normalEight);
                     g2d.fillText("red", textLeft + 18, textTop + 6);
                     g2d.fillText("2", textLeft + 20, textTop - 8);
@@ -386,7 +386,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                     if (countOfTrailingDigitsForSigFig == 0) {
                         twoSigString = Strings.padStart(twoSigString.trim(), twoSigStringMean.length() + 1, ' ');
                     }
-                    g2d.fillText("\u03A7  =" + twoSigString, textLeft + 10, textTop += textDeltaY);
+                    g2d.fillText("\u03C7  =" + twoSigString, textLeft + 10, textTop += textDeltaY);
                     g2d.setFont(normalEight);
                     g2d.fillText("red", textLeft + 18, textTop + 6);
                     g2d.fillText("2", textLeft + 20, textTop - 8);
