@@ -48,14 +48,11 @@ public class TripoliPlotPane extends BorderPane {
 
     public static double minPlotWidth = 175.0;
     public static double minPlotHeight = 100.0;
-    private double plotToolBarHeight = 0;
     static double mouseStartX;
     static double mouseStartY;
     static boolean onEdgeEast;
     static boolean onEdgeSouth;
     static boolean oneEdgesNorthWest;
-    private CheckBox cycleCB;
-    private CheckBoxChangeListener cycleCheckBoxChangeListener  = new CheckBoxChangeListener(cycleCB);
     private final EventHandler<MouseEvent> mouseMovedEventHandler = e -> {
         Pane targetPane = (Pane) e.getSource();
         targetPane.setCursor(Cursor.DEFAULT);
@@ -85,6 +82,9 @@ public class TripoliPlotPane extends BorderPane {
             targetPane.setCursor(Cursor.OPEN_HAND);
         }
     };
+    private double plotToolBarHeight = 0;
+    private CheckBox cycleCB;
+    private CheckBoxChangeListener cycleCheckBoxChangeListener = new CheckBoxChangeListener(cycleCB);
     private PlotWallPaneInterface plotWallPane;
     private AbstractPlot plot;
     private final EventHandler<MouseEvent> mouseReleasedEventHandler = e -> {
@@ -262,7 +262,6 @@ public class TripoliPlotPane extends BorderPane {
             plotToolBar.getItems().add(synchButton);
 
 
-
             setBottom(plotToolBar);
         }
 
@@ -330,12 +329,12 @@ public class TripoliPlotPane extends BorderPane {
         }
     }
 
-    public void synch(){
-        for (Integer blockID : ((AnalysisBlockCyclesPlot)plot).getMapBlockIdToBlockCyclesRecord().keySet()){
-            boolean blockIncluded = ((AnalysisBlockCyclesPlot)plot).getMapBlockIdToBlockCyclesRecord().get(blockID).blockIncluded();
-            for (Node node : ((PlotWallPane)getParent()).getChildren()){
-                if ((node instanceof TripoliPlotPane) && (node != this)){
-                    AnalysisBlockCyclesPlot plot = ((AnalysisBlockCyclesPlot)((TripoliPlotPane)node).getPlot());
+    public void synch() {
+        for (Integer blockID : ((AnalysisBlockCyclesPlot) plot).getMapBlockIdToBlockCyclesRecord().keySet()) {
+            boolean blockIncluded = ((AnalysisBlockCyclesPlot) plot).getMapBlockIdToBlockCyclesRecord().get(blockID).blockIncluded();
+            for (Node node : ((PlotWallPane) getParent()).getChildren()) {
+                if ((node instanceof TripoliPlotPane) && (node != this)) {
+                    AnalysisBlockCyclesPlot plot = ((AnalysisBlockCyclesPlot) ((TripoliPlotPane) node).getPlot());
                     plot.getMapBlockIdToBlockCyclesRecord().put(
                             blockID,
                             plot.getMapBlockIdToBlockCyclesRecord().get(blockID).changeBlockIncluded(blockIncluded));
@@ -376,24 +375,6 @@ public class TripoliPlotPane extends BorderPane {
         }
     }
 
-    private class CheckBoxChangeListener implements ChangeListener<Boolean> {
-        private final CheckBox checkBox;
-
-        public CheckBoxChangeListener(CheckBox checkBox) {
-            this.checkBox = checkBox;
-        }
-
-        /**
-         * @param observable The {@code ObservableValue} which value changed
-         * @param oldValue   The old value
-         * @param newValue   The new value
-         */
-        @Override
-        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                updateAnalysisRatiosPlotted(!newValue, false, false, true);
-        }
-    }
-
     public void resetAnalysisIntensityZoom(boolean[] zoomFlagsXY) {
         ((SpeciesIntensityAnalysisPlot) plot).setZoomFlagsXY(zoomFlagsXY);
     }
@@ -408,5 +389,23 @@ public class TripoliPlotPane extends BorderPane {
             double w,
             double h
     ) {
+    }
+
+    private class CheckBoxChangeListener implements ChangeListener<Boolean> {
+        private final CheckBox checkBox;
+
+        public CheckBoxChangeListener(CheckBox checkBox) {
+            this.checkBox = checkBox;
+        }
+
+        /**
+         * @param observable The {@code ObservableValue} which value changed
+         * @param oldValue   The old value
+         * @param newValue   The new value
+         */
+        @Override
+        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+            updateAnalysisRatiosPlotted(!newValue, false, false, true);
+        }
     }
 }

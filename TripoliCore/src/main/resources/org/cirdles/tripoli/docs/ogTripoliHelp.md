@@ -8,7 +8,7 @@ Zooming:
          one plot  -> scroll
          all plots -> control + scroll
 
-Panning: 
+Panning:
 
          one plot  -> right mouse
          all plots -> control + right mouse
@@ -24,13 +24,13 @@ Toggle full view:
 
 FUTURE FEATURES: ============================================
 
-Zoom Box: 
+Zoom Box:
 
           one plot  -> draw with left mouse
           all plots -> draw with shift + left mouse
 
 Data Sculpting mode of one plot -> double click left mouse
 
-Sculpt data with selection box  -> draw with left mouse
+Sculpt data with selection box -> draw with left mouse
 
 Sculpting can be applied to all plots with the SYNCH button.

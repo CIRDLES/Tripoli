@@ -20,13 +20,10 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
 import javafx.event.EventHandler;
-import javafx.geometry.Side;
-import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
@@ -186,7 +183,7 @@ public abstract class AbstractPlot extends Canvas {
         addEventFilter(MouseEvent.MOUSE_DRAGGED, mouseDraggedEventHandler);
 
         EventHandler<MouseEvent> mousePressedEventHandler = e -> {
-            if (mouseInHouse(e.getX(), e.getY())){// && e.isPrimaryButtonDown()) {
+            if (mouseInHouse(e.getX(), e.getY())) {// && e.isPrimaryButtonDown()) {
                 if (e.getSource() instanceof AnalysisBlockCyclesPlot) {
                     AnalysisBlockCyclesPlot sourceAnalysisBlockCyclesPlot = (AnalysisBlockCyclesPlot) e.getSource();
                     ((PlotWallPane) sourceAnalysisBlockCyclesPlot.getParentWallPane()).synchronizeMouseStartsOnPress(e.getX(), e.getY());
@@ -650,11 +647,11 @@ public abstract class AbstractPlot extends Canvas {
         repaint();
     }
 
-    private void reCalcDisplayOffsetX(){
-        if(getDisplayMaxX() > xAxisData[xAxisData.length - 1]){
+    private void reCalcDisplayOffsetX() {
+        if (getDisplayMaxX() > xAxisData[xAxisData.length - 1]) {
             displayOffsetX -= (getDisplayMaxX() - xAxisData[xAxisData.length - 1]);
         }
-        if(getDisplayMinX() < xAxisData[0]){
+        if (getDisplayMinX() < xAxisData[0]) {
             displayOffsetX -= (getDisplayMinX() - xAxisData[0]);
         }
     }

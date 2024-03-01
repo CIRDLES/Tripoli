@@ -444,7 +444,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                     meanSigned = (cycleModeMean < 0) ? "  " : " ";
                     String twoSigStringMean = " " + (new BigDecimal(cycleModeMean).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).toPlainString();
                     String checkForTrailingZero = String.format("%,1." + countOfTrailingDigitsForSigFig + "f", Double.parseDouble(twoSigStringMean));
-                    if (checkForTrailingZero.substring(checkForTrailingZero.length() - 1).compareTo("0") == 0){
+                    if (checkForTrailingZero.substring(checkForTrailingZero.length() - 1).compareTo("0") == 0) {
                         twoSigStringMean += "0";
                     }
                     g2d.fillText("x\u0304  = " + twoSigStringMean, textLeft + 10, textTop += textDeltaY);
@@ -500,7 +500,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
         g2d.fillText("x\u0304", textLeft + 95, textTop + 2.9 * textDeltaY + 12);
     }
 
-    private String appendTrailingZeroIfNeeded(String valueString, int countOfTrailingDigits){
+    private String appendTrailingZeroIfNeeded(String valueString, int countOfTrailingDigits) {
         String retVal = valueString;
         if (!valueString.isBlank()) {
             String checkForTrailingZero = String.format("%,1." + countOfTrailingDigits + "f", Double.parseDouble(valueString));
@@ -510,6 +510,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
         }
         return retVal;
     }
+
     /**
      * The numerical outputs should be in a font size larger than menus, and vertically aligned to improve readability.
      * Specifically, the equals signs in all three expressions and the decimals in all three numbers should be vertically aligned.
