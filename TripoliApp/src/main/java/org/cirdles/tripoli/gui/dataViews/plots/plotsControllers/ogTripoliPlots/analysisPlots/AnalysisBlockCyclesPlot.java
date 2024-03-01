@@ -232,6 +232,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                     double minusSigmaPct = (new BigDecimal(geoWeightedMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
 
                     twoSigString = " " + (new BigDecimal(geoWeightedMeanRatio).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).toPlainString();
+                    twoSigString = appendTrailingZeroIfNeeded(twoSigString, countOfTrailingDigitsForSigFig);
                     g2d.fillText("x\u0304  =" + twoSigString, textLeft + 10, textTop += textDeltaY);
                     boolean meanIsPlottable = (mapY(geoWeightedMeanRatio) >= topMargin) && (mapY(geoWeightedMeanRatio) <= topMargin + plotHeight);
                     if (meanIsPlottable) {
@@ -248,6 +249,10 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                         sigmaPctString = "+" + plusSigmaPct;
                         sigmaMinusPctString = "-" + minusSigmaPct;
                     }
+
+                    sigmaPctString = appendTrailingZeroIfNeeded(sigmaPctString, countOfTrailingDigitsForSigFig);
+                    sigmaMinusPctString = appendTrailingZeroIfNeeded(sigmaMinusPctString, countOfTrailingDigitsForSigFig);
+
                     g2d.fillText("%\u03C3  =" + sigmaPctString, textLeft + 0, textTop += textDeltaY);
                     g2d.fillText("x\u0304", textLeft + 20, textTop + 6);
                     if (sigmaMinusPctString.length() > 0) {
@@ -263,7 +268,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                     } else {
                         twoSigString = ((chiSquared >= 10) ? "" : " ") + (new BigDecimal(chiSquared).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).toPlainString();
                     }
-                    g2d.fillText("\u03A7  =" + twoSigString, textLeft + 10, textTop += textDeltaY);
+                    g2d.fillText("\u03C7  =" + twoSigString, textLeft + 10, textTop += textDeltaY);
                     g2d.setFont(normalEight);
                     g2d.fillText("red", textLeft + 18, textTop + 6);
                     g2d.fillText("2", textLeft + 20, textTop - 8);
@@ -275,9 +280,17 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                 } else {
                     g2d.fillText("Bad Data", textLeft + 5, textTop += 2 * textDeltaY);
                 }
-            } else { // cycle mode
+            } else { // cycle mode of ratio
                 g2d.fillText("Cycle Mode:", textLeft + 5, textTop += 2 * textDeltaY);
 
+                /*
+                Round the (1-sigma percent) standard error and (1-sigma percent) standard deviation to two significant decimal places.
+                 If there is a (+ and -) display on either because they are different, round both to the number of decimal places
+                 belonging to the smallest increment.  So, below, 0.85 gets rounded to the hundredths to get two significant figures.,
+                 For the Percent standard deviation, +10.0 and -9.1 get rounded to the tenths decimal place, matching the smallest
+                 increment (tenths vs. the ones places for the +10).
+                 Use two significant figures of the 1-sigma absolute standard error to determine where to round the mean.
+                 */
                 GeometricMeanStatsRecord geometricMeanStatsRecord =
                         generateGeometricMeanStats(analysisStatsRecord.cycleModeMean(), analysisStatsRecord.cycleModeStandardDeviation(), analysisStatsRecord.cycleModeStandardError());
                 double geoMean = geometricMeanStatsRecord.geoMean();
@@ -287,15 +300,18 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                 double geoMeanMinusOneStandardError = geometricMeanStatsRecord.geoMeanMinusOneStdErr();
 
                 if (!Double.isNaN(geoMean)) {
-                    countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig((geoMeanPlusOneStandardDeviation - geoMean) * 2.0, 2);
+                    countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig((geoMeanPlusOneStandardDeviation - geoMean), 2);
 
                     twoSigString = "" + (new BigDecimal(geoMean).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).toPlainString();
+                    twoSigString = appendTrailingZeroIfNeeded(twoSigString, countOfTrailingDigitsForSigFig);
                     g2d.fillText("x\u0304  = " + twoSigString, textLeft + 10, textTop += textDeltaY);
 
                     double geoMeanRatioPlusOneStdErrPct = (geoMeanPlusOneStandardError - geoMean) / geoMean * 100.0;
                     double geoMeanRatioMinusOneStdErrPct = (geoMean - geoMeanMinusOneStandardError) / geoMean * 100.0;
-                    double plusErrPct = (new BigDecimal(geoMeanRatioPlusOneStdErrPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
-                    double minusErrPct = (new BigDecimal(geoMeanRatioMinusOneStdErrPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
+                    double smallerGeoMeanRatioOneStdErrPct = Math.min(geoMeanRatioPlusOneStdErrPct, geoMeanRatioMinusOneStdErrPct);
+                    int countOfTrailingDigitsForStdErrPct = countOfTrailingDigitsForSigFig(smallerGeoMeanRatioOneStdErrPct, 2);
+                    double plusErrPct = (new BigDecimal(geoMeanRatioPlusOneStdErrPct).setScale(countOfTrailingDigitsForStdErrPct, RoundingMode.HALF_UP)).doubleValue();
+                    double minusErrPct = (new BigDecimal(geoMeanRatioMinusOneStdErrPct).setScale(countOfTrailingDigitsForStdErrPct, RoundingMode.HALF_UP)).doubleValue();
 
                     String errPctString;
                     String errMinusPctString = "";
@@ -305,6 +321,10 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                         errPctString = "+" + plusErrPct;
                         errMinusPctString = "-" + minusErrPct;
                     }
+
+                    errPctString = appendTrailingZeroIfNeeded(errPctString, countOfTrailingDigitsForStdErrPct);
+                    errMinusPctString = appendTrailingZeroIfNeeded(errMinusPctString, countOfTrailingDigitsForStdErrPct);
+
                     g2d.fillText("%\u03C3  =" + errPctString, textLeft + 0, textTop += textDeltaY);
                     g2d.fillText("x\u0304", textLeft + 20, textTop + 6);
                     if (errMinusPctString.length() > 0) {
@@ -313,8 +333,10 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
 
                     double geoMeanRatioPlusOneSigmaPct = (geoMeanPlusOneStandardDeviation - geoMean) / geoMean * 100.0;
                     double geoMeanRatioMinusOneSigmaPct = (geoMean - geoMeanMinusOneStandardDeviation) / geoMean * 100.0;
-                    double plusSigmaPct = (new BigDecimal(geoMeanRatioPlusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
-                    double minusSigmaPct = (new BigDecimal(geoMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
+                    double smallerGeoMeanRatioForOneSigmaPct = Math.min(geoMeanRatioPlusOneSigmaPct, geoMeanRatioMinusOneSigmaPct);
+                    int countOfTrailingDigitsForOneSigmaPct = countOfTrailingDigitsForSigFig(smallerGeoMeanRatioForOneSigmaPct, 2);
+                    double plusSigmaPct = (new BigDecimal(geoMeanRatioPlusOneSigmaPct).setScale(countOfTrailingDigitsForOneSigmaPct, RoundingMode.HALF_UP)).doubleValue();
+                    double minusSigmaPct = (new BigDecimal(geoMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForOneSigmaPct, RoundingMode.HALF_UP)).doubleValue();
 
                     String sigmaPctString;
                     String sigmaMinusPctString = "";
@@ -324,6 +346,10 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                         sigmaPctString = "+" + plusSigmaPct;
                         sigmaMinusPctString = "-" + minusSigmaPct;
                     }
+
+                    sigmaPctString = appendTrailingZeroIfNeeded(sigmaPctString, countOfTrailingDigitsForOneSigmaPct);
+                    sigmaMinusPctString = appendTrailingZeroIfNeeded(sigmaMinusPctString, countOfTrailingDigitsForOneSigmaPct);
+
                     g2d.fillText("%\u03C3  =" + sigmaPctString, textLeft + 0, textTop += textDeltaY);
                     if (sigmaMinusPctString.length() > 0) {
                         g2d.fillText("     " + sigmaMinusPctString, textLeft + 0, textTop += textDeltaY);
@@ -370,9 +396,12 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                     twoSigString = meanSigned + (new BigDecimal(weighteMeanOneSigma).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).toPlainString();
                     if (countOfTrailingDigitsForSigFig == 0) {
                         twoSigString = Strings.padStart(twoSigString, twoSigStringMean.length(), ' ');
+                    } else {
+                        twoSigString = appendTrailingZeroIfNeeded(twoSigString, countOfTrailingDigitsForSigFig);
                     }
                     g2d.fillText("\u03C3  = " + twoSigString, textLeft + 10, textTop += textDeltaY);
                     g2d.fillText("x\u0304", textLeft + 18, textTop + 6);
+
                     double plottedOneSigmaHeight = Math.min(mapY(weightedMean - weighteMeanOneSigma), topMargin + plotHeight) - Math.max(mapY(weightedMean + weighteMeanOneSigma), topMargin);
                     g2d.setFill(OGTRIPOLI_ONESIGMA_SEMI);
                     g2d.fillRect(Math.max(mapX(xAxisData[0]), leftMargin),
@@ -385,8 +414,10 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                     twoSigString = meanSigned + ((chiSquared >= 10.0) ? "" : " ") + (new BigDecimal(chiSquared).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).toPlainString();
                     if (countOfTrailingDigitsForSigFig == 0) {
                         twoSigString = Strings.padStart(twoSigString.trim(), twoSigStringMean.length() + 1, ' ');
+                    } else {
+                        twoSigString = appendTrailingZeroIfNeeded(twoSigString, countOfTrailingDigitsForSigFig);
                     }
-                    g2d.fillText("\u03A7  =" + twoSigString, textLeft + 10, textTop += textDeltaY);
+                    g2d.fillText("\u03C7  =" + twoSigString, textLeft + 10, textTop += textDeltaY);
                     g2d.setFont(normalEight);
                     g2d.fillText("red", textLeft + 18, textTop + 6);
                     g2d.fillText("2", textLeft + 20, textTop - 8);
@@ -398,21 +429,31 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                     g2d.fillText("Bad Data", textLeft + 5, textTop += 2 * textDeltaY);
                 }
 
-            } else { // cycle mode
+            } else { // cycle mode of logratio or function
+                /*
+                Round the (1-sigma absolute) standard error to two significant decimal places (e.g., 0.0085 below).
+                Round the mean and the standard deviation to the same number of decimal places.
+                 */
                 g2d.setFont(normalFourteen);
                 g2d.fillText("Cycle Mode:", textLeft + 5, textTop += textDeltaY * 2);
                 double cycleModeStandardError = analysisStatsRecord.cycleModeStandardError();
-                countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig(cycleModeStandardError * 2.0, 2);
+                countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig(Math.abs(cycleModeStandardError), 2);
 
                 double cycleModeMean = analysisStatsRecord.cycleModeMean();
                 if (!Double.isNaN(cycleModeMean)) {
                     meanSigned = (cycleModeMean < 0) ? "  " : " ";
                     String twoSigStringMean = " " + (new BigDecimal(cycleModeMean).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).toPlainString();
+                    String checkForTrailingZero = String.format("%,1." + countOfTrailingDigitsForSigFig + "f", Double.parseDouble(twoSigStringMean));
+                    if (checkForTrailingZero.substring(checkForTrailingZero.length() - 1).compareTo("0") == 0) {
+                        twoSigStringMean += "0";
+                    }
                     g2d.fillText("x\u0304  = " + twoSigStringMean, textLeft + 10, textTop += textDeltaY);
 
                     twoSigString = meanSigned + (new BigDecimal(cycleModeStandardError).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).toPlainString();
                     if (countOfTrailingDigitsForSigFig == 0) {
                         twoSigString = Strings.padStart(twoSigString, twoSigStringMean.length(), ' ');
+                    } else {
+                        twoSigString = appendTrailingZeroIfNeeded(twoSigString, countOfTrailingDigitsForSigFig);
                     }
                     g2d.fillText("\u03C3  = " + twoSigString, textLeft + 10, textTop += textDeltaY);
                     g2d.fillText("x\u0304", textLeft + 18, textTop + 6);
@@ -421,6 +462,8 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
                     twoSigString = meanSigned + (new BigDecimal(cycleModeStandardDeviation).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).toPlainString();
                     if (countOfTrailingDigitsForSigFig == 0) {
                         twoSigString = Strings.padStart(twoSigString, twoSigStringMean.length(), ' ');
+                    } else {
+                        twoSigString = appendTrailingZeroIfNeeded(twoSigString, countOfTrailingDigitsForSigFig);
                     }
                     g2d.fillText("\u03C3  = " + twoSigString, textLeft + 10, textTop += textDeltaY);
 
@@ -455,6 +498,17 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
         g2d.setLineWidth(1.5);
         g2d.strokeLine(textLeft + 5, textTop + textDeltaY + 50, textLeft + 90, textTop + textDeltaY + 50);
         g2d.fillText("x\u0304", textLeft + 95, textTop + 2.9 * textDeltaY + 12);
+    }
+
+    private String appendTrailingZeroIfNeeded(String valueString, int countOfTrailingDigits) {
+        String retVal = valueString;
+        if (!valueString.isBlank()) {
+            String checkForTrailingZero = String.format("%,1." + countOfTrailingDigits + "f", Double.parseDouble(valueString));
+            if (checkForTrailingZero.substring(checkForTrailingZero.length() - 1).compareTo("0") == 0) {
+                retVal += "0";
+            }
+        }
+        return retVal;
     }
 
     /**

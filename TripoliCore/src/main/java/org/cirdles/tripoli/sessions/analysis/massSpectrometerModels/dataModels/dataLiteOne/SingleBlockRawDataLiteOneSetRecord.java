@@ -44,7 +44,7 @@ public record SingleBlockRawDataLiteOneSetRecord(
         return new double[cycleCount];
     }
 
-    public SingleBlockRawDataLiteOneSetRecord toggleIsIncluded(){
+    public SingleBlockRawDataLiteOneSetRecord toggleIsIncluded() {
         return new SingleBlockRawDataLiteOneSetRecord(
                 blockID,
                 !isIncluded,

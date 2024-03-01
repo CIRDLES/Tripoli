@@ -252,14 +252,13 @@ public class Analysis implements Serializable, AnalysisInterface {
     }
 
     public void initializeBlockProcessing() {
-        for (Integer blockID : getAnalysisCaseNumber()>1?
+        for (Integer blockID : getAnalysisCaseNumber() > 1 ?
                 massSpecExtractedData.getBlocksDataFull().keySet() : massSpecExtractedData.getBlocksDataLite().keySet()) {
             mapOfBlockIdToProcessStatus.put(blockID, RUN);
             mapBlockIDToEnsembles.put(blockID, new ArrayList<>());
             mapOfBlockIdToRawData.put(blockID, null);
             mapOfBlockIdToRawDataLiteOne.put(blockID, null);
             mapOfBlockIdToFinalModel.put(blockID, null);
-
 
 
 //            if (null != analysisMethod) {
