@@ -599,6 +599,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         return analysisMethod;
     }
 
+    // TODO: Merge Multiple setters (check line 621, public void setAnalysisMethod(AnalysisMethod analysisMethod))
     @Override
     public void setMethod(AnalysisMethod analysisMethod) {
         this.analysisMethod = analysisMethod;
@@ -616,6 +617,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         return analysisMethod;
     }
 
+    // TODO: Merge multiple setters (check line 604)
     public void setAnalysisMethod(AnalysisMethod analysisMethod) {
         this.analysisMethod = analysisMethod;
     }
