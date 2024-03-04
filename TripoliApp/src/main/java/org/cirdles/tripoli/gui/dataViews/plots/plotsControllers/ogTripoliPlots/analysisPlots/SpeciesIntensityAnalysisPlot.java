@@ -18,12 +18,15 @@ import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneIntensities;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
+import org.cirdles.tripoli.gui.utilities.TripoliColor;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
+import org.cirdles.tripoli.species.SpeciesColors;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.StrictMath.*;
 import static java.util.Arrays.binarySearch;
@@ -302,6 +305,8 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                 g2d.setFill(savedPaint);
             }
         }
+        Map<Integer, SpeciesColors> mapOfSpeciesToColors = ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfSpeciesToColors();
+        mapOfSpeciesToColors.size();
     }
 
     @Override
