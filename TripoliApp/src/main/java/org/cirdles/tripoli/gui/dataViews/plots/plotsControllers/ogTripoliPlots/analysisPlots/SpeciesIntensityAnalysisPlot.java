@@ -8,7 +8,9 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Paint;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -295,18 +297,30 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
     @Override
     public void showLegend(GraphicsContext g2d) {
         Paint savedPaint = g2d.getFill();
-        List<SpeciesRecordInterface> speciesList = speciesIntensityAnalysisBuilder.getAnalysis().getAnalysisMethod().getSpeciesList();
+        Analysis analysis = ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis());
+        List<SpeciesRecordInterface> speciesList = analysis.getAnalysisMethod().getSpeciesList();
+        Map<Integer, SpeciesColors> mapOfSpeciesToColors = analysis.getMapOfSpeciesToColors();
         for (int isotopePlotSetIndex = 0; isotopePlotSetIndex < yData.length / 4; isotopePlotSetIndex++) {
             if (speciesChecked[isotopePlotSetIndex]) {
-                g2d.setFill(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]));//.brighter());
+                Color faradayColor = Color.web(mapOfSpeciesToColors.get(isotopePlotSetIndex).faradayHexColor());
+                Color pmColor = Color.web(mapOfSpeciesToColors.get(isotopePlotSetIndex).pmHexColor());
+                LinearGradient gradient =
+                        new LinearGradient(0,
+                                0,
+                                1,
+                                1,
+                                true,
+                                null,
+                                new Stop[]{
+                                        new Stop(0, faradayColor),
+                                        new Stop(1,pmColor)});
+                g2d.setFill(gradient);
                 Text text = new Text(speciesList.get(isotopePlotSetIndex).prettyPrintShortForm());
                 g2d.setFont(Font.font("Monospaced", FontWeight.BOLD, 20));
                 g2d.fillText(text.getText(), 5, 150 - isotopePlotSetIndex * 22);
                 g2d.setFill(savedPaint);
             }
         }
-        Map<Integer, SpeciesColors> mapOfSpeciesToColors = ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfSpeciesToColors();
-        mapOfSpeciesToColors.size();
     }
 
     @Override
