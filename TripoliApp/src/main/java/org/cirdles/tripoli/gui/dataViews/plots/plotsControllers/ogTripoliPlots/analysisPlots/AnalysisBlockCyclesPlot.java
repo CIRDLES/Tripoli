@@ -521,13 +521,13 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot {
      */
     private int countOfTrailingDigitsForSigFig(double standardError, int sigFig) {
         int countOfTrailingDigitsForSigFig = 0;
-        if (standardError < 10.0) {
+        if (Math.abs(standardError) < 10.0) {
             double rounded = MathUtilities.roundedToSize(standardError, sigFig);
             DecimalFormat df = new DecimalFormat("#");
             df.setMaximumFractionDigits(8);
             String roundedString = df.format(rounded);
             int dotIndex = roundedString.indexOf(".");
-            countOfTrailingDigitsForSigFig = roundedString.length() - dotIndex - 1;
+            countOfTrailingDigitsForSigFig = Math.max(roundedString.length() - dotIndex - 1, sigFig);
         }
         return countOfTrailingDigitsForSigFig;
     }
