@@ -44,7 +44,9 @@ public enum BrowserControl {
                 oURL = file.toURI();
             }
 
-            if (!isLinuxOrUnixOperatingSystem()) {
+            if (isMacOperatingSystem()) {
+                Runtime.getRuntime().exec("open " + oURL);
+            } else if (!isLinuxOrUnixOperatingSystem()) {
                 java.awt.Desktop.getDesktop().browse(oURL);
             } else {
                 Runtime.getRuntime().exec("xdg-open " + oURL);
@@ -69,6 +71,11 @@ public enum BrowserControl {
     private static boolean isLinuxOrUnixOperatingSystem() {
         return getOperatingSystem().toLowerCase().matches(".*(nix|nux).*");
     }
+
+    private static boolean isMacOperatingSystem() {
+        return getOperatingSystem().toLowerCase().startsWith("mac");
+    }
+
 
     public static void main(String[] args) {
         System.out.println("OS: " + getOperatingSystem());

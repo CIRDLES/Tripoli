@@ -250,12 +250,13 @@ public class Analysis implements Serializable, AnalysisInterface {
             }
         } else {
             // case1
-            setMethod(AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData));
+          setMethod(AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData));
         }
     }
 
     public void initializeBlockProcessing() {
-        for (Integer blockID : massSpecExtractedData.getBlocksDataFull().keySet()) {
+        for (Integer blockID : getAnalysisCaseNumber() > 1 ?
+                massSpecExtractedData.getBlocksDataFull().keySet() : massSpecExtractedData.getBlocksDataLite().keySet()) {
             mapOfBlockIdToProcessStatus.put(blockID, RUN);
             mapBlockIDToEnsembles.put(blockID, new ArrayList<>());
             mapOfBlockIdToRawData.put(blockID, null);

@@ -25,9 +25,11 @@ import java.io.Serializable;
  */
 public record SingleBlockRawDataLiteOneSetRecord(
         int blockID,
+        boolean isIncluded,
         int cycleCount,
         double[][] blockRawDataLiteArray
-) implements Serializable {
+)
+        implements Serializable {
 
     public double[] assembleCycleMeansForUserFunction(UserFunction userFunction) {
         double[] cycleMeans = new double[cycleCount];
@@ -40,5 +42,14 @@ public record SingleBlockRawDataLiteOneSetRecord(
 
     public double[] assembleCycleStdDevForUserFunction(UserFunction userFunction) {
         return new double[cycleCount];
+    }
+
+    public SingleBlockRawDataLiteOneSetRecord toggleIsIncluded() {
+        return new SingleBlockRawDataLiteOneSetRecord(
+                blockID,
+                !isIncluded,
+                cycleCount,
+                blockRawDataLiteArray
+        );
     }
 }

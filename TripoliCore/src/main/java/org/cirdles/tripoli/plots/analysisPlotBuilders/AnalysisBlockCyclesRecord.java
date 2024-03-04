@@ -7,7 +7,19 @@ import java.util.Map;
 
 public record AnalysisBlockCyclesRecord(
         Map<Integer, BlockCyclesRecord> mapBlockIdToBlockCyclesRecord,
+        Map<Integer, Integer> mapOfBlockIdToProcessStatus,
         int cyclesPerBlock,
+        int[] xAxisBlockIDs,
         String[] title,
-        boolean isRatio) implements Serializable {
+        boolean isRatio,
+        boolean isInverted) implements Serializable {
+
+    public String[] updatedTitle() {
+        String[] retVal = title.clone();
+        if (isInverted && isRatio) {
+            String[] nameSplit = retVal[0].split("/");
+            retVal[0] = nameSplit[1] + "/" + nameSplit[0];
+        }
+        return retVal;
+    }
 }
