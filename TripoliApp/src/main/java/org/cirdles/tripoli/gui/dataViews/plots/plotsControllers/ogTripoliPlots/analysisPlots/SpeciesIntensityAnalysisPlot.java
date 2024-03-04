@@ -348,7 +348,8 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
 
     @Override
     public void plotData(GraphicsContext g2d) {
-
+        Map<Integer, SpeciesColors> mapOfSpeciesToColors =
+                ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfSpeciesToColors();
         g2d.setFill(dataColor.color());
         g2d.setStroke(dataColor.color());
         g2d.setLineWidth(2.0);
@@ -359,8 +360,10 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                     g2d.closePath();
                     g2d.setLineDashes(0);
                     boolean startedPlot = false;
-                    g2d.setFill(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).darker());
-                    g2d.setStroke(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).darker());
+//                    g2d.setFill(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).darker());
+//                    g2d.setStroke(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).darker());
+                    g2d.setFill(Color.web(mapOfSpeciesToColors.get(isotopePlotSetIndex).pmHexColor()));
+                    g2d.setStroke(Color.web(mapOfSpeciesToColors.get(isotopePlotSetIndex).pmHexColor()));
                     for (int i = 0; i < xAxisData.length; i++) {
                         if ((0.0 != yData[isotopePlotSetIndex * 4 + 2][i])
                                 && (pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4 + 2][i])
@@ -377,7 +380,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                             } else {
                                 g2d.setFill(Color.RED);
                                 g2d.fillOval(dataX - 2.0, Math.abs(dataY) - 2.0, 4, 4);
-                                g2d.setFill(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).darker());
+                                g2d.setFill(Color.web(mapOfSpeciesToColors.get(isotopePlotSetIndex).pmHexColor()));
                             }
                             if (showResiduals && showUncertainties) {
                                 g2d.setLineWidth(0.5);
@@ -408,21 +411,25 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                             } else {
                                 if (startedPlot) {
                                     startedPlot = false;
-                                    g2d.setStroke(Color.AQUAMARINE);
+//                                    g2d.setStroke(Color.AQUAMARINE);
+                                    g2d.setStroke(Color.web(mapOfSpeciesToColors.get(isotopePlotSetIndex).pmModelHexColor()));
                                     g2d.stroke();
                                 }
                             }
                         }
                     }
-                    g2d.setStroke(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).darker());
+//                    g2d.setStroke(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).darker());
+                    g2d.setStroke(Color.web(mapOfSpeciesToColors.get(isotopePlotSetIndex).pmHexColor()));
                 }
                 // plot Faraday
                 if (showFaradays) {
                     g2d.closePath();
                     g2d.setLineDashes(0);
                     boolean startedPlot = false;
-                    g2d.setFill(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).brighter());
-                    g2d.setStroke(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).brighter());
+                    g2d.setFill(Color.web(mapOfSpeciesToColors.get(isotopePlotSetIndex).faradayHexColor()));
+                    g2d.setStroke(Color.web(mapOfSpeciesToColors.get(isotopePlotSetIndex).faradayHexColor()));
+//                    g2d.setFill(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).brighter());
+//                    g2d.setStroke(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).brighter());
                     for (int i = 0; i < xAxisData.length; i++) {
                         if ((0.0 != yData[isotopePlotSetIndex * 4][i])
                                 && (pointInPlot(xAxisData[i], yData[isotopePlotSetIndex * 4][i])
@@ -439,7 +446,8 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                             } else {
                                 g2d.setFill(Color.RED);
                                 g2d.fillOval(dataX - 2.0, Math.abs(dataY) - 2.0, 4, 4);
-                                g2d.setFill(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).brighter());
+//                                g2d.setFill(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).brighter());
+                                g2d.setFill(Color.web(mapOfSpeciesToColors.get(isotopePlotSetIndex).faradayHexColor()));
                             }
                             if (showResiduals && showUncertainties) {
                                 g2d.setLineWidth(0.5);
@@ -469,13 +477,15 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                             } else {
                                 if (startedPlot) {
                                     startedPlot = false;
-                                    g2d.setStroke(Color.RED);
+//                                    g2d.setStroke(Color.RED);
+                                    g2d.setStroke(Color.web(mapOfSpeciesToColors.get(isotopePlotSetIndex).faradayModelHexColor()));
                                     g2d.stroke();
                                 }
                             }
                         }
                     }
-                    g2d.setStroke(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).brighter());
+//                    g2d.setStroke(Color.web(TRIPOLI_PALLETTE_FIVE[isotopePlotSetIndex]).brighter());
+                    g2d.setStroke(Color.web(mapOfSpeciesToColors.get(isotopePlotSetIndex).faradayHexColor()));
                 }
             }
         }
