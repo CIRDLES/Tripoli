@@ -47,7 +47,7 @@ public class AllBlockInitForDataLiteOne {
     private static SingleBlockRawDataLiteOneSetRecord prepareSingleBlockDataLiteCaseOne(int blockID, MassSpecExtractedData massSpecExtractedData) {
         MassSpecOutputBlockRecordLite massSpecOutputBlockRecordLite = massSpecExtractedData.getBlocksDataLite().get(blockID);
         SingleBlockRawDataLiteOneSetRecord singleBlockRawDataLiteOneSetRecord = new SingleBlockRawDataLiteOneSetRecord(
-                blockID, massSpecOutputBlockRecordLite.cycleNumbers().length, massSpecOutputBlockRecordLite.cycleData()
+                blockID, true, massSpecOutputBlockRecordLite.cycleNumbers().length, massSpecOutputBlockRecordLite.cycleData()
         );
 
         return singleBlockRawDataLiteOneSetRecord;
