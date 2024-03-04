@@ -112,7 +112,6 @@ public class Analysis implements Serializable, AnalysisInterface {
     protected Analysis(String analysisName, AnalysisMethod analysisMethod, String analysisSampleName) {
         this.analysisName = analysisName;
         setMethod(analysisMethod);
-//        this.analysisMethod = analysisMethod;
         this.analysisSampleName = analysisSampleName;
         analystName = MISSING_STRING_FIELD;
         labName = MISSING_STRING_FIELD;
@@ -176,10 +175,8 @@ public class Analysis implements Serializable, AnalysisInterface {
                 massSpecExtractedData.setDetectorSetup(DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_FULL_SYNTHETIC.getName()));
                 if (massSpecExtractedData.getHeader().methodName().toUpperCase(Locale.ROOT).contains("SYNTHETIC")) {
                     setMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(BURDICK_BL_SYNTHETIC_DATA));
-//                    analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(BURDICK_BL_SYNTHETIC_DATA);
                 } else {
                     setMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB));
-//                    analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
                 }
 
                 initializeBlockProcessing();
@@ -192,7 +189,6 @@ public class Analysis implements Serializable, AnalysisInterface {
                         + File.separator + "PeakCentres"));
                 if (selectedMethodFile.exists()) {
                     setMethod(extractAnalysisMethodfromPath(Path.of(selectedMethodFile.toURI())));
-//                    analysisMethod = extractAnalysisMethodfromPath(Path.of(selectedMethodFile.toURI()));
                     TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedMethodFile.getParent());
                 } else {
                     throw new TripoliException(
@@ -255,7 +251,6 @@ public class Analysis implements Serializable, AnalysisInterface {
         } else {
             // case1
             setMethod(AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData));
-//            analysisMethod = AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData);
         }
     }
 
