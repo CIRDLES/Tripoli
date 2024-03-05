@@ -1,5 +1,10 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
@@ -19,12 +24,11 @@ public class SpeciesColorRow extends HBox {
     private Label colorSplotch;
 
 
-    public SpeciesColorRow(DetectorPlotFlavor plotFlavor, Color color) {
+
+    public SpeciesColorRow(DetectorPlotFlavor plotFlavor, Color color, int index) {
         this.plotFlavor = plotFlavor;
         this.color = color;
-        this.colorSplotch = new Label(" ");
-        Background background = new Background(new BackgroundFill(color, new CornerRadii(0.05),new Insets(0.00)));
-        this.colorSplotch.setBackground(background);
+        this.colorSplotch = new ColorSplotch(" ", plotFlavor, color, index);
         this.colorSplotch.prefWidthProperty().bind(widthProperty().divide(2));
         Label plotFlavorLabel = new Label(String.format("%s Color",getPlotFlavor().getName()));
         plotFlavorLabel.prefWidthProperty().bind(widthProperty().divide(2));

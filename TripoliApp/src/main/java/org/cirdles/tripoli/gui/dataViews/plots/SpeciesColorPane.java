@@ -27,19 +27,13 @@ public class SpeciesColorPane extends Pane {
         this.speciesIndex = speciesIndex;
         this.speciesName = speciesName;
         this.speciesColors = speciesColors;
-        this.speciesColorRows = new SpeciesColorRow[4];
-        this.speciesColorRows[0] = new SpeciesColorRow(
-                DetectorPlotFlavor.FARADAY_DATA, Color.web(speciesColors.faradayHexColor()));
-        this.speciesColorRows[0].prefWidthProperty().bind(widthProperty());
-        this.speciesColorRows[1] = new SpeciesColorRow(
-                DetectorPlotFlavor.PM_DATA, Color.web(speciesColors.pmHexColor()));
-        this.speciesColorRows[1].prefWidthProperty().bind(widthProperty());
-        this.speciesColorRows[2] = new SpeciesColorRow(
-                DetectorPlotFlavor.FARADAY_MODEL, Color.web(speciesColors.faradayModelHexColor()));
-        this.speciesColorRows[2].prefWidthProperty().bind(widthProperty());
-        this.speciesColorRows[3] = new SpeciesColorRow(
-                DetectorPlotFlavor.PM_MODEL, Color.web(speciesColors.pmModelHexColor()));
-        this.speciesColorRows[3].prefWidthProperty().bind(widthProperty());
+        this.speciesColorRows = new SpeciesColorRow[DetectorPlotFlavor.values().length];
+        for (int i = 0; i < DetectorPlotFlavor.values().length; ++i) {
+            DetectorPlotFlavor plotFlavor = DetectorPlotFlavor.values()[i];
+            this.speciesColorRows[i] = new SpeciesColorRow(plotFlavor,
+                    Color.web(speciesColors.get(plotFlavor)),speciesIndex);
+            this.speciesColorRows[i].prefWidthProperty().bind(widthProperty());
+        }
         Label title = new Label(speciesName);
         title.setAlignment(Pos.CENTER);
         title.prefWidthProperty().bind(prefWidthProperty());

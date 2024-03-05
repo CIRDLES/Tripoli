@@ -5,6 +5,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -87,7 +88,13 @@ public class ColorSelectionWindow {
         stage.setOnCloseRequest(closeRequest ->{
             instance = null;
         });
+        scene.addEventFilter(MouseEvent.MOUSE_CLICKED, click -> {
+            System.err.printf("Mouse Button: %s\nEvent Target: %s\nEvent Source: %s", click.getButton(), click.getTarget(), click.getSource());
+            click.consume();
+        });
     }
+
+
 
     public void show() {
         stage.show();
