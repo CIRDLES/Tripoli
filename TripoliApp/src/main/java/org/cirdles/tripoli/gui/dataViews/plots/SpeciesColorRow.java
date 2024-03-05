@@ -39,6 +39,8 @@ public class SpeciesColorRow extends HBox {
 
     public void setColor(Color color) {
         this.color = color;
+        colorSplotch.getBackground().getFills().clear();
+        colorSplotch.getBackground().getFills().add(new BackgroundFill(this.color,CornerRadii.EMPTY,Insets.EMPTY));
     }
 
     public Label getColorSplotch() {

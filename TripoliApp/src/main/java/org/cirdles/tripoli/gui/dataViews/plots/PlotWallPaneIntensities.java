@@ -262,23 +262,9 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         colorButtonSpace.setLabelFor(colorButton);
         colorButtonSpace.setPrefWidth(30);
         colorButton.setOnAction(click -> {
-            // Scaffolding for window
-            VBox root = new VBox();
-            Scene scene = new Scene(root);
-            Stage stage = new Stage();
-            stage.setWidth(335);
-            stage.setScene(scene);
-            stage.initOwner(getScene().getWindow());
-            stage.setTitle("Color Customization");
-            for (int i = 0; i < species.size(); ++i) {
-                SpeciesColorPane speciesColorPane =
-                        new SpeciesColorPane(i,
-                                species.get(i).prettyPrintShortForm(),
-                                mapOfSpeciesToColors.get(i));
-                speciesColorPane.prefWidthProperty().bind(stage.widthProperty());
-                root.getChildren().add(speciesColorPane);
-            }
-            stage.show();
+            ColorSelectionWindow window =
+                    ColorSelectionWindow.colorSelectionWindowRequest(mapOfSpeciesToColors,species, getScene().getWindow());
+            window.show();
         });
         toolBar.getItems().add(colorButtonSpace);
         toolBar.getItems().add(colorButton);

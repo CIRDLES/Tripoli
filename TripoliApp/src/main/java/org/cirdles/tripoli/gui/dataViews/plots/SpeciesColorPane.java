@@ -14,6 +14,7 @@ import javafx.scene.text.TextAlignment;
 import org.cirdles.tripoli.species.SpeciesColors;
 
 public class SpeciesColorPane extends Pane {
+
     private SpeciesColorRow[] speciesColorRows;
     private SpeciesColors speciesColors;
     private int speciesIndex;
