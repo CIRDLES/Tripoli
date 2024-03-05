@@ -18,11 +18,9 @@ import static org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 
 public class SpeciesColorRow extends HBox {
 
-    private static final double COLUMN_WIDTH = 100;
     private DetectorPlotFlavor plotFlavor;
     private Color color;
     private ColorSplotch colorSplotch;
-
 
 
     public SpeciesColorRow(DetectorPlotFlavor plotFlavor, Color color, int index) {

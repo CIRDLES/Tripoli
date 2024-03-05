@@ -33,6 +33,7 @@ import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.species.SpeciesColors;
+import org.cirdles.tripoli.utilities.ActorInterface;
 
 import java.util.List;
 import java.util.Map;
@@ -263,7 +264,9 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         colorButtonSpace.setPrefWidth(30);
         colorButton.setOnAction(click -> {
             ColorSelectionWindow window =
-                    ColorSelectionWindow.colorSelectionWindowRequest(mapOfSpeciesToColors,species, getScene().getWindow());
+                    ColorSelectionWindow.colorSelectionWindowRequest(mapOfSpeciesToColors,
+                            species,
+                            getScene().getWindow(), () -> rebuildPlot(false, false));
             window.show();
         });
         toolBar.getItems().add(colorButtonSpace);

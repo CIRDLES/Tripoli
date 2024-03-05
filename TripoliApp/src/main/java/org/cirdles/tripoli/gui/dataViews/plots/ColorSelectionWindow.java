@@ -10,13 +10,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.species.SpeciesColors;
+import org.cirdles.tripoli.utilities.ActorInterface;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class ColorSelectionWindow {
     public static final String WINDOW_TITLE = "Color Customization";
@@ -25,6 +26,7 @@ public class ColorSelectionWindow {
 
     private Map<Integer, SpeciesColors> mapOfSpeciesToColors;
 
+    private Map<Integer, SpeciesColors> originalMapOfSpeciesToColors;
     private VBox root;
     private Stage stage;
     private Scene scene;
@@ -33,6 +35,7 @@ public class ColorSelectionWindow {
     private Button cancelButton;
     private SpeciesColorPane[] speciesColorPanes;
     private ColorListener colorListener;
+    private ActorInterface actor;
 
     private class ColorListener implements ChangeListener<Color> {
 
@@ -44,7 +47,18 @@ public class ColorSelectionWindow {
 
         @Override
         public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
+            DetectorPlotFlavor plotFlavor = colorSplotchReference.getPlotFlavor();
+            int index = colorSplotchReference.getIndex();
+            SpeciesColors speciesColors = mapOfSpeciesToColors.get(index);
+            mapOfSpeciesToColors.remove(index);
+            mapOfSpeciesToColors.put(index,
+                    speciesColors.altered(plotFlavor,
+                            String.format("#%02x%02x%02x",
+                                    (int) (newValue.getRed() * 255),
+                                    (int) (newValue.getGreen() * 255),
+                                    (int) (newValue.getBlue() * 255))));
             colorSplotchReference.setColor(newValue);
+            actor.act();
         }
         public void setColorSplotch(ColorSplotch colorSplotch) {
             this.colorSplotchReference = colorSplotch;
@@ -57,17 +71,21 @@ public class ColorSelectionWindow {
     public static ColorSelectionWindow colorSelectionWindowRequest(
             Map<Integer, SpeciesColors> mapOfSpeciesToColors,
             List<SpeciesRecordInterface> species,
-            Window owner) {
+            Window owner,
+            ActorInterface actor) {
         if (instance == null) {
-            instance = new ColorSelectionWindow(mapOfSpeciesToColors,species,owner);
+            instance = new ColorSelectionWindow(mapOfSpeciesToColors, species, owner,actor);
         }
         return instance;
     }
     private ColorSelectionWindow(Map<Integer, SpeciesColors> mapOfSpeciesToColors,
-                                List<SpeciesRecordInterface> species,
-                                Window owner) {
+                                 List<SpeciesRecordInterface> species,
+                                 Window owner, ActorInterface actor) {
         this.mapOfSpeciesToColors = mapOfSpeciesToColors;
+        this.originalMapOfSpeciesToColors = new TreeMap<>();
+        originalMapOfSpeciesToColors.putAll(mapOfSpeciesToColors);
         this.root = new VBox();
+        this.actor = actor;
         initStage(owner);
         initSpeciesColorPanes(species);
         this.colorListener = new ColorListener(speciesColorPanes[0].getSpeciesColorRows()[0].getColorSplotch());
@@ -77,6 +95,7 @@ public class ColorSelectionWindow {
         colorPicker.valueProperty().addListener(this.colorListener);
         root.getChildren().add(colorPicker);
     }
+
 
 
     private void initSpeciesColorPanes(List<SpeciesRecordInterface> species) {
@@ -109,8 +128,6 @@ public class ColorSelectionWindow {
             }
         });
     }
-
-
 
     public void show() {
         stage.show();
