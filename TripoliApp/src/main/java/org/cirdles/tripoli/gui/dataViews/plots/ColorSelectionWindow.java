@@ -15,6 +15,7 @@ import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.ActorInterface;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -92,11 +93,32 @@ public class ColorSelectionWindow {
         colorPicker = new ColorPicker();
         colorPicker.prefWidthProperty().bind(stage.widthProperty());
         colorPicker.valueProperty().setValue(this.colorListener.colorSplotchReference.getColor());
+        colorPicker.getCustomColors().add(this.colorListener.colorSplotchReference.getColor());
         colorPicker.valueProperty().addListener(this.colorListener);
         root.getChildren().add(colorPicker);
+        this.okButton = new Button("Accept Changes");
+        this.okButton.prefWidthProperty().bind(stage.widthProperty());
+        this.okButton.setOnAction(acceptChanges -> {accept();});
+        root.getChildren().add(okButton);
+        this.cancelButton = new Button("Cancel");
+        this.cancelButton.prefWidthProperty().bind(stage.widthProperty());
+        this.cancelButton.setOnAction(cancelChanges -> {cancel();});
+        root.getChildren().add(cancelButton);
     }
 
+    private void cancel(){
+        mapOfSpeciesToColors.clear();
+        mapOfSpeciesToColors.putAll(originalMapOfSpeciesToColors);
+        actor.act();
+        stage.close();
+        instance = null;
+    }
 
+    private void accept(){
+        this.stage.close();
+        this.actor.act();
+        instance = null;
+    }
 
     private void initSpeciesColorPanes(List<SpeciesRecordInterface> species) {
         speciesColorPanes = new SpeciesColorPane[species.size()];
@@ -117,13 +139,18 @@ public class ColorSelectionWindow {
         stage.initOwner(owner);
         stage.setTitle(WINDOW_TITLE);
         stage.setOnCloseRequest(closeRequest ->{
+            System.err.println("Closing window");
             instance = null;
+            cancel();
         });
         scene.addEventFilter(MouseEvent.MOUSE_CLICKED, click -> {
             if(click.getTarget() instanceof ColorSplotch) {
                 colorPicker.valueProperty().removeListener(colorListener);
                 colorListener.setColorSplotch((ColorSplotch) click.getTarget());
                 colorPicker.setValue(colorListener.colorSplotchReference.getColor());
+                if(! colorPicker.getCustomColors().contains(colorListener.colorSplotchReference.getColor())) {
+                    colorPicker.getCustomColors().add(colorListener.colorSplotchReference.getColor());
+                }
                 colorPicker.valueProperty().addListener(colorListener);
             }
         });
