@@ -7,6 +7,8 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+
 import static org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 
 public class SpeciesColorRow extends HBox {
@@ -24,8 +26,9 @@ public class SpeciesColorRow extends HBox {
         Background background = new Background(new BackgroundFill(color, new CornerRadii(0.05),new Insets(0.00)));
         this.colorSplotch.setBackground(background);
         this.colorSplotch.prefWidthProperty().bind(widthProperty().divide(2));
-        Label plotFlavorLabel = new Label(getPlotFlavor().getName());
+        Label plotFlavorLabel = new Label(String.format("%s Color",getPlotFlavor().getName()));
         plotFlavorLabel.prefWidthProperty().bind(widthProperty().divide(2));
+        plotFlavorLabel.setFont(new Font("Consolas", 14));
         getChildren().add(plotFlavorLabel);
         getChildren().add(this.colorSplotch);
     }

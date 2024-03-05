@@ -257,16 +257,19 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
                     rebuildPlot(false, false);
                 });
 
+        Label colorButtonSpace = new Label();
         Button colorButton = new Button("Customize Colors");
+        colorButtonSpace.setLabelFor(colorButton);
+        colorButtonSpace.setPrefWidth(30);
         colorButton.setOnAction(click -> {
             // Scaffolding for window
             VBox root = new VBox();
             Scene scene = new Scene(root);
             Stage stage = new Stage();
-            stage.setWidth(350);
+            stage.setWidth(335);
             stage.setScene(scene);
             stage.initOwner(getScene().getWindow());
-            stage.setTitle("Species Color Customization");
+            stage.setTitle("Color Customization");
             for (int i = 0; i < species.size(); ++i) {
                 SpeciesColorPane speciesColorPane =
                         new SpeciesColorPane(i,
@@ -277,6 +280,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
             }
             stage.show();
         });
+        toolBar.getItems().add(colorButtonSpace);
         toolBar.getItems().add(colorButton);
 
         getChildren().add(0, toolBar);

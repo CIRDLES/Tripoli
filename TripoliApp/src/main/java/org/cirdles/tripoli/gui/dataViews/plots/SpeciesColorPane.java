@@ -1,6 +1,7 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -38,15 +39,16 @@ public class SpeciesColorPane extends Pane {
         this.speciesColorRows[3] = new SpeciesColorRow(
                 DetectorPlotFlavor.PM_MODEL, Color.web(speciesColors.pmModelHexColor()));
         this.speciesColorRows[3].prefWidthProperty().bind(widthProperty());
-        // Make the things
         Label title = new Label(speciesName);
         title.setAlignment(Pos.CENTER);
         title.prefWidthProperty().bind(prefWidthProperty());
-        title.setFont(new Font(20.0));
+        title.setFont(new Font( 20.0));
         title.setTextAlignment(TextAlignment.CENTER);
-
         root.getChildren().add(title);
         root.getChildren().addAll(speciesColorRows);
+        for(Node node : root.getChildren()) {
+            node.setStyle("-fx-border-color: black; -fx-border-bottom: 1px");
+        }
     }
 
     public SpeciesColorRow[] getSpeciesColorRows() {
