@@ -32,12 +32,26 @@ public class ColorSelectionWindow {
     private Button okButton;
     private Button cancelButton;
     private SpeciesColorPane[] speciesColorPanes;
+    private ColorListener colorListener;
 
-    private class colorListener implements ChangeListener<Color> {
+    private class ColorListener implements ChangeListener<Color> {
+
+        private ColorSplotch colorSplotchReference;
+
+        public ColorListener(ColorSplotch colorSplotchReference) {
+            this.colorSplotchReference = colorSplotchReference;
+        }
 
         @Override
         public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
+            colorSplotchReference.setColor(newValue);
+        }
+        public void setColorSplotch(ColorSplotch colorSplotch) {
+            this.colorSplotchReference = colorSplotch;
+        }
 
+        public ColorSplotch getColorSplotchReference() {
+            return colorSplotchReference;
         }
     }
     public static ColorSelectionWindow colorSelectionWindowRequest(
@@ -56,13 +70,11 @@ public class ColorSelectionWindow {
         this.root = new VBox();
         initStage(owner);
         initSpeciesColorPanes(species);
+        this.colorListener = new ColorListener(speciesColorPanes[0].getSpeciesColorRows()[0].getColorSplotch());
         colorPicker = new ColorPicker();
         colorPicker.prefWidthProperty().bind(stage.widthProperty());
-        for (SpeciesColorPane pane : speciesColorPanes) {
-            colorPicker.getCustomColors().addAll(
-                    Arrays.stream(
-                            pane.getSpeciesColorRows()).map(x -> { return x.getColor();}).toList());
-        }
+        colorPicker.valueProperty().setValue(this.colorListener.colorSplotchReference.getColor());
+        colorPicker.valueProperty().addListener(this.colorListener);
         root.getChildren().add(colorPicker);
     }
 
@@ -89,8 +101,12 @@ public class ColorSelectionWindow {
             instance = null;
         });
         scene.addEventFilter(MouseEvent.MOUSE_CLICKED, click -> {
-            System.err.printf("Mouse Button: %s\nEvent Target: %s\nEvent Source: %s", click.getButton(), click.getTarget(), click.getSource());
-            click.consume();
+            if(click.getTarget() instanceof ColorSplotch) {
+                colorPicker.valueProperty().removeListener(colorListener);
+                colorListener.setColorSplotch((ColorSplotch) click.getTarget());
+                colorPicker.setValue(colorListener.colorSplotchReference.getColor());
+                colorPicker.valueProperty().addListener(colorListener);
+            }
         });
     }
 

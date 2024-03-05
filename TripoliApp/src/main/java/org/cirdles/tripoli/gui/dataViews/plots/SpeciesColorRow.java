@@ -21,7 +21,7 @@ public class SpeciesColorRow extends HBox {
     private static final double COLUMN_WIDTH = 100;
     private DetectorPlotFlavor plotFlavor;
     private Color color;
-    private Label colorSplotch;
+    private ColorSplotch colorSplotch;
 
 
 
@@ -47,12 +47,8 @@ public class SpeciesColorRow extends HBox {
         colorSplotch.getBackground().getFills().add(new BackgroundFill(this.color,CornerRadii.EMPTY,Insets.EMPTY));
     }
 
-    public Label getColorSplotch() {
+    public ColorSplotch getColorSplotch() {
         return colorSplotch;
-    }
-
-    public void setColorSplotch(Label colorSplotch) {
-        this.colorSplotch = colorSplotch;
     }
 
     public DetectorPlotFlavor getPlotFlavor() {
