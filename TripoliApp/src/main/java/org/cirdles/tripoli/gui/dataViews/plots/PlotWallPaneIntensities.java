@@ -16,20 +16,26 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
+import org.cirdles.tripoli.species.SpeciesColors;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_MICHAELANGELO_URL;
 
@@ -118,7 +124,9 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         // not used
     }
 
-    public void buildIntensitiesPlotToolBar(boolean showResiduals, List<SpeciesRecordInterface> species) {
+    public void buildIntensitiesPlotToolBar(boolean showResiduals,
+                                            List<SpeciesRecordInterface> species,
+                                            Map<Integer, SpeciesColors> mapOfSpeciesToColors) {
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);
         speciesChecked = new boolean[species.size()];
@@ -248,6 +256,27 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
                     }
                     rebuildPlot(false, false);
                 });
+
+        Button colorButton = new Button("Customize Colors");
+        colorButton.setOnAction(click -> {
+            // Scaffolding for window
+            VBox root = new VBox();
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            stage.setScene(scene);
+            stage.initOwner(getScene().getWindow());
+            stage.setTitle("Species Color Customization");
+            for (int i = 0; i < species.size(); ++i) {
+                SpeciesColorPane speciesColorPane =
+                        new SpeciesColorPane(i,
+                                species.get(i).prettyPrintShortForm(),
+                                mapOfSpeciesToColors.get(i));
+                speciesColorPane.prefWidthProperty().bind(scene.widthProperty());
+                root.getChildren().add(speciesColorPane);
+            }
+            stage.show();
+        });
+        toolBar.getItems().add(colorButton);
 
         getChildren().add(0, toolBar);
     }
