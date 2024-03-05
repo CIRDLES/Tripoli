@@ -28,12 +28,16 @@ public class SpeciesColorPane extends Pane {
         this.speciesColorRows = new SpeciesColorRow[4];
         this.speciesColorRows[0] = new SpeciesColorRow(
                 DetectorPlotFlavor.FARADAY_DATA, Color.web(speciesColors.faradayHexColor()));
+        this.speciesColorRows[0].prefWidthProperty().bind(widthProperty());
         this.speciesColorRows[1] = new SpeciesColorRow(
                 DetectorPlotFlavor.PM_DATA, Color.web(speciesColors.pmHexColor()));
+        this.speciesColorRows[1].prefWidthProperty().bind(widthProperty());
         this.speciesColorRows[2] = new SpeciesColorRow(
                 DetectorPlotFlavor.FARADAY_MODEL, Color.web(speciesColors.faradayModelHexColor()));
+        this.speciesColorRows[2].prefWidthProperty().bind(widthProperty());
         this.speciesColorRows[3] = new SpeciesColorRow(
                 DetectorPlotFlavor.PM_MODEL, Color.web(speciesColors.pmModelHexColor()));
+        this.speciesColorRows[3].prefWidthProperty().bind(widthProperty());
         // Make the things
         Label title = new Label(speciesName);
         title.setAlignment(Pos.CENTER);

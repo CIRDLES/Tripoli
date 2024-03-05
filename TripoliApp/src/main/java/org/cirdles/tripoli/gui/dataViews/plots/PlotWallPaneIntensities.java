@@ -263,6 +263,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
             VBox root = new VBox();
             Scene scene = new Scene(root);
             Stage stage = new Stage();
+            stage.setWidth(350);
             stage.setScene(scene);
             stage.initOwner(getScene().getWindow());
             stage.setTitle("Species Color Customization");
@@ -271,7 +272,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
                         new SpeciesColorPane(i,
                                 species.get(i).prettyPrintShortForm(),
                                 mapOfSpeciesToColors.get(i));
-                speciesColorPane.prefWidthProperty().bind(scene.widthProperty());
+                speciesColorPane.prefWidthProperty().bind(stage.widthProperty());
                 root.getChildren().add(speciesColorPane);
             }
             stage.show();
