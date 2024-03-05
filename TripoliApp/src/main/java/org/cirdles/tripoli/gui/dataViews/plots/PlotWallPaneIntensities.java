@@ -271,7 +271,6 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         });
         toolBar.getItems().add(colorButtonSpace);
         toolBar.getItems().add(colorButton);
-
         getChildren().add(0, toolBar);
     }
 

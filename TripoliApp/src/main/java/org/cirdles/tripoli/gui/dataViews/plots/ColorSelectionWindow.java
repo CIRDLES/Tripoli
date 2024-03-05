@@ -139,7 +139,6 @@ public class ColorSelectionWindow {
         stage.initOwner(owner);
         stage.setTitle(WINDOW_TITLE);
         stage.setOnCloseRequest(closeRequest ->{
-            System.err.println("Closing window");
             instance = null;
             cancel();
         });
