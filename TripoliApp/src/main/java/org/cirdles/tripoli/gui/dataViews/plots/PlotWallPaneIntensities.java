@@ -16,20 +16,27 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
+import org.cirdles.tripoli.species.SpeciesColors;
+import org.cirdles.tripoli.utilities.ActorInterface;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_MICHAELANGELO_URL;
 
@@ -118,7 +125,9 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         // not used
     }
 
-    public void buildIntensitiesPlotToolBar(boolean showResiduals, List<SpeciesRecordInterface> species) {
+    public void buildIntensitiesPlotToolBar(boolean showResiduals,
+                                            List<SpeciesRecordInterface> species,
+                                            Map<Integer, SpeciesColors> mapOfSpeciesToColors) {
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);
         speciesChecked = new boolean[species.size()];
@@ -248,6 +257,20 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
                     }
                     rebuildPlot(false, false);
                 });
+
+        Label colorButtonSpace = new Label();
+        Button colorButton = new Button("Customize Colors");
+        colorButtonSpace.setLabelFor(colorButton);
+        colorButtonSpace.setPrefWidth(30);
+        colorButton.setOnAction(click -> {
+            ColorSelectionWindow window =
+                    ColorSelectionWindow.colorSelectionWindowRequest(mapOfSpeciesToColors,
+                            species,
+                            getScene().getWindow(), () -> rebuildPlot(false, false));
+            window.show();
+        });
+        toolBar.getItems().add(colorButtonSpace);
+        toolBar.getItems().add(colorButton);
 
         getChildren().add(0, toolBar);
     }
