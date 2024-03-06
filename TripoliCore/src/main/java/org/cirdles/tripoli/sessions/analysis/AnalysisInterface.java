@@ -63,7 +63,7 @@ public interface AnalysisInterface {
 
     String uppdateLogsByBlock(int blockNumber, String logEntry);
 
-    public AllBlockInitForMCMC.PlottingData assemblePostProcessPlottingData();
+    AllBlockInitForMCMC.PlottingData assemblePostProcessPlottingData();
 
     String getAnalysisName();
 
@@ -119,7 +119,7 @@ public interface AnalysisInterface {
 
     Map<Integer, SingleBlockRawDataSetRecord> getMapOfBlockIdToRawData();
 
-    public Map<Integer, SingleBlockRawDataLiteOneSetRecord> getMapOfBlockIdToRawDataLiteOne();
+    Map<Integer, SingleBlockRawDataLiteOneSetRecord> getMapOfBlockIdToRawDataLiteOne();
 
     Map<Integer, SingleBlockModelRecord> getMapOfBlockIdToFinalModel();
 

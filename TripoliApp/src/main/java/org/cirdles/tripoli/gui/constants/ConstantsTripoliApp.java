@@ -63,9 +63,9 @@ public enum ConstantsTripoliApp {
         return "#" + red + green + blue;
     }
 
-    public static enum PlotLayoutStyle {
+    public enum PlotLayoutStyle {
         TILE(),
-        STACK();
+        STACK()
     }
 
 

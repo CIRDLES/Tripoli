@@ -11,28 +11,21 @@ import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_HIGH
 
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
-import org.cirdles.tripoli.gui.dataViews.plots.Selectable;
+import org.cirdles.tripoli.gui.dataViews.plots.Highlightable;
 import org.cirdles.tripoli.species.SpeciesColors;
 
 import java.util.Map;
 import java.util.TreeMap;
 
-public class SpeciesColorPane extends Pane implements Selectable {
+public class SpeciesColorPane extends Pane implements Highlightable {
 
 
     private final Map<DetectorPlotFlavor, SpeciesColorRow> mapOfPlotFlavorsToSpeciesColorRows;
-    private SpeciesColors speciesColors;
-    private int speciesIndex;
-    private String speciesName;
-    private Label title;
-    private VBox root;
+    private final Label title;
 
     public SpeciesColorPane(int speciesIndex, String speciesName, SpeciesColors speciesColors) {
-        this.root = new VBox();
+        VBox root = new VBox();
         getChildren().add(root);
-        this.speciesIndex = speciesIndex;
-        this.speciesName = speciesName;
-        this.speciesColors = speciesColors;
         this.mapOfPlotFlavorsToSpeciesColorRows = new TreeMap<>();
         for (DetectorPlotFlavor plotFlavor: DetectorPlotFlavor.values()) {
             mapOfPlotFlavorsToSpeciesColorRows.put(
@@ -54,14 +47,14 @@ public class SpeciesColorPane extends Pane implements Selectable {
     }
 
     @Override
-    public void select() {
+    public void highlight() {
         Color backgroundColor = Color.web(TRIPOLI_HIGHLIGHTED_HEX, 0.9);
         BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY);
         this.title.setBackground(new Background(fill));
     }
 
     @Override
-    public void deselect() {
+    public void removeHighlight() {
         this.title.setBackground(null);
     }
 
@@ -69,27 +62,4 @@ public class SpeciesColorPane extends Pane implements Selectable {
         return mapOfPlotFlavorsToSpeciesColorRows;
     }
 
-    public SpeciesColors getSpeciesColors() {
-        return speciesColors;
-    }
-
-    public void setSpeciesColors(SpeciesColors speciesColors) {
-        this.speciesColors = speciesColors;
-    }
-
-    public int getSpeciesIndex() {
-        return speciesIndex;
-    }
-
-    public void setSpeciesIndex(int speciesIndex) {
-        this.speciesIndex = speciesIndex;
-    }
-
-    public String getSpeciesName() {
-        return speciesName;
-    }
-
-    public void setSpeciesName(String speciesName) {
-        this.speciesName = speciesName;
-    }
 }

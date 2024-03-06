@@ -47,7 +47,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     CheckBox gainCB;
     private double toolBarHeight;
     private int toolBarCount;
-    private String iD;
+    private final String iD;
     private boolean[] speciesChecked = new boolean[0];
     private boolean showFaradays = true;
     private boolean showPMs = true;
@@ -57,7 +57,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     private boolean gainCorr = true;
     private boolean logScale;
 
-    private boolean[] zoomFlagsXY = new boolean[2];
+    private final boolean[] zoomFlagsXY = new boolean[2];
 
     private ToolBar scaleControlsToolbar;
     private CheckBox[] speciesCheckBoxes;
@@ -86,7 +86,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
             double parentHeight = Math.max(((AnchorPane) getParent()).getPrefHeight(), ((AnchorPane) getParent()).getMinHeight());
             displayHeight = (parentHeight - toolBarHeight);
         } else {
-            tileWidth = (getParent().getBoundsInParent().getWidth() - gridCellDim * 1.0);
+            tileWidth = (getParent().getBoundsInParent().getWidth() - gridCellDim);
             displayHeight = (getParent().getBoundsInParent().getHeight() - toolBarHeight);
         }
 

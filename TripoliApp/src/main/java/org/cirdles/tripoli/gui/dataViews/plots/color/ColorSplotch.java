@@ -6,7 +6,6 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
-import org.cirdles.tripoli.gui.dataViews.plots.color.FlavoredIndexedLabel;
 
 public class ColorSplotch extends FlavoredIndexedLabel {
 
@@ -16,7 +15,6 @@ public class ColorSplotch extends FlavoredIndexedLabel {
         super(text, plotFlavor, index);
         setColor(color);
     }
-
 
     public Color getColor() {
         return color;

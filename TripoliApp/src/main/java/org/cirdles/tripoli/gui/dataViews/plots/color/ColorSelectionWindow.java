@@ -13,7 +13,7 @@ import javafx.stage.Window;
 import org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.species.SpeciesColors;
-import org.cirdles.tripoli.utilities.ActorInterface;
+import org.cirdles.tripoli.utilities.VoidActionInterface;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -30,7 +30,7 @@ public class ColorSelectionWindow {
     private SpeciesColorSelectionRecord speciesColorSelectionRecord;
     private SpeciesColorPane[] speciesColorPanes;
     private final ColorListener colorListener;
-    private final ActorInterface actor;
+    private final VoidActionInterface actor;
 
     private class ColorListener implements ChangeListener<Color> {
 
@@ -64,7 +64,7 @@ public class ColorSelectionWindow {
             Map<Integer, SpeciesColors> mapOfSpeciesToColors,
             List<SpeciesRecordInterface> species,
             Window owner,
-            ActorInterface actor) {
+            VoidActionInterface actor) {
         if (instance == null) {
             instance = new ColorSelectionWindow(mapOfSpeciesToColors, species, owner,actor);
         }
@@ -72,7 +72,7 @@ public class ColorSelectionWindow {
     }
     private ColorSelectionWindow(Map<Integer, SpeciesColors> mapOfSpeciesToColors,
                                  List<SpeciesRecordInterface> species,
-                                 Window owner, ActorInterface actor) {
+                                 Window owner, VoidActionInterface actor) {
         this.mapOfSpeciesToColors = mapOfSpeciesToColors;
         this.originalMapOfSpeciesToColors = new TreeMap<>();
         originalMapOfSpeciesToColors.putAll(mapOfSpeciesToColors);
@@ -88,8 +88,8 @@ public class ColorSelectionWindow {
                 speciesColorPanes[0],
                 speciesColorPanes[0].getMapOfPlotFlavorsToSpeciesColorRows().get(
                         DetectorPlotFlavor.values()[0]));
-        speciesColorSelectionRecord.speciesColorRow().select();
-        speciesColorSelectionRecord.speciesColorPane().select();
+        speciesColorSelectionRecord.speciesColorRow().highlight();
+        speciesColorSelectionRecord.speciesColorPane().highlight();
         this.root.getChildren().add(initColorPicker());
         root.getChildren().add(initAcceptButton());
         root.getChildren().add(initCancelButton());
@@ -97,12 +97,12 @@ public class ColorSelectionWindow {
     }
 
     private void makeSelection(int speciesIndex, DetectorPlotFlavor plotFlavor) {
-        speciesColorSelectionRecord.speciesColorPane().deselect();
-        speciesColorSelectionRecord.speciesColorRow().deselect();
+        speciesColorSelectionRecord.speciesColorPane().removeHighlight();
+        speciesColorSelectionRecord.speciesColorRow().removeHighlight();
         SpeciesColorPane selectedPane = speciesColorPanes[speciesIndex];
         SpeciesColorRow selectedRow = selectedPane.getMapOfPlotFlavorsToSpeciesColorRows().get(plotFlavor);
-        selectedPane.select();
-        selectedRow.select();
+        selectedPane.highlight();
+        selectedRow.highlight();
         speciesColorSelectionRecord = new SpeciesColorSelectionRecord(selectedPane, selectedRow);
     }
     private void cancel(){
@@ -180,19 +180,6 @@ public class ColorSelectionWindow {
                 colorPicker.valueProperty().addListener(colorListener);
                 click.consume();
             }
-//            if(click.getTarget() instanceof AbstractIndexedLabel) {
-//                // Use the index to identify the pane
-//                int index = ((Integer) ((AbstractIndexedLabel) click.getSource()).getIndex());
-//                SpeciesColorPane speciesColorPane = speciesColorPanes[index];
-//                colorPicker.valueProperty().removeListener(colorListener);
-////                makeSelection(abstractRowLabel.getIndex(), abstractRowLabel.getPlotFlavor());
-////                colorListener.setColorSplotch(abstractRowLabel);
-//                colorPicker.setValue(colorListener.colorSplotchReference.getColor());
-//                if(! colorPicker.getCustomColors().contains(colorListener.colorSplotchReference.getColor())) {
-//                    colorPicker.getCustomColors().add(colorListener.colorSplotchReference.getColor());
-//                }
-//                colorPicker.valueProperty().addListener(colorListener);
-//            }
         });
     }
 

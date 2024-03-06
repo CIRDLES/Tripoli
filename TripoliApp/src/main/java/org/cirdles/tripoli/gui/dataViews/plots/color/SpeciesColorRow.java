@@ -7,14 +7,12 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import org.cirdles.tripoli.gui.dataViews.plots.Selectable;
-import org.cirdles.tripoli.gui.dataViews.plots.color.ColorFlavoredIndexedLabel;
-import org.cirdles.tripoli.gui.dataViews.plots.color.ColorSplotch;
+import org.cirdles.tripoli.gui.dataViews.plots.Highlightable;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_HIGHLIGHTED_HEX;
 
-public class SpeciesColorRow extends HBox implements Selectable {
+public class SpeciesColorRow extends HBox implements Highlightable {
 
     private DetectorPlotFlavor plotFlavor;
     private Color color;
@@ -39,15 +37,14 @@ public class SpeciesColorRow extends HBox implements Selectable {
     }
 
     @Override
-    public void select() {
-        // Implement highlighting for selection
+    public void highlight() {
         Color backgroundColor = Color.web(TRIPOLI_HIGHLIGHTED_HEX, 0.9);
         BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY);
         this.plotFlavorLabel.setBackground(new Background(fill));
     }
 
     @Override
-    public void deselect() {
+    public void removeHighlight() {
         this.plotFlavorLabel.setBackground(null);
     }
 

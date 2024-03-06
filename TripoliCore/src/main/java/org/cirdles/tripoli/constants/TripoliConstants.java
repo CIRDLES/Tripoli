@@ -70,7 +70,7 @@ public enum TripoliConstants {
     public static final String PLOT_TAB_CONVERGE_INTENSITY = "Converge Intensity";
     public static final String[] TRIPOLI_DEFAULT_HEX_COLORS = {"#12bceb","#095c73","#ff0000","#7fffd4","#ffcf62","#ac8c42","#ff0000","#7fffd4","#9e6fb1","#4d3656","#ff0000","#7fffd4","#baff78","#6e9747","#ff0000","#7fffd4","#ffa056","#b2703c","#ff0000","#7fffd4"};
 
-    public static enum DetectorPlotFlavor {
+    public enum DetectorPlotFlavor {
 
         PM_DATA("PM Data"),
         PM_MODEL("PM Model"),
@@ -89,7 +89,7 @@ public enum TripoliConstants {
 
     }
 
-    public static enum IntensityUnits {
+    public enum IntensityUnits {
         COUNTS(),
         VOLTS(),
         AMPS();
@@ -103,7 +103,6 @@ public enum TripoliConstants {
         }
 
         public static double convertFromVoltsToCount(double count, double amplifierResistance) {
-            ;
             return count * (ONE_COULOMB / amplifierResistance);
         }
 

@@ -20,7 +20,6 @@ import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneIntensities;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
-import org.cirdles.tripoli.gui.utilities.TripoliColor;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.species.SpeciesColors;
@@ -32,7 +31,6 @@ import java.util.Map;
 
 import static java.lang.StrictMath.*;
 import static java.util.Arrays.binarySearch;
-import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_PALLETTE_FIVE;
 
 public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
     private final SpeciesIntensityAnalysisBuilder speciesIntensityAnalysisBuilder;
@@ -45,7 +43,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
     private final String tooltipTextExitSculpt = "Right Mouse to PAN, Shift-click toggles block, Dbl-click to EXIT Sculpting.";
     TripoliConstants.IntensityUnits intensityUnits = TripoliConstants.IntensityUnits.COUNTS;
     private double[][] yData;
-    private double[][] residuals;
+    private final double[][] residuals;
     private boolean showResiduals;
     private boolean showUncertainties = false;
     private boolean[][] onPeakDataIncludedAllBlocks;
@@ -311,9 +309,8 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                                 1,
                                 true,
                                 null,
-                                new Stop[]{
-                                        new Stop(0, faradayColor),
-                                        new Stop(1,pmColor)});
+                                new Stop(0, faradayColor),
+                                new Stop(1,pmColor));
                 g2d.setFill(gradient);
                 Text text = new Text(speciesList.get(isotopePlotSetIndex).prettyPrintShortForm());
                 g2d.setFont(Font.font("Monospaced", FontWeight.BOLD, 20));
@@ -584,8 +581,8 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                             // photoMultiplier
                             if (0.0 != yData[sculptedSpeciesIndex * 4 + 2][countOfPreviousBlockIncludedData + i - 1]) {
                                 if (showResiduals) {
-                                    minY = min(minY, residuals[sculptedSpeciesIndex * 1][countOfPreviousBlockIncludedData + i - 1]);
-                                    maxY = max(maxY, residuals[sculptedSpeciesIndex * 1][countOfPreviousBlockIncludedData + i - 1]);
+                                    minY = min(minY, residuals[sculptedSpeciesIndex][countOfPreviousBlockIncludedData + i - 1]);
+                                    maxY = max(maxY, residuals[sculptedSpeciesIndex][countOfPreviousBlockIncludedData + i - 1]);
                                 } else {
                                     minY = Math.min(minY, yData[sculptedSpeciesIndex * 4 + 2][countOfPreviousBlockIncludedData + i - 1]);
                                     maxY = Math.max(maxY, yData[sculptedSpeciesIndex * 4 + 2][countOfPreviousBlockIncludedData + i - 1]);
