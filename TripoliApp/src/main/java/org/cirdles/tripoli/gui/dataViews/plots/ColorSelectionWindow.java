@@ -14,8 +14,6 @@ import org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.ActorInterface;
-
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -25,7 +23,6 @@ public class ColorSelectionWindow {
     public static final double WINDOW_PREF_WIDTH = 335;
     private static ColorSelectionWindow instance;
     private final Map<Integer, SpeciesColors> mapOfSpeciesToColors;
-
     private final Map<Integer, SpeciesColors> originalMapOfSpeciesToColors;
     private final VBox root;
     private Stage stage;
@@ -86,6 +83,7 @@ public class ColorSelectionWindow {
         this.root.getChildren().add(initColorPicker());
         root.getChildren().add(initAcceptButton());
         root.getChildren().add(initCancelButton());
+
     }
 
     private void cancel(){
@@ -145,6 +143,7 @@ public class ColorSelectionWindow {
             instance = null;
             cancel();
         });
+        this.stage.setResizable(false);
         scene.addEventFilter(MouseEvent.MOUSE_CLICKED, click -> {
             if(click.getTarget() instanceof ColorSplotch) {
                 colorPicker.valueProperty().removeListener(colorListener);

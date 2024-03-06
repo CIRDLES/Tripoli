@@ -20,7 +20,7 @@ public class SpeciesColorRow extends HBox {
 
     private DetectorPlotFlavor plotFlavor;
     private Color color;
-    private ColorSplotch colorSplotch;
+    private final ColorSplotch colorSplotch;
 
 
     public SpeciesColorRow(DetectorPlotFlavor plotFlavor, Color color, int index) {
