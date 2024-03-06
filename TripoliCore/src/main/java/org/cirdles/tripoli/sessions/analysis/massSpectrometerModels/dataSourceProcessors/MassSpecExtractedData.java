@@ -15,8 +15,8 @@ public class MassSpecExtractedData implements Serializable {
     private MassSpecExtractedHeader header;
     private String[] columnHeaders;
     private DetectorSetup detectorSetup;
-    private Map<Integer, MassSpecOutputBlockRecordFull> blocksDataFull;
-    private Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite;
+    private final Map<Integer, MassSpecOutputBlockRecordFull> blocksDataFull;
+    private final Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite;
 
     public MassSpecExtractedData() {
         massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
@@ -94,13 +94,12 @@ public class MassSpecExtractedData implements Serializable {
     }
 
     public String printHeader() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Software Version: " + header.softwareVersion() + "\n");
-        sb.append("Sample: " + "unknown" + "\n");
-        sb.append("Fraction: " + "unknown" + "\n");
-        sb.append("Method Name: " + header.methodName() + "\n");
-        sb.append("Time Zero: " + header.localDateTimeZero() + "\n\n");
-        return sb.toString();
+        String sb = "Software Version: " + header.softwareVersion() + "\n" +
+                "Sample: " + "unknown" + "\n" +
+                "Fraction: " + "unknown" + "\n" +
+                "Method Name: " + header.methodName() + "\n" +
+                "Time Zero: " + header.localDateTimeZero() + "\n\n";
+        return sb;
     }
 
     public void populateColumnNamesList(List<String[]> columnNames) {

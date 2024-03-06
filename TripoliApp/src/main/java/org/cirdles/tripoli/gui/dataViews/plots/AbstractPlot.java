@@ -127,8 +127,7 @@ public abstract class AbstractPlot extends Canvas {
                     zoomChunkX = Math.abs(zoomChunkX) * Math.signum(event.getDeltaY());
                     zoomChunkY = Math.abs(zoomChunkY) * Math.signum(event.getDeltaY());
                     if (getDisplayRangeX() >= zoomChunkX) {
-                        if (event.getSource() instanceof AnalysisBlockCyclesPlot) {
-                            AnalysisBlockCyclesPlot sourceAnalysisBlockCyclesPlot = (AnalysisBlockCyclesPlot) event.getSource();
+                        if (event.getSource() instanceof AnalysisBlockCyclesPlot sourceAnalysisBlockCyclesPlot) {
                             if (event.isControlDown()) {
                                 ((PlotWallPane) sourceAnalysisBlockCyclesPlot.getParentWallPane()).synchronizeRatioPlotsScroll(sourceAnalysisBlockCyclesPlot, zoomChunkX, zoomChunkY);
                             } else {
@@ -146,21 +145,18 @@ public abstract class AbstractPlot extends Canvas {
         // Feb 2024 moving pan action to right mouse
         mouseDraggedEventHandler = event -> {
             if (mouseInHouse(event.getX(), event.getY()) && event.isSecondaryButtonDown()) {
-                if (event.getSource() instanceof AnalysisBlockCyclesPlot) {
-                    AnalysisBlockCyclesPlot sourceAnalysisBlockCyclesPlot = (AnalysisBlockCyclesPlot) event.getSource();
+                if (event.getSource() instanceof AnalysisBlockCyclesPlot sourceAnalysisBlockCyclesPlot) {
                     if (event.isControlDown()) {
                         ((PlotWallPane) sourceAnalysisBlockCyclesPlot.getParentWallPane()).synchronizeRatioPlotsDrag(event.getX(), event.getY());
                     } else {
                         sourceAnalysisBlockCyclesPlot.adjustOffsetsForDrag(event.getX(), event.getY());
                     }
-                } else if (event.getSource() instanceof LinePlot) {
-                    LinePlot sourceLinePlot = (LinePlot) event.getSource();
+                } else if (event.getSource() instanceof LinePlot sourceLinePlot) {
                     if (mouseInShadeHandle(plotBuilder.getShadeWidthForModelConvergence(), event.getX(), event.getY())) {
                         plotBuilder.setShadeWidthForModelConvergence(convertMouseXToValue(event.getX()));
                         sourceLinePlot.getParentWallPane().synchronizeConvergencePlotsShade(((LinePlotBuilder) plotBuilder).getBlockID(), convertMouseXToValue(event.getX()));
                     }
-                } else if (event.getSource() instanceof MultiLineIntensityPlot) {
-                    MultiLineIntensityPlot sourceLinePlot = (MultiLineIntensityPlot) event.getSource();
+                } else if (event.getSource() instanceof MultiLineIntensityPlot sourceLinePlot) {
                     if (mouseInShadeHandle(plotBuilder.getShadeWidthForModelConvergence(), event.getX(), event.getY())) {
                         plotBuilder.setShadeWidthForModelConvergence(convertMouseXToValue(event.getX()));
                         sourceLinePlot.getParentWallPane().synchronizeConvergencePlotsShade(((MultiLinePlotBuilder) plotBuilder).getBlockID(), convertMouseXToValue(event.getX()));
@@ -184,8 +180,7 @@ public abstract class AbstractPlot extends Canvas {
 
         EventHandler<MouseEvent> mousePressedEventHandler = e -> {
             if (mouseInHouse(e.getX(), e.getY())) {// && e.isPrimaryButtonDown()) {
-                if (e.getSource() instanceof AnalysisBlockCyclesPlot) {
-                    AnalysisBlockCyclesPlot sourceAnalysisBlockCyclesPlot = (AnalysisBlockCyclesPlot) e.getSource();
+                if (e.getSource() instanceof AnalysisBlockCyclesPlot sourceAnalysisBlockCyclesPlot) {
                     ((PlotWallPane) sourceAnalysisBlockCyclesPlot.getParentWallPane()).synchronizeMouseStartsOnPress(e.getX(), e.getY());
                 } else {
                     adjustMouseStartsForPress(e.getX(), e.getY());

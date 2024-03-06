@@ -1,26 +1,24 @@
-package org.cirdles.tripoli.gui.dataViews.plots;
+package org.cirdles.tripoli.gui.dataViews.plots.color;
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
-import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import org.cirdles.tripoli.gui.dataViews.plots.Highlightable;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
+import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_HIGHLIGHTED_HEX;
 
-public class SpeciesColorRow extends HBox {
+public class SpeciesColorRow extends HBox implements Highlightable {
 
     private DetectorPlotFlavor plotFlavor;
     private Color color;
     private final ColorSplotch colorSplotch;
+    private final ColorFlavoredIndexedLabel plotFlavorLabel;
+
 
 
     public SpeciesColorRow(DetectorPlotFlavor plotFlavor, Color color, int index) {
@@ -28,11 +26,26 @@ public class SpeciesColorRow extends HBox {
         this.color = color;
         this.colorSplotch = new ColorSplotch(" ", plotFlavor, color, index);
         this.colorSplotch.prefWidthProperty().bind(widthProperty().divide(2));
-        Label plotFlavorLabel = new Label(String.format("%s Color",getPlotFlavor().getName()));
+        plotFlavorLabel = new ColorFlavoredIndexedLabel(
+                String.format("%s Color",getPlotFlavor().getName()),
+                plotFlavor,
+                index);
         plotFlavorLabel.prefWidthProperty().bind(widthProperty().divide(2));
         plotFlavorLabel.setFont(new Font("Consolas", 14));
         getChildren().add(plotFlavorLabel);
         getChildren().add(this.colorSplotch);
+    }
+
+    @Override
+    public void highlight() {
+        Color backgroundColor = Color.web(TRIPOLI_HIGHLIGHTED_HEX, 0.9);
+        BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY);
+        this.plotFlavorLabel.setBackground(new Background(fill));
+    }
+
+    @Override
+    public void removeHighlight() {
+        this.plotFlavorLabel.setBackground(null);
     }
 
     public Color getColor() {

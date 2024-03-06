@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.gui.dataViews.plots;
+package org.cirdles.tripoli.gui.dataViews.plots.color;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -13,7 +13,7 @@ import javafx.stage.Window;
 import org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.species.SpeciesColors;
-import org.cirdles.tripoli.utilities.ActorInterface;
+import org.cirdles.tripoli.utilities.VoidActionInterface;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -27,9 +27,10 @@ public class ColorSelectionWindow {
     private final VBox root;
     private Stage stage;
     private ColorPicker colorPicker;
+    private SpeciesColorSelectionRecord speciesColorSelectionRecord;
     private SpeciesColorPane[] speciesColorPanes;
     private final ColorListener colorListener;
-    private final ActorInterface actor;
+    private final VoidActionInterface actor;
 
     private class ColorListener implements ChangeListener<Color> {
 
@@ -63,7 +64,7 @@ public class ColorSelectionWindow {
             Map<Integer, SpeciesColors> mapOfSpeciesToColors,
             List<SpeciesRecordInterface> species,
             Window owner,
-            ActorInterface actor) {
+            VoidActionInterface actor) {
         if (instance == null) {
             instance = new ColorSelectionWindow(mapOfSpeciesToColors, species, owner,actor);
         }
@@ -71,7 +72,7 @@ public class ColorSelectionWindow {
     }
     private ColorSelectionWindow(Map<Integer, SpeciesColors> mapOfSpeciesToColors,
                                  List<SpeciesRecordInterface> species,
-                                 Window owner, ActorInterface actor) {
+                                 Window owner, VoidActionInterface actor) {
         this.mapOfSpeciesToColors = mapOfSpeciesToColors;
         this.originalMapOfSpeciesToColors = new TreeMap<>();
         originalMapOfSpeciesToColors.putAll(mapOfSpeciesToColors);
@@ -79,13 +80,31 @@ public class ColorSelectionWindow {
         this.actor = actor;
         initStage(owner);
         initSpeciesColorPanes(species);
-        this.colorListener = new ColorListener(speciesColorPanes[0].getSpeciesColorRows()[0].getColorSplotch());
+        this.colorListener = new ColorListener(
+                speciesColorPanes[0].
+                        getMapOfPlotFlavorsToSpeciesColorRows().
+                        get(DetectorPlotFlavor.values()[0]).getColorSplotch());
+        speciesColorSelectionRecord = new SpeciesColorSelectionRecord(
+                speciesColorPanes[0],
+                speciesColorPanes[0].getMapOfPlotFlavorsToSpeciesColorRows().get(
+                        DetectorPlotFlavor.values()[0]));
+        speciesColorSelectionRecord.speciesColorRow().highlight();
+        speciesColorSelectionRecord.speciesColorPane().highlight();
         this.root.getChildren().add(initColorPicker());
         root.getChildren().add(initAcceptButton());
         root.getChildren().add(initCancelButton());
 
     }
 
+    private void makeSelection(int speciesIndex, DetectorPlotFlavor plotFlavor) {
+        speciesColorSelectionRecord.speciesColorPane().removeHighlight();
+        speciesColorSelectionRecord.speciesColorRow().removeHighlight();
+        SpeciesColorPane selectedPane = speciesColorPanes[speciesIndex];
+        SpeciesColorRow selectedRow = selectedPane.getMapOfPlotFlavorsToSpeciesColorRows().get(plotFlavor);
+        selectedPane.highlight();
+        selectedRow.highlight();
+        speciesColorSelectionRecord = new SpeciesColorSelectionRecord(selectedPane, selectedRow);
+    }
     private void cancel(){
         mapOfSpeciesToColors.clear();
         mapOfSpeciesToColors.putAll(originalMapOfSpeciesToColors);
@@ -145,14 +164,21 @@ public class ColorSelectionWindow {
         });
         this.stage.setResizable(false);
         scene.addEventFilter(MouseEvent.MOUSE_CLICKED, click -> {
-            if(click.getTarget() instanceof ColorSplotch) {
+            if (click.getTarget() instanceof FlavoredIndexedLabel flavoredIndexedLabel) {
+                int index = flavoredIndexedLabel.getIndex();
+                DetectorPlotFlavor plotFlavor = flavoredIndexedLabel.getPlotFlavor();
+                SpeciesColorPane speciesColorPane = speciesColorPanes[index];
+                ColorSplotch colorSplotch =
+                        speciesColorPane.getMapOfPlotFlavorsToSpeciesColorRows().get(plotFlavor).getColorSplotch();
                 colorPicker.valueProperty().removeListener(colorListener);
-                colorListener.setColorSplotch((ColorSplotch) click.getTarget());
-                colorPicker.setValue(colorListener.colorSplotchReference.getColor());
-                if(! colorPicker.getCustomColors().contains(colorListener.colorSplotchReference.getColor())) {
-                    colorPicker.getCustomColors().add(colorListener.colorSplotchReference.getColor());
+                colorListener.setColorSplotch(colorSplotch);
+                makeSelection(index, flavoredIndexedLabel.getPlotFlavor());
+                colorPicker.valueProperty().setValue(colorSplotch.getColor());
+                if (! colorPicker.getCustomColors().contains(colorSplotch.getColor())) {
+                    colorPicker.getCustomColors().add(colorSplotch.getColor());
                 }
                 colorPicker.valueProperty().addListener(colorListener);
+                click.consume();
             }
         });
     }
