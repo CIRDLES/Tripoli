@@ -44,6 +44,6 @@ class SessionTest {
 //        AnalysisMethod a = testSession.getMapOfAnalyses().entrySet().stream().findFirst().get().getValue().getMethod();
 //        AnalysisMethod b = testSession2.getMapOfAnalyses().entrySet().stream().findFirst().get().getValue().getMethod();
 //        assertEquals(a, b);
-        assertTrue(true);
+//        assertTrue(true);
     }
 }
