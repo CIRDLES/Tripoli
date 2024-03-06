@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.gui.dataViews.plots;
+package org.cirdles.tripoli.gui.dataViews.plots.color;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -11,12 +11,13 @@ import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_HIGH
 
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import org.cirdles.tripoli.gui.dataViews.plots.Selectable;
 import org.cirdles.tripoli.species.SpeciesColors;
 
 import java.util.Map;
 import java.util.TreeMap;
 
-public class SpeciesColorPane extends Pane implements Selectable{
+public class SpeciesColorPane extends Pane implements Selectable {
 
 
     private final Map<DetectorPlotFlavor, SpeciesColorRow> mapOfPlotFlavorsToSpeciesColorRows;

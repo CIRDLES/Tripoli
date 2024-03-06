@@ -1,25 +1,25 @@
-package org.cirdles.tripoli.gui.dataViews.plots;
+package org.cirdles.tripoli.gui.dataViews.plots.color;
 
 import javafx.geometry.Insets;
-import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import org.cirdles.tripoli.gui.dataViews.plots.Selectable;
+import org.cirdles.tripoli.gui.dataViews.plots.color.ColorFlavoredIndexedLabel;
+import org.cirdles.tripoli.gui.dataViews.plots.color.ColorSplotch;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_HIGHLIGHTED_HEX;
 
 public class SpeciesColorRow extends HBox implements Selectable {
 
-    private static final String TRIPOLI_HIGHLIGHTED_HEX = "#d3d3d3";
     private DetectorPlotFlavor plotFlavor;
     private Color color;
     private final ColorSplotch colorSplotch;
-    private final Label plotFlavorLabel;
+    private final ColorFlavoredIndexedLabel plotFlavorLabel;
 
 
 
@@ -28,7 +28,10 @@ public class SpeciesColorRow extends HBox implements Selectable {
         this.color = color;
         this.colorSplotch = new ColorSplotch(" ", plotFlavor, color, index);
         this.colorSplotch.prefWidthProperty().bind(widthProperty().divide(2));
-        plotFlavorLabel = new Label(String.format("%s Color",getPlotFlavor().getName()));
+        plotFlavorLabel = new ColorFlavoredIndexedLabel(
+                String.format("%s Color",getPlotFlavor().getName()),
+                plotFlavor,
+                index);
         plotFlavorLabel.prefWidthProperty().bind(widthProperty().divide(2));
         plotFlavorLabel.setFont(new Font("Consolas", 14));
         getChildren().add(plotFlavorLabel);

@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.gui.dataViews.plots;
+package org.cirdles.tripoli.gui.dataViews.plots.color;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -164,17 +164,35 @@ public class ColorSelectionWindow {
         });
         this.stage.setResizable(false);
         scene.addEventFilter(MouseEvent.MOUSE_CLICKED, click -> {
-            if(click.getTarget() instanceof ColorSplotch) {
-                ColorSplotch clickedColorSplotch = ((ColorSplotch) click.getTarget());
+            if (click.getTarget() instanceof FlavoredIndexedLabel flavoredIndexedLabel) {
+                int index = flavoredIndexedLabel.getIndex();
+                DetectorPlotFlavor plotFlavor = flavoredIndexedLabel.getPlotFlavor();
+                SpeciesColorPane speciesColorPane = speciesColorPanes[index];
+                ColorSplotch colorSplotch =
+                        speciesColorPane.getMapOfPlotFlavorsToSpeciesColorRows().get(plotFlavor).getColorSplotch();
                 colorPicker.valueProperty().removeListener(colorListener);
-                makeSelection(clickedColorSplotch.getIndex(), clickedColorSplotch.getPlotFlavor());
-                colorListener.setColorSplotch(clickedColorSplotch);
-                colorPicker.setValue(colorListener.colorSplotchReference.getColor());
-                if(! colorPicker.getCustomColors().contains(colorListener.colorSplotchReference.getColor())) {
-                    colorPicker.getCustomColors().add(colorListener.colorSplotchReference.getColor());
+                colorListener.setColorSplotch(colorSplotch);
+                makeSelection(index, flavoredIndexedLabel.getPlotFlavor());
+                colorPicker.valueProperty().setValue(colorSplotch.getColor());
+                if (! colorPicker.getCustomColors().contains(colorSplotch.getColor())) {
+                    colorPicker.getCustomColors().add(colorSplotch.getColor());
                 }
                 colorPicker.valueProperty().addListener(colorListener);
+                click.consume();
             }
+//            if(click.getTarget() instanceof AbstractIndexedLabel) {
+//                // Use the index to identify the pane
+//                int index = ((Integer) ((AbstractIndexedLabel) click.getSource()).getIndex());
+//                SpeciesColorPane speciesColorPane = speciesColorPanes[index];
+//                colorPicker.valueProperty().removeListener(colorListener);
+////                makeSelection(abstractRowLabel.getIndex(), abstractRowLabel.getPlotFlavor());
+////                colorListener.setColorSplotch(abstractRowLabel);
+//                colorPicker.setValue(colorListener.colorSplotchReference.getColor());
+//                if(! colorPicker.getCustomColors().contains(colorListener.colorSplotchReference.getColor())) {
+//                    colorPicker.getCustomColors().add(colorListener.colorSplotchReference.getColor());
+//                }
+//                colorPicker.valueProperty().addListener(colorListener);
+//            }
         });
     }
 
