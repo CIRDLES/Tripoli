@@ -10,9 +10,9 @@ import org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 
 public class ColorSplotch extends Label {
 
-    private DetectorPlotFlavor plotFlavor;
+    private final DetectorPlotFlavor plotFlavor;
     private Color color;
-    private int index;
+    private final int index;
 
     public ColorSplotch(String text, DetectorPlotFlavor plotFlavor,Color color, int index) {
         super(text);

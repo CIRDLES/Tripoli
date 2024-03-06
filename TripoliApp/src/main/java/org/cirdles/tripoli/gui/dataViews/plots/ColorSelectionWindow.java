@@ -27,6 +27,7 @@ public class ColorSelectionWindow {
     private final VBox root;
     private Stage stage;
     private ColorPicker colorPicker;
+    private SpeciesColorSelectionRecord speciesColorSelectionRecord;
     private SpeciesColorPane[] speciesColorPanes;
     private final ColorListener colorListener;
     private final ActorInterface actor;
@@ -79,13 +80,31 @@ public class ColorSelectionWindow {
         this.actor = actor;
         initStage(owner);
         initSpeciesColorPanes(species);
-        this.colorListener = new ColorListener(speciesColorPanes[0].getSpeciesColorRows()[0].getColorSplotch());
+        this.colorListener = new ColorListener(
+                speciesColorPanes[0].
+                        getMapOfPlotFlavorsToSpeciesColorRows().
+                        get(DetectorPlotFlavor.values()[0]).getColorSplotch());
+        speciesColorSelectionRecord = new SpeciesColorSelectionRecord(
+                speciesColorPanes[0],
+                speciesColorPanes[0].getMapOfPlotFlavorsToSpeciesColorRows().get(
+                        DetectorPlotFlavor.values()[0]));
+        speciesColorSelectionRecord.speciesColorRow().select();
+        speciesColorSelectionRecord.speciesColorPane().select();
         this.root.getChildren().add(initColorPicker());
         root.getChildren().add(initAcceptButton());
         root.getChildren().add(initCancelButton());
 
     }
 
+    private void makeSelection(int speciesIndex, DetectorPlotFlavor plotFlavor) {
+        speciesColorSelectionRecord.speciesColorPane().deselect();
+        speciesColorSelectionRecord.speciesColorRow().deselect();
+        SpeciesColorPane selectedPane = speciesColorPanes[speciesIndex];
+        SpeciesColorRow selectedRow = selectedPane.getMapOfPlotFlavorsToSpeciesColorRows().get(plotFlavor);
+        selectedPane.select();
+        selectedRow.select();
+        speciesColorSelectionRecord = new SpeciesColorSelectionRecord(selectedPane, selectedRow);
+    }
     private void cancel(){
         mapOfSpeciesToColors.clear();
         mapOfSpeciesToColors.putAll(originalMapOfSpeciesToColors);
@@ -146,8 +165,10 @@ public class ColorSelectionWindow {
         this.stage.setResizable(false);
         scene.addEventFilter(MouseEvent.MOUSE_CLICKED, click -> {
             if(click.getTarget() instanceof ColorSplotch) {
+                ColorSplotch clickedColorSplotch = ((ColorSplotch) click.getTarget());
                 colorPicker.valueProperty().removeListener(colorListener);
-                colorListener.setColorSplotch((ColorSplotch) click.getTarget());
+                makeSelection(clickedColorSplotch.getIndex(), clickedColorSplotch.getPlotFlavor());
+                colorListener.setColorSplotch(clickedColorSplotch);
                 colorPicker.setValue(colorListener.colorSplotchReference.getColor());
                 if(! colorPicker.getCustomColors().contains(colorListener.colorSplotchReference.getColor())) {
                     colorPicker.getCustomColors().add(colorListener.colorSplotchReference.getColor());

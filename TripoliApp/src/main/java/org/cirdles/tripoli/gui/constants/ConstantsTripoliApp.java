@@ -45,6 +45,8 @@ public enum ConstantsTripoliApp {
     // JFB: Moved red to end since using red to toss points
     //    https://chartio.com/learn/charts/how-to-choose-colors-data-visualization/
     public static final String[] TRIPOLI_PALLETTE_FIVE = {"#0d84a5", "#f6c85f", "#6f4e7c", "#9ed866", "#ffa056", "#8dddd0", "#ca472f"};
+
+    public static final String TRIPOLI_HIGHLIGHTED_HEX = "#d3d3d3";
     public static final Color TRIPOLI_MOVING_SHADE = new Color(255.0 / 256.0, 182.0 / 256.0, 193.0 / 256.0, 0.5);
 
     public static final Color OGTRIPOLI_TWOSIGMA = new Color(255.0 / 256.0, 191.0 / 256.0, 203.0 / 256.0, 1.0);
