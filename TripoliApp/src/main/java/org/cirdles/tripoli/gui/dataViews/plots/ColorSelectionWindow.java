@@ -24,19 +24,15 @@ public class ColorSelectionWindow {
     public static final String WINDOW_TITLE = "Color Customization";
     public static final double WINDOW_PREF_WIDTH = 335;
     private static ColorSelectionWindow instance;
+    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors;
 
-    private Map<Integer, SpeciesColors> mapOfSpeciesToColors;
-
-    private Map<Integer, SpeciesColors> originalMapOfSpeciesToColors;
-    private VBox root;
+    private final Map<Integer, SpeciesColors> originalMapOfSpeciesToColors;
+    private final VBox root;
     private Stage stage;
-    private Scene scene;
     private ColorPicker colorPicker;
-    private Button okButton;
-    private Button cancelButton;
     private SpeciesColorPane[] speciesColorPanes;
-    private ColorListener colorListener;
-    private ActorInterface actor;
+    private final ColorListener colorListener;
+    private final ActorInterface actor;
 
     private class ColorListener implements ChangeListener<Color> {
 
@@ -65,9 +61,6 @@ public class ColorSelectionWindow {
             this.colorSplotchReference = colorSplotch;
         }
 
-        public ColorSplotch getColorSplotchReference() {
-            return colorSplotchReference;
-        }
     }
     public static ColorSelectionWindow colorSelectionWindowRequest(
             Map<Integer, SpeciesColors> mapOfSpeciesToColors,
@@ -90,20 +83,9 @@ public class ColorSelectionWindow {
         initStage(owner);
         initSpeciesColorPanes(species);
         this.colorListener = new ColorListener(speciesColorPanes[0].getSpeciesColorRows()[0].getColorSplotch());
-        colorPicker = new ColorPicker();
-        colorPicker.prefWidthProperty().bind(stage.widthProperty());
-        colorPicker.valueProperty().setValue(this.colorListener.colorSplotchReference.getColor());
-        colorPicker.getCustomColors().add(this.colorListener.colorSplotchReference.getColor());
-        colorPicker.valueProperty().addListener(this.colorListener);
-        root.getChildren().add(colorPicker);
-        this.okButton = new Button("Accept Changes");
-        this.okButton.prefWidthProperty().bind(stage.widthProperty());
-        this.okButton.setOnAction(acceptChanges -> {accept();});
-        root.getChildren().add(okButton);
-        this.cancelButton = new Button("Cancel");
-        this.cancelButton.prefWidthProperty().bind(stage.widthProperty());
-        this.cancelButton.setOnAction(cancelChanges -> {cancel();});
-        root.getChildren().add(cancelButton);
+        this.root.getChildren().add(initColorPicker());
+        root.getChildren().add(initAcceptButton());
+        root.getChildren().add(initCancelButton());
     }
 
     private void cancel(){
@@ -120,6 +102,27 @@ public class ColorSelectionWindow {
         instance = null;
     }
 
+    private Button initCancelButton() {
+        Button cancelButton = new Button("Cancel");
+        cancelButton.prefWidthProperty().bind(stage.widthProperty());
+        cancelButton.setOnAction(cancelChanges -> {cancel();});
+        return cancelButton;
+    }
+
+    private Button initAcceptButton() {
+        Button okButton = new Button("Accept Changes");
+        okButton.prefWidthProperty().bind(stage.widthProperty());
+        okButton.setOnAction(acceptChanges -> {accept();});
+        return okButton;
+    }
+    private ColorPicker initColorPicker() {
+        this.colorPicker = new ColorPicker();
+        this.colorPicker.prefWidthProperty().bind(stage.widthProperty());
+        this.colorPicker.valueProperty().setValue(this.colorListener.colorSplotchReference.getColor());
+        this.colorPicker.getCustomColors().add(this.colorListener.colorSplotchReference.getColor());
+        this.colorPicker.valueProperty().addListener(this.colorListener);
+        return this.colorPicker;
+    }
     private void initSpeciesColorPanes(List<SpeciesRecordInterface> species) {
         speciesColorPanes = new SpeciesColorPane[species.size()];
         for (int i = 0; i < species.size(); ++i) {
@@ -132,7 +135,7 @@ public class ColorSelectionWindow {
         }
     }
     private void initStage(Window owner) {
-        scene = new Scene(this.root);
+        Scene scene = new Scene(this.root);
         stage = new Stage();
         stage.setWidth(WINDOW_PREF_WIDTH);
         stage.setScene(scene);
