@@ -2,7 +2,6 @@ package org.cirdles.tripoli.gui.dataViews.plots.color;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -31,10 +30,13 @@ public class ColorSelectionWindow {
     private final VBox root;
     private Stage stage;
     private ColorPicker colorPicker;
+    private Label colorPickerLabel;// To change the text of the color picker
     private SpeciesColorSelectionRecord speciesColorSelectionRecord;
     private SpeciesColorPane[] speciesColorPanes;
     private final ColorListener colorListener;
     private final DelegateActionInterface actor;
+
+
 
     private class ColorListener implements ChangeListener<Color> {
 
@@ -57,14 +59,7 @@ public class ColorSelectionWindow {
                                     (int) (newValue.getGreen() * 255),
                                     (int) (newValue.getBlue() * 255))));
             colorSplotchReference.setColor(newValue);
-            for (Node child : colorPicker.getChildrenUnmodifiable()) {
-                if (child instanceof Label colorPickerLabel) {
-                    colorPickerLabel.setText(String.format("%s Color for %s Species",
-                            colorSplotchReference.getPlotFlavor().getName(),
-                            speciesColorPanes[colorSplotchReference.getIndex()]
-                                    .getTitle().getText()));
-                }
-            }
+            setColorPickerLabelText();
             actor.act();
         }
         public void setColorSplotch(ColorSplotch colorSplotch) {
@@ -117,6 +112,7 @@ public class ColorSelectionWindow {
         selectedRow.highlight();
         speciesColorSelectionRecord = new SpeciesColorSelectionRecord(selectedPane, selectedRow);
     }
+
     private void cancel(){
         mapOfSpeciesToColors.clear();
         mapOfSpeciesToColors.putAll(originalMapOfSpeciesToColors);
@@ -129,6 +125,22 @@ public class ColorSelectionWindow {
         this.stage.close();
         this.actor.act();
         instance = null;
+    }
+
+    private void setColorPickerLabelText() {
+        if(colorPickerLabel == null) {
+            for(Node child : colorPicker.getChildrenUnmodifiable()) {
+                if(child instanceof Label colorPickerLabelReference) {
+                    this.colorPickerLabel = colorPickerLabelReference;
+                }
+            }
+        }
+        if(colorPickerLabel != null) {
+            colorPickerLabel.setText(String.format("%s Color for %s Species",
+                    this.colorListener.colorSplotchReference.getPlotFlavor().getName(),
+                    speciesColorPanes[this.colorListener.colorSplotchReference.getIndex()]
+                            .getTitle().getText()));
+        }
     }
 
     private Button initCancelButton() {
@@ -153,14 +165,6 @@ public class ColorSelectionWindow {
         this.colorPicker.valueProperty().setValue(this.colorListener.colorSplotchReference.getColor());
         this.colorPicker.getCustomColors().add(this.colorListener.colorSplotchReference.getColor());
         this.colorPicker.valueProperty().addListener(this.colorListener);
-        for (Node child : colorPicker.getChildrenUnmodifiable()) {
-            if (child instanceof Label colorPickerLabel) {
-                colorPickerLabel.setText(String.format("%s Color for %s Species",
-                        this.colorListener.colorSplotchReference.getPlotFlavor().getName(),
-                        speciesColorPanes[this.colorListener.colorSplotchReference.getIndex()]
-                                .getTitle().getText()));
-            }
-        }
         return this.colorPicker;
     }
     private void initSpeciesColorPanes(List<SpeciesRecordInterface> species) {
@@ -200,13 +204,7 @@ public class ColorSelectionWindow {
                 if (! colorPicker.getCustomColors().contains(colorSplotch.getColor())) {
                     colorPicker.getCustomColors().add(colorSplotch.getColor());
                 }
-                for (Node child : colorPicker.getChildrenUnmodifiable()) {
-                    if (child instanceof Label colorPickerLabel) {
-                        colorPickerLabel.setText(String.format("%s Color for %s Species",
-                                plotFlavor.getName(),
-                                speciesColorPane.getTitle().getText()));
-                    }
-                }
+                setColorPickerLabelText();
                 colorPicker.valueProperty().addListener(colorListener);
                 click.consume();
             }
@@ -215,14 +213,7 @@ public class ColorSelectionWindow {
 
     public void show() {
         stage.show();
-        for (Node child : colorPicker.getChildrenUnmodifiable()) {
-            if (child instanceof Label colorPickerLabel) {
-                colorPickerLabel.setText(String.format("%s Color for %s Species",
-                        this.colorListener.colorSplotchReference.getPlotFlavor().getName(),
-                        speciesColorPanes[this.colorListener.colorSplotchReference.getIndex()]
-                                .getTitle().getText()));
-            }
-        }
+        setColorPickerLabelText();
         stage.toFront();
     }
 }
