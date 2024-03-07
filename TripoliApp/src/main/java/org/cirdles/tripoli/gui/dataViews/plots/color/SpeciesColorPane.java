@@ -62,4 +62,7 @@ public class SpeciesColorPane extends Pane implements Highlightable {
         return mapOfPlotFlavorsToSpeciesColorRows;
     }
 
+    public Label getTitle() {
+        return title;
+    }
 }

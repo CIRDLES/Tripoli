@@ -1,5 +1,5 @@
 package org.cirdles.tripoli.utilities;
 
-public interface VoidActionInterface {
+public interface DelegateActionInterface {
     void act();
 }
