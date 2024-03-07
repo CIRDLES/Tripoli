@@ -28,7 +28,7 @@ import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotI;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
@@ -452,11 +452,11 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         }
     }
 
-    public void synchronizeRatioPlotsScroll(AnalysisBlockCyclesPlot sourceAnalysisBlockCyclesPlot, double zoomChunkX, double zoomChunkY) {
+    public void synchronizeRatioPlotsScroll(AnalysisBlockCyclesPlotI sourceAnalysisBlockCyclesPlot, double zoomChunkX, double zoomChunkY) {
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
-                AnalysisBlockCyclesPlot childPlot = (AnalysisBlockCyclesPlot) ((TripoliPlotPane) child).getPlot();
+                AnalysisBlockCyclesPlotI childPlot = (AnalysisBlockCyclesPlotI) ((TripoliPlotPane) child).getPlot();
                 if (childPlot != sourceAnalysisBlockCyclesPlot) {
                     childPlot.setZoomChunkX(zoomChunkX);
                     childPlot.setZoomChunkY(zoomChunkY);
@@ -472,7 +472,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
-                AnalysisBlockCyclesPlot childPlot = (AnalysisBlockCyclesPlot) ((TripoliPlotPane) child).getPlot();
+                AnalysisBlockCyclesPlotI childPlot = (AnalysisBlockCyclesPlotI) ((TripoliPlotPane) child).getPlot();
                 childPlot.adjustOffsetsForDrag(x, y);
             }
         }
@@ -492,7 +492,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         ObservableList<Node> children = getChildren();
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
-                AnalysisBlockCyclesPlot childPlot = (AnalysisBlockCyclesPlot) ((TripoliPlotPane) child).getPlot();
+                AnalysisBlockCyclesPlotI childPlot = (AnalysisBlockCyclesPlotI) ((TripoliPlotPane) child).getPlot();
                 childPlot.adjustMouseStartsForPress(x, y);
             }
         }
@@ -503,7 +503,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         boolean included = false;
         for (Node child : children) {
             if (child instanceof TripoliPlotPane) {
-                AnalysisBlockCyclesPlot childPlot = (AnalysisBlockCyclesPlot) ((TripoliPlotPane) child).getPlot();
+                AnalysisBlockCyclesPlotI childPlot = (AnalysisBlockCyclesPlotI) ((TripoliPlotPane) child).getPlot();
                 if (childPlot.getMapBlockIdToBlockCyclesRecord().get(blockID) != null) {
                     childPlot.getMapBlockIdToBlockCyclesRecord().put(
                             blockID,

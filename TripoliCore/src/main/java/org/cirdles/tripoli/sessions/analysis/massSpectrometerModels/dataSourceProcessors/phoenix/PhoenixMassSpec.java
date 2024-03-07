@@ -61,6 +61,7 @@ public enum PhoenixMassSpec {
 
             int phase = 0;
             int currentBlockNumber = 1;
+            int cyclesPerBlock = 1;
             contentsByLine.add("#END,0,");
             for (String line : contentsByLine) {
                 if (!line.trim().isBlank()) {
@@ -136,6 +137,7 @@ public enum PhoenixMassSpec {
 
             int phase = 0;
             int currentBlockID = 1;
+            int cyclesPerBlock = 1;
             for (String line : contentsByLine) {
                 if (!line.trim().isBlank()) {
                     if (line.startsWith("#COLLECTORS")) {
@@ -227,6 +229,7 @@ public enum PhoenixMassSpec {
 
             int phase = 0;
             int currentBlockID = 1;
+            int cyclesPerBlock = 1;
             for (String line : contentsByLine) {
                 if (!line.trim().isBlank()) {
                     if (line.startsWith("#COLLECTORS")) {
@@ -267,7 +270,7 @@ public enum PhoenixMassSpec {
                         case 6 -> phase = 7;
                         case 7 -> phase = 8;
                         case 5 -> {
-                            int cyclesPerBlock = massSpecExtractedData.getHeader().cyclesPerBlock();
+                            cyclesPerBlock = massSpecExtractedData.getHeader().cyclesPerBlock();
                             String[] lineSplit = line.split(",");
                             int blockID = (Integer.parseInt(lineSplit[0].trim()) - 1) / cyclesPerBlock + 1;
                             if (blockID != currentBlockID) {
@@ -340,19 +343,13 @@ public enum PhoenixMassSpec {
 
         return buildSingleBlockTIMSDPRecord(
                 blockNumber,
-                cycleNumberByLineSplit,
-                timeStampByLineSplit,
                 cycleDataByLineSplit);
     }
 
     private static MassSpecOutputBlockRecordLite buildSingleBlockTIMSDPRecord(
             int blockID,
-            List<String> cycleNumberByLineSplit,
-            List<String> timeStampByLineSplit,
             List<String[]> cycleDataByLineSplit) {
 
-        int[] cycleNumbers = convertListOfNumbersAsStringsToIntegerArray(cycleNumberByLineSplit);
-        double[] timeStamps = convertListOfNumbersAsStringsToDoubleArray(timeStampByLineSplit);
         double[][] cycleData = new double[cycleDataByLineSplit.size()][];
         int index = 0;
         for (String[] numbersAsStrings : cycleDataByLineSplit) {
@@ -364,9 +361,8 @@ public enum PhoenixMassSpec {
 
         return new MassSpecOutputBlockRecordLite(
                 blockID,
-                cycleNumbers,
-                timeStamps,
-                cycleData);
+                cycleData
+        );
     }
 
     private static MassSpecOutputBlockRecordFull buildSingleBlockRecord(

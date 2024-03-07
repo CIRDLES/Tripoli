@@ -12,15 +12,16 @@ import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.dataViews.plots.*;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotOG;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.BlockAnalysisRatioCyclesBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockCyclesBuilder;
-import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockCyclesRecord;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteOneSetRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
@@ -118,8 +119,8 @@ public class OGTripoliViewController {
         boolean[] DUMMY_CYCLES_INCLUDED;
 
         switch (plottingData.analysisCaseNumber()) {
-            case 1 -> {
-                SingleBlockRawDataLiteOneSetRecord[] singleBlockRawDataLiteOneSetRecords = plottingData.singleBlockRawDataLiteOneSetRecords();
+            case 2 -> {
+                SingleBlockRawDataLiteSetRecord[] singleBlockRawDataLiteOneSetRecords = plottingData.singleBlockRawDataLiteSetRecords();
                 int countOfOnPeakCycles = plottingData.cycleCount();
 
                 DUMMY_CYCLES_INCLUDED = new boolean[countOfOnPeakCycles];
@@ -136,7 +137,7 @@ public class OGTripoliViewController {
                 for (UserFunction userFunction : ratiosToPlot) {
                     TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPaneRatios);
 
-                    List<BlockCyclesRecord> blockCyclesRecords = new ArrayList<>();
+                    List<PlotBlockCyclesRecord> blockCyclesRecords = new ArrayList<>();
                     for (int blockIndex = 0; blockIndex < singleBlockRawDataLiteOneSetRecords.length; blockIndex++) {
                         if (null != singleBlockRawDataLiteOneSetRecords[blockIndex]) {
                             Integer blockID = singleBlockRawDataLiteOneSetRecords[blockIndex].blockID();
@@ -172,6 +173,59 @@ public class OGTripoliViewController {
                 }
             }
 
+            case 1 -> {
+                SingleBlockRawDataLiteSetRecord[] singleBlockRawDataLiteSetRecords = plottingData.singleBlockRawDataLiteSetRecords();
+                int countOfOnPeakCycles = plottingData.cycleCount();
+                int[] blockIDsPerTimeSlot = analysis.getMassSpecExtractedData().assignBlockIdToSessionTimeLite();
+
+                DUMMY_CYCLES_INCLUDED = new boolean[countOfOnPeakCycles];
+                Arrays.fill(DUMMY_CYCLES_INCLUDED, true);
+
+                // build list of userFunctions to plot
+                List<UserFunction> ratiosToPlot = new ArrayList<>();
+                for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
+                    if (userFunction.isDisplayed()) {
+                        ratiosToPlot.add(userFunction);
+                    }
+                }
+
+                for (UserFunction userFunction : ratiosToPlot) {
+                    TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPaneRatios);
+
+                    // todo: simplify since analysis carries most of the info
+                    Map<Integer, PlotBlockCyclesRecord> mapOfBlocksToCyclesRecords = new TreeMap<>();
+                    for (int blockIndex = 0; blockIndex < singleBlockRawDataLiteSetRecords.length; blockIndex++) {
+                        if (null != singleBlockRawDataLiteSetRecords[blockIndex]) {
+                            Integer blockID = singleBlockRawDataLiteSetRecords[blockIndex].blockID();
+
+                            mapOfBlocksToCyclesRecords.put(blockID, (BlockCyclesBuilder.initializeBlockCycles(
+                                    blockID,
+                                    singleBlockRawDataLiteSetRecords[blockIndex].calcBlockIncludedForUserFunc(userFunction),
+                                    true,
+                                    singleBlockRawDataLiteSetRecords[blockIndex].assembleCyclesIncludedForUserFunction(userFunction),
+                                    singleBlockRawDataLiteSetRecords[blockIndex].assembleCycleMeansForUserFunction(userFunction),
+                                    singleBlockRawDataLiteSetRecords[blockIndex].assembleCycleStdDevForUserFunction(userFunction),
+                                    new String[]{userFunction.getName()},
+                                    true,
+                                    userFunction.isTreatAsIsotopicRatio()).getBlockCyclesRecord()));
+                        } else {
+                            mapOfBlocksToCyclesRecords.put(blockIndex - 1, null);
+                        }
+                    }
+
+                    AbstractPlot plot = AnalysisBlockCyclesPlotOG.generatePlot(
+                            new Rectangle(minPlotWidth, minPlotHeight),
+                            analysis,
+                            userFunction,
+                            mapOfBlocksToCyclesRecords,
+                            blockIDsPerTimeSlot,
+                            (PlotWallPane) plotsWallPaneRatios);
+
+                    tripoliPlotPane.addPlot(plot);
+                    plot.refreshPanel(false, false);
+                }
+            }
+
             case 4 -> {
                 SingleBlockModelRecord[] singleBlockModelRecords = plottingData.singleBlockModelRecords();
                 int countOfOnPeakCycles = plottingData.cycleCount();
@@ -197,13 +251,13 @@ public class OGTripoliViewController {
                 for (IsotopicRatio isotopicRatio : isotopicRatiosToPlot) {
                     TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPaneRatios);
 
-                    List<BlockCyclesRecord> blockCyclesRecords = new ArrayList<>();
+                    List<PlotBlockCyclesRecord> plotBlockCyclesRecords = new ArrayList<>();
                     for (int blockIndex = 0; blockIndex < singleBlockModelRecords.length; blockIndex++) {
                         if (null != singleBlockModelRecords[blockIndex]) {
                             Integer blockID = singleBlockModelRecords[blockIndex].blockID();
                             int blockStatus = analysis.getMapOfBlockIdToProcessStatus().get(blockID);
                             boolean processed = (null != analysis.getMapOfBlockIdToPlots().get(blockID));
-                            blockCyclesRecords.add(BlockCyclesBuilder.initializeBlockCycles(
+                            plotBlockCyclesRecords.add(BlockCyclesBuilder.initializeBlockCycles(
                                     blockID,
                                     SKIP != blockStatus,
                                     processed,
@@ -214,12 +268,12 @@ public class OGTripoliViewController {
                                     true,
                                     true).getBlockCyclesRecord());
                         } else {
-                            blockCyclesRecords.add(null);
+                            plotBlockCyclesRecords.add(null);
                         }
                     }
                     BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder =
                             BlockAnalysisRatioCyclesBuilder.initializeBlockAnalysisRatioCycles(
-                                    isotopicRatio.prettyPrint(), blockCyclesRecords,
+                                    isotopicRatio.prettyPrint(), plotBlockCyclesRecords,
                                     analysis.getMapOfBlockIdToProcessStatus(),
                                     analysis.getMassSpecExtractedData().assignBlockIdToSessionTimeLite(),
                                     true,
