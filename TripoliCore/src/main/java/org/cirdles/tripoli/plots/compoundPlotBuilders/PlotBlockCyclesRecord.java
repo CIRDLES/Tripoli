@@ -96,7 +96,7 @@ public record PlotBlockCyclesRecord(
                 blockID,
                 isRatio,
                 processed,
-                !(countIncluded == 0),
+                (countIncluded != 0),
                 cyclesIncluded,
                 cycleMeansData,
                 cycleOneSigmaData,

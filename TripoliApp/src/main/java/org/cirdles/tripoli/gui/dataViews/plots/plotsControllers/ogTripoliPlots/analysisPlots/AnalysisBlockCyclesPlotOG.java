@@ -165,7 +165,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             maxY = -Double.MAX_VALUE;
 
             for (int i = 0; i < yAxisData.length; i++) {
-                int blockID = (i / cyclesPerBlock) + 1;
+//                int blockID = (i / cyclesPerBlock) + 1;
                 // TODO: handle logratio uncertainties
                 minY = StrictMath.min(minY, yAxisData[i] - oneSigmaForCycles[i]);
                 maxY = StrictMath.max(maxY, yAxisData[i] + oneSigmaForCycles[i]);
