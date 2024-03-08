@@ -40,7 +40,7 @@ public enum PhoenixMassSpec {
     ;
 
     @SuppressWarnings("unused")
-    public static MassSpecExtractedData extractMetaDataAndBlockDataFromIonvantageXLS(Path inputDataFile){
+    public static MassSpecExtractedData extractMetaDataAndBlockDataFromIonvantageXLS(Path inputDataFile) {
         MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
         InputStream inputStream;
         try {
@@ -54,7 +54,7 @@ public enum PhoenixMassSpec {
             String[] lines = text.split("\n");
 
             int startCycleSheet = 0;
-            for (int i = 0; i < lines.length; i ++){
+            for (int i = 0; i < lines.length; i++) {
                 if (lines[i].compareTo("CYCLE") == 0) {
                     startCycleSheet = i;
                     break;
@@ -67,7 +67,7 @@ public enum PhoenixMassSpec {
             massSpecExtractedData.setColumnHeaders(columnNamesFixed);
 
             int startCtrlSheet = 0;
-            for (int i = startCycleSheet; i < lines.length; i ++){
+            for (int i = startCycleSheet; i < lines.length; i++) {
                 if (lines[i].trim().compareTo("Workbook Parameters") == 0) {
                     startCtrlSheet = i;
                     break;
@@ -75,7 +75,7 @@ public enum PhoenixMassSpec {
             }
 
 //            String sampleName = lines[startCtrlSheet + 7].split("\t")[3];
-            String methodName = lines[startCtrlSheet +11].split("\t")[2];
+            String methodName = lines[startCtrlSheet + 11].split("\t")[2];
             int cyclesPerBlock = Integer.parseInt(lines[startCtrlSheet + 12].split("\t")[3]);
             int blockCount = Integer.parseInt(lines[startCtrlSheet + 13].split("\t")[3]);
             String localDateTimeZero = lines[startCtrlSheet + 21].split("\t")[2];
@@ -93,9 +93,9 @@ public enum PhoenixMassSpec {
 
             int cyclesStart = startCycleSheet + 16;
             List<List<String>> dataByBlocks = new ArrayList<>();
-            for (int blockID = 1; blockID <= blockCount;blockID++){
+            for (int blockID = 1; blockID <= blockCount; blockID++) {
                 List<String> dataByBlock = new ArrayList<>();
-                for (int cycleNum = 1; cycleNum <= cyclesPerBlock; cycleNum++){
+                for (int cycleNum = 1; cycleNum <= cyclesPerBlock; cycleNum++) {
                     dataByBlock.add(lines[cyclesStart + (blockID - 1) * cyclesPerBlock + cycleNum]);
                 }
                 dataByBlocks.add(dataByBlock);

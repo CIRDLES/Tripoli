@@ -263,7 +263,7 @@ public enum SingleBlockModelInitForMCMC {
             // only use most abundant isotope (denominator or iden) for cycle-based calculations
             // TODO: ddsortedArray and intensityfn agree exactly with matlab, but logratios differ slightly
             if (isotopeIndex < logRatios.length) {
-                logRatios[isotopeIndex] = StrictMath.log(Math.max(descriptiveStatistics.getMean(), Math.exp(proposalRangesRecord.priorLogRatio()[0][0])));
+                logRatios[isotopeIndex] = StrictMath.log(Math.max(descriptiveStatistics.getMean(), StrictMath.exp(proposalRangesRecord.priorLogRatio()[0][0])));
             }
 
             // start cycle-based math //////////////////////////////////////////////////////////////////////////////////
@@ -292,12 +292,12 @@ public enum SingleBlockModelInitForMCMC {
                 if (cycleStats[cycleIndex].getN() > 1) {
                     // TODO: fix this - currently using ratios instead of logs for cycles - see ViewCycles in matlab
                     double[] cycleLogRatioStats = new double[2];
-                    if (cycleStats[cycleIndex].getMean() >= Math.exp(proposalRangesRecord.priorLogRatio()[0][0])) {
+                    if (cycleStats[cycleIndex].getMean() >= StrictMath.exp(proposalRangesRecord.priorLogRatio()[0][0])) {
                         cycleLogRatioStats[0] = (cycleStats[cycleIndex].getMean());
                         // TODO: does this mean active cycles??
                         cycleLogRatioStats[1] = cycleStats[cycleIndex].getStandardDeviation() / Math.sqrt(cycleStats[cycleIndex].getN());//Math.sqrt(cyclesSortedArray.length / cycleStats.length);
                     } else {
-                        cycleLogRatioStats[0] = Math.exp(proposalRangesRecord.priorLogRatio()[0][0]);
+                        cycleLogRatioStats[0] = StrictMath.exp(proposalRangesRecord.priorLogRatio()[0][0]);
                         cycleLogRatioStats[1] = 0.0;
                     }
                     mapCyclesToStats.put(cycleIndex, cycleLogRatioStats);

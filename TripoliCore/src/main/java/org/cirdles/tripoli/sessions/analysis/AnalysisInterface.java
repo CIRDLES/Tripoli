@@ -40,7 +40,7 @@ public interface AnalysisInterface {
 
     static MassSpectrometerContextEnum determineMassSpectrometerContextFromDataFile(Path dataFilePath) throws IOException {
         MassSpectrometerContextEnum retVal = MassSpectrometerContextEnum.UNKNOWN;
-        if (dataFilePath.toString().endsWith(".xls")){
+        if (dataFilePath.toString().endsWith(".xls")) {
             InputStream inputStream = new FileInputStream(dataFilePath.toFile());
             HSSFWorkbook wb = new HSSFWorkbook(new POIFSFileSystem(inputStream));
             ExcelExtractor extractor = new org.apache.poi.hssf.extractor.ExcelExtractor(wb);
@@ -49,7 +49,7 @@ public interface AnalysisInterface {
 
             String text = extractor.getText();
             String[] lines = text.split("\n");
-            if (lines[0].trim().compareTo("STD")==0){
+            if (lines[0].trim().compareTo("STD") == 0) {
                 retVal = MassSpectrometerContextEnum.PHOENIX_IONVANTAGE_XLS;
             }
 

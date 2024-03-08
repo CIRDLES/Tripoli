@@ -18,7 +18,7 @@ public record PlotBlockCyclesRecord(
     public double[] invertedCycleMeansData() {
         double[] invertedRatios = new double[cycleMeansData.length];
         for (int i = 0; i < cycleMeansData.length; i++) {
-            invertedRatios[i] = Math.exp(-Math.log(cycleMeansData[i]));
+            invertedRatios[i] = StrictMath.exp(-StrictMath.log(cycleMeansData[i]));
         }
         return invertedRatios;
     }

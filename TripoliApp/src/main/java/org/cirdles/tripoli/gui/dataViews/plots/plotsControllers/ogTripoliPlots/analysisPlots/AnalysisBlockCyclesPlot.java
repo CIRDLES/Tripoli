@@ -220,11 +220,11 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
 
             if (blockMode) {
                 g2d.fillText("Block Mode:", textLeft + 5, textTop += 2 * textDeltaY);
-                double geoWeightedMeanRatio = Math.exp(analysisStatsRecord.blockModeWeightedMean());
+                double geoWeightedMeanRatio = StrictMath.exp(analysisStatsRecord.blockModeWeightedMean());
 
                 if (!Double.isNaN(geoWeightedMeanRatio)) {
-                    double geoWeightedMeanRatioPlusOneSigma = Math.exp(analysisStatsRecord.blockModeWeightedMean() + analysisStatsRecord.blockModeWeightedMeanOneSigma());
-                    double geoWeightedMeanRatioMinusOneSigma = Math.exp(analysisStatsRecord.blockModeWeightedMean() - analysisStatsRecord.blockModeWeightedMeanOneSigma());
+                    double geoWeightedMeanRatioPlusOneSigma = StrictMath.exp(analysisStatsRecord.blockModeWeightedMean() + analysisStatsRecord.blockModeWeightedMeanOneSigma());
+                    double geoWeightedMeanRatioMinusOneSigma = StrictMath.exp(analysisStatsRecord.blockModeWeightedMean() - analysisStatsRecord.blockModeWeightedMeanOneSigma());
                     double geoWeightedMeanRatioPlusOneSigmaPct = (geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio) / geoWeightedMeanRatio * 100.0;
                     double geoWeightedMeanRatioMinusOneSigmaPct = (geoWeightedMeanRatio - geoWeightedMeanRatioMinusOneSigma) / geoWeightedMeanRatio * 100.0;
                     countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig((geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio) * 2.0, 2);
