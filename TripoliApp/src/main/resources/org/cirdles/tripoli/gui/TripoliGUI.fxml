@@ -54,16 +54,6 @@
             <MenuItem disable="true" mnemonicParsing="false" text="Import Analysis"/>
             <MenuItem disable="true" mnemonicParsing="false" text="Export Analysis"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
-            <Menu mnemonicParsing="false" text="Analysis Reports">
-                <items>
-                    <MenuItem mnemonicParsing="false" onAction="#generateMCMCDetailsPerBlockAction"
-                              text="Generate  MCMC details per block"/>
-                    <MenuItem mnemonicParsing="false" onAction="#generateMCMCVectorsPerBlockAction"
-                              text="Generate  MCMC vectors per block"/>
-                    <MenuItem mnemonicParsing="false" onAction="#reportTemplateOneAction"
-                              text="Generate Report  using Template 1"/>
-                </items>
-            </Menu>
         </Menu>
         <Menu fx:id="methodsMenu" disable="true" mnemonicParsing="false" text="Methods">
             <Menu mnemonicParsing="false" text="New Method from ...">
@@ -76,6 +66,27 @@
         </Menu>
         <Menu fx:id="parametersMenu" disable="true" mnemonicParsing="false" text="Parameters">
             <MenuItem mnemonicParsing="false" text="Tracer Models"/>
+        </Menu>
+        <Menu fx:id="parametersMenu1" mnemonicParsing="false" text="Reports">
+            <items>
+                <MenuItem mnemonicParsing="false" text="Report Builder"/>
+                <Menu mnemonicParsing="false" text="Builtin Reports">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="ET_Redux Report"/>
+                        <MenuItem mnemonicParsing="false" text="Report 1"/>
+                        <Menu mnemonicParsing="false" text="Analysis Reports">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#generateMCMCDetailsPerBlockAction"
+                                          text="Generate  MCMC details per block"/>
+                                <MenuItem mnemonicParsing="false" onAction="#generateMCMCVectorsPerBlockAction"
+                                          text="Generate  MCMC vectors per block"/>
+                                <MenuItem mnemonicParsing="false" onAction="#reportTemplateOneAction"
+                                          text="Generate Report  using Template 1"/>
+                            </items>
+                        </Menu>
+                    </items>
+                </Menu>
+            </items>
         </Menu>
         <Menu mnemonicParsing="false" text="Resources">
             <MenuItem mnemonicParsing="false" onAction="#showPeriodicTable" text="Periodic Table"/>

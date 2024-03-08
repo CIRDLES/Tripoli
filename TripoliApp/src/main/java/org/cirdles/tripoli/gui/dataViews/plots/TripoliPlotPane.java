@@ -31,7 +31,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.constants.TripoliConstants;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotI;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotOG;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.analysisPlots.AnalysisRatioPlot;
@@ -39,6 +42,7 @@ import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.gridCellDim;
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.menuOffset;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController.analysis;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.RUN;
 
 /**
@@ -223,7 +227,7 @@ public class TripoliPlotPane extends BorderPane {
         plotPane.getChildren().add(plot);
         setCenter(plotPane);
 
-        boolean isBlockCyclesPlot = (plot instanceof AnalysisBlockCyclesPlot);
+        boolean isBlockCyclesPlot = (plot instanceof AnalysisBlockCyclesPlotI);
         plotToolBarHeight = isBlockCyclesPlot ? 30 : 0;
         if (isBlockCyclesPlot) {
             Font toolBarFont = Font.font("SansSerif", FontWeight.BOLD, 10);
@@ -258,7 +262,13 @@ public class TripoliPlotPane extends BorderPane {
 
             Button synchButton = new Button("SYNCH");
             synchButton.setFont(toolBarFont);
-            synchButton.setOnAction(event -> synch());
+            synchButton.setOnAction(event -> {
+                if (analysis.getAnalysisCaseNumber() == 4) {
+                    synch();
+                } else {
+                    synchOG();
+                }
+            });
             plotToolBar.getItems().add(synchButton);
 
 
@@ -323,8 +333,8 @@ public class TripoliPlotPane extends BorderPane {
     }
 
     public void resetData() {
-        if (plot != null && (plot instanceof AnalysisBlockCyclesPlot)) {
-            ((AnalysisBlockCyclesPlot) plot).resetData();
+        if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
+            ((AnalysisBlockCyclesPlotI) plot).resetData();
             plot.refreshPanel(true, true);
         }
     }
@@ -341,6 +351,26 @@ public class TripoliPlotPane extends BorderPane {
                     plot.getAnalysisBlockCyclesRecord().mapOfBlockIdToProcessStatus().put(blockID, RUN);
                     plot.repaint();
                 }
+            }
+        }
+    }
+
+    public void synchOG() {
+        UserFunction userFunction = ((AnalysisBlockCyclesPlotOG) plot).getUserFunction();
+        for (Integer blockID : ((AnalysisBlockCyclesPlotI) plot).getMapBlockIdToBlockCyclesRecord().keySet()) {
+            analysis.getMapOfBlockIdToRawDataLiteOne().put(blockID, analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).synchronizeIncludedToUserFunc(userFunction));
+        }
+        for (Node node : ((PlotWallPane) getParent()).getChildren()) {
+            if (node instanceof TripoliPlotPane) {
+                AnalysisBlockCyclesPlotI plot = ((AnalysisBlockCyclesPlotI) ((TripoliPlotPane) node).getPlot());
+                for (Integer blockID : plot.getMapBlockIdToBlockCyclesRecord().keySet()) {
+                    boolean[] plotBlockCyclesIncluded = analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).assembleCyclesIncludedForUserFunction(userFunction);
+                    plot.getMapBlockIdToBlockCyclesRecord().put(
+                            blockID,
+                            plot.getMapBlockIdToBlockCyclesRecord().get(blockID).updateCyclesIncluded(plotBlockCyclesIncluded));
+                }
+
+                plot.repaint();
             }
         }
     }
@@ -363,9 +393,9 @@ public class TripoliPlotPane extends BorderPane {
     }
 
     public void updateAnalysisRatiosPlotted(boolean blockMode, boolean logScale, boolean reScaleX, boolean reScaleY) {
-        if (plot != null && (plot instanceof AnalysisBlockCyclesPlot)) {
-            ((AnalysisBlockCyclesPlot) plot).setBlockMode(blockMode);
-            ((AnalysisBlockCyclesPlot) plot).setLogScale(logScale);
+        if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
+            ((AnalysisBlockCyclesPlotI) plot).setBlockMode(blockMode);
+            ((AnalysisBlockCyclesPlotI) plot).setLogScale(logScale);
 
             cycleCB.selectedProperty().removeListener(cycleCheckBoxChangeListener);
             cycleCB.setSelected(!blockMode);
@@ -380,7 +410,7 @@ public class TripoliPlotPane extends BorderPane {
     }
 
     public void resetAnalysisRatioZoom(boolean[] zoomFlagsXY) {
-        ((AnalysisBlockCyclesPlot) plot).setZoomFlagsXY(zoomFlagsXY);
+        ((AnalysisBlockCyclesPlotI) plot).setZoomFlagsXY(zoomFlagsXY);
     }
 
     private record PlotLocation(

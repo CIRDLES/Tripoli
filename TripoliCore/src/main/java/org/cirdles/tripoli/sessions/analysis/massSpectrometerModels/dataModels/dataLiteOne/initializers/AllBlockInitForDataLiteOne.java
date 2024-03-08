@@ -17,7 +17,7 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers;
 
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteOneSetRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
@@ -33,23 +33,40 @@ public class AllBlockInitForDataLiteOne {
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
 
         int countOfBlocks = massSpecExtractedData.getBlocksDataLite().size();
-        SingleBlockRawDataLiteOneSetRecord[] singleBlockRawDataLiteOneSetRecords = new SingleBlockRawDataLiteOneSetRecord[countOfBlocks];
+        SingleBlockRawDataLiteSetRecord[] singleBlockRawDataLiteSetRecords = new SingleBlockRawDataLiteSetRecord[countOfBlocks];
 
         for (int blockIndex = 0; blockIndex < countOfBlocks; blockIndex++) {
-            singleBlockRawDataLiteOneSetRecords[blockIndex] = prepareSingleBlockDataLiteCaseOne(blockIndex + 1, massSpecExtractedData);
-            analysis.getMapOfBlockIdToRawDataLiteOne().put(blockIndex + 1, singleBlockRawDataLiteOneSetRecords[blockIndex]);
+            if (analysis.getMapOfBlockIdToRawDataLiteOne().get(blockIndex + 1) == null) {
+                singleBlockRawDataLiteSetRecords[blockIndex] = prepareSingleBlockDataLiteCaseOne(blockIndex + 1, massSpecExtractedData);
+                analysis.getMapOfBlockIdToRawDataLiteOne().put(blockIndex + 1, singleBlockRawDataLiteSetRecords[blockIndex]);
+            } else {
+                // preserves cycle selections
+                singleBlockRawDataLiteSetRecords[blockIndex] = analysis.getMapOfBlockIdToRawDataLiteOne().get(blockIndex + 1);
+            }
         }
 
         return new AllBlockInitForMCMC.PlottingData(
-                null, null, singleBlockRawDataLiteOneSetRecords, singleBlockRawDataLiteOneSetRecords[0].cycleCount(), true, 1);
+                null,
+                null,
+                singleBlockRawDataLiteSetRecords,
+                singleBlockRawDataLiteSetRecords[0].blockRawDataLiteArray().length, true, 1);
     }
 
-    private static SingleBlockRawDataLiteOneSetRecord prepareSingleBlockDataLiteCaseOne(int blockID, MassSpecExtractedData massSpecExtractedData) {
+    private static SingleBlockRawDataLiteSetRecord prepareSingleBlockDataLiteCaseOne(int blockID, MassSpecExtractedData massSpecExtractedData) {
         MassSpecOutputBlockRecordLite massSpecOutputBlockRecordLite = massSpecExtractedData.getBlocksDataLite().get(blockID);
-        SingleBlockRawDataLiteOneSetRecord singleBlockRawDataLiteOneSetRecord = new SingleBlockRawDataLiteOneSetRecord(
-                blockID, true, massSpecOutputBlockRecordLite.cycleNumbers().length, massSpecOutputBlockRecordLite.cycleData()
-        );
+        boolean[][] rawDataIncluded = new boolean[massSpecOutputBlockRecordLite.cycleData().length][massSpecOutputBlockRecordLite.cycleData()[0].length];
+        for (int row = 0; row < rawDataIncluded.length; row++) {
+            for (int col = 0; col < rawDataIncluded[row].length; col++) {
+                rawDataIncluded[row][col] = true;
+            }
+        }
 
-        return singleBlockRawDataLiteOneSetRecord;
+        SingleBlockRawDataLiteSetRecord singleBlockRawDataLiteSetRecord = new SingleBlockRawDataLiteSetRecord(
+                blockID,
+                true,
+                massSpecOutputBlockRecordLite.cycleData(),
+                rawDataIncluded);
+
+        return singleBlockRawDataLiteSetRecord;
     }
 }

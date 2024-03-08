@@ -85,8 +85,8 @@ public enum FileHandlerUtil {
         File retVal = null;
 
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Data text file");
-        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Data txt files", "*.txt"));
+        fileChooser.setTitle("Select Data file");
+        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Data files", "*.txt, *.exp, *.TIMSDP, *.xls"));
         File initDirectory = new File("");
         if (tripoliPersistentState.getMRUDataFileFolderPath() != null) {
             initDirectory = new File(tripoliPersistentState.getMRUDataFileFolderPath());
@@ -98,12 +98,13 @@ public enum FileHandlerUtil {
         if (null != dataFile) {
             if (dataFile.getName().toLowerCase(Locale.US).endsWith(".txt")
                     || dataFile.getName().toLowerCase(Locale.US).endsWith(".exp")
-                    || dataFile.getName().toLowerCase(Locale.US).endsWith(".timsdp")) {
+                    || dataFile.getName().toLowerCase(Locale.US).endsWith(".timsdp")
+                    || dataFile.getName().toLowerCase(Locale.US).endsWith(".xls")) {
                 retVal = dataFile;
                 tripoliPersistentState.setMRUDataFile(dataFile);
                 tripoliPersistentState.setMRUDataFileFolderPath(dataFile.getParent());
             } else {
-                throw new TripoliException("Filename does not end with one of: '.txt', '.exp', 'TIMSDP'.");
+                throw new TripoliException("Filename does not end with one of: '.txt', '.exp', 'TIMSDP', 'xls'.");
             }
         }
         return retVal;

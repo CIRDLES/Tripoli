@@ -20,13 +20,10 @@ import java.io.Serializable;
 
 /**
  * @param blockID
- * @param timeStamps
  * @param cycleData
  */
 public record MassSpecOutputBlockRecordLite(
         int blockID,
-        int[] cycleNumbers,
-        double[] timeStamps,
         double[][] cycleData
 ) implements Serializable {
 

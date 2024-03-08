@@ -51,6 +51,7 @@ public enum TritonMassSpec {
 
         int phase = 0;
         int currentBlockID = 1;
+        int cyclesPerBlock = 1;
         contentsByLine.remove(0);
         contentsByLine.remove(0);
         for (String line : contentsByLine) {
@@ -70,13 +71,13 @@ public enum TritonMassSpec {
                     case 0 -> headerByLineSplit.add(line.split(": "));
                     case 4 -> phase = 5;
                     case 5 -> {
-                        int cyclesPerBlock = massSpecExtractedData.getHeader().cyclesPerBlock();
+                        cyclesPerBlock = massSpecExtractedData.getHeader().cyclesPerBlock();
                         String[] lineSplit = line.split("\t");
                         int blockID = (Integer.parseInt(lineSplit[0].trim()) - 1) / cyclesPerBlock + 1;
                         if (blockID != currentBlockID) {
                             dataByBlocks.add(dataByBlock);
                             massSpecExtractedData.addBlockLiteRecord(
-                                    parseAndBuildSingleBlockTritonRecord(currentBlockID, dataByBlocks.get(currentBlockID - 1)));
+                                    parseAndBuildSingleBlockTritonRecord(currentBlockID, cyclesPerBlock, dataByBlocks.get(currentBlockID - 1)));
                             currentBlockID++;
                             dataByBlock = new ArrayList<>();
                             dataByBlock.add(line);
@@ -87,7 +88,7 @@ public enum TritonMassSpec {
                     case 8 -> {
                         dataByBlocks.add(dataByBlock);
                         massSpecExtractedData.addBlockLiteRecord(
-                                parseAndBuildSingleBlockTritonRecord(currentBlockID, dataByBlocks.get(currentBlockID - 1)));
+                                parseAndBuildSingleBlockTritonRecord(currentBlockID, cyclesPerBlock, dataByBlocks.get(currentBlockID - 1)));
                         phase = -1;
                     }
                 }
@@ -97,33 +98,25 @@ public enum TritonMassSpec {
         return massSpecExtractedData;
     }
 
-    private static MassSpecOutputBlockRecordLite parseAndBuildSingleBlockTritonRecord(int blockNumber, List<String> blockData) {
-        List<String> cycleNumberByLineSplit = new ArrayList<>();
+    private static MassSpecOutputBlockRecordLite parseAndBuildSingleBlockTritonRecord(int blockNumber, int cyclesPerBlock, List<String> blockData) {
         List<String> timeStampByLineSplit = new ArrayList<>();
         List<String[]> cycleDataByLineSplit = new ArrayList<>();
         // case 1:  Triton Cycle,Time, DATA[custom fields]
         for (String line : blockData) {
             String[] lineSplit = line.split("\t");
-            cycleNumberByLineSplit.add(lineSplit[0].trim());
             timeStampByLineSplit.add(lineSplit[1].trim());
             cycleDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 2, lineSplit.length));
         }
 
         return buildSingleBlockTritonRecord(
                 blockNumber,
-                cycleNumberByLineSplit,
-                timeStampByLineSplit,
                 cycleDataByLineSplit);
     }
 
     private static MassSpecOutputBlockRecordLite buildSingleBlockTritonRecord(
             int blockID,
-            List<String> cycleNumberByLineSplit,
-            List<String> timeStampByLineSplit,
             List<String[]> cycleDataByLineSplit) {
 
-        int[] cycleNumbers = convertListOfNumbersAsStringsToIntegerArray(cycleNumberByLineSplit);
-        double[] timeStamps = convertListOfNumbersAsStringsToDoubleArray(timeStampByLineSplit);
         double[][] cycleData = new double[cycleDataByLineSplit.size()][];
         int index = 0;
         for (String[] numbersAsStrings : cycleDataByLineSplit) {
@@ -139,9 +132,8 @@ public enum TritonMassSpec {
 
         return new MassSpecOutputBlockRecordLite(
                 blockID,
-                cycleNumbers,
-                timeStamps,
-                cycleData);
+                cycleData
+        );
     }
 
 

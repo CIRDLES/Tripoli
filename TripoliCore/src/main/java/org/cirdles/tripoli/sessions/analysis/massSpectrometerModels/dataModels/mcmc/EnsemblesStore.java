@@ -205,7 +205,7 @@ public class EnsemblesStore implements Serializable {
 
                     cycleLogRatioStats[0] = (cycleStats[cycleIndex].getMean());
                     // TODO: does this mean active cycles??
-                    cycleLogRatioStats[1] = cycleStats[cycleIndex].getStandardDeviation() / Math.sqrt(cycleStats[cycleIndex].getN());
+                    cycleLogRatioStats[1] = cycleStats[cycleIndex].getStandardDeviation() / StrictMath.sqrt(cycleStats[cycleIndex].getN());
 
                     mapCyclesToStats.put(cycleIndex, cycleLogRatioStats);
                 }
