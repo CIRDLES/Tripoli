@@ -16,12 +16,17 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.extractor.ExcelExtractor;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,6 +38,95 @@ import java.util.stream.Collectors;
  */
 public enum PhoenixMassSpec {
     ;
+
+    @SuppressWarnings("unused")
+    public static MassSpecExtractedData extractMetaDataAndBlockDataFromIonvantageXLS(Path inputDataFile){
+        MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
+        InputStream inputStream;
+        try {
+            inputStream = new FileInputStream(inputDataFile.toFile());
+            HSSFWorkbook wb = new HSSFWorkbook(new POIFSFileSystem(inputStream));
+            ExcelExtractor extractor = new org.apache.poi.hssf.extractor.ExcelExtractor(wb);
+            extractor.setFormulasNotResults(true);
+            extractor.setIncludeSheetNames(true);
+
+            String text = extractor.getText();
+            String[] lines = text.split("\n");
+
+            int startCycleSheet = 0;
+            for (int i = 0; i < lines.length; i ++){
+                if (lines[i].compareTo("CYCLE") == 0) {
+                    startCycleSheet = i;
+                    break;
+                }
+            }
+            String[] functionNames = lines[startCycleSheet + 2].split("Function:\t");
+            String[] columnNames = functionNames[1].split("\t");
+            String[] columnNamesFixed = new String[columnNames.length + 2];
+            System.arraycopy(columnNames, 0, columnNamesFixed, 2, columnNames.length);
+            massSpecExtractedData.setColumnHeaders(columnNamesFixed);
+
+            int startCtrlSheet = 0;
+            for (int i = startCycleSheet; i < lines.length; i ++){
+                if (lines[i].trim().compareTo("Workbook Parameters") == 0) {
+                    startCtrlSheet = i;
+                    break;
+                }
+            }
+
+//            String sampleName = lines[startCtrlSheet + 7].split("\t")[3];
+            String methodName = lines[startCtrlSheet +11].split("\t")[2];
+            int cyclesPerBlock = Integer.parseInt(lines[startCtrlSheet + 12].split("\t")[3]);
+            int blockCount = Integer.parseInt(lines[startCtrlSheet + 13].split("\t")[3]);
+            String localDateTimeZero = lines[startCtrlSheet + 21].split("\t")[2];
+
+            MassSpecExtractedData.MassSpecExtractedHeader header = new MassSpecExtractedData.MassSpecExtractedHeader(
+                    "IonVantage",
+                    inputDataFile.getFileName().toFile().getName(),
+                    methodName,
+                    false,
+                    false,
+                    localDateTimeZero,
+                    cyclesPerBlock
+            );
+            massSpecExtractedData.setHeader(header);
+
+            int cyclesStart = startCycleSheet + 16;
+            List<List<String>> dataByBlocks = new ArrayList<>();
+            for (int blockID = 1; blockID <= blockCount;blockID++){
+                List<String> dataByBlock = new ArrayList<>();
+                for (int cycleNum = 1; cycleNum <= cyclesPerBlock; cycleNum++){
+                    dataByBlock.add(lines[cyclesStart + (blockID - 1) * cyclesPerBlock + cycleNum]);
+                }
+                dataByBlocks.add(dataByBlock);
+                List<String[]> cycleDataByLineSplit = new ArrayList<>();
+                for (String line : dataByBlock) {
+                    String[] lineSplit = line.split("\t");
+                    cycleDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 2, lineSplit.length));
+                }
+
+                double[][] cycleData = new double[cycleDataByLineSplit.size()][];
+                int index = 0;
+                for (String[] numbersAsStrings : cycleDataByLineSplit) {
+                    cycleData[index] = Arrays.stream(numbersAsStrings)
+                            .mapToDouble(Double::parseDouble)
+                            .toArray();
+                    index++;
+                }
+
+                massSpecExtractedData.addBlockLiteRecord(new MassSpecOutputBlockRecordLite(
+                        blockID,
+                        cycleData
+                ));
+            }
+
+            System.out.println();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return massSpecExtractedData;
+    }
 
     /**
      * Called by reflection from Analysis.extractMassSpecDataFromPath

@@ -75,7 +75,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             int[] blockIDsPerTimeSlot,
             PlotWallPane parentWallPane) {
         super(bounds,
-                210, 25,
+                185, 25,
                 new String[]{userFunction.getName()
                         + "  " + "x\u0304" + "= 0" //+ String.format("%8.8g", analysisBlockCyclesRecord.analysisMean()).trim()
                         , "\u00B1" + " 0"},//String.format("%8.5g", analysisBlockCyclesRecord.analysisOneSigma()).trim()},

@@ -201,6 +201,10 @@ public class MassSpecExtractedData implements Serializable {
         return header;
     }
 
+    public void setHeader(MassSpecExtractedHeader header) {
+        this.header = header;
+    }
+
     public String[] getColumnHeaders() {
         return columnHeaders;
     }
