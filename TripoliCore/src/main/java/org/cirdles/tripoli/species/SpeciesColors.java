@@ -2,13 +2,14 @@ package org.cirdles.tripoli.species;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 
-import java.util.Map;
+import java.io.Serializable;
+
 
 public record SpeciesColors(
         String faradayHexColor,
         String pmHexColor,
         String faradayModelHexColor,
-        String pmModelHexColor) {
+        String pmModelHexColor) implements Serializable {
 
         public String get(DetectorPlotFlavor plotFlavor) {
             String result = "";
