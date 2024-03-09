@@ -34,7 +34,7 @@ public class ColorSelectionWindow {
     private SpeciesColorSelectionRecord speciesColorSelectionRecord;
     private SpeciesColorPane[] speciesColorPanes;
     private final ColorListener colorListener;
-    private final DelegateActionInterface actor;
+    private final DelegateActionInterface rebuildPlotDelegateAction;
 
 
 
@@ -60,7 +60,7 @@ public class ColorSelectionWindow {
                                     (int) (newValue.getBlue() * 255))));
             colorSplotchReference.setColor(newValue);
             setColorPickerLabelText();
-            actor.act();
+            rebuildPlotDelegateAction.act();
         }
         public void setColorSplotch(ColorSplotch colorSplotch) {
             this.colorSplotchReference = colorSplotch;
@@ -71,20 +71,20 @@ public class ColorSelectionWindow {
             Map<Integer, SpeciesColors> mapOfSpeciesToColors,
             List<SpeciesRecordInterface> species,
             Window owner,
-            DelegateActionInterface actor) {
+            DelegateActionInterface rebuildPlotDelegateAction) {
         if (instance == null) {
-            instance = new ColorSelectionWindow(mapOfSpeciesToColors, species, owner,actor);
+            instance = new ColorSelectionWindow(mapOfSpeciesToColors, species, owner,rebuildPlotDelegateAction);
         }
         return instance;
     }
     private ColorSelectionWindow(Map<Integer, SpeciesColors> mapOfSpeciesToColors,
                                  List<SpeciesRecordInterface> species,
-                                 Window owner, DelegateActionInterface actor) {
+                                 Window owner, DelegateActionInterface rebuildPlotDelegateAction) {
         this.mapOfSpeciesToColors = mapOfSpeciesToColors;
         this.originalMapOfSpeciesToColors = new TreeMap<>();
         originalMapOfSpeciesToColors.putAll(mapOfSpeciesToColors);
         this.root = new VBox();
-        this.actor = actor;
+        this.rebuildPlotDelegateAction = rebuildPlotDelegateAction;
         initStage(owner);
         initSpeciesColorPanes(species);
         this.colorListener = new ColorListener(
@@ -116,14 +116,14 @@ public class ColorSelectionWindow {
     private void cancel(){
         mapOfSpeciesToColors.clear();
         mapOfSpeciesToColors.putAll(originalMapOfSpeciesToColors);
-        actor.act();
+        rebuildPlotDelegateAction.act();
         stage.close();
         instance = null;
     }
 
     private void accept(){
         this.stage.close();
-        this.actor.act();
+        this.rebuildPlotDelegateAction.act();
         instance = null;
     }
 
