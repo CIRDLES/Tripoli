@@ -16,11 +16,10 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -34,8 +33,8 @@ public interface AnalysisInterface {
         return new Analysis(analysisName, analysisMethod, analysisSampleName);
     }
 
-    static Analysis initializeNewAnalysis() {
-        return new Analysis("New Analysis", null, MISSING_STRING_FIELD);
+    static Analysis initializeNewAnalysis(int suffix) {
+        return new Analysis("New Analysis" + "_" + (suffix), null, MISSING_STRING_FIELD);
     }
 
     static MassSpectrometerContextEnum determineMassSpectrometerContextFromDataFile(Path dataFilePath) throws IOException {
@@ -54,7 +53,18 @@ public interface AnalysisInterface {
             }
 
         } else {
-            List<String> contentsByLine = new ArrayList<>(Files.readAllLines(dataFilePath, Charset.defaultCharset()));
+            List<String> contentsByLine = new ArrayList<>();
+            FileReader fileReader = new FileReader(dataFilePath.toFile());
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                // for infinity symbol
+                line = line.replace("�","");
+                contentsByLine.add(line);
+            }
+            bufferedReader.close();
+
+//            List<String> contentsByLine = new ArrayList<>(Files.readAllLines(dataFilePath, Charset.defaultCharset()));
             for (MassSpectrometerContextEnum massSpecContext : MassSpectrometerContextEnum.values()) {
                 List<String> keyWordList = massSpecContext.getKeyWordsList();
                 boolean keywordsMatch = true;

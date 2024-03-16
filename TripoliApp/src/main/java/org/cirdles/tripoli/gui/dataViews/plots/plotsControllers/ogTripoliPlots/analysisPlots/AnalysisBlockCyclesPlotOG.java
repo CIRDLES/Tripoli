@@ -167,8 +167,10 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             for (int i = 0; i < yAxisData.length; i++) {
 //                int blockID = (i / cyclesPerBlock) + 1;
                 // TODO: handle logratio uncertainties
-                minY = StrictMath.min(minY, yAxisData[i] - oneSigmaForCycles[i]);
-                maxY = StrictMath.max(maxY, yAxisData[i] + oneSigmaForCycles[i]);
+                if (yAxisData[i] != 0.0) {
+                    minY = StrictMath.min(minY, yAxisData[i] - oneSigmaForCycles[i]);
+                    maxY = StrictMath.max(maxY, yAxisData[i] + oneSigmaForCycles[i]);
+                }
             }
 
             displayOffsetY = 0.0;
@@ -575,7 +577,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         int cycleCount = 0;
         for (int i = 0; i < xAxisData.length; i++) {
             int blockID = (int) ((xAxisData[i] - 0.7) / cyclesPerBlock) + 1;
-            if (pointInPlot(xAxisData[i], yAxisData[i])) {
+            if (pointInPlot(xAxisData[i], yAxisData[i]) && (yAxisData[i] != 0.0)) {
                 g2d.setFill(dataColor.color());
                 g2d.setStroke(dataColor.color());
                 if (!analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).blockRawDataLiteIncludedArray()[cycleCount][userFunction.getColumnIndex()]) {

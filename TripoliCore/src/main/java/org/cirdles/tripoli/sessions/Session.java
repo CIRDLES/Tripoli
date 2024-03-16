@@ -66,7 +66,7 @@ public class Session implements Serializable {
 
     public static Session initializeDefaultSession() throws JAXBException {
         Session session = new Session();
-        session.addAnalysis(initializeNewAnalysis());
+        session.addAnalysis(initializeNewAnalysis(1));
         return session;
     }
 

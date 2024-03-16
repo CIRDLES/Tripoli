@@ -13,7 +13,9 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -203,12 +205,51 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // March 2024 implement drag n drop of files ===================================================================
+        analysisManagerGridPane.setOnDragOver(event -> {
+            event.acceptTransferModes(TransferMode.MOVE);
+        });
+        analysisManagerGridPane.setOnDragDropped(event -> {
+            Dragboard db = event.getDragboard();
+            if (event.getDragboard().hasFiles()) {
+                File dataFile = db.getFiles().get(0);
+
+                // new analysis
+                MenuItem menuItemAnalysesNew = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                        .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(1);
+                menuItemAnalysesNew.fire();
+
+                AnalysisInterface analysisSelected = analysis;
+
+                try {
+                    analysisSelected.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
+                } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
+                    throw new RuntimeException(e);
+                } catch (IllegalAccessException | TripoliException e) {
+                    throw new RuntimeException(e);
+                }
+
+                // manage analysis
+                MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                        .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
+                menuItemAnalysesManager.fire();
+            }
+        });
+        // end implement drag n drop of files ===================================================================
+
         MCMCPlotsController.analysis = analysis;
         OGTripoliViewController.analysis = analysis;
         analysisManagerGridPane.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_YELLOW));
 
         populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
         setupListeners();
+
+        try {
+            previewAndSculptDataAction();
+        } catch (TripoliException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private void setupListeners() {
@@ -753,7 +794,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     @FXML
-    private void selectDataFileButtonAction() {
+    public void selectDataFileButtonAction() {
         try {
             File selectedFile = selectDataFile(TripoliGUI.primaryStage);
             if (null != selectedFile) {
@@ -768,6 +809,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
 
                 processingToolBar.setDisable(null == analysis.getAnalysisMethod());
+
+                try {
+                    previewAndSculptDataAction();
+                } catch (TripoliException e) {
+                    throw new RuntimeException(e);
+                }
+
             }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |
                  JAXBException | TripoliException e) {
@@ -855,6 +903,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
         ogTripoliPreviewPlotsWindow.loadPlotsWindow();
+
     }
 
     public void reviewAndSculptDataAction() {
