@@ -491,7 +491,7 @@ public class TripoliGUIController implements Initializable {
         int choice = randomDataGenerator.nextInt(1, 99);
 
         AnalysisInterface analysisSelected = initializeNewAnalysis(choice);
-        if(tripoliSession.getMapOfAnalyses().containsKey(analysisSelected.getAnalysisName())){
+        if (tripoliSession.getMapOfAnalyses().containsKey(analysisSelected.getAnalysisName())) {
             analysisSelected = initializeNewAnalysis(choice * 10);
         }
         analysisSelected.resetAnalysis();

@@ -170,7 +170,7 @@ public class SessionManagerController implements Initializable {
         });
     }
 
-     class AnalysisDisplaySummary extends ListCell<AnalysisInterface> {
+    class AnalysisDisplaySummary extends ListCell<AnalysisInterface> {
         @Override
         protected void updateItem(AnalysisInterface analysis, boolean empty) {
             super.updateItem(analysis, empty);
@@ -184,13 +184,13 @@ public class SessionManagerController implements Initializable {
 
             ContextMenu contextMenu = new ContextMenu();
             MenuItem deleteItem = new MenuItem("Delete Analysis");
-            deleteItem.setOnAction(event ->  {
+            deleteItem.setOnAction(event -> {
                 tripoliSession.getMapOfAnalyses().remove(getItem().getAnalysisName());
                 // manage session
                 MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
                         .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(0);
                 menuItemAnalysesManager.fire();
-            } );
+            });
             contextMenu.getItems().add(deleteItem);
 
             emptyProperty().addListener((obs, wasEmpty, isNowEmpty) -> {

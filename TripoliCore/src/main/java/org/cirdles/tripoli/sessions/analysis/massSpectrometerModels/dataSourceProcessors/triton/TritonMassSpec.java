@@ -22,8 +22,6 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourcePr
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,7 +49,7 @@ public enum TritonMassSpec {
         String linea;
         while ((linea = bufferedReader.readLine()) != null) {
             // for infinity symbol
-            linea = linea.replace("�","");
+            linea = linea.replace("�", "");
             contentsByLine.add(linea);
         }
         bufferedReader.close();

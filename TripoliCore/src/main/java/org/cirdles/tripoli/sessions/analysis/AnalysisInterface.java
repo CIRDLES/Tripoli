@@ -18,9 +18,6 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +56,7 @@ public interface AnalysisInterface {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 // for infinity symbol
-                line = line.replace("�","");
+                line = line.replace("�", "");
                 contentsByLine.add(line);
             }
             bufferedReader.close();
