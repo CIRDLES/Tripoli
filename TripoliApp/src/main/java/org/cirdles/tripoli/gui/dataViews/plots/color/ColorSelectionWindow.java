@@ -165,6 +165,7 @@ public class ColorSelectionWindow {
         this.colorPicker.valueProperty().setValue(this.colorListener.colorSplotchReference.getColor());
         this.colorPicker.getCustomColors().add(this.colorListener.colorSplotchReference.getColor());
         this.colorPicker.valueProperty().addListener(this.colorListener);
+        // TODO: Set up the action to store the color change
         return this.colorPicker;
     }
     private void initSpeciesColorPanes(List<SpeciesRecordInterface> species) {
