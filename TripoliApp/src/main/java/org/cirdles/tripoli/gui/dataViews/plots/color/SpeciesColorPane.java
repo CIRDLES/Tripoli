@@ -42,7 +42,7 @@ public class SpeciesColorPane extends Pane implements Highlightable {
         root.getChildren().add(title);
         root.getChildren().addAll(mapOfPlotFlavorsToSpeciesColorRows.values());
         for(Node node : root.getChildren()) {
-            node.setStyle("-fx-border-color: black; -fx-border-bottom: 1px");
+            node.setStyle("-fx-border-color: black; -fx-border-bottom: 0.5");
         }
     }
 

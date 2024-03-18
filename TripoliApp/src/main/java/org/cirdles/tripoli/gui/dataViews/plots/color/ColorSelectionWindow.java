@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_DEFAULT_HEX_COLORS;
+
 public class ColorSelectionWindow {
     public static final String WINDOW_TITLE = "Color Customization";
     public static final double WINDOW_PREF_WIDTH = 335;
@@ -99,7 +101,7 @@ public class ColorSelectionWindow {
         speciesColorSelectionRecord.speciesColorPane().highlight();
         this.root.getChildren().add(initColorPicker());
         root.getChildren().add(initAcceptButton());
-        root.getChildren().add(initCancelButton());
+        root.getChildren().add(initResetButton());
 
     }
 
@@ -113,15 +115,36 @@ public class ColorSelectionWindow {
         speciesColorSelectionRecord = new SpeciesColorSelectionRecord(selectedPane, selectedRow);
     }
 
-    private void cancel(){
+    private void resetColors(){
+        // TODO: Change this into reset to
+        int numberOfSpecies = this.speciesColorPanes.length;
+        // Redraw the plot with new colors
+
         mapOfSpeciesToColors.clear();
-        mapOfSpeciesToColors.putAll(originalMapOfSpeciesToColors);
+        for (int speciesIndex = 0; speciesIndex < numberOfSpecies ; ++speciesIndex){
+            SpeciesColors speciesColors = new SpeciesColors(
+                    TRIPOLI_DEFAULT_HEX_COLORS[speciesIndex * 4],
+                    TRIPOLI_DEFAULT_HEX_COLORS[speciesIndex * 4 + 1],
+                    TRIPOLI_DEFAULT_HEX_COLORS[speciesIndex * 4 + 2],
+                    TRIPOLI_DEFAULT_HEX_COLORS[speciesIndex * 4 + 3]
+            );
+            mapOfSpeciesToColors.put(speciesIndex, speciesColors);
+            SpeciesColorPane pane = speciesColorPanes[speciesIndex];
+            for(DetectorPlotFlavor plotFlavor: DetectorPlotFlavor.values()) {
+                pane.getMapOfPlotFlavorsToSpeciesColorRows().get(plotFlavor).setColor(
+                        Color.web(speciesColors.get(plotFlavor)));
+            }
+        }
+        colorPicker.setValue(speciesColorSelectionRecord.speciesColorRow().getColor());
+//        mapOfSpeciesToColors.putAll(originalMapOfSpeciesToColors);
         rebuildPlotDelegateAction.act();
-        stage.close();
-        instance = null;
+        // Fix all speciesColorPanes
+//        stage.close();
+//        instance = null;
     }
 
     private void accept(){
+        // TODO: Change this into undo
         this.stage.close();
         this.rebuildPlotDelegateAction.act();
         instance = null;
@@ -143,12 +166,13 @@ public class ColorSelectionWindow {
         }
     }
 
-    private Button initCancelButton() {
-        Button cancelButton = new Button("Cancel");
-        cancelButton.prefWidthProperty().bind(stage.widthProperty());
-        cancelButton.setPrefHeight(BUTTON_PREF_HEIGHT);
-        cancelButton.setOnAction(cancelChanges -> {cancel();});
-        return cancelButton;
+    private Button initResetButton() {
+        Button resetButton = new Button("Reset");
+        resetButton.prefWidthProperty().bind(stage.widthProperty());
+        resetButton.setPrefHeight(BUTTON_PREF_HEIGHT);
+        resetButton.setOnAction(cancelChanges -> {
+            resetColors();});
+        return resetButton;
     }
 
     private Button initAcceptButton() {
@@ -166,6 +190,9 @@ public class ColorSelectionWindow {
         this.colorPicker.getCustomColors().add(this.colorListener.colorSplotchReference.getColor());
         this.colorPicker.valueProperty().addListener(this.colorListener);
         // TODO: Set up the action to store the color change
+        this.colorPicker.setOnAction(action -> {
+           // Put a new action on the stack
+        });
         return this.colorPicker;
     }
     private void initSpeciesColorPanes(List<SpeciesRecordInterface> species) {
@@ -188,7 +215,7 @@ public class ColorSelectionWindow {
         stage.setTitle(WINDOW_TITLE);
         stage.setOnCloseRequest(closeRequest ->{
             instance = null;
-            cancel();
+            resetColors();
         });
         this.stage.setResizable(false);
         scene.addEventFilter(MouseEvent.MOUSE_CLICKED, click -> {
