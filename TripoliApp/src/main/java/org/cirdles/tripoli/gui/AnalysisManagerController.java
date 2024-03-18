@@ -861,7 +861,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         for (Integer blockID : analysis.getMassSpecExtractedData().getBlocksDataFull().keySet()) {
             analysis.getMapOfBlockIdToProcessStatus().put(blockID, RUN);
         }
-        populateAnalysisManagerGridPane(0);
+        populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
     }
 
     @FXML
@@ -897,12 +897,16 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             case 3 -> {
             }
             case 4 -> {
-                plottingData = AllBlockInitForMCMC.initBlockModels(analysis);
+                if (analysis.getAnalysisMethod() != null) {
+                    plottingData = AllBlockInitForMCMC.initBlockModels(analysis);
+                }
             }
         }
 
-        ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
-        ogTripoliPreviewPlotsWindow.loadPlotsWindow();
+        if (plottingData != null) {
+            ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
+            ogTripoliPreviewPlotsWindow.loadPlotsWindow();
+        }
 
     }
 
