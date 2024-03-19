@@ -83,7 +83,7 @@ public interface AnalysisInterface {
 
     String uppdateLogsByBlock(int blockNumber, String logEntry);
 
-    public AllBlockInitForMCMC.PlottingData assemblePostProcessPlottingData();
+    AllBlockInitForMCMC.PlottingData assemblePostProcessPlottingData();
 
     String getAnalysisName();
 
