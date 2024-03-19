@@ -27,20 +27,22 @@ public record BlockStatsRecord(
     public static BlockStatsRecord generateBlockStatsRecord(int blockID, boolean blockIncluded, boolean isRatio, boolean isInverted, double[] cycleMeansData, boolean[] cyclesIncluded) {
         DescriptiveStatistics descriptiveStatisticsBlockStats = new DescriptiveStatistics();
         for (int i = 0; i < cycleMeansData.length; i++) {
-            if (isRatio) {
-                if (isInverted) {
-                    descriptiveStatisticsBlockStats.addValue(-StrictMath.log(cycleMeansData[i]));
+            if (cyclesIncluded[i]) {
+                if (isRatio) {
+                    if (isInverted) {
+                        descriptiveStatisticsBlockStats.addValue(-StrictMath.log(cycleMeansData[i]));
+                    } else {
+                        descriptiveStatisticsBlockStats.addValue(StrictMath.log(cycleMeansData[i]));
+                    }
                 } else {
-                    descriptiveStatisticsBlockStats.addValue(StrictMath.log(cycleMeansData[i]));
+                    descriptiveStatisticsBlockStats.addValue(cycleMeansData[i]);
                 }
-            } else {
-                descriptiveStatisticsBlockStats.addValue(cycleMeansData[i]);
             }
         }
         double mean = descriptiveStatisticsBlockStats.getMean();
         double variance = descriptiveStatisticsBlockStats.getVariance();
         double standardDeviation = descriptiveStatisticsBlockStats.getStandardDeviation();
-        double standardError = StrictMath.sqrt(variance / cycleMeansData.length);
+        double standardError = StrictMath.sqrt(variance / descriptiveStatisticsBlockStats.getN());
 
         return new BlockStatsRecord(
                 blockID,
