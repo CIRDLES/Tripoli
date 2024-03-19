@@ -26,7 +26,7 @@ public class LinePlotBuilder extends PlotBuilder {
     private static final long serialVersionUID = 5549376854790308330L;
     private final double[] xData;
     private final double[] yData;
-    private int blockID;
+    private final int blockID;
 
     protected LinePlotBuilder(double[] xData, double[] yData, String[] title, String xAxisLabel, String yAxisLabel, int shadeWidthForModelConvergence, int blockID) {
         super(title, xAxisLabel, yAxisLabel, true);

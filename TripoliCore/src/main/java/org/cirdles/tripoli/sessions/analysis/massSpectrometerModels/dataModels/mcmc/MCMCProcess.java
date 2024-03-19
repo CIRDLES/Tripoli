@@ -53,11 +53,11 @@ public class MCMCProcess {
     private final AnalysisMethod analysisMethod;
     private final SingleBlockRawDataSetRecord singleBlockRawDataSetRecord;
     private List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
-    private AnalysisInterface analysis;
+    private final AnalysisInterface analysis;
     private boolean hierarchical;
     private double tempering;
     private double[] baselineMultiplier;
-    private ProposedModelParameters.ProposalRangesRecord proposalRangesRecord;
+    private final ProposedModelParameters.ProposalRangesRecord proposalRangesRecord;
     private double[] dataModelArrayInitial;
     private double[] dataSignalNoiseArray;
     private double initialModelErrorWeighted_E;
@@ -71,7 +71,7 @@ public class MCMCProcess {
     private Matrix TT;
     private double effectSamp;
     private double ExitCrit;
-    private boolean useAverageNotBestModel;
+    private final boolean useAverageNotBestModel;
 
     private MCMCProcess(
             AnalysisInterface analysis,

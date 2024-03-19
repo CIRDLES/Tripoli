@@ -23,11 +23,11 @@ public interface SpeciesRecordInterface {
 
     double getAtomicMass();
 
-    public int getMassNumber();
+    int getMassNumber();
 
     double getNaturalAbundancePercent();
 
-    public int compareTo(@NotNull Object o);
+    int compareTo(@NotNull Object o);
 
     String prettyPrintShortForm();
 

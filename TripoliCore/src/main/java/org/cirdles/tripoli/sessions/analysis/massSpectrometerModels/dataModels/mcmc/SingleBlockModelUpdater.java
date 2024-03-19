@@ -305,9 +305,8 @@ public class SingleBlockModelUpdater {
         double[][] varOfMeansArray = new double[countOfTotalModelParameters][countOfTotalModelParameters];
 
         for (int groupIndex = 0; groupIndex < nGroup; groupIndex++) {
-            for (int row = groupIndex * groupSize; row < (groupIndex + 1) * groupSize; row++) {
-                extractedArray[row - groupIndex * groupSize] = xAll[row];
-            }
+            if ((groupIndex + 1) * groupSize - groupIndex * groupSize >= 0)
+                System.arraycopy(xAll, groupIndex * groupSize, extractedArray, groupIndex * groupSize - groupIndex * groupSize, (groupIndex + 1) * groupSize - groupIndex * groupSize);
 
             Covariance cov = new Covariance(extractedArray);
             double[][] covArray = cov.getCovarianceMatrix().getData();

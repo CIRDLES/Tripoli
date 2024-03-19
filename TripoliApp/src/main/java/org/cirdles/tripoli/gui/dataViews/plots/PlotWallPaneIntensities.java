@@ -27,9 +27,14 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.gui.dataViews.plots.color.ColorSelectionWindow;
+import org.cirdles.tripoli.species.SpeciesColorSetting;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
+import org.cirdles.tripoli.species.SpeciesColors;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_MICHAELANGELO_URL;
 
@@ -44,7 +49,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     CheckBox gainCB;
     private double toolBarHeight;
     private int toolBarCount;
-    private String iD;
+    private final String iD;
     private boolean[] speciesChecked = new boolean[0];
     private boolean showFaradays = true;
     private boolean showPMs = true;
@@ -54,11 +59,12 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     private boolean gainCorr = true;
     private boolean logScale;
 
-    private boolean[] zoomFlagsXY = new boolean[2];
+    private final boolean[] zoomFlagsXY = new boolean[2];
 
     private ToolBar scaleControlsToolbar;
     private CheckBox[] speciesCheckBoxes;
     private boolean showUncertainties = false;
+    private Stack<SpeciesColorSetting> speciesColorSettingStack;
 
     private PlotWallPaneIntensities(String iD) {
         this.iD = iD;
@@ -83,7 +89,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
             double parentHeight = Math.max(((AnchorPane) getParent()).getPrefHeight(), ((AnchorPane) getParent()).getMinHeight());
             displayHeight = (parentHeight - toolBarHeight);
         } else {
-            tileWidth = (getParent().getBoundsInParent().getWidth() - gridCellDim * 1.0);
+            tileWidth = (getParent().getBoundsInParent().getWidth() - gridCellDim);
             displayHeight = (getParent().getBoundsInParent().getHeight() - toolBarHeight);
         }
 
@@ -118,7 +124,10 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         // not used
     }
 
-    public void buildIntensitiesPlotToolBar(boolean showResiduals, List<SpeciesRecordInterface> species) {
+    public void buildIntensitiesPlotToolBar(boolean showResiduals,
+                                            List<SpeciesRecordInterface> species,
+                                            Map<Integer, SpeciesColors> mapOfSpeciesToColors,
+                                            Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack) {
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);
         speciesChecked = new boolean[species.size()];
@@ -249,6 +258,20 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
                     rebuildPlot(false, false);
                 });
 
+        Label colorButtonSpace = new Label();
+        Button colorButton = new Button("Customize Colors");
+        colorButtonSpace.setLabelFor(colorButton);
+        colorButtonSpace.setPrefWidth(30);
+        colorButton.setOnAction(click -> {
+            ColorSelectionWindow window =
+                    ColorSelectionWindow.colorSelectionWindowRequest(mapOfSpeciesToColors,
+                            previousSpeciesColorSettingsStack,
+                            species,
+                            getScene().getWindow(), () -> rebuildPlot(false, false));
+            window.show();
+        });
+        toolBar.getItems().add(colorButtonSpace);
+        toolBar.getItems().add(colorButton);
         getChildren().add(0, toolBar);
     }
 

@@ -54,7 +54,7 @@ public class MCMCPlotsController implements MCMCPlotsControllerInterface {
     private static final int TOOLBAR_HEIGHT = 30;
     public static AnalysisInterface analysis;
     public static AnalysisManagerCallbackI analysisManagerCallbackI;
-    private static int MAX_BLOCK_COUNT = 2000;
+    private static final int MAX_BLOCK_COUNT = 2000;
     private int currentBlockID = 0;
     @FXML
     private AnchorPane logAnchorPane;

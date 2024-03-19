@@ -92,7 +92,7 @@ class TripoliSerializerTest {
         Session session1 = Session.initializeDefaultSession();
         Session session2 = Session.initializeDefaultSession();
 
-        assertTrue(session1.equals(session2));
+        assertEquals(session1, session2);
         assertEquals(session1.hashCode(), session2.hashCode());
     }
 }

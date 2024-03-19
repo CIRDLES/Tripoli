@@ -32,7 +32,7 @@ public class HistogramSinglePlot extends AbstractPlot {
 
     protected HistogramRecord histogramRecord;
     protected double binWidth;
-    private PlotWallPane parentWallPane;
+    private final PlotWallPane parentWallPane;
 
     protected HistogramSinglePlot(Rectangle bounds, HistogramRecord histogramRecord, PlotWallPane parentWallPane) {
         super(bounds,

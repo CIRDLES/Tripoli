@@ -18,7 +18,6 @@ public record GeometricMeanStatsRecord(
         double geoMeanPlusOneStdErrc = StrictMath.exp(arithmeticMean + arithmeticStandardError);
         double geoMeanPlusTwoStdErrc = StrictMath.exp(arithmeticMean + 2 * arithmeticStandardError);
         double geoMeanMinusOneStdDevc = StrictMath.exp(arithmeticMean - arithmeticStandardDeviation);
-        ;
         double geoMeanMinusTwoStdDevc = StrictMath.exp(arithmeticMean - 2 * arithmeticStandardDeviation);
         double geoMeanMinusOneStdErrc = StrictMath.exp(arithmeticMean - arithmeticStandardError);
         double geoMeanMinusTwoStdErrc = StrictMath.exp(arithmeticMean - 2 * arithmeticStandardError);

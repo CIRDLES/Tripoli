@@ -87,9 +87,9 @@ public enum NuMassSpec {
                                     parseAndBuildSingleBlockNuRecord(currentBlockID, cyclesPerBlock, dataByBlocks.get(currentBlockID - 1)));
                             currentBlockID++;
                             dataByBlock = new ArrayList<>();
-                            dataByBlock.add("" + cycleIndex + "\t0.0\t" + line);
+                            dataByBlock.add(cycleIndex + "\t0.0\t" + line);
                         } else {
-                            dataByBlock.add("" + cycleIndex + "\t0.0\t" + line);
+                            dataByBlock.add(cycleIndex + "\t0.0\t" + line);
                         }
                     }
                     case 8 -> {

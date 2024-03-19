@@ -25,9 +25,9 @@ import java.io.Serializable;
 public class UserFunction implements Serializable {
     @Serial
     private static final long serialVersionUID = -5408855769497340457L;
-    private String name;
-    private int columnIndex;
-    private boolean treatAsIsotopicRatio;
+    private final String name;
+    private final int columnIndex;
+    private final boolean treatAsIsotopicRatio;
     private boolean displayed;
     private boolean inverted;
 

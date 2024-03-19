@@ -24,10 +24,10 @@ public class MultiLinePlotBuilder extends PlotBuilder {
 
     @Serial
     private static final long serialVersionUID = 7957148103741755713L;
-    private double[][] xData;
-    private double[][] yData;
-    private boolean markerInLastLine;
-    private int blockID;
+    private final double[][] xData;
+    private final double[][] yData;
+    private final boolean markerInLastLine;
+    private final int blockID;
 
     private MultiLinePlotBuilder(double[][] xData, double[][] yData, String[] title, String xAxisLabel, String yAxisLabel, boolean markerInLastLine, int blockID, int shadeWidthForModelConvergence) {
         super(title, xAxisLabel, yAxisLabel, true);

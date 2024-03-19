@@ -21,5 +21,5 @@ public interface MCMCPlotBuildersTaskInterface {
 
     void receiveLoggingSnippet(String loggingSnippet);
 
-    public int getBlockID();
+    int getBlockID();
 }

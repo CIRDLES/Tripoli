@@ -44,7 +44,7 @@ public class EnsemblesStore implements Serializable {
         SingleBlockModelRecord singleBlockModelRecord = analysis.getMapOfBlockIdToFinalModel().get(blockID);
         List<IsotopicRatio> isotopicRatioList = analysisMethod.getIsotopicRatiosList();
 
-        int initialModelsBurnCount = ((Analysis) analysis).getMapOfBlockIdToModelsBurnCount().get(blockID);
+        int initialModelsBurnCount = analysis.getMapOfBlockIdToModelsBurnCount().get(blockID);
         int countOfEnsemblesUsed = ensembleRecordsList.size() - initialModelsBurnCount;
         // log ratios
         double[][] ensembleSetOfLogRatios = new double[isotopicRatioList.size()][countOfEnsemblesUsed];

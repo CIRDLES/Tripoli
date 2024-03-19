@@ -13,7 +13,7 @@ import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_MOVI
 
 public class LinePlot extends AbstractPlot {
 
-    private PlotWallPane parentWallPane;
+    private final PlotWallPane parentWallPane;
 
     private LinePlot(Rectangle bounds, LinePlotBuilder plotBuilder, PlotWallPane parentWallPane) {
         super(bounds, 75, 25,
