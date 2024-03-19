@@ -448,7 +448,8 @@ public class OGTripoliViewController {
 
         ((PlotWallPaneIntensities) plotsWallPaneIntensities).buildIntensitiesPlotToolBar(false,
                 analysis.getAnalysisMethod().getSpeciesList(),
-                ((Analysis) analysis).getMapOfSpeciesToColors());
+                ((Analysis) analysis).getMapOfSpeciesToColors(),
+                ((Analysis) analysis).getPreviousSpeciesColorSettingsStack());
         plotsWallPaneIntensities.buildScaleControlsToolbar();
         plotsWallPaneIntensities.stackPlots();
 
@@ -465,7 +466,8 @@ public class OGTripoliViewController {
 
         ((PlotWallPaneIntensities) plotsWallPaneResiduals).buildIntensitiesPlotToolBar(true,
                 analysis.getAnalysisMethod().getSpeciesList(),
-                ((Analysis) analysis).getMapOfSpeciesToColors());
+                ((Analysis) analysis).getMapOfSpeciesToColors(),
+                ((Analysis) analysis).getPreviousSpeciesColorSettingsStack());
         plotsWallPaneResiduals.buildScaleControlsToolbar();
         plotsWallPaneResiduals.stackPlots();
 

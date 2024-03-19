@@ -37,12 +37,12 @@ public class SpeciesColorPane extends Pane implements Highlightable {
         this.title = new Label(speciesName);
         this.title.setAlignment(Pos.CENTER);
         this.title.prefWidthProperty().bind(prefWidthProperty());
-        this.title.setFont(new Font( 20.0));
+        this.title.setFont(new Font( 14.0));
         this.title.setTextAlignment(TextAlignment.CENTER);
         root.getChildren().add(title);
         root.getChildren().addAll(mapOfPlotFlavorsToSpeciesColorRows.values());
         for(Node node : root.getChildren()) {
-            node.setStyle("-fx-border-color: black; -fx-border-bottom: 1px");
+            node.setStyle("-fx-border-color: black; -fx-border-bottom: thin");
         }
     }
 
