@@ -25,34 +25,29 @@ public class BlockCyclesBuilder extends PlotBuilder {
 
     //    @Serial
 //    private static final long serialVersionUID = 9180059676626735662L;
-    protected BlockCyclesRecord blockCyclesRecord;
+    protected PlotBlockCyclesRecord plotBlockCyclesRecord;
 
-    protected BlockCyclesBuilder(int blockID, boolean processed, String[] title, boolean displayed) {
+    protected BlockCyclesBuilder(int blockID, boolean processed, String[] title, boolean displayed, boolean isRatio) {
         super(title, "", "", displayed);
-        blockCyclesRecord = generateBlockCyclesPlot(blockID, processed, new double[0], new double[0], new boolean[0], new String[]{""}, true);
+        plotBlockCyclesRecord = generateBlockCyclesPlot(blockID, isRatio, processed, new double[0], new double[0], new boolean[0], new String[]{""}, true);
         this.displayed = displayed;
     }
 
     public static BlockCyclesBuilder initializeBlockCycles(
             int blockID, boolean blockIncluded, boolean processed, boolean[] cyclesIncluded, double[] cycleMeansData, double[] cycleOneSigmaData,
             String[] title, boolean displayed, boolean isRatio) {
-        BlockCyclesBuilder blockCyclesBuilder = new BlockCyclesBuilder(blockID, processed, title, displayed);
-        blockCyclesBuilder.blockCyclesRecord = blockCyclesBuilder.generateBlockCyclesPlot(blockID, processed, cycleMeansData, cycleOneSigmaData, cyclesIncluded, title, blockIncluded);
+        BlockCyclesBuilder blockCyclesBuilder = new BlockCyclesBuilder(blockID, processed, title, displayed, isRatio);
+        blockCyclesBuilder.plotBlockCyclesRecord = blockCyclesBuilder.generateBlockCyclesPlot(blockID, isRatio, processed, cycleMeansData, cycleOneSigmaData, cyclesIncluded, title, blockIncluded);
         return blockCyclesBuilder;
     }
 
-    protected BlockCyclesRecord generateBlockCyclesPlot(
-            int blockID, boolean processed, double[] cycleMeansdata, double[] cycleOneSigmaData,
+    protected PlotBlockCyclesRecord generateBlockCyclesPlot(
+            int blockID, boolean isRatio, boolean processed, double[] cycleMeansdata, double[] cycleOneSigmaData,
             boolean[] cyclesIncluded, String[] title, boolean blockIncluded) {
-//        DescriptiveStatistics descriptiveStatisticsBlockCycles = new DescriptiveStatistics();
-//        for (int index = 0; index < cycleMeansdata.length; index++) {
-//            if (cyclesIncluded[index]) {
-//                descriptiveStatisticsBlockCycles.addValue(cycleMeansdata[index]);
-//            }
-//        }
 
-        return new BlockCyclesRecord(
+        return new PlotBlockCyclesRecord(
                 blockID,
+                isRatio,
                 processed,
                 blockIncluded,
                 cyclesIncluded,
@@ -62,7 +57,7 @@ public class BlockCyclesBuilder extends PlotBuilder {
         );
     }
 
-    public BlockCyclesRecord getBlockCyclesRecord() {
-        return blockCyclesRecord;
+    public PlotBlockCyclesRecord getBlockCyclesRecord() {
+        return plotBlockCyclesRecord;
     }
 }

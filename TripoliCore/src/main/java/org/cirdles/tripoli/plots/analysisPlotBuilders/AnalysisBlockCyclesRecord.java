@@ -1,12 +1,12 @@
 package org.cirdles.tripoli.plots.analysisPlotBuilders;
 
-import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockCyclesRecord;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 
 import java.io.Serializable;
 import java.util.Map;
 
 public record AnalysisBlockCyclesRecord(
-        Map<Integer, BlockCyclesRecord> mapBlockIdToBlockCyclesRecord,
+        Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord,
         Map<Integer, Integer> mapOfBlockIdToProcessStatus,
         int cyclesPerBlock,
         int[] xAxisBlockIDs,
