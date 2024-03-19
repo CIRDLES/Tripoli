@@ -56,14 +56,7 @@ public class SpeciesColorRow extends HBox implements Highlightable {
 
     public void setColor(Color color) {
         this.color = color;
-        this.colorSplotch.setBackground(
-                new Background(
-                        new BackgroundFill(
-                                this.color,
-                                CornerRadii.EMPTY,
-                                Insets.EMPTY)));
-//        colorSplotch.getBackground().getFills().clear();
-//        colorSplotch.getBackground().getFills().add(new BackgroundFill(this.color,CornerRadii.EMPTY,Insets.EMPTY));
+        this.colorSplotch.setColor(color);
     }
 
     public ColorSplotch getColorSplotch() {
