@@ -249,7 +249,6 @@ public class ColorSelectionWindow {
         stage.setTitle(WINDOW_TITLE);
         stage.setOnCloseRequest(closeRequest ->{
             instance = null;
-            resetColors();
         });
         this.stage.setResizable(false);
         scene.addEventFilter(MouseEvent.MOUSE_CLICKED, click -> {
