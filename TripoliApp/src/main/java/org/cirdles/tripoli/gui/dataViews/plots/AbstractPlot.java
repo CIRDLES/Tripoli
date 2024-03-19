@@ -31,7 +31,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlot;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotI;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.HistogramSinglePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.LinePlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.MultiLineIntensityPlot;
@@ -127,7 +127,8 @@ public abstract class AbstractPlot extends Canvas {
                     zoomChunkX = Math.abs(zoomChunkX) * Math.signum(event.getDeltaY());
                     zoomChunkY = Math.abs(zoomChunkY) * Math.signum(event.getDeltaY());
                     if (getDisplayRangeX() >= zoomChunkX) {
-                        if (event.getSource() instanceof AnalysisBlockCyclesPlot sourceAnalysisBlockCyclesPlot) {
+                        if (event.getSource() instanceof AnalysisBlockCyclesPlotI) {
+                            AnalysisBlockCyclesPlotI sourceAnalysisBlockCyclesPlot = (AnalysisBlockCyclesPlotI) event.getSource();
                             if (event.isControlDown()) {
                                 ((PlotWallPane) sourceAnalysisBlockCyclesPlot.getParentWallPane()).synchronizeRatioPlotsScroll(sourceAnalysisBlockCyclesPlot, zoomChunkX, zoomChunkY);
                             } else {
@@ -145,7 +146,8 @@ public abstract class AbstractPlot extends Canvas {
         // Feb 2024 moving pan action to right mouse
         mouseDraggedEventHandler = event -> {
             if (mouseInHouse(event.getX(), event.getY()) && event.isSecondaryButtonDown()) {
-                if (event.getSource() instanceof AnalysisBlockCyclesPlot sourceAnalysisBlockCyclesPlot) {
+                if (event.getSource() instanceof AnalysisBlockCyclesPlotI) {
+                    AnalysisBlockCyclesPlotI sourceAnalysisBlockCyclesPlot = (AnalysisBlockCyclesPlotI) event.getSource();
                     if (event.isControlDown()) {
                         ((PlotWallPane) sourceAnalysisBlockCyclesPlot.getParentWallPane()).synchronizeRatioPlotsDrag(event.getX(), event.getY());
                     } else {
@@ -180,7 +182,8 @@ public abstract class AbstractPlot extends Canvas {
 
         EventHandler<MouseEvent> mousePressedEventHandler = e -> {
             if (mouseInHouse(e.getX(), e.getY())) {// && e.isPrimaryButtonDown()) {
-                if (e.getSource() instanceof AnalysisBlockCyclesPlot sourceAnalysisBlockCyclesPlot) {
+                if (e.getSource() instanceof AnalysisBlockCyclesPlotI) {
+                    AnalysisBlockCyclesPlotI sourceAnalysisBlockCyclesPlot = (AnalysisBlockCyclesPlotI) e.getSource();
                     ((PlotWallPane) sourceAnalysisBlockCyclesPlot.getParentWallPane()).synchronizeMouseStartsOnPress(e.getX(), e.getY());
                 } else {
                     adjustMouseStartsForPress(e.getX(), e.getY());
@@ -266,7 +269,7 @@ public abstract class AbstractPlot extends Canvas {
         drawAxes(g2d);
         labelAxisX(g2d);
         labelAxisY(g2d);
-        if (!(this instanceof AnalysisBlockCyclesPlot)) {
+        if (!(this instanceof AnalysisBlockCyclesPlotI)) {
             showTitle(g2d);
         }
         showLegend(g2d);
@@ -390,7 +393,7 @@ public abstract class AbstractPlot extends Canvas {
         g2d.setFill(savedPaint);
     }
 
-    private void labelAxisY(GraphicsContext g2d) {
+    public void labelAxisY(GraphicsContext g2d) {
         Paint savedPaint = g2d.getFill();
         g2d.setFill(Paint.valueOf("BLACK"));
         g2d.setFont(Font.font("SansSerif", 14));

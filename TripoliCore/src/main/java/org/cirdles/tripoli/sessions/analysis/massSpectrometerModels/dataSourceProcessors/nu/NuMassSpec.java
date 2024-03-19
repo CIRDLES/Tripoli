@@ -84,7 +84,7 @@ public enum NuMassSpec {
                         if (blockID != currentBlockID) {
                             dataByBlocks.add(dataByBlock);
                             massSpecExtractedData.addBlockLiteRecord(
-                                    parseAndBuildSingleBlockNuRecord(currentBlockID, dataByBlocks.get(currentBlockID - 1)));
+                                    parseAndBuildSingleBlockNuRecord(currentBlockID, cyclesPerBlock, dataByBlocks.get(currentBlockID - 1)));
                             currentBlockID++;
                             dataByBlock = new ArrayList<>();
                             dataByBlock.add(cycleIndex + "\t0.0\t" + line);
@@ -95,7 +95,7 @@ public enum NuMassSpec {
                     case 8 -> {
                         dataByBlocks.add(dataByBlock);
                         massSpecExtractedData.addBlockLiteRecord(
-                                parseAndBuildSingleBlockNuRecord(currentBlockID, dataByBlocks.get(currentBlockID - 1)));
+                                parseAndBuildSingleBlockNuRecord(currentBlockID, cyclesPerBlock, dataByBlocks.get(currentBlockID - 1)));
                         phase = -1;
                     }
                 }
@@ -105,33 +105,24 @@ public enum NuMassSpec {
         return massSpecExtractedData;
     }
 
-    private static MassSpecOutputBlockRecordLite parseAndBuildSingleBlockNuRecord(int blockNumber, List<String> blockData) {
-        List<String> cycleNumberByLineSplit = new ArrayList<>();
+    private static MassSpecOutputBlockRecordLite parseAndBuildSingleBlockNuRecord(int blockNumber, int cyclesPerBlock, List<String> blockData) {
         List<String> timeStampByLineSplit = new ArrayList<>();
         List<String[]> cycleDataByLineSplit = new ArrayList<>();
-        // case 1:  Nu Cycle,Time, DATA[custom fields]
         for (String line : blockData) {
             String[] lineSplit = line.split("\t");
-            cycleNumberByLineSplit.add(lineSplit[0].trim());
             timeStampByLineSplit.add(lineSplit[1].trim());
             cycleDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 2, lineSplit.length));
         }
 
         return buildSingleBlockNuRecord(
                 blockNumber,
-                cycleNumberByLineSplit,
-                timeStampByLineSplit,
                 cycleDataByLineSplit);
     }
 
     private static MassSpecOutputBlockRecordLite buildSingleBlockNuRecord(
             int blockID,
-            List<String> cycleNumberByLineSplit,
-            List<String> timeStampByLineSplit,
             List<String[]> cycleDataByLineSplit) {
 
-        int[] cycleNumbers = convertListOfNumbersAsStringsToIntegerArray(cycleNumberByLineSplit);
-        double[] timeStamps = convertListOfNumbersAsStringsToDoubleArray(timeStampByLineSplit);
         double[][] cycleData = new double[cycleDataByLineSplit.size()][];
         int index = 0;
         for (String[] numbersAsStrings : cycleDataByLineSplit) {
@@ -147,8 +138,6 @@ public enum NuMassSpec {
 
         return new MassSpecOutputBlockRecordLite(
                 blockID,
-                cycleNumbers,
-                timeStamps,
                 cycleData);
     }
 

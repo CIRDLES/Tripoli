@@ -30,7 +30,7 @@ import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioRecord;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteOneSetRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
@@ -42,6 +42,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
+import org.cirdles.tripoli.species.SpeciesColorSetting;
 import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
@@ -85,12 +86,13 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<Integer, Integer> mapOfBlockIdToModelsBurnCount = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, List<EnsemblesStore.EnsembleRecord>> mapBlockIDToEnsembles = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
-    private final Map<Integer, SingleBlockRawDataLiteOneSetRecord> mapOfBlockIdToRawDataLiteOne = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockModelRecord> mapOfBlockIdToFinalModel = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, boolean[][]> mapOfBlockIdToIncludedPeakData = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, boolean[]> mapOfBlockIdToIncludedIntensities = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<IsotopicRatio, AnalysisRatioRecord> mapOfRatioToAnalysisRatioRecord = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SpeciesColors> mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack = new Stack<>();
     private String analysisName;
     private String analystName;
     private String labName;
@@ -154,6 +156,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         mapOfBlockIdToRawDataLiteOne.clear();
         mapOfBlockIdToFinalModel.clear();
         mapOfSpeciesToColors.clear();
+        previousSpeciesColorSettingsStack.clear();
     }
 
     public void extractMassSpecDataFromPath(Path dataFilePath)
@@ -428,7 +431,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             sb.append("\n");
             sb.append(String.format("%30s", "Block count: "))
                     .append(String.format("%-3s", massSpecExtractedData.getBlocksDataLite().size()))
-                    .append(String.format("%-3s", "each with " + massSpecExtractedData.getBlocksDataLite().get(1).cycleNumbers().length) + " cycles");
+                    .append(String.format("%-3s", "each with " + massSpecExtractedData.getBlocksDataLite().get(1).cycleData().length) + " cycles");
             sb.append("\n");
         } else {
             sb.append(String.format("%30s", "Column headers: "));
@@ -674,7 +677,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         return mapOfBlockIdToRawData;
     }
 
-    public Map<Integer, SingleBlockRawDataLiteOneSetRecord> getMapOfBlockIdToRawDataLiteOne() {
+    public Map<Integer, SingleBlockRawDataLiteSetRecord> getMapOfBlockIdToRawDataLiteOne() {
         return mapOfBlockIdToRawDataLiteOne;
     }
 
@@ -696,6 +699,10 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public Map<Integer, SpeciesColors> getMapOfSpeciesToColors() {
         return mapOfSpeciesToColors;
+    }
+
+    public Stack<SpeciesColorSetting> getPreviousSpeciesColorSettingsStack() {
+        return previousSpeciesColorSettingsStack;
     }
 
     public void setAnalysisDalyFaradayGainMean(double analysisDalyFaradayGainMean) {

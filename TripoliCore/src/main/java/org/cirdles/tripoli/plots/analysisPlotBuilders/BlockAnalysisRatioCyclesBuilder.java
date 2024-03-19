@@ -17,7 +17,7 @@
 package org.cirdles.tripoli.plots.analysisPlotBuilders;
 
 import org.cirdles.tripoli.plots.PlotBuilder;
-import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockCyclesRecord;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 
 import java.util.List;
 import java.util.Map;
@@ -29,25 +29,26 @@ import java.util.TreeMap;
 public class BlockAnalysisRatioCyclesBuilder extends PlotBuilder {
     private AnalysisBlockCyclesRecord analysisBlockCyclesRecord = null;
 
-    private BlockAnalysisRatioCyclesBuilder(String plotTitle, Map<Integer, Integer> mapOfBlockIdToProcessStatus, List<BlockCyclesRecord> blockCyclesRecords, boolean isRatio, boolean isInverted, int[] xAxisBlockIDs) {
+    private BlockAnalysisRatioCyclesBuilder(String plotTitle, Map<Integer, Integer> mapOfBlockIdToProcessStatus, List<PlotBlockCyclesRecord> plotBlockCyclesRecords, boolean isRatio, boolean isInverted, int[] xAxisBlockIDs) {
         super(new String[]{plotTitle}, "NONE", "NONE", true);
-        analysisBlockCyclesRecord = generateAnalysisBlockCyclesRecord(blockCyclesRecords, mapOfBlockIdToProcessStatus, xAxisBlockIDs, isRatio, isInverted);
+        analysisBlockCyclesRecord = generateAnalysisBlockCyclesRecord(plotBlockCyclesRecords, mapOfBlockIdToProcessStatus, xAxisBlockIDs, isRatio, isInverted);
     }
 
     public static BlockAnalysisRatioCyclesBuilder initializeBlockAnalysisRatioCycles(
-            String plotTitle, List<BlockCyclesRecord> blockCyclesRecordsList, Map<Integer, Integer> mapOfBlockIdToProcessStatus, int[] xAxisBlockIDs, boolean isRatio, boolean isInverted) {
+            String plotTitle, List<PlotBlockCyclesRecord> plotBlockCyclesRecordsList, Map<Integer, Integer> mapOfBlockIdToProcessStatus, int[] xAxisBlockIDs, boolean isRatio, boolean isInverted) {
         BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder =
-                new BlockAnalysisRatioCyclesBuilder(plotTitle, mapOfBlockIdToProcessStatus, blockCyclesRecordsList, isRatio, isInverted, xAxisBlockIDs);
+                new BlockAnalysisRatioCyclesBuilder(plotTitle, mapOfBlockIdToProcessStatus, plotBlockCyclesRecordsList, isRatio, isInverted, xAxisBlockIDs);
 
         return blockAnalysisRatioCyclesBuilder;
     }
 
-    private AnalysisBlockCyclesRecord generateAnalysisBlockCyclesRecord(List<BlockCyclesRecord> blockCyclesRecordsList, Map<Integer, Integer> mapOfBlockIdToProcessStatus, int[] xAxisBlockIDs, boolean isRatio, boolean isInverted) {
-        Map<Integer, BlockCyclesRecord> mapBlockIdToBlockCyclesRecord = new TreeMap<>();
+    private AnalysisBlockCyclesRecord generateAnalysisBlockCyclesRecord(
+            List<PlotBlockCyclesRecord> plotBlockCyclesRecordsList, Map<Integer, Integer> mapOfBlockIdToProcessStatus, int[] xAxisBlockIDs, boolean isRatio, boolean isInverted) {
+        Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord = new TreeMap<>();
         int blockIndex = 0;
-        for (BlockCyclesRecord blockCyclesRecord : blockCyclesRecordsList) {
-            if (blockCyclesRecord != null) {
-                mapBlockIdToBlockCyclesRecord.put(blockCyclesRecord.blockID(), blockCyclesRecord);
+        for (PlotBlockCyclesRecord plotBlockCyclesRecord : plotBlockCyclesRecordsList) {
+            if (plotBlockCyclesRecord != null) {
+                mapBlockIdToBlockCyclesRecord.put(plotBlockCyclesRecord.blockID(), plotBlockCyclesRecord);
             } else {
                 mapBlockIdToBlockCyclesRecord.put(blockIndex + 1, null);
             }
@@ -57,7 +58,7 @@ public class BlockAnalysisRatioCyclesBuilder extends PlotBuilder {
         return new AnalysisBlockCyclesRecord(
                 mapBlockIdToBlockCyclesRecord,
                 mapOfBlockIdToProcessStatus,
-                blockCyclesRecordsList.get(0).cyclesIncluded().length,
+                plotBlockCyclesRecordsList.get(0).cyclesIncluded().length,
                 xAxisBlockIDs,
                 title,
                 isRatio,

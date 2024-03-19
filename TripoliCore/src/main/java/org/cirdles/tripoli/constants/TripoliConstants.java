@@ -72,10 +72,10 @@ public enum TripoliConstants {
 
     public enum DetectorPlotFlavor {
 
-        PM_DATA("PM Data"),
-        PM_MODEL("PM Model"),
         FARADAY_DATA("Faraday Data"),
-        FARADAY_MODEL("Faraday Model");
+        PM_DATA("PM Data"),
+        FARADAY_MODEL("Faraday Model"),
+        PM_MODEL("PM Model");
 
         private final String name;
 

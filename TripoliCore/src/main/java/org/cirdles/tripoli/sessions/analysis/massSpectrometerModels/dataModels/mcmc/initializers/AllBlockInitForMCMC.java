@@ -18,7 +18,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.
 
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteOneSetRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
@@ -69,7 +69,7 @@ public class AllBlockInitForMCMC {
     public record PlottingData(
             SingleBlockRawDataSetRecord[] singleBlockRawDataSetRecords,
             SingleBlockModelRecord[] singleBlockModelRecords,
-            SingleBlockRawDataLiteOneSetRecord[] singleBlockRawDataLiteOneSetRecords,
+            SingleBlockRawDataLiteSetRecord[] singleBlockRawDataLiteSetRecords,
             int cycleCount,
             boolean preview,
             int analysisCaseNumber) implements Serializable {

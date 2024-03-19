@@ -1,6 +1,7 @@
 package org.cirdles.tripoli.gui.dataViews.plots.color;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -14,8 +15,8 @@ import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_HIGH
 
 public class SpeciesColorRow extends HBox implements Highlightable {
 
-    private DetectorPlotFlavor plotFlavor;
     private Color color;
+    private final DetectorPlotFlavor plotFlavor;
     private final ColorSplotch colorSplotch;
     private final ColorFlavoredIndexedLabel plotFlavorLabel;
 
@@ -25,13 +26,14 @@ public class SpeciesColorRow extends HBox implements Highlightable {
         this.plotFlavor = plotFlavor;
         this.color = color;
         this.colorSplotch = new ColorSplotch(" ", plotFlavor, color, index);
-        this.colorSplotch.prefWidthProperty().bind(widthProperty().divide(2));
+        this.colorSplotch.prefWidthProperty().bind(widthProperty().divide(1.5));
         plotFlavorLabel = new ColorFlavoredIndexedLabel(
-                String.format("%s Color",getPlotFlavor().getName()),
+                String.format("%s",getPlotFlavor().getName()),
                 plotFlavor,
                 index);
-        plotFlavorLabel.prefWidthProperty().bind(widthProperty().divide(2));
+        plotFlavorLabel.prefWidthProperty().bind(widthProperty().divide(3));
         plotFlavorLabel.setFont(new Font("Consolas", 14));
+        plotFlavorLabel.setAlignment(Pos.CENTER_LEFT);
         getChildren().add(plotFlavorLabel);
         getChildren().add(this.colorSplotch);
     }
@@ -54,8 +56,7 @@ public class SpeciesColorRow extends HBox implements Highlightable {
 
     public void setColor(Color color) {
         this.color = color;
-        colorSplotch.getBackground().getFills().clear();
-        colorSplotch.getBackground().getFills().add(new BackgroundFill(this.color,CornerRadii.EMPTY,Insets.EMPTY));
+        this.colorSplotch.setColor(color);
     }
 
     public ColorSplotch getColorSplotch() {
@@ -66,7 +67,4 @@ public class SpeciesColorRow extends HBox implements Highlightable {
         return plotFlavor;
     }
 
-    public void setPlotFlavor(DetectorPlotFlavor plotFlavor) {
-        this.plotFlavor = plotFlavor;
-    }
 }

@@ -28,11 +28,13 @@ import javafx.scene.paint.Color;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.color.ColorSelectionWindow;
+import org.cirdles.tripoli.species.SpeciesColorSetting;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.species.SpeciesColors;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_MICHAELANGELO_URL;
 
@@ -62,6 +64,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     private ToolBar scaleControlsToolbar;
     private CheckBox[] speciesCheckBoxes;
     private boolean showUncertainties = false;
+    private Stack<SpeciesColorSetting> speciesColorSettingStack;
 
     private PlotWallPaneIntensities(String iD) {
         this.iD = iD;
@@ -123,7 +126,8 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
 
     public void buildIntensitiesPlotToolBar(boolean showResiduals,
                                             List<SpeciesRecordInterface> species,
-                                            Map<Integer, SpeciesColors> mapOfSpeciesToColors) {
+                                            Map<Integer, SpeciesColors> mapOfSpeciesToColors,
+                                            Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack) {
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);
         speciesChecked = new boolean[species.size()];
@@ -261,6 +265,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         colorButton.setOnAction(click -> {
             ColorSelectionWindow window =
                     ColorSelectionWindow.colorSelectionWindowRequest(mapOfSpeciesToColors,
+                            previousSpeciesColorSettingsStack,
                             species,
                             getScene().getWindow(), () -> rebuildPlot(false, false));
             window.show();
