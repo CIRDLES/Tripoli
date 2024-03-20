@@ -1157,7 +1157,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     double intensityBottom = convertMouseYToValue(Math.max(mouseStartY, zoomBoxY));
 
                     displayOffsetX = xAxisData[indexLeft] - minX - 2;
-                    maxX = xAxisData[indexRight] - displayOffsetX;// + 10;
+                    maxX = xAxisData[(indexRight == xAxisData.length - 1) ? indexRight : indexRight + 1] - displayOffsetX;
 
                     minY = intensityBottom;
                     maxY = intensityTop;
