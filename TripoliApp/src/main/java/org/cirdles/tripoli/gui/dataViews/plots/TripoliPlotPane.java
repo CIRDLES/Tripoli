@@ -19,12 +19,13 @@ package org.cirdles.tripoli.gui.dataViews.plots;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ColorPicker;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -40,6 +41,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.Rat
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.analysisPlots.AnalysisRatioPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 
+import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_MICHAELANGELO_URL;
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.gridCellDim;
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.menuOffset;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController.analysis;
@@ -91,6 +93,8 @@ public class TripoliPlotPane extends BorderPane {
     private CheckBoxChangeListener cycleCheckBoxChangeListener = new CheckBoxChangeListener(cycleCB);
     private PlotWallPaneInterface plotWallPane;
     private AbstractPlot plot;
+    private ToolBar plotToolBar;
+
     private final EventHandler<MouseEvent> mouseReleasedEventHandler = e -> {
         snapToGrid();
     };
@@ -143,7 +147,7 @@ public class TripoliPlotPane extends BorderPane {
                 mouseStartX = e.getSceneX();
                 mouseStartY = e.getSceneY();
             }
-            if (e.isSecondaryButtonDown() && 2 == e.getClickCount()) {
+            if (e.isSecondaryButtonDown() && 2 == e.getClickCount()  && !e.isControlDown()) {
                 if (plot instanceof SpeciesIntensityAnalysisPlot) {
 
                 } else {
@@ -232,7 +236,7 @@ public class TripoliPlotPane extends BorderPane {
         if (isBlockCyclesPlot) {
             Font toolBarFont = Font.font("SansSerif", FontWeight.BOLD, 10);
 
-            ToolBar plotToolBar = new ToolBar();
+            plotToolBar = new ToolBar();
             plotToolBar.setMinHeight(plotToolBarHeight);
             plotToolBar.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
             plotToolBar.setStyle(plotToolBar.getStyle() + ";-fx-background-color:WHITE");
@@ -291,6 +295,32 @@ public class TripoliPlotPane extends BorderPane {
 
         plot.preparePanel(true, true);
         plot.repaint();
+    }
+
+    public void builtSculptingHBox(String message) {
+        // Michaelangelo sculpting
+        final ImageView michaelangeloImageView = new ImageView();
+        Image ratioFlipper = new Image(TRIPOLI_MICHAELANGELO_URL);
+        michaelangeloImageView.setImage(ratioFlipper);
+        michaelangeloImageView.setFitHeight(18);
+        michaelangeloImageView.setFitWidth(18);
+        HBox sculptHBox = new HBox(michaelangeloImageView);
+        sculptHBox.setAlignment(Pos.CENTER);
+        sculptHBox.setPadding(new Insets(0, 10, 0, 10));
+        sculptHBox.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+        sculptHBox.getChildren().add(new Label(message));
+        sculptHBox.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, null, null)));
+        plotToolBar.getItems().add(sculptHBox);
+    }
+
+    public void removeSculptingHBox() {
+        Node targetHBox = null;
+        for (Node node : plotToolBar.getItems()) {
+            if (node instanceof HBox) {
+                targetHBox = node;
+            }
+        }
+        plotToolBar.getItems().remove(targetHBox);
     }
 
     public void changeDataColor(AbstractPlot plot) {

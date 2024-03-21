@@ -17,7 +17,6 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots;
 
 import com.google.common.base.Strings;
-import com.google.common.primitives.Booleans;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
@@ -34,15 +33,16 @@ import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.dataViews.plots.*;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisBlockCyclesRecord;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
-import org.cirdles.tripoli.sessions.analysis.*;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
+import org.cirdles.tripoli.sessions.analysis.BlockStatsRecord;
+import org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord;
 import org.cirdles.tripoli.utilities.mathUtilities.MathUtilities;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import static java.lang.StrictMath.*;
@@ -55,8 +55,8 @@ import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.gen
  */
 public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisBlockCyclesPlotI {
     private final Tooltip tooltip;
-    private final String tooltipTextSculpt = "Double click to Sculpt selected Block.";
-    private final String tooltipTextExitSculpt = "Right Mouse to PAN, Shift-click toggles block, Dbl-click to EXIT Sculpting.";
+    private final String tooltipTextSculpt = "Double click to Sculpt data.";
+    private final String tooltipTextExitSculpt = "Right Mouse to PAN, Cntrl-click toggles block, Dbl-click to EXIT Sculpting.";
     AnalysisInterface analysis;
     Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord;
     int[] blockIDsPerTimeSlot;
@@ -188,7 +188,6 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             maxY = -Double.MAX_VALUE;
 
             for (int i = 0; i < yAxisData.length; i++) {
-//                int blockID = (i / cyclesPerBlock) + 1;
                 // TODO: handle logratio uncertainties
                 if (yAxisData[i] != 0.0) {
                     minY = min(minY, yAxisData[i] - oneSigmaForCycles[i]);
@@ -253,7 +252,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
         g2d.setFill(Paint.valueOf("RED"));
         g2d.setFont(Font.font("SansSerif", 16));
-        String title = userFunction.getName();// analysisBlockCyclesRecord.updatedTitle()[0];
+        String title = userFunction.getName();
         if (isRatio && logScale) {
             title = "LogRatio " + title;
         }
@@ -271,11 +270,11 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
             if (blockMode) {
                 g2d.fillText("Block Mode:", textLeft + 5, textTop += 2 * textDeltaY);
-                double geoWeightedMeanRatio = StrictMath.exp(analysisStatsRecord.blockModeWeightedMean());
+                double geoWeightedMeanRatio = exp(analysisStatsRecord.blockModeWeightedMean());
 
                 if (!Double.isNaN(geoWeightedMeanRatio)) {
-                    double geoWeightedMeanRatioPlusOneSigma = StrictMath.exp(analysisStatsRecord.blockModeWeightedMean() + analysisStatsRecord.blockModeWeightedMeanOneSigma());
-                    double geoWeightedMeanRatioMinusOneSigma = StrictMath.exp(analysisStatsRecord.blockModeWeightedMean() - analysisStatsRecord.blockModeWeightedMeanOneSigma());
+                    double geoWeightedMeanRatioPlusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() + analysisStatsRecord.blockModeWeightedMeanOneSigma());
+                    double geoWeightedMeanRatioMinusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() - analysisStatsRecord.blockModeWeightedMeanOneSigma());
                     double geoWeightedMeanRatioPlusOneSigmaPct = (geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio) / geoWeightedMeanRatio * 100.0;
                     double geoWeightedMeanRatioMinusOneSigmaPct = (geoWeightedMeanRatio - geoWeightedMeanRatioMinusOneSigma) / geoWeightedMeanRatio * 100.0;
                     countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig((geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio) * 2.0, 2);
@@ -309,7 +308,6 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     if (sigmaMinusPctString.length() > 0) {
                         g2d.fillText("     " + sigmaMinusPctString, textLeft + 0, textTop += textDeltaY);
                     }
-
 
                     double chiSquared = analysisStatsRecord.blockModeChiSquared();
                     if (Double.isNaN(chiSquared)) {
@@ -784,7 +782,6 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 g2d.setLineWidth(1.5);
                 g2d.strokeLine(leftX, mapY(mean), rightX, mapY(mean));
             }
-//            int totalCycles = analysisStatsRecord.countOfTotalCycles();
         }
         g2d.setFill(saveFill);
         g2d.setGlobalAlpha(1.0);
@@ -805,12 +802,11 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
     private int determineSculptBlock(double mouseX) {
         double mouseTime = convertMouseXToValue(mouseX);
-        int xAxisIndexOfMouse = Math.min(xAxisData.length - 1, Math.abs(Arrays.binarySearch(xAxisData, mouseTime)));
+        int xAxisIndexOfMouse = Math.min(xAxisData.length - 1, Math.abs(binarySearch(xAxisData, mouseTime)));
         double t0 = xAxisData[xAxisIndexOfMouse];
         double t2 = xAxisData[(xAxisIndexOfMouse >= 2) ? (xAxisIndexOfMouse - 2) : 0];
         int sculptBlockIDCalc = blockIDsPerTimeSlot[(xAxisIndexOfMouse >= 2) ? (xAxisIndexOfMouse - 2) : 0];
         if (((t0 - t2) > 5.0) && (Math.abs(mouseTime - t2) > Math.abs(mouseTime - t0))) {
-            // in between blocks
             sculptBlockIDCalc = blockIDsPerTimeSlot[xAxisIndexOfMouse];
         }
         return sculptBlockIDCalc;
@@ -835,25 +831,8 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     class MouseClickEventHandler implements EventHandler<MouseEvent> {
         @Override
         public void handle(MouseEvent mouseEvent) {
-            plotContextMenu.hide();
             boolean isPrimary = (0 == mouseEvent.getButton().compareTo(MouseButton.PRIMARY));
-
-            if (isPrimary && mouseEvent.isControlDown() && (mouseInHouse(mouseEvent.getX(), mouseEvent.getY()))) {
-                // turn off / on block
-                sculptBlockID = determineSculptBlock(mouseEvent.getX());
-                mapBlockIdToBlockCyclesRecord.put(sculptBlockID, mapBlockIdToBlockCyclesRecord.get(sculptBlockID).toggleBlockIncluded());
-                analysis.getMapOfBlockIdToRawDataLiteOne().put(sculptBlockID, analysis.getMapOfBlockIdToRawDataLiteOne().get(sculptBlockID).toggleAllDataIncludedUserFunction(userFunction));
-
-                repaint();
-            }
-        }
-    }
-
-    class MouseClickEventHandler2 implements EventHandler<MouseEvent> {
-        @Override
-        public void handle(MouseEvent mouseEvent) {
-            boolean isPrimary = (0 == mouseEvent.getButton().compareTo(MouseButton.PRIMARY));
-            if (2 == mouseEvent.getClickCount()) {
+            if (2 == mouseEvent.getClickCount() && !mouseEvent.isControlDown()) {
                 if (isPrimary && (mouseInHouse(mouseEvent.getX(), mouseEvent.getY()) || mouseInBlockLabel(mouseEvent.getX(), mouseEvent.getY()))) {
                     if (inSculptorMode) {
                         inSculptorMode = false;
@@ -863,40 +842,41 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                         zoomBoxX = mouseStartX;
                         zoomBoxY = mouseStartY;
                         refreshPanel(true, true);
-                        ((PlotWallPaneIntensities) getParent().getParent().getParent()).removeSculptingHBox();
+                        ((TripoliPlotPane) getParent().getParent()).removeSculptingHBox();
                         tooltip.setText(tooltipTextSculpt);
                     } else {
                         inZoomBoxMode = false;
                         showZoomBox = false;
-                        ((PlotWallPaneIntensities) getParent().getParent().getParent()).removeSculptingHBox();
-                            sculptBlockID = determineSculptBlock(mouseEvent.getX());
-                            ((PlotWallPaneIntensities) getParent().getParent().getParent()).builtSculptingHBox(
-                                    "Intensity Sculpting " + "  >> " + tooltipTextExitSculpt);
-                            sculptBlock(mouseInBlockLabel(mouseEvent.getX(), mouseEvent.getY()));
-                            tooltip.setText(tooltipTextExitSculpt);
+                        ((TripoliPlotPane) getParent().getParent()).removeSculptingHBox();
+                        sculptBlockID = determineSculptBlock(mouseEvent.getX());
+                        ((TripoliPlotPane) getParent().getParent()).builtSculptingHBox(
+                                "Cycle Sculpting " + "  >> " + tooltipTextExitSculpt);
+                        sculptBlock(mouseInBlockLabel(mouseEvent.getX(), mouseEvent.getY()));
+                        inSculptorMode = true;
+                        tooltip.setText(tooltipTextExitSculpt);
                     }
                 }
             } else {
-                if (isPrimary && mouseEvent.isShiftDown() && (mouseInHouse(mouseEvent.getX(), mouseEvent.getY()) || mouseInBlockLabel(mouseEvent.getX(), mouseEvent.getY()))) {
+                if (isPrimary && mouseEvent.isControlDown() && (mouseInHouse(mouseEvent.getX(), mouseEvent.getY()))) {
                     // turn off / on block
                     sculptBlockID = determineSculptBlock(mouseEvent.getX());
-                    countOfPreviousBlockIncludedData = 0;
-                    for (int prevBlockID = 1; prevBlockID < sculptBlockID; prevBlockID++) {
-                        countOfPreviousBlockIncludedData +=  mapBlockIdToBlockCyclesRecord.get(prevBlockID).cyclesIncluded().length;
-                    }
-
-//                    boolean[][] included = ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID);
-//                    boolean allVal = true;
-//                    for (int speciesIndex = 0; speciesIndex < included.length; speciesIndex++) {
-//                        allVal = allVal && (Booleans.countTrue(included[speciesIndex]) == 0);
-//                    }
-//                    for (int speciesIndex = 0; speciesIndex < included.length; speciesIndex++) {
-//                        Arrays.fill(included[speciesIndex], allVal);
-//                        System.arraycopy(included[speciesIndex], 0, onPeakDataIncludedAllBlocks[speciesIndex], countOfPreviousBlockIncludedData, included[speciesIndex].length);
-//                    }
+                    mapBlockIdToBlockCyclesRecord.put(sculptBlockID, mapBlockIdToBlockCyclesRecord.get(sculptBlockID).toggleBlockIncluded());
+                    analysis.getMapOfBlockIdToRawDataLiteOne().put(sculptBlockID, analysis.getMapOfBlockIdToRawDataLiteOne().get(sculptBlockID).toggleAllDataIncludedUserFunction(userFunction));
 
                     inZoomBoxMode = !inSculptorMode;
                     showZoomBox = !inSculptorMode;
+                    repaint();
+                } else if (!isPrimary && mouseEvent.isControlDown() && (mouseInHouse(mouseEvent.getX(), mouseEvent.getY()))) {
+                    // zoom block
+                    sculptBlockID = determineSculptBlock(mouseEvent.getX());
+                    ((TripoliPlotPane) getParent().getParent()).removeSculptingHBox();
+                    ((TripoliPlotPane) getParent().getParent()).builtSculptingHBox(
+                            "Cycle Sculpting " + "  >> " + tooltipTextExitSculpt);
+                    sculptBlock(true);
+                    inZoomBoxMode = !inSculptorMode;
+                    showZoomBox = !inSculptorMode;
+
+                    tooltip.setText(tooltipTextExitSculpt);
                     repaint();
                 }
             }
@@ -919,37 +899,23 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             setOnMouseReleased(new AnalysisBlockCyclesPlotOG.MouseReleasedEventHandlerSculpt());
             selectorBoxX = mouseStartX;
             selectorBoxY = mouseStartY;
+
             // zoom into block
-            countOfPreviousBlockIncludedData = 0;
-            for (int prevBlockID = 1; prevBlockID < sculptBlockID; prevBlockID++) {
-                countOfPreviousBlockIncludedData += mapBlockIdToBlockCyclesRecord.get(prevBlockID).cyclesIncluded().length;
-            }
-
+            countOfPreviousBlockIncludedData = (sculptBlockID - 1) * mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
             if (zoomBlock) {
-                displayOffsetX = xAxisData[countOfPreviousBlockIncludedData] - minX - 10;
-                int countOfIntensities = mapBlockIdToBlockCyclesRecord.get(sculptBlockID).cyclesIncluded().length;
-
+                displayOffsetX = 0;
+                int countOfCycles = mapBlockIdToBlockCyclesRecord.get(sculptBlockID).cyclesIncluded().length;
+                minX = xAxisData[countOfPreviousBlockIncludedData] - 1;
                 maxX = xAxisData[countOfPreviousBlockIncludedData
-                        + countOfIntensities - 1]
-                        - displayOffsetX + 25;
+                        + countOfCycles - 1] + 1;
 
                 minY = Double.MAX_VALUE;
                 maxY = -Double.MAX_VALUE;
-                for (int i = 1; i < mapBlockIdToBlockCyclesRecord.get(sculptBlockID).cyclesIncluded().length; i++) {
-//                    for (sculptedSpeciesIndex = 0; sculptedSpeciesIndex < speciesChecked.length; sculptedSpeciesIndex++) {
-//                        if (speciesChecked[sculptedSpeciesIndex]) {
-//                            // faraday
-//                            if (0.0 != yData[sculptedSpeciesIndex * 4][countOfPreviousBlockIncludedData + i - 1]) {
-//                                if (showResiduals) {
-//                                    minY = min(minY, residuals[sculptedSpeciesIndex * 2][countOfPreviousBlockIncludedData + i - 1]);
-//                                    maxY = max(maxY, residuals[sculptedSpeciesIndex * 2][countOfPreviousBlockIncludedData + i - 1]);
-//                                } else {
-//                                    minY = Math.min(minY, yData[sculptedSpeciesIndex * 4][countOfPreviousBlockIncludedData + i - 1]);
-//                                    maxY = Math.max(maxY, yData[sculptedSpeciesIndex * 4][countOfPreviousBlockIncludedData + i - 1]);
-//                                }
-//                            }
-//                        }
-//                    }
+                for (int i = countOfPreviousBlockIncludedData; i < countOfPreviousBlockIncludedData + countOfCycles; i++) {
+                    if (0.0 != yAxisData[i]) {
+                        minY = min(minY, yAxisData[i]);
+                        maxY = max(maxY, yAxisData[i]);
+                    }
                 }
                 double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.05);
                 maxY += yMarginStretch;
@@ -1048,20 +1014,20 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 //                    }
 //                }
 
-                // update included vector per block
-                double[] xTimes = analysis.getMassSpecExtractedData().calculateSessionTimes();
-                int[] blockIsotopeOrdinalIndicesArray = analysis.getMapOfBlockIdToRawData().get(sculptBlockID).blockIsotopeOrdinalIndicesArray();
-                boolean[] includedIntensities = new boolean[blockIsotopeOrdinalIndicesArray.length];
-                double[] blockTimeArray = analysis.getMapOfBlockIdToRawData().get(sculptBlockID).blockTimeArray();
-
-                for (int index = 0; index < blockIsotopeOrdinalIndicesArray.length; index++) {
-                    int isotopeIndex = blockIsotopeOrdinalIndicesArray[index] - 1;
-                    if (isotopeIndex >= 0) {
-                        double time = blockTimeArray[index];
-                        int timeIndx = binarySearch(xTimes, time);
-//                        includedIntensities[index] = onPeakDataIncludedAllBlocks[isotopeIndex][timeIndx];
-                    }
-                }
+//                // update included vector per block
+//                double[] xTimes = analysis.getMassSpecExtractedData().calculateSessionTimes();
+//                int[] blockIsotopeOrdinalIndicesArray = analysis.getMapOfBlockIdToRawData().get(sculptBlockID).blockIsotopeOrdinalIndicesArray();
+//                boolean[] includedIntensities = new boolean[blockIsotopeOrdinalIndicesArray.length];
+//                double[] blockTimeArray = analysis.getMapOfBlockIdToRawData().get(sculptBlockID).blockTimeArray();
+//
+//                for (int index = 0; index < blockIsotopeOrdinalIndicesArray.length; index++) {
+//                    int isotopeIndex = blockIsotopeOrdinalIndicesArray[index] - 1;
+//                    if (isotopeIndex >= 0) {
+//                        double time = blockTimeArray[index];
+//                        int timeIndx = binarySearch(xTimes, time);
+////                        includedIntensities[index] = onPeakDataIncludedAllBlocks[isotopeIndex][timeIndx];
+//                    }
+//                }
 //                analysis.getMapOfBlockIdToIncludedIntensities().put(sculptBlockID, includedIntensities);
 
             } else {
@@ -1105,7 +1071,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 showZoomBox = true;
 
             } else {
-                if (mouseInHouse(e.getX(), e.getY()) && !e.isPrimaryButtonDown()) {
+                if (mouseInHouse(e.getX(), e.getY()) && !e.isPrimaryButtonDown()  && !e.isControlDown()) {
                     // right mouse PAN
                     showZoomBox = false;
                     displayOffsetX = displayOffsetX + (convertMouseXToValue(mouseStartX) - convertMouseXToValue(e.getX()));
@@ -1166,6 +1132,19 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     maxY += yMarginStretch;
                     minY -= yMarginStretch;
                     displayOffsetY = 0.0;
+
+                    inZoomBoxMode = false;
+                    showZoomBox = false;
+                    ((TripoliPlotPane) getParent().getParent()).removeSculptingHBox();
+                    ((TripoliPlotPane) getParent().getParent()).builtSculptingHBox(
+                            "Cycle Sculpting " + "  >> " + tooltipTextExitSculpt);
+                    inSculptorMode = true;
+                    showSelectionBox = false;
+                    setOnMouseDragged(new AnalysisBlockCyclesPlotOG.MouseDraggedEventHandlerSculpt());
+                    setOnMousePressed(new AnalysisBlockCyclesPlotOG.MousePressedEventHandlerSculpt());
+                    setOnMouseReleased(new AnalysisBlockCyclesPlotOG.MouseReleasedEventHandlerSculpt());
+                    selectorBoxX = mouseStartX;
+                    selectorBoxY = mouseStartY;
 
                     refreshPanel(false, false);
                 }
