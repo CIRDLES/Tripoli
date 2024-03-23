@@ -19,4 +19,5 @@ public interface PlotWallPaneInterface {
 
     public void toggleShowStatsAllPlots();
 
+    void repeatLayoutStyle();
 }

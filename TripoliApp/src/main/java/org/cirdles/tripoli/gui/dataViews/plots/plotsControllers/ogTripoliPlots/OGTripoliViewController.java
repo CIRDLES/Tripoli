@@ -113,8 +113,8 @@ public class OGTripoliViewController {
         ((Pane) plotsWallPaneRatios).prefHeightProperty().bind(ogtCycleRatioPlotsAnchorPane.heightProperty());
 
         ogtCycleRatioPlotsAnchorPane.getChildren().add(((Pane) plotsWallPaneRatios));
-        plotWindowVBox.widthProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneRatios.tilePlots());
-        plotWindowVBox.heightProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneRatios.tilePlots());
+        plotWindowVBox.widthProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneRatios.repeatLayoutStyle());
+        plotWindowVBox.heightProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneRatios.repeatLayoutStyle());
 
         boolean[] DUMMY_CYCLES_INCLUDED;
 
@@ -146,8 +146,8 @@ public class OGTripoliViewController {
 
                             mapOfBlocksToCyclesRecords.put(blockID, (BlockCyclesBuilder.initializeBlockCycles(
                                     blockID,
-                                    singleBlockRawDataLiteSetRecords[blockIndex].calcBlockIncludedForUserFunc(userFunction),
                                     true,
+                                    true, // TODO: not needed here
                                     singleBlockRawDataLiteSetRecords[blockIndex].assembleCyclesIncludedForUserFunction(userFunction),
                                     singleBlockRawDataLiteSetRecords[blockIndex].assembleCycleMeansForUserFunction(userFunction),
                                     singleBlockRawDataLiteSetRecords[blockIndex].assembleCycleStdDevForUserFunction(userFunction),

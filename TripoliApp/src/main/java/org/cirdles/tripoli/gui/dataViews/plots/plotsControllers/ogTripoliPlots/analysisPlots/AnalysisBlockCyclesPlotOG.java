@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots;
 
 import com.google.common.base.Strings;
+import com.google.common.primitives.Booleans;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
@@ -42,7 +43,9 @@ import org.cirdles.tripoli.utilities.mathUtilities.MathUtilities;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static java.lang.StrictMath.*;
@@ -802,10 +805,10 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
     private int determineSculptBlock(double mouseX) {
         double mouseTime = convertMouseXToValue(mouseX);
-        int xAxisIndexOfMouse = Math.min(xAxisData.length - 1, Math.abs(binarySearch(xAxisData, mouseTime)));
+        int xAxisIndexOfMouse = Math.min(xAxisData.length - 1, (int)Math.round(mouseTime));
         double t0 = xAxisData[xAxisIndexOfMouse];
         double t2 = xAxisData[(xAxisIndexOfMouse >= 2) ? (xAxisIndexOfMouse - 2) : 0];
-        int sculptBlockIDCalc = blockIDsPerTimeSlot[(xAxisIndexOfMouse >= 2) ? (xAxisIndexOfMouse - 2) : 0];
+        int sculptBlockIDCalc = blockIDsPerTimeSlot[(xAxisIndexOfMouse >= 1) ? (xAxisIndexOfMouse - 1) : 0];
         if (((t0 - t2) > 5.0) && (Math.abs(mouseTime - t2) > Math.abs(mouseTime - t0))) {
             sculptBlockIDCalc = blockIDsPerTimeSlot[xAxisIndexOfMouse];
         }
@@ -860,12 +863,14 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 if (isPrimary && mouseEvent.isControlDown() && (mouseInHouse(mouseEvent.getX(), mouseEvent.getY()))) {
                     // turn off / on block
                     sculptBlockID = determineSculptBlock(mouseEvent.getX());
-                    mapBlockIdToBlockCyclesRecord.put(sculptBlockID, mapBlockIdToBlockCyclesRecord.get(sculptBlockID).toggleBlockIncluded());
-                    analysis.getMapOfBlockIdToRawDataLiteOne().put(sculptBlockID, analysis.getMapOfBlockIdToRawDataLiteOne().get(sculptBlockID).toggleAllDataIncludedUserFunction(userFunction));
+                    mapBlockIdToBlockCyclesRecord.put(sculptBlockID,
+                            mapBlockIdToBlockCyclesRecord.get(sculptBlockID).toggleBlockIncluded());
+                    analysis.getMapOfBlockIdToRawDataLiteOne().put(sculptBlockID,
+                            analysis.getMapOfBlockIdToRawDataLiteOne().get(sculptBlockID).toggleAllDataIncludedUserFunction(userFunction));
 
                     inZoomBoxMode = !inSculptorMode;
                     showZoomBox = !inSculptorMode;
-                    repaint();
+                    refreshPanel(false, false);
                 } else if (!isPrimary && mouseEvent.isControlDown() && (mouseInHouse(mouseEvent.getX(), mouseEvent.getY()))) {
                     // zoom block
                     sculptBlockID = determineSculptBlock(mouseEvent.getX());
@@ -971,8 +976,8 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 selectorBoxY = e.getY();
                 double timeLeft = convertMouseXToValue(Math.min(mouseStartX, selectorBoxX));
                 double timeRight = convertMouseXToValue(Math.max(mouseStartX, selectorBoxX));
-                int indexLeft = Math.max(1, Math.abs(Arrays.binarySearch(xAxisData, timeLeft))) - 1;
-                int indexRight = Math.max(2, Math.abs(Arrays.binarySearch(xAxisData, timeRight))) - 2;
+                int indexLeft = Math.max(1, Math.abs(binarySearch(xAxisData, timeLeft))) - 1;
+                int indexRight = Math.max(2, Math.abs(binarySearch(xAxisData, timeRight))) - 2;
                 if (indexRight < indexLeft) {
                     indexRight = indexLeft;
                 }
@@ -980,56 +985,33 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 double intensityTop = convertMouseYToValue(Math.min(mouseStartY, selectorBoxY));
                 double intensityBottom = convertMouseYToValue(Math.max(mouseStartY, selectorBoxY));
 
-//                for (int isotopeIndex = 0; isotopeIndex < speciesChecked.length; isotopeIndex++) {
-//                    if (speciesChecked[isotopeIndex]) {
-//                        List<Boolean> statusList = new ArrayList<>();
-//                        boolean[] includedPeakData = ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[isotopeIndex];
-//                        for (int index = indexLeft; index < indexRight; index++) {
-//                            if ((0 <= (index - countOfPreviousBlockIncludedData)) && ((index - countOfPreviousBlockIncludedData) < includedPeakData.length)) {
-////                                // faraday
-////                                if (showFaradays && (((yData[isotopeIndex * 4][index] < intensityTop) && (yData[isotopeIndex * 4][index] > intensityBottom) && !showResiduals)
-////                                        || ((residuals[isotopeIndex * 2][index] < intensityTop) && (residuals[isotopeIndex * 2][index] > intensityBottom) && showResiduals))
-////                                        && (0.0 != yData[isotopeIndex * 4][index])) {
-////                                    onPeakDataIncludedAllBlocks[isotopeIndex][index] = !onPeakDataIncludedAllBlocks[isotopeIndex][index];
-////                                    statusList.add(onPeakDataIncludedAllBlocks[isotopeIndex][index]);
-////                                    includedPeakData[index - countOfPreviousBlockIncludedData] = !includedPeakData[index - countOfPreviousBlockIncludedData];
-////                                }
-//                            }
-//                        }
-//
-//                        boolean[] status = Booleans.toArray(statusList);
-//                        int countIncluded = Booleans.countTrue(status);
-//                        boolean majorityValue = countIncluded > status.length / 2;
-//                        for (int index = indexLeft; index <= indexRight; index++) {
-//                            if ((0 <= (index - countOfPreviousBlockIncludedData)) && ((index - countOfPreviousBlockIncludedData) < includedPeakData.length)) {
-////                                // faraday
-////                                if (showFaradays && (yData[isotopeIndex * 4][index] < intensityTop) && (yData[isotopeIndex * 4][index] > intensityBottom) && (0.0 != yData[isotopeIndex * 4][index])) {
-////                                    onPeakDataIncludedAllBlocks[isotopeIndex][index] = majorityValue;
-////                                    includedPeakData[index - countOfPreviousBlockIncludedData] = majorityValue;
-////                                    ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[isotopeIndex][index - countOfPreviousBlockIncludedData]
-////                                            = majorityValue;
-////                                }
-//                            }
-//                        }
-//                    }
-//                }
+                int expectedCyclesCount = mapBlockIdToBlockCyclesRecord.get(1).cycleMeansData().length;
+                double [] data = mapBlockIdToBlockCyclesRecord.get(sculptBlockID).cycleMeansData();
+                boolean [] cyclesIncluded = mapBlockIdToBlockCyclesRecord.get(sculptBlockID).cyclesIncluded().clone();
+                int startLeft = max(0, (indexLeft - (sculptBlockID - 1) * expectedCyclesCount) % cyclesIncluded.length);
+                int endRight = min(data.length - 1, (indexRight - (sculptBlockID - 1) * expectedCyclesCount) % cyclesIncluded.length);
 
-//                // update included vector per block
-//                double[] xTimes = analysis.getMassSpecExtractedData().calculateSessionTimes();
-//                int[] blockIsotopeOrdinalIndicesArray = analysis.getMapOfBlockIdToRawData().get(sculptBlockID).blockIsotopeOrdinalIndicesArray();
-//                boolean[] includedIntensities = new boolean[blockIsotopeOrdinalIndicesArray.length];
-//                double[] blockTimeArray = analysis.getMapOfBlockIdToRawData().get(sculptBlockID).blockTimeArray();
-//
-//                for (int index = 0; index < blockIsotopeOrdinalIndicesArray.length; index++) {
-//                    int isotopeIndex = blockIsotopeOrdinalIndicesArray[index] - 1;
-//                    if (isotopeIndex >= 0) {
-//                        double time = blockTimeArray[index];
-//                        int timeIndx = binarySearch(xTimes, time);
-////                        includedIntensities[index] = onPeakDataIncludedAllBlocks[isotopeIndex][timeIndx];
-//                    }
-//                }
-//                analysis.getMapOfBlockIdToIncludedIntensities().put(sculptBlockID, includedIntensities);
+                // calculate majority for multiselect
+                List<Boolean> statusList = new ArrayList<>();
+                for (int i = startLeft; i <= endRight; i++){
+                    if ((data[i] <= intensityTop) && (data[i] >= intensityBottom)) {
+                        statusList.add(cyclesIncluded[i]);
+                    }
+                }
+                boolean[] status = Booleans.toArray(statusList);
+                int countIncluded = Booleans.countTrue(status);
+                boolean majorityValue = countIncluded > status.length / 2;
 
+                for (int i = startLeft; i <= endRight; i++){
+                    if ((data[i] <= intensityTop) && (data[i] >= intensityBottom)) {
+                        cyclesIncluded[i] = !majorityValue;
+                    }
+                }
+
+                mapBlockIdToBlockCyclesRecord.put(sculptBlockID,
+                   mapBlockIdToBlockCyclesRecord.get(sculptBlockID).updateCyclesIncluded(cyclesIncluded));
+                analysis.getMapOfBlockIdToRawDataLiteOne().put(sculptBlockID,
+                        analysis.getMapOfBlockIdToRawDataLiteOne().get(sculptBlockID).updateIncludedCycles(userFunction, cyclesIncluded));
             } else {
                 showSelectionBox = false;
             }
