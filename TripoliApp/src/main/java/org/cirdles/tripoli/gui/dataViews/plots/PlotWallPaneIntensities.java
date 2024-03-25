@@ -118,6 +118,14 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         // not used
     }
 
+    /**
+     *
+     */
+    @Override
+    public void repeatLayoutStyle() {
+
+    }
+
     public void buildIntensitiesPlotToolBar(boolean showResiduals, List<SpeciesRecordInterface> species) {
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);

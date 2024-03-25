@@ -48,7 +48,7 @@
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem mnemonicParsing="false" onAction="#quitAction" text="Quit"/>
         </Menu>
-        <Menu fx:id="analysisMenu" disable="true" mnemonicParsing="false" text="Analysis">
+        <Menu fx:id="analysisMenu" mnemonicParsing="false" text="Analysis">
             <MenuItem mnemonicParsing="false" onAction="#manageAnalysisMenuItemAction" text="Manage Analysis"/>
             <MenuItem mnemonicParsing="false" onAction="#newAnalysisMenuItemOnAction" text="New Analysis"/>
             <MenuItem disable="true" mnemonicParsing="false" text="Import Analysis"/>

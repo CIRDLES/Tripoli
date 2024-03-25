@@ -22,7 +22,9 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
@@ -30,9 +32,13 @@ import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ResourceBundle;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
@@ -74,6 +80,38 @@ public class SessionManagerController implements Initializable {
             }
         }
 
+        // March 2024 implement drag n drop of files ===================================================================
+        sessionGridPane.setOnDragOver(event -> {
+            event.acceptTransferModes(TransferMode.MOVE);
+        });
+        sessionGridPane.setOnDragDropped(event -> {
+            Dragboard db = event.getDragboard();
+            if (event.getDragboard().hasFiles()) {
+                File dataFile = db.getFiles().get(0);
+
+                // new analysis
+                MenuItem menuItemAnalysesNew = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                        .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(1);
+                menuItemAnalysesNew.fire();
+
+                AnalysisInterface analysisSelected = AnalysisManagerController.analysis;
+
+                try {
+                    analysisSelected.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
+                } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
+//                    throw new RuntimeException(e);
+                } catch (IllegalAccessException | TripoliException e) {
+//                    throw new RuntimeException(e);
+                }
+
+                // manage analysis
+                MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                        .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
+                menuItemAnalysesManager.fire();
+            }
+        });
+        // end implement drag n drop of files ===================================================================
+
         sessionGridPane.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_SESSION_LINEN));
 
         populateSessionManagerGridPane();
@@ -97,10 +135,12 @@ public class SessionManagerController implements Initializable {
                 -> intuitiveStringComparator.compare(analysis1.getAnalysisName(), analysis2.getAnalysisName()));
         listViewOfAnalyses.setItems(items);
         listViewOfAnalyses.setOnMouseClicked(event -> {
+            AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
+            AnalysisManagerController.analysis = analysisSelected;
             if (MouseButton.PRIMARY == event.getButton()) {
                 if (2 == event.getClickCount() && -1 == event.getTarget().toString().lastIndexOf("null")) {
-                    AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
-                    AnalysisManagerController.analysis = analysisSelected;
+//                    AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
+//                    AnalysisManagerController.analysis = analysisSelected;
                     File dataFile = new File(analysisSelected.getDataFilePathString());
                     tripoliPersistentState.setMRUDataFileFolderPath(dataFile.getParent());
                     MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
@@ -130,16 +170,36 @@ public class SessionManagerController implements Initializable {
         });
     }
 
-    static class AnalysisDisplaySummary extends ListCell<AnalysisInterface> {
+    class AnalysisDisplaySummary extends ListCell<AnalysisInterface> {
         @Override
         protected void updateItem(AnalysisInterface analysis, boolean empty) {
             super.updateItem(analysis, empty);
+
             if (null == analysis || empty) {
                 setText(null);
             } else {
                 setText(analysis.prettyPrintAnalysisSummary());
                 setFont(Font.font("Monospaced", FontWeight.EXTRA_BOLD, 12));
             }
+
+            ContextMenu contextMenu = new ContextMenu();
+            MenuItem deleteItem = new MenuItem("Delete Analysis");
+            deleteItem.setOnAction(event -> {
+                tripoliSession.getMapOfAnalyses().remove(getItem().getAnalysisName());
+                // manage session
+                MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                        .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(0);
+                menuItemAnalysesManager.fire();
+            });
+            contextMenu.getItems().add(deleteItem);
+
+            emptyProperty().addListener((obs, wasEmpty, isNowEmpty) -> {
+                if (isNowEmpty) {
+                    setContextMenu(null);
+                } else {
+                    setContextMenu(contextMenu);
+                }
+            });
         }
     }
 

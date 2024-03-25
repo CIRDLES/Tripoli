@@ -19,9 +19,9 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +43,17 @@ public enum TritonMassSpec {
     @SuppressWarnings("unused")
     public static MassSpecExtractedData extractMetaAndBlockDataFromFileTriton(Path inputDataFile) throws IOException {
         MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
-        List<String> contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
+        List<String> contentsByLine = new ArrayList<>();
+        FileReader fileReader = new FileReader(inputDataFile.toFile());
+        BufferedReader bufferedReader = new BufferedReader(fileReader);
+        String linea;
+        while ((linea = bufferedReader.readLine()) != null) {
+            // for infinity symbol
+            linea = linea.replace("�", "");
+            contentsByLine.add(linea);
+        }
+        bufferedReader.close();
+
         List<List<String>> dataByBlocks = new ArrayList<>();
         List<String[]> headerByLineSplit = new ArrayList<>();
         List<String[]> columnNamesSplit = new ArrayList<>();
@@ -123,6 +133,7 @@ public enum TritonMassSpec {
             // TODO: wTF
             for (int i = 0; i < numbersAsStrings.length; i++) {
                 numbersAsStrings[i] = numbersAsStrings[i].replaceAll("X", "");
+                numbersAsStrings[i] = numbersAsStrings[i].replaceAll("D", "");
             }
             cycleData[index] = Arrays.stream(numbersAsStrings)
                     .mapToDouble(Double::parseDouble)

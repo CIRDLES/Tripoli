@@ -25,9 +25,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow;
@@ -36,6 +39,7 @@ import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.SessionBuiltinFactory;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
@@ -45,8 +49,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -55,6 +61,7 @@ import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.utilities.BrowserControl.urlEncode;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.*;
 import static org.cirdles.tripoli.sessions.SessionBuiltinFactory.TRIPOLI_DEMONSTRATION_SESSION;
+import static org.cirdles.tripoli.sessions.analysis.AnalysisInterface.initializeNewAnalysis;
 import static org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer.serializeObjectToFile;
 
 /**
@@ -146,6 +153,37 @@ public class TripoliGUIController implements Initializable {
 
         detectLatestVersion();
 
+        // March 2024 implement drag n drop of files ===================================================================
+        splashAnchor.setOnDragOver(event -> {
+            event.acceptTransferModes(TransferMode.MOVE);
+        });
+        splashAnchor.setOnDragDropped(event -> {
+            Dragboard db = event.getDragboard();
+            if ((tripoliSession == null) && event.getDragboard().hasFiles()) {
+                File dataFile = db.getFiles().get(0);
+                // new session
+                MenuItem menuItemAnalysesNew = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                        .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(2);
+                menuItemAnalysesNew.fire();
+
+                AnalysisInterface analysisSelected = analysis;
+
+                try {
+                    analysisSelected.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
+                } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
+//                    throw new RuntimeException(e);
+                } catch (IllegalAccessException | TripoliException e) {
+//                    throw new RuntimeException(e);
+                }
+
+                // manage analysis
+                MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                        .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
+                menuItemAnalysesManager.fire();
+            }
+        });
+        // end implement drag n drop of files ===================================================================
+
     }
 
     private void detectLatestVersion() {
@@ -184,7 +222,7 @@ public class TripoliGUIController implements Initializable {
         saveSessionAsMenuItem.setDisable(true);
         closeSessionMenuItem.setDisable(true);
 
-        analysisMenu.setDisable(true);
+//        analysisMenu.setDisable(true);
 
         methodsMenu.setDisable(true);
 
@@ -226,7 +264,7 @@ public class TripoliGUIController implements Initializable {
         sessionManagerMenuItem.setDisable(false);
         saveSessionAsMenuItem.setDisable(false);
         closeSessionMenuItem.setDisable(false);
-        analysisMenu.setDisable(true);
+//        analysisMenu.setDisable(true);
     }
 
     private void buildSessionMenuMRU() {
@@ -395,11 +433,9 @@ public class TripoliGUIController implements Initializable {
 
         splashAnchor.getChildren().add(analysesManagerUI);
         analysesManagerUI.setVisible(true);
-
-        analysisMenu.setDisable(false);
     }
 
-    public void manageAnalysisMenuItemAction(ActionEvent actionEvent) throws IOException, TripoliException {
+    public void manageAnalysisMenuItemAction() throws IOException, TripoliException {
         launchAnalysesManager();
     }
 
@@ -450,6 +486,21 @@ public class TripoliGUIController implements Initializable {
 
 
     public void newAnalysisMenuItemOnAction() {
+        RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
+        randomDataGenerator.reSeedSecure();
+        int choice = randomDataGenerator.nextInt(1, 99);
+
+        AnalysisInterface analysisSelected = initializeNewAnalysis(choice);
+        if (tripoliSession.getMapOfAnalyses().containsKey(analysisSelected.getAnalysisName())) {
+            analysisSelected = initializeNewAnalysis(choice * 10);
+        }
+        analysisSelected.resetAnalysis();
+        tripoliSession.addAnalysis(analysisSelected);
+        analysis = analysisSelected;
+        // manage analysis
+        MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
+        menuItemAnalysesManager.fire();
     }
 
     public void generateMCMCDetailsPerBlockAction() throws IOException, TripoliException {

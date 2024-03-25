@@ -99,6 +99,11 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
         this.logScale = logScale;
     }
 
+    @Override
+    public boolean getBlockMode() {
+        return blockMode;
+    }
+
     public void setBlockMode(boolean blockMode) {
         this.blockMode = blockMode;
     }
@@ -721,7 +726,6 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
                 g2d.setLineWidth(1.5);
                 g2d.strokeLine(leftX, mapY(mean), rightX, mapY(mean));
             }
-//            int totalCycles = analysisStatsRecord.countOfTotalCycles();
         }
         g2d.setFill(saveFill);
         g2d.setGlobalAlpha(1.0);
@@ -825,65 +829,6 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
                 analysisBlockCyclesRecord.mapOfBlockIdToProcessStatus().put(sculptBlockID, included ? RUN : SKIP);
                 repaint();
             }
-//            }
         }
     }
-
-    class MouseClickEventHandler2 implements EventHandler<MouseEvent> {
-        @Override
-        public void handle(MouseEvent mouseEvent) {
-            boolean isPrimary = (0 == mouseEvent.getButton().compareTo(MouseButton.PRIMARY));
-//            if (2 == mouseEvent.getClickCount()) {
-//                if (isPrimary && (mouseInHouse(mouseEvent.getX(), mouseEvent.getY()) || mouseInBlockLabel(mouseEvent.getX(), mouseEvent.getY()))) {
-//                    if (inSculptorMode) {
-//                        inSculptorMode = false;
-//                        sculptBlockID = 0;
-//                        inZoomBoxMode = true;
-//                        showZoomBox = true;
-//                        zoomBoxX = mouseStartX;
-//                        zoomBoxY = mouseStartY;
-//                        refreshPanel(true, true);
-//                        ((PlotWallPaneIntensities) getParent().getParent().getParent()).removeSculptingHBox();
-//                        tooltip.setText(tooltipTextSculpt);
-//                    } else {
-//                        inZoomBoxMode = false;
-//                        showZoomBox = false;
-//                        ((PlotWallPaneIntensities) getParent().getParent().getParent()).removeSculptingHBox();
-//                        if (0 < Booleans.countTrue(speciesChecked)) {
-//                            sculptBlockID = determineSculptBlock(mouseEvent.getX());
-//                            ((PlotWallPaneIntensities) getParent().getParent().getParent()).builtSculptingHBox(
-//                                    "Intensity Sculpting " + "  >> " + tooltipTextExitSculpt);
-//                            sculptBlock(mouseInBlockLabel(mouseEvent.getX(), mouseEvent.getY()));
-//                            tooltip.setText(tooltipTextExitSculpt);
-//                        }
-//                    }
-//                }
-//            } else {
-            if (isPrimary && mouseEvent.isShiftDown() && (mouseInHouse(mouseEvent.getX(), mouseEvent.getY()))) {
-//                    // turn off / on block
-//                    sculptBlockID = determineSculptBlock(mouseEvent.getX());
-//                    mapBlockIdToBlockCyclesRecord.get(sculptBlockID).toggleBlockIncluded();
-//                    analysis.getMapOfBlockIdToProcessStatus().put(sculptBlockID, false);
-//                    countOfPreviousBlockIncludedData = 0;
-//                    for (int prevBlockID = 1; prevBlockID < sculptBlockID; prevBlockID++) {
-//                        countOfPreviousBlockIncludedData += ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(prevBlockID)[0].length;
-//                    }
-
-//                    boolean[][] included = ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID);
-//                    boolean allVal = true;
-//                    for (int speciesIndex = 0; speciesIndex < included.length; speciesIndex++) {
-//                        allVal = allVal && (Booleans.countTrue(included[speciesIndex]) == 0);
-//                    }
-//                    for (int speciesIndex = 0; speciesIndex < included.length; speciesIndex++) {
-//                        Arrays.fill(included[speciesIndex], allVal);
-//                        System.arraycopy(included[speciesIndex], 0, onPeakDataIncludedAllBlocks[speciesIndex], countOfPreviousBlockIncludedData, included[speciesIndex].length);
-//                    }
-
-//                    inZoomBoxMode = !inSculptorMode;
-//                    showZoomBox = !inSculptorMode;
-                repaint();
-            }
-        }
-    }
-//    }
 }
