@@ -224,9 +224,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 try {
                     analysisSelected.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
                 } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
-                    throw new RuntimeException(e);
+//                    throw new RuntimeException(e);
                 } catch (IllegalAccessException | TripoliException e) {
-                    throw new RuntimeException(e);
+//                    throw new RuntimeException(e);
                 }
 
                 // manage analysis
