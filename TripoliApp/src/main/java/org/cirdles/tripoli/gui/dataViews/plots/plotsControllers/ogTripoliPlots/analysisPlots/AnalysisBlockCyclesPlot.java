@@ -99,6 +99,11 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
         this.logScale = logScale;
     }
 
+    @Override
+    public boolean getBlockMode() {
+        return blockMode;
+    }
+
     public void setBlockMode(boolean blockMode) {
         this.blockMode = blockMode;
     }

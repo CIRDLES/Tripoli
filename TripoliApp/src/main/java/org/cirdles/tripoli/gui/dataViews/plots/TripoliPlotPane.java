@@ -93,8 +93,6 @@ public class TripoliPlotPane extends BorderPane {
     private CheckBoxChangeListener cycleCheckBoxChangeListener = new CheckBoxChangeListener(cycleCB);
     private PlotWallPaneInterface plotWallPane;
     private AbstractPlot plot;
-    private ToolBar plotToolBar;
-
     private final EventHandler<MouseEvent> mouseReleasedEventHandler = e -> {
         snapToGrid();
     };
@@ -140,6 +138,7 @@ public class TripoliPlotPane extends BorderPane {
             mouseStartY = e.getSceneY();
         }
     };
+    private ToolBar plotToolBar;
     private PlotLocation plotLocation;
     private final EventHandler<MouseEvent> mouseClickedEventHandler = e -> {
         if (getPlot().mouseInHouse(e.getX(), e.getY())) {
@@ -147,7 +146,7 @@ public class TripoliPlotPane extends BorderPane {
                 mouseStartX = e.getSceneX();
                 mouseStartY = e.getSceneY();
             }
-            if (e.isSecondaryButtonDown() && 2 == e.getClickCount()  && !e.isControlDown()) {
+            if (e.isSecondaryButtonDown() && 2 == e.getClickCount() && !e.isControlDown()) {
                 if (plot instanceof SpeciesIntensityAnalysisPlot) {
 
                 } else {
@@ -255,14 +254,10 @@ public class TripoliPlotPane extends BorderPane {
             chauvenetButton.setFont(toolBarFont);
             plotToolBar.getItems().add(chauvenetButton);
 
-            Button toggleStatsButton = new Button("Toggle Stats");
-            toggleStatsButton.setFont(toolBarFont);
-            toggleStatsButton.setOnAction(event -> toggleShowStats());
-            plotToolBar.getItems().add(toggleStatsButton);
-
-            cycleCB = new CheckBox("Cycle");
-            plotToolBar.getItems().add(cycleCB);
-            cycleCB.selectedProperty().addListener(cycleCheckBoxChangeListener);
+//            Button toggleStatsButton = new Button("Toggle Stats");
+//            toggleStatsButton.setFont(toolBarFont);
+//            toggleStatsButton.setOnAction(event -> toggleShowStats());
+//            plotToolBar.getItems().add(toggleStatsButton);
 
             Button synchButton = new Button("SYNCH");
             synchButton.setFont(toolBarFont);
@@ -275,6 +270,10 @@ public class TripoliPlotPane extends BorderPane {
             });
             plotToolBar.getItems().add(synchButton);
 
+            cycleCB = new CheckBox("Cycle");
+            plotToolBar.getItems().add(cycleCB);
+            cycleCB.setSelected(!((AnalysisBlockCyclesPlotI) plot).getBlockMode());
+            cycleCB.selectedProperty().addListener(cycleCheckBoxChangeListener);
 
             setBottom(plotToolBar);
         }
@@ -358,6 +357,9 @@ public class TripoliPlotPane extends BorderPane {
 
     public void replot() {
         if (plot != null) {
+            if (plot instanceof AnalysisBlockCyclesPlotOG) {
+                ((AnalysisBlockCyclesPlotOG) plot).restBlockMode();
+            }
             plot.refreshPanel(true, true);
         }
     }

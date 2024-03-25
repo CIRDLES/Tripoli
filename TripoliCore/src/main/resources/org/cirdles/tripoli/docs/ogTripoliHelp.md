@@ -3,7 +3,11 @@ Instructions for OGTripoli preview window:
 
 All actions are performed only on visible plots.
 
-Zooming:
+Toggle full view:
+
+        one plot -> right mouse double click
+
+Scrolling:
 
          one plot  -> scroll
          all plots -> control + scroll
@@ -11,26 +15,30 @@ Zooming:
 Panning:
 
          one plot  -> right mouse
-         all plots -> control + right mouse
 
 Toggle Block inclusion:
 
         one plot -> control + left mouse
         all plots -> one plot then SYNCH button
 
-Toggle full view:
+Zoom one block:
 
-        one plot -> right mouse double click
-
-FUTURE FEATURES: ============================================
+        one plot -> control + right mouse
+        Zoomed data is now in Sculpting Mode
 
 Zoom Box:
 
-          one plot  -> draw with left mouse
-          all plots -> draw with shift + left mouse
+          one plot  -> draw blue selection box with left mouse
+          Zoomed data is now in Sculpting Mode
 
-Data Sculpting mode of one plot -> double click left mouse
+Toggle Data Sculpting mode:
 
-Sculpt data with selection box -> draw with left mouse
+          one plot -> double click left mouse
 
-Sculpting can be applied to all plots with the SYNCH button.
+Toggle data points in Sculpting Mode:
+
+          ** Only data points within a single block can be selected at a time. **
+          one plot -> left mouse to draw red selection box
+          all plots -> one plot then SYNCH button
+
+last updated: 25-Mar-2024
