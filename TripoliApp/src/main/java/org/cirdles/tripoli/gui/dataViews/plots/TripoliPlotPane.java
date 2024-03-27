@@ -252,12 +252,8 @@ public class TripoliPlotPane extends BorderPane {
 
             Button chauvenetButton = new Button("Chauvenet");
             chauvenetButton.setFont(toolBarFont);
+            chauvenetButton.setOnAction(event -> performChauvenets());
             plotToolBar.getItems().add(chauvenetButton);
-
-//            Button toggleStatsButton = new Button("Toggle Stats");
-//            toggleStatsButton.setFont(toolBarFont);
-//            toggleStatsButton.setOnAction(event -> toggleShowStats());
-//            plotToolBar.getItems().add(toggleStatsButton);
 
             Button synchButton = new Button("SYNCH");
             synchButton.setFont(toolBarFont);
@@ -367,6 +363,13 @@ public class TripoliPlotPane extends BorderPane {
     public void resetData() {
         if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
             ((AnalysisBlockCyclesPlotI) plot).resetData();
+            plot.refreshPanel(true, true);
+        }
+    }
+
+    public void performChauvenets(){
+        if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
+            ((AnalysisBlockCyclesPlotI) plot).performChauvenets();
             plot.refreshPanel(true, true);
         }
     }

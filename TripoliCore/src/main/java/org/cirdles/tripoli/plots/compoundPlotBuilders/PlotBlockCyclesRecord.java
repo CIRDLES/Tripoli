@@ -1,8 +1,11 @@
 package org.cirdles.tripoli.plots.compoundPlotBuilders;
 
+import org.cirdles.tripoli.utilities.mathUtilities.MathUtilities;
+
 import java.io.Serializable;
 
 import static com.google.common.primitives.Booleans.countTrue;
+import static org.cirdles.tripoli.utilities.mathUtilities.MathUtilities.ChauvenetsCriterion;
 
 public record PlotBlockCyclesRecord(
         int blockID,
@@ -26,6 +29,24 @@ public record PlotBlockCyclesRecord(
     public PlotBlockCyclesRecord resetAllDataIncluded() {
         for (int i = 0; i < cyclesIncluded.length; i++) {
             cyclesIncluded[i] = true;
+        }
+
+        return new PlotBlockCyclesRecord(
+                blockID,
+                isRatio,
+                processed,
+                true,
+                cyclesIncluded,
+                cycleMeansData,
+                cycleOneSigmaData,
+                title
+        );
+    }
+
+    public PlotBlockCyclesRecord performChauvenets() {
+        boolean[] cyclesRejected = ChauvenetsCriterion(cycleMeansData, cyclesIncluded);
+        for (int i = 0; i < cyclesIncluded.length; i++) {
+            cyclesIncluded[i] = !cyclesRejected[i];
         }
 
         return new PlotBlockCyclesRecord(

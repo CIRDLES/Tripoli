@@ -247,7 +247,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         try {
             previewAndSculptDataAction();
         } catch (TripoliException e) {
-            throw new RuntimeException(e);
+//            throw new RuntimeException(e);
         }
 
     }

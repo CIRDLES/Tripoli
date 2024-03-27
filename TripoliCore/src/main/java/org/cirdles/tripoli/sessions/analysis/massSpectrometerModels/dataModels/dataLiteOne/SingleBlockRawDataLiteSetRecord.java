@@ -20,6 +20,8 @@ import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 
 import java.io.Serializable;
 
+import static org.cirdles.tripoli.utilities.mathUtilities.MathUtilities.ChauvenetsCriterion;
+
 /**
  * @author James F. Bowring
  */
@@ -56,6 +58,19 @@ public record SingleBlockRawDataLiteSetRecord(
         for (int row = 0; row < blockRawDataLiteIncludedArray.length; row++) {
             for (int col = 0; col < blockRawDataLiteIncludedArray[row].length; col++) {
                 blockRawDataLiteIncludedArray[row][col] = true;
+            }
+        }
+        return new SingleBlockRawDataLiteSetRecord(
+                blockID,
+                true,
+                blockRawDataLiteArray,
+                blockRawDataLiteIncludedArray);
+    }
+
+    public SingleBlockRawDataLiteSetRecord recordChauvenets(boolean[] cyclesIncluded) {
+        for (int row = 0; row < blockRawDataLiteIncludedArray.length; row++) {
+            for (int col = 0; col < blockRawDataLiteIncludedArray[row].length; col++) {
+                blockRawDataLiteIncludedArray[row][col] = cyclesIncluded[row];
             }
         }
         return new SingleBlockRawDataLiteSetRecord(

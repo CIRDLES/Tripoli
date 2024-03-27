@@ -299,9 +299,20 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     double plusSigmaPct = (new BigDecimal(geoWeightedMeanRatioPlusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
                     double minusSigmaPct = (new BigDecimal(geoWeightedMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
 
-                    twoSigString = " " + (new BigDecimal(geoWeightedMeanRatio).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).toPlainString();
-                    twoSigString = appendTrailingZeroIfNeeded(twoSigString, countOfTrailingDigitsForSigFig);
-                    g2d.fillText("x\u0304  =" + twoSigString, textLeft + 10, textTop += textDeltaY);
+                    String meanAsString;
+
+                    if ((abs(geoWeightedMeanRatio) >= 1e7) || (abs(geoWeightedMeanRatio) <= 1e-5)) {
+                        FormatterForSigFigN.FormattedStats formattedStats =
+                                FormatterForSigFigN.formatToScientific(geoWeightedMeanRatio, (geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio), 0, 2).padLeft();
+                        meanAsString = formattedStats.meanAsString();
+                    } else {
+                        FormatterForSigFigN.FormattedStats formattedStats =
+                                FormatterForSigFigN.formatToSigFig(geoWeightedMeanRatio, (geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio), 0, 2).padLeft();
+                        meanAsString = formattedStats.meanAsString();
+                    }
+
+                    g2d.fillText("x\u0304  = " + meanAsString, textLeft + 10, textTop += textDeltaY);
+
                     boolean meanIsPlottable = (mapY(geoWeightedMeanRatio) >= topMargin) && (mapY(geoWeightedMeanRatio) <= topMargin + plotHeight);
                     if (meanIsPlottable) {
                         g2d.setStroke(OGTRIPOLI_MEAN);
@@ -807,6 +818,16 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         for (int i = 0; i < mapBlockIdToBlockCyclesRecord.size(); i++) {
             mapBlockIdToBlockCyclesRecord.put(i + 1, mapBlockIdToBlockCyclesRecord.get(i + 1).resetAllDataIncluded());
             analysis.getMapOfBlockIdToRawDataLiteOne().put(i + 1, analysis.getMapOfBlockIdToRawDataLiteOne().get(i + 1).resetAllDataIncluded());
+        }
+        repaint();
+    }
+
+    @Override
+    public void performChauvenets(){
+        for (int i = 0; i < mapBlockIdToBlockCyclesRecord.size(); i++) {
+            PlotBlockCyclesRecord plotBlockCyclesRecord = mapBlockIdToBlockCyclesRecord.get(i + 1).performChauvenets();
+            mapBlockIdToBlockCyclesRecord.put(i + 1, plotBlockCyclesRecord);
+            analysis.getMapOfBlockIdToRawDataLiteOne().put(i + 1, analysis.getMapOfBlockIdToRawDataLiteOne().get(i + 1).recordChauvenets(plotBlockCyclesRecord.cyclesIncluded()));
         }
         repaint();
     }
