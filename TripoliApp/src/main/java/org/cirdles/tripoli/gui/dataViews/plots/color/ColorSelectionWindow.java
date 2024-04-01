@@ -17,6 +17,8 @@ import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.species.SpeciesColorSetting;
 import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.DelegateActionInterface;
+import org.cirdles.tripoli.utilities.DelegateActionSet;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -40,7 +42,8 @@ public class ColorSelectionWindow {
     private SpeciesColorPane[] speciesColorPanes;
     private Button undoButton;
     private final ColorListener colorListener;
-    private final DelegateActionInterface rebuildPlotDelegateAction;
+
+    private final DelegateActionSet rebuildDelegateActionSet;
 
 
 
@@ -66,7 +69,7 @@ public class ColorSelectionWindow {
                                     (int) (newValue.getBlue() * 255))));
             colorSplotchReference.setColor(newValue);
             setColorPickerLabelText();
-            rebuildPlotDelegateAction.act();
+            rebuildDelegateActionSet.executeDelegateActions();
         }
         public void setColorSplotch(ColorSplotch colorSplotch) {
             this.colorSplotchReference = colorSplotch;
@@ -78,14 +81,14 @@ public class ColorSelectionWindow {
             Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack,
             List<SpeciesRecordInterface> species,
             Window owner,
-            DelegateActionInterface rebuildPlotDelegateAction) {
+            DelegateActionSet rebuildDelegateActionSet) {
         if (instance == null) {
             instance = new ColorSelectionWindow(
                     mapOfSpeciesToColors,
                     previousSpeciesColorSettingsStack,
                     species,
                     owner,
-                    rebuildPlotDelegateAction);
+                    rebuildDelegateActionSet);
         }
         return instance;
     }
@@ -93,13 +96,15 @@ public class ColorSelectionWindow {
                                  Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack,
                                  List<SpeciesRecordInterface> species,
                                  Window owner,
-                                 DelegateActionInterface rebuildPlotDelegateAction) {
+//                                 DelegateActionInterface rebuildPlotDelegateAction,
+                                 DelegateActionSet rebuildDelegateActionSet) {
         this.mapOfSpeciesToColors = mapOfSpeciesToColors;
         this.previousSpeciesColorSettingsStack = previousSpeciesColorSettingsStack;
         this.originalMapOfSpeciesToColors = new TreeMap<>();
         originalMapOfSpeciesToColors.putAll(mapOfSpeciesToColors);
         this.root = new VBox();
-        this.rebuildPlotDelegateAction = rebuildPlotDelegateAction;
+//        this.rebuildPlotDelegateAction = rebuildPlotDelegateAction;
+        this.rebuildDelegateActionSet = rebuildDelegateActionSet;
         initStage(owner);
         initSpeciesColorPanes(species);
         this.colorListener = new ColorListener(
@@ -156,7 +161,7 @@ public class ColorSelectionWindow {
             }
         }
         colorPicker.setValue(speciesColorRowSelectionRecord.speciesColorRow().getColor());
-        rebuildPlotDelegateAction.act();
+        rebuildDelegateActionSet.executeDelegateActions();
     }
 
     private void undo(){
@@ -175,7 +180,7 @@ public class ColorSelectionWindow {
                                 previousSpeciesColorSetting.speciesColors().get(plotFlavor)));
             }
             colorPicker.setValue(speciesColorRowSelectionRecord.speciesColorRow().getColor());
-            this.rebuildPlotDelegateAction.act();
+            rebuildDelegateActionSet.executeDelegateActions();
         }
     }
 
