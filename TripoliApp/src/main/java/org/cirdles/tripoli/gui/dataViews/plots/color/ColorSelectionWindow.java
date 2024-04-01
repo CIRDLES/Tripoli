@@ -2,12 +2,17 @@ package org.cirdles.tripoli.gui.dataViews.plots.color;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToolBar;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -30,6 +35,8 @@ public class ColorSelectionWindow {
     public static final String WINDOW_TITLE = "Color Customization";
     public static final double WINDOW_PREF_WIDTH = 335;
     public static final double BUTTON_PREF_HEIGHT = 35;
+    public static final double TOOLBAR_PREF_HEIGHT = 25;
+    public static final double TOOLBAR_BUTTON_HEIGHT = 18;
     private static ColorSelectionWindow instance;
     private final Map<Integer, SpeciesColors> mapOfSpeciesToColors;
     private final Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack;
@@ -119,9 +126,16 @@ public class ColorSelectionWindow {
         speciesColorRowSelectionRecord.speciesColorRow().highlight();
         speciesColorRowSelectionRecord.speciesColorPane().highlight();
         this.root.getChildren().add(initColorPicker());
-        root.getChildren().add(initUndoButton());
-        root.getChildren().add(initResetButton());
-
+//        root.getChildren().add(initUndoButton());
+//        root.getChildren().add(initResetButton());
+        Region spacerLeft = new Region();
+        Region spacerRight = new Region();
+        HBox.setHgrow(spacerLeft, Priority.ALWAYS);
+        HBox.setHgrow(spacerRight, Priority.ALWAYS);
+        ToolBar toolBar = new ToolBar(spacerLeft,initResetButton(), initUndoButton(), initAcceptButton(),spacerRight);
+        toolBar.prefWidthProperty().bind(stage.widthProperty());
+        toolBar.setPadding(new Insets(10));
+        this.root.getChildren().add(toolBar);
     }
 
     private void makeSelection(int speciesIndex, DetectorPlotFlavor plotFlavor) {
@@ -184,6 +198,10 @@ public class ColorSelectionWindow {
         }
     }
 
+    private void accept() {
+        stage.close();
+    }
+
     private void setColorPickerLabelText() {
         if(colorPickerLabel == null) {
             for(Node child : colorPicker.getChildrenUnmodifiable()) {
@@ -202,8 +220,10 @@ public class ColorSelectionWindow {
 
     private Button initResetButton() {
         Button resetButton = new Button("Reset");
-        resetButton.prefWidthProperty().bind(stage.widthProperty());
-        resetButton.setPrefHeight(BUTTON_PREF_HEIGHT);
+        resetButton.prefWidthProperty().bind(stage.widthProperty().divide(4));
+        resetButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
+//        resetButton.prefWidthProperty().bind(stage.widthProperty());
+//        resetButton.setPrefHeight(BUTTON_PREF_HEIGHT);
         resetButton.setOnAction(cancelChanges -> {
             resetColors();});
         return resetButton;
@@ -211,14 +231,24 @@ public class ColorSelectionWindow {
 
     private Button initUndoButton() {
         this.undoButton = new Button("Undo");
-        undoButton.prefWidthProperty().bind(stage.widthProperty());
-        undoButton.setPrefHeight(BUTTON_PREF_HEIGHT);
+        undoButton.prefWidthProperty().bind(stage.widthProperty().divide(4));
+        undoButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
+//        undoButton.prefWidthProperty().bind(stage.widthProperty());
+//        undoButton.setPrefHeight(BUTTON_PREF_HEIGHT);
         undoButton.setOnAction(undoLastChange -> {
             undo();
             undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
         });
         undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
         return undoButton;
+    }
+
+    private Button initAcceptButton() {
+        Button acceptButton = new Button("Accept");
+        acceptButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
+        acceptButton.prefWidthProperty().bind(stage.widthProperty().divide(4));
+        acceptButton.setOnAction((acceptAction) -> accept());
+        return acceptButton;
     }
     private ColorPicker initColorPicker() {
         this.colorPicker = new ColorPicker();
