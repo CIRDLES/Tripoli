@@ -553,7 +553,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                 // find index of last intensity in block is found in photoMultiplier data first species * 4 + 2
                 int sculptedSpeciesIndex = Booleans.indexOf(speciesChecked, true);
                 int countOfIntensities = ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[0].length;
-                for (int i = ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfBlockIdToIncludedPeakData().get(sculptBlockID)[0].length; 0 < i; i--) {
+                for (int i = countOfIntensities; 0 < i; i--) {
                     if (0.0 == yData[sculptedSpeciesIndex * 4 + 2][countOfPreviousBlockIncludedData + i - 1]) {
                         countOfIntensities--;
                     } else

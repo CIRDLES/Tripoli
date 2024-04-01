@@ -59,6 +59,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private boolean logScale;
     private boolean blockMode;
     private ConstantsTripoliApp.PlotLayoutStyle plotLayoutStyle;
+    private ToolBar scaleControlsToolbar;
 
 
     private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsController, AnalysisManagerCallbackI analysisManagerCallbackI) {
@@ -298,10 +299,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
 
     public void buildScaleControlsToolbar() {
         Font commandFont = Font.font("SansSerif", FontWeight.BOLD, 12);
-        ToolBar toolBar = new ToolBar();
-        toolBar.setPrefHeight(toolBarHeight);
-        toolBar.setStyle(toolBar.getStyle() + ";-fx-background-color:LINEN");
-        toolBar.setLayoutY(0.0);
+        scaleControlsToolbar = new ToolBar();
+        scaleControlsToolbar.setPrefHeight(toolBarHeight);
+        scaleControlsToolbar.setStyle(scaleControlsToolbar.getStyle() + ";-fx-background-color:LINEN");
+        scaleControlsToolbar.setLayoutY(0.0);
 
         Button infoButton = new Button("?");
         infoButton.setFont(commandFont);
@@ -309,46 +310,46 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
             Path resourcePath = TRIPOLI_RESOURCE_EXTRACTOR.extractResourceAsPath("docs/ogTripoliHelp.md");
             BrowserControl.showURI(resourcePath.toString());
         });
-        toolBar.getItems().add(infoButton);
+        scaleControlsToolbar.getItems().add(infoButton);
 
         Button replotAllButton = new Button("Replot All");
         replotAllButton.setFont(commandFont);
         replotAllButton.setOnAction(event -> replotAll());
-        toolBar.getItems().add(replotAllButton);
+        scaleControlsToolbar.getItems().add(replotAllButton);
 
         Button resetAllDataButton = new Button("Reset All Data");
         resetAllDataButton.setFont(commandFont);
         resetAllDataButton.setOnAction(event -> resetDataAll());
-        toolBar.getItems().add(resetAllDataButton);
+        scaleControlsToolbar.getItems().add(resetAllDataButton);
 
         Button chauvenetButton = new Button("Chauvenet");
         chauvenetButton.setFont(commandFont);
 //        chauvenetButton.setOnAction(event -> replotAll());
-        toolBar.getItems().add(chauvenetButton);
+        scaleControlsToolbar.getItems().add(chauvenetButton);
 
         Button toggleStatsButton = new Button("Toggle Stats");
         toggleStatsButton.setFont(commandFont);
         toggleStatsButton.setOnAction(event -> toggleShowStatsAllPlots());
-        toolBar.getItems().add(toggleStatsButton);
+        scaleControlsToolbar.getItems().add(toggleStatsButton);
 
         Button tileButton = new Button("Tile Plots");
         tileButton.setFont(commandFont);
         tileButton.setOnAction(event -> tilePlots());
-        toolBar.getItems().add(tileButton);
+        scaleControlsToolbar.getItems().add(tileButton);
 
         Button stackButton = new Button("Stack Plots");
         stackButton.setFont(commandFont);
         stackButton.setOnAction(event -> stackPlots());
-        toolBar.getItems().add(stackButton);
+        scaleControlsToolbar.getItems().add(stackButton);
 
         Label labelMode = new Label("Mode:");
         labelMode.setFont(commandFont);
         labelMode.setAlignment(Pos.CENTER_RIGHT);
         labelMode.setPrefWidth(50);
-        toolBar.getItems().add(labelMode);
+        scaleControlsToolbar.getItems().add(labelMode);
 
         CheckBox cycleCB = new CheckBox("Cycle");
-        toolBar.getItems().add(cycleCB);
+        scaleControlsToolbar.getItems().add(cycleCB);
         cycleCB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     blockMode = !newVal;
@@ -359,10 +360,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         labelScale.setFont(commandFont);
         labelScale.setAlignment(Pos.CENTER_RIGHT);
         labelScale.setPrefWidth(80);
-        toolBar.getItems().add(labelScale);
+        scaleControlsToolbar.getItems().add(labelScale);
 
         CheckBox logCB = new CheckBox("Log");
-        toolBar.getItems().add(logCB);
+        scaleControlsToolbar.getItems().add(logCB);
         logCB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     logScale = newVal;
@@ -373,14 +374,14 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         labelZoom.setFont(commandFont);
         labelZoom.setAlignment(Pos.CENTER_RIGHT);
         labelZoom.setPrefWidth(50);
-        toolBar.getItems().add(labelZoom);
+        scaleControlsToolbar.getItems().add(labelZoom);
 
         ToggleGroup toggleScaleY = new ToggleGroup();
 
         RadioButton countsRB = new RadioButton("Both");
         countsRB.setToggleGroup(toggleScaleY);
         countsRB.setSelected(true);
-        toolBar.getItems().add(countsRB);
+        scaleControlsToolbar.getItems().add(countsRB);
         countsRB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     if (newVal) {
@@ -392,7 +393,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
 
         RadioButton xOnlyRB = new RadioButton("X-only");
         xOnlyRB.setToggleGroup(toggleScaleY);
-        toolBar.getItems().add(xOnlyRB);
+        scaleControlsToolbar.getItems().add(xOnlyRB);
         xOnlyRB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     if (newVal) {
@@ -404,7 +405,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
 
         RadioButton yOnlyRB = new RadioButton("Y-only");
         yOnlyRB.setToggleGroup(toggleScaleY);
-        toolBar.getItems().add(yOnlyRB);
+        scaleControlsToolbar.getItems().add(yOnlyRB);
         yOnlyRB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     if (newVal) {
@@ -415,7 +416,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
                 });
 
 
-        getChildren().add(toolBar);
+        getChildren().add(scaleControlsToolbar);
     }
 
     @Override

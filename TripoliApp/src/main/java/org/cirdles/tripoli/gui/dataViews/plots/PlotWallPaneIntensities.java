@@ -127,6 +127,15 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         // not used
     }
 
+
+    /**
+     *
+     */
+    @Override
+    public void repeatLayoutStyle() {
+
+    }
+
     public void buildIntensitiesPlotToolBar(boolean showResiduals,
                                             List<SpeciesRecordInterface> species,
                                             Map<Integer, SpeciesColors> mapOfSpeciesToColors,

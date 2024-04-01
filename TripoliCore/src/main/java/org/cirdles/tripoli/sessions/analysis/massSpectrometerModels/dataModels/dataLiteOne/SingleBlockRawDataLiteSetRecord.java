@@ -68,30 +68,34 @@ public record SingleBlockRawDataLiteSetRecord(
     public SingleBlockRawDataLiteSetRecord toggleAllDataIncludedUserFunction(UserFunction userFunction) {
         for (int row = 0; row < blockRawDataLiteIncludedArray.length; row++) {
             int col = userFunction.getColumnIndex();
-            blockRawDataLiteIncludedArray[row][col] = !isIncluded;
+            blockRawDataLiteIncludedArray[row][col] = !blockRawDataLiteIncludedArray[row][col];
         }
         return new SingleBlockRawDataLiteSetRecord(
                 blockID,
-                !isIncluded,
+                isIncluded,
                 blockRawDataLiteArray,
                 blockRawDataLiteIncludedArray);
     }
 
-    public SingleBlockRawDataLiteSetRecord updateIncludedCycles(boolean[][] includedCycles) {
+    public SingleBlockRawDataLiteSetRecord updateIncludedCycles(UserFunction userFunction, boolean[] includedCycles) {
+        for (int row = 0; row < blockRawDataLiteIncludedArray.length; row++) {
+            int col = userFunction.getColumnIndex();
+            blockRawDataLiteIncludedArray[row][col] = includedCycles[row];
+        }
         return new SingleBlockRawDataLiteSetRecord(
                 blockID,
-                !isIncluded,
+                isIncluded,
                 blockRawDataLiteArray,
-                includedCycles);
+                blockRawDataLiteIncludedArray);
     }
 
-    public boolean calcBlockIncludedForUserFunc(UserFunction userFunction) {
-        boolean retVal = false;
-        for (int row = 0; row < blockRawDataLiteIncludedArray.length; row++) {
-            retVal = retVal || blockRawDataLiteIncludedArray[row][userFunction.getColumnIndex()];
-        }
-        return retVal;
-    }
+//    public boolean calcBlockIncludedForUserFunc(UserFunction userFunction) {
+//        boolean retVal = false;
+//        for (int row = 0; row < blockRawDataLiteIncludedArray.length; row++) {
+//            retVal = retVal || blockRawDataLiteIncludedArray[row][userFunction.getColumnIndex()];
+//        }
+//        return retVal;
+//    }
 
     public SingleBlockRawDataLiteSetRecord synchronizeIncludedToUserFunc(UserFunction userFunction) {
         for (int row = 0; row < blockRawDataLiteIncludedArray.length; row++) {

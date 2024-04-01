@@ -175,10 +175,11 @@ public class MassSpecExtractedData implements Serializable {
     }
 
     public int[] assignBlockIdToSessionTimeLite() {
-        int totalSize = 0;
-        for (MassSpecOutputBlockRecordLite blockRecord : blocksDataLite.values()) {
-            totalSize += blockRecord.cycleData().length;
-        }
+//        int totalSize = 0;
+//        for (MassSpecOutputBlockRecordLite blockRecord : blocksDataLite.values()) {
+//            totalSize += blockRecord.cycleData().length;
+//        }
+        int totalSize = blocksDataLite.keySet().size() * blocksDataLite.get(1).cycleData().length;
         int[] blockIDs = new int[totalSize];
         totalSize = 0;
         for (MassSpecOutputBlockRecordLite blockRecord : blocksDataLite.values()) {

@@ -6,6 +6,8 @@ import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import java.util.Map;
 
 public interface AnalysisBlockCyclesPlotI {
+    public boolean getBlockMode();
+
     public void setBlockMode(boolean blockMode);
 
     void setLogScale(boolean logScale);

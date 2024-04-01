@@ -113,66 +113,12 @@ public class OGTripoliViewController {
         ((Pane) plotsWallPaneRatios).prefHeightProperty().bind(ogtCycleRatioPlotsAnchorPane.heightProperty());
 
         ogtCycleRatioPlotsAnchorPane.getChildren().add(((Pane) plotsWallPaneRatios));
-        plotWindowVBox.widthProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneRatios.tilePlots());
-        plotWindowVBox.heightProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneRatios.tilePlots());
+        plotWindowVBox.widthProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneRatios.repeatLayoutStyle());
+        plotWindowVBox.heightProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneRatios.repeatLayoutStyle());
 
         boolean[] DUMMY_CYCLES_INCLUDED;
 
         switch (plottingData.analysisCaseNumber()) {
-            case 2 -> {
-                SingleBlockRawDataLiteSetRecord[] singleBlockRawDataLiteOneSetRecords = plottingData.singleBlockRawDataLiteSetRecords();
-                int countOfOnPeakCycles = plottingData.cycleCount();
-
-                DUMMY_CYCLES_INCLUDED = new boolean[countOfOnPeakCycles];
-                Arrays.fill(DUMMY_CYCLES_INCLUDED, true);
-
-                // build list of userFunctions to plot
-                List<UserFunction> ratiosToPlot = new ArrayList<>();
-                for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
-                    if (userFunction.isDisplayed()) {
-                        ratiosToPlot.add(userFunction);
-                    }
-                }
-
-                for (UserFunction userFunction : ratiosToPlot) {
-                    TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPaneRatios);
-
-                    List<PlotBlockCyclesRecord> blockCyclesRecords = new ArrayList<>();
-                    for (int blockIndex = 0; blockIndex < singleBlockRawDataLiteOneSetRecords.length; blockIndex++) {
-                        if (null != singleBlockRawDataLiteOneSetRecords[blockIndex]) {
-                            Integer blockID = singleBlockRawDataLiteOneSetRecords[blockIndex].blockID();
-                            int blockStatus = analysis.getMapOfBlockIdToProcessStatus().get(blockID);
-                            boolean processed = (null != analysis.getMapOfBlockIdToPlots().get(blockID));
-                            blockCyclesRecords.add(BlockCyclesBuilder.initializeBlockCycles(
-                                    blockID,
-                                    SKIP != blockStatus,
-                                    processed,
-                                    DUMMY_CYCLES_INCLUDED,
-                                    singleBlockRawDataLiteOneSetRecords[blockIndex].assembleCycleMeansForUserFunction(userFunction),
-                                    singleBlockRawDataLiteOneSetRecords[blockIndex].assembleCycleStdDevForUserFunction(userFunction),
-                                    new String[]{userFunction.getName()},
-                                    true,
-                                    userFunction.isTreatAsIsotopicRatio()).getBlockCyclesRecord());
-                        } else {
-                            blockCyclesRecords.add(null);
-                        }
-                    }
-                    BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder =
-                            BlockAnalysisRatioCyclesBuilder.initializeBlockAnalysisRatioCycles(
-                                    userFunction.getName(),
-                                    blockCyclesRecords,
-                                    analysis.getMapOfBlockIdToProcessStatus(),
-                                    analysis.getMassSpecExtractedData().assignBlockIdToSessionTimeLite(),
-                                    userFunction.isTreatAsIsotopicRatio(),
-                                    userFunction.isInverted());
-                    AbstractPlot plot = AnalysisBlockCyclesPlot.generatePlot(
-                            new Rectangle(minPlotWidth, minPlotHeight), blockAnalysisRatioCyclesBuilder.getBlockAnalysisRatioCyclesRecord(), (PlotWallPane) plotsWallPaneRatios);
-
-                    tripoliPlotPane.addPlot(plot);
-                    plot.refreshPanel(false, false);
-                }
-            }
-
             case 1 -> {
                 SingleBlockRawDataLiteSetRecord[] singleBlockRawDataLiteSetRecords = plottingData.singleBlockRawDataLiteSetRecords();
                 int countOfOnPeakCycles = plottingData.cycleCount();
@@ -200,8 +146,8 @@ public class OGTripoliViewController {
 
                             mapOfBlocksToCyclesRecords.put(blockID, (BlockCyclesBuilder.initializeBlockCycles(
                                     blockID,
-                                    singleBlockRawDataLiteSetRecords[blockIndex].calcBlockIncludedForUserFunc(userFunction),
                                     true,
+                                    true, // TODO: not needed here
                                     singleBlockRawDataLiteSetRecords[blockIndex].assembleCyclesIncludedForUserFunction(userFunction),
                                     singleBlockRawDataLiteSetRecords[blockIndex].assembleCycleMeansForUserFunction(userFunction),
                                     singleBlockRawDataLiteSetRecords[blockIndex].assembleCycleStdDevForUserFunction(userFunction),
@@ -275,7 +221,7 @@ public class OGTripoliViewController {
                             BlockAnalysisRatioCyclesBuilder.initializeBlockAnalysisRatioCycles(
                                     isotopicRatio.prettyPrint(), plotBlockCyclesRecords,
                                     analysis.getMapOfBlockIdToProcessStatus(),
-                                    analysis.getMassSpecExtractedData().assignBlockIdToSessionTimeLite(),
+                                    analysis.getMassSpecExtractedData().assignBlockIdToSessionTimeFull(), //analysis.getMassSpecExtractedData().assignBlockIdToSessionTimeLite(),
                                     true,
                                     false);
                     AbstractPlot plot = AnalysisBlockCyclesPlot.generatePlot(

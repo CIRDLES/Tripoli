@@ -43,9 +43,9 @@ public record AnalysisStatsRecord(
                             cycleModeDescriptiveStats.addValue(blockStatsRecords[i].cycleMeansData()[cycleIndex]);
                         }
                     }
-                    countOfTotalCycles++;
                 }
             }
+            countOfTotalCycles += blockStatsRecords[i].cyclesIncluded().length;
         }
         weightedMeanC = wmNumerator / wmDenominator;
         weightedMeanOneSigmaSquaredC = 1.0 / wmDenominator;

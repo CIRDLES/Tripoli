@@ -193,11 +193,14 @@ public class Analysis implements Serializable, AnalysisInterface {
                 if (selectedMethodFile.exists()) {
                     setMethod(extractAnalysisMethodfromPath(Path.of(selectedMethodFile.toURI())));
                     TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedMethodFile.getParent());
-                } else {
-                    throw new TripoliException(
-                            "Method File not found: " + massSpecExtractedData.getHeader().methodName()
-                                    + "\n\n at location: " + Path.of(dataFilePathString).getParent().getParent().toString() + File.separator + "Methods");
                 }
+                // decided not to alert
+//                else
+//                {
+//                    throw new TripoliException(
+//                            "Method File not found: " + massSpecExtractedData.getHeader().methodName()
+//                                    + "\n\n at location: " + Path.of(dataFilePathString).getParent().getParent().toString() + File.separator + "Methods");
+//                }
 
                 initializeBlockProcessing();
 
