@@ -239,6 +239,7 @@ public class OGTripoliViewController {
     }
 
     private void plotOnPeakIntensitiesAndResiduals() {
+        PlotWallPaneIntensities.clearDelegates();
         PlotWallPane.menuOffset = 0.0;
         ogtSpeciesIntensitiesPlotAnchorPane.getChildren().clear();
         plotsWallPaneIntensities = PlotWallPaneIntensities.createPlotWallPane("OGTripoliSession");
@@ -392,7 +393,10 @@ public class OGTripoliViewController {
         tripoliPlotPaneIntensities.addPlot(plotIntensities);
         plotIntensities.refreshPanel(false, false);
 
-        ((PlotWallPaneIntensities) plotsWallPaneIntensities).buildIntensitiesPlotToolBar(false, analysis.getAnalysisMethod().getSpeciesList());
+        ((PlotWallPaneIntensities) plotsWallPaneIntensities).buildIntensitiesPlotToolBar(false,
+                analysis.getAnalysisMethod().getSpeciesList(),
+                ((Analysis) analysis).getMapOfSpeciesToColors(),
+                ((Analysis) analysis).getPreviousSpeciesColorSettingsStack());
         plotsWallPaneIntensities.buildScaleControlsToolbar();
         plotsWallPaneIntensities.stackPlots();
 
@@ -407,7 +411,10 @@ public class OGTripoliViewController {
         tripoliPlotPaneResiduals.addPlot(plotResiduals);
         plotResiduals.refreshPanel(false, false);
 
-        ((PlotWallPaneIntensities) plotsWallPaneResiduals).buildIntensitiesPlotToolBar(true, analysis.getAnalysisMethod().getSpeciesList());
+        ((PlotWallPaneIntensities) plotsWallPaneResiduals).buildIntensitiesPlotToolBar(true,
+                analysis.getAnalysisMethod().getSpeciesList(),
+                ((Analysis) analysis).getMapOfSpeciesToColors(),
+                ((Analysis) analysis).getPreviousSpeciesColorSettingsStack());
         plotsWallPaneResiduals.buildScaleControlsToolbar();
         plotsWallPaneResiduals.stackPlots();
 

@@ -27,9 +27,15 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.gui.dataViews.plots.color.ColorSelectionWindow;
+import org.cirdles.tripoli.species.SpeciesColorSetting;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
+import org.cirdles.tripoli.species.SpeciesColors;
+import org.cirdles.tripoli.utilities.DelegateActionSet;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_MICHAELANGELO_URL;
 
@@ -39,12 +45,13 @@ import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_MICHAELANGE
 public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterface {
 
     public static final double gridCellDim = 2.0;
+    private static final DelegateActionSet delegateActionSet = new DelegateActionSet(); // For storing rebuildPlot
     public static double menuOffset = 30.0;
     CheckBox baseLineCB;
     CheckBox gainCB;
     private double toolBarHeight;
     private int toolBarCount;
-    private String iD;
+    private final String iD;
     private boolean[] speciesChecked = new boolean[0];
     private boolean showFaradays = true;
     private boolean showPMs = true;
@@ -54,16 +61,18 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     private boolean gainCorr = true;
     private boolean logScale;
 
-    private boolean[] zoomFlagsXY = new boolean[2];
+    private final boolean[] zoomFlagsXY = new boolean[2];
 
     private ToolBar scaleControlsToolbar;
     private CheckBox[] speciesCheckBoxes;
     private boolean showUncertainties = false;
+    private Stack<SpeciesColorSetting> speciesColorSettingStack;
 
     private PlotWallPaneIntensities(String iD) {
         this.iD = iD;
         zoomFlagsXY[0] = true;
         zoomFlagsXY[1] = true;
+        delegateActionSet.addDelegateAction(()->{rebuildPlot(false,false);});
     }
 
     public static PlotWallPaneInterface createPlotWallPane(String iD) {
@@ -83,7 +92,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
             double parentHeight = Math.max(((AnchorPane) getParent()).getPrefHeight(), ((AnchorPane) getParent()).getMinHeight());
             displayHeight = (parentHeight - toolBarHeight);
         } else {
-            tileWidth = (getParent().getBoundsInParent().getWidth() - gridCellDim * 1.0);
+            tileWidth = (getParent().getBoundsInParent().getWidth() - gridCellDim);
             displayHeight = (getParent().getBoundsInParent().getHeight() - toolBarHeight);
         }
 
@@ -118,6 +127,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         // not used
     }
 
+
     /**
      *
      */
@@ -126,7 +136,10 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
 
     }
 
-    public void buildIntensitiesPlotToolBar(boolean showResiduals, List<SpeciesRecordInterface> species) {
+    public void buildIntensitiesPlotToolBar(boolean showResiduals,
+                                            List<SpeciesRecordInterface> species,
+                                            Map<Integer, SpeciesColors> mapOfSpeciesToColors,
+                                            Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack) {
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);
         speciesChecked = new boolean[species.size()];
@@ -257,6 +270,20 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
                     rebuildPlot(false, false);
                 });
 
+        Label colorButtonSpace = new Label();
+        Button colorButton = new Button("Customize Colors");
+        colorButtonSpace.setLabelFor(colorButton);
+        colorButtonSpace.setPrefWidth(30);
+        colorButton.setOnAction(click -> {
+            ColorSelectionWindow window =
+                    ColorSelectionWindow.colorSelectionWindowRequest(mapOfSpeciesToColors,
+                            previousSpeciesColorSettingsStack,
+                            species,
+                            getScene().getWindow(), delegateActionSet);
+            window.show();
+        });
+        toolBar.getItems().add(colorButtonSpace);
+        toolBar.getItems().add(colorButton);
         getChildren().add(0, toolBar);
     }
 
@@ -268,6 +295,9 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
 
     }
 
+    public static void clearDelegates() {
+        delegateActionSet.clear();
+    }
     public void buildScaleControlsToolbar() {
         scaleControlsToolbar = new ToolBar();
         scaleControlsToolbar.setPrefHeight(toolBarHeight);

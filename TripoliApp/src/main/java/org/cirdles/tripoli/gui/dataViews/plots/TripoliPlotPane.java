@@ -90,7 +90,7 @@ public class TripoliPlotPane extends BorderPane {
     };
     private double plotToolBarHeight = 0;
     private CheckBox cycleCB;
-    private CheckBoxChangeListener cycleCheckBoxChangeListener = new CheckBoxChangeListener(cycleCB);
+    private final CheckBoxChangeListener cycleCheckBoxChangeListener = new CheckBoxChangeListener(cycleCB);
     private PlotWallPaneInterface plotWallPane;
     private AbstractPlot plot;
     private final EventHandler<MouseEvent> mouseReleasedEventHandler = e -> {

@@ -19,7 +19,7 @@ public class MultiLineIntensityPlot extends AbstractPlot {
     private double[][] xData;
     private double[][] yData;
 
-    private PlotWallPane parentWallPane;
+    private final PlotWallPane parentWallPane;
 
     /**
      * @param bounds

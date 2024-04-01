@@ -59,8 +59,8 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
     private double[] oneSigmaForCycles;
     private boolean logScale;
     private boolean[] zoomFlagsXY;
-    private PlotWallPaneInterface parentWallPane;
-    private boolean isRatio;
+    private final PlotWallPaneInterface parentWallPane;
+    private final boolean isRatio;
     private boolean blockMode;
     private AnalysisStatsRecord analysisStatsRecord;
     private int sculptBlockID;
@@ -258,10 +258,10 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
                     sigmaPctString = appendTrailingZeroIfNeeded(sigmaPctString, countOfTrailingDigitsForSigFig);
                     sigmaMinusPctString = appendTrailingZeroIfNeeded(sigmaMinusPctString, countOfTrailingDigitsForSigFig);
 
-                    g2d.fillText("%\u03C3  =" + sigmaPctString, textLeft + 0, textTop += textDeltaY);
+                    g2d.fillText("%\u03C3  =" + sigmaPctString, textLeft, textTop += textDeltaY);
                     g2d.fillText("x\u0304", textLeft + 20, textTop + 6);
                     if (sigmaMinusPctString.length() > 0) {
-                        g2d.fillText("     " + sigmaMinusPctString, textLeft + 0, textTop += textDeltaY);
+                        g2d.fillText("     " + sigmaMinusPctString, textLeft, textTop += textDeltaY);
                     }
 
 
@@ -307,7 +307,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
                 if (!Double.isNaN(geoMean)) {
                     countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig((geoMeanPlusOneStandardDeviation - geoMean), 2);
 
-                    twoSigString = "" + (new BigDecimal(geoMean).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).toPlainString();
+                    twoSigString = (new BigDecimal(geoMean).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).toPlainString();
                     twoSigString = appendTrailingZeroIfNeeded(twoSigString, countOfTrailingDigitsForSigFig);
                     g2d.fillText("x\u0304  = " + twoSigString, textLeft + 10, textTop += textDeltaY);
 
@@ -330,10 +330,10 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
                     errPctString = appendTrailingZeroIfNeeded(errPctString, countOfTrailingDigitsForStdErrPct);
                     errMinusPctString = appendTrailingZeroIfNeeded(errMinusPctString, countOfTrailingDigitsForStdErrPct);
 
-                    g2d.fillText("%\u03C3  =" + errPctString, textLeft + 0, textTop += textDeltaY);
+                    g2d.fillText("%\u03C3  =" + errPctString, textLeft, textTop += textDeltaY);
                     g2d.fillText("x\u0304", textLeft + 20, textTop + 6);
                     if (errMinusPctString.length() > 0) {
-                        g2d.fillText("     " + errMinusPctString, textLeft + 0, textTop += textDeltaY);
+                        g2d.fillText("     " + errMinusPctString, textLeft, textTop += textDeltaY);
                     }
 
                     double geoMeanRatioPlusOneSigmaPct = (geoMeanPlusOneStandardDeviation - geoMean) / geoMean * 100.0;
@@ -355,9 +355,9 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
                     sigmaPctString = appendTrailingZeroIfNeeded(sigmaPctString, countOfTrailingDigitsForOneSigmaPct);
                     sigmaMinusPctString = appendTrailingZeroIfNeeded(sigmaMinusPctString, countOfTrailingDigitsForOneSigmaPct);
 
-                    g2d.fillText("%\u03C3  =" + sigmaPctString, textLeft + 0, textTop += textDeltaY);
+                    g2d.fillText("%\u03C3  =" + sigmaPctString, textLeft, textTop += textDeltaY);
                     if (sigmaMinusPctString.length() > 0) {
-                        g2d.fillText("     " + sigmaMinusPctString, textLeft + 0, textTop += textDeltaY);
+                        g2d.fillText("     " + sigmaMinusPctString, textLeft, textTop += textDeltaY);
                     }
 
                     int countIncluded = analysisStatsRecord.countOfIncludedCycles();
@@ -389,7 +389,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
                 double weightedMean = analysisStatsRecord.blockModeWeightedMean();
                 if (!Double.isNaN(weightedMean)) {
                     meanSigned = (weightedMean < 0) ? " " : "";
-                    String twoSigStringMean = "" + (new BigDecimal(weightedMean).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).toPlainString();
+                    String twoSigStringMean = (new BigDecimal(weightedMean).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).toPlainString();
                     g2d.fillText("x\u0304  = " + twoSigStringMean, textLeft + 10, textTop += textDeltaY);
                     boolean meanIsPlottable = (mapY(weightedMean) >= topMargin) && (mapY(weightedMean) <= topMargin + plotHeight);
                     if (meanIsPlottable) {
@@ -608,7 +608,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
     }
 
     private void showBlockID(GraphicsContext g2d, int blockID, double xPosition) {
-        boolean processed = (mapBlockIdToBlockCyclesRecord.get(blockID) != null) ? mapBlockIdToBlockCyclesRecord.get(blockID).processed() : false;
+        boolean processed = mapBlockIdToBlockCyclesRecord.get(blockID) != null && mapBlockIdToBlockCyclesRecord.get(blockID).processed();
         Paint savedPaint = g2d.getFill();
         if (processed) {
             g2d.setFill(Paint.valueOf("GREEN"));
