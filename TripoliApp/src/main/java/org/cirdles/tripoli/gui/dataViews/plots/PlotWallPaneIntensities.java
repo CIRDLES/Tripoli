@@ -31,6 +31,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.color.ColorSelectionWindow;
 import org.cirdles.tripoli.species.SpeciesColorSetting;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.species.SpeciesColors;
+import org.cirdles.tripoli.utilities.DelegateActionSet;
 
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,7 @@ import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_MICHAELANGE
 public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterface {
 
     public static final double gridCellDim = 2.0;
+    private static final DelegateActionSet delegateActionSet = new DelegateActionSet(); // For storing rebuildPlot
     public static double menuOffset = 30.0;
     CheckBox baseLineCB;
     CheckBox gainCB;
@@ -70,6 +72,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         this.iD = iD;
         zoomFlagsXY[0] = true;
         zoomFlagsXY[1] = true;
+        delegateActionSet.addDelegateAction(()->{rebuildPlot(false,false);});
     }
 
     public static PlotWallPaneInterface createPlotWallPane(String iD) {
@@ -267,7 +270,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
                     ColorSelectionWindow.colorSelectionWindowRequest(mapOfSpeciesToColors,
                             previousSpeciesColorSettingsStack,
                             species,
-                            getScene().getWindow(), () -> rebuildPlot(false, false));
+                            getScene().getWindow(), delegateActionSet);
             window.show();
         });
         toolBar.getItems().add(colorButtonSpace);
@@ -283,6 +286,9 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
 
     }
 
+    public static void clearDelegates() {
+        delegateActionSet.clear();
+    }
     public void buildScaleControlsToolbar() {
         scaleControlsToolbar = new ToolBar();
         scaleControlsToolbar.setPrefHeight(toolBarHeight);

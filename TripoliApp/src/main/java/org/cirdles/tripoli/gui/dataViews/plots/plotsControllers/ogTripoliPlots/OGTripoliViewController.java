@@ -293,6 +293,7 @@ public class OGTripoliViewController {
     }
 
     private void plotOnPeakIntensitiesAndResiduals() {
+        PlotWallPaneIntensities.clearDelegates();
         PlotWallPane.menuOffset = 0.0;
         ogtSpeciesIntensitiesPlotAnchorPane.getChildren().clear();
         plotsWallPaneIntensities = PlotWallPaneIntensities.createPlotWallPane("OGTripoliSession");
