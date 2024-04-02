@@ -120,6 +120,14 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
 
     }
 
+    /**
+     * @return
+     */
+    @Override
+    public boolean detectAllIncludedStatus() {
+        return false;
+    }
+
     public Map<Integer, PlotBlockCyclesRecord> getMapBlockIdToBlockCyclesRecord() {
         return mapBlockIdToBlockCyclesRecord;
     }

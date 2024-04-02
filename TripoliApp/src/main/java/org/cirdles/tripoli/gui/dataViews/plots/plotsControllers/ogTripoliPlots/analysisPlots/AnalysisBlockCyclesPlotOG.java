@@ -141,7 +141,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         this.zoomFlagsXY = zoomFlagsXY;
     }
 
-    public void restBlockMode() {
+    public void resetBlockMode() {
         blockMode = userFunction.isTreatAsIsotopicRatio();
     }
 
@@ -817,7 +817,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     public void resetData() {
         for (int i = 0; i < mapBlockIdToBlockCyclesRecord.size(); i++) {
             mapBlockIdToBlockCyclesRecord.put(i + 1, mapBlockIdToBlockCyclesRecord.get(i + 1).resetAllDataIncluded());
-            analysis.getMapOfBlockIdToRawDataLiteOne().put(i + 1, analysis.getMapOfBlockIdToRawDataLiteOne().get(i + 1).resetAllDataIncluded());
+            analysis.getMapOfBlockIdToRawDataLiteOne().put(i + 1, analysis.getMapOfBlockIdToRawDataLiteOne().get(i + 1).resetAllDataIncluded(userFunction));
         }
         repaint();
     }
@@ -827,9 +827,18 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         for (int i = 0; i < mapBlockIdToBlockCyclesRecord.size(); i++) {
             PlotBlockCyclesRecord plotBlockCyclesRecord = mapBlockIdToBlockCyclesRecord.get(i + 1).performChauvenets();
             mapBlockIdToBlockCyclesRecord.put(i + 1, plotBlockCyclesRecord);
-            analysis.getMapOfBlockIdToRawDataLiteOne().put(i + 1, analysis.getMapOfBlockIdToRawDataLiteOne().get(i + 1).recordChauvenets(plotBlockCyclesRecord.cyclesIncluded()));
+            analysis.getMapOfBlockIdToRawDataLiteOne().put(i + 1,
+                    analysis.getMapOfBlockIdToRawDataLiteOne().get(i + 1).recordChauvenets(userFunction, plotBlockCyclesRecord.cyclesIncluded()));
         }
         repaint();
+    }
+
+    public boolean detectAllIncludedStatus(){
+        boolean retVal = true;
+        for (int i = 0; i < mapBlockIdToBlockCyclesRecord.size(); i++) {
+            retVal = retVal && mapBlockIdToBlockCyclesRecord.get(i + 1).detectAllIncludedStatus();
+        }
+        return retVal;
     }
 
     private int determineSculptBlock(double mouseX) {

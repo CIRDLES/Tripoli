@@ -60,7 +60,12 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private boolean blockMode;
     private ConstantsTripoliApp.PlotLayoutStyle plotLayoutStyle;
     private ToolBar scaleControlsToolbar;
+    private TripoliPlotPane zoomedPlot;
+    private Button chauvenetButton;
 
+    public void setZoomedTripoliPlotPane(TripoliPlotPane zoomedPlot) {
+        this.zoomedPlot = zoomedPlot;
+    }
 
     private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsController, AnalysisManagerCallbackI analysisManagerCallbackI) {
         this.iD = iD;
@@ -99,11 +104,11 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         double rowTileCount = Math.floor(Math.sqrt(plotPanes.size()));
         int columnTileCount = (int) Math.ceil(plotPanes.size() / rowTileCount);
 
-        double parentWidth = Math.max(((AnchorPane) getParent()).getPrefWidth(), ((AnchorPane) getParent()).getMinWidth());
+        double parentWidth = Math.max(((AnchorPane) getParent()).getWidth(), ((AnchorPane) getParent()).getMinWidth());
         double displayWidth = (parentWidth - gridCellDim * 2.0) / columnTileCount;
         double tileWidth = displayWidth - displayWidth % gridCellDim;
 
-        double parentHeight = Math.max(((AnchorPane) getParent()).getPrefHeight(), ((AnchorPane) getParent()).getMinHeight());
+        double parentHeight = Math.max(((AnchorPane) getParent()).getHeight(), ((AnchorPane) getParent()).getMinHeight());
         double displayHeight = (parentHeight - toolBarHeight - gridCellDim * rowTileCount) / rowTileCount;
         double tileHeight = displayHeight - displayHeight % gridCellDim;
 
@@ -171,11 +176,15 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     }
 
     public void repeatLayoutStyle() {
-        switch (plotLayoutStyle) {
-            case TILE -> tilePlots();
-            case STACK -> stackPlots();
+        if (zoomedPlot != null){
+            zoomedPlot.showTripoliPlotPaneFullSize();
+        } else {
+            switch (plotLayoutStyle) {
+                case TILE -> tilePlots();
+                case STACK -> stackPlots();
+                }
+            }
         }
-    }
 
     public void replotAll() {
         for (Node plotPane : getChildren()) {
@@ -189,6 +198,14 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
                 ((TripoliPlotPane) plotPane).resetData();
+            }
+        }
+    }
+
+    public void performChauvenets(){
+        for (Node plotPane : getChildren()) {
+            if (plotPane instanceof TripoliPlotPane) {
+                ((TripoliPlotPane) plotPane).performChauvenets();
             }
         }
     }
@@ -319,12 +336,18 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
 
         Button resetAllDataButton = new Button("Reset All Data");
         resetAllDataButton.setFont(commandFont);
-        resetAllDataButton.setOnAction(event -> resetDataAll());
+        resetAllDataButton.setOnAction(event -> {
+            resetDataAll();
+            chauvenetButton.setDisable(false);
+        });
         scaleControlsToolbar.getItems().add(resetAllDataButton);
 
-        Button chauvenetButton = new Button("Chauvenet");
+        chauvenetButton = new Button("Chauvenet");
         chauvenetButton.setFont(commandFont);
-//        chauvenetButton.setOnAction(event -> replotAll());
+        chauvenetButton.setOnAction(event -> {
+            performChauvenets();
+            chauvenetButton.setDisable(true);
+        });
         scaleControlsToolbar.getItems().add(chauvenetButton);
 
         Button toggleStatsButton = new Button("Toggle Stats");

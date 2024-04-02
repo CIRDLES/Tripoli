@@ -37,4 +37,6 @@ public interface AnalysisBlockCyclesPlotI {
     void setZoomFlagsXY(boolean[] zoomFlagsXY);
 
     void performChauvenets();
+
+    boolean detectAllIncludedStatus();
 }

@@ -67,7 +67,7 @@ public class MathUtilities {
      * @param dataIn
      * @return
      */
-    public static boolean[] ChauvenetsCriterion(double[] dataIn, boolean[] includedIndices){
+    public static boolean[] applyChauvenetsCriterion(double[] dataIn, boolean[] includedIndicesIn){
         /*
         Apply Chauvenet’s criterion to an entire measurement in Cycle Mode if there are 20 or more included cycles.
         Or, apply Chauvenet’s criterion to each block in Block Mode for blocks with greater than or equal to 20 cycles.
@@ -83,32 +83,28 @@ public class MathUtilities {
         Plot Chauvenet-identified outliers in red and recalculate all statistics after rejecting the identified outliers.
         Gray out the Chauvenet button so that it can’t be re-applied.
          */
+
+        // TODO: move these to parameters
         double chauvenetRejectionProbability = 0.5;
-        boolean[] rejectedIndices = new boolean[dataIn.length];
-        if (Booleans.countTrue(includedIndices) >= 10){
+        int requiredMinDatumCount = 10;
+
+        boolean[] includedIndices = includedIndicesIn.clone();
+        if ((Booleans.countTrue(includedIndicesIn) == includedIndicesIn.length) && (includedIndicesIn.length >= requiredMinDatumCount)){
             DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics();
-            for (int i = 0; i < dataIn.length; i ++){
-                if (includedIndices[i]){
-                    descriptiveStatistics.addValue(dataIn[i]);
-                }
+            for (int i = 0; i < dataIn.length; i ++) {
+                descriptiveStatistics.addValue(dataIn[i]);
             }
             double xbar = descriptiveStatistics.getMean();
             double stddev = descriptiveStatistics.getStandardDeviation();
             double[] absZ = new double[dataIn.length];
-            for (int i = 0; i < dataIn.length; i++){
-                if (includedIndices[i]){
-                    absZ[i] = Math.abs(dataIn[i] - xbar) / stddev;
-                    double chauvenetsCriterion = erfc(absZ[i]) * descriptiveStatistics.getN();
-                    if (chauvenetsCriterion < chauvenetRejectionProbability){
-                        rejectedIndices[i] = true;
-                    }
-                } else {
-                    rejectedIndices[i] = true;
+            for (int i = 0; i < dataIn.length; i++) {
+                absZ[i] = Math.abs(dataIn[i] - xbar) / stddev;
+                double chauvenetsCriterion = erfc(absZ[i]) * descriptiveStatistics.getN();
+                if (chauvenetsCriterion < chauvenetRejectionProbability) {
+                    includedIndices[i] = false;
                 }
             }
         }
-
-
-        return rejectedIndices;
+        return includedIndices;
     }
 }

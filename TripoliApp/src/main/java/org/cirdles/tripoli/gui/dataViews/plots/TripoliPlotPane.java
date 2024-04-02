@@ -90,9 +90,11 @@ public class TripoliPlotPane extends BorderPane {
     };
     private double plotToolBarHeight = 0;
     private CheckBox cycleCB;
-    private CheckBoxChangeListener cycleCheckBoxChangeListener = new CheckBoxChangeListener(cycleCB);
+    private final CheckBoxChangeListener cycleCheckBoxChangeListener = new CheckBoxChangeListener(cycleCB);
     private PlotWallPaneInterface plotWallPane;
     private AbstractPlot plot;
+    private Button chauvenetButton;
+
     private final EventHandler<MouseEvent> mouseReleasedEventHandler = e -> {
         snapToGrid();
     };
@@ -193,18 +195,25 @@ public class TripoliPlotPane extends BorderPane {
     private void toggleFullSize() {
         if (null == plotLocation) {
             plotLocation = new PlotLocation(getLayoutX(), getLayoutY(), getPrefWidth(), getPrefHeight());
-            setLayoutX(gridCellDim);
-            setPrefWidth(((Pane) plotWallPane).getWidth() - 2 * gridCellDim);
-            setLayoutY(gridCellDim + plotWallPane.getToolBarCount() * plotWallPane.getToolBarHeight());
-            setPrefHeight(((Pane) plotWallPane).getHeight() - 2 * gridCellDim - plotWallPane.getToolBarCount() * plotWallPane.getToolBarHeight());
+            showTripoliPlotPaneFullSize();
+            ((PlotWallPane)plotWallPane).setZoomedTripoliPlotPane(this);
         } else {
+            ((PlotWallPane)plotWallPane).setZoomedTripoliPlotPane(null);
             setLayoutX(plotLocation.x());
             setPrefWidth(plotLocation.w());
             setLayoutY(plotLocation.y());
             setPrefHeight(plotLocation.h());
             plotLocation = null;
+            plotWallPane.repeatLayoutStyle();
         }
         updatePlot();
+    }
+
+    public void showTripoliPlotPaneFullSize(){
+        setLayoutX(gridCellDim);
+        setPrefWidth(((Pane) plotWallPane).getWidth() - 2 * gridCellDim);
+        setLayoutY(gridCellDim + plotWallPane.getToolBarCount() * plotWallPane.getToolBarHeight());
+        setPrefHeight(((Pane) plotWallPane).getHeight() - 2 * gridCellDim - plotWallPane.getToolBarCount() * plotWallPane.getToolBarHeight());
     }
 
     public void snapToGrid() {
@@ -246,13 +255,19 @@ public class TripoliPlotPane extends BorderPane {
             plotToolBar.getItems().add(replotButton);
 
             Button resetDataButton = new Button("Reset Data");
+            chauvenetButton = new Button("Chauvenet");
             resetDataButton.setFont(toolBarFont);
-            resetDataButton.setOnAction(event -> resetData());
+            resetDataButton.setOnAction(event -> {
+                resetData();
+                chauvenetButton.setDisable(false);
+            });
             plotToolBar.getItems().add(resetDataButton);
 
-            Button chauvenetButton = new Button("Chauvenet");
             chauvenetButton.setFont(toolBarFont);
-            chauvenetButton.setOnAction(event -> performChauvenets());
+            chauvenetButton.setDisable(!detectAllIncludedStatus());
+            chauvenetButton.setOnAction(event -> {
+                performChauvenets();
+            });
             plotToolBar.getItems().add(chauvenetButton);
 
             Button synchButton = new Button("SYNCH");
@@ -354,7 +369,7 @@ public class TripoliPlotPane extends BorderPane {
     public void replot() {
         if (plot != null) {
             if (plot instanceof AnalysisBlockCyclesPlotOG) {
-                ((AnalysisBlockCyclesPlotOG) plot).restBlockMode();
+                ((AnalysisBlockCyclesPlotOG) plot).resetBlockMode();
             }
             plot.refreshPanel(true, true);
         }
@@ -363,6 +378,7 @@ public class TripoliPlotPane extends BorderPane {
     public void resetData() {
         if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
             ((AnalysisBlockCyclesPlotI) plot).resetData();
+            chauvenetButton.setDisable(false);
             plot.refreshPanel(true, true);
         }
     }
@@ -370,8 +386,17 @@ public class TripoliPlotPane extends BorderPane {
     public void performChauvenets(){
         if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
             ((AnalysisBlockCyclesPlotI) plot).performChauvenets();
+            chauvenetButton.setDisable(true);
             plot.refreshPanel(true, true);
         }
+    }
+
+    public boolean detectAllIncludedStatus(){
+        boolean retVal = false;
+        if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
+            retVal = ((AnalysisBlockCyclesPlotI) plot).detectAllIncludedStatus();
+        }
+        return retVal;
     }
 
     public void synch() {
@@ -406,6 +431,7 @@ public class TripoliPlotPane extends BorderPane {
                 }
 
                 plot.repaint();
+                ((TripoliPlotPane) node).chauvenetButton.setDisable(!detectAllIncludedStatus());
             }
         }
     }
