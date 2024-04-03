@@ -35,6 +35,7 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
 
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -101,6 +102,9 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
                 .filter(plot -> plot instanceof TripoliPlotPane)
                 .collect(Collectors.toList());
 
+        // preserves display order
+        plotPanes.sort(Comparator.comparing(o -> ((TripoliPlotPane) o)));
+
         double rowTileCount = Math.floor(Math.sqrt(plotPanes.size()));
         int columnTileCount = (int) Math.ceil(plotPanes.size() / rowTileCount);
 
@@ -143,6 +147,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
                     .stream()
                     .filter(plot -> plot instanceof TripoliPlotPane)
                     .collect(Collectors.toList());
+
+            // preserves display order
+            plotPanes.sort(Comparator.comparing(o -> ((TripoliPlotPane) o)));
+
             double tileWidth;
             double displayHeight;
             if (0 == iD.compareToIgnoreCase("OGTripoliSession")) {

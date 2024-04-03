@@ -49,8 +49,10 @@ import java.util.Map;
 import static java.lang.StrictMath.*;
 import static java.util.Arrays.binarySearch;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
+import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController.analysis;
 import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.generateGeometricMeanStats;
 import static org.cirdles.tripoli.utilities.mathUtilities.FormatterForSigFigN.countOfTrailingDigitsForSigFig;
+import static org.cirdles.tripoli.utilities.mathUtilities.MathUtilities.applyChauvenetsCriterion;
 
 /**
  * @author James F. Bowring
@@ -295,21 +297,25 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     double geoWeightedMeanRatioMinusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() - analysisStatsRecord.blockModeWeightedMeanOneSigma());
                     double geoWeightedMeanRatioPlusOneSigmaPct = (geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio) / geoWeightedMeanRatio * 100.0;
                     double geoWeightedMeanRatioMinusOneSigmaPct = (geoWeightedMeanRatio - geoWeightedMeanRatioMinusOneSigma) / geoWeightedMeanRatio * 100.0;
-                    countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig((geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio), 2);
+
+                    double lesserSigmaPct = (geoWeightedMeanRatioPlusOneSigmaPct > geoWeightedMeanRatioMinusOneSigmaPct)?
+                            geoWeightedMeanRatioMinusOneSigmaPct : geoWeightedMeanRatioPlusOneSigmaPct;
+
+                    countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig(lesserSigmaPct, 2);
                     double plusSigmaPct = (new BigDecimal(geoWeightedMeanRatioPlusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
                     double minusSigmaPct = (new BigDecimal(geoWeightedMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
 
-                    String meanAsString;
+                    lesserSigmaPct = (plusSigmaPct > minusSigmaPct)? minusSigmaPct : plusSigmaPct;
 
+                    FormatterForSigFigN.FormattedStats formattedStats;
                     if ((abs(geoWeightedMeanRatio) >= 1e7) || (abs(geoWeightedMeanRatio) <= 1e-5)) {
-                        FormatterForSigFigN.FormattedStats formattedStats =
-                                FormatterForSigFigN.formatToScientific(geoWeightedMeanRatio, (geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio), 0, 2).padLeft();
-                        meanAsString = formattedStats.meanAsString();
+                        formattedStats =
+                                FormatterForSigFigN.formatToScientific(geoWeightedMeanRatio, lesserSigmaPct, 0, 2).padLeft();
                     } else {
-                        FormatterForSigFigN.FormattedStats formattedStats =
-                                FormatterForSigFigN.formatToSigFig(geoWeightedMeanRatio, (geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio), 0, 2).padLeft();
-                        meanAsString = formattedStats.meanAsString();
+                        formattedStats =
+                                FormatterForSigFigN.formatToSigFig(geoWeightedMeanRatio, lesserSigmaPct, 0, 2).padLeft();
                     }
+                    String meanAsString = formattedStats.meanAsString();
 
                     g2d.fillText("x\u0304  = " + meanAsString, textLeft + 10, textTop += textDeltaY);
 
@@ -824,12 +830,43 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
     @Override
     public void performChauvenets(){
-        for (int i = 0; i < mapBlockIdToBlockCyclesRecord.size(); i++) {
-            PlotBlockCyclesRecord plotBlockCyclesRecord = mapBlockIdToBlockCyclesRecord.get(i + 1).performChauvenets();
-            mapBlockIdToBlockCyclesRecord.put(i + 1, plotBlockCyclesRecord);
-            analysis.getMapOfBlockIdToRawDataLiteOne().put(i + 1,
-                    analysis.getMapOfBlockIdToRawDataLiteOne().get(i + 1).recordChauvenets(userFunction, plotBlockCyclesRecord.cyclesIncluded()));
+        if (blockMode) {
+            for (int i = 0; i < mapBlockIdToBlockCyclesRecord.size(); i++) {
+                int blockID = i + 1;
+                PlotBlockCyclesRecord plotBlockCyclesRecord = mapBlockIdToBlockCyclesRecord.get(blockID).performChauvenets();
+                mapBlockIdToBlockCyclesRecord.put(blockID, plotBlockCyclesRecord);
+                analysis.getMapOfBlockIdToRawDataLiteOne().put(blockID,
+                        analysis.getMapOfBlockIdToRawDataLiteOne().get(i + 1).recordChauvenets(userFunction, plotBlockCyclesRecord.cyclesIncluded()));
+
+                boolean[] plotBlockCyclesIncluded = analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).assembleCyclesIncludedForUserFunction(userFunction);
+                mapBlockIdToBlockCyclesRecord.put(
+                        blockID,
+                        getMapBlockIdToBlockCyclesRecord().get(blockID).updateCyclesIncluded(plotBlockCyclesIncluded));
+            }
+        } else {
+            // cycle mode
+            boolean[] cycleModeIncluded = analysisStatsRecord.cycleModeIncluded();
+            double[] cycleModeData = analysisStatsRecord.cycleModeData();
+            if (Booleans.countTrue(cycleModeIncluded) == cycleModeIncluded.length){
+                boolean[] chauvenets = applyChauvenetsCriterion(cycleModeData, cycleModeIncluded);
+                // reset included cycles for each block
+                BlockStatsRecord[] blockStatsRecords = analysisStatsRecord.blockStatsRecords();
+                for (int i = 0; i < blockStatsRecords.length; i++){
+                    System.arraycopy(chauvenets, i * blockStatsRecords[i].cyclesIncluded().length,
+                            blockStatsRecords[i].cyclesIncluded(),0, blockStatsRecords[i].cyclesIncluded().length);
+
+                    int blockID = i + 1;
+                    PlotBlockCyclesRecord plotBlockCyclesRecord = mapBlockIdToBlockCyclesRecord.get(blockID);
+                    plotBlockCyclesRecord.updateCyclesIncluded(blockStatsRecords[i].cyclesIncluded());
+                    mapBlockIdToBlockCyclesRecord.put(blockID, plotBlockCyclesRecord);
+                    analysis.getMapOfBlockIdToRawDataLiteOne().put(blockID,
+                            analysis.getMapOfBlockIdToRawDataLiteOne().get(i + 1).recordChauvenets(userFunction, plotBlockCyclesRecord.cyclesIncluded()));
+
+                }
+                analysisStatsRecord = AnalysisStatsRecord.generateAnalysisStatsRecord(blockStatsRecords);
+            }
         }
+
         repaint();
     }
 

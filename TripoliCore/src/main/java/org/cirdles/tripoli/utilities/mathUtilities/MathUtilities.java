@@ -86,7 +86,7 @@ public class MathUtilities {
 
         // TODO: move these to parameters
         double chauvenetRejectionProbability = 0.5;
-        int requiredMinDatumCount = 10;
+        int requiredMinDatumCount = 20;
 
         boolean[] includedIndices = includedIndicesIn.clone();
         if ((Booleans.countTrue(includedIndicesIn) == includedIndicesIn.length) && (includedIndicesIn.length >= requiredMinDatumCount)){

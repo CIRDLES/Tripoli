@@ -40,6 +40,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.a
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.analysisPlots.AnalysisRatioPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
+import org.jetbrains.annotations.NotNull;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_MICHAELANGELO_URL;
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.gridCellDim;
@@ -50,7 +51,7 @@ import static org.cirdles.tripoli.sessions.analysis.Analysis.RUN;
 /**
  * @author James F. Bowring
  */
-public class TripoliPlotPane extends BorderPane {
+public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlotPane>{
 
     public static double minPlotWidth = 175.0;
     public static double minPlotHeight = 100.0;
@@ -149,11 +150,7 @@ public class TripoliPlotPane extends BorderPane {
                 mouseStartY = e.getSceneY();
             }
             if (e.isSecondaryButtonDown() && 2 == e.getClickCount() && !e.isControlDown()) {
-                if (plot instanceof SpeciesIntensityAnalysisPlot) {
-
-                } else {
                     toggleFullSize();
-                }
             }
             toFront();
         }
@@ -472,6 +469,15 @@ public class TripoliPlotPane extends BorderPane {
 
     public void resetAnalysisRatioZoom(boolean[] zoomFlagsXY) {
         ((AnalysisBlockCyclesPlotI) plot).setZoomFlagsXY(zoomFlagsXY);
+    }
+
+    /**
+     * @param tripoliPlotPane the object to be compared.
+     * @return
+     */
+    @Override
+    public int compareTo(@NotNull TripoliPlotPane tripoliPlotPane) {
+        return plot.plotTitle[0].compareTo(tripoliPlotPane.getPlot().plotTitle[0]);
     }
 
     private record PlotLocation(
