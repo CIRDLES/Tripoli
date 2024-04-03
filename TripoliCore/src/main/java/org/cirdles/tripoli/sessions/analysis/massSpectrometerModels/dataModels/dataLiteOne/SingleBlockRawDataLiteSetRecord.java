@@ -52,41 +52,56 @@ public record SingleBlockRawDataLiteSetRecord(
         return new double[blockRawDataLiteArray.length];
     }
 
-    public SingleBlockRawDataLiteSetRecord resetAllDataIncluded() {
+    public SingleBlockRawDataLiteSetRecord resetAllDataIncluded(UserFunction userFunction) {
+        int col = userFunction.getColumnIndex();
+        boolean[][] blockRawDataLiteIncludedArrayUpdated = blockRawDataLiteIncludedArray.clone();
         for (int row = 0; row < blockRawDataLiteIncludedArray.length; row++) {
-            for (int col = 0; col < blockRawDataLiteIncludedArray[row].length; col++) {
-                blockRawDataLiteIncludedArray[row][col] = true;
-            }
+            blockRawDataLiteIncludedArrayUpdated[row][col] = true;
         }
         return new SingleBlockRawDataLiteSetRecord(
                 blockID,
                 true,
                 blockRawDataLiteArray,
-                blockRawDataLiteIncludedArray);
+                blockRawDataLiteIncludedArrayUpdated);
+    }
+
+    public SingleBlockRawDataLiteSetRecord recordChauvenets(UserFunction userFunction, boolean[] cyclesIncluded) {
+        int col = userFunction.getColumnIndex();
+        boolean[][] blockRawDataLiteIncludedArrayUpdated = blockRawDataLiteIncludedArray.clone();
+        for (int row = 0; row < blockRawDataLiteIncludedArray.length; row++) {
+            blockRawDataLiteIncludedArrayUpdated[row][col] = cyclesIncluded[row];
+        }
+        return new SingleBlockRawDataLiteSetRecord(
+                blockID,
+                true,
+                blockRawDataLiteArray,
+                blockRawDataLiteIncludedArrayUpdated);
     }
 
     public SingleBlockRawDataLiteSetRecord toggleAllDataIncludedUserFunction(UserFunction userFunction) {
+        boolean[][] blockRawDataLiteIncludedArrayUpdated = blockRawDataLiteIncludedArray.clone();
+        int col = userFunction.getColumnIndex();
         for (int row = 0; row < blockRawDataLiteIncludedArray.length; row++) {
-            int col = userFunction.getColumnIndex();
-            blockRawDataLiteIncludedArray[row][col] = !blockRawDataLiteIncludedArray[row][col];
+            blockRawDataLiteIncludedArrayUpdated[row][col] = !blockRawDataLiteIncludedArray[row][col];
         }
         return new SingleBlockRawDataLiteSetRecord(
                 blockID,
                 isIncluded,
                 blockRawDataLiteArray,
-                blockRawDataLiteIncludedArray);
+                blockRawDataLiteIncludedArrayUpdated);
     }
 
     public SingleBlockRawDataLiteSetRecord updateIncludedCycles(UserFunction userFunction, boolean[] includedCycles) {
+        boolean[][] blockRawDataLiteIncludedArrayUpdated = blockRawDataLiteIncludedArray.clone();
+        int col = userFunction.getColumnIndex();
         for (int row = 0; row < blockRawDataLiteIncludedArray.length; row++) {
-            int col = userFunction.getColumnIndex();
-            blockRawDataLiteIncludedArray[row][col] = includedCycles[row];
+            blockRawDataLiteIncludedArrayUpdated[row][col] = includedCycles[row];
         }
         return new SingleBlockRawDataLiteSetRecord(
                 blockID,
                 isIncluded,
                 blockRawDataLiteArray,
-                blockRawDataLiteIncludedArray);
+                blockRawDataLiteIncludedArrayUpdated);
     }
 
 //    public boolean calcBlockIncludedForUserFunc(UserFunction userFunction) {
@@ -98,15 +113,16 @@ public record SingleBlockRawDataLiteSetRecord(
 //    }
 
     public SingleBlockRawDataLiteSetRecord synchronizeIncludedToUserFunc(UserFunction userFunction) {
+        boolean[][] blockRawDataLiteIncludedArrayUpdated = blockRawDataLiteIncludedArray.clone();
         for (int row = 0; row < blockRawDataLiteIncludedArray.length; row++) {
             for (int col = 0; col < blockRawDataLiteIncludedArray[row].length; col++) {
-                blockRawDataLiteIncludedArray[row][col] = blockRawDataLiteIncludedArray[row][userFunction.getColumnIndex()];
+                blockRawDataLiteIncludedArrayUpdated[row][col] = blockRawDataLiteIncludedArray[row][userFunction.getColumnIndex()];
             }
         }
         return new SingleBlockRawDataLiteSetRecord(
                 blockID,
                 isIncluded,
                 blockRawDataLiteArray,
-                blockRawDataLiteIncludedArray);
+                blockRawDataLiteIncludedArrayUpdated);
     }
 }

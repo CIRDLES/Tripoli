@@ -35,4 +35,8 @@ public interface AnalysisBlockCyclesPlotI {
     void adjustOffsetsForDrag(double x, double y);
 
     void setZoomFlagsXY(boolean[] zoomFlagsXY);
+
+    void performChauvenets();
+
+    boolean detectAllIncludedStatus();
 }
