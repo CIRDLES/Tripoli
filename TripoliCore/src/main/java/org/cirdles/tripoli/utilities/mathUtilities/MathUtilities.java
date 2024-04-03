@@ -64,10 +64,11 @@ public class MathUtilities {
     /**
      * see https://docs.google.com/document/d/14PPEDEJPylNMavpJDpYSuemNb0gF5dz_To3Ek1Y_Agw/edit#bookmark=id.k016qg1ghequ
      * seehttps://www.lexjansen.com/wuss/2007/DatabaseMgtWarehousing/DMW_Lin_CleaningData.pdf
+     *
      * @param dataIn
      * @return
      */
-    public static boolean[] applyChauvenetsCriterion(double[] dataIn, boolean[] includedIndicesIn){
+    public static boolean[] applyChauvenetsCriterion(double[] dataIn, boolean[] includedIndicesIn) {
         /*
         Apply Chauvenet’s criterion to an entire measurement in Cycle Mode if there are 20 or more included cycles.
         Or, apply Chauvenet’s criterion to each block in Block Mode for blocks with greater than or equal to 20 cycles.
@@ -89,9 +90,9 @@ public class MathUtilities {
         int requiredMinDatumCount = 20;
 
         boolean[] includedIndices = includedIndicesIn.clone();
-        if ((Booleans.countTrue(includedIndicesIn) == includedIndicesIn.length) && (includedIndicesIn.length >= requiredMinDatumCount)){
+        if ((Booleans.countTrue(includedIndicesIn) == includedIndicesIn.length) && (includedIndicesIn.length >= requiredMinDatumCount)) {
             DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics();
-            for (int i = 0; i < dataIn.length; i ++) {
+            for (int i = 0; i < dataIn.length; i++) {
                 descriptiveStatistics.addValue(dataIn[i]);
             }
             double xbar = descriptiveStatistics.getMean();

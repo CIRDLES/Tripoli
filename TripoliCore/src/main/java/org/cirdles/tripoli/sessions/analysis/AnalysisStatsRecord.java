@@ -80,17 +80,17 @@ public record AnalysisStatsRecord(
 
         boolean[] cycleModeIncluded = new boolean[countOfTotalCycles];
         double[] cycleModeData = new double[countOfTotalCycles];
-        int index =0;
-        for (boolean[] cyclesIncluded : cycleModeIncludedByBlocks){
-            for (int i = 0; i < cyclesIncluded.length; i ++){
+        int index = 0;
+        for (boolean[] cyclesIncluded : cycleModeIncludedByBlocks) {
+            for (int i = 0; i < cyclesIncluded.length; i++) {
                 cycleModeIncluded[index] = cyclesIncluded[i];
                 index++;
             }
         }
 
-        index =0;
-        for (double[] cycleData : cycleModeDataByBlocks){
-            for (int i = 0; i < cycleData.length; i ++){
+        index = 0;
+        for (double[] cycleData : cycleModeDataByBlocks) {
+            for (int i = 0; i < cycleData.length; i++) {
                 cycleModeData[index] = cycleData[i];
                 index++;
             }

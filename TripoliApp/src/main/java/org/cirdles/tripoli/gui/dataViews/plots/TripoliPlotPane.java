@@ -51,7 +51,7 @@ import static org.cirdles.tripoli.sessions.analysis.Analysis.RUN;
 /**
  * @author James F. Bowring
  */
-public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlotPane>{
+public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlotPane> {
 
     public static double minPlotWidth = 175.0;
     public static double minPlotHeight = 100.0;
@@ -94,8 +94,6 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
     private final CheckBoxChangeListener cycleCheckBoxChangeListener = new CheckBoxChangeListener(cycleCB);
     private PlotWallPaneInterface plotWallPane;
     private AbstractPlot plot;
-    private Button chauvenetButton;
-
     private final EventHandler<MouseEvent> mouseReleasedEventHandler = e -> {
         snapToGrid();
     };
@@ -141,6 +139,7 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
             mouseStartY = e.getSceneY();
         }
     };
+    private Button chauvenetButton;
     private ToolBar plotToolBar;
     private PlotLocation plotLocation;
     private final EventHandler<MouseEvent> mouseClickedEventHandler = e -> {
@@ -150,7 +149,7 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
                 mouseStartY = e.getSceneY();
             }
             if (e.isSecondaryButtonDown() && 2 == e.getClickCount() && !e.isControlDown()) {
-                    toggleFullSize();
+                toggleFullSize();
             }
             toFront();
         }
@@ -193,9 +192,9 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
         if (null == plotLocation) {
             plotLocation = new PlotLocation(getLayoutX(), getLayoutY(), getPrefWidth(), getPrefHeight());
             showTripoliPlotPaneFullSize();
-            ((PlotWallPane)plotWallPane).setZoomedTripoliPlotPane(this);
+            ((PlotWallPane) plotWallPane).setZoomedTripoliPlotPane(this);
         } else {
-            ((PlotWallPane)plotWallPane).setZoomedTripoliPlotPane(null);
+            ((PlotWallPane) plotWallPane).setZoomedTripoliPlotPane(null);
             setLayoutX(plotLocation.x());
             setPrefWidth(plotLocation.w());
             setLayoutY(plotLocation.y());
@@ -206,7 +205,7 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
         updatePlot();
     }
 
-    public void showTripoliPlotPaneFullSize(){
+    public void showTripoliPlotPaneFullSize() {
         setLayoutX(gridCellDim);
         setPrefWidth(((Pane) plotWallPane).getWidth() - 2 * gridCellDim);
         setLayoutY(gridCellDim + plotWallPane.getToolBarCount() * plotWallPane.getToolBarHeight());
@@ -380,7 +379,7 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
         }
     }
 
-    public void performChauvenets(){
+    public void performChauvenets() {
         if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
             ((AnalysisBlockCyclesPlotI) plot).performChauvenets();
             chauvenetButton.setDisable(true);
@@ -388,7 +387,7 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
         }
     }
 
-    public boolean detectAllIncludedStatus(){
+    public boolean detectAllIncludedStatus() {
         boolean retVal = false;
         if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
             retVal = ((AnalysisBlockCyclesPlotI) plot).detectAllIncludedStatus();

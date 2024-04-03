@@ -64,10 +64,6 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private TripoliPlotPane zoomedPlot;
     private Button chauvenetButton;
 
-    public void setZoomedTripoliPlotPane(TripoliPlotPane zoomedPlot) {
-        this.zoomedPlot = zoomedPlot;
-    }
-
     private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsController, AnalysisManagerCallbackI analysisManagerCallbackI) {
         this.iD = iD;
         zoomFlagsXY[0] = true;
@@ -90,6 +86,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         } else {
             return new PlotWallPane(iD, analysis, mcmcPlotsController, analysisManagerCallbackI);
         }
+    }
+
+    public void setZoomedTripoliPlotPane(TripoliPlotPane zoomedPlot) {
+        this.zoomedPlot = zoomedPlot;
     }
 
     public AnalysisInterface getAnalysis() {
@@ -184,15 +184,15 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     }
 
     public void repeatLayoutStyle() {
-        if (zoomedPlot != null){
+        if (zoomedPlot != null) {
             zoomedPlot.showTripoliPlotPaneFullSize();
         } else {
             switch (plotLayoutStyle) {
                 case TILE -> tilePlots();
                 case STACK -> stackPlots();
-                }
             }
         }
+    }
 
     public void replotAll() {
         for (Node plotPane : getChildren()) {
@@ -210,7 +210,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         }
     }
 
-    public void performChauvenets(){
+    public void performChauvenets() {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
                 ((TripoliPlotPane) plotPane).performChauvenets();

@@ -178,7 +178,8 @@ public class TripoliGUIController implements Initializable {
 
                     try {
                         analysisSelected.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
-                    } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | TripoliException e) {
+                    } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException |
+                             IllegalAccessException | TripoliException e) {
 //                    throw new RuntimeException(e);
                     }
 

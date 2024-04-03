@@ -1,7 +1,5 @@
 package org.cirdles.tripoli.plots.compoundPlotBuilders;
 
-import com.google.common.primitives.Booleans;
-
 import java.io.Serializable;
 
 import static com.google.common.primitives.Booleans.countTrue;
@@ -44,7 +42,7 @@ public record PlotBlockCyclesRecord(
     }
 
     public PlotBlockCyclesRecord performChauvenets() {
-        boolean [] cyclesIncludedChauvenet = applyChauvenetsCriterion(cycleMeansData, cyclesIncluded);
+        boolean[] cyclesIncludedChauvenet = applyChauvenetsCriterion(cycleMeansData, cyclesIncluded);
 
         return new PlotBlockCyclesRecord(
                 blockID,
@@ -58,10 +56,10 @@ public record PlotBlockCyclesRecord(
         );
     }
 
-    public boolean detectAllIncludedStatus(){
+    public boolean detectAllIncludedStatus() {
         // catch short last block
-        boolean [] cyclesIncludedCheck = cyclesIncluded.clone();
-        for (int i = 0; i < cycleMeansData.length; i++){
+        boolean[] cyclesIncludedCheck = cyclesIncluded.clone();
+        for (int i = 0; i < cycleMeansData.length; i++) {
             if (cycleMeansData[i] == 0.0) cyclesIncludedCheck[i] = true;
         }
         return cyclesIncluded.length == countTrue(cyclesIncludedCheck);

@@ -56,7 +56,7 @@ public record SingleBlockRawDataLiteSetRecord(
         int col = userFunction.getColumnIndex();
         boolean[][] blockRawDataLiteIncludedArrayUpdated = blockRawDataLiteIncludedArray.clone();
         for (int row = 0; row < blockRawDataLiteIncludedArray.length; row++) {
-                blockRawDataLiteIncludedArrayUpdated[row][col] = true;
+            blockRawDataLiteIncludedArrayUpdated[row][col] = true;
         }
         return new SingleBlockRawDataLiteSetRecord(
                 blockID,

@@ -49,7 +49,6 @@ import java.util.Map;
 import static java.lang.StrictMath.*;
 import static java.util.Arrays.binarySearch;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
-import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController.analysis;
 import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.generateGeometricMeanStats;
 import static org.cirdles.tripoli.utilities.mathUtilities.FormatterForSigFigN.countOfTrailingDigitsForSigFig;
 import static org.cirdles.tripoli.utilities.mathUtilities.MathUtilities.applyChauvenetsCriterion;
@@ -298,14 +297,14 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     double geoWeightedMeanRatioPlusOneSigmaPct = (geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio) / geoWeightedMeanRatio * 100.0;
                     double geoWeightedMeanRatioMinusOneSigmaPct = (geoWeightedMeanRatio - geoWeightedMeanRatioMinusOneSigma) / geoWeightedMeanRatio * 100.0;
 
-                    double lesserSigmaPct = (geoWeightedMeanRatioPlusOneSigmaPct > geoWeightedMeanRatioMinusOneSigmaPct)?
+                    double lesserSigmaPct = (geoWeightedMeanRatioPlusOneSigmaPct > geoWeightedMeanRatioMinusOneSigmaPct) ?
                             geoWeightedMeanRatioMinusOneSigmaPct : geoWeightedMeanRatioPlusOneSigmaPct;
 
                     countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig(lesserSigmaPct, 2);
                     double plusSigmaPct = (new BigDecimal(geoWeightedMeanRatioPlusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
                     double minusSigmaPct = (new BigDecimal(geoWeightedMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
 
-                    lesserSigmaPct = (plusSigmaPct > minusSigmaPct)? minusSigmaPct : plusSigmaPct;
+                    lesserSigmaPct = (plusSigmaPct > minusSigmaPct) ? minusSigmaPct : plusSigmaPct;
 
                     FormatterForSigFigN.FormattedStats formattedStats;
                     if ((abs(geoWeightedMeanRatio) >= 1e7) || (abs(geoWeightedMeanRatio) <= 1e-5)) {
@@ -829,7 +828,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     }
 
     @Override
-    public void performChauvenets(){
+    public void performChauvenets() {
         if (blockMode) {
             for (int i = 0; i < mapBlockIdToBlockCyclesRecord.size(); i++) {
                 int blockID = i + 1;
@@ -847,13 +846,13 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             // cycle mode
             boolean[] cycleModeIncluded = analysisStatsRecord.cycleModeIncluded();
             double[] cycleModeData = analysisStatsRecord.cycleModeData();
-            if (Booleans.countTrue(cycleModeIncluded) == cycleModeIncluded.length){
+            if (Booleans.countTrue(cycleModeIncluded) == cycleModeIncluded.length) {
                 boolean[] chauvenets = applyChauvenetsCriterion(cycleModeData, cycleModeIncluded);
                 // reset included cycles for each block
                 BlockStatsRecord[] blockStatsRecords = analysisStatsRecord.blockStatsRecords();
-                for (int i = 0; i < blockStatsRecords.length; i++){
+                for (int i = 0; i < blockStatsRecords.length; i++) {
                     System.arraycopy(chauvenets, i * blockStatsRecords[i].cyclesIncluded().length,
-                            blockStatsRecords[i].cyclesIncluded(),0, blockStatsRecords[i].cyclesIncluded().length);
+                            blockStatsRecords[i].cyclesIncluded(), 0, blockStatsRecords[i].cyclesIncluded().length);
 
                     int blockID = i + 1;
                     PlotBlockCyclesRecord plotBlockCyclesRecord = mapBlockIdToBlockCyclesRecord.get(blockID);
@@ -870,7 +869,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         repaint();
     }
 
-    public boolean detectAllIncludedStatus(){
+    public boolean detectAllIncludedStatus() {
         boolean retVal = true;
         for (int i = 0; i < mapBlockIdToBlockCyclesRecord.size(); i++) {
             retVal = retVal && mapBlockIdToBlockCyclesRecord.get(i + 1).detectAllIncludedStatus();
