@@ -28,6 +28,9 @@ markdown: kramdown
 #
 JB:
   # for local build, comment out next line and from /docs execute: bundle exec jekyll serve
+  # also use ruby on mac (rom) to keep updated
+  # need to change Ruby version: chruby ruby-2.7.5
+  
   BASE_PATH: /Tripoli
   version: 0.3.0
 
