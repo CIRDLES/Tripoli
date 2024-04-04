@@ -27,7 +27,7 @@ markdown: kramdown
 # All Jekyll-Bootstrap specific configurations are namespaced into this hash
 #
 JB:
-  # for local build, comment out next line and from /docs execute: bundle exec jekyll serve
+  # for local build, comment out next line (BASE_PATH) and from /docs execute: bundle exec jekyll serve
   # also use ruby on mac (rom) to keep updated
   # need to change Ruby version: chruby ruby-2.7.5
   

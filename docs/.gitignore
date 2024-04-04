@@ -8,3 +8,4 @@ vendor
 !_layouts/*.html
 !_includes/themes/twitter/*.html
 !*.png
+!*.pdf
