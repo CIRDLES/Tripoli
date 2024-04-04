@@ -1,7 +1,5 @@
----
-Layout: default
-title: 2024 Community Workshops
----
+
+## 2024 Community Workshops
 
 ### We continue our series of online workshops with three scheduled in May.
 

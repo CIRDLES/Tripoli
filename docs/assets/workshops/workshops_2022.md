@@ -1,7 +1,4 @@
----
-Layout: default
-title: 2022 Community Workshops - completed
----
+## 2024 Community Workshops - Completed
 
 
 #### Our first two launch workshops will outline the project and seek input on the scope and potential features of the software.
