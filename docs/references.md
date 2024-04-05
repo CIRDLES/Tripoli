@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Tripoli References
+title: Tripoli references
 description: Tripoli references used
 ---
 
