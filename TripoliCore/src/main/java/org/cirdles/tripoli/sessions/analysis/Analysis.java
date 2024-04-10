@@ -622,10 +622,10 @@ public class Analysis implements Serializable, AnalysisInterface {
         for(int i = 0; i < numSpecies; i++) {
             mapOfSpeciesToColors.put(i,
                     new SpeciesColors(
-                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4),//[speciesIndex * 4],
-                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 1),//[speciesIndex * 4 + 1],
-                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 2),//[speciesIndex * 4 + 2],
-                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 3)//[speciesIndex * 4 + 3]
+                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4),
+                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 1),
+                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 2),
+                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 3)
                     ));
         }
     }
