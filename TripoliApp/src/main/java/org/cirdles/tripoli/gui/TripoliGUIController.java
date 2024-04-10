@@ -161,25 +161,33 @@ public class TripoliGUIController implements Initializable {
             Dragboard db = event.getDragboard();
             if ((tripoliSession == null) && event.getDragboard().hasFiles()) {
                 File dataFile = db.getFiles().get(0);
-                // new session
-                MenuItem menuItemAnalysesNew = ((MenuBar) TripoliGUI.primaryStage.getScene()
-                        .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(2);
-                menuItemAnalysesNew.fire();
+                if (dataFile.getName().endsWith(".tripoli")) {
+                    // existing session
+                    try {
+                        openSession(dataFile.getAbsolutePath());
+                    } catch (IOException | TripoliException e) {
+//                        throw new RuntimeException(e);
+                    }
+                } else {
+                    // new session
+                    MenuItem menuItemAnalysesNew = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                            .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(2);
+                    menuItemAnalysesNew.fire();
 
-                AnalysisInterface analysisSelected = analysis;
+                    AnalysisInterface analysisSelected = analysis;
 
-                try {
-                    analysisSelected.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
-                } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
+                    try {
+                        analysisSelected.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
+                    } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException |
+                             IllegalAccessException | TripoliException e) {
 //                    throw new RuntimeException(e);
-                } catch (IllegalAccessException | TripoliException e) {
-//                    throw new RuntimeException(e);
+                    }
+
+                    // manage analysis
+                    MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                            .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
+                    menuItemAnalysesManager.fire();
                 }
-
-                // manage analysis
-                MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
-                        .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
-                menuItemAnalysesManager.fire();
             }
         });
         // end implement drag n drop of files ===================================================================
@@ -302,7 +310,7 @@ public class TripoliGUIController implements Initializable {
         removeAllManagers();
 
         try {
-            sessionFileName = FileHandlerUtil.selectSessionFile(primaryStageWindow);
+            sessionFileName = selectSessionFile(primaryStageWindow);
             openSession(sessionFileName);
         } catch (IOException | TripoliException iOException) {
         }

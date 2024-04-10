@@ -2,6 +2,9 @@ package org.cirdles.tripoli.sessions.analysis;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public record AnalysisStatsRecord(
         boolean isRatio,
         BlockStatsRecord[] blockStatsRecords,
@@ -13,8 +16,11 @@ public record AnalysisStatsRecord(
         double cycleModeVariance,
         double cycleModeStandardDeviation,
         double cycleModeStandardError,
+        boolean[] cycleModeIncluded,
+        double[] cycleModeData,
         int countOfTotalCycles,
         int countOfIncludedCycles) {
+
     public static AnalysisStatsRecord generateAnalysisStatsRecord(BlockStatsRecord[] blockStatsRecords) {
         int countOfIncludedBlocks = 0;
         double wmNumerator = 0.0;
@@ -26,8 +32,16 @@ public record AnalysisStatsRecord(
         double chiSquaredC;
 
         DescriptiveStatistics cycleModeDescriptiveStats = new DescriptiveStatistics();
+        List<double[]> cycleModeDataByBlocks = new ArrayList<>();
+        List<boolean[]> cycleModeIncludedByBlocks = new ArrayList<>();
         int countOfTotalCycles = 0;
+
         for (int i = 0; i < blockStatsRecords.length; i++) {
+            cycleModeDataByBlocks.add(blockStatsRecords[i].cycleMeansData());
+            cycleModeIncludedByBlocks.add(blockStatsRecords[i].cyclesIncluded());
+            countOfTotalCycles += blockStatsRecords[i].cyclesIncluded().length;
+
+            //todo fix or remove blockincludedflag
             if (blockStatsRecords[i].blockIncluded()) {
                 wmNumerator += blockStatsRecords[i].mean() / StrictMath.pow(blockStatsRecords[i].standardDeviation(), 2);
                 wmDenominator += 1.0 / StrictMath.pow(blockStatsRecords[i].standardDeviation(), 2);
@@ -45,7 +59,6 @@ public record AnalysisStatsRecord(
                     }
                 }
             }
-            countOfTotalCycles += blockStatsRecords[i].cyclesIncluded().length;
         }
         weightedMeanC = wmNumerator / wmDenominator;
         weightedMeanOneSigmaSquaredC = 1.0 / wmDenominator;
@@ -65,6 +78,24 @@ public record AnalysisStatsRecord(
         double cycleModeStandardDeviation = cycleModeDescriptiveStats.getStandardDeviation();
         double cycleModeStandardError = StrictMath.sqrt(cycleModeVariance / cycleModeDescriptiveStats.getN());
 
+        boolean[] cycleModeIncluded = new boolean[countOfTotalCycles];
+        double[] cycleModeData = new double[countOfTotalCycles];
+        int index = 0;
+        for (boolean[] cyclesIncluded : cycleModeIncludedByBlocks) {
+            for (int i = 0; i < cyclesIncluded.length; i++) {
+                cycleModeIncluded[index] = cyclesIncluded[i];
+                index++;
+            }
+        }
+
+        index = 0;
+        for (double[] cycleData : cycleModeDataByBlocks) {
+            for (int i = 0; i < cycleData.length; i++) {
+                cycleModeData[index] = cycleData[i];
+                index++;
+            }
+        }
+
         return new AnalysisStatsRecord(
                 blockStatsRecords[0].isRatio(),
                 blockStatsRecords,
@@ -76,7 +107,7 @@ public record AnalysisStatsRecord(
                 cycleModeVariance,
                 cycleModeStandardDeviation,
                 cycleModeStandardError,
-                countOfTotalCycles,
+                cycleModeIncluded, cycleModeData, countOfTotalCycles,
                 (int) cycleModeDescriptiveStats.getN());
     }
 }

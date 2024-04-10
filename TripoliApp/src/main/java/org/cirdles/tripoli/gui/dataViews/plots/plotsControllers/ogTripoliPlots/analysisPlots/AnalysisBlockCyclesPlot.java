@@ -112,6 +112,22 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
         this.zoomFlagsXY = zoomFlagsXY;
     }
 
+    /**
+     *
+     */
+    @Override
+    public void performChauvenets() {
+
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public boolean detectAllIncludedStatus() {
+        return false;
+    }
+
     public Map<Integer, PlotBlockCyclesRecord> getMapBlockIdToBlockCyclesRecord() {
         return mapBlockIdToBlockCyclesRecord;
     }

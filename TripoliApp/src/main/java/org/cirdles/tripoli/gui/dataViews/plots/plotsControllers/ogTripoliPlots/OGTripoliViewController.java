@@ -221,7 +221,8 @@ public class OGTripoliViewController {
                             BlockAnalysisRatioCyclesBuilder.initializeBlockAnalysisRatioCycles(
                                     isotopicRatio.prettyPrint(), plotBlockCyclesRecords,
                                     analysis.getMapOfBlockIdToProcessStatus(),
-                                    analysis.getMassSpecExtractedData().assignBlockIdToSessionTimeFull(), //analysis.getMassSpecExtractedData().assignBlockIdToSessionTimeLite(),
+                                    analysis.getMassSpecExtractedData().assignBlockIdToSessionTimeFull(),
+
                                     true,
                                     false);
                     AbstractPlot plot = AnalysisBlockCyclesPlot.generatePlot(

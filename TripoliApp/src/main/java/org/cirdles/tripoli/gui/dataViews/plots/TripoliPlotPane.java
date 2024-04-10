@@ -40,6 +40,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.a
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.analysisPlots.AnalysisRatioPlot;
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
+import org.jetbrains.annotations.NotNull;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_MICHAELANGELO_URL;
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.gridCellDim;
@@ -50,7 +51,7 @@ import static org.cirdles.tripoli.sessions.analysis.Analysis.RUN;
 /**
  * @author James F. Bowring
  */
-public class TripoliPlotPane extends BorderPane {
+public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlotPane> {
 
     public static double minPlotWidth = 175.0;
     public static double minPlotHeight = 100.0;
@@ -138,6 +139,7 @@ public class TripoliPlotPane extends BorderPane {
             mouseStartY = e.getSceneY();
         }
     };
+    private Button chauvenetButton;
     private ToolBar plotToolBar;
     private PlotLocation plotLocation;
     private final EventHandler<MouseEvent> mouseClickedEventHandler = e -> {
@@ -147,11 +149,7 @@ public class TripoliPlotPane extends BorderPane {
                 mouseStartY = e.getSceneY();
             }
             if (e.isSecondaryButtonDown() && 2 == e.getClickCount() && !e.isControlDown()) {
-                if (plot instanceof SpeciesIntensityAnalysisPlot) {
-
-                } else {
-                    toggleFullSize();
-                }
+                toggleFullSize();
             }
             toFront();
         }
@@ -193,18 +191,25 @@ public class TripoliPlotPane extends BorderPane {
     private void toggleFullSize() {
         if (null == plotLocation) {
             plotLocation = new PlotLocation(getLayoutX(), getLayoutY(), getPrefWidth(), getPrefHeight());
-            setLayoutX(gridCellDim);
-            setPrefWidth(((Pane) plotWallPane).getWidth() - 2 * gridCellDim);
-            setLayoutY(gridCellDim + plotWallPane.getToolBarCount() * plotWallPane.getToolBarHeight());
-            setPrefHeight(((Pane) plotWallPane).getHeight() - 2 * gridCellDim - plotWallPane.getToolBarCount() * plotWallPane.getToolBarHeight());
+            showTripoliPlotPaneFullSize();
+            ((PlotWallPane) plotWallPane).setZoomedTripoliPlotPane(this);
         } else {
+            ((PlotWallPane) plotWallPane).setZoomedTripoliPlotPane(null);
             setLayoutX(plotLocation.x());
             setPrefWidth(plotLocation.w());
             setLayoutY(plotLocation.y());
             setPrefHeight(plotLocation.h());
             plotLocation = null;
+            plotWallPane.repeatLayoutStyle();
         }
         updatePlot();
+    }
+
+    public void showTripoliPlotPaneFullSize() {
+        setLayoutX(gridCellDim);
+        setPrefWidth(((Pane) plotWallPane).getWidth() - 2 * gridCellDim);
+        setLayoutY(gridCellDim + plotWallPane.getToolBarCount() * plotWallPane.getToolBarHeight());
+        setPrefHeight(((Pane) plotWallPane).getHeight() - 2 * gridCellDim - plotWallPane.getToolBarCount() * plotWallPane.getToolBarHeight());
     }
 
     public void snapToGrid() {
@@ -246,18 +251,20 @@ public class TripoliPlotPane extends BorderPane {
             plotToolBar.getItems().add(replotButton);
 
             Button resetDataButton = new Button("Reset Data");
+            chauvenetButton = new Button("Chauvenet");
             resetDataButton.setFont(toolBarFont);
-            resetDataButton.setOnAction(event -> resetData());
+            resetDataButton.setOnAction(event -> {
+                resetData();
+                chauvenetButton.setDisable(false);
+            });
             plotToolBar.getItems().add(resetDataButton);
 
-            Button chauvenetButton = new Button("Chauvenet");
             chauvenetButton.setFont(toolBarFont);
+            chauvenetButton.setDisable(!detectAllIncludedStatus());
+            chauvenetButton.setOnAction(event -> {
+                performChauvenets();
+            });
             plotToolBar.getItems().add(chauvenetButton);
-
-//            Button toggleStatsButton = new Button("Toggle Stats");
-//            toggleStatsButton.setFont(toolBarFont);
-//            toggleStatsButton.setOnAction(event -> toggleShowStats());
-//            plotToolBar.getItems().add(toggleStatsButton);
 
             Button synchButton = new Button("SYNCH");
             synchButton.setFont(toolBarFont);
@@ -358,7 +365,7 @@ public class TripoliPlotPane extends BorderPane {
     public void replot() {
         if (plot != null) {
             if (plot instanceof AnalysisBlockCyclesPlotOG) {
-                ((AnalysisBlockCyclesPlotOG) plot).restBlockMode();
+                ((AnalysisBlockCyclesPlotOG) plot).resetBlockMode();
             }
             plot.refreshPanel(true, true);
         }
@@ -367,8 +374,25 @@ public class TripoliPlotPane extends BorderPane {
     public void resetData() {
         if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
             ((AnalysisBlockCyclesPlotI) plot).resetData();
+            chauvenetButton.setDisable(false);
             plot.refreshPanel(true, true);
         }
+    }
+
+    public void performChauvenets() {
+        if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
+            ((AnalysisBlockCyclesPlotI) plot).performChauvenets();
+            chauvenetButton.setDisable(true);
+            plot.refreshPanel(true, true);
+        }
+    }
+
+    public boolean detectAllIncludedStatus() {
+        boolean retVal = false;
+        if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
+            retVal = ((AnalysisBlockCyclesPlotI) plot).detectAllIncludedStatus();
+        }
+        return retVal;
     }
 
     public void synch() {
@@ -403,6 +427,7 @@ public class TripoliPlotPane extends BorderPane {
                 }
 
                 plot.repaint();
+                ((TripoliPlotPane) node).chauvenetButton.setDisable(!detectAllIncludedStatus());
             }
         }
     }
@@ -443,6 +468,15 @@ public class TripoliPlotPane extends BorderPane {
 
     public void resetAnalysisRatioZoom(boolean[] zoomFlagsXY) {
         ((AnalysisBlockCyclesPlotI) plot).setZoomFlagsXY(zoomFlagsXY);
+    }
+
+    /**
+     * @param tripoliPlotPane the object to be compared.
+     * @return
+     */
+    @Override
+    public int compareTo(@NotNull TripoliPlotPane tripoliPlotPane) {
+        return plot.plotTitle[0].compareTo(tripoliPlotPane.getPlot().plotTitle[0]);
     }
 
     private record PlotLocation(
