@@ -3,7 +3,7 @@ package org.cirdles.tripoli.utilities.collections;
 public class CircularArray <T>{
     private T[] array;
 
-    public CircularArray(T... values) {
+    public CircularArray(T[] values) {
         this.array = values;
     }
 
