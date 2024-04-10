@@ -16,6 +16,8 @@
 
 package org.cirdles.tripoli.constants;
 
+import org.cirdles.tripoli.utilities.collections.CircularArray;
+
 import java.io.File;
 import java.nio.CharBuffer;
 
@@ -68,7 +70,11 @@ public enum TripoliConstants {
     public static final String PLOT_TAB_ENSEMBLES = "Ensembles";
     public static final String PLOT_TAB_CONVERGE = "Converge";
     public static final String PLOT_TAB_CONVERGE_INTENSITY = "Converge Intensity";
-    public static final String[] TRIPOLI_DEFAULT_HEX_COLORS = {"#12bceb","#095c73","#ff0000","#7fffd4","#ffcf62","#ac8c42","#ff0000","#7fffd4","#9e6fb1","#4d3656","#ff0000","#7fffd4","#baff78","#6e9747","#ff0000","#7fffd4","#ffa056","#b2703c","#ff0000","#7fffd4"};
+
+    public static final CircularArray<String> TRIPOLI_DEFAULT_HEX_COLORS = new CircularArray<>(new String[]{
+            "#12bceb", "#095c73", "#ff0000", "#7fffd4", "#ffcf62", "#ac8c42", "#ff0000",
+            "#7fffd4","#9e6fb1","#4d3656","#ff0000","#7fffd4","#baff78","#6e9747","#ff0000",
+            "#7fffd4","#ffa056","#b2703c","#ff0000","#7fffd4"});
 
     public enum DetectorPlotFlavor {
 
