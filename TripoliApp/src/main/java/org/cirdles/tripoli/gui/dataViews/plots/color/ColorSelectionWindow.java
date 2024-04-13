@@ -2,6 +2,7 @@ package org.cirdles.tripoli.gui.dataViews.plots.color;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -17,6 +18,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.stage.WindowEvent;
 import org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.species.SpeciesColorSetting;
@@ -281,10 +283,14 @@ public class ColorSelectionWindow {
         stage.setWidth(WINDOW_PREF_WIDTH);
         stage.setScene(scene);
         stage.initOwner(owner);
-        stage.setTitle(WINDOW_TITLE);
+        owner.addEventHandler(WindowEvent.WINDOW_HIDDEN, event -> {
+            stage.fireEvent(new WindowEvent(owner, WindowEvent.WINDOW_CLOSE_REQUEST));
+        });
         stage.setOnCloseRequest(closeRequest ->{
             instance = null;
+            stage.close();
         });
+        stage.setTitle(WINDOW_TITLE);
         this.stage.setResizable(false);
         scene.addEventFilter(MouseEvent.MOUSE_CLICKED, click -> {
             if (click.getTarget() instanceof FlavoredIndexedLabel flavoredIndexedLabel) {
