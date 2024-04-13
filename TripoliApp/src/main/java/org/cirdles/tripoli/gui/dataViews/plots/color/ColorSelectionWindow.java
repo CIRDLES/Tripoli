@@ -282,10 +282,15 @@ public class ColorSelectionWindow {
         stage = new Stage();
         stage.setWidth(WINDOW_PREF_WIDTH);
         stage.setScene(scene);
+        stage.setX(owner.getX() - stage.getMinWidth());
         stage.initOwner(owner);
+
         owner.addEventHandler(WindowEvent.WINDOW_HIDDEN, event -> {
             stage.fireEvent(new WindowEvent(owner, WindowEvent.WINDOW_CLOSE_REQUEST));
         });
+        owner.xProperty().addListener(((observable, oldValue, newValue) -> {
+
+        }));
         stage.setOnCloseRequest(closeRequest ->{
             instance = null;
             stage.close();

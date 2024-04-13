@@ -22,7 +22,7 @@ public class ColorSplotch extends FlavoredIndexedLabel {
 
     public void setColor(Color color) {
         Background background = new Background(
-                new BackgroundFill(color, CornerRadii.EMPTY,Insets.EMPTY));
+                new BackgroundFill(color, CornerRadii.EMPTY,new Insets(0,-1,0,0)));
         this.setBackground(background);
         this.color = color;
     }
