@@ -16,6 +16,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
@@ -26,10 +27,8 @@ import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.DelegateActionInterface;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.function.Consumer;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_DEFAULT_HEX_COLORS;
 
@@ -138,6 +137,7 @@ public class ColorSelectionWindow {
         toolBar.prefWidthProperty().bind(stage.widthProperty());
         toolBar.setPadding(new Insets(10));
         this.root.getChildren().add(toolBar);
+        this.stage.setWidth(WINDOW_PREF_WIDTH);
     }
 
     private void makeSelection(int speciesIndex, DetectorPlotFlavor plotFlavor) {
@@ -319,6 +319,40 @@ public class ColorSelectionWindow {
     }
 
     public void show() {
+        stage.setX(stage.getOwner().getScene().getX());
+        stage.setY(stage.getOwner().getY());
+        this.stage.getOwner().xProperty().addListener(((observable, oldValue, newValue) -> {
+            double stageMaxX = stage.getX() + stage.getWidth()/2;
+            double stageMinX = stage.getX() - stage.getWidth()/2;
+            double nextXValue = stage.getX() + newValue.doubleValue() - oldValue.doubleValue();
+//            Optional<Screen> maxScreen = Screen.getScreens().stream().max(
+//                    (o1, o2) -> (int) (o1.getBounds().getMaxX() - o2.getBounds().getMaxX()));
+            Optional<Screen> maxScreen = Screen.getScreens().stream().max(new Comparator<Screen>() {
+                @Override
+                public int compare(Screen o1, Screen o2) {
+                    double comparisonResult = o1.getBounds().getMaxX() - o2.getBounds().getMaxX();
+                    int value = 0;
+                    if(comparisonResult > 0) {
+                        value = 1;
+                    } else if (comparisonResult < 0) {
+                        value = -1;
+                    }
+                    return value;
+                }
+            });
+            if (maxScreen.isPresent() && maxScreen.get().getBounds().getMaxX() >  (nextXValue + stage.getWidth())) {
+                stage.setX(stage.getX() + newValue.doubleValue() - oldValue.doubleValue());
+            } else {
+                System.err.println("Woah");
+            }
+
+        }));
+        this.stage.getOwner().yProperty().addListener(((observable, oldValue, newValue) -> {
+            stage.setY(stage.getY() + newValue.doubleValue() - oldValue.doubleValue());
+        }));
+        this.stage.getOwner().addEventHandler(WindowEvent.ANY, windowEvent -> {
+
+        });
         stage.show();
         setColorPickerLabelText();
         stage.toFront();

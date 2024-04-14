@@ -2,10 +2,7 @@ package org.cirdles.tripoli.gui.dataViews.plots.color;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import org.cirdles.tripoli.gui.dataViews.plots.Highlightable;
@@ -41,7 +38,7 @@ public class SpeciesColorRow extends HBox implements Highlightable {
     @Override
     public void highlight() {
         Color backgroundColor = Color.web(TRIPOLI_HIGHLIGHTED_HEX, 0.9);
-        BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY);
+        BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, new Insets(0, -1, 0,0));
         this.plotFlavorLabel.setBackground(new Background(fill));
     }
 

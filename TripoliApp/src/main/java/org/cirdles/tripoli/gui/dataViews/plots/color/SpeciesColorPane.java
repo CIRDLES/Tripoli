@@ -38,18 +38,21 @@ public class SpeciesColorPane extends Pane implements Highlightable {
         this.title.setAlignment(Pos.CENTER);
         this.title.prefWidthProperty().bind(prefWidthProperty());
         this.title.setFont(new Font( 14.0));
+        this.title.setStyle("-fx-font-weight: bold;");
         this.title.setTextAlignment(TextAlignment.CENTER);
+
         root.getChildren().add(title);
         root.getChildren().addAll(mapOfPlotFlavorsToSpeciesColorRows.values());
         for(Node node : root.getChildren()) {
-            node.setStyle("-fx-border-color: black; -fx-border-bottom: thin");
+            node.setStyle("-fx-border-color: black; -fx-border-width: .5px 2px .5px .25px;");
         }
+        title.setStyle("-fx-border-color: black; -fx-border-width: .5px 15.75px .5px .25px;");
     }
 
     @Override
     public void highlight() {
         Color backgroundColor = Color.web(TRIPOLI_HIGHLIGHTED_HEX, 0.9);
-        BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY);
+        BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, new Insets(0, -5,0,0));
         this.title.setBackground(new Background(fill));
     }
 
