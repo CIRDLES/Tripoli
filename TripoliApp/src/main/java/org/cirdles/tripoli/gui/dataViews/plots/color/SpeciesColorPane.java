@@ -10,6 +10,7 @@ import static org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_HIGHLIGHTED_HEX;
 
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import org.cirdles.tripoli.gui.dataViews.plots.Highlightable;
 import org.cirdles.tripoli.species.SpeciesColors;
@@ -37,8 +38,8 @@ public class SpeciesColorPane extends Pane implements Highlightable {
         this.title = new Label(speciesName);
         this.title.setAlignment(Pos.CENTER);
         this.title.prefWidthProperty().bind(prefWidthProperty());
-        this.title.setFont(new Font( 14.0));
-        this.title.setStyle("-fx-font-weight: bold;");
+        this.title.setFont(Font.font("Monospaced", FontWeight.BOLD, 16));
+        this.title.setStyle("-fx-font-weight: bolder;");
         this.title.setTextAlignment(TextAlignment.CENTER);
 
         root.getChildren().add(title);
