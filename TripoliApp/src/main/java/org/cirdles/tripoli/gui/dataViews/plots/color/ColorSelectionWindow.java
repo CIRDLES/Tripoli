@@ -89,6 +89,7 @@ public class ColorSelectionWindow {
             Map<Integer, SpeciesColors> mapOfSpeciesToColors,
             Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack,
             List<SpeciesRecordInterface> species,
+            int indexOfFirstCheckedSpecies,
             Window owner,
             DelegateActionSet rebuildDelegateActionSet) {
         if (instance == null) {
@@ -96,6 +97,7 @@ public class ColorSelectionWindow {
                     mapOfSpeciesToColors,
                     previousSpeciesColorSettingsStack,
                     species,
+                    indexOfFirstCheckedSpecies,
                     owner,
                     rebuildDelegateActionSet);
         }
@@ -104,32 +106,29 @@ public class ColorSelectionWindow {
     private ColorSelectionWindow(Map<Integer, SpeciesColors> mapOfSpeciesToColors,
                                  Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack,
                                  List<SpeciesRecordInterface> species,
+                                 int indexOfFirstCheckedSpecies,
                                  Window owner,
-//                                 DelegateActionInterface rebuildPlotDelegateAction,
                                  DelegateActionSet rebuildDelegateActionSet) {
         this.mapOfSpeciesToColors = mapOfSpeciesToColors;
         this.previousSpeciesColorSettingsStack = previousSpeciesColorSettingsStack;
         this.originalMapOfSpeciesToColors = new TreeMap<>();
         originalMapOfSpeciesToColors.putAll(mapOfSpeciesToColors);
         this.root = new VBox();
-//        this.rebuildPlotDelegateAction = rebuildPlotDelegateAction;
         this.rebuildDelegateActionSet = rebuildDelegateActionSet;
         initStage(owner);
         initSpeciesColorPanes(species);
         this.colorListener = new ColorListener(
-                speciesColorPanes[0].
+                speciesColorPanes[indexOfFirstCheckedSpecies].
                         getMapOfPlotFlavorsToSpeciesColorRows().
                         get(DetectorPlotFlavor.values()[0]).getColorSplotch());
         speciesColorRowSelectionRecord = new SpeciesColorRowSelectionRecord(
-                speciesColorPanes[0],
-                speciesColorPanes[0].getMapOfPlotFlavorsToSpeciesColorRows().get(
+                speciesColorPanes[indexOfFirstCheckedSpecies],
+                speciesColorPanes[indexOfFirstCheckedSpecies].getMapOfPlotFlavorsToSpeciesColorRows().get(
                         DetectorPlotFlavor.values()[0]),
-                new SpeciesColorSetting(0, mapOfSpeciesToColors.get(0)));
+                new SpeciesColorSetting(indexOfFirstCheckedSpecies, mapOfSpeciesToColors.get(indexOfFirstCheckedSpecies)));
         speciesColorRowSelectionRecord.speciesColorRow().highlight();
         speciesColorRowSelectionRecord.speciesColorPane().highlight();
         this.root.getChildren().add(initColorPicker());
-//        root.getChildren().add(initUndoButton());
-//        root.getChildren().add(initResetButton());
         Region spacerLeft = new Region();
         Region spacerRight = new Region();
         HBox.setHgrow(spacerLeft, Priority.ALWAYS);
@@ -225,8 +224,6 @@ public class ColorSelectionWindow {
         Button resetButton = new Button("Reset");
         resetButton.prefWidthProperty().bind(stage.widthProperty().divide(4));
         resetButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
-//        resetButton.prefWidthProperty().bind(stage.widthProperty());
-//        resetButton.setPrefHeight(BUTTON_PREF_HEIGHT);
         resetButton.setOnAction(cancelChanges -> {
             resetColors();});
         return resetButton;
@@ -236,8 +233,6 @@ public class ColorSelectionWindow {
         this.undoButton = new Button("Undo");
         undoButton.prefWidthProperty().bind(stage.widthProperty().divide(4));
         undoButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
-//        undoButton.prefWidthProperty().bind(stage.widthProperty());
-//        undoButton.setPrefHeight(BUTTON_PREF_HEIGHT);
         undoButton.setOnAction(undoLastChange -> {
             undo();
             undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
@@ -260,7 +255,6 @@ public class ColorSelectionWindow {
         this.colorPicker.valueProperty().setValue(this.colorListener.colorSplotchReference.getColor());
         this.colorPicker.getCustomColors().add(this.colorListener.colorSplotchReference.getColor());
         this.colorPicker.valueProperty().addListener(this.colorListener);
-        // TODO: Set up the action to store the color change
         this.colorPicker.setOnAction(action -> {
             previousSpeciesColorSettingsStack.push(speciesColorRowSelectionRecord.speciesColorSetting());
             undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
