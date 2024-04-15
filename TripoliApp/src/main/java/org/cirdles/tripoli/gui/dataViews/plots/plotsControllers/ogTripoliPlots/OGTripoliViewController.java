@@ -1,11 +1,14 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots;
 
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.WindowEvent;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
@@ -240,7 +243,6 @@ public class OGTripoliViewController {
     }
 
     private void plotOnPeakIntensitiesAndResiduals() {
-        PlotWallPaneIntensities.clearDelegates();
         PlotWallPane.menuOffset = 0.0;
         ogtSpeciesIntensitiesPlotAnchorPane.getChildren().clear();
         plotsWallPaneIntensities = PlotWallPaneIntensities.createPlotWallPane("OGTripoliSession");
@@ -252,6 +254,11 @@ public class OGTripoliViewController {
         ((Pane) plotsWallPaneIntensities).prefHeightProperty().bind(ogtSpeciesIntensitiesPlotAnchorPane.heightProperty());
 
         ogtSpeciesIntensitiesPlotAnchorPane.getChildren().add(((Pane) plotsWallPaneIntensities));
+        ogtSpeciesIntensitiesPlotAnchorPane.getChildren().addListener((ListChangeListener<Node>) change -> {
+            if (change.wasRemoved() && change.getRemoved().contains(plotsWallPaneIntensities)) {
+                ((PlotWallPaneIntensities) plotsWallPaneIntensities).close();
+            }
+        });
 
         plotWindowVBox.widthProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneIntensities.stackPlots());
         plotWindowVBox.heightProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneIntensities.stackPlots());
@@ -267,6 +274,11 @@ public class OGTripoliViewController {
         ((Pane) plotsWallPaneResiduals).prefHeightProperty().bind(ogtSpeciesResidualsPlotAnchorPane.heightProperty());
 
         ogtSpeciesResidualsPlotAnchorPane.getChildren().add(((Pane) plotsWallPaneResiduals));
+        ogtSpeciesResidualsPlotAnchorPane.getChildren().addListener((ListChangeListener<Node>) change -> {
+            if (change.wasRemoved() && change.getRemoved().contains(plotsWallPaneResiduals)){
+                ((PlotWallPaneIntensities) plotsWallPaneResiduals).close();
+            }
+        });
 
         plotWindowVBox.widthProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneResiduals.stackPlots());
         plotWindowVBox.heightProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneResiduals.stackPlots());

@@ -2,7 +2,6 @@ package org.cirdles.tripoli.gui.dataViews.plots.color;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -24,12 +23,9 @@ import org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.species.SpeciesColorSetting;
 import org.cirdles.tripoli.species.SpeciesColors;
-import org.cirdles.tripoli.utilities.DelegateActionInterface;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_DEFAULT_HEX_COLORS;
 
@@ -50,6 +46,7 @@ public class ColorSelectionWindow {
     private SpeciesColorRowSelectionRecord speciesColorRowSelectionRecord;
     private SpeciesColorPane[] speciesColorPanes;
     private Button undoButton;
+    private Button saveButton;
     private final ColorListener colorListener;
 
     private final DelegateActionSet rebuildDelegateActionSet;
@@ -130,7 +127,8 @@ public class ColorSelectionWindow {
         Region spacerRight = new Region();
         HBox.setHgrow(spacerLeft, Priority.ALWAYS);
         HBox.setHgrow(spacerRight, Priority.ALWAYS);
-        ToolBar toolBar = new ToolBar(spacerLeft,initResetButton(), initUndoButton(), initAcceptButton(),spacerRight);
+        ToolBar toolBar = new ToolBar(
+                spacerLeft,initResetButton(), initUndoButton(), initSaveButton(),initCancelButton(), spacerRight);
         toolBar.prefWidthProperty().bind(stage.widthProperty());
         toolBar.setPadding(new Insets(10));
         this.root.getChildren().add(toolBar);
@@ -152,13 +150,11 @@ public class ColorSelectionWindow {
     }
 
     private void resetColors(){
-        // TODO: Change this into reset to
         int numberOfSpecies = this.speciesColorPanes.length;
-        // Redraw the plot with new colors
-
         mapOfSpeciesToColors.clear();
         previousSpeciesColorSettingsStack.clear();
         undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
+        saveButton.setDisable(previousSpeciesColorSettingsStack.empty());
         for (int speciesIndex = 0; speciesIndex < numberOfSpecies ; ++speciesIndex){
             SpeciesColors speciesColors = new SpeciesColors(
                     TRIPOLI_DEFAULT_HEX_COLORS.get(speciesIndex * 4),
@@ -175,13 +171,15 @@ public class ColorSelectionWindow {
         }
         colorPicker.setValue(speciesColorRowSelectionRecord.speciesColorRow().getColor());
         rebuildDelegateActionSet.executeDelegateActions();
+        stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
+
     }
 
     private void undo(){
-        // TODO: Change this into undo
         if (!previousSpeciesColorSettingsStack.empty()){
             SpeciesColorSetting previousSpeciesColorSetting = previousSpeciesColorSettingsStack.pop();
             undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
+            saveButton.setDisable(previousSpeciesColorSettingsStack.empty());
             mapOfSpeciesToColors.put(
                     previousSpeciesColorSetting.index(),
                     previousSpeciesColorSetting.speciesColors());
@@ -197,6 +195,12 @@ public class ColorSelectionWindow {
         }
     }
 
+    private void cancel() {
+        mapOfSpeciesToColors.putAll(originalMapOfSpeciesToColors);
+        rebuildDelegateActionSet.executeDelegateActions();
+        stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
+//        stage.close();
+    }
     private void accept() {
         stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
         stage.close();
@@ -218,18 +222,26 @@ public class ColorSelectionWindow {
         }
     }
 
+    private Button initCancelButton() {
+        Button cancelButton = new Button("Cancel");
+        cancelButton.prefWidthProperty().bind(stage.widthProperty().divide(5));
+        cancelButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
+        cancelButton.setOnAction(cancelChanges -> cancel());
+        return cancelButton;
+    }
+
     private Button initResetButton() {
-        Button resetButton = new Button("Reset");
-        resetButton.prefWidthProperty().bind(stage.widthProperty().divide(4));
+        Button resetButton = new Button("Reset All");
+        resetButton.prefWidthProperty().bind(stage.widthProperty().divide(5));
         resetButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
-        resetButton.setOnAction(cancelChanges -> {
+        resetButton.setOnAction(resetChanges -> {
             resetColors();});
         return resetButton;
     }
 
     private Button initUndoButton() {
         this.undoButton = new Button("Undo");
-        undoButton.prefWidthProperty().bind(stage.widthProperty().divide(4));
+        undoButton.prefWidthProperty().bind(stage.widthProperty().divide(5));
         undoButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
         undoButton.setOnAction(undoLastChange -> {
             undo();
@@ -239,12 +251,13 @@ public class ColorSelectionWindow {
         return undoButton;
     }
 
-    private Button initAcceptButton() {
-        Button acceptButton = new Button("Accept");
-        acceptButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
-        acceptButton.prefWidthProperty().bind(stage.widthProperty().divide(4));
-        acceptButton.setOnAction((acceptAction) -> accept());
-        return acceptButton;
+    private Button initSaveButton() {
+        saveButton = new Button("Save All");
+        saveButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
+        saveButton.prefWidthProperty().bind(stage.widthProperty().divide(5));
+        saveButton.setOnAction((acceptAction) -> accept());
+        saveButton.setDisable(previousSpeciesColorSettingsStack.empty());
+        return saveButton;
     }
     private ColorPicker initColorPicker() {
         this.colorPicker = new ColorPicker();
@@ -256,6 +269,8 @@ public class ColorSelectionWindow {
         this.colorPicker.setOnAction(action -> {
             previousSpeciesColorSettingsStack.push(speciesColorRowSelectionRecord.speciesColorSetting());
             undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
+            saveButton.setDisable(previousSpeciesColorSettingsStack.empty());
+            setColorPickerLabelText();
         });
         return this.colorPicker;
     }

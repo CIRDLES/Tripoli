@@ -25,12 +25,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.WindowEvent;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.color.ColorSelectionWindow;
 import org.cirdles.tripoli.species.SpeciesColorSetting;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.species.SpeciesColors;
+import org.cirdles.tripoli.utilities.DelegateActionInterface;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 
 import java.util.List;
@@ -63,6 +65,8 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     private boolean gainCorr = true;
     private boolean logScale;
 
+    private DelegateActionInterface removeDelegateAction;
+
     private final boolean[] zoomFlagsXY = new boolean[2];
 
     private ToolBar scaleControlsToolbar;
@@ -73,9 +77,16 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         this.iD = iD;
         zoomFlagsXY[0] = true;
         zoomFlagsXY[1] = true;
-        delegateActionSet.addDelegateAction(()->{rebuildPlot(false,false);});
+        DelegateActionInterface delegateAction = () -> rebuildPlot(false, false);
+//        delegateActionSet.addDelegateAction(()->{rebuildPlot(false,false);});
+        delegateActionSet.addDelegateAction(delegateAction);
+        removeDelegateAction = () -> delegateActionSet.removeDelegateAction(delegateAction);
+        addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, closeRequest -> close());
     }
 
+    public void close() {
+        removeDelegateAction.act();
+    }
     public static PlotWallPaneInterface createPlotWallPane(String iD) {
         if (iD == null) {
             return new PlotWallPaneIntensities("NONE");
