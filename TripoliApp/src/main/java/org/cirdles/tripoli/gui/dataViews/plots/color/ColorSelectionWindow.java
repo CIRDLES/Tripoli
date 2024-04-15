@@ -201,6 +201,7 @@ public class ColorSelectionWindow {
     }
 
     private void accept() {
+        stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
         stage.close();
     }
 
@@ -314,46 +315,48 @@ public class ColorSelectionWindow {
     }
 
     public void show() {
-        stage.setX(stage.getOwner().getScene().getX());
-        stage.setY(stage.getOwner().getY());
-        this.stage.getOwner().xProperty().addListener(((observable, oldValue, newValue) -> {
-            Screen maxXScreen = Screen.getScreens().stream().reduce(
-                    Screen.getPrimary(),
-                    (screen1, screen2) ->
-                            screen1.getBounds().getMaxX() > screen2.getBounds().getMaxX() ?
-                                    screen1 : screen2);
-            Screen minXScreen = Screen.getScreens().stream().reduce(Screen.getPrimary(),
-                    (screen1, screen2) ->
-                        screen1.getBounds().getMinX() < screen2.getBounds().getMinX() ?
-                                screen1 : screen2);
-            if( maxXScreen.getBounds().getMaxX() >=
-                    stage.getX() + stage.getWidth() + newValue.doubleValue() - oldValue.doubleValue() &&
-            minXScreen.getBounds().getMinX() <=
-                    stage.getX() + newValue.doubleValue() - oldValue.doubleValue()) {
-                stage.setX(stage.getX() + newValue.doubleValue() - oldValue.doubleValue());
-            }
-        }));
-        this.stage.getOwner().yProperty().addListener(((observable, oldValue, newValue) -> {
-            Screen maxYScreen = Screen.getScreens().stream().reduce(
-                    Screen.getPrimary(),
-                    (screen1, screen2) ->
-                            screen1.getBounds().getMaxY() > screen2.getBounds().getMaxY() ?
-                                    screen1 : screen2
-            );
-            Screen minYScreen = Screen.getScreens().stream().reduce(
-                    Screen.getPrimary(),
-                    (screen1, screen2) ->
-                            screen1.getBounds().getMinY() < screen2.getBounds().getMinY() ?
-                                    screen1 : screen2
-            );
-            if(maxYScreen.getBounds().getMaxY() >=
-                    stage.getY() + stage.getHeight() + newValue.doubleValue() - oldValue.doubleValue() &&
-                minYScreen.getBounds().getMinY() <=
-                        stage.getY() + newValue.doubleValue() - oldValue.doubleValue()){
-                stage.setY(stage.getY() + newValue.doubleValue() - oldValue.doubleValue());
-            }
-        }));
-        stage.show();
+        if(!stage.isShowing()) {
+            stage.setX(stage.getOwner().getScene().getX());
+            stage.setY(stage.getOwner().getY());
+            this.stage.getOwner().xProperty().addListener(((observable, oldValue, newValue) -> {
+                Screen maxXScreen = Screen.getScreens().stream().reduce(
+                        Screen.getPrimary(),
+                        (screen1, screen2) ->
+                                screen1.getBounds().getMaxX() > screen2.getBounds().getMaxX() ?
+                                        screen1 : screen2);
+                Screen minXScreen = Screen.getScreens().stream().reduce(Screen.getPrimary(),
+                        (screen1, screen2) ->
+                                screen1.getBounds().getMinX() < screen2.getBounds().getMinX() ?
+                                        screen1 : screen2);
+                if (maxXScreen.getBounds().getMaxX() >=
+                        stage.getX() + stage.getWidth() + newValue.doubleValue() - oldValue.doubleValue() &&
+                        minXScreen.getBounds().getMinX() <=
+                                stage.getX() + newValue.doubleValue() - oldValue.doubleValue()) {
+                    stage.setX(stage.getX() + newValue.doubleValue() - oldValue.doubleValue());
+                }
+            }));
+            this.stage.getOwner().yProperty().addListener(((observable, oldValue, newValue) -> {
+                Screen maxYScreen = Screen.getScreens().stream().reduce(
+                        Screen.getPrimary(),
+                        (screen1, screen2) ->
+                                screen1.getBounds().getMaxY() > screen2.getBounds().getMaxY() ?
+                                        screen1 : screen2
+                );
+                Screen minYScreen = Screen.getScreens().stream().reduce(
+                        Screen.getPrimary(),
+                        (screen1, screen2) ->
+                                screen1.getBounds().getMinY() < screen2.getBounds().getMinY() ?
+                                        screen1 : screen2
+                );
+                if (maxYScreen.getBounds().getMaxY() >=
+                        stage.getY() + stage.getHeight() + newValue.doubleValue() - oldValue.doubleValue() &&
+                        minYScreen.getBounds().getMinY() <=
+                                stage.getY() + newValue.doubleValue() - oldValue.doubleValue()) {
+                    stage.setY(stage.getY() + newValue.doubleValue() - oldValue.doubleValue());
+                }
+            }));
+            stage.show();
+        }
         setColorPickerLabelText();
         stage.toFront();
     }
