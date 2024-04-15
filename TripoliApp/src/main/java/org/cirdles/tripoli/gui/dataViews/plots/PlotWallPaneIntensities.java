@@ -36,6 +36,8 @@ import org.cirdles.tripoli.utilities.DelegateActionSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.function.Function;
+import java.util.stream.IntStream;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_MICHAELANGELO_URL;
 
@@ -275,10 +277,18 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         colorButtonSpace.setLabelFor(colorButton);
         colorButtonSpace.setPrefWidth(30);
         colorButton.setOnAction(click -> {
+            int indexOfFirstCheckedSpecies = 0;
+            for (int i = 0; i < speciesChecked.length; i++) {
+                if (speciesChecked[i]) {
+                    indexOfFirstCheckedSpecies = i;
+                    break;
+                }
+            }
             ColorSelectionWindow window =
                     ColorSelectionWindow.colorSelectionWindowRequest(mapOfSpeciesToColors,
                             previousSpeciesColorSettingsStack,
                             species,
+                            indexOfFirstCheckedSpecies,
                             getScene().getWindow(), delegateActionSet);
             window.show();
         });

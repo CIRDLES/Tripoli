@@ -2,6 +2,7 @@ package org.cirdles.tripoli.gui.dataViews.plots.color;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -15,8 +16,10 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.stage.WindowEvent;
 import org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.species.SpeciesColorSetting;
@@ -24,10 +27,9 @@ import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.DelegateActionInterface;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_DEFAULT_HEX_COLORS;
 
@@ -87,6 +89,7 @@ public class ColorSelectionWindow {
             Map<Integer, SpeciesColors> mapOfSpeciesToColors,
             Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack,
             List<SpeciesRecordInterface> species,
+            int indexOfFirstCheckedSpecies,
             Window owner,
             DelegateActionSet rebuildDelegateActionSet) {
         if (instance == null) {
@@ -94,6 +97,7 @@ public class ColorSelectionWindow {
                     mapOfSpeciesToColors,
                     previousSpeciesColorSettingsStack,
                     species,
+                    indexOfFirstCheckedSpecies,
                     owner,
                     rebuildDelegateActionSet);
         }
@@ -102,32 +106,29 @@ public class ColorSelectionWindow {
     private ColorSelectionWindow(Map<Integer, SpeciesColors> mapOfSpeciesToColors,
                                  Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack,
                                  List<SpeciesRecordInterface> species,
+                                 int indexOfFirstCheckedSpecies,
                                  Window owner,
-//                                 DelegateActionInterface rebuildPlotDelegateAction,
                                  DelegateActionSet rebuildDelegateActionSet) {
         this.mapOfSpeciesToColors = mapOfSpeciesToColors;
         this.previousSpeciesColorSettingsStack = previousSpeciesColorSettingsStack;
         this.originalMapOfSpeciesToColors = new TreeMap<>();
         originalMapOfSpeciesToColors.putAll(mapOfSpeciesToColors);
         this.root = new VBox();
-//        this.rebuildPlotDelegateAction = rebuildPlotDelegateAction;
         this.rebuildDelegateActionSet = rebuildDelegateActionSet;
         initStage(owner);
         initSpeciesColorPanes(species);
         this.colorListener = new ColorListener(
-                speciesColorPanes[0].
+                speciesColorPanes[indexOfFirstCheckedSpecies].
                         getMapOfPlotFlavorsToSpeciesColorRows().
                         get(DetectorPlotFlavor.values()[0]).getColorSplotch());
         speciesColorRowSelectionRecord = new SpeciesColorRowSelectionRecord(
-                speciesColorPanes[0],
-                speciesColorPanes[0].getMapOfPlotFlavorsToSpeciesColorRows().get(
+                speciesColorPanes[indexOfFirstCheckedSpecies],
+                speciesColorPanes[indexOfFirstCheckedSpecies].getMapOfPlotFlavorsToSpeciesColorRows().get(
                         DetectorPlotFlavor.values()[0]),
-                new SpeciesColorSetting(0, mapOfSpeciesToColors.get(0)));
+                new SpeciesColorSetting(indexOfFirstCheckedSpecies, mapOfSpeciesToColors.get(indexOfFirstCheckedSpecies)));
         speciesColorRowSelectionRecord.speciesColorRow().highlight();
         speciesColorRowSelectionRecord.speciesColorPane().highlight();
         this.root.getChildren().add(initColorPicker());
-//        root.getChildren().add(initUndoButton());
-//        root.getChildren().add(initResetButton());
         Region spacerLeft = new Region();
         Region spacerRight = new Region();
         HBox.setHgrow(spacerLeft, Priority.ALWAYS);
@@ -136,6 +137,7 @@ public class ColorSelectionWindow {
         toolBar.prefWidthProperty().bind(stage.widthProperty());
         toolBar.setPadding(new Insets(10));
         this.root.getChildren().add(toolBar);
+        this.stage.setWidth(WINDOW_PREF_WIDTH);
     }
 
     private void makeSelection(int speciesIndex, DetectorPlotFlavor plotFlavor) {
@@ -199,6 +201,7 @@ public class ColorSelectionWindow {
     }
 
     private void accept() {
+        stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
         stage.close();
     }
 
@@ -222,8 +225,6 @@ public class ColorSelectionWindow {
         Button resetButton = new Button("Reset");
         resetButton.prefWidthProperty().bind(stage.widthProperty().divide(4));
         resetButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
-//        resetButton.prefWidthProperty().bind(stage.widthProperty());
-//        resetButton.setPrefHeight(BUTTON_PREF_HEIGHT);
         resetButton.setOnAction(cancelChanges -> {
             resetColors();});
         return resetButton;
@@ -233,8 +234,6 @@ public class ColorSelectionWindow {
         this.undoButton = new Button("Undo");
         undoButton.prefWidthProperty().bind(stage.widthProperty().divide(4));
         undoButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
-//        undoButton.prefWidthProperty().bind(stage.widthProperty());
-//        undoButton.setPrefHeight(BUTTON_PREF_HEIGHT);
         undoButton.setOnAction(undoLastChange -> {
             undo();
             undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
@@ -257,7 +256,6 @@ public class ColorSelectionWindow {
         this.colorPicker.valueProperty().setValue(this.colorListener.colorSplotchReference.getColor());
         this.colorPicker.getCustomColors().add(this.colorListener.colorSplotchReference.getColor());
         this.colorPicker.valueProperty().addListener(this.colorListener);
-        // TODO: Set up the action to store the color change
         this.colorPicker.setOnAction(action -> {
             previousSpeciesColorSettingsStack.push(speciesColorRowSelectionRecord.speciesColorSetting());
             undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
@@ -280,11 +278,20 @@ public class ColorSelectionWindow {
         stage = new Stage();
         stage.setWidth(WINDOW_PREF_WIDTH);
         stage.setScene(scene);
+        stage.setX(owner.getX() - stage.getMinWidth());
         stage.initOwner(owner);
-        stage.setTitle(WINDOW_TITLE);
+
+        owner.addEventHandler(WindowEvent.WINDOW_HIDDEN, event -> {
+            stage.fireEvent(new WindowEvent(owner, WindowEvent.WINDOW_CLOSE_REQUEST));
+        });
+        owner.xProperty().addListener(((observable, oldValue, newValue) -> {
+
+        }));
         stage.setOnCloseRequest(closeRequest ->{
             instance = null;
+            stage.close();
         });
+        stage.setTitle(WINDOW_TITLE);
         this.stage.setResizable(false);
         scene.addEventFilter(MouseEvent.MOUSE_CLICKED, click -> {
             if (click.getTarget() instanceof FlavoredIndexedLabel flavoredIndexedLabel) {
@@ -308,7 +315,48 @@ public class ColorSelectionWindow {
     }
 
     public void show() {
-        stage.show();
+        if(!stage.isShowing()) {
+            stage.setX(stage.getOwner().getScene().getX());
+            stage.setY(stage.getOwner().getY());
+            this.stage.getOwner().xProperty().addListener(((observable, oldValue, newValue) -> {
+                Screen maxXScreen = Screen.getScreens().stream().reduce(
+                        Screen.getPrimary(),
+                        (screen1, screen2) ->
+                                screen1.getBounds().getMaxX() > screen2.getBounds().getMaxX() ?
+                                        screen1 : screen2);
+                Screen minXScreen = Screen.getScreens().stream().reduce(Screen.getPrimary(),
+                        (screen1, screen2) ->
+                                screen1.getBounds().getMinX() < screen2.getBounds().getMinX() ?
+                                        screen1 : screen2);
+                if (maxXScreen.getBounds().getMaxX() >=
+                        stage.getX() + stage.getWidth() + newValue.doubleValue() - oldValue.doubleValue() &&
+                        minXScreen.getBounds().getMinX() <=
+                                stage.getX() + newValue.doubleValue() - oldValue.doubleValue()) {
+                    stage.setX(stage.getX() + newValue.doubleValue() - oldValue.doubleValue());
+                }
+            }));
+            this.stage.getOwner().yProperty().addListener(((observable, oldValue, newValue) -> {
+                Screen maxYScreen = Screen.getScreens().stream().reduce(
+                        Screen.getPrimary(),
+                        (screen1, screen2) ->
+                                screen1.getBounds().getMaxY() > screen2.getBounds().getMaxY() ?
+                                        screen1 : screen2
+                );
+                Screen minYScreen = Screen.getScreens().stream().reduce(
+                        Screen.getPrimary(),
+                        (screen1, screen2) ->
+                                screen1.getBounds().getMinY() < screen2.getBounds().getMinY() ?
+                                        screen1 : screen2
+                );
+                if (maxYScreen.getBounds().getMaxY() >=
+                        stage.getY() + stage.getHeight() + newValue.doubleValue() - oldValue.doubleValue() &&
+                        minYScreen.getBounds().getMinY() <=
+                                stage.getY() + newValue.doubleValue() - oldValue.doubleValue()) {
+                    stage.setY(stage.getY() + newValue.doubleValue() - oldValue.doubleValue());
+                }
+            }));
+            stage.show();
+        }
         setColorPickerLabelText();
         stage.toFront();
     }

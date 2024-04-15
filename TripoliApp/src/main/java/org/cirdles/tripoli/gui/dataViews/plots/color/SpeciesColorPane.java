@@ -10,6 +10,7 @@ import static org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_HIGHLIGHTED_HEX;
 
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import org.cirdles.tripoli.gui.dataViews.plots.Highlightable;
 import org.cirdles.tripoli.species.SpeciesColors;
@@ -37,19 +38,22 @@ public class SpeciesColorPane extends Pane implements Highlightable {
         this.title = new Label(speciesName);
         this.title.setAlignment(Pos.CENTER);
         this.title.prefWidthProperty().bind(prefWidthProperty());
-        this.title.setFont(new Font( 14.0));
+        this.title.setFont(Font.font("Monospaced", FontWeight.BOLD, 16));
+        this.title.setStyle("-fx-font-weight: bolder;");
         this.title.setTextAlignment(TextAlignment.CENTER);
+
         root.getChildren().add(title);
         root.getChildren().addAll(mapOfPlotFlavorsToSpeciesColorRows.values());
         for(Node node : root.getChildren()) {
-            node.setStyle("-fx-border-color: black; -fx-border-bottom: thin");
+            node.setStyle("-fx-border-color: black; -fx-border-width: .5px 2px .5px .25px;");
         }
+        title.setStyle("-fx-border-color: black; -fx-border-width: .5px 15.75px .5px .25px;");
     }
 
     @Override
     public void highlight() {
         Color backgroundColor = Color.web(TRIPOLI_HIGHLIGHTED_HEX, 0.9);
-        BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY);
+        BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, new Insets(0, -5,0,0));
         this.title.setBackground(new Background(fill));
     }
 
