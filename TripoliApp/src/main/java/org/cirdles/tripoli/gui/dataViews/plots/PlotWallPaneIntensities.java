@@ -68,7 +68,6 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     private ToolBar scaleControlsToolbar;
     private CheckBox[] speciesCheckBoxes;
     private boolean showUncertainties = false;
-    private Stack<SpeciesColorSetting> speciesColorSettingStack;
 
     private PlotWallPaneIntensities(String iD) {
         this.iD = iD;
@@ -140,8 +139,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
 
     public void buildIntensitiesPlotToolBar(boolean showResiduals,
                                             List<SpeciesRecordInterface> species,
-                                            Map<Integer, SpeciesColors> mapOfSpeciesToColors,
-                                            Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack) {
+                                            Map<Integer, SpeciesColors> mapOfSpeciesToColors) {
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);
         speciesChecked = new boolean[species.size()];
@@ -286,7 +284,6 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
             }
             ColorSelectionWindow window =
                     ColorSelectionWindow.colorSelectionWindowRequest(mapOfSpeciesToColors,
-                            previousSpeciesColorSettingsStack,
                             species,
                             indexOfFirstCheckedSpecies,
                             getScene().getWindow(), delegateActionSet);

@@ -87,7 +87,6 @@ public class ColorSelectionWindow {
     }
     public static ColorSelectionWindow colorSelectionWindowRequest(
             Map<Integer, SpeciesColors> mapOfSpeciesToColors,
-            Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack,
             List<SpeciesRecordInterface> species,
             int indexOfFirstCheckedSpecies,
             Window owner,
@@ -95,7 +94,6 @@ public class ColorSelectionWindow {
         if (instance == null) {
             instance = new ColorSelectionWindow(
                     mapOfSpeciesToColors,
-                    previousSpeciesColorSettingsStack,
                     species,
                     indexOfFirstCheckedSpecies,
                     owner,
@@ -104,13 +102,12 @@ public class ColorSelectionWindow {
         return instance;
     }
     private ColorSelectionWindow(Map<Integer, SpeciesColors> mapOfSpeciesToColors,
-                                 Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack,
                                  List<SpeciesRecordInterface> species,
                                  int indexOfFirstCheckedSpecies,
                                  Window owner,
                                  DelegateActionSet rebuildDelegateActionSet) {
         this.mapOfSpeciesToColors = mapOfSpeciesToColors;
-        this.previousSpeciesColorSettingsStack = previousSpeciesColorSettingsStack;
+        this.previousSpeciesColorSettingsStack = new Stack<>();
         this.originalMapOfSpeciesToColors = new TreeMap<>();
         originalMapOfSpeciesToColors.putAll(mapOfSpeciesToColors);
         this.root = new VBox();

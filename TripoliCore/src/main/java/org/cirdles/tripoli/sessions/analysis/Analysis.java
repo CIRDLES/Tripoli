@@ -92,7 +92,6 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<Integer, boolean[]> mapOfBlockIdToIncludedIntensities = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<IsotopicRatio, AnalysisRatioRecord> mapOfRatioToAnalysisRatioRecord = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SpeciesColors> mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
-    private final Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack = new Stack<>();
     private String analysisName;
     private String analystName;
     private String labName;
@@ -156,7 +155,6 @@ public class Analysis implements Serializable, AnalysisInterface {
         mapOfBlockIdToRawDataLiteOne.clear();
         mapOfBlockIdToFinalModel.clear();
         mapOfSpeciesToColors.clear();
-        previousSpeciesColorSettingsStack.clear();
     }
 
     public void extractMassSpecDataFromPath(Path dataFilePath)
@@ -704,9 +702,6 @@ public class Analysis implements Serializable, AnalysisInterface {
         return mapOfSpeciesToColors;
     }
 
-    public Stack<SpeciesColorSetting> getPreviousSpeciesColorSettingsStack() {
-        return previousSpeciesColorSettingsStack;
-    }
 
     public void setAnalysisDalyFaradayGainMean(double analysisDalyFaradayGainMean) {
         this.analysisDalyFaradayGainMean = analysisDalyFaradayGainMean;
