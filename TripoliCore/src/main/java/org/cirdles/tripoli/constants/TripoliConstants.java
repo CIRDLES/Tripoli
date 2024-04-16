@@ -52,6 +52,7 @@ public enum TripoliConstants {
 
 
     public static final String SPACES_100 = CharBuffer.allocate(100).toString().replace('\0', ' ');
+    public static final String SPACES_150 = CharBuffer.allocate(150).toString().replace('\0', ' ');
 
     public static final String MISSING_STRING_FIELD = "MISSING";
 

@@ -31,28 +31,28 @@ public class ValueModel implements Serializable, Comparable<ValueModel>, ValueMo
 
     private static final long serialVersionUID = -2165611302657545964L;
 
-    private String name;
-    private BigDecimal value;
-    private BigDecimal analyticalOneSigmaAbs;
-    private BigDecimal systematicOneSigmaAbs;
+    protected String name;
+    protected BigDecimal value;
+    protected BigDecimal analyticalOneSigmaAbs;
+    protected BigDecimal systematicOneSigmaAbs;
 
-    private ValueModel() {
+    protected ValueModel() {
         this(DEFAULT_OBJECT_NAME, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
     }
 
-    private ValueModel(String name) {
+    protected ValueModel(String name) {
         this(name, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
     }
 
-    private ValueModel(String name, BigDecimal value) {
+    protected ValueModel(String name, BigDecimal value) {
         this(name, value, BigDecimal.ZERO, BigDecimal.ZERO);
     }
 
-    private ValueModel(String name, BigDecimal value, BigDecimal analyticalOneSigmaAbs) {
+    protected ValueModel(String name, BigDecimal value, BigDecimal analyticalOneSigmaAbs) {
         this(name, value, analyticalOneSigmaAbs, BigDecimal.ZERO);
     }
 
-    private ValueModel(String name, BigDecimal value, BigDecimal analyticalOneSigmaAbs, BigDecimal systematicOneSigmaAbs) {
+    protected ValueModel(String name, BigDecimal value, BigDecimal analyticalOneSigmaAbs, BigDecimal systematicOneSigmaAbs) {
         this.name = Objects.requireNonNull(name);
         this.value = value;
         this.analyticalOneSigmaAbs = analyticalOneSigmaAbs;
