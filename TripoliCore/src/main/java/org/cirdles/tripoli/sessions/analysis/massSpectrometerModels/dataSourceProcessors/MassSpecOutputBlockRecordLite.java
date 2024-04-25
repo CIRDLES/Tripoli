@@ -26,5 +26,19 @@ public record MassSpecOutputBlockRecordLite(
         int blockID,
         double[][] cycleData
 ) implements Serializable {
+    public MassSpecOutputBlockRecordLite expandForUraniumOxideCorrection(int r270_267ColumnIndex, int r265_267ColumnIndex, double r18O_16O) {
+        double[][] cycleDataExpand = new double[cycleData.length][];
+        for (int row = 0; row < cycleData.length; row++) {
+            cycleDataExpand[row] = new double[cycleData[row].length + 3];
+            System.arraycopy(cycleData[row], 0, cycleDataExpand[row], 0, cycleData[row].length);
 
+            cycleDataExpand[row][cycleData[row].length + 0]
+                    = cycleData[row][r265_267ColumnIndex] / (1.0 - 2.0 * r18O_16O * cycleData[row][r265_267ColumnIndex]);
+            cycleDataExpand[row][cycleData[row].length + 1]
+                    = cycleData[row][r270_267ColumnIndex] / (1.0 - 2.0 * r18O_16O * cycleData[row][r270_267ColumnIndex]);
+            cycleDataExpand[row][cycleData[row].length + 2]
+                    = cycleDataExpand[row][cycleData[row].length + 1] / cycleDataExpand[row][cycleData[row].length + 0];
+        }
+        return new MassSpecOutputBlockRecordLite(blockID, cycleDataExpand);
+    }
 }

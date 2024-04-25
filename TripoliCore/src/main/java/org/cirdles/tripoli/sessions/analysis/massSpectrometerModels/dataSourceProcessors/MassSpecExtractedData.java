@@ -190,6 +190,12 @@ public class MassSpecExtractedData implements Serializable {
         return blockIDs;
     }
 
+    public void expandCycleDataForUraniumOxideCorrection(int r270_267ColumnIndex, int r265_267ColumnIndex, double r18O_16O) {
+        for (Integer blockID : blocksDataLite.keySet()) {
+            blocksDataLite.put(blockID, blocksDataLite.get(blockID).expandForUraniumOxideCorrection(r270_267ColumnIndex, r265_267ColumnIndex, r18O_16O));
+        }
+    }
+
     public MassSpectrometerContextEnum getMassSpectrometerContext() {
         return massSpectrometerContext;
     }
@@ -212,6 +218,16 @@ public class MassSpecExtractedData implements Serializable {
 
     public void setColumnHeaders(String[] columnHeaders) {
         this.columnHeaders = columnHeaders;
+    }
+
+    public String[] getUsedColumnHeaders() {
+        List<String> usedColumnHeadersList = new ArrayList<>();
+        for (String ch : columnHeaders) {
+            if (ch != null) {
+                usedColumnHeadersList.add(ch);
+            }
+        }
+        return usedColumnHeadersList.toArray(new String[0]);
     }
 
     public DetectorSetup getDetectorSetup() {

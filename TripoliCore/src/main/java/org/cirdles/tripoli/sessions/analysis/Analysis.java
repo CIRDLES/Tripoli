@@ -249,11 +249,11 @@ public class Analysis implements Serializable, AnalysisInterface {
             }
         } else {
             // case1
+            analysisName = dataFilePath.toFile().getName().substring(0, dataFilePath.toFile().getName().length() - 4);
             analysisMethod = AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData);
             initializeBlockProcessing();
         }
 
-        analysisName = dataFilePath.toFile().getName();
     }
 
     public void initializeBlockProcessing() {
@@ -423,7 +423,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         StringBuilder sb = new StringBuilder();
         if (getAnalysisCaseNumber() == 1) {
             sb.append(String.format("%30s", "Column headers: "));
-            for (String header : massSpecExtractedData.getColumnHeaders()) {
+            for (String header : massSpecExtractedData.getUsedColumnHeaders()) {
                 sb.append(header + ", ");
             }
             sb.replace(sb.length() - 2, sb.length(), "");
@@ -436,7 +436,7 @@ public class Analysis implements Serializable, AnalysisInterface {
             sb.append("\n");
         } else {
             sb.append(String.format("%30s", "Column headers: "));
-            for (String header : massSpecExtractedData.getColumnHeaders()) {
+            for (String header : massSpecExtractedData.getUsedColumnHeaders()) {
                 sb.append(header + ", ");
             }
             sb.replace(sb.length() - 2, sb.length(), "");

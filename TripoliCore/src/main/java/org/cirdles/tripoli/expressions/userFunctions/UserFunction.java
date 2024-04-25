@@ -26,13 +26,19 @@ public class UserFunction implements Serializable {
     @Serial
     private static final long serialVersionUID = -5408855769497340457L;
     private String name;
+    private String etReduxName;
     private int columnIndex;
     private boolean treatAsIsotopicRatio;
     private boolean displayed;
     private boolean inverted;
 
+    public UserFunction(String name, int columnIndex) {
+        this(name, columnIndex, false, true);
+    }
+
     public UserFunction(String name, int columnIndex, boolean treatAsIsotopicRatio, boolean displayed) {
         this.name = name;
+        this.etReduxName = "";
         this.columnIndex = columnIndex;
         this.treatAsIsotopicRatio = treatAsIsotopicRatio;
         this.displayed = displayed;
@@ -41,6 +47,14 @@ public class UserFunction implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+    public String getEtReduxName() {
+        return etReduxName;
+    }
+
+    public void setEtReduxName(String etReduxName) {
+        this.etReduxName = etReduxName;
     }
 
     public String showInvertedRatioName() {
@@ -58,6 +72,10 @@ public class UserFunction implements Serializable {
 
     public boolean isTreatAsIsotopicRatio() {
         return treatAsIsotopicRatio;
+    }
+
+    public void setTreatAsIsotopicRatio(boolean treatAsIsotopicRatio) {
+        this.treatAsIsotopicRatio = treatAsIsotopicRatio;
     }
 
     public boolean isDisplayed() {
