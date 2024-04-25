@@ -45,11 +45,11 @@ public class AllBlockInitForDataLiteOne {
             }
         }
 
-        return new AllBlockInitForMCMC.PlottingData(
+        return (countOfBlocks > 0) ? new AllBlockInitForMCMC.PlottingData(
                 null,
                 null,
                 singleBlockRawDataLiteSetRecords,
-                singleBlockRawDataLiteSetRecords[0].blockRawDataLiteArray().length, true, 1);
+                singleBlockRawDataLiteSetRecords[0].blockRawDataLiteArray().length, true, 1) : null;
     }
 
     private static SingleBlockRawDataLiteSetRecord prepareSingleBlockDataLiteCaseOne(int blockID, MassSpecExtractedData massSpecExtractedData) {

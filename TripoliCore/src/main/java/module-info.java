@@ -26,6 +26,8 @@ module Tripoli.TripoliCore {
     requires jakarta.xml.bind;
     requires java.xml.bind;
     requires jblas;
+    requires xstream;
+    requires java.logging;
 
 
     exports org.cirdles.tripoli;

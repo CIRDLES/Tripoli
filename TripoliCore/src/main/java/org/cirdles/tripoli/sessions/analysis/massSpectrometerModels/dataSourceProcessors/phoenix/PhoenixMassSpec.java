@@ -33,6 +33,8 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.lang.StrictMath.ceil;
+
 /**
  * @author James F. Bowring
  */
@@ -73,11 +75,29 @@ public enum PhoenixMassSpec {
             }
         }
 
+        String localDateTimeZero = lines[startCtrlSheet + 21].split("\t")[2];
+
 //            String sampleName = lines[startCtrlSheet + 7].split("\t")[3];
         String methodName = lines[startCtrlSheet + 11].split("\t")[2];
         int cyclesPerBlock = Integer.parseInt(lines[startCtrlSheet + 12].split("\t")[3]);
-        int blockCount = Integer.parseInt(lines[startCtrlSheet + 13].split("\t")[3]);
-        String localDateTimeZero = lines[startCtrlSheet + 21].split("\t")[2];
+
+        // April 2024 to handle aborted runs, find end of cycles and divide by cyclesperblock
+        int cyclesStart = startCycleSheet + 16;
+        int startBlockSheet = 0;
+        for (int i = startCycleSheet; i < lines.length; i++) {
+            if (lines[i].trim().compareTo("BLOCK") == 0) {
+                startBlockSheet = i;
+                break;
+            }
+        }
+
+        int lastCycleNumber;
+        if (lines[startBlockSheet - 2].startsWith("0")) {
+            lastCycleNumber = 0;
+        } else {
+            lastCycleNumber = Integer.parseInt(lines[startBlockSheet - 2].split("\t")[0]);
+        }
+        int blockCount = (int) ceil(lastCycleNumber / cyclesPerBlock) + (int) Math.signum(lastCycleNumber % cyclesPerBlock);
 
         MassSpecExtractedData.MassSpecExtractedHeader header = new MassSpecExtractedData.MassSpecExtractedHeader(
                 "IonVantage",
@@ -90,12 +110,14 @@ public enum PhoenixMassSpec {
         );
         massSpecExtractedData.setHeader(header);
 
-        int cyclesStart = startCycleSheet + 16;
         List<List<String>> dataByBlocks = new ArrayList<>();
         for (int blockID = 1; blockID <= blockCount; blockID++) {
+
             List<String> dataByBlock = new ArrayList<>();
             for (int cycleNum = 1; cycleNum <= cyclesPerBlock; cycleNum++) {
-                dataByBlock.add(lines[cyclesStart + (blockID - 1) * cyclesPerBlock + cycleNum]);
+                if ((lastCycleNumber % cyclesPerBlock) == 0 || (lastCycleNumber % cyclesPerBlock) > cycleNum) {
+                    dataByBlock.add(lines[cyclesStart + (blockID - 1) * cyclesPerBlock + cycleNum]);
+                }
             }
             dataByBlocks.add(dataByBlock);
             List<String[]> cycleDataByLineSplit = new ArrayList<>();

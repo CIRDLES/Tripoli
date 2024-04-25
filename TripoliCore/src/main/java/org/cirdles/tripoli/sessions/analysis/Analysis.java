@@ -249,9 +249,11 @@ public class Analysis implements Serializable, AnalysisInterface {
             }
         } else {
             // case1
+            analysisName = dataFilePath.toFile().getName().substring(0, dataFilePath.toFile().getName().length() - 4);
             analysisMethod = AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData);
             initializeBlockProcessing();
         }
+
     }
 
     public void initializeBlockProcessing() {
@@ -394,7 +396,7 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public final String prettyPrintAnalysisSummary() {
         return analysisName +
-                SPACES_100.substring(0, 40 - analysisName.length()) +
+                SPACES_150.substring(0, 100 - analysisName.length()) +
                 (null == analysisMethod ? "NO Method" : analysisMethod.prettyPrintMethodSummary(false));
     }
 
@@ -421,18 +423,20 @@ public class Analysis implements Serializable, AnalysisInterface {
         StringBuilder sb = new StringBuilder();
         if (getAnalysisCaseNumber() == 1) {
             sb.append(String.format("%30s", "Column headers: "));
-            for (String header : massSpecExtractedData.getColumnHeaders()) {
+            for (String header : massSpecExtractedData.getUsedColumnHeaders()) {
                 sb.append(header + ", ");
             }
             sb.replace(sb.length() - 2, sb.length(), "");
             sb.append("\n");
             sb.append(String.format("%30s", "Block count: "))
-                    .append(String.format("%-3s", massSpecExtractedData.getBlocksDataLite().size()))
-                    .append(String.format("%-3s", "each with " + massSpecExtractedData.getBlocksDataLite().get(1).cycleData().length) + " cycles");
+                    .append(String.format("%-3s", massSpecExtractedData.getBlocksDataLite().size()));
+            if (massSpecExtractedData.getBlocksDataLite().size() > 0) {
+                sb.append(String.format("%-3s", "each with " + massSpecExtractedData.getBlocksDataLite().get(1).cycleData().length) + " cycles");
+            }
             sb.append("\n");
         } else {
             sb.append(String.format("%30s", "Column headers: "));
-            for (String header : massSpecExtractedData.getColumnHeaders()) {
+            for (String header : massSpecExtractedData.getUsedColumnHeaders()) {
                 sb.append(header + ", ");
             }
             sb.replace(sb.length() - 2, sb.length(), "");

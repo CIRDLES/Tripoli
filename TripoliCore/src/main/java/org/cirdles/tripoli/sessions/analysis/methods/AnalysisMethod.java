@@ -81,14 +81,60 @@ public class AnalysisMethod implements Serializable {
 
     public static AnalysisMethod createAnalysisMethodFromCase1(
             MassSpecExtractedData massSpecExtractedData) {
+        int r270_267ColumnIndex = -1;
+        int r265_267ColumnIndex = -1;
         AnalysisMethod analysisMethod = new AnalysisMethod("Derived for Case1", massSpecExtractedData.getMassSpectrometerContext());
         String[] columnHeaders = massSpecExtractedData.getColumnHeaders();
         // ignore first two columns: Cycle, Time
         String regex = "[^alpha].*\\d?:?\\(?\\d{2,3}.{0,2}\\/\\d?:?\\d{2,3}.{0,2}.*";
+
         for (int i = 2; i < columnHeaders.length; i++) {
-//            System.out.println(columnHeaders[i] + "   " + columnHeaders[i].matches(regex));
-            UserFunction userFunction = new UserFunction(columnHeaders[i].trim(), i - 2, columnHeaders[i].matches(regex), true);//columnHeaders[i].matches(regex));
+            UserFunction userFunction = new UserFunction(columnHeaders[i].trim(), i - 2);
+            if (columnHeaders[i].matches(regex)) {
+                userFunction.setTreatAsIsotopicRatio(true);
+                int indexOfDivide = columnHeaders[i].indexOf("/");
+                // assume three digits / three digits
+                String numerator = columnHeaders[i].substring(indexOfDivide - 3, 3);
+                String denominator = columnHeaders[i].substring(indexOfDivide + 1, indexOfDivide + 4);
+                String etReduxRatioName = numerator + "_" + denominator;
+                userFunction.setEtReduxName(etReduxRatioName);
+
+                if (etReduxRatioName.compareTo("270_267") == 0) {
+                    r270_267ColumnIndex = i - 2;
+                }
+                if (etReduxRatioName.compareTo("265_267") == 0) {
+                    r265_267ColumnIndex = i - 2;
+                }
+            }
             analysisMethod.getUserFunctions().add(userFunction);
+        }
+
+        // Uranium Oxide Correction : https://docs.google.com/document/d/14PPEDEJPylNMavpJDpYSuemNb0gF5dz_To3Ek1Y_Agw/edit#bookmark=id.xvyds659gu4x
+        if ((r270_267ColumnIndex > -1) && (r265_267ColumnIndex > -1)) {
+            massSpecExtractedData.expandCycleDataForUraniumOxideCorrection(r270_267ColumnIndex, r265_267ColumnIndex, 0.00205);
+            String[] columnHeadersExpanded = new String[columnHeaders.length + 3];
+
+            System.arraycopy(columnHeaders, 0, columnHeadersExpanded, 0, columnHeaders.length);
+
+            columnHeadersExpanded[columnHeaders.length + 0] = "233/235oc";
+            UserFunction userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length], columnHeaders.length - 2, true, true);
+            userFunction.setEtReduxName("r233_235oc");
+            analysisMethod.getUserFunctions().add(userFunction);
+
+            columnHeadersExpanded[columnHeaders.length + 1] = "238/235oc";
+            userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length + 1], columnHeaders.length - 1, true, true);
+            userFunction.setEtReduxName("r238_235oc");
+            analysisMethod.getUserFunctions().add(userFunction);
+
+            columnHeadersExpanded[columnHeaders.length + 2] = "238/233oc";
+            userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length + 2], columnHeaders.length, true, true);
+            userFunction.setEtReduxName("r238_233oc");
+            analysisMethod.getUserFunctions().add(userFunction);
+
+            massSpecExtractedData.setColumnHeaders(columnHeadersExpanded);
+
+            System.out.println(columnHeaders[r270_267ColumnIndex + 2]);
+
         }
 
         return analysisMethod;
@@ -251,11 +297,14 @@ public class AnalysisMethod implements Serializable {
 
     public String prettyPrintMethodSummary(boolean verbose) {
         StringBuilder retVal = new StringBuilder();
-        retVal.append("Method: ").append(methodName).append(SPACES_100, 0, 55 - methodName.length()).append(verbose ? "\nSpecies: " : "  Species: ");
-        List<SpeciesRecordInterface> speciesAlphabetic = new ArrayList<>(speciesList);
-        Collections.sort(speciesAlphabetic, Comparator.comparing(s -> s.getAtomicMass()));
-        for (SpeciesRecordInterface species : speciesAlphabetic) {
-            retVal.append(species.prettyPrintShortForm() + " ");
+        retVal.append("Method: ").append(methodName).append(SPACES_100, 0, 55 - methodName.length());
+        if (speciesList.size() > 0) {
+            retVal.append(verbose ? "\nSpecies: " : "  Species: ");
+            List<SpeciesRecordInterface> speciesAlphabetic = new ArrayList<>(speciesList);
+            Collections.sort(speciesAlphabetic, Comparator.comparing(s -> s.getAtomicMass()));
+            for (SpeciesRecordInterface species : speciesAlphabetic) {
+                retVal.append(species.prettyPrintShortForm() + " ");
+            }
         }
         if (verbose) {
             retVal.append("\nIsotopicRatios: ");

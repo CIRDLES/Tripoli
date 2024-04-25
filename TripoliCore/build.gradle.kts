@@ -72,6 +72,8 @@ dependencies {
     // https://mvnrepository.com/artifact/org.jblas/jblas
     implementation("org.jblas:jblas:1.2.5")
 
+    // https://mvnrepository.com/artifact/com.thoughtworks.xstream/xstream
+    implementation("com.thoughtworks.xstream:xstream:1.4.20")
 
 
     testImplementation("com.github.cirdles:commons:bc38781605")
@@ -84,14 +86,12 @@ tasks.test {
     useJUnitPlatform()
 }
 
-
 val timestamp = {
     SimpleDateFormat("dd MMMM yyyy").format(Date())
 }
 repositories {
     mavenCentral()
 }
-
 
 extraJavaModuleInfo {
     failOnMissingModuleInfo.set(false)
@@ -105,7 +105,7 @@ extraJavaModuleInfo {
 
     automaticModule("org.jblas:jblas", "jblas")
 
-    //automaticModule("javax.xml.bind:jaxb-api", "jaxb.api")//javax.xml.bind:jaxb-api:2.3.1
+    automaticModule("com.thoughtworks.xstream:xstream", "xstream")//javax.xml.bind:jaxb-api:2.3.1
 }
 
 
