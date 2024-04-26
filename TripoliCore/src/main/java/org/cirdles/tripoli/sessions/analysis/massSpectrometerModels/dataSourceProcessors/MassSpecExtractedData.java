@@ -50,7 +50,7 @@ public class MassSpecExtractedData implements Serializable {
     public void populateHeader(List<String[]> headerData) {
         String softwareVersion = "";
         String filename = "";
-//        String sampleName = "";
+        String sampleName = "";
         String methodName = "";
         boolean isCorrected = false;
         boolean hasBChannels = false;
@@ -70,6 +70,9 @@ public class MassSpecExtractedData implements Serializable {
                         hasBChannels = Boolean.parseBoolean(headerStrings[1].trim().toUpperCase().replace("YES", "TRUE"));
                 case "TIMEZERO" -> localDateTimeZero = headerStrings[1].trim();
                 case "CYCLESTOMEASURE" -> cyclesPerBlock = Integer.parseInt(headerStrings[1].trim());
+                case "SAMPLEID" -> {
+                    sampleName = headerStrings[1].trim();
+                }
 
                 // Triton
                 case "DATA VERSION" -> softwareVersion = headerStrings[1].trim();
@@ -77,7 +80,7 @@ public class MassSpecExtractedData implements Serializable {
 
                 // Nu
                 case "VERSION NUMBER" -> softwareVersion = headerStrings[1].trim();
-//                case "SAMPLE NAME" -> sampleName = headerStrings[1].trim();
+                case "SAMPLE NAME" -> sampleName = headerStrings[1].trim();
                 case "ANALYSIS FILE NAME" -> filename = headerStrings[1].trim();
                 case "NUMBER OF MEASUREMENTS PER BLOCK" -> cyclesPerBlock = Integer.parseInt(headerStrings[1].trim());
             }
@@ -85,6 +88,7 @@ public class MassSpecExtractedData implements Serializable {
         header = new MassSpecExtractedHeader(
                 softwareVersion,
                 filename,
+                sampleName,
                 methodName,
                 isCorrected,
                 hasBChannels,
@@ -96,8 +100,8 @@ public class MassSpecExtractedData implements Serializable {
     public String printHeader() {
         StringBuilder sb = new StringBuilder();
         sb.append("Software Version: " + header.softwareVersion() + "\n");
-        sb.append("Sample: " + "unknown" + "\n");
-        sb.append("Fraction: " + "unknown" + "\n");
+        sb.append("Sample: " + header.sampleName + "\n");
+        sb.append("Fraction: " + header.sampleName + "\n");
         sb.append("Method Name: " + header.methodName() + "\n");
         sb.append("Time Zero: " + header.localDateTimeZero() + "\n\n");
         return sb.toString();
@@ -249,6 +253,7 @@ public class MassSpecExtractedData implements Serializable {
     public record MassSpecExtractedHeader(
             String softwareVersion,
             String filename,
+            String sampleName,
             String methodName,
             boolean isCorrected,
             boolean hasBChannels,

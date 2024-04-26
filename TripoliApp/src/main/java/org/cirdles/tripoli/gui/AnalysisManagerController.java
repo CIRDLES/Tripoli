@@ -97,6 +97,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public Tab selectColumnsToPlot;
     public VBox ratiosVBox;
     public VBox functionsVBox;
+    public TextField fractionNameTextField;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -269,6 +270,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             assert null != analysis;
             analysis.setAnalysisSampleName(newValue.isBlank() ? MISSING_STRING_FIELD : newValue);
         });
+        fractionNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            assert null != analysis;
+            analysis.setAnalysisFractionName(newValue.isBlank() ? MISSING_STRING_FIELD : newValue);
+        });
         sampleDescriptionTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             assert null != analysis;
             analysis.setAnalysisSampleDescription(newValue.isBlank() ? MISSING_STRING_FIELD : newValue);
@@ -287,6 +292,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         sampleNameTextField.setEditable(analysis.isMutable());
         sampleNameTextField.setText(analysis.getAnalysisSampleName());
+
+        fractionNameTextField.setEditable(analysis.isMutable());
+        fractionNameTextField.setText(analysis.getAnalysisFractionName());
 
         sampleDescriptionTextField.setEditable(analysis.isMutable());
         sampleDescriptionTextField.setText(analysis.getAnalysisSampleDescription());
@@ -538,6 +546,11 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 checkBoxRatio.setSelected(userFunction.isDisplayed());
                 checkBoxRatio.selectedProperty().addListener((observable, oldValue, newValue) -> {
                     ((UserFunction) checkBoxRatio.getUserData()).setDisplayed(newValue);
+                    ((UserFunction) checkBoxRatio.getUserData()).setInverted(false);
+                    if (newValue) {
+                        int indexOfCheckBox = ratioCheckBoxList.indexOf(checkBoxRatio);
+                        ratioInvertedCheckBoxList.get(indexOfCheckBox).setSelected(false);
+                    }
                     int selectedR = 0;
                     for (CheckBox checkBoxRatio2 : ratioCheckBoxList) {
                         selectedR += (checkBoxRatio2.isSelected() ? 1 : 0);
@@ -551,7 +564,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 ratioCheckBoxList.add(checkBoxRatio);
                 checkBoxRatio.setPrefWidth(175);
 
-                CheckBox checkBoxInvert = new CheckBox("Invert to: " + userFunction.showInvertedRatioName());
+                CheckBox checkBoxInvert = new CheckBox("Invert");
                 checkBoxInvert.setUserData(userFunction);
                 checkBoxInvert.setSelected(userFunction.isInverted());
                 checkBoxInvert.setDisable(!userFunction.isDisplayed());

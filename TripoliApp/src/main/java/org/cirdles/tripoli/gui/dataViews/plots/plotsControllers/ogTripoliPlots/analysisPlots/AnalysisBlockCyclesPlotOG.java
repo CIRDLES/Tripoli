@@ -267,7 +267,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
         g2d.setFill(Paint.valueOf("RED"));
         g2d.setFont(Font.font("SansSerif", 16));
-        String title = userFunction.getName();
+        String title = userFunction.showName();
         if (isRatio && logScale) {
             title = "LogRatio " + title;
         }

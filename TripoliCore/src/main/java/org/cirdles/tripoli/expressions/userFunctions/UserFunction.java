@@ -57,9 +57,9 @@ public class UserFunction implements Serializable {
         this.etReduxName = etReduxName;
     }
 
-    public String showInvertedRatioName() {
+    public String showName() {
         String retVal = name;
-        if (treatAsIsotopicRatio) {
+        if (inverted && treatAsIsotopicRatio) {
             String[] nameSplit = name.split("/");
             retVal = nameSplit[1] + "/" + nameSplit[0];
         }

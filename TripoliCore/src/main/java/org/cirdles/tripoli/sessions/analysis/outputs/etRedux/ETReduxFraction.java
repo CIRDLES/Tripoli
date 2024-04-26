@@ -23,7 +23,9 @@ import org.cirdles.tripoli.utilities.xml.XMLSerializerInterface;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -51,20 +53,14 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
 
     public ETReduxFraction() {
         this("", "", "", 0.0);
-
-        this.measuredRatios = new MeasuredRatioModel[org.cirdles.tripoli.DataDictionary.UPbReduxMeasuredRatioNames.length];
-        for (int i = 0; i < measuredRatios.length; i++) {
-            measuredRatios[i] =
-                    new MeasuredRatioModel(
-                            DataDictionary.UPbReduxMeasuredRatioNames[i], 0.0, 0.0, false, false);
-        }
     }
 
-    public ETReduxFraction(String sampleName, String fractionID, String ratioType, double r18O_16O) {
+    private ETReduxFraction(String sampleName, String fractionID, String ratioType, double r18O_16O) {
         this.sampleName = sampleName;
         this.fractionID = fractionID;
         this.ratioType = ratioType;
         this.pedigree = "None";
+        this.measuredRatios = new MeasuredRatioModel[0];
         this.meanAlphaU = 0.0;
         this.meanAlphaPb = 0.0;
         this.labUBlankMass = 0.0;
@@ -72,6 +68,42 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
         this.r238_235b = 0.0;
         this.r238_235s = 0.0;
         this.tracerMass = 0.0;
+    }
+
+    public static ETReduxFraction buildExportFraction(String sampleName, String fractionID, String ratioType, double r18O_16O){
+        ETReduxFraction etReduxFraction = new ETReduxFraction(sampleName, fractionID, ratioType, r18O_16O);
+
+        // filter measured ratios
+        // modified april 2010 to split "U" fractions from "Pb" fractions parts for LiveUpdate
+        if (ratioType.compareToIgnoreCase("U") == 0) {
+            etReduxFraction.measuredRatios = new MeasuredRatioModel[DataDictionary.etReduxUraniumMeasuredRatioNames.length];
+        } else {
+            etReduxFraction.measuredRatios = new MeasuredRatioModel[DataDictionary.etReduxLeadMeasuredRatioNames.length];
+        }
+        for (int i = 0; i < etReduxFraction.measuredRatios.length; i++) {
+            etReduxFraction.measuredRatios[i] =
+                    new MeasuredRatioModel(
+                            (ratioType.compareTo("U")==0)?
+                                    DataDictionary.etReduxUraniumMeasuredRatioNames[i]:
+                                    DataDictionary.etReduxLeadMeasuredRatioNames[i], 0.0, 0.0, false, false);
+        }
+
+        return etReduxFraction;
+    }
+
+    public MeasuredRatioModel getMeasuredRatioByName(String myRatioName) {
+        // NOV 2009 NOTE: Tripoli still uses no r and no m ... TODO: fix this!!
+        // April 2024 - still true and also for new Tripoli
+        String ratioName = myRatioName.trim();
+        MeasuredRatioModel retval = null;
+
+        // look for ratio
+        for (int i = 0; i < measuredRatios.length; i++) {
+            if (measuredRatios[i].getName().equalsIgnoreCase(ratioName)) {
+                retval = measuredRatios[i];
+            }
+        }
+        return retval;
     }
 
     public static String getSchemaURI() {

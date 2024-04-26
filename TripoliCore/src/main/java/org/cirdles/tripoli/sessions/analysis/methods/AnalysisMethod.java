@@ -32,6 +32,7 @@ import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineTable;
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceTable;
+import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -118,22 +119,33 @@ public class AnalysisMethod implements Serializable {
 
             columnHeadersExpanded[columnHeaders.length + 0] = "233/235oc";
             UserFunction userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length], columnHeaders.length - 2, true, true);
-            userFunction.setEtReduxName("r233_235oc");
+            userFunction.setEtReduxName("233_235");
             analysisMethod.getUserFunctions().add(userFunction);
 
             columnHeadersExpanded[columnHeaders.length + 1] = "238/235oc";
             userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length + 1], columnHeaders.length - 1, true, true);
-            userFunction.setEtReduxName("r238_235oc");
+            userFunction.setEtReduxName("238_235");
             analysisMethod.getUserFunctions().add(userFunction);
 
             columnHeadersExpanded[columnHeaders.length + 2] = "238/233oc";
             userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length + 2], columnHeaders.length, true, true);
-            userFunction.setEtReduxName("r238_233oc");
+            userFunction.setEtReduxName("238_233");
             analysisMethod.getUserFunctions().add(userFunction);
 
             massSpecExtractedData.setColumnHeaders(columnHeadersExpanded);
 
             System.out.println(columnHeaders[r270_267ColumnIndex + 2]);
+
+            // test export
+            ETReduxFraction etReduxFraction = ETReduxFraction.buildExportFraction("samp1", "frac1", "U", 0.00205);
+            for (int i = 0; i < analysisMethod.getUserFunctions().size(); i ++){
+                String etReduxName = analysisMethod.getUserFunctions().get(i).getEtReduxName();
+                if (!etReduxName.isBlank() &&  etReduxFraction.getMeasuredRatioByName(etReduxName) != null){
+                    etReduxFraction.getMeasuredRatioByName(etReduxName).setValue(555);
+                    etReduxFraction.getMeasuredRatioByName(etReduxName).setOxideCorr(true);
+                }
+            }
+            etReduxFraction.serializeXMLObject("HELP.xml");
 
         }
 

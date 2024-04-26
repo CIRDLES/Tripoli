@@ -21,6 +21,7 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import org.cirdles.tripoli.DataDictionary;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredRatioModel;
 
@@ -65,30 +66,7 @@ public class ETReduxFractionXMLConverter implements Converter {
         writer.endNode();
 
         writer.startNode("measuredRatios");
-        // modified april 2010 to split "U" fractions from "Pb" fractions parts for LiveUpdate
-        String ratioType = etReduxFraction.getRatioType();
-        ArrayList<MeasuredRatioModel> filteredMeasuredRatios = new ArrayList<MeasuredRatioModel>();
-        if (ratioType.equalsIgnoreCase("U")) {
-            for (MeasuredRatioModel vm : etReduxFraction.getMeasuredRatios()) {
-                if (vm.getName().contains("3")) {
-                    filteredMeasuredRatios.add(vm);
-                }
-            }
-        } else if (ratioType.equalsIgnoreCase("Pb")) {
-            for (MeasuredRatioModel vm : etReduxFraction.getMeasuredRatios()) {
-                if (vm.getName().contains("0")) {
-                    filteredMeasuredRatios.add(vm);
-                }
-            }
-        } else {
-            filteredMeasuredRatios.addAll(Arrays.asList(etReduxFraction.getMeasuredRatios()));
-        }
-        // now convert arrayList to array
-        MeasuredRatioModel[] tempArray = new MeasuredRatioModel[filteredMeasuredRatios.size()];
-        for (int i = 0; i < filteredMeasuredRatios.size(); i++) {
-            tempArray[i] = filteredMeasuredRatios.get(i);
-        }
-        context.convertAnother(tempArray);
+        context.convertAnother(etReduxFraction.getMeasuredRatios());
         writer.endNode();
 
         writer.startNode("meanAlphaU");
