@@ -38,6 +38,7 @@ import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
+import org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
@@ -66,6 +67,7 @@ import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDia
 import static org.cirdles.tripoli.gui.utilities.UIUtilities.showTab;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.*;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.*;
+import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.generateGeometricMeanStats;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compareAnalysisMethodToDataFileSpecs;
 
 public class AnalysisManagerController implements Initializable, AnalysisManagerCallbackI {
@@ -1111,8 +1113,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     selectedOneSigmaPct = geoWeightedMeanRatioPlusOneSigmaPct;
 
                 } else {
-                    selectedMean = analysisStatsRecord.cycleModeMean();
-                    selectedOneSigmaPct = analysisStatsRecord.cycleModeStandardDeviation();
+                    GeometricMeanStatsRecord geometricMeanStatsRecord =
+                            generateGeometricMeanStats(analysisStatsRecord.cycleModeMean(), analysisStatsRecord.cycleModeStandardDeviation(), analysisStatsRecord.cycleModeStandardError());
+                    double geoMean = geometricMeanStatsRecord.geoMean();
+                    double geoMeanPlusOneStandardError = geometricMeanStatsRecord.geoMeanPlusOneStdErr();
+                    double geoMeanRatioPlusOneStdErrPct = (geoMeanPlusOneStandardError - geoMean) / geoMean * 100.0;
+
+                    selectedMean = geoMean;
+                    selectedOneSigmaPct = geoMeanRatioPlusOneStdErrPct;
                 }
                 measuredRatioModel.setValue(selectedMean);
                 measuredRatioModel.setOneSigma(selectedOneSigmaPct);
