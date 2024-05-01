@@ -21,11 +21,11 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredRatioModel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class ETReduxFractionXMLConverter implements Converter {
     /**
@@ -57,7 +57,7 @@ public class ETReduxFractionXMLConverter implements Converter {
         writer.endNode();
 
         writer.startNode("ratioType");
-        writer.setValue(etReduxFraction.getRatioType());
+        writer.setValue(etReduxFraction.getEtReduxExportType().name());
         writer.endNode();
 
         writer.startNode("pedigree");
@@ -65,30 +65,7 @@ public class ETReduxFractionXMLConverter implements Converter {
         writer.endNode();
 
         writer.startNode("measuredRatios");
-        // modified april 2010 to split "U" fractions from "Pb" fractions parts for LiveUpdate
-        String ratioType = etReduxFraction.getRatioType();
-        ArrayList<MeasuredRatioModel> filteredMeasuredRatios = new ArrayList<MeasuredRatioModel>();
-        if (ratioType.equalsIgnoreCase("U")) {
-            for (MeasuredRatioModel vm : etReduxFraction.getMeasuredRatios()) {
-                if (vm.getName().contains("3")) {
-                    filteredMeasuredRatios.add(vm);
-                }
-            }
-        } else if (ratioType.equalsIgnoreCase("Pb")) {
-            for (MeasuredRatioModel vm : etReduxFraction.getMeasuredRatios()) {
-                if (vm.getName().contains("0")) {
-                    filteredMeasuredRatios.add(vm);
-                }
-            }
-        } else {
-            filteredMeasuredRatios.addAll(Arrays.asList(etReduxFraction.getMeasuredRatios()));
-        }
-        // now convert arrayList to array
-        MeasuredRatioModel[] tempArray = new MeasuredRatioModel[filteredMeasuredRatios.size()];
-        for (int i = 0; i < filteredMeasuredRatios.size(); i++) {
-            tempArray[i] = filteredMeasuredRatios.get(i);
-        }
-        context.convertAnother(tempArray);
+        context.convertAnother(etReduxFraction.getMeasuredRatios());
         writer.endNode();
 
         writer.startNode("meanAlphaU");
@@ -141,7 +118,7 @@ public class ETReduxFractionXMLConverter implements Converter {
         reader.moveUp();
 
         reader.moveDown();
-        etReduxFraction.setRatioType(reader.getValue());
+        etReduxFraction.setEtReduxExportType(TripoliConstants.ETReduxExportTypeEnum.valueOf(reader.getValue()));
         reader.moveUp();
 
         reader.moveDown();

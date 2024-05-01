@@ -77,7 +77,7 @@ public enum PhoenixMassSpec {
 
         String localDateTimeZero = lines[startCtrlSheet + 21].split("\t")[2];
 
-//            String sampleName = lines[startCtrlSheet + 7].split("\t")[3];
+        String sampleName = lines[startCtrlSheet + 7].split("\t")[3];
         String methodName = lines[startCtrlSheet + 11].split("\t")[2];
         int cyclesPerBlock = Integer.parseInt(lines[startCtrlSheet + 12].split("\t")[3]);
 
@@ -102,6 +102,7 @@ public enum PhoenixMassSpec {
         MassSpecExtractedData.MassSpecExtractedHeader header = new MassSpecExtractedData.MassSpecExtractedHeader(
                 "IonVantage",
                 inputDataFile.getFileName().toFile().getName(),
+                sampleName,
                 methodName,
                 false,
                 false,
@@ -345,15 +346,16 @@ public enum PhoenixMassSpec {
             for (String line : contentsByLine) {
                 if (!line.trim().isBlank()) {
                     if (line.startsWith("#COLLECTORS")) {
-                        massSpecExtractedData.populateHeader(headerByLineSplit);
+//                        massSpecExtractedData.populateHeader(headerByLineSplit);
                         phase = 1;
                     } else if (line.startsWith("#USERTABLES")) {
                         massSpecExtractedData.populateDetectors(detectorsByLineSplit); // indeterminate location
                         phase = -1;
                     } else if (line.startsWith("#SAMPLELIST")) {
                         massSpecExtractedData.populateDetectors(detectorsByLineSplit); // indeterminate location
-                        phase = -1;
+                        phase = 9;
                     } else if (line.startsWith("#BASELINES")) {
+                        massSpecExtractedData.populateHeader(headerByLineSplit);
                         phase = -1;
                     } else if (line.startsWith("#CYCLES")) {
                         phase = 3;
@@ -401,6 +403,9 @@ public enum PhoenixMassSpec {
                             massSpecExtractedData.addBlockLiteRecord(
                                     parseAndBuildSingleBlockTIMSDPRecord(currentBlockID, dataByBlocks.get(currentBlockID - 1)));
                             phase = -1;
+                        }
+                        case 9 -> {
+                            headerByLineSplit.add(line.split(","));
                         }
                     }
                 }

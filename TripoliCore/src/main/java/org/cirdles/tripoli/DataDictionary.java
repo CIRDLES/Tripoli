@@ -19,38 +19,7 @@ package org.cirdles.tripoli;
 
 public enum DataDictionary {
     ;
-    public static String[] EarthTimeBariumPhosphateICIsotopeNames = new String[]{
-            "pct130Ba_BaPO2",
-            "pct132Ba_BaPO2",
-            "pct134Ba_BaPO2",
-            "pct135Ba_BaPO2",
-            "pct136Ba_BaPO2",
-            "pct137Ba_BaPO2",
-            "pct138Ba_BaPO2",
-            "pct16O_BaPO2",
-            "pct17O_BaPO2",
-            "pct18O_BaPO2"
-    };
-
-    public static String[] EarthTimeThalliumICIsotopeNames = new String[]{
-            "pct203Tl_Tl",
-            "pct205Tl_Tl"
-    };
-
-    public static String[] EarthTimeTracerRatioNames = new String[]{
-            "206_204",
-            "207_206",
-            "206_208",
-            "206_205",
-            "207_205",
-            "208_205",
-            "202_205",
-            "238_235",
-            "233_235",
-            "233_236",
-            "235_205"};
-
-    public static String[] UPbReduxMeasuredRatioNames = new String[]{
+    public static String[] etReduxLeadMeasuredRatioNames = {
             "206_204",
             "207_204",
             "208_204",
@@ -60,50 +29,29 @@ public enum DataDictionary {
             "206_205",
             "207_205",
             "208_205",
-            "202_205",
-            "238_236",     //jan 2011
+            "202_205"};
+
+    public static String[] etReduxUraniumMeasuredRatioNames = {
+            "238_236",
             "233_236",
             "238_235",
             "233_235",
             "238_233"};
-    public static String[] isotopeNames = new String[]
-            {"Pb205",
-                    "U235"};
-    public static String[] TracerTypes = new String[]
-            {"mixed 205-235",
-                    "mixed 205-233-235",
-                    "mixed 208-235",
-                    "mixed 205-233-236",
-                    "mixed 202-205-233-235",
-                    "mixed 202-205-233-236",
-                    "mixed 205-233-235-230Th"};
 
-    public static String getEarthTimeBariumPhosphateICIsotopeNames(int index) {
-        return EarthTimeBariumPhosphateICIsotopeNames[index];
-    }
-
-    public static String getEarthTimeThalliumICIsotopeNames(int index) {
-        return EarthTimeThalliumICIsotopeNames[index];
-    }
-
-    public static String getTracerRatioName(int index) {
-        return "r" + EarthTimeTracerRatioNames[index] + "t";
-    }
-
-    public static String getTracerIsotopeConcName(int index) {
-        return "conc" + isotopeNames[index] + "t";
-    }
-
-    public static String getMeasuredRatioName(int index) {
-        return "r" + UPbReduxMeasuredRatioNames[index] + "m";
-    }
-
-    public static String getElementNameOfRatio(String name) {
-        if (name.substring(1, 1).equals("0"))
-            return "Pb";
-        else
-            return "U";
+    public static boolean isLegalETReduxName(String name) {
+        boolean retVal = false;
+        if (name.contains("23")) {
+            for (int i = 0; i < etReduxUraniumMeasuredRatioNames.length; i++) {
+                retVal = retVal || etReduxUraniumMeasuredRatioNames[i].compareTo(name) == 0;
+            }
+        } else if (name.contains("20")) {
+            for (int i = 0; i < etReduxLeadMeasuredRatioNames.length; i++) {
+                retVal = retVal || etReduxLeadMeasuredRatioNames[i].compareTo(name) == 0;
+            }
+        }
+        return retVal;
     }
 
 }
+
 

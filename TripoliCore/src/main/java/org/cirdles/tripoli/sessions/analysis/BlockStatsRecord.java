@@ -2,6 +2,8 @@ package org.cirdles.tripoli.sessions.analysis;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
+import java.io.Serializable;
+
 public record BlockStatsRecord(
         int blockID,
         boolean blockIncluded,
@@ -12,7 +14,7 @@ public record BlockStatsRecord(
         double variance,
         double standardDeviation,
         double standardError
-) {
+) implements Serializable {
     /**
      * // BLOCK MODE Functions calculate stats on logRatios (of Ratios) and user functions:
      * see https://docs.google.com/document/d/14PPEDEJPylNMavpJDpYSuemNb0gF5dz_To3Ek1Y_Agw/edit#bookmark=id.3tts8ahgz00i

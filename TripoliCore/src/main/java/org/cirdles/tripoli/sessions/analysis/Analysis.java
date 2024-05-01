@@ -22,6 +22,7 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.plots.PlotBuilder;
@@ -93,6 +94,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private String labName;
     private AnalysisMethod analysisMethod;
     private String analysisSampleName;
+    private String analysisFractionName;
     private String analysisSampleDescription;
     // note: Path is not serializable
     private String dataFilePathString;
@@ -102,6 +104,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private DescriptiveStatistics[] analysisSpeciesStats = new DescriptiveStatistics[0];
     private double analysisDalyFaradayGainMean;
     private double analysisDalyFaradayGainMeanOneSigmaAbs;
+    private TripoliConstants.ETReduxExportTypeEnum etReduxExportType = TripoliConstants.ETReduxExportTypeEnum.NONE;
 
     private Analysis() {
     }
@@ -110,6 +113,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         this.analysisName = analysisName;
         this.analysisMethod = analysisMethod;
         this.analysisSampleName = analysisSampleName;
+        this.analysisFractionName = MISSING_STRING_FIELD;
         analystName = MISSING_STRING_FIELD;
         labName = MISSING_STRING_FIELD;
         analysisSampleDescription = MISSING_STRING_FIELD;
@@ -254,6 +258,31 @@ public class Analysis implements Serializable, AnalysisInterface {
             initializeBlockProcessing();
         }
 
+        initSampleFractionNames();
+    }
+
+    private void initSampleFractionNames() {
+        /*
+        Our previous rules were "SampleName FractionName Infinite Free Text Here".
+        So, the sample name is the first block of unbroken text, then a space, then the fraction name
+        is the second block of unbroken text, then a space, then the user/mass spectrometer can append
+        any additional info to the end.  So, a common file names could be "FC1 z1 Pb" or
+        "FC1 z1 Pb second try after mass spectrometer exploded" or "FC1 z1 run3 U static Faraday 2024-04-25".
+        All have FC1 as the sample name and z1 as the fraction name.
+        No spaces are allowed in the sample name or the fraction name.
+         */
+        String sampleName = massSpecExtractedData.getHeader().sampleName();
+        if (!sampleName.isEmpty()) {
+            String sampleNameArray[] = sampleName.split(" ");
+
+            analysisSampleName = sampleNameArray[0];
+            analysisFractionName = sampleNameArray[1];
+            analysisSampleDescription = sampleName.substring(analysisSampleName.length() + analysisFractionName.length(), sampleName.length() - 1);
+        } else {
+            analysisSampleName = MISSING_STRING_FIELD;
+            analysisFractionName = MISSING_STRING_FIELD;
+            analysisSampleDescription = MISSING_STRING_FIELD;
+        }
     }
 
     public void initializeBlockProcessing() {
@@ -592,6 +621,14 @@ public class Analysis implements Serializable, AnalysisInterface {
         this.analysisSampleName = analysisSampleName;
     }
 
+    public String getAnalysisFractionName() {
+        return analysisFractionName;
+    }
+
+    public void setAnalysisFractionName(String analysisFractionName) {
+        this.analysisFractionName = analysisFractionName;
+    }
+
     public String getAnalysisSampleDescription() {
         return analysisSampleDescription;
     }
@@ -689,5 +726,13 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public int getAnalysisCaseNumber() {
         return massSpecExtractedData.getMassSpectrometerContext().getCaseNumber();
+    }
+
+    public TripoliConstants.ETReduxExportTypeEnum getEtReduxExportType() {
+        return etReduxExportType;
+    }
+
+    public void setEtReduxExportType(TripoliConstants.ETReduxExportTypeEnum etReduxExportType) {
+        this.etReduxExportType = etReduxExportType;
     }
 }

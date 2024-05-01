@@ -26,6 +26,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
@@ -36,6 +37,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.O
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
@@ -43,6 +45,8 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
+import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
+import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredRatioModel;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
@@ -54,13 +58,13 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.lang.StrictMath.exp;
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_RATIO_FLIPPER_URL;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
 import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDialog;
 import static org.cirdles.tripoli.gui.utilities.UIUtilities.showTab;
-import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectDataFile;
-import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.selectMethodFile;
+import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.*;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.*;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compareAnalysisMethodToDataFileSpecs;
 
@@ -97,6 +101,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public Tab selectColumnsToPlot;
     public VBox ratiosVBox;
     public VBox functionsVBox;
+    public TextField fractionNameTextField;
+    public ScrollPane ratiosScrollPane;
+    public ScrollPane functionsScrollPane;
+    public Button exportToETReduxButton;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -241,11 +249,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         OGTripoliViewController.analysis = analysis;
         analysisManagerGridPane.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_YELLOW));
 
-        populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
+//        populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
         setupListeners();
 
         try {
             previewAndSculptDataAction();
+            populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
         } catch (TripoliException e) {
 //            throw new RuntimeException(e);
         }
@@ -269,6 +278,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             assert null != analysis;
             analysis.setAnalysisSampleName(newValue.isBlank() ? MISSING_STRING_FIELD : newValue);
         });
+        fractionNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            assert null != analysis;
+            analysis.setAnalysisFractionName(newValue.isBlank() ? MISSING_STRING_FIELD : newValue);
+        });
         sampleDescriptionTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             assert null != analysis;
             analysis.setAnalysisSampleDescription(newValue.isBlank() ? MISSING_STRING_FIELD : newValue);
@@ -287,6 +300,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         sampleNameTextField.setEditable(analysis.isMutable());
         sampleNameTextField.setText(analysis.getAnalysisSampleName());
+
+        fractionNameTextField.setEditable(analysis.isMutable());
+        fractionNameTextField.setText(analysis.getAnalysisFractionName());
 
         sampleDescriptionTextField.setEditable(analysis.isMutable());
         sampleDescriptionTextField.setText(analysis.getAnalysisSampleDescription());
@@ -454,6 +470,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         List<CheckBox> ratioCheckBoxList = new ArrayList<>();
         List<CheckBox> ratioInvertedCheckBoxList = new ArrayList<>();
         List<CheckBox> functionCheckBoxList = new ArrayList<>();
+        List<Label> exportLabelList = new ArrayList<>();
+        List<RadioButton> blockMeanRBs = new ArrayList<>();
+        List<RadioButton> cycleMeanRBs = new ArrayList<>();
 
         ChangeListener<Boolean> allRatiosChangeListener = (observable, oldValue, newValue) -> {
             for (CheckBox checkBoxRatio : ratioCheckBoxList) {
@@ -471,12 +490,16 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             }
         };
 
+        ratiosVBox.prefWidthProperty().bind(ratiosScrollPane.widthProperty());
         ratiosVBox.getChildren().clear();
         HBox hBox = new HBox();
-        hBox.setSpacing(50);
+        hBox.setSpacing(25);
         hBox.setPadding(new Insets(5, 5, 5, 5));
-        hBox.setAlignment(Pos.CENTER);
-        CheckBox checkBoxSelectAllRatios = new CheckBox("Select all");
+        hBox.setAlignment(Pos.CENTER_LEFT);
+        hBox.prefWidthProperty().bind(ratiosVBox.widthProperty());
+
+        CheckBox checkBoxSelectAllRatios = new CheckBox("Plot all Isotopic Ratios");
+        checkBoxSelectAllRatios.setPrefWidth(180);
         int count = 0;
         int selected = 0;
         for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
@@ -490,9 +513,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         checkBoxSelectAllRatios.selectedProperty().addListener(allRatiosChangeListener);
         hBox.getChildren().add(checkBoxSelectAllRatios);
 
-        hBox.getChildren().add(new Label("Isotopic Ratios"));
-
         CheckBox checkBoxSelectAllRatiosInverted = new CheckBox("Invert all");
+        checkBoxSelectAllRatiosInverted.setPrefWidth(110);
         count = 0;
         selected = 0;
         for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
@@ -506,14 +528,46 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         checkBoxSelectAllRatiosInverted.selectedProperty().addListener(allRatiosInvertedChangeListener);
         hBox.getChildren().add(checkBoxSelectAllRatiosInverted);
         hBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+
+        Label exportHeaderLabel = new Label("Exported as");
+        exportHeaderLabel.setPrefWidth(125);
+        hBox.getChildren().add(exportHeaderLabel);
+
+        Button toggleBlockMeansButton = new Button("All Block Means");
+        toggleBlockMeansButton.setPrefWidth(125);
+        toggleBlockMeansButton.setPadding(new Insets(0, 0, 0, 0));
+        toggleBlockMeansButton.setOnAction(event -> {
+            for (RadioButton rb : blockMeanRBs) {
+                rb.selectedProperty().setValue(true);
+            }
+        });
+
+        Button toggleCycleMeansButton = new Button("All Cycle Means");
+        toggleCycleMeansButton.setPrefWidth(125);
+        toggleCycleMeansButton.setPadding(new Insets(0, 0, 0, 0));
+        toggleCycleMeansButton.setOnAction(event -> {
+            for (RadioButton rb : cycleMeanRBs) {
+                rb.selectedProperty().setValue(true);
+            }
+        });
+
+        Button refreshButton = new Button("Refresh");
+        refreshButton.setStyle(refreshButton.getStyle() + ";-fx-text-fill: RED;");
+        refreshButton.setPrefWidth(65);
+        refreshButton.setPadding(new Insets(0, 0, 0, 0));
+        refreshButton.setOnAction(event -> populateAnalysisMethodColumnsSelectorPane());
+
+        hBox.getChildren().addAll(toggleBlockMeansButton, toggleCycleMeansButton, refreshButton);
         ratiosVBox.getChildren().add(hBox);
 
+        functionsVBox.prefWidthProperty().bind(functionsScrollPane.widthProperty());
         functionsVBox.getChildren().clear();
         hBox = new HBox();
         hBox.setSpacing(50);
         hBox.setAlignment(Pos.CENTER);
         hBox.setPadding(new Insets(5, 5, 5, 5));
-        CheckBox checkBoxSelectAllFunctions = new CheckBox("Select all");
+        hBox.prefWidthProperty().bind(functionsVBox.widthProperty());
+        CheckBox checkBoxSelectAllFunctions = new CheckBox("Plot all User Functions");
         count = 0;
         selected = 0;
         for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
@@ -526,18 +580,26 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
         checkBoxSelectAllFunctions.selectedProperty().addListener(allFunctionsChangeListener);
         hBox.getChildren().add(checkBoxSelectAllFunctions);
-        hBox.getChildren().add(new Label("User Functions"));
         hBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
         functionsVBox.getChildren().add(hBox);
 
+        List<UserFunction> userFunctions = analysis.getAnalysisMethod().getUserFunctions();
+        userFunctions.sort(null);
         for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
             if (userFunction.isTreatAsIsotopicRatio()) {
                 hBox = new HBox();
                 CheckBox checkBoxRatio = new CheckBox(userFunction.getName());
+                checkBoxRatio.setPrefWidth(500);
+                checkBoxRatio.setFont(Font.font("Monospaced", FontWeight.BOLD, 12));
                 checkBoxRatio.setUserData(userFunction);
                 checkBoxRatio.setSelected(userFunction.isDisplayed());
                 checkBoxRatio.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                    ((UserFunction) checkBoxRatio.getUserData()).setDisplayed(newValue);
+                    userFunction.setDisplayed(newValue);
+                    userFunction.setInverted(false);
+                    if (newValue) {
+                        int indexOfCheckBox = ratioCheckBoxList.indexOf(checkBoxRatio);
+                        ratioInvertedCheckBoxList.get(indexOfCheckBox).setSelected(false);
+                    }
                     int selectedR = 0;
                     for (CheckBox checkBoxRatio2 : ratioCheckBoxList) {
                         selectedR += (checkBoxRatio2.isSelected() ? 1 : 0);
@@ -549,14 +611,18 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     populateAnalysisMethodColumnsSelectorPane();
                 });
                 ratioCheckBoxList.add(checkBoxRatio);
-                checkBoxRatio.setPrefWidth(175);
+                checkBoxRatio.setPrefWidth(150);
 
-                CheckBox checkBoxInvert = new CheckBox("Invert to: " + userFunction.showInvertedRatioName());
+                CheckBox checkBoxInvert = new CheckBox("Inverted");
+                checkBoxInvert.setPrefWidth(100);
+                checkBoxInvert.setFont(Font.font("Monospaced", FontWeight.BOLD, 12));
                 checkBoxInvert.setUserData(userFunction);
                 checkBoxInvert.setSelected(userFunction.isInverted());
                 checkBoxInvert.setDisable(!userFunction.isDisplayed());
                 checkBoxInvert.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                    ((UserFunction) checkBoxInvert.getUserData()).setInverted(newValue);
+                    userFunction.setInverted(newValue);
+                    int row = ratioInvertedCheckBoxList.indexOf(checkBoxInvert);
+                    exportLabelList.get(row).setText(userFunction.getCorrectETReduxName());
                     int selectedI = 0;
                     for (CheckBox checkBoxRatioInverted : ratioInvertedCheckBoxList) {
                         selectedI += (checkBoxRatioInverted.isSelected() ? 1 : 0);
@@ -564,15 +630,42 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     checkBoxSelectAllRatiosInverted.selectedProperty().removeListener(allRatiosInvertedChangeListener);
                     checkBoxSelectAllRatiosInverted.setSelected(selectedI == ratioInvertedCheckBoxList.size());
                     checkBoxSelectAllRatiosInverted.setIndeterminate((0 < selectedI) && (selectedI < ratioCheckBoxList.size()));
+                    populateAnalysisMethodColumnsSelectorPane();
                     checkBoxSelectAllRatiosInverted.selectedProperty().addListener(allRatiosInvertedChangeListener);
 
                 });
                 ratioInvertedCheckBoxList.add(checkBoxInvert);
 
-                hBox.getChildren().add(checkBoxRatio);
-                hBox.getChildren().add(checkBoxInvert);
-                hBox.setSpacing(10);
-                hBox.setPadding(new Insets(1, 1, 1, 125));
+                Label exportLabel = new Label(userFunction.getCorrectETReduxName());
+                exportLabel.setFont(Font.font("Monospaced", FontWeight.BOLD, 12));
+                exportLabel.setPrefWidth(65);
+                exportLabelList.add(exportLabel);
+
+                ToggleGroup meanTG = new ToggleGroup();
+                RadioButton blockRB = new RadioButton(userFunction.showBlockMean());
+                blockRB.setToggleGroup(meanTG);
+                blockRB.setUserData(userFunction);
+                blockRB.selectedProperty().addListener((observable, oldValue, newValue)
+                        -> userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.BLOCK));
+                blockRB.setSelected(userFunction.getReductionMode().equals(TripoliConstants.ReductionModeEnum.BLOCK));
+                blockRB.setPrefWidth(100);
+                blockMeanRBs.add(blockRB);
+
+                RadioButton cycleRB = new RadioButton(userFunction.showCycleMean());
+                cycleRB.setToggleGroup(meanTG);
+                cycleRB.setUserData(userFunction);
+                cycleRB.selectedProperty().addListener((observable, oldValue, newValue)
+                        -> userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.CYCLE));
+                cycleRB.setSelected(userFunction.getReductionMode().equals(TripoliConstants.ReductionModeEnum.CYCLE));
+                cycleRB.setPrefWidth(100);
+                cycleMeanRBs.add(cycleRB);
+
+                hBox.getChildren().addAll(checkBoxRatio, checkBoxInvert, exportLabel);
+                if (!userFunction.getCorrectETReduxName().isEmpty()) {
+                    hBox.getChildren().addAll(blockRB, cycleRB);
+                }
+                hBox.setSpacing(45);
+                hBox.setPadding(new Insets(1, 1, 1, 25));
 
                 ratiosVBox.getChildren().add(hBox);
             } else {
@@ -596,7 +689,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 checkBoxFunction.setPrefWidth(175);
                 hBox.getChildren().add(checkBoxFunction);
                 hBox.setSpacing(10);
-                hBox.setPadding(new Insets(1, 1, 1, 125));
+                hBox.setPadding(new Insets(1, 1, 1, 75));
                 functionsVBox.getChildren().add(hBox);
             }
         }
@@ -995,6 +1088,48 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     public void knotsChoiceAction() {
         analysis.getAnalysisMethod().toggleKnotsMethod();
+    }
+
+    public void exportToETReduxButtonAction() {
+        ((Analysis) analysis).setEtReduxExportType(analysis.getAnalysisMethod().getUserFunctions().get(0).getEtReduxExportType());
+
+        ETReduxFraction etReduxFraction = ETReduxFraction.buildExportFraction(
+                analysis.getAnalysisSampleName(), analysis.getAnalysisFractionName(), ((Analysis) analysis).getEtReduxExportType(), 0.00205);
+        for (UserFunction uf : analysis.getAnalysisMethod().getUserFunctions()) {
+            String etReduxName = uf.getCorrectETReduxName();
+            if (!etReduxName.isBlank() && etReduxFraction.getMeasuredRatioByName(etReduxName) != null) {
+                AnalysisStatsRecord analysisStatsRecord = uf.getAnalysisStatsRecord();
+                MeasuredRatioModel measuredRatioModel = etReduxFraction.getMeasuredRatioByName(etReduxName);
+                double selectedMean;
+                double selectedOneSigmaPct;
+                if (uf.getReductionMode().equals(TripoliConstants.ReductionModeEnum.BLOCK)) {
+                    double geoWeightedMeanRatio = exp(analysisStatsRecord.blockModeWeightedMean());
+                    double geoWeightedMeanRatioPlusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() + analysisStatsRecord.blockModeWeightedMeanOneSigma());
+                    double geoWeightedMeanRatioPlusOneSigmaPct = (geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio) / geoWeightedMeanRatio * 100.0;
+
+                    selectedMean = geoWeightedMeanRatio;
+                    selectedOneSigmaPct = geoWeightedMeanRatioPlusOneSigmaPct;
+
+                } else {
+                    selectedMean = analysisStatsRecord.cycleModeMean();
+                    selectedOneSigmaPct = analysisStatsRecord.cycleModeStandardDeviation();
+                }
+                measuredRatioModel.setValue(selectedMean);
+                measuredRatioModel.setOneSigma(selectedOneSigmaPct);
+                measuredRatioModel.setUncertaintyType("PCT");
+                measuredRatioModel.setOxideCorr(uf.isOxideCorrected());
+            }
+        }
+        String fileName = etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_" + etReduxFraction.getEtReduxExportType() + ".xml";
+        etReduxFraction.serializeXMLObject(fileName);
+        try {
+            saveExportFile(etReduxFraction, null);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (TripoliException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     class RatioClickHandler implements EventHandler<MouseEvent> {

@@ -18,6 +18,7 @@ package org.cirdles.tripoli.sessions.analysis.outputs.etRedux;
 
 import com.thoughtworks.xstream.XStream;
 import org.cirdles.tripoli.DataDictionary;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.utilities.xml.ETReduxFractionXMLConverter;
 import org.cirdles.tripoli.utilities.xml.XMLSerializerInterface;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +38,7 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
     // Fields
     private String sampleName;
     private String fractionID;
-    private String ratioType;
+    private TripoliConstants.ETReduxExportTypeEnum etReduxExportTypeEnum = TripoliConstants.ETReduxExportTypeEnum.NONE;
     private String pedigree;
     private MeasuredRatioModel[] measuredRatios;
     private double meanAlphaU;
@@ -50,21 +51,15 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
     private double tracerMass;
 
     public ETReduxFraction() {
-        this("", "", "", 0.0);
-
-        this.measuredRatios = new MeasuredRatioModel[org.cirdles.tripoli.DataDictionary.UPbReduxMeasuredRatioNames.length];
-        for (int i = 0; i < measuredRatios.length; i++) {
-            measuredRatios[i] =
-                    new MeasuredRatioModel(
-                            DataDictionary.UPbReduxMeasuredRatioNames[i], 0.0, 0.0, false, false);
-        }
+        this("", "", TripoliConstants.ETReduxExportTypeEnum.NONE, 0.0);
     }
 
-    public ETReduxFraction(String sampleName, String fractionID, String ratioType, double r18O_16O) {
+    private ETReduxFraction(String sampleName, String fractionID, TripoliConstants.ETReduxExportTypeEnum etReduxExportTypeEnum, double r18O_16O) {
         this.sampleName = sampleName;
         this.fractionID = fractionID;
-        this.ratioType = ratioType;
+        this.etReduxExportTypeEnum = etReduxExportTypeEnum;
         this.pedigree = "None";
+        this.measuredRatios = new MeasuredRatioModel[0];
         this.meanAlphaU = 0.0;
         this.meanAlphaPb = 0.0;
         this.labUBlankMass = 0.0;
@@ -74,8 +69,44 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
         this.tracerMass = 0.0;
     }
 
+    public static ETReduxFraction buildExportFraction(String sampleName, String fractionID, TripoliConstants.ETReduxExportTypeEnum etReduxExportTypeEnum, double r18O_16O) {
+        ETReduxFraction etReduxFraction = new ETReduxFraction(sampleName, fractionID, etReduxExportTypeEnum, r18O_16O);
+
+        // filter measured ratios
+        // modified april 2010 to split "U" fractions from "Pb" fractions parts for LiveUpdate
+        if (etReduxExportTypeEnum.compareTo(TripoliConstants.ETReduxExportTypeEnum.U) == 0) {
+            etReduxFraction.measuredRatios = new MeasuredRatioModel[DataDictionary.etReduxUraniumMeasuredRatioNames.length];
+        } else {
+            etReduxFraction.measuredRatios = new MeasuredRatioModel[DataDictionary.etReduxLeadMeasuredRatioNames.length];
+        }
+        for (int i = 0; i < etReduxFraction.measuredRatios.length; i++) {
+            etReduxFraction.measuredRatios[i] =
+                    new MeasuredRatioModel(
+                            (etReduxExportTypeEnum.compareTo(TripoliConstants.ETReduxExportTypeEnum.U) == 0) ?
+                                    DataDictionary.etReduxUraniumMeasuredRatioNames[i] :
+                                    DataDictionary.etReduxLeadMeasuredRatioNames[i], 0.0, 0.0, false, false);
+        }
+
+        return etReduxFraction;
+    }
+
     public static String getSchemaURI() {
         return schemaURI;
+    }
+
+    public MeasuredRatioModel getMeasuredRatioByName(String myRatioName) {
+        // NOV 2009 NOTE: Tripoli still uses no r and no m ... TODO: fix this!!
+        // April 2024 - still true and also for new Tripoli
+        String ratioName = myRatioName.trim();
+        MeasuredRatioModel retval = null;
+
+        // look for ratio
+        for (int i = 0; i < measuredRatios.length; i++) {
+            if (measuredRatios[i].getName().equalsIgnoreCase(ratioName)) {
+                retval = measuredRatios[i];
+            }
+        }
+        return retval;
     }
 
     public String getSampleName() {
@@ -94,12 +125,12 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
         this.fractionID = fractionID;
     }
 
-    public String getRatioType() {
-        return ratioType;
+    public TripoliConstants.ETReduxExportTypeEnum getEtReduxExportType() {
+        return etReduxExportTypeEnum;
     }
 
-    public void setRatioType(String ratioType) {
-        this.ratioType = ratioType;
+    public void setEtReduxExportType(TripoliConstants.ETReduxExportTypeEnum etReduxExportTypeEnum) {
+        this.etReduxExportTypeEnum = etReduxExportTypeEnum;
     }
 
     public String getPedigree() {
@@ -191,8 +222,8 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
     @Override
     public int compareTo(@NotNull Object o) {
         if (o instanceof ETReduxFraction) {
-            return (sampleName + fractionID + ratioType)
-                    .compareTo(((ETReduxFraction) o).sampleName + ((ETReduxFraction) o).fractionID + ((ETReduxFraction) o).ratioType);
+            return (sampleName + fractionID + etReduxExportTypeEnum)
+                    .compareTo(((ETReduxFraction) o).sampleName + ((ETReduxFraction) o).fractionID + ((ETReduxFraction) o).etReduxExportTypeEnum);
         } else return 0;
     }
 
@@ -204,14 +235,14 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
         return 0 == Double.compare(r18O_16O, that.r18O_16O)
                 && Objects.equals(sampleName, that.sampleName)
                 && Objects.equals(fractionID, that.fractionID)
-                && Objects.equals(ratioType, that.ratioType)
+                && Objects.equals(etReduxExportTypeEnum, that.etReduxExportTypeEnum)
                 && Objects.equals(pedigree, that.pedigree)
                 && Arrays.equals(measuredRatios, that.measuredRatios);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(sampleName, fractionID, ratioType, pedigree, r18O_16O);
+        int result = Objects.hash(sampleName, fractionID, etReduxExportTypeEnum, pedigree, r18O_16O);
         result = 31 * result + Arrays.hashCode(measuredRatios);
         return result;
     }

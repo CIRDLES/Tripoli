@@ -97,4 +97,15 @@ public enum TripoliConstants {
             return amps;
         }
     }
+
+    public static enum ETReduxExportTypeEnum {
+        Pb(),
+        U(),
+        NONE();
+    }
+
+    public static enum ReductionModeEnum {
+        BLOCK(),
+        CYCLE();
+    }
 }
