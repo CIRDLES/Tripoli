@@ -9,6 +9,7 @@ import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
+import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.file.SessionFileUtilities;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
@@ -154,7 +155,6 @@ public enum FileHandlerUtil {
         return resourceFile;
     }
 
-
     public static void reportEnsembleDataDetails(AnalysisInterface analysis, Window ownerWindow)
             throws IOException, TripoliException {
 
@@ -223,4 +223,20 @@ public enum FileHandlerUtil {
         stream.write(((Analysis) analysis).produceReportTemplateOne().getBytes());
         stream.close();
     }
+
+    public static void saveExportFile(ETReduxFraction etReduxFraction, Window ownerWindow)
+            throws IOException,TripoliException {
+
+        DirectoryChooser dirChooser = new DirectoryChooser();
+        dirChooser.setTitle("Select Export Folder");
+        File userHome = new File(File.separator + TripoliPersistentState.getExistingPersistentState().getMRUExportFolderPath());
+        dirChooser.setInitialDirectory(userHome.isDirectory() ? userHome : null);
+        File directory = dirChooser.showDialog(ownerWindow);
+        TripoliPersistentState.getExistingPersistentState().setMRUExportFolderPath(directory.getPath());
+
+        String fileName = directory + File.separator +
+                etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_" + etReduxFraction.getEtReduxExportType() + ".xml";
+        etReduxFraction.serializeXMLObject(fileName);
+    }
+
 }

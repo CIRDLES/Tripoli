@@ -16,21 +16,36 @@
 
 package org.cirdles.tripoli.expressions.userFunctions;
 
+import org.cirdles.tripoli.constants.TripoliConstants;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
+import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Map;
+import java.util.TreeMap;
+
+import static org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord.*;
 
 /**
  * @author James F. Bowring
  */
-public class UserFunction implements Serializable {
+public class UserFunction implements Comparable, Serializable {
     @Serial
     private static final long serialVersionUID = -5408855769497340457L;
     private String name;
     private String etReduxName;
+    private String invertedETReduxName;
+    private boolean oxideCorrected;
+    private TripoliConstants.ReductionModeEnum reductionMode = TripoliConstants.ReductionModeEnum.BLOCK;
+    private TripoliConstants.ETReduxExportTypeEnum etReduxExportTypeEnum = TripoliConstants.ETReduxExportTypeEnum.NONE;
     private int columnIndex;
     private boolean treatAsIsotopicRatio;
     private boolean displayed;
     private boolean inverted;
+    private AnalysisStatsRecord analysisStatsRecord;
+    private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord = new TreeMap<>();
 
     public UserFunction(String name, int columnIndex) {
         this(name, columnIndex, false, true);
@@ -39,10 +54,23 @@ public class UserFunction implements Serializable {
     public UserFunction(String name, int columnIndex, boolean treatAsIsotopicRatio, boolean displayed) {
         this.name = name;
         this.etReduxName = "";
+        this.invertedETReduxName = "";
+        this.oxideCorrected = false;
         this.columnIndex = columnIndex;
         this.treatAsIsotopicRatio = treatAsIsotopicRatio;
         this.displayed = displayed;
         this.inverted = false;
+
+        if (name.contains("20")){
+            etReduxExportTypeEnum = TripoliConstants.ETReduxExportTypeEnum.Pb;
+        } else if (name.contains("23")){
+            etReduxExportTypeEnum = TripoliConstants.ETReduxExportTypeEnum.U;
+        }
+    }
+
+    public AnalysisStatsRecord calculateAnalysisStatsRecord(){
+        analysisStatsRecord = AnalysisStatsRecord.generateAnalysisStatsRecord(generateAnalysisBlockStatsRecords(this, mapBlockIdToBlockCyclesRecord));
+        return analysisStatsRecord;
     }
 
     public String getName() {
@@ -57,6 +85,14 @@ public class UserFunction implements Serializable {
         this.etReduxName = etReduxName;
     }
 
+    public String getInvertedETReduxName() {
+        return invertedETReduxName;
+    }
+
+    public void setInvertedETReduxName(String invertedETReduxName) {
+        this.invertedETReduxName = invertedETReduxName;
+    }
+
     public String showName() {
         String retVal = name;
         if (inverted && treatAsIsotopicRatio) {
@@ -64,6 +100,30 @@ public class UserFunction implements Serializable {
             retVal = nameSplit[1] + "/" + nameSplit[0];
         }
         return retVal;
+    }
+
+    public boolean isOxideCorrected() {
+        return oxideCorrected;
+    }
+
+    public void setOxideCorrected(boolean oxideCorrected) {
+        this.oxideCorrected = oxideCorrected;
+    }
+
+    public TripoliConstants.ReductionModeEnum getReductionMode() {
+        return reductionMode;
+    }
+
+    public void setReductionMode(TripoliConstants.ReductionModeEnum reductionMode) {
+        this.reductionMode = reductionMode;
+    }
+
+    public TripoliConstants.ETReduxExportTypeEnum getEtReduxExportType() {
+        return etReduxExportTypeEnum;
+    }
+
+    public void setEtReduxExportType(TripoliConstants.ETReduxExportTypeEnum etReduxExportTypeEnum) {
+        this.etReduxExportTypeEnum = etReduxExportTypeEnum;
     }
 
     public int getColumnIndex() {
@@ -92,5 +152,39 @@ public class UserFunction implements Serializable {
 
     public void setInverted(boolean inverted) {
         this.inverted = inverted;
+    }
+
+    public AnalysisStatsRecord getAnalysisStatsRecord() {
+        return analysisStatsRecord;
+    }
+
+    public void setMapBlockIdToBlockCyclesRecord(Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord) {
+        this.mapBlockIdToBlockCyclesRecord = mapBlockIdToBlockCyclesRecord;
+    }
+
+    public Map<Integer, PlotBlockCyclesRecord> getMapBlockIdToBlockCyclesRecord() {
+        return mapBlockIdToBlockCyclesRecord;
+    }
+
+    /**
+     * @param o the object to be compared.
+     * @return
+     */
+    @Override
+    public int compareTo(@NotNull Object o) {
+        UserFunction userFunction = (UserFunction) o;
+        return this.name.compareTo(userFunction.name);
+    }
+
+    public String showBlockMean() {
+        return prettyPrintRatioBlockMean(this);
+    }
+
+    public String showCycleMean(){
+        return prettyPrintRatioCycleMean(this);
+    }
+
+    public String getCorrectETReduxName() {
+        return inverted? invertedETReduxName : etReduxName;
     }
 }

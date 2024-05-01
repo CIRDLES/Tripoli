@@ -48,7 +48,7 @@
         <RowConstraints maxHeight="25.0" minHeight="25.0" prefHeight="25.0" valignment="CENTER" vgrow="NEVER" />
         <RowConstraints maxHeight="90.0" minHeight="90.0" prefHeight="90.0" valignment="TOP" vgrow="SOMETIMES" />
         <RowConstraints maxHeight="90.0" minHeight="90.0" prefHeight="90.0" valignment="TOP" vgrow="SOMETIMES" />
-        <RowConstraints maxHeight="270.0" minHeight="270.0" prefHeight="270.0" valignment="TOP" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="270.0" minHeight="270.0" percentHeight="45.0" prefHeight="270.0" valignment="TOP" vgrow="SOMETIMES" />
         <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
         <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
     </rowConstraints>
@@ -87,10 +87,11 @@
     <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Actions:" GridPane.rowIndex="8" />
     <HBox GridPane.columnIndex="1" GridPane.rowIndex="8">
         <children>
-            <ToolBar maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="392.0" style="-fx-background-color: transparent;">
+            <ToolBar maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="613.0" style="-fx-background-color: transparent;">
                 <Button mnemonicParsing="false" onAction="#selectDataFileButtonAction" text="Load Data File" />
                 <Button layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectMethodFileButtonAction" text="Load Method File" />
                 <Button id="MCMC" fx:id="reviewSculptData" mnemonicParsing="false" onAction="#previewAndSculptDataAction" style="-fx-text-fill: RED;" text="Preview and Sculpt Data" />
+            <Button id="MCMC" fx:id="exportToETReduxButton" layoutX="225.0" layoutY="7.0" mnemonicParsing="false" onAction="#exportToETReduxButtonAction" style="-fx-text-fill: RED;" text="Export ETRedux" />
             </ToolBar>
             <ToolBar fx:id="processingToolBar" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="701.0" style="-fx-background-color: transparent;">
                 <items>
@@ -215,16 +216,16 @@
                 </GridPane>
             </content>
         </Tab>
-        <Tab fx:id="selectColumnsToPlot" closable="false" text="SelectColumns to Plot">
+        <Tab fx:id="selectColumnsToPlot" closable="false" text="Select Columns to Plot">
             <content>
-                <SplitPane dividerPositions="0.5" prefHeight="242.0" prefWidth="1065.0">
+                <SplitPane dividerPositions="0.75" prefHeight="242.0" prefWidth="1065.0">
                     <items>
-                        <ScrollPane hbarPolicy="NEVER">
+                        <ScrollPane fx:id="ratiosScrollPane" hbarPolicy="NEVER">
                             <content>
-                                <VBox fx:id="ratiosVBox" prefHeight="239.0" prefWidth="527.0" />
+                                <VBox fx:id="ratiosVBox" prefHeight="239.0" prefWidth="797.0" />
                             </content>
                         </ScrollPane>
-                        <ScrollPane hbarPolicy="NEVER">
+                        <ScrollPane fx:id="functionsScrollPane" hbarPolicy="NEVER">
                             <content>
                                 <VBox fx:id="functionsVBox" prefHeight="239.0" prefWidth="527.0" />
                             </content>

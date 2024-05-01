@@ -21,12 +21,11 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import org.cirdles.tripoli.DataDictionary;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredRatioModel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class ETReduxFractionXMLConverter implements Converter {
     /**
@@ -58,7 +57,7 @@ public class ETReduxFractionXMLConverter implements Converter {
         writer.endNode();
 
         writer.startNode("ratioType");
-        writer.setValue(etReduxFraction.getRatioType());
+        writer.setValue(etReduxFraction.getEtReduxExportType().name());
         writer.endNode();
 
         writer.startNode("pedigree");
@@ -119,7 +118,7 @@ public class ETReduxFractionXMLConverter implements Converter {
         reader.moveUp();
 
         reader.moveDown();
-        etReduxFraction.setRatioType(reader.getValue());
+        etReduxFraction.setEtReduxExportType(TripoliConstants.ETReduxExportTypeEnum.valueOf(reader.getValue()));
         reader.moveUp();
 
         reader.moveDown();

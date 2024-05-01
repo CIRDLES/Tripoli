@@ -60,8 +60,8 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     private final Tooltip tooltip;
     private final String tooltipTextSculpt = "Left mouse: cntrl click toggles block, Dbl-click to Sculpt data. Right mouse: cntrl click zooms one block, Dbl-click toggles full view.";
     private final String tooltipTextExitSculpt = "Left mouse: cntrl click toggles block, Dbl-click Exits Sculpting. Right mouse: cntrl click zooms one block, Dbl-click toggles full view.";
-    AnalysisInterface analysis;
-    Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord;
+    private AnalysisInterface analysis;
+    private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord;
     int[] blockIDsPerTimeSlot;
     private UserFunction userFunction;
     private double[] oneSigmaForCycles;
@@ -86,7 +86,6 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             AnalysisInterface analysis,
             Rectangle bounds,
             UserFunction userFunction,
-            Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord,
             int[] blockIDsPerTimeSlot,
             PlotWallPane parentWallPane) {
         super(bounds,
@@ -98,7 +97,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 userFunction.isTreatAsIsotopicRatio() ? "Ratio" : "Function");
         this.analysis = analysis;
         this.userFunction = userFunction;
-        this.mapBlockIdToBlockCyclesRecord = mapBlockIdToBlockCyclesRecord;
+        this.mapBlockIdToBlockCyclesRecord = userFunction.getMapBlockIdToBlockCyclesRecord();
         this.blockIDsPerTimeSlot = blockIDsPerTimeSlot;
         this.logScale = false;
         this.zoomFlagsXY = new boolean[]{true, true};
@@ -113,9 +112,9 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     }
 
     public static AbstractPlot generatePlot(
-            Rectangle bounds, AnalysisInterface analysis, UserFunction userFunction, Map<Integer, PlotBlockCyclesRecord> mapOfBlocksToCyclesRecords,
+            Rectangle bounds, AnalysisInterface analysis, UserFunction userFunction,
             int[] blockIDsPerTimeSlot, PlotWallPane parentWallPane) {
-        return new AnalysisBlockCyclesPlotOG(analysis, bounds, userFunction, mapOfBlocksToCyclesRecords, blockIDsPerTimeSlot, parentWallPane);
+        return new AnalysisBlockCyclesPlotOG(analysis, bounds, userFunction, blockIDsPerTimeSlot, parentWallPane);
     }
 
     public PlotWallPaneInterface getParentWallPane() {
@@ -236,21 +235,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     }
 
     public void calcStats() {
-        // Jan 2024 new approach - two modes: block mode and cycle mode
-        // BLOCK MODE will be default - calculate and plot stats for each block
-        int blockCount = mapBlockIdToBlockCyclesRecord.size();
-        BlockStatsRecord[] blockStatsRecords = new BlockStatsRecord[blockCount];
-        int arrayIndex = 0;
-        for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
-            PlotBlockCyclesRecord plotBlockCyclesRecord = entry.getValue();
-            if (plotBlockCyclesRecord != null) {
-                blockStatsRecords[arrayIndex] = BlockStatsRecord.generateBlockStatsRecord(
-                        plotBlockCyclesRecord.blockID(), plotBlockCyclesRecord.blockIncluded(), isRatio,
-                        userFunction.isInverted(), plotBlockCyclesRecord.cycleMeansData(), plotBlockCyclesRecord.cyclesIncluded());
-            }
-            arrayIndex++;
-        }
-        analysisStatsRecord = AnalysisStatsRecord.generateAnalysisStatsRecord(blockStatsRecords);
+        analysisStatsRecord = userFunction.calculateAnalysisStatsRecord();
     }
 
     /**
@@ -331,7 +316,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                         sigmaPctString = " " + plusSigmaPct;
                     } else {
                         sigmaPctString = "+" + plusSigmaPct;
-                        sigmaMinusPctString = "-" + minusSigmaPct;
+                        sigmaMinusPctString = "" + minusSigmaPct;
                     }
 
                     sigmaPctString = appendTrailingZeroIfNeeded(sigmaPctString, countOfTrailingDigitsForSigFig);

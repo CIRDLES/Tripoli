@@ -48,6 +48,7 @@ public class TripoliPersistentState implements Serializable {
     private File MRUMethodXMLFile;
     private List<String> MRUMethodXMLList;
     private String MRUMethodXMLFolderPath;
+    private String MRUExportFolderPath;
 
 //    private void readObject(ObjectInputStream stream) throws IOException,
 //            ClassNotFoundException {
@@ -87,6 +88,8 @@ public class TripoliPersistentState implements Serializable {
         MRUMethodXMLFile = null;
         MRUMethodXMLList = new ArrayList<>();
         MRUMethodXMLFolderPath = "";
+
+        MRUExportFolderPath = "";
 
         serializeSelf();
     }
@@ -463,5 +466,13 @@ public class TripoliPersistentState implements Serializable {
 
     public void removeMethodXMLFileNameFromMRU(String taskXMLFileName) {
         MRUMethodXMLList.remove(taskXMLFileName);
+    }
+
+    public String getMRUExportFolderPath() {
+        return MRUExportFolderPath;
+    }
+
+    public void setMRUExportFolderPath(String MRUExportFolderPath) {
+        this.MRUExportFolderPath = MRUExportFolderPath;
     }
 }

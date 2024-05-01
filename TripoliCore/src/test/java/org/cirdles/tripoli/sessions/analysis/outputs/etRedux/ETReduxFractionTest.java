@@ -1,5 +1,6 @@
 package org.cirdles.tripoli.sessions.analysis.outputs.etRedux;
 
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,12 +20,12 @@ class ETReduxFractionTest {
 
     @Test
     void validateSerializationXML() {
-        ETReduxFraction etReduxFraction = ETReduxFraction.buildExportFraction("Sample1", "Fraction1", "U", 1.025);
+        ETReduxFraction etReduxFraction = ETReduxFraction.buildExportFraction("Sample1", "Fraction1", TripoliConstants.ETReduxExportTypeEnum.U, 1.025);
         etReduxFraction.serializeXMLObject(fileNameForXML);
         ETReduxFraction etReduxFraction2 = (ETReduxFraction) etReduxFraction.readXMLObject(fileNameForXML, false);
         assertEquals(etReduxFraction, etReduxFraction2);
 
-        etReduxFraction = ETReduxFraction.buildExportFraction("Sample1", "Fraction1", "Pb", 1.025);
+        etReduxFraction = ETReduxFraction.buildExportFraction("Sample1", "Fraction1", TripoliConstants.ETReduxExportTypeEnum.Pb, 1.025);
         etReduxFraction.serializeXMLObject(fileNameForXML);
         etReduxFraction2 = (ETReduxFraction) etReduxFraction.readXMLObject(fileNameForXML, false);
         assertEquals(etReduxFraction, etReduxFraction2);

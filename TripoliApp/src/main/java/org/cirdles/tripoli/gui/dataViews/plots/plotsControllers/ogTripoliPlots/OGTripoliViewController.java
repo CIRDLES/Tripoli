@@ -120,7 +120,7 @@ public class OGTripoliViewController {
 
         switch (plottingData.analysisCaseNumber()) {
             case 1 -> {
-                SingleBlockRawDataLiteSetRecord[] singleBlockRawDataLiteSetRecords = plottingData.singleBlockRawDataLiteSetRecords();
+//                SingleBlockRawDataLiteSetRecord[] singleBlockRawDataLiteSetRecords = plottingData.singleBlockRawDataLiteSetRecords();
                 int countOfOnPeakCycles = plottingData.cycleCount();
                 int[] blockIDsPerTimeSlot = analysis.getMassSpecExtractedData().assignBlockIdToSessionTimeLite();
 
@@ -137,33 +137,34 @@ public class OGTripoliViewController {
 
                 for (UserFunction userFunction : ratiosToPlot) {
                     TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPaneRatios);
+//
+//                    // todo: simplify since analysis carries most of the info
+//                    Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord = new TreeMap<>();
+//                    for (int blockIndex = 0; blockIndex < singleBlockRawDataLiteSetRecords.length; blockIndex++) {
+//                        if (null != singleBlockRawDataLiteSetRecords[blockIndex]) {
+//                            Integer blockID = singleBlockRawDataLiteSetRecords[blockIndex].blockID();
+//
+//                            mapBlockIdToBlockCyclesRecord.put(blockID, (BlockCyclesBuilder.initializeBlockCycles(
+//                                    blockID,
+//                                    true,
+//                                    true, // TODO: not needed here
+//                                    singleBlockRawDataLiteSetRecords[blockIndex].assembleCyclesIncludedForUserFunction(userFunction),
+//                                    singleBlockRawDataLiteSetRecords[blockIndex].assembleCycleMeansForUserFunction(userFunction),
+//                                    singleBlockRawDataLiteSetRecords[blockIndex].assembleCycleStdDevForUserFunction(userFunction),
+//                                    new String[]{userFunction.getName()},
+//                                    true,
+//                                    userFunction.isTreatAsIsotopicRatio()).getBlockCyclesRecord()));
+//                        } else {
+//                            mapBlockIdToBlockCyclesRecord.put(blockIndex - 1, null);
+//                        }
+//                    }
 
-                    // todo: simplify since analysis carries most of the info
-                    Map<Integer, PlotBlockCyclesRecord> mapOfBlocksToCyclesRecords = new TreeMap<>();
-                    for (int blockIndex = 0; blockIndex < singleBlockRawDataLiteSetRecords.length; blockIndex++) {
-                        if (null != singleBlockRawDataLiteSetRecords[blockIndex]) {
-                            Integer blockID = singleBlockRawDataLiteSetRecords[blockIndex].blockID();
-
-                            mapOfBlocksToCyclesRecords.put(blockID, (BlockCyclesBuilder.initializeBlockCycles(
-                                    blockID,
-                                    true,
-                                    true, // TODO: not needed here
-                                    singleBlockRawDataLiteSetRecords[blockIndex].assembleCyclesIncludedForUserFunction(userFunction),
-                                    singleBlockRawDataLiteSetRecords[blockIndex].assembleCycleMeansForUserFunction(userFunction),
-                                    singleBlockRawDataLiteSetRecords[blockIndex].assembleCycleStdDevForUserFunction(userFunction),
-                                    new String[]{userFunction.getName()},
-                                    true,
-                                    userFunction.isTreatAsIsotopicRatio()).getBlockCyclesRecord()));
-                        } else {
-                            mapOfBlocksToCyclesRecords.put(blockIndex - 1, null);
-                        }
-                    }
+//                    userFunction.calculateAnalysisStatsRecord();
 
                     AbstractPlot plot = AnalysisBlockCyclesPlotOG.generatePlot(
                             new Rectangle(minPlotWidth, minPlotHeight),
                             analysis,
                             userFunction,
-                            mapOfBlocksToCyclesRecords,
                             blockIDsPerTimeSlot,
                             (PlotWallPane) plotsWallPaneRatios);
 

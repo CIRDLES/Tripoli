@@ -19,7 +19,7 @@ package org.cirdles.tripoli;
 
 public enum DataDictionary {
     ;
-    public static String[] etReduxLeadMeasuredRatioNames = new String[]{
+    public static String[] etReduxLeadMeasuredRatioNames = {
             "206_204",
             "207_204",
             "208_204",
@@ -31,11 +31,27 @@ public enum DataDictionary {
             "208_205",
             "202_205"};
 
-    public static String[] etReduxUraniumMeasuredRatioNames = new String[]{
+    public static String[] etReduxUraniumMeasuredRatioNames = {
             "238_236",
             "233_236",
             "238_235",
             "233_235",
             "238_233"};
+
+    public static boolean isLegalETReduxName(String name){
+        boolean retVal = false;
+        if (name.contains("23")){
+            for (int i = 0; i < etReduxUraniumMeasuredRatioNames.length; i++){
+                retVal = retVal || etReduxUraniumMeasuredRatioNames[i].compareTo(name) == 0;
+            }
+        } else if (name.contains("20")){
+            for (int i = 0; i < etReduxLeadMeasuredRatioNames.length; i++){
+                retVal = retVal || etReduxLeadMeasuredRatioNames[i].compareTo(name) == 0;
+            }
+        }
+        return retVal;
+    }
+
 }
+
 

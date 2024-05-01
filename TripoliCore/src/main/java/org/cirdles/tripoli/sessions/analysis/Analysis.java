@@ -22,6 +22,7 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.plots.PlotBuilder;
@@ -103,6 +104,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private DescriptiveStatistics[] analysisSpeciesStats = new DescriptiveStatistics[0];
     private double analysisDalyFaradayGainMean;
     private double analysisDalyFaradayGainMeanOneSigmaAbs;
+    private TripoliConstants.ETReduxExportTypeEnum etReduxExportType = TripoliConstants.ETReduxExportTypeEnum.NONE;
 
     private Analysis() {
     }
@@ -724,5 +726,13 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public int getAnalysisCaseNumber() {
         return massSpecExtractedData.getMassSpectrometerContext().getCaseNumber();
+    }
+
+    public TripoliConstants.ETReduxExportTypeEnum getEtReduxExportType() {
+        return etReduxExportType;
+    }
+
+    public void setEtReduxExportType(TripoliConstants.ETReduxExportTypeEnum etReduxExportType) {
+        this.etReduxExportType = etReduxExportType;
     }
 }

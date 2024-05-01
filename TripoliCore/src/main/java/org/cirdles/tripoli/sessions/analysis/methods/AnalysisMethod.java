@@ -20,6 +20,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.expressions.species.nuclides.NuclidesFactory;
@@ -39,6 +40,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.cirdles.tripoli.DataDictionary.isLegalETReduxName;
 import static org.cirdles.tripoli.constants.TripoliConstants.SPACES_100;
 
 /**
@@ -98,13 +100,21 @@ public class AnalysisMethod implements Serializable {
                 String numerator = columnHeaders[i].substring(indexOfDivide - 3, 3);
                 String denominator = columnHeaders[i].substring(indexOfDivide + 1, indexOfDivide + 4);
                 String etReduxRatioName = numerator + "_" + denominator;
-                userFunction.setEtReduxName(etReduxRatioName);
+                if (isLegalETReduxName(etReduxRatioName)) {
+                    userFunction.setEtReduxName(etReduxRatioName);
+                }
 
                 if (etReduxRatioName.compareTo("270_267") == 0) {
                     r270_267ColumnIndex = i - 2;
                 }
                 if (etReduxRatioName.compareTo("265_267") == 0) {
                     r265_267ColumnIndex = i - 2;
+                }
+
+                String invertedETReduxRatioName = denominator + "_" + numerator;
+                if (isLegalETReduxName(invertedETReduxRatioName)) {
+                    userFunction.setInvertedETReduxName(invertedETReduxRatioName);
+                    userFunction.setInverted(true);
                 }
             }
             analysisMethod.getUserFunctions().add(userFunction);
@@ -120,32 +130,24 @@ public class AnalysisMethod implements Serializable {
             columnHeadersExpanded[columnHeaders.length + 0] = "233/235oc";
             UserFunction userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length], columnHeaders.length - 2, true, true);
             userFunction.setEtReduxName("233_235");
+            userFunction.setOxideCorrected(true);
             analysisMethod.getUserFunctions().add(userFunction);
 
             columnHeadersExpanded[columnHeaders.length + 1] = "238/235oc";
             userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length + 1], columnHeaders.length - 1, true, true);
             userFunction.setEtReduxName("238_235");
+            userFunction.setOxideCorrected(true);
             analysisMethod.getUserFunctions().add(userFunction);
 
             columnHeadersExpanded[columnHeaders.length + 2] = "238/233oc";
             userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length + 2], columnHeaders.length, true, true);
             userFunction.setEtReduxName("238_233");
+            userFunction.setOxideCorrected(true);
             analysisMethod.getUserFunctions().add(userFunction);
 
             massSpecExtractedData.setColumnHeaders(columnHeadersExpanded);
 
             System.out.println(columnHeaders[r270_267ColumnIndex + 2]);
-
-            // test export
-            ETReduxFraction etReduxFraction = ETReduxFraction.buildExportFraction("samp1", "frac1", "U", 0.00205);
-            for (int i = 0; i < analysisMethod.getUserFunctions().size(); i ++){
-                String etReduxName = analysisMethod.getUserFunctions().get(i).getEtReduxName();
-                if (!etReduxName.isBlank() &&  etReduxFraction.getMeasuredRatioByName(etReduxName) != null){
-                    etReduxFraction.getMeasuredRatioByName(etReduxName).setValue(555);
-                    etReduxFraction.getMeasuredRatioByName(etReduxName).setOxideCorr(true);
-                }
-            }
-            etReduxFraction.serializeXMLObject("HELP.xml");
 
         }
 
