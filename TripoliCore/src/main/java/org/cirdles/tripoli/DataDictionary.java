@@ -38,14 +38,14 @@ public enum DataDictionary {
             "233_235",
             "238_233"};
 
-    public static boolean isLegalETReduxName(String name){
+    public static boolean isLegalETReduxName(String name) {
         boolean retVal = false;
-        if (name.contains("23")){
-            for (int i = 0; i < etReduxUraniumMeasuredRatioNames.length; i++){
+        if (name.contains("23")) {
+            for (int i = 0; i < etReduxUraniumMeasuredRatioNames.length; i++) {
                 retVal = retVal || etReduxUraniumMeasuredRatioNames[i].compareTo(name) == 0;
             }
-        } else if (name.contains("20")){
-            for (int i = 0; i < etReduxLeadMeasuredRatioNames.length; i++){
+        } else if (name.contains("20")) {
+            for (int i = 0; i < etReduxLeadMeasuredRatioNames.length; i++) {
                 retVal = retVal || etReduxLeadMeasuredRatioNames[i].compareTo(name) == 0;
             }
         }

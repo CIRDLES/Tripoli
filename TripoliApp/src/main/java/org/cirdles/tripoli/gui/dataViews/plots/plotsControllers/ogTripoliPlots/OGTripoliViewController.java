@@ -21,7 +21,6 @@ import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockCyclesBuilder;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;

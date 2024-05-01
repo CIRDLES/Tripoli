@@ -404,7 +404,7 @@ public enum PhoenixMassSpec {
                                     parseAndBuildSingleBlockTIMSDPRecord(currentBlockID, dataByBlocks.get(currentBlockID - 1)));
                             phase = -1;
                         }
-                        case 9 ->{
+                        case 9 -> {
                             headerByLineSplit.add(line.split(","));
                         }
                     }

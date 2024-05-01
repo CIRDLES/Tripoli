@@ -60,9 +60,9 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     private final Tooltip tooltip;
     private final String tooltipTextSculpt = "Left mouse: cntrl click toggles block, Dbl-click to Sculpt data. Right mouse: cntrl click zooms one block, Dbl-click toggles full view.";
     private final String tooltipTextExitSculpt = "Left mouse: cntrl click toggles block, Dbl-click Exits Sculpting. Right mouse: cntrl click zooms one block, Dbl-click toggles full view.";
+    int[] blockIDsPerTimeSlot;
     private AnalysisInterface analysis;
     private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord;
-    int[] blockIDsPerTimeSlot;
     private UserFunction userFunction;
     private double[] oneSigmaForCycles;
     private boolean logScale;

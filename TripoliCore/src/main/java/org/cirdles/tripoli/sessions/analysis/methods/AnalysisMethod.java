@@ -20,7 +20,6 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
-import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.expressions.species.nuclides.NuclidesFactory;
@@ -33,7 +32,6 @@ import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineTable;
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceTable;
-import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 
 import java.io.Serial;
 import java.io.Serializable;

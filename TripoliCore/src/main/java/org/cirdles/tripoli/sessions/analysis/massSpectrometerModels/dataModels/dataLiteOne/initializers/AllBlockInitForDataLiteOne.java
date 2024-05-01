@@ -80,30 +80,30 @@ public class AllBlockInitForDataLiteOne {
             }
         }
 
-            return (countOfBlocks > 0) ? new AllBlockInitForMCMC.PlottingData(
-                    null,
-                    null,
-                    singleBlockRawDataLiteSetRecords,
-                    singleBlockRawDataLiteSetRecords[0].blockRawDataLiteArray().length, true, 1) : null;
-        }
-
-
-        private static SingleBlockRawDataLiteSetRecord prepareSingleBlockDataLiteCaseOne (
-        int blockID, MassSpecExtractedData massSpecExtractedData){
-            MassSpecOutputBlockRecordLite massSpecOutputBlockRecordLite = massSpecExtractedData.getBlocksDataLite().get(blockID);
-            boolean[][] rawDataIncluded = new boolean[massSpecOutputBlockRecordLite.cycleData().length][massSpecOutputBlockRecordLite.cycleData()[0].length];
-            for (int row = 0; row < rawDataIncluded.length; row++) {
-                for (int col = 0; col < rawDataIncluded[row].length; col++) {
-                    rawDataIncluded[row][col] = true;
-                }
-            }
-
-            SingleBlockRawDataLiteSetRecord singleBlockRawDataLiteSetRecord = new SingleBlockRawDataLiteSetRecord(
-                    blockID,
-                    true,
-                    massSpecOutputBlockRecordLite.cycleData(),
-                    rawDataIncluded);
-
-            return singleBlockRawDataLiteSetRecord;
-        }
+        return (countOfBlocks > 0) ? new AllBlockInitForMCMC.PlottingData(
+                null,
+                null,
+                singleBlockRawDataLiteSetRecords,
+                singleBlockRawDataLiteSetRecords[0].blockRawDataLiteArray().length, true, 1) : null;
     }
+
+
+    private static SingleBlockRawDataLiteSetRecord prepareSingleBlockDataLiteCaseOne(
+            int blockID, MassSpecExtractedData massSpecExtractedData) {
+        MassSpecOutputBlockRecordLite massSpecOutputBlockRecordLite = massSpecExtractedData.getBlocksDataLite().get(blockID);
+        boolean[][] rawDataIncluded = new boolean[massSpecOutputBlockRecordLite.cycleData().length][massSpecOutputBlockRecordLite.cycleData()[0].length];
+        for (int row = 0; row < rawDataIncluded.length; row++) {
+            for (int col = 0; col < rawDataIncluded[row].length; col++) {
+                rawDataIncluded[row][col] = true;
+            }
+        }
+
+        SingleBlockRawDataLiteSetRecord singleBlockRawDataLiteSetRecord = new SingleBlockRawDataLiteSetRecord(
+                blockID,
+                true,
+                massSpecOutputBlockRecordLite.cycleData(),
+                rawDataIncluded);
+
+        return singleBlockRawDataLiteSetRecord;
+    }
+}

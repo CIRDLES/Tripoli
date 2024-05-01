@@ -69,7 +69,7 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
         this.tracerMass = 0.0;
     }
 
-    public static ETReduxFraction buildExportFraction(String sampleName, String fractionID, TripoliConstants.ETReduxExportTypeEnum etReduxExportTypeEnum, double r18O_16O){
+    public static ETReduxFraction buildExportFraction(String sampleName, String fractionID, TripoliConstants.ETReduxExportTypeEnum etReduxExportTypeEnum, double r18O_16O) {
         ETReduxFraction etReduxFraction = new ETReduxFraction(sampleName, fractionID, etReduxExportTypeEnum, r18O_16O);
 
         // filter measured ratios
@@ -82,12 +82,16 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
         for (int i = 0; i < etReduxFraction.measuredRatios.length; i++) {
             etReduxFraction.measuredRatios[i] =
                     new MeasuredRatioModel(
-                            (etReduxExportTypeEnum.compareTo(TripoliConstants.ETReduxExportTypeEnum.U)==0)?
-                                    DataDictionary.etReduxUraniumMeasuredRatioNames[i]:
+                            (etReduxExportTypeEnum.compareTo(TripoliConstants.ETReduxExportTypeEnum.U) == 0) ?
+                                    DataDictionary.etReduxUraniumMeasuredRatioNames[i] :
                                     DataDictionary.etReduxLeadMeasuredRatioNames[i], 0.0, 0.0, false, false);
         }
 
         return etReduxFraction;
+    }
+
+    public static String getSchemaURI() {
+        return schemaURI;
     }
 
     public MeasuredRatioModel getMeasuredRatioByName(String myRatioName) {
@@ -103,10 +107,6 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
             }
         }
         return retval;
-    }
-
-    public static String getSchemaURI() {
-        return schemaURI;
     }
 
     public String getSampleName() {

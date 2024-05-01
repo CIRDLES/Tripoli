@@ -3,7 +3,6 @@ package org.cirdles.tripoli.gui;
 import jakarta.xml.bind.JAXBException;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -51,7 +50,6 @@ import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredRatioModel;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -68,7 +66,6 @@ import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDia
 import static org.cirdles.tripoli.gui.utilities.UIUtilities.showTab;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.*;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.*;
-import static org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord.prettyPrintRatioBlockMean;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compareAnalysisMethodToDataFileSpecs;
 
 public class AnalysisManagerController implements Initializable, AnalysisManagerCallbackI {
@@ -538,22 +535,26 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         Button toggleBlockMeansButton = new Button("All Block Means");
         toggleBlockMeansButton.setPrefWidth(125);
-        toggleBlockMeansButton.setPadding(new Insets(0,0,0,0));
+        toggleBlockMeansButton.setPadding(new Insets(0, 0, 0, 0));
         toggleBlockMeansButton.setOnAction(event -> {
-            for (RadioButton rb : blockMeanRBs) {rb.selectedProperty().setValue(true);}
+            for (RadioButton rb : blockMeanRBs) {
+                rb.selectedProperty().setValue(true);
+            }
         });
 
         Button toggleCycleMeansButton = new Button("All Cycle Means");
         toggleCycleMeansButton.setPrefWidth(125);
-        toggleCycleMeansButton.setPadding(new Insets(0,0,0,0));
+        toggleCycleMeansButton.setPadding(new Insets(0, 0, 0, 0));
         toggleCycleMeansButton.setOnAction(event -> {
-            for (RadioButton rb : cycleMeanRBs) {rb.selectedProperty().setValue(true);}
+            for (RadioButton rb : cycleMeanRBs) {
+                rb.selectedProperty().setValue(true);
+            }
         });
 
         Button refreshButton = new Button("Refresh");
         refreshButton.setStyle(refreshButton.getStyle() + ";-fx-text-fill: RED;");
         refreshButton.setPrefWidth(65);
-        refreshButton.setPadding(new Insets(0,0,0,0));
+        refreshButton.setPadding(new Insets(0, 0, 0, 0));
         refreshButton.setOnAction(event -> populateAnalysisMethodColumnsSelectorPane());
 
         hBox.getChildren().addAll(toggleBlockMeansButton, toggleCycleMeansButton, refreshButton);
@@ -660,7 +661,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 cycleMeanRBs.add(cycleRB);
 
                 hBox.getChildren().addAll(checkBoxRatio, checkBoxInvert, exportLabel);
-                if (!userFunction.getCorrectETReduxName().isEmpty()){hBox.getChildren().addAll(blockRB, cycleRB);}
+                if (!userFunction.getCorrectETReduxName().isEmpty()) {
+                    hBox.getChildren().addAll(blockRB, cycleRB);
+                }
                 hBox.setSpacing(45);
                 hBox.setPadding(new Insets(1, 1, 1, 25));
 
@@ -1088,18 +1091,18 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     public void exportToETReduxButtonAction() {
-        ((Analysis)analysis).setEtReduxExportType(analysis.getAnalysisMethod().getUserFunctions().get(0).getEtReduxExportType());
+        ((Analysis) analysis).setEtReduxExportType(analysis.getAnalysisMethod().getUserFunctions().get(0).getEtReduxExportType());
 
         ETReduxFraction etReduxFraction = ETReduxFraction.buildExportFraction(
                 analysis.getAnalysisSampleName(), analysis.getAnalysisFractionName(), ((Analysis) analysis).getEtReduxExportType(), 0.00205);
-        for (UserFunction uf : analysis.getAnalysisMethod().getUserFunctions()){
+        for (UserFunction uf : analysis.getAnalysisMethod().getUserFunctions()) {
             String etReduxName = uf.getCorrectETReduxName();
-            if (!etReduxName.isBlank() &&  etReduxFraction.getMeasuredRatioByName(etReduxName) != null){
+            if (!etReduxName.isBlank() && etReduxFraction.getMeasuredRatioByName(etReduxName) != null) {
                 AnalysisStatsRecord analysisStatsRecord = uf.getAnalysisStatsRecord();
                 MeasuredRatioModel measuredRatioModel = etReduxFraction.getMeasuredRatioByName(etReduxName);
                 double selectedMean;
                 double selectedOneSigmaPct;
-                if (uf.getReductionMode().equals(TripoliConstants.ReductionModeEnum.BLOCK)){
+                if (uf.getReductionMode().equals(TripoliConstants.ReductionModeEnum.BLOCK)) {
                     double geoWeightedMeanRatio = exp(analysisStatsRecord.blockModeWeightedMean());
                     double geoWeightedMeanRatioPlusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() + analysisStatsRecord.blockModeWeightedMeanOneSigma());
                     double geoWeightedMeanRatioPlusOneSigmaPct = (geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio) / geoWeightedMeanRatio * 100.0;

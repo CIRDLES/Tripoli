@@ -225,7 +225,7 @@ public enum FileHandlerUtil {
     }
 
     public static void saveExportFile(ETReduxFraction etReduxFraction, Window ownerWindow)
-            throws IOException,TripoliException {
+            throws IOException, TripoliException {
 
         DirectoryChooser dirChooser = new DirectoryChooser();
         dirChooser.setTitle("Select Export Folder");

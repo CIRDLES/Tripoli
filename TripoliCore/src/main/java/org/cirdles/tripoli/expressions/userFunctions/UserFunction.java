@@ -61,14 +61,14 @@ public class UserFunction implements Comparable, Serializable {
         this.displayed = displayed;
         this.inverted = false;
 
-        if (name.contains("20")){
+        if (name.contains("20")) {
             etReduxExportTypeEnum = TripoliConstants.ETReduxExportTypeEnum.Pb;
-        } else if (name.contains("23")){
+        } else if (name.contains("23")) {
             etReduxExportTypeEnum = TripoliConstants.ETReduxExportTypeEnum.U;
         }
     }
 
-    public AnalysisStatsRecord calculateAnalysisStatsRecord(){
+    public AnalysisStatsRecord calculateAnalysisStatsRecord() {
         analysisStatsRecord = AnalysisStatsRecord.generateAnalysisStatsRecord(generateAnalysisBlockStatsRecords(this, mapBlockIdToBlockCyclesRecord));
         return analysisStatsRecord;
     }
@@ -158,12 +158,12 @@ public class UserFunction implements Comparable, Serializable {
         return analysisStatsRecord;
     }
 
-    public void setMapBlockIdToBlockCyclesRecord(Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord) {
-        this.mapBlockIdToBlockCyclesRecord = mapBlockIdToBlockCyclesRecord;
-    }
-
     public Map<Integer, PlotBlockCyclesRecord> getMapBlockIdToBlockCyclesRecord() {
         return mapBlockIdToBlockCyclesRecord;
+    }
+
+    public void setMapBlockIdToBlockCyclesRecord(Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord) {
+        this.mapBlockIdToBlockCyclesRecord = mapBlockIdToBlockCyclesRecord;
     }
 
     /**
@@ -180,11 +180,11 @@ public class UserFunction implements Comparable, Serializable {
         return prettyPrintRatioBlockMean(this);
     }
 
-    public String showCycleMean(){
+    public String showCycleMean() {
         return prettyPrintRatioCycleMean(this);
     }
 
     public String getCorrectETReduxName() {
-        return inverted? invertedETReduxName : etReduxName;
+        return inverted ? invertedETReduxName : etReduxName;
     }
 }
