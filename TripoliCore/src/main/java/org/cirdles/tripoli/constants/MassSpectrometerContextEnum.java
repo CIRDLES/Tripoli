@@ -53,7 +53,7 @@ public enum MassSpectrometerContextEnum {
     private final String keyWordsList;
     private final Class<?> clazz;
     private final String methodName;
-    private int caseNumber;
+    private final int caseNumber;
 
     MassSpectrometerContextEnum(String name, String massSpectrometerName, String keyWordsList, Class<?> clazz, String methodName, int caseNumber) {
         this.name = name;
