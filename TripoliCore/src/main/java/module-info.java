@@ -26,6 +26,8 @@ module Tripoli.TripoliCore {
     requires jakarta.xml.bind;
     requires java.xml.bind;
     requires jblas;
+    requires xstream;
+    requires java.logging;
 
 
     exports org.cirdles.tripoli;
@@ -65,6 +67,7 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne;
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix;
     exports org.cirdles.tripoli.utilities.mathUtilities;
+    exports org.cirdles.tripoli.sessions.analysis.outputs.etRedux;
     exports org.cirdles.tripoli.species;
     exports org.cirdles.tripoli.utilities.collections;
 }

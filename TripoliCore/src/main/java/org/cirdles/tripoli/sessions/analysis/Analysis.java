@@ -22,6 +22,7 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.plots.PlotBuilder;
@@ -97,6 +98,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private String labName;
     private AnalysisMethod analysisMethod;
     private String analysisSampleName;
+    private String analysisFractionName;
     private String analysisSampleDescription;
     // note: Path is not serializable
     private String dataFilePathString;
@@ -106,6 +108,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private DescriptiveStatistics[] analysisSpeciesStats = new DescriptiveStatistics[0];
     private double analysisDalyFaradayGainMean;
     private double analysisDalyFaradayGainMeanOneSigmaAbs;
+    private TripoliConstants.ETReduxExportTypeEnum etReduxExportType = TripoliConstants.ETReduxExportTypeEnum.NONE;
 
     private Analysis() {
     }
@@ -114,6 +117,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         this.analysisName = analysisName;
         setMethod(analysisMethod);
         this.analysisSampleName = analysisSampleName;
+        this.analysisFractionName = MISSING_STRING_FIELD;
         analystName = MISSING_STRING_FIELD;
         labName = MISSING_STRING_FIELD;
         analysisSampleDescription = MISSING_STRING_FIELD;
@@ -253,8 +257,38 @@ public class Analysis implements Serializable, AnalysisInterface {
                 }
             }
         } else {
-            // case1
+          // case1
+          analysisName = dataFilePath.toFile().getName().substring(0, dataFilePath.toFile().getName().length() - 4);
+//             analysisMethod = AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData);
           setMethod(AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData));
+          initializeBlockProcessing();
+          
+        }
+
+        initSampleFractionNames();
+    }
+
+    private void initSampleFractionNames() {
+        /*
+        Our previous rules were "SampleName FractionName Infinite Free Text Here".
+        So, the sample name is the first block of unbroken text, then a space, then the fraction name
+        is the second block of unbroken text, then a space, then the user/mass spectrometer can append
+        any additional info to the end.  So, a common file names could be "FC1 z1 Pb" or
+        "FC1 z1 Pb second try after mass spectrometer exploded" or "FC1 z1 run3 U static Faraday 2024-04-25".
+        All have FC1 as the sample name and z1 as the fraction name.
+        No spaces are allowed in the sample name or the fraction name.
+         */
+        String sampleName = massSpecExtractedData.getHeader().sampleName();
+        if (!sampleName.isEmpty()) {
+            String sampleNameArray[] = sampleName.split(" ");
+
+            analysisSampleName = sampleNameArray[0];
+            analysisFractionName = sampleNameArray[1];
+            analysisSampleDescription = sampleName.substring(analysisSampleName.length() + analysisFractionName.length(), sampleName.length() - 1);
+        } else {
+            analysisSampleName = MISSING_STRING_FIELD;
+            analysisFractionName = MISSING_STRING_FIELD;
+            analysisSampleDescription = MISSING_STRING_FIELD;
         }
     }
 
@@ -398,7 +432,7 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public final String prettyPrintAnalysisSummary() {
         return analysisName +
-                SPACES_100.substring(0, 40 - analysisName.length()) +
+                SPACES_150.substring(0, 100 - analysisName.length()) +
                 (null == analysisMethod ? "NO Method" : analysisMethod.prettyPrintMethodSummary(false));
     }
 
@@ -425,18 +459,20 @@ public class Analysis implements Serializable, AnalysisInterface {
         StringBuilder sb = new StringBuilder();
         if (getAnalysisCaseNumber() == 1) {
             sb.append(String.format("%30s", "Column headers: "));
-            for (String header : massSpecExtractedData.getColumnHeaders()) {
+            for (String header : massSpecExtractedData.getUsedColumnHeaders()) {
                 sb.append(header + ", ");
             }
             sb.replace(sb.length() - 2, sb.length(), "");
             sb.append("\n");
             sb.append(String.format("%30s", "Block count: "))
-                    .append(String.format("%-3s", massSpecExtractedData.getBlocksDataLite().size()))
-                    .append(String.format("%-3s", "each with " + massSpecExtractedData.getBlocksDataLite().get(1).cycleData().length) + " cycles");
+                    .append(String.format("%-3s", massSpecExtractedData.getBlocksDataLite().size()));
+            if (massSpecExtractedData.getBlocksDataLite().size() > 0) {
+                sb.append(String.format("%-3s", "each with " + massSpecExtractedData.getBlocksDataLite().get(1).cycleData().length) + " cycles");
+            }
             sb.append("\n");
         } else {
             sb.append(String.format("%30s", "Column headers: "));
-            for (String header : massSpecExtractedData.getColumnHeaders()) {
+            for (String header : massSpecExtractedData.getUsedColumnHeaders()) {
                 sb.append(header + ", ");
             }
             sb.replace(sb.length() - 2, sb.length(), "");
@@ -592,6 +628,14 @@ public class Analysis implements Serializable, AnalysisInterface {
         this.analysisSampleName = analysisSampleName;
     }
 
+    public String getAnalysisFractionName() {
+        return analysisFractionName;
+    }
+
+    public void setAnalysisFractionName(String analysisFractionName) {
+        this.analysisFractionName = analysisFractionName;
+    }
+
     public String getAnalysisSampleDescription() {
         return analysisSampleDescription;
     }
@@ -713,5 +757,13 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public int getAnalysisCaseNumber() {
         return massSpecExtractedData.getMassSpectrometerContext().getCaseNumber();
+    }
+
+    public TripoliConstants.ETReduxExportTypeEnum getEtReduxExportType() {
+        return etReduxExportType;
+    }
+
+    public void setEtReduxExportType(TripoliConstants.ETReduxExportTypeEnum etReduxExportType) {
+        this.etReduxExportType = etReduxExportType;
     }
 }

@@ -108,6 +108,10 @@ public interface AnalysisInterface {
 
     void setAnalysisSampleName(String analysisSampleName);
 
+    public String getAnalysisFractionName();
+
+    public void setAnalysisFractionName(String analysisFractionName);
+
     String getAnalysisSampleDescription();
 
     void setAnalysisSampleDescription(String analysisSampleDescription);

@@ -50,7 +50,7 @@ public class MassSpecExtractedData implements Serializable {
     public void populateHeader(List<String[]> headerData) {
         String softwareVersion = "";
         String filename = "";
-//        String sampleName = "";
+        String sampleName = "";
         String methodName = "";
         boolean isCorrected = false;
         boolean hasBChannels = false;
@@ -70,6 +70,9 @@ public class MassSpecExtractedData implements Serializable {
                         hasBChannels = Boolean.parseBoolean(headerStrings[1].trim().toUpperCase().replace("YES", "TRUE"));
                 case "TIMEZERO" -> localDateTimeZero = headerStrings[1].trim();
                 case "CYCLESTOMEASURE" -> cyclesPerBlock = Integer.parseInt(headerStrings[1].trim());
+                case "SAMPLEID" -> {
+                    sampleName = headerStrings[1].trim();
+                }
 
                 // Triton
                 case "DATA VERSION" -> softwareVersion = headerStrings[1].trim();
@@ -77,7 +80,7 @@ public class MassSpecExtractedData implements Serializable {
 
                 // Nu
                 case "VERSION NUMBER" -> softwareVersion = headerStrings[1].trim();
-//                case "SAMPLE NAME" -> sampleName = headerStrings[1].trim();
+                case "SAMPLE NAME" -> sampleName = headerStrings[1].trim();
                 case "ANALYSIS FILE NAME" -> filename = headerStrings[1].trim();
                 case "NUMBER OF MEASUREMENTS PER BLOCK" -> cyclesPerBlock = Integer.parseInt(headerStrings[1].trim());
             }
@@ -85,6 +88,7 @@ public class MassSpecExtractedData implements Serializable {
         header = new MassSpecExtractedHeader(
                 softwareVersion,
                 filename,
+                sampleName,
                 methodName,
                 isCorrected,
                 hasBChannels,
@@ -94,12 +98,13 @@ public class MassSpecExtractedData implements Serializable {
     }
 
     public String printHeader() {
-        String sb = "Software Version: " + header.softwareVersion() + "\n" +
-                "Sample: " + "unknown" + "\n" +
-                "Fraction: " + "unknown" + "\n" +
-                "Method Name: " + header.methodName() + "\n" +
-                "Time Zero: " + header.localDateTimeZero() + "\n\n";
-        return sb;
+        StringBuilder sb = new StringBuilder();
+        sb.append("Software Version: " + header.softwareVersion() + "\n");
+        sb.append("Sample: " + header.sampleName + "\n");
+        sb.append("Fraction: " + header.sampleName + "\n");
+        sb.append("Method Name: " + header.methodName() + "\n");
+        sb.append("Time Zero: " + header.localDateTimeZero() + "\n\n");
+        return sb.toString();
     }
 
     public void populateColumnNamesList(List<String[]> columnNames) {
@@ -189,6 +194,12 @@ public class MassSpecExtractedData implements Serializable {
         return blockIDs;
     }
 
+    public void expandCycleDataForUraniumOxideCorrection(int r270_267ColumnIndex, int r265_267ColumnIndex, double r18O_16O) {
+        for (Integer blockID : blocksDataLite.keySet()) {
+            blocksDataLite.put(blockID, blocksDataLite.get(blockID).expandForUraniumOxideCorrection(r270_267ColumnIndex, r265_267ColumnIndex, r18O_16O));
+        }
+    }
+
     public MassSpectrometerContextEnum getMassSpectrometerContext() {
         return massSpectrometerContext;
     }
@@ -213,6 +224,16 @@ public class MassSpecExtractedData implements Serializable {
         this.columnHeaders = columnHeaders;
     }
 
+    public String[] getUsedColumnHeaders() {
+        List<String> usedColumnHeadersList = new ArrayList<>();
+        for (String ch : columnHeaders) {
+            if (ch != null) {
+                usedColumnHeadersList.add(ch);
+            }
+        }
+        return usedColumnHeadersList.toArray(new String[0]);
+    }
+
     public DetectorSetup getDetectorSetup() {
         return detectorSetup;
     }
@@ -232,6 +253,7 @@ public class MassSpecExtractedData implements Serializable {
     public record MassSpecExtractedHeader(
             String softwareVersion,
             String filename,
+            String sampleName,
             String methodName,
             boolean isCorrected,
             boolean hasBChannels,
