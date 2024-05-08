@@ -21,6 +21,8 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.gui.TripoliGUI;
+import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.species.SpeciesColorSetting;
 import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
@@ -203,7 +205,7 @@ public class ColorSelectionWindow {
         try {
             TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
         } catch (TripoliException e) {
-            throw new RuntimeException(e);
+            TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);;
         }
         rebuildDelegateActionSet.executeDelegateActions();
         stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
