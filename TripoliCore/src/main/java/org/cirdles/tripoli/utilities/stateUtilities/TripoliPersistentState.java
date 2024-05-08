@@ -17,14 +17,16 @@
  */
 package org.cirdles.tripoli.utilities.stateUtilities;
 
+import org.cirdles.tripoli.species.SpeciesColors;
+import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
+import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_DEFAULT_HEX_COLORS;
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_USERS_DATA_FOLDER_NAME;
 
 /**
@@ -49,6 +51,7 @@ public class TripoliPersistentState implements Serializable {
     private List<String> MRUMethodXMLList;
     private String MRUMethodXMLFolderPath;
     private String MRUExportFolderPath;
+    private TripoliSpeciesColorMap mapOfSpeciesToColors;
 
 //    private void readObject(ObjectInputStream stream) throws IOException,
 //            ClassNotFoundException {
@@ -90,7 +93,8 @@ public class TripoliPersistentState implements Serializable {
         MRUMethodXMLFolderPath = "";
 
         MRUExportFolderPath = "";
-
+        mapOfSpeciesToColors = new TripoliSpeciesColorMap();
+        initializeDefaultsMapOfSpeciesToColors(TRIPOLI_DEFAULT_HEX_COLORS.length()/4);
         serializeSelf();
     }
 
@@ -124,6 +128,18 @@ public class TripoliPersistentState implements Serializable {
         return myInstance;
     }
 
+    private void initializeDefaultsMapOfSpeciesToColors(int numSpecies) {
+        for(int i = 0; i < numSpecies; i++) {
+            mapOfSpeciesToColors.put(i,
+                    new SpeciesColors(
+                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4),
+                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 1),
+                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 2),
+                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 3)
+                    ));
+        }
+    }
+
     /**
      * @return
      */
@@ -152,6 +168,15 @@ public class TripoliPersistentState implements Serializable {
         }
     }
     //properties
+
+
+    public TripoliSpeciesColorMap getMapOfSpeciesToColors() {
+        if (mapOfSpeciesToColors == null) {
+            mapOfSpeciesToColors = new TripoliSpeciesColorMap();
+            initializeDefaultsMapOfSpeciesToColors(TRIPOLI_DEFAULT_HEX_COLORS.length()/4);
+        }
+        return mapOfSpeciesToColors;
+    }
 
     public void updateTripoliPersistentState() {
         serializeSelf();

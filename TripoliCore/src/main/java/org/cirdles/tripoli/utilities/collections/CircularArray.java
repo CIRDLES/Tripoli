@@ -14,4 +14,6 @@ public class CircularArray <T>{
     public void put(int index, T val) {
         this.array[index % this.array.length] = val;
     }
+
+    public int length() { return array.length; }
 }

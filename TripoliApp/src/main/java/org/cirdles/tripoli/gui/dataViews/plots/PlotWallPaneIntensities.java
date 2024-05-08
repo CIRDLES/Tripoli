@@ -34,9 +34,12 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.a
 import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.DelegateActionInterface;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Stack;
 import java.util.function.Function;
 import java.util.stream.IntStream;
