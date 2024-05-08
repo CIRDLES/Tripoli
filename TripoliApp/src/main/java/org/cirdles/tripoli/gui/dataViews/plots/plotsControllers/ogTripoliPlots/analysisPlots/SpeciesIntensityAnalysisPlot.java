@@ -23,6 +23,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.species.SpeciesColors;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -297,7 +298,8 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
         Paint savedPaint = g2d.getFill();
         Analysis analysis = ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis());
         List<SpeciesRecordInterface> speciesList = analysis.getAnalysisMethod().getSpeciesList();
-        Map<Integer, SpeciesColors> mapOfSpeciesToColors = analysis.getMapOfSpeciesToColors();
+//        Map<Integer, SpeciesColors> mapOfSpeciesToColors = analysis.getMapOfSpeciesToColors();
+        Map<Integer, SpeciesColors> mapOfSpeciesToColors = TripoliPersistentState.getCurrentSpeciesColorMap();
         for (int isotopePlotSetIndex = 0; isotopePlotSetIndex < yData.length / 4; isotopePlotSetIndex++) {
             if (speciesChecked[isotopePlotSetIndex]) {
                 Color faradayColor = Color.web(mapOfSpeciesToColors.get(isotopePlotSetIndex).faradayHexColor());
@@ -345,8 +347,9 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
 
     @Override
     public void plotData(GraphicsContext g2d) {
-        Map<Integer, SpeciesColors> mapOfSpeciesToColors =
-                ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfSpeciesToColors();
+        Map<Integer, SpeciesColors> mapOfSpeciesToColors = TripoliPersistentState.getCurrentSpeciesColorMap();
+//        Map<Integer, SpeciesColors> mapOfSpeciesToColors =
+//                ((Analysis) speciesIntensityAnalysisBuilder.getAnalysis()).getMapOfSpeciesToColors();
         g2d.setFill(dataColor.color());
         g2d.setStroke(dataColor.color());
         g2d.setLineWidth(2.0);
