@@ -160,6 +160,13 @@ public class TripoliPersistentState implements Serializable {
         return tripoliUserHomeDirectoryLocal;
     }
 
+    public static TripoliSpeciesColorMap getCurrentSpeciesColorMap() {
+        if (myInstance != null) {
+            return myInstance.getMapOfSpeciesToColors();
+        }
+        return null;
+    }
+
     private void serializeSelf() {
         // save initial persistent state serialized file
         try {
@@ -174,6 +181,7 @@ public class TripoliPersistentState implements Serializable {
         if (mapOfSpeciesToColors == null) {
             mapOfSpeciesToColors = new TripoliSpeciesColorMap();
             initializeDefaultsMapOfSpeciesToColors(TRIPOLI_DEFAULT_HEX_COLORS.length()/4);
+            serializeSelf();
         }
         return mapOfSpeciesToColors;
     }
