@@ -24,6 +24,8 @@ import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.species.SpeciesColorSetting;
 import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.util.*;
 
@@ -48,7 +50,6 @@ public class ColorSelectionWindow {
     private Button undoButton;
     private Button saveButton;
     private final ColorListener colorListener;
-
     private final DelegateActionSet rebuildDelegateActionSet;
 
 
@@ -128,7 +129,9 @@ public class ColorSelectionWindow {
         HBox.setHgrow(spacerLeft, Priority.ALWAYS);
         HBox.setHgrow(spacerRight, Priority.ALWAYS);
         ToolBar toolBar = new ToolBar(
-                spacerLeft,initResetButton(), initUndoButton(), initSaveButton(),initCancelButton(), spacerRight);
+                spacerLeft,
+//                initResetButton(),
+                initUndoButton(), initSaveButton(),initCancelButton(), spacerRight);
         toolBar.prefWidthProperty().bind(stage.widthProperty());
         toolBar.setPadding(new Insets(10));
         this.root.getChildren().add(toolBar);
@@ -197,11 +200,21 @@ public class ColorSelectionWindow {
 
     private void cancel() {
         mapOfSpeciesToColors.putAll(originalMapOfSpeciesToColors);
+        try {
+            TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
+        } catch (TripoliException e) {
+            throw new RuntimeException(e);
+        }
         rebuildDelegateActionSet.executeDelegateActions();
         stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
 //        stage.close();
     }
     private void accept() {
+        try{
+            TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
+        } catch (TripoliException ex) {
+            ex.printStackTrace();
+        }
         stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
         stage.close();
     }

@@ -40,20 +40,27 @@ public class TripoliSpeciesColorMap implements Map<Integer, SpeciesColors>, Seri
     public SpeciesColors get(Object key) {
         int idx = (Integer) key % size();
         if ((Integer) key > idx) {
-            put((Integer) key, mapOfSpeciesToColors.get(idx));
+            putReorganize((Integer) key, mapOfSpeciesToColors.get(idx));
         }
         return mapOfSpeciesToColors.get(key);
+    }
+
+    private SpeciesColors putReorganize(Integer key, SpeciesColors value) {
+        SpeciesColors oldValue = mapOfSpeciesToColors.put(key, value);
+        SpeciesColors originalValue = oldValue;
+        int newKey = key;
+        while (oldValue != null) {
+            newKey += size();
+            oldValue = mapOfSpeciesToColors.put(newKey, oldValue);
+        }
+        return originalValue;
     }
 
     @Nullable
     @Override
     public SpeciesColors put(Integer key, SpeciesColors value) {
-        SpeciesColors oldValue = mapOfSpeciesToColors.put(key, value);
-        if (oldValue != null) {
-            int newKey = key + size();
-            put(newKey, oldValue);
-        }
-        return oldValue;
+
+        return mapOfSpeciesToColors.put(key,value);
     }
 
     @Override
