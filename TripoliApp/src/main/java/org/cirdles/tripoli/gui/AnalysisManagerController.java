@@ -232,7 +232,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 AnalysisInterface analysisSelected = analysis;
 
                 try {
-                    analysisSelected.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
+                    analysis.setAnalysisName(analysisSelected.extractMassSpecDataFromPath(Path.of(dataFile.toURI())));
                 } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
 //                    throw new RuntimeException(e);
                 } catch (IllegalAccessException | TripoliException e) {
@@ -895,7 +895,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             if (null != selectedFile) {
                 removeAnalysisMethod();
                 try {
-                    analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
+                    SessionManagerController.tripoliSession.getMapOfAnalyses().remove(analysis.getAnalysisName());
+                    analysis.setAnalysisName(analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI())));
+                    SessionManagerController.tripoliSession.getMapOfAnalyses().put(analysis.getAnalysisName(), analysis);
                 } catch (TripoliException e) {
                     //TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
                 }

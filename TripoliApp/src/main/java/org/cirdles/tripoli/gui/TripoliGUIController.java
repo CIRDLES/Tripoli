@@ -177,7 +177,7 @@ public class TripoliGUIController implements Initializable {
                     AnalysisInterface analysisSelected = analysis;
 
                     try {
-                        analysisSelected.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
+                        analysis.setAnalysisName(analysisSelected.extractMassSpecDataFromPath(Path.of(dataFile.toURI())));
                     } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException |
                              IllegalAccessException | TripoliException e) {
 //                    throw new RuntimeException(e);
@@ -230,7 +230,7 @@ public class TripoliGUIController implements Initializable {
         saveSessionAsMenuItem.setDisable(true);
         closeSessionMenuItem.setDisable(true);
 
-//        analysisMenu.setDisable(true);
+        analysisMenu.setDisable(true);
 
         methodsMenu.setDisable(true);
 
@@ -272,7 +272,7 @@ public class TripoliGUIController implements Initializable {
         sessionManagerMenuItem.setDisable(false);
         saveSessionAsMenuItem.setDisable(false);
         closeSessionMenuItem.setDisable(false);
-//        analysisMenu.setDisable(true);
+        analysisMenu.setDisable(false);
     }
 
     private void buildSessionMenuMRU() {
@@ -302,6 +302,7 @@ public class TripoliGUIController implements Initializable {
 
     public void newSessionMenuItemAction() throws IOException, JAXBException, TripoliException {
         tripoliSession = Session.initializeDefaultSession();
+        SessionManagerController.tripoliSession = tripoliSession;
         launchSessionManager();
     }
 

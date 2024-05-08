@@ -156,8 +156,9 @@ public class Analysis implements Serializable, AnalysisInterface {
         mapOfBlockIdToFinalModel.clear();
     }
 
-    public void extractMassSpecDataFromPath(Path dataFilePath)
+    public String extractMassSpecDataFromPath(Path dataFilePath)
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, JAXBException, TripoliException {
+        String extractedAnalysisName;
         dataFilePathString = dataFilePath.toString();
         MassSpectrometerContextEnum massSpectrometerContext = AnalysisInterface.determineMassSpectrometerContextFromDataFile(dataFilePath);
         if (0 != massSpectrometerContext.compareTo(UNKNOWN)) {
@@ -251,14 +252,17 @@ public class Analysis implements Serializable, AnalysisInterface {
                             "PeakCentres folder not found at location: " + Path.of(dataFilePathString).getParent().toString() + File.separator + "PeakCentres");
                 }
             }
+            extractedAnalysisName = analysisName;
         } else {
             // case1
-            analysisName = dataFilePath.toFile().getName().substring(0, dataFilePath.toFile().getName().length() - 4);
+            extractedAnalysisName = dataFilePath.toFile().getName().substring(0, dataFilePath.toFile().getName().length() - 4);
             analysisMethod = AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData);
             initializeBlockProcessing();
         }
 
         initSampleFractionNames();
+
+        return extractedAnalysisName;
     }
 
     private void initSampleFractionNames() {
