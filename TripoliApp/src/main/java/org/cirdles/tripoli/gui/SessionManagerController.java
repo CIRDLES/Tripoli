@@ -140,11 +140,9 @@ public class SessionManagerController implements Initializable {
         listViewOfAnalyses.setItems(items);
         listViewOfAnalyses.setOnMouseClicked(event -> {
             AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
-            AnalysisManagerController.analysis = analysisSelected;
-            if (MouseButton.PRIMARY == event.getButton()) {
+            analysis = analysisSelected;
+            if (MouseButton.PRIMARY == event.getButton() && (null != analysis)) {
                 if (2 == event.getClickCount() && -1 == event.getTarget().toString().lastIndexOf("null")) {
-//                    AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
-//                    AnalysisManagerController.analysis = analysisSelected;
                     File dataFile = new File(analysisSelected.getDataFilePathString());
                     tripoliPersistentState.setMRUDataFileFolderPath(dataFile.getParent());
                     MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
@@ -194,6 +192,7 @@ public class SessionManagerController implements Initializable {
                 MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
                         .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(0);
                 menuItemAnalysesManager.fire();
+                Session.setSessionChanged(true);
             });
             contextMenu.getItems().add(deleteItem);
 

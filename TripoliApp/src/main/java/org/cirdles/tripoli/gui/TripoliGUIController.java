@@ -177,7 +177,9 @@ public class TripoliGUIController implements Initializable {
                     AnalysisInterface analysisSelected = analysis;
 
                     try {
+                        tripoliSession.getMapOfAnalyses().remove(analysisSelected.getAnalysisName());
                         analysis.setAnalysisName(analysisSelected.extractMassSpecDataFromPath(Path.of(dataFile.toURI())));
+                        tripoliSession.getMapOfAnalyses().put(analysis.getAnalysisName(), analysis);
                     } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException |
                              IllegalAccessException | TripoliException e) {
 //                    throw new RuntimeException(e);
@@ -186,6 +188,7 @@ public class TripoliGUIController implements Initializable {
                     // manage analysis
                     MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
                             .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
+                    menuItemAnalysesManager.setDisable(false);
                     menuItemAnalysesManager.fire();
                 }
             }
@@ -309,6 +312,7 @@ public class TripoliGUIController implements Initializable {
     public void openSessionMenuItemAction() throws IOException, TripoliException {
         confirmSaveOnProjectClose();
         removeAllManagers();
+//        launchSessionManager();
 
         try {
             sessionFileName = selectSessionFile(primaryStageWindow);
@@ -321,10 +325,12 @@ public class TripoliGUIController implements Initializable {
         if (!"".equals(aSessionFileName)) {
             sessionFileName = aSessionFileName;
             File sessionFile = new File(sessionFileName);
+//            Session.setSessionChanged(true);
             confirmSaveOnProjectClose();
             tripoliSession = (Session) TripoliSerializer.getSerializedObjectFromFile(sessionFileName, true);
 
             if (null != tripoliSession) {
+                SessionManagerController.tripoliSession = tripoliSession;
                 tripoliPersistentState.updateSessionListMRU(sessionFile);
                 TripoliGUI.updateStageTitle(sessionFileName);
                 buildSessionMenuMRU();
@@ -344,6 +350,7 @@ public class TripoliGUIController implements Initializable {
 
     public void openDemonstrationSessionMenuItemAction() throws IOException, TripoliException {
         tripoliSession = SessionBuiltinFactory.sessionsBuiltinMap.get(TRIPOLI_DEMONSTRATION_SESSION);
+        SessionManagerController.tripoliSession = tripoliSession;
         launchSessionManager();
 
     }
@@ -352,6 +359,7 @@ public class TripoliGUIController implements Initializable {
         if (null != tripoliSession) {
             try {
                 serializeObjectToFile(tripoliSession, tripoliPersistentState.getMRUSessionFile().getAbsolutePath());
+                Session.setSessionChanged(false);
 //                squidProjectOriginalHash = squidProject.hashCode();
             } catch (TripoliException ex) {
                 TripoliMessageDialog.showWarningDialog(ex.getMessage(), null);
@@ -386,11 +394,13 @@ public class TripoliGUIController implements Initializable {
     }
 
     @FXML
-    void closeSessionMenuItemAction() throws TripoliException {
-        //TODO:        confirmSaveOnProjectClose();
+    void closeSessionMenuItemAction() throws TripoliException, IOException {
+        confirmSaveOnProjectClose();
         removeAllManagers();
+ //       launchSessionManager();
         TripoliGUI.updateStageTitle("");
         tripoliSession = null;
+        SessionManagerController.tripoliSession = tripoliSession;
         //TODO:        menuHighlighter.deHighlight();
         showStartingMenus();
     }
@@ -408,7 +418,7 @@ public class TripoliGUIController implements Initializable {
             alert.showAndWait().ifPresent((t) -> {
                 if (t.equals(ButtonType.YES)) {
                     try {
-                        FileHandlerUtil.saveSessionFile(tripoliSession, primaryStageWindow);
+                        saveSessionFile(tripoliSession, primaryStageWindow);
                     } catch (IOException iOException) {
                         TripoliMessageDialog.showWarningDialog("Tripoli cannot access the target file.\n",
                                 null);

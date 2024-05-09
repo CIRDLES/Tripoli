@@ -232,11 +232,13 @@ public enum FileHandlerUtil {
         File userHome = new File(File.separator + TripoliPersistentState.getExistingPersistentState().getMRUExportFolderPath());
         dirChooser.setInitialDirectory(userHome.isDirectory() ? userHome : null);
         File directory = dirChooser.showDialog(ownerWindow);
-        TripoliPersistentState.getExistingPersistentState().setMRUExportFolderPath(directory.getPath());
+        if (null != directory) {
+            TripoliPersistentState.getExistingPersistentState().setMRUExportFolderPath(directory.getPath());
 
-        String fileName = directory + File.separator +
-                etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_" + etReduxFraction.getEtReduxExportType() + ".xml";
-        etReduxFraction.serializeXMLObject(fileName);
+            String fileName = directory + File.separator +
+                    etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_" + etReduxFraction.getEtReduxExportType() + ".xml";
+            etReduxFraction.serializeXMLObject(fileName);
+        }
     }
 
 }
