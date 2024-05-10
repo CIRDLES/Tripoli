@@ -229,10 +229,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                         .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(1);
                 menuItemAnalysesNew.fire();
 
-                AnalysisInterface analysisSelected = analysis;
-
                 try {
-                    analysisSelected.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
+                    SessionManagerController.tripoliSession.getMapOfAnalyses().remove(analysis.getAnalysisName());
+                    analysis.setAnalysisName(analysis.extractMassSpecDataFromPath(Path.of(dataFile.toURI())));
+                    SessionManagerController.tripoliSession.getMapOfAnalyses().put(analysis.getAnalysisName(), analysis);
                 } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
 //                    throw new RuntimeException(e);
                 } catch (IllegalAccessException | TripoliException e) {
@@ -251,7 +251,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         OGTripoliViewController.analysis = analysis;
         analysisManagerGridPane.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_YELLOW));
 
-//        populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
         setupListeners();
 
         try {
@@ -260,6 +259,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         } catch (TripoliException e) {
 //            throw new RuntimeException(e);
         }
+
+        exportToETReduxButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
+        reviewSculptData.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
 
     }
 
@@ -895,7 +897,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             if (null != selectedFile) {
                 removeAnalysisMethod();
                 try {
-                    analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
+                    SessionManagerController.tripoliSession.getMapOfAnalyses().remove(analysis.getAnalysisName());
+                    analysis.setAnalysisName(analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI())));
+                    SessionManagerController.tripoliSession.getMapOfAnalyses().put(analysis.getAnalysisName(), analysis);
                 } catch (TripoliException e) {
                     //TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
                 }
@@ -904,6 +908,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
 
                 processingToolBar.setDisable(null == analysis.getAnalysisMethod());
+                exportToETReduxButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
+                reviewSculptData.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
 
                 try {
                     previewAndSculptDataAction();

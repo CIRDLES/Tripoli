@@ -42,6 +42,7 @@ import java.nio.file.Path;
 import java.util.ResourceBundle;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
+import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
 import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliPersistentState;
 import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliSession;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_SESSION_LINEN;
@@ -51,6 +52,7 @@ import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColor
  * @author James F. Bowring
  */
 public class SessionManagerController implements Initializable {
+    public static Session tripoliSession;
     public ColumnConstraints columnTwoConstraints;
     public GridPane sessionGridPane;
     @FXML
@@ -94,10 +96,12 @@ public class SessionManagerController implements Initializable {
                         .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(1);
                 menuItemAnalysesNew.fire();
 
-                AnalysisInterface analysisSelected = AnalysisManagerController.analysis;
+                AnalysisInterface analysisSelected = analysis;
 
                 try {
-                    analysisSelected.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
+                    tripoliSession.getMapOfAnalyses().remove(analysisSelected.getAnalysisName());
+                    analysis.setAnalysisName(analysisSelected.extractMassSpecDataFromPath(Path.of(dataFile.toURI())));
+                    tripoliSession.getMapOfAnalyses().put(analysis.getAnalysisName(), analysis);
                 } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
 //                    throw new RuntimeException(e);
                 } catch (IllegalAccessException | TripoliException e) {
@@ -136,11 +140,9 @@ public class SessionManagerController implements Initializable {
         listViewOfAnalyses.setItems(items);
         listViewOfAnalyses.setOnMouseClicked(event -> {
             AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
-            AnalysisManagerController.analysis = analysisSelected;
-            if (MouseButton.PRIMARY == event.getButton()) {
+            analysis = analysisSelected;
+            if (MouseButton.PRIMARY == event.getButton() && (null != analysis)) {
                 if (2 == event.getClickCount() && -1 == event.getTarget().toString().lastIndexOf("null")) {
-//                    AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
-//                    AnalysisManagerController.analysis = analysisSelected;
                     File dataFile = new File(analysisSelected.getDataFilePathString());
                     tripoliPersistentState.setMRUDataFileFolderPath(dataFile.getParent());
                     MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
@@ -190,6 +192,7 @@ public class SessionManagerController implements Initializable {
                 MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
                         .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(0);
                 menuItemAnalysesManager.fire();
+                Session.setSessionChanged(true);
             });
             contextMenu.getItems().add(deleteItem);
 
