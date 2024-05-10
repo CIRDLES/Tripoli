@@ -306,7 +306,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     boolean meanIsPlottable = (mapY(geoWeightedMeanRatio) >= topMargin) && (mapY(geoWeightedMeanRatio) <= topMargin + plotHeight);
                     if (meanIsPlottable) {
                         g2d.setStroke(OGTRIPOLI_MEAN);
-                        g2d.strokeLine(Math.max(mapX(xAxisData[0]), leftMargin) - 25, mapY(geoWeightedMeanRatio), Math.min(mapX(xAxisData[xAxisData.length - 1]), leftMargin + plotWidth), mapY(geoWeightedMeanRatio));
+                        g2d.strokeLine(Math.max(mapX(xAxisData[0]), leftMargin) - 0, mapY(geoWeightedMeanRatio), Math.min(mapX(xAxisData[xAxisData.length - 1]), leftMargin + plotWidth), mapY(geoWeightedMeanRatio));
                         g2d.setStroke(Paint.valueOf("BLACK"));
                     }
 
@@ -404,7 +404,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     boolean meanIsPlottable = (mapY(geoMean) >= topMargin) && (mapY(geoMean) <= topMargin + plotHeight);
                     if (meanIsPlottable) {
                         g2d.setStroke(OGTRIPOLI_MEAN);
-                        g2d.strokeLine(Math.max(mapX(xAxisData[0]), leftMargin) - 25, mapY(geoMean), Math.min(mapX(xAxisData[xAxisData.length - 1]), leftMargin + plotWidth), mapY(geoMean));
+                        g2d.strokeLine(Math.max(mapX(xAxisData[0]), leftMargin) - 0, mapY(geoMean), Math.min(mapX(xAxisData[xAxisData.length - 1]), leftMargin + plotWidth), mapY(geoMean));
                         g2d.setStroke(Paint.valueOf("BLACK"));
                     }
 
@@ -501,7 +501,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     boolean meanIsPlottable = (mapY(weightedMean) >= topMargin) && (mapY(weightedMean) <= topMargin + plotHeight);
                     if (meanIsPlottable) {
                         g2d.setStroke(OGTRIPOLI_MEAN);
-                        g2d.strokeLine(Math.max(mapX(xAxisData[0]), leftMargin) - 25, mapY(weightedMean), Math.min(mapX(xAxisData[xAxisData.length - 1]), leftMargin + plotWidth), mapY(weightedMean));
+                        g2d.strokeLine(Math.max(mapX(xAxisData[0]), leftMargin) - 0, mapY(weightedMean), Math.min(mapX(xAxisData[xAxisData.length - 1]), leftMargin + plotWidth), mapY(weightedMean));
                         g2d.setStroke(Paint.valueOf("BLACK"));
                     }
                     double plottedOneSigmaHeight = Math.min(mapY(weightedMean - weighteMeanOneSigma), topMargin + plotHeight) - Math.max(mapY(weightedMean + weighteMeanOneSigma), topMargin);
@@ -792,7 +792,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             if (meanIsPlottable && (leftX <= rightX)) {
                 g2d.setStroke(OGTRIPOLI_MEAN);
                 g2d.setLineWidth(1.5);
-                g2d.strokeLine(leftX - 25, mapY(mean), rightX, mapY(mean));
+                g2d.strokeLine(leftX - 0, mapY(mean), rightX, mapY(mean));
             }
         }
         g2d.setFill(saveFill);
