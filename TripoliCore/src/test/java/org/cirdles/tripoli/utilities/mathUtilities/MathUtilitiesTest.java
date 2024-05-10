@@ -32,17 +32,4 @@ class MathUtilitiesTest {
         assertEquals(20, MathUtilities.nChooseR(6, 3)); // n=6, r=3
         assertEquals(252, MathUtilities.nChooseR(10, 5)); // n=10, r=5
     }
-
-    @BeforeEach
-    void setUp() {
-    }
-
-    @AfterEach
-    void tearDown() {
-    }
-
-    @Test
-    void applyChauvenetsCriterion() {
-    }
-
 }

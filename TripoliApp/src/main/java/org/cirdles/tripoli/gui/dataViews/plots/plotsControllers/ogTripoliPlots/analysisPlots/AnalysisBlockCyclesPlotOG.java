@@ -680,7 +680,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 double dataX = mapX(xAxisData[i] - 0.5);
                 g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
                 // may 2024 issue#235
-                showBlockID(g2d, blockID, mapX(xAxisData[i + cyclesPerBlock / 2]));
+                showBlockID(g2d, blockID, mapX(xAxisData[i + cyclesPerBlock / 2 - 1]));
             }
             blockID++;
         }
