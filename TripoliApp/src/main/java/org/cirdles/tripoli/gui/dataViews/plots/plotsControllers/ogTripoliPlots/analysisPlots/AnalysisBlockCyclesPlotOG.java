@@ -248,7 +248,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         int textDeltaY = 22;
 
         Font normalFourteen = Font.font("Courier New", FontWeight.BOLD, 16);
-        Font normalEight = Font.font("SansSerif", FontWeight.NORMAL, 8);
+        Font monospacedEight = Font.font("Monospaced", FontWeight.NORMAL, 8);
 
         g2d.setFill(Paint.valueOf("RED"));
         g2d.setFont(Font.font("SansSerif", 16));
@@ -337,7 +337,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                         twoSigString = ((chiSquared >= 10) ? "" : " ") + (new BigDecimal(chiSquared).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).toPlainString();
                     }
                     g2d.fillText("\u03C7  =" + twoSigString, textLeft + 10, textTop += textDeltaY);
-                    g2d.setFont(normalEight);
+                    g2d.setFont(monospacedEight);
                     g2d.fillText("red", textLeft + 20, textTop + 6);
                     g2d.fillText("2", textLeft + 19, textTop - 7);
                     g2d.setFont(normalFourteen);
@@ -489,7 +489,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                             twoSigString = appendTrailingZeroIfNeeded(twoSigString, countOfTrailingDigitsForSigFig);
                         }
                         g2d.fillText("\u03C7  =" + twoSigString, textLeft + 10, textTop += textDeltaY);
-                        g2d.setFont(normalEight);
+                        g2d.setFont(monospacedEight);
                         g2d.fillText("red", textLeft + 20, textTop + 6);
                         g2d.fillText("2", textLeft + 19, textTop - 7);
                         g2d.setFont(normalFourteen);
@@ -574,7 +574,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         g2d.fillRect(textLeft + 60, textTop + textDeltaY + 25, 25, 25);
         g2d.setFill(Paint.valueOf("BLACK"));
         g2d.fillText("2\u03C3", textLeft + 62, textTop + 2.9 * textDeltaY);
-        g2d.setFont(normalEight);
+        g2d.setFont(monospacedEight);
         g2d.fillText("x\u0304", textLeft + 80, textTop + 2.9 * textDeltaY + 6);
         g2d.setFont(normalFourteen);
 
@@ -671,7 +671,8 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             if (xInPlot(xAxisData[i])) {
                 double dataX = mapX(xAxisData[i] - 0.5);
                 g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
-                showBlockID(g2d, blockID, mapX(xAxisData[i]));
+                // may 2024 issue#235
+                showBlockID(g2d, blockID, mapX(xAxisData[i + cyclesPerBlock / 2]));
             }
             blockID++;
         }
