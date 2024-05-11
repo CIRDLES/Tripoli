@@ -21,8 +21,7 @@
 <?import javafx.scene.effect.InnerShadow?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.TextFlow?>
-<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="analysisManagerGridPane" hgap="15.0" minWidth="250.0"
-          prefHeight="640.0"
+<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="analysisManagerGridPane" hgap="15.0" minWidth="250.0" prefHeight="640.0"
           prefWidth="1250.0" style="-fx-background-color: #fbf6d5;" stylesheets="@css/tripoli.css"
           vgap="10.0" xmlns="http://javafx.com/javafx/17"
           fx:controller="org.cirdles.tripoli.gui.AnalysisManagerController">
@@ -86,16 +85,26 @@
            style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Actions:" GridPane.rowIndex="8"/>
     <HBox GridPane.columnIndex="1" GridPane.rowIndex="8">
         <children>
-            <ToolBar maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="613.0"
+            <ToolBar maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="669.0"
                      style="-fx-background-color: transparent;">
                 <Button mnemonicParsing="false" onAction="#selectDataFileButtonAction" text="Load Data File"/>
                 <Button layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectMethodFileButtonAction"
                         text="Load Method File"/>
-                <Button id="MCMC" fx:id="reviewSculptData" mnemonicParsing="false"
+                <Button id="MCMC" fx:id="reviewSculptData" graphicTextGap="0.0" mnemonicParsing="false"
                         onAction="#previewAndSculptDataAction" style="-fx-text-fill: RED;"
                         text="Preview and Sculpt Data"/>
                 <Button id="MCMC" fx:id="exportToETReduxButton" layoutX="225.0" layoutY="7.0" mnemonicParsing="false"
-                        onAction="#exportToETReduxButtonAction" style="-fx-text-fill: RED;" text="Export ETRedux"/>
+                        onAction="#exportToETReduxButtonAction" style="-fx-text-fill: RED;" text="Export ETRedux">
+                    <opaqueInsets>
+                        <Insets/>
+                    </opaqueInsets>
+                </Button>
+                <Button id="MCMC" fx:id="exportToClipBoardButton" layoutX="379.0" layoutY="7.0" mnemonicParsing="false"
+                        onAction="#exportToClipboardAction" style="-fx-text-fill: RED;">
+                    <opaqueInsets>
+                        <Insets/>
+                    </opaqueInsets>
+                </Button>
             </ToolBar>
             <ToolBar fx:id="processingToolBar" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="701.0"
                      style="-fx-background-color: transparent;">
@@ -108,7 +117,7 @@
                             style="-fx-text-fill: GREEN;" text="Shows Only"/>
                     <Button id="MCMC" fx:id="mcmcButton" layoutX="609.0" layoutY="7.0" mnemonicParsing="false"
                             onAction="#initializeMonteCarloTechniqueAction" style="-fx-text-fill: RED;"
-                            text="Process / Plot Blocks using MCMC"/>
+                            text="Process / Plot Blocks MCMC"/>
                     <RadioButton mnemonicParsing="false" onAction="#knotsChoiceAction" selected="true" text="Linear">
                         <toggleGroup>
                             <ToggleGroup fx:id="knotsToggleGroup"/>

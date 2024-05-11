@@ -67,13 +67,13 @@
         <Menu fx:id="parametersMenu" disable="true" mnemonicParsing="false" text="Parameters">
             <MenuItem mnemonicParsing="false" text="Tracer Models"/>
         </Menu>
-        <Menu fx:id="parametersMenu1" mnemonicParsing="false" text="Reports">
+        <Menu fx:id="reportsMenu" mnemonicParsing="false" text="Reports">
             <items>
                 <MenuItem mnemonicParsing="false" text="Report Builder"/>
                 <Menu mnemonicParsing="false" text="Builtin Reports">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="ET_Redux Report"/>
-                        <MenuItem mnemonicParsing="false" text="Report 1"/>
+                        <MenuItem mnemonicParsing="false" onAction="#etReduxExportAction" text="ET_Redux Export"/>
+                        <MenuItem mnemonicParsing="false" onAction="#clipboardExportAction" text="Clipboard Export"/>
                         <Menu mnemonicParsing="false" text="Analysis Reports">
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#generateMCMCDetailsPerBlockAction"

@@ -13,9 +13,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -26,7 +24,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
@@ -37,8 +34,6 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.O
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
-import org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
@@ -47,7 +42,6 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
-import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredRatioModel;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
@@ -59,15 +53,13 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.lang.StrictMath.exp;
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
-import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_RATIO_FLIPPER_URL;
+import static org.cirdles.tripoli.constants.TripoliConstants.ReductionModeEnum;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
 import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDialog;
 import static org.cirdles.tripoli.gui.utilities.UIUtilities.showTab;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.*;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.*;
-import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.generateGeometricMeanStats;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compareAnalysisMethodToDataFileSpecs;
 
 public class AnalysisManagerController implements Initializable, AnalysisManagerCallbackI {
@@ -107,6 +99,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public ScrollPane ratiosScrollPane;
     public ScrollPane functionsScrollPane;
     public Button exportToETReduxButton;
+    public Button exportToClipBoardButton;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -261,8 +254,16 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
 
         exportToETReduxButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
-        reviewSculptData.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
+        reviewSculptData.setDisable(
+                analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty()
+                        && analysis.getMassSpecExtractedData().getBlocksDataFull().isEmpty());
+        exportToClipBoardButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
 
+
+        ImageView imageView = new ImageView(getClass().getResource("/" + TRIPOLI_CLIPBOARD_ICON).toExternalForm());
+        exportToClipBoardButton.setGraphic(imageView);
+        exportToClipBoardButton.setPadding(new Insets(0, 0, 0, 0));
+        exportToClipBoardButton.setMaxHeight(35);
     }
 
     private void setupListeners() {
@@ -650,8 +651,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 blockRB.setToggleGroup(meanTG);
                 blockRB.setUserData(userFunction);
                 blockRB.selectedProperty().addListener((observable, oldValue, newValue)
-                        -> userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.BLOCK));
-                blockRB.setSelected(userFunction.getReductionMode().equals(TripoliConstants.ReductionModeEnum.BLOCK));
+                        -> userFunction.setReductionMode(ReductionModeEnum.BLOCK));
+                blockRB.setSelected(userFunction.getReductionMode().equals(ReductionModeEnum.BLOCK));
+                blockRB.setDisable(!userFunction.isDisplayed());
                 blockRB.setPrefWidth(100);
                 blockMeanRBs.add(blockRB);
 
@@ -659,8 +661,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 cycleRB.setToggleGroup(meanTG);
                 cycleRB.setUserData(userFunction);
                 cycleRB.selectedProperty().addListener((observable, oldValue, newValue)
-                        -> userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.CYCLE));
-                cycleRB.setSelected(userFunction.getReductionMode().equals(TripoliConstants.ReductionModeEnum.CYCLE));
+                        -> userFunction.setReductionMode(ReductionModeEnum.CYCLE));
+                cycleRB.setSelected(userFunction.getReductionMode().equals(ReductionModeEnum.CYCLE));
+                cycleRB.setDisable(!userFunction.isDisplayed());
                 cycleRB.setPrefWidth(100);
                 cycleMeanRBs.add(cycleRB);
 
@@ -909,7 +912,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
                 processingToolBar.setDisable(null == analysis.getAnalysisMethod());
                 exportToETReduxButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
-                reviewSculptData.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
+                reviewSculptData.setDisable(
+                        analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty()
+                                && analysis.getMassSpecExtractedData().getBlocksDataFull().isEmpty());
+                exportToClipBoardButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
 
                 try {
                     previewAndSculptDataAction();
@@ -1099,41 +1105,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     public void exportToETReduxButtonAction() {
-        ((Analysis) analysis).setEtReduxExportType(analysis.getAnalysisMethod().getUserFunctions().get(0).getEtReduxExportType());
 
-        ETReduxFraction etReduxFraction = ETReduxFraction.buildExportFraction(
-                analysis.getAnalysisSampleName(), analysis.getAnalysisFractionName(), ((Analysis) analysis).getEtReduxExportType(), 0.00205);
-        for (UserFunction uf : analysis.getAnalysisMethod().getUserFunctions()) {
-            String etReduxName = uf.getCorrectETReduxName();
-            if (!etReduxName.isBlank() && etReduxFraction.getMeasuredRatioByName(etReduxName) != null) {
-                AnalysisStatsRecord analysisStatsRecord = uf.getAnalysisStatsRecord();
-                MeasuredRatioModel measuredRatioModel = etReduxFraction.getMeasuredRatioByName(etReduxName);
-                double selectedMean;
-                double selectedOneSigmaPct;
-                if (uf.getReductionMode().equals(TripoliConstants.ReductionModeEnum.BLOCK)) {
-                    double geoWeightedMeanRatio = exp(analysisStatsRecord.blockModeWeightedMean());
-                    double geoWeightedMeanRatioPlusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() + analysisStatsRecord.blockModeWeightedMeanOneSigma());
-                    double geoWeightedMeanRatioPlusOneSigmaPct = (geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio) / geoWeightedMeanRatio * 100.0;
-
-                    selectedMean = geoWeightedMeanRatio;
-                    selectedOneSigmaPct = geoWeightedMeanRatioPlusOneSigmaPct;
-
-                } else {
-                    GeometricMeanStatsRecord geometricMeanStatsRecord =
-                            generateGeometricMeanStats(analysisStatsRecord.cycleModeMean(), analysisStatsRecord.cycleModeStandardDeviation(), analysisStatsRecord.cycleModeStandardError());
-                    double geoMean = geometricMeanStatsRecord.geoMean();
-                    double geoMeanPlusOneStandardError = geometricMeanStatsRecord.geoMeanPlusOneStdErr();
-                    double geoMeanRatioPlusOneStdErrPct = (geoMeanPlusOneStandardError - geoMean) / geoMean * 100.0;
-
-                    selectedMean = geoMean;
-                    selectedOneSigmaPct = geoMeanRatioPlusOneStdErrPct;
-                }
-                measuredRatioModel.setValue(selectedMean);
-                measuredRatioModel.setOneSigma(selectedOneSigmaPct);
-                measuredRatioModel.setUncertaintyType("PCT");
-                measuredRatioModel.setOxideCorr(uf.isOxideCorrected());
-            }
-        }
+        ETReduxFraction etReduxFraction = analysis.prepareFractionForETReduxExport();
         String fileName = etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_" + etReduxFraction.getEtReduxExportType() + ".xml";
         etReduxFraction.serializeXMLObject(fileName);
         try {
@@ -1143,7 +1116,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         } catch (TripoliException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    public void exportToClipboardAction() {
+        String clipBoardString = analysis.prepareFractionForClipboardExport();
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.putString(clipBoardString);
+        clipboard.setContent(content);
     }
 
     class RatioClickHandler implements EventHandler<MouseEvent> {

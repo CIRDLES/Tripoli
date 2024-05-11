@@ -25,6 +25,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
@@ -40,6 +42,7 @@ import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.SessionBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
@@ -96,6 +99,7 @@ public class TripoliGUIController implements Initializable {
     public HBox latestVersionHBox;
     @FXML
     public Label newVersionLabel;
+    public Menu reportsMenu;
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
     @FXML // URL location of the FXML file that was given to the FXMLLoader
@@ -397,7 +401,7 @@ public class TripoliGUIController implements Initializable {
     void closeSessionMenuItemAction() throws TripoliException, IOException {
         confirmSaveOnProjectClose();
         removeAllManagers();
- //       launchSessionManager();
+        //       launchSessionManager();
         TripoliGUI.updateStageTitle("");
         tripoliSession = null;
         SessionManagerController.tripoliSession = tripoliSession;
@@ -539,4 +543,24 @@ public class TripoliGUIController implements Initializable {
     }
 
 
+    public void etReduxExportAction() {
+        ETReduxFraction etReduxFraction = analysis.prepareFractionForETReduxExport();
+        String fileName = etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_" + etReduxFraction.getEtReduxExportType() + ".xml";
+        etReduxFraction.serializeXMLObject(fileName);
+        try {
+            saveExportFile(etReduxFraction, null);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (TripoliException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void clipboardExportAction() {
+        String clipBoardString = analysis.prepareFractionForClipboardExport();
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.putString(clipBoardString);
+        clipboard.setContent(content);
+    }
 }

@@ -25,6 +25,7 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioPlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioRecord;
@@ -43,6 +44,8 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
+import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
+import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunctionModel;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -542,6 +545,32 @@ public class Analysis implements Serializable, AnalysisInterface {
         }
     }
 
+    public final ETReduxFraction prepareFractionForETReduxExport() {
+        setEtReduxExportType(getAnalysisMethod().getUserFunctions().get(0).getEtReduxExportType());
+
+        ETReduxFraction etReduxFraction = ETReduxFraction.buildExportFraction(
+                getAnalysisSampleName(), getAnalysisFractionName(), getEtReduxExportType(), 0.00205);
+        for (UserFunction uf : getAnalysisMethod().getUserFunctions()) {
+            String etReduxName = uf.getCorrectETReduxName();
+            if (!etReduxName.isBlank() && etReduxFraction.getMeasuredRatioByName(etReduxName) != null) {
+                MeasuredUserFunctionModel measuredUserFunctionModel = etReduxFraction.getMeasuredRatioByName(etReduxName);
+                measuredUserFunctionModel.refreshStats(uf);
+            }
+        }
+        return etReduxFraction;
+    }
+
+    public final String prepareFractionForClipboardExport() {
+        String retVal = "";
+        for (UserFunction uf : getAnalysisMethod().getUserFunctions()) {
+            if (uf.isDisplayed()) {
+                MeasuredUserFunctionModel measuredUserFunctionModel = new MeasuredUserFunctionModel(uf.showCorrectName());
+                measuredUserFunctionModel.refreshStats(uf);
+                retVal += measuredUserFunctionModel.showClipBoardOutput();
+            }
+        }
+        return retVal;
+    }
 
     public final String produceReportTemplateOne() {
 

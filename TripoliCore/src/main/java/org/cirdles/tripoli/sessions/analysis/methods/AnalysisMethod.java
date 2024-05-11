@@ -20,6 +20,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.expressions.species.nuclides.NuclidesFactory;
@@ -93,6 +94,7 @@ public class AnalysisMethod implements Serializable {
             UserFunction userFunction = new UserFunction(columnHeaders[i].trim(), i - 2);
             if (columnHeaders[i].matches(regex)) {
                 userFunction.setTreatAsIsotopicRatio(true);
+                userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.BLOCK);
                 int indexOfDivide = columnHeaders[i].indexOf("/");
                 // assume three digits / three digits
                 String numerator = columnHeaders[i].substring(indexOfDivide - 3, 3);
@@ -114,6 +116,9 @@ public class AnalysisMethod implements Serializable {
                     userFunction.setInvertedETReduxName(invertedETReduxRatioName);
                     userFunction.setInverted(true);
                 }
+            } else {
+                userFunction.setTreatAsIsotopicRatio(false);
+                userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.CYCLE);
             }
             analysisMethod.getUserFunctions().add(userFunction);
         }

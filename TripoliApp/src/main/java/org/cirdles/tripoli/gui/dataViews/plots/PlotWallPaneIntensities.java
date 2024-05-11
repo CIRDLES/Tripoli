@@ -31,7 +31,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.a
 
 import java.util.List;
 
-import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_MICHAELANGELO_URL;
+import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_MICHAELANGELO_URL;
 
 /**
  * @author James F. Bowring

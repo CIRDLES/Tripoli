@@ -57,6 +57,7 @@ public class UserFunction implements Comparable, Serializable {
         this.invertedETReduxName = "";
         this.oxideCorrected = false;
         this.columnIndex = columnIndex;
+        this.reductionMode = treatAsIsotopicRatio ? TripoliConstants.ReductionModeEnum.BLOCK : TripoliConstants.ReductionModeEnum.CYCLE;
         this.treatAsIsotopicRatio = treatAsIsotopicRatio;
         this.displayed = displayed;
         this.inverted = false;
@@ -69,7 +70,7 @@ public class UserFunction implements Comparable, Serializable {
     }
 
     public AnalysisStatsRecord calculateAnalysisStatsRecord() {
-        analysisStatsRecord = AnalysisStatsRecord.generateAnalysisStatsRecord(generateAnalysisBlockStatsRecords(this, mapBlockIdToBlockCyclesRecord));
+        analysisStatsRecord = generateAnalysisStatsRecord(generateAnalysisBlockStatsRecords(this, mapBlockIdToBlockCyclesRecord));
         return analysisStatsRecord;
     }
 
@@ -93,7 +94,7 @@ public class UserFunction implements Comparable, Serializable {
         this.invertedETReduxName = invertedETReduxName;
     }
 
-    public String showName() {
+    public String showCorrectName() {
         String retVal = name;
         if (inverted && treatAsIsotopicRatio) {
             String[] nameSplit = name.split("/");
