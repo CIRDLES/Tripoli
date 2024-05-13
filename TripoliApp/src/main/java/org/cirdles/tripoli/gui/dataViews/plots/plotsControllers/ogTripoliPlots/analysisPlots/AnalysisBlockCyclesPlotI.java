@@ -1,5 +1,6 @@
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots;
 
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisBlockCyclesRecord;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 
@@ -39,4 +40,6 @@ public interface AnalysisBlockCyclesPlotI {
     void performChauvenets();
 
     boolean detectAllIncludedStatus();
+
+    UserFunction getUserFunction();
 }

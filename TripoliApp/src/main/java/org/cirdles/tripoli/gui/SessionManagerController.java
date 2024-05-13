@@ -44,7 +44,6 @@ import java.util.ResourceBundle;
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
 import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliPersistentState;
-import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliSession;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_SESSION_LINEN;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.convertColorToHex;
 

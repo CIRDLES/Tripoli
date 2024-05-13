@@ -18,7 +18,9 @@ package org.cirdles.tripoli.expressions.userFunctions;
 
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
+import org.cirdles.tripoli.sessions.analysis.BlockStatsRecord;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
@@ -57,6 +59,7 @@ public class UserFunction implements Comparable, Serializable {
         this.invertedETReduxName = "";
         this.oxideCorrected = false;
         this.columnIndex = columnIndex;
+        this.reductionMode = treatAsIsotopicRatio ? TripoliConstants.ReductionModeEnum.BLOCK : TripoliConstants.ReductionModeEnum.CYCLE;
         this.treatAsIsotopicRatio = treatAsIsotopicRatio;
         this.displayed = displayed;
         this.inverted = false;
@@ -68,8 +71,15 @@ public class UserFunction implements Comparable, Serializable {
         }
     }
 
-    public AnalysisStatsRecord calculateAnalysisStatsRecord() {
-        analysisStatsRecord = AnalysisStatsRecord.generateAnalysisStatsRecord(generateAnalysisBlockStatsRecords(this, mapBlockIdToBlockCyclesRecord));
+    public AnalysisStatsRecord calculateAnalysisStatsRecord(AnalysisInterface analysis) {
+        analysisStatsRecord = generateAnalysisStatsRecord(generateAnalysisBlockStatsRecords(this, mapBlockIdToBlockCyclesRecord));
+        for (int i = 0; i < analysisStatsRecord.blockStatsRecords().length; i++) {
+            BlockStatsRecord blockStatsRecord = analysisStatsRecord.blockStatsRecords()[i];
+            int blockID = blockStatsRecord.blockID();
+            boolean[] cyclesIncluded = blockStatsRecord.cyclesIncluded();
+            analysis.getMapOfBlockIdToRawDataLiteOne().put(blockID,
+                    analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).updateIncludedCycles(this, cyclesIncluded));
+        }
         return analysisStatsRecord;
     }
 
@@ -93,7 +103,7 @@ public class UserFunction implements Comparable, Serializable {
         this.invertedETReduxName = invertedETReduxName;
     }
 
-    public String showName() {
+    public String showCorrectName() {
         String retVal = name;
         if (inverted && treatAsIsotopicRatio) {
             String[] nameSplit = name.split("/");

@@ -76,7 +76,7 @@ public class AllBlockInitForDataLiteOne {
                 }
 
                 userFunction.setMapBlockIdToBlockCyclesRecord(mapBlockIdToBlockCyclesRecord);
-                userFunction.calculateAnalysisStatsRecord();
+                userFunction.calculateAnalysisStatsRecord(analysis);
             }
         }
 

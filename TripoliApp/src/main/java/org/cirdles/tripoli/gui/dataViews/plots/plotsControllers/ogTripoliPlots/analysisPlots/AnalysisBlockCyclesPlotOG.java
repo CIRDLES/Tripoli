@@ -30,6 +30,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.dataViews.plots.*;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisBlockCyclesRecord;
@@ -64,6 +65,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     private AnalysisInterface analysis;
     private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord;
     private UserFunction userFunction;
+
     private double[] oneSigmaForCycles;
     private boolean logScale;
     private boolean[] zoomFlagsXY;
@@ -102,7 +104,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         this.logScale = false;
         this.zoomFlagsXY = new boolean[]{true, true};
         this.parentWallPane = parentWallPane;
-        this.blockMode = userFunction.isTreatAsIsotopicRatio();
+        this.blockMode = userFunction.getReductionMode().equals(TripoliConstants.ReductionModeEnum.BLOCK);
         this.isRatio = userFunction.isTreatAsIsotopicRatio();
 
         tooltip = new Tooltip(tooltipTextSculpt);
@@ -235,7 +237,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     }
 
     public void calcStats() {
-        analysisStatsRecord = userFunction.calculateAnalysisStatsRecord();
+        analysisStatsRecord = userFunction.calculateAnalysisStatsRecord(analysis);
     }
 
     /**
@@ -252,7 +254,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
         g2d.setFill(Paint.valueOf("RED"));
         g2d.setFont(Font.font("SansSerif", 16));
-        String title = userFunction.showName();
+        String title = userFunction.showCorrectName();
         if (isRatio && logScale) {
             title = "LogRatio " + title;
         }
@@ -307,7 +309,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     boolean meanIsPlottable = (mapY(geoWeightedMeanRatio) >= topMargin) && (mapY(geoWeightedMeanRatio) <= topMargin + plotHeight);
                     if (meanIsPlottable) {
                         g2d.setStroke(OGTRIPOLI_MEAN);
-                        g2d.strokeLine(Math.max(mapX(xAxisData[0]), leftMargin) - 0, mapY(geoWeightedMeanRatio), Math.min(mapX(xAxisData[xAxisData.length - 1]), leftMargin + plotWidth), mapY(geoWeightedMeanRatio));
+                        g2d.strokeLine(Math.max(mapX(xAxisData[0]), leftMargin) - 2, mapY(geoWeightedMeanRatio), Math.min(mapX(xAxisData[xAxisData.length - 1]), leftMargin + plotWidth) + 2, mapY(geoWeightedMeanRatio));
                         g2d.setStroke(Paint.valueOf("BLACK"));
                     }
 
@@ -366,27 +368,26 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 GeometricMeanStatsRecord geometricMeanStatsRecord =
                         generateGeometricMeanStats(analysisStatsRecord.cycleModeMean(), analysisStatsRecord.cycleModeStandardDeviation(), analysisStatsRecord.cycleModeStandardError());
                 double geoMean = geometricMeanStatsRecord.geoMean();
-
-                double geoMeanPlusOneStandardError = geometricMeanStatsRecord.geoMeanPlusOneStdErr();
-                double geoMeanMinusOneStandardError = geometricMeanStatsRecord.geoMeanMinusOneStdErr();
-                double geoMeanRatioPlusOneStdErrPct = (geoMeanPlusOneStandardError - geoMean) / geoMean * 100.0;
-                double geoMeanRatioMinusOneStdErrPct = (geoMean - geoMeanMinusOneStandardError) / geoMean * 100.0;
-
-                double smallerGeoMeanRatioOneStdErrPct = Math.min(geoMeanRatioPlusOneStdErrPct, geoMeanRatioMinusOneStdErrPct);
-                int countOfTrailingDigitsForStdErrPct = countOfTrailingDigitsForSigFig(smallerGeoMeanRatioOneStdErrPct, 2);
-                double plusErrPct = (new BigDecimal(geoMeanRatioPlusOneStdErrPct).setScale(countOfTrailingDigitsForStdErrPct, RoundingMode.HALF_UP)).doubleValue();
-                double minusErrPct = (new BigDecimal(geoMeanRatioMinusOneStdErrPct).setScale(countOfTrailingDigitsForStdErrPct, RoundingMode.HALF_UP)).doubleValue();
-
-                double geoMeanPlusOneStandardDeviation = geometricMeanStatsRecord.geoMeanPlusOneStdDev();
-                double geoMeanMinusOneStandardDeviation = geometricMeanStatsRecord.geoMeanMinusOneStdDev();
-                double geoMeanRatioPlusOneSigmaPct = (geoMeanPlusOneStandardDeviation - geoMean) / geoMean * 100.0;
-                double geoMeanRatioMinusOneSigmaPct = (geoMean - geoMeanMinusOneStandardDeviation) / geoMean * 100.0;
-                double smallerGeoMeanRatioForOneSigmaPct = Math.min(geoMeanRatioPlusOneSigmaPct, geoMeanRatioMinusOneSigmaPct);
-                int countOfTrailingDigitsForOneSigmaPct = countOfTrailingDigitsForSigFig(smallerGeoMeanRatioForOneSigmaPct, 2);
-                double plusSigmaPct = (new BigDecimal(geoMeanRatioPlusOneSigmaPct).setScale(countOfTrailingDigitsForOneSigmaPct, RoundingMode.HALF_UP)).doubleValue();
-                double minusSigmaPct = (new BigDecimal(geoMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForOneSigmaPct, RoundingMode.HALF_UP)).doubleValue();
-
                 if (!Double.isNaN(geoMean)) {
+                    double geoMeanPlusOneStandardError = geometricMeanStatsRecord.geoMeanPlusOneStdErr();
+                    double geoMeanMinusOneStandardError = geometricMeanStatsRecord.geoMeanMinusOneStdErr();
+                    double geoMeanRatioPlusOneStdErrPct = (geoMeanPlusOneStandardError - geoMean) / geoMean * 100.0;
+                    double geoMeanRatioMinusOneStdErrPct = (geoMean - geoMeanMinusOneStandardError) / geoMean * 100.0;
+
+                    double smallerGeoMeanRatioOneStdErrPct = Math.min(geoMeanRatioPlusOneStdErrPct, geoMeanRatioMinusOneStdErrPct);
+                    int countOfTrailingDigitsForStdErrPct = countOfTrailingDigitsForSigFig(smallerGeoMeanRatioOneStdErrPct, 2);
+                    double plusErrPct = (new BigDecimal(geoMeanRatioPlusOneStdErrPct).setScale(countOfTrailingDigitsForStdErrPct, RoundingMode.HALF_UP)).doubleValue();
+                    double minusErrPct = (new BigDecimal(geoMeanRatioMinusOneStdErrPct).setScale(countOfTrailingDigitsForStdErrPct, RoundingMode.HALF_UP)).doubleValue();
+
+                    double geoMeanPlusOneStandardDeviation = geometricMeanStatsRecord.geoMeanPlusOneStdDev();
+                    double geoMeanMinusOneStandardDeviation = geometricMeanStatsRecord.geoMeanMinusOneStdDev();
+                    double geoMeanRatioPlusOneSigmaPct = (geoMeanPlusOneStandardDeviation - geoMean) / geoMean * 100.0;
+                    double geoMeanRatioMinusOneSigmaPct = (geoMean - geoMeanMinusOneStandardDeviation) / geoMean * 100.0;
+                    double smallerGeoMeanRatioForOneSigmaPct = Math.min(geoMeanRatioPlusOneSigmaPct, geoMeanRatioMinusOneSigmaPct);
+                    int countOfTrailingDigitsForOneSigmaPct = countOfTrailingDigitsForSigFig(smallerGeoMeanRatioForOneSigmaPct, 2);
+                    double plusSigmaPct = (new BigDecimal(geoMeanRatioPlusOneSigmaPct).setScale(countOfTrailingDigitsForOneSigmaPct, RoundingMode.HALF_UP)).doubleValue();
+                    double minusSigmaPct = (new BigDecimal(geoMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForOneSigmaPct, RoundingMode.HALF_UP)).doubleValue();
+
                     String meanAsString;
                     String errPctString;
                     String errMinusPctString = "";
@@ -407,7 +408,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     boolean meanIsPlottable = (mapY(geoMean) >= topMargin) && (mapY(geoMean) <= topMargin + plotHeight);
                     if (meanIsPlottable) {
                         g2d.setStroke(OGTRIPOLI_MEAN);
-                        g2d.strokeLine(Math.max(mapX(xAxisData[0]), leftMargin) - 0, mapY(geoMean), Math.min(mapX(xAxisData[xAxisData.length - 1]), leftMargin + plotWidth), mapY(geoMean));
+                        g2d.strokeLine(Math.max(mapX(xAxisData[0]), leftMargin) - 2, mapY(geoMean), Math.min(mapX(xAxisData[xAxisData.length - 1]), leftMargin + plotWidth) + 2, mapY(geoMean));
                         g2d.setStroke(Paint.valueOf("BLACK"));
                     }
 
@@ -459,8 +460,8 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             if (blockMode) {
                 g2d.fillText("Block Mode:", textLeft + 5, textTop += 2 * textDeltaY);
 
-                double weighteMeanOneSigma = analysisStatsRecord.blockModeWeightedMeanOneSigma();
-                countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig(weighteMeanOneSigma, 2);
+                double weightedMeanOneSigma = analysisStatsRecord.blockModeWeightedMeanOneSigma();
+                countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig(weightedMeanOneSigma, 2);
 
                 double weightedMean = analysisStatsRecord.blockModeWeightedMean();
                 if (!Double.isNaN(weightedMean)) {
@@ -469,12 +470,12 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
                     if ((abs(weightedMean) >= 1e7) || (abs(weightedMean) <= 1e-5)) {
                         FormatterForSigFigN.FormattedStats formattedStats =
-                                FormatterForSigFigN.formatToScientific(weightedMean, weighteMeanOneSigma, 0, 2).padLeft();
+                                FormatterForSigFigN.formatToScientific(weightedMean, weightedMeanOneSigma, 0, 2).padLeft();
                         meanAsString = formattedStats.meanAsString();
                         unctAsString = formattedStats.unctAsString();
                     } else {
                         FormatterForSigFigN.FormattedStats formattedStats =
-                                FormatterForSigFigN.formatToSigFig(weightedMean, weighteMeanOneSigma, 0, 2).padLeft();
+                                FormatterForSigFigN.formatToSigFig(weightedMean, weightedMeanOneSigma, 0, 2).padLeft();
                         meanAsString = formattedStats.meanAsString();
                         unctAsString = formattedStats.unctAsString();
                     }
@@ -507,13 +508,13 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     boolean meanIsPlottable = (mapY(weightedMean) >= topMargin) && (mapY(weightedMean) <= topMargin + plotHeight);
                     if (meanIsPlottable) {
                         g2d.setStroke(OGTRIPOLI_MEAN);
-                        g2d.strokeLine(Math.max(mapX(xAxisData[0]), leftMargin) - 0, mapY(weightedMean), Math.min(mapX(xAxisData[xAxisData.length - 1]), leftMargin + plotWidth), mapY(weightedMean));
+                        g2d.strokeLine(Math.max(mapX(xAxisData[0]), leftMargin) - 2, mapY(weightedMean), Math.min(mapX(xAxisData[xAxisData.length - 1]), leftMargin + plotWidth) + 2, mapY(weightedMean));
                         g2d.setStroke(Paint.valueOf("BLACK"));
                     }
-                    double plottedOneSigmaHeight = Math.min(mapY(weightedMean - weighteMeanOneSigma), topMargin + plotHeight) - Math.max(mapY(weightedMean + weighteMeanOneSigma), topMargin);
+                    double plottedOneSigmaHeight = Math.min(mapY(weightedMean - weightedMeanOneSigma), topMargin + plotHeight) - Math.max(mapY(weightedMean + weightedMeanOneSigma), topMargin);
                     g2d.setFill(OGTRIPOLI_ONESIGMA_SEMI);
                     g2d.fillRect(Math.max(mapX(xAxisData[0]), leftMargin),
-                            Math.max(mapY(weightedMean + weighteMeanOneSigma), topMargin),
+                            Math.max(mapY(weightedMean + weightedMeanOneSigma), topMargin),
                             Math.min(mapX(xAxisData[xAxisData.length - 1]), leftMargin + plotWidth) - Math.max(mapX(xAxisData[0]), leftMargin),
                             plottedOneSigmaHeight);
                     g2d.setFill(Paint.valueOf("BLACK"));
@@ -680,7 +681,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 double dataX = mapX(xAxisData[i] - 0.5);
                 g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
                 // may 2024 issue#235
-                showBlockID(g2d, blockID, mapX(xAxisData[i + cyclesPerBlock / 2 - 1]));
+                showBlockID(g2d, blockID, mapX(xAxisData[i + Math.abs(cyclesPerBlock / 2 - 1)]));
             }
             blockID++;
         }
@@ -801,7 +802,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             if (meanIsPlottable && (leftX <= rightX)) {
                 g2d.setStroke(OGTRIPOLI_MEAN);
                 g2d.setLineWidth(1.5);
-                g2d.strokeLine(leftX - 0, mapY(mean), rightX, mapY(mean));
+                g2d.strokeLine(leftX - 2, mapY(mean), rightX + 2, mapY(mean));
             }
         }
         g2d.setFill(saveFill);
