@@ -18,7 +18,9 @@ package org.cirdles.tripoli.expressions.userFunctions;
 
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
+import org.cirdles.tripoli.sessions.analysis.BlockStatsRecord;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
@@ -69,8 +71,15 @@ public class UserFunction implements Comparable, Serializable {
         }
     }
 
-    public AnalysisStatsRecord calculateAnalysisStatsRecord() {
+    public AnalysisStatsRecord calculateAnalysisStatsRecord(AnalysisInterface analysis) {
         analysisStatsRecord = generateAnalysisStatsRecord(generateAnalysisBlockStatsRecords(this, mapBlockIdToBlockCyclesRecord));
+        for (int i = 0; i < analysisStatsRecord.blockStatsRecords().length; i++) {
+            BlockStatsRecord blockStatsRecord = analysisStatsRecord.blockStatsRecords()[i];
+            int blockID = blockStatsRecord.blockID();
+            boolean[] cyclesIncluded = blockStatsRecord.cyclesIncluded();
+            analysis.getMapOfBlockIdToRawDataLiteOne().put(blockID,
+                    analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).updateIncludedCycles(this, cyclesIncluded));
+        }
         return analysisStatsRecord;
     }
 

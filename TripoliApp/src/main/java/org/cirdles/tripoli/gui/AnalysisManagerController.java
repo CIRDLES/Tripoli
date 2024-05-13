@@ -253,17 +253,17 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 //            throw new RuntimeException(e);
         }
 
+        ImageView imageView = new ImageView(getClass().getResource("/" + TRIPOLI_CLIPBOARD_ICON).toExternalForm());
+        exportToClipBoardButton.setGraphic(imageView);
+        exportToClipBoardButton.setPadding(new Insets(0, 0, 0, 0));
+        exportToClipBoardButton.setMaxHeight(35);
+
         exportToETReduxButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
         reviewSculptData.setDisable(
                 analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty()
                         && analysis.getMassSpecExtractedData().getBlocksDataFull().isEmpty());
         exportToClipBoardButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
 
-
-        ImageView imageView = new ImageView(getClass().getResource("/" + TRIPOLI_CLIPBOARD_ICON).toExternalForm());
-        exportToClipBoardButton.setGraphic(imageView);
-        exportToClipBoardButton.setPadding(new Insets(0, 0, 0, 0));
-        exportToClipBoardButton.setMaxHeight(35);
     }
 
     private void setupListeners() {
@@ -910,18 +910,17 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 // Proceed based on analysis case per https://docs.google.com/drawings/d/1U6-8LC55mHjHv8N7p6MAfKcdW8NibJSei3iTMT7E1A8/edit?usp=sharing
                 populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
 
+                try {
+                    previewAndSculptDataAction();
+                } catch (TripoliException e) {
+                    throw new RuntimeException(e);
+                }
                 processingToolBar.setDisable(null == analysis.getAnalysisMethod());
                 exportToETReduxButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
                 reviewSculptData.setDisable(
                         analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty()
                                 && analysis.getMassSpecExtractedData().getBlocksDataFull().isEmpty());
                 exportToClipBoardButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
-
-                try {
-                    previewAndSculptDataAction();
-                } catch (TripoliException e) {
-                    throw new RuntimeException(e);
-                }
 
             }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IOException |

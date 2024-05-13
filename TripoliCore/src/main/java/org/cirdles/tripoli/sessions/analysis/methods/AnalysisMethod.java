@@ -124,6 +124,7 @@ public class AnalysisMethod implements Serializable {
         }
 
         // Uranium Oxide Correction : https://docs.google.com/document/d/14PPEDEJPylNMavpJDpYSuemNb0gF5dz_To3Ek1Y_Agw/edit#bookmark=id.xvyds659gu4x
+        //TODO: make parameter manager
         if ((r270_267ColumnIndex > -1) && (r265_267ColumnIndex > -1)) {
             massSpecExtractedData.expandCycleDataForUraniumOxideCorrection(r270_267ColumnIndex, r265_267ColumnIndex, 0.00205);
             String[] columnHeadersExpanded = new String[columnHeaders.length + 3];
