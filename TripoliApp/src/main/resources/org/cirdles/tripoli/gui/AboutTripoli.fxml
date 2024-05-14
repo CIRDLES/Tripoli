@@ -16,54 +16,41 @@
  * limitations under the License.
  -->
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.Pane?>
 <?import java.lang.String?>
-<Pane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-      minWidth="-Infinity"
-      prefHeight="700.0" prefWidth="550.0" styleClass="main-Pain" stylesheets="@css/about.css"
-      xmlns="http://javafx.com/javafx/17" fx:controller="org.cirdles.tripoli.gui.AboutTripoliController">
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="550.0" styleClass="main-Pain" stylesheets="@css/about.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.AboutTripoliController">
     <children>
-        <Label fx:id="versionText" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" layoutX="94.0"
-               layoutY="206.0" prefHeight="45.0" prefWidth="360.0" text="Tripoli  v 1.0.0" textAlignment="CENTER">
+        <Label fx:id="versionText" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" layoutX="93.0" layoutY="206.0" prefHeight="45.0" prefWidth="360.0" text="Tripoli  v 1.0.0" textAlignment="CENTER">
             <styleClass>
-                <String fx:value="project-Title"/>
-                <String fx:value="main-Text-Color"/>
+                <String fx:value="project-Title" />
+                <String fx:value="main-Text-Color" />
             </styleClass>
         </Label>
-        <ImageView fitHeight="75.0" fitWidth="156.0" layoutX="345.0" layoutY="603.0" pickOnBounds="true"
-                   preserveRatio="true" scaleX="0.75" scaleY="0.75">
+        <ImageView fitHeight="75.0" fitWidth="156.0" layoutX="302.0" layoutY="603.0" pickOnBounds="true" preserveRatio="true" scaleX="0.75" scaleY="0.75">
             <image>
-                <Image url="@images/TripoliJune2022.png"/>
+                <Image url="@images/cirdles-logov2.png" />
             </image>
         </ImageView>
-        <Hyperlink layoutX="326.0" layoutY="669.0" onAction="#visitTripoliOnCirdlesAction" styleClass="links"
-                   text="A CIRDLES Project" textAlignment="CENTER"/>
-        <Hyperlink layoutX="102.0" layoutY="669.0" onAction="#visitUsOnGithubAction" styleClass="links"
-                   text="Visit Us on GitHub!" textAlignment="CENTER"/>
-        <ImageView fitHeight="91.0" fitWidth="62.0" layoutX="127.0" layoutY="606.0" pickOnBounds="true"
-                   preserveRatio="true">
+        <Hyperlink layoutX="326.0" layoutY="669.0" onAction="#visitTripoliOnCirdlesAction" styleClass="links" text="A CIRDLES Project" textAlignment="CENTER" />
+        <Hyperlink layoutX="102.0" layoutY="669.0" onAction="#visitUsOnGithubAction" styleClass="links" text="Visit Us on GitHub!" textAlignment="CENTER" />
+        <ImageView fitHeight="91.0" fitWidth="62.0" layoutX="127.0" layoutY="606.0" pickOnBounds="true" preserveRatio="true">
             <image>
-                <Image url="@images/githubBluesqueLogo.png"/>
+                <Image url="@images/githubBluesqueLogo.png" />
             </image>
         </ImageView>
-        <Label fx:id="aboutDetailsLabel" alignment="TOP_CENTER" contentDisplay="TOP" layoutX="25.0" layoutY="270.0"
-               prefHeight="80.0" prefWidth="500.0" styleClass="description-Text"
-               text="Developed by the CIRDLES team at the College of Charleston." textAlignment="JUSTIFY"
-               wrapText="true"/>
-        <Label fx:id="buildDate" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" layoutX="94.0"
-               layoutY="251.0" prefHeight="17.0" prefWidth="360.0" styleClass="main-Text-Color"
-               stylesheets="@css/about.css" text="Build Date: mm/dd/yyyy" textAlignment="CENTER"/>
-        <ImageView fitHeight="300.0" fitWidth="400.0" layoutX="124.0" layoutY="-41.0" pickOnBounds="true"
-                   preserveRatio="true" styleClass="logo">
+        <Label fx:id="aboutDetailsLabel" alignment="TOP_CENTER" contentDisplay="TOP" layoutX="25.0" layoutY="270.0" prefHeight="80.0" prefWidth="500.0" styleClass="description-Text" text="Developed by the CIRDLES team at the College of Charleston." textAlignment="JUSTIFY" wrapText="true" />
+        <Label fx:id="buildDate" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" layoutX="94.0" layoutY="251.0" prefHeight="17.0" prefWidth="360.0" styleClass="main-Text-Color" stylesheets="@css/about.css" text="Build Date: mm/dd/yyyy" textAlignment="CENTER" />
+        <ImageView fitHeight="300.0" fitWidth="400.0" layoutX="124.0" layoutY="-41.0" pickOnBounds="true" preserveRatio="true" styleClass="logo">
             <image>
-                <Image url="@images/TripoliJune2022.png"/>
+                <Image url="@images/TripoliJune2022.png" />
             </image>
         </ImageView>
-        <Label fx:id="contributorsLabel" layoutX="25.0" layoutY="350.0" prefHeight="100.0" prefWidth="500.0"
-               styleClass="description-Text" text="Contributors" textAlignment="JUSTIFY" wrapText="true"/>
-        <Label fx:id="supportersLabel" layoutX="25.0" layoutY="451.0" prefHeight="150.0" prefWidth="500.0"
-               styleClass="description-Text" text="Supporters" textAlignment="JUSTIFY" wrapText="true"/>
+        <Label fx:id="contributorsLabel" layoutX="25.0" layoutY="350.0" prefHeight="100.0" prefWidth="500.0" styleClass="description-Text" text="Contributors" textAlignment="JUSTIFY" wrapText="true" />
+        <Label fx:id="supportersLabel" layoutX="25.0" layoutY="451.0" prefHeight="150.0" prefWidth="500.0" styleClass="description-Text" text="Supporters" textAlignment="JUSTIFY" wrapText="true" />
     </children>
 </Pane>
