@@ -381,6 +381,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
 
         CheckBox cycleCB = new CheckBox("Cycle");
         scaleControlsToolbar.getItems().add(cycleCB);
+        cycleCB.setSelected(true);
         cycleCB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     blockMode = !newVal;

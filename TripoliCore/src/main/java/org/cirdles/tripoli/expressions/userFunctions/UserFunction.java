@@ -40,7 +40,7 @@ public class UserFunction implements Comparable, Serializable {
     private String etReduxName;
     private String invertedETReduxName;
     private boolean oxideCorrected;
-    private TripoliConstants.ReductionModeEnum reductionMode = TripoliConstants.ReductionModeEnum.BLOCK;
+    private TripoliConstants.ReductionModeEnum reductionMode;
     private TripoliConstants.ETReduxExportTypeEnum etReduxExportTypeEnum = TripoliConstants.ETReduxExportTypeEnum.NONE;
     private int columnIndex;
     private boolean treatAsIsotopicRatio;
@@ -59,7 +59,7 @@ public class UserFunction implements Comparable, Serializable {
         this.invertedETReduxName = "";
         this.oxideCorrected = false;
         this.columnIndex = columnIndex;
-        this.reductionMode = treatAsIsotopicRatio ? TripoliConstants.ReductionModeEnum.BLOCK : TripoliConstants.ReductionModeEnum.CYCLE;
+        this.reductionMode = TripoliConstants.ReductionModeEnum.CYCLE;
         this.treatAsIsotopicRatio = treatAsIsotopicRatio;
         this.displayed = displayed;
         this.inverted = false;

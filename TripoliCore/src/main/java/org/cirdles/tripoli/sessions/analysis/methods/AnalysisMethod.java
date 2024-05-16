@@ -94,7 +94,7 @@ public class AnalysisMethod implements Serializable {
             UserFunction userFunction = new UserFunction(columnHeaders[i].trim(), i - 2);
             if (columnHeaders[i].matches(regex)) {
                 userFunction.setTreatAsIsotopicRatio(true);
-                userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.BLOCK);
+                userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.CYCLE);
                 int indexOfDivide = columnHeaders[i].indexOf("/");
                 // assume three digits / three digits
                 String numerator = columnHeaders[i].substring(indexOfDivide - 3, 3);

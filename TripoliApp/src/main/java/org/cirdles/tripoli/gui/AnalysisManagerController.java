@@ -1011,6 +1011,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
 
         if (plottingData != null) {
+            populateAnalysisMethodColumnsSelectorPane();
             ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
             ogTripoliPreviewPlotsWindow.loadPlotsWindow();
         }
