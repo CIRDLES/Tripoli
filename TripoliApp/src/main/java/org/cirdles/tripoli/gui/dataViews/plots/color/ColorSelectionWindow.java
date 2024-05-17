@@ -3,6 +3,7 @@ package org.cirdles.tripoli.gui.dataViews.plots.color;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -317,6 +318,20 @@ public class ColorSelectionWindow {
 
         stage.setX(centerX);
         stage.setY(centerY);
+
+        // If the window is not on screen...
+        if (!Screen.getScreens().isEmpty() && Screen.getScreensForRectangle(
+                new Rectangle2D(
+                        stage.getX(),
+                        stage.getY(),
+                        stage.getWidth(),
+                        stage.getHeight())).isEmpty()) {
+            // ... then put it in the middle of the screen by default
+            Screen primaryScreen = Screen.getPrimary();
+            stage.setX(primaryScreen.getBounds().getMinX() + (primaryScreen.getBounds().getWidth() - stageWidth)/2);
+            stage.setY(primaryScreen.getBounds().getMinY() + (primaryScreen.getBounds().getHeight() - stageHeight)/2);
+        }
+
     }
     private void initStage(Window owner) {
         stage = new Stage();
