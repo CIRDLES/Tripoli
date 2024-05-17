@@ -68,4 +68,6 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix;
     exports org.cirdles.tripoli.utilities.mathUtilities;
     exports org.cirdles.tripoli.sessions.analysis.outputs.etRedux;
+    exports org.cirdles.tripoli.species;
+    exports org.cirdles.tripoli.utilities.collections;
 }
