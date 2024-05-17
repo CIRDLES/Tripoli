@@ -99,6 +99,7 @@ public class ColorSelectionWindow {
                     owner,
                     rebuildDelegateActionSet);
         }
+        instance.centerOverOwner();
         return instance;
     }
     private ColorSelectionWindow(Map<Integer, SpeciesColors> mapOfSpeciesToColors,
@@ -300,12 +301,31 @@ public class ColorSelectionWindow {
             root.getChildren().add(speciesColorPanes[i]);
         }
     }
+
+    private void centerOverOwner() {
+        Window owner = stage.getOwner();
+        double ownerX = owner.getX();
+        double ownerY = owner.getY();
+        double ownerWidth = owner.getWidth();
+        double ownerHeight = owner.getHeight();
+
+        double stageWidth = stage.getWidth();
+        double stageHeight = stage.getHeight();
+
+        double centerX = ownerX + (ownerWidth - stageWidth) / 2;
+        double centerY = ownerY + (ownerHeight - stageHeight) / 2 ;
+
+        stage.setX(centerX);
+        stage.setY(centerY);
+    }
     private void initStage(Window owner) {
-        Scene scene = new Scene(this.root);
         stage = new Stage();
+        Scene scene = new Scene(this.root);
         stage.setWidth(WINDOW_PREF_WIDTH);
         stage.setScene(scene);
-        stage.setX(owner.getX() - stage.getMinWidth());
+//        stage.setX(owner.getX() - stage.getMinWidth());
+
+        stage.setX(owner.getX() + (owner.getScene().getWidth()/2));
         stage.initOwner(owner);
 
         owner.addEventHandler(WindowEvent.WINDOW_HIDDEN, event -> {
@@ -343,8 +363,9 @@ public class ColorSelectionWindow {
 
     public void show() {
         if(!stage.isShowing()) {
-            stage.setX(stage.getOwner().getScene().getX());
-            stage.setY(stage.getOwner().getY());
+//            stage.setX(stage.getOwner().getScene().getX());
+//            stage.setY(stage.getOwner().getY());
+            centerOverOwner();
             this.stage.getOwner().xProperty().addListener(((observable, oldValue, newValue) -> {
                 Screen maxXScreen = Screen.getScreens().stream().reduce(
                         Screen.getPrimary(),
