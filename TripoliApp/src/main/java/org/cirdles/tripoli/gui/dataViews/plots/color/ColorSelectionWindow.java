@@ -38,7 +38,6 @@ public class ColorSelectionWindow {
     public static final String WINDOW_TITLE = "Color Customization";
     public static final double WINDOW_PREF_WIDTH = 334;
     public static final double BUTTON_PREF_HEIGHT = 35;
-    public static final double TOOLBAR_PREF_HEIGHT = 25;
     public static final double TOOLBAR_BUTTON_HEIGHT = 18;
     private static ColorSelectionWindow instance;
     private final Map<Integer, SpeciesColors> mapOfSpeciesToColors;
@@ -338,9 +337,6 @@ public class ColorSelectionWindow {
         Scene scene = new Scene(this.root);
         stage.setWidth(WINDOW_PREF_WIDTH);
         stage.setScene(scene);
-//        stage.setX(owner.getX() - stage.getMinWidth());
-
-//        stage.setX(owner.getX() + (owner.getScene().getWidth()/2));
         stage.initOwner(owner);
         owner.addEventHandler(WindowEvent.WINDOW_HIDDEN, event -> {
             stage.fireEvent(new WindowEvent(owner, WindowEvent.WINDOW_CLOSE_REQUEST));
@@ -411,46 +407,6 @@ public class ColorSelectionWindow {
 
     public void show() {
         if(!stage.isShowing()) {
-//            stage.setX(stage.getOwner().getScene().getX());
-//            stage.setY(stage.getOwner().getY());
-
-//            this.stage.getOwner().xProperty().addListener(((observable, oldValue, newValue) -> {
-//                Screen maxXScreen = Screen.getScreens().stream().reduce(
-//                        Screen.getPrimary(),
-//                        (screen1, screen2) ->
-//                                screen1.getBounds().getMaxX() > screen2.getBounds().getMaxX() ?
-//                                        screen1 : screen2);
-//                Screen minXScreen = Screen.getScreens().stream().reduce(Screen.getPrimary(),
-//                        (screen1, screen2) ->
-//                                screen1.getBounds().getMinX() < screen2.getBounds().getMinX() ?
-//                                        screen1 : screen2);
-//                if (maxXScreen.getBounds().getMaxX() >=
-//                        stage.getX() + stage.getWidth() + newValue.doubleValue() - oldValue.doubleValue() &&
-//                        minXScreen.getBounds().getMinX() <=
-//                                stage.getX() + newValue.doubleValue() - oldValue.doubleValue()) {
-//                    stage.setX(stage.getX() + newValue.doubleValue() - oldValue.doubleValue());
-//                }
-//            }));
-//            this.stage.getOwner().yProperty().addListener(((observable, oldValue, newValue) -> {
-//                Screen maxYScreen = Screen.getScreens().stream().reduce(
-//                        Screen.getPrimary(),
-//                        (screen1, screen2) ->
-//                                screen1.getBounds().getMaxY() > screen2.getBounds().getMaxY() ?
-//                                        screen1 : screen2
-//                );
-//                Screen minYScreen = Screen.getScreens().stream().reduce(
-//                        Screen.getPrimary(),
-//                        (screen1, screen2) ->
-//                                screen1.getBounds().getMinY() < screen2.getBounds().getMinY() ?
-//                                        screen1 : screen2
-//                );
-//                if (maxYScreen.getBounds().getMaxY() >=
-//                        stage.getY() + stage.getHeight() + newValue.doubleValue() - oldValue.doubleValue() &&
-//                        minYScreen.getBounds().getMinY() <=
-//                                stage.getY() + newValue.doubleValue() - oldValue.doubleValue()) {
-//                    stage.setY(stage.getY() + newValue.doubleValue() - oldValue.doubleValue());
-//                }
-//            }));
             stage.show();
         }
         setColorPickerLabelText();
