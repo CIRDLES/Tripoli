@@ -44,7 +44,7 @@ import java.util.Stack;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
-import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_MICHAELANGELO_URL;
+import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_MICHAELANGELO_URL;
 
 /**
  * @author James F. Bowring

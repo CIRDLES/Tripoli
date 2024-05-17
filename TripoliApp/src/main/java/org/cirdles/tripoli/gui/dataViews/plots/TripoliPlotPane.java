@@ -42,7 +42,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.ana
 import org.cirdles.tripoli.gui.utilities.TripoliColor;
 import org.jetbrains.annotations.NotNull;
 
-import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_MICHAELANGELO_URL;
+import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_MICHAELANGELO_URL;
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.gridCellDim;
 import static org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane.menuOffset;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController.analysis;
@@ -305,7 +305,7 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
 
     public void builtSculptingHBox(String message) {
         // Michaelangelo sculpting
-        final ImageView michaelangeloImageView = new ImageView();
+        ImageView michaelangeloImageView = new ImageView();
         Image ratioFlipper = new Image(TRIPOLI_MICHAELANGELO_URL);
         michaelangeloImageView.setImage(ratioFlipper);
         michaelangeloImageView.setFitHeight(18);
@@ -453,6 +453,8 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
         if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
             ((AnalysisBlockCyclesPlotI) plot).setBlockMode(blockMode);
             ((AnalysisBlockCyclesPlotI) plot).setLogScale(logScale);
+            ((AnalysisBlockCyclesPlotI) plot).getUserFunction().setReductionMode(
+                    blockMode ? TripoliConstants.ReductionModeEnum.BLOCK : TripoliConstants.ReductionModeEnum.CYCLE);
 
             cycleCB.selectedProperty().removeListener(cycleCheckBoxChangeListener);
             cycleCB.setSelected(!blockMode);

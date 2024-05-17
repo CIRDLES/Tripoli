@@ -25,6 +25,7 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioPlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioRecord;
@@ -45,6 +46,8 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactor
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
 import org.cirdles.tripoli.species.SpeciesColorSetting;
 import org.cirdles.tripoli.species.SpeciesColors;
+import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
+import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunctionModel;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -161,8 +164,9 @@ public class Analysis implements Serializable, AnalysisInterface {
         mapOfSpeciesToColors.clear();
     }
 
-    public void extractMassSpecDataFromPath(Path dataFilePath)
+    public String extractMassSpecDataFromPath(Path dataFilePath)
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, JAXBException, TripoliException {
+        String extractedAnalysisName;
         dataFilePathString = dataFilePath.toString();
         MassSpectrometerContextEnum massSpectrometerContext = AnalysisInterface.determineMassSpectrometerContextFromDataFile(dataFilePath);
         if (0 != massSpectrometerContext.compareTo(UNKNOWN)) {
@@ -256,16 +260,18 @@ public class Analysis implements Serializable, AnalysisInterface {
                             "PeakCentres folder not found at location: " + Path.of(dataFilePathString).getParent().toString() + File.separator + "PeakCentres");
                 }
             }
+            extractedAnalysisName = analysisName;
         } else {
           // case1
-          analysisName = dataFilePath.toFile().getName().substring(0, dataFilePath.toFile().getName().length() - 4);
-//             analysisMethod = AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData);
           setMethod(AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData));
-          initializeBlockProcessing();
-          
+          extractedAnalysisName = dataFilePath.toFile().getName().substring(0, dataFilePath.toFile().getName().length() - 4);
+//             analysisMethod = AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData);
+            initializeBlockProcessing();
         }
 
         initSampleFractionNames();
+
+        return extractedAnalysisName;
     }
 
     private void initSampleFractionNames() {
@@ -545,6 +551,32 @@ public class Analysis implements Serializable, AnalysisInterface {
         }
     }
 
+    public final ETReduxFraction prepareFractionForETReduxExport() {
+        setEtReduxExportType(getAnalysisMethod().getUserFunctions().get(0).getEtReduxExportType());
+
+        ETReduxFraction etReduxFraction = ETReduxFraction.buildExportFraction(
+                getAnalysisSampleName(), getAnalysisFractionName(), getEtReduxExportType(), 0.00205);
+        for (UserFunction uf : getAnalysisMethod().getUserFunctions()) {
+            String etReduxName = uf.getCorrectETReduxName();
+            if (!etReduxName.isBlank() && etReduxFraction.getMeasuredRatioByName(etReduxName) != null) {
+                MeasuredUserFunctionModel measuredUserFunctionModel = etReduxFraction.getMeasuredRatioByName(etReduxName);
+                measuredUserFunctionModel.refreshStats(uf);
+            }
+        }
+        return etReduxFraction;
+    }
+
+    public final String prepareFractionForClipboardExport() {
+        String retVal = "";
+        for (UserFunction uf : getAnalysisMethod().getUserFunctions()) {
+            if (uf.isDisplayed()) {
+                MeasuredUserFunctionModel measuredUserFunctionModel = new MeasuredUserFunctionModel(uf.showCorrectName());
+                measuredUserFunctionModel.refreshStats(uf);
+                retVal += measuredUserFunctionModel.showClipBoardOutput();
+            }
+        }
+        return retVal;
+    }
 
     public final String produceReportTemplateOne() {
 

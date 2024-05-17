@@ -97,6 +97,7 @@ public enum PhoenixMassSpec {
         } else {
             lastCycleNumber = Integer.parseInt(lines[startBlockSheet - 2].split("\t")[0]);
         }
+
         int blockCount = (int) ceil(lastCycleNumber / cyclesPerBlock) + (int) Math.signum(lastCycleNumber % cyclesPerBlock);
 
         MassSpecExtractedData.MassSpecExtractedHeader header = new MassSpecExtractedData.MassSpecExtractedHeader(
@@ -112,12 +113,14 @@ public enum PhoenixMassSpec {
         massSpecExtractedData.setHeader(header);
 
         List<List<String>> dataByBlocks = new ArrayList<>();
+        int countOfCycles = 0;
         for (int blockID = 1; blockID <= blockCount; blockID++) {
 
             List<String> dataByBlock = new ArrayList<>();
             for (int cycleNum = 1; cycleNum <= cyclesPerBlock; cycleNum++) {
-                if ((lastCycleNumber % cyclesPerBlock) == 0 || (lastCycleNumber % cyclesPerBlock) > cycleNum) {
+                if ((lastCycleNumber % cyclesPerBlock) == 0 || (countOfCycles < lastCycleNumber)) {
                     dataByBlock.add(lines[cyclesStart + (blockID - 1) * cyclesPerBlock + cycleNum]);
+                    countOfCycles++;
                 }
             }
             dataByBlocks.add(dataByBlock);

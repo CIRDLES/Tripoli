@@ -127,7 +127,7 @@ public record AnalysisStatsRecord(
         }
 
         return new AnalysisStatsRecord(
-                blockStatsRecords[0].isRatio(),
+                blockStatsRecords.length > 0 ? blockStatsRecords[0].isRatio() : false,
                 blockStatsRecords,
                 weightedMeanC,
                 weightedMeanOneSigmaC,
