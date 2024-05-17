@@ -35,7 +35,7 @@ import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_DEFAULT_HEX
 
 public class ColorSelectionWindow {
     public static final String WINDOW_TITLE = "Color Customization";
-    public static final double WINDOW_PREF_WIDTH = 335;
+    public static final double WINDOW_PREF_WIDTH = 334;
     public static final double BUTTON_PREF_HEIGHT = 35;
     public static final double TOOLBAR_PREF_HEIGHT = 25;
     public static final double TOOLBAR_BUTTON_HEIGHT = 18;
@@ -205,7 +205,7 @@ public class ColorSelectionWindow {
         try {
             TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
         } catch (TripoliException e) {
-            TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);;
+            TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
         }
         rebuildDelegateActionSet.executeDelegateActions();
         stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
@@ -215,7 +215,7 @@ public class ColorSelectionWindow {
         try{
             TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
         } catch (TripoliException ex) {
-            ex.printStackTrace();
+            TripoliMessageDialog.showWarningDialog(ex.getMessage(), TripoliGUI.primaryStage);
         }
         stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
         stage.close();

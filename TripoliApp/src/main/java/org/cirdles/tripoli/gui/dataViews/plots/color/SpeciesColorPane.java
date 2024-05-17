@@ -27,6 +27,7 @@ public class SpeciesColorPane extends Pane implements Highlightable {
     public SpeciesColorPane(int speciesIndex, String speciesName, SpeciesColors speciesColors) {
         VBox root = new VBox();
         getChildren().add(root);
+        root.prefWidthProperty().bind(prefWidthProperty());
         this.mapOfPlotFlavorsToSpeciesColorRows = new TreeMap<>();
         for (DetectorPlotFlavor plotFlavor: DetectorPlotFlavor.values()) {
             mapOfPlotFlavorsToSpeciesColorRows.put(
@@ -37,17 +38,19 @@ public class SpeciesColorPane extends Pane implements Highlightable {
         }
         this.title = new Label(speciesName);
         this.title.setAlignment(Pos.CENTER);
+        this.title.setTextAlignment(TextAlignment.CENTER);
         this.title.prefWidthProperty().bind(prefWidthProperty());
         this.title.setFont(Font.font("Monospaced", FontWeight.BOLD, 16));
-        this.title.setStyle("-fx-font-weight: bolder;");
-        this.title.setTextAlignment(TextAlignment.CENTER);
+        this.title.setStyle(this.title.getStyle() + ";;-fx-font-weight: bolder;");
 
         root.getChildren().add(title);
         root.getChildren().addAll(mapOfPlotFlavorsToSpeciesColorRows.values());
         for(Node node : root.getChildren()) {
-            node.setStyle("-fx-border-color: black; -fx-border-width: .5px 2px .5px .25px;");
+            node.setStyle(node.getStyle() + ";;-fx-border-color: black; -fx-border-width: .5px 2px .5px .25px;");
+
         }
-        title.setStyle("-fx-border-color: black; -fx-border-width: .5px 15.75px .5px .25px;");
+//        title.setStyle(title.getStyle() + ";;-fx-border-color: black; -fx-border-width: .5px 15.75px .5px .25px;");
+        title.setBorder(new Border(new BorderStroke(null,null,null,null)));
     }
 
     @Override
