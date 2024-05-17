@@ -27,6 +27,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.dataViews.plots.AbstractPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPane;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneInterface;
@@ -126,6 +127,14 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
     @Override
     public boolean detectAllIncludedStatus() {
         return false;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public UserFunction getUserFunction() {
+        return null;
     }
 
     public Map<Integer, PlotBlockCyclesRecord> getMapBlockIdToBlockCyclesRecord() {

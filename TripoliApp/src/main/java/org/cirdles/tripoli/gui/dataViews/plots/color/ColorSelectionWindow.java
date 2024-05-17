@@ -3,6 +3,7 @@ package org.cirdles.tripoli.gui.dataViews.plots.color;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -35,9 +36,8 @@ import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_DEFAULT_HEX
 
 public class ColorSelectionWindow {
     public static final String WINDOW_TITLE = "Color Customization";
-    public static final double WINDOW_PREF_WIDTH = 335;
+    public static final double WINDOW_PREF_WIDTH = 334;
     public static final double BUTTON_PREF_HEIGHT = 35;
-    public static final double TOOLBAR_PREF_HEIGHT = 25;
     public static final double TOOLBAR_BUTTON_HEIGHT = 18;
     private static ColorSelectionWindow instance;
     private final Map<Integer, SpeciesColors> mapOfSpeciesToColors;
@@ -99,6 +99,7 @@ public class ColorSelectionWindow {
                     owner,
                     rebuildDelegateActionSet);
         }
+        instance.centerOverOwner();
         return instance;
     }
     private ColorSelectionWindow(Map<Integer, SpeciesColors> mapOfSpeciesToColors,
@@ -205,7 +206,7 @@ public class ColorSelectionWindow {
         try {
             TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
         } catch (TripoliException e) {
-            TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);;
+            TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
         }
         rebuildDelegateActionSet.executeDelegateActions();
         stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
@@ -215,7 +216,7 @@ public class ColorSelectionWindow {
         try{
             TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
         } catch (TripoliException ex) {
-            ex.printStackTrace();
+            TripoliMessageDialog.showWarningDialog(ex.getMessage(), TripoliGUI.primaryStage);
         }
         stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
         stage.close();
@@ -300,19 +301,82 @@ public class ColorSelectionWindow {
             root.getChildren().add(speciesColorPanes[i]);
         }
     }
+
+    private void centerOverOwner() {
+        Window owner = stage.getOwner();
+        double ownerX = owner.getX();
+        double ownerY = owner.getY();
+        double ownerWidth = owner.getWidth();
+        double ownerHeight = owner.getHeight();
+
+        double stageWidth = stage.getWidth();
+        double stageHeight = stage.getHeight();
+
+        double centerX = ownerX + (ownerWidth - stageWidth) / 2;
+        double centerY = ownerY + (ownerHeight - stageHeight) / 2 ;
+
+        stage.setX(centerX);
+        stage.setY(centerY);
+
+        // If the window is not on screen...
+        if (!Screen.getScreens().isEmpty() && Screen.getScreensForRectangle(
+                new Rectangle2D(
+                        stage.getX(),
+                        stage.getY(),
+                        stage.getWidth(),
+                        stage.getHeight())).isEmpty()) {
+            // ... then put it in the middle of the screen by default
+            Screen primaryScreen = Screen.getPrimary();
+            stage.setX(primaryScreen.getBounds().getMinX() + (primaryScreen.getBounds().getWidth() - stageWidth)/2);
+            stage.setY(primaryScreen.getBounds().getMinY() + (primaryScreen.getBounds().getHeight() - stageHeight)/2);
+        }
+
+    }
     private void initStage(Window owner) {
-        Scene scene = new Scene(this.root);
         stage = new Stage();
+        Scene scene = new Scene(this.root);
         stage.setWidth(WINDOW_PREF_WIDTH);
         stage.setScene(scene);
-        stage.setX(owner.getX() - stage.getMinWidth());
         stage.initOwner(owner);
-
         owner.addEventHandler(WindowEvent.WINDOW_HIDDEN, event -> {
             stage.fireEvent(new WindowEvent(owner, WindowEvent.WINDOW_CLOSE_REQUEST));
         });
-        owner.xProperty().addListener(((observable, oldValue, newValue) -> {
-
+        this.stage.getOwner().xProperty().addListener(((observable, oldValue, newValue) -> {
+            Screen maxXScreen = Screen.getScreens().stream().reduce(
+                    Screen.getPrimary(),
+                    (screen1, screen2) ->
+                            screen1.getBounds().getMaxX() > screen2.getBounds().getMaxX() ?
+                                    screen1 : screen2);
+            Screen minXScreen = Screen.getScreens().stream().reduce(Screen.getPrimary(),
+                    (screen1, screen2) ->
+                            screen1.getBounds().getMinX() < screen2.getBounds().getMinX() ?
+                                    screen1 : screen2);
+            if (maxXScreen.getBounds().getMaxX() >=
+                    stage.getX() + stage.getWidth() + newValue.doubleValue() - oldValue.doubleValue() &&
+                    minXScreen.getBounds().getMinX() <=
+                            stage.getX() + newValue.doubleValue() - oldValue.doubleValue()) {
+                stage.setX(stage.getX() + newValue.doubleValue() - oldValue.doubleValue());
+            }
+        }));
+        this.stage.getOwner().yProperty().addListener(((observable, oldValue, newValue) -> {
+            Screen maxYScreen = Screen.getScreens().stream().reduce(
+                    Screen.getPrimary(),
+                    (screen1, screen2) ->
+                            screen1.getBounds().getMaxY() > screen2.getBounds().getMaxY() ?
+                                    screen1 : screen2
+            );
+            Screen minYScreen = Screen.getScreens().stream().reduce(
+                    Screen.getPrimary(),
+                    (screen1, screen2) ->
+                            screen1.getBounds().getMinY() < screen2.getBounds().getMinY() ?
+                                    screen1 : screen2
+            );
+            if (maxYScreen.getBounds().getMaxY() >=
+                    stage.getY() + stage.getHeight() + newValue.doubleValue() - oldValue.doubleValue() &&
+                    minYScreen.getBounds().getMinY() <=
+                            stage.getY() + newValue.doubleValue() - oldValue.doubleValue()) {
+                stage.setY(stage.getY() + newValue.doubleValue() - oldValue.doubleValue());
+            }
         }));
         stage.setOnCloseRequest(closeRequest ->{
             instance = null;
@@ -343,48 +407,10 @@ public class ColorSelectionWindow {
 
     public void show() {
         if(!stage.isShowing()) {
-            stage.setX(stage.getOwner().getScene().getX());
-            stage.setY(stage.getOwner().getY());
-            this.stage.getOwner().xProperty().addListener(((observable, oldValue, newValue) -> {
-                Screen maxXScreen = Screen.getScreens().stream().reduce(
-                        Screen.getPrimary(),
-                        (screen1, screen2) ->
-                                screen1.getBounds().getMaxX() > screen2.getBounds().getMaxX() ?
-                                        screen1 : screen2);
-                Screen minXScreen = Screen.getScreens().stream().reduce(Screen.getPrimary(),
-                        (screen1, screen2) ->
-                                screen1.getBounds().getMinX() < screen2.getBounds().getMinX() ?
-                                        screen1 : screen2);
-                if (maxXScreen.getBounds().getMaxX() >=
-                        stage.getX() + stage.getWidth() + newValue.doubleValue() - oldValue.doubleValue() &&
-                        minXScreen.getBounds().getMinX() <=
-                                stage.getX() + newValue.doubleValue() - oldValue.doubleValue()) {
-                    stage.setX(stage.getX() + newValue.doubleValue() - oldValue.doubleValue());
-                }
-            }));
-            this.stage.getOwner().yProperty().addListener(((observable, oldValue, newValue) -> {
-                Screen maxYScreen = Screen.getScreens().stream().reduce(
-                        Screen.getPrimary(),
-                        (screen1, screen2) ->
-                                screen1.getBounds().getMaxY() > screen2.getBounds().getMaxY() ?
-                                        screen1 : screen2
-                );
-                Screen minYScreen = Screen.getScreens().stream().reduce(
-                        Screen.getPrimary(),
-                        (screen1, screen2) ->
-                                screen1.getBounds().getMinY() < screen2.getBounds().getMinY() ?
-                                        screen1 : screen2
-                );
-                if (maxYScreen.getBounds().getMaxY() >=
-                        stage.getY() + stage.getHeight() + newValue.doubleValue() - oldValue.doubleValue() &&
-                        minYScreen.getBounds().getMinY() <=
-                                stage.getY() + newValue.doubleValue() - oldValue.doubleValue()) {
-                    stage.setY(stage.getY() + newValue.doubleValue() - oldValue.doubleValue());
-                }
-            }));
             stage.show();
         }
         setColorPickerLabelText();
+        centerOverOwner();
         stage.toFront();
     }
 }

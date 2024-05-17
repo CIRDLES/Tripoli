@@ -38,7 +38,7 @@ public class SpeciesColorRow extends HBox implements Highlightable {
     @Override
     public void highlight() {
         Color backgroundColor = Color.web(TRIPOLI_HIGHLIGHTED_HEX, 0.9);
-        BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, new Insets(0, -1, 0,0));
+        BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, new Insets(0, 0, 0,0));
         this.plotFlavorLabel.setBackground(new Background(fill));
     }
 

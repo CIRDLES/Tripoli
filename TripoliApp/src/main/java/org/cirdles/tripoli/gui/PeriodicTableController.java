@@ -41,7 +41,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_LOGO_SANS_TEXT_URL;
+import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_LOGO_SANS_TEXT_URL;
+
 
 /**
  * @author James F. Bowring
