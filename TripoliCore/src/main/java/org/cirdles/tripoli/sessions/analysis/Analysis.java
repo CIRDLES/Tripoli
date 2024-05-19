@@ -32,6 +32,7 @@ import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioRecord;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
+import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver;
@@ -117,8 +118,11 @@ public class Analysis implements Serializable, AnalysisInterface {
     private Analysis() {
     }
 
-    protected Analysis(String analysisName, AnalysisMethod analysisMethod, String analysisSampleName) {
+    protected Analysis(String analysisName,
+                       AnalysisMethod analysisMethod,
+                       String analysisSampleName) {
         this.analysisName = analysisName;
+        this.analysisDefaultMapOfSpeciesToColors = TripoliPersistentState.getCurrentSpeciesColorMap();// Default if not added
         setMethod(analysisMethod);
         this.analysisSampleName = analysisSampleName;
         this.analysisFractionName = MISSING_STRING_FIELD;
@@ -162,7 +166,6 @@ public class Analysis implements Serializable, AnalysisInterface {
         mapOfBlockIdToRawData.clear();
         mapOfBlockIdToRawDataLiteOne.clear();
         mapOfBlockIdToFinalModel.clear();
-        analysisDefaultMapOfSpeciesToColors.clear();
     }
 
     public String extractMassSpecDataFromPath(Path dataFilePath)
@@ -688,11 +691,13 @@ public class Analysis implements Serializable, AnalysisInterface {
         // Will use this method to initialize mapOfSpeciesToColors
         this.analysisMethod = analysisMethod;
         // TODO: initialize mapOfSpeciesToColors based on defaults
-        if (analysisMethod != null) {
-            initializeDefaultsMapOfSpeciesToColors(analysisMethod.getSpeciesList().size());
-        }
+        // TODO: remove boilerplate initialization method
+//        if (analysisMethod != null) {
+//            initializeDefaultsMapOfSpeciesToColors(analysisMethod.getSpeciesList().size());
+//        }
     }
 
+    // TODO: remove boilerplate initialization method
     private void initializeDefaultsMapOfSpeciesToColors(int numSpecies) {
         for(int i = 0; i < numSpecies; i++) {
             analysisDefaultMapOfSpeciesToColors.put(i,
@@ -703,6 +708,13 @@ public class Analysis implements Serializable, AnalysisInterface {
                             TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 3)
                     ));
         }
+    }
+
+    public void initializeDefaultsFromSessionDefaults(Session session) {
+        setAnalysisDefaultMapOfSpeciesToColors(session.getSessionDefaultMapOfSpeciesToColors().clone());
+    }
+    public void setAnalysisDefaultMapOfSpeciesToColors(TripoliSpeciesColorMap analysisDefaultMapOfSpeciesToColors) {
+        this.analysisDefaultMapOfSpeciesToColors = analysisDefaultMapOfSpeciesToColors;
     }
 
     public MassSpecExtractedData getMassSpecExtractedData() {

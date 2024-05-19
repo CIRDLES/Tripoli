@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.util.*;
 
-public class TripoliSpeciesColorMap implements Map<Integer, SpeciesColors>, Serializable {
+public class TripoliSpeciesColorMap implements Map<Integer, SpeciesColors>, Serializable, Cloneable{
 
     private final Map<Integer, SpeciesColors> mapOfSpeciesToColors;
 
@@ -95,5 +95,16 @@ public class TripoliSpeciesColorMap implements Map<Integer, SpeciesColors>, Seri
     @Override
     public Set<Entry<Integer, SpeciesColors>> entrySet() {
         return mapOfSpeciesToColors.entrySet();
+    }
+
+    @Override
+    public TripoliSpeciesColorMap clone() {
+        try {
+            TripoliSpeciesColorMap clone = (TripoliSpeciesColorMap) super.clone();
+            clone.putAll(this.mapOfSpeciesToColors);
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

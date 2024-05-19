@@ -40,7 +40,7 @@ public class ColorSelectionWindow {
     public static final double BUTTON_PREF_HEIGHT = 35;
     public static final double TOOLBAR_BUTTON_HEIGHT = 18;
     private static ColorSelectionWindow instance;
-    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors;
+    private final Map<Integer, SpeciesColors> analysisMapOfSpeciesToColors;
     private final Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack;
     private final Map<Integer, SpeciesColors> originalMapOfSpeciesToColors;
     private final VBox root;
@@ -68,9 +68,9 @@ public class ColorSelectionWindow {
         public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
             DetectorPlotFlavor plotFlavor = colorSplotchReference.getPlotFlavor();
             int index = colorSplotchReference.getIndex();
-            SpeciesColors speciesColors = mapOfSpeciesToColors.get(index);
-            mapOfSpeciesToColors.remove(index);
-            mapOfSpeciesToColors.put(index,
+            SpeciesColors speciesColors = analysisMapOfSpeciesToColors.get(index);
+            analysisMapOfSpeciesToColors.remove(index);
+            analysisMapOfSpeciesToColors.put(index,
                     speciesColors.altered(plotFlavor,
                             String.format("#%02x%02x%02x",
                                     (int) (newValue.getRed() * 255),
@@ -107,7 +107,7 @@ public class ColorSelectionWindow {
                                  int indexOfFirstCheckedSpecies,
                                  Window owner,
                                  DelegateActionSet rebuildDelegateActionSet) {
-        this.mapOfSpeciesToColors = mapOfSpeciesToColors;
+        this.analysisMapOfSpeciesToColors = mapOfSpeciesToColors;
         this.previousSpeciesColorSettingsStack = new Stack<>();
         this.originalMapOfSpeciesToColors = new TreeMap<>();
         originalMapOfSpeciesToColors.putAll(mapOfSpeciesToColors);
@@ -152,12 +152,12 @@ public class ColorSelectionWindow {
                 selectedPane,
                 selectedRow,
                 new SpeciesColorSetting(
-                        speciesIndex, mapOfSpeciesToColors.get(speciesIndex)));
+                        speciesIndex, analysisMapOfSpeciesToColors.get(speciesIndex)));
     }
 
     private void resetColors(){
         int numberOfSpecies = this.speciesColorPanes.length;
-        mapOfSpeciesToColors.clear();
+        analysisMapOfSpeciesToColors.clear();
         previousSpeciesColorSettingsStack.clear();
         undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
         saveButton.setDisable(previousSpeciesColorSettingsStack.empty());
@@ -168,7 +168,7 @@ public class ColorSelectionWindow {
                     TRIPOLI_DEFAULT_HEX_COLORS.get(speciesIndex * 4 + 2),
                     TRIPOLI_DEFAULT_HEX_COLORS.get(speciesIndex * 4 + 3)
             );
-            mapOfSpeciesToColors.put(speciesIndex, speciesColors);
+            analysisMapOfSpeciesToColors.put(speciesIndex, speciesColors);
             SpeciesColorPane pane = speciesColorPanes[speciesIndex];
             for(DetectorPlotFlavor plotFlavor: DetectorPlotFlavor.values()) {
                 pane.getMapOfPlotFlavorsToSpeciesColorRows().get(plotFlavor).setColor(
@@ -186,7 +186,7 @@ public class ColorSelectionWindow {
             SpeciesColorSetting previousSpeciesColorSetting = previousSpeciesColorSettingsStack.pop();
             undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
             saveButton.setDisable(previousSpeciesColorSettingsStack.empty());
-            mapOfSpeciesToColors.put(
+            analysisMapOfSpeciesToColors.put(
                     previousSpeciesColorSetting.index(),
                     previousSpeciesColorSetting.speciesColors());
             SpeciesColorPane speciesColorPane = speciesColorPanes[previousSpeciesColorSetting.index()];
@@ -202,7 +202,7 @@ public class ColorSelectionWindow {
     }
 
     private void cancel() {
-        mapOfSpeciesToColors.putAll(originalMapOfSpeciesToColors);
+        analysisMapOfSpeciesToColors.putAll(originalMapOfSpeciesToColors);
         try {
             TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
         } catch (TripoliException e) {
@@ -296,7 +296,7 @@ public class ColorSelectionWindow {
             speciesColorPanes[i] =
                     new SpeciesColorPane(i,
                             species.get(i).prettyPrintShortForm(),
-                            mapOfSpeciesToColors.get(i));
+                            analysisMapOfSpeciesToColors.get(i));
             speciesColorPanes[i].prefWidthProperty().bind(stage.widthProperty());
             root.getChildren().add(speciesColorPanes[i]);
         }
