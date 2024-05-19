@@ -333,6 +333,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 analysiMethodTabPane.getTabs().remove(sequenceTableTab);
                 analysiMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
                 showTab(analysiMethodTabPane, 1, selectColumnsToPlot);
+                analysiMethodTabPane.getSelectionModel().select(1);
                 populateAnalysisMethodColumnsSelectorPane();
                 processingToolBar.setVisible(false);
             }
@@ -1010,6 +1011,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
 
         if (plottingData != null) {
+            populateAnalysisMethodColumnsSelectorPane();
             ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
             ogTripoliPreviewPlotsWindow.loadPlotsWindow();
         }
