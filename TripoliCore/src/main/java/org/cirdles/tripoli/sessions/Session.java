@@ -18,6 +18,8 @@ package org.cirdles.tripoli.sessions;
 
 import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -43,7 +45,7 @@ public class Session implements Serializable {
     private String sessionNotes;
     private Map<String, AnalysisInterface> mapOfAnalyses;
     private boolean mutable;
-    // TODO: Add private mapOfSpeciesToColors along with getters and setters
+    private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
 
 
     private Session() {
@@ -57,7 +59,7 @@ public class Session implements Serializable {
     private Session(String sessionName, Map<String, AnalysisInterface> mapOfAnalyses) {
         this.sessionName = sessionName;
         this.mapOfAnalyses = mapOfAnalyses;
-        //TODO:  Initialize mapOfSpeciesToColors based on defaults from TripoliPersistentState here
+        this.sessionDefaultMapOfSpeciesToColors = TripoliPersistentState.getCurrentSpeciesColorMap();
 
         analystName = MISSING_STRING_FIELD;
         sessionNotes = MISSING_STRING_FIELD;
@@ -93,6 +95,10 @@ public class Session implements Serializable {
 
     public String getSessionName() {
         return sessionName;
+    }
+
+    public void setSessionDefaultMapOfSpeciesToColors(TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors) {
+        this.sessionDefaultMapOfSpeciesToColors = sessionDefaultMapOfSpeciesToColors;
     }
 
     public void setSessionName(String sessionName) {
