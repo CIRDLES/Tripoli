@@ -94,10 +94,10 @@ public class AnalysisMethod implements Serializable {
             UserFunction userFunction = new UserFunction(columnHeaders[i].trim(), i - 2);
             if (columnHeaders[i].matches(regex)) {
                 userFunction.setTreatAsIsotopicRatio(true);
-                userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.BLOCK);
+                userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.CYCLE);
                 int indexOfDivide = columnHeaders[i].indexOf("/");
                 // assume three digits / three digits
-                String numerator = columnHeaders[i].substring(indexOfDivide - 3, 3);
+                String numerator = columnHeaders[i].substring(indexOfDivide - 3, indexOfDivide);
                 String denominator = columnHeaders[i].substring(indexOfDivide + 1, indexOfDivide + 4);
                 String etReduxRatioName = numerator + "_" + denominator;
                 if (isLegalETReduxName(etReduxRatioName)) {
