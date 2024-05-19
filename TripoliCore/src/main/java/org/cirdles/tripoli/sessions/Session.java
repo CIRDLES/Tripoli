@@ -43,6 +43,7 @@ public class Session implements Serializable {
     private String sessionNotes;
     private Map<String, AnalysisInterface> mapOfAnalyses;
     private boolean mutable;
+    // TODO: Add private mapOfSpeciesToColors along with getters and setters
 
 
     private Session() {
@@ -56,6 +57,7 @@ public class Session implements Serializable {
     private Session(String sessionName, Map<String, AnalysisInterface> mapOfAnalyses) {
         this.sessionName = sessionName;
         this.mapOfAnalyses = mapOfAnalyses;
+        //TODO:  Initialize mapOfSpeciesToColors based on defaults from TripoliPersistentState here
 
         analystName = MISSING_STRING_FIELD;
         sessionNotes = MISSING_STRING_FIELD;
