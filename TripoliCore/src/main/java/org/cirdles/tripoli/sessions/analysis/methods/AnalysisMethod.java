@@ -97,7 +97,7 @@ public class AnalysisMethod implements Serializable {
                 userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.CYCLE);
                 int indexOfDivide = columnHeaders[i].indexOf("/");
                 // assume three digits / three digits
-                String numerator = columnHeaders[i].substring(indexOfDivide - 3, 3);
+                String numerator = columnHeaders[i].substring(indexOfDivide - 3, indexOfDivide);
                 String denominator = columnHeaders[i].substring(indexOfDivide + 1, indexOfDivide + 4);
                 String etReduxRatioName = numerator + "_" + denominator;
                 if (isLegalETReduxName(etReduxRatioName)) {
