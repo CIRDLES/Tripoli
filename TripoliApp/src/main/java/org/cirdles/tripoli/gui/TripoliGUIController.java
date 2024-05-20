@@ -550,9 +550,9 @@ public class TripoliGUIController implements Initializable {
         try {
             saveExportFile(etReduxFraction, null);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+//TODO:            throw new RuntimeException(e);
         } catch (TripoliException e) {
-            throw new RuntimeException(e);
+// TODO:           throw new RuntimeException(e);
         }
     }
 
@@ -562,5 +562,9 @@ public class TripoliGUIController implements Initializable {
         ClipboardContent content = new ClipboardContent();
         content.putString(clipBoardString);
         clipboard.setContent(content);
+    }
+
+    public void showTripoliDiscussionsAction() {
+        BrowserControl.showURI("https://github.com/CIRDLES/Tripoli/discussions");
     }
 }
