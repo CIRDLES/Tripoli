@@ -98,6 +98,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<IsotopicRatio, AnalysisRatioRecord> mapOfRatioToAnalysisRatioRecord = Collections.synchronizedSortedMap(new TreeMap<>());
 //    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
     private TripoliSpeciesColorMap analysisDefaultMapOfSpeciesToColors;
+    private Session parentSession;
     private String analysisName;
     private String analystName;
     private String labName;
@@ -115,6 +116,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private double analysisDalyFaradayGainMeanOneSigmaAbs;
     private TripoliConstants.ETReduxExportTypeEnum etReduxExportType = TripoliConstants.ETReduxExportTypeEnum.NONE;
 
+
     private Analysis() {
     }
 
@@ -122,7 +124,7 @@ public class Analysis implements Serializable, AnalysisInterface {
                        AnalysisMethod analysisMethod,
                        String analysisSampleName) {
         this.analysisName = analysisName;
-        this.analysisDefaultMapOfSpeciesToColors = TripoliPersistentState.getCurrentSpeciesColorMap();// Default if not added
+        this.analysisDefaultMapOfSpeciesToColors = TripoliPersistentState.getCurrentSpeciesColorMap().clone();// Default if not added
         setMethod(analysisMethod);
         this.analysisSampleName = analysisSampleName;
         this.analysisFractionName = MISSING_STRING_FIELD;
@@ -710,8 +712,10 @@ public class Analysis implements Serializable, AnalysisInterface {
         }
     }
 
+    // TODO: use this to set defaults from `ColorSelectionWindow`
     public void initializeDefaultsFromSessionDefaults(Session session) {
         setAnalysisDefaultMapOfSpeciesToColors(session.getSessionDefaultMapOfSpeciesToColors().clone());
+        this.parentSession = session;
     }
     public void setAnalysisDefaultMapOfSpeciesToColors(TripoliSpeciesColorMap analysisDefaultMapOfSpeciesToColors) {
         this.analysisDefaultMapOfSpeciesToColors = analysisDefaultMapOfSpeciesToColors;

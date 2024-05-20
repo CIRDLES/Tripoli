@@ -101,6 +101,7 @@ public class TripoliSessionAnalysisMap implements Map<String, AnalysisInterface>
     public TripoliSessionAnalysisMap clone() {
         try {
             TripoliSessionAnalysisMap clone = (TripoliSessionAnalysisMap) super.clone();
+            clone.putAll(this.sessionMapOfAnalyses);
             clone.session = this.session;
             return clone;
         } catch (CloneNotSupportedException e) {
