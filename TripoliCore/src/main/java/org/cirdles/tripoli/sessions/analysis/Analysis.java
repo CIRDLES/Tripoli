@@ -32,6 +32,7 @@ import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioRecord;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
+import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver;
@@ -44,12 +45,12 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
-import org.cirdles.tripoli.species.SpeciesColorSetting;
 import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunctionModel;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
+import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
@@ -95,7 +96,10 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<Integer, boolean[][]> mapOfBlockIdToIncludedPeakData = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, boolean[]> mapOfBlockIdToIncludedIntensities = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<IsotopicRatio, AnalysisRatioRecord> mapOfRatioToAnalysisRatioRecord = Collections.synchronizedSortedMap(new TreeMap<>());
-    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
+//    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
+    private TripoliSpeciesColorMap analysisMapOfSpeciesToColors;
+    private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
+    private Session parentSession;
     private String analysisName;
     private String analystName;
     private String labName;
@@ -113,11 +117,15 @@ public class Analysis implements Serializable, AnalysisInterface {
     private double analysisDalyFaradayGainMeanOneSigmaAbs;
     private TripoliConstants.ETReduxExportTypeEnum etReduxExportType = TripoliConstants.ETReduxExportTypeEnum.NONE;
 
+
     private Analysis() {
     }
 
-    protected Analysis(String analysisName, AnalysisMethod analysisMethod, String analysisSampleName) {
+    protected Analysis(String analysisName,
+                       AnalysisMethod analysisMethod,
+                       String analysisSampleName) {
         this.analysisName = analysisName;
+        this.analysisMapOfSpeciesToColors = TripoliPersistentState.getCurrentSpeciesColorMap().clone();// Default if not added
         setMethod(analysisMethod);
         this.analysisSampleName = analysisSampleName;
         this.analysisFractionName = MISSING_STRING_FIELD;
@@ -161,7 +169,6 @@ public class Analysis implements Serializable, AnalysisInterface {
         mapOfBlockIdToRawData.clear();
         mapOfBlockIdToRawDataLiteOne.clear();
         mapOfBlockIdToFinalModel.clear();
-        mapOfSpeciesToColors.clear();
     }
 
     public String extractMassSpecDataFromPath(Path dataFilePath)
@@ -626,6 +633,11 @@ public class Analysis implements Serializable, AnalysisInterface {
         return sb.toString();
     }
 
+
+    public Session getParentSession() {
+        return parentSession;
+    }
+
     @Override
     public String getAnalysisName() {
         return analysisName;
@@ -687,14 +699,16 @@ public class Analysis implements Serializable, AnalysisInterface {
         // Will use this method to initialize mapOfSpeciesToColors
         this.analysisMethod = analysisMethod;
         // TODO: initialize mapOfSpeciesToColors based on defaults
-        if (analysisMethod != null) {
-            initializeDefaultsMapOfSpeciesToColors(analysisMethod.getSpeciesList().size());
-        }
+        // TODO: remove boilerplate initialization method
+//        if (analysisMethod != null) {
+//            initializeDefaultsMapOfSpeciesToColors(analysisMethod.getSpeciesList().size());
+//        }
     }
 
+    // TODO: remove boilerplate initialization method
     private void initializeDefaultsMapOfSpeciesToColors(int numSpecies) {
         for(int i = 0; i < numSpecies; i++) {
-            mapOfSpeciesToColors.put(i,
+            analysisMapOfSpeciesToColors.put(i,
                     new SpeciesColors(
                             TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4),
                             TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 1),
@@ -702,6 +716,23 @@ public class Analysis implements Serializable, AnalysisInterface {
                             TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 3)
                     ));
         }
+    }
+
+    // TODO: use this to set defaults from `ColorSelectionWindow`
+    public void initializeDefaultsFromSessionDefaults(Session session) {
+        setAnalysisMapOfSpeciesToColors(session.getSessionDefaultMapOfSpeciesToColors().clone());
+        this.parentSession = session;
+        this.sessionDefaultMapOfSpeciesToColors = session.getSessionDefaultMapOfSpeciesToColors();
+    }
+    public void setAnalysisMapOfSpeciesToColors(TripoliSpeciesColorMap analysisMapOfSpeciesToColors) {
+        this.analysisMapOfSpeciesToColors = analysisMapOfSpeciesToColors;
+    }
+
+    public TripoliSpeciesColorMap getSessionDefaultMapOfSpeciesToColors() {
+        if (this.sessionDefaultMapOfSpeciesToColors == null && parentSession != null) {
+            this.sessionDefaultMapOfSpeciesToColors = parentSession.getSessionDefaultMapOfSpeciesToColors();
+        }
+        return sessionDefaultMapOfSpeciesToColors;
     }
 
     public MassSpecExtractedData getMassSpecExtractedData() {
@@ -774,8 +805,8 @@ public class Analysis implements Serializable, AnalysisInterface {
         return mapOfRatioToAnalysisRatioRecord;
     }
 
-    public Map<Integer, SpeciesColors> getMapOfSpeciesToColors() {
-        return mapOfSpeciesToColors;
+    public Map<Integer, SpeciesColors> getAnalysisMapOfSpeciesToColors() {
+        return analysisMapOfSpeciesToColors;
     }
 
 

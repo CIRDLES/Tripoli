@@ -16,6 +16,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -32,15 +33,15 @@ import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.util.*;
 
-import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_DEFAULT_HEX_COLORS;
-
 public class ColorSelectionWindow {
     public static final String WINDOW_TITLE = "Color Customization";
     public static final double WINDOW_PREF_WIDTH = 334;
     public static final double BUTTON_PREF_HEIGHT = 35;
-    public static final double TOOLBAR_BUTTON_HEIGHT = 18;
+    public static final double TOOLBAR_BUTTON_HEIGHT = 25;
+    public static final double TOOLBAR_BUTTON_WIDTH_DIVISOR = 2.39;
     private static ColorSelectionWindow instance;
-    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors;
+    private final Map<Integer, SpeciesColors> analysisMapOfSpeciesToColors;
+    private final Map<Integer, SpeciesColors> sessionDefaultMapOfSpeciesToColors;
     private final Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack;
     private final Map<Integer, SpeciesColors> originalMapOfSpeciesToColors;
     private final VBox root;
@@ -50,7 +51,8 @@ public class ColorSelectionWindow {
     private SpeciesColorRowSelectionRecord speciesColorRowSelectionRecord;
     private SpeciesColorPane[] speciesColorPanes;
     private Button undoButton;
-    private Button saveButton;
+    private Button saveAsSessionDefaultButton;
+    private Button saveAsUserDefaultButton;
     private final ColorListener colorListener;
     private final DelegateActionSet rebuildDelegateActionSet;
 
@@ -68,9 +70,9 @@ public class ColorSelectionWindow {
         public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
             DetectorPlotFlavor plotFlavor = colorSplotchReference.getPlotFlavor();
             int index = colorSplotchReference.getIndex();
-            SpeciesColors speciesColors = mapOfSpeciesToColors.get(index);
-            mapOfSpeciesToColors.remove(index);
-            mapOfSpeciesToColors.put(index,
+            SpeciesColors speciesColors = analysisMapOfSpeciesToColors.get(index);
+            analysisMapOfSpeciesToColors.remove(index);
+            analysisMapOfSpeciesToColors.put(index,
                     speciesColors.altered(plotFlavor,
                             String.format("#%02x%02x%02x",
                                     (int) (newValue.getRed() * 255),
@@ -86,15 +88,17 @@ public class ColorSelectionWindow {
 
     }
     public static ColorSelectionWindow colorSelectionWindowRequest(
-            Map<Integer, SpeciesColors> mapOfSpeciesToColors,
+            Map<Integer, SpeciesColors> analysisMapOfSpeciesToColors,
             List<SpeciesRecordInterface> species,
+            Map<Integer, SpeciesColors> sessionDefaultMapOfSpeciesToColors,
             int indexOfFirstCheckedSpecies,
             Window owner,
             DelegateActionSet rebuildDelegateActionSet) {
         if (instance == null) {
             instance = new ColorSelectionWindow(
-                    mapOfSpeciesToColors,
+                    analysisMapOfSpeciesToColors,
                     species,
+                    sessionDefaultMapOfSpeciesToColors,
                     indexOfFirstCheckedSpecies,
                     owner,
                     rebuildDelegateActionSet);
@@ -102,15 +106,17 @@ public class ColorSelectionWindow {
         instance.centerOverOwner();
         return instance;
     }
-    private ColorSelectionWindow(Map<Integer, SpeciesColors> mapOfSpeciesToColors,
+    private ColorSelectionWindow(Map<Integer, SpeciesColors> analysisMapOfSpeciesToColors,
                                  List<SpeciesRecordInterface> species,
+                                 Map<Integer, SpeciesColors> sessionDefaultMapOfSpeciesToColors,
                                  int indexOfFirstCheckedSpecies,
                                  Window owner,
                                  DelegateActionSet rebuildDelegateActionSet) {
-        this.mapOfSpeciesToColors = mapOfSpeciesToColors;
+        this.analysisMapOfSpeciesToColors = analysisMapOfSpeciesToColors;
+        this.sessionDefaultMapOfSpeciesToColors = sessionDefaultMapOfSpeciesToColors;
         this.previousSpeciesColorSettingsStack = new Stack<>();
         this.originalMapOfSpeciesToColors = new TreeMap<>();
-        originalMapOfSpeciesToColors.putAll(mapOfSpeciesToColors);
+        originalMapOfSpeciesToColors.putAll(analysisMapOfSpeciesToColors);
         this.root = new VBox();
         this.rebuildDelegateActionSet = rebuildDelegateActionSet;
         initStage(owner);
@@ -123,21 +129,36 @@ public class ColorSelectionWindow {
                 speciesColorPanes[indexOfFirstCheckedSpecies],
                 speciesColorPanes[indexOfFirstCheckedSpecies].getMapOfPlotFlavorsToSpeciesColorRows().get(
                         DetectorPlotFlavor.values()[0]),
-                new SpeciesColorSetting(indexOfFirstCheckedSpecies, mapOfSpeciesToColors.get(indexOfFirstCheckedSpecies)));
+                new SpeciesColorSetting(indexOfFirstCheckedSpecies, analysisMapOfSpeciesToColors.get(indexOfFirstCheckedSpecies)));
         speciesColorRowSelectionRecord.speciesColorRow().highlight();
         speciesColorRowSelectionRecord.speciesColorPane().highlight();
         this.root.getChildren().add(initColorPicker());
-        Region spacerLeft = new Region();
-        Region spacerRight = new Region();
-        HBox.setHgrow(spacerLeft, Priority.ALWAYS);
-        HBox.setHgrow(spacerRight, Priority.ALWAYS);
-        ToolBar toolBar = new ToolBar(
-                spacerLeft,
-//                initResetButton(),
-                initUndoButton(), initSaveButton(),initCancelButton(), spacerRight);
-        toolBar.prefWidthProperty().bind(stage.widthProperty());
-        toolBar.setPadding(new Insets(10));
-        this.root.getChildren().add(toolBar);
+        Region topSpacerLeft = new Region();
+        Region bottomSpacerLeft = new Region();
+        Region topSpacerRight = new Region();
+        Region bottomSpacerRight = new Region();
+        HBox.setHgrow(topSpacerLeft, Priority.ALWAYS);
+        HBox.setHgrow(bottomSpacerLeft, Priority.ALWAYS);
+        HBox.setHgrow(topSpacerRight, Priority.ALWAYS);
+        HBox.setHgrow(bottomSpacerRight, Priority.ALWAYS);
+        ToolBar topToolBar = new ToolBar(
+                topSpacerLeft,
+                initSaveAsUserDefaultButton(),
+                initSaveAsSessionDefaultButton(),
+                topSpacerRight
+        );
+        ToolBar lowerToolBar = new ToolBar(
+                bottomSpacerLeft,
+                initUndoButton(),
+                initResetToSessionDefaultsButton(),
+                bottomSpacerRight
+        );
+        topToolBar.prefWidthProperty().bind(stage.widthProperty());
+        topToolBar.setPadding(new Insets(10));
+        lowerToolBar.prefWidthProperty().bind(stage.widthProperty());
+        lowerToolBar.setPadding(new Insets(10));
+        this.root.getChildren().add(topToolBar);
+        this.root.getChildren().add(lowerToolBar);
         this.stage.setWidth(WINDOW_PREF_WIDTH);
     }
 
@@ -152,23 +173,16 @@ public class ColorSelectionWindow {
                 selectedPane,
                 selectedRow,
                 new SpeciesColorSetting(
-                        speciesIndex, mapOfSpeciesToColors.get(speciesIndex)));
+                        speciesIndex, analysisMapOfSpeciesToColors.get(speciesIndex)));
     }
 
-    private void resetColors(){
-        int numberOfSpecies = this.speciesColorPanes.length;
-        mapOfSpeciesToColors.clear();
+
+    private void resetToSessionDefault(){
         previousSpeciesColorSettingsStack.clear();
         undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
-        saveButton.setDisable(previousSpeciesColorSettingsStack.empty());
-        for (int speciesIndex = 0; speciesIndex < numberOfSpecies ; ++speciesIndex){
-            SpeciesColors speciesColors = new SpeciesColors(
-                    TRIPOLI_DEFAULT_HEX_COLORS.get(speciesIndex * 4),
-                    TRIPOLI_DEFAULT_HEX_COLORS.get(speciesIndex * 4 + 1),
-                    TRIPOLI_DEFAULT_HEX_COLORS.get(speciesIndex * 4 + 2),
-                    TRIPOLI_DEFAULT_HEX_COLORS.get(speciesIndex * 4 + 3)
-            );
-            mapOfSpeciesToColors.put(speciesIndex, speciesColors);
+        analysisMapOfSpeciesToColors.putAll(sessionDefaultMapOfSpeciesToColors);
+        for (int speciesIndex = 0; speciesIndex < speciesColorPanes.length; ++speciesIndex) {
+            SpeciesColors speciesColors = analysisMapOfSpeciesToColors.get(speciesIndex);
             SpeciesColorPane pane = speciesColorPanes[speciesIndex];
             for(DetectorPlotFlavor plotFlavor: DetectorPlotFlavor.values()) {
                 pane.getMapOfPlotFlavorsToSpeciesColorRows().get(plotFlavor).setColor(
@@ -177,16 +191,14 @@ public class ColorSelectionWindow {
         }
         colorPicker.setValue(speciesColorRowSelectionRecord.speciesColorRow().getColor());
         rebuildDelegateActionSet.executeDelegateActions();
-        stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
-
+//        stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
     }
 
     private void undo(){
         if (!previousSpeciesColorSettingsStack.empty()){
             SpeciesColorSetting previousSpeciesColorSetting = previousSpeciesColorSettingsStack.pop();
             undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
-            saveButton.setDisable(previousSpeciesColorSettingsStack.empty());
-            mapOfSpeciesToColors.put(
+            analysisMapOfSpeciesToColors.put(
                     previousSpeciesColorSetting.index(),
                     previousSpeciesColorSetting.speciesColors());
             SpeciesColorPane speciesColorPane = speciesColorPanes[previousSpeciesColorSetting.index()];
@@ -201,19 +213,14 @@ public class ColorSelectionWindow {
         }
     }
 
-    private void cancel() {
-        mapOfSpeciesToColors.putAll(originalMapOfSpeciesToColors);
-        try {
-            TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
-        } catch (TripoliException e) {
-            TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
-        }
-        rebuildDelegateActionSet.executeDelegateActions();
-        stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
-//        stage.close();
+
+    private void saveAsSessionDefault() {
+        sessionDefaultMapOfSpeciesToColors.putAll(analysisMapOfSpeciesToColors);
     }
-    private void accept() {
+
+    private void saveAsUserDefault() {
         try{
+            TripoliPersistentState.getCurrentSpeciesColorMap().putAll(analysisMapOfSpeciesToColors);
             TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
         } catch (TripoliException ex) {
             TripoliMessageDialog.showWarningDialog(ex.getMessage(), TripoliGUI.primaryStage);
@@ -238,26 +245,22 @@ public class ColorSelectionWindow {
         }
     }
 
-    private Button initCancelButton() {
-        Button cancelButton = new Button("Cancel");
-        cancelButton.prefWidthProperty().bind(stage.widthProperty().divide(5));
-        cancelButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
-        cancelButton.setOnAction(cancelChanges -> cancel());
-        return cancelButton;
-    }
-
-    private Button initResetButton() {
-        Button resetButton = new Button("Reset All");
-        resetButton.prefWidthProperty().bind(stage.widthProperty().divide(5));
+    /**
+     * @return The initialized "Reset To Session Default" button
+     */
+    private Button initResetToSessionDefaultsButton() {
+        Button resetButton = new Button("Reset To Session Defaults");
+        resetButton.setFont(new Font(11.15));
+        resetButton.prefWidthProperty().bind(stage.widthProperty().divide(TOOLBAR_BUTTON_WIDTH_DIVISOR));
         resetButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
-        resetButton.setOnAction(resetChanges -> {
-            resetColors();});
+        resetButton.setOnAction(resetChanges ->
+            resetToSessionDefault());
         return resetButton;
     }
 
     private Button initUndoButton() {
         this.undoButton = new Button("Undo");
-        undoButton.prefWidthProperty().bind(stage.widthProperty().divide(5));
+        undoButton.prefWidthProperty().bind(stage.widthProperty().divide(TOOLBAR_BUTTON_WIDTH_DIVISOR));
         undoButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
         undoButton.setOnAction(undoLastChange -> {
             undo();
@@ -267,13 +270,23 @@ public class ColorSelectionWindow {
         return undoButton;
     }
 
-    private Button initSaveButton() {
-        saveButton = new Button("Save All");
-        saveButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
-        saveButton.prefWidthProperty().bind(stage.widthProperty().divide(5));
-        saveButton.setOnAction((acceptAction) -> accept());
-        saveButton.setDisable(previousSpeciesColorSettingsStack.empty());
-        return saveButton;
+    private Button initSaveAsSessionDefaultButton() {
+        saveAsSessionDefaultButton = new Button("Save As Session Default");
+        saveAsSessionDefaultButton.setFont(new Font(11.3));
+        saveAsSessionDefaultButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
+        saveAsSessionDefaultButton.prefWidthProperty().bind(stage.widthProperty().divide(TOOLBAR_BUTTON_WIDTH_DIVISOR));
+        saveAsSessionDefaultButton.setOnAction((saveAsSessionDefaultAction) -> saveAsSessionDefault());
+//        saveAsSessionDefaultButton.setDisable(previousSpeciesColorSettingsStack.empty());
+        return saveAsSessionDefaultButton;
+    }
+
+    private Button initSaveAsUserDefaultButton() {
+        saveAsUserDefaultButton = new Button("Save As User Default");
+        saveAsUserDefaultButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
+        saveAsUserDefaultButton.prefWidthProperty().bind(stage.widthProperty().divide(TOOLBAR_BUTTON_WIDTH_DIVISOR));
+        saveAsUserDefaultButton.setOnAction((saveAsUserDefaultAction) -> saveAsUserDefault());
+//        saveAsUserDefaultButton.setDisable(previousSpeciesColorSettingsStack.empty());
+        return saveAsUserDefaultButton;
     }
     private ColorPicker initColorPicker() {
         this.colorPicker = new ColorPicker();
@@ -285,7 +298,7 @@ public class ColorSelectionWindow {
         this.colorPicker.setOnAction(action -> {
             previousSpeciesColorSettingsStack.push(speciesColorRowSelectionRecord.speciesColorSetting());
             undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
-            saveButton.setDisable(previousSpeciesColorSettingsStack.empty());
+//            saveAsSessionDefaultButton.setDisable(previousSpeciesColorSettingsStack.empty());
             setColorPickerLabelText();
         });
         return this.colorPicker;
@@ -296,7 +309,7 @@ public class ColorSelectionWindow {
             speciesColorPanes[i] =
                     new SpeciesColorPane(i,
                             species.get(i).prettyPrintShortForm(),
-                            mapOfSpeciesToColors.get(i));
+                            analysisMapOfSpeciesToColors.get(i));
             speciesColorPanes[i].prefWidthProperty().bind(stage.widthProperty());
             root.getChildren().add(speciesColorPanes[i]);
         }

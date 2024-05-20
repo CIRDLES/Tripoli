@@ -125,8 +125,15 @@ public class TripoliPersistentState implements Serializable {
             myInstance = new TripoliPersistentState();
             myInstance.serializeSelf();
         }
+
+        if (myInstance.getMapOfSpeciesToColors().isEmpty()) {
+            myInstance.initializeDefaultsMapOfSpeciesToColors(TRIPOLI_DEFAULT_HEX_COLORS.length()/ 4);
+            myInstance.serializeSelf();
+        }
+
         return myInstance;
     }
+
 
     private void initializeDefaultsMapOfSpeciesToColors(int numSpecies) {
         for(int i = 0; i < numSpecies; i++) {
