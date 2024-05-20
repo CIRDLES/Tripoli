@@ -98,6 +98,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<IsotopicRatio, AnalysisRatioRecord> mapOfRatioToAnalysisRatioRecord = Collections.synchronizedSortedMap(new TreeMap<>());
 //    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
     private TripoliSpeciesColorMap analysisMapOfSpeciesToColors;
+    private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
     private Session parentSession;
     private String analysisName;
     private String analystName;
@@ -721,9 +722,17 @@ public class Analysis implements Serializable, AnalysisInterface {
     public void initializeDefaultsFromSessionDefaults(Session session) {
         setAnalysisMapOfSpeciesToColors(session.getSessionDefaultMapOfSpeciesToColors().clone());
         this.parentSession = session;
+        this.sessionDefaultMapOfSpeciesToColors = session.getSessionDefaultMapOfSpeciesToColors();
     }
     public void setAnalysisMapOfSpeciesToColors(TripoliSpeciesColorMap analysisMapOfSpeciesToColors) {
         this.analysisMapOfSpeciesToColors = analysisMapOfSpeciesToColors;
+    }
+
+    public TripoliSpeciesColorMap getSessionDefaultMapOfSpeciesToColors() {
+        if (this.sessionDefaultMapOfSpeciesToColors == null && parentSession != null) {
+            this.sessionDefaultMapOfSpeciesToColors = parentSession.getSessionDefaultMapOfSpeciesToColors();
+        }
+        return sessionDefaultMapOfSpeciesToColors;
     }
 
     public MassSpecExtractedData getMassSpecExtractedData() {

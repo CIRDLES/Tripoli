@@ -153,7 +153,8 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
 
     public void buildIntensitiesPlotToolBar(boolean showResiduals,
                                             List<SpeciesRecordInterface> species,
-                                            Map<Integer, SpeciesColors> mapOfSpeciesToColors) {
+                                            Map<Integer, SpeciesColors> analysisMapOfSpeciesToColors,
+                                            Map<Integer, SpeciesColors> sessionDefaultMapOfSpeciesToColors) {
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);
         speciesChecked = new boolean[species.size()];
@@ -297,8 +298,9 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
                 }
             }
             ColorSelectionWindow window =
-                    ColorSelectionWindow.colorSelectionWindowRequest(mapOfSpeciesToColors,
+                    ColorSelectionWindow.colorSelectionWindowRequest(analysisMapOfSpeciesToColors,
                             species,
+                            sessionDefaultMapOfSpeciesToColors,
                             indexOfFirstCheckedSpecies,
                             getScene().getWindow(), delegateActionSet);
             window.show();

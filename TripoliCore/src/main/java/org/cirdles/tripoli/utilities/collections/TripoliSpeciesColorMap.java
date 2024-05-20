@@ -9,11 +9,18 @@ import java.util.*;
 
 public class TripoliSpeciesColorMap implements Map<Integer, SpeciesColors>, Serializable, Cloneable{
 
-    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors;
+    private Map<Integer, SpeciesColors> mapOfSpeciesToColors;
 
     public TripoliSpeciesColorMap() {
         super();
         mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
+    }
+
+    private TripoliSpeciesColorMap(Map<Integer,SpeciesColors> other) {
+        this();
+        for (Integer key : other.keySet()) {
+            this.mapOfSpeciesToColors.put(key.intValue(), other.get(key));
+        }
     }
 
     @Override
@@ -38,22 +45,26 @@ public class TripoliSpeciesColorMap implements Map<Integer, SpeciesColors>, Seri
 
     @Override
     public SpeciesColors get(Object key) {
-        int idx = (Integer) key % size();
-        if ((Integer) key > idx) {
-            putReorganize((Integer) key, mapOfSpeciesToColors.get(idx));
+        SpeciesColors speciesColors = null;
+        if (containsKey(key)) {
+            speciesColors = mapOfSpeciesToColors.get(key);
+        } else {
+            if (size() > 0  && (Integer) key >= size()) {
+                int idx = (Integer) key % size();
+                speciesColors = mapOfSpeciesToColors.get(idx);
+                putReorganize((Integer) key, speciesColors);
+            }
         }
-        return mapOfSpeciesToColors.get(key);
+        return speciesColors;
     }
 
-    private SpeciesColors putReorganize(Integer key, SpeciesColors value) {
+    private void putReorganize(Integer key, SpeciesColors value) {
         SpeciesColors oldValue = mapOfSpeciesToColors.put(key, value);
-        SpeciesColors originalValue = oldValue;
         int newKey = key;
         while (oldValue != null) {
             newKey += size();
             oldValue = mapOfSpeciesToColors.put(newKey, oldValue);
         }
-        return originalValue;
     }
 
     @Nullable
@@ -70,13 +81,15 @@ public class TripoliSpeciesColorMap implements Map<Integer, SpeciesColors>, Seri
 
     @Override
     public void putAll(@NotNull Map<? extends Integer, ? extends SpeciesColors> m) {
-        clear();
-        mapOfSpeciesToColors.putAll(m);
+//        if (m.size() >= this.size()){
+//            this.clear();
+//        }
+        this.mapOfSpeciesToColors.putAll(m);
     }
 
     @Override
     public void clear() {
-        mapOfSpeciesToColors.clear();
+        this.mapOfSpeciesToColors.clear();
     }
 
     @NotNull
@@ -99,11 +112,6 @@ public class TripoliSpeciesColorMap implements Map<Integer, SpeciesColors>, Seri
 
     @Override
     public TripoliSpeciesColorMap clone() {
-        try {
-            TripoliSpeciesColorMap clone = (TripoliSpeciesColorMap) super.clone();
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
+        return new TripoliSpeciesColorMap(this);
     }
 }
