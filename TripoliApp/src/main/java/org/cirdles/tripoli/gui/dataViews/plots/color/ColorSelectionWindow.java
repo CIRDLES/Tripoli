@@ -155,6 +155,9 @@ public class ColorSelectionWindow {
                         speciesIndex, analysisMapOfSpeciesToColors.get(speciesIndex)));
     }
 
+    /**
+     * @deprecated
+     */
     private void resetColors(){
         int numberOfSpecies = this.speciesColorPanes.length;
         analysisMapOfSpeciesToColors.clear();
@@ -201,13 +204,16 @@ public class ColorSelectionWindow {
         }
     }
 
+    /**
+     * @deprecated
+     */
     private void cancel() {
         analysisMapOfSpeciesToColors.putAll(originalMapOfSpeciesToColors);
-        try {
-            TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
-        } catch (TripoliException e) {
-            TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
-        }
+//        try {
+//            TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
+//        } catch (TripoliException e) {
+//            TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
+//        }
         rebuildDelegateActionSet.executeDelegateActions();
         stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
 //        stage.close();
@@ -246,6 +252,10 @@ public class ColorSelectionWindow {
         return cancelButton;
     }
 
+    /**
+     * @deprecated
+     * @return
+     */
     private Button initResetButton() {
         Button resetButton = new Button("Reset All");
         resetButton.prefWidthProperty().bind(stage.widthProperty().divide(5));

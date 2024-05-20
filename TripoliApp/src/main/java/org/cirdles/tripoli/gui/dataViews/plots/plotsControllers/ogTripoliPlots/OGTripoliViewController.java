@@ -8,9 +8,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
-import javafx.stage.WindowEvent;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
@@ -30,7 +28,6 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
-import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.util.*;
 
@@ -410,7 +407,7 @@ public class OGTripoliViewController {
 
         ((PlotWallPaneIntensities) plotsWallPaneIntensities).buildIntensitiesPlotToolBar(false,
                 analysis.getAnalysisMethod().getSpeciesList(),
-                ((Analysis) analysis).getAnalysisDefaultMapOfSpeciesToColors());
+                ((Analysis) analysis).getAnalysisMapOfSpeciesToColors());
         plotsWallPaneIntensities.buildScaleControlsToolbar();
         plotsWallPaneIntensities.stackPlots();
 
@@ -427,7 +424,7 @@ public class OGTripoliViewController {
 
         ((PlotWallPaneIntensities) plotsWallPaneResiduals).buildIntensitiesPlotToolBar(true,
                 analysis.getAnalysisMethod().getSpeciesList(),
-                ((Analysis) analysis).getAnalysisDefaultMapOfSpeciesToColors());
+                ((Analysis) analysis).getAnalysisMapOfSpeciesToColors());
         plotsWallPaneResiduals.buildScaleControlsToolbar();
         plotsWallPaneResiduals.stackPlots();
 

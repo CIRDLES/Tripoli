@@ -97,7 +97,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<Integer, boolean[]> mapOfBlockIdToIncludedIntensities = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<IsotopicRatio, AnalysisRatioRecord> mapOfRatioToAnalysisRatioRecord = Collections.synchronizedSortedMap(new TreeMap<>());
 //    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
-    private TripoliSpeciesColorMap analysisDefaultMapOfSpeciesToColors;
+    private TripoliSpeciesColorMap analysisMapOfSpeciesToColors;
     private Session parentSession;
     private String analysisName;
     private String analystName;
@@ -124,7 +124,7 @@ public class Analysis implements Serializable, AnalysisInterface {
                        AnalysisMethod analysisMethod,
                        String analysisSampleName) {
         this.analysisName = analysisName;
-        this.analysisDefaultMapOfSpeciesToColors = TripoliPersistentState.getCurrentSpeciesColorMap().clone();// Default if not added
+        this.analysisMapOfSpeciesToColors = TripoliPersistentState.getCurrentSpeciesColorMap().clone();// Default if not added
         setMethod(analysisMethod);
         this.analysisSampleName = analysisSampleName;
         this.analysisFractionName = MISSING_STRING_FIELD;
@@ -632,6 +632,11 @@ public class Analysis implements Serializable, AnalysisInterface {
         return sb.toString();
     }
 
+
+    public Session getParentSession() {
+        return parentSession;
+    }
+
     @Override
     public String getAnalysisName() {
         return analysisName;
@@ -702,7 +707,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     // TODO: remove boilerplate initialization method
     private void initializeDefaultsMapOfSpeciesToColors(int numSpecies) {
         for(int i = 0; i < numSpecies; i++) {
-            analysisDefaultMapOfSpeciesToColors.put(i,
+            analysisMapOfSpeciesToColors.put(i,
                     new SpeciesColors(
                             TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4),
                             TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 1),
@@ -714,11 +719,11 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     // TODO: use this to set defaults from `ColorSelectionWindow`
     public void initializeDefaultsFromSessionDefaults(Session session) {
-        setAnalysisDefaultMapOfSpeciesToColors(session.getSessionDefaultMapOfSpeciesToColors().clone());
+        setAnalysisMapOfSpeciesToColors(session.getSessionDefaultMapOfSpeciesToColors().clone());
         this.parentSession = session;
     }
-    public void setAnalysisDefaultMapOfSpeciesToColors(TripoliSpeciesColorMap analysisDefaultMapOfSpeciesToColors) {
-        this.analysisDefaultMapOfSpeciesToColors = analysisDefaultMapOfSpeciesToColors;
+    public void setAnalysisMapOfSpeciesToColors(TripoliSpeciesColorMap analysisMapOfSpeciesToColors) {
+        this.analysisMapOfSpeciesToColors = analysisMapOfSpeciesToColors;
     }
 
     public MassSpecExtractedData getMassSpecExtractedData() {
@@ -791,8 +796,8 @@ public class Analysis implements Serializable, AnalysisInterface {
         return mapOfRatioToAnalysisRatioRecord;
     }
 
-    public Map<Integer, SpeciesColors> getAnalysisDefaultMapOfSpeciesToColors() {
-        return analysisDefaultMapOfSpeciesToColors;
+    public Map<Integer, SpeciesColors> getAnalysisMapOfSpeciesToColors() {
+        return analysisMapOfSpeciesToColors;
     }
 
 

@@ -101,7 +101,6 @@ public class TripoliSpeciesColorMap implements Map<Integer, SpeciesColors>, Seri
     public TripoliSpeciesColorMap clone() {
         try {
             TripoliSpeciesColorMap clone = (TripoliSpeciesColorMap) super.clone();
-//            clone.putAll(this.mapOfSpeciesToColors);
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
