@@ -16,6 +16,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -36,7 +37,8 @@ public class ColorSelectionWindow {
     public static final String WINDOW_TITLE = "Color Customization";
     public static final double WINDOW_PREF_WIDTH = 334;
     public static final double BUTTON_PREF_HEIGHT = 35;
-    public static final double TOOLBAR_BUTTON_HEIGHT = 18;
+    public static final double TOOLBAR_BUTTON_HEIGHT = 25;
+    public static final double TOOLBAR_BUTTON_WIDTH_DIVISOR = 2.39;
     private static ColorSelectionWindow instance;
     private final Map<Integer, SpeciesColors> analysisMapOfSpeciesToColors;
     private final Map<Integer, SpeciesColors> sessionDefaultMapOfSpeciesToColors;
@@ -131,21 +133,32 @@ public class ColorSelectionWindow {
         speciesColorRowSelectionRecord.speciesColorRow().highlight();
         speciesColorRowSelectionRecord.speciesColorPane().highlight();
         this.root.getChildren().add(initColorPicker());
-        Region spacerLeft = new Region();
-        Region spacerRight = new Region();
-        HBox.setHgrow(spacerLeft, Priority.ALWAYS);
-        HBox.setHgrow(spacerRight, Priority.ALWAYS);
-        ToolBar toolBar = new ToolBar(
-                spacerLeft,
+        Region topSpacerLeft = new Region();
+        Region bottomSpacerLeft = new Region();
+        Region topSpacerRight = new Region();
+        Region bottomSpacerRight = new Region();
+        HBox.setHgrow(topSpacerLeft, Priority.ALWAYS);
+        HBox.setHgrow(bottomSpacerLeft, Priority.ALWAYS);
+        HBox.setHgrow(topSpacerRight, Priority.ALWAYS);
+        HBox.setHgrow(bottomSpacerRight, Priority.ALWAYS);
+        ToolBar topToolBar = new ToolBar(
+                topSpacerLeft,
                 initSaveAsUserDefaultButton(),
                 initSaveAsSessionDefaultButton(),
+                topSpacerRight
+        );
+        ToolBar lowerToolBar = new ToolBar(
+                bottomSpacerLeft,
                 initUndoButton(),
                 initResetToSessionDefaultsButton(),
-//                initCancelButton(),
-                spacerRight);
-        toolBar.prefWidthProperty().bind(stage.widthProperty());
-        toolBar.setPadding(new Insets(10));
-        this.root.getChildren().add(toolBar);
+                bottomSpacerRight
+        );
+        topToolBar.prefWidthProperty().bind(stage.widthProperty());
+        topToolBar.setPadding(new Insets(10));
+        lowerToolBar.prefWidthProperty().bind(stage.widthProperty());
+        lowerToolBar.setPadding(new Insets(10));
+        this.root.getChildren().add(topToolBar);
+        this.root.getChildren().add(lowerToolBar);
         this.stage.setWidth(WINDOW_PREF_WIDTH);
     }
 
@@ -200,20 +213,6 @@ public class ColorSelectionWindow {
         }
     }
 
-    /**
-     * @deprecated
-     */
-    private void cancel() {
-        analysisMapOfSpeciesToColors.putAll(originalMapOfSpeciesToColors);
-//        try {
-//            TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
-//        } catch (TripoliException e) {
-//            TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
-//        }
-        rebuildDelegateActionSet.executeDelegateActions();
-        stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
-//        stage.close();
-    }
 
     private void saveAsSessionDefault() {
         sessionDefaultMapOfSpeciesToColors.putAll(analysisMapOfSpeciesToColors);
@@ -246,20 +245,13 @@ public class ColorSelectionWindow {
         }
     }
 
-    private Button initCancelButton() {
-        Button cancelButton = new Button("Cancel");
-        cancelButton.prefWidthProperty().bind(stage.widthProperty().divide(4));
-        cancelButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
-        cancelButton.setOnAction(cancelChanges -> cancel());
-        return cancelButton;
-    }
-
     /**
      * @return The initialized "Reset To Session Default" button
      */
     private Button initResetToSessionDefaultsButton() {
         Button resetButton = new Button("Reset To Session Defaults");
-        resetButton.prefWidthProperty().bind(stage.widthProperty());
+        resetButton.setFont(new Font(11.15));
+        resetButton.prefWidthProperty().bind(stage.widthProperty().divide(TOOLBAR_BUTTON_WIDTH_DIVISOR));
         resetButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
         resetButton.setOnAction(resetChanges ->
             resetToSessionDefault());
@@ -268,7 +260,7 @@ public class ColorSelectionWindow {
 
     private Button initUndoButton() {
         this.undoButton = new Button("Undo");
-        undoButton.prefWidthProperty().bind(stage.widthProperty().divide(3));
+        undoButton.prefWidthProperty().bind(stage.widthProperty().divide(TOOLBAR_BUTTON_WIDTH_DIVISOR));
         undoButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
         undoButton.setOnAction(undoLastChange -> {
             undo();
@@ -280,17 +272,18 @@ public class ColorSelectionWindow {
 
     private Button initSaveAsSessionDefaultButton() {
         saveAsSessionDefaultButton = new Button("Save As Session Default");
+        saveAsSessionDefaultButton.setFont(new Font(11.3));
         saveAsSessionDefaultButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
-        saveAsSessionDefaultButton.prefWidthProperty().bind(stage.widthProperty().divide(3));
+        saveAsSessionDefaultButton.prefWidthProperty().bind(stage.widthProperty().divide(TOOLBAR_BUTTON_WIDTH_DIVISOR));
         saveAsSessionDefaultButton.setOnAction((saveAsSessionDefaultAction) -> saveAsSessionDefault());
-        saveAsSessionDefaultButton.setDisable(previousSpeciesColorSettingsStack.empty());
+//        saveAsSessionDefaultButton.setDisable(previousSpeciesColorSettingsStack.empty());
         return saveAsSessionDefaultButton;
     }
 
     private Button initSaveAsUserDefaultButton() {
         saveAsUserDefaultButton = new Button("Save As User Default");
         saveAsUserDefaultButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
-        saveAsUserDefaultButton.prefWidthProperty().bind(stage.widthProperty().divide(3));
+        saveAsUserDefaultButton.prefWidthProperty().bind(stage.widthProperty().divide(TOOLBAR_BUTTON_WIDTH_DIVISOR));
         saveAsUserDefaultButton.setOnAction((saveAsUserDefaultAction) -> saveAsUserDefault());
 //        saveAsUserDefaultButton.setDisable(previousSpeciesColorSettingsStack.empty());
         return saveAsUserDefaultButton;
