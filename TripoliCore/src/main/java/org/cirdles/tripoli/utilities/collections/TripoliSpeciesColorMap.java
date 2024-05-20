@@ -7,19 +7,20 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.util.*;
 
-public class TripoliSpeciesColorMap implements Map<Integer, SpeciesColors>, Serializable, Cloneable{
+public class TripoliSpeciesColorMap implements Map<Integer, SpeciesColors>, Serializable{
 
-    private Map<Integer, SpeciesColors> mapOfSpeciesToColors;
+    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors;
 
     public TripoliSpeciesColorMap() {
         super();
         mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
     }
 
-    private TripoliSpeciesColorMap(Map<Integer,SpeciesColors> other) {
+    public TripoliSpeciesColorMap(Map<Integer, SpeciesColors> other) {
         this();
         for (Integer key : other.keySet()) {
-            this.mapOfSpeciesToColors.put(key.intValue(), other.get(key));
+            int newKey = key;
+            this.mapOfSpeciesToColors.put(newKey, other.get(key).copy());
         }
     }
 
@@ -81,9 +82,6 @@ public class TripoliSpeciesColorMap implements Map<Integer, SpeciesColors>, Seri
 
     @Override
     public void putAll(@NotNull Map<? extends Integer, ? extends SpeciesColors> m) {
-//        if (m.size() >= this.size()){
-//            this.clear();
-//        }
         this.mapOfSpeciesToColors.putAll(m);
     }
 
@@ -110,8 +108,4 @@ public class TripoliSpeciesColorMap implements Map<Integer, SpeciesColors>, Seri
         return mapOfSpeciesToColors.entrySet();
     }
 
-    @Override
-    public TripoliSpeciesColorMap clone() {
-        return new TripoliSpeciesColorMap(this);
-    }
 }
