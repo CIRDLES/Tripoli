@@ -265,6 +265,7 @@ public class ColorSelectionWindow {
         undoButton.setOnAction(undoLastChange -> {
             undo();
             undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
+            undoLastChange.consume();
         });
         undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
         return undoButton;

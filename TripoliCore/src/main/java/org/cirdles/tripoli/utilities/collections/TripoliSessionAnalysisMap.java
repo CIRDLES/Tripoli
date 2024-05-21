@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.util.*;
 
-public class TripoliSessionAnalysisMap implements Map<String, AnalysisInterface>, Serializable, Cloneable {
+public class TripoliSessionAnalysisMap implements Map<String, AnalysisInterface>, Serializable{
 
     private final Map<String, AnalysisInterface> sessionMapOfAnalyses;
     private Session session;
@@ -97,15 +97,4 @@ public class TripoliSessionAnalysisMap implements Map<String, AnalysisInterface>
         return sessionMapOfAnalyses.entrySet();
     }
 
-    @Override
-    public TripoliSessionAnalysisMap clone() {
-        try {
-            TripoliSessionAnalysisMap clone = (TripoliSessionAnalysisMap) super.clone();
-//            clone.putAll(this.sessionMapOfAnalyses);
-//            clone.session = this.session;
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
-    }
 }
