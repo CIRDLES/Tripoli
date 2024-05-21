@@ -130,7 +130,7 @@ public class Analysis implements Serializable, AnalysisInterface {
                     new TripoliSpeciesColorMap(
                             TripoliPersistentState.getExistingPersistentState().getMapOfSpeciesToColors());// Default if not added
         } catch (TripoliException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         setMethod(analysisMethod);
         this.analysisSampleName = analysisSampleName;
