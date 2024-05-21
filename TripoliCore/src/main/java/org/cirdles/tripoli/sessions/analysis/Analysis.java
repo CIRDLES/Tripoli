@@ -125,7 +125,13 @@ public class Analysis implements Serializable, AnalysisInterface {
                        AnalysisMethod analysisMethod,
                        String analysisSampleName) {
         this.analysisName = analysisName;
-        this.analysisMapOfSpeciesToColors = TripoliPersistentState.getCurrentSpeciesColorMap().clone();// Default if not added
+        try {
+            this.analysisMapOfSpeciesToColors =
+                    new TripoliSpeciesColorMap(
+                            TripoliPersistentState.getExistingPersistentState().getMapOfSpeciesToColors());// Default if not added
+        } catch (TripoliException e) {
+            throw new RuntimeException(e);
+        }
         setMethod(analysisMethod);
         this.analysisSampleName = analysisSampleName;
         this.analysisFractionName = MISSING_STRING_FIELD;
@@ -720,7 +726,9 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     // TODO: use this to set defaults from `ColorSelectionWindow`
     public void initializeDefaultsFromSessionDefaults(Session session) {
-        setAnalysisMapOfSpeciesToColors(session.getSessionDefaultMapOfSpeciesToColors().clone());
+
+        setAnalysisMapOfSpeciesToColors(
+                new TripoliSpeciesColorMap(session.getSessionDefaultMapOfSpeciesToColors()));
         this.parentSession = session;
         this.sessionDefaultMapOfSpeciesToColors = session.getSessionDefaultMapOfSpeciesToColors();
     }

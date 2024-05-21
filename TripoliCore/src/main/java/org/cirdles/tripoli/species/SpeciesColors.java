@@ -22,6 +22,13 @@ public record SpeciesColors(
             return result;
         }
 
+        public SpeciesColors copy() {
+            return new SpeciesColors(
+                    new String(faradayHexColor),
+                    new String(pmHexColor),
+                    new String(faradayModelHexColor),
+                    new String(pmModelHexColor()));
+        }
         public SpeciesColors altered(DetectorPlotFlavor plotFlavor, String hexColor) {
             String faraday = faradayHexColor;
             String pm  = pmHexColor;

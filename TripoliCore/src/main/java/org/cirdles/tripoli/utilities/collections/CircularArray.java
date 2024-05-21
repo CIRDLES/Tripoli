@@ -1,7 +1,7 @@
 package org.cirdles.tripoli.utilities.collections;
 
 public class CircularArray <T>{
-    private T[] array;
+    private final T[] array;
 
     public CircularArray(T[] values) {
         this.array = values;

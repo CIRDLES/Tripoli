@@ -220,7 +220,7 @@ public class ColorSelectionWindow {
 
     private void saveAsUserDefault() {
         try{
-            TripoliPersistentState.getCurrentSpeciesColorMap().putAll(analysisMapOfSpeciesToColors);
+            TripoliPersistentState.getExistingPersistentState().getMapOfSpeciesToColors().putAll(analysisMapOfSpeciesToColors);
             TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
         } catch (TripoliException ex) {
             TripoliMessageDialog.showWarningDialog(ex.getMessage(), TripoliGUI.primaryStage);
@@ -265,6 +265,7 @@ public class ColorSelectionWindow {
         undoButton.setOnAction(undoLastChange -> {
             undo();
             undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
+            undoLastChange.consume();
         });
         undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
         return undoButton;

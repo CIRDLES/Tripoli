@@ -20,6 +20,7 @@ import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.utilities.collections.TripoliSessionAnalysisMap;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.Serial;
@@ -62,8 +63,6 @@ public class Session implements Serializable {
         this.sessionName = sessionName;
         this.mapOfAnalyses = ((TripoliSessionAnalysisMap) mapOfAnalyses);
         this.mapOfAnalyses.setSession(this);
-        this.sessionDefaultMapOfSpeciesToColors = TripoliPersistentState.getCurrentSpeciesColorMap().clone();
-
         analystName = MISSING_STRING_FIELD;
         sessionNotes = MISSING_STRING_FIELD;
         sessionFilePathAsString = "";
@@ -73,12 +72,24 @@ public class Session implements Serializable {
 
     public static Session initializeDefaultSession() throws JAXBException {
         Session session = new Session();
+        try {
+            session.sessionDefaultMapOfSpeciesToColors =
+                    TripoliPersistentState.getExistingPersistentState().getMapOfSpeciesToColors();
+        } catch (TripoliException e) {
+            e.printStackTrace();
+        }
         session.addAnalysis(initializeNewAnalysis(1));
         return session;
     }
 
     public static Session initializeSession(String sessionName) {
         Session session = new Session(sessionName);
+        try {
+            session.sessionDefaultMapOfSpeciesToColors =
+                    TripoliPersistentState.getExistingPersistentState().getMapOfSpeciesToColors();
+        } catch (TripoliException e) {
+            e.printStackTrace();
+        }
         return session;
     }
 
