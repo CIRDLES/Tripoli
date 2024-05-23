@@ -18,6 +18,7 @@ package org.cirdles.tripoli.expressions.species.nuclides;
 
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.traversal.NodeIterator;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
@@ -93,6 +94,6 @@ public record NuclideRecord(
 
     @Override
     public int compareTo(@NotNull SpeciesRecordInterface o) {
-        return Integer.compare(protonsZ + neutronsN, ((NuclideRecord) o).neutronsN + ((NuclideRecord) o).protonsZ);
+        return Integer.compare(this.getMassNumber(), o.getMassNumber());
     }
 }
