@@ -151,7 +151,6 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
 
             // preserves display order
             plotPanes.sort(Comparator.comparing(o -> ((TripoliPlotPane) o)));
-
             double tileWidth;
             double displayHeight;
             if (0 == iD.compareToIgnoreCase("OGTripoliSession")) {

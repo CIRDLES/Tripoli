@@ -609,6 +609,9 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         super.paint(g2d);
     }
 
+    @Override
+    public void labelAxisX(GraphicsContext g2d) {/* do nothing per Issue #240, item 3*/}
+
     public void prepareExtents(boolean reScaleX, boolean reScaleY) {
         if (reScaleX) {
             minX -= 2;

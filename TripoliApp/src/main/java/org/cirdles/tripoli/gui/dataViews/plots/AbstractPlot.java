@@ -383,7 +383,7 @@ public abstract class AbstractPlot extends Canvas {
 
     public abstract void showLegend(GraphicsContext g2d);
 
-    private void labelAxisX(GraphicsContext g2d) {
+    public void labelAxisX(GraphicsContext g2d) {
         Paint savedPaint = g2d.getFill();
         g2d.setFill(Paint.valueOf("BLACK"));
         g2d.setFont(Font.font("SansSerif", 14));
