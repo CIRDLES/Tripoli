@@ -31,7 +31,7 @@ JB:
   # also use ruby on mac (rom) to keep updated
   # need to change Ruby version: chruby ruby-2.7.5
   
-  #BASE_PATH: /Tripoli
+  BASE_PATH: /Tripoli
   version: 0.3.0
 
   # All links will be namespaced by BASE_PATH if defined.
