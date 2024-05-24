@@ -126,6 +126,14 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
 
     }
 
+    /**
+     *
+     */
+    @Override
+    public void updateStatusOfCycleCheckBox() {
+
+    }
+
     public void buildIntensitiesPlotToolBar(boolean showResiduals, List<SpeciesRecordInterface> species) {
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);

@@ -83,6 +83,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     private boolean showZoomBox;
     private double zoomBoxX;
     private double zoomBoxY;
+    private boolean ignoreRejects;
 
     private AnalysisBlockCyclesPlotOG(
             AnalysisInterface analysis,
@@ -106,6 +107,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         this.parentWallPane = parentWallPane;
         this.blockMode = userFunction.getReductionMode().equals(TripoliConstants.ReductionModeEnum.BLOCK);
         this.isRatio = userFunction.isTreatAsIsotopicRatio();
+        this.ignoreRejects = true;
 
         tooltip = new Tooltip(tooltipTextSculpt);
         Tooltip.install(this, tooltip);
@@ -198,14 +200,15 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             plotAxisLabelY = "Log Ratio";
         }
 
-        if (reScaleY) {
+        if (reScaleY || ignoreRejects) {
             // calculate ratio and unct across all included blocks
             minY = Double.MAX_VALUE;
             maxY = -Double.MAX_VALUE;
 
             for (int i = 0; i < yAxisData.length; i++) {
                 // TODO: handle logratio uncertainties
-                if (yAxisData[i] != 0.0) {
+                int blockIndex = i / cyclesPerBlock;
+                if ((yAxisData[i] != 0.0) && (!ignoreRejects || mapBlockIdToBlockCyclesRecord.get(blockIndex + 1).cyclesIncluded()[i % cyclesPerBlock])) {
                     minY = min(minY, yAxisData[i] - oneSigmaForCycles[i]);
                     maxY = max(maxY, yAxisData[i] + oneSigmaForCycles[i]);
                 }
@@ -247,7 +250,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     public void showLegend(GraphicsContext g2d) {
         int textLeft = 5;
         int textTop = 18;
-        int textDeltaY = 22;
+        int textDeltaY = 18;
 
         Font normalFourteen = Font.font("Courier New", FontWeight.BOLD, 16);
         Font monospacedEight = Font.font("Monospaced", FontWeight.NORMAL, 8);
@@ -275,7 +278,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             int countOfTrailingDigitsForSigFig;
 
             if (blockMode) {
-                g2d.fillText("Block Mode:", textLeft + 5, textTop += 2 * textDeltaY);
+                g2d.fillText("Block Mode:", textLeft + 5, textTop += textDeltaY);
                 double geoWeightedMeanRatio = exp(analysisStatsRecord.blockModeWeightedMean());
 
                 if (!Double.isNaN(geoWeightedMeanRatio)) {
@@ -350,11 +353,11 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     g2d.fillText("n  = " + countIncluded + "/" + analysisStatsRecord.blockStatsRecords().length, textLeft + 10, textTop += textDeltaY);
 
                 } else {
-                    g2d.fillText("Bad Data", textLeft + 5, textTop += 2 * textDeltaY);
+                    g2d.fillText("Bad Data", textLeft + 5, textTop += textDeltaY);
                 }
             } else { // cycle mode of ratio
                 g2d.setFont(normalFourteen);
-                g2d.fillText("Cycle Mode:", textLeft + 5, textTop += 2 * textDeltaY);
+                g2d.fillText("Cycle Mode:", textLeft + 5, textTop += textDeltaY);
 
                 /*
                 Round the (1-sigma percent) standard error and (1-sigma percent) standard deviation to two significant decimal places.
@@ -458,7 +461,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             int countOfTrailingDigitsForSigFig;
 
             if (blockMode) {
-                g2d.fillText("Block Mode:", textLeft + 5, textTop += 2 * textDeltaY);
+                g2d.fillText("Block Mode:", textLeft + 5, textTop += textDeltaY);
 
                 double weightedMeanOneSigma = analysisStatsRecord.blockModeWeightedMeanOneSigma();
                 countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig(weightedMeanOneSigma, 2);
@@ -529,7 +532,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 Round the mean and the standard deviation to the same number of decimal places.
                  */
                 g2d.setFont(normalFourteen);
-                g2d.fillText("Cycle Mode:", textLeft + 5, textTop += textDeltaY * 2);
+                g2d.fillText("Cycle Mode:", textLeft + 5, textTop += textDeltaY);
 
                 double cycleModeMean = analysisStatsRecord.cycleModeMean();
                 double cycleModeStandardError = analysisStatsRecord.cycleModeStandardError();
@@ -569,28 +572,30 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             }
         }
         g2d.setFont(normalFourteen);
-        g2d.fillText("Legend:", textLeft + 5, textTop += textDeltaY * 2);
+//        g2d.fillText("Legend:", textLeft + 5, textTop += textDeltaY * 2);
         g2d.setFill(OGTRIPOLI_TWOSIGMA);
-        g2d.fillRect(textLeft + 10, textTop + textDeltaY, 25, 50);
+        g2d.fillRect(textLeft + 8, textTop + textDeltaY, 27, 50);
         g2d.setFill(Paint.valueOf("BLACK"));
-        g2d.fillText("2\u03C3", textLeft + 15, textTop + 2 * textDeltaY);
+        g2d.fillText("2\u03C3", textLeft + 8, textTop + 2 * textDeltaY);
+        g2d.fillText("x", textLeft + 26, textTop + 2 * textDeltaY + 7);
+        g2d.fillText("\u0304", textLeft + 26, textTop + 2 * textDeltaY + 7);
 
         g2d.setFill(OGTRIPOLI_ONESIGMA);
         g2d.fillRect(textLeft + 35, textTop + textDeltaY + 25, 25, 25);
         g2d.setFill(Paint.valueOf("BLACK"));
-        g2d.fillText("\u03C3", textLeft + 42, textTop + 2.9 * textDeltaY);
+        g2d.fillText("\u03C3", textLeft + 42, textTop + 3.2 * textDeltaY);
 
         g2d.setFill(OGTRIPOLI_TWOSTDERR);
         g2d.fillRect(textLeft + 60, textTop + textDeltaY + 25, 25, 25);
         g2d.setFill(Paint.valueOf("BLACK"));
-        g2d.fillText("2\u03C3", textLeft + 62, textTop + 2.9 * textDeltaY);
+        g2d.fillText("2\u03C3", textLeft + 62, textTop + 3.2 * textDeltaY);
         g2d.setFont(normalFourteen);
 
         g2d.setStroke(OGTRIPOLI_MEAN);
         g2d.setLineWidth(1.5);
         g2d.strokeLine(textLeft + 5, textTop + textDeltaY + 50, textLeft + 90, textTop + textDeltaY + 50);
-        g2d.fillText("x", textLeft + 95, textTop + 2.9 * textDeltaY + 12);
-        g2d.fillText("\u0304", textLeft + 95, textTop + 2.9 * textDeltaY + 12);
+        g2d.fillText("x", textLeft + 95, textTop + 3.2 * textDeltaY + 14);
+        g2d.fillText("\u0304", textLeft + 95, textTop + 3.2 * textDeltaY + 14);
     }
 
     private String appendTrailingZeroIfNeeded(String valueString, int countOfTrailingDigits) {
@@ -618,7 +623,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             maxX += 2;
         }
 
-        if (reScaleY) {
+        if (reScaleY || ignoreRejects) {
             double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.10);
             if (yMarginStretch == 0.0) {
                 yMarginStretch = yAxisData[0] / 100.0;
@@ -884,6 +889,8 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         if (((t0 - t2) > 5.0) && (Math.abs(mouseTime - t2) > Math.abs(mouseTime - t0))) {
             sculptBlockIDCalc = blockIDsPerTimeSlot[xAxisIndexOfMouse];
         }
+
+        if (sculptBlockIDCalc == 0) sculptBlockIDCalc = mapBlockIdToBlockCyclesRecord.size();
         return sculptBlockIDCalc;
     }
 
@@ -1212,5 +1219,13 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             }
             repaint();
         }
+    }
+
+    public void setIgnoreRejects(boolean ignoreRejects) {
+        this.ignoreRejects = ignoreRejects;
+    }
+
+    public boolean isIgnoreRejects() {
+        return ignoreRejects;
     }
 }

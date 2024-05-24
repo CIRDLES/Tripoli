@@ -16,6 +16,8 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots;
 
+import com.google.common.primitives.Booleans;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -36,6 +38,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -64,6 +67,8 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private ToolBar scaleControlsToolbar;
     private TripoliPlotPane zoomedPlot;
     private Button chauvenetButton;
+    private CheckBox cycleCB;
+    private ChangeListener cycleCBChangeListener;
 
     private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsController, AnalysisManagerCallbackI analysisManagerCallbackI) {
         this.iD = iD;
@@ -73,7 +78,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         this.mcmcPlotsController = mcmcPlotsController;
         this.analysisManagerCallbackI = analysisManagerCallbackI;
         plotLayoutStyle = ConstantsTripoliApp.PlotLayoutStyle.TILE;
-        this.blockMode = true;
+        this.blockMode = false;
 
     }
 
@@ -218,6 +223,14 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         }
     }
 
+    public void performIgnoreRejects(boolean ignoreRejects) {
+        for (Node plotPane : getChildren()) {
+            if (plotPane instanceof TripoliPlotPane) {
+                ((TripoliPlotPane) plotPane).performIgnoreRejects(ignoreRejects);
+            }
+        }
+    }
+
     public void toggleShowStatsAllPlots() {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
@@ -337,6 +350,21 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         });
         scaleControlsToolbar.getItems().add(infoButton);
 
+        Button stackButton = new Button("Stack Plots");
+        stackButton.setFont(commandFont);
+        stackButton.setOnAction(event -> stackPlots());
+        scaleControlsToolbar.getItems().add(stackButton);
+
+//        Button toggleStatsButton = new Button("Toggle Stats");
+//        toggleStatsButton.setFont(commandFont);
+//        toggleStatsButton.setOnAction(event -> toggleShowStatsAllPlots());
+//        scaleControlsToolbar.getItems().add(toggleStatsButton);
+
+        Button tileButton = new Button("Tile Plots");
+        tileButton.setFont(commandFont);
+        tileButton.setOnAction(event -> tilePlots());
+        scaleControlsToolbar.getItems().add(tileButton);
+
         Button replotAllButton = new Button("Replot All");
         replotAllButton.setFont(commandFont);
         replotAllButton.setOnAction(event -> replotAll());
@@ -350,7 +378,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         });
         scaleControlsToolbar.getItems().add(resetAllDataButton);
 
-        chauvenetButton = new Button("Chauvenet");
+        chauvenetButton = new Button("Chauvenet Rejection");
         chauvenetButton.setFont(commandFont);
         chauvenetButton.setOnAction(event -> {
             performChauvenets();
@@ -358,20 +386,14 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         });
         scaleControlsToolbar.getItems().add(chauvenetButton);
 
-        Button toggleStatsButton = new Button("Toggle Stats");
-        toggleStatsButton.setFont(commandFont);
-        toggleStatsButton.setOnAction(event -> toggleShowStatsAllPlots());
-        scaleControlsToolbar.getItems().add(toggleStatsButton);
+        CheckBox ignoreCB = new CheckBox("Ignore Rejects");
+        scaleControlsToolbar.getItems().add(ignoreCB);
+        ignoreCB.setSelected(true);
+        ignoreCB.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                    performIgnoreRejects(newVal);
+                });
 
-        Button tileButton = new Button("Tile Plots");
-        tileButton.setFont(commandFont);
-        tileButton.setOnAction(event -> tilePlots());
-        scaleControlsToolbar.getItems().add(tileButton);
-
-        Button stackButton = new Button("Stack Plots");
-        stackButton.setFont(commandFont);
-        stackButton.setOnAction(event -> stackPlots());
-        scaleControlsToolbar.getItems().add(stackButton);
 
         Label labelMode = new Label("Mode:");
         labelMode.setFont(commandFont);
@@ -379,14 +401,12 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         labelMode.setPrefWidth(50);
         scaleControlsToolbar.getItems().add(labelMode);
 
-        CheckBox cycleCB = new CheckBox("Cycle");
+        cycleCB = new CheckBox("Cycle");
         scaleControlsToolbar.getItems().add(cycleCB);
         cycleCB.setSelected(true);
-        cycleCB.selectedProperty().addListener(
-                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
-                    blockMode = !newVal;
-                    rebuildPlot(false, true);
-                });
+        cycleCBChangeListener = new CheckBoxChangeListener();
+        cycleCB.selectedProperty().addListener(cycleCBChangeListener);
+        updateStatusOfCycleCheckBox();
 
         Label labelScale = new Label("Ratio Scale:");
         labelScale.setFont(commandFont);
@@ -547,5 +567,38 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
             }
         }
         analysisManagerCallbackI.callBackSetBlockIncludedStatus(blockID, included);
+    }
+
+    private class CheckBoxChangeListener implements ChangeListener<Boolean> {
+        /**
+         * @param observable The {@code ObservableValue} which value changed
+         * @param oldValue   The old value
+         * @param newValue   The new value
+         */
+        @Override
+        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+            blockMode = !newValue;
+            rebuildPlot(false, true);
+        }
+    }
+
+    public void updateStatusOfCycleCheckBox() {
+        ObservableList<Node> children = getChildren();
+        List<Boolean> allShowCycle = new ArrayList<>();
+        for (Node child : children) {
+            if (child instanceof TripoliPlotPane) {
+                AnalysisBlockCyclesPlotI childPlot = (AnalysisBlockCyclesPlotI) ((TripoliPlotPane) child).getPlot();
+                allShowCycle.add(!childPlot.getBlockMode());
+            }
+        }
+        int countOfShowCycles = Booleans.countTrue(Booleans.toArray(allShowCycle));
+        cycleCB.selectedProperty().removeListener(cycleCBChangeListener);
+        cycleCB.selectedProperty().setValue(countOfShowCycles == allShowCycle.size());
+        cycleCB.setIndeterminate(false);
+        if ((countOfShowCycles != allShowCycle.size()) && (countOfShowCycles > 0)){
+            cycleCB.selectedProperty().setValue(true);
+            cycleCB.setIndeterminate(true);
+        }
+        cycleCB.selectedProperty().addListener(cycleCBChangeListener);
     }
 }

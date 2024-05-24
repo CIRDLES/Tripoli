@@ -65,6 +65,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
     private boolean blockMode;
     private AnalysisStatsRecord analysisStatsRecord;
     private int sculptBlockID;
+    private boolean ignoreRejects;
 
     private AnalysisBlockCyclesPlot(Rectangle bounds, AnalysisBlockCyclesRecord analysisBlockCyclesRecord, PlotWallPane parentWallPane) {
         super(bounds,
@@ -855,5 +856,13 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
                 repaint();
             }
         }
+    }
+
+    public void setIgnoreRejects(boolean ignoreRejects) {
+        this.ignoreRejects = ignoreRejects;
+    }
+
+    public boolean isIgnoreRejects() {
+        return ignoreRejects;
     }
 }
