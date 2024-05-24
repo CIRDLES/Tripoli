@@ -1098,7 +1098,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             selectorBoxX = mouseStartX;
             selectorBoxY = mouseStartY;
 
-            repaint();
+            refreshPanel(false, false);
         }
     }
 
