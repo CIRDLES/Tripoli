@@ -583,8 +583,8 @@ public abstract class AbstractPlot extends Canvas {
     protected boolean mouseInHouse(double sceneX, double sceneY) {
         return ((sceneX >= leftMargin)
                 && (sceneY >= topMargin)
-                && (sceneY < plotHeight + topMargin - 2)
-                && (sceneX < (plotWidth + leftMargin - 2)));
+                && (sceneY < plotHeight + topMargin + 2)
+                && (sceneX < (plotWidth + leftMargin + 5)));
     }
 
     public void updatePlotSize(double width, double height) {

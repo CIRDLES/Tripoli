@@ -151,6 +151,11 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
     @Override
     public void preparePanel(boolean reScaleX, boolean reScaleY) {
+        selectorBoxX = mouseStartX;
+        selectorBoxY = mouseStartY;
+        zoomBoxX = mouseStartX;
+        zoomBoxY = mouseStartY;
+
         // process blocks
         int cyclesPerBlock = mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
 
@@ -267,7 +272,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         g2d.fillText(title, textLeft, textTop);
 
         if (inSculptorMode) {
-            g2d.fillText("  >> SCULPT MODE <<", textLeft + 150, textTop);
+            g2d.fillText("  >> SCULPT MODE <<", textLeft + 200, textTop);
         }
 
         g2d.setFill(Paint.valueOf("BLACK"));
@@ -1024,10 +1029,10 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             if (e.isPrimaryButtonDown()) {
                 if (mouseInHouse(e.getX(), e.getY())) {
                     int currentSculptBlockID = determineSculptBlock(e.getX());
-                    if ((currentSculptBlockID == sculptBlockID)) {
+//                    if ((currentSculptBlockID == sculptBlockID)) {
                         selectorBoxX = e.getX();
                         selectorBoxY = e.getY();
-                    }
+//                    }
                     showSelectionBox = true;
                 }
             } else {
@@ -1065,32 +1070,58 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 double intensityBottom = convertMouseYToValue(Math.max(mouseStartY, selectorBoxY));
 
                 int expectedCyclesCount = mapBlockIdToBlockCyclesRecord.get(1).cycleMeansData().length;
-                double[] data = mapBlockIdToBlockCyclesRecord.get(sculptBlockID).cycleMeansData();
-                boolean[] cyclesIncluded = mapBlockIdToBlockCyclesRecord.get(sculptBlockID).cyclesIncluded().clone();
-                int startLeft = max(0, (indexLeft - (sculptBlockID - 1) * expectedCyclesCount) % cyclesIncluded.length);
-                int endRight = min(data.length - 1, (indexRight - (sculptBlockID - 1) * expectedCyclesCount) % cyclesIncluded.length);
 
-                // calculate majority for multiselect
+                int sculptBlockIDStart = blockIDsPerTimeSlot[indexLeft];
+                int sculptBlockIDEnd = blockIDsPerTimeSlot[indexRight];
+                if (sculptBlockIDEnd == 0) sculptBlockIDEnd = blockIDsPerTimeSlot[indexRight - expectedCyclesCount];
+                // calculate majority for multi-select
                 List<Boolean> statusList = new ArrayList<>();
-                for (int i = startLeft; i <= endRight; i++) {
-                    if ((data[i] <= intensityTop) && (data[i] >= intensityBottom)) {
-                        statusList.add(cyclesIncluded[i]);
+                for (int sculptBlockCurrent = sculptBlockIDStart; sculptBlockCurrent <= sculptBlockIDEnd; sculptBlockCurrent++) {
+                    double[] data;
+                    if (userFunction.isInverted()){
+                        data = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).invertedCycleMeansData();
+                    } else {
+                        data = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).cycleMeansData();
+                    }
+                    boolean[] cyclesIncluded = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).cyclesIncluded().clone();
+
+                    int startLeft = max(0, (indexLeft - (sculptBlockCurrent - 1) * expectedCyclesCount) % cyclesIncluded.length);
+                    int endRight = min(data.length - 1, (indexRight - (sculptBlockCurrent - 1) * expectedCyclesCount));
+
+                    for (int i = startLeft; i <= endRight; i++) {
+                        if ((data[i] <= intensityTop) && (data[i] >= intensityBottom)) {
+                            statusList.add(cyclesIncluded[i]);
+                        }
                     }
                 }
+
                 boolean[] status = Booleans.toArray(statusList);
                 int countIncluded = Booleans.countTrue(status);
-                boolean majorityValue = countIncluded > status.length / 2;
+                boolean majorityIncludedValue = countIncluded > status.length / 2;
 
-                for (int i = startLeft; i <= endRight; i++) {
-                    if ((data[i] <= intensityTop) && (data[i] >= intensityBottom)) {
-                        cyclesIncluded[i] = !majorityValue;
+                for (int sculptBlockCurrent = sculptBlockIDStart; sculptBlockCurrent <=sculptBlockIDEnd; sculptBlockCurrent++) {
+                    double[] data;
+                    if (userFunction.isInverted()){
+                        data = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).invertedCycleMeansData();
+                    } else {
+                        data = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).cycleMeansData();
                     }
+                    boolean[] cyclesIncluded = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).cyclesIncluded().clone();
+
+                    int startLeft = max(0, (indexLeft - (sculptBlockCurrent - 1) * expectedCyclesCount) % cyclesIncluded.length);
+                    int endRight = min(data.length - 1, (indexRight - (sculptBlockCurrent - 1) * expectedCyclesCount));
+
+                    for (int i = startLeft; i <= endRight; i++) {
+                        if ((data[i] <= intensityTop) && (data[i] >= intensityBottom)) {
+                            cyclesIncluded[i] = !majorityIncludedValue;
+                        }
+                    }
+                    mapBlockIdToBlockCyclesRecord.put(sculptBlockCurrent,
+                            mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).updateCyclesIncluded(cyclesIncluded));
+                    analysis.getMapOfBlockIdToRawDataLiteOne().put(sculptBlockCurrent,
+                            analysis.getMapOfBlockIdToRawDataLiteOne().get(sculptBlockCurrent).updateIncludedCycles(userFunction, cyclesIncluded));
                 }
 
-                mapBlockIdToBlockCyclesRecord.put(sculptBlockID,
-                        mapBlockIdToBlockCyclesRecord.get(sculptBlockID).updateCyclesIncluded(cyclesIncluded));
-                analysis.getMapOfBlockIdToRawDataLiteOne().put(sculptBlockID,
-                        analysis.getMapOfBlockIdToRawDataLiteOne().get(sculptBlockID).updateIncludedCycles(userFunction, cyclesIncluded));
             } else {
                 showSelectionBox = false;
             }
