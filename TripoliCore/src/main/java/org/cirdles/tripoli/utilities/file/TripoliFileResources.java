@@ -48,6 +48,7 @@ public enum TripoliFileResources {
             throw new IOException();
         }
 
+        retrieveResourceFiles(DOCS_FOLDER, "docs");
         retrieveResourceFiles(SCHEMA_FOLDER, "schema");
         retrieveResourceFiles(TRACER_MODELS_FOLDER, "parameterModels/tracerModels");
         retrieveResourceFiles(PHYSCONST_MODELS_FOLDER, "parameterModels/physicalConstantsModels");
