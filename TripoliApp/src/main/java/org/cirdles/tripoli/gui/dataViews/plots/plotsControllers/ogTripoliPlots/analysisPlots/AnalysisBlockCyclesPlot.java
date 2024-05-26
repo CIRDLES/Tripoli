@@ -820,6 +820,14 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
         return sculptBlockIDCalc;
     }
 
+    public boolean isIgnoreRejects() {
+        return ignoreRejects;
+    }
+
+    public void setIgnoreRejects(boolean ignoreRejects) {
+        this.ignoreRejects = ignoreRejects;
+    }
+
     class MouseClickEventHandler implements EventHandler<MouseEvent> {
         @Override
         public void handle(MouseEvent mouseEvent) {
@@ -856,13 +864,5 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
                 repaint();
             }
         }
-    }
-
-    public void setIgnoreRejects(boolean ignoreRejects) {
-        this.ignoreRejects = ignoreRejects;
-    }
-
-    public boolean isIgnoreRejects() {
-        return ignoreRejects;
     }
 }

@@ -966,6 +966,47 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         repaint();
     }
 
+    private void exitSculptingMode() {
+        inSculptorMode = false;
+        sculptBlockID = 0;
+        inZoomBoxMode = true;
+        showZoomBox = true;
+        zoomBoxX = mouseStartX;
+        zoomBoxY = mouseStartY;
+        refreshPanel(true, true);
+        ((TripoliPlotPane) getParent().getParent()).removeSculptingHBox();
+        tooltip.setText(tooltipTextSculpt);
+    }
+
+    private void enterSculptingMode() {
+        inSculptorMode = false;
+        inZoomBoxMode = false;
+        showZoomBox = false;
+        ((TripoliPlotPane) getParent().getParent()).removeSculptingHBox();
+        sculptBlockID = 1;//determineSculptBlock(mouseEvent.getX());
+        ((TripoliPlotPane) getParent().getParent()).builtSculptingHBox(
+                "Cycle Sculpting " + "  >> " + tooltipTextExitSculpt);
+        sculptBlock(false);//mouseInBlockLabel(mouseEvent.getX(), mouseEvent.getY()));
+        inSculptorMode = true;
+        tooltip.setText(tooltipTextExitSculpt);
+    }
+
+    public boolean isIgnoreRejects() {
+        return ignoreRejects;
+    }
+
+    public void setIgnoreRejects(boolean ignoreRejects) {
+        this.ignoreRejects = ignoreRejects;
+    }
+
+    public void toggleSculptingMode() {
+        if (inSculptorMode) {
+            exitSculptingMode();
+        } else {
+            enterSculptingMode();
+        }
+    }
+
     class MouseClickEventHandler implements EventHandler<MouseEvent> {
         @Override
         public void handle(MouseEvent mouseEvent) {
@@ -973,25 +1014,9 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             if (2 == mouseEvent.getClickCount() && !mouseEvent.isControlDown()) {
                 if (isPrimary && (mouseInHouse(mouseEvent.getX(), mouseEvent.getY()) || mouseInBlockLabel(mouseEvent.getX(), mouseEvent.getY()))) {
                     if (inSculptorMode) {
-                        inSculptorMode = false;
-                        sculptBlockID = 0;
-                        inZoomBoxMode = true;
-                        showZoomBox = true;
-                        zoomBoxX = mouseStartX;
-                        zoomBoxY = mouseStartY;
-                        refreshPanel(true, true);
-                        ((TripoliPlotPane) getParent().getParent()).removeSculptingHBox();
-                        tooltip.setText(tooltipTextSculpt);
+                        exitSculptingMode();
                     } else {
-                        inZoomBoxMode = false;
-                        showZoomBox = false;
-                        ((TripoliPlotPane) getParent().getParent()).removeSculptingHBox();
-                        sculptBlockID = determineSculptBlock(mouseEvent.getX());
-                        ((TripoliPlotPane) getParent().getParent()).builtSculptingHBox(
-                                "Cycle Sculpting " + "  >> " + tooltipTextExitSculpt);
-                        sculptBlock(mouseInBlockLabel(mouseEvent.getX(), mouseEvent.getY()));
-                        inSculptorMode = true;
-                        tooltip.setText(tooltipTextExitSculpt);
+                        enterSculptingMode();
                     }
                 }
             } else {
@@ -1030,8 +1055,8 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 if (mouseInHouse(e.getX(), e.getY())) {
                     int currentSculptBlockID = determineSculptBlock(e.getX());
 //                    if ((currentSculptBlockID == sculptBlockID)) {
-                        selectorBoxX = e.getX();
-                        selectorBoxY = e.getY();
+                    selectorBoxX = e.getX();
+                    selectorBoxY = e.getY();
 //                    }
                     showSelectionBox = true;
                 }
@@ -1078,7 +1103,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 List<Boolean> statusList = new ArrayList<>();
                 for (int sculptBlockCurrent = sculptBlockIDStart; sculptBlockCurrent <= sculptBlockIDEnd; sculptBlockCurrent++) {
                     double[] data;
-                    if (userFunction.isInverted()){
+                    if (userFunction.isInverted()) {
                         data = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).invertedCycleMeansData();
                     } else {
                         data = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).cycleMeansData();
@@ -1099,9 +1124,9 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 int countIncluded = Booleans.countTrue(status);
                 boolean majorityIncludedValue = countIncluded > status.length / 2;
 
-                for (int sculptBlockCurrent = sculptBlockIDStart; sculptBlockCurrent <=sculptBlockIDEnd; sculptBlockCurrent++) {
+                for (int sculptBlockCurrent = sculptBlockIDStart; sculptBlockCurrent <= sculptBlockIDEnd; sculptBlockCurrent++) {
                     double[] data;
-                    if (userFunction.isInverted()){
+                    if (userFunction.isInverted()) {
                         data = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).invertedCycleMeansData();
                     } else {
                         data = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).cycleMeansData();
@@ -1250,13 +1275,5 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             }
             repaint();
         }
-    }
-
-    public void setIgnoreRejects(boolean ignoreRejects) {
-        this.ignoreRejects = ignoreRejects;
-    }
-
-    public boolean isIgnoreRejects() {
-        return ignoreRejects;
     }
 }

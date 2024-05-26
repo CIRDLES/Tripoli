@@ -43,7 +43,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.cirdles.tripoli.Tripoli.TRIPOLI_RESOURCE_EXTRACTOR;
 import static org.cirdles.tripoli.constants.TripoliConstants.*;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.BlockEnsemblesPlotter.blockEnsemblePlotEngine;
 
@@ -63,12 +62,15 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private int toolBarCount;
     private boolean logScale;
     private boolean blockMode;
+    ChangeListener<Boolean> cycleCBChangeListener = (observable, oldValue, newValue) -> {
+        blockMode = !newValue;
+        rebuildPlot(false, true);
+    };
     private ConstantsTripoliApp.PlotLayoutStyle plotLayoutStyle;
     private ToolBar scaleControlsToolbar;
     private TripoliPlotPane zoomedPlot;
     private Button chauvenetButton;
     private CheckBox cycleCB;
-    private ChangeListener cycleCBChangeListener;
 
     private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsController, AnalysisManagerCallbackI analysisManagerCallbackI) {
         this.iD = iD;
@@ -79,7 +81,6 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         this.analysisManagerCallbackI = analysisManagerCallbackI;
         plotLayoutStyle = ConstantsTripoliApp.PlotLayoutStyle.TILE;
         this.blockMode = false;
-
     }
 
     public static PlotWallPaneInterface createPlotWallPane(
@@ -235,6 +236,14 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
                 ((TripoliPlotPane) plotPane).toggleShowStats();
+            }
+        }
+    }
+
+    public void toggleSculptingMode() {
+        for (Node plotPane : getChildren()) {
+            if (plotPane instanceof TripoliPlotPane) {
+                ((TripoliPlotPane) plotPane).toggleSculptingMode();
             }
         }
     }
@@ -404,7 +413,6 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         cycleCB = new CheckBox("Cycle");
         scaleControlsToolbar.getItems().add(cycleCB);
         cycleCB.setSelected(true);
-        cycleCBChangeListener = new CheckBoxChangeListener();
         cycleCB.selectedProperty().addListener(cycleCBChangeListener);
         updateStatusOfCycleCheckBox();
 
@@ -569,19 +577,6 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         analysisManagerCallbackI.callBackSetBlockIncludedStatus(blockID, included);
     }
 
-    private class CheckBoxChangeListener implements ChangeListener<Boolean> {
-        /**
-         * @param observable The {@code ObservableValue} which value changed
-         * @param oldValue   The old value
-         * @param newValue   The new value
-         */
-        @Override
-        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-            blockMode = !newValue;
-            rebuildPlot(false, true);
-        }
-    }
-
     public void updateStatusOfCycleCheckBox() {
         ObservableList<Node> children = getChildren();
         List<Boolean> allShowCycle = new ArrayList<>();
@@ -595,7 +590,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         cycleCB.selectedProperty().removeListener(cycleCBChangeListener);
         cycleCB.selectedProperty().setValue(countOfShowCycles == allShowCycle.size());
         cycleCB.setIndeterminate(false);
-        if ((countOfShowCycles != allShowCycle.size()) && (countOfShowCycles > 0)){
+        if ((countOfShowCycles != allShowCycle.size()) && (countOfShowCycles > 0)) {
             cycleCB.selectedProperty().setValue(true);
             cycleCB.setIndeterminate(true);
         }

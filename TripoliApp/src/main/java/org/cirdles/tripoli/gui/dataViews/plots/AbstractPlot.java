@@ -561,6 +561,9 @@ public abstract class AbstractPlot extends Canvas {
         showStats = !showStats;
     }
 
+    public void toggleSculptingMode() {
+    }
+
     /**
      * @param x
      * @return

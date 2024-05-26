@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="plotWindowVBox" prefHeight="600.0" prefWidth="1200.0"
       xmlns="http://javafx.com/javafx/17"
       fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController">
@@ -30,5 +28,12 @@
                 </Tab>
             </tabs>
         </TabPane>
+        <ToolBar maxHeight="35.0" prefHeight="35.0" prefWidth="200.0" VBox.vgrow="NEVER">
+            <items>
+                <Button mnemonicParsing="false" onAction="#toggleSculptingModeAction" prefHeight="26.0"
+                        prefWidth="1187.0" style="-fx-text-fill: red;" text="Toggle Sculpting Mode for all plots"
+                        textAlignment="CENTER"/>
+            </items>
+        </ToolBar>
     </children>
 </VBox>

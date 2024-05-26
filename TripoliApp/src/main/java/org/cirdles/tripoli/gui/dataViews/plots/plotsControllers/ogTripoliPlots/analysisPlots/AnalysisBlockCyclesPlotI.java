@@ -43,8 +43,9 @@ public interface AnalysisBlockCyclesPlotI {
 
     UserFunction getUserFunction();
 
-    void setIgnoreRejects(boolean b);
     boolean isIgnoreRejects();
+
+    void setIgnoreRejects(boolean b);
 
     void refreshPanel(boolean reScaleX, boolean reScaleY);
 }

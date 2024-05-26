@@ -352,6 +352,13 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
         }
     }
 
+    public void toggleSculptingMode() {
+        if (plot != null) {
+            plot.toggleSculptingMode();
+            plot.repaint();
+        }
+    }
+
     public void toggleRatiosLogRatios() {
         if (plot != null && (plot instanceof RatioHistogramPlot)) {
             ((RatioHistogramPlot) plot).toggleRatiosLogRatios();
