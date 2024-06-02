@@ -107,7 +107,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         this.parentWallPane = parentWallPane;
         this.blockMode = userFunction.getReductionMode().equals(TripoliConstants.ReductionModeEnum.BLOCK);
         this.isRatio = userFunction.isTreatAsIsotopicRatio();
-        this.ignoreRejects = true;
+        this.ignoreRejects = false;
 
         tooltip = new Tooltip(tooltipTextSculpt);
         Tooltip.install(this, tooltip);
@@ -692,7 +692,13 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         for (int i = 0; i < xAxisData.length; i += cyclesPerBlock) {
             if (xInPlot(xAxisData[i])) {
                 double dataX = mapX(xAxisData[i] - 0.5);
-                g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
+                if (userFunction.getConcatenatedBlockCounts()[0] == blockID - 1){
+                    g2d.setLineWidth(2.0);
+                    g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
+                    g2d.setLineWidth(1.0);
+                } else {
+                    g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
+                }
                 // may 2024 issue#235
                 showBlockID(g2d, blockID, mapX(xAxisData[i + Math.abs(cyclesPerBlock / 2 - 1)]));
             }
@@ -724,8 +730,10 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
         if (blockMode) {
             int totalCycles = 0;
+            int totalActualCycles = 0;
+            int cyclesPerBlock = blockStatsRecords[1].cycleMeansData().length;
             for (int blockIndex = 0; blockIndex < blockStatsRecords.length; blockIndex++) {
-                int cyclesPerBlock = blockStatsRecords[blockIndex].cycleMeansData().length;
+                int cyclesPerThisBlock = blockStatsRecords[blockIndex].cycleMeansData().length;
                 double leftX = mapX(xAxisData[totalCycles] - 0.5);
                 if (leftX < leftMargin) leftX = leftMargin;
                 double rightX = mapX(xAxisData[totalCycles + cyclesPerBlock - 1] + 0.5);
@@ -770,6 +778,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     g2d.strokeLine(leftX, mapY(mean), rightX, mapY(mean));
                 }
                 totalCycles = totalCycles + cyclesPerBlock;
+                totalActualCycles = totalActualCycles + cyclesPerThisBlock;
             }
 
         } else { //cycle mode
@@ -858,10 +867,11 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 boolean[] chauvenets = applyChauvenetsCriterion(cycleModeData, cycleModeIncluded);
                 // reset included cycles for each block
                 BlockStatsRecord[] blockStatsRecords = analysisStatsRecord.blockStatsRecords();
+                int countOfProcessedCycles = 0;
                 for (int i = 0; i < blockStatsRecords.length; i++) {
-                    System.arraycopy(chauvenets, i * blockStatsRecords[i].cyclesIncluded().length,
+                    System.arraycopy(chauvenets, countOfProcessedCycles,
                             blockStatsRecords[i].cyclesIncluded(), 0, blockStatsRecords[i].cyclesIncluded().length);
-
+                    countOfProcessedCycles += blockStatsRecords[i].cyclesIncluded().length;
                     int blockID = i + 1;
                     PlotBlockCyclesRecord plotBlockCyclesRecord = mapBlockIdToBlockCyclesRecord.get(blockID);
                     plotBlockCyclesRecord.updateCyclesIncluded(blockStatsRecords[i].cyclesIncluded());

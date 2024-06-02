@@ -397,7 +397,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
 
         CheckBox ignoreCB = new CheckBox("Ignore Rejects");
         scaleControlsToolbar.getItems().add(ignoreCB);
-        ignoreCB.setSelected(true);
+        ignoreCB.setSelected(false);
         ignoreCB.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
                     performIgnoreRejects(newVal);

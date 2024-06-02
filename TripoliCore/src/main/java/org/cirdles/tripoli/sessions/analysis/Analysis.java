@@ -40,6 +40,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes.SingleBlockPeakDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetupBuiltinModelFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
@@ -86,12 +87,13 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<Integer, List<File>> blockPeakGroups = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, Integer> mapOfBlockIdToModelsBurnCount = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, List<EnsemblesStore.EnsembleRecord>> mapBlockIDToEnsembles = Collections.synchronizedSortedMap(new TreeMap<>());
-    private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
-    private final Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockModelRecord> mapOfBlockIdToFinalModel = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, boolean[][]> mapOfBlockIdToIncludedPeakData = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, boolean[]> mapOfBlockIdToIncludedIntensities = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<IsotopicRatio, AnalysisRatioRecord> mapOfRatioToAnalysisRatioRecord = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = Collections.synchronizedSortedMap(new TreeMap<>());
+
     private String analysisName;
     private String analystName;
     private String labName;
@@ -107,7 +109,7 @@ public class Analysis implements Serializable, AnalysisInterface {
     private DescriptiveStatistics[] analysisSpeciesStats = new DescriptiveStatistics[0];
     private double analysisDalyFaradayGainMean;
     private double analysisDalyFaradayGainMeanOneSigmaAbs;
-    private TripoliConstants.ETReduxExportTypeEnum etReduxExportType = TripoliConstants.ETReduxExportTypeEnum.NONE;
+    private ETReduxExportTypeEnum etReduxExportType = ETReduxExportTypeEnum.NONE;
 
     private Analysis() {
     }
@@ -127,6 +129,33 @@ public class Analysis implements Serializable, AnalysisInterface {
             plotSpecsSpeciesIntensityAnalysis = new SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis(
                     new boolean[analysisMethod.getSpeciesList().size()], true, true, true, true, true, false);
         }
+    }
+
+    public static AnalysisInterface concatenateTwoAnalysesLite(AnalysisInterface analysisOne, AnalysisInterface analysisTwo){
+        // assume for now that these are two sequential runs with all the same metadata
+        // TODO: check timestamps, Methods, columnheadings, etc. >> assume right for now
+
+        AnalysisInterface analysisConcat = new Analysis(
+                "AnalysisConcatTest", AnalysisMethod.createAnalysisMethodConcatCase1(analysisOne.getAnalysisMethod()), analysisOne.getAnalysisSampleName());
+        // for plotting analysis boundaries
+        int[] concatenatedBlockCounts = new int[1];
+        concatenatedBlockCounts[0] = analysisOne.getMapOfBlockIdToRawDataLiteOne().size();
+        for (UserFunction uf : analysisConcat.getAnalysisMethod().getUserFunctions()){
+            uf.setConcatenatedBlockCounts(concatenatedBlockCounts);
+        }
+
+        MassSpecExtractedData massSpecExtractedData = analysisConcat.getMassSpecExtractedData();
+        massSpecExtractedData.setMassSpectrometerContext(analysisOne.getMassSpecExtractedData().getMassSpectrometerContext());
+        massSpecExtractedData.setHeader(analysisOne.getMassSpecExtractedData().getHeader());
+        // TODO: modify header
+        massSpecExtractedData.setColumnHeaders(analysisOne.getMassSpecExtractedData().getColumnHeaders());
+
+        massSpecExtractedData.setBlocksDataLite(
+                MassSpecExtractedData.blocksDataLiteConcatenate(
+                        analysisOne.getMassSpecExtractedData().getBlocksDataLite(),
+                        analysisTwo.getMassSpecExtractedData().getBlocksDataLite()));
+
+        return analysisConcat;
     }
 
     public void setAnalysisSpeciesStats(DescriptiveStatistics[] analysisSpeciesStats) {

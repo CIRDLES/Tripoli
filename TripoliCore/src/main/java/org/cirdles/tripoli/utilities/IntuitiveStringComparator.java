@@ -8,34 +8,30 @@ import java.util.Objects;
 /**
  * 4.
  * <p>
- * A comparator that emulates the "intuitive" sorting used by Windows 5. *
+ * A comparator that emulates the "intuitive" sorting used by Windows
  * Explorer. The rules are as follows:</p>
- * 6. * 7. * <ul><li>Any sequence of one or more digits is treated as an atomic
- * unit, a 8. * number. When these number units are matched up, they're compared
- * according 9. * to their respective numeric values. If they're numerically
- * equal, but one 10. * has more leading zeroes than the other, the longer
- * sequence is considered 11. * larger.</li>
- * 12. * <li>Numbers always sort before any other kind of character.</li>
- * 13. * <li>Spaces and all punctuation characters always sort before
- * letters.</li>
- * 14. * <li>Letters are sorted case-insensitively.</li></ul>
- * 15. * 16.
+ * <ul><li>Any sequence of one or more digits is treated as an atomic
+ * unit, a number. When these number units are matched up, they're compared
+ * according to their respective numeric values. If they're numerically
+ * equal, but one has more leading zeroes than the other, the longer
+ * sequence is considered larger.
+ * <li>Numbers always sort before any other kind of character.
+ * <li>Spaces and all punctuation characters always sort before
+ * letters.
+ * <li>Letters are sorted case-insensitively.</li></ul>
  * <p>
- * Explorer's sort order for punctuation characters is not quite the same 17. *
- * as their ASCII order. Also, some characters aren't allowed in file names, 18.
- * * so I don't know how they would be sorted. This class just sorts them all
- * 19. * according to their ASCII values.</p>
- * 20. * 21.
+ * Explorer's sort order for punctuation characters is not quite the same
+ * as their ASCII order. Also, some characters aren't allowed in file names,
+ * so I don't know how they would be sorted. This class just sorts them all
+ * according to their ASCII values.</p>
  * <p>
  * This comparator is only guaranteed to work with 7-bit ASCII strings.</p>
- * 22. * 23. * @author Alan Moore 23a. * repaired by James F. Bowring 2010 24.
+ * @author Alan Moore repaired by James F. Bowring 2010 24.
  *
  * @param <T>
  */
 public class IntuitiveStringComparator<T extends CharSequence>
         implements Comparator<T>, Serializable {
-
-//    private static final long serialVersionUID = 7971843528648376464L;
 
     private T str1;
     private T str2;

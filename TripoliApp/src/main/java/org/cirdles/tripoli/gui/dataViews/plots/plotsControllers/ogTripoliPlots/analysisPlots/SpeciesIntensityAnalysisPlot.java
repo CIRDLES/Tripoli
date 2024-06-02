@@ -21,6 +21,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

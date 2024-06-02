@@ -19,6 +19,7 @@ package org.cirdles.tripoli.gui;
 import jakarta.xml.bind.JAXBException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -30,6 +31,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.sessions.Session;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -40,6 +42,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
+import java.util.stream.Stream;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
@@ -169,6 +172,13 @@ public class SessionManagerController implements Initializable {
             assert null != tripoliSession;
             tripoliSession.setSessionNotes(newValue.isBlank() ? MISSING_STRING_FIELD : newValue);
         });
+    }
+
+    public void testConcatAction() {
+        Stream<AnalysisInterface> stream = tripoliSession.getMapOfAnalyses().values().stream();
+        Object[] analyses =  stream.toArray();
+        AnalysisInterface analysisConcat = Analysis.concatenateTwoAnalysesLite((AnalysisInterface) analyses[0], (AnalysisInterface) analyses[1]);
+        tripoliSession.getMapOfAnalyses().put(analysisConcat.getAnalysisName(), analysisConcat);
     }
 
     class AnalysisDisplaySummary extends ListCell<AnalysisInterface> {

@@ -17,6 +17,8 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
 import java.io.Serializable;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @param blockID
@@ -41,4 +43,9 @@ public record MassSpecOutputBlockRecordLite(
         }
         return new MassSpecOutputBlockRecordLite(blockID, cycleDataExpand);
     }
+
+    public MassSpecOutputBlockRecordLite copyWithNewBlockID(int blockIDNew){
+        return new MassSpecOutputBlockRecordLite(blockIDNew, cycleData);
+    }
+
 }

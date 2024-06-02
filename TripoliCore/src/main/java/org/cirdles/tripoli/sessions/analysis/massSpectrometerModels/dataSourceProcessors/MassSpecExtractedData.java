@@ -27,24 +27,27 @@ public class MassSpecExtractedData implements Serializable {
         blocksDataLite = new TreeMap<>();
     }
 
-//    private void readObject(ObjectInputStream stream) throws IOException,
-//            ClassNotFoundException {
-//        stream.defaultReadObject();
-//
-//        ObjectStreamClass myObject = ObjectStreamClass.lookup(
-//                Class.forName(MassSpecExtractedData.class.getCanonicalName()));
-//        long theSUID = myObject.getSerialVersionUID();
-//
-//        System.out.println("Customized De-serialization of MassSpecExtractedData "
-//                + theSUID);
-//    }
-
     public void addBlockRecord(MassSpecOutputBlockRecordFull massSpecOutputBlockRecordFull) {
         blocksDataFull.put(massSpecOutputBlockRecordFull.blockID(), massSpecOutputBlockRecordFull);
     }
 
     public void addBlockLiteRecord(MassSpecOutputBlockRecordLite massSpecOutputBlockRecordLite) {
         blocksDataLite.put(massSpecOutputBlockRecordLite.blockID(), massSpecOutputBlockRecordLite);
+    }
+
+    public static Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLiteConcatenate (
+            Map<Integer, MassSpecOutputBlockRecordLite> blocksDataOne, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataTwo){
+        Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLiteConcatenated = new TreeMap<>();
+
+        for (Integer blockID : blocksDataOne.keySet()){
+            blocksDataLiteConcatenated.put(blockID, blocksDataOne.get(blockID));
+        }
+        int blockIDOffset = blocksDataLiteConcatenated.size();
+        for (Integer blockID : blocksDataTwo.keySet()){
+            blocksDataLiteConcatenated.put(blockID + blockIDOffset, blocksDataTwo.get(blockID).copyWithNewBlockID(blockID + blockIDOffset));
+        }
+
+        return blocksDataLiteConcatenated;
     }
 
     public void populateHeader(List<String[]> headerData) {
@@ -190,7 +193,7 @@ public class MassSpecExtractedData implements Serializable {
         totalSize = 0;
         for (MassSpecOutputBlockRecordLite blockRecord : blocksDataLite.values()) {
             Arrays.fill(blockIDs, totalSize, totalSize + expectedCyclesPerBlock, blockRecord.blockID());
-            totalSize += blockRecord.cycleData().length;
+            totalSize += expectedCyclesPerBlock; //blockRecord.cycleData().length;
         }
         return blockIDs;
     }
@@ -249,6 +252,10 @@ public class MassSpecExtractedData implements Serializable {
 
     public Map<Integer, MassSpecOutputBlockRecordLite> getBlocksDataLite() {
         return blocksDataLite;
+    }
+
+    public void setBlocksDataLite(Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite) {
+        this.blocksDataLite = blocksDataLite;
     }
 
     public record MassSpecExtractedHeader(
