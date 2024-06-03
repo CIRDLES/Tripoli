@@ -1,5 +1,6 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
@@ -7,6 +8,9 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.*;
+
+import static org.cirdles.tripoli.constants.TripoliConstants.SIMPLE_DATETIME_FORMAT;
+import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_INPUT_DATES_PATTERNS;
 
 public class MassSpecExtractedData implements Serializable {
     @Serial
@@ -59,7 +63,7 @@ public class MassSpecExtractedData implements Serializable {
         boolean hasBChannels = false;
         // for Lite version
         int cyclesPerBlock = 0;
-        String localDateTimeZero = "LocalDateTime.MIN";
+        String analysisStartTime = java.time.LocalDateTime.now().toLocalDate().toString();
         for (String[] headerStrings : headerData) {
             switch (headerStrings[0].trim().toUpperCase()) {
                 // Phoenix
@@ -71,7 +75,8 @@ public class MassSpecExtractedData implements Serializable {
                         isCorrected = Boolean.parseBoolean(headerStrings[1].trim().toUpperCase().replace("YES", "TRUE"));
                 case "BCHANNELS" ->
                         hasBChannels = Boolean.parseBoolean(headerStrings[1].trim().toUpperCase().replace("YES", "TRUE"));
-                case "TIMEZERO" -> localDateTimeZero = headerStrings[1].trim();
+                case "TIMEZERO" -> analysisStartTime = headerStrings[1].trim();
+                case "ANALYSISSTART" -> analysisStartTime = headerStrings[1].trim();
                 case "CYCLESTOMEASURE" -> cyclesPerBlock = Integer.parseInt(headerStrings[1].trim());
                 case "SAMPLEID" -> {
                     sampleName = headerStrings[1].trim();
@@ -79,7 +84,7 @@ public class MassSpecExtractedData implements Serializable {
 
                 // Triton
                 case "DATA VERSION" -> softwareVersion = headerStrings[1].trim();
-                case "DATE" -> localDateTimeZero = headerStrings[1].trim();
+                case "DATE" -> analysisStartTime = headerStrings[1].trim();
 
                 // Nu
                 case "VERSION NUMBER" -> softwareVersion = headerStrings[1].trim();
@@ -88,6 +93,18 @@ public class MassSpecExtractedData implements Serializable {
                 case "NUMBER OF MEASUREMENTS PER BLOCK" -> cyclesPerBlock = Integer.parseInt(headerStrings[1].trim());
             }
         }
+
+        Date date = null;
+        try {
+            date = DateUtils.parseDate(analysisStartTime, TRIPOLI_INPUT_DATES_PATTERNS);
+        } catch (Exception e) {
+            //
+        } finally {
+            if (date != null) {
+                analysisStartTime = SIMPLE_DATETIME_FORMAT.format(date);
+            }
+        }
+
         header = new MassSpecExtractedHeader(
                 softwareVersion,
                 filename,
@@ -95,7 +112,7 @@ public class MassSpecExtractedData implements Serializable {
                 methodName,
                 isCorrected,
                 hasBChannels,
-                localDateTimeZero,
+                analysisStartTime,
                 (cyclesPerBlock == 0) ? 10 : cyclesPerBlock //TODO: fix this hack for triton
         );
     }
@@ -106,7 +123,7 @@ public class MassSpecExtractedData implements Serializable {
         sb.append("Sample: " + header.sampleName + "\n");
         sb.append("Fraction: " + header.sampleName + "\n");
         sb.append("Method Name: " + header.methodName() + "\n");
-        sb.append("Time Zero: " + header.localDateTimeZero() + "\n\n");
+        sb.append("Start Time: " + header.localDateTimeZero() + "\n\n");
         return sb.toString();
     }
 

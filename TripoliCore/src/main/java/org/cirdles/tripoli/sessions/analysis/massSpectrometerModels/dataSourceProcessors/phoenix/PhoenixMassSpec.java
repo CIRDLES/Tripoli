@@ -16,9 +16,11 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.extractor.ExcelExtractor;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
@@ -30,10 +32,14 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.StrictMath.ceil;
+import static org.cirdles.tripoli.constants.TripoliConstants.SIMPLE_DATETIME_FORMAT;
+import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_INPUT_DATES_PATTERNS;
 
 /**
  * @author James F. Bowring
@@ -76,6 +82,16 @@ public enum PhoenixMassSpec {
         }
 
         String analysisStartTime = lines[startCtrlSheet + 21].split("\t")[2];
+        Date date = null;
+        try {
+            date = DateUtils.parseDate(analysisStartTime, TRIPOLI_INPUT_DATES_PATTERNS);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        if (date != null) {
+            analysisStartTime = SIMPLE_DATETIME_FORMAT.format(date);
+        }
+
 
         String sampleName = lines[startCtrlSheet + 7].split("\t")[3];
         String methodName = lines[startCtrlSheet + 11].split("\t")[2];
