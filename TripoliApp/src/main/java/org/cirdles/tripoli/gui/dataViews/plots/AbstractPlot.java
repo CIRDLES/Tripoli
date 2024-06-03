@@ -381,7 +381,7 @@ public abstract class AbstractPlot extends Canvas {
 
     public abstract void showLegend(GraphicsContext g2d);
 
-    private void labelAxisX(GraphicsContext g2d) {
+    public void labelAxisX(GraphicsContext g2d) {
         Paint savedPaint = g2d.getFill();
         g2d.setFill(Paint.valueOf("BLACK"));
         g2d.setFont(Font.font("SansSerif", 14));
@@ -559,6 +559,9 @@ public abstract class AbstractPlot extends Canvas {
         showStats = !showStats;
     }
 
+    public void toggleSculptingMode() {
+    }
+
     /**
      * @param x
      * @return
@@ -581,8 +584,8 @@ public abstract class AbstractPlot extends Canvas {
     protected boolean mouseInHouse(double sceneX, double sceneY) {
         return ((sceneX >= leftMargin)
                 && (sceneY >= topMargin)
-                && (sceneY < plotHeight + topMargin - 2)
-                && (sceneX < (plotWidth + leftMargin - 2)));
+                && (sceneY < plotHeight + topMargin + 2)
+                && (sceneX < (plotWidth + leftMargin + 5)));
     }
 
     public void updatePlotSize(double width, double height) {

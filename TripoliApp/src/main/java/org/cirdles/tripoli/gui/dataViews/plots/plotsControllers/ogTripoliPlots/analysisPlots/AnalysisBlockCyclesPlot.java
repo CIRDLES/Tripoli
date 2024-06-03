@@ -65,6 +65,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
     private boolean blockMode;
     private AnalysisStatsRecord analysisStatsRecord;
     private int sculptBlockID;
+    private boolean ignoreRejects;
 
     private AnalysisBlockCyclesPlot(Rectangle bounds, AnalysisBlockCyclesRecord analysisBlockCyclesRecord, PlotWallPane parentWallPane) {
         super(bounds,
@@ -817,6 +818,14 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
             sculptBlockIDCalc = analysisBlockCyclesRecord.xAxisBlockIDs()[xAxisIndexOfMouse];
         }
         return sculptBlockIDCalc;
+    }
+
+    public boolean isIgnoreRejects() {
+        return ignoreRejects;
+    }
+
+    public void setIgnoreRejects(boolean ignoreRejects) {
+        this.ignoreRejects = ignoreRejects;
     }
 
     class MouseClickEventHandler implements EventHandler<MouseEvent> {

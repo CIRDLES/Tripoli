@@ -77,7 +77,8 @@ public class OGTripoliPlotsWindow {
                 iOException.printStackTrace();
             }
             plottingWindow = plottingStage.getScene().getWindow();
-            plottingStage.setTitle("Tripoli " + (plottingData.preview() ? "PREVIEW" : "REVIEW") + " and Sculpt Data");
+            plottingStage.setTitle("Tripoli " + (plottingData.preview() ? "PREVIEW" : "REVIEW") + " and Sculpt Data from Analysis:   " + OGTripoliViewController.analysis.getAnalysisName());
+
 
             ogTripoliViewController = loader.getController();
             ogTripoliViewController.setPlottingData(plottingData);

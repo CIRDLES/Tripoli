@@ -352,6 +352,13 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
         }
     }
 
+    public void toggleSculptingMode() {
+        if (plot != null) {
+            plot.toggleSculptingMode();
+            plot.repaint();
+        }
+    }
+
     public void toggleRatiosLogRatios() {
         if (plot != null && (plot instanceof RatioHistogramPlot)) {
             ((RatioHistogramPlot) plot).toggleRatiosLogRatios();
@@ -364,9 +371,9 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
 
     public void replot() {
         if (plot != null) {
-            if (plot instanceof AnalysisBlockCyclesPlotOG) {
-                ((AnalysisBlockCyclesPlotOG) plot).resetBlockMode();
-            }
+//            if (plot instanceof AnalysisBlockCyclesPlotOG) {
+//                ((AnalysisBlockCyclesPlotOG) plot).resetBlockMode();
+//            }
             plot.refreshPanel(true, true);
         }
     }
@@ -383,6 +390,13 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
         if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
             ((AnalysisBlockCyclesPlotI) plot).performChauvenets();
             chauvenetButton.setDisable(true);
+            plot.refreshPanel(true, true);
+        }
+    }
+
+    public void performIgnoreRejects(boolean ignoreRejects) {
+        if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
+            ((AnalysisBlockCyclesPlotI) plot).setIgnoreRejects(ignoreRejects);
             plot.refreshPanel(true, true);
         }
     }
@@ -413,12 +427,14 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
 
     public void synchOG() {
         UserFunction userFunction = ((AnalysisBlockCyclesPlotOG) plot).getUserFunction();
+        boolean ignoreRejects = ((AnalysisBlockCyclesPlotOG) plot).isIgnoreRejects();
         for (Integer blockID : ((AnalysisBlockCyclesPlotI) plot).getMapBlockIdToBlockCyclesRecord().keySet()) {
             analysis.getMapOfBlockIdToRawDataLiteOne().put(blockID, analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).synchronizeIncludedToUserFunc(userFunction));
         }
         for (Node node : ((PlotWallPane) getParent()).getChildren()) {
             if (node instanceof TripoliPlotPane) {
                 AnalysisBlockCyclesPlotI plot = ((AnalysisBlockCyclesPlotI) ((TripoliPlotPane) node).getPlot());
+                plot.setIgnoreRejects(ignoreRejects);
                 for (Integer blockID : plot.getMapBlockIdToBlockCyclesRecord().keySet()) {
                     boolean[] plotBlockCyclesIncluded = analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).assembleCyclesIncludedForUserFunction(userFunction);
                     plot.getMapBlockIdToBlockCyclesRecord().put(
@@ -426,7 +442,7 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
                             plot.getMapBlockIdToBlockCyclesRecord().get(blockID).updateCyclesIncluded(plotBlockCyclesIncluded));
                 }
 
-                plot.repaint();
+                plot.refreshPanel(false, false);
                 ((TripoliPlotPane) node).chauvenetButton.setDisable(!detectAllIncludedStatus());
             }
         }
@@ -504,6 +520,7 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
         @Override
         public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
             updateAnalysisRatiosPlotted(!newValue, false, false, true);
+            plotWallPane.updateStatusOfCycleCheckBox();
         }
     }
 }

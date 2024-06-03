@@ -151,6 +151,22 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
 
     }
 
+    /**
+     *
+     */
+    @Override
+    public void updateStatusOfCycleCheckBox() {
+
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void toggleSculptingMode() {
+
+    }
+
     public void buildIntensitiesPlotToolBar(boolean showResiduals,
                                             List<SpeciesRecordInterface> species,
                                             Map<Integer, SpeciesColors> analysisMapOfSpeciesToColors,

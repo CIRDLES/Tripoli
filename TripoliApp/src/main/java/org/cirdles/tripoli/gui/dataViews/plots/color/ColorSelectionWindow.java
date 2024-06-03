@@ -39,6 +39,8 @@ public class ColorSelectionWindow {
     public static final double BUTTON_PREF_HEIGHT = 35;
     public static final double TOOLBAR_BUTTON_HEIGHT = 25;
     public static final double TOOLBAR_BUTTON_WIDTH_DIVISOR = 2.39;
+
+    public static final double TOOLBAR_BUTTON_FONT_SIZE = 11.15;
     private static ColorSelectionWindow instance;
     private final Map<Integer, SpeciesColors> analysisMapOfSpeciesToColors;
     private final Map<Integer, SpeciesColors> sessionDefaultMapOfSpeciesToColors;
@@ -250,7 +252,7 @@ public class ColorSelectionWindow {
      */
     private Button initResetToSessionDefaultsButton() {
         Button resetButton = new Button("Reset To Session Defaults");
-        resetButton.setFont(new Font(11.15));
+        resetButton.setFont(new Font(TOOLBAR_BUTTON_FONT_SIZE));
         resetButton.prefWidthProperty().bind(stage.widthProperty().divide(TOOLBAR_BUTTON_WIDTH_DIVISOR));
         resetButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
         resetButton.setOnAction(resetChanges ->
@@ -260,6 +262,7 @@ public class ColorSelectionWindow {
 
     private Button initUndoButton() {
         this.undoButton = new Button("Undo");
+        undoButton.setFont(new Font(TOOLBAR_BUTTON_FONT_SIZE));
         undoButton.prefWidthProperty().bind(stage.widthProperty().divide(TOOLBAR_BUTTON_WIDTH_DIVISOR));
         undoButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
         undoButton.setOnAction(undoLastChange -> {
@@ -273,7 +276,7 @@ public class ColorSelectionWindow {
 
     private Button initSaveAsSessionDefaultButton() {
         saveAsSessionDefaultButton = new Button("Save As Session Default");
-        saveAsSessionDefaultButton.setFont(new Font(11.3));
+        saveAsSessionDefaultButton.setFont(new Font(TOOLBAR_BUTTON_FONT_SIZE));
         saveAsSessionDefaultButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
         saveAsSessionDefaultButton.prefWidthProperty().bind(stage.widthProperty().divide(TOOLBAR_BUTTON_WIDTH_DIVISOR));
         saveAsSessionDefaultButton.setOnAction((saveAsSessionDefaultAction) -> saveAsSessionDefault());
@@ -283,6 +286,7 @@ public class ColorSelectionWindow {
 
     private Button initSaveAsUserDefaultButton() {
         saveAsUserDefaultButton = new Button("Save As User Default");
+        saveAsUserDefaultButton.setFont(new Font(TOOLBAR_BUTTON_FONT_SIZE));
         saveAsUserDefaultButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
         saveAsUserDefaultButton.prefWidthProperty().bind(stage.widthProperty().divide(TOOLBAR_BUTTON_WIDTH_DIVISOR));
         saveAsUserDefaultButton.setOnAction((saveAsUserDefaultAction) -> saveAsUserDefault());
