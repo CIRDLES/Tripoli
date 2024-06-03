@@ -32,6 +32,7 @@ import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioRecord;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
+import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver;
@@ -44,10 +45,12 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
+import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunctionModel;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
+import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
@@ -64,6 +67,7 @@ import java.util.regex.Pattern;
 
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_FULL_SYNTHETIC;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
+import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_DEFAULT_HEX_COLORS;
 import static org.cirdles.tripoli.constants.TripoliConstants.*;
 import static org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioPlotBuilder.initializeAnalysisRatioPlotBuilder;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA;
@@ -92,6 +96,10 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<Integer, boolean[][]> mapOfBlockIdToIncludedPeakData = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, boolean[]> mapOfBlockIdToIncludedIntensities = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<IsotopicRatio, AnalysisRatioRecord> mapOfRatioToAnalysisRatioRecord = Collections.synchronizedSortedMap(new TreeMap<>());
+//    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
+    private TripoliSpeciesColorMap analysisMapOfSpeciesToColors;
+    private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
+    private Session parentSession;
     private String analysisName;
     private String analystName;
     private String labName;
@@ -109,12 +117,22 @@ public class Analysis implements Serializable, AnalysisInterface {
     private double analysisDalyFaradayGainMeanOneSigmaAbs;
     private TripoliConstants.ETReduxExportTypeEnum etReduxExportType = TripoliConstants.ETReduxExportTypeEnum.NONE;
 
+
     private Analysis() {
     }
 
-    protected Analysis(String analysisName, AnalysisMethod analysisMethod, String analysisSampleName) {
+    protected Analysis(String analysisName,
+                       AnalysisMethod analysisMethod,
+                       String analysisSampleName) {
         this.analysisName = analysisName;
-        this.analysisMethod = analysisMethod;
+        try {
+            this.analysisMapOfSpeciesToColors =
+                    new TripoliSpeciesColorMap(
+                            TripoliPersistentState.getExistingPersistentState().getMapOfSpeciesToColors());// Default if not added
+        } catch (TripoliException e) {
+            e.printStackTrace();
+        }
+        setMethod(analysisMethod);
         this.analysisSampleName = analysisSampleName;
         this.analysisFractionName = MISSING_STRING_FIELD;
         analystName = MISSING_STRING_FIELD;
@@ -178,9 +196,9 @@ public class Analysis implements Serializable, AnalysisInterface {
             if (0 == massSpectrometerContext.compareTo(PHOENIX_FULL_SYNTHETIC)) {
                 massSpecExtractedData.setDetectorSetup(DetectorSetupBuiltinModelFactory.detectorSetupBuiltinMap.get(PHOENIX_FULL_SYNTHETIC.getName()));
                 if (massSpecExtractedData.getHeader().methodName().toUpperCase(Locale.ROOT).contains("SYNTHETIC")) {
-                    analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(BURDICK_BL_SYNTHETIC_DATA);
+                    setMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(BURDICK_BL_SYNTHETIC_DATA));
                 } else {
-                    analysisMethod = AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB);
+                    setMethod(AnalysisMethodBuiltinFactory.analysisMethodsBuiltinMap.get(KU_204_5_6_7_8_DALY_ALL_FARADAY_PB));
                 }
 
                 initializeBlockProcessing();
@@ -192,7 +210,7 @@ public class Analysis implements Serializable, AnalysisInterface {
                 File getPeakCentresFolder = new File((Path.of(dataFilePathString).getParent().toString()
                         + File.separator + "PeakCentres"));
                 if (selectedMethodFile.exists()) {
-                    analysisMethod = extractAnalysisMethodfromPath(Path.of(selectedMethodFile.toURI()));
+                    setMethod(extractAnalysisMethodfromPath(Path.of(selectedMethodFile.toURI())));
                     TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedMethodFile.getParent());
                 }
                 // decided not to alert
@@ -257,9 +275,10 @@ public class Analysis implements Serializable, AnalysisInterface {
             }
             extractedAnalysisName = analysisName;
         } else {
-            // case1
-            extractedAnalysisName = dataFilePath.toFile().getName().substring(0, dataFilePath.toFile().getName().length() - 4);
-            analysisMethod = AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData);
+          // case1
+          setMethod(AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData));
+          extractedAnalysisName = dataFilePath.toFile().getName().substring(0, dataFilePath.toFile().getName().length() - 4);
+//             analysisMethod = AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData);
             initializeBlockProcessing();
         }
 
@@ -622,6 +641,11 @@ public class Analysis implements Serializable, AnalysisInterface {
         return sb.toString();
     }
 
+
+    public Session getParentSession() {
+        return parentSession;
+    }
+
     @Override
     public String getAnalysisName() {
         return analysisName;
@@ -677,9 +701,48 @@ public class Analysis implements Serializable, AnalysisInterface {
         return analysisMethod;
     }
 
+    // TODO: Merge Multiple setters (check line 621, public void setAnalysisMethod(AnalysisMethod analysisMethod))
     @Override
     public void setMethod(AnalysisMethod analysisMethod) {
+        // Will use this method to initialize mapOfSpeciesToColors
         this.analysisMethod = analysisMethod;
+        // TODO: initialize mapOfSpeciesToColors based on defaults
+        // TODO: remove boilerplate initialization method
+//        if (analysisMethod != null) {
+//            initializeDefaultsMapOfSpeciesToColors(analysisMethod.getSpeciesList().size());
+//        }
+    }
+
+    // TODO: remove boilerplate initialization method
+    private void initializeDefaultsMapOfSpeciesToColors(int numSpecies) {
+        for(int i = 0; i < numSpecies; i++) {
+            analysisMapOfSpeciesToColors.put(i,
+                    new SpeciesColors(
+                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4),
+                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 1),
+                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 2),
+                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 3)
+                    ));
+        }
+    }
+
+    // TODO: use this to set defaults from `ColorSelectionWindow`
+    public void initializeDefaultsFromSessionDefaults(Session session) {
+
+        setAnalysisMapOfSpeciesToColors(
+                new TripoliSpeciesColorMap(session.getSessionDefaultMapOfSpeciesToColors()));
+        this.parentSession = session;
+        this.sessionDefaultMapOfSpeciesToColors = session.getSessionDefaultMapOfSpeciesToColors();
+    }
+    public void setAnalysisMapOfSpeciesToColors(TripoliSpeciesColorMap analysisMapOfSpeciesToColors) {
+        this.analysisMapOfSpeciesToColors = analysisMapOfSpeciesToColors;
+    }
+
+    public TripoliSpeciesColorMap getSessionDefaultMapOfSpeciesToColors() {
+        if (this.sessionDefaultMapOfSpeciesToColors == null && parentSession != null) {
+            this.sessionDefaultMapOfSpeciesToColors = parentSession.getSessionDefaultMapOfSpeciesToColors();
+        }
+        return sessionDefaultMapOfSpeciesToColors;
     }
 
     public MassSpecExtractedData getMassSpecExtractedData() {
@@ -694,6 +757,7 @@ public class Analysis implements Serializable, AnalysisInterface {
         return analysisMethod;
     }
 
+    // TODO: Merge multiple setters (check line 604)
     public void setAnalysisMethod(AnalysisMethod analysisMethod) {
         this.analysisMethod = analysisMethod;
     }
@@ -750,6 +814,11 @@ public class Analysis implements Serializable, AnalysisInterface {
     public Map<IsotopicRatio, AnalysisRatioRecord> getMapOfRatioToAnalysisRatioRecord() {
         return mapOfRatioToAnalysisRatioRecord;
     }
+
+    public Map<Integer, SpeciesColors> getAnalysisMapOfSpeciesToColors() {
+        return analysisMapOfSpeciesToColors;
+    }
+
 
     public void setAnalysisDalyFaradayGainMean(double analysisDalyFaradayGainMean) {
         this.analysisDalyFaradayGainMean = analysisDalyFaradayGainMean;
