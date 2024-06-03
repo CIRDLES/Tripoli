@@ -42,4 +42,10 @@ public interface AnalysisBlockCyclesPlotI {
     boolean detectAllIncludedStatus();
 
     UserFunction getUserFunction();
+
+    boolean isIgnoreRejects();
+
+    void setIgnoreRejects(boolean b);
+
+    void refreshPanel(boolean reScaleX, boolean reScaleY);
 }

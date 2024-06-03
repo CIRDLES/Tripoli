@@ -20,4 +20,8 @@ public interface PlotWallPaneInterface {
     void toggleShowStatsAllPlots();
 
     void repeatLayoutStyle();
+
+    void updateStatusOfCycleCheckBox();
+
+    void toggleSculptingMode();
 }

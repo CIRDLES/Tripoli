@@ -302,8 +302,10 @@ public class Analysis implements Serializable, AnalysisInterface {
             String sampleNameArray[] = sampleName.split(" ");
 
             analysisSampleName = sampleNameArray[0];
-            analysisFractionName = sampleNameArray[1];
-            analysisSampleDescription = sampleName.substring(analysisSampleName.length() + analysisFractionName.length(), sampleName.length() - 1);
+            if (sampleNameArray.length > 1) {
+                analysisFractionName = sampleNameArray[1];
+            }
+//            analysisSampleDescription = sampleName.substring(analysisSampleName.length() + analysisFractionName.length(), sampleName.length() - 1);
         } else {
             analysisSampleName = MISSING_STRING_FIELD;
             analysisFractionName = MISSING_STRING_FIELD;

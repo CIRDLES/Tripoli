@@ -18,7 +18,7 @@ package org.cirdles.tripoli.expressions.species;
 
 import org.jetbrains.annotations.NotNull;
 
-public interface SpeciesRecordInterface {
+public interface SpeciesRecordInterface extends Comparable<SpeciesRecordInterface>{
     String getMolecularFormula();
 
     double getAtomicMass();
@@ -27,7 +27,7 @@ public interface SpeciesRecordInterface {
 
     double getNaturalAbundancePercent();
 
-    int compareTo(@NotNull Object o);
+//    int compareTo(@NotNull Object o);
 
     String prettyPrintShortForm();
 

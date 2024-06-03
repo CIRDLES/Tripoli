@@ -184,11 +184,12 @@ public class MassSpecExtractedData implements Serializable {
 //        for (MassSpecOutputBlockRecordLite blockRecord : blocksDataLite.values()) {
 //            totalSize += blockRecord.cycleData().length;
 //        }
-        int totalSize = blocksDataLite.keySet().size() * blocksDataLite.get(1).cycleData().length;
+        int expectedCyclesPerBlock = blocksDataLite.get(1).cycleData().length;
+        int totalSize = blocksDataLite.keySet().size() * expectedCyclesPerBlock;
         int[] blockIDs = new int[totalSize];
         totalSize = 0;
         for (MassSpecOutputBlockRecordLite blockRecord : blocksDataLite.values()) {
-            Arrays.fill(blockIDs, totalSize, totalSize + blockRecord.cycleData().length, blockRecord.blockID());
+            Arrays.fill(blockIDs, totalSize, totalSize + expectedCyclesPerBlock, blockRecord.blockID());
             totalSize += blockRecord.cycleData().length;
         }
         return blockIDs;

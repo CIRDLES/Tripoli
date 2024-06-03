@@ -10,6 +10,7 @@ description: Web presence for the development of Tripoli software.
   <div class="navbar-inner">
       <ul class="nav">
           <li><a href="https://github.com/CIRDLES/Tripoli">github</a></li>
+          <li><a href="https://noahmclean.github.io/TripoliDocs/">documentation</a></li>
           <li><a href="https://github.com/CIRDLES/Tripoli/discussions">discussions</a></li>
           <li><a href="https://twitter.com/Tripoli_ET">@Tripoli_ET</a></li>
       </ul>
