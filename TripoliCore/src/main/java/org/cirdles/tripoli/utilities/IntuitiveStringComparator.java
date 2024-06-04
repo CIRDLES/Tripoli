@@ -26,9 +26,9 @@ import java.util.Objects;
  * according to their ASCII values.</p>
  * <p>
  * This comparator is only guaranteed to work with 7-bit ASCII strings.</p>
- * @author Alan Moore repaired by James F. Bowring 2010 24.
  *
  * @param <T>
+ * @author Alan Moore repaired by James F. Bowring 2010 24.
  */
 public class IntuitiveStringComparator<T extends CharSequence>
         implements Comparator<T>, Serializable {

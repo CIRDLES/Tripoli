@@ -30,7 +30,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
@@ -99,9 +98,11 @@ public class SessionManagerController implements Initializable {
                 AnalysisInterface analysisProposed = AnalysisInterface.initializeNewAnalysis(0);
                 try {
                     String analysisName = analysisProposed.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
-                    if (tripoliSession.getMapOfAnalyses().containsKey(analysisName))tripoliSession.getMapOfAnalyses().remove(analysisName);
-                    if(analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) !=0) {
+                    if (tripoliSession.getMapOfAnalyses().containsKey(analysisName))
+                        tripoliSession.getMapOfAnalyses().remove(analysisName);
+                    if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
                         analysisProposed.setAnalysisName(analysisName);
+                        analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
                         tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
                         analysis = analysisProposed;
                         // manage analysis
@@ -140,8 +141,9 @@ public class SessionManagerController implements Initializable {
         ObservableList<AnalysisInterface> items = FXCollections.observableArrayList(tripoliSession.getMapOfAnalyses().values());
         listViewOfAnalyses.setCellFactory((parameter) -> new AnalysisDisplaySummary());
         IntuitiveStringComparator<String> intuitiveStringComparator = new IntuitiveStringComparator<>();
-        items = items.sorted((AnalysisInterface analysis1, AnalysisInterface analysis2)
-                -> intuitiveStringComparator.compare(analysis1.getAnalysisName(), analysis2.getAnalysisName()));
+        items = items.sorted();
+//        items = items.sorted((AnalysisInterface analysis1, AnalysisInterface analysis2)
+//                -> intuitiveStringComparator.compare(analysis1.getAnalysisName(), analysis2.getAnalysisName()));
         listViewOfAnalyses.setItems(items);
         listViewOfAnalyses.setOnMouseClicked(event -> {
             AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
@@ -179,9 +181,10 @@ public class SessionManagerController implements Initializable {
 
     public void testConcatAction() {
         Stream<AnalysisInterface> stream = tripoliSession.getMapOfAnalyses().values().stream();
-        Object[] analyses = stream.toArray();
+        Object[] analyses = stream.sorted().toArray();
         AnalysisInterface analysisConcat = Analysis.concatenateTwoAnalysesLite((AnalysisInterface) analyses[0], (AnalysisInterface) analyses[1]);
         tripoliSession.getMapOfAnalyses().put(analysisConcat.getAnalysisName(), analysisConcat);
+        populateSessionManagerGridPane();
     }
 
     class AnalysisDisplaySummary extends ListCell<AnalysisInterface> {

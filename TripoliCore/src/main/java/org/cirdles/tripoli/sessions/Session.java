@@ -26,7 +26,6 @@ import java.util.Objects;
 import java.util.TreeMap;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
-import static org.cirdles.tripoli.sessions.analysis.AnalysisInterface.initializeNewAnalysis;
 
 /**
  * @author James F. Bowring

@@ -73,7 +73,7 @@ public class UserFunction implements Comparable, Serializable {
         }
     }
 
-    public UserFunction copy(){
+    public UserFunction copy() {
         UserFunction userFunction = new UserFunction(this.name, this.columnIndex, this.treatAsIsotopicRatio, this.displayed);
         userFunction.setEtReduxName(this.etReduxName);
         userFunction.setInvertedETReduxName(this.invertedETReduxName);
@@ -182,6 +182,10 @@ public class UserFunction implements Comparable, Serializable {
         return analysisStatsRecord;
     }
 
+    public void setAnalysisStatsRecord(AnalysisStatsRecord analysisStatsRecord) {
+        this.analysisStatsRecord = analysisStatsRecord;
+    }
+
     public Map<Integer, PlotBlockCyclesRecord> getMapBlockIdToBlockCyclesRecord() {
         return mapBlockIdToBlockCyclesRecord;
     }
@@ -189,11 +193,6 @@ public class UserFunction implements Comparable, Serializable {
     public void setMapBlockIdToBlockCyclesRecord(Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord) {
         this.mapBlockIdToBlockCyclesRecord = mapBlockIdToBlockCyclesRecord;
     }
-
-    public void setAnalysisStatsRecord(AnalysisStatsRecord analysisStatsRecord) {
-        this.analysisStatsRecord = analysisStatsRecord;
-    }
-
 
     public int[] getConcatenatedBlockCounts() {
         return concatenatedBlockCounts;

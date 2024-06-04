@@ -7,10 +7,10 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static org.cirdles.tripoli.constants.TripoliConstants.SIMPLE_DATETIME_FORMAT;
-import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_INPUT_DATES_PATTERNS;
 
 public class MassSpecExtractedData implements Serializable {
     @Serial
@@ -31,27 +31,27 @@ public class MassSpecExtractedData implements Serializable {
         blocksDataLite = new TreeMap<>();
     }
 
+    public static Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLiteConcatenate(
+            Map<Integer, MassSpecOutputBlockRecordLite> blocksDataOne, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataTwo) {
+        Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLiteConcatenated = new TreeMap<>();
+
+        for (Integer blockID : blocksDataOne.keySet()) {
+            blocksDataLiteConcatenated.put(blockID, blocksDataOne.get(blockID));
+        }
+        int blockIDOffset = blocksDataLiteConcatenated.size();
+        for (Integer blockID : blocksDataTwo.keySet()) {
+            blocksDataLiteConcatenated.put(blockID + blockIDOffset, blocksDataTwo.get(blockID).copyWithNewBlockID(blockID + blockIDOffset));
+        }
+
+        return blocksDataLiteConcatenated;
+    }
+
     public void addBlockRecord(MassSpecOutputBlockRecordFull massSpecOutputBlockRecordFull) {
         blocksDataFull.put(massSpecOutputBlockRecordFull.blockID(), massSpecOutputBlockRecordFull);
     }
 
     public void addBlockLiteRecord(MassSpecOutputBlockRecordLite massSpecOutputBlockRecordLite) {
         blocksDataLite.put(massSpecOutputBlockRecordLite.blockID(), massSpecOutputBlockRecordLite);
-    }
-
-    public static Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLiteConcatenate (
-            Map<Integer, MassSpecOutputBlockRecordLite> blocksDataOne, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataTwo){
-        Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLiteConcatenated = new TreeMap<>();
-
-        for (Integer blockID : blocksDataOne.keySet()){
-            blocksDataLiteConcatenated.put(blockID, blocksDataOne.get(blockID));
-        }
-        int blockIDOffset = blocksDataLiteConcatenated.size();
-        for (Integer blockID : blocksDataTwo.keySet()){
-            blocksDataLiteConcatenated.put(blockID + blockIDOffset, blocksDataTwo.get(blockID).copyWithNewBlockID(blockID + blockIDOffset));
-        }
-
-        return blocksDataLiteConcatenated;
     }
 
     public void populateHeader(List<String[]> headerData) {
@@ -96,12 +96,14 @@ public class MassSpecExtractedData implements Serializable {
 
         Date date = null;
         try {
-            date = DateUtils.parseDate(analysisStartTime, TRIPOLI_INPUT_DATES_PATTERNS);
+            date = DateUtils.parseDate(analysisStartTime,
+                    "yyyy-MM-dd hh:mm:ss", "dd/MM-yyyy", "E d MMMM yyyy hh:mm:ss", "MM/dd/yyyy hh:mm:ss", "dd.MM.yyyy", "MM/dd/yyyy", "yyyy-MM-dd", "y/m/d");
         } catch (Exception e) {
             //
         } finally {
             if (date != null) {
-                analysisStartTime = SIMPLE_DATETIME_FORMAT.format(date);
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                analysisStartTime = df.format(date);
             }
         }
 
@@ -123,7 +125,7 @@ public class MassSpecExtractedData implements Serializable {
         sb.append("Sample: " + header.sampleName + "\n");
         sb.append("Fraction: " + header.sampleName + "\n");
         sb.append("Method Name: " + header.methodName() + "\n");
-        sb.append("Start Time: " + header.localDateTimeZero() + "\n\n");
+        sb.append("Start Time: " + header.analysisStartTime() + "\n\n");
         return sb.toString();
     }
 
@@ -282,7 +284,7 @@ public class MassSpecExtractedData implements Serializable {
             String methodName,
             boolean isCorrected,
             boolean hasBChannels,
-            String localDateTimeZero,
+            String analysisStartTime,
             int cyclesPerBlock
     ) implements Serializable {
     }

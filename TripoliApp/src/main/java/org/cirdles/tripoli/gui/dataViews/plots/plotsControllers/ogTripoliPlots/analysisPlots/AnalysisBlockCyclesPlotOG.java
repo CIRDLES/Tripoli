@@ -692,7 +692,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         for (int i = 0; i < xAxisData.length; i += cyclesPerBlock) {
             if (xInPlot(xAxisData[i])) {
                 double dataX = mapX(xAxisData[i] - 0.5);
-                if (userFunction.getConcatenatedBlockCounts()[0] == blockID - 1){
+                if (userFunction.getConcatenatedBlockCounts()[0] == blockID - 1) {
                     g2d.setLineWidth(2.0);
                     g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
                     g2d.setLineWidth(1.0);

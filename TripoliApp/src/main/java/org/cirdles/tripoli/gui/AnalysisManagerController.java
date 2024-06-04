@@ -222,8 +222,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 AnalysisInterface analysisProposed = AnalysisInterface.initializeNewAnalysis(0);
                 try {
                     String analysisName = analysisProposed.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
-                    if(analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) !=0) {
+                    if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
                         analysisProposed.setAnalysisName(analysisName);
+                        analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
                         tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
                         analysis = analysisProposed;
                         // manage analysis
@@ -905,17 +906,17 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 boolean legalFile = true;
                 removeAnalysisMethod();
                 String currentAnalysisName = analysis.getAnalysisName();
-                if (tripoliSession.getMapOfAnalyses().containsKey(currentAnalysisName))tripoliSession.getMapOfAnalyses().remove(currentAnalysisName);
+                if (tripoliSession.getMapOfAnalyses().containsKey(currentAnalysisName))
+                    tripoliSession.getMapOfAnalyses().remove(currentAnalysisName);
                 try {
                     String analysisName = analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
 
                     if (analysis.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
                         analysis.setAnalysisName(analysisName);
+                        analysis.setAnalysisStartTime(analysis.getMassSpecExtractedData().getHeader().analysisStartTime());
                         tripoliSession.getMapOfAnalyses().put(analysis.getAnalysisName(), analysis);
                     } else {
-//                        analysis = null;
                         legalFile = false;
-//                        TripoliMessageDialog.showWarningDialog("Tripoli does not recognize this file format.", null);
                     }
                 } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
 //                    throw new RuntimeException(e);

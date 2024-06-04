@@ -18,10 +18,10 @@ package org.cirdles.tripoli.constants;
 
 import java.io.File;
 import java.nio.CharBuffer;
-import java.text.SimpleDateFormat;
 
 public enum TripoliConstants {
     ;
+
     public static final File TRIPOLI_RESOURCES_FOLDER = new File("TripoliResources");
     public static final File DOCS_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "Docs");
     public static final File SCHEMA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "Schema");
@@ -106,7 +106,4 @@ public enum TripoliConstants {
         CYCLE();
     }
 
-    public static SimpleDateFormat SIMPLE_DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    public static String[] TRIPOLI_INPUT_DATES_PATTERNS =
-            {"yyyy-MM-dd HH:mm:ss", "dd/MM-yyyy", "E d MMMM yyyy HH:mm:ss", "MM/dd/yyyy HH:mm:ss", "dd.MM.yyyy", "MM/dd/yyyy"};
 }
