@@ -1,12 +1,16 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
+
 
 public class MassSpecExtractedData implements Serializable {
     @Serial
@@ -27,17 +31,20 @@ public class MassSpecExtractedData implements Serializable {
         blocksDataLite = new TreeMap<>();
     }
 
-//    private void readObject(ObjectInputStream stream) throws IOException,
-//            ClassNotFoundException {
-//        stream.defaultReadObject();
-//
-//        ObjectStreamClass myObject = ObjectStreamClass.lookup(
-//                Class.forName(MassSpecExtractedData.class.getCanonicalName()));
-//        long theSUID = myObject.getSerialVersionUID();
-//
-//        System.out.println("Customized De-serialization of MassSpecExtractedData "
-//                + theSUID);
-//    }
+    public static Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLiteConcatenate(
+            Map<Integer, MassSpecOutputBlockRecordLite> blocksDataOne, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataTwo) {
+        Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLiteConcatenated = new TreeMap<>();
+
+        for (Integer blockID : blocksDataOne.keySet()) {
+            blocksDataLiteConcatenated.put(blockID, blocksDataOne.get(blockID));
+        }
+        int blockIDOffset = blocksDataLiteConcatenated.size();
+        for (Integer blockID : blocksDataTwo.keySet()) {
+            blocksDataLiteConcatenated.put(blockID + blockIDOffset, blocksDataTwo.get(blockID).copyWithNewBlockID(blockID + blockIDOffset));
+        }
+
+        return blocksDataLiteConcatenated;
+    }
 
     public void addBlockRecord(MassSpecOutputBlockRecordFull massSpecOutputBlockRecordFull) {
         blocksDataFull.put(massSpecOutputBlockRecordFull.blockID(), massSpecOutputBlockRecordFull);
@@ -56,7 +63,7 @@ public class MassSpecExtractedData implements Serializable {
         boolean hasBChannels = false;
         // for Lite version
         int cyclesPerBlock = 0;
-        String localDateTimeZero = "LocalDateTime.MIN";
+        String analysisStartTime = java.time.LocalDateTime.now().toLocalDate().toString();
         for (String[] headerStrings : headerData) {
             switch (headerStrings[0].trim().toUpperCase()) {
                 // Phoenix
@@ -68,7 +75,8 @@ public class MassSpecExtractedData implements Serializable {
                         isCorrected = Boolean.parseBoolean(headerStrings[1].trim().toUpperCase().replace("YES", "TRUE"));
                 case "BCHANNELS" ->
                         hasBChannels = Boolean.parseBoolean(headerStrings[1].trim().toUpperCase().replace("YES", "TRUE"));
-                case "TIMEZERO" -> localDateTimeZero = headerStrings[1].trim();
+                case "TIMEZERO" -> analysisStartTime = headerStrings[1].trim();
+                case "ANALYSISSTART" -> analysisStartTime = headerStrings[1].trim();
                 case "CYCLESTOMEASURE" -> cyclesPerBlock = Integer.parseInt(headerStrings[1].trim());
                 case "SAMPLEID" -> {
                     sampleName = headerStrings[1].trim();
@@ -76,7 +84,7 @@ public class MassSpecExtractedData implements Serializable {
 
                 // Triton
                 case "DATA VERSION" -> softwareVersion = headerStrings[1].trim();
-                case "DATE" -> localDateTimeZero = headerStrings[1].trim();
+                case "DATE" -> analysisStartTime = headerStrings[1].trim();
 
                 // Nu
                 case "VERSION NUMBER" -> softwareVersion = headerStrings[1].trim();
@@ -85,6 +93,20 @@ public class MassSpecExtractedData implements Serializable {
                 case "NUMBER OF MEASUREMENTS PER BLOCK" -> cyclesPerBlock = Integer.parseInt(headerStrings[1].trim());
             }
         }
+
+        Date date = null;
+        try {
+            date = DateUtils.parseDate(analysisStartTime,
+                    "yyyy-MM-dd hh:mm:ss", "dd/MM-yyyy", "E d MMMM yyyy hh:mm:ss", "MM/dd/yyyy hh:mm:ss", "dd.MM.yyyy", "MM/dd/yyyy", "yyyy-MM-dd", "y/m/d");
+        } catch (Exception e) {
+            //
+        } finally {
+            if (date != null) {
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                analysisStartTime = df.format(date);
+            }
+        }
+
         header = new MassSpecExtractedHeader(
                 softwareVersion,
                 filename,
@@ -92,7 +114,7 @@ public class MassSpecExtractedData implements Serializable {
                 methodName,
                 isCorrected,
                 hasBChannels,
-                localDateTimeZero,
+                analysisStartTime,
                 (cyclesPerBlock == 0) ? 10 : cyclesPerBlock //TODO: fix this hack for triton
         );
     }
@@ -103,7 +125,7 @@ public class MassSpecExtractedData implements Serializable {
         sb.append("Sample: " + header.sampleName + "\n");
         sb.append("Fraction: " + header.sampleName + "\n");
         sb.append("Method Name: " + header.methodName() + "\n");
-        sb.append("Time Zero: " + header.localDateTimeZero() + "\n\n");
+        sb.append("Start Time: " + header.analysisStartTime() + "\n\n");
         return sb.toString();
     }
 
@@ -190,7 +212,7 @@ public class MassSpecExtractedData implements Serializable {
         totalSize = 0;
         for (MassSpecOutputBlockRecordLite blockRecord : blocksDataLite.values()) {
             Arrays.fill(blockIDs, totalSize, totalSize + expectedCyclesPerBlock, blockRecord.blockID());
-            totalSize += blockRecord.cycleData().length;
+            totalSize += expectedCyclesPerBlock; //blockRecord.cycleData().length;
         }
         return blockIDs;
     }
@@ -251,6 +273,10 @@ public class MassSpecExtractedData implements Serializable {
         return blocksDataLite;
     }
 
+    public void setBlocksDataLite(Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite) {
+        this.blocksDataLite = blocksDataLite;
+    }
+
     public record MassSpecExtractedHeader(
             String softwareVersion,
             String filename,
@@ -258,7 +284,7 @@ public class MassSpecExtractedData implements Serializable {
             String methodName,
             boolean isCorrected,
             boolean hasBChannels,
-            String localDateTimeZero,
+            String analysisStartTime,
             int cyclesPerBlock
     ) implements Serializable {
     }

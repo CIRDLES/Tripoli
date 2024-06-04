@@ -82,17 +82,20 @@ public enum TritonMassSpec {
                     case 4 -> phase = 5;
                     case 5 -> {
                         cyclesPerBlock = massSpecExtractedData.getHeader().cyclesPerBlock();
-                        String[] lineSplit = line.split("\t");
-                        int blockID = (Integer.parseInt(lineSplit[0].trim()) - 1) / cyclesPerBlock + 1;
-                        if (blockID != currentBlockID) {
-                            dataByBlocks.add(dataByBlock);
-                            massSpecExtractedData.addBlockLiteRecord(
-                                    parseAndBuildSingleBlockTritonRecord(currentBlockID, cyclesPerBlock, dataByBlocks.get(currentBlockID - 1)));
-                            currentBlockID++;
-                            dataByBlock = new ArrayList<>();
-                            dataByBlock.add(line);
-                        } else {
-                            dataByBlock.add(line);
+                        // check for empty line
+                        if (!line.contains("\t\t\t\t")) {
+                            String[] lineSplit = line.split("\t");
+                            int blockID = (Integer.parseInt(lineSplit[0].trim()) - 1) / cyclesPerBlock + 1;
+                            if (blockID != currentBlockID) {
+                                dataByBlocks.add(dataByBlock);
+                                massSpecExtractedData.addBlockLiteRecord(
+                                        parseAndBuildSingleBlockTritonRecord(currentBlockID, cyclesPerBlock, dataByBlocks.get(currentBlockID - 1)));
+                                currentBlockID++;
+                                dataByBlock = new ArrayList<>();
+                                dataByBlock.add(line);
+                            } else {
+                                dataByBlock.add(line);
+                            }
                         }
                     }
                     case 8 -> {

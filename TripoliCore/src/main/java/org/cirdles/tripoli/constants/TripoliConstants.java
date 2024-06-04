@@ -21,6 +21,7 @@ import java.nio.CharBuffer;
 
 public enum TripoliConstants {
     ;
+
     public static final File TRIPOLI_RESOURCES_FOLDER = new File("TripoliResources");
     public static final File DOCS_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "Docs");
     public static final File SCHEMA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "Schema");
@@ -104,4 +105,5 @@ public enum TripoliConstants {
         BLOCK(),
         CYCLE();
     }
+
 }

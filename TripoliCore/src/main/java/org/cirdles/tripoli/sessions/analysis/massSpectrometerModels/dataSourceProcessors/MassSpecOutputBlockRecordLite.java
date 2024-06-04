@@ -41,4 +41,9 @@ public record MassSpecOutputBlockRecordLite(
         }
         return new MassSpecOutputBlockRecordLite(blockID, cycleDataExpand);
     }
+
+    public MassSpecOutputBlockRecordLite copyWithNewBlockID(int blockIDNew) {
+        return new MassSpecOutputBlockRecordLite(blockIDNew, cycleData);
+    }
+
 }
