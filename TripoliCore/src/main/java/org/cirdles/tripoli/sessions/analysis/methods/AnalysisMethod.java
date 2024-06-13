@@ -50,14 +50,14 @@ public class AnalysisMethod implements Serializable {
     private static final long serialVersionUID = -642166785514147638L;
     private final MassSpectrometerContextEnum massSpectrometerContext;
     public Map<String, Boolean> mapOfRatioNamesToInvertedFlag;
-    private String methodName;
-    private BaselineTable baselineTable;
-    private SequenceTable sequenceTable;
+    private final String methodName;
+    private final BaselineTable baselineTable;
+    private final SequenceTable sequenceTable;
     private List<SpeciesRecordInterface> speciesList;
     private List<IsotopicRatio> isotopicRatiosList;
     private List<IsotopicRatio> derivedIsotopicRatiosList;
-    private BiMap<IsotopicRatio, IsotopicRatio> biMapOfRatiosAndInverses = HashBiMap.create();
-    private List<UserFunction> userFunctions;
+    private final BiMap<IsotopicRatio, IsotopicRatio> biMapOfRatiosAndInverses = HashBiMap.create();
+    private final List<UserFunction> userFunctions;
     private boolean useLinearKnots;
 
     private AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
