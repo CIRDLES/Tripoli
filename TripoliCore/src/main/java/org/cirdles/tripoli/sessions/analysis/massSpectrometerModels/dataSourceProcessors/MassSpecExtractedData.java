@@ -19,8 +19,8 @@ public class MassSpecExtractedData implements Serializable {
     private MassSpecExtractedHeader header;
     private String[] columnHeaders;
     private DetectorSetup detectorSetup;
-    private final Map<Integer, MassSpecOutputBlockRecordFull> blocksDataFull;
-    private final Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite;
+    private Map<Integer, MassSpecOutputBlockRecordFull> blocksDataFull;
+    private Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite;
 
     public MassSpecExtractedData() {
         massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
