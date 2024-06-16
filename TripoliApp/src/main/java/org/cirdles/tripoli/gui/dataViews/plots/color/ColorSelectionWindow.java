@@ -227,8 +227,6 @@ public class ColorSelectionWindow {
         } catch (TripoliException ex) {
             TripoliMessageDialog.showWarningDialog(ex.getMessage(), TripoliGUI.primaryStage);
         }
-        stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
-        stage.close();
     }
 
     private void setColorPickerLabelText() {
