@@ -8,21 +8,12 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.util.*;
 
-public class TripoliSpeciesColorMap implements Map<Integer, SpeciesColors>, Serializable{
-//  TODO: make this work for SpeciesRecordInterface
-    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors;
+public class TripoliSpeciesColorMap implements Map<SpeciesRecordInterface, SpeciesColors>, Serializable {
+    private final Map<SpeciesRecordInterface, SpeciesColors> mapOfSpeciesToColors;
 
     public TripoliSpeciesColorMap() {
         super();
         mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
-    }
-
-    public TripoliSpeciesColorMap(Map<Integer, SpeciesColors> other) {
-        this();
-        for (Integer key : other.keySet()) {
-            int newKey = key;
-            this.mapOfSpeciesToColors.put(newKey, other.get(key).copy());
-        }
     }
 
     @Override
@@ -47,32 +38,12 @@ public class TripoliSpeciesColorMap implements Map<Integer, SpeciesColors>, Seri
 
     @Override
     public SpeciesColors get(Object key) {
-        SpeciesColors speciesColors = null;
-        if (containsKey(key)) {
-            speciesColors = mapOfSpeciesToColors.get(key);
-        } else {
-            if (size() > 0  && (Integer) key >= size()) {
-                int idx = (Integer) key % size();
-                speciesColors = mapOfSpeciesToColors.get(idx);
-                putReorganize((Integer) key, speciesColors);
-            }
-        }
-        return speciesColors;
-    }
-
-    private void putReorganize(Integer key, SpeciesColors value) {
-        SpeciesColors oldValue = mapOfSpeciesToColors.put(key, value);
-        int newKey = key;
-        while (oldValue != null) {
-            newKey += size();
-            oldValue = mapOfSpeciesToColors.put(newKey, oldValue);
-        }
+        return mapOfSpeciesToColors.get(key);
     }
 
     @Nullable
     @Override
-    public SpeciesColors put(Integer key, SpeciesColors value) {
-
+    public SpeciesColors put(SpeciesRecordInterface key, SpeciesColors value) {
         return mapOfSpeciesToColors.put(key,value);
     }
 
@@ -82,18 +53,18 @@ public class TripoliSpeciesColorMap implements Map<Integer, SpeciesColors>, Seri
     }
 
     @Override
-    public void putAll(@NotNull Map<? extends Integer, ? extends SpeciesColors> m) {
-        this.mapOfSpeciesToColors.putAll(m);
+    public void putAll(@NotNull Map<? extends SpeciesRecordInterface, ? extends SpeciesColors> m) {
+        m.forEach((this::put));
     }
 
     @Override
     public void clear() {
-        this.mapOfSpeciesToColors.clear();
+        mapOfSpeciesToColors.clear();
     }
 
     @NotNull
     @Override
-    public Set<Integer> keySet() {
+    public Set<SpeciesRecordInterface> keySet() {
         return mapOfSpeciesToColors.keySet();
     }
 
@@ -105,8 +76,7 @@ public class TripoliSpeciesColorMap implements Map<Integer, SpeciesColors>, Seri
 
     @NotNull
     @Override
-    public Set<Entry<Integer, SpeciesColors>> entrySet() {
+    public Set<Entry<SpeciesRecordInterface, SpeciesColors>> entrySet() {
         return mapOfSpeciesToColors.entrySet();
     }
-
 }

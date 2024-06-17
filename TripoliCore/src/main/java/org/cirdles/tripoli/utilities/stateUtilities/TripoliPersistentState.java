@@ -18,7 +18,7 @@
 package org.cirdles.tripoli.utilities.stateUtilities;
 
 import org.cirdles.tripoli.species.SpeciesColors;
-import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
+import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap_0;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.File;
@@ -51,7 +51,7 @@ public class TripoliPersistentState implements Serializable {
     private List<String> MRUMethodXMLList;
     private String MRUMethodXMLFolderPath;
     private String MRUExportFolderPath;
-    private TripoliSpeciesColorMap mapOfSpeciesToColors;
+    private TripoliSpeciesColorMap_0 mapOfSpeciesToColors;
 
 //    private void readObject(ObjectInputStream stream) throws IOException,
 //            ClassNotFoundException {
@@ -93,7 +93,7 @@ public class TripoliPersistentState implements Serializable {
         MRUMethodXMLFolderPath = "";
 
         MRUExportFolderPath = "";
-        mapOfSpeciesToColors = new TripoliSpeciesColorMap();
+        mapOfSpeciesToColors = new TripoliSpeciesColorMap_0();
         initializeDefaultsMapOfSpeciesToColors(TRIPOLI_DEFAULT_HEX_COLORS.length()/4);
         serializeSelf();
     }
@@ -167,7 +167,7 @@ public class TripoliPersistentState implements Serializable {
         return tripoliUserHomeDirectoryLocal;
     }
 
-    public static TripoliSpeciesColorMap getCurrentSpeciesColorMap() {
+    public static TripoliSpeciesColorMap_0 getCurrentSpeciesColorMap() {
         if (myInstance != null) {
             return myInstance.getMapOfSpeciesToColors();
         }
@@ -184,9 +184,9 @@ public class TripoliPersistentState implements Serializable {
     //properties
 
 
-    public TripoliSpeciesColorMap getMapOfSpeciesToColors() {
+    public TripoliSpeciesColorMap_0 getMapOfSpeciesToColors() {
         if (mapOfSpeciesToColors == null) {
-            mapOfSpeciesToColors = new TripoliSpeciesColorMap();
+            mapOfSpeciesToColors = new TripoliSpeciesColorMap_0();
             initializeDefaultsMapOfSpeciesToColors(TRIPOLI_DEFAULT_HEX_COLORS.length()/4);
             serializeSelf();
         }
