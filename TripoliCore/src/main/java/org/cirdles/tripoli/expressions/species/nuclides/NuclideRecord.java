@@ -94,6 +94,6 @@ public record NuclideRecord(
 
     @Override
     public int compareTo(@NotNull SpeciesRecordInterface o) {
-        return Integer.compare(this.getMassNumber(), o.getMassNumber());
+        return prettyPrintShortForm().compareTo(o.prettyPrintShortForm());
     }
 }

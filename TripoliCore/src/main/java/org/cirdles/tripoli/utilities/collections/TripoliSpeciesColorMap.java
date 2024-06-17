@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.*;
 
 public class TripoliSpeciesColorMap implements Map<Integer, SpeciesColors>, Serializable{
-
+//  TODO: make this work for SpeciesRecordInterface
     private final Map<Integer, SpeciesColors> mapOfSpeciesToColors;
 
     public TripoliSpeciesColorMap() {
