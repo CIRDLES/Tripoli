@@ -61,5 +61,8 @@ public class BaselineMass implements SpeciesRecordInterface {
         return 0;
     }
 
-
+    @Override
+    public SpeciesRecordInterface copy() {
+        return new BaselineMass();
+    }
 }
