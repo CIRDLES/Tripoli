@@ -746,8 +746,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         this.analysisMethod = analysisMethod;
     }
 
-
-    // TODO: use this to set defaults from `ColorSelectionWindow`
     public void initializeDefaultsFromSessionDefaults(Session session) {
 
         setAnalysisMapOfSpeciesToColors(

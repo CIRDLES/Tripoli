@@ -75,7 +75,6 @@ public class ColorSelectionWindow {
             SpeciesRecordInterface speciesRecordInterface = speciesRecordInterfaceList.get(index);
             SpeciesColors speciesColors =
                     analysisMapOfSpeciesToColors.remove(speciesRecordInterface);
-//            analysisMapOfSpeciesToColors.remove(index);// TODO: Remove old integer-reliant code
             analysisMapOfSpeciesToColors.put(speciesRecordInterface,
                     speciesColors.altered(plotFlavor,
                             String.format("#%02x%02x%02x",
@@ -197,7 +196,6 @@ public class ColorSelectionWindow {
         }
         colorPicker.setValue(speciesColorRowSelectionRecord.speciesColorRow().getColor());
         rebuildDelegateActionSet.executeDelegateActions();
-//        stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(),WindowEvent.WINDOW_CLOSE_REQUEST));
     }
 
     private void undo(){
