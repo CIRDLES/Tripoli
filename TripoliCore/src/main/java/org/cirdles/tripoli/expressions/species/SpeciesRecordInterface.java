@@ -31,5 +31,5 @@ public interface SpeciesRecordInterface extends Comparable<SpeciesRecordInterfac
 
     String prettyPrintShortForm();
 
-
+    SpeciesRecordInterface copy();
 }

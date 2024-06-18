@@ -44,9 +44,7 @@ public class TripoliSessionAnalysisMap implements Map<String, AnalysisInterface>
     }
 
     @Override
-    public AnalysisInterface get(Object key) {
-        return sessionMapOfAnalyses.get(key);
-    }
+    public AnalysisInterface get(Object key) {return sessionMapOfAnalyses.get(key);}
 
     @Nullable
     @Override

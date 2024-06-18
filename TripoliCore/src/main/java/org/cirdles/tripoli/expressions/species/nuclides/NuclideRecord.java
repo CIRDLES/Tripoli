@@ -94,6 +94,17 @@ public record NuclideRecord(
 
     @Override
     public int compareTo(@NotNull SpeciesRecordInterface o) {
-        return Integer.compare(this.getMassNumber(), o.getMassNumber());
+        return prettyPrintShortForm().compareTo(o.prettyPrintShortForm());
+    }
+
+    @Override
+    public SpeciesRecordInterface copy() {
+        return new NuclideRecord(
+                this.elementSymbol,
+                this.protonsZ,
+                this.neutronsN,
+                this.atomicMass,
+                this.halfLifeAnnum,
+                this.naturalAbundancePercent);
     }
 }

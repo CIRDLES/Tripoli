@@ -4,7 +4,6 @@ import jakarta.xml.bind.JAXBException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.extractor.ExcelExtractor;
-import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
@@ -16,7 +15,6 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourcePr
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
-import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.*;

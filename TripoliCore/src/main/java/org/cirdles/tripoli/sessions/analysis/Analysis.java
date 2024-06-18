@@ -744,27 +744,8 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     public void setMethod(AnalysisMethod analysisMethod) {
         // Will use this method to initialize mapOfSpeciesToColors
         this.analysisMethod = analysisMethod;
-        // TODO: initialize mapOfSpeciesToColors based on defaults
-        // TODO: remove boilerplate initialization method
-//        if (analysisMethod != null) {
-//            initializeDefaultsMapOfSpeciesToColors(analysisMethod.getSpeciesList().size());
-//        }
     }
 
-    // TODO: remove boilerplate initialization method
-    private void initializeDefaultsMapOfSpeciesToColors(int numSpecies) {
-        for(int i = 0; i < numSpecies; i++) {
-            analysisMapOfSpeciesToColors.put(i,
-                    new SpeciesColors(
-                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4),
-                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 1),
-                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 2),
-                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 3)
-                    ));
-        }
-    }
-
-    // TODO: use this to set defaults from `ColorSelectionWindow`
     public void initializeDefaultsFromSessionDefaults(Session session) {
 
         setAnalysisMapOfSpeciesToColors(
@@ -853,7 +834,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return mapOfRatioToAnalysisRatioRecord;
     }
 
-    public Map<Integer, SpeciesColors> getAnalysisMapOfSpeciesToColors() {
+    public Map<SpeciesRecordInterface, SpeciesColors> getAnalysisMapOfSpeciesToColors() {
         return analysisMapOfSpeciesToColors;
     }
 

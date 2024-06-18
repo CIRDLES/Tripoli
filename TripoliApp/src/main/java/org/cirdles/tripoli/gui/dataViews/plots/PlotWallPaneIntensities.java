@@ -68,7 +68,7 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     private boolean gainCorr = true;
     private boolean logScale;
 
-    private DelegateActionInterface removeDelegateAction;
+    private final DelegateActionInterface removeDelegateAction;
 
     private final boolean[] zoomFlagsXY = new boolean[2];
 
@@ -169,8 +169,8 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
 
     public void buildIntensitiesPlotToolBar(boolean showResiduals,
                                             List<SpeciesRecordInterface> species,
-                                            Map<Integer, SpeciesColors> analysisMapOfSpeciesToColors,
-                                            Map<Integer, SpeciesColors> sessionDefaultMapOfSpeciesToColors) {
+                                            Map<SpeciesRecordInterface, SpeciesColors> analysisMapOfSpeciesToColors,
+                                            Map<SpeciesRecordInterface, SpeciesColors> sessionDefaultMapOfSpeciesToColors) {
         ToolBar toolBar = new ToolBar();
         toolBar.setPrefHeight(toolBarHeight);
         speciesChecked = new boolean[species.size()];
