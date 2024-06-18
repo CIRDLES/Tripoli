@@ -19,7 +19,7 @@ package org.cirdles.tripoli.sessions;
 import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.utilities.collections.TripoliSessionAnalysisMap;
-import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap_0;
+import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
@@ -46,7 +46,7 @@ public class Session implements Serializable {
 //    private Map<String, AnalysisInterface> mapOfAnalyses;
     private TripoliSessionAnalysisMap mapOfAnalyses;
     private boolean mutable;
-    private TripoliSpeciesColorMap_0 sessionDefaultMapOfSpeciesToColors;
+    private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
 
 
     private Session() {
@@ -109,12 +109,12 @@ public class Session implements Serializable {
         return sessionName;
     }
 
-    public void setSessionDefaultMapOfSpeciesToColors(TripoliSpeciesColorMap_0 sessionDefaultMapOfSpeciesToColors) {
+    public void setSessionDefaultMapOfSpeciesToColors(TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors) {
         this.sessionDefaultMapOfSpeciesToColors = sessionDefaultMapOfSpeciesToColors;
     }
 
 
-    public TripoliSpeciesColorMap_0 getSessionDefaultMapOfSpeciesToColors() {
+    public TripoliSpeciesColorMap getSessionDefaultMapOfSpeciesToColors() {
         return sessionDefaultMapOfSpeciesToColors;
     }
 

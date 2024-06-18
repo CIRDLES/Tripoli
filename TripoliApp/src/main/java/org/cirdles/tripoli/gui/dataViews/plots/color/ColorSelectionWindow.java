@@ -42,10 +42,10 @@ public class ColorSelectionWindow {
 
     public static final double TOOLBAR_BUTTON_FONT_SIZE = 11.15;
     private static ColorSelectionWindow instance;
-    private final Map<Integer, SpeciesColors> analysisMapOfSpeciesToColors;
-    private final Map<Integer, SpeciesColors> sessionDefaultMapOfSpeciesToColors;
+    private final List<SpeciesRecordInterface> speciesRecordInterfaceList;
+    private final Map<SpeciesRecordInterface, SpeciesColors> analysisMapOfSpeciesToColors;
+    private final Map<SpeciesRecordInterface, SpeciesColors> sessionDefaultMapOfSpeciesToColors;
     private final Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack;
-    private final Map<Integer, SpeciesColors> originalMapOfSpeciesToColors;
     private final VBox root;
     private Stage stage;
     private ColorPicker colorPicker;
@@ -72,9 +72,11 @@ public class ColorSelectionWindow {
         public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
             DetectorPlotFlavor plotFlavor = colorSplotchReference.getPlotFlavor();
             int index = colorSplotchReference.getIndex();
-            SpeciesColors speciesColors = analysisMapOfSpeciesToColors.get(index);
-            analysisMapOfSpeciesToColors.remove(index);
-            analysisMapOfSpeciesToColors.put(index,
+            SpeciesRecordInterface speciesRecordInterface = speciesRecordInterfaceList.get(index);
+            SpeciesColors speciesColors =
+                    analysisMapOfSpeciesToColors.remove(speciesRecordInterface);
+//            analysisMapOfSpeciesToColors.remove(index);// TODO: Remove old integer-reliant code
+            analysisMapOfSpeciesToColors.put(speciesRecordInterface,
                     speciesColors.altered(plotFlavor,
                             String.format("#%02x%02x%02x",
                                     (int) (newValue.getRed() * 255),
@@ -90,9 +92,9 @@ public class ColorSelectionWindow {
 
     }
     public static ColorSelectionWindow colorSelectionWindowRequest(
-            Map<Integer, SpeciesColors> analysisMapOfSpeciesToColors,
+            Map<SpeciesRecordInterface, SpeciesColors> analysisMapOfSpeciesToColors,
             List<SpeciesRecordInterface> species,
-            Map<Integer, SpeciesColors> sessionDefaultMapOfSpeciesToColors,
+            Map<SpeciesRecordInterface, SpeciesColors> sessionDefaultMapOfSpeciesToColors,
             int indexOfFirstCheckedSpecies,
             Window owner,
             DelegateActionSet rebuildDelegateActionSet) {
@@ -108,17 +110,16 @@ public class ColorSelectionWindow {
         instance.centerOverOwner();
         return instance;
     }
-    private ColorSelectionWindow(Map<Integer, SpeciesColors> analysisMapOfSpeciesToColors,
+    private ColorSelectionWindow(Map<SpeciesRecordInterface, SpeciesColors> analysisMapOfSpeciesToColors,
                                  List<SpeciesRecordInterface> species,
-                                 Map<Integer, SpeciesColors> sessionDefaultMapOfSpeciesToColors,
+                                 Map<SpeciesRecordInterface, SpeciesColors> sessionDefaultMapOfSpeciesToColors,
                                  int indexOfFirstCheckedSpecies,
                                  Window owner,
                                  DelegateActionSet rebuildDelegateActionSet) {
         this.analysisMapOfSpeciesToColors = analysisMapOfSpeciesToColors;
         this.sessionDefaultMapOfSpeciesToColors = sessionDefaultMapOfSpeciesToColors;
         this.previousSpeciesColorSettingsStack = new Stack<>();
-        this.originalMapOfSpeciesToColors = new TreeMap<>();
-        originalMapOfSpeciesToColors.putAll(analysisMapOfSpeciesToColors);
+        this.speciesRecordInterfaceList = species;
         this.root = new VBox();
         this.rebuildDelegateActionSet = rebuildDelegateActionSet;
         initStage(owner);
@@ -131,7 +132,8 @@ public class ColorSelectionWindow {
                 speciesColorPanes[indexOfFirstCheckedSpecies],
                 speciesColorPanes[indexOfFirstCheckedSpecies].getMapOfPlotFlavorsToSpeciesColorRows().get(
                         DetectorPlotFlavor.values()[0]),
-                new SpeciesColorSetting(indexOfFirstCheckedSpecies, analysisMapOfSpeciesToColors.get(indexOfFirstCheckedSpecies)));
+                new SpeciesColorSetting(indexOfFirstCheckedSpecies,
+                        analysisMapOfSpeciesToColors.get(speciesRecordInterfaceList.get(indexOfFirstCheckedSpecies))));
         speciesColorRowSelectionRecord.speciesColorRow().highlight();
         speciesColorRowSelectionRecord.speciesColorPane().highlight();
         this.root.getChildren().add(initColorPicker());
@@ -175,7 +177,8 @@ public class ColorSelectionWindow {
                 selectedPane,
                 selectedRow,
                 new SpeciesColorSetting(
-                        speciesIndex, analysisMapOfSpeciesToColors.get(speciesIndex)));
+                        speciesIndex, analysisMapOfSpeciesToColors.get(
+                                speciesRecordInterfaceList.get(speciesIndex))));
     }
 
 
@@ -184,7 +187,8 @@ public class ColorSelectionWindow {
         undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
         analysisMapOfSpeciesToColors.putAll(sessionDefaultMapOfSpeciesToColors);
         for (int speciesIndex = 0; speciesIndex < speciesColorPanes.length; ++speciesIndex) {
-            SpeciesColors speciesColors = analysisMapOfSpeciesToColors.get(speciesIndex);
+            SpeciesColors speciesColors = analysisMapOfSpeciesToColors.get(
+                    speciesRecordInterfaceList.get(speciesIndex));
             SpeciesColorPane pane = speciesColorPanes[speciesIndex];
             for(DetectorPlotFlavor plotFlavor: DetectorPlotFlavor.values()) {
                 pane.getMapOfPlotFlavorsToSpeciesColorRows().get(plotFlavor).setColor(
@@ -201,7 +205,7 @@ public class ColorSelectionWindow {
             SpeciesColorSetting previousSpeciesColorSetting = previousSpeciesColorSettingsStack.pop();
             undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
             analysisMapOfSpeciesToColors.put(
-                    previousSpeciesColorSetting.index(),
+                    speciesRecordInterfaceList.get(previousSpeciesColorSetting.index()),
                     previousSpeciesColorSetting.speciesColors());
             SpeciesColorPane speciesColorPane = speciesColorPanes[previousSpeciesColorSetting.index()];
             for(DetectorPlotFlavor plotFlavor: DetectorPlotFlavor.values()) {
@@ -304,6 +308,7 @@ public class ColorSelectionWindow {
 //            saveAsSessionDefaultButton.setDisable(previousSpeciesColorSettingsStack.empty());
             setColorPickerLabelText();
         });
+        //  TODO: Set colorPickerLabel text when user cancels
         return this.colorPicker;
     }
     private void initSpeciesColorPanes(List<SpeciesRecordInterface> species) {
@@ -312,7 +317,7 @@ public class ColorSelectionWindow {
             speciesColorPanes[i] =
                     new SpeciesColorPane(i,
                             species.get(i).prettyPrintShortForm(),
-                            analysisMapOfSpeciesToColors.get(i));
+                            analysisMapOfSpeciesToColors.get(species.get(i)));
             speciesColorPanes[i].prefWidthProperty().bind(stage.widthProperty());
             root.getChildren().add(speciesColorPanes[i]);
         }

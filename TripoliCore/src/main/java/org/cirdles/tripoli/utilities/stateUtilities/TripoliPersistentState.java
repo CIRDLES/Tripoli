@@ -17,8 +17,7 @@
  */
 package org.cirdles.tripoli.utilities.stateUtilities;
 
-import org.cirdles.tripoli.species.SpeciesColors;
-import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap_0;
+import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.File;
@@ -26,7 +25,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
-import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_DEFAULT_HEX_COLORS;
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_USERS_DATA_FOLDER_NAME;
 
 /**
@@ -51,7 +49,7 @@ public class TripoliPersistentState implements Serializable {
     private List<String> MRUMethodXMLList;
     private String MRUMethodXMLFolderPath;
     private String MRUExportFolderPath;
-    private TripoliSpeciesColorMap_0 mapOfSpeciesToColors;
+    private TripoliSpeciesColorMap mapOfSpeciesToColors;
 
 //    private void readObject(ObjectInputStream stream) throws IOException,
 //            ClassNotFoundException {
@@ -93,8 +91,7 @@ public class TripoliPersistentState implements Serializable {
         MRUMethodXMLFolderPath = "";
 
         MRUExportFolderPath = "";
-        mapOfSpeciesToColors = new TripoliSpeciesColorMap_0();
-        initializeDefaultsMapOfSpeciesToColors(TRIPOLI_DEFAULT_HEX_COLORS.length()/4);
+        mapOfSpeciesToColors = new TripoliSpeciesColorMap();
         serializeSelf();
     }
 
@@ -126,25 +123,7 @@ public class TripoliPersistentState implements Serializable {
             myInstance.serializeSelf();
         }
 
-        if (myInstance.getMapOfSpeciesToColors().isEmpty()) {
-            myInstance.initializeDefaultsMapOfSpeciesToColors(TRIPOLI_DEFAULT_HEX_COLORS.length()/ 4);
-            myInstance.serializeSelf();
-        }
-
         return myInstance;
-    }
-
-
-    private void initializeDefaultsMapOfSpeciesToColors(int numSpecies) {
-        for(int i = 0; i < numSpecies; i++) {
-            mapOfSpeciesToColors.put(i,
-                    new SpeciesColors(
-                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4),
-                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 1),
-                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 2),
-                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 3)
-                    ));
-        }
     }
 
     /**
@@ -167,12 +146,6 @@ public class TripoliPersistentState implements Serializable {
         return tripoliUserHomeDirectoryLocal;
     }
 
-    public static TripoliSpeciesColorMap_0 getCurrentSpeciesColorMap() {
-        if (myInstance != null) {
-            return myInstance.getMapOfSpeciesToColors();
-        }
-        return null;
-    }
 
     private void serializeSelf() {
         // save initial persistent state serialized file
@@ -184,10 +157,9 @@ public class TripoliPersistentState implements Serializable {
     //properties
 
 
-    public TripoliSpeciesColorMap_0 getMapOfSpeciesToColors() {
+    public TripoliSpeciesColorMap getMapOfSpeciesToColors() {
         if (mapOfSpeciesToColors == null) {
-            mapOfSpeciesToColors = new TripoliSpeciesColorMap_0();
-            initializeDefaultsMapOfSpeciesToColors(TRIPOLI_DEFAULT_HEX_COLORS.length()/4);
+            mapOfSpeciesToColors = new TripoliSpeciesColorMap();
             serializeSelf();
         }
         return mapOfSpeciesToColors;

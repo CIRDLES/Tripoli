@@ -50,7 +50,7 @@ import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunctionModel;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
-import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap_0;
+import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 import org.jetbrains.annotations.NotNull;
@@ -100,8 +100,8 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = Collections.synchronizedSortedMap(new TreeMap<>());
 //    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
-    private TripoliSpeciesColorMap_0 analysisMapOfSpeciesToColors;
-    private TripoliSpeciesColorMap_0 sessionDefaultMapOfSpeciesToColors;
+    private TripoliSpeciesColorMap analysisMapOfSpeciesToColors;
+    private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
     private Session parentSession;
     private String analysisName;
     private String analystName;
@@ -131,7 +131,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         this.analysisName = analysisName;
         try {
             this.analysisMapOfSpeciesToColors =
-                    new TripoliSpeciesColorMap_0(
+                    new TripoliSpeciesColorMap(
                             TripoliPersistentState.getExistingPersistentState().getMapOfSpeciesToColors());// Default if not added
         } catch (TripoliException e) {
             e.printStackTrace();
@@ -744,39 +744,22 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     public void setMethod(AnalysisMethod analysisMethod) {
         // Will use this method to initialize mapOfSpeciesToColors
         this.analysisMethod = analysisMethod;
-        // TODO: initialize mapOfSpeciesToColors based on defaults
-        // TODO: remove boilerplate initialization method
-//        if (analysisMethod != null) {
-//            initializeDefaultsMapOfSpeciesToColors(analysisMethod.getSpeciesList().size());
-//        }
     }
 
-    // TODO: remove boilerplate initialization method
-    private void initializeDefaultsMapOfSpeciesToColors(int numSpecies) {
-        for(int i = 0; i < numSpecies; i++) {
-            analysisMapOfSpeciesToColors.put(i,
-                    new SpeciesColors(
-                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4),
-                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 1),
-                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 2),
-                            TRIPOLI_DEFAULT_HEX_COLORS.get(i * 4 + 3)
-                    ));
-        }
-    }
 
     // TODO: use this to set defaults from `ColorSelectionWindow`
     public void initializeDefaultsFromSessionDefaults(Session session) {
 
         setAnalysisMapOfSpeciesToColors(
-                new TripoliSpeciesColorMap_0(session.getSessionDefaultMapOfSpeciesToColors()));
+                new TripoliSpeciesColorMap(session.getSessionDefaultMapOfSpeciesToColors()));
         this.parentSession = session;
         this.sessionDefaultMapOfSpeciesToColors = session.getSessionDefaultMapOfSpeciesToColors();
     }
-    public void setAnalysisMapOfSpeciesToColors(TripoliSpeciesColorMap_0 analysisMapOfSpeciesToColors) {
+    public void setAnalysisMapOfSpeciesToColors(TripoliSpeciesColorMap analysisMapOfSpeciesToColors) {
         this.analysisMapOfSpeciesToColors = analysisMapOfSpeciesToColors;
     }
 
-    public TripoliSpeciesColorMap_0 getSessionDefaultMapOfSpeciesToColors() {
+    public TripoliSpeciesColorMap getSessionDefaultMapOfSpeciesToColors() {
         if (this.sessionDefaultMapOfSpeciesToColors == null && parentSession != null) {
             this.sessionDefaultMapOfSpeciesToColors = parentSession.getSessionDefaultMapOfSpeciesToColors();
         }
@@ -853,7 +836,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return mapOfRatioToAnalysisRatioRecord;
     }
 
-    public Map<Integer, SpeciesColors> getAnalysisMapOfSpeciesToColors() {
+    public Map<SpeciesRecordInterface, SpeciesColors> getAnalysisMapOfSpeciesToColors() {
         return analysisMapOfSpeciesToColors;
     }
 
