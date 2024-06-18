@@ -17,6 +17,14 @@ public class TripoliSpeciesColorMap implements Map<SpeciesRecordInterface, Speci
     public TripoliSpeciesColorMap() {
         super();
         mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
+        index = 0;
+    }
+
+    public TripoliSpeciesColorMap(Map<SpeciesRecordInterface, SpeciesColors> other) {
+        this();
+        other.forEach(((speciesRecordInterface, speciesColors) -> {
+            put(speciesRecordInterface.copy(), speciesColors.copy());
+        }));
     }
 
     @Override
@@ -41,8 +49,7 @@ public class TripoliSpeciesColorMap implements Map<SpeciesRecordInterface, Speci
 
     @Override
     public SpeciesColors get(Object key) {
-        if (key instanceof SpeciesRecordInterface) {
-            SpeciesRecordInterface speciesRecordInterfaceKey = (SpeciesRecordInterface) key;
+        if (key instanceof SpeciesRecordInterface speciesRecordInterfaceKey) {
             if (!containsKey(key)) {
                 put(speciesRecordInterfaceKey,
                         new SpeciesColors(
@@ -51,7 +58,7 @@ public class TripoliSpeciesColorMap implements Map<SpeciesRecordInterface, Speci
                                 TRIPOLI_DEFAULT_HEX_COLORS.get(index * 4 + 2),
                                 TRIPOLI_DEFAULT_HEX_COLORS.get(index * 4 + 3)
                         ));
-                index++;
+                index = (index + 4) % TRIPOLI_DEFAULT_HEX_COLORS.length();
             }
         }
         return mapOfSpeciesToColors.get(key);
