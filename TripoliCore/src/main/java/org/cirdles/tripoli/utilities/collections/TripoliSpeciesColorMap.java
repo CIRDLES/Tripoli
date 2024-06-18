@@ -8,8 +8,11 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.util.*;
 
+import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_DEFAULT_HEX_COLORS;
+
 public class TripoliSpeciesColorMap implements Map<SpeciesRecordInterface, SpeciesColors>, Serializable {
     private final Map<SpeciesRecordInterface, SpeciesColors> mapOfSpeciesToColors;
+    private int index;
 
     public TripoliSpeciesColorMap() {
         super();
@@ -38,6 +41,19 @@ public class TripoliSpeciesColorMap implements Map<SpeciesRecordInterface, Speci
 
     @Override
     public SpeciesColors get(Object key) {
+        if (key instanceof SpeciesRecordInterface) {
+            SpeciesRecordInterface speciesRecordInterfaceKey = (SpeciesRecordInterface) key;
+            if (!containsKey(key)) {
+                put(speciesRecordInterfaceKey,
+                        new SpeciesColors(
+                                TRIPOLI_DEFAULT_HEX_COLORS.get(index * 4),
+                                TRIPOLI_DEFAULT_HEX_COLORS.get(index * 4 + 1),
+                                TRIPOLI_DEFAULT_HEX_COLORS.get(index * 4 + 2),
+                                TRIPOLI_DEFAULT_HEX_COLORS.get(index * 4 + 3)
+                        ));
+                index++;
+            }
+        }
         return mapOfSpeciesToColors.get(key);
     }
 
