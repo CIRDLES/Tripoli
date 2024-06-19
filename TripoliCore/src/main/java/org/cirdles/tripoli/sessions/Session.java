@@ -26,7 +26,6 @@ import java.util.Objects;
 import java.util.TreeMap;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
-import static org.cirdles.tripoli.sessions.analysis.AnalysisInterface.initializeNewAnalysis;
 
 /**
  * @author James F. Bowring
@@ -66,7 +65,7 @@ public class Session implements Serializable {
 
     public static Session initializeDefaultSession() throws JAXBException {
         Session session = new Session();
-        session.addAnalysis(initializeNewAnalysis(1));
+//        session.addAnalysis(initializeNewAnalysis(1));
         return session;
     }
 

@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.extractor.ExcelExtractor;
@@ -30,6 +31,8 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -75,7 +78,18 @@ public enum PhoenixMassSpec {
             }
         }
 
-        String localDateTimeZero = lines[startCtrlSheet + 21].split("\t")[2];
+        String analysisStartTime = lines[startCtrlSheet + 21].split("\t")[2];
+        Date date = null;
+        try {
+            date = DateUtils.parseDate(analysisStartTime,
+                    new String[]{"yyyy-MM-dd hh:mm:ss", "dd/MM-yyyy", "E d MMMM yyyy hh:mm:ss", "MM/dd/yyyy hh:mm:ss", "dd.MM.yyyy", "MM/dd/yyyy", "yyyy-MM-dd", "y/m/d"});
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        if (date != null) {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            analysisStartTime = df.format(date);
+        }
 
         String sampleName = lines[startCtrlSheet + 7].split("\t")[3];
         String methodName = lines[startCtrlSheet + 11].split("\t")[2];
@@ -98,6 +112,7 @@ public enum PhoenixMassSpec {
             lastCycleNumber = Integer.parseInt(lines[startBlockSheet - 2].split("\t")[0]);
         }
 
+
         int blockCount = (int) ceil(lastCycleNumber / cyclesPerBlock) + (int) Math.signum(lastCycleNumber % cyclesPerBlock);
 
         MassSpecExtractedData.MassSpecExtractedHeader header = new MassSpecExtractedData.MassSpecExtractedHeader(
@@ -107,7 +122,7 @@ public enum PhoenixMassSpec {
                 methodName,
                 false,
                 false,
-                localDateTimeZero,
+                analysisStartTime,
                 cyclesPerBlock
         );
         massSpecExtractedData.setHeader(header);
@@ -452,18 +467,18 @@ public enum PhoenixMassSpec {
     private static MassSpecOutputBlockRecordLite parseAndBuildSingleBlockTIMSDPRecord(int blockNumber, List<String> blockData) {
         List<String> cycleNumberByLineSplit = new ArrayList<>();
         List<String> timeStampByLineSplit = new ArrayList<>();
-        List<String[]> cycleDataByLineSplit = new ArrayList<>();
+        List<String[]> cycleDataByLineSplitList = new ArrayList<>();
         // version 1:  PhoenixTIMSDP Cycle,Time, DATA[custom fields]
         for (String line : blockData) {
             String[] lineSplit = line.split(",");
             cycleNumberByLineSplit.add(lineSplit[0].trim());
             timeStampByLineSplit.add(lineSplit[1].trim());
-            cycleDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 2, lineSplit.length));
+            cycleDataByLineSplitList.add(Arrays.copyOfRange(lineSplit, 2, lineSplit.length));
         }
 
         return buildSingleBlockTIMSDPRecord(
                 blockNumber,
-                cycleDataByLineSplit);
+                cycleDataByLineSplitList);
     }
 
     private static MassSpecOutputBlockRecordLite buildSingleBlockTIMSDPRecord(

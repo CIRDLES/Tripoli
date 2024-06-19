@@ -19,8 +19,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="sessionGridPane" hgap="15.0" minHeight="660.0" minWidth="1250.0"
-          prefHeight="660.0"
+<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="sessionGridPane" hgap="15.0" minHeight="660.0" minWidth="1250.0" prefHeight="660.0"
           prefWidth="1250.0" style="-fx-background-color: LINEN;" vgap="10.0"
           xmlns="http://javafx.com/javafx/17" fx:controller="org.cirdles.tripoli.gui.SessionManagerController">
     <columnConstraints>
@@ -32,11 +31,15 @@
         <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES"/>
         <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES"/>
         <RowConstraints maxHeight="180.0" minHeight="10.0" prefHeight="180.0" valignment="TOP" vgrow="SOMETIMES"/>
+        <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES"/>
         <RowConstraints minHeight="10.0" valignment="TOP" vgrow="SOMETIMES"/>
     </rowConstraints>
     <padding>
         <Insets bottom="15.0" left="20.0" right="20.0" top="1.0"/>
     </padding>
+    <Button mnemonicParsing="false" onAction="#testConcatAction"
+            text="Experimental concatenation of two sequential files (same columns) per issue #229 for comment.  Top two listed files automatically chosen.  Thanks for feedback."
+            GridPane.columnIndex="1" GridPane.rowIndex="4"/>
     <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
         <TextField fx:id="sessionNameText" prefHeight="27.0" prefWidth="323.0" promptText="Please provide session name"
                    HBox.hgrow="ALWAYS"/>
@@ -52,8 +55,8 @@
     <VBox alignment="TOP_RIGHT" GridPane.rowIndex="3">
         <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Session Analyses:"/>
     </VBox>
-    <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Notes:" GridPane.rowIndex="4"/>
+    <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Notes:" GridPane.rowIndex="5"/>
     <TextArea fx:id="sessionNotesText" prefHeight="259.0" prefWidth="1111.0" promptText="Type here" wrapText="true"
-              GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+              GridPane.columnIndex="1" GridPane.rowIndex="5"/>
     <ListView fx:id="listViewOfAnalyses" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
 </GridPane>

@@ -49,7 +49,8 @@
             <MenuItem mnemonicParsing="false" onAction="#quitAction" text="Quit"/>
         </Menu>
         <Menu fx:id="analysisMenu" mnemonicParsing="false" text="Analysis">
-            <MenuItem mnemonicParsing="false" onAction="#manageAnalysisMenuItemAction" text="Manage Analysis"/>
+            <MenuItem fx:id="manageAnalysisMenuItem" mnemonicParsing="false" onAction="#manageAnalysisMenuItemAction"
+                      text="Manage Analysis" visible="false"/>
             <MenuItem mnemonicParsing="false" onAction="#newAnalysisMenuItemOnAction" text="New Analysis"/>
             <MenuItem disable="true" mnemonicParsing="false" text="Import Analysis"/>
             <MenuItem disable="true" mnemonicParsing="false" text="Export Analysis"/>

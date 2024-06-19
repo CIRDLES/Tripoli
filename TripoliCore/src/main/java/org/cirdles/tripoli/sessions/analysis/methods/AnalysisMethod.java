@@ -81,6 +81,17 @@ public class AnalysisMethod implements Serializable {
         return new AnalysisMethod(methodName, massSpectrometerContext);
     }
 
+    public static AnalysisMethod createAnalysisMethodConcatCase1(AnalysisMethod sourceMethod) {
+        AnalysisMethod analysisMethodConcat = new AnalysisMethod("Derived for Concat", sourceMethod.getMassSpectrometerContext());
+        List<UserFunction> userFunctionsConcat = new ArrayList<>();
+        for (UserFunction uf : sourceMethod.getUserFunctions()) {
+            userFunctionsConcat.add(uf.copy());
+        }
+        analysisMethodConcat.setUserFunctions(userFunctionsConcat);
+
+        return analysisMethodConcat;
+    }
+
     public static AnalysisMethod createAnalysisMethodFromCase1(
             MassSpecExtractedData massSpecExtractedData) {
         int r270_267ColumnIndex = -1;
@@ -441,6 +452,10 @@ public class AnalysisMethod implements Serializable {
 
     public List<UserFunction> getUserFunctions() {
         return userFunctions;
+    }
+
+    public void setUserFunctions(List<UserFunction> userFunctions) {
+        this.userFunctions = userFunctions;
     }
 
     public void addRatioToIsotopicRatiosList(IsotopicRatio isotopicRatio) {

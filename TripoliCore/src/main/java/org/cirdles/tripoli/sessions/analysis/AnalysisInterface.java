@@ -166,4 +166,6 @@ public interface AnalysisInterface {
     ETReduxFraction prepareFractionForETReduxExport();
 
     String prepareFractionForClipboardExport();
+
+    void setAnalysisStartTime(String s);
 }

@@ -48,6 +48,7 @@ public class UserFunction implements Comparable, Serializable {
     private boolean inverted;
     private AnalysisStatsRecord analysisStatsRecord;
     private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord = new TreeMap<>();
+    private int[] concatenatedBlockCounts;
 
     public UserFunction(String name, int columnIndex) {
         this(name, columnIndex, false, true);
@@ -63,12 +64,25 @@ public class UserFunction implements Comparable, Serializable {
         this.treatAsIsotopicRatio = treatAsIsotopicRatio;
         this.displayed = displayed;
         this.inverted = false;
+        this.concatenatedBlockCounts = new int[]{-1};
 
         if (name.contains("20")) {
             etReduxExportTypeEnum = TripoliConstants.ETReduxExportTypeEnum.Pb;
         } else if (name.contains("23")) {
             etReduxExportTypeEnum = TripoliConstants.ETReduxExportTypeEnum.U;
         }
+    }
+
+    public UserFunction copy() {
+        UserFunction userFunction = new UserFunction(this.name, this.columnIndex, this.treatAsIsotopicRatio, this.displayed);
+        userFunction.setEtReduxName(this.etReduxName);
+        userFunction.setInvertedETReduxName(this.invertedETReduxName);
+        userFunction.setOxideCorrected(this.oxideCorrected);
+        userFunction.setReductionMode(this.reductionMode);
+        userFunction.setInverted(this.inverted);
+        userFunction.setEtReduxExportType(this.etReduxExportTypeEnum);
+
+        return userFunction;
     }
 
     public AnalysisStatsRecord calculateAnalysisStatsRecord(AnalysisInterface analysis) {
@@ -168,12 +182,24 @@ public class UserFunction implements Comparable, Serializable {
         return analysisStatsRecord;
     }
 
+    public void setAnalysisStatsRecord(AnalysisStatsRecord analysisStatsRecord) {
+        this.analysisStatsRecord = analysisStatsRecord;
+    }
+
     public Map<Integer, PlotBlockCyclesRecord> getMapBlockIdToBlockCyclesRecord() {
         return mapBlockIdToBlockCyclesRecord;
     }
 
     public void setMapBlockIdToBlockCyclesRecord(Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord) {
         this.mapBlockIdToBlockCyclesRecord = mapBlockIdToBlockCyclesRecord;
+    }
+
+    public int[] getConcatenatedBlockCounts() {
+        return concatenatedBlockCounts;
+    }
+
+    public void setConcatenatedBlockCounts(int[] concatenatedBlockCounts) {
+        this.concatenatedBlockCounts = concatenatedBlockCounts;
     }
 
     /**

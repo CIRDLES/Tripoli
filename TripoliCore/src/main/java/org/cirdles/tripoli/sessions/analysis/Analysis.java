@@ -50,6 +50,7 @@ import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,6 +59,8 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,7 +75,7 @@ import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuilti
 /**
  * @author James F. Bowring
  */
-public class Analysis implements Serializable, AnalysisInterface {
+public class Analysis implements Serializable, AnalysisInterface, Comparable {
     public static final int SKIP = -1;
     public static final int SHOW = 0;
     public static final int RUN = 1;
@@ -86,12 +89,13 @@ public class Analysis implements Serializable, AnalysisInterface {
     private final Map<Integer, List<File>> blockPeakGroups = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, Integer> mapOfBlockIdToModelsBurnCount = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, List<EnsemblesStore.EnsembleRecord>> mapBlockIDToEnsembles = Collections.synchronizedSortedMap(new TreeMap<>());
-    private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
-    private final Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockModelRecord> mapOfBlockIdToFinalModel = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, boolean[][]> mapOfBlockIdToIncludedPeakData = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, boolean[]> mapOfBlockIdToIncludedIntensities = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<IsotopicRatio, AnalysisRatioRecord> mapOfRatioToAnalysisRatioRecord = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = Collections.synchronizedSortedMap(new TreeMap<>());
+
     private String analysisName;
     private String analystName;
     private String labName;
@@ -107,7 +111,8 @@ public class Analysis implements Serializable, AnalysisInterface {
     private DescriptiveStatistics[] analysisSpeciesStats = new DescriptiveStatistics[0];
     private double analysisDalyFaradayGainMean;
     private double analysisDalyFaradayGainMeanOneSigmaAbs;
-    private TripoliConstants.ETReduxExportTypeEnum etReduxExportType = TripoliConstants.ETReduxExportTypeEnum.NONE;
+    private ETReduxExportTypeEnum etReduxExportType = ETReduxExportTypeEnum.NONE;
+    private String analysisStartTime = "01/01/2001 00:00:00";
 
     private Analysis() {
     }
@@ -127,6 +132,39 @@ public class Analysis implements Serializable, AnalysisInterface {
             plotSpecsSpeciesIntensityAnalysis = new SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis(
                     new boolean[analysisMethod.getSpeciesList().size()], true, true, true, true, true, false);
         }
+    }
+
+    public static AnalysisInterface concatenateTwoAnalysesLite(AnalysisInterface analysisOne, AnalysisInterface analysisTwo) {
+        // assume for now that these are two sequential runs with all the same metadata
+        // TODO: check timestamps, Methods, columnheadings, etc. >> assume right for now
+
+        AnalysisInterface analysisConcat = new Analysis(
+                "AnalysisConcatTest", AnalysisMethod.createAnalysisMethodConcatCase1(analysisOne.getAnalysisMethod()), analysisOne.getAnalysisSampleName());
+
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String analysisTime = df.format(new Date());
+
+        analysisConcat.setAnalysisStartTime(analysisTime);
+
+        // for plotting analysis boundaries
+        int[] concatenatedBlockCounts = new int[1];
+        concatenatedBlockCounts[0] = analysisOne.getMapOfBlockIdToRawDataLiteOne().size();
+        for (UserFunction uf : analysisConcat.getAnalysisMethod().getUserFunctions()) {
+            uf.setConcatenatedBlockCounts(concatenatedBlockCounts);
+        }
+
+        MassSpecExtractedData massSpecExtractedData = analysisConcat.getMassSpecExtractedData();
+        massSpecExtractedData.setMassSpectrometerContext(analysisOne.getMassSpecExtractedData().getMassSpectrometerContext());
+        massSpecExtractedData.setHeader(analysisOne.getMassSpecExtractedData().getHeader());
+        // TODO: modify header
+        massSpecExtractedData.setColumnHeaders(analysisOne.getMassSpecExtractedData().getColumnHeaders());
+
+        massSpecExtractedData.setBlocksDataLite(
+                MassSpecExtractedData.blocksDataLiteConcatenate(
+                        analysisOne.getMassSpecExtractedData().getBlocksDataLite(),
+                        analysisTwo.getMassSpecExtractedData().getBlocksDataLite()));
+
+        return analysisConcat;
     }
 
     public void setAnalysisSpeciesStats(DescriptiveStatistics[] analysisSpeciesStats) {
@@ -434,7 +472,8 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public final String prettyPrintAnalysisSummary() {
         return analysisName +
-                SPACES_150.substring(0, 100 - analysisName.length()) +
+                SPACES_150.substring(0, 50 - analysisName.length()) +
+                analysisStartTime + SPACES_150.substring(0, 50) +
                 (null == analysisMethod ? "NO Method" : analysisMethod.prettyPrintMethodSummary(false));
     }
 
@@ -451,7 +490,7 @@ public class Analysis implements Serializable, AnalysisInterface {
                     .append(String.format("%30s", "Corrected?: ")).append(massSpecExtractedData.getHeader().isCorrected())
                     .append("\n").append(String.format("%30s", "Method Name: ")).append(String.format("%-45s", massSpecExtractedData.getHeader().methodName()))
                     .append(String.format("%30s", "BChannels?: ")).append(massSpecExtractedData.getHeader().hasBChannels())
-                    .append("\n").append(String.format("%30s", "Time Zero: ")).append(String.format("%-45s", massSpecExtractedData.getHeader().localDateTimeZero()));
+                    .append("\n").append(String.format("%30s", "Start Time: ")).append(String.format("%-45s", massSpecExtractedData.getHeader().analysisStartTime()));
         }
 
         return sb.toString();
@@ -769,5 +808,24 @@ public class Analysis implements Serializable, AnalysisInterface {
 
     public void setEtReduxExportType(TripoliConstants.ETReduxExportTypeEnum etReduxExportType) {
         this.etReduxExportType = etReduxExportType;
+    }
+
+    public String getAnalysisStartTime() {
+        return analysisStartTime;
+    }
+
+    public void setAnalysisStartTime(String analysisStartTime) {
+        this.analysisStartTime = analysisStartTime;
+    }
+
+    /**
+     * @param o the object to be compared.
+     * @return
+     */
+    @Override
+    public int compareTo(@NotNull Object o) {
+        int retVal = 0;
+        retVal = analysisStartTime.compareTo(((Analysis) o).getAnalysisStartTime());
+        return retVal;
     }
 }
