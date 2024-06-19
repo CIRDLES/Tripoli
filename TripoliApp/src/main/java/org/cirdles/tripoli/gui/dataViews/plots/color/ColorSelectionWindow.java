@@ -295,12 +295,16 @@ public class ColorSelectionWindow {
         return saveAsUserDefaultButton;
     }
 
-    private Button initCloseButton() {
+    private ToolBar initCloseButton() {
+        ToolBar toolBar = new ToolBar();
         Button closeButton = new Button("Close Color Selection Window");
         closeButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
-        closeButton.prefWidthProperty().bind(stage.widthProperty());
+        closeButton.setFont(new Font(TOOLBAR_BUTTON_FONT_SIZE));
+        closeButton.prefWidthProperty().bind(
+                toolBar.widthProperty().subtract(20));
         closeButton.setOnAction((closeButtonAction) -> close());
-        return closeButton;
+        toolBar.getItems().add(closeButton);
+        return toolBar;
     }
     private ColorPicker initColorPicker() {
         this.colorPicker = new ColorPicker();
