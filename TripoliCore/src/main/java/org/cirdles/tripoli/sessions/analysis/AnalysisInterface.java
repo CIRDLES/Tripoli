@@ -27,7 +27,9 @@ import java.util.Map;
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
 
 public interface AnalysisInterface {
-    static Analysis initializeAnalysis(String analysisName, AnalysisMethod analysisMethod, String analysisSampleName) {
+    static Analysis initializeAnalysis(String analysisName,
+                                       AnalysisMethod analysisMethod,
+                                       String analysisSampleName) {
         return new Analysis(analysisName, analysisMethod, analysisSampleName);
     }
 
@@ -91,7 +93,7 @@ public interface AnalysisInterface {
 
     String uppdateLogsByBlock(int blockNumber, String logEntry);
 
-    public AllBlockInitForMCMC.PlottingData assemblePostProcessPlottingData();
+    AllBlockInitForMCMC.PlottingData assemblePostProcessPlottingData();
 
     String getAnalysisName();
 

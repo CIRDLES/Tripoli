@@ -1,23 +1,23 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
 public interface PlotWallPaneInterface {
-    public void buildToolBar();
+    void buildToolBar();
 
-    public void buildScaleControlsToolbar();
+    void buildScaleControlsToolbar();
 
-    public double getToolBarHeight();
+    double getToolBarHeight();
 
-    public void setToolBarHeight(double toolBarHeight);
+    void setToolBarHeight(double toolBarHeight);
 
-    public int getToolBarCount();
+    int getToolBarCount();
 
-    public void setToolBarCount(int toolBarCount);
+    void setToolBarCount(int toolBarCount);
 
-    public void stackPlots();
+    void stackPlots();
 
-    public void tilePlots();
+    void tilePlots();
 
-    public void toggleShowStatsAllPlots();
+    void toggleShowStatsAllPlots();
 
     void repeatLayoutStyle();
 

@@ -17,13 +17,13 @@
  */
 package org.cirdles.tripoli.utilities.stateUtilities;
 
+import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_USERS_DATA_FOLDER_NAME;
 
@@ -49,6 +49,7 @@ public class TripoliPersistentState implements Serializable {
     private List<String> MRUMethodXMLList;
     private String MRUMethodXMLFolderPath;
     private String MRUExportFolderPath;
+    private TripoliSpeciesColorMap mapOfSpeciesToColors;
 
 //    private void readObject(ObjectInputStream stream) throws IOException,
 //            ClassNotFoundException {
@@ -90,7 +91,7 @@ public class TripoliPersistentState implements Serializable {
         MRUMethodXMLFolderPath = "";
 
         MRUExportFolderPath = "";
-
+        mapOfSpeciesToColors = new TripoliSpeciesColorMap();
         serializeSelf();
     }
 
@@ -121,6 +122,7 @@ public class TripoliPersistentState implements Serializable {
             myInstance = new TripoliPersistentState();
             myInstance.serializeSelf();
         }
+
         return myInstance;
     }
 
@@ -144,6 +146,7 @@ public class TripoliPersistentState implements Serializable {
         return tripoliUserHomeDirectoryLocal;
     }
 
+
     private void serializeSelf() {
         // save initial persistent state serialized file
         try {
@@ -152,6 +155,15 @@ public class TripoliPersistentState implements Serializable {
         }
     }
     //properties
+
+
+    public TripoliSpeciesColorMap getMapOfSpeciesToColors() {
+        if (mapOfSpeciesToColors == null) {
+            mapOfSpeciesToColors = new TripoliSpeciesColorMap();
+            serializeSelf();
+        }
+        return mapOfSpeciesToColors;
+    }
 
     public void updateTripoliPersistentState() {
         serializeSelf();

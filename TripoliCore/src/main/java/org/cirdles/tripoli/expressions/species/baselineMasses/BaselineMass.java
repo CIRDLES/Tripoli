@@ -50,23 +50,19 @@ public class BaselineMass implements SpeciesRecordInterface {
         return DEFAULT_ABUNDANCE;
     }
 
-    /**
-     * @param o
-     * @return
-     */
-    @Override
-    public int compareTo(@NotNull Object o) {
-        return 0;
-    }
 
     @Override
     public String prettyPrintShortForm() {
         return "OOPS";
     }
 
-    /**
-     * @param o the object to be compared.
-     * @return
-     */
+    @Override
+    public int compareTo(@NotNull SpeciesRecordInterface o) {
+        return 0;
+    }
 
+    @Override
+    public SpeciesRecordInterface copy() {
+        return new BaselineMass();
+    }
 }

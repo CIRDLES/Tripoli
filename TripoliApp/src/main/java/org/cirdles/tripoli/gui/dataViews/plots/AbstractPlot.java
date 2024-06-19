@@ -153,14 +153,12 @@ public abstract class AbstractPlot extends Canvas {
                     } else {
                         sourceAnalysisBlockCyclesPlot.adjustOffsetsForDrag(event.getX(), event.getY());
                     }
-                } else if (event.getSource() instanceof LinePlot) {
-                    LinePlot sourceLinePlot = (LinePlot) event.getSource();
+                } else if (event.getSource() instanceof LinePlot sourceLinePlot) {
                     if (mouseInShadeHandle(plotBuilder.getShadeWidthForModelConvergence(), event.getX(), event.getY())) {
                         plotBuilder.setShadeWidthForModelConvergence(convertMouseXToValue(event.getX()));
                         sourceLinePlot.getParentWallPane().synchronizeConvergencePlotsShade(((LinePlotBuilder) plotBuilder).getBlockID(), convertMouseXToValue(event.getX()));
                     }
-                } else if (event.getSource() instanceof MultiLineIntensityPlot) {
-                    MultiLineIntensityPlot sourceLinePlot = (MultiLineIntensityPlot) event.getSource();
+                } else if (event.getSource() instanceof MultiLineIntensityPlot sourceLinePlot) {
                     if (mouseInShadeHandle(plotBuilder.getShadeWidthForModelConvergence(), event.getX(), event.getY())) {
                         plotBuilder.setShadeWidthForModelConvergence(convertMouseXToValue(event.getX()));
                         sourceLinePlot.getParentWallPane().synchronizeConvergencePlotsShade(((MultiLinePlotBuilder) plotBuilder).getBlockID(), convertMouseXToValue(event.getX()));
