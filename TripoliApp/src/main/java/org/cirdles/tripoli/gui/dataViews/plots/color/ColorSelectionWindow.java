@@ -162,6 +162,7 @@ public class ColorSelectionWindow {
         lowerToolBar.setPadding(new Insets(10));
         this.root.getChildren().add(topToolBar);
         this.root.getChildren().add(lowerToolBar);
+        this.root.getChildren().add(initCloseButton());
         this.stage.setWidth(WINDOW_PREF_WIDTH);
     }
 
@@ -292,6 +293,14 @@ public class ColorSelectionWindow {
         saveAsUserDefaultButton.setOnAction((saveAsUserDefaultAction) -> saveAsUserDefault());
 //        saveAsUserDefaultButton.setDisable(previousSpeciesColorSettingsStack.empty());
         return saveAsUserDefaultButton;
+    }
+
+    private Button initCloseButton() {
+        Button closeButton = new Button("Close Color Selection Window");
+        closeButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
+        closeButton.prefWidthProperty().bind(stage.widthProperty());
+        closeButton.setOnAction((closeButtonAction) -> close());
+        return closeButton;
     }
     private ColorPicker initColorPicker() {
         this.colorPicker = new ColorPicker();
@@ -424,6 +433,9 @@ public class ColorSelectionWindow {
         });
     }
 
+    private void close() {
+        stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(), WindowEvent.WINDOW_CLOSE_REQUEST));
+    }
     public void show() {
         if(!stage.isShowing()) {
             stage.show();
