@@ -607,4 +607,8 @@ public class TripoliGUIController implements Initializable {
     public void showTripoliDiscussionsAction() {
         BrowserControl.showURI("https://github.com/CIRDLES/Tripoli/discussions");
     }
+
+    public void showTripoliUserManual() {
+        BrowserControl.showURI("https://cirdles.org/tripoli-manual");
+    }
 }
