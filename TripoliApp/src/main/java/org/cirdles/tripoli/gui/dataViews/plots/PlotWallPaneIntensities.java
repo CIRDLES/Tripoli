@@ -28,21 +28,14 @@ import javafx.scene.paint.Color;
 import javafx.stage.WindowEvent;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
-import org.cirdles.tripoli.gui.dataViews.plots.color.ColorSelectionWindow;
-import org.cirdles.tripoli.species.SpeciesColorSetting;
+import org.cirdles.tripoli.gui.dataViews.plots.color.IntensityPlotColorSelectionWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.DelegateActionInterface;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
-import org.cirdles.tripoli.utilities.exceptions.TripoliException;
-import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Stack;
-import java.util.function.Function;
-import java.util.stream.IntStream;
 
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_MICHAELANGELO_URL;
 
@@ -313,8 +306,8 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
                     break;
                 }
             }
-            ColorSelectionWindow window =
-                    ColorSelectionWindow.colorSelectionWindowRequest(analysisMapOfSpeciesToColors,
+            IntensityPlotColorSelectionWindow window =
+                    IntensityPlotColorSelectionWindow.colorSelectionWindowRequest(analysisMapOfSpeciesToColors,
                             species,
                             sessionDefaultMapOfSpeciesToColors,
                             indexOfFirstCheckedSpecies,
