@@ -351,6 +351,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         scaleControlsToolbar.setStyle(scaleControlsToolbar.getStyle() + ";-fx-background-color:LINEN");
         scaleControlsToolbar.setLayoutY(0.0);
 
+        //  TODO: Create button much like the one below with a gear icon
+        // Begin settings button creation
+
+        // END settings button
         Button infoButton = new Button("?");
         infoButton.setFont(commandFont);
         infoButton.setOnAction(event -> {
@@ -358,6 +362,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
             BrowserControl.showURI(resourcePath.toString());
         });
         scaleControlsToolbar.getItems().add(infoButton);
+        // TODO: Create issue/bugfix for bad url above ^^
 
         Button stackButton = new Button("Stack Plots");
         stackButton.setFont(commandFont);
