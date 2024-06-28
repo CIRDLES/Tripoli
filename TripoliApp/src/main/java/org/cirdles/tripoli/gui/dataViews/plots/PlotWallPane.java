@@ -23,6 +23,8 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
@@ -353,8 +355,24 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
 
         //  TODO: Create button much like the one below with a gear icon
         // Begin settings button creation
-
+        // Create image
+        //  TODO: Make this URL a constant
+        Image settingsGear = new Image("org/cirdles/tripoli/gui/images/gear.250x256.png");
+        ImageView settingsGearView = new ImageView(settingsGear);
+        settingsGearView.setPreserveRatio(true);
+        Button settingsGearButton = new Button("", settingsGearView);
+        settingsGearButton.setFont(commandFont);
+        settingsGearView.setFitWidth(12);
+        settingsGearButton.setOnAction(settingsClickAction -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Settings Coming Soon");
+            alert.setHeaderText("Under Construction");
+            alert.setContentText("This is a placeholder for the upcoming settings window");
+            alert.show();
+        });
+        scaleControlsToolbar.getItems().add(settingsGearButton);
         // END settings button
+
         Button infoButton = new Button("?");
         infoButton.setFont(commandFont);
         infoButton.setOnAction(event -> {
