@@ -365,7 +365,8 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         settingsGearButton.setFont(commandFont);
         settingsGearView.setFitWidth(12);
         settingsGearButton.setOnAction(settingsClickAction -> {
-            SettingsWindow.requestSettingsWindow().show();
+            SettingsWindow settingsWindow = SettingsWindow.requestSettingsWindow(getScene().getWindow());
+            settingsWindow.show();
         });
         scaleControlsToolbar.getItems().add(settingsGearButton);
         // END settings button
