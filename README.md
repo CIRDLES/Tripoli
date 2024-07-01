@@ -11,7 +11,7 @@ We are developing Tripoli here - consider contributing to our project!
 User Guide
 ==========
 
-Starting June 2024, **Tripoli User Guide** can be found [here](https://noahmclean.github.io/TripoliDocs/).
+Starting June 2024, **Tripoli User Guide** can be found [here](https://cirdles.org/tripoli-manual/).
 
 ---
 
