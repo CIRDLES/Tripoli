@@ -10,6 +10,7 @@ import java.io.IOException;
 public class SettingsWindow {
     private SettingsWindowController controller;
     private Stage stage;
+    private static SettingsWindow instance;
 
     private SettingsWindow(Window owner) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("SettingsWindow.fxml"));
@@ -31,7 +32,14 @@ public class SettingsWindow {
     }
 
     public static SettingsWindow requestSettingsWindow(Window owner) {
-        return new SettingsWindow(owner);
+        if (instance == null) {
+            instance = new SettingsWindow(owner);
+        }
+        else if (!instance.stage.getOwner().equals(owner)) {
+            instance.close();
+            instance = new SettingsWindow(owner);
+        }
+        return instance;
     }
 
     public Stage getStage() {return stage;}
@@ -56,6 +64,11 @@ public class SettingsWindow {
 
         stage.setX(centerX);
         stage.setY(centerY);
+    }
+
+    public void close() {
+        instance = null;
+        stage.close();
     }
 
     public void show(){
