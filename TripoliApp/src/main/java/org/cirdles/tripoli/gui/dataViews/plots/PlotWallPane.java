@@ -33,6 +33,7 @@ import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotI;
+import org.cirdles.tripoli.gui.settings.SettingsWindow;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
@@ -364,11 +365,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         settingsGearButton.setFont(commandFont);
         settingsGearView.setFitWidth(12);
         settingsGearButton.setOnAction(settingsClickAction -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Settings Coming Soon");
-            alert.setHeaderText("Under Construction");
-            alert.setContentText("This is a placeholder for the upcoming settings window");
-            alert.show();
+            SettingsWindow.requestSettingsWindow().show();
         });
         scaleControlsToolbar.getItems().add(settingsGearButton);
         // END settings button
