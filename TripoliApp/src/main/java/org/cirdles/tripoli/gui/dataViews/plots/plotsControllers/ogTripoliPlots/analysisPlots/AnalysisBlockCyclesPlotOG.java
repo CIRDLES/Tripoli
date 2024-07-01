@@ -578,6 +578,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         }
         g2d.setFont(normalFourteen);
 //        g2d.fillText("Legend:", textLeft + 5, textTop += textDeltaY * 2);
+        //  TODO: Change the legend colors based on user selection
         g2d.setFill(OGTRIPOLI_TWOSIGMA);
         g2d.fillRect(textLeft + 8, textTop + textDeltaY, 27, 50);
         g2d.setFill(Paint.valueOf("BLACK"));

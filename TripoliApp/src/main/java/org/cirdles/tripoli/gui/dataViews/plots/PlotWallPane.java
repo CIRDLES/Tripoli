@@ -23,6 +23,8 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
@@ -31,6 +33,7 @@ import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotI;
+import org.cirdles.tripoli.gui.settings.SettingsWindow;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
@@ -351,6 +354,23 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         scaleControlsToolbar.setStyle(scaleControlsToolbar.getStyle() + ";-fx-background-color:LINEN");
         scaleControlsToolbar.setLayoutY(0.0);
 
+        //  TODO: Create button much like the one below with a gear icon
+        // Begin settings button creation
+        // Create image
+        //  TODO: Make this URL a constant
+        Image settingsGear = new Image("org/cirdles/tripoli/gui/images/gear.250x256.png");
+        ImageView settingsGearView = new ImageView(settingsGear);
+        settingsGearView.setPreserveRatio(true);
+        Button settingsGearButton = new Button("", settingsGearView);
+        settingsGearButton.setFont(commandFont);
+        settingsGearView.setFitWidth(12);
+        settingsGearButton.setOnAction(settingsClickAction -> {
+            SettingsWindow settingsWindow = SettingsWindow.requestSettingsWindow(getScene().getWindow());
+            settingsWindow.show();
+        });
+        scaleControlsToolbar.getItems().add(settingsGearButton);
+        // END settings button
+
         Button infoButton = new Button("?");
         infoButton.setFont(commandFont);
         infoButton.setOnAction(event -> {
@@ -358,6 +378,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
             BrowserControl.showURI(resourcePath.toString());
         });
         scaleControlsToolbar.getItems().add(infoButton);
+        // TODO: Create issue/bugfix for bad url above ^^
 
         Button stackButton = new Button("Stack Plots");
         stackButton.setFont(commandFont);

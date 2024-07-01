@@ -33,7 +33,7 @@ import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.util.*;
 
-public class ColorSelectionWindow {
+public class IntensityPlotColorSelectionWindow {
     public static final String WINDOW_TITLE = "Color Customization";
     public static final double WINDOW_PREF_WIDTH = 334;
     public static final double BUTTON_PREF_HEIGHT = 35;
@@ -41,7 +41,7 @@ public class ColorSelectionWindow {
     public static final double TOOLBAR_BUTTON_WIDTH_DIVISOR = 2.39;
 
     public static final double TOOLBAR_BUTTON_FONT_SIZE = 11.15;
-    private static ColorSelectionWindow instance;
+    private static IntensityPlotColorSelectionWindow instance;
     private final List<SpeciesRecordInterface> speciesRecordInterfaceList;
     private final Map<SpeciesRecordInterface, SpeciesColors> analysisMapOfSpeciesToColors;
     private final Map<SpeciesRecordInterface, SpeciesColors> sessionDefaultMapOfSpeciesToColors;
@@ -90,7 +90,7 @@ public class ColorSelectionWindow {
         }
 
     }
-    public static ColorSelectionWindow colorSelectionWindowRequest(
+    public static IntensityPlotColorSelectionWindow colorSelectionWindowRequest(
             Map<SpeciesRecordInterface, SpeciesColors> analysisMapOfSpeciesToColors,
             List<SpeciesRecordInterface> species,
             Map<SpeciesRecordInterface, SpeciesColors> sessionDefaultMapOfSpeciesToColors,
@@ -98,7 +98,7 @@ public class ColorSelectionWindow {
             Window owner,
             DelegateActionSet rebuildDelegateActionSet) {
         if (instance == null) {
-            instance = new ColorSelectionWindow(
+            instance = new IntensityPlotColorSelectionWindow(
                     analysisMapOfSpeciesToColors,
                     species,
                     sessionDefaultMapOfSpeciesToColors,
@@ -109,12 +109,12 @@ public class ColorSelectionWindow {
         instance.centerOverOwner();
         return instance;
     }
-    private ColorSelectionWindow(Map<SpeciesRecordInterface, SpeciesColors> analysisMapOfSpeciesToColors,
-                                 List<SpeciesRecordInterface> species,
-                                 Map<SpeciesRecordInterface, SpeciesColors> sessionDefaultMapOfSpeciesToColors,
-                                 int indexOfFirstCheckedSpecies,
-                                 Window owner,
-                                 DelegateActionSet rebuildDelegateActionSet) {
+    private IntensityPlotColorSelectionWindow(Map<SpeciesRecordInterface, SpeciesColors> analysisMapOfSpeciesToColors,
+                                              List<SpeciesRecordInterface> species,
+                                              Map<SpeciesRecordInterface, SpeciesColors> sessionDefaultMapOfSpeciesToColors,
+                                              int indexOfFirstCheckedSpecies,
+                                              Window owner,
+                                              DelegateActionSet rebuildDelegateActionSet) {
         this.analysisMapOfSpeciesToColors = analysisMapOfSpeciesToColors;
         this.sessionDefaultMapOfSpeciesToColors = sessionDefaultMapOfSpeciesToColors;
         this.previousSpeciesColorSettingsStack = new Stack<>();
