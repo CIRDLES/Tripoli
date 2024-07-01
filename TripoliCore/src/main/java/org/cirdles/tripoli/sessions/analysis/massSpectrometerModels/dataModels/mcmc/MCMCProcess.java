@@ -29,10 +29,7 @@ import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLabCholesky;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static java.lang.Math.min;
 import static java.lang.Math.pow;
@@ -263,8 +260,7 @@ public class MCMCProcess {
         randomDataGenerator.reSeedSecure();
 
         DecimalFormat statsFormat = new DecimalFormat("#0.000000");
-        StopWatch watch = new StopWatch();
-        watch.start();
+
         int counter = 0;
         SingleBlockModelUpdater singleBlockModelUpdater = new SingleBlockModelUpdater();
         int countOfData = singleBlockCurrentModelRecord_X.dataModelArray().length;
@@ -279,6 +275,7 @@ public class MCMCProcess {
         for (long modelIndex = 1; modelCount >= modelIndex; modelIndex++) {//********************************************
             if (notConverged) {
                 long prev = System.nanoTime();
+                long startTime = System.nanoTime();
                 boolean allFlag = true;
                 tempering = 1.0;
 
@@ -509,6 +506,7 @@ public class MCMCProcess {
                 xDataMean = updatedCovariancesRecord.dataMean();
 
                 long interval5 = System.nanoTime() - prev;
+                prev = interval4 + prev;
 
                 if (0 == modelIndex % (stepCountForcedSave)) {
                 /*
@@ -581,11 +579,11 @@ public class MCMCProcess {
                             modelsTotal += keptUpdates[row][3];
                         }
 
-
+                        long totalTime = System.nanoTime() - startTime;
                         loggingSnippet =
                                 modelIndex + " >%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
                                         + "  BLOCK # " + singleBlockCurrentModelRecord_X.blockID()
-                                        + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
+                                        + "\nElapsed time = " + statsFormat.format(totalTime / 1000000000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
                                         + "\nError function = " + statsFormat.format(StrictMath.sqrt(initialModelErrorUnWeighted_E0 / countOfData))
                                         + "\nChange All Variables: " + modelsKeptLocal + " of " + modelsTotalLocal + " accepted (" + statsFormat.format(100.0 * modelsKept / modelsTotal) + "% total)"
                                         + ("\nIntervals: in microseconds, each from prev or zero time till new interval"
@@ -602,7 +600,6 @@ public class MCMCProcess {
                             keptUpdates[i][0] = 0;
                             keptUpdates[i][1] = 0;
                         }
-
                     /*
                      % If number of iterations is square number, larger than effective
                         % sample size, test for convergence
@@ -630,9 +627,6 @@ public class MCMCProcess {
                                 loggingCallback.receiveLoggingSnippet(exitMessage);
                             }
                         }
-
-                        watch.reset();
-                        watch.start();
                     }
                 }
             }// end model loop
