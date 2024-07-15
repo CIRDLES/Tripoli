@@ -2,8 +2,9 @@ package org.cirdles.tripoli.gui.settings;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import org.cirdles.tripoli.gui.dataViews.plots.color.fxcomponents.ColorPickerSplotch;
 
 import java.net.URL;
@@ -22,6 +23,7 @@ public class SettingsWindowController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         twoSigmaShading.setPrefWidth(144);
         twoSigmaShading.setPrefHeight(37);
+        twoSigmaShading.getColorPicker().setValue(Color.web("#ffbfcb"));
     }
 
     public VBox getRoot() {

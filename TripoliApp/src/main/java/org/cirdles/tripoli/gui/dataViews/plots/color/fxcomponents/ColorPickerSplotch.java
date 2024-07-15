@@ -58,4 +58,12 @@ public class ColorPickerSplotch extends StackPane {
     public DelegateActionSet getDelegateActionSet() {
         return delegateActionSet;
     }
+
+    public ColorPicker getColorPicker() {
+        return colorPicker;
+    }
+
+    public Label getLabel() {
+        return label;
+    }
 }
