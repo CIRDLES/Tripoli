@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import org.cirdles.tripoli.gui.dataViews.plots.color.fxcomponents.ColorPickerSplotch?>
+
+<ColorPickerSplotch
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="org.cirdles.tripoli.gui.dataViews.plots.color.fxcomponents.ColorPickerSplotchController">
+</ColorPickerSplotch>

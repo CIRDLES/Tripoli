@@ -3,16 +3,15 @@ package org.cirdles.tripoli.gui.dataViews.plots.color;
 import javafx.geometry.Insets;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 
-public class ColorSplotch extends FlavoredIndexedLabel {
+public class FlavoredIndexedColorSplotch extends FlavoredIndexedLabel {
 
     private Color color;
 
-    public ColorSplotch(String text, DetectorPlotFlavor plotFlavor,Color color, int index) {
+    public FlavoredIndexedColorSplotch(String text, DetectorPlotFlavor plotFlavor, Color color, int index) {
         super(text, plotFlavor, index);
         setColor(color);
         this.setStyle("-fx-border-color:black; -fx-border-width: 0px 1px 0px 1px;");

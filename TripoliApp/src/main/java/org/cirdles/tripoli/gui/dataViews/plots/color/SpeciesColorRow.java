@@ -14,7 +14,7 @@ public class SpeciesColorRow extends HBox implements Highlightable {
 
     private Color color;
     private final DetectorPlotFlavor plotFlavor;
-    private final ColorSplotch colorSplotch;
+    private final FlavoredIndexedColorSplotch flavoredIndexedColorSplotch;
     private final ColorFlavoredIndexedLabel plotFlavorLabel;
 
 
@@ -22,8 +22,8 @@ public class SpeciesColorRow extends HBox implements Highlightable {
     public SpeciesColorRow(DetectorPlotFlavor plotFlavor, Color color, int index) {
         this.plotFlavor = plotFlavor;
         this.color = color;
-        this.colorSplotch = new ColorSplotch(" ", plotFlavor, color, index);
-        this.colorSplotch.prefWidthProperty().bind(widthProperty().divide(1.5));
+        this.flavoredIndexedColorSplotch = new FlavoredIndexedColorSplotch(" ", plotFlavor, color, index);
+        this.flavoredIndexedColorSplotch.prefWidthProperty().bind(widthProperty().divide(1.5));
         plotFlavorLabel = new ColorFlavoredIndexedLabel(
                 String.format("%s",getPlotFlavor().getName()),
                 plotFlavor,
@@ -32,7 +32,7 @@ public class SpeciesColorRow extends HBox implements Highlightable {
         plotFlavorLabel.setFont(new Font("Consolas", 14));
         plotFlavorLabel.setAlignment(Pos.CENTER_LEFT);
         getChildren().add(plotFlavorLabel);
-        getChildren().add(this.colorSplotch);
+        getChildren().add(this.flavoredIndexedColorSplotch);
     }
 
     @Override
@@ -53,11 +53,11 @@ public class SpeciesColorRow extends HBox implements Highlightable {
 
     public void setColor(Color color) {
         this.color = color;
-        this.colorSplotch.setColor(color);
+        this.flavoredIndexedColorSplotch.setColor(color);
     }
 
-    public ColorSplotch getColorSplotch() {
-        return colorSplotch;
+    public FlavoredIndexedColorSplotch getColorSplotch() {
+        return flavoredIndexedColorSplotch;
     }
 
     public DetectorPlotFlavor getPlotFlavor() {
