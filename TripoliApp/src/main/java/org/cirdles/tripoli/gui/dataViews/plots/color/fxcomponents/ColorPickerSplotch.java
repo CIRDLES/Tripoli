@@ -1,49 +1,61 @@
 package org.cirdles.tripoli.gui.dataViews.plots.color.fxcomponents;
 
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.text.Font;
+import javafx.scene.layout.StackPane;
+import org.cirdles.tripoli.utilities.DelegateActionSet;
 
-import java.net.URL;
-import java.util.ResourceBundle;
+import java.io.IOException;
 
-public class ColorPickerSplotch extends ColorPicker implements Initializable {
+public class ColorPickerSplotch extends StackPane {
 
+    @FXML
+    private ColorPicker colorPicker;
 
-    private Label colorSplotch;
+    @FXML
+    private Label label;
+
+    private final DelegateActionSet delegateActionSet;
 
     public ColorPickerSplotch() {
-        super();
+        delegateActionSet = new DelegateActionSet();
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ColorPickerSplotch.fxml"));
+        fxmlLoader.setRoot(this);
+        fxmlLoader.setController(this);
+        try{
+            fxmlLoader.load();
+        } catch (IOException e){
+            throw new RuntimeException(e);
+        }
+
+        // Bind the label's background color to the color picker's value
+        colorPicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+            colorPicker.backgroundProperty().
+                    setValue(
+                            new Background(
+                                    new BackgroundFill(newValue,CornerRadii.EMPTY, Insets.EMPTY)));
+        });
+        label.backgroundProperty().bind(backgroundProperty());
+        label.prefWidthProperty().bind(widthProperty());
+        label.prefHeightProperty().bind(heightProperty());
+        colorPicker.prefWidthProperty().bind(widthProperty());
+        colorPicker.prefHeightProperty().bind(heightProperty());
+        backgroundProperty().bind(colorPicker.backgroundProperty());
+        label.backgroundProperty().bind(backgroundProperty());
+        label.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {colorPicker.show();});
     }
 
-    private void updateBackgroundColor() {
-            colorSplotch.setBackground(
-                    new Background(
-                            new BackgroundFill(
-                                    getValue(),
-                                    CornerRadii.EMPTY,
-                                    Insets.EMPTY)));
-    }
-
-
-
-
-    public Label getColorSplotch() {return colorSplotch;}
-
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        this.setStyle("-fx-color-label-visible: false; -fx-color-picker-visible: false;");
-        this.colorSplotch = new Label();
-        this.getChildren().add(colorSplotch);
-        colorSplotch.prefWidthProperty().bind(this.widthProperty());
-        colorSplotch.prefHeightProperty().bind(this.heightProperty());;
-        valueProperty().addListener((observable, oldValue, newValue) -> {updateBackgroundColor();});
+    public DelegateActionSet getDelegateActionSet() {
+        return delegateActionSet;
     }
 }

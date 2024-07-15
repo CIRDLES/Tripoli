@@ -4,13 +4,11 @@
 <?import javafx.scene.layout.StackPane?>
 
 <?import javafx.scene.text.Font?>
-<StackPane
-        xmlns:fx="http://javafx.com/fxml/1"
-        fx:id="stackPane"
-        fx:controller="org.cirdles.tripoli.gui.dataViews.plots.color.fxcomponents.ColorPickerSplotchController">
+<fx:root type="StackPane"
+        xmlns:fx="http://javafx.com/fxml">
     <ColorPicker fx:id="colorPicker" opacity="0"/>
     <Label fx:id="label" text="Click to Change Color">
         <font>
         <Font name="System Bold" size="12.0" />
     </font></Label>
-</StackPane>
+</fx:root>
