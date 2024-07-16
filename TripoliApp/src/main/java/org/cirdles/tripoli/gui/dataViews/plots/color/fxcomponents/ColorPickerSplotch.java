@@ -1,8 +1,5 @@
 package org.cirdles.tripoli.gui.dataViews.plots.color.fxcomponents;
 
-import javafx.event.ActionEvent;
-import javafx.event.Event;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -28,6 +25,7 @@ public class ColorPickerSplotch extends StackPane {
     private final DelegateActionSet delegateActionSet;
 
     public ColorPickerSplotch() {
+        super();
         delegateActionSet = new DelegateActionSet();
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ColorPickerSplotch.fxml"));
         fxmlLoader.setRoot(this);
@@ -44,6 +42,7 @@ public class ColorPickerSplotch extends StackPane {
                     setValue(
                             new Background(
                                     new BackgroundFill(newValue,CornerRadii.EMPTY, Insets.EMPTY)));
+            delegateActionSet.executeDelegateActions();
         });
         label.backgroundProperty().bind(backgroundProperty());
         label.prefWidthProperty().bind(widthProperty());

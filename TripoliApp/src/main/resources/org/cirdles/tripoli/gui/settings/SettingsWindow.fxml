@@ -10,7 +10,6 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<?import org.cirdles.tripoli.gui.dataViews.plots.color.fxcomponents.ColorPickerSplotch?>
 <VBox fx:id="settingsWindowVBoxRoot" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.settings.SettingsWindowController">
    <children>
       <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="42.0" prefWidth="400.0" style="-fx-font-weight: bold;" text="Plot Ratios Color Control" textAlignment="CENTER">
@@ -29,7 +28,19 @@
                   <Font name="System Bold" size="14.0" />
                </font>
             </Label>
-            <ColorPickerSplotch fx:id="twoSigmaShading"/>
+            <StackPane fx:id="twoSigmaStackPane" prefHeight="37.0" prefWidth="144.0">
+               <children>
+                  <ColorPicker opacity="0" prefHeight="37.0" prefWidth="144.0" visible="false" StackPane.alignment="CENTER" />
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="37.0" prefWidth="144.0" style="-fx-background-color: #ffbfcb;" text="Click to Change Color" textAlignment="RIGHT" StackPane.alignment="CENTER">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                     <StackPane.margin>
+                        <Insets />
+                     </StackPane.margin>
+                  </Label>
+               </children>
+            </StackPane>
          </children>
       </HBox>
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="42.0" layoutX="10.0" layoutY="53.0" stroke="TRANSPARENT" strokeType="INSIDE" width="324.0" />
@@ -40,10 +51,10 @@
                   <Font name="System Bold" size="14.0" />
                </font>
             </Label>
-            <StackPane fx:id="stackPane1" prefHeight="37.0" prefWidth="144.0">
+            <StackPane fx:id="oneSigmaStackPane" prefHeight="37.0" prefWidth="144.0">
                <children>
-                  <ColorPicker fx:id="colorPicker1" opacity="0" prefHeight="37.0" prefWidth="144.0" visible="false" StackPane.alignment="CENTER" />
-                  <Label fx:id="label1" alignment="CENTER" contentDisplay="CENTER" prefHeight="37.0" prefWidth="144.0" style="-fx-background-color: #ffea00;" text="Click to Change Color" textAlignment="RIGHT" StackPane.alignment="CENTER">
+                  <ColorPicker opacity="0" prefHeight="37.0" prefWidth="144.0" visible="false" StackPane.alignment="CENTER" />
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="37.0" prefWidth="144.0" style="-fx-background-color: #ffea00;" text="Click to Change Color" textAlignment="RIGHT" StackPane.alignment="CENTER">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
@@ -63,10 +74,10 @@
                   <Font name="System Bold" size="14.0" />
                </font>
             </Label>
-            <StackPane fx:id="stackPane11" prefHeight="37.0" prefWidth="144.0">
+            <StackPane fx:id="stdErrorStackPane" prefHeight="37.0" prefWidth="144.0">
                <children>
-                  <ColorPicker fx:id="colorPicker11" opacity="0" prefHeight="37.0" prefWidth="144.0" visible="false" StackPane.alignment="CENTER" />
-                  <Label fx:id="label11" alignment="CENTER" contentDisplay="CENTER" prefHeight="37.0" prefWidth="144.0" style="-fx-background-color: #90ee8f;" text="Click to Change Color" textAlignment="RIGHT" StackPane.alignment="CENTER">
+                  <ColorPicker  opacity="0" prefHeight="37.0" prefWidth="144.0" visible="false" StackPane.alignment="CENTER" />
+                  <Label  alignment="CENTER" contentDisplay="CENTER" prefHeight="37.0" prefWidth="144.0" style="-fx-background-color: #90ee8f;" text="Click to Change Color" textAlignment="RIGHT" StackPane.alignment="CENTER">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
@@ -86,10 +97,10 @@
                   <Font name="System Bold" size="14.0" />
                </font>
             </Label>
-            <StackPane fx:id="stackPane111" prefHeight="37.0" prefWidth="144.0">
+            <StackPane fx:id="meanStackPane" prefHeight="37.0" prefWidth="144.0">
                <children>
-                  <ColorPicker fx:id="colorPicker111" opacity="0" prefHeight="37.0" prefWidth="144.0" visible="false" StackPane.alignment="CENTER" />
-                  <Label fx:id="label111" alignment="CENTER" contentDisplay="CENTER" prefHeight="37.0" prefWidth="144.0" style="-fx-background-color: #ff0000;" text="Click to Change Color" textAlignment="RIGHT" StackPane.alignment="CENTER">
+                  <ColorPicker opacity="0" prefHeight="37.0" prefWidth="144.0" visible="false" StackPane.alignment="CENTER" />
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="37.0" prefWidth="144.0" style="-fx-background-color: #ff0000;" text="Click to Change Color" textAlignment="RIGHT" StackPane.alignment="CENTER">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>

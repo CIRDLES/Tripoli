@@ -8,25 +8,32 @@ import javafx.scene.paint.Color;
 import org.cirdles.tripoli.gui.dataViews.plots.color.fxcomponents.ColorPickerSplotch;
 
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class SettingsWindowController implements Initializable {
 
+
     @FXML
-    public ColorPickerSplotch twoSigmaShading;
+    private VBox settingsWindowVBoxRoot;
     @FXML
-    private VBox root;
+    private StackPane twoSigmaStackPane;
     @FXML
-    private StackPane stackPaneOneSigma;
+    private StackPane oneSigmaStackPane;
+    @FXML
+    private StackPane stdErrorStackPane;
+    @FXML
+    private StackPane meanStackPane;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        twoSigmaShading.setPrefWidth(144);
-        twoSigmaShading.setPrefHeight(37);
-        twoSigmaShading.getColorPicker().setValue(Color.web("#ffbfcb"));
+//        twoSigmaShading.setPrefWidth(144);
+//        twoSigmaShading.setPrefHeight(37);
+//        twoSigmaShading.getColorPicker().setValue(Color.web("#ffbfcb"));
     }
 
-    public VBox getRoot() {
-        return root;
-    }
+
+
+
+
 }
