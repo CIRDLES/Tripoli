@@ -21,7 +21,7 @@
          </font>
       </Label>
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="42.0" stroke="TRANSPARENT" strokeType="INSIDE" width="324.0" />
-      <HBox prefHeight="37.0" prefWidth="265.0">
+      <HBox fx:id="twoSigmaHBox" prefHeight="37.0" prefWidth="265.0">
          <children>
             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="37.0" prefWidth="230.0" text="Two σ Shading:" textAlignment="CENTER" HBox.hgrow="ALWAYS">
                <font>
@@ -44,7 +44,7 @@
          </children>
       </HBox>
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="42.0" layoutX="10.0" layoutY="53.0" stroke="TRANSPARENT" strokeType="INSIDE" width="324.0" />
-      <HBox layoutX="10.0" layoutY="95.0" prefHeight="37.0" prefWidth="265.0">
+      <HBox fx:id="oneSigmaHBox" layoutX="10.0" layoutY="95.0" prefHeight="37.0" prefWidth="265.0">
          <children>
             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="38.0" prefWidth="230.0" text="One σ Shading:" textAlignment="CENTER" HBox.hgrow="ALWAYS">
                <font>
@@ -67,7 +67,7 @@
          </children>
       </HBox>
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="42.0" layoutX="10.0" layoutY="132.0" stroke="TRANSPARENT" strokeType="INSIDE" width="324.0" />
-      <HBox layoutX="10.0" layoutY="174.0" prefHeight="37.0" prefWidth="265.0">
+      <HBox fx:id="stdErrorHBox" layoutX="10.0" layoutY="174.0" prefHeight="37.0" prefWidth="265.0">
          <children>
             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="38.0" prefWidth="230.0" text="2σ Standard Error Shading:" textAlignment="CENTER" HBox.hgrow="ALWAYS">
                <font>
@@ -76,8 +76,8 @@
             </Label>
             <StackPane fx:id="stdErrorStackPane" prefHeight="37.0" prefWidth="144.0">
                <children>
-                  <ColorPicker  opacity="0" prefHeight="37.0" prefWidth="144.0" visible="false" StackPane.alignment="CENTER" />
-                  <Label  alignment="CENTER" contentDisplay="CENTER" prefHeight="37.0" prefWidth="144.0" style="-fx-background-color: #90ee8f;" text="Click to Change Color" textAlignment="RIGHT" StackPane.alignment="CENTER">
+                  <ColorPicker opacity="0" prefHeight="37.0" prefWidth="144.0" visible="false" StackPane.alignment="CENTER" />
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="37.0" prefWidth="144.0" style="-fx-background-color: #90ee8f;" text="Click to Change Color" textAlignment="RIGHT" StackPane.alignment="CENTER">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
@@ -90,7 +90,7 @@
          </children>
       </HBox>
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="42.0" layoutX="10.0" layoutY="211.0" stroke="TRANSPARENT" strokeType="INSIDE" width="324.0" />
-      <HBox layoutX="10.0" layoutY="256.0" prefHeight="37.0" prefWidth="265.0">
+      <HBox fx:id="meanHBox" layoutX="10.0" layoutY="256.0" prefHeight="37.0" prefWidth="265.0">
          <children>
             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="38.0" prefWidth="230.0" text="Mean (x) Color:" textAlignment="CENTER" HBox.hgrow="ALWAYS">
                <font>

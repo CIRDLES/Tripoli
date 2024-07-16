@@ -1,5 +1,7 @@
 package org.cirdles.tripoli.gui.dataViews.plots.color.fxcomponents;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -22,11 +24,15 @@ public class ColorPickerSplotch extends StackPane {
     @FXML
     private Label label;
 
-    private final DelegateActionSet delegateActionSet;
+    /**
+     * Contains all delegate actions for anything that needs repainting
+     */
+    private final DelegateActionSet repaintDelegateActionSet;
+
 
     public ColorPickerSplotch() {
         super();
-        delegateActionSet = new DelegateActionSet();
+        repaintDelegateActionSet = new DelegateActionSet();
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ColorPickerSplotch.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -42,20 +48,22 @@ public class ColorPickerSplotch extends StackPane {
                     setValue(
                             new Background(
                                     new BackgroundFill(newValue,CornerRadii.EMPTY, Insets.EMPTY)));
-            delegateActionSet.executeDelegateActions();
+            repaintDelegateActionSet.executeDelegateActions();
         });
-        label.backgroundProperty().bind(backgroundProperty());
+        label.backgroundProperty().bind(colorPicker.backgroundProperty());
         label.prefWidthProperty().bind(widthProperty());
         label.prefHeightProperty().bind(heightProperty());
         colorPicker.prefWidthProperty().bind(widthProperty());
         colorPicker.prefHeightProperty().bind(heightProperty());
-        backgroundProperty().bind(colorPicker.backgroundProperty());
-        label.backgroundProperty().bind(backgroundProperty());
-        label.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {colorPicker.show();});
+        label.addEventHandler(MouseEvent.MOUSE_CLICKED, click -> {
+            if (! colorPicker.isShowing()) {
+                colorPicker.show();
+            }
+        });
     }
 
     public DelegateActionSet getDelegateActionSet() {
-        return delegateActionSet;
+        return repaintDelegateActionSet;
     }
 
     public ColorPicker getColorPicker() {
