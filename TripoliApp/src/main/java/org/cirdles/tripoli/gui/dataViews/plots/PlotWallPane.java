@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.*;
+import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_GEAR_ICON;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.BlockEnsemblesPlotter.blockEnsemblePlotEngine;
 
 /**
@@ -354,11 +355,8 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         scaleControlsToolbar.setStyle(scaleControlsToolbar.getStyle() + ";-fx-background-color:LINEN");
         scaleControlsToolbar.setLayoutY(0.0);
 
-        //  TODO: Create button much like the one below with a gear icon
-        // Begin settings button creation
-        // Create image
-        //  TODO: Make this URL a constant
-        Image settingsGear = new Image("org/cirdles/tripoli/gui/images/gear.250x256.png");
+        // BEGIN settings button
+        Image settingsGear = new Image(TRIPOLI_GEAR_ICON);
         ImageView settingsGearView = new ImageView(settingsGear);
         settingsGearView.setPreserveRatio(true);
         Button settingsGearButton = new Button("", settingsGearView);

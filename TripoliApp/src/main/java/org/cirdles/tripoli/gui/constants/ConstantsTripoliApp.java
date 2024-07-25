@@ -28,6 +28,7 @@ public enum ConstantsTripoliApp {
     public static final String TRIPOLI_RATIO_FLIPPER_URL = "org/cirdles/tripoli/gui/images/RotateFlip.png";
     public static final String TRIPOLI_MICHAELANGELO_URL = "org/cirdles/tripoli/gui/images/noun-michelangelo-5298215.png";
     public static final String TRIPOLI_CLIPBOARD_ICON = "org/cirdles/tripoli/gui/images/noun-copy-to-clipboard-3401852c.png";
+    public static final String TRIPOLI_GEAR_ICON = "org/cirdles/tripoli/gui/images/gear-icon-image.png";//
 
     public static final Color TRIPOLI_STARTING_YELLOW = new Color(243.0 / 256.0, 227.0 / 256.0, 118.0 / 256.0, 1.0);
     public static final Color TRIPOLI_SESSION_LINEN = Color.LINEN;

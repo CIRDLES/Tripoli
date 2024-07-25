@@ -42,6 +42,7 @@ public class SettingsWindowController implements Initializable {
         twoSigmaSplotch.setPrefWidth(twoSigmaStackPane.getPrefWidth());
         twoSigmaSplotch.setPrefHeight(twoSigmaStackPane.getPrefHeight());
         twoSigmaHBox.getChildren().remove(twoSigmaStackPane);
+        twoSigmaStackPane = twoSigmaSplotch;
         twoSigmaHBox.getChildren().add(twoSigmaSplotch);
         oneSigmaSplotch = new ColorPickerSplotch();
         oneSigmaSplotch.getColorPicker().setValue(OGTRIPOLI_ONESIGMA);
