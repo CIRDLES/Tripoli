@@ -64,4 +64,23 @@ public class SettingsWindowController implements Initializable {
         meanHBox.getChildren().add(meanSplotch);
     }
 
+    public ColorPickerSplotch getTwoSigmaSplotch() {
+        return twoSigmaSplotch;
+    }
+
+    public ColorPickerSplotch getOneSigmaSplotch() {
+        return oneSigmaSplotch;
+    }
+
+    public ColorPickerSplotch getStdErrorSplotch() {
+        return stdErrorSplotch;
+    }
+
+    public ColorPickerSplotch getMeanSplotch() {
+        return meanSplotch;
+    }
+
+    public VBox getSettingsWindowVBoxRoot() {
+        return settingsWindowVBoxRoot;
+    }
 }

@@ -17,6 +17,7 @@ public class SettingsWindow {
         try {
             stage = new Stage();
             stage.setScene(new Scene(fxmlLoader.load()));
+            controller = fxmlLoader.getController();
             stage.initOwner(owner);
             owner.xProperty().addListener((observable, oldValue, newValue) -> {
                 stage.setX(stage.getX() + newValue.doubleValue()- oldValue.doubleValue());
