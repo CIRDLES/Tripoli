@@ -22,7 +22,11 @@ import java.io.File;
 import java.nio.CharBuffer;
 
 public enum TripoliConstants {
-    ;
+    ;// Why...?
+    public static final String OGTRIPOLI_TWOSIGMA_HEX = "#FFBFCB";
+    public static final String OGTRIPOLI_ONESIGMA_HEX = "#FFEA00";
+    public static final String OGTRIPOLI_TWOSTDERR_HEX = "#90EE8F";
+    public static final String OGTRIPOLI_MEAN_HEX = "#FF0000";
 
     public static final File TRIPOLI_RESOURCES_FOLDER = new File("TripoliResources");
     public static final File DOCS_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "Docs");
