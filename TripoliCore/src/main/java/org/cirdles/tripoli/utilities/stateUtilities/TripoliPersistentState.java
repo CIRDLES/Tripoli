@@ -17,6 +17,7 @@
  */
 package org.cirdles.tripoli.utilities.stateUtilities;
 
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
@@ -50,6 +51,13 @@ public class TripoliPersistentState implements Serializable {
     private String MRUMethodXMLFolderPath;
     private String MRUExportFolderPath;
     private TripoliSpeciesColorMap mapOfSpeciesToColors;
+
+    //  Ratio Stat plot colors
+    private String twoSigmaHexColorString;
+    private String oneSigmaHexColorString;
+    private String twoStdErrHexColorString;
+    private String meanHexColorString;
+    // END Ratio Stat plot colors
 
 //    private void readObject(ObjectInputStream stream) throws IOException,
 //            ClassNotFoundException {
@@ -163,6 +171,38 @@ public class TripoliPersistentState implements Serializable {
             serializeSelf();
         }
         return mapOfSpeciesToColors;
+    }
+
+    public String getTwoSigmaHexColorString() {
+        if (twoSigmaHexColorString == null) {
+            twoSigmaHexColorString = TripoliConstants.OGTRIPOLI_TWOSIGMA_HEX;
+            serializeSelf();
+        }
+        return twoSigmaHexColorString;
+    }
+
+    public String getOneSigmaHexColorString() {
+        if (oneSigmaHexColorString == null) {
+            oneSigmaHexColorString = TripoliConstants.OGTRIPOLI_ONESIGMA_HEX;
+            serializeSelf();
+        }
+        return oneSigmaHexColorString;
+    }
+
+    public String getTwoStdErrHexColorString() {
+        if (twoStdErrHexColorString == null) {
+            twoSigmaHexColorString = TripoliConstants.OGTRIPOLI_TWOSTDERR_HEX;
+            serializeSelf();
+        }
+        return twoStdErrHexColorString;
+    }
+
+    public String getMeanHexColorString() {
+        if (meanHexColorString == null) {
+            meanHexColorString = TripoliConstants.OGTRIPOLI_MEAN_HEX;
+            serializeSelf();
+        }
+        return meanHexColorString;
     }
 
     public void updateTripoliPersistentState() {

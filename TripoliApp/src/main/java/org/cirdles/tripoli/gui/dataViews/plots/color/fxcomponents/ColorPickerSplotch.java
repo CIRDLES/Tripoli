@@ -1,7 +1,5 @@
 package org.cirdles.tripoli.gui.dataViews.plots.color.fxcomponents;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
