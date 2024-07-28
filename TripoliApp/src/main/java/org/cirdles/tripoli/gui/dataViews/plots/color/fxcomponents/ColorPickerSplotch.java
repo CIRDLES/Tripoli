@@ -12,7 +12,9 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
+import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
+import org.cirdles.tripoli.utilities.Setter;
 
 import java.io.IOException;
 
@@ -24,6 +26,9 @@ public class ColorPickerSplotch extends StackPane {
     @FXML
     private Label label;
 
+    private String hexColor;
+    private Setter<String> hexColorSetter;
+
     /**
      * Contains all delegate actions for anything that needs repainting
      */
@@ -33,6 +38,7 @@ public class ColorPickerSplotch extends StackPane {
     public ColorPickerSplotch() {
         super();
         repaintDelegateActionSet = new DelegateActionSet();
+        hexColorSetter = hexString -> {};
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ColorPickerSplotch.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -42,14 +48,8 @@ public class ColorPickerSplotch extends StackPane {
             throw new RuntimeException(e);
         }
 
+        this.hexColor = ConstantsTripoliApp.convertColorToHex(colorPicker.getValue());
         // Bind the label's background color to the color picker's value
-        colorPicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-            colorPicker.backgroundProperty().
-                    setValue(
-                            new Background(
-                                    new BackgroundFill(newValue,CornerRadii.EMPTY, Insets.EMPTY)));
-            repaintDelegateActionSet.executeDelegateActions();
-        });
         label.backgroundProperty().bind(colorPicker.backgroundProperty());
         label.prefWidthProperty().bind(widthProperty());
         label.prefHeightProperty().bind(heightProperty());
@@ -60,6 +60,19 @@ public class ColorPickerSplotch extends StackPane {
                 colorPicker.show();
             }
         });
+        colorPicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+            colorPicker.backgroundProperty().
+                    setValue(
+                            new Background(
+                                    new BackgroundFill(newValue,CornerRadii.EMPTY, Insets.EMPTY)));
+            this.hexColor = ConstantsTripoliApp.convertColorToHex(newValue);
+            this.hexColorSetter.set(hexColor);
+            repaintDelegateActionSet.executeDelegateActions();
+        });
+    }
+
+    public void setHexColorSetter(Setter<String> hexColorSetter) {
+        this.hexColorSetter = hexColorSetter;
     }
 
     public DelegateActionSet getDelegateActionSet() {
@@ -72,5 +85,9 @@ public class ColorPickerSplotch extends StackPane {
 
     public Label getLabel() {
         return label;
+    }
+
+    public String getHexColor() {
+        return hexColor;
     }
 }

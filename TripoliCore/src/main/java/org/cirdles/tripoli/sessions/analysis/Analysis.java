@@ -697,12 +697,13 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         twoSigmaHexColorString = newHexColor;
     }
 
-    public void setOneSigmaHexColorString(String newHexColor) {
-        oneSigmaHexColorString = newHexColor;
+    @Override
+    public void setTwoStandardErrorHexColorString(String hexColor) {
+        twoStdErrHexColorString = hexColor;
     }
 
-    public void setTwoStdErrHexColorHexColor(String newHexColor) {
-        twoStdErrHexColorString = newHexColor;
+    public void setOneSigmaHexColorString(String newHexColor) {
+        oneSigmaHexColorString = newHexColor;
     }
 
     public void setMeanHexColorString(String newHexColor) {
