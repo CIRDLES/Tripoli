@@ -92,6 +92,10 @@ public class RatioColorSelectionPane extends ScrollPane implements Initializable
         meanSplotch.setPrefHeight(meanStackPane.getPrefHeight());
         meanHBox.getChildren().remove(meanStackPane);
         meanHBox.getChildren().add(meanSplotch);
+        HBox.setHgrow(twoSigmaSplotch, Priority.ALWAYS);
+        HBox.setHgrow(oneSigmaSplotch, Priority.ALWAYS);
+        HBox.setHgrow(stdErrorSplotch, Priority.ALWAYS);
+        HBox.setHgrow(meanSplotch, Priority.ALWAYS);
     }
 
     public ColorPickerSplotch getTwoSigmaSplotch() {

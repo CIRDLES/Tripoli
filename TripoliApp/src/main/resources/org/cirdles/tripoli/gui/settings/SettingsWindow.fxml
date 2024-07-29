@@ -4,46 +4,107 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<VBox fx:id="vBoxRoot" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.settings.SettingsWindowController">
+<VBox fx:id="vBoxRoot" prefHeight="581.0" prefWidth="536.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.settings.SettingsWindowController">
    <children>
       <TabPane fx:id="plotRatiosTabPane" prefHeight="453.0" prefWidth="414.0">
          <tabs>
             <Tab text="Plot Ratios Color Control">
                <content>
-                  <AnchorPane fx:id="ratioColorSelectionAnchorPane" prefHeight="200.0" prefWidth="200.0" />
+                  <AnchorPane fx:id="ratioColorSelectionAnchorPane" prefHeight="367.0" prefWidth="536.0" />
                </content>
             </Tab>
          </tabs>
       </TabPane>
-      <ToolBar fx:id="settingsWindowToolbar">
+      <ToolBar fx:id="saveDefaultsToolbar" prefHeight="108.0" prefWidth="536.0">
          <items>
-            <Button fx:id="okButton" mnemonicParsing="false" text="OK" textFill="#a45151">
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" stroke="TRANSPARENT" strokeType="INSIDE" width="36.0" />
+            <Button fx:id="saveAnalysisSettingsButton" mnemonicParsing="false" prefHeight="50.0" prefWidth="119.0" text="Save Analysis Settings" textAlignment="CENTER" textFill="#a45151" wrapText="true">
                <font>
                   <Font name="Monospaced Bold" size="12.0" />
                </font>
+               <tooltip>
+                  <Tooltip text="Save color settings for this analysis.">
+                     <font>
+                        <Font name="Monospaced Bold" size="12.0" />
+                     </font>
+                  </Tooltip>
+               </tooltip>
+            </Button>
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" stroke="TRANSPARENT" strokeType="INSIDE" width="39.0" />
+            <Button fx:id="saveAsSessionDefaultsButton" mnemonicParsing="false" prefHeight="50.0" prefWidth="134.0" text="Save As Session Defaults" textAlignment="CENTER" textFill="#a45151" wrapText="true">
+               <font>
+                  <Font name="Monospaced Bold" size="12.0" />
+               </font>
+               <tooltip>
+                  <Tooltip text="Save as defaults for this session">
+                     <font>
+                        <Font name="Monospaced Bold" size="12.0" />
+                     </font>
+                  </Tooltip>
+               </tooltip>
+            </Button>
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" stroke="TRANSPARENT" strokeType="INSIDE" width="33.0" />
+            <Button fx:id="saveAsUserDefaultsButton" mnemonicParsing="false" prefHeight="50.0" prefWidth="109.0" text="Save As User Defaults" textAlignment="CENTER" textFill="#a45151" wrapText="true">
+               <font>
+                  <Font name="Monospaced Bold" size="12.0" />
+               </font>
+               <tooltip>
+                  <Tooltip text="Save as default settings for this user">
+                     <font>
+                        <Font name="Monospaced Bold" size="12.0" />
+                     </font>
+                  </Tooltip>
+               </tooltip>
             </Button>
             <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" stroke="TRANSPARENT" strokeType="INSIDE" width="9.0" />
-            <Button fx:id="revertToSavedButton" mnemonicParsing="false" text="Revert to Saved" textFill="#a45151">
+         </items>
+      </ToolBar>
+      <ToolBar fx:id="revertToolbar" layoutX="10.0" layoutY="428.0" prefHeight="108.0" prefWidth="536.0">
+         <items>
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" stroke="TRANSPARENT" strokeType="INSIDE" width="35.0" />
+            <Button fx:id="restoreSessionDefaultsButton" mnemonicParsing="false" prefHeight="50.0" prefWidth="122.0" text="Session Defaults" textAlignment="CENTER" textFill="#a45151" wrapText="true">
                <font>
                   <Font name="Monospaced Bold" size="12.0" />
                </font>
+               <tooltip>
+                  <Tooltip text="Restores settings to the session defaults.">
+                     <font>
+                        <Font name="Monospaced Bold" size="12.0" />
+                     </font>
+                  </Tooltip>
+               </tooltip>
             </Button>
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" stroke="TRANSPARENT" strokeType="INSIDE" width="9.0" />
-            <Button fx:id="restoreDefaultsButton" mnemonicParsing="false" text="Restore Defaults" textFill="#a45151">
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" stroke="TRANSPARENT" strokeType="INSIDE" width="38.0" />
+            <Button fx:id="restoreUserDefaultsButton" mnemonicParsing="false" prefHeight="50.0" prefWidth="134.0" text="User Defaults" textAlignment="CENTER" textFill="#a45151" wrapText="true">
                <font>
                   <Font name="Monospaced Bold" size="12.0" />
                </font>
+               <tooltip>
+                  <Tooltip text="Restores settings to the user default settings.">
+                     <font>
+                        <Font name="Monospaced Bold" size="12.0" />
+                     </font>
+                  </Tooltip>
+               </tooltip>
             </Button>
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" stroke="TRANSPARENT" strokeType="INSIDE" width="9.0" />
-            <Button fx:id="cancelButton" mnemonicParsing="false" text="Cancel" textFill="#a45151">
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" stroke="TRANSPARENT" strokeType="INSIDE" width="32.0" />
+            <Button fx:id="cancelButton" mnemonicParsing="false" prefHeight="50.0" prefWidth="110.0" text="Cancel" textFill="#a45151" wrapText="true">
                <font>
                   <Font name="Monospaced Bold" size="12.0" />
                </font>
+               <tooltip>
+                  <Tooltip text="Cancel all changes and revert to previous settings.">
+                     <font>
+                        <Font name="Monospaced Bold" size="12.0" />
+                     </font>
+                  </Tooltip>
+               </tooltip>
             </Button>
          </items>
       </ToolBar>

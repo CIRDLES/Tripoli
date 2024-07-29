@@ -192,6 +192,22 @@ public class Session implements Serializable {
         return meanHexColorString;
     }
 
+    public void setTwoSigmaHexColorString(String twoSigmaHexColorString) {
+        this.twoSigmaHexColorString = twoSigmaHexColorString;
+    }
+
+    public void setOneSigmaHexColorString(String oneSigmaHexColorString) {
+        this.oneSigmaHexColorString = oneSigmaHexColorString;
+    }
+
+    public void setTwoStdErrHexColorString(String twoStdErrHexColorString) {
+        this.twoStdErrHexColorString = twoStdErrHexColorString;
+    }
+
+    public void setMeanHexColorString(String meanHexColorString) {
+        this.meanHexColorString = meanHexColorString;
+    }
+
     /**
      * For JUnit Testing by My Nguyen
      */

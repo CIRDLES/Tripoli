@@ -102,7 +102,7 @@ public class SettingsWindow {
     }
 
     public void initializeToolbarButtons() {
-        settingsWindowController.getOkButton().setOnAction(e -> {
+        settingsWindowController.getSaveAnalysisSettingsButton().setOnAction(e -> {
             try {
                 Session currentSession = ((Analysis) analysis).getParentSession();
                 TripoliSerializer.serializeObjectToFile(currentSession,
@@ -112,17 +112,42 @@ public class SettingsWindow {
                 ex.printStackTrace();
             }
         });
-        settingsWindowController.getRevertToSavedButton().setOnAction(e -> {
+        settingsWindowController.getSaveAsSessionDefaultsButton().setOnAction(e -> {
+            Session currentSession = ((Analysis) analysis).getParentSession();
+            currentSession.setTwoSigmaHexColorString(analysis.getTwoSigmaHexColorString());
+            currentSession.setOneSigmaHexColorString(analysis.getOneSigmaHexColorString());
+            currentSession.setTwoStdErrHexColorString(analysis.getTwoStandardErrorHexColorString());
+            currentSession.setMeanHexColorString(analysis.getMeanHexColorString());
+            try {
+                TripoliSerializer.serializeObjectToFile(currentSession,
+                        TripoliPersistentState.getExistingPersistentState().getMRUSessionFile().getAbsolutePath());
+            } catch (TripoliException ex) {
+                ex.printStackTrace();
+            }
+        });
+        settingsWindowController.getSaveAsUserDefaultsButton().setOnAction(e -> {
+            try{
+                TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+                tripoliPersistentState.setTwoSigmaHexColorString(analysis.getTwoSigmaHexColorString());
+                tripoliPersistentState.setOneSigmaHexColorString(analysis.getOneSigmaHexColorString());
+                tripoliPersistentState.setTwoStdErrHexColorString(analysis.getTwoStandardErrorHexColorString());
+                tripoliPersistentState.setMeanHexColorString(analysis.getMeanHexColorString());
+                tripoliPersistentState.updateTripoliPersistentState();
+            } catch (TripoliException ex) {
+                ex.printStackTrace();
+            }
+        });
+        settingsWindowController.getRestoreSessionDefaultsButton().setOnAction(e -> {
             Session currentSession = ((Analysis) analysis).getParentSession();
             analysis.setTwoSigmaHexColorString(currentSession.getTwoSigmaHexColorString());
             analysis.setTwoStandardErrorHexColorString(currentSession.getTwoStdErrHexColorString());
             analysis.setMeanHexColorString(currentSession.getMeanHexColorString());
-            repaintDelegateActionSet.executeDelegateActions();
             analysis.setOneSigmaHexColorString(currentSession.getOneSigmaHexColorString());
+            repaintDelegateActionSet.executeDelegateActions();
             updateRatioColorSelectionPane();
 //            close();
         });
-        settingsWindowController.getRestoreDefaultsButton().setOnAction(e -> {
+        settingsWindowController.getRestoreUserDefaultsButton().setOnAction(e -> {
             try{
                 TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
                 analysis.setTwoSigmaHexColorString(tripoliPersistentState.getTwoSigmaHexColorString());

@@ -15,19 +15,31 @@ public class SettingsWindowController implements Initializable {
 
 
     @FXML
+    private Button saveAnalysisSettingsButton;
+    @FXML
+    private Button saveAsSessionDefaultsButton;
+    @FXML
+    private Button saveAsUserDefaultsButton;
+    @FXML
+    private Button restoreSessionDefaultsButton;
+    @FXML
+    private Button restoreUserDefaultsButton;
+    @FXML
+    private ToolBar revertToolbar;
+    @FXML
     private VBox vBoxRoot;
     @FXML
     private TabPane plotRatiosTabPane;
     @FXML
     private AnchorPane ratioColorSelectionAnchorPane;
     @FXML
-    private ToolBar settingsWindowToolbar;
-    @FXML
-    private Button okButton;
-    @FXML
-    private Button revertToSavedButton;
-    @FXML
-    private Button restoreDefaultsButton;
+    private ToolBar saveDefaultsToolbar;
+//    @FXML
+//    private Button okButton;
+//    @FXML
+//    private Button revertToSavedButton;
+//    @FXML
+//    private Button restoreDefaultsButton;
     @FXML
     private Button cancelButton;
 
@@ -49,20 +61,28 @@ public class SettingsWindowController implements Initializable {
         return ratioColorSelectionAnchorPane;
     }
 
-    public ToolBar getSettingsWindowToolbar() {
-        return settingsWindowToolbar;
+    public ToolBar getSaveDefaultsToolbar() {
+        return saveDefaultsToolbar;
     }
 
-    public Button getOkButton() {
-        return okButton;
+    public Button getSaveAnalysisSettingsButton() {
+        return saveAnalysisSettingsButton;
     }
 
-    public Button getRevertToSavedButton() {
-        return revertToSavedButton;
+    public Button getSaveAsSessionDefaultsButton() {
+        return saveAsSessionDefaultsButton;
     }
 
-    public Button getRestoreDefaultsButton() {
-        return restoreDefaultsButton;
+    public Button getSaveAsUserDefaultsButton() {
+        return saveAsUserDefaultsButton;
+    }
+
+    public Button getRestoreSessionDefaultsButton() {
+        return restoreSessionDefaultsButton;
+    }
+
+    public Button getRestoreUserDefaultsButton() {
+        return restoreUserDefaultsButton;
     }
 
     public Button getCancelButton() {
