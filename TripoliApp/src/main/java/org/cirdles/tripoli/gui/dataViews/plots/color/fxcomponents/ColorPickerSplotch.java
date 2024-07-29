@@ -13,6 +13,7 @@ import javafx.scene.layout.StackPane;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 import org.cirdles.tripoli.utilities.Setter;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.IOException;
 
@@ -43,7 +44,7 @@ public class ColorPickerSplotch extends StackPane {
         try{
             fxmlLoader.load();
         } catch (IOException e){
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
 
         this.hexColor = ConstantsTripoliApp.convertColorToHex(colorPicker.getValue());
