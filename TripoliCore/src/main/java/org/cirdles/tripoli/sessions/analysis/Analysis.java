@@ -782,6 +782,10 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
                 new TripoliSpeciesColorMap(session.getSessionDefaultMapOfSpeciesToColors()));
         this.parentSession = session;
         this.sessionDefaultMapOfSpeciesToColors = session.getSessionDefaultMapOfSpeciesToColors();
+        setTwoSigmaHexColorString(session.getTwoSigmaHexColorString());
+        setOneSigmaHexColorString(session.getOneSigmaHexColorString());
+        setMeanHexColorString(session.getMeanHexColorString());
+        setTwoStandardErrorHexColorString(session.getTwoStdErrHexColorString());
     }
     public void setAnalysisMapOfSpeciesToColors(TripoliSpeciesColorMap analysisMapOfSpeciesToColors) {
         this.analysisMapOfSpeciesToColors = analysisMapOfSpeciesToColors;
