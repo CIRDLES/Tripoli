@@ -3,7 +3,7 @@ package org.cirdles.tripoli.gui.settings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.*;
-import org.cirdles.tripoli.gui.dataViews.plots.color.fxcomponents.ColorPickerSplotch;
+import org.cirdles.tripoli.gui.settings.color.fxcomponents.ColorPickerSplotch;
 
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
 import java.net.URL;
