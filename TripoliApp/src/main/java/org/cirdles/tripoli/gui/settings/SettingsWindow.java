@@ -2,6 +2,7 @@ package org.cirdles.tripoli.gui.settings;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
@@ -29,12 +30,16 @@ public class SettingsWindow {
             });
             controller.getOneSigmaSplotch().getDelegateActionSet().addDelegateActions(delegateActionSet);
             controller.getOneSigmaSplotch().setHexColorSetter(analysis::setOneSigmaHexColorString);
+            controller.getOneSigmaSplotch().getColorPicker().setValue(Color.web(analysis.getOneSigmaHexColorString()));
             controller.getTwoSigmaSplotch().getDelegateActionSet().addDelegateActions(delegateActionSet);
             controller.getTwoSigmaSplotch().setHexColorSetter(analysis::setTwoSigmaHexColorString);
+            controller.getTwoSigmaSplotch().getColorPicker().setValue(Color.web(analysis.getTwoSigmaHexColorString()));
             controller.getStdErrorSplotch().getDelegateActionSet().addDelegateActions(delegateActionSet);
             controller.getStdErrorSplotch().setHexColorSetter(analysis::setTwoStandardErrorHexColorString);
+            controller.getStdErrorSplotch().getColorPicker().setValue(Color.web(analysis.getTwoStandardErrorHexColorString()));
             controller.getMeanSplotch().getDelegateActionSet().addDelegateActions(delegateActionSet);
             controller.getMeanSplotch().setHexColorSetter(analysis::setMeanHexColorString);
+            controller.getMeanSplotch().getColorPicker().setValue(Color.web(analysis.getMeanHexColorString()));
             stage.setTitle("Settings");
         } catch (IOException e) {
             e.printStackTrace();

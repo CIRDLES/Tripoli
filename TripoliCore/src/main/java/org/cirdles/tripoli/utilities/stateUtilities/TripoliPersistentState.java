@@ -191,7 +191,7 @@ public class TripoliPersistentState implements Serializable {
 
     public String getTwoStdErrHexColorString() {
         if (twoStdErrHexColorString == null) {
-            twoSigmaHexColorString = TripoliConstants.OGTRIPOLI_TWOSTDERR_HEX;
+            twoStdErrHexColorString = TripoliConstants.OGTRIPOLI_TWOSTDERR_HEX;
             serializeSelf();
         }
         return twoStdErrHexColorString;
