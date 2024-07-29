@@ -18,6 +18,14 @@ public class DelegateActionSet {
         return this.actionSet.add(actionInterface);
     }
 
+    public void addDelegateActions(DelegateActionInterface... actionInterfaces) {
+        this.actionSet.addAll(Arrays.asList(actionInterfaces));
+    }
+
+    public void addDelegateActions(DelegateActionSet actionSet) {
+        this.actionSet.addAll(actionSet.actionSet);
+    }
+
     public void executeDelegateActions() {
         for (DelegateActionInterface delegateActionInterface: actionSet) {
             delegateActionInterface.act();

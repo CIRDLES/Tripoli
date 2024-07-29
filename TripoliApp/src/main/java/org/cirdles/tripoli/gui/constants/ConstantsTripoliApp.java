@@ -62,8 +62,11 @@ public enum ConstantsTripoliApp {
 
     public static @NonNls String convertColorToHex(Color color) {
         String red = Integer.toHexString((int) (color.getRed() * 255));
+        red = red.length() == 1 ? "0" + red : red;
         String green = Integer.toHexString((int) (color.getGreen() * 255));
+        green = green.length() == 1 ? "0" + green : green;
         String blue = Integer.toHexString((int) (color.getBlue() * 255));
+        blue = blue.length() == 1 ? "0" + blue : blue;
 
         return "#" + red + green + blue;
     }

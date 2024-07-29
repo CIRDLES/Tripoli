@@ -160,6 +160,16 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
 
     }
 
+    @Override
+    public void addRepaintDelegateAction(DelegateActionInterface delegateAction) {
+        delegateActionSet.addDelegateAction(delegateAction);
+    }
+
+    @Override
+    public void removeRepaintDelegateAction(DelegateActionInterface delegateAction) {
+        delegateActionSet.removeDelegateAction(delegateAction);
+    }
+
     public void buildIntensitiesPlotToolBar(boolean showResiduals,
                                             List<SpeciesRecordInterface> species,
                                             Map<SpeciesRecordInterface, SpeciesColors> analysisMapOfSpeciesToColors,

@@ -19,6 +19,7 @@ package org.cirdles.tripoli.gui.dataViews.plots;
 import com.google.common.primitives.Booleans;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -38,6 +39,8 @@ import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
+import org.cirdles.tripoli.utilities.DelegateActionInterface;
+import org.cirdles.tripoli.utilities.DelegateActionSet;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -66,6 +69,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private int toolBarCount;
     private boolean logScale;
     private boolean blockMode;
+    private final DelegateActionSet repaintDelegateActionSet = new DelegateActionSet();
     ChangeListener<Boolean> cycleCBChangeListener = (observable, oldValue, newValue) -> {
         blockMode = !newValue;
         rebuildPlot(false, true);
@@ -252,6 +256,16 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         }
     }
 
+    @Override
+    public void addRepaintDelegateAction(DelegateActionInterface delegateAction) {
+        repaintDelegateActionSet.addDelegateAction(delegateAction);
+    }
+
+    @Override
+    public void removeRepaintDelegateAction(DelegateActionInterface delegateAction) {
+        repaintDelegateActionSet.removeDelegateAction(delegateAction);
+    }
+
     public void toggleRatiosLogRatios() {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
@@ -363,7 +377,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         settingsGearButton.setFont(commandFont);
         settingsGearView.setFitWidth(12);
         settingsGearButton.setOnAction(settingsClickAction -> {
-            SettingsWindow settingsWindow = SettingsWindow.requestSettingsWindow(getScene().getWindow());
+            SettingsWindow settingsWindow =
+                    SettingsWindow.requestSettingsWindow(getScene().getWindow(),
+                            repaintDelegateActionSet,
+                            analysis);
             settingsWindow.show();
         });
         scaleControlsToolbar.getItems().add(settingsGearButton);

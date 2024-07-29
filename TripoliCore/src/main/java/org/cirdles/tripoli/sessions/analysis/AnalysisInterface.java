@@ -161,6 +161,18 @@ public interface AnalysisInterface {
 
     Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount();
 
+    String getTwoSigmaHexColorString();
+    String getOneSigmaHexColorString();
+    String getTwoStandardErrorHexColorString();
+    String getMeanHexColorString();
+
+
+    void setOneSigmaHexColorString(String hexColor);
+    void setTwoSigmaHexColorString(String hexColor);
+    void setTwoStandardErrorHexColorString(String hexColor);
+    void setMeanHexColorString(String hexColor);
+
+
     void resetAnalysis();
 
     int getAnalysisCaseNumber();

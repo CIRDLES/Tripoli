@@ -228,7 +228,7 @@ public class OGTripoliViewController {
                                     true,
                                     false);
                     AbstractPlot plot = AnalysisBlockCyclesPlot.generatePlot(
-                            new Rectangle(minPlotWidth, minPlotHeight), blockAnalysisRatioCyclesBuilder.getBlockAnalysisRatioCyclesRecord(), (PlotWallPane) plotsWallPaneRatios);
+                            new Rectangle(minPlotWidth, minPlotHeight),analysis, blockAnalysisRatioCyclesBuilder.getBlockAnalysisRatioCyclesRecord(), (PlotWallPane) plotsWallPaneRatios);
 
                     tripoliPlotPane.addPlot(plot);
                     plot.refreshPanel(false, false);
