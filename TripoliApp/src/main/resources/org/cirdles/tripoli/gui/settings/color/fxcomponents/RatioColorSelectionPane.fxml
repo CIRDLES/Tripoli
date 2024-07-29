@@ -14,12 +14,12 @@
    <content>
       <VBox fx:id="vBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="536.0">
          <children>
-            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="42.0" prefWidth="400.0" style="-fx-font-weight: bold;" text="Plot Ratios Color Control" textAlignment="CENTER">
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="42.0" prefWidth="536.0" style="-fx-font-weight: bold;" text="Plot Ratios Color Control" textAlignment="CENTER">
                <opaqueInsets>
                   <Insets />
                </opaqueInsets>
                <font>
-                  <Font size="18.0" />
+                  <Font size="22.0" />
                </font>
             </Label>
             <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="42.0" stroke="TRANSPARENT" strokeType="INSIDE" width="324.0" />
