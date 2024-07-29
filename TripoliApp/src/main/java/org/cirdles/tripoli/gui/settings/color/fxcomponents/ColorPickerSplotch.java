@@ -1,5 +1,7 @@
 package org.cirdles.tripoli.gui.settings.color.fxcomponents;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -10,10 +12,10 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 import org.cirdles.tripoli.utilities.Setter;
-import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.IOException;
 
@@ -25,6 +27,7 @@ public class ColorPickerSplotch extends StackPane {
     @FXML
     private Label label;
 
+    private final ObjectProperty<Color> valueProperty;
     private String hexColor;
     private Setter<String> hexColorSetter;
 
@@ -68,6 +71,8 @@ public class ColorPickerSplotch extends StackPane {
             this.hexColorSetter.set(hexColor);
             repaintDelegateActionSet.executeDelegateActions();
         });
+        this.valueProperty = new SimpleObjectProperty<>(colorPicker.getValue());
+        colorPicker.valueProperty().bindBidirectional(valueProperty);
     }
 
     public void setHexColorSetter(Setter<String> hexColorSetter) {
@@ -84,6 +89,10 @@ public class ColorPickerSplotch extends StackPane {
 
     public Label getLabel() {
         return label;
+    }
+
+    public ObjectProperty<Color> valueProperty() {
+        return valueProperty;
     }
 
     public String getHexColor() {

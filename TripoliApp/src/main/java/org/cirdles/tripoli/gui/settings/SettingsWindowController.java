@@ -7,7 +7,6 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.WindowEvent;
 
 import java.net.URL;
 import java.util.ResourceBundle;

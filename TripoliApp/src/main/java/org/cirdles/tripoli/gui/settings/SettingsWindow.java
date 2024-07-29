@@ -1,13 +1,10 @@
 package org.cirdles.tripoli.gui.settings;
 
-import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.stage.Window;
-import javafx.stage.WindowEvent;
-import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.RatioColorSelectionPane;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
@@ -32,11 +29,6 @@ public class SettingsWindow {
     private String originalMeanHexColor;
     private static SettingsWindow instance;
 
-    // Offset variables for dragging the window
-    private double offsetX = 0;
-    private double offsetY = 0;
-    private boolean mousePressed = false;
-    //   END OF offset variables
 
     private SettingsWindow(Window owner, DelegateActionSet delegateActionSet, AnalysisInterface analysis) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("SettingsWindow.fxml"));
@@ -47,17 +39,8 @@ public class SettingsWindow {
             this.originalOneSigmaHexColor = analysis.getOneSigmaHexColorString();
             this.originalStdErrHexColor = analysis.getTwoStandardErrorHexColorString();
             this.originalMeanHexColor = analysis.getMeanHexColorString();
-//            stage.initStyle(StageStyle.UNDECORATED);
             stage.setScene(new Scene(fxmlLoader.load()));
             repaintDelegateActionSet = delegateActionSet;
-//            stage.getScene().setOnMousePressed(mousePress -> {
-//                offsetX = mousePress.getSceneX();
-//                offsetY = mousePress.getSceneY();
-//            });
-//            stage.getScene().setOnMouseDragged(mouseDrag -> {
-//                stage.setX(mouseDrag.getScreenX() - offsetX);
-//                stage.setY(mouseDrag.getScreenY() - offsetY);
-//            });
             settingsWindowController = fxmlLoader.getController();
             settingsWindowController.getRatioColorSelectionAnchorPane().prefWidthProperty().bind(stage.widthProperty());
             stage.initOwner(owner);
@@ -132,11 +115,12 @@ public class SettingsWindow {
         settingsWindowController.getRevertToSavedButton().setOnAction(e -> {
             Session currentSession = ((Analysis) analysis).getParentSession();
             analysis.setTwoSigmaHexColorString(currentSession.getTwoSigmaHexColorString());
-            analysis.setOneSigmaHexColorString(currentSession.getOneSigmaHexColorString());
             analysis.setTwoStandardErrorHexColorString(currentSession.getTwoStdErrHexColorString());
             analysis.setMeanHexColorString(currentSession.getMeanHexColorString());
             repaintDelegateActionSet.executeDelegateActions();
-            close();
+            analysis.setOneSigmaHexColorString(currentSession.getOneSigmaHexColorString());
+            updateRatioColorSelectionPane();
+//            close();
         });
         settingsWindowController.getRestoreDefaultsButton().setOnAction(e -> {
             try{
@@ -146,7 +130,8 @@ public class SettingsWindow {
                 analysis.setTwoStandardErrorHexColorString(tripoliPersistentState.getTwoStdErrHexColorString());
                 analysis.setMeanHexColorString(tripoliPersistentState.getMeanHexColorString());
                 repaintDelegateActionSet.executeDelegateActions();
-                close();
+                updateRatioColorSelectionPane();
+//                close();
             } catch (TripoliException ex) {
                 ex.printStackTrace();
             }
@@ -160,6 +145,17 @@ public class SettingsWindow {
             close();
         });
     }
+
+    public void updateRatioColorSelectionPane() {
+        ratioColorSelectionPane.getTwoSigmaSplotch().valueProperty().setValue(
+                Color.web(analysis.getTwoSigmaHexColorString()));
+        ratioColorSelectionPane.getOneSigmaSplotch().valueProperty().setValue(Color.web(
+                analysis.getOneSigmaHexColorString()));
+        ratioColorSelectionPane.getStdErrorSplotch().valueProperty().setValue(Color.web(
+                analysis.getTwoStandardErrorHexColorString()));
+        ratioColorSelectionPane.getMeanSplotch().valueProperty().setValue(Color.web(
+                analysis.getMeanHexColorString()));
+    };
 
     public void close() {
         instance = null;
