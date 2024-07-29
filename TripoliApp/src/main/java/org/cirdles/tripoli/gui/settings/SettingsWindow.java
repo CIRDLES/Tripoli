@@ -4,6 +4,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
@@ -15,13 +16,28 @@ public class SettingsWindow {
     private Stage stage;
     private static SettingsWindow instance;
 
+    // Offset variables for dragging the window
+    private double offsetX = 0;
+    private double offsetY = 0;
+    private boolean mousePressed = false;
+    //   END OF offset variables
+
     private SettingsWindow(Window owner, DelegateActionSet delegateActionSet, AnalysisInterface analysis) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("SettingsWindow.fxml"));
         try {
             stage = new Stage();
+            stage.initStyle(StageStyle.UNDECORATED);
             stage.setScene(new Scene(fxmlLoader.load()));
-            controller = fxmlLoader.getController();
             stage.initOwner(owner);
+            stage.getScene().setOnMousePressed(mousePress -> {
+                    offsetX = mousePress.getSceneX();
+                    offsetY = mousePress.getSceneY();
+            });
+            stage.getScene().setOnMouseDragged(mouseDrag -> {
+                stage.setX(mouseDrag.getScreenX() - offsetX);
+                stage.setY(mouseDrag.getScreenY() - offsetY);
+            });
+            controller = fxmlLoader.getController();
             owner.xProperty().addListener((observable, oldValue, newValue) -> {
                 stage.setX(stage.getX() + newValue.doubleValue()- oldValue.doubleValue());
             });
