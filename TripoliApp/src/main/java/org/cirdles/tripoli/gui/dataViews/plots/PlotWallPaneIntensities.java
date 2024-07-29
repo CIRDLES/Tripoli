@@ -28,7 +28,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.WindowEvent;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
-import org.cirdles.tripoli.gui.dataViews.plots.color.IntensityPlotColorSelectionWindow;
+import org.cirdles.tripoli.gui.settings.color.IntensityPlotColorSelectionWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.DelegateActionInterface;

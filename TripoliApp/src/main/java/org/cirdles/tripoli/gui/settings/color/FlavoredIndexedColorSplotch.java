@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.gui.dataViews.plots.color;
+package org.cirdles.tripoli.gui.settings.color;
 
 import javafx.geometry.Insets;
 import javafx.scene.layout.Background;

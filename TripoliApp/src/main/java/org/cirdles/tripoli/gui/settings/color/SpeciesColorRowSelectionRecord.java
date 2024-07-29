@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.gui.dataViews.plots.color;
+package org.cirdles.tripoli.gui.settings.color;
 
 import org.cirdles.tripoli.species.SpeciesColorSetting;
 

@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.gui.dataViews.plots.color.fxcomponents;
+package org.cirdles.tripoli.gui.settings.color.fxcomponents;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
