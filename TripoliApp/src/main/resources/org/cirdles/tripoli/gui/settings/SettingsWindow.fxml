@@ -14,7 +14,7 @@
    <children>
       <TabPane fx:id="plotRatiosTabPane" prefHeight="453.0" prefWidth="414.0">
          <tabs>
-            <Tab text="Plot Ratios Color Control">
+            <Tab closable="false" text="Plot Ratios Color Control">
                <content>
                   <AnchorPane fx:id="ratioColorSelectionAnchorPane" prefHeight="367.0" prefWidth="536.0" />
                </content>
