@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
 import com.google.common.primitives.Booleans;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -35,6 +36,7 @@ import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotI;
 import org.cirdles.tripoli.gui.settings.SettingsWindow;
+import org.cirdles.tripoli.gui.settings.color.fxcomponents.SettingsButton;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
@@ -43,6 +45,7 @@ import org.cirdles.tripoli.utilities.DelegateActionInterface;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -370,20 +373,24 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         scaleControlsToolbar.setLayoutY(0.0);
 
         // BEGIN settings button
-        Image settingsGear = new Image(TRIPOLI_GEAR_ICON);
-        ImageView settingsGearView = new ImageView(settingsGear);
-        settingsGearView.setPreserveRatio(true);
-        Button settingsGearButton = new Button("", settingsGearView);
-        settingsGearButton.setFont(commandFont);
-        settingsGearView.setFitWidth(12);
-        settingsGearButton.setOnAction(settingsClickAction -> {
-            SettingsWindow settingsWindow =
-                    SettingsWindow.requestSettingsWindow(getScene().getWindow(),
-                            repaintDelegateActionSet,
-                            analysis);
-            settingsWindow.show();
-        });
-        scaleControlsToolbar.getItems().add(settingsGearButton);
+        try{
+            SettingsButton settingsGearButton = new SettingsButton();
+            settingsGearButton.setOnAction(settingsClickAction -> {
+                SettingsWindow settingsWindow =
+                        SettingsWindow.requestSettingsWindow(getScene().getWindow(),
+                                repaintDelegateActionSet,
+                                analysis);
+                settingsWindow.show();
+            });
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+//        Image settingsGear = new Image(TRIPOLI_GEAR_ICON);
+//        ImageView settingsGearView = new ImageView(settingsGear);
+//        settingsGearView.setPreserveRatio(true);
+//        Button settingsGearButton = new Button("", settingsGearView);
+//        settingsGearButton.setFont(commandFont);
+//        settingsGearView.setFitWidth(12);
         // END settings button
 
         Button infoButton = new Button("?");
