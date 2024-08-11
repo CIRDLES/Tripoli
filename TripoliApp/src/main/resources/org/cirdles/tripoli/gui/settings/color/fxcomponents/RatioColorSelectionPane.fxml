@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
@@ -30,6 +31,7 @@
                         <Font name="System Bold" size="14.0" />
                      </font>
                   </Label>
+                  <Region prefHeight="37.0" prefWidth="81.0" />
                   <StackPane fx:id="twoSigmaStackPane" prefHeight="37.0" prefWidth="144.0" HBox.hgrow="ALWAYS">
                      <children>
                         <ColorPicker opacity="0" prefHeight="37.0" prefWidth="144.0" visible="false" StackPane.alignment="CENTER" />
@@ -43,6 +45,7 @@
                         </Label>
                      </children>
                   </StackPane>
+                  <Region layoutX="240.0" layoutY="10.0" prefHeight="37.0" prefWidth="81.0" />
                </children>
             </HBox>
             <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="42.0" layoutX="10.0" layoutY="53.0" stroke="TRANSPARENT" strokeType="INSIDE" width="324.0" />
@@ -53,6 +56,7 @@
                         <Font name="System Bold" size="14.0" />
                      </font>
                   </Label>
+                  <Region prefHeight="37.0" prefWidth="81.0" />
                   <StackPane fx:id="oneSigmaStackPane" prefHeight="37.0" prefWidth="144.0" HBox.hgrow="ALWAYS">
                      <children>
                         <ColorPicker opacity="0" prefHeight="37.0" prefWidth="144.0" visible="false" StackPane.alignment="CENTER" />
@@ -66,6 +70,7 @@
                         </Label>
                      </children>
                   </StackPane>
+                  <Region layoutX="240.0" layoutY="10.0" prefHeight="37.0" prefWidth="81.0" />
                </children>
             </HBox>
             <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="42.0" layoutX="10.0" layoutY="132.0" stroke="TRANSPARENT" strokeType="INSIDE" width="324.0" />
@@ -76,6 +81,7 @@
                         <Font name="System Bold" size="14.0" />
                      </font>
                   </Label>
+                  <Region prefHeight="37.0" prefWidth="81.0" />
                   <StackPane fx:id="stdErrorStackPane" prefHeight="37.0" prefWidth="144.0" HBox.hgrow="ALWAYS">
                      <children>
                         <ColorPicker opacity="0" prefHeight="37.0" prefWidth="144.0" visible="false" StackPane.alignment="CENTER" />
@@ -89,6 +95,7 @@
                         </Label>
                      </children>
                   </StackPane>
+                  <Region layoutX="240.0" layoutY="10.0" prefHeight="37.0" prefWidth="81.0" />
                </children>
             </HBox>
             <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="42.0" layoutX="10.0" layoutY="211.0" stroke="TRANSPARENT" strokeType="INSIDE" width="324.0" />
@@ -99,6 +106,7 @@
                         <Font name="System Bold" size="14.0" />
                      </font>
                   </Label>
+                  <Region prefHeight="37.0" prefWidth="81.0" />
                   <StackPane fx:id="meanStackPane" prefHeight="37.0" prefWidth="144.0" HBox.hgrow="ALWAYS">
                      <children>
                         <ColorPicker opacity="0" prefHeight="37.0" prefWidth="144.0" visible="false" StackPane.alignment="CENTER" />
@@ -112,6 +120,7 @@
                         </Label>
                      </children>
                   </StackPane>
+                  <Region layoutX="240.0" layoutY="10.0" prefHeight="37.0" prefWidth="81.0" />
                </children>
             </HBox>
             <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="42.0" layoutX="10.0" layoutY="293.0" stroke="TRANSPARENT" strokeType="INSIDE" width="324.0" />

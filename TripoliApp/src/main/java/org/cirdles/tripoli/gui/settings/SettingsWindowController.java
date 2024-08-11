@@ -15,6 +15,8 @@ public class SettingsWindowController implements Initializable {
 
 
     @FXML
+    private AnchorPane plotIntensitiesAnchorPane;
+    @FXML
     private Button saveAnalysisSettingsButton;
     @FXML
     private Button saveAsSessionDefaultsButton;
@@ -32,6 +34,7 @@ public class SettingsWindowController implements Initializable {
     private TabPane plotRatiosTabPane;
     @FXML
     private AnchorPane ratioColorSelectionAnchorPane;
+
     @FXML
     private ToolBar saveDefaultsToolbar;
 //    @FXML
@@ -60,6 +63,8 @@ public class SettingsWindowController implements Initializable {
     public AnchorPane getRatioColorSelectionAnchorPane() {
         return ratioColorSelectionAnchorPane;
     }
+
+    public AnchorPane getSaveDefaultsAnchorPane() { return plotIntensitiesAnchorPane;}
 
     public ToolBar getSaveDefaultsToolbar() {
         return saveDefaultsToolbar;

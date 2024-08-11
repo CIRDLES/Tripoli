@@ -2,6 +2,7 @@ package org.cirdles.tripoli.gui.settings;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -20,7 +21,7 @@ public class SettingsWindow {
     private RatioColorSelectionPane ratioColorSelectionPane;
     private SettingsWindowController settingsWindowController;
     private Stage stage;
-    private  AnalysisInterface analysis;
+    private AnalysisInterface analysis;
     private DelegateActionSet repaintDelegateActionSet;
 
     private String originalTwoSigmaHexColor;
@@ -58,6 +59,7 @@ public class SettingsWindow {
             settingsWindowController.getRatioColorSelectionAnchorPane().getChildren().add(
                     ratioColorSelectionPane
             );
+            ratioColorSelectionPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
             ratioColorSelectionPane.prefWidthProperty().bind(stage.widthProperty());
             initializeToolbarButtons();
             stage.setTitle("Settings");

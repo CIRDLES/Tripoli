@@ -373,25 +373,16 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         scaleControlsToolbar.setLayoutY(0.0);
 
         // BEGIN settings button
-        try{
-            SettingsButton settingsGearButton = new SettingsButton();
-            settingsGearButton.setOnAction(settingsClickAction -> {
-                SettingsWindow settingsWindow =
-                        SettingsWindow.requestSettingsWindow(getScene().getWindow(),
-                                repaintDelegateActionSet,
-                                analysis);
-                settingsWindow.show();
-            });
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-//        Image settingsGear = new Image(TRIPOLI_GEAR_ICON);
-//        ImageView settingsGearView = new ImageView(settingsGear);
-//        settingsGearView.setPreserveRatio(true);
-//        Button settingsGearButton = new Button("", settingsGearView);
-//        settingsGearButton.setFont(commandFont);
-//        settingsGearView.setFitWidth(12);
-        // END settings button
+        SettingsButton settingsGearButton = new SettingsButton();
+        settingsGearButton.setOnAction(settingsClickAction -> {
+            SettingsWindow settingsWindow =
+                    SettingsWindow.requestSettingsWindow(getScene().getWindow(),
+                            repaintDelegateActionSet,
+                            analysis);
+            settingsWindow.show();
+        });
+        scaleControlsToolbar.getItems().add(settingsGearButton);
+        // END OF settings button
 
         Button infoButton = new Button("?");
         infoButton.setFont(commandFont);
