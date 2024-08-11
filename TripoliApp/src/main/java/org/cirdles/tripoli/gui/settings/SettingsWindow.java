@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.RatioColorSelectionPane;
+import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesColorSelectionRow;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
@@ -44,6 +45,7 @@ public class SettingsWindow {
             repaintDelegateActionSet = delegateActionSet;
             settingsWindowController = fxmlLoader.getController();
             settingsWindowController.getRatioColorSelectionAnchorPane().prefWidthProperty().bind(stage.widthProperty());
+            settingsWindowController.getPlotIntensitiesAnchorPane().prefWidthProperty().bind(stage.widthProperty());
             stage.initOwner(owner);
             stage.setOnCloseRequest(closeRequest -> {
 
@@ -58,6 +60,10 @@ public class SettingsWindow {
             settingsWindowController.getRatioColorSelectionAnchorPane().getChildren().clear();
             settingsWindowController.getRatioColorSelectionAnchorPane().getChildren().add(
                     ratioColorSelectionPane
+            );
+            settingsWindowController.getPlotIntensitiesAnchorPane().getChildren().clear();
+            settingsWindowController.getPlotIntensitiesAnchorPane().getChildren().add(
+                    new SpeciesColorSelectionRow()
             );
             ratioColorSelectionPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
             ratioColorSelectionPane.prefWidthProperty().bind(stage.widthProperty());
@@ -174,13 +180,13 @@ public class SettingsWindow {
     }
 
     public void updateRatioColorSelectionPane() {
-        ratioColorSelectionPane.getTwoSigmaSplotch().valueProperty().setValue(
+        ratioColorSelectionPane.getTwoSigmaSplotch().colorProperty().setValue(
                 Color.web(analysis.getTwoSigmaHexColorString()));
-        ratioColorSelectionPane.getOneSigmaSplotch().valueProperty().setValue(Color.web(
+        ratioColorSelectionPane.getOneSigmaSplotch().colorProperty().setValue(Color.web(
                 analysis.getOneSigmaHexColorString()));
-        ratioColorSelectionPane.getStdErrorSplotch().valueProperty().setValue(Color.web(
+        ratioColorSelectionPane.getStdErrorSplotch().colorProperty().setValue(Color.web(
                 analysis.getTwoStandardErrorHexColorString()));
-        ratioColorSelectionPane.getMeanSplotch().valueProperty().setValue(Color.web(
+        ratioColorSelectionPane.getMeanSplotch().colorProperty().setValue(Color.web(
                 analysis.getMeanHexColorString()));
     };
 
