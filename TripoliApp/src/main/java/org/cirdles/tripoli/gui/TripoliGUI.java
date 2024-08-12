@@ -95,6 +95,7 @@ public class TripoliGUI extends Application {
             }));
         }
 
+        org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc2.TestDriver.demo();
         launch();
     }
 

@@ -70,4 +70,5 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.sessions.analysis.outputs.etRedux;
     exports org.cirdles.tripoli.species;
     exports org.cirdles.tripoli.utilities.collections;
+    exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc2;
 }
