@@ -28,8 +28,11 @@ import javafx.scene.paint.Color;
 import javafx.stage.WindowEvent;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController;
+import org.cirdles.tripoli.gui.settings.SettingsWindow;
 import org.cirdles.tripoli.gui.settings.color.IntensityPlotColorSelectionWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
+import org.cirdles.tripoli.gui.settings.color.fxcomponents.SettingsButton;
 import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.DelegateActionInterface;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
@@ -304,28 +307,28 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
                     rebuildPlot(false, false);
                 });
 
-        Label colorButtonSpace = new Label();
-        Button colorButton = new Button("Customize Colors");
-        colorButtonSpace.setLabelFor(colorButton);
-        colorButtonSpace.setPrefWidth(30);
-        colorButton.setOnAction(click -> {
-            int indexOfFirstCheckedSpecies = 0;
-            for (int i = 0; i < speciesChecked.length; i++) {
-                if (speciesChecked[i]) {
-                    indexOfFirstCheckedSpecies = i;
-                    break;
-                }
-            }
-            IntensityPlotColorSelectionWindow window =
-                    IntensityPlotColorSelectionWindow.colorSelectionWindowRequest(analysisMapOfSpeciesToColors,
-                            species,
-                            sessionDefaultMapOfSpeciesToColors,
-                            indexOfFirstCheckedSpecies,
-                            getScene().getWindow(), delegateActionSet);
-            window.show();
-        });
-        toolBar.getItems().add(colorButtonSpace);
-        toolBar.getItems().add(colorButton);
+//        Label colorButtonSpace = new Label();
+//        Button colorButton = new Button("Customize Colors");
+//        colorButtonSpace.setLabelFor(colorButton);
+//        colorButtonSpace.setPrefWidth(30);
+//        colorButton.setOnAction(click -> {
+//            int indexOfFirstCheckedSpecies = 0;
+//            for (int i = 0; i < speciesChecked.length; i++) {
+//                if (speciesChecked[i]) {
+//                    indexOfFirstCheckedSpecies = i;
+//                    break;
+//                }
+//            }
+//            IntensityPlotColorSelectionWindow window =
+//                    IntensityPlotColorSelectionWindow.colorSelectionWindowRequest(analysisMapOfSpeciesToColors,
+//                            species,
+//                            sessionDefaultMapOfSpeciesToColors,
+//                            indexOfFirstCheckedSpecies,
+//                            getScene().getWindow(), delegateActionSet);
+//            window.show();
+//        });
+//        toolBar.getItems().add(colorButtonSpace);
+//        toolBar.getItems().add(colorButton);
         getChildren().add(0, toolBar);
     }
 
@@ -344,6 +347,16 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         scaleControlsToolbar = new ToolBar();
         scaleControlsToolbar.setPrefHeight(toolBarHeight);
         scaleControlsToolbar.setLayoutY(toolBarHeight);
+
+        SettingsButton settingsButton = new SettingsButton();
+        settingsButton.setOnAction(settingsClickAction -> {
+            SettingsWindow settingsWindow =
+                    SettingsWindow.requestSettingsWindow(getScene().getWindow(),
+                            PlotWallPane.getRepaintDelegateActionSet(),
+                            OGTripoliViewController.analysis);
+            settingsWindow.show();
+        });
+        scaleControlsToolbar.getItems().add(settingsButton);
 
         Button restoreButton = new Button("Restore Plot");
 

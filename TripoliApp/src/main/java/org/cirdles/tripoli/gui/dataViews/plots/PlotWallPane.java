@@ -71,7 +71,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private int toolBarCount;
     private boolean logScale;
     private boolean blockMode;
-    private final DelegateActionSet repaintDelegateActionSet = new DelegateActionSet();
+    private static final DelegateActionSet repaintDelegateActionSet = new DelegateActionSet();
     ChangeListener<Boolean> cycleCBChangeListener = (observable, oldValue, newValue) -> {
         blockMode = !newValue;
         rebuildPlot(false, true);
@@ -629,4 +629,9 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         }
         cycleCB.selectedProperty().addListener(cycleCBChangeListener);
     }
+
+    public static DelegateActionSet getRepaintDelegateActionSet() {
+        return repaintDelegateActionSet;
+    }
+
 }
