@@ -7,7 +7,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.RatioColorSelectionPane;
-import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesColorSelectionRow;
+import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesColorSelectionScrollPane;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesIntensityColorSelectionPane;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
@@ -21,12 +21,12 @@ import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import java.io.IOException;
 
 public class SettingsWindow {
+
     private RatioColorSelectionPane ratioColorSelectionPane;
     private SettingsWindowController settingsWindowController;
     private Stage stage;
     private AnalysisInterface analysis;
-    private DelegateActionSet repaintDelegateActionSet;
-
+    private DelegateActionSet repaintRatiosDelegateActionSet;
     private String originalTwoSigmaHexColor;
     private String originalOneSigmaHexColor;
     private String originalStdErrHexColor;
@@ -44,7 +44,7 @@ public class SettingsWindow {
             this.originalStdErrHexColor = analysis.getTwoStandardErrorHexColorString();
             this.originalMeanHexColor = analysis.getMeanHexColorString();
             stage.setScene(new Scene(fxmlLoader.load()));
-            repaintDelegateActionSet = delegateActionSet;
+            repaintRatiosDelegateActionSet = delegateActionSet;
             settingsWindowController = fxmlLoader.getController();
             settingsWindowController.getRatioColorSelectionAnchorPane().prefWidthProperty().bind(stage.widthProperty());
             settingsWindowController.getPlotIntensitiesAnchorPane().prefWidthProperty().bind(stage.widthProperty());
@@ -64,14 +64,17 @@ public class SettingsWindow {
                     ratioColorSelectionPane
             );
             settingsWindowController.getPlotIntensitiesAnchorPane().getChildren().clear();
+//            settingsWindowController.getPlotIntensitiesAnchorPane().getChildren().add(
+//                    SpeciesIntensityColorSelectionPane.buildSpeciesIntensityColorSelectionPane(
+//                            "Pretend Species", new SpeciesColors(
+//                                    "#FF0000",
+//                                    "#00FF00",
+//                                    "#0000FF",
+//                                    "#FF00FF"
+//                            ))
+//            );
             settingsWindowController.getPlotIntensitiesAnchorPane().getChildren().add(
-                    SpeciesIntensityColorSelectionPane.buildSpeciesIntensityColorSelectionPane(
-                            "Pretend Species", new SpeciesColors(
-                                    "#FF0000",
-                                    "#00FF00",
-                                    "#0000FF",
-                                    "#FF00FF"
-                            ))
+                    SpeciesColorSelectionScrollPane.buildSpeciesColorSelectionScrollPane()
             );
             ratioColorSelectionPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
             ratioColorSelectionPane.prefWidthProperty().bind(stage.widthProperty());
@@ -159,7 +162,7 @@ public class SettingsWindow {
             analysis.setTwoStandardErrorHexColorString(currentSession.getTwoStdErrHexColorString());
             analysis.setMeanHexColorString(currentSession.getMeanHexColorString());
             analysis.setOneSigmaHexColorString(currentSession.getOneSigmaHexColorString());
-            repaintDelegateActionSet.executeDelegateActions();
+            repaintRatiosDelegateActionSet.executeDelegateActions();
             updateRatioColorSelectionPane();
 //            close();
         });
@@ -170,7 +173,7 @@ public class SettingsWindow {
                 analysis.setOneSigmaHexColorString(tripoliPersistentState.getOneSigmaHexColorString());
                 analysis.setTwoStandardErrorHexColorString(tripoliPersistentState.getTwoStdErrHexColorString());
                 analysis.setMeanHexColorString(tripoliPersistentState.getMeanHexColorString());
-                repaintDelegateActionSet.executeDelegateActions();
+                repaintRatiosDelegateActionSet.executeDelegateActions();
                 updateRatioColorSelectionPane();
 //                close();
             } catch (TripoliException ex) {
@@ -182,7 +185,7 @@ public class SettingsWindow {
             analysis.setOneSigmaHexColorString(originalOneSigmaHexColor);
             analysis.setTwoStandardErrorHexColorString(originalStdErrHexColor);
             analysis.setMeanHexColorString(originalMeanHexColor);
-            repaintDelegateActionSet.executeDelegateActions();
+            repaintRatiosDelegateActionSet.executeDelegateActions();
             close();
         });
     }
