@@ -27,7 +27,8 @@ public class ColorPickerSplotch extends StackPane {
     @FXML
     private Label label;
 
-    private final ObjectProperty<Color> valueProperty;
+    private final ObjectProperty<Color> colorValue;
+    private final ObjectProperty<String> textValue;
     private String hexColor;
     private Setter<String> hexColorSetter;
 
@@ -51,7 +52,7 @@ public class ColorPickerSplotch extends StackPane {
         }
 
         this.hexColor = ConstantsTripoliApp.convertColorToHex(colorPicker.getValue());
-        // Bind the label's background color to the color picker's value
+        // Bind the label's background color to the color picker's color
         label.backgroundProperty().bind(colorPicker.backgroundProperty());
         label.prefWidthProperty().bind(widthProperty());
         label.prefHeightProperty().bind(heightProperty());
@@ -71,8 +72,10 @@ public class ColorPickerSplotch extends StackPane {
             this.hexColorSetter.set(hexColor);
             repaintDelegateActionSet.executeDelegateActions();
         });
-        this.valueProperty = new SimpleObjectProperty<>(colorPicker.getValue());
-        colorPicker.valueProperty().bindBidirectional(valueProperty);
+        this.colorValue = new SimpleObjectProperty<>(colorPicker.getValue());
+        colorPicker.valueProperty().bindBidirectional(colorValue);
+        this.textValue = new SimpleObjectProperty<>(label.textProperty().get());
+        this.label.textProperty().bind(textValue);
     }
 
     public void setHexColorSetter(Setter<String> hexColorSetter) {
@@ -91,8 +94,13 @@ public class ColorPickerSplotch extends StackPane {
         return label;
     }
 
-    public ObjectProperty<Color> valueProperty() {
-        return valueProperty;
+    public ObjectProperty<Color> colorProperty() {
+        return colorValue;
+    }
+
+    public Color getColor() { return colorValue.get(); }
+    public void setColor(Color color) {
+        this.colorValue.set(color);
     }
 
     public String getHexColor() {

@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
 import com.google.common.primitives.Booleans;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -35,6 +36,7 @@ import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotI;
 import org.cirdles.tripoli.gui.settings.SettingsWindow;
+import org.cirdles.tripoli.gui.settings.color.fxcomponents.SettingsButton;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
@@ -43,6 +45,7 @@ import org.cirdles.tripoli.utilities.DelegateActionInterface;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -50,7 +53,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.*;
-import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_GEAR_ICON;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.BlockEnsemblesPlotter.blockEnsemblePlotEngine;
 
 /**
@@ -69,7 +71,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private int toolBarCount;
     private boolean logScale;
     private boolean blockMode;
-    private final DelegateActionSet repaintDelegateActionSet = new DelegateActionSet();
+    private static final DelegateActionSet repaintDelegateActionSet = new DelegateActionSet();
     ChangeListener<Boolean> cycleCBChangeListener = (observable, oldValue, newValue) -> {
         blockMode = !newValue;
         rebuildPlot(false, true);
@@ -370,12 +372,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         scaleControlsToolbar.setLayoutY(0.0);
 
         // BEGIN settings button
-        Image settingsGear = new Image(TRIPOLI_GEAR_ICON);
-        ImageView settingsGearView = new ImageView(settingsGear);
-        settingsGearView.setPreserveRatio(true);
-        Button settingsGearButton = new Button("", settingsGearView);
-        settingsGearButton.setFont(commandFont);
-        settingsGearView.setFitWidth(12);
+        SettingsButton settingsGearButton = new SettingsButton();
         settingsGearButton.setOnAction(settingsClickAction -> {
             SettingsWindow settingsWindow =
                     SettingsWindow.requestSettingsWindow(getScene().getWindow(),
@@ -384,7 +381,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
             settingsWindow.show();
         });
         scaleControlsToolbar.getItems().add(settingsGearButton);
-        // END settings button
+        // END OF settings button
 
         Button infoButton = new Button("?");
         infoButton.setFont(commandFont);
@@ -632,4 +629,9 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         }
         cycleCB.selectedProperty().addListener(cycleCBChangeListener);
     }
+
+    public static DelegateActionSet getRepaintDelegateActionSet() {
+        return repaintDelegateActionSet;
+    }
+
 }

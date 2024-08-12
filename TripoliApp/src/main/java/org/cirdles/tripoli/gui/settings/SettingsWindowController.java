@@ -1,12 +1,14 @@
 package org.cirdles.tripoli.gui.settings;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesColorSelectionRow;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -14,6 +16,8 @@ import java.util.ResourceBundle;
 public class SettingsWindowController implements Initializable {
 
 
+    @FXML
+    private AnchorPane plotIntensitiesAnchorPane;
     @FXML
     private Button saveAnalysisSettingsButton;
     @FXML
@@ -32,6 +36,7 @@ public class SettingsWindowController implements Initializable {
     private TabPane plotRatiosTabPane;
     @FXML
     private AnchorPane ratioColorSelectionAnchorPane;
+
     @FXML
     private ToolBar saveDefaultsToolbar;
 //    @FXML
@@ -60,6 +65,8 @@ public class SettingsWindowController implements Initializable {
     public AnchorPane getRatioColorSelectionAnchorPane() {
         return ratioColorSelectionAnchorPane;
     }
+
+    public AnchorPane getPlotIntensitiesAnchorPane() { return plotIntensitiesAnchorPane;}
 
     public ToolBar getSaveDefaultsToolbar() {
         return saveDefaultsToolbar;

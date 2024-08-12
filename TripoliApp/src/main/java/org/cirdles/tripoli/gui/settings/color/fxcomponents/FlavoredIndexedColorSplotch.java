@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.gui.settings.color;
+package org.cirdles.tripoli.gui.settings.color.fxcomponents;
 
 import javafx.geometry.Insets;
 import javafx.scene.layout.Background;

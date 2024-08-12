@@ -3,6 +3,7 @@ package org.cirdles.tripoli.gui.settings.color.fxcomponents;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -73,29 +74,29 @@ public class RatioColorSelectionPane extends ScrollPane implements Initializable
         twoSigmaSplotch.setPrefHeight(twoSigmaStackPane.getPrefHeight());
         twoSigmaHBox.getChildren().remove(twoSigmaStackPane);
         twoSigmaStackPane = twoSigmaSplotch;
-        twoSigmaHBox.getChildren().add(twoSigmaSplotch);
+        twoSigmaHBox.getChildren().add(twoSigmaHBox.getChildren().size() - 1, twoSigmaSplotch);
         oneSigmaSplotch = new ColorPickerSplotch();
         oneSigmaSplotch.getColorPicker().setValue(OGTRIPOLI_ONESIGMA);
         oneSigmaSplotch.setPrefWidth(oneSigmaStackPane.getPrefWidth());
         oneSigmaSplotch.setPrefHeight(oneSigmaStackPane.getPrefHeight());
         oneSigmaHBox.getChildren().remove(oneSigmaStackPane);
-        oneSigmaHBox.getChildren().add(oneSigmaSplotch);
+        oneSigmaHBox.getChildren().add(oneSigmaHBox.getChildren().size() - 1,oneSigmaSplotch);
         stdErrorSplotch = new ColorPickerSplotch();
         stdErrorSplotch.getColorPicker().setValue(OGTRIPOLI_TWOSTDERR);
         stdErrorSplotch.setPrefWidth(stdErrorStackPane.getPrefWidth());
         stdErrorSplotch.setPrefHeight(stdErrorStackPane.getPrefHeight());
         stdErrorHBox.getChildren().remove(stdErrorStackPane);
-        stdErrorHBox.getChildren().add(stdErrorSplotch);
+        stdErrorHBox.getChildren().add(stdErrorHBox.getChildren().size() - 1, stdErrorSplotch);
         meanSplotch = new ColorPickerSplotch();
         meanSplotch.getColorPicker().setValue(OGTRIPOLI_MEAN);
         meanSplotch.setPrefWidth(meanStackPane.getPrefWidth());
         meanSplotch.setPrefHeight(meanStackPane.getPrefHeight());
         meanHBox.getChildren().remove(meanStackPane);
-        meanHBox.getChildren().add(meanSplotch);
-        HBox.setHgrow(twoSigmaSplotch, Priority.ALWAYS);
-        HBox.setHgrow(oneSigmaSplotch, Priority.ALWAYS);
-        HBox.setHgrow(stdErrorSplotch, Priority.ALWAYS);
-        HBox.setHgrow(meanSplotch, Priority.ALWAYS);
+        meanHBox.getChildren().add(meanHBox.getChildren().size() - 1, meanSplotch);
+//        HBox.setHgrow(twoSigmaSplotch, Priority.ALWAYS);
+//        HBox.setHgrow(oneSigmaSplotch, Priority.ALWAYS);
+//        HBox.setHgrow(stdErrorSplotch, Priority.ALWAYS);
+//        HBox.setHgrow(meanSplotch, Priority.ALWAYS);
     }
 
     public ColorPickerSplotch getTwoSigmaSplotch() {
