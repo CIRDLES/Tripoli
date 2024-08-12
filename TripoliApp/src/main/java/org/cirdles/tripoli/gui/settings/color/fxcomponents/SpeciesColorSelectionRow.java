@@ -4,23 +4,19 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-
 import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
 
-public class SpeciesColorSelectionRow extends HBox implements Initializable {
+public class SpeciesColorSelectionRow extends HBox {
 
     @FXML
     private ColorPickerSplotch colorPickerSplotch;
     @FXML
     private Label rowLabel;
-    private ObjectProperty<Color> colorProperty;
-    private ObjectProperty<String> textProperty;
+    private final ObjectProperty<Color> colorProperty;
+    private final ObjectProperty<String> textProperty;
 
     public SpeciesColorSelectionRow() {
         super();
@@ -38,11 +34,6 @@ public class SpeciesColorSelectionRow extends HBox implements Initializable {
         colorProperty.bindBidirectional(colorPickerSplotch.colorProperty());
     }
 
-
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-
-    }
 
     public ColorPickerSplotch getColorPickerSplotch() {
         return colorPickerSplotch;

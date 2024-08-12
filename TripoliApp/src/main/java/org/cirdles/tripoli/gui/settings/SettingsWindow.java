@@ -8,9 +8,11 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.RatioColorSelectionPane;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesColorSelectionRow;
+import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesIntensityColorSelectionPane;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
@@ -63,7 +65,13 @@ public class SettingsWindow {
             );
             settingsWindowController.getPlotIntensitiesAnchorPane().getChildren().clear();
             settingsWindowController.getPlotIntensitiesAnchorPane().getChildren().add(
-                    new SpeciesColorSelectionRow()
+                    SpeciesIntensityColorSelectionPane.buildSpeciesIntensityColorSelectionPane(
+                            "Pretend Species", new SpeciesColors(
+                                    "#FF0000",
+                                    "#00FF00",
+                                    "#0000FF",
+                                    "#FF00FF"
+                            ))
             );
             ratioColorSelectionPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
             ratioColorSelectionPane.prefWidthProperty().bind(stage.widthProperty());
