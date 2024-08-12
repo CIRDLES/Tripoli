@@ -74,8 +74,10 @@ public class SettingsWindow {
 //                            ))
 //            );
             settingsWindowController.getPlotIntensitiesAnchorPane().getChildren().add(
-                    SpeciesColorSelectionScrollPane.buildSpeciesColorSelectionScrollPane()
-            );
+                    SpeciesColorSelectionScrollPane.buildSpeciesColorSelectionScrollPane(
+                            AnalysisInterface.convertToAnalysis(analysis),
+                            repaintRatiosDelegateActionSet// <-- now we need to get this to connect to all of them
+            ));
             ratioColorSelectionPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
             ratioColorSelectionPane.prefWidthProperty().bind(stage.widthProperty());
             initializeToolbarButtons();

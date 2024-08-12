@@ -37,6 +37,16 @@ public interface AnalysisInterface {
         return new Analysis("New Analysis" + "_" + (suffix), null, MISSING_STRING_FIELD);
     }
 
+    static Analysis convertToAnalysis(AnalysisInterface analysis) {
+        Analysis result;
+        if (analysis instanceof Analysis) {
+            result = (Analysis) analysis;
+        } else {
+            result = new Analysis(analysis.getAnalysisName(), analysis.getAnalysisMethod(), analysis.getAnalysisSampleName());
+        }
+        return result;
+    }
+
     static MassSpectrometerContextEnum determineMassSpectrometerContextFromDataFile(Path dataFilePath) throws IOException {
         MassSpectrometerContextEnum retVal = MassSpectrometerContextEnum.UNKNOWN;
         if (dataFilePath.toString().endsWith(".xls")) {

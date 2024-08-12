@@ -2,14 +2,14 @@ package org.cirdles.tripoli.gui.settings.color.fxcomponents;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
+import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
+import org.cirdles.tripoli.utilities.DelegateActionSet;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 public class SpeciesColorSelectionScrollPane extends ScrollPane {
 
@@ -18,9 +18,11 @@ public class SpeciesColorSelectionScrollPane extends ScrollPane {
     @FXML
     private Label title;
 
-    SpeciesIntensityColorSelectionPane[] speciesIntensityColorSelectionPanes;
+    Analysis analysis;
+    DelegateActionSet delegateActionSet;
 
-    private SpeciesColorSelectionScrollPane() {
+    private SpeciesColorSelectionScrollPane(Analysis analysis,
+                                           DelegateActionSet delegateActionSet) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("SpeciesColorSelectionScrollPane.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -29,10 +31,20 @@ public class SpeciesColorSelectionScrollPane extends ScrollPane {
         } catch (IOException exception) {
             exception.printStackTrace();
         }
+        this.analysis = analysis;
+        this.delegateActionSet = delegateActionSet;
+        for (SpeciesRecordInterface speciesRecordInterface: analysis.getAnalysisMethod().getSpeciesList()) {
+            paneVBox.getChildren().add(
+              new SpeciesIntensityColorSelectionPane(
+                      speciesRecordInterface,
+                      analysis.getAnalysisMapOfSpeciesToColors(),
+                      delegateActionSet
+              )
+            );
+        }
     }
 
-    public static SpeciesColorSelectionScrollPane buildSpeciesColorSelectionScrollPane() {
-        SpeciesColorSelectionScrollPane speciesColorSelectionScrollPane = new SpeciesColorSelectionScrollPane();
-        return speciesColorSelectionScrollPane;
+    public static SpeciesColorSelectionScrollPane buildSpeciesColorSelectionScrollPane(Analysis analysis, DelegateActionSet delegateActionSet) {
+        return new SpeciesColorSelectionScrollPane(analysis, delegateActionSet);
     }
 }
