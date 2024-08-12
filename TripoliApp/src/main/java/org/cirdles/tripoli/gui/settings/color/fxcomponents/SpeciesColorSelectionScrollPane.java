@@ -10,6 +10,7 @@ import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class SpeciesColorSelectionScrollPane extends ScrollPane {
 
@@ -20,6 +21,7 @@ public class SpeciesColorSelectionScrollPane extends ScrollPane {
 
     Analysis analysis;
     DelegateActionSet delegateActionSet;
+    ArrayList<SpeciesIntensityColorSelectionPane> speciesIntensityColorSelectionPanes;
 
     private SpeciesColorSelectionScrollPane(Analysis analysis,
                                            DelegateActionSet delegateActionSet) {
@@ -33,18 +35,29 @@ public class SpeciesColorSelectionScrollPane extends ScrollPane {
         }
         this.analysis = analysis;
         this.delegateActionSet = delegateActionSet;
+        speciesIntensityColorSelectionPanes = new ArrayList<>();
         for (SpeciesRecordInterface speciesRecordInterface: analysis.getAnalysisMethod().getSpeciesList()) {
-            paneVBox.getChildren().add(
-              new SpeciesIntensityColorSelectionPane(
-                      speciesRecordInterface,
-                      analysis.getAnalysisMapOfSpeciesToColors(),
-                      delegateActionSet
-              )
-            );
+            SpeciesIntensityColorSelectionPane pane = new SpeciesIntensityColorSelectionPane(speciesRecordInterface,
+                    analysis.getAnalysisMapOfSpeciesToColors(),
+                    delegateActionSet);
+            paneVBox.getChildren().add(pane);
+            speciesIntensityColorSelectionPanes.add(pane);
         }
     }
 
     public static SpeciesColorSelectionScrollPane buildSpeciesColorSelectionScrollPane(Analysis analysis, DelegateActionSet delegateActionSet) {
         return new SpeciesColorSelectionScrollPane(analysis, delegateActionSet);
+    }
+
+    public VBox getPaneVBox() {
+        return paneVBox;
+    }
+
+    public Label getTitle() {
+        return title;
+    }
+
+    public ArrayList<SpeciesIntensityColorSelectionPane> getSpeciesIntensityColorSelectionPanes() {
+        return speciesIntensityColorSelectionPanes;
     }
 }

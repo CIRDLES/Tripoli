@@ -129,4 +129,11 @@ public class SpeciesIntensityColorSelectionPane extends Pane {
     private void setDelegateActionSet(DelegateActionSet delegateActionSet) {
         this.delegateActionSet = delegateActionSet;
     }
+
+    public void updateColorProperties() {
+        faradayDataRow.colorObjectProperty().setValue(Color.web(colorMap.get(speciesRecordInterface).faradayHexColor()));
+        photomultiplierDataRow.colorObjectProperty().setValue(Color.web(colorMap.get(speciesRecordInterface).pmHexColor()));
+        faradayModelRow.colorObjectProperty().setValue(Color.web(colorMap.get(speciesRecordInterface).faradayModelHexColor()));
+        photomultiplierModelRow.colorObjectProperty().setValue(Color.web(colorMap.get(speciesRecordInterface).pmModelHexColor()));
+    }
 }
