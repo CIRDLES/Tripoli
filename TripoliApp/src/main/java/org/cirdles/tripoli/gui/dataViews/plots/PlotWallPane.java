@@ -53,7 +53,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.*;
-import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_GEAR_ICON;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.BlockEnsemblesPlotter.blockEnsemblePlotEngine;
 
 /**

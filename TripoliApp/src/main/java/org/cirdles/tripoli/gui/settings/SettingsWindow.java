@@ -6,13 +6,12 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneIntensities;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.RatioColorSelectionPane;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesColorSelectionScrollPane;
-import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesIntensityColorSelectionPane;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
@@ -22,6 +21,7 @@ import java.io.IOException;
 
 public class SettingsWindow {
 
+    private static final DelegateActionSet repaintIntensitiesDelegateActionSet = new DelegateActionSet();
     private RatioColorSelectionPane ratioColorSelectionPane;
     private SettingsWindowController settingsWindowController;
     private Stage stage;
@@ -76,7 +76,7 @@ public class SettingsWindow {
             settingsWindowController.getPlotIntensitiesAnchorPane().getChildren().add(
                     SpeciesColorSelectionScrollPane.buildSpeciesColorSelectionScrollPane(
                             AnalysisInterface.convertToAnalysis(analysis),
-                            repaintRatiosDelegateActionSet// <-- now we need to get this to connect to all of them
+                            PlotWallPaneIntensities.getDelegateActionSet()// <-- now we need to get this to connect to all of them
             ));
             ratioColorSelectionPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
             ratioColorSelectionPane.prefWidthProperty().bind(stage.widthProperty());

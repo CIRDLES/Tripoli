@@ -481,4 +481,8 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     public void setToolBarCount(int toolBarCount) {
         this.toolBarCount = toolBarCount;
     }
+
+    public static DelegateActionSet getDelegateActionSet() {
+        return delegateActionSet;
+    }
 }
