@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.text.Font?>
+<?import org.cirdles.tripoli.gui.settings.color.fxcomponents.ColorPickerSplotch?>
+
+
+<fx:root maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="37.0"
+         prefWidth="536.0" type="HBox" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+   <Label fx:id="rowLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="37.0" prefWidth="230.0"
+          text="Dummy Color Text" textAlignment="CENTER">
+      <font>
+         <Font name="System Bold" size="14.0"/>
+      </font>
+   </Label>
+   <Region prefHeight="37.0" prefWidth="81.0"/>
+   <ColorPickerSplotch fx:id="colorPickerSplotch" prefWidth="144" prefHeight="37">
+   </ColorPickerSplotch>
+   <Region layoutX="240.0" layoutY="10.0" prefHeight="37.0" prefWidth="81.0"/>
+</fx:root>
