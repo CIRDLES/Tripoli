@@ -1,9 +1,10 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc2;
 
 import com.google.common.primitives.Doubles;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.PowellOptimizer;
+import jama.Matrix;
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -14,6 +15,7 @@ import java.util.List;
 
 import static java.lang.Math.max;
 import static org.apache.commons.math3.stat.StatUtils.mean;
+import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc2.MathUtilities.*;
 
 public class TestDriver {
 
@@ -24,6 +26,9 @@ public class TestDriver {
         double[] dataDet = extractDoubleData("data-det.txt");
         double[] dataIso = extractDoubleData("data-iso.txt");
         boolean[] dataIsOP = extractBooleanData("data-isOP.txt");
+
+        MCMC2DataRecord mcmc2DataRecord = new MCMC2DataRecord(
+                null, null, null, null, dataInt, dataIsOP, dataDet, dataIso, null, null);
 
         boolean[] isIsotopeA = filterDataByValue(dataIso, 1);
         boolean[] isIsotopeB = filterDataByValue(dataIso, 2);
@@ -38,21 +43,40 @@ public class TestDriver {
         double rough_ref2 = mean(filterDataByFlags(dataInt, inBL_det2));
 
         /*
-         * m0 = [rough.lograb; rough.logCb; rough.ref1; rough.ref2];
-         * [modelCurrent, negLogLik] = fminunc(@(m) -loglikLeastSquares(m, data, setup), m0);
-         *
-         *
+            mRough = [rough.lograb; rough.logCb; rough.ref1; rough.ref2];
+            functionToMinimize = @(m) -loglikLeastSquares(m, data, setup);
+            opts = optimoptions('fminunc', 'Display', 'off');
+            modelInitial = fminunc(@(m) functionToMinimize(m), mRough, opts);
+            %llInitial = -negLogLik;
+            dvarCurrent = updateDataVariance(modelInitial, setup);
+            %dhatCurrent = evaluateModel(modelInitial, setup);
          */
 
         MCMC2ModelRecord mRough = new MCMC2ModelRecord(rough_lograb, rough_logCb, rough_ref1,rough_ref2);
         MCMC2SetupRecord setup = new MCMC2SetupRecord(
-                (int)1e2, (int)1e2, "F", 1e11, 1, new double[(int)1e2], new double[(int)1e2]).initializeIntegrationTimes(1,1);
+                (int)1e2, (int)1e2,
+                new Detector(Detector.DetectorTypeEnum.FARADAY, "F1", 0, Detector.AmplifierTypeEnum.RESISTANCE, 1e11, 1, 0, 0),
+                new double[(int)1e2], new double[(int)1e2]).initializeIntegrationTimes(1,1);
 
         // https://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/org/apache/commons/math3/optimization/direct/PowellOptimizer.html
         // https://github.com/imagej/imagej-legacy/blob/master/src/main/resources/script_templates/ImageJ_1.x/Examples/Optimization_Example.java
-        
-        PowellOptimizer powellOptimizer = new PowellOptimizer(0,0);
+//        PowellOptimizer powellOptimizer = new PowellOptimizer(0,0);
+// TODO: implement fminunc
+        // for now:
+        MCMC2ModelRecord maxlikModel = new MCMC2ModelRecord(rough_lograb, rough_logCb, rough_ref1,rough_ref2);
+        double[] maxlikDVar = updateDataVariance(maxlikModel, setup);
+        double[][] matrixG = makeG(maxlikModel, mcmc2DataRecord);
 
+        /*maxlik.CM = inv(G'*diag(1./maxlik.dvar)*G);*/
+        double[] maxlikDVarInverted = rightScalarVectorDivision(1, maxlikDVar);
+        double[][] maxlikDVarInvertedDiagonal = new double[maxlikDVarInverted.length][maxlikDVarInverted.length];
+        for (int i = 0; i < maxlikDVarInverted.length; i ++){
+            maxlikDVarInvertedDiagonal[i][i] = 1.0 / maxlikDVarInverted[i];
+        }
+        Matrix maxlikDVarInvertedDiagonalM = new Matrix(maxlikDVarInvertedDiagonal);
+        Matrix matrixGM = new Matrix(matrixG);
+        Matrix maxlikCMM = matrixGM.transpose().times(maxlikDVarInvertedDiagonalM).times(matrixGM).inverse();
+        double[][] maxLikeCM = maxlikCMM.getArray();
 
         System.out.println("END OF DEMO");
     }
@@ -99,7 +123,7 @@ public class TestDriver {
         return contentsByLine;
     }
 
-    private static boolean[] filterDataByValue(double[] source, double value) {
+    static boolean[] filterDataByValue(double[] source, double value) {
         boolean[] extracted = new boolean[source.length];
         for (int i = 0; i < source.length; i++) {
             extracted[i] = (source[i] == value);
@@ -117,22 +141,7 @@ public class TestDriver {
         return Doubles.toArray(retrievedValuesList);
     }
 
-    private static double[] leftDivideVectors(double[] vectorA, double[] vectorB) {
-        // precondition a and b same length
-        double[] divided = new double[vectorA.length];
-        for (int i = 0; i < vectorA.length; i++) {
-            divided[i] = vectorA[i] / ((vectorB[i] != 0) ? vectorB[i] : 1.0);
-        }
-        return divided;
-    }
 
-    private static double[] logVector(double[] source) {
-        double[] logVector = new double[source.length];
-        for (int i = 0; i < source.length; i++) {
-            logVector[i] = StrictMath.log(source[i]);
-        }
-        return logVector;
-    }
 
     private static boolean[] invertSelector(boolean[] selector){
         boolean[] invertedSelector = new boolean[selector.length];
