@@ -75,6 +75,14 @@ dependencies {
     // https://mvnrepository.com/artifact/com.thoughtworks.xstream/xstream
     implementation("com.thoughtworks.xstream:xstream:1.4.20")
 
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-rng-core
+    implementation("org.apache.commons:commons-rng-core:1.0")
+
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-rng-simple
+    implementation("org.apache.commons:commons-rng-simple:1.6")
+
+
+
 
     testImplementation("com.github.cirdles:commons:bc38781605")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
@@ -99,6 +107,8 @@ extraJavaModuleInfo {
     // https://github.com/gradle/gradle/issues/12630
     automaticModule("org.apache.commons:commons-math3", "commons.math3")
     automaticModule("org.apache.commons:commons-lang3", "commons.lang3")
+    automaticModule("org.apache.commons:commons-rng-core", "commons.rng.core")
+    automaticModule("org.apache.commons:commons-rng-simple", "commons.rng.simple")
     automaticModule("com.zaxxer:SparseBitSet", "SparseBitSet")
     automaticModule("jama-master-SNAPSHOT.jar", "jama")
     automaticModule("org.ojalgo:ojalgo", "ojalgo")

@@ -12,5 +12,5 @@ public record MCMC2DataRecord(
         double[] blTimes,
         double[] opTimes
 
-        ) {
+) {
 }

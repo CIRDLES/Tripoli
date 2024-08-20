@@ -28,6 +28,8 @@ module Tripoli.TripoliCore {
     requires jblas;
     requires xstream;
     requires java.logging;
+    requires org.apache.commons.rng.api;
+    requires org.apache.commons.rng.simple;
 
 
     exports org.cirdles.tripoli;
