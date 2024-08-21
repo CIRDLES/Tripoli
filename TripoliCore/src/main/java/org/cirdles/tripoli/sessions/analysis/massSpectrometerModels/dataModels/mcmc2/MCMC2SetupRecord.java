@@ -15,7 +15,10 @@ public record MCMC2SetupRecord(
         int seive,
         int modelParameterCount,
         int chainsCount,
-        int pertubation
+        int pertubation,
+        int simulationsCount,
+        int burnIn,
+        int postBurnInCount
 ) {
     public MCMC2SetupRecord initializeIntegrationTimes(double blTime, double opTime) {
         double[] blIntegrationTimesInit = new double[blIntegrationTimes.length];
@@ -25,11 +28,16 @@ public record MCMC2SetupRecord(
         Arrays.fill(opIntegrationTimesInit, opTime);
 
         return new MCMC2SetupRecord(nBLIntegrations, nOPIntegrations, detector, blIntegrationTimesInit, opIntegrationTimesInit,
-                null, MCMCTrialsCount, seive, modelParameterCount, chainsCount, pertubation);
+                null, MCMCTrialsCount, seive, modelParameterCount, chainsCount, pertubation, simulationsCount, burnIn, postBurnInCount);
     }
 
-    public MCMC2SetupRecord updateRecord(double[][] proposalCovariance) {
+    public MCMC2SetupRecord updateRecordWithCovariance(double[][] proposalCovariance) {
         return new MCMC2SetupRecord(nBLIntegrations, nOPIntegrations, detector, blIntegrationTimes, opIntegrationTimes,
-                proposalCovariance, MCMCTrialsCount, seive, modelParameterCount, chainsCount, pertubation);
+                proposalCovariance, MCMCTrialsCount, seive, modelParameterCount, chainsCount, pertubation, simulationsCount, burnIn, postBurnInCount);
+    }
+
+    public MCMC2SetupRecord updateRecordWithPostBurnIn(int postBurnInCount) {
+        return new MCMC2SetupRecord(nBLIntegrations, nOPIntegrations, detector, blIntegrationTimes, opIntegrationTimes,
+                proposalCovariance, MCMCTrialsCount, seive, modelParameterCount, chainsCount, pertubation, simulationsCount, burnIn, postBurnInCount);
     }
 }
