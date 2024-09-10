@@ -4,8 +4,9 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import java.io.IOException;
 
@@ -32,6 +33,13 @@ public class SpeciesColorSelectionRow extends HBox {
         this.textProperty = new SimpleObjectProperty<>();
         textProperty.bindBidirectional(rowLabel.textProperty());
         colorProperty.bindBidirectional(colorPickerSplotch.colorProperty());
+        rowLabel.prefHeightProperty().bind(prefHeightProperty());
+        colorPickerSplotch.prefHeightProperty().bind(prefHeightProperty());
+        HBox.setHgrow(colorPickerSplotch, Priority.ALWAYS);
+        HBox.setHgrow(rowLabel, Priority.ALWAYS);
+        HBox.setMargin(colorPickerSplotch, new Insets(5, 5, 5, 5));
+        setPrefHeight(40);
+        borderProperty().setValue(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1, 0,0,0))));
     }
 
 
