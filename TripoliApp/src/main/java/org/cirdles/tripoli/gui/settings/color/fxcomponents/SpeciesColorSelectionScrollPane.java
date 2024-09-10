@@ -60,4 +60,8 @@ public class SpeciesColorSelectionScrollPane extends ScrollPane {
     public ArrayList<SpeciesIntensityColorSelectionPane> getSpeciesIntensityColorSelectionPanes() {
         return speciesIntensityColorSelectionPanes;
     }
+
+    public DelegateActionSet getDelegateActionSet() {
+        return delegateActionSet;
+    }
 }

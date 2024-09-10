@@ -200,6 +200,7 @@ public class SettingsWindow {
                     originalSpeciesColors
             );
             repaintRatiosDelegateActionSet.executeDelegateActions();
+            speciesColorSelectionScrollPane.getDelegateActionSet().executeDelegateActions(); // TODO: make these standard
             close();
         });
     }
