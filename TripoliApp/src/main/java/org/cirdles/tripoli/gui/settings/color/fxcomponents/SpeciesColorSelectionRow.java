@@ -39,7 +39,13 @@ public class SpeciesColorSelectionRow extends HBox {
         HBox.setHgrow(rowLabel, Priority.ALWAYS);
         HBox.setMargin(colorPickerSplotch, new Insets(5, 5, 5, 5));
         setPrefHeight(40);
-        borderProperty().setValue(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1, 0,0,0))));
+        borderProperty().setValue(
+                new Border(
+                        new BorderStroke(
+                                Color.BLACK,
+                                BorderStrokeStyle.SOLID,
+                                CornerRadii.EMPTY,
+                                new BorderWidths(1, 0,0,0))));
     }
 
 

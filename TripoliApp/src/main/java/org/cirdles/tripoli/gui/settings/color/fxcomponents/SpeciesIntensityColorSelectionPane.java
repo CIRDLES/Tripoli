@@ -3,7 +3,7 @@ package org.cirdles.tripoli.gui.settings.color.fxcomponents;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
@@ -93,7 +93,7 @@ public class SpeciesIntensityColorSelectionPane extends Pane {
             );
             delegateActionSet.executeDelegateActions();
         });
-
+        setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2, 0, 0, 0))));
     }
 
 

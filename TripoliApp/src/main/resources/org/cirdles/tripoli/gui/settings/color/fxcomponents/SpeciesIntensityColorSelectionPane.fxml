@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.paint.*?>
-<?import javafx.scene.text.*?>
-<?import org.cirdles.tripoli.gui.settings.color.fxcomponents.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
+<?import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesColorSelectionRow?>
 
-<fx:root maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="185.0" prefWidth="536.0" style="-fx-border-color: black; -fx-border-width: 1;" type="Pane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="185.0" prefWidth="536.0" type="Pane" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
    <VBox prefHeight="185.0" prefWidth="536.0">
-      <Label fx:id="title" alignment="CENTER" prefHeight="37.0" prefWidth="536.0" style="-fx-border-width: 1;" text="Species Name Goes Here">
+      <Label fx:id="title" alignment="CENTER" prefHeight="37.0" prefWidth="536.0" text="Species Name Goes Here">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
