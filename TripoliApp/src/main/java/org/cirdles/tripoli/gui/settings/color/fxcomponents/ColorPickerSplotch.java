@@ -54,7 +54,8 @@ public class ColorPickerSplotch extends StackPane {
         this.hexColor = ConstantsTripoliApp.convertColorToHex(colorPicker.getValue());
         // Bind the label's background color to the color picker's color
         label.backgroundProperty().bind(colorPicker.backgroundProperty());
-        label.prefWidthProperty().bind(widthProperty());
+//        label.prefWidthProperty().bind(widthProperty());
+        prefWidthProperty().bindBidirectional(label.prefWidthProperty());
         label.prefHeightProperty().bind(heightProperty());
         colorPicker.prefWidthProperty().bind(widthProperty());
         colorPicker.prefHeightProperty().bind(heightProperty());
@@ -68,6 +69,8 @@ public class ColorPickerSplotch extends StackPane {
                     setValue(
                             new Background(
                                     new BackgroundFill(newValue,CornerRadii.EMPTY, Insets.EMPTY)));
+            // Lets see if we can change the color of the text to be more contrasting here
+            label.setTextFill(newValue.invert());
             this.hexColor = ConstantsTripoliApp.convertColorToHex(newValue);
             this.hexColorSetter.set(hexColor);
             repaintDelegateActionSet.executeDelegateActions();
