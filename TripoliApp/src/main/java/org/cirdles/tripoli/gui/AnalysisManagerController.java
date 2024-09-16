@@ -28,6 +28,8 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMC2PlotsController;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMC2PlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliPlotsWindow;
@@ -69,6 +71,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     public static AnalysisInterface analysis;
     public static MCMCPlotsWindow MCMCPlotsWindow;
+    public static MCMC2PlotsWindow MCMC2PlotsWindow;
     public static OGTripoliPlotsWindow ogTripoliReviewPlotsWindow;
     public static OGTripoliPlotsWindow ogTripoliPreviewPlotsWindow;
     private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
@@ -76,8 +79,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public TabPane analysiMethodTabPane;
     @FXML
     public HBox blockStatusHBox;
-    @FXML
-    public GridPane selectRatiosGridPane;
     @FXML
     public Button mcmcButton;
     @FXML
@@ -103,6 +104,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public ScrollPane functionsScrollPane;
     public Button exportToETReduxButton;
     public Button exportToClipBoardButton;
+    public Button mcmc2Button;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -211,6 +213,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        mcmc2Button.setDisable(false);
         // March 2024 implement drag n drop of files ===================================================================
         analysisManagerGridPane.setOnDragOver(event -> {
             event.acceptTransferModes(TransferMode.MOVE);
@@ -245,6 +248,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         // end implement drag n drop of files ===================================================================
 
         MCMCPlotsController.analysis = analysis;
+        MCMC2PlotsController.analysis = analysis;
         OGTripoliViewController.analysis = analysis;
         analysisManagerGridPane.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_YELLOW));
 
@@ -1003,6 +1007,16 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage, this);
         MCMCPlotsWindow.loadPlotsWindow();
     }
+
+    @FXML
+    final void initializeMCMC2TechniqueAction() {
+        if (null != MCMC2PlotsWindow) {
+            MCMC2PlotsWindow.close();
+        }
+        MCMC2PlotsWindow = new MCMC2PlotsWindow(TripoliGUI.primaryStage, this);
+        MCMC2PlotsWindow.loadPlotsWindow();
+    }
+
 
 
     public void previewAndSculptDataAction() throws TripoliException {

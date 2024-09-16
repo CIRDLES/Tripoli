@@ -2,10 +2,9 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.
 
 import jama.Matrix;
 import org.apache.commons.math3.random.RandomDataGenerator;
-import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.simple.RandomSource;
 
 import java.util.Arrays;
+import java.util.Random;
 
 import static java.lang.Math.max;
 import static java.lang.StrictMath.*;
@@ -17,12 +16,14 @@ import static org.cirdles.tripoli.utilities.mathUtilities.MatLabCholesky.mvnrndT
 public enum DataUtilities {
     ;
 
-    static MCMC2DataRecord syntheticData() {
+    static MCMC2DataRecord syntheticData(int iSim) {
+        ///Users/bowring/Development/Tripoli_ET/TripoliCore/src/main/resources/org/cirdles/tripoli/dataSourceProcessors/dataSources/syntheticData/SyntheticOutToTripoli/10_Sim/
+        //
         // for now use synthetic data produced by matlab code
-        double[] dataInt = extractDoubleData("data-int.txt");
-        double[] dataDet = extractDoubleData("data-det.txt");
-        double[] dataIso = extractDoubleData("data-iso.txt");
-        boolean[] dataIsOP = extractBooleanData("data-isOP.txt");
+        double[] dataInt = extractDoubleData(iSim, "data-int.txt");
+        double[] dataDet = extractDoubleData(iSim, "data-det.txt");
+        double[] dataIso = extractDoubleData(iSim, "data-iso.txt");
+        boolean[] dataIsOP = extractBooleanData(iSim,"data-isOP.txt");
 
         return new MCMC2DataRecord(
                 null, null, null, null, dataInt, dataIsOP, dataDet, dataIso, null, null);
@@ -108,14 +109,17 @@ public enum DataUtilities {
          */
         double[][] initModels = new double[setup.modelParameterCount()][setup.chainsCount()];
         double[] initLogLiks = new double[setup.chainsCount()];
-        UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_128_PP.create();
+//        UniformRandomProvider rng = RandomSource.XO_RO_SHI_RO_128_PP.create();
+
+        Random ran = new Random();
 
         for (int iChain = 0; iChain < setup.chainsCount(); iChain++) {
-            double random = rng.nextDouble(-setup.modelParameterCount(), setup.modelParameterCount());
             for (int iParameter = 0; iParameter < setup.modelParameterCount(); iParameter++) {
+//                double random = rng.nextDouble(-setup.modelParameterCount(), setup.modelParameterCount());
+                double nextGaussian = ran.nextGaussian();
                 initModels[iParameter][iChain]
                         = maxLik.model().parameters()[iParameter]
-                        + setup.pertubation() * random
+                        + setup.pertubation() * nextGaussian
                         * sqrt(maxLik.covarianceMatrix()[iParameter][iParameter]);
             }
             MCMC2ModelRecord mcmc2ModelRecord = new MCMC2ModelRecord(makeVectorFromColumn(iChain, initModels));
@@ -351,7 +355,7 @@ end % updateDataCovariance
 
      */
 
-    static MetropolisHastingsRecord MetropolisHastings(int iChain, double[] modelInitial, double llInitial, MCMC2DataRecord data, MCMC2SetupRecord setup) {
+    static MetropolisHastingsRecord metropolisHastings(int iChain, double[] modelInitial, double llInitial, MCMC2DataRecord data, MCMC2SetupRecord setup) {
         double[] modelCurrent = modelInitial.clone();
         double llCurrent = llInitial;
 

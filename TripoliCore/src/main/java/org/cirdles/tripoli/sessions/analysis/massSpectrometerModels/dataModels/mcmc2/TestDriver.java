@@ -5,6 +5,8 @@ import jama.Matrix;
 import org.apache.commons.math3.stat.correlation.Covariance;
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
+import org.cirdles.tripoli.plots.PlotBuilder;
+import org.cirdles.tripoli.plots.histograms.HistogramBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 
 import java.nio.charset.Charset;
@@ -21,7 +23,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public enum TestDriver {
     ;
 
-    public static void simulationsOfMCMC2() {
+    public static PlotBuilder[] simulationsOfMCMC2() {
         // TODO: https://stackoverflow.com/questions/1881172/matlab-matrix-functions-in-java
 
         double[] truthModel = {log(0.3), log(2e6), -1e2, 2e2};
@@ -33,9 +35,15 @@ public enum TestDriver {
                 new double[(int) 1.0e2], null, (int) 2.0e4, 20, 4/*todo: use truth count*/, 8, 10, 10, 50, 0)
                 .initializeIntegrationTimes(1, 1);
 
-        for (int simulationIndex = 0; simulationIndex < setup.simulationsCount(); simulationIndex++) {
+        MCMC2ResultsRecord[] allResults = new MCMC2ResultsRecord[setup.simulationsCount()];
 
-            MCMC2DataRecord mcmc2DataRecord = syntheticData();
+        double[][] allModels = new double[0][];
+
+        for (int simulationIndex = 0; simulationIndex < setup.simulationsCount(); simulationIndex++) {
+            // todo: research thread safe time handlers
+//            long startTime = System.nanoTime();
+            long startTime = System.currentTimeMillis();
+            MCMC2DataRecord mcmc2DataRecord = syntheticData(simulationIndex + 1);
 
             MaxLikelihoodRecord maxLikelihoodRecord = maxLikelihood(mcmc2DataRecord, setup);
             setup = setup.updateRecordWithCovariance(maxLikelihoodRecord.covarianceMatrix());
@@ -61,7 +69,7 @@ public enum TestDriver {
             double[] outputLogLiks = null;
 
             for (int iChain = 0; iChain < setup.chainsCount(); iChain++) {
-                MetropolisHastingsRecord metropolisHastingsRecord = MetropolisHastings(
+                MetropolisHastingsRecord metropolisHastingsRecord = metropolisHastings(
                         iChain,
                         extractColumn(initModels, iChain),
                         initLogLiks[iChain],
@@ -101,7 +109,7 @@ public enum TestDriver {
              */
 
             setup = setup.updateRecordWithPostBurnIn(nSavedModels - setup.burnIn());
-            double[][] allModels = new double[setup.modelParameterCount()][setup.postBurnInCount() * setup.chainsCount()];
+            allModels = new double[setup.modelParameterCount()][setup.postBurnInCount() * setup.chainsCount()];
             double[] sums = new double[setup.modelParameterCount()];
             for (int i = 0; i < setup.modelParameterCount(); i++) {
                 for (int j = 0; j < setup.postBurnInCount(); j++) {
@@ -126,12 +134,26 @@ public enum TestDriver {
             Matrix rMatrix = new Matrix(rArray, rArray.length);
             double chiSquare = rMatrix.transpose().times(modelCovMatrix.inverse()).times(rMatrix).get(0,0);
 
-//            MCMC2ResultsRecord results = new MCMC2ResultsRecord()
+            allResults[simulationIndex] = new MCMC2ResultsRecord(simulationIndex, modelMeans, modelCov, rArray, chiSquare);
 
-            System.out.println("simulation " + simulationIndex);
+            if ((1 + simulationIndex) % 10 == 0) {
+                System.out.println("simulation " + simulationIndex + "   millisecs: " +  (System.currentTimeMillis() - startTime));//              ((System.nanoTime() - startTime) / 1000000000));
+            }
         } // simulationIndex
 
-        System.out.println("END OF DEMO ");
+        PlotBuilder histogramBuilderA = HistogramBuilder.initializeHistogram(1, allModels[0],
+                100, new String[]{"IsoA"}, "Counts", "Frequency", true);
+        PlotBuilder histogramBuilderB = HistogramBuilder.initializeHistogram(1, allModels[1],
+                100, new String[]{"IsoB"}, "Counts", "Frequency", true);
+        PlotBuilder histogramBuilderC = HistogramBuilder.initializeHistogram(1, allModels[2],
+                100, new String[]{"BLA"}, "Counts", "Frequency", true);
+        PlotBuilder histogramBuilderD = HistogramBuilder.initializeHistogram(1, allModels[3],
+                100, new String[]{"BLB"}, "Counts", "Frequency", true);
+
+
+        return new PlotBuilder[]{histogramBuilderA, histogramBuilderB, histogramBuilderC, histogramBuilderD};
+
+//        System.out.println("END OF DEMO ");
     }
 
 
@@ -143,8 +165,8 @@ public enum TestDriver {
         return logicalAnd;
     }
 
-    static double[] extractDoubleData(String fileName) {
-        List<String> contentsByLine = extractFileContentsByLine(fileName);
+    static double[] extractDoubleData(int iSim, String fileName) {
+        List<String> contentsByLine = extractFileContentsByLine(iSim, fileName);
         String[] contentsByLineArray = contentsByLine.toArray(new String[0]);
         double[] contentsAsDoubles = Arrays.stream(contentsByLineArray)
                 .mapToDouble(Double::parseDouble)
@@ -152,8 +174,8 @@ public enum TestDriver {
         return contentsAsDoubles;
     }
 
-    static boolean[] extractBooleanData(String fileName) {
-        List<String> contentsByLine = extractFileContentsByLine(fileName);
+    static boolean[] extractBooleanData(int iSim, String fileName) {
+        List<String> contentsByLine = extractFileContentsByLine(iSim, fileName);
         boolean[] contentsAsBooleans = new boolean[contentsByLine.size()];
         String[] contentsByLineArray = contentsByLine.toArray(new String[0]);
         for (int i = 0; i < contentsAsBooleans.length; i++) {
@@ -162,13 +184,14 @@ public enum TestDriver {
         return contentsAsBooleans;
     }
 
-    private static List<String> extractFileContentsByLine(String fileName) {
+    private static List<String> extractFileContentsByLine(int iSim, String fileName) {
         ResourceExtractor RESOURCE_EXTRACTOR
                 = new ResourceExtractor(Tripoli.class);
         List<String> contentsByLine = new ArrayList<>();
         try {
             Path dataPath = RESOURCE_EXTRACTOR
-                    .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/syntheticData/SyntheticOutToTripoli/" + fileName).toPath();
+                    .extractResourceAsFile("/org/cirdles/tripoli/dataSourceProcessors/dataSources/syntheticData/SyntheticOutToTripoli/"
+                            + iSim + "_Sim/" + fileName).toPath();
             contentsByLine.addAll(Files.readAllLines(dataPath, Charset.defaultCharset()));
         } catch (Exception e) {
             e.printStackTrace();
