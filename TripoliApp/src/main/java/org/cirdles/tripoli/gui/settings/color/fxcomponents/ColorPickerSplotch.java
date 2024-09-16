@@ -2,9 +2,8 @@ package org.cirdles.tripoli.gui.settings.color.fxcomponents;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -17,14 +16,10 @@ import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 import org.cirdles.tripoli.utilities.Setter;
 
-import java.io.IOException;
-
 public class ColorPickerSplotch extends StackPane {
 
-    @FXML
     private ColorPicker colorPicker;
 
-    @FXML
     private Label label;
 
     private final ObjectProperty<Color> colorValue;
@@ -42,23 +37,22 @@ public class ColorPickerSplotch extends StackPane {
         super();
         repaintDelegateActionSet = new DelegateActionSet();
         hexColorSetter = hexString -> {};
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ColorPickerSplotch.fxml"));
-        fxmlLoader.setRoot(this);
-        fxmlLoader.setController(this);
-        try{
-            fxmlLoader.load();
-        } catch (IOException e){
-            e.printStackTrace();
-        }
 
+        this.colorPicker = new ColorPicker();
+        this.label = new Label("Click to Change Color");
+        this.label.setAlignment(Pos.CENTER);
+        this.label.setStyle(this.label.getStyle() +";-fx-font-weight: bold;");
+        this.getChildren().addAll(this.colorPicker, this.label);
+        this.colorPicker.prefWidthProperty().bind(label.prefWidthProperty());
+        this.colorPicker.prefHeightProperty().bind(label.prefHeightProperty());
+        this.colorPicker.setVisible(false);
         this.hexColor = ConstantsTripoliApp.convertColorToHex(colorPicker.getValue());
         // Bind the label's background color to the color picker's color
         label.backgroundProperty().bind(colorPicker.backgroundProperty());
-//        label.prefWidthProperty().bind(widthProperty());
-        prefWidthProperty().bindBidirectional(label.prefWidthProperty());
-        label.prefHeightProperty().bind(heightProperty());
-        colorPicker.prefWidthProperty().bind(widthProperty());
-        colorPicker.prefHeightProperty().bind(heightProperty());
+        label.prefWidthProperty().bind(prefWidthProperty());
+        label.prefHeightProperty().bind(prefHeightProperty());
+//        colorPicker.prefWidthProperty().bind(widthProperty());
+//        colorPicker.prefHeightProperty().bind(heightProperty());
         label.addEventHandler(MouseEvent.MOUSE_CLICKED, click -> {
             if (! colorPicker.isShowing()) {
                 colorPicker.show();

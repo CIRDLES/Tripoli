@@ -57,9 +57,6 @@ public class SettingsWindow {
             settingsWindowController.getRatioColorSelectionAnchorPane().prefWidthProperty().bind(stage.widthProperty());
             settingsWindowController.getPlotIntensitiesAnchorPane().prefWidthProperty().bind(stage.widthProperty());
             stage.initOwner(owner);
-            stage.setOnCloseRequest(closeRequest -> {
-
-            });
             owner.xProperty().addListener((observable, oldValue, newValue) -> {
                 stage.setX(stage.getX() + newValue.doubleValue()- oldValue.doubleValue());
             });

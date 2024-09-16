@@ -52,6 +52,7 @@ public class SettingsWindowController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
     }
 
     public VBox getvBoxRoot() {
