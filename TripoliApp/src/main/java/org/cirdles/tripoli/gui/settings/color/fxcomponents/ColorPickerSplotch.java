@@ -24,7 +24,7 @@ public class ColorPickerSplotch extends StackPane {
 
     private final ObjectProperty<Color> colorValue;
     private final ObjectProperty<String> textValue;
-    private String hexColor;
+    private String hexColor;// TODO: make this an ObjectProperty<String>
     private Setter<String> hexColorSetter;
 
     /**
@@ -47,12 +47,9 @@ public class ColorPickerSplotch extends StackPane {
         this.colorPicker.prefHeightProperty().bind(label.prefHeightProperty());
         this.colorPicker.setVisible(false);
         this.hexColor = ConstantsTripoliApp.convertColorToHex(colorPicker.getValue());
-        // Bind the label's background color to the color picker's color
         label.backgroundProperty().bind(colorPicker.backgroundProperty());
         label.prefWidthProperty().bind(prefWidthProperty());
         label.prefHeightProperty().bind(prefHeightProperty());
-//        colorPicker.prefWidthProperty().bind(widthProperty());
-//        colorPicker.prefHeightProperty().bind(heightProperty());
         label.addEventHandler(MouseEvent.MOUSE_CLICKED, click -> {
             if (! colorPicker.isShowing()) {
                 colorPicker.show();
