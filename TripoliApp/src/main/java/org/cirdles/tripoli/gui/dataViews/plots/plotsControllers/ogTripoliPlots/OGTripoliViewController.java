@@ -73,11 +73,11 @@ public class OGTripoliViewController {
         });
 
         plotWindowVBox.heightProperty().addListener((observable, oldValue, newValue) -> {
-            plotTabPane.setMinHeight(((Double) newValue) - 30.0);
-            ogtCycleRatioPlotsAnchorPane.setMinHeight(((Double) newValue) - plotsWallPaneRatios.getToolBarCount() * plotsWallPaneRatios.getToolBarHeight() - 30.0);
+            plotTabPane.setMinHeight(((Double) newValue));
+            ogtCycleRatioPlotsAnchorPane.setMinHeight(((Double) newValue) - plotsWallPaneRatios.getToolBarCount() * plotsWallPaneRatios.getToolBarHeight());
             if (analysis.getAnalysisCaseNumber() > 1) {
-                ogtSpeciesIntensitiesPlotAnchorPane.setMinHeight(((Double) newValue) - plotsWallPaneIntensities.getToolBarCount() * plotsWallPaneIntensities.getToolBarHeight() - 30.0);
-                ogtSpeciesResidualsPlotAnchorPane.setMinHeight(((Double) newValue) - plotsWallPaneResiduals.getToolBarCount() * plotsWallPaneResiduals.getToolBarHeight() - 30.0);
+                ogtSpeciesIntensitiesPlotAnchorPane.setMinHeight(((Double) newValue) - plotsWallPaneIntensities.getToolBarCount() * plotsWallPaneIntensities.getToolBarHeight());
+                ogtSpeciesResidualsPlotAnchorPane.setMinHeight(((Double) newValue) - plotsWallPaneResiduals.getToolBarCount() * plotsWallPaneResiduals.getToolBarHeight());
             }
         });
 

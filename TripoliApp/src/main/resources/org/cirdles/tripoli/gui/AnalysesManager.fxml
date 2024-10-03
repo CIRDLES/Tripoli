@@ -87,7 +87,7 @@
     <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Actions:" GridPane.rowIndex="8" />
     <HBox GridPane.columnIndex="1" GridPane.rowIndex="8">
         <children>
-            <ToolBar maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="514.0" style="-fx-background-color: transparent;">
+            <ToolBar maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="550.0" style="-fx-background-color: transparent;">
                 <Button mnemonicParsing="false" onAction="#selectDataFileButtonAction" text="Load Data File" />
                 <Button layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectMethodFileButtonAction" text="Load Method File" />
                 <Button id="MCMC" fx:id="reviewSculptData" graphicTextGap="0.0" mnemonicParsing="false" onAction="#previewAndSculptDataAction" style="-fx-text-fill: RED;" text="Preview and Sculpt Data" />
@@ -102,7 +102,7 @@
                     </opaqueInsets>
                 </Button>
             </ToolBar>
-            <ToolBar fx:id="processingToolBar" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="430.0" style="-fx-background-color: transparent;">
+            <ToolBar fx:id="processingToolBar" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="430.0" style="-fx-background-color: transparent;" visible="false">
                 <items>
                     <Button layoutX="225.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectRunAllAction" style="-fx-text-fill: RED;" text="Run All" />
                     <Button layoutX="225.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectRunNoneAction" style="-fx-text-fill: RED;" text="Run None" />
@@ -116,9 +116,9 @@
                     <RadioButton mnemonicParsing="false" onAction="#knotsChoiceAction" text="Cubic" toggleGroup="$knotsToggleGroup" />
                 </items>
             </ToolBar>
-         <ToolBar maxHeight="30.0" minHeight="30.0" prefHeight="30.0" style="-fx-background-color: transparent;">
+         <ToolBar maxHeight="30.0" minHeight="30.0" prefHeight="30.0" style="-fx-background-color: transparent;" visible="false">
            <items>
-               <Button id="MCMC" fx:id="mcmc2Button" mnemonicParsing="false" onAction="#initializeMCMC2TechniqueAction" style="-fx-text-fill: RED;" text="MCMC2 Demo" />
+               <Button id="MCMC" fx:id="mcmc2Button" mnemonicParsing="false" onAction="#initializeMCMC2TechniqueAction" style="-fx-text-fill: RED;" text="MCMC2" />
            </items>
          </ToolBar>
         </children>

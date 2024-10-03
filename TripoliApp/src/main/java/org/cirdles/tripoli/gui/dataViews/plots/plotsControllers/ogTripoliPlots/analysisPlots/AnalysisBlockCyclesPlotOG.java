@@ -30,6 +30,8 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.transform.Rotate;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.dataViews.plots.*;
@@ -700,7 +702,9 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
                 }
                 // may 2024 issue#235
-                showBlockID(g2d, blockID, mapX(xAxisData[i + Math.abs(cyclesPerBlock / 2 - 1)]));
+                if (blockID % 2 == 0) {
+                    showBlockID(g2d, blockID, mapX(xAxisData[i + Math.abs(cyclesPerBlock / 2 - 1)]));
+                }
             }
             blockID++;
         }
@@ -713,9 +717,9 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         Paint savedPaint = g2d.getFill();
         g2d.setFill(Paint.valueOf("BLACK"));
 
-        g2d.setFont(Font.font("SansSerif", FontWeight.EXTRA_BOLD, 10));
+        g2d.setFont(Font.font("SansSerif", FontWeight.EXTRA_BOLD, 8));
 
-        g2d.fillText("" + blockID, xPosition, topMargin + plotHeight + 10);
+        g2d.fillText("" + blockID, xPosition - 4, topMargin + plotHeight + 10);
         g2d.setFill(savedPaint);
     }
 
@@ -863,7 +867,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             // cycle mode
             boolean[] cycleModeIncluded = analysisStatsRecord.cycleModeIncluded();
             double[] cycleModeData = analysisStatsRecord.cycleModeData();
-            if (Booleans.countTrue(cycleModeIncluded) == cycleModeIncluded.length) {
+            if (true){//(Booleans.countTrue(cycleModeIncluded) == cycleModeIncluded.length) {
                 boolean[] chauvenets = applyChauvenetsCriterion(cycleModeData, cycleModeIncluded);
                 // reset included cycles for each block
                 BlockStatsRecord[] blockStatsRecords = analysisStatsRecord.blockStatsRecords();
@@ -1106,8 +1110,8 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
                 int expectedCyclesCount = mapBlockIdToBlockCyclesRecord.get(1).cycleMeansData().length;
 
-                int sculptBlockIDStart = blockIDsPerTimeSlot[indexLeft];
-                int sculptBlockIDEnd = blockIDsPerTimeSlot[indexRight];
+                int sculptBlockIDStart = blockIDsPerTimeSlot[min(indexLeft, blockIDsPerTimeSlot.length - 1)];
+                int sculptBlockIDEnd = blockIDsPerTimeSlot[min(indexRight, blockIDsPerTimeSlot.length - 1)];
                 if (sculptBlockIDEnd == 0) sculptBlockIDEnd = blockIDsPerTimeSlot[indexRight - expectedCyclesCount];
                 // calculate majority for multi-select
                 List<Boolean> statusList = new ArrayList<>();
