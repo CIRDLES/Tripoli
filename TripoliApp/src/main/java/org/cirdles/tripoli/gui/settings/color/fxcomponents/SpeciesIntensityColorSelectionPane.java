@@ -124,7 +124,7 @@ public class SpeciesIntensityColorSelectionPane extends Pane {
             );
             delegateActionSet.executeDelegateActions();
         });
-        setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2, 0, 0, 0))));
+        setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1, 0, 1, 0))));
     }
 
 
