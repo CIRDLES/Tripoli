@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.gui.settings.color;
+package org.cirdles.tripoli.gui.settings.color.old;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -25,10 +25,6 @@ import org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.TripoliGUI;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
-import org.cirdles.tripoli.gui.settings.color.fxcomponents.FlavoredIndexedColorSplotch;
-import org.cirdles.tripoli.gui.settings.color.fxcomponents.FlavoredIndexedLabel;
-import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesColorPane;
-import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesColorRow;
 import org.cirdles.tripoli.species.SpeciesColorSetting;
 import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.DelegateActionSet;

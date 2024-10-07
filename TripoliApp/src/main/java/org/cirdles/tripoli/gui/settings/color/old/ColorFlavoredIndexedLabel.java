@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.gui.settings.color.fxcomponents;
+package org.cirdles.tripoli.gui.settings.color.old;
 
 import org.cirdles.tripoli.constants.TripoliConstants;
 

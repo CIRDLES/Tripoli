@@ -30,7 +30,6 @@ import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController;
 import org.cirdles.tripoli.gui.settings.SettingsWindow;
-import org.cirdles.tripoli.gui.settings.color.IntensityPlotColorSelectionWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.SettingsButton;
 import org.cirdles.tripoli.species.SpeciesColors;
