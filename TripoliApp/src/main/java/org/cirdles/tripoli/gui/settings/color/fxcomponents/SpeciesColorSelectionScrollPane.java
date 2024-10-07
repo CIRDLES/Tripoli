@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
@@ -39,7 +40,8 @@ public class SpeciesColorSelectionScrollPane extends ScrollPane {
         for (SpeciesRecordInterface speciesRecordInterface: analysis.getAnalysisMethod().getSpeciesList()) {
             SpeciesIntensityColorSelectionPane pane = new SpeciesIntensityColorSelectionPane(speciesRecordInterface,
                     analysis.getAnalysisMapOfSpeciesToColors(),
-                    delegateActionSet);
+                    delegateActionSet,
+                           30 * analysis.getAnalysisMethod().getSpeciesList().size()); // TODO: make this more robust
             paneVBox.getChildren().add(pane);
             speciesIntensityColorSelectionPanes.add(pane);
         }

@@ -5,6 +5,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
@@ -27,6 +29,8 @@ public class SpeciesIntensityColorSelectionPane extends Pane {
     @FXML
     private SpeciesColorSelectionRow photomultiplierModelRow;
 
+    private static final double POINTS_TO_PIXELS = 1.33;
+
     private SpeciesRecordInterface speciesRecordInterface;
     private SpeciesColors speciesColors;
     private Map<SpeciesRecordInterface, SpeciesColors> colorMap;
@@ -36,7 +40,9 @@ public class SpeciesIntensityColorSelectionPane extends Pane {
     public SpeciesIntensityColorSelectionPane(
                                                SpeciesRecordInterface speciesRecordInterface,
                                                Map<SpeciesRecordInterface, SpeciesColors> colorMap,
-                                               DelegateActionSet delegateActionSet) {
+                                               DelegateActionSet delegateActionSet,
+                                               double prefHeight
+        ) {
         // TODO: Replace fxml with row construct
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("SpeciesIntensityColorSelectionPane.fxml"));
         fxmlLoader.setRoot(this);
@@ -46,11 +52,24 @@ public class SpeciesIntensityColorSelectionPane extends Pane {
         } catch (IOException e){
             e.printStackTrace();
         }
+        this.setPrefHeight(prefHeight);
+        this.getChildren().stream().forEach(child -> {
+            if (child instanceof Region) {
+                ((Region) child).prefHeightProperty().bind(prefHeightProperty().divide(getChildren().size()));
+            }
+            if (child instanceof Label) {
+                ((Label) child).setFont(Font.font(
+                        ((Label) child).getFont().getFamily(),
+                        FontWeight.BOLD,
+                        heightProperty().get() / POINTS_TO_PIXELS
+                ));
+            }
+        });
         this.speciesRecordInterface = speciesRecordInterface;
         this.speciesColors = colorMap.get(speciesRecordInterface);
         this.colorMap = colorMap;
         this.delegateActionSet = delegateActionSet;
-        this.title.textProperty().setValue(speciesRecordInterface.prettyPrintShortForm());
+//        this.title.textProperty().setValue(speciesRecordInterface.prettyPrintShortForm());
         this.faradayDataRow.colorObjectProperty().setValue(
                 Color.web(speciesColors.faradayHexColor())
         );
