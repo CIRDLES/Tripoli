@@ -16,10 +16,15 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix;
 
+import jxl.Cell;
+import jxl.Sheet;
+import jxl.Workbook;
+import jxl.read.biff.BiffException;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.extractor.ExcelExtractor;
+import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
@@ -47,15 +52,35 @@ public enum PhoenixMassSpec {
     @SuppressWarnings("unused")
     public static MassSpecExtractedData extractMetaDataAndBlockDataFromIonvantageXLS(Path inputDataFile) throws IOException {
         MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
-        InputStream inputStream;
-        inputStream = new FileInputStream(inputDataFile.toFile());
-        HSSFWorkbook wb = new HSSFWorkbook(new POIFSFileSystem(inputStream));
-        ExcelExtractor extractor = new org.apache.poi.hssf.extractor.ExcelExtractor(wb);
-        extractor.setFormulasNotResults(true);
-        extractor.setIncludeSheetNames(true);
+//        InputStream inputStream;
+//        inputStream = new FileInputStream(inputDataFile.toFile());
+//        HSSFWorkbook wb = new HSSFWorkbook(new POIFSFileSystem(inputStream));
+//        ExcelExtractor extractor = new org.apache.poi.hssf.extractor.ExcelExtractor(wb);
+//        extractor.setFormulasNotResults(true);
+//        extractor.setIncludeSheetNames(true);
+//
+//        String text = extractor.getText();
+        String[] lines = null;//text.split("\n");
 
-        String text = extractor.getText();
-        String[] lines = text.split("\n");
+        Workbook workbook = null;
+        Sheet cycleSheet = null;
+        try {
+            workbook = Workbook.getWorkbook(inputDataFile.toFile());
+            cycleSheet = workbook.getSheet("CYCLE");
+        } catch (BiffException e) {
+            throw new RuntimeException(e);
+        }
+        List<String> columnNamesFixedList = new ArrayList<>();
+        columnNamesFixedList.add("");
+        columnNamesFixedList.add("");
+        Cell[] functionNamesRow = cycleSheet.getRow(1);
+        for (int col = 2; col < functionNamesRow.length; col++){
+            columnNamesFixedList.add(functionNamesRow[col].getContents().trim());
+        }
+
+
+
+
 
         int startCycleSheet = 0;
         for (int i = 0; i < lines.length; i++) {

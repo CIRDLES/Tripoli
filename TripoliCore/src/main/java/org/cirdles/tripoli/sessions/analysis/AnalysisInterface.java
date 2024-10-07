@@ -1,9 +1,12 @@
 package org.cirdles.tripoli.sessions.analysis;
 
 import jakarta.xml.bind.JAXBException;
+import jxl.read.biff.BiffException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.extractor.ExcelExtractor;
+import org.apache.poi.xssf.extractor.XSSFExcelExtractor;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
@@ -26,6 +29,11 @@ import java.util.Map;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
 
+import java.io.File;
+import java.util.Date;
+
+import jxl.*;
+
 public interface AnalysisInterface {
     static Analysis initializeAnalysis(String analysisName,
                                        AnalysisMethod analysisMethod,
@@ -40,17 +48,39 @@ public interface AnalysisInterface {
     static MassSpectrometerContextEnum determineMassSpectrometerContextFromDataFile(Path dataFilePath) throws IOException {
         MassSpectrometerContextEnum retVal = MassSpectrometerContextEnum.UNKNOWN;
         if (dataFilePath.toString().endsWith(".xls")) {
-            InputStream inputStream = new FileInputStream(dataFilePath.toFile());
-            HSSFWorkbook wb = new HSSFWorkbook(new POIFSFileSystem(inputStream));
-            ExcelExtractor extractor = new org.apache.poi.hssf.extractor.ExcelExtractor(wb);
-            extractor.setFormulasNotResults(true);
-            extractor.setIncludeSheetNames(true);
+//            InputStream inputStream = new FileInputStream(dataFilePath.toFile());
 
-            String text = extractor.getText();
-            String[] lines = text.split("\n");
-            if (lines[0].trim().compareTo("STD") == 0) {
-                retVal = MassSpectrometerContextEnum.PHOENIX_IONVANTAGE_XLS;
+//            HSSFWorkbook wb = new HSSFWorkbook(new POIFSFileSystem(inputStream));
+//            ExcelExtractor extractor = new org.apache.poi.hssf.extractor.ExcelExtractor(wb);
+
+//            XSSFWorkbook wb2 = new XSSFWorkbook(inputStream);
+//            XSSFExcelExtractor extractor = new org.apache.poi.xssf.extractor.XSSFExcelExtractor(wb2);
+            Workbook workbook = null;
+            try {
+                workbook = Workbook.getWorkbook(dataFilePath.toFile());
+                if (workbook.getSheet("SUMMARY").getCell(0, 0).getContents().compareToIgnoreCase("Summary Report") == 0) {
+                    retVal = MassSpectrometerContextEnum.PHOENIX_IONVANTAGE_XLS;
+                }
+            } catch (BiffException e) {
+                throw new RuntimeException(e);
             }
+
+
+//            extractor.setFormulasNotResults(false);
+//            extractor.setIncludeSheetNames(true);
+//
+//            String text = null;
+//            try {
+//                text = extractor.getText();
+//            } catch (Exception e) {
+////                throw new RuntimeException(e);
+//                System.out.println (e);
+//            }
+
+//            String[] lines = text.split("\n");
+//            if (lines[0].trim().compareTo("STD") == 0) {
+//                retVal = MassSpectrometerContextEnum.PHOENIX_IONVANTAGE_XLS;
+//            }
 
         } else {
             List<String> contentsByLine = new ArrayList<>();
