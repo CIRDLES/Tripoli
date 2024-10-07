@@ -2,8 +2,6 @@ package org.cirdles.tripoli.gui.settings.color.fxcomponents;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -48,7 +46,7 @@ public class SpeciesColorSelectionRow extends HBox {
         colorPickerSplotch.prefHeightProperty().bind(prefHeightProperty());
         this.getChildren().addAll(rowLabel,center, colorPickerSplotch);
         HBox.setMargin(colorPickerSplotch, new Insets(5, 5, 5, 5));
-        setPrefHeight(40);
+        setPrefHeight(40);//  TODO: remove when setting default
         borderProperty().setValue(
                 new Border(
                         new BorderStroke(
@@ -56,6 +54,11 @@ public class SpeciesColorSelectionRow extends HBox {
                                 BorderStrokeStyle.SOLID,
                                 CornerRadii.EMPTY,
                                 new BorderWidths(1, 0,0,0))));
+    }
+
+    public SpeciesColorSelectionRow(double prefHeight) {
+        this();
+        this.setPrefHeight(prefHeight);
     }
 
 

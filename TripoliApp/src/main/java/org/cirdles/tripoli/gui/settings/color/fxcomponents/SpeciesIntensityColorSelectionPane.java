@@ -69,7 +69,7 @@ public class SpeciesIntensityColorSelectionPane extends Pane {
         this.speciesColors = colorMap.get(speciesRecordInterface);
         this.colorMap = colorMap;
         this.delegateActionSet = delegateActionSet;
-//        this.title.textProperty().setValue(speciesRecordInterface.prettyPrintShortForm());
+        this.title.textProperty().setValue(speciesRecordInterface.prettyPrintShortForm());
         this.faradayDataRow.colorObjectProperty().setValue(
                 Color.web(speciesColors.faradayHexColor())
         );
