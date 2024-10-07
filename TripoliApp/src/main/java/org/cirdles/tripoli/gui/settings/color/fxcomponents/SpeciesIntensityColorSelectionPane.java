@@ -37,6 +37,7 @@ public class SpeciesIntensityColorSelectionPane extends Pane {
                                                SpeciesRecordInterface speciesRecordInterface,
                                                Map<SpeciesRecordInterface, SpeciesColors> colorMap,
                                                DelegateActionSet delegateActionSet) {
+        // TODO: Replace fxml with row construct
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("SpeciesIntensityColorSelectionPane.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -62,6 +63,7 @@ public class SpeciesIntensityColorSelectionPane extends Pane {
         this.photomultiplierModelRow.colorObjectProperty().setValue(
                 Color.web(speciesColors.pmModelHexColor())
         );
+        // TODO: to avoid repeating ourselves, lets create one ChangeListener that takes a TripoliConstants.DetectorPlotFlavor
         this.faradayDataRow.colorObjectProperty().addListener((observable, oldValue, newValue) -> {
             colorMap.put(
                     speciesRecordInterface,
