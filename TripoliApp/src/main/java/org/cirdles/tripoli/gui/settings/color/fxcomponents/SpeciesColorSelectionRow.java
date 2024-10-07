@@ -20,6 +20,7 @@ public class SpeciesColorSelectionRow extends HBox {
 
     private final ObjectProperty<Color> colorProperty;
     private final ObjectProperty<String> textProperty;
+
     private final ObjectProperty<Font> fontProperty;
 
 
@@ -35,6 +36,7 @@ public class SpeciesColorSelectionRow extends HBox {
         this.textProperty = new SimpleObjectProperty<>();
         this.fontProperty = new SimpleObjectProperty<>();
         this.fontProperty.bindBidirectional(rowLabel.fontProperty());
+        this.fontProperty.bindBidirectional(colorPickerSplotch.fontProperty());
         this.setAlignment(Pos.CENTER);
         this.rowLabel.prefWidthProperty().bind(this.widthProperty().divide(3));
         this.center.prefWidthProperty().bind(this.widthProperty().divide(6));
@@ -93,5 +95,9 @@ public class SpeciesColorSelectionRow extends HBox {
 
     public void setTextProperty(String textProperty) {
         this.textProperty.set(textProperty);
+    }
+
+    public ObjectProperty<Font> fontProperty() {
+        return fontProperty;
     }
 }

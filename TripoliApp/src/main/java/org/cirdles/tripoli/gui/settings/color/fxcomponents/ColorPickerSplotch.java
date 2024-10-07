@@ -12,6 +12,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 import org.cirdles.tripoli.utilities.Setter;
@@ -27,6 +28,8 @@ public class ColorPickerSplotch extends StackPane {
     private String hexColor;// TODO: make this an ObjectProperty<String>
     private Setter<String> hexColorSetter;
 
+    private ObjectProperty<Font> fontObjectProperty;
+
     /**
      * Contains all delegate actions for anything that needs repainting
      */
@@ -37,9 +40,10 @@ public class ColorPickerSplotch extends StackPane {
         super();
         repaintDelegateActionSet = new DelegateActionSet();
         hexColorSetter = hexString -> {};
-
+        this.fontObjectProperty = new SimpleObjectProperty<>();
         this.colorPicker = new ColorPicker();
         this.label = new Label("Click to Change Color");
+        this.label.fontProperty().bindBidirectional(fontObjectProperty);
         this.label.setAlignment(Pos.CENTER);
         this.label.setStyle(this.label.getStyle() +";-fx-font-weight: bold;");
         this.getChildren().addAll(this.colorPicker, this.label);
@@ -93,11 +97,15 @@ public class ColorPickerSplotch extends StackPane {
     }
 
     public Color getColor() { return colorValue.get(); }
+
     public void setColor(Color color) {
         this.colorValue.set(color);
     }
-
     public String getHexColor() {
         return hexColor;
+    }
+
+    public ObjectProperty<Font> fontProperty() {
+        return fontObjectProperty;
     }
 }

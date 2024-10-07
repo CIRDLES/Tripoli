@@ -30,6 +30,7 @@ public class SpeciesIntensityColorSelectionPane extends Pane {
     private SpeciesColorSelectionRow photomultiplierModelRow;
 
     private static final double POINTS_TO_PIXELS = 1.33;
+    private static final double TITLE_TO_LABELS_RATIO = 1.05;
 
     private SpeciesRecordInterface speciesRecordInterface;
     private SpeciesColors speciesColors;
@@ -63,6 +64,15 @@ public class SpeciesIntensityColorSelectionPane extends Pane {
                         FontWeight.BOLD,
                         heightProperty().get() / POINTS_TO_PIXELS
                 ));
+            }
+            if (child instanceof SpeciesColorSelectionRow) {
+                SpeciesColorSelectionRow speciesColorSelectionRow = (SpeciesColorSelectionRow) child;
+                speciesColorSelectionRow.fontProperty().setValue(
+                        Font.font(
+                                title.getFont().getFamily(),
+                                FontWeight.BOLD,
+                                heightProperty().get() /(POINTS_TO_PIXELS * TITLE_TO_LABELS_RATIO))
+                );
             }
         });
         this.speciesRecordInterface = speciesRecordInterface;
