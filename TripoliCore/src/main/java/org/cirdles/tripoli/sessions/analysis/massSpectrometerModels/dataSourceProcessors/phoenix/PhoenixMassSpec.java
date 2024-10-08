@@ -16,9 +16,7 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix;
 
-import jxl.Cell;
-import jxl.Sheet;
-import jxl.Workbook;
+import jxl.*;
 import jxl.read.biff.BiffException;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -52,18 +50,15 @@ public enum PhoenixMassSpec {
     @SuppressWarnings("unused")
     public static MassSpecExtractedData extractMetaDataAndBlockDataFromIonvantageXLS(Path inputDataFile) throws IOException {
         MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
-//        InputStream inputStream;
-//        inputStream = new FileInputStream(inputDataFile.toFile());
-//        HSSFWorkbook wb = new HSSFWorkbook(new POIFSFileSystem(inputStream));
-//        ExcelExtractor extractor = new org.apache.poi.hssf.extractor.ExcelExtractor(wb);
-//        extractor.setFormulasNotResults(true);
-//        extractor.setIncludeSheetNames(true);
-//
-//        String text = extractor.getText();
         String[] lines = null;//text.split("\n");
 
-        Workbook workbook = null;
-        Sheet cycleSheet = null;
+        Workbook workbook;
+        Sheet cycleSheet;
+        Sheet ctrlSheet;
+        Sheet blockSheet;
+        int cycleCount;
+
+
         try {
             workbook = Workbook.getWorkbook(inputDataFile.toFile());
             cycleSheet = workbook.getSheet("CYCLE");
@@ -77,33 +72,11 @@ public enum PhoenixMassSpec {
         for (int col = 2; col < functionNamesRow.length; col++){
             columnNamesFixedList.add(functionNamesRow[col].getContents().trim());
         }
+        massSpecExtractedData.setColumnHeaders(columnNamesFixedList.toArray(new String[0]));
 
-
-
-
-
-        int startCycleSheet = 0;
-        for (int i = 0; i < lines.length; i++) {
-            if (lines[i].compareTo("CYCLE") == 0) {
-                startCycleSheet = i;
-                break;
-            }
-        }
-        String[] functionNames = lines[startCycleSheet + 2].split("Function:\t");
-        String[] columnNames = functionNames[1].split("\t");
-        String[] columnNamesFixed = new String[columnNames.length + 2];
-        System.arraycopy(columnNames, 0, columnNamesFixed, 2, columnNames.length);
-        massSpecExtractedData.setColumnHeaders(columnNamesFixed);
-
-        int startCtrlSheet = 0;
-        for (int i = startCycleSheet; i < lines.length; i++) {
-            if (lines[i].trim().compareTo("Workbook Parameters") == 0) {
-                startCtrlSheet = i;
-                break;
-            }
-        }
-
-        String analysisStartTime = lines[startCtrlSheet + 21].split("\t")[2];
+        ctrlSheet = workbook.getSheet("CTRL");
+        Cell dateCell = ctrlSheet.getCell(3, 21);
+        String analysisStartTime = dateCell.getContents();
         Date date = null;
         try {
             date = DateUtils.parseDate(analysisStartTime,
@@ -116,28 +89,12 @@ public enum PhoenixMassSpec {
             analysisStartTime = df.format(date);
         }
 
-        String sampleName = lines[startCtrlSheet + 7].split("\t")[3];
-        String methodName = lines[startCtrlSheet + 11].split("\t")[2];
-        int cyclesPerBlock = Integer.parseInt(lines[startCtrlSheet + 12].split("\t")[3]);
+        String sampleName = ctrlSheet.getCell(3, 7).getContents().trim();
+        String methodName = ctrlSheet.getCell(3, 11).getContents().trim();
+        int cyclesPerBlock = (int)((NumberCell)ctrlSheet.getCell(3, 12)).getValue();
 
         // April 2024 to handle aborted runs, find end of cycles and divide by cyclesperblock
-        int cyclesStart = startCycleSheet + 16;
-        int startBlockSheet = 0;
-        for (int i = startCycleSheet; i < lines.length; i++) {
-            if (lines[i].trim().compareTo("BLOCK") == 0) {
-                startBlockSheet = i;
-                break;
-            }
-        }
-
-        int lastCycleNumber;
-        if (lines[startBlockSheet - 2].startsWith("0")) {
-            lastCycleNumber = 0;
-        } else {
-            lastCycleNumber = Integer.parseInt(lines[startBlockSheet - 2].split("\t")[0]);
-        }
-
-
+        int lastCycleNumber = cycleSheet.getColumn(0).length - 16;
         int blockCount = (int) ceil(lastCycleNumber / cyclesPerBlock) + (int) Math.signum(lastCycleNumber % cyclesPerBlock);
 
         MassSpecExtractedData.MassSpecExtractedHeader header = new MassSpecExtractedData.MassSpecExtractedHeader(
@@ -156,28 +113,38 @@ public enum PhoenixMassSpec {
         int countOfCycles = 0;
         for (int blockID = 1; blockID <= blockCount; blockID++) {
 
-            List<String> dataByBlock = new ArrayList<>();
-            for (int cycleNum = 1; cycleNum <= cyclesPerBlock; cycleNum++) {
-                if ((lastCycleNumber % cyclesPerBlock) == 0 || (countOfCycles < lastCycleNumber)) {
-                    dataByBlock.add(lines[cyclesStart + (blockID - 1) * cyclesPerBlock + cycleNum]);
-                    countOfCycles++;
+            double[][] cycleData = new double[cyclesPerBlock][];
+            int blockCycleStart = (blockID - 1) * cyclesPerBlock + 16;
+            for (int cycleNum = 0; cycleNum < cyclesPerBlock; cycleNum++) {
+                Cell[] cycleCellData = cycleSheet.getRow(cycleNum + blockCycleStart);
+                for (int i = 2; i < cycleCellData.length; i ++){
+                    cycleData[cycleNum][i] = ((NumberCell)cycleCellData[i - 2]).getValue();
                 }
             }
-            dataByBlocks.add(dataByBlock);
-            List<String[]> cycleDataByLineSplit = new ArrayList<>();
-            for (String line : dataByBlock) {
-                String[] lineSplit = line.split("\t");
-                cycleDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 2, lineSplit.length));
-            }
-
-            double[][] cycleData = new double[cycleDataByLineSplit.size()][];
-            int index = 0;
-            for (String[] numbersAsStrings : cycleDataByLineSplit) {
-                cycleData[index] = Arrays.stream(numbersAsStrings)
-                        .mapToDouble(Double::parseDouble)
-                        .toArray();
-                index++;
-            }
+//
+//            List<String> dataByBlock = new ArrayList<>();
+//            for (int cycleNum = 1; cycleNum <= cyclesPerBlock; cycleNum++) {
+//                if ((lastCycleNumber % cyclesPerBlock) == 0 || (countOfCycles < lastCycleNumber)) {
+//                    dataByBlock.add(lines[cyclesStart + (blockID - 1) * cyclesPerBlock + cycleNum]);
+//                    countOfCycles++;
+//                }
+//            }
+//            dataByBlocks.add(dataByBlock);
+//
+//            List<String[]> cycleDataByLineSplit = new ArrayList<>();
+//            for (String line : dataByBlock) {
+//                String[] lineSplit = line.split("\t");
+//                cycleDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 2, lineSplit.length));
+//            }
+//
+//            double[][] cycleData = new double[cycleDataByLineSplit.size()][];
+//            int index = 0;
+//            for (String[] numbersAsStrings : cycleDataByLineSplit) {
+//                cycleData[index] = Arrays.stream(numbersAsStrings)
+//                        .mapToDouble(Double::parseDouble)
+//                        .toArray();
+//                index++;
+//            }
 
             massSpecExtractedData.addBlockLiteRecord(new MassSpecOutputBlockRecordLite(
                     blockID,
