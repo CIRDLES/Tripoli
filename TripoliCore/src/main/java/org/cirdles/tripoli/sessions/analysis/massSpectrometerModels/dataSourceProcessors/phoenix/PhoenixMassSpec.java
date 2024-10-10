@@ -57,6 +57,7 @@ public enum PhoenixMassSpec {
         Sheet ctrlSheet;
         Sheet blockSheet;
         int cycleCount;
+        int countOfHeaderLines = 16;
 
 
         try {
@@ -70,7 +71,9 @@ public enum PhoenixMassSpec {
         columnNamesFixedList.add("");
         Cell[] functionNamesRow = cycleSheet.getRow(1);
         for (int col = 2; col < functionNamesRow.length; col++){
-            columnNamesFixedList.add(functionNamesRow[col].getContents().trim());
+            if (functionNamesRow[col].getType() != CellType.EMPTY) {
+                columnNamesFixedList.add(functionNamesRow[col].getContents().trim());
+            }
         }
         massSpecExtractedData.setColumnHeaders(columnNamesFixedList.toArray(new String[0]));
 
@@ -94,8 +97,8 @@ public enum PhoenixMassSpec {
         int cyclesPerBlock = (int)((NumberCell)ctrlSheet.getCell(3, 12)).getValue();
 
         // April 2024 to handle aborted runs, find end of cycles and divide by cyclesperblock
-        int lastCycleNumber = cycleSheet.getColumn(0).length - 16;
-        int blockCount = (int) ceil(lastCycleNumber / cyclesPerBlock) + (int) Math.signum(lastCycleNumber % cyclesPerBlock);
+        int countOfAllDataCycles = cycleSheet.getColumn(0).length - countOfHeaderLines;
+        int blockCount = (int) ceil(countOfAllDataCycles / cyclesPerBlock) + (int) Math.signum(countOfAllDataCycles % cyclesPerBlock);
 
         MassSpecExtractedData.MassSpecExtractedHeader header = new MassSpecExtractedData.MassSpecExtractedHeader(
                 "IonVantage",
@@ -113,39 +116,16 @@ public enum PhoenixMassSpec {
         int countOfCycles = 0;
         for (int blockID = 1; blockID <= blockCount; blockID++) {
 
-            double[][] cycleData = new double[cyclesPerBlock][];
-            int blockCycleStart = (blockID - 1) * cyclesPerBlock + 16;
+            double[][] cycleData = new double[cyclesPerBlock][columnNamesFixedList.size() - 2];
+            int blockCycleStartLineNumber = (blockID - 1) * cyclesPerBlock + countOfHeaderLines;
             for (int cycleNum = 0; cycleNum < cyclesPerBlock; cycleNum++) {
-                Cell[] cycleCellData = cycleSheet.getRow(cycleNum + blockCycleStart);
-                for (int i = 2; i < cycleCellData.length; i ++){
-                    cycleData[cycleNum][i] = ((NumberCell)cycleCellData[i - 2]).getValue();
+                if ((cycleNum + blockCycleStartLineNumber) < (countOfAllDataCycles + countOfHeaderLines)) {
+                    Cell[] cycleCellData = cycleSheet.getRow(cycleNum + blockCycleStartLineNumber);
+                    for (int i = 2; i < cycleCellData.length; i++) {
+                        cycleData[cycleNum][i - 2] = ((NumberCell) cycleCellData[i]).getValue();
+                    }
                 }
             }
-//
-//            List<String> dataByBlock = new ArrayList<>();
-//            for (int cycleNum = 1; cycleNum <= cyclesPerBlock; cycleNum++) {
-//                if ((lastCycleNumber % cyclesPerBlock) == 0 || (countOfCycles < lastCycleNumber)) {
-//                    dataByBlock.add(lines[cyclesStart + (blockID - 1) * cyclesPerBlock + cycleNum]);
-//                    countOfCycles++;
-//                }
-//            }
-//            dataByBlocks.add(dataByBlock);
-//
-//            List<String[]> cycleDataByLineSplit = new ArrayList<>();
-//            for (String line : dataByBlock) {
-//                String[] lineSplit = line.split("\t");
-//                cycleDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 2, lineSplit.length));
-//            }
-//
-//            double[][] cycleData = new double[cycleDataByLineSplit.size()][];
-//            int index = 0;
-//            for (String[] numbersAsStrings : cycleDataByLineSplit) {
-//                cycleData[index] = Arrays.stream(numbersAsStrings)
-//                        .mapToDouble(Double::parseDouble)
-//                        .toArray();
-//                index++;
-//            }
-
             massSpecExtractedData.addBlockLiteRecord(new MassSpecOutputBlockRecordLite(
                     blockID,
                     cycleData

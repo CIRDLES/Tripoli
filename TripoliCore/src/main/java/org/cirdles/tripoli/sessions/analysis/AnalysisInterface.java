@@ -48,13 +48,7 @@ public interface AnalysisInterface {
     static MassSpectrometerContextEnum determineMassSpectrometerContextFromDataFile(Path dataFilePath) throws IOException {
         MassSpectrometerContextEnum retVal = MassSpectrometerContextEnum.UNKNOWN;
         if (dataFilePath.toString().endsWith(".xls")) {
-//            InputStream inputStream = new FileInputStream(dataFilePath.toFile());
 
-//            HSSFWorkbook wb = new HSSFWorkbook(new POIFSFileSystem(inputStream));
-//            ExcelExtractor extractor = new org.apache.poi.hssf.extractor.ExcelExtractor(wb);
-
-//            XSSFWorkbook wb2 = new XSSFWorkbook(inputStream);
-//            XSSFExcelExtractor extractor = new org.apache.poi.xssf.extractor.XSSFExcelExtractor(wb2);
             Workbook workbook = null;
             try {
                 workbook = Workbook.getWorkbook(dataFilePath.toFile());
@@ -64,23 +58,6 @@ public interface AnalysisInterface {
             } catch (BiffException e) {
                 throw new RuntimeException(e);
             }
-
-
-//            extractor.setFormulasNotResults(false);
-//            extractor.setIncludeSheetNames(true);
-//
-//            String text = null;
-//            try {
-//                text = extractor.getText();
-//            } catch (Exception e) {
-////                throw new RuntimeException(e);
-//                System.out.println (e);
-//            }
-
-//            String[] lines = text.split("\n");
-//            if (lines[0].trim().compareTo("STD") == 0) {
-//                retVal = MassSpectrometerContextEnum.PHOENIX_IONVANTAGE_XLS;
-//            }
 
         } else {
             List<String> contentsByLine = new ArrayList<>();
@@ -94,7 +71,6 @@ public interface AnalysisInterface {
             }
             bufferedReader.close();
 
-//            List<String> contentsByLine = new ArrayList<>(Files.readAllLines(dataFilePath, Charset.defaultCharset()));
             for (MassSpectrometerContextEnum massSpecContext : MassSpectrometerContextEnum.values()) {
                 List<String> keyWordList = massSpecContext.getKeyWordsList();
                 boolean keywordsMatch = true;
