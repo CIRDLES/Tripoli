@@ -66,7 +66,7 @@ public class FormatterForSigFigN {
         BigDecimal roundedStdv = new BigDecimal(stdDev).setScale(-lastSigFigPosition, RoundingMode.HALF_UP);
 
         int exponentOfMean = (int) floor(log10(abs(mean)));
-        String formatString = "%1." + (exponentOfMean - lastSigFigPosition) + "f";
+        String formatString = "%1." + Math.abs(exponentOfMean - lastSigFigPosition) + "f";
         String significandOfMeanAsString = String.format(formatString, (roundedMean.doubleValue() / pow(10, exponentOfMean)));
         String significandOfUnctAsString = String.format(formatString, (roundedUnct.doubleValue() / pow(10, exponentOfMean)));
         String significantOfStdvAsString = String.format(formatString, (roundedStdv.doubleValue() / pow(10, exponentOfMean)));

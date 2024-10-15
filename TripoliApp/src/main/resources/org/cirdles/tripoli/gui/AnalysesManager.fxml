@@ -21,6 +21,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -32,6 +33,7 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.TextFlow?>
@@ -129,8 +131,42 @@
     <TextArea fx:id="dataSummaryTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" style="-fx-font-family: Monospaced; -fx-font-weight: BOLD;" text="No data" GridPane.columnIndex="1" GridPane.rowIndex="5" />
     <TabPane fx:id="analysiMethodTabPane" style="-fx-border-color: BLACK;" tabMaxHeight="20.0" tabMinHeight="20.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
         <Tab id="tab0" closable="false" text="About">
-            <TextArea fx:id="aboutAnalysisTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" text="No analysis method" />
+         <HBox>
+            <children>
+                  <TextArea fx:id="aboutAnalysisTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" text="No analysis method" />
+            </children>
+         </HBox>
         </Tab>
+      <Tab id="tab0" closable="false" text="Modify">
+         <content>
+            <HBox>
+               <children>
+                  <VBox prefHeight="239.0" prefWidth="240.0">
+                     <children>
+                        <Pane prefHeight="111.0" prefWidth="240.0">
+                           <children>
+                              <Label layoutX="-2.0" layoutY="40.0" prefHeight="17.0" prefWidth="161.0" text="Set default cycles per block:" />
+                              <Spinner fx:id="defaultCyclesPerBlockSpinner" layoutX="161.0" layoutY="35.0" prefHeight="26.0" prefWidth="63.0" />
+                              <Button fx:id="reloadDataForCyclesPerBlockBtn" layoutX="76.0" layoutY="72.0" mnemonicParsing="false" onAction="#reloadDataForCyclesPerBlockBtnAction" text="Reload Data" />
+                           </children>
+                           <VBox.margin>
+                              <Insets left="15.0" />
+                           </VBox.margin>
+                        </Pane>
+                        <Pane layoutX="25.0" layoutY="10.0" prefHeight="111.0" prefWidth="240.0">
+                           <children>
+                              <Button fx:id="reloadDataForCyclesPerBlockBtn1" layoutX="16.0" layoutY="72.0" mnemonicParsing="false" onAction="#saveDisplayedColumnsAsDefault" text="Save Plotted Columns as Default" />
+                           </children>
+                           <VBox.margin>
+                              <Insets left="15.0" />
+                           </VBox.margin>
+                        </Pane>
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+         </content>
+      </Tab>
         <Tab id="tab1" fx:id="detectorDetailTab" closable="false" text="Detector Details">
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
                 <GridPane fx:id="analysisDetectorsGridPane" gridLinesVisible="true" style="-fx-background-color: WHITE;">

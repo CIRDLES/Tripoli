@@ -85,6 +85,10 @@ public class UserFunction implements Comparable, Serializable {
         return userFunction;
     }
 
+    public UserFunctionDisplay calcUserFunctionDisplay(){
+        return new UserFunctionDisplay(name, displayed, inverted);
+    }
+
     public AnalysisStatsRecord calculateAnalysisStatsRecord(AnalysisInterface analysis) {
         analysisStatsRecord = generateAnalysisStatsRecord(generateAnalysisBlockStatsRecords(this, mapBlockIdToBlockCyclesRecord));
         for (int i = 0; i < analysisStatsRecord.blockStatsRecords().length; i++) {

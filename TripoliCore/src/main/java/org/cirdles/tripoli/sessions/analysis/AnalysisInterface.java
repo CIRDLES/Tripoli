@@ -37,11 +37,11 @@ import jxl.*;
 public interface AnalysisInterface {
     static Analysis initializeAnalysis(String analysisName,
                                        AnalysisMethod analysisMethod,
-                                       String analysisSampleName) {
+                                       String analysisSampleName) throws TripoliException {
         return new Analysis(analysisName, analysisMethod, analysisSampleName);
     }
 
-    static Analysis initializeNewAnalysis(int suffix) {
+    static Analysis initializeNewAnalysis(int suffix) throws TripoliException {
         return new Analysis("New Analysis" + "_" + (suffix), null, MISSING_STRING_FIELD);
     }
 

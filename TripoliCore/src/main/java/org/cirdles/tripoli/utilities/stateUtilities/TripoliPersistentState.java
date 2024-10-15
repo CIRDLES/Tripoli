@@ -50,6 +50,7 @@ public class TripoliPersistentState implements Serializable {
     private String MRUMethodXMLFolderPath;
     private String MRUExportFolderPath;
     private TripoliSpeciesColorMap mapOfSpeciesToColors;
+    private Map<String, AnalysisMethodPersistance> mapMethodNamesToDefaults;
 
 //    private void readObject(ObjectInputStream stream) throws IOException,
 //            ClassNotFoundException {
@@ -92,6 +93,9 @@ public class TripoliPersistentState implements Serializable {
 
         MRUExportFolderPath = "";
         mapOfSpeciesToColors = new TripoliSpeciesColorMap();
+
+        mapMethodNamesToDefaults = new TreeMap<>();
+
         serializeSelf();
     }
 
@@ -156,6 +160,14 @@ public class TripoliPersistentState implements Serializable {
     }
     //properties
 
+
+    public Map<String, AnalysisMethodPersistance> getMapMethodNamesToDefaults() {
+        if (mapMethodNamesToDefaults == null) {
+            mapMethodNamesToDefaults = new TreeMap<>();
+            serializeSelf();
+        }
+        return mapMethodNamesToDefaults;
+    }
 
     public TripoliSpeciesColorMap getMapOfSpeciesToColors() {
         if (mapOfSpeciesToColors == null) {
