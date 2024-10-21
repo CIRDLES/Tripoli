@@ -7,6 +7,10 @@ import javafx.scene.layout.Region;
 
 public class IsotopePaneRow extends HBox {
 
+    private static final double TITLE_WIDTH = 124;
+    private static final double PADDING = 10;
+    private static final double COLOR_WIDTH = 90;
+    // The padding is
     private final Label title;
     private final ColorPickerSplotch faradayData;
     private final ColorPickerSplotch pmData;
