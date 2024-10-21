@@ -25,6 +25,11 @@
                   <AnchorPane fx:id="plotIntensitiesAnchorPane" prefHeight="474.0" prefWidth="536.0" />
                </content>
             </Tab>
+            <Tab closable="false" text="Plot Intensities Color Control">
+               <content>
+                  <AnchorPane fx:id="plotIntensitiesAnchorPaneExp" prefHeight="474.0" prefWidth="536.0" />
+               </content>
+            </Tab>
          </tabs>
       </TabPane>
       <ToolBar fx:id="saveDefaultsToolbar" prefHeight="30.0" prefWidth="536.0" style="-fx-border-width: .5; -fx-border-color: #888888;">

@@ -41,7 +41,7 @@ public class SpeciesColorSelectionScrollPane extends ScrollPane {
             SpeciesIntensityColorSelectionPane pane = new SpeciesIntensityColorSelectionPane(speciesRecordInterface,
                     analysis.getAnalysisMapOfSpeciesToColors(),
                     delegateActionSet,
-                           140); // TODO: make this more robust
+                           140); // TODO: make this more robust to deal with minimum sized fonts
             paneVBox.getChildren().add(pane);
             speciesIntensityColorSelectionPanes.add(pane);
         }

@@ -38,8 +38,12 @@ public class SettingsWindowController implements Initializable {
     private AnchorPane ratioColorSelectionAnchorPane;
 
     @FXML
+    private AnchorPane plotIntensitiesAnchorPaneExp;
+
+    @FXML
     private ToolBar saveDefaultsToolbar;
-//    @FXML
+
+    //    @FXML
 //    private Button okButton;
 //    @FXML
 //    private Button revertToSavedButton;
@@ -47,7 +51,6 @@ public class SettingsWindowController implements Initializable {
 //    private Button restoreDefaultsButton;
     @FXML
     private Button cancelButton;
-
 
 
     @Override
@@ -95,6 +98,10 @@ public class SettingsWindowController implements Initializable {
 
     public Button getCancelButton() {
         return cancelButton;
+    }
+
+    public AnchorPane getPlotIntensitiesAnchorPaneExp() {
+        return plotIntensitiesAnchorPaneExp;
     }
 
 }
