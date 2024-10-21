@@ -24,6 +24,15 @@ public class ColorPickerSplotch extends StackPane {
     private final Label label;
 
     private final ObjectProperty<Color> colorValue;
+
+    public String getTextValue() {
+        return textValue.get();
+    }
+
+    public ObjectProperty<String> textValueProperty() {
+        return textValue;
+    }
+
     private final ObjectProperty<String> textValue;
     private String hexColor;// TODO: make this an ObjectProperty<String>
     private Setter<String> hexColorSetter;

@@ -8,10 +8,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneIntensities;
-import org.cirdles.tripoli.gui.settings.color.fxcomponents.RatioColorSelectionPane;
-import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesColorSelectionScrollPane;
-import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesIntensityColorSelectionPane;
-import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesIntensityColorSelectionScrollPane;
+import org.cirdles.tripoli.gui.settings.color.fxcomponents.*;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
@@ -87,6 +84,16 @@ public class SettingsWindow {
             settingsWindowController.getPlotIntensitiesAnchorPaneExp().getChildren().add(
                     speciesIntensityColorSelectionScrollPane
             );
+            //  Experimental
+            for (SpeciesRecordInterface speciesRecordInterface : analysis.getAnalysisMethod().getSpeciesList()) {
+                settingsWindowController.getPlotIntensitiesVBox().getChildren().add(
+                        new IsotopePaneRow(
+                                speciesRecordInterface,
+                                ((Analysis) analysis).getAnalysisMapOfSpeciesToColors(),
+                                PlotWallPaneIntensities.getDelegateActionSet(),
+                                30)
+                );
+            }
             stage.setTitle("Settings");
         } catch (IOException e) {
             e.printStackTrace();

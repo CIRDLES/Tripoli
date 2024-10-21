@@ -41,6 +41,9 @@ public class SettingsWindowController implements Initializable {
     private AnchorPane plotIntensitiesAnchorPaneExp;
 
     @FXML
+    private VBox plotIntensitiesVBox;
+
+    @FXML
     private ToolBar saveDefaultsToolbar;
 
     //    @FXML
@@ -49,9 +52,9 @@ public class SettingsWindowController implements Initializable {
 //    private Button revertToSavedButton;
 //    @FXML
 //    private Button restoreDefaultsButton;
+
     @FXML
     private Button cancelButton;
-
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -102,6 +105,10 @@ public class SettingsWindowController implements Initializable {
 
     public AnchorPane getPlotIntensitiesAnchorPaneExp() {
         return plotIntensitiesAnchorPaneExp;
+    }
+
+    public VBox getPlotIntensitiesVBox() {
+        return plotIntensitiesVBox;
     }
 
 }
