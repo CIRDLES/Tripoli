@@ -70,6 +70,7 @@ import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compa
 
 public class AnalysisManagerController implements Initializable, AnalysisManagerCallbackI {
 
+    public static boolean readingFile = false;
     public static AnalysisInterface analysis;
     public static MCMCPlotsWindow MCMCPlotsWindow;
     public static MCMC2PlotsWindow MCMC2PlotsWindow;
@@ -247,6 +248,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                         tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
                         analysis = analysisProposed;
                         // manage analysis
+                        readingFile = true;
                         MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
                                 .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
                         menuItemAnalysesManager.fire();
@@ -271,10 +273,15 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         setupListeners();
 
         try {
-            previewAndSculptDataFromFile();
+            if (readingFile){
+                readingFile = false;
+                previewAndSculptDataFromFile();
+            } else {
+                previewAndSculptDataAction();
+            }
             populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
         } catch (TripoliException e) {
-//TODO: ALL            throw new RuntimeException(e);
+//TODO: ALL need fixing:           throw new RuntimeException(e);
         }
 
         ImageView imageView = new ImageView(getClass().getResource("/" + TRIPOLI_CLIPBOARD_ICON).toExternalForm());
@@ -1074,13 +1081,15 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
         AnalysisMethodPersistance analysisMethodPersistance =
                 tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
-        Map<String, UserFunctionDisplay> userFunctionDisplayMap = analysisMethodPersistance.getUserFunctionDisplayMap();
-        List<UserFunction> userFunctions = analysis.getAnalysisMethod().getUserFunctions();
-        for (int i = 0; i < userFunctions.size(); i++) {
-            UserFunctionDisplay userFunctionDisplay = userFunctionDisplayMap.get(userFunctions.get(i).getName());
-            if (userFunctionDisplay != null) {
-                userFunctions.get(i).setDisplayed(userFunctionDisplay.isDisplayed());
-                userFunctions.get(i).setInverted(userFunctionDisplay.isInverted());
+        if (analysisMethodPersistance != null) {
+            Map<String, UserFunctionDisplay> userFunctionDisplayMap = analysisMethodPersistance.getUserFunctionDisplayMap();
+            List<UserFunction> userFunctions = analysis.getAnalysisMethod().getUserFunctions();
+            for (int i = 0; i < userFunctions.size(); i++) {
+                UserFunctionDisplay userFunctionDisplay = userFunctionDisplayMap.get(userFunctions.get(i).getName());
+                if (userFunctionDisplay != null) {
+                    userFunctions.get(i).setDisplayed(userFunctionDisplay.isDisplayed());
+                    userFunctions.get(i).setInverted(userFunctionDisplay.isInverted());
+                }
             }
         }
         previewAndSculptDataAction();
@@ -1088,16 +1097,16 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     public void previewAndSculptDataAction() throws TripoliException {
         // ogTripoli view
-//        // first time opening file, suppress plotting
-//        TripoliPersistentState tripoliPersistentState = null;
-//        try {
-//            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
-//        } catch (TripoliException e) {
-////            throw new RuntimeException(e);
-//        }
+        // first time opening file, suppress plotting
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+//            throw new RuntimeException(e);
+        }
 
-        if ((analysis.getMethod() != null)){// &&
-               // (tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName()) != null)) {
+        if ((analysis.getMethod() != null)&&
+                (tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName()) != null)) {
             if (null != ogTripoliPreviewPlotsWindow) {
                 ogTripoliPreviewPlotsWindow.close();
             }
