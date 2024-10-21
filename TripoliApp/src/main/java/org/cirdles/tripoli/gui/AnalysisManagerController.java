@@ -3,7 +3,6 @@ package org.cirdles.tripoli.gui;
 import jakarta.xml.bind.JAXBException;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -60,7 +59,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
-import static org.cirdles.tripoli.constants.TripoliConstants.ReductionModeEnum;
 import static org.cirdles.tripoli.gui.SessionManagerController.tripoliSession;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
@@ -273,7 +271,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         setupListeners();
 
         try {
-            previewAndSculptDataAction();
+            previewAndSculptDataFromFile();
             populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
         } catch (TripoliException e) {
 //TODO: ALL            throw new RuntimeException(e);
@@ -503,7 +501,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
     }
 
-    private void setupDefaults(){
+    private void setupDefaults() {
         // determine saved display status for userfunctions
         TripoliPersistentState tripoliPersistentState = null;
         try {
@@ -516,18 +514,18 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         AnalysisMethodPersistance analysisMethodPersistance =
                 tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
-        if (analysisMethodPersistance == null){
+        if (analysisMethodPersistance == null) {
             analysisMethodPersistance = new AnalysisMethodPersistance(10);
             tripoliPersistentState.getMapMethodNamesToDefaults().put(analysis.getMethod().getMethodName(), analysisMethodPersistance);
         }
 
         Map<String, UserFunctionDisplay> userFunctionDisplayMap = analysisMethodPersistance.getUserFunctionDisplayMap();
-        if (userFunctionDisplayMap.isEmpty()){
-            for (int i = 0; i < userFunctions.size(); i ++){
+        if (userFunctionDisplayMap.isEmpty()) {
+            for (int i = 0; i < userFunctions.size(); i++) {
                 userFunctionDisplayMap.put(userFunctions.get(i).getName(), userFunctions.get(i).calcUserFunctionDisplay());
             }
         } else {
-            for (int i = 0; i < userFunctions.size(); i ++){
+            for (int i = 0; i < userFunctions.size(); i++) {
                 UserFunctionDisplay userFunctionDisplay = userFunctionDisplayMap.get(userFunctions.get(i).getName());
                 if (userFunctionDisplay != null) {
                     userFunctions.get(i).setDisplayed(userFunctionDisplay.isDisplayed());
@@ -537,6 +535,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
         tripoliPersistentState.updateTripoliPersistentState();
     }
+
     private void populateAnalysisMethodColumnsSelectorPane() {
         List<CheckBox> ratioCheckBoxList = new ArrayList<>();
         List<CheckBox> ratioInvertedCheckBoxList = new ArrayList<>();
@@ -572,7 +571,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         hBox.setPadding(new Insets(5, 5, 5, 5));
         hBox.setAlignment(Pos.CENTER_LEFT);
         hBox.prefWidthProperty().bind(ratiosVBox.widthProperty());
-
 
 
         List<UserFunction> userFunctions = analysis.getAnalysisMethod().getUserFunctions();
@@ -953,7 +951,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
     }
 
-    private void loadDataFile(File selectedFile){
+    private void loadDataFile(File selectedFile) {
         boolean legalFile = true;
         removeAnalysisMethod();
         String currentAnalysisName = analysis.getAnalysisName();
@@ -1013,7 +1011,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 String compareInfo = compareAnalysisMethodToDataFileSpecs(analysisMethod, analysis.getMassSpecExtractedData());
                 if (compareInfo.isBlank()) {
                     analysis.setMethod(analysisMethod);
-                    switchedMethod= true;
+                    switchedMethod = true;
                     ((Analysis) analysis).initializeBlockProcessing();
                     TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedFile.getParent());
                 } else {
@@ -1066,8 +1064,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
 
-    public void previewAndSculptDataAction() throws TripoliException {
-        // ogTripoli view
+    private void previewAndSculptDataFromFile() throws TripoliException {
         // first time opening file, suppress plotting
         TripoliPersistentState tripoliPersistentState = null;
         try {
@@ -1075,9 +1072,32 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         } catch (TripoliException e) {
 //            throw new RuntimeException(e);
         }
+        AnalysisMethodPersistance analysisMethodPersistance =
+                tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+        Map<String, UserFunctionDisplay> userFunctionDisplayMap = analysisMethodPersistance.getUserFunctionDisplayMap();
+        List<UserFunction> userFunctions = analysis.getAnalysisMethod().getUserFunctions();
+        for (int i = 0; i < userFunctions.size(); i++) {
+            UserFunctionDisplay userFunctionDisplay = userFunctionDisplayMap.get(userFunctions.get(i).getName());
+            if (userFunctionDisplay != null) {
+                userFunctions.get(i).setDisplayed(userFunctionDisplay.isDisplayed());
+                userFunctions.get(i).setInverted(userFunctionDisplay.isInverted());
+            }
+        }
+        previewAndSculptDataAction();
+    }
 
-        if ((analysis.getMethod() != null) &&
-                        (tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName()) != null)) {
+    public void previewAndSculptDataAction() throws TripoliException {
+        // ogTripoli view
+//        // first time opening file, suppress plotting
+//        TripoliPersistentState tripoliPersistentState = null;
+//        try {
+//            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+//        } catch (TripoliException e) {
+////            throw new RuntimeException(e);
+//        }
+
+        if ((analysis.getMethod() != null)){// &&
+               // (tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName()) != null)) {
             if (null != ogTripoliPreviewPlotsWindow) {
                 ogTripoliPreviewPlotsWindow.close();
             }
@@ -1101,18 +1121,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             }
 
             if (plottingData != null) {
-                AnalysisMethodPersistance analysisMethodPersistance =
-                        tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
-                Map<String, UserFunctionDisplay> userFunctionDisplayMap = analysisMethodPersistance.getUserFunctionDisplayMap();
-                List<UserFunction> userFunctions = analysis.getAnalysisMethod().getUserFunctions();
-                    for (int i = 0; i < userFunctions.size(); i ++){
-                        UserFunctionDisplay userFunctionDisplay = userFunctionDisplayMap.get(userFunctions.get(i).getName());
-                        if (userFunctionDisplay != null) {
-                            userFunctions.get(i).setDisplayed(userFunctionDisplay.isDisplayed());
-                            userFunctions.get(i).setInverted(userFunctionDisplay.isInverted());
-                        }
-                    }
-
                 populateAnalysisMethodColumnsSelectorPane();
                 ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
                 ogTripoliPreviewPlotsWindow.loadPlotsWindow();
@@ -1258,11 +1266,11 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
 
         Map<String, UserFunctionDisplay> userFunctionDisplayMap = analysisMethodPersistance.getUserFunctionDisplayMap();
-            for (int i = 0; i < userFunctions.size(); i ++){
-                UserFunctionDisplay userFunctionDisplay = userFunctionDisplayMap.get(userFunctions.get(i).getName());
-                userFunctionDisplay.setDisplayed(userFunctions.get(i).isDisplayed());
-                userFunctionDisplay.setInverted(userFunctions.get(i).isInverted());
-            }
+        for (int i = 0; i < userFunctions.size(); i++) {
+            UserFunctionDisplay userFunctionDisplay = userFunctionDisplayMap.get(userFunctions.get(i).getName());
+            userFunctionDisplay.setDisplayed(userFunctions.get(i).isDisplayed());
+            userFunctionDisplay.setInverted(userFunctions.get(i).isInverted());
+        }
 
         tripoliPersistentState.updateTripoliPersistentState();
     }

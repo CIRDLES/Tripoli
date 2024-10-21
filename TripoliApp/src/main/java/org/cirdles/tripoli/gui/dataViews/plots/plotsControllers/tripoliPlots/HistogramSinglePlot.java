@@ -30,9 +30,9 @@ import org.cirdles.tripoli.plots.histograms.HistogramRecord;
  */
 public class HistogramSinglePlot extends AbstractPlot {
 
+    private final PlotWallPane parentWallPane;
     protected HistogramRecord histogramRecord;
     protected double binWidth;
-    private final PlotWallPane parentWallPane;
 
     protected HistogramSinglePlot(Rectangle bounds, HistogramRecord histogramRecord, PlotWallPane parentWallPane) {
         super(bounds,

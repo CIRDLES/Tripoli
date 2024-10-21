@@ -1,6 +1,8 @@
 package org.cirdles.tripoli.utilities;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DelegateActionSet {
     private final Set<DelegateActionInterface> actionSet;
@@ -19,7 +21,7 @@ public class DelegateActionSet {
     }
 
     public void executeDelegateActions() {
-        for (DelegateActionInterface delegateActionInterface: actionSet) {
+        for (DelegateActionInterface delegateActionInterface : actionSet) {
             delegateActionInterface.act();
         }
     }

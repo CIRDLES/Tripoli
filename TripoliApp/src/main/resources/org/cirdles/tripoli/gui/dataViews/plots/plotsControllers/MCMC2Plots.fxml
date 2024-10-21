@@ -16,32 +16,29 @@
  * limitations under the License.
  -->
 
-<?import javafx.scene.control.ProgressBar?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
-
-<VBox fx:id="masterVBox" minHeight="600.0" minWidth="1200.0" prefHeight="600.0" prefWidth="1200.0" stylesheets="@../../../css/newcss.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMC2PlotsController">
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="masterVBox" minHeight="600.0" minWidth="1200.0" prefHeight="600.0"
+      prefWidth="1200.0" stylesheets="@../../../css/newcss.css" xmlns="http://javafx.com/javafx/17"
+      fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMC2PlotsController">
     <SplitPane dividerPositions="0.8" minHeight="565.0" minWidth="1000.0" orientation="VERTICAL" VBox.vgrow="ALWAYS">
         <TabPane fx:id="plotTabPane">
             <Tab closable="false" text="Ensembles">
-                <AnchorPane fx:id="ensemblePlotsAnchorPane" />
+                <AnchorPane fx:id="ensemblePlotsAnchorPane"/>
             </Tab>
         </TabPane>
         <SplitPane dividerPositions="0.25" maxHeight="200.0" prefHeight="172.0" prefWidth="1000.0">
-            <ScrollPane fx:id="listOfFilesScrollPane" />
+            <ScrollPane fx:id="listOfFilesScrollPane"/>
             <VBox>
                 <children>
-                    <TextArea fx:id="eventLogTextArea" editable="false" style="-fx-font-size: 24;" text="This space will display stats during execution." />
-                    <ProgressBar fx:id="progressBar" minHeight="25.0" minWidth="500.0" prefHeight="25.0" prefWidth="848.0" progress="0.0" />
+                    <TextArea fx:id="eventLogTextArea" editable="false" style="-fx-font-size: 24;"
+                              text="This space will display stats during execution."/>
+                    <ProgressBar fx:id="progressBar" minHeight="25.0" minWidth="500.0" prefHeight="25.0"
+                                 prefWidth="848.0" progress="0.0"/>
                 </children>
             </VBox>
         </SplitPane>
     </SplitPane>
-    <ToolBar fx:id="toolbar" prefHeight="35.0" />
+    <ToolBar fx:id="toolbar" prefHeight="35.0"/>
 </VBox>

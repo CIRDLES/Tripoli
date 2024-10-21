@@ -95,7 +95,7 @@ public class MathUtilities {
 
         boolean[] includedIndices = includedIndicesIn.clone();
         //if ((Booleans.countTrue(includedIndicesIn) == includedIndicesIn.length) && (includedIndicesIn.length >= requiredMinDatumCount)) {
-            if ((Booleans.countTrue(includedIndices) >= requiredMinDatumCount)) {
+        if ((Booleans.countTrue(includedIndices) >= requiredMinDatumCount)) {
             DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics();
             for (int i = 0; i < dataIn.length; i++) {
                 if (includedIndices[i]) {

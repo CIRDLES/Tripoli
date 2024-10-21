@@ -21,9 +21,6 @@ import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
 import org.cirdles.tripoli.sessions.analysis.BlockStatsRecord;
-import org.cirdles.tripoli.utilities.exceptions.TripoliException;
-import org.cirdles.tripoli.utilities.stateUtilities.AnalysisMethodPersistance;
-import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
@@ -88,7 +85,7 @@ public class UserFunction implements Comparable, Serializable {
         return userFunction;
     }
 
-    public UserFunctionDisplay calcUserFunctionDisplay(){
+    public UserFunctionDisplay calcUserFunctionDisplay() {
         return new UserFunctionDisplay(name, displayed, inverted);
     }
 

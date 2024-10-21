@@ -275,7 +275,7 @@ public class OGTripoliViewController {
 
         ogtSpeciesResidualsPlotAnchorPane.getChildren().add(((Pane) plotsWallPaneResiduals));
         ogtSpeciesResidualsPlotAnchorPane.getChildren().addListener((ListChangeListener<Node>) change -> {
-            if (change.wasRemoved() && change.getRemoved().contains(plotsWallPaneResiduals)){
+            if (change.wasRemoved() && change.getRemoved().contains(plotsWallPaneResiduals)) {
                 ((PlotWallPaneIntensities) plotsWallPaneResiduals).close();
             }
         });

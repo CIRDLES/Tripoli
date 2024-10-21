@@ -30,8 +30,6 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-import javafx.scene.transform.Rotate;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.dataViews.plots.*;
@@ -873,7 +871,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             // cycle mode
             boolean[] cycleModeIncluded = analysisStatsRecord.cycleModeIncluded();
             double[] cycleModeData = analysisStatsRecord.cycleModeData();
-            if (true){//(Booleans.countTrue(cycleModeIncluded) == cycleModeIncluded.length) {
+            if (true) {//(Booleans.countTrue(cycleModeIncluded) == cycleModeIncluded.length) {
                 boolean[] chauvenets = applyChauvenetsCriterion(cycleModeData, cycleModeIncluded);
                 // reset included cycles for each block
                 BlockStatsRecord[] blockStatsRecords = analysisStatsRecord.blockStatsRecords();

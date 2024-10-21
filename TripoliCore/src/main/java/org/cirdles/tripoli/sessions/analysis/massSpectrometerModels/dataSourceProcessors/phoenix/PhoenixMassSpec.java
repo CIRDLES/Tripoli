@@ -64,7 +64,7 @@ public enum PhoenixMassSpec {
         columnNamesFixedList.add("");
         columnNamesFixedList.add("");
         Cell[] functionNamesRow = cycleSheet.getRow(1);
-        for (int col = 2; col < functionNamesRow.length; col++){
+        for (int col = 2; col < functionNamesRow.length; col++) {
             if (functionNamesRow[col].getType() != CellType.EMPTY) {
                 columnNamesFixedList.add(functionNamesRow[col].getContents().trim());
             }
@@ -88,7 +88,7 @@ public enum PhoenixMassSpec {
 
         String sampleName = ctrlSheet.getCell(3, 7).getContents().trim();
         String methodName = ctrlSheet.getCell(3, 11).getContents().trim();
-        int cyclesPerBlock = (int)((NumberCell)ctrlSheet.getCell(3, 12)).getValue();
+        int cyclesPerBlock = (int) ((NumberCell) ctrlSheet.getCell(3, 12)).getValue();
 
         // April 2024 to handle aborted runs, find end of cycles and divide by cyclesperblock
         int countOfAllDataCycles = cycleSheet.getColumn(0).length - countOfHeaderLines;

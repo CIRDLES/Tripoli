@@ -90,7 +90,7 @@ public enum TestDriver {
             double[][][] postBurnInChains = new double[setup.modelParameterCount()][modelChains[0].length - setup.burnIn()][setup.chainsCount()];
             for (int i = 0; i < setup.modelParameterCount(); i++) {
                 for (int j = 0; j < nSavedModels - setup.burnIn(); j++) {
-                    for (int k = 0; k < setup.chainsCount(); k++){
+                    for (int k = 0; k < setup.chainsCount(); k++) {
                         postBurnInChains[i][j][k] = modelChains[i][j + setup.burnIn()][k];
                     }
                 }
@@ -113,7 +113,7 @@ public enum TestDriver {
             double[] sums = new double[setup.modelParameterCount()];
             for (int i = 0; i < setup.modelParameterCount(); i++) {
                 for (int j = 0; j < setup.postBurnInCount(); j++) {
-                    for (int k = 0; k < setup.chainsCount(); k++){
+                    for (int k = 0; k < setup.chainsCount(); k++) {
                         allModels[i][j + k * setup.postBurnInCount()] = postBurnInChains[i][j][k];
                         sums[i] += postBurnInChains[i][j][k];
                     }
@@ -121,7 +121,7 @@ public enum TestDriver {
             }
             double[] modelMeans = new double[setup.modelParameterCount()];
             double[] rArray = new double[setup.modelParameterCount()];
-            for (int i = 0; i < setup.modelParameterCount(); i++){
+            for (int i = 0; i < setup.modelParameterCount(); i++) {
                 modelMeans[i] = sums[i] / (setup.postBurnInCount() * setup.chainsCount());
                 rArray[i] = modelMeans[i] - truthModel[i];
             }
@@ -132,12 +132,12 @@ public enum TestDriver {
 
             Matrix modelCovMatrix = new Matrix(modelCov);
             Matrix rMatrix = new Matrix(rArray, rArray.length);
-            double chiSquare = rMatrix.transpose().times(modelCovMatrix.inverse()).times(rMatrix).get(0,0);
+            double chiSquare = rMatrix.transpose().times(modelCovMatrix.inverse()).times(rMatrix).get(0, 0);
 
             allResults[simulationIndex] = new MCMC2ResultsRecord(simulationIndex, modelMeans, modelCov, rArray, chiSquare);
 
             if ((1 + simulationIndex) % 10 == 0) {
-                System.out.println("simulation " + simulationIndex + "   millisecs: " +  (System.currentTimeMillis() - startTime));//              ((System.nanoTime() - startTime) / 1000000000));
+                System.out.println("simulation " + simulationIndex + "   millisecs: " + (System.currentTimeMillis() - startTime));//              ((System.nanoTime() - startTime) / 1000000000));
             }
         } // simulationIndex
 

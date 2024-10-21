@@ -114,12 +114,12 @@ public class MassSpecExtractedData implements Serializable {
             }
         }
 
-      //  if (cyclesPerBlock == 0){
-            if (TripoliPersistentState.getExistingPersistentState().getMapMethodNamesToDefaults().containsKey(methodName)) {
-                cyclesPerBlock = TripoliPersistentState.getExistingPersistentState().getMapMethodNamesToDefaults().get(methodName).getCyclesPerBlock();
-            } //else cyclesPerBlock = 10;
-    //    }
-        if (cyclesPerBlock == 0){
+        //  if (cyclesPerBlock == 0){
+        if (TripoliPersistentState.getExistingPersistentState().getMapMethodNamesToDefaults().containsKey(methodName)) {
+            cyclesPerBlock = TripoliPersistentState.getExistingPersistentState().getMapMethodNamesToDefaults().get(methodName).getCyclesPerBlock();
+        } //else cyclesPerBlock = 10;
+        //    }
+        if (cyclesPerBlock == 0) {
             cyclesPerBlock = 10;
         }
 

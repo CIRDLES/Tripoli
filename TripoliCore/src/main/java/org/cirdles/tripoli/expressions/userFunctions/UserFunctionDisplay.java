@@ -1,10 +1,9 @@
 package org.cirdles.tripoli.expressions.userFunctions;
 
-import java.io.Serial;
 import java.io.Serializable;
 
 public class UserFunctionDisplay implements Serializable {
-//    @Serial
+    //    @Serial
 //    private static final long serialVersionUID = -5408855769497340457L;
     private String name;
     private boolean displayed;

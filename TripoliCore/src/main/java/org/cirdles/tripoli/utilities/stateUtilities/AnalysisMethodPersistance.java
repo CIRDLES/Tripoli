@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 public class AnalysisMethodPersistance implements Serializable {
     private static final long serialVersionUID = -3839100871560617989L;
-//        private void readObject(ObjectInputStream stream) throws IOException,
+    //        private void readObject(ObjectInputStream stream) throws IOException,
 //            ClassNotFoundException {
 //        stream.defaultReadObject();
 //
@@ -35,7 +35,7 @@ public class AnalysisMethodPersistance implements Serializable {
     }
 
     public Map<String, UserFunctionDisplay> getUserFunctionDisplayMap() {
-        if( userFunctionDisplay == null){
+        if (userFunctionDisplay == null) {
             userFunctionDisplay = new TreeMap<>();
         }
         return userFunctionDisplay;

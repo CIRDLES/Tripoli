@@ -17,7 +17,6 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
 import jama.Matrix;
-import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.plots.PlotBuilder;
@@ -29,7 +28,10 @@ import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLabCholesky;
 
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 import static java.lang.Math.min;
 import static java.lang.Math.pow;
@@ -49,12 +51,13 @@ public class MCMCProcess {
     private final Matrix covarianceMatrix_C0;
     private final AnalysisMethod analysisMethod;
     private final SingleBlockRawDataSetRecord singleBlockRawDataSetRecord;
-    private List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
     private final AnalysisInterface analysis;
+    private final ProposedModelParameters.ProposalRangesRecord proposalRangesRecord;
+    private final boolean useAverageNotBestModel;
+    private List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
     private boolean hierarchical;
     private double tempering;
     private double[] baselineMultiplier;
-    private final ProposedModelParameters.ProposalRangesRecord proposalRangesRecord;
     private double[] dataModelArrayInitial;
     private double[] dataSignalNoiseArray;
     private double initialModelErrorWeighted_E;
@@ -68,7 +71,6 @@ public class MCMCProcess {
     private Matrix TT;
     private double effectSamp;
     private double ExitCrit;
-    private final boolean useAverageNotBestModel;
 
     private MCMCProcess(
             AnalysisInterface analysis,

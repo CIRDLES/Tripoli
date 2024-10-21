@@ -23,7 +23,7 @@ public enum DataUtilities {
         double[] dataInt = extractDoubleData(iSim, "data-int.txt");
         double[] dataDet = extractDoubleData(iSim, "data-det.txt");
         double[] dataIso = extractDoubleData(iSim, "data-iso.txt");
-        boolean[] dataIsOP = extractBooleanData(iSim,"data-isOP.txt");
+        boolean[] dataIsOP = extractBooleanData(iSim, "data-isOP.txt");
 
         return new MCMC2DataRecord(
                 null, null, null, null, dataInt, dataIsOP, dataDet, dataIso, null, null);

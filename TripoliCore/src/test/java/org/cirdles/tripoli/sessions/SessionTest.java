@@ -11,9 +11,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 class SessionTest {
 
     Path testFilePath = (new File("TestSession.tripoli")).toPath();

@@ -31,7 +31,9 @@ import org.cirdles.tripoli.utilities.DelegateActionSet;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 public class ColorSelectionWindow {
     public static final String WINDOW_TITLE = "Color Customization";
@@ -47,6 +49,8 @@ public class ColorSelectionWindow {
     private final Map<SpeciesRecordInterface, SpeciesColors> sessionDefaultMapOfSpeciesToColors;
     private final Stack<SpeciesColorSetting> previousSpeciesColorSettingsStack;
     private final VBox root;
+    private final ColorListener colorListener;
+    private final DelegateActionSet rebuildDelegateActionSet;
     private Stage stage;
     private ColorPicker colorPicker;
     private Label colorPickerLabel;// To change the text of the color picker
@@ -55,60 +59,8 @@ public class ColorSelectionWindow {
     private Button undoButton;
     private Button saveAsSessionDefaultButton;
     private Button saveAsUserDefaultButton;
-    private final ColorListener colorListener;
-    private final DelegateActionSet rebuildDelegateActionSet;
 
 
-
-    private class ColorListener implements ChangeListener<Color> {
-
-        private ColorSplotch colorSplotchReference;
-
-        public ColorListener(ColorSplotch colorSplotchReference) {
-            this.colorSplotchReference = colorSplotchReference;
-        }
-
-        @Override
-        public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
-            DetectorPlotFlavor plotFlavor = colorSplotchReference.getPlotFlavor();
-            int index = colorSplotchReference.getIndex();
-            SpeciesRecordInterface speciesRecordInterface = speciesRecordInterfaceList.get(index);
-            SpeciesColors speciesColors =
-                    analysisMapOfSpeciesToColors.remove(speciesRecordInterface);
-            analysisMapOfSpeciesToColors.put(speciesRecordInterface,
-                    speciesColors.altered(plotFlavor,
-                            String.format("#%02x%02x%02x",
-                                    (int) (newValue.getRed() * 255),
-                                    (int) (newValue.getGreen() * 255),
-                                    (int) (newValue.getBlue() * 255))));
-            colorSplotchReference.setColor(newValue);
-            setColorPickerLabelText();
-            rebuildDelegateActionSet.executeDelegateActions();
-        }
-        public void setColorSplotch(ColorSplotch colorSplotch) {
-            this.colorSplotchReference = colorSplotch;
-        }
-
-    }
-    public static ColorSelectionWindow colorSelectionWindowRequest(
-            Map<SpeciesRecordInterface, SpeciesColors> analysisMapOfSpeciesToColors,
-            List<SpeciesRecordInterface> species,
-            Map<SpeciesRecordInterface, SpeciesColors> sessionDefaultMapOfSpeciesToColors,
-            int indexOfFirstCheckedSpecies,
-            Window owner,
-            DelegateActionSet rebuildDelegateActionSet) {
-        if (instance == null) {
-            instance = new ColorSelectionWindow(
-                    analysisMapOfSpeciesToColors,
-                    species,
-                    sessionDefaultMapOfSpeciesToColors,
-                    indexOfFirstCheckedSpecies,
-                    owner,
-                    rebuildDelegateActionSet);
-        }
-        instance.centerOverOwner();
-        return instance;
-    }
     private ColorSelectionWindow(Map<SpeciesRecordInterface, SpeciesColors> analysisMapOfSpeciesToColors,
                                  List<SpeciesRecordInterface> species,
                                  Map<SpeciesRecordInterface, SpeciesColors> sessionDefaultMapOfSpeciesToColors,
@@ -166,6 +118,26 @@ public class ColorSelectionWindow {
         this.stage.setWidth(WINDOW_PREF_WIDTH);
     }
 
+    public static ColorSelectionWindow colorSelectionWindowRequest(
+            Map<SpeciesRecordInterface, SpeciesColors> analysisMapOfSpeciesToColors,
+            List<SpeciesRecordInterface> species,
+            Map<SpeciesRecordInterface, SpeciesColors> sessionDefaultMapOfSpeciesToColors,
+            int indexOfFirstCheckedSpecies,
+            Window owner,
+            DelegateActionSet rebuildDelegateActionSet) {
+        if (instance == null) {
+            instance = new ColorSelectionWindow(
+                    analysisMapOfSpeciesToColors,
+                    species,
+                    sessionDefaultMapOfSpeciesToColors,
+                    indexOfFirstCheckedSpecies,
+                    owner,
+                    rebuildDelegateActionSet);
+        }
+        instance.centerOverOwner();
+        return instance;
+    }
+
     private void makeSelection(int speciesIndex, DetectorPlotFlavor plotFlavor) {
         speciesColorRowSelectionRecord.speciesColorPane().removeHighlight();
         speciesColorRowSelectionRecord.speciesColorRow().removeHighlight();
@@ -178,11 +150,10 @@ public class ColorSelectionWindow {
                 selectedRow,
                 new SpeciesColorSetting(
                         speciesIndex, analysisMapOfSpeciesToColors.get(
-                                speciesRecordInterfaceList.get(speciesIndex))));
+                        speciesRecordInterfaceList.get(speciesIndex))));
     }
 
-
-    private void resetToSessionDefault(){
+    private void resetToSessionDefault() {
         previousSpeciesColorSettingsStack.clear();
         undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
         analysisMapOfSpeciesToColors.putAll(sessionDefaultMapOfSpeciesToColors);
@@ -190,7 +161,7 @@ public class ColorSelectionWindow {
             SpeciesColors speciesColors = analysisMapOfSpeciesToColors.get(
                     speciesRecordInterfaceList.get(speciesIndex));
             SpeciesColorPane pane = speciesColorPanes[speciesIndex];
-            for(DetectorPlotFlavor plotFlavor: DetectorPlotFlavor.values()) {
+            for (DetectorPlotFlavor plotFlavor : DetectorPlotFlavor.values()) {
                 pane.getMapOfPlotFlavorsToSpeciesColorRows().get(plotFlavor).setColor(
                         Color.web(speciesColors.get(plotFlavor)));
             }
@@ -199,15 +170,15 @@ public class ColorSelectionWindow {
         rebuildDelegateActionSet.executeDelegateActions();
     }
 
-    private void undo(){
-        if (!previousSpeciesColorSettingsStack.empty()){
+    private void undo() {
+        if (!previousSpeciesColorSettingsStack.empty()) {
             SpeciesColorSetting previousSpeciesColorSetting = previousSpeciesColorSettingsStack.pop();
             undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
             analysisMapOfSpeciesToColors.put(
                     speciesRecordInterfaceList.get(previousSpeciesColorSetting.index()),
                     previousSpeciesColorSetting.speciesColors());
             SpeciesColorPane speciesColorPane = speciesColorPanes[previousSpeciesColorSetting.index()];
-            for(DetectorPlotFlavor plotFlavor: DetectorPlotFlavor.values()) {
+            for (DetectorPlotFlavor plotFlavor : DetectorPlotFlavor.values()) {
                 speciesColorPane.getMapOfPlotFlavorsToSpeciesColorRows().
                         get(plotFlavor).
                         setColor(Color.web(
@@ -218,13 +189,12 @@ public class ColorSelectionWindow {
         }
     }
 
-
     private void saveAsSessionDefault() {
         sessionDefaultMapOfSpeciesToColors.putAll(analysisMapOfSpeciesToColors);
     }
 
     private void saveAsUserDefault() {
-        try{
+        try {
             TripoliPersistentState.getExistingPersistentState().getMapOfSpeciesToColors().putAll(analysisMapOfSpeciesToColors);
             TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
         } catch (TripoliException ex) {
@@ -233,14 +203,14 @@ public class ColorSelectionWindow {
     }
 
     private void setColorPickerLabelText() {
-        if(colorPickerLabel == null) {
-            for(Node child : colorPicker.getChildrenUnmodifiable()) {
-                if(child instanceof Label colorPickerLabelReference) {
+        if (colorPickerLabel == null) {
+            for (Node child : colorPicker.getChildrenUnmodifiable()) {
+                if (child instanceof Label colorPickerLabelReference) {
                     this.colorPickerLabel = colorPickerLabelReference;
                 }
             }
         }
-        if(colorPickerLabel != null) {
+        if (colorPickerLabel != null) {
             colorPickerLabel.setText(String.format("%s Color for %s Species",
                     this.colorListener.colorSplotchReference.getPlotFlavor().getName(),
                     speciesColorPanes[this.colorListener.colorSplotchReference.getIndex()]
@@ -257,7 +227,7 @@ public class ColorSelectionWindow {
         resetButton.prefWidthProperty().bind(stage.widthProperty().divide(TOOLBAR_BUTTON_WIDTH_DIVISOR));
         resetButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
         resetButton.setOnAction(resetChanges ->
-            resetToSessionDefault());
+                resetToSessionDefault());
         return resetButton;
     }
 
@@ -306,6 +276,7 @@ public class ColorSelectionWindow {
         toolBar.getItems().add(closeButton);
         return toolBar;
     }
+
     private ColorPicker initColorPicker() {
         this.colorPicker = new ColorPicker();
         this.colorPicker.prefWidthProperty().bind(stage.widthProperty());
@@ -322,6 +293,7 @@ public class ColorSelectionWindow {
         //  TODO: Set colorPickerLabel text when user cancels
         return this.colorPicker;
     }
+
     private void initSpeciesColorPanes(List<SpeciesRecordInterface> species) {
         speciesColorPanes = new SpeciesColorPane[species.size()];
         for (int i = 0; i < species.size(); ++i) {
@@ -345,7 +317,7 @@ public class ColorSelectionWindow {
         double stageHeight = stage.getHeight();
 
         double centerX = ownerX + (ownerWidth - stageWidth) / 2;
-        double centerY = ownerY + (ownerHeight - stageHeight) / 2 ;
+        double centerY = ownerY + (ownerHeight - stageHeight) / 2;
 
         stage.setX(centerX);
         stage.setY(centerY);
@@ -359,11 +331,12 @@ public class ColorSelectionWindow {
                         stage.getHeight())).isEmpty()) {
             // ... then put it in the middle of the screen by default
             Screen primaryScreen = Screen.getPrimary();
-            stage.setX(primaryScreen.getBounds().getMinX() + (primaryScreen.getBounds().getWidth() - stageWidth)/2);
-            stage.setY(primaryScreen.getBounds().getMinY() + (primaryScreen.getBounds().getHeight() - stageHeight)/2);
+            stage.setX(primaryScreen.getBounds().getMinX() + (primaryScreen.getBounds().getWidth() - stageWidth) / 2);
+            stage.setY(primaryScreen.getBounds().getMinY() + (primaryScreen.getBounds().getHeight() - stageHeight) / 2);
         }
 
     }
+
     private void initStage(Window owner) {
         stage = new Stage();
         Scene scene = new Scene(this.root);
@@ -410,7 +383,7 @@ public class ColorSelectionWindow {
                 stage.setY(stage.getY() + newValue.doubleValue() - oldValue.doubleValue());
             }
         }));
-        stage.setOnCloseRequest(closeRequest ->{
+        stage.setOnCloseRequest(closeRequest -> {
             instance = null;
             stage.close();
         });
@@ -427,7 +400,7 @@ public class ColorSelectionWindow {
                 colorListener.setColorSplotch(colorSplotch);
                 makeSelection(index, flavoredIndexedLabel.getPlotFlavor());
                 colorPicker.valueProperty().setValue(colorSplotch.getColor());
-                if (! colorPicker.getCustomColors().contains(colorSplotch.getColor())) {
+                if (!colorPicker.getCustomColors().contains(colorSplotch.getColor())) {
                     colorPicker.getCustomColors().add(colorSplotch.getColor());
                 }
                 setColorPickerLabelText();
@@ -440,12 +413,45 @@ public class ColorSelectionWindow {
     private void close() {
         stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(), WindowEvent.WINDOW_CLOSE_REQUEST));
     }
+
     public void show() {
-        if(!stage.isShowing()) {
+        if (!stage.isShowing()) {
             stage.show();
         }
         setColorPickerLabelText();
         centerOverOwner();
         stage.toFront();
+    }
+
+    private class ColorListener implements ChangeListener<Color> {
+
+        private ColorSplotch colorSplotchReference;
+
+        public ColorListener(ColorSplotch colorSplotchReference) {
+            this.colorSplotchReference = colorSplotchReference;
+        }
+
+        @Override
+        public void changed(ObservableValue<? extends Color> observable, Color oldValue, Color newValue) {
+            DetectorPlotFlavor plotFlavor = colorSplotchReference.getPlotFlavor();
+            int index = colorSplotchReference.getIndex();
+            SpeciesRecordInterface speciesRecordInterface = speciesRecordInterfaceList.get(index);
+            SpeciesColors speciesColors =
+                    analysisMapOfSpeciesToColors.remove(speciesRecordInterface);
+            analysisMapOfSpeciesToColors.put(speciesRecordInterface,
+                    speciesColors.altered(plotFlavor,
+                            String.format("#%02x%02x%02x",
+                                    (int) (newValue.getRed() * 255),
+                                    (int) (newValue.getGreen() * 255),
+                                    (int) (newValue.getBlue() * 255))));
+            colorSplotchReference.setColor(newValue);
+            setColorPickerLabelText();
+            rebuildDelegateActionSet.executeDelegateActions();
+        }
+
+        public void setColorSplotch(ColorSplotch colorSplotch) {
+            this.colorSplotchReference = colorSplotch;
+        }
+
     }
 }

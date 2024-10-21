@@ -14,7 +14,6 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
-import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.AnalysisManagerController;
 import org.cirdles.tripoli.gui.TripoliGUI;
@@ -24,10 +23,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.*;
-import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.analysisPlots.AnalysisRatioPlot;
 import org.cirdles.tripoli.plots.PlotBuilder;
-import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioRecord;
-import org.cirdles.tripoli.plots.analysisPlotBuilders.PeakCentreAnalysisBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramBuilder;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
@@ -42,20 +38,20 @@ import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import java.net.URL;
 import java.util.*;
 
-import static org.cirdles.tripoli.constants.TripoliConstants.*;
+import static org.cirdles.tripoli.constants.TripoliConstants.PLOT_TAB_ENSEMBLES;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotHeight;
 import static org.cirdles.tripoli.gui.dataViews.plots.TripoliPlotPane.minPlotWidth;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_HEIGHT;
 import static org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow.PLOT_WINDOW_WIDTH;
-import static org.cirdles.tripoli.plots.analysisPlotBuilders.PeakCentreAnalysisBuilder.initializeAnalysisPeakCentres;
-import static org.cirdles.tripoli.sessions.analysis.Analysis.*;
+import static org.cirdles.tripoli.sessions.analysis.Analysis.RUN;
+import static org.cirdles.tripoli.sessions.analysis.Analysis.SKIP;
 
 public class MCMC2PlotsController implements MCMCPlotsControllerInterface {
 
     private static final int TOOLBAR_HEIGHT = 30;
+    private static final int MAX_BLOCK_COUNT = 2000;
     public static AnalysisInterface analysis;
     public static AnalysisManagerCallbackI analysisManagerCallbackI;
-    private static final int MAX_BLOCK_COUNT = 2000;
     private int currentBlockID = 0;
     @FXML
     private ProgressBar progressBar;

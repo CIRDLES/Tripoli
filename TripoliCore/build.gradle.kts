@@ -49,8 +49,6 @@ dependencies {
     implementation("net.sourceforge.jexcelapi:jxl:2.6.12")
 
 
-
-
     // https://mvnrepository.com/artifact/gov.nist.math/jama
     //implementation group: 'gov.nist.math', name: 'jama', version: '1.0.3'
     // modernized update: https://github.com/topobyte/jama

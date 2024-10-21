@@ -16,9 +16,7 @@
 
 package org.cirdles.tripoli.expressions.species;
 
-import org.jetbrains.annotations.NotNull;
-
-public interface SpeciesRecordInterface extends Comparable<SpeciesRecordInterface>{
+public interface SpeciesRecordInterface extends Comparable<SpeciesRecordInterface> {
     String getMolecularFormula();
 
     double getAtomicMass();

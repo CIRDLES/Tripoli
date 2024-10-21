@@ -1,6 +1,6 @@
 package org.cirdles.tripoli.utilities.collections;
 
-public class CircularArray <T>{
+public class CircularArray<T> {
     private final T[] array;
 
     public CircularArray(T[] values) {
@@ -15,5 +15,7 @@ public class CircularArray <T>{
         this.array[index % this.array.length] = val;
     }
 
-    public int length() { return array.length; }
+    public int length() {
+        return array.length;
+    }
 }
