@@ -34,6 +34,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisBlockCyclesRecord;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
 import org.cirdles.tripoli.sessions.analysis.BlockStatsRecord;
 import org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord;
@@ -56,6 +57,7 @@ import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.gen
  */
 public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlockCyclesPlotI {
     private final AnalysisBlockCyclesRecord analysisBlockCyclesRecord;
+    private AnalysisInterface analysis;
     private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord;
     private double[] oneSigmaForCycles;
     private boolean logScale;
@@ -67,7 +69,10 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
     private int sculptBlockID;
     private boolean ignoreRejects;
 
-    private AnalysisBlockCyclesPlot(Rectangle bounds, AnalysisBlockCyclesRecord analysisBlockCyclesRecord, PlotWallPane parentWallPane) {
+    private AnalysisBlockCyclesPlot(Rectangle bounds,
+                                    AnalysisInterface analysis,
+                                    AnalysisBlockCyclesRecord analysisBlockCyclesRecord,
+                                    PlotWallPane parentWallPane) {
         super(bounds,
                 210, 25,
                 new String[]{analysisBlockCyclesRecord.title()[0]
@@ -75,6 +80,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
                         , "\u00B1" + " 0"},//String.format("%8.5g", analysisBlockCyclesRecord.analysisOneSigma()).trim()},
                 "Blocks & Cycles by Time",
                 analysisBlockCyclesRecord.isRatio() ? "Ratio" : "Function");
+        this.analysis = analysis;
         this.analysisBlockCyclesRecord = analysisBlockCyclesRecord;
         this.logScale = false;
         this.zoomFlagsXY = new boolean[]{true, true};
@@ -85,8 +91,11 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
         setOnMouseClicked(new MouseClickEventHandler());
     }
 
-    public static AbstractPlot generatePlot(Rectangle bounds, AnalysisBlockCyclesRecord analysisBlockCyclesRecord, PlotWallPane parentWallPane) {
-        return new AnalysisBlockCyclesPlot(bounds, analysisBlockCyclesRecord, parentWallPane);
+    public static AbstractPlot generatePlot(Rectangle bounds,
+                                            AnalysisInterface analysis,
+                                            AnalysisBlockCyclesRecord analysisBlockCyclesRecord,
+                                            PlotWallPane parentWallPane) {
+        return new AnalysisBlockCyclesPlot(bounds, analysis, analysisBlockCyclesRecord, parentWallPane);
     }
 
     public AnalysisBlockCyclesRecord getAnalysisBlockCyclesRecord() {
@@ -267,7 +276,8 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
                     g2d.fillText("x\u0304  =" + twoSigString, textLeft + 10, textTop += textDeltaY);
                     boolean meanIsPlottable = (mapY(geoWeightedMeanRatio) >= topMargin) && (mapY(geoWeightedMeanRatio) <= topMargin + plotHeight);
                     if (meanIsPlottable) {
-                        g2d.setStroke(OGTRIPOLI_MEAN);
+//                        g2d.setStroke(OGTRIPOLI_MEAN);
+                        g2d.setStroke(Color.web(analysis.getMeanHexColorString()));
                         g2d.strokeLine(Math.max(mapX(xAxisData[0]), leftMargin) - 25, mapY(geoWeightedMeanRatio), Math.min(mapX(xAxisData[xAxisData.length - 1]), leftMargin + plotWidth), mapY(geoWeightedMeanRatio));
                         g2d.setStroke(Paint.valueOf("BLACK"));
                     }
@@ -391,7 +401,8 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
 
                     boolean meanIsPlottable = (mapY(geoMean) >= topMargin) && (mapY(geoMean) <= topMargin + plotHeight);
                     if (meanIsPlottable) {
-                        g2d.setStroke(OGTRIPOLI_MEAN);
+//                        g2d.setStroke(OGTRIPOLI_MEAN);
+                        g2d.setStroke(Color.web(analysis.getMeanHexColorString()));
                         g2d.strokeLine(Math.max(mapX(xAxisData[0]), leftMargin) - 25, mapY(geoMean), Math.min(mapX(xAxisData[xAxisData.length - 1]), leftMargin + plotWidth), mapY(geoMean));
                         g2d.setStroke(Paint.valueOf("BLACK"));
                     }
@@ -419,7 +430,8 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
                     g2d.fillText("x\u0304  = " + twoSigStringMean, textLeft + 10, textTop += textDeltaY);
                     boolean meanIsPlottable = (mapY(weightedMean) >= topMargin) && (mapY(weightedMean) <= topMargin + plotHeight);
                     if (meanIsPlottable) {
-                        g2d.setStroke(OGTRIPOLI_MEAN);
+//                        g2d.setStroke(OGTRIPOLI_MEAN);
+                        g2d.setStroke(Color.web(analysis.getMeanHexColorString()));
                         g2d.strokeLine(Math.max(mapX(xAxisData[0]), leftMargin) - 25, mapY(weightedMean), Math.min(mapX(xAxisData[xAxisData.length - 1]), leftMargin + plotWidth), mapY(weightedMean));
                         g2d.setStroke(Paint.valueOf("BLACK"));
                     }
@@ -434,7 +446,8 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
                     g2d.fillText("x\u0304", textLeft + 18, textTop + 6);
 
                     double plottedOneSigmaHeight = Math.min(mapY(weightedMean - weighteMeanOneSigma), topMargin + plotHeight) - Math.max(mapY(weightedMean + weighteMeanOneSigma), topMargin);
-                    g2d.setFill(OGTRIPOLI_ONESIGMA_SEMI);
+//                    g2d.setFill(OGTRIPOLI_ONESIGMA_SEMI);
+                    g2d.setFill(Color.web(analysis.getOneSigmaHexColorString(), 0.25));
                     g2d.fillRect(Math.max(mapX(xAxisData[0]), leftMargin),
                             Math.max(mapY(weightedMean + weighteMeanOneSigma), topMargin),
                             Math.min(mapX(xAxisData[xAxisData.length - 1]), leftMargin + plotWidth) - Math.max(mapX(xAxisData[0]), leftMargin),
@@ -507,17 +520,20 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
             }
         }
         g2d.fillText("Legend:", textLeft + 5, textTop += textDeltaY * 2);
-        g2d.setFill(OGTRIPOLI_TWOSIGMA);
+//        g2d.setFill(OGTRIPOLI_TWOSIGMA);
+        g2d.setFill(Color.web(analysis.getTwoSigmaHexColorString()));
         g2d.fillRect(textLeft + 10, textTop + textDeltaY, 25, 50);
         g2d.setFill(Paint.valueOf("BLACK"));
         g2d.fillText("2\u03C3", textLeft + 15, textTop + 2 * textDeltaY);
 
-        g2d.setFill(OGTRIPOLI_ONESIGMA);
+//        g2d.setFill(OGTRIPOLI_ONESIGMA);
+        g2d.setFill(Color.web(analysis.getOneSigmaHexColorString()));
         g2d.fillRect(textLeft + 35, textTop + textDeltaY + 25, 25, 25);
         g2d.setFill(Paint.valueOf("BLACK"));
         g2d.fillText("\u03C3", textLeft + 42, textTop + 2.9 * textDeltaY);
 
-        g2d.setFill(OGTRIPOLI_TWOSTDERR);
+//        g2d.setFill(OGTRIPOLI_TWOSTDERR);
+        g2d.setFill(Color.web(analysis.getTwoStandardErrorHexColorString()));
         g2d.fillRect(textLeft + 60, textTop + textDeltaY + 25, 25, 25);
         g2d.setFill(Paint.valueOf("BLACK"));
         g2d.fillText("2\u03C3", textLeft + 62, textTop + 2.9 * textDeltaY);
@@ -525,7 +541,8 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
         g2d.fillText("x\u0304", textLeft + 80, textTop + 2.9 * textDeltaY + 6);
         g2d.setFont(normalFourteen);
 
-        g2d.setStroke(OGTRIPOLI_MEAN);
+//        g2d.setStroke(OGTRIPOLI_MEAN);
+        g2d.setStroke(Color.web(analysis.getMeanHexColorString()));
         g2d.setLineWidth(1.5);
         g2d.strokeLine(textLeft + 5, textTop + textDeltaY + 50, textLeft + 90, textTop + textDeltaY + 50);
         g2d.fillText("x\u0304", textLeft + 95, textTop + 2.9 * textDeltaY + 12);
@@ -687,20 +704,24 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
                 }
 
                 double plottedTwoSigmaHeight = Math.min(mapY(meanMinusTwoStandardDeviation), topMargin + plotHeight) - Math.max(mapY(meanPlusTwoStandardDeviation), topMargin);
-                g2d.setFill(OGTRIPOLI_TWOSIGMA);
+//                g2d.setFill(OGTRIPOLI_TWOSIGMA);
+                g2d.setFill(Color.web(analysis.getTwoSigmaHexColorString()));
                 g2d.fillRect(leftX, Math.max(mapY(meanPlusTwoStandardDeviation), topMargin), rightX - leftX, plottedTwoSigmaHeight);
 
                 double plottedOneSigmaHeight = Math.min(mapY(meanMinusOneStandardDeviation), topMargin + plotHeight) - Math.max(mapY(meanPlusOneStandardDeviation), topMargin);
-                g2d.setFill(OGTRIPOLI_ONESIGMA);
+//                g2d.setFill(OGTRIPOLI_ONESIGMA);
+                g2d.setFill(Color.web(analysis.getOneSigmaHexColorString()));
                 g2d.fillRect(leftX, Math.max(mapY(meanPlusOneStandardDeviation), topMargin), rightX - leftX, plottedOneSigmaHeight);
 
                 double plottedTwoStdErrHeight = Math.min(mapY(meanMinusTwoStandardError), topMargin + plotHeight) - Math.max(mapY(meanPlusTwoStandardError), topMargin);
-                g2d.setFill(OGTRIPOLI_TWOSTDERR);
+//                g2d.setFill(OGTRIPOLI_TWOSTDERR);
+                g2d.setFill(Color.web(analysis.getTwoStandardErrorHexColorString()));
                 g2d.fillRect(leftX, Math.max(mapY(meanPlusTwoStandardError), topMargin), rightX - leftX, plottedTwoStdErrHeight);
 
                 boolean meanIsPlottable = (mapY(mean) >= topMargin) && (mapY(mean) <= topMargin + plotHeight);
                 if (meanIsPlottable && (leftX <= rightX)) {
-                    g2d.setStroke(OGTRIPOLI_MEAN);
+//                    g2d.setStroke(OGTRIPOLI_MEAN);
+                    g2d.setStroke(Color.web(analysis.getMeanHexColorString()));
                     g2d.setLineWidth(1.5);
                     g2d.strokeLine(leftX, mapY(mean), rightX, mapY(mean));
                 }
@@ -735,20 +756,24 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
             }
 
             double plottedTwoSigmaHeight = Math.min(mapY(meanMinusTwoStandardDeviation), topMargin + plotHeight) - Math.max(mapY(meanPlusTwoStandardDeviation), topMargin);
-            g2d.setFill(OGTRIPOLI_TWOSIGMA);
+//            g2d.setFill(OGTRIPOLI_TWOSIGMA);
+            g2d.setFill(Color.web(analysis.getTwoSigmaHexColorString()));
             g2d.fillRect(leftX, Math.max(mapY(meanPlusTwoStandardDeviation), topMargin), rightX - leftX, plottedTwoSigmaHeight);
 
             double plottedOneSigmaHeight = Math.min(mapY(meanMinusOneStandardDeviation), topMargin + plotHeight) - Math.max(mapY(meanPlusOneStandardDeviation), topMargin);
-            g2d.setFill(OGTRIPOLI_ONESIGMA);
+//            g2d.setFill(OGTRIPOLI_ONESIGMA);
+            g2d.setFill(Color.web(analysis.getOneSigmaHexColorString()));
             g2d.fillRect(leftX, Math.max(mapY(meanPlusOneStandardDeviation), topMargin), rightX - leftX, plottedOneSigmaHeight);
 
             double plottedTwoStdErrHeight = Math.min(mapY(meanMinusTwoStandardError), topMargin + plotHeight) - Math.max(mapY(meanPlusTwoStandardError), topMargin);
-            g2d.setFill(OGTRIPOLI_TWOSTDERR);
+//            g2d.setFill(OGTRIPOLI_TWOSTDERR);
+            g2d.setFill(Color.web(analysis.getTwoStandardErrorHexColorString()));
             g2d.fillRect(leftX, Math.max(mapY(meanPlusTwoStandardError), topMargin), rightX - leftX, plottedTwoStdErrHeight);
 
             boolean meanIsPlottable = (mapY(mean) >= topMargin) && (mapY(mean) <= topMargin + plotHeight);
             if (meanIsPlottable && (leftX <= rightX)) {
-                g2d.setStroke(OGTRIPOLI_MEAN);
+//                g2d.setStroke(OGTRIPOLI_MEAN);
+                g2d.setStroke(Color.web(analysis.getMeanHexColorString()));
                 g2d.setLineWidth(1.5);
                 g2d.strokeLine(leftX, mapY(mean), rightX, mapY(mean));
             }
@@ -805,6 +830,10 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
                     mapBlockIdToBlockCyclesRecord.get(blockID).setBlockIncluded());
             analysisBlockCyclesRecord.mapOfBlockIdToProcessStatus().put(sculptBlockID, RUN);
         }
+    }
+
+    public AnalysisInterface getAnalysis() {
+        return analysis;
     }
 
     private int determineSculptBlock(double mouseX) {

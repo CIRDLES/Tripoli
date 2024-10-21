@@ -70,7 +70,6 @@ import java.util.regex.Pattern;
 
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_FULL_SYNTHETIC;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
-import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_DEFAULT_HEX_COLORS;
 import static org.cirdles.tripoli.constants.TripoliConstants.*;
 import static org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioPlotBuilder.initializeAnalysisRatioPlotBuilder;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA;
@@ -121,6 +120,12 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     private ETReduxExportTypeEnum etReduxExportType = ETReduxExportTypeEnum.NONE;
     private String analysisStartTime = "01/01/2001 00:00:00";
 
+    // Block Color Hex
+    private String twoSigmaHexColorString;
+    private String oneSigmaHexColorString;
+    private String twoStdErrHexColorString;
+    private String meanHexColorString;
+    // END Block Stats color hex
 
     private Analysis() {
     }
@@ -137,6 +142,12 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
             e.printStackTrace();
         }
         setMethod(analysisMethod);
+        //  Initialize default colors from Analysis
+        twoSigmaHexColorString = OGTRIPOLI_TWOSIGMA_HEX;
+        oneSigmaHexColorString = OGTRIPOLI_ONESIGMA_HEX;
+        twoStdErrHexColorString = OGTRIPOLI_TWOSTDERR_HEX;
+        meanHexColorString = OGTRIPOLI_MEAN_HEX;
+        //  END default coloring
         this.analysisSampleName = analysisSampleName;
         this.analysisFractionName = MISSING_STRING_FIELD;
         analystName = MISSING_STRING_FIELD;
@@ -150,6 +161,8 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
                     new boolean[analysisMethod.getSpeciesList().size()], true, true, true, true, true, false);
         }
     }
+
+
 
     public static AnalysisInterface concatenateTwoAnalysesLite(AnalysisInterface analysisOne, AnalysisInterface analysisTwo) {
         // assume for now that these are two sequential runs with all the same metadata
@@ -195,6 +208,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     public Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount() {
         return mapOfBlockIdToModelsBurnCount;
     }
+
 
     /**
      *
@@ -679,6 +693,22 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return sb.toString();
     }
 
+    public void setTwoSigmaHexColorString(String newHexColor) {
+        twoSigmaHexColorString = newHexColor;
+    }
+
+    @Override
+    public void setTwoStandardErrorHexColorString(String hexColor) {
+        twoStdErrHexColorString = hexColor;
+    }
+
+    public void setOneSigmaHexColorString(String newHexColor) {
+        oneSigmaHexColorString = newHexColor;
+    }
+
+    public void setMeanHexColorString(String newHexColor) {
+        meanHexColorString = newHexColor;
+    }
 
     public Session getParentSession() {
         return parentSession;
@@ -752,6 +782,10 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
                 new TripoliSpeciesColorMap(session.getSessionDefaultMapOfSpeciesToColors()));
         this.parentSession = session;
         this.sessionDefaultMapOfSpeciesToColors = session.getSessionDefaultMapOfSpeciesToColors();
+        setTwoSigmaHexColorString(session.getTwoSigmaHexColorString());
+        setOneSigmaHexColorString(session.getOneSigmaHexColorString());
+        setMeanHexColorString(session.getMeanHexColorString());
+        setTwoStandardErrorHexColorString(session.getTwoStdErrHexColorString());
     }
     public void setAnalysisMapOfSpeciesToColors(TripoliSpeciesColorMap analysisMapOfSpeciesToColors) {
         this.analysisMapOfSpeciesToColors = analysisMapOfSpeciesToColors;
@@ -867,6 +901,25 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         this.analysisStartTime = analysisStartTime;
     }
 
+    @Override
+    public String getOneSigmaHexColorString() {
+        return oneSigmaHexColorString;
+    }
+
+    @Override
+    public String getTwoSigmaHexColorString() {
+        return twoSigmaHexColorString;
+    }
+
+    @Override
+    public String getTwoStandardErrorHexColorString() {
+        return twoStdErrHexColorString;
+    }
+
+    @Override
+    public String getMeanHexColorString() {
+        return meanHexColorString;
+    }
     /**
      * @param o the object to be compared.
      * @return

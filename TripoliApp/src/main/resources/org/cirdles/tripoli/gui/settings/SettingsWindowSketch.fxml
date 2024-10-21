@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<SplitPane dividerPositions="0.29797979797979796" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/21">
+  <items>
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+         <children>
+            <Accordion layoutX="-3.0" prefHeight="107.0" prefWidth="181.0">
+              <panes>
+                <TitledPane animated="false" text="untitled 1">
+                     <content>
+                      <TitledPane animated="false" text="untitled 2">
+                           <content>
+                              <TitledPane animated="false" text="untitled">
+                                <content>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                                </content>
+                              </TitledPane>
+                           </content>
+                        </TitledPane>
+                     </content>
+                  </TitledPane>
+              </panes>
+            </Accordion>
+         </children></AnchorPane>
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" />
+  </items>
+</SplitPane>

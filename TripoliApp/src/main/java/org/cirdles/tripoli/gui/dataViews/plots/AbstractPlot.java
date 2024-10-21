@@ -39,6 +39,7 @@ import org.cirdles.tripoli.gui.utilities.TripoliColor;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
+import org.cirdles.tripoli.utilities.DelegateActionInterface;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -192,6 +193,9 @@ public abstract class AbstractPlot extends Canvas {
         };
         addEventFilter(MouseEvent.MOUSE_PRESSED, mousePressedEventHandler);
 //        setOnMouseClicked(new MouseClickEventHandler());
+        parentProperty().addListener(((observable, oldValue, newValue) -> {
+            // TODO: Do we need this?
+        }));
 
     }
 
@@ -429,6 +433,8 @@ public abstract class AbstractPlot extends Canvas {
                 plotHeight);
         g2d.setFill(Paint.valueOf("BLACK"));
     }
+
+    public DelegateActionInterface getRepaintDelegateAction() {return this::repaint;}
 
     /**
      * @param x

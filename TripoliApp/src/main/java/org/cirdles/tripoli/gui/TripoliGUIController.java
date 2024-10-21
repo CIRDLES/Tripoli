@@ -151,7 +151,6 @@ public class TripoliGUIController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         versionLabel.setText("v" + Tripoli.VERSION);
         versionBuildDate.setText(Tripoli.RELEASE_DATE);
-
         MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage, null);
 
         buildSessionMenuMRU();

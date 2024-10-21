@@ -18,6 +18,7 @@ package org.cirdles.tripoli.gui.dataViews.plots;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -230,9 +231,18 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
 
     public void addPlot(AbstractPlot plot) {
         this.plot = plot;
-
+        this.plotWallPane.addRepaintDelegateAction(plot.getRepaintDelegateAction());
         Pane plotPane = new Pane();
         plotPane.getChildren().add(plot);
+        plotPane.getChildren().addListener((ListChangeListener<? super Node>) change ->{
+            while (change.next()) {
+                for (Node node : change.getRemoved()) {
+                    if (node == plotPane) {
+                        this.plotWallPane.removeRepaintDelegateAction(plot.getRepaintDelegateAction());
+                    }
+                }
+            }
+        });
         setCenter(plotPane);
 
         boolean isBlockCyclesPlot = (plot instanceof AnalysisBlockCyclesPlotI);

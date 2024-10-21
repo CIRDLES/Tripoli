@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.gui.dataViews.plots.color;
+package org.cirdles.tripoli.gui.settings.color.old;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
