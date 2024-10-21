@@ -69,7 +69,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private ConstantsTripoliApp.PlotLayoutStyle plotLayoutStyle;
     private ToolBar scaleControlsToolbar;
     private TripoliPlotPane zoomedPlot;
-    private Button chauvenetButton;
+    private Button toggleSculptingModeButton;
     private CheckBox cycleCB;
 
     private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsController, AnalysisManagerCallbackI analysisManagerCallbackI) {
@@ -383,17 +383,16 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         resetAllDataButton.setFont(commandFont);
         resetAllDataButton.setOnAction(event -> {
             resetDataAll();
-            chauvenetButton.setDisable(false);
         });
         scaleControlsToolbar.getItems().add(resetAllDataButton);
 
-        chauvenetButton = new Button("Chauvenet Rejection");
-        chauvenetButton.setFont(commandFont);
-        chauvenetButton.setOnAction(event -> {
-            performChauvenets();
-            chauvenetButton.setDisable(true);
+        toggleSculptingModeButton = new Button("Toggle ALL Sculpting Mode");
+        toggleSculptingModeButton.setFont(commandFont);
+        toggleSculptingModeButton.setStyle(toggleSculptingModeButton.getStyle() + ";-fx-text-fill: RED;");
+        toggleSculptingModeButton.setOnAction(event -> {
+            toggleSculptingMode();
         });
-        scaleControlsToolbar.getItems().add(chauvenetButton);
+        scaleControlsToolbar.getItems().add(toggleSculptingModeButton);
 
         CheckBox ignoreCB = new CheckBox("Ignore Rejects");
         scaleControlsToolbar.getItems().add(ignoreCB);

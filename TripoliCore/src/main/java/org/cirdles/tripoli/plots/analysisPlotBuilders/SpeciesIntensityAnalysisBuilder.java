@@ -32,8 +32,8 @@ public class SpeciesIntensityAnalysisBuilder extends PlotBuilder {
     private final boolean showResiduals;
 
     private final AnalysisInterface analysis;
-    private boolean[][] onPeakDataIncludedAllBlocks;
     private final double[][] onPeakDataSignalNoiseArray;
+    private boolean[][] onPeakDataIncludedAllBlocks;
 
     protected SpeciesIntensityAnalysisBuilder(boolean showResiduals, AnalysisInterface analysis, double[] xData,
                                               boolean[][] onPeakDataIncludedAllBlocks, int[] xAxisBlockIDs, double[][] yData,

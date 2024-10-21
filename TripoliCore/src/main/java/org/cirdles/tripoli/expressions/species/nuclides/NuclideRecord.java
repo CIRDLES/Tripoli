@@ -18,7 +18,6 @@ package org.cirdles.tripoli.expressions.species.nuclides;
 
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.traversal.NodeIterator;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
@@ -78,7 +77,6 @@ public record NuclideRecord(
 //    public int compareTo(@NotNull Object o) {
 //        return Integer.compare(protonsZ + neutronsN, ((NuclideRecord) o).neutronsN + ((NuclideRecord) o).protonsZ);
 //    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

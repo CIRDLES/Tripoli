@@ -20,19 +20,19 @@ public class FlavoredIndexedLabel extends Label {
         this.setPrefHeight(ROW_HEIGHT);
         this.plotFlavor = plotFlavor;
         this.index = index;
-        this.addEventFilter(MouseEvent.MOUSE_CLICKED, click ->{
-            if(this.equals(click.getSource())) {
+        this.addEventFilter(MouseEvent.MOUSE_CLICKED, click -> {
+            if (this.equals(click.getSource())) {
                 fireEvent(click.copyFor(getScene(), this));
                 click.consume();
             }
         });
     }
 
-    public int getIndex(){
+    public int getIndex() {
         return this.index;
     }
 
-    public DetectorPlotFlavor getPlotFlavor(){
+    public DetectorPlotFlavor getPlotFlavor() {
         return this.plotFlavor;
     }
 

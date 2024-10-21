@@ -29,20 +29,13 @@ import javafx.stage.WindowEvent;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.color.ColorSelectionWindow;
-import org.cirdles.tripoli.species.SpeciesColorSetting;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.DelegateActionInterface;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
-import org.cirdles.tripoli.utilities.exceptions.TripoliException;
-import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Stack;
-import java.util.function.Function;
-import java.util.stream.IntStream;
 
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_MICHAELANGELO_URL;
 
@@ -54,11 +47,13 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     public static final double gridCellDim = 2.0;
     private static final DelegateActionSet delegateActionSet = new DelegateActionSet(); // For storing rebuildPlot
     public static double menuOffset = 30.0;
+    private final String iD;
+    private final DelegateActionInterface removeDelegateAction;
+    private final boolean[] zoomFlagsXY = new boolean[2];
     CheckBox baseLineCB;
     CheckBox gainCB;
     private double toolBarHeight;
     private int toolBarCount;
-    private final String iD;
     private boolean[] speciesChecked = new boolean[0];
     private boolean showFaradays = true;
     private boolean showPMs = true;
@@ -67,11 +62,6 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     private boolean baselineCorr = true;
     private boolean gainCorr = true;
     private boolean logScale;
-
-    private final DelegateActionInterface removeDelegateAction;
-
-    private final boolean[] zoomFlagsXY = new boolean[2];
-
     private ToolBar scaleControlsToolbar;
     private CheckBox[] speciesCheckBoxes;
     private boolean showUncertainties = false;
@@ -87,15 +77,20 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, closeRequest -> close());
     }
 
-    public void close() {
-        removeDelegateAction.act();
-    }
     public static PlotWallPaneInterface createPlotWallPane(String iD) {
         if (iD == null) {
             return new PlotWallPaneIntensities("NONE");
         } else {
             return new PlotWallPaneIntensities(iD);
         }
+    }
+
+    public static void clearDelegates() {
+        delegateActionSet.clear();
+    }
+
+    public void close() {
+        removeDelegateAction.act();
     }
 
     public void stackPlots() {
@@ -141,7 +136,6 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     public void toggleShowStatsAllPlots() {
         // not used
     }
-
 
     /**
      *
@@ -334,9 +328,6 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
 
     }
 
-    public static void clearDelegates() {
-        delegateActionSet.clear();
-    }
     public void buildScaleControlsToolbar() {
         scaleControlsToolbar = new ToolBar();
         scaleControlsToolbar.setPrefHeight(toolBarHeight);

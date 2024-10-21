@@ -96,7 +96,7 @@ public class AnalysisMethod implements Serializable {
             MassSpecExtractedData massSpecExtractedData) {
         int r270_267ColumnIndex = -1;
         int r265_267ColumnIndex = -1;
-        AnalysisMethod analysisMethod = new AnalysisMethod("Derived for Case1", massSpecExtractedData.getMassSpectrometerContext());
+        AnalysisMethod analysisMethod = new AnalysisMethod(massSpecExtractedData.getHeader().methodName(), massSpecExtractedData.getMassSpectrometerContext());
         String[] columnHeaders = massSpecExtractedData.getColumnHeaders();
         // ignore first two columns: Cycle, Time
         String regex = "[^alpha].*\\d?:?\\(?\\d{2,3}.{0,2}\\/\\d?:?\\d{2,3}.{0,2}.*";
@@ -125,7 +125,7 @@ public class AnalysisMethod implements Serializable {
                 String invertedETReduxRatioName = denominator + "_" + numerator;
                 if (isLegalETReduxName(invertedETReduxRatioName)) {
                     userFunction.setInvertedETReduxName(invertedETReduxRatioName);
-                    userFunction.setInverted(true);
+                    // postpone decision until data processed  userFunction.setInverted(true);
                 }
             } else {
                 userFunction.setTreatAsIsotopicRatio(false);

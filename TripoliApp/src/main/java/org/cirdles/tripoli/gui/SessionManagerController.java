@@ -95,7 +95,12 @@ public class SessionManagerController implements Initializable {
             if (event.getDragboard().hasFiles()) {
                 File dataFile = db.getFiles().get(0);
 
-                AnalysisInterface analysisProposed = AnalysisInterface.initializeNewAnalysis(0);
+                AnalysisInterface analysisProposed = null;
+                try {
+                    analysisProposed = AnalysisInterface.initializeNewAnalysis(0);
+                } catch (TripoliException e) {
+//                    throw new RuntimeException(e);
+                }
                 try {
                     String analysisName = analysisProposed.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
                     if (tripoliSession.getMapOfAnalyses().containsKey(analysisName))
@@ -179,7 +184,7 @@ public class SessionManagerController implements Initializable {
         });
     }
 
-    public void testConcatAction() {
+    public void testConcatAction() throws TripoliException {
         Stream<AnalysisInterface> stream = tripoliSession.getMapOfAnalyses().values().stream();
         Object[] analyses = stream.sorted().toArray();
         AnalysisInterface analysisConcat = Analysis.concatenateTwoAnalysesLite((AnalysisInterface) analyses[0], (AnalysisInterface) analyses[1]);
