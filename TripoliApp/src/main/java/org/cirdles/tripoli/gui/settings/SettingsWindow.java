@@ -11,6 +11,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneIntensities;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.RatioColorSelectionPane;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesColorSelectionScrollPane;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesIntensityColorSelectionPane;
+import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesIntensityColorSelectionScrollPane;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
@@ -37,6 +38,9 @@ public class SettingsWindow {
     private String originalStdErrHexColor;
     private String originalMeanHexColor;
     private SpeciesColorSelectionScrollPane speciesColorSelectionScrollPane;
+
+    private SpeciesIntensityColorSelectionScrollPane speciesIntensityColorSelectionScrollPane;
+
     private static SettingsWindow instance;
 
 
@@ -78,6 +82,11 @@ public class SettingsWindow {
             ratioColorSelectionPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
             ratioColorSelectionPane.prefWidthProperty().bind(stage.widthProperty());
             initializeToolbarButtons();
+            speciesIntensityColorSelectionScrollPane = new SpeciesIntensityColorSelectionScrollPane();
+            speciesIntensityColorSelectionScrollPane.prefWidthProperty().bind(stage.getScene().widthProperty());
+            settingsWindowController.getPlotIntensitiesAnchorPaneExp().getChildren().add(
+                    speciesIntensityColorSelectionScrollPane
+            );
             stage.setTitle("Settings");
         } catch (IOException e) {
             e.printStackTrace();

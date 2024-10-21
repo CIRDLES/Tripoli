@@ -19,16 +19,17 @@ import org.cirdles.tripoli.utilities.Setter;
 
 public class ColorPickerSplotch extends StackPane {
 
-    private ColorPicker colorPicker;
+    private final ColorPicker colorPicker;
 
-    private Label label;
+    private final Label label;
 
     private final ObjectProperty<Color> colorValue;
     private final ObjectProperty<String> textValue;
     private String hexColor;// TODO: make this an ObjectProperty<String>
     private Setter<String> hexColorSetter;
 
-    private ObjectProperty<Font> fontObjectProperty;
+    private final ObjectProperty<Font> fontObjectProperty;
+
 
     /**
      * Contains all delegate actions for anything that needs repainting
