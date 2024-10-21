@@ -51,8 +51,8 @@
         <RowConstraints maxHeight="90.0" minHeight="90.0" prefHeight="90.0" valignment="TOP" vgrow="SOMETIMES" />
         <RowConstraints maxHeight="90.0" minHeight="90.0" prefHeight="90.0" valignment="TOP" vgrow="SOMETIMES" />
         <RowConstraints maxHeight="270.0" minHeight="270.0" percentHeight="45.0" prefHeight="270.0" valignment="TOP" vgrow="SOMETIMES" />
-        <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
-        <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="30.0" minHeight="30.0" percentHeight="5.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="30.0" minHeight="30.0" percentHeight="5.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
     </rowConstraints>
     <padding>
         <Insets bottom="15.0" left="20.0" right="20.0" top="1.0" />
@@ -133,7 +133,7 @@
         <Tab id="tab0" closable="false" text="About">
          <HBox>
             <children>
-                  <TextArea fx:id="aboutAnalysisTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" text="No analysis method" />
+                  <TextArea fx:id="aboutAnalysisTextArea" editable="false" prefHeight="239.0" prefWidth="410.0" text="No analysis method" />
             </children>
          </HBox>
         </Tab>
@@ -268,18 +268,28 @@
         </Tab>
         <Tab fx:id="selectColumnsToPlot" closable="false" text="Select Columns to Plot">
             <content>
-                <SplitPane dividerPositions="0.75" prefHeight="242.0" prefWidth="1065.0">
+                <SplitPane dividerPositions="0.8" prefHeight="242.0" prefWidth="1065.0">
                     <items>
-                        <ScrollPane fx:id="ratiosScrollPane" hbarPolicy="NEVER">
-                            <content>
-                                <VBox fx:id="ratiosVBox" prefHeight="239.0" prefWidth="797.0" />
-                            </content>
-                        </ScrollPane>
-                        <ScrollPane fx:id="functionsScrollPane" hbarPolicy="NEVER">
-                            <content>
-                                <VBox fx:id="functionsVBox" prefHeight="239.0" prefWidth="527.0" />
-                            </content>
-                        </ScrollPane>
+                  <VBox>
+                     <children>
+                        <HBox fx:id="ratiosHeaderHBox" prefHeight="52.0" prefWidth="794.0" />
+                              <ScrollPane fx:id="ratiosScrollPane" hbarPolicy="NEVER">
+                                  <content>
+                                      <VBox fx:id="ratiosVBox" prefHeight="239.0" prefWidth="797.0" />
+                                  </content>
+                              </ScrollPane>
+                     </children>
+                  </VBox>
+                  <VBox>
+                     <children>
+                        <HBox fx:id="functionsHeaderHBox" prefHeight="53.0" prefWidth="262.0" />
+                              <ScrollPane fx:id="functionsScrollPane" hbarPolicy="NEVER">
+                                  <content>
+                                      <VBox fx:id="functionsVBox" prefHeight="239.0" prefWidth="527.0" />
+                                  </content>
+                              </ScrollPane>
+                     </children>
+                  </VBox>
                     </items>
                 </SplitPane>
             </content>

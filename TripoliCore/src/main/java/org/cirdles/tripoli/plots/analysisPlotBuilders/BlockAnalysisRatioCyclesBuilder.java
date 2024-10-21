@@ -27,7 +27,7 @@ import java.util.TreeMap;
  * @author James F. Bowring
  */
 public class BlockAnalysisRatioCyclesBuilder extends PlotBuilder {
-    private AnalysisBlockCyclesRecord analysisBlockCyclesRecord = null;
+    private AnalysisBlockCyclesRecord analysisBlockCyclesRecord;
 
     private BlockAnalysisRatioCyclesBuilder(String plotTitle, Map<Integer, Integer> mapOfBlockIdToProcessStatus, List<PlotBlockCyclesRecord> plotBlockCyclesRecords, boolean isRatio, boolean isInverted, int[] xAxisBlockIDs) {
         super(new String[]{plotTitle}, "NONE", "NONE", true);

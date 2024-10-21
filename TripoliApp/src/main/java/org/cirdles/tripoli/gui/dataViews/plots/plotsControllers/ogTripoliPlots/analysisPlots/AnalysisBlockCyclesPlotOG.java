@@ -578,14 +578,17 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 }
             }
         }
+
+        // legend in colors
+        // modified per issue #263
         g2d.setFont(normalFourteen);
 //        g2d.fillText("Legend:", textLeft + 5, textTop += textDeltaY * 2);
         g2d.setFill(OGTRIPOLI_TWOSIGMA);
         g2d.fillRect(textLeft + 8, textTop + textDeltaY, 27, 50);
         g2d.setFill(Paint.valueOf("BLACK"));
-        g2d.fillText("2\u03C3", textLeft + 8, textTop + 2 * textDeltaY);
-        g2d.fillText("x", textLeft + 26, textTop + 2 * textDeltaY + 7);
-        g2d.fillText("\u0304", textLeft + 26, textTop + 2 * textDeltaY + 7);
+        g2d.fillText("2\u03C3", textLeft + 11, textTop + 2 * textDeltaY);
+//        g2d.fillText("x", textLeft + 26, textTop + 2 * textDeltaY + 7);
+//        g2d.fillText("\u0304", textLeft + 26, textTop + 2 * textDeltaY + 7);
 
         g2d.setFill(OGTRIPOLI_ONESIGMA);
         g2d.fillRect(textLeft + 35, textTop + textDeltaY + 25, 25, 25);
@@ -595,7 +598,10 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         g2d.setFill(OGTRIPOLI_TWOSTDERR);
         g2d.fillRect(textLeft + 60, textTop + textDeltaY + 25, 25, 25);
         g2d.setFill(Paint.valueOf("BLACK"));
-        g2d.fillText("2\u03C3", textLeft + 62, textTop + 3.2 * textDeltaY);
+        g2d.fillText("\u03C3", textLeft + 62, textTop + 3.2 * textDeltaY);
+        g2d.fillText("x", textLeft + 72, textTop + 3 * textDeltaY + 9);
+        g2d.fillText("\u0304", textLeft + 72, textTop + 3 * textDeltaY + 9);
+
         g2d.setFont(normalFourteen);
 
         g2d.setStroke(OGTRIPOLI_MEAN);
@@ -1067,11 +1073,8 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         public void handle(MouseEvent e) {
             if (e.isPrimaryButtonDown()) {
                 if (mouseInHouse(e.getX(), e.getY())) {
-                    int currentSculptBlockID = determineSculptBlock(e.getX());
-//                    if ((currentSculptBlockID == sculptBlockID)) {
                     selectorBoxX = e.getX();
                     selectorBoxY = e.getY();
-//                    }
                     showSelectionBox = true;
                 }
             } else {

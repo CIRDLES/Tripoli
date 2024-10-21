@@ -129,14 +129,14 @@ public class OGTripoliViewController {
                 Arrays.fill(DUMMY_CYCLES_INCLUDED, true);
 
                 // build list of userFunctions to plot
-                List<UserFunction> ratiosToPlot = new ArrayList<>();
+                List<UserFunction> userFunctionsToPlot = new ArrayList<>();
                 for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
                     if (userFunction.isDisplayed()) {
-                        ratiosToPlot.add(userFunction);
+                        userFunctionsToPlot.add(userFunction);
                     }
                 }
 
-                for (UserFunction userFunction : ratiosToPlot) {
+                for (UserFunction userFunction : userFunctionsToPlot) {
                     TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPaneRatios);
 //
 //                    // todo: simplify since analysis carries most of the info
@@ -221,7 +221,8 @@ public class OGTripoliViewController {
                     }
                     BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder =
                             BlockAnalysisRatioCyclesBuilder.initializeBlockAnalysisRatioCycles(
-                                    isotopicRatio.prettyPrint(), plotBlockCyclesRecords,
+                                    isotopicRatio.prettyPrint(),
+                                    plotBlockCyclesRecords,
                                     analysis.getMapOfBlockIdToProcessStatus(),
                                     analysis.getMassSpecExtractedData().assignBlockIdToSessionTimeFull(),
 

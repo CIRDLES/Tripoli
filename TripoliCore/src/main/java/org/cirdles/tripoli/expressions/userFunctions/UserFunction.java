@@ -21,6 +21,9 @@ import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
 import org.cirdles.tripoli.sessions.analysis.BlockStatsRecord;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.AnalysisMethodPersistance;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
@@ -90,6 +93,23 @@ public class UserFunction implements Comparable, Serializable {
     }
 
     public AnalysisStatsRecord calculateAnalysisStatsRecord(AnalysisInterface analysis) {
+        if (!invertedETReduxName.isEmpty()) {
+            // detect if ratio to be treated as function because of negative or zero value Issue #214
+            boolean allPositive = true;
+            for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
+                PlotBlockCyclesRecord plotBlockCyclesRecord = entry.getValue();
+                if ((plotBlockCyclesRecord != null) && allPositive) {
+                    for (int i = 0; i < plotBlockCyclesRecord.cycleMeansData().length; i++) {
+                        if ((plotBlockCyclesRecord.cycleMeansData()[i] <= 0.0) && (plotBlockCyclesRecord.cyclesIncluded()[i])) {
+                            allPositive = false;
+                        }
+                    }
+                }
+            }
+
+            treatAsIsotopicRatio = allPositive;
+        }
+
         analysisStatsRecord = generateAnalysisStatsRecord(generateAnalysisBlockStatsRecords(this, mapBlockIdToBlockCyclesRecord));
         for (int i = 0; i < analysisStatsRecord.blockStatsRecords().length; i++) {
             BlockStatsRecord blockStatsRecord = analysisStatsRecord.blockStatsRecords()[i];
@@ -227,4 +247,5 @@ public class UserFunction implements Comparable, Serializable {
     public String getCorrectETReduxName() {
         return inverted ? invertedETReduxName : etReduxName;
     }
+
 }
