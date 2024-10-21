@@ -3,6 +3,7 @@ package org.cirdles.tripoli.gui.settings;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -92,6 +93,11 @@ public class SettingsWindow {
                                 ((Analysis) analysis).getAnalysisMapOfSpeciesToColors(),
                                 PlotWallPaneIntensities.getDelegateActionSet(),
                                 30)
+                );
+                Region region = new Region();
+                region.setPrefHeight(10);
+                settingsWindowController.getPlotIntensitiesVBox().getChildren().add(
+                       region
                 );
             }
             stage.setTitle("Settings");
