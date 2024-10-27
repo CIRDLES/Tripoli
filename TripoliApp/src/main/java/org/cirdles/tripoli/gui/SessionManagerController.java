@@ -111,6 +111,7 @@ public class SessionManagerController implements Initializable {
                         tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
                         analysis = analysisProposed;
                         // manage analysis
+                        AnalysisManagerController.readingFile = true;
                         MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
                                 .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
                         menuItemAnalysesManager.fire();

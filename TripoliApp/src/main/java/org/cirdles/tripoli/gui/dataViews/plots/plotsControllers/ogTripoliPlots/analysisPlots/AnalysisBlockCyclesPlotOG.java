@@ -871,7 +871,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             // cycle mode
             boolean[] cycleModeIncluded = analysisStatsRecord.cycleModeIncluded();
             double[] cycleModeData = analysisStatsRecord.cycleModeData();
-            if (true) {//(Booleans.countTrue(cycleModeIncluded) == cycleModeIncluded.length) {
+            if (Booleans.countTrue(cycleModeIncluded) == cycleModeIncluded.length) {
                 boolean[] chauvenets = applyChauvenetsCriterion(cycleModeData, cycleModeIncluded);
                 // reset included cycles for each block
                 BlockStatsRecord[] blockStatsRecords = analysisStatsRecord.blockStatsRecords();
