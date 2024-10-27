@@ -39,8 +39,8 @@ public record BlockStatsRecord(
                             descriptiveStatisticsBlockStats.addValue(StrictMath.log(cycleMeansData[i]));
                         }
                     } else {
-                        // Issue #214 decided to keep <0 value and convert ratio to userfunction before code gets here
-//                        cyclesIncluded[i] = false;
+                        // Issue #214 decided to keep <= 0 value and convert ratio to userfunction before code gets here
+                        cyclesIncluded[i] = false;
                     }
                 } else {
                     descriptiveStatisticsBlockStats.addValue(cycleMeansData[i]);
