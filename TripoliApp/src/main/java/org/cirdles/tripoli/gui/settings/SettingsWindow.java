@@ -95,7 +95,7 @@ public class SettingsWindow {
                                 30)
                 );
                 Region region = new Region();
-                region.setPrefHeight(10);
+                region.setPrefHeight(20);
                 settingsWindowController.getPlotIntensitiesVBox().getChildren().add(
                        region
                 );

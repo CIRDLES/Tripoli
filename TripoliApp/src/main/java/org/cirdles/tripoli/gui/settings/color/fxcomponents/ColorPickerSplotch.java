@@ -19,52 +19,35 @@ import org.cirdles.tripoli.utilities.Setter;
 
 public class ColorPickerSplotch extends StackPane {
 
-    private final ColorPicker colorPicker;
+    private static final String DEFAULT_TEXT = "Click to Change Color";
 
-    private final Label label;
+    private ColorPicker colorPicker;
 
-    private final ObjectProperty<Color> colorValue;
+    private Label label;
 
-    public String getTextValue() {
-        return textValue.get();
-    }
+    private ObjectProperty<Color> colorValue;
 
-    public ObjectProperty<String> textValueProperty() {
-        return textValue;
-    }
+    private ObjectProperty<String> textObjectProperty;
 
-    private final ObjectProperty<String> textValue;
-    private String hexColor;// TODO: make this an ObjectProperty<String>
     private Setter<String> hexColorSetter;
 
-    private final ObjectProperty<Font> fontObjectProperty;
-
+    private ObjectProperty<Font> fontObjectProperty;
 
     /**
      * Contains all delegate actions for anything that needs repainting
      */
-    private final DelegateActionSet repaintDelegateActionSet;
+    private DelegateActionSet repaintDelegateActionSet;
 
 
     public ColorPickerSplotch() {
         super();
-        repaintDelegateActionSet = new DelegateActionSet();
-        hexColorSetter = hexString -> {};
-        this.fontObjectProperty = new SimpleObjectProperty<>();
-        this.colorPicker = new ColorPicker();
-        this.label = new Label("Click to Change Color");
-        this.label.fontProperty().bindBidirectional(fontObjectProperty);
-        this.label.setAlignment(Pos.CENTER);
+        initializeComponents();
+        bindProperties();
         this.label.setStyle(this.label.getStyle() +";-fx-font-weight: bold;");
+        this.label.setAlignment(Pos.CENTER);
         this.getChildren().addAll(this.colorPicker, this.label);
-        this.colorPicker.prefWidthProperty().bind(label.prefWidthProperty());
-        this.colorPicker.prefHeightProperty().bind(label.prefHeightProperty());
-        this.colorPicker.setVisible(false);
-        this.hexColor = ConstantsTripoliApp.convertColorToHex(colorPicker.getValue());
-        label.backgroundProperty().bind(colorPicker.backgroundProperty());
-        label.prefWidthProperty().bind(prefWidthProperty());
-        label.prefHeightProperty().bind(prefHeightProperty());
-        label.addEventHandler(MouseEvent.MOUSE_CLICKED, click -> {
+
+        this.label.addEventHandler(MouseEvent.MOUSE_CLICKED, click -> {
             if (! colorPicker.isShowing()) {
                 colorPicker.show();
             }
@@ -73,17 +56,35 @@ public class ColorPickerSplotch extends StackPane {
             colorPicker.backgroundProperty().
                     setValue(
                             new Background(
-                                    new BackgroundFill(newValue,CornerRadii.EMPTY, Insets.EMPTY)));
+                                    new BackgroundFill(newValue,new CornerRadii(2, false), new Insets(2))));
             // Lets see if we can change the color of the text to be more contrasting here
-            label.setTextFill(newValue.invert());
-            this.hexColor = ConstantsTripoliApp.convertColorToHex(newValue);
-            this.hexColorSetter.set(hexColor);
+            this.label.setTextFill(newValue.invert());
             repaintDelegateActionSet.executeDelegateActions();
         });
+
+    }
+
+    private void bindProperties() {
+        this.label.textProperty().bind(textObjectProperty);
+        this.label.fontProperty().bindBidirectional(fontObjectProperty);
+        this.label.backgroundProperty().bind(colorPicker.backgroundProperty());
+        this.label.prefWidthProperty().bind(prefWidthProperty());
+        this.label.prefHeightProperty().bind(prefHeightProperty());
+        this.colorPicker.prefWidthProperty().bind(label.prefWidthProperty());
+        this.colorPicker.prefHeightProperty().bind(label.prefHeightProperty());
+        this.colorPicker.valueProperty().bindBidirectional(colorValue);
+    }
+
+    private void initializeComponents() {
+        this.repaintDelegateActionSet = new DelegateActionSet();
+        this.hexColorSetter = hexString -> {};
+        this.fontObjectProperty = new SimpleObjectProperty<>();
+        this.colorPicker = new ColorPicker();
         this.colorValue = new SimpleObjectProperty<>(colorPicker.getValue());
-        colorPicker.valueProperty().bindBidirectional(colorValue);
-        this.textValue = new SimpleObjectProperty<>(label.textProperty().get());
-        this.label.textProperty().bind(textValue);
+        this.label = new Label(DEFAULT_TEXT);
+        this.textObjectProperty = new SimpleObjectProperty<>(
+                label.textProperty().get());
+        this.colorPicker.setVisible(false);
     }
 
     public void setHexColorSetter(Setter<String> hexColorSetter) {
@@ -111,11 +112,12 @@ public class ColorPickerSplotch extends StackPane {
     public void setColor(Color color) {
         this.colorValue.set(color);
     }
-    public String getHexColor() {
-        return hexColor;
-    }
 
     public ObjectProperty<Font> fontProperty() {
         return fontObjectProperty;
+    }
+
+    public ObjectProperty<String> textObjectProperty() {
+        return textObjectProperty;
     }
 }

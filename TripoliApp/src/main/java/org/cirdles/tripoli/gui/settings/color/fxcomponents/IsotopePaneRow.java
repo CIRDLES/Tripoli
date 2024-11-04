@@ -1,5 +1,4 @@
 package org.cirdles.tripoli.gui.settings.color.fxcomponents;
-import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -94,15 +93,10 @@ public class IsotopePaneRow extends HBox {
                 Color.web(speciesColors.pmModelHexColor())
         );
 
-        // Create flexible Region spacers
         Region spacer1 = new Region();
         Region spacer2 = new Region();
         spacer1.setPrefWidth(PADDING);
         spacer2.setPrefWidth(PADDING*2);
-
-        // Ensure spacers expand to fill available space
-//        HBox.setHgrow(spacer1, Priority.ALWAYS);
-//        HBox.setHgrow(spacer2, Priority.ALWAYS);
 
         // Add components and spacers to the HBox
         this.getChildren().addAll(
@@ -121,7 +115,7 @@ public class IsotopePaneRow extends HBox {
             }
             if (child instanceof ColorPickerSplotch) {
                 ColorPickerSplotch splotch = (ColorPickerSplotch) child;
-                splotch.textValueProperty().setValue("");
+                splotch.textObjectProperty().setValue("Click Me");
             }
         });
 
