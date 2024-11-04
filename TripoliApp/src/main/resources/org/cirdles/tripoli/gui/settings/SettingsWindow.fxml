@@ -130,13 +130,7 @@
       </ToolBar>
       <ToolBar fx:id="revertToolbar" layoutX="10.0" layoutY="428.0" prefHeight="40.0" prefWidth="516.0">
          <items>
-            <Label prefHeight="26.0" prefWidth="145.0" text="Restore Defaults From: ">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" layoutX="239.0" layoutY="24.0" stroke="TRANSPARENT" strokeType="INSIDE" width="35.0" />
-            <Button fx:id="cancelButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="75.0" text="Cancel" textFill="#a45151" wrapText="true">
+            <Button fx:id="cancelButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="132.0" text="Undo All Changes" textFill="#a45151" wrapText="true">
                <font>
                   <Font name="Monospaced Bold" size="12.0" />
                </font>
@@ -148,7 +142,13 @@
                   </Tooltip>
                </tooltip>
             </Button>
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" layoutX="318.0" layoutY="24.0" stroke="TRANSPARENT" strokeType="INSIDE" width="35.0" />
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" layoutX="318.0" layoutY="24.0" stroke="TRANSPARENT" strokeType="INSIDE" width="7.0" />
+            <Label prefHeight="26.0" prefWidth="117.0" text="Restore Defaults: ">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="26.0" layoutX="239.0" layoutY="24.0" stroke="TRANSPARENT" strokeType="INSIDE" width="35.0" />
             <Button fx:id="restoreSessionDefaultsButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="75.0" text="Session" textAlignment="CENTER" textFill="#a45151" wrapText="true">
                <font>
                   <Font name="Monospaced Bold" size="12.0" />

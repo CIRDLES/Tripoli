@@ -13,6 +13,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 import org.cirdles.tripoli.utilities.Setter;
@@ -56,9 +57,12 @@ public class ColorPickerSplotch extends StackPane {
             colorPicker.backgroundProperty().
                     setValue(
                             new Background(
-                                    new BackgroundFill(newValue,new CornerRadii(2, false), new Insets(2))));
-            // Lets see if we can change the color of the text to be more contrasting here
+                                    new BackgroundFill(
+                                            newValue,
+                                            new CornerRadii(2, false),
+                                            new Insets(2))));
             this.label.setTextFill(newValue.invert());
+            this.hexColorSetter.set(ConstantsTripoliApp.convertColorToHex(newValue));
             repaintDelegateActionSet.executeDelegateActions();
         });
 
