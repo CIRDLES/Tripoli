@@ -1,4 +1,7 @@
 package org.cirdles.tripoli.gui.settings.color.fxcomponents;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -25,8 +28,10 @@ public class IsotopePaneRow extends HBox {
     private final ColorPickerSplotch pmModel;
     private final Map<SpeciesRecordInterface, SpeciesColors> colorMap;
     private SpeciesRecordInterface speciesRecord;
-    private SpeciesColors speciesColors;
+    private ObjectProperty<SpeciesColors> speciesColorsObjectProperty;
     private DelegateActionSet delegateActionSet;
+
+
 
     public IsotopePaneRow(SpeciesRecordInterface speciesRecordInterface, Map<SpeciesRecordInterface, SpeciesColors> colorMap, DelegateActionSet delegateActionSet, double height) {
         this(speciesRecordInterface, colorMap, delegateActionSet);
@@ -37,7 +42,7 @@ public class IsotopePaneRow extends HBox {
                           Map<SpeciesRecordInterface, SpeciesColors> colorMap,
                           DelegateActionSet delegateActionSet) {
         this.speciesRecord = speciesRecordInterface;
-        this.speciesColors = colorMap.get(speciesRecordInterface);
+        this.speciesColorsObjectProperty = new SimpleObjectProperty<>(colorMap.get(speciesRecordInterface));
         this.delegateActionSet = delegateActionSet;
         this.colorMap = colorMap;
         // Initialize all components
@@ -47,52 +52,57 @@ public class IsotopePaneRow extends HBox {
         this.faradayData = new ColorPickerSplotch();
         this.faradayData.prefWidthProperty().set(COLOR_WIDTH);
         this.faradayData.colorProperty().addListener(((observable, oldValue, newValue) -> {
-            speciesColors = speciesColors.altered(
+            // Change listener only activated when new value is not equal to old value
+            speciesColorsObjectProperty.set(speciesColorsObjectProperty.get().altered(
                     TripoliConstants.DetectorPlotFlavor.FARADAY_DATA,
-                    ConstantsTripoliApp.convertColorToHex(newValue));
-            colorMap.put(speciesRecord, speciesColors);
-            delegateActionSet.executeDelegateActions();
+                    ConstantsTripoliApp.convertColorToHex(newValue)
+            ));
         }));
         this.faradayData.colorProperty().setValue(
-                Color.web(speciesColors.faradayHexColor())
+                Color.web(speciesColorsObjectProperty.get().faradayHexColor())
         );
         this.pmData = new ColorPickerSplotch();
         this.pmData.prefWidthProperty().set(COLOR_WIDTH);
         this.pmData.colorProperty().addListener(((observable, oldValue, newValue) -> {
-            speciesColors = speciesColors.altered(
+            speciesColorsObjectProperty.set(speciesColorsObjectProperty.get().altered(
                     TripoliConstants.DetectorPlotFlavor.PM_DATA,
-                    ConstantsTripoliApp.convertColorToHex(newValue));
-            colorMap.put(speciesRecord, speciesColors);
-            delegateActionSet.executeDelegateActions();
+                    ConstantsTripoliApp.convertColorToHex(newValue)
+            ));
         }));
         this.pmData.colorProperty().setValue(
-                Color.web(speciesColors.pmHexColor())
+                Color.web(speciesColorsObjectProperty.get().pmHexColor())
         );
         this.faradayModel = new ColorPickerSplotch();
         this.faradayModel.prefWidthProperty().set(COLOR_WIDTH);
         this.faradayModel.colorProperty().addListener(((observable, oldValue, newValue) -> {
-            speciesColors = speciesColors.altered(
+            speciesColorsObjectProperty.set(speciesColorsObjectProperty.get().altered(
                     TripoliConstants.DetectorPlotFlavor.FARADAY_MODEL,
-                    ConstantsTripoliApp.convertColorToHex(newValue));
-            colorMap.put(speciesRecord, speciesColors);
-            delegateActionSet.executeDelegateActions();
+                    ConstantsTripoliApp.convertColorToHex(newValue)
+            ));
         }));
         this.faradayModel.colorProperty().setValue(
-                Color.web(speciesColors.faradayModelHexColor())
+                Color.web(speciesColorsObjectProperty.get().faradayModelHexColor())
         );
         this.pmModel = new ColorPickerSplotch();
         this.pmModel.prefWidthProperty().set(COLOR_WIDTH);
         this.pmModel.colorProperty().addListener(((observable, oldValue, newValue) -> {
-            speciesColors = speciesColors.altered(
+            speciesColorsObjectProperty.set(speciesColorsObjectProperty.get().altered(
                     TripoliConstants.DetectorPlotFlavor.PM_MODEL,
-                    ConstantsTripoliApp.convertColorToHex(newValue));
-            colorMap.put(speciesRecord, speciesColors);
-            delegateActionSet.executeDelegateActions();
+                    ConstantsTripoliApp.convertColorToHex(newValue)
+            ));
         }));
         this.pmModel.colorProperty().setValue(
-                Color.web(speciesColors.pmModelHexColor())
+                Color.web(speciesColorsObjectProperty.get().pmModelHexColor())
         );
 
+        this.speciesColorsObjectProperty.addListener((observable, oldValue, newValue) -> {
+            colorMap.put(speciesRecord, newValue);
+            delegateActionSet.executeDelegateActions();
+            faradayData.colorProperty().set(Color.web(newValue.faradayHexColor()));
+            pmData.colorProperty().set(Color.web(newValue.pmHexColor()));
+            faradayModel.colorProperty().set(Color.web(newValue.faradayModelHexColor()));
+            pmModel.colorProperty().set(Color.web(newValue.pmModelHexColor()));
+        });
         Region spacer1 = new Region();
         Region spacer2 = new Region();
         spacer1.setPrefWidth(PADDING);
@@ -119,16 +129,5 @@ public class IsotopePaneRow extends HBox {
             }
         });
 
-        // Bind the width of ColorPickerSplotch components to fit proportionally
-//        this.getChildren().forEach(item -> {
-//            if (item instanceof ColorPickerSplotch) {
-//                ColorPickerSplotch splotch = (ColorPickerSplotch) item;
-//                splotch.prefWidthProperty().bind(this.widthProperty().multiply(0.15)); // 15% width for each splotch
-//                splotch.prefHeightProperty().bind(this.heightProperty().multiply(1)); // Full height
-//            }
-//        });
-
-        // Bind the title width to take up more space as needed
-//        title.prefWidthProperty().bind(this.widthProperty().multiply(0.25)); // 25% width for the title
     }
 }

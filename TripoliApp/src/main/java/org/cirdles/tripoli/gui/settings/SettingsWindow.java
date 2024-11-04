@@ -211,16 +211,24 @@ public class SettingsWindow {
         });
         settingsWindowController.getCancelButton().setOnAction(e -> {
             analysis.setTwoSigmaHexColorString(originalTwoSigmaHexColor);
+            ratioColorSelectionPane.getTwoSigmaSplotch().
+                    colorProperty().setValue(Color.web(originalTwoSigmaHexColor));
             analysis.setOneSigmaHexColorString(originalOneSigmaHexColor);
+            ratioColorSelectionPane.getOneSigmaSplotch().
+                    colorProperty().setValue(Color.web(originalOneSigmaHexColor));
             analysis.setTwoStandardErrorHexColorString(originalStdErrHexColor);
+            ratioColorSelectionPane.getStdErrorSplotch().
+                    colorProperty().setValue(Color.web(originalStdErrHexColor));
             analysis.setMeanHexColorString(originalMeanHexColor);
+            ratioColorSelectionPane.getMeanSplotch().
+                    colorProperty().setValue(Color.web(originalMeanHexColor));
             ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().clear();
             ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().putAll(
                     originalSpeciesColors
             );
             repaintRatiosDelegateActionSet.executeDelegateActions();
             speciesColorSelectionScrollPane.getDelegateActionSet().executeDelegateActions(); // TODO: make these standard
-            close();
+//            close();
         });
     }
 
