@@ -16,7 +16,7 @@
 
 package org.cirdles.tripoli.constants;
 
-import org.cirdles.tripoli.utilities.collections.CircularArray;
+import org.cirdles.tripoli.utilities.collections.FixedLengthCircularQueue;
 
 import java.io.File;
 import java.nio.CharBuffer;
@@ -75,10 +75,17 @@ public enum TripoliConstants {
     public static final String PLOT_TAB_CONVERGE = "Converge";
     public static final String PLOT_TAB_CONVERGE_INTENSITY = "Converge Intensity";
 
-    public static final CircularArray<String> TRIPOLI_DEFAULT_HEX_COLORS = new CircularArray<>(new String[]{
-            "#12bceb", "#095c73", "#ff0000", "#7fffd4", "#ffcf62", "#ac8c42", "#ff0000",
-            "#7fffd4", "#9e6fb1", "#4d3656", "#ff0000", "#7fffd4", "#baff78", "#6e9747", "#ff0000",
-            "#7fffd4", "#ffa056", "#b2703c", "#ff0000", "#7fffd4"});
+//    public static final FixedLengthCircularQueue<String> TRIPOLI_DEFAULT_HEX_COLORS =
+//            new FixedLengthCircularQueue<>(new String[]{
+//                    "#12bceb", "#095c73", "#ff0000", "#7fffd4", "#ffcf62", "#ac8c42", "#ff0000",
+//                    "#7fffd4", "#9e6fb1", "#4d3656", "#ff0000", "#7fffd4", "#baff78", "#6e9747", "#ff0000",
+//                    "#7fffd4", "#ffa056", "#b2703c", "#ff0000", "#7fffd4"});
+    public static final FixedLengthCircularQueue<String> TRIPOLI_DEFAULT_HEX_COLORS =
+            new FixedLengthCircularQueue<>(new String[]{
+                    "#12bceb" ,"#095c73" ,"#ed4213" ,"#f6a38b" ,"#ffcf62" ,"#ac8c42" ,"#002f9d" ,
+                    "#5272bd" ,"#9e6fb1" ,"#4d3656" ,"#608f4d" ,"#b1c9a9" ,"#baff78" ,"#6e9747" ,
+                    "#440087" ,"#9167b7" ,"#ffa056" ,"#b2703c" ,"#005ea9" ,"#4c8fc3" });
+
 
     public enum DetectorPlotFlavor {
 
