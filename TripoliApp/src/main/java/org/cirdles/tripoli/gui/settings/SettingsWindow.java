@@ -21,6 +21,7 @@ import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 
 public class SettingsWindow {
@@ -35,6 +36,7 @@ public class SettingsWindow {
     private String originalOneSigmaHexColor;
     private String originalStdErrHexColor;
     private String originalMeanHexColor;
+    private ArrayList<IsotopePaneRow> isotopePaneRows;
     private SpeciesColorSelectionScrollPane speciesColorSelectionScrollPane;
 
     private SpeciesIntensityColorSelectionScrollPane speciesIntensityColorSelectionScrollPane;
@@ -53,6 +55,7 @@ public class SettingsWindow {
             this.originalOneSigmaHexColor = analysis.getOneSigmaHexColorString();
             this.originalStdErrHexColor = analysis.getTwoStandardErrorHexColorString();
             this.originalMeanHexColor = analysis.getMeanHexColorString();
+            this.isotopePaneRows = new ArrayList<>();
             stage.setScene(new Scene(fxmlLoader.load()));
             repaintRatiosDelegateActionSet = delegateActionSet;
             settingsWindowController = fxmlLoader.getController();
@@ -87,18 +90,19 @@ public class SettingsWindow {
             );
             //  Experimental
             for (SpeciesRecordInterface speciesRecordInterface : analysis.getAnalysisMethod().getSpeciesList()) {
-                settingsWindowController.getPlotIntensitiesVBox().getChildren().add(
-                        new IsotopePaneRow(
-                                speciesRecordInterface,
-                                ((Analysis) analysis).getAnalysisMapOfSpeciesToColors(),
-                                PlotWallPaneIntensities.getDelegateActionSet(),
-                                30)
-                );
                 Region region = new Region();
                 region.setPrefHeight(20);
                 settingsWindowController.getPlotIntensitiesVBox().getChildren().add(
-                       region
+                        region
                 );
+                IsotopePaneRow row =
+                        new IsotopePaneRow(
+                        speciesRecordInterface,
+                        ((Analysis) analysis).getAnalysisMapOfSpeciesToColors(),
+                        PlotWallPaneIntensities.getDelegateActionSet(),
+                        35);
+                isotopePaneRows.add(row);
+                settingsWindowController.getPlotIntensitiesVBox().getChildren().add(row);
             }
             stage.setTitle("Settings");
         } catch (IOException | TripoliException e) {
@@ -226,6 +230,9 @@ public class SettingsWindow {
             ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().putAll(
                     originalSpeciesColors
             );
+            for(IsotopePaneRow row : isotopePaneRows) {
+                row.speciesColorsProperty().set(originalSpeciesColors.get(row.getSpeciesRecord()));
+            }
             repaintRatiosDelegateActionSet.executeDelegateActions();
             speciesColorSelectionScrollPane.getDelegateActionSet().executeDelegateActions(); // TODO: make these standard
 //            close();

@@ -1,7 +1,6 @@
 package org.cirdles.tripoli.gui.settings.color.fxcomponents;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -28,7 +27,7 @@ public class IsotopePaneRow extends HBox {
     private final ColorPickerSplotch pmModel;
     private final Map<SpeciesRecordInterface, SpeciesColors> colorMap;
     private SpeciesRecordInterface speciesRecord;
-    private ObjectProperty<SpeciesColors> speciesColorsObjectProperty;
+    private ObjectProperty<SpeciesColors> speciesColorsProperty;
     private DelegateActionSet delegateActionSet;
 
 
@@ -42,7 +41,7 @@ public class IsotopePaneRow extends HBox {
                           Map<SpeciesRecordInterface, SpeciesColors> colorMap,
                           DelegateActionSet delegateActionSet) {
         this.speciesRecord = speciesRecordInterface;
-        this.speciesColorsObjectProperty = new SimpleObjectProperty<>(colorMap.get(speciesRecordInterface));
+        this.speciesColorsProperty = new SimpleObjectProperty<>(colorMap.get(speciesRecordInterface));
         this.delegateActionSet = delegateActionSet;
         this.colorMap = colorMap;
         // Initialize all components
@@ -53,49 +52,49 @@ public class IsotopePaneRow extends HBox {
         this.faradayData.prefWidthProperty().set(COLOR_WIDTH);
         this.faradayData.colorProperty().addListener(((observable, oldValue, newValue) -> {
             // Change listener only activated when new value is not equal to old value
-            speciesColorsObjectProperty.set(speciesColorsObjectProperty.get().altered(
+            speciesColorsProperty.set(speciesColorsProperty.get().altered(
                     TripoliConstants.DetectorPlotFlavor.FARADAY_DATA,
                     ConstantsTripoliApp.convertColorToHex(newValue)
             ));
         }));
         this.faradayData.colorProperty().setValue(
-                Color.web(speciesColorsObjectProperty.get().faradayHexColor())
+                Color.web(speciesColorsProperty.get().faradayHexColor())
         );
         this.pmData = new ColorPickerSplotch();
         this.pmData.prefWidthProperty().set(COLOR_WIDTH);
         this.pmData.colorProperty().addListener(((observable, oldValue, newValue) -> {
-            speciesColorsObjectProperty.set(speciesColorsObjectProperty.get().altered(
+            speciesColorsProperty.set(speciesColorsProperty.get().altered(
                     TripoliConstants.DetectorPlotFlavor.PM_DATA,
                     ConstantsTripoliApp.convertColorToHex(newValue)
             ));
         }));
         this.pmData.colorProperty().setValue(
-                Color.web(speciesColorsObjectProperty.get().pmHexColor())
+                Color.web(speciesColorsProperty.get().pmHexColor())
         );
         this.faradayModel = new ColorPickerSplotch();
         this.faradayModel.prefWidthProperty().set(COLOR_WIDTH);
         this.faradayModel.colorProperty().addListener(((observable, oldValue, newValue) -> {
-            speciesColorsObjectProperty.set(speciesColorsObjectProperty.get().altered(
+            speciesColorsProperty.set(speciesColorsProperty.get().altered(
                     TripoliConstants.DetectorPlotFlavor.FARADAY_MODEL,
                     ConstantsTripoliApp.convertColorToHex(newValue)
             ));
         }));
         this.faradayModel.colorProperty().setValue(
-                Color.web(speciesColorsObjectProperty.get().faradayModelHexColor())
+                Color.web(speciesColorsProperty.get().faradayModelHexColor())
         );
         this.pmModel = new ColorPickerSplotch();
         this.pmModel.prefWidthProperty().set(COLOR_WIDTH);
         this.pmModel.colorProperty().addListener(((observable, oldValue, newValue) -> {
-            speciesColorsObjectProperty.set(speciesColorsObjectProperty.get().altered(
+            speciesColorsProperty.set(speciesColorsProperty.get().altered(
                     TripoliConstants.DetectorPlotFlavor.PM_MODEL,
                     ConstantsTripoliApp.convertColorToHex(newValue)
             ));
         }));
         this.pmModel.colorProperty().setValue(
-                Color.web(speciesColorsObjectProperty.get().pmModelHexColor())
+                Color.web(speciesColorsProperty.get().pmModelHexColor())
         );
 
-        this.speciesColorsObjectProperty.addListener((observable, oldValue, newValue) -> {
+        this.speciesColorsProperty.addListener((observable, oldValue, newValue) -> {
             colorMap.put(speciesRecord, newValue);
             delegateActionSet.executeDelegateActions();
             faradayData.colorProperty().set(Color.web(newValue.faradayHexColor()));
@@ -129,5 +128,18 @@ public class IsotopePaneRow extends HBox {
             }
         });
 
+    }
+
+
+    public ObjectProperty<SpeciesColors> speciesColorsProperty() {
+        return speciesColorsProperty;
+    }
+
+    public void setSpeciesColors(SpeciesColors speciesColors) {
+        this.speciesColorsProperty.set(speciesColors);
+    }
+
+    public SpeciesRecordInterface getSpeciesRecord() {
+        return speciesRecord;
     }
 }
