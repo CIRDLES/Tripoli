@@ -9,12 +9,12 @@
    <children>
       <TabPane fx:id="plotRatiosTabPane" prefWidth="414.0">
          <tabs>
-            <Tab closable="false" text="Plot Ratios Color Control">
+            <Tab closable="false" text="Ratios Color Control">
                <content>
                   <AnchorPane fx:id="ratioColorSelectionAnchorPane" prefHeight="367.0" prefWidth="536.0" />
                </content>
             </Tab>
-            <Tab closable="false" text="Plot Intensities Color Control">
+            <Tab closable="false" text="Intensity/Residuals Color Control">
                <content>
                   <AnchorPane fx:id="plotIntensitiesAnchorPaneExp" prefHeight="474.0" prefWidth="536.0">
                      <children>
