@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.AnchorPane;
@@ -46,19 +47,17 @@ public class SettingsWindowController implements Initializable {
     @FXML
     private ToolBar saveDefaultsToolbar;
 
-    //    @FXML
-//    private Button okButton;
-//    @FXML
-//    private Button revertToSavedButton;
-//    @FXML
-//    private Button restoreDefaultsButton;
+    @FXML
+    private Tab oldIntensityPlotTab;
+
 
     @FXML
     private Button cancelButton;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        oldIntensityPlotTab.getTabPane().getTabs().remove(oldIntensityPlotTab);
+        // remove the above to see the old intensity plot implementation
     }
 
     public VBox getvBoxRoot() {

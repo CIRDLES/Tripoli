@@ -73,10 +73,10 @@ public class SettingsWindow {
             speciesColorSelectionScrollPane = SpeciesColorSelectionScrollPane.buildSpeciesColorSelectionScrollPane(
                     AnalysisInterface.convertToAnalysis(analysis),
                     PlotWallPaneIntensities.getDelegateActionSet());
-            settingsWindowController.getPlotIntensitiesAnchorPane().getChildren().clear();
-            settingsWindowController.getPlotIntensitiesAnchorPane().getChildren().add(
-                    speciesColorSelectionScrollPane
-            );
+//            settingsWindowController.getPlotIntensitiesAnchorPane().getChildren().clear();
+//            settingsWindowController.getPlotIntensitiesAnchorPane().getChildren().add(
+//                    speciesColorSelectionScrollPane
+//            );
             ratioColorSelectionPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
             ratioColorSelectionPane.prefWidthProperty().bind(stage.widthProperty());
             initializeToolbarButtons();
