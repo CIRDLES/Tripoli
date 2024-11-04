@@ -93,37 +93,33 @@ public class SessionManagerController implements Initializable {
         sessionGridPane.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
             if (event.getDragboard().hasFiles()) {
-                File dataFile = db.getFiles().get(0);
+                for (int i = 0; i < db.getFiles().size(); i++) {
+                    File dataFile = db.getFiles().get(i);
 
-                AnalysisInterface analysisProposed = null;
-                try {
-                    analysisProposed = AnalysisInterface.initializeNewAnalysis(0);
-                } catch (TripoliException e) {
+                    AnalysisInterface analysisProposed;
+                    try {
+                        analysisProposed = AnalysisInterface.initializeNewAnalysis(0);
+                        String analysisName = analysisProposed.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
+                        if (tripoliSession.getMapOfAnalyses().containsKey(analysisName))
+                            tripoliSession.getMapOfAnalyses().remove(analysisName);
+                        if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
+                            analysisProposed.setAnalysisName(analysisName);
+                            analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
+                            tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
+                            analysis = analysisProposed;
+                            AnalysisManagerController.readingFile = true;
+                        } else {
+                            analysis = null;
+                            TripoliMessageDialog.showWarningDialog("Tripoli does not recognize this file format.", primaryStageWindow);
+                        }
+                    } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException |
+                             IllegalAccessException | TripoliException e) {
 //                    throw new RuntimeException(e);
-                }
-                try {
-                    String analysisName = analysisProposed.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
-                    if (tripoliSession.getMapOfAnalyses().containsKey(analysisName))
-                        tripoliSession.getMapOfAnalyses().remove(analysisName);
-                    if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
-                        analysisProposed.setAnalysisName(analysisName);
-                        analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
-                        tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
-                        analysis = analysisProposed;
-                        // manage analysis
-                        AnalysisManagerController.readingFile = true;
-                        MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
-                                .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
-                        menuItemAnalysesManager.fire();
-                    } else {
-                        analysis = null;
-                        TripoliMessageDialog.showWarningDialog("Tripoli does not recognize this file format.", primaryStageWindow);
                     }
-                } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
-//                    throw new RuntimeException(e);
-                } catch (IllegalAccessException | TripoliException e) {
-//                    throw new RuntimeException(e);
                 }
+                MenuItem menuItemSessionManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                        .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(0);
+                menuItemSessionManager.fire();
             }
         });
         // end implement drag n drop of files ===================================================================

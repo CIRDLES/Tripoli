@@ -81,17 +81,6 @@ public class AnalysisMethod implements Serializable {
         return new AnalysisMethod(methodName, massSpectrometerContext);
     }
 
-    public static AnalysisMethod createAnalysisMethodConcatCase1(AnalysisMethod sourceMethod) {
-        AnalysisMethod analysisMethodConcat = new AnalysisMethod("Derived for Concat", sourceMethod.getMassSpectrometerContext());
-        List<UserFunction> userFunctionsConcat = new ArrayList<>();
-        for (UserFunction uf : sourceMethod.getUserFunctions()) {
-            userFunctionsConcat.add(uf.copy());
-        }
-        analysisMethodConcat.setUserFunctions(userFunctionsConcat);
-
-        return analysisMethodConcat;
-    }
-
     public static AnalysisMethod createAnalysisMethodFromCase1(
             MassSpecExtractedData massSpecExtractedData) {
         int r270_267ColumnIndex = -1;

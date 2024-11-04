@@ -233,33 +233,32 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         analysisManagerGridPane.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
             if (event.getDragboard().hasFiles()) {
-                File dataFile = db.getFiles().get(0);
-                AnalysisInterface analysisProposed = null;
-                try {
-                    analysisProposed = AnalysisInterface.initializeNewAnalysis(0);
-                } catch (TripoliException e) {
+                for (int i = 0; i < db.getFiles().size(); i++) {
+                    File dataFile = db.getFiles().get(i);
+
+                    AnalysisInterface analysisProposed;
+                    try {
+                        analysisProposed = AnalysisInterface.initializeNewAnalysis(0);
+                        String analysisName = analysisProposed.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
+                        if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
+                            analysisProposed.setAnalysisName(analysisName);
+                            analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
+                            tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
+                            analysis = analysisProposed;
+                            // manage analysis
+                            readingFile = true;
+                            MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                                    .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
+                            menuItemAnalysesManager.fire();
+                        } else {
+                            analysis = null;
+                            TripoliMessageDialog.showWarningDialog("Tripoli does not recognize this file format.", primaryStageWindow);
+                        }
+                    } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
 //                    throw new RuntimeException(e);
-                }
-                try {
-                    String analysisName = analysisProposed.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
-                    if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
-                        analysisProposed.setAnalysisName(analysisName);
-                        analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
-                        tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
-                        analysis = analysisProposed;
-                        // manage analysis
-                        readingFile = true;
-                        MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
-                                .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
-                        menuItemAnalysesManager.fire();
-                    } else {
-                        analysis = null;
-                        TripoliMessageDialog.showWarningDialog("Tripoli does not recognize this file format.", primaryStageWindow);
+                    } catch (IllegalAccessException | TripoliException e) {
+//                    throw new RuntimeException(e);
                     }
-                } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
-//                    throw new RuntimeException(e);
-                } catch (IllegalAccessException | TripoliException e) {
-//                    throw new RuntimeException(e);
                 }
             }
         });
@@ -273,7 +272,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         setupListeners();
 
         try {
-            if (readingFile){
+            if (readingFile) {
                 readingFile = false;
                 previewAndSculptDataFromFile();
             } else {
@@ -1105,7 +1104,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 //            throw new RuntimeException(e);
         }
 
-        if ((analysis.getMethod() != null)&&
+        if ((analysis.getMethod() != null) &&
                 (tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName()) != null)) {
             if (null != ogTripoliPreviewPlotsWindow) {
                 ogTripoliPreviewPlotsWindow.close();

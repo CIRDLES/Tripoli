@@ -155,7 +155,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         // TODO: check timestamps, Methods, columnheadings, etc. >> assume right for now
 
         AnalysisInterface analysisConcat = new Analysis(
-                "AnalysisConcatTest", AnalysisMethod.createAnalysisMethodConcatCase1(analysisOne.getAnalysisMethod()), analysisOne.getAnalysisSampleName());
+                "AnalysisConcatTest", analysisOne.getAnalysisMethod(), analysisOne.getAnalysisSampleName());
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String analysisTime = df.format(new Date());
