@@ -64,8 +64,6 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
     private double[] oneSigmaForCycles;
     private boolean logScale;
     private boolean[] zoomFlagsXY;
-    private final PlotWallPaneInterface parentWallPane;
-    private final boolean isRatio;
     private boolean blockMode;
     private AnalysisStatsRecord analysisStatsRecord;
     private int sculptBlockID;

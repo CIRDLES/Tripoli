@@ -101,7 +101,7 @@ public class SettingsWindow {
                 );
             }
             stage.setTitle("Settings");
-        } catch (IOException e) {
+        } catch (IOException | TripoliException e) {
             e.printStackTrace();
         }
     }

@@ -38,7 +38,7 @@ public interface AnalysisInterface {
         return new Analysis("New Analysis" + "_" + (suffix), null, MISSING_STRING_FIELD);
     }
 
-    static Analysis convertToAnalysis(AnalysisInterface analysis) {
+    static Analysis convertToAnalysis(AnalysisInterface analysis) throws TripoliException {
         Analysis result;
         if (analysis instanceof Analysis) {
             result = (Analysis) analysis;
