@@ -3,6 +3,7 @@ package org.cirdles.tripoli.gui.settings.color.old;
 import javafx.geometry.Insets;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;

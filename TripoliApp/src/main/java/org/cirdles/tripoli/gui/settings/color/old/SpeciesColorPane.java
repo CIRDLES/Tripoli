@@ -6,9 +6,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import static org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
-import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_HIGHLIGHTED_HEX;
-
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
@@ -17,6 +14,9 @@ import org.cirdles.tripoli.species.SpeciesColors;
 
 import java.util.Map;
 import java.util.TreeMap;
+
+import static org.cirdles.tripoli.constants.TripoliConstants.DetectorPlotFlavor;
+import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_HIGHLIGHTED_HEX;
 
 public class SpeciesColorPane extends Pane implements Highlightable {
 
@@ -29,9 +29,9 @@ public class SpeciesColorPane extends Pane implements Highlightable {
         getChildren().add(root);
         root.prefWidthProperty().bind(prefWidthProperty());
         this.mapOfPlotFlavorsToSpeciesColorRows = new TreeMap<>();
-        for (DetectorPlotFlavor plotFlavor: DetectorPlotFlavor.values()) {
+        for (DetectorPlotFlavor plotFlavor : DetectorPlotFlavor.values()) {
             mapOfPlotFlavorsToSpeciesColorRows.put(
-                    plotFlavor,new SpeciesColorRow(plotFlavor,
+                    plotFlavor, new SpeciesColorRow(plotFlavor,
                             Color.web(speciesColors.get(plotFlavor)),
                             speciesIndex));
             mapOfPlotFlavorsToSpeciesColorRows.get(plotFlavor).prefWidthProperty().bind(widthProperty());
@@ -44,7 +44,7 @@ public class SpeciesColorPane extends Pane implements Highlightable {
         this.title.setStyle(this.title.getStyle() + ";;-fx-font-weight: bolder;");
         root.getChildren().add(title);
         root.getChildren().addAll(mapOfPlotFlavorsToSpeciesColorRows.values());
-        for(Node node : root.getChildren()) {
+        for (Node node : root.getChildren()) {
             node.setStyle(node.getStyle() + ";;-fx-border-color: black; -fx-border-width: .5px .25px .5px .25px;");
 
         }
@@ -55,7 +55,7 @@ public class SpeciesColorPane extends Pane implements Highlightable {
     @Override
     public void highlight() {
         Color backgroundColor = Color.web(TRIPOLI_HIGHLIGHTED_HEX, 0.9);
-        BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, new Insets(0, -5,0,0));
+        BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, new Insets(0, -5, 0, 0));
         this.title.setBackground(new Background(fill));
     }
 

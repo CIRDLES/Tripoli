@@ -58,6 +58,8 @@ import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.gen
 public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlockCyclesPlotI {
     private final AnalysisBlockCyclesRecord analysisBlockCyclesRecord;
     private AnalysisInterface analysis;
+    private final PlotWallPaneInterface parentWallPane;
+    private final boolean isRatio;
     private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord;
     private double[] oneSigmaForCycles;
     private boolean logScale;

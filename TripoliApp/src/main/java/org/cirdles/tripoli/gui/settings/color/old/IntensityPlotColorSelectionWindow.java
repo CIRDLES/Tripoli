@@ -31,7 +31,9 @@ import org.cirdles.tripoli.utilities.DelegateActionSet;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 public class IntensityPlotColorSelectionWindow {
     public static final String WINDOW_TITLE = "Color Customization";
@@ -199,15 +201,15 @@ public class IntensityPlotColorSelectionWindow {
         rebuildDelegateActionSet.executeDelegateActions();
     }
 
-    private void undo(){
-        if (!previousSpeciesColorSettingsStack.empty()){
+    private void undo() {
+        if (!previousSpeciesColorSettingsStack.empty()) {
             SpeciesColorSetting previousSpeciesColorSetting = previousSpeciesColorSettingsStack.pop();
             undoButton.setDisable(previousSpeciesColorSettingsStack.empty());
             analysisMapOfSpeciesToColors.put(
                     speciesRecordInterfaceList.get(previousSpeciesColorSetting.index()),
                     previousSpeciesColorSetting.speciesColors());
             SpeciesColorPane speciesColorPane = speciesColorPanes[previousSpeciesColorSetting.index()];
-            for(DetectorPlotFlavor plotFlavor: DetectorPlotFlavor.values()) {
+            for (DetectorPlotFlavor plotFlavor : DetectorPlotFlavor.values()) {
                 speciesColorPane.getMapOfPlotFlavorsToSpeciesColorRows().
                         get(plotFlavor).
                         setColor(Color.web(
@@ -218,13 +220,12 @@ public class IntensityPlotColorSelectionWindow {
         }
     }
 
-
     private void saveAsSessionDefault() {
         sessionDefaultMapOfSpeciesToColors.putAll(analysisMapOfSpeciesToColors);
     }
 
     private void saveAsUserDefault() {
-        try{
+        try {
             TripoliPersistentState.getExistingPersistentState().getMapOfSpeciesToColors().putAll(analysisMapOfSpeciesToColors);
             TripoliPersistentState.getExistingPersistentState().updateTripoliPersistentState();
         } catch (TripoliException ex) {
@@ -257,7 +258,7 @@ public class IntensityPlotColorSelectionWindow {
         resetButton.prefWidthProperty().bind(stage.widthProperty().divide(TOOLBAR_BUTTON_WIDTH_DIVISOR));
         resetButton.setPrefHeight(TOOLBAR_BUTTON_HEIGHT);
         resetButton.setOnAction(resetChanges ->
-            resetToSessionDefault());
+                resetToSessionDefault());
         return resetButton;
     }
 
@@ -306,6 +307,7 @@ public class IntensityPlotColorSelectionWindow {
         toolBar.getItems().add(closeButton);
         return toolBar;
     }
+
     private ColorPicker initColorPicker() {
         this.colorPicker = new ColorPicker();
         this.colorPicker.prefWidthProperty().bind(stage.widthProperty());
@@ -322,6 +324,7 @@ public class IntensityPlotColorSelectionWindow {
         //  TODO: Set colorPickerLabel text when user cancels
         return this.colorPicker;
     }
+
     private void initSpeciesColorPanes(List<SpeciesRecordInterface> species) {
         speciesColorPanes = new SpeciesColorPane[species.size()];
         for (int i = 0; i < species.size(); ++i) {
@@ -345,7 +348,7 @@ public class IntensityPlotColorSelectionWindow {
         double stageHeight = stage.getHeight();
 
         double centerX = ownerX + (ownerWidth - stageWidth) / 2;
-        double centerY = ownerY + (ownerHeight - stageHeight) / 2 ;
+        double centerY = ownerY + (ownerHeight - stageHeight) / 2;
 
         stage.setX(centerX);
         stage.setY(centerY);
@@ -359,11 +362,12 @@ public class IntensityPlotColorSelectionWindow {
                         stage.getHeight())).isEmpty()) {
             // ... then put it in the middle of the screen by default
             Screen primaryScreen = Screen.getPrimary();
-            stage.setX(primaryScreen.getBounds().getMinX() + (primaryScreen.getBounds().getWidth() - stageWidth)/2);
-            stage.setY(primaryScreen.getBounds().getMinY() + (primaryScreen.getBounds().getHeight() - stageHeight)/2);
+            stage.setX(primaryScreen.getBounds().getMinX() + (primaryScreen.getBounds().getWidth() - stageWidth) / 2);
+            stage.setY(primaryScreen.getBounds().getMinY() + (primaryScreen.getBounds().getHeight() - stageHeight) / 2);
         }
 
     }
+
     private void initStage(Window owner) {
         stage = new Stage();
         Scene scene = new Scene(this.root);
@@ -410,7 +414,7 @@ public class IntensityPlotColorSelectionWindow {
                 stage.setY(stage.getY() + newValue.doubleValue() - oldValue.doubleValue());
             }
         }));
-        stage.setOnCloseRequest(closeRequest ->{
+        stage.setOnCloseRequest(closeRequest -> {
             instance = null;
             stage.close();
         });
@@ -440,8 +444,9 @@ public class IntensityPlotColorSelectionWindow {
     private void close() {
         stage.getOnCloseRequest().handle(new WindowEvent(stage.getOwner(), WindowEvent.WINDOW_CLOSE_REQUEST));
     }
+
     public void show() {
-        if(!stage.isShowing()) {
+        if (!stage.isShowing()) {
             stage.show();
         }
         setColorPickerLabelText();

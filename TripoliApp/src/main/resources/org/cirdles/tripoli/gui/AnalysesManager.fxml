@@ -21,8 +21,7 @@
 <?import javafx.scene.effect.InnerShadow?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.TextFlow?>
-<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="analysisManagerGridPane" hgap="15.0" minWidth="250.0"
-          prefHeight="640.0"
+<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="analysisManagerGridPane" hgap="15.0" minWidth="250.0" prefHeight="640.0"
           prefWidth="1250.0" style="-fx-background-color: #fbf6d5;" stylesheets="@css/tripoli.css"
           vgap="10.0" xmlns="http://javafx.com/javafx/17"
           fx:controller="org.cirdles.tripoli.gui.AnalysisManagerController">
@@ -39,8 +38,10 @@
         <RowConstraints maxHeight="90.0" minHeight="90.0" prefHeight="90.0" valignment="TOP" vgrow="SOMETIMES"/>
         <RowConstraints maxHeight="270.0" minHeight="270.0" percentHeight="45.0" prefHeight="270.0" valignment="TOP"
                         vgrow="SOMETIMES"/>
-        <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES"/>
-        <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES"/>
+        <RowConstraints maxHeight="30.0" minHeight="30.0" percentHeight="5.0" prefHeight="30.0" valignment="TOP"
+                        vgrow="SOMETIMES"/>
+        <RowConstraints maxHeight="30.0" minHeight="30.0" percentHeight="5.0" prefHeight="30.0" valignment="TOP"
+                        vgrow="SOMETIMES"/>
     </rowConstraints>
     <padding>
         <Insets bottom="15.0" left="20.0" right="20.0" top="1.0"/>
@@ -86,7 +87,7 @@
            style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Actions:" GridPane.rowIndex="8"/>
     <HBox GridPane.columnIndex="1" GridPane.rowIndex="8">
         <children>
-            <ToolBar maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="669.0"
+            <ToolBar maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="550.0"
                      style="-fx-background-color: transparent;">
                 <Button mnemonicParsing="false" onAction="#selectDataFileButtonAction" text="Load Data File"/>
                 <Button layoutX="10.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectMethodFileButtonAction"
@@ -107,8 +108,8 @@
                     </opaqueInsets>
                 </Button>
             </ToolBar>
-            <ToolBar fx:id="processingToolBar" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="701.0"
-                     style="-fx-background-color: transparent;">
+            <ToolBar fx:id="processingToolBar" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="430.0"
+                     style="-fx-background-color: transparent;" visible="false">
                 <items>
                     <Button layoutX="225.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectRunAllAction"
                             style="-fx-text-fill: RED;" text="Run All"/>
@@ -117,8 +118,7 @@
                     <Button layoutX="321.0" layoutY="7.0" mnemonicParsing="false" onAction="#selectShowsAction"
                             style="-fx-text-fill: GREEN;" text="Shows Only"/>
                     <Button id="MCMC" fx:id="mcmcButton" layoutX="609.0" layoutY="7.0" mnemonicParsing="false"
-                            onAction="#initializeMonteCarloTechniqueAction" style="-fx-text-fill: RED;"
-                            text="Process / Plot Blocks MCMC"/>
+                            onAction="#initializeMonteCarloTechniqueAction" style="-fx-text-fill: RED;" text="MCMC1"/>
                     <RadioButton mnemonicParsing="false" onAction="#knotsChoiceAction" selected="true" text="Linear">
                         <toggleGroup>
                             <ToggleGroup fx:id="knotsToggleGroup"/>
@@ -126,6 +126,13 @@
                     </RadioButton>
                     <RadioButton mnemonicParsing="false" onAction="#knotsChoiceAction" text="Cubic"
                                  toggleGroup="$knotsToggleGroup"/>
+                </items>
+            </ToolBar>
+            <ToolBar maxHeight="30.0" minHeight="30.0" prefHeight="30.0" style="-fx-background-color: transparent;"
+                     visible="false">
+                <items>
+                    <Button id="MCMC" fx:id="mcmc2Button" mnemonicParsing="false"
+                            onAction="#initializeMCMC2TechniqueAction" style="-fx-text-fill: RED;" text="MCMC2"/>
                 </items>
             </ToolBar>
         </children>
@@ -144,8 +151,48 @@
     <TabPane fx:id="analysiMethodTabPane" style="-fx-border-color: BLACK;" tabMaxHeight="20.0" tabMinHeight="20.0"
              GridPane.columnIndex="1" GridPane.rowIndex="6">
         <Tab id="tab0" closable="false" text="About">
-            <TextArea fx:id="aboutAnalysisTextArea" editable="false" prefHeight="200.0" prefWidth="200.0"
-                      text="No analysis method"/>
+            <HBox>
+                <children>
+                    <TextArea fx:id="aboutAnalysisTextArea" editable="false" prefHeight="239.0" prefWidth="410.0"
+                              text="No analysis method"/>
+                </children>
+            </HBox>
+        </Tab>
+        <Tab id="tab0" closable="false" text="Modify">
+            <content>
+                <HBox>
+                    <children>
+                        <VBox prefHeight="239.0" prefWidth="240.0">
+                            <children>
+                                <Pane prefHeight="111.0" prefWidth="240.0">
+                                    <children>
+                                        <Label layoutX="-2.0" layoutY="40.0" prefHeight="17.0" prefWidth="161.0"
+                                               text="Set default cycles per block:"/>
+                                        <Spinner fx:id="defaultCyclesPerBlockSpinner" layoutX="161.0" layoutY="35.0"
+                                                 prefHeight="26.0" prefWidth="63.0"/>
+                                        <Button fx:id="reloadDataForCyclesPerBlockBtn" layoutX="76.0" layoutY="72.0"
+                                                mnemonicParsing="false" onAction="#reloadDataForCyclesPerBlockBtnAction"
+                                                text="Reload Data"/>
+                                    </children>
+                                    <VBox.margin>
+                                        <Insets left="15.0"/>
+                                    </VBox.margin>
+                                </Pane>
+                                <Pane layoutX="25.0" layoutY="10.0" prefHeight="111.0" prefWidth="240.0">
+                                    <children>
+                                        <Button fx:id="reloadDataForCyclesPerBlockBtn1" layoutX="16.0" layoutY="72.0"
+                                                mnemonicParsing="false" onAction="#saveDisplayedColumnsAsDefault"
+                                                text="Save Plotted Columns as Default"/>
+                                    </children>
+                                    <VBox.margin>
+                                        <Insets left="15.0"/>
+                                    </VBox.margin>
+                                </Pane>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+            </content>
         </Tab>
         <Tab id="tab1" fx:id="detectorDetailTab" closable="false" text="Detector Details">
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
@@ -262,18 +309,28 @@
         </Tab>
         <Tab fx:id="selectColumnsToPlot" closable="false" text="Select Columns to Plot">
             <content>
-                <SplitPane dividerPositions="0.75" prefHeight="242.0" prefWidth="1065.0">
+                <SplitPane dividerPositions="0.8" prefHeight="242.0" prefWidth="1065.0">
                     <items>
-                        <ScrollPane fx:id="ratiosScrollPane" hbarPolicy="NEVER">
-                            <content>
-                                <VBox fx:id="ratiosVBox" prefHeight="239.0" prefWidth="797.0"/>
-                            </content>
-                        </ScrollPane>
-                        <ScrollPane fx:id="functionsScrollPane" hbarPolicy="NEVER">
-                            <content>
-                                <VBox fx:id="functionsVBox" prefHeight="239.0" prefWidth="527.0"/>
-                            </content>
-                        </ScrollPane>
+                        <VBox>
+                            <children>
+                                <HBox fx:id="ratiosHeaderHBox" prefHeight="52.0" prefWidth="794.0"/>
+                                <ScrollPane fx:id="ratiosScrollPane" hbarPolicy="NEVER">
+                                    <content>
+                                        <VBox fx:id="ratiosVBox" prefHeight="239.0" prefWidth="797.0"/>
+                                    </content>
+                                </ScrollPane>
+                            </children>
+                        </VBox>
+                        <VBox>
+                            <children>
+                                <HBox fx:id="functionsHeaderHBox" prefHeight="53.0" prefWidth="262.0"/>
+                                <ScrollPane fx:id="functionsScrollPane" hbarPolicy="NEVER">
+                                    <content>
+                                        <VBox fx:id="functionsVBox" prefHeight="239.0" prefWidth="527.0"/>
+                                    </content>
+                                </ScrollPane>
+                            </children>
+                        </VBox>
                     </items>
                 </SplitPane>
             </content>

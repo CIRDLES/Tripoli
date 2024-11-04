@@ -45,9 +45,9 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetu
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
-import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunctionModel;
+import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
@@ -132,7 +132,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
     protected Analysis(String analysisName,
                        AnalysisMethod analysisMethod,
-                       String analysisSampleName) {
+                       String analysisSampleName) throws TripoliException {
         this.analysisName = analysisName;
         try {
             this.analysisMapOfSpeciesToColors =
@@ -164,7 +164,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
 
 
-    public static AnalysisInterface concatenateTwoAnalysesLite(AnalysisInterface analysisOne, AnalysisInterface analysisTwo) {
+    public static AnalysisInterface concatenateTwoAnalysesLite(AnalysisInterface analysisOne, AnalysisInterface analysisTwo) throws TripoliException {
         // assume for now that these are two sequential runs with all the same metadata
         // TODO: check timestamps, Methods, columnheadings, etc. >> assume right for now
 
@@ -208,7 +208,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     public Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount() {
         return mapOfBlockIdToModelsBurnCount;
     }
-
 
     /**
      *
@@ -326,10 +325,9 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
             }
             extractedAnalysisName = analysisName;
         } else {
-          // case1
-          setMethod(AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData));
-          extractedAnalysisName = dataFilePath.toFile().getName().substring(0, dataFilePath.toFile().getName().length() - 4);
-//             analysisMethod = AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData);
+            // case1
+            setMethod(AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData));
+            extractedAnalysisName = dataFilePath.toFile().getName().substring(0, dataFilePath.toFile().getName().length() - 4);
             initializeBlockProcessing();
         }
 
@@ -519,9 +517,9 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         } else {
             sb.append(String.format("%30s", "Software Version: ")).append(massSpecExtractedData.getHeader().softwareVersion())
                     .append("\n").append(String.format("%30s", "File Name: ")).append(String.format("%-45s", massSpecExtractedData.getHeader().filename()))
-                    .append(String.format("%30s", "Corrected?: ")).append(massSpecExtractedData.getHeader().isCorrected())
+//                    .append(String.format("%30s", "Corrected?: ")).append(massSpecExtractedData.getHeader().isCorrected())
                     .append("\n").append(String.format("%30s", "Method Name: ")).append(String.format("%-45s", massSpecExtractedData.getHeader().methodName()))
-                    .append(String.format("%30s", "BChannels?: ")).append(massSpecExtractedData.getHeader().hasBChannels())
+//                    .append(String.format("%30s", "BChannels?: ")).append(massSpecExtractedData.getHeader().hasBChannels())
                     .append("\n").append(String.format("%30s", "Start Time: ")).append(String.format("%-45s", massSpecExtractedData.getHeader().analysisStartTime()));
         }
 
@@ -787,6 +785,8 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         setMeanHexColorString(session.getMeanHexColorString());
         setTwoStandardErrorHexColorString(session.getTwoStdErrHexColorString());
     }
+
+
     public void setAnalysisMapOfSpeciesToColors(TripoliSpeciesColorMap analysisMapOfSpeciesToColors) {
         this.analysisMapOfSpeciesToColors = analysisMapOfSpeciesToColors;
     }
@@ -842,7 +842,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     public Map<Integer, PlotBuilder[]> getMapOfBlockIdToPeakPlots() {
         return mapOfBlockIdToPeakPlots;
     }
-
 
     public Map<Integer, SingleBlockRawDataSetRecord> getMapOfBlockIdToRawData() {
         return mapOfBlockIdToRawData;

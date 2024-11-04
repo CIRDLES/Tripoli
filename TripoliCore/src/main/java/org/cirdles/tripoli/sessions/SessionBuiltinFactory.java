@@ -48,7 +48,12 @@ public enum SessionBuiltinFactory {
         tripoliDemonstrationSession.setMutable(false);
         sessionsBuiltinMap.put(tripoliDemonstrationSession.getSessionName(), tripoliDemonstrationSession);
 
-        Analysis fiveIsotopes_12 = AnalysisInterface.initializeAnalysis("5 Isotope Demo_12", null, "5 Isotopes of Pb 12");
+        Analysis fiveIsotopes_12 = null;
+        try {
+            fiveIsotopes_12 = AnalysisInterface.initializeAnalysis("5 Isotope Demo_12", null, "5 Isotopes of Pb 12");
+        } catch (TripoliException e) {
+//            throw new RuntimeException(e);
+        }
         Path dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_12.txt");
         try {
             fiveIsotopes_12.extractMassSpecDataFromPath(dataFilePath);
@@ -58,7 +63,12 @@ public enum SessionBuiltinFactory {
         }
         tripoliDemonstrationSession.addAnalysis(fiveIsotopes_12);
 
-        Analysis twoIsotopes_01 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_01", null, "Two Isotopes of Pb 01");
+        Analysis twoIsotopes_01 = null;
+        try {
+            twoIsotopes_01 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_01", null, "Two Isotopes of Pb 01");
+        } catch (TripoliException e) {
+//            throw new RuntimeException(e);
+        }
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_01.txt");
         try {
             twoIsotopes_01.extractMassSpecDataFromPath(dataFilePath);
@@ -68,7 +78,12 @@ public enum SessionBuiltinFactory {
         }
         tripoliDemonstrationSession.addAnalysis(twoIsotopes_01);
 
-        Analysis twoIsotopes_02 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_02", null, "Two Isotopes of Pb 02");
+        Analysis twoIsotopes_02 = null;
+        try {
+            twoIsotopes_02 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_02", null, "Two Isotopes of Pb 02");
+        } catch (TripoliException e) {
+//            throw new RuntimeException(e);
+        }
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_02.txt");
         try {
             twoIsotopes_02.extractMassSpecDataFromPath(dataFilePath);
@@ -78,7 +93,12 @@ public enum SessionBuiltinFactory {
         }
         tripoliDemonstrationSession.addAnalysis(twoIsotopes_02);
 
-        Analysis twoIsotopes_03 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_03", null, "Two Isotopes of Pb 03");
+        Analysis twoIsotopes_03 = null;
+        try {
+            twoIsotopes_03 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_03", null, "Two Isotopes of Pb 03");
+        } catch (TripoliException e) {
+//            throw new RuntimeException(e);
+        }
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_03.txt");
         try {
             twoIsotopes_03.extractMassSpecDataFromPath(dataFilePath);
@@ -88,7 +108,12 @@ public enum SessionBuiltinFactory {
         }
         tripoliDemonstrationSession.addAnalysis(twoIsotopes_03);
 
-        Analysis twoIsotopes_04 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_04", null, "Two Isotopes of Pb 04");
+        Analysis twoIsotopes_04 = null;
+        try {
+            twoIsotopes_04 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_04", null, "Two Isotopes of Pb 04");
+        } catch (TripoliException e) {
+//            throw new RuntimeException(e);
+        }
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_04.txt");
         try {
             twoIsotopes_04.extractMassSpecDataFromPath(dataFilePath);
@@ -98,7 +123,12 @@ public enum SessionBuiltinFactory {
         }
         tripoliDemonstrationSession.addAnalysis(twoIsotopes_04);
 
-        Analysis twoIsotopes_05 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_05", null, "Two Isotopes of Pb 05");
+        Analysis twoIsotopes_05 = null;
+        try {
+            twoIsotopes_05 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_05", null, "Two Isotopes of Pb 05");
+        } catch (TripoliException e) {
+//            throw new RuntimeException(e);
+        }
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_05.txt");
         try {
             twoIsotopes_05.extractMassSpecDataFromPath(dataFilePath);
@@ -108,7 +138,12 @@ public enum SessionBuiltinFactory {
         }
         tripoliDemonstrationSession.addAnalysis(twoIsotopes_05);
 
-        Analysis twoIsotopes_06 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_06", null, "Two Isotopes of Pb 06");
+        Analysis twoIsotopes_06 = null;
+        try {
+            twoIsotopes_06 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_06", null, "Two Isotopes of Pb 06");
+        } catch (TripoliException e) {
+//            throw new RuntimeException(e);
+        }
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_06.txt");
         try {
             twoIsotopes_06.extractMassSpecDataFromPath(dataFilePath);
@@ -118,7 +153,12 @@ public enum SessionBuiltinFactory {
         }
         tripoliDemonstrationSession.addAnalysis(twoIsotopes_06);
 
-        Analysis twoIsotopes_07 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_07", null, "Two Isotopes of Pb 07");
+        Analysis twoIsotopes_07 = null;
+        try {
+            twoIsotopes_07 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_07", null, "Two Isotopes of Pb 07");
+        } catch (TripoliException e) {
+//            throw new RuntimeException(e);
+        }
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_07.txt");
         try {
             twoIsotopes_07.extractMassSpecDataFromPath(dataFilePath);
@@ -128,7 +168,12 @@ public enum SessionBuiltinFactory {
         }
         tripoliDemonstrationSession.addAnalysis(twoIsotopes_07);
 
-        Analysis twoIsotopes_08 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_08", null, "Two Isotopes of Pb 08");
+        Analysis twoIsotopes_08 = null;
+        try {
+            twoIsotopes_08 = AnalysisInterface.initializeAnalysis("Two Isotope Demo_08", null, "Two Isotopes of Pb 08");
+        } catch (TripoliException e) {
+//            throw new RuntimeException(e);
+        }
         dataFilePath = Path.of(SYNTHETIC_DATA_FOLDER_2ISOTOPE.getAbsolutePath() + File.separator + "SyntheticDataset_08.txt");
         try {
             twoIsotopes_08.extractMassSpecDataFromPath(dataFilePath);

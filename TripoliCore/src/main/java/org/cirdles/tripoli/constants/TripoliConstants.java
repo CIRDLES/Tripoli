@@ -44,6 +44,8 @@ public enum TripoliConstants {
             = new File(SYNTHETIC_DATA_FOLDER.getAbsolutePath() + File.separator + "data");
     public static final File SYNTHETIC_DATA_FOLDER_METHODS
             = new File(SYNTHETIC_DATA_FOLDER.getAbsolutePath() + File.separator + "methods");
+    public static final File SYNTHETIC_DATA_FOLDER_SYNTHETICFORTRIPOLI
+            = new File(SYNTHETIC_DATA_FOLDER.getAbsolutePath() + File.separator + "SyntheticOutToTripoli");
     public static final File NUCLIDESCHART_DATA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "NuclidesChartData");
     public static final File PERIODICTABLE_DATA_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "PeriodicTableData");
 
@@ -75,8 +77,8 @@ public enum TripoliConstants {
 
     public static final CircularArray<String> TRIPOLI_DEFAULT_HEX_COLORS = new CircularArray<>(new String[]{
             "#12bceb", "#095c73", "#ff0000", "#7fffd4", "#ffcf62", "#ac8c42", "#ff0000",
-            "#7fffd4","#9e6fb1","#4d3656","#ff0000","#7fffd4","#baff78","#6e9747","#ff0000",
-            "#7fffd4","#ffa056","#b2703c","#ff0000","#7fffd4"});
+            "#7fffd4", "#9e6fb1", "#4d3656", "#ff0000", "#7fffd4", "#baff78", "#6e9747", "#ff0000",
+            "#7fffd4", "#ffa056", "#b2703c", "#ff0000", "#7fffd4"});
 
     public enum DetectorPlotFlavor {
 

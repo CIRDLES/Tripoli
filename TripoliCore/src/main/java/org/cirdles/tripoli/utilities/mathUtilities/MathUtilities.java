@@ -85,15 +85,22 @@ public class MathUtilities {
         Gray out the Chauvenet button so that it can’t be re-applied.
          */
 
+        /*
+        Logic changed per discussion #261
+         */
+
         // TODO: move these to parameters
         double chauvenetRejectionProbability = 0.5;
         int requiredMinDatumCount = 20;
 
         boolean[] includedIndices = includedIndicesIn.clone();
-        if ((Booleans.countTrue(includedIndicesIn) == includedIndicesIn.length) && (includedIndicesIn.length >= requiredMinDatumCount)) {
+        //if ((Booleans.countTrue(includedIndicesIn) == includedIndicesIn.length) && (includedIndicesIn.length >= requiredMinDatumCount)) {
+        if ((Booleans.countTrue(includedIndices) >= requiredMinDatumCount)) {
             DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics();
             for (int i = 0; i < dataIn.length; i++) {
-                descriptiveStatistics.addValue(dataIn[i]);
+                if (includedIndices[i]) {
+                    descriptiveStatistics.addValue(dataIn[i]);
+                }
             }
             double xbar = descriptiveStatistics.getMean();
             double stddev = descriptiveStatistics.getStandardDeviation();

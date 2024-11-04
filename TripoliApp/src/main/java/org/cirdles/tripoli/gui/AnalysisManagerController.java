@@ -28,6 +28,9 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunctionDisplay;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMC2PlotsController;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMC2PlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliPlotsWindow;
@@ -44,6 +47,7 @@ import org.cirdles.tripoli.sessions.analysis.methods.baseline.BaselineCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.AnalysisMethodPersistance;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.File;
@@ -55,7 +59,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
-import static org.cirdles.tripoli.constants.TripoliConstants.ReductionModeEnum;
 import static org.cirdles.tripoli.gui.SessionManagerController.tripoliSession;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
@@ -67,8 +70,10 @@ import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compa
 
 public class AnalysisManagerController implements Initializable, AnalysisManagerCallbackI {
 
+    public static boolean readingFile = false;
     public static AnalysisInterface analysis;
     public static MCMCPlotsWindow MCMCPlotsWindow;
+    public static MCMC2PlotsWindow MCMC2PlotsWindow;
     public static OGTripoliPlotsWindow ogTripoliReviewPlotsWindow;
     public static OGTripoliPlotsWindow ogTripoliPreviewPlotsWindow;
     private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
@@ -76,8 +81,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public TabPane analysiMethodTabPane;
     @FXML
     public HBox blockStatusHBox;
-    @FXML
-    public GridPane selectRatiosGridPane;
     @FXML
     public Button mcmcButton;
     @FXML
@@ -100,9 +103,20 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public VBox functionsVBox;
     public TextField fractionNameTextField;
     public ScrollPane ratiosScrollPane;
+    @FXML
     public ScrollPane functionsScrollPane;
+    @FXML
     public Button exportToETReduxButton;
+    @FXML
     public Button exportToClipBoardButton;
+    @FXML
+    public Button mcmc2Button;
+    @FXML
+    public Spinner<Integer> defaultCyclesPerBlockSpinner;
+    @FXML
+    public Button reloadDataForCyclesPerBlockBtn;
+    public HBox ratiosHeaderHBox;
+    public HBox functionsHeaderHBox;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -211,6 +225,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        mcmc2Button.setDisable(false);
         // March 2024 implement drag n drop of files ===================================================================
         analysisManagerGridPane.setOnDragOver(event -> {
             event.acceptTransferModes(TransferMode.MOVE);
@@ -219,7 +234,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             Dragboard db = event.getDragboard();
             if (event.getDragboard().hasFiles()) {
                 File dataFile = db.getFiles().get(0);
-                AnalysisInterface analysisProposed = AnalysisInterface.initializeNewAnalysis(0);
+                AnalysisInterface analysisProposed = null;
+                try {
+                    analysisProposed = AnalysisInterface.initializeNewAnalysis(0);
+                } catch (TripoliException e) {
+//                    throw new RuntimeException(e);
+                }
                 try {
                     String analysisName = analysisProposed.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
                     if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
@@ -228,6 +248,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                         tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
                         analysis = analysisProposed;
                         // manage analysis
+                        readingFile = true;
                         MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
                                 .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
                         menuItemAnalysesManager.fire();
@@ -245,16 +266,22 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         // end implement drag n drop of files ===================================================================
 
         MCMCPlotsController.analysis = analysis;
+        MCMC2PlotsController.analysis = analysis;
         OGTripoliViewController.analysis = analysis;
         analysisManagerGridPane.setStyle("-fx-background-color: " + convertColorToHex(TRIPOLI_ANALYSIS_YELLOW));
 
         setupListeners();
 
         try {
-            previewAndSculptDataAction();
+            if (readingFile){
+                readingFile = false;
+                previewAndSculptDataFromFile();
+            } else {
+                previewAndSculptDataAction();
+            }
             populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
         } catch (TripoliException e) {
-//            throw new RuntimeException(e);
+//TODO: ALL need fixing:           throw new RuntimeException(e);
         }
 
         ImageView imageView = new ImageView(getClass().getResource("/" + TRIPOLI_CLIPBOARD_ICON).toExternalForm());
@@ -295,6 +322,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             assert null != analysis;
             analysis.setAnalysisSampleDescription(newValue.isBlank() ? MISSING_STRING_FIELD : newValue);
         });
+
+        int cyclesPerBlock = analysis.getMassSpecExtractedData().getHeader().cyclesPerBlock();
+        SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 100, cyclesPerBlock);
+        defaultCyclesPerBlockSpinner.setValueFactory(valueFactory);
+
+        defaultCyclesPerBlockSpinner.setEditable(false);
     }
 
     private void populateAnalysisManagerGridPane(int caseNumber) {
@@ -321,6 +354,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         if (0 != analysis.getDataFilePathString().compareToIgnoreCase(MISSING_STRING_FIELD)) {
             populateAnalysisDataFields();
+            setupDefaults();
         }
 
         switch (caseNumber) {
@@ -336,16 +370,16 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 analysiMethodTabPane.getTabs().remove(baselineTableTab);
                 analysiMethodTabPane.getTabs().remove(sequenceTableTab);
                 analysiMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
-                showTab(analysiMethodTabPane, 1, selectColumnsToPlot);
-                analysiMethodTabPane.getSelectionModel().select(1);
+                showTab(analysiMethodTabPane, 2, selectColumnsToPlot);
+                analysiMethodTabPane.getSelectionModel().select(2);
                 populateAnalysisMethodColumnsSelectorPane();
                 processingToolBar.setVisible(false);
             }
             case 2, 3, 4 -> {
-                showTab(analysiMethodTabPane, 1, detectorDetailTab);
-                showTab(analysiMethodTabPane, 2, baselineTableTab);
-                showTab(analysiMethodTabPane, 3, sequenceTableTab);
-                showTab(analysiMethodTabPane, 4, selectRatiosToPlotTab);
+                showTab(analysiMethodTabPane, 2, detectorDetailTab);
+                showTab(analysiMethodTabPane, 3, baselineTableTab);
+                showTab(analysiMethodTabPane, 4, sequenceTableTab);
+                showTab(analysiMethodTabPane, 5, selectRatiosToPlotTab);
                 analysiMethodTabPane.getTabs().remove(selectColumnsToPlot);
                 populateAnalysisMethodGridPane();
                 populateAnalysisMethodRatioBuilderPane();
@@ -371,8 +405,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         setUpGridPaneRows(analysisDetectorsGridPane, 7, detectorsInOrderList.size() + 1);
         prepareAnalysisMethodGridPanes(analysisDetectorsGridPane, detectorsInOrderList);
-
-//        aboutAnalysisTextArea.setText((null == analysisMethod) ? "No analysis method loaded" : analysisMethod.prettyPrintMethodSummary(true));
 
         setUpGridPaneRows(baselineTableGridPane, (null == analysisMethod) ? 1 : analysisMethod.getBaselineTable().getSequenceCount() + 1, detectorsInOrderList.size() + 1);
         prepareAnalysisMethodGridPanes(baselineTableGridPane, detectorsInOrderList);
@@ -476,12 +508,46 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
     }
 
+    private void setupDefaults() {
+        // determine saved display status for userfunctions
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+//            throw new RuntimeException(e);
+        }
+
+        List<UserFunction> userFunctions = analysis.getAnalysisMethod().getUserFunctions();
+
+        AnalysisMethodPersistance analysisMethodPersistance =
+                tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+        if (analysisMethodPersistance == null) {
+            analysisMethodPersistance = new AnalysisMethodPersistance(10);
+            tripoliPersistentState.getMapMethodNamesToDefaults().put(analysis.getMethod().getMethodName(), analysisMethodPersistance);
+        }
+
+        Map<String, UserFunctionDisplay> userFunctionDisplayMap = analysisMethodPersistance.getUserFunctionDisplayMap();
+        if (userFunctionDisplayMap.isEmpty()) {
+            for (int i = 0; i < userFunctions.size(); i++) {
+                userFunctionDisplayMap.put(userFunctions.get(i).getName(), userFunctions.get(i).calcUserFunctionDisplay());
+            }
+        } else {
+            for (int i = 0; i < userFunctions.size(); i++) {
+                UserFunctionDisplay userFunctionDisplay = userFunctionDisplayMap.get(userFunctions.get(i).getName());
+                if (userFunctionDisplay != null) {
+                    userFunctions.get(i).setDisplayed(userFunctionDisplay.isDisplayed());
+                    userFunctions.get(i).setInverted(userFunctionDisplay.isInverted());
+                }
+            }
+        }
+        tripoliPersistentState.updateTripoliPersistentState();
+    }
+
     private void populateAnalysisMethodColumnsSelectorPane() {
         List<CheckBox> ratioCheckBoxList = new ArrayList<>();
         List<CheckBox> ratioInvertedCheckBoxList = new ArrayList<>();
         List<CheckBox> functionCheckBoxList = new ArrayList<>();
         List<Label> exportLabelList = new ArrayList<>();
-        List<RadioButton> blockMeanRBs = new ArrayList<>();
         List<RadioButton> cycleMeanRBs = new ArrayList<>();
 
         ChangeListener<Boolean> allRatiosChangeListener = (observable, oldValue, newValue) -> {
@@ -500,19 +566,26 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             }
         };
 
+        ratiosScrollPane.prefHeightProperty().bind(analysiMethodTabPane.heightProperty());
         ratiosVBox.prefWidthProperty().bind(ratiosScrollPane.widthProperty());
+        ratiosVBox.prefHeightProperty().bind(ratiosScrollPane.heightProperty());
         ratiosVBox.getChildren().clear();
+
+        ratiosHeaderHBox.prefWidthProperty().bind(ratiosScrollPane.widthProperty());
+        ratiosHeaderHBox.getChildren().clear();
         HBox hBox = new HBox();
         hBox.setSpacing(25);
         hBox.setPadding(new Insets(5, 5, 5, 5));
         hBox.setAlignment(Pos.CENTER_LEFT);
         hBox.prefWidthProperty().bind(ratiosVBox.widthProperty());
 
+
+        List<UserFunction> userFunctions = analysis.getAnalysisMethod().getUserFunctions();
         CheckBox checkBoxSelectAllRatios = new CheckBox("Plot all Isotopic Ratios");
-        checkBoxSelectAllRatios.setPrefWidth(180);
+        checkBoxSelectAllRatios.setPrefWidth(225);
         int count = 0;
         int selected = 0;
-        for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
+        for (UserFunction userFunction : userFunctions) {
             if (userFunction.isTreatAsIsotopicRatio()) {
                 count++;
                 selected += userFunction.isDisplayed() ? 1 : 0;
@@ -527,7 +600,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         checkBoxSelectAllRatiosInverted.setPrefWidth(110);
         count = 0;
         selected = 0;
-        for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
+        for (UserFunction userFunction : userFunctions) {
             if (userFunction.isTreatAsIsotopicRatio()) {
                 count++;
                 selected += userFunction.isInverted() ? 1 : 0;
@@ -540,26 +613,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         hBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
         Label exportHeaderLabel = new Label("Exported as");
-        exportHeaderLabel.setPrefWidth(125);
+        exportHeaderLabel.setPrefWidth(100);
         hBox.getChildren().add(exportHeaderLabel);
 
-        Button toggleBlockMeansButton = new Button("All Block Means");
-        toggleBlockMeansButton.setPrefWidth(125);
-        toggleBlockMeansButton.setPadding(new Insets(0, 0, 0, 0));
-        toggleBlockMeansButton.setOnAction(event -> {
-            for (RadioButton rb : blockMeanRBs) {
-                rb.selectedProperty().setValue(true);
-            }
-        });
-
-        Button toggleCycleMeansButton = new Button("All Cycle Means");
-        toggleCycleMeansButton.setPrefWidth(125);
-        toggleCycleMeansButton.setPadding(new Insets(0, 0, 0, 0));
-        toggleCycleMeansButton.setOnAction(event -> {
-            for (RadioButton rb : cycleMeanRBs) {
-                rb.selectedProperty().setValue(true);
-            }
-        });
+        Label toggleCycleMeansLabel = new Label("All Cycle Means");
+        toggleCycleMeansLabel.setPrefWidth(100);
+        toggleCycleMeansLabel.setPadding(new Insets(0, 0, 0, 0));
 
         Button refreshButton = new Button("Refresh");
         refreshButton.setStyle(refreshButton.getStyle() + ";-fx-text-fill: RED;");
@@ -567,20 +626,26 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         refreshButton.setPadding(new Insets(0, 0, 0, 0));
         refreshButton.setOnAction(event -> populateAnalysisMethodColumnsSelectorPane());
 
-        hBox.getChildren().addAll(toggleBlockMeansButton, toggleCycleMeansButton, refreshButton);
-        ratiosVBox.getChildren().add(hBox);
+        hBox.getChildren().addAll(toggleCycleMeansLabel, refreshButton);
+        ratiosHeaderHBox.getChildren().add(hBox);
 
-        functionsVBox.prefWidthProperty().bind(functionsScrollPane.widthProperty());
+
+        functionsHeaderHBox.prefWidthProperty().bind(ratiosScrollPane.widthProperty());
+        functionsHeaderHBox.getChildren().clear();
+        functionsScrollPane.prefHeightProperty().bind(analysiMethodTabPane.heightProperty());
+        functionsVBox.prefWidthProperty().bind(ratiosScrollPane.widthProperty());
+        functionsVBox.prefHeightProperty().bind(ratiosScrollPane.heightProperty());
         functionsVBox.getChildren().clear();
+
         hBox = new HBox();
-        hBox.setSpacing(50);
-        hBox.setAlignment(Pos.CENTER);
+        hBox.setSpacing(5);
+        hBox.setAlignment(Pos.CENTER_LEFT);
         hBox.setPadding(new Insets(5, 5, 5, 5));
         hBox.prefWidthProperty().bind(functionsVBox.widthProperty());
         CheckBox checkBoxSelectAllFunctions = new CheckBox("Plot all User Functions");
         count = 0;
         selected = 0;
-        for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
+        for (UserFunction userFunction : userFunctions) {
             if (!userFunction.isTreatAsIsotopicRatio()) {
                 count++;
                 selected += userFunction.isDisplayed() ? 1 : 0;
@@ -591,9 +656,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         checkBoxSelectAllFunctions.selectedProperty().addListener(allFunctionsChangeListener);
         hBox.getChildren().add(checkBoxSelectAllFunctions);
         hBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
-        functionsVBox.getChildren().add(hBox);
+        functionsHeaderHBox.getChildren().add(hBox);
 
-        List<UserFunction> userFunctions = analysis.getAnalysisMethod().getUserFunctions();
         userFunctions.sort(null);
         for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
             if (userFunction.isTreatAsIsotopicRatio()) {
@@ -621,7 +685,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     populateAnalysisMethodColumnsSelectorPane();
                 });
                 ratioCheckBoxList.add(checkBoxRatio);
-                checkBoxRatio.setPrefWidth(150);
+                checkBoxRatio.setPrefWidth(200);
 
                 CheckBox checkBoxInvert = new CheckBox("Inverted");
                 checkBoxInvert.setPrefWidth(100);
@@ -651,30 +715,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 exportLabel.setPrefWidth(65);
                 exportLabelList.add(exportLabel);
 
-                ToggleGroup meanTG = new ToggleGroup();
-                RadioButton blockRB = new RadioButton(userFunction.showBlockMean());
-                blockRB.setToggleGroup(meanTG);
-                blockRB.setUserData(userFunction);
-                blockRB.selectedProperty().addListener((observable, oldValue, newValue)
-                        -> userFunction.setReductionMode(ReductionModeEnum.BLOCK));
-                blockRB.setSelected(userFunction.getReductionMode().equals(ReductionModeEnum.BLOCK));
-                blockRB.setDisable(!userFunction.isDisplayed());
-                blockRB.setPrefWidth(100);
-                blockMeanRBs.add(blockRB);
-
-                RadioButton cycleRB = new RadioButton(userFunction.showCycleMean());
-                cycleRB.setToggleGroup(meanTG);
-                cycleRB.setUserData(userFunction);
-                cycleRB.selectedProperty().addListener((observable, oldValue, newValue)
-                        -> userFunction.setReductionMode(ReductionModeEnum.CYCLE));
-                cycleRB.setSelected(userFunction.getReductionMode().equals(ReductionModeEnum.CYCLE));
-                cycleRB.setDisable(!userFunction.isDisplayed());
-                cycleRB.setPrefWidth(100);
-                cycleMeanRBs.add(cycleRB);
+                Label cycleMeanLabel = new Label(userFunction.showCycleMean());
+                cycleMeanLabel.setUserData(userFunction);
+                cycleMeanLabel.setDisable(!userFunction.isDisplayed());
+                cycleMeanLabel.setPrefWidth(100);
 
                 hBox.getChildren().addAll(checkBoxRatio, checkBoxInvert, exportLabel);
                 if (!userFunction.getCorrectETReduxName().isEmpty()) {
-                    hBox.getChildren().addAll(blockRB, cycleRB);
+                    hBox.getChildren().addAll(cycleMeanLabel);
                 }
                 hBox.setSpacing(45);
                 hBox.setPadding(new Insets(1, 1, 1, 25));
@@ -700,8 +748,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 functionCheckBoxList.add(checkBoxFunction);
                 checkBoxFunction.setPrefWidth(175);
                 hBox.getChildren().add(checkBoxFunction);
-                hBox.setSpacing(10);
-                hBox.setPadding(new Insets(1, 1, 1, 75));
+                hBox.setSpacing(5);
+                hBox.setPadding(new Insets(1, 1, 1, 15));
                 functionsVBox.getChildren().add(hBox);
             }
         }
@@ -903,48 +951,52 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         try {
             File selectedFile = selectDataFile(TripoliGUI.primaryStage);
             if (null != selectedFile) {
-                boolean legalFile = true;
-                removeAnalysisMethod();
-                String currentAnalysisName = analysis.getAnalysisName();
-                if (tripoliSession.getMapOfAnalyses().containsKey(currentAnalysisName))
-                    tripoliSession.getMapOfAnalyses().remove(currentAnalysisName);
-                try {
-                    String analysisName = analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
-
-                    if (analysis.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
-                        analysis.setAnalysisName(analysisName);
-                        analysis.setAnalysisStartTime(analysis.getMassSpecExtractedData().getHeader().analysisStartTime());
-                        tripoliSession.getMapOfAnalyses().put(analysis.getAnalysisName(), analysis);
-                    } else {
-                        legalFile = false;
-                    }
-                } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
-//                    throw new RuntimeException(e);
-                } catch (IllegalAccessException | TripoliException e) {
-//                    throw new RuntimeException(e);
-                }
-
-                if (legalFile) {
-                    // Proceed based on analysis case per https://docs.google.com/drawings/d/1U6-8LC55mHjHv8N7p6MAfKcdW8NibJSei3iTMT7E1A8/edit?usp=sharing
-                    populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
-
-                    try {
-                        previewAndSculptDataAction();
-                    } catch (TripoliException e) {
-                        throw new RuntimeException(e);
-                    }
-                    processingToolBar.setDisable(null == analysis.getAnalysisMethod());
-                    exportToETReduxButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
-                    reviewSculptData.setDisable(
-                            analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty()
-                                    && analysis.getMassSpecExtractedData().getBlocksDataFull().isEmpty());
-                    exportToClipBoardButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
-                } else {
-                    TripoliMessageDialog.showWarningDialog("Tripoli does not recognize this file format.", null);
-                }
+                loadDataFile(selectedFile);
             }
         } catch (TripoliException e) {
             TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
+        }
+    }
+
+    private void loadDataFile(File selectedFile) {
+        boolean legalFile = true;
+        removeAnalysisMethod();
+        String currentAnalysisName = analysis.getAnalysisName();
+        if (tripoliSession.getMapOfAnalyses().containsKey(currentAnalysisName))
+            tripoliSession.getMapOfAnalyses().remove(currentAnalysisName);
+        try {
+            String analysisName = analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
+
+            if (analysis.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
+                analysis.setAnalysisName(analysisName);
+                analysis.setAnalysisStartTime(analysis.getMassSpecExtractedData().getHeader().analysisStartTime());
+                tripoliSession.getMapOfAnalyses().put(analysis.getAnalysisName(), analysis);
+            } else {
+                legalFile = false;
+            }
+        } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
+//                    throw new RuntimeException(e);
+        } catch (IllegalAccessException | TripoliException e) {
+//                    throw new RuntimeException(e);
+        }
+
+        if (legalFile) {
+            // Proceed based on analysis case per https://docs.google.com/drawings/d/1U6-8LC55mHjHv8N7p6MAfKcdW8NibJSei3iTMT7E1A8/edit?usp=sharing
+            populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
+
+            try {
+                previewAndSculptDataAction();
+            } catch (TripoliException e) {
+                throw new RuntimeException(e);
+            }
+            processingToolBar.setDisable(null == analysis.getAnalysisMethod());
+            exportToETReduxButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
+            reviewSculptData.setDisable(
+                    analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty()
+                            && analysis.getMassSpecExtractedData().getBlocksDataFull().isEmpty());
+            exportToClipBoardButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
+        } else {
+            TripoliMessageDialog.showWarningDialog("Tripoli does not recognize this file format.", null);
         }
     }
 
@@ -958,6 +1010,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     @FXML
     private void selectMethodFileButtonAction() {
+        boolean switchedMethod = false;
         try {
             File selectedFile = selectMethodFile(null);
             if ((null != selectedFile) && (selectedFile.exists())) {
@@ -965,6 +1018,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 String compareInfo = compareAnalysisMethodToDataFileSpecs(analysisMethod, analysis.getMassSpecExtractedData());
                 if (compareInfo.isBlank()) {
                     analysis.setMethod(analysisMethod);
+                    switchedMethod = true;
                     ((Analysis) analysis).initializeBlockProcessing();
                     TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedFile.getParent());
                 } else {
@@ -974,6 +1028,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                                     + "\n\nProceed?", TripoliGUI.primaryStage);
                     if (choice) {
                         analysis.setMethod(analysisMethod);
+                        switchedMethod = true;
                         ((Analysis) analysis).initializeBlockProcessing();
                         TripoliPersistentState.getExistingPersistentState().setMRUMethodXMLFolderPath(selectedFile.getParent());
                     }
@@ -982,12 +1037,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         } catch (TripoliException | IOException | JAXBException e) {
             TripoliMessageDialog.showWarningDialog(e.getMessage(), TripoliGUI.primaryStage);
         }
-        processingToolBar.setDisable(null == analysis.getAnalysisMethod());
-        // initialize block processing state
-        for (Integer blockID : analysis.getMassSpecExtractedData().getBlocksDataFull().keySet()) {
-            analysis.getMapOfBlockIdToProcessStatus().put(blockID, RUN);
+        if (switchedMethod) {
+            processingToolBar.setDisable(null == analysis.getAnalysisMethod());
+            // initialize block processing state
+            for (Integer blockID : analysis.getMassSpecExtractedData().getBlocksDataFull().keySet()) {
+                analysis.getMapOfBlockIdToProcessStatus().put(blockID, RUN);
+            }
+            populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
         }
-        populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
     }
 
     @FXML
@@ -1004,37 +1061,80 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         MCMCPlotsWindow.loadPlotsWindow();
     }
 
-
-    public void previewAndSculptDataAction() throws TripoliException {
-        // ogTripoli view
-        if (null != ogTripoliPreviewPlotsWindow) {
-            ogTripoliPreviewPlotsWindow.close();
+    @FXML
+    final void initializeMCMC2TechniqueAction() {
+        if (null != MCMC2PlotsWindow) {
+            MCMC2PlotsWindow.close();
         }
+        MCMC2PlotsWindow = new MCMC2PlotsWindow(TripoliGUI.primaryStage, this);
+        MCMC2PlotsWindow.loadPlotsWindow();
+    }
 
-        AllBlockInitForMCMC.PlottingData plottingData = null;
-        switch (analysis.getAnalysisCaseNumber()) {
-            case 0 -> {
-            }
-            case 1 -> {
-                plottingData = AllBlockInitForDataLiteOne.initBlockModels(analysis);
-            }
-            case 2 -> {
-            }
-            case 3 -> {
-            }
-            case 4 -> {
-                if (analysis.getAnalysisMethod() != null) {
-                    plottingData = AllBlockInitForMCMC.initBlockModels(analysis);
+
+    private void previewAndSculptDataFromFile() throws TripoliException {
+        // first time opening file, suppress plotting
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+//            throw new RuntimeException(e);
+        }
+        AnalysisMethodPersistance analysisMethodPersistance =
+                tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+        if (analysisMethodPersistance != null) {
+            Map<String, UserFunctionDisplay> userFunctionDisplayMap = analysisMethodPersistance.getUserFunctionDisplayMap();
+            List<UserFunction> userFunctions = analysis.getAnalysisMethod().getUserFunctions();
+            for (int i = 0; i < userFunctions.size(); i++) {
+                UserFunctionDisplay userFunctionDisplay = userFunctionDisplayMap.get(userFunctions.get(i).getName());
+                if (userFunctionDisplay != null) {
+                    userFunctions.get(i).setDisplayed(userFunctionDisplay.isDisplayed());
+                    userFunctions.get(i).setInverted(userFunctionDisplay.isInverted());
                 }
             }
         }
+        previewAndSculptDataAction();
+    }
 
-        if (plottingData != null) {
-            populateAnalysisMethodColumnsSelectorPane();
-            ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
-            ogTripoliPreviewPlotsWindow.loadPlotsWindow();
+    public void previewAndSculptDataAction() throws TripoliException {
+        // ogTripoli view
+        // first time opening file, suppress plotting
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+//            throw new RuntimeException(e);
         }
 
+        if ((analysis.getMethod() != null)&&
+                (tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName()) != null)) {
+            if (null != ogTripoliPreviewPlotsWindow) {
+                ogTripoliPreviewPlotsWindow.close();
+            }
+
+            AllBlockInitForMCMC.PlottingData plottingData = null;
+            switch (analysis.getAnalysisCaseNumber()) {
+                case 0 -> {
+                }
+                case 1 -> {
+                    plottingData = AllBlockInitForDataLiteOne.initBlockModels(analysis);
+                }
+                case 2 -> {
+                }
+                case 3 -> {
+                }
+                case 4 -> {
+                    if (analysis.getAnalysisMethod() != null) {
+                        plottingData = AllBlockInitForMCMC.initBlockModels(analysis);
+                    }
+                }
+            }
+
+            if (plottingData != null) {
+                populateAnalysisMethodColumnsSelectorPane();
+                ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
+                ogTripoliPreviewPlotsWindow.loadPlotsWindow();
+            }
+        }
     }
 
     public void reviewAndSculptDataAction() {
@@ -1144,6 +1244,44 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         ClipboardContent content = new ClipboardContent();
         content.putString(clipBoardString);
         clipboard.setContent(content);
+    }
+
+    public void reloadDataForCyclesPerBlockBtnAction() throws TripoliException {
+        TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        int cyclesPerBlock = defaultCyclesPerBlockSpinner.valueProperty().getValue();
+        if (tripoliPersistentState.getMapMethodNamesToDefaults().containsKey(analysis.getAnalysisMethod().getMethodName())) {
+            tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getAnalysisMethod().getMethodName())
+                    .setCyclesPerBlock(cyclesPerBlock);
+        } else {
+            AnalysisMethodPersistance analysisMethodPersistance = new AnalysisMethodPersistance(cyclesPerBlock);
+            tripoliPersistentState.getMapMethodNamesToDefaults().put(analysis.getAnalysisMethod().getMethodName(), analysisMethodPersistance);
+        }
+        tripoliPersistentState.updateTripoliPersistentState();
+        loadDataFile(new File(analysis.getDataFilePathString()));
+    }
+
+    public void saveDisplayedColumnsAsDefault() {
+        // get saved display status for userfunctions
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+//            throw new RuntimeException(e);
+        }
+
+        List<UserFunction> userFunctions = analysis.getAnalysisMethod().getUserFunctions();
+
+        AnalysisMethodPersistance analysisMethodPersistance =
+                tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+
+        Map<String, UserFunctionDisplay> userFunctionDisplayMap = analysisMethodPersistance.getUserFunctionDisplayMap();
+        for (int i = 0; i < userFunctions.size(); i++) {
+            UserFunctionDisplay userFunctionDisplay = userFunctionDisplayMap.get(userFunctions.get(i).getName());
+            userFunctionDisplay.setDisplayed(userFunctions.get(i).isDisplayed());
+            userFunctionDisplay.setInverted(userFunctions.get(i).isInverted());
+        }
+
+        tripoliPersistentState.updateTripoliPersistentState();
     }
 
     class RatioClickHandler implements EventHandler<MouseEvent> {

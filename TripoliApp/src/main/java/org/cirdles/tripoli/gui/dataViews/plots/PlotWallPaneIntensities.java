@@ -49,11 +49,13 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     public static final double gridCellDim = 2.0;
     private static final DelegateActionSet delegateActionSet = new DelegateActionSet(); // For storing rebuildPlot
     public static double menuOffset = 30.0;
+    private final String iD;
+    private final DelegateActionInterface removeDelegateAction;
+    private final boolean[] zoomFlagsXY = new boolean[2];
     CheckBox baseLineCB;
     CheckBox gainCB;
     private double toolBarHeight;
     private int toolBarCount;
-    private final String iD;
     private boolean[] speciesChecked = new boolean[0];
     private boolean showFaradays = true;
     private boolean showPMs = true;
@@ -62,11 +64,6 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     private boolean baselineCorr = true;
     private boolean gainCorr = true;
     private boolean logScale;
-
-    private final DelegateActionInterface removeDelegateAction;
-
-    private final boolean[] zoomFlagsXY = new boolean[2];
-
     private ToolBar scaleControlsToolbar;
     private CheckBox[] speciesCheckBoxes;
     private boolean showUncertainties = false;
@@ -82,15 +79,17 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, closeRequest -> close());
     }
 
-    public void close() {
-        removeDelegateAction.act();
-    }
     public static PlotWallPaneInterface createPlotWallPane(String iD) {
         if (iD == null) {
             return new PlotWallPaneIntensities("NONE");
         } else {
             return new PlotWallPaneIntensities(iD);
         }
+    }
+
+
+    public void close() {
+        removeDelegateAction.act();
     }
 
     public void stackPlots() {
@@ -136,7 +135,6 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     public void toggleShowStatsAllPlots() {
         // not used
     }
-
 
     /**
      *
