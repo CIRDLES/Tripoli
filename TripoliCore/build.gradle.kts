@@ -39,8 +39,15 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.zaxxer/SparseBitSet
     implementation("com.zaxxer:SparseBitSet:1.2") //group: 'com.zaxxer', name: 'SparseBitSet', version: '1.2'
+
+
     // https://mvnrepository.com/artifact/org.apache.poi/poi
-    implementation("org.apache.poi:poi:5.2.2") //group: 'org.apache.poi', name: 'poi', version: '5.2.2'
+    implementation("org.apache.poi:poi:5.3.0")
+    // https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml
+    implementation("org.apache.poi:poi-ooxml:5.3.0")
+    // https://mvnrepository.com/artifact/net.sourceforge.jexcelapi/jxl
+    implementation("net.sourceforge.jexcelapi:jxl:2.6.12")
+
 
     // https://mvnrepository.com/artifact/gov.nist.math/jama
     //implementation group: 'gov.nist.math', name: 'jama', version: '1.0.3'
@@ -75,6 +82,14 @@ dependencies {
     // https://mvnrepository.com/artifact/com.thoughtworks.xstream/xstream
     implementation("com.thoughtworks.xstream:xstream:1.4.20")
 
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-rng-core
+    implementation("org.apache.commons:commons-rng-core:1.0")
+
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-rng-simple
+    implementation("org.apache.commons:commons-rng-simple:1.6")
+
+
+
 
     testImplementation("com.github.cirdles:commons:bc38781605")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
@@ -99,6 +114,14 @@ extraJavaModuleInfo {
     // https://github.com/gradle/gradle/issues/12630
     automaticModule("org.apache.commons:commons-math3", "commons.math3")
     automaticModule("org.apache.commons:commons-lang3", "commons.lang3")
+    automaticModule("org.apache.commons:commons-rng-core", "commons.rng.core")
+    automaticModule("org.apache.commons:commons-rng-simple", "commons.rng.simple")
+
+    automaticModule("org.apache.poi:poi", "poi")//org.apache.poi:poi:5.3.0
+    automaticModule("org.apache.poi:poi-ooxml", "poi.ooxml")//"org.apache.poi:poi-ooxml:5.3.0"
+    automaticModule("net.sourceforge.jexcelapi:jxl", "jxl")//implementation("net.sourceforge.jexcelapi:jxl:2.6.12")
+
+
     automaticModule("com.zaxxer:SparseBitSet", "SparseBitSet")
     automaticModule("jama-master-SNAPSHOT.jar", "jama")
     automaticModule("org.ojalgo:ojalgo", "ojalgo")

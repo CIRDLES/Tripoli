@@ -23,7 +23,6 @@ import org.cirdles.tripoli.gui.dataViews.plots.TicGeneratorForAxes;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.species.SpeciesColors;
-import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,9 +41,9 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
     private final Tooltip tooltip;
     private final String tooltipTextSculpt = "Double click to Sculpt selected Block.";
     private final String tooltipTextExitSculpt = "Right Mouse to PAN, Shift-click toggles block, Dbl-click to EXIT Sculpting.";
+    private final double[][] residuals;
     TripoliConstants.IntensityUnits intensityUnits = TripoliConstants.IntensityUnits.COUNTS;
     private double[][] yData;
-    private final double[][] residuals;
     private boolean showResiduals;
     private boolean showUncertainties = false;
     private boolean[][] onPeakDataIncludedAllBlocks;
@@ -316,7 +315,7 @@ public class SpeciesIntensityAnalysisPlot extends AbstractPlot {
                                 true,
                                 null,
                                 new Stop(0, faradayColor),
-                                new Stop(1,pmColor));
+                                new Stop(1, pmColor));
                 g2d.setFill(gradient);
                 Text text = new Text(speciesList.get(isotopePlotSetIndex).prettyPrintShortForm());
                 g2d.setFont(Font.font("Monospaced", FontWeight.BOLD, 20));

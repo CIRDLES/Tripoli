@@ -29,7 +29,7 @@ public class BlockCyclesBuilder extends PlotBuilder {
 
     protected BlockCyclesBuilder(int blockID, boolean processed, String[] title, boolean displayed, boolean isRatio) {
         super(title, "", "", displayed);
-        plotBlockCyclesRecord = generateBlockCyclesPlot(blockID, isRatio, processed, new double[0], new double[0], new boolean[0], new String[]{""}, true);
+//        plotBlockCyclesRecord = generateBlockCyclesPlot(blockID, isRatio, processed, new double[0], new double[0], new boolean[0], new String[]{""}, true);
         this.displayed = displayed;
     }
 

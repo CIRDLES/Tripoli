@@ -43,7 +43,7 @@ import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataM
 public enum SingleBlockModelDriver {
     ;
 
-    public static PlotBuilder[][] buildAndRunModelForSingleBlock(
+    public synchronized static PlotBuilder[][] buildAndRunModelForSingleBlock(
             int blockID, AnalysisInterface analysis, LoggingCallbackInterface loggingCallback) throws TripoliException, IOException {
         MassSpecExtractedData massSpecExtractedData = analysis.getMassSpecExtractedData();
         AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
@@ -70,8 +70,8 @@ public enum SingleBlockModelDriver {
         return plotBuilder;
     }
 
-    public static SingleBlockRawDataSetRecord prepareSingleBlockDataForMCMC(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) {
-        SingleBlockRawDataSetRecord singleBlockRawDataSetRecord = null;
+    public synchronized static SingleBlockRawDataSetRecord prepareSingleBlockDataForMCMC(int blockNumber, MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) {
+        SingleBlockRawDataSetRecord singleBlockRawDataSetRecord;
         MassSpecOutputBlockRecordFull massSpecOutputBlockRecordFull = massSpecExtractedData.getBlocksDataFull().get(blockNumber);
 
         Primitive64Store blockKnotInterpolationStore;
@@ -170,7 +170,7 @@ public enum SingleBlockModelDriver {
         return singleBlockRawDataSetRecord;
     }
 
-    private static Primitive64Store generateKnotsMatrixForBlock(
+    private synchronized static Primitive64Store generateKnotsMatrixForBlock(
             MassSpecOutputBlockRecordFull massSpecOutputBlockRecordFull, int basisDegree) {
 
         int knotCount = massSpecOutputBlockRecordFull.onPeakStartingIndicesOfCycles().length + 1;
@@ -187,7 +187,7 @@ public enum SingleBlockModelDriver {
         return bBaseOutput;
     }
 
-    private static Primitive64Store generateLinearKnotsMatrixReplicaOfBurdickMatLab(MassSpecOutputBlockRecordFull massSpecOutputBlockRecordFull) {
+    private synchronized static Primitive64Store generateLinearKnotsMatrixReplicaOfBurdickMatLab(MassSpecOutputBlockRecordFull massSpecOutputBlockRecordFull) {
         // build InterpMat for block using linear approach
         // the general approach for a block is to create a knot at the start of each cycle and
         // linearly interpolate between knots to create fractional placement of each recorded timestamp

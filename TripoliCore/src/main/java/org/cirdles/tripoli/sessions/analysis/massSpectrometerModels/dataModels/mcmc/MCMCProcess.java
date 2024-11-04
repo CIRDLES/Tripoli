@@ -17,7 +17,6 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc;
 
 import jama.Matrix;
-import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.plots.PlotBuilder;
@@ -52,12 +51,13 @@ public class MCMCProcess {
     private final Matrix covarianceMatrix_C0;
     private final AnalysisMethod analysisMethod;
     private final SingleBlockRawDataSetRecord singleBlockRawDataSetRecord;
-    private List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
     private final AnalysisInterface analysis;
+    private final ProposedModelParameters.ProposalRangesRecord proposalRangesRecord;
+    private final boolean useAverageNotBestModel;
+    private List<EnsemblesStore.EnsembleRecord> ensembleRecordsList;
     private boolean hierarchical;
     private double tempering;
     private double[] baselineMultiplier;
-    private final ProposedModelParameters.ProposalRangesRecord proposalRangesRecord;
     private double[] dataModelArrayInitial;
     private double[] dataSignalNoiseArray;
     private double initialModelErrorWeighted_E;
@@ -71,7 +71,6 @@ public class MCMCProcess {
     private Matrix TT;
     private double effectSamp;
     private double ExitCrit;
-    private final boolean useAverageNotBestModel;
 
     private MCMCProcess(
             AnalysisInterface analysis,
@@ -263,8 +262,7 @@ public class MCMCProcess {
         randomDataGenerator.reSeedSecure();
 
         DecimalFormat statsFormat = new DecimalFormat("#0.000000");
-        StopWatch watch = new StopWatch();
-        watch.start();
+
         int counter = 0;
         SingleBlockModelUpdater singleBlockModelUpdater = new SingleBlockModelUpdater();
         int countOfData = singleBlockCurrentModelRecord_X.dataModelArray().length;
@@ -279,6 +277,7 @@ public class MCMCProcess {
         for (long modelIndex = 1; modelCount >= modelIndex; modelIndex++) {//********************************************
             if (notConverged) {
                 long prev = System.nanoTime();
+                long startTime = System.nanoTime();
                 boolean allFlag = true;
                 tempering = 1.0;
 
@@ -509,6 +508,7 @@ public class MCMCProcess {
                 xDataMean = updatedCovariancesRecord.dataMean();
 
                 long interval5 = System.nanoTime() - prev;
+                prev = interval4 + prev;
 
                 if (0 == modelIndex % (stepCountForcedSave)) {
                 /*
@@ -581,11 +581,11 @@ public class MCMCProcess {
                             modelsTotal += keptUpdates[row][3];
                         }
 
-
+                        long totalTime = System.nanoTime() - startTime;
                         loggingSnippet =
                                 modelIndex + " >%%%%%%%%%%%%%%%%%%%%%%% Tripoli in Java test %%%%%%%%%%%%%%%%%%%%%%%"
                                         + "  BLOCK # " + singleBlockCurrentModelRecord_X.blockID()
-                                        + "\nElapsed time = " + statsFormat.format(watch.getTime() / 1000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
+                                        + "\nElapsed time = " + statsFormat.format(totalTime / 1000000000.0) + " seconds for " + 10 * stepCountForcedSave + " realizations of total = " + modelIndex
                                         + "\nError function = " + statsFormat.format(StrictMath.sqrt(initialModelErrorUnWeighted_E0 / countOfData))
                                         + "\nChange All Variables: " + modelsKeptLocal + " of " + modelsTotalLocal + " accepted (" + statsFormat.format(100.0 * modelsKept / modelsTotal) + "% total)"
                                         + ("\nIntervals: in microseconds, each from prev or zero time till new interval"
@@ -602,7 +602,6 @@ public class MCMCProcess {
                             keptUpdates[i][0] = 0;
                             keptUpdates[i][1] = 0;
                         }
-
                     /*
                      % If number of iterations is square number, larger than effective
                         % sample size, test for convergence
@@ -630,9 +629,6 @@ public class MCMCProcess {
                                 loggingCallback.receiveLoggingSnippet(exitMessage);
                             }
                         }
-
-                        watch.reset();
-                        watch.start();
                     }
                 }
             }// end model loop

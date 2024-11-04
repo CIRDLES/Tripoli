@@ -19,7 +19,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="sessionGridPane" hgap="15.0" minHeight="660.0" minWidth="1250.0" prefHeight="660.0"
+<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="sessionGridPane" hgap="15.0" minHeight="660.0" minWidth="1250.0"
+          prefHeight="660.0"
           prefWidth="1250.0" style="-fx-background-color: LINEN;" vgap="10.0"
           xmlns="http://javafx.com/javafx/17" fx:controller="org.cirdles.tripoli.gui.SessionManagerController">
     <columnConstraints>

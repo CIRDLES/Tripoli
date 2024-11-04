@@ -23,7 +23,10 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_USERS_DATA_FOLDER_NAME;
 
@@ -50,6 +53,7 @@ public class TripoliPersistentState implements Serializable {
     private String MRUMethodXMLFolderPath;
     private String MRUExportFolderPath;
     private TripoliSpeciesColorMap mapOfSpeciesToColors;
+    private Map<String, AnalysisMethodPersistance> mapMethodNamesToDefaults;
 
 //    private void readObject(ObjectInputStream stream) throws IOException,
 //            ClassNotFoundException {
@@ -92,6 +96,9 @@ public class TripoliPersistentState implements Serializable {
 
         MRUExportFolderPath = "";
         mapOfSpeciesToColors = new TripoliSpeciesColorMap();
+
+        mapMethodNamesToDefaults = new TreeMap<>();
+
         serializeSelf();
     }
 
@@ -156,6 +163,14 @@ public class TripoliPersistentState implements Serializable {
     }
     //properties
 
+
+    public Map<String, AnalysisMethodPersistance> getMapMethodNamesToDefaults() {
+        if (mapMethodNamesToDefaults == null) {
+            mapMethodNamesToDefaults = new TreeMap<>();
+            serializeSelf();
+        }
+        return mapMethodNamesToDefaults;
+    }
 
     public TripoliSpeciesColorMap getMapOfSpeciesToColors() {
         if (mapOfSpeciesToColors == null) {

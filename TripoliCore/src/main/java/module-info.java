@@ -22,12 +22,16 @@ module Tripoli.TripoliCore {
     requires ojalgo;
     requires com.google.common;
     requires commons.math3;
-    requires commons.lang3;
+    requires org.apache.commons.lang3;
     requires jakarta.xml.bind;
     requires java.xml.bind;
     requires jblas;
     requires xstream;
     requires java.logging;
+    requires org.apache.commons.rng.api;
+    requires org.apache.commons.rng.simple;
+    requires org.apache.poi.ooxml;
+    requires jxl;
 
 
     exports org.cirdles.tripoli;
@@ -70,4 +74,5 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.sessions.analysis.outputs.etRedux;
     exports org.cirdles.tripoli.species;
     exports org.cirdles.tripoli.utilities.collections;
+    exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc2;
 }

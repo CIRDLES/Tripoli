@@ -32,7 +32,7 @@ public class HistogramBuilder extends PlotBuilder {
 
     protected HistogramBuilder(int blockID, String[] title, String xAxisLabel, String yAxisLabel, boolean displayed) {
         super(title, xAxisLabel, yAxisLabel, displayed);
-        histogramRecord = generateHistogram(blockID, new double[0], 0, new String[]{""}, xAxisLabel);
+        histogramRecord = null;//generateHistogram(blockID, new double[0], 0, new String[]{""}, xAxisLabel);
         this.displayed = displayed;
     }
 
