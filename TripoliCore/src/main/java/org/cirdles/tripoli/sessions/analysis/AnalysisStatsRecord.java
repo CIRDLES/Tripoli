@@ -1,5 +1,6 @@
 package org.cirdles.tripoli.sessions.analysis;
 
+import com.google.common.primitives.Booleans;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;

@@ -123,6 +123,8 @@ public class MassSpecExtractedData implements Serializable {
             cyclesPerBlock = 10;
         }
 
+        int totalUsedCycles = 0;
+
         header = new MassSpecExtractedHeader(
                 softwareVersion,
                 filename,
@@ -302,6 +304,7 @@ public class MassSpecExtractedData implements Serializable {
             boolean hasBChannels,
             String analysisStartTime,
             int cyclesPerBlock
-    ) implements Serializable {
+    )
+            implements Serializable {
     }
 }

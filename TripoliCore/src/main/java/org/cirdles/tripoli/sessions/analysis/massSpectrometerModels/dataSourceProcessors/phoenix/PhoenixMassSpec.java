@@ -44,7 +44,7 @@ public enum PhoenixMassSpec {
     @SuppressWarnings("unused")
     public static MassSpecExtractedData extractMetaDataAndBlockDataFromIonvantageXLS(Path inputDataFile) throws IOException, TripoliException {
         MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
-        String[] lines = null;//text.split("\n");
+        String[] lines = null;
 
         Workbook workbook;
         Sheet cycleSheet;
@@ -89,6 +89,9 @@ public enum PhoenixMassSpec {
         String sampleName = ctrlSheet.getCell(3, 7).getContents().trim();
         String methodName = ctrlSheet.getCell(3, 11).getContents().trim();
         int cyclesPerBlock = (int) ((NumberCell) ctrlSheet.getCell(3, 12)).getValue();
+        boolean beamInterpolation = ((BooleanCell)ctrlSheet.getCell(1, 45)).getValue();
+        cyclesPerBlock = cyclesPerBlock + (beamInterpolation? 1 : 0);
+        int totalUsedCycles = (int) ((NumberCell) ctrlSheet.getCell(3, 17)).getValue();
 
         // April 2024 to handle aborted runs, find end of cycles and divide by cyclesperblock
         int countOfAllDataCycles = cycleSheet.getColumn(0).length - countOfHeaderLines;
@@ -109,7 +112,7 @@ public enum PhoenixMassSpec {
         List<List<String>> dataByBlocks = new ArrayList<>();
         int countOfCycles = 0;
         for (int blockID = 1; blockID <= blockCount; blockID++) {
-
+            int countedLastBlockCycles = 0;
             double[][] cycleData = new double[cyclesPerBlock][columnNamesFixedList.size() - 2];
             int blockCycleStartLineNumber = (blockID - 1) * cyclesPerBlock + countOfHeaderLines;
             for (int cycleNum = 0; cycleNum < cyclesPerBlock; cycleNum++) {
@@ -118,8 +121,22 @@ public enum PhoenixMassSpec {
                     for (int i = 2; i < cycleCellData.length; i++) {
                         cycleData[cycleNum][i - 2] = ((NumberCell) cycleCellData[i]).getValue();
                     }
+                } else {
+                    countedLastBlockCycles = cycleNum + 1;
+                    break;
                 }
             }
+            // clean up for missing points in last block due to abort run etc.
+            if (countedLastBlockCycles > 0){
+                double[][] cycleDataCopy = new double[countedLastBlockCycles - 1][columnNamesFixedList.size() - 2];
+                for (int cycleNum = 0; cycleNum < countedLastBlockCycles - 1; cycleNum ++){
+                    for (int col = 0; col < cycleData[cycleNum].length; col ++) {
+                        cycleDataCopy[cycleNum][col] =  cycleData[cycleNum][col];
+                    }
+                }
+                cycleData = cycleDataCopy.clone();
+            }
+
             massSpecExtractedData.addBlockLiteRecord(new MassSpecOutputBlockRecordLite(
                     blockID,
                     cycleData
@@ -139,6 +156,9 @@ public enum PhoenixMassSpec {
      * @throws IOException
      */
     @SuppressWarnings("unused")
+    /**
+     * Full Synthetic v 1 will be abandoned
+     */
     public static MassSpecExtractedData extractMetaAndBlockDataFromFileVersion_1_0(Path inputDataFile) throws TripoliException {
         MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
         List<String> contentsByLine;
