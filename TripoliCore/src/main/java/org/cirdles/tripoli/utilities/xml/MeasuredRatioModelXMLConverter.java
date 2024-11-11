@@ -21,7 +21,7 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunctionModel;
+import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunction;
 
 public class MeasuredRatioModelXMLConverter implements Converter {
     /**
@@ -38,7 +38,7 @@ public class MeasuredRatioModelXMLConverter implements Converter {
      * against <code>MeasuredUserFunctionModel.class</code>
      */
     public boolean canConvert(Class clazz) {
-        return clazz.equals(MeasuredUserFunctionModel.class);
+        return clazz.equals(MeasuredUserFunction.class);
     }
 
     /**
@@ -55,7 +55,7 @@ public class MeasuredRatioModelXMLConverter implements Converter {
     public void marshal(Object value, HierarchicalStreamWriter writer,
                         MarshallingContext context) {
 
-        MeasuredUserFunctionModel measuredRatio = (MeasuredUserFunctionModel) value;
+        MeasuredUserFunction measuredRatio = (MeasuredUserFunction) value;
 
         writer.startNode("name");
         writer.setValue(measuredRatio.getName());
@@ -97,7 +97,7 @@ public class MeasuredRatioModelXMLConverter implements Converter {
     public Object unmarshal(HierarchicalStreamReader reader,
                             UnmarshallingContext context) {
 
-        MeasuredUserFunctionModel measuredRatio = new MeasuredUserFunctionModel();
+        MeasuredUserFunction measuredRatio = new MeasuredUserFunction();
 
         reader.moveDown();
         measuredRatio.setName(reader.getValue());

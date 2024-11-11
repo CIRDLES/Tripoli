@@ -52,7 +52,7 @@ public class AllBlockInitForDataLiteOne {
             }
         }
 
-        for (UserFunction userFunction : analysisMethod.getUserFunctions()) {
+        for (UserFunction userFunction : analysis.getUserFunctions()) {
             // todo: simplify since analysis carries most of the info
             if (userFunction.isDisplayed() && userFunction.getMapBlockIdToBlockCyclesRecord().isEmpty()) {
                 Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord = new TreeMap<>();

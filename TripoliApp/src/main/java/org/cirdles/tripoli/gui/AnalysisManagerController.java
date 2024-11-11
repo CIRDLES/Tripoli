@@ -516,7 +516,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 //            throw new RuntimeException(e);
         }
 
-        List<UserFunction> userFunctions = analysis.getAnalysisMethod().getUserFunctions();
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
 
         AnalysisMethodPersistance analysisMethodPersistance =
                 tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
@@ -579,7 +579,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         hBox.prefWidthProperty().bind(ratiosVBox.widthProperty());
 
 
-        List<UserFunction> userFunctions = analysis.getAnalysisMethod().getUserFunctions();
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
         CheckBox checkBoxSelectAllRatios = new CheckBox("Plot all Isotopic Ratios");
         checkBoxSelectAllRatios.setPrefWidth(225);
         int count = 0;
@@ -658,7 +658,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         functionsHeaderHBox.getChildren().add(hBox);
 
         userFunctions.sort(null);
-        for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
+        for (UserFunction userFunction : analysis.getUserFunctions()) {
             if (userFunction.isTreatAsIsotopicRatio()) {
                 hBox = new HBox();
                 CheckBox checkBoxRatio = new CheckBox(userFunction.getName());
@@ -1082,7 +1082,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
         if (analysisMethodPersistance != null) {
             Map<String, UserFunctionDisplay> userFunctionDisplayMap = analysisMethodPersistance.getUserFunctionDisplayMap();
-            List<UserFunction> userFunctions = analysis.getAnalysisMethod().getUserFunctions();
+            List<UserFunction> userFunctions = analysis.getUserFunctions();
             for (int i = 0; i < userFunctions.size(); i++) {
                 UserFunctionDisplay userFunctionDisplay = userFunctionDisplayMap.get(userFunctions.get(i).getName());
                 if (userFunctionDisplay != null) {
@@ -1268,7 +1268,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 //            throw new RuntimeException(e);
         }
 
-        List<UserFunction> userFunctions = analysis.getAnalysisMethod().getUserFunctions();
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
 
         AnalysisMethodPersistance analysisMethodPersistance =
                 tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());

@@ -46,7 +46,7 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
-import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunctionModel;
+import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunction;
 import org.cirdles.tripoli.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
@@ -106,6 +106,9 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     private String analystName;
     private String labName;
     private AnalysisMethod analysisMethod;
+
+
+    private List<UserFunction> userFunctions;
     private String analysisSampleName;
     private String analysisFractionName;
     private String analysisSampleDescription;
@@ -147,6 +150,9 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         if (null != analysisMethod) {
             plotSpecsSpeciesIntensityAnalysis = new SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis(
                     new boolean[analysisMethod.getSpeciesList().size()], true, true, true, true, true, false);
+            userFunctions = analysisMethod.createUserFunctions();
+        } else {
+            userFunctions = new ArrayList<>();
         }
     }
 
@@ -164,9 +170,14 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
         // for plotting analysis boundaries
         int[] concatenatedBlockCounts = new int[1];
-        concatenatedBlockCounts[0] = analysisOne.getMapOfBlockIdToRawDataLiteOne().size();
-        for (UserFunction uf : analysisConcat.getAnalysisMethod().getUserFunctions()) {
+        concatenatedBlockCounts[0] = analysisOne.getMapOfBlockIdToRawDataLiteOne().size() + analysisTwo.getMapOfBlockIdToRawDataLiteOne().size();
+        for (UserFunction uf : ((Analysis)analysisOne).getUserFunctions()) {
+
+//            userFunction.setMapBlockIdToBlockCyclesRecord(mapBlockIdToBlockCyclesRecord);
+//            userFunction.calculateAnalysisStatsRecord(analysis);
+
             uf.setConcatenatedBlockCounts(concatenatedBlockCounts);
+
         }
 
         MassSpecExtractedData massSpecExtractedData = analysisConcat.getMassSpecExtractedData();
@@ -313,6 +324,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         } else {
             // case1
             setMethod(AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData));
+            userFunctions = analysisMethod.createUserFunctions();
             extractedAnalysisName = dataFilePath.toFile().getName().substring(0, dataFilePath.toFile().getName().length() - 4);
             initializeBlockProcessing();
         }
@@ -356,17 +368,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
             mapOfBlockIdToRawData.put(blockID, null);
             mapOfBlockIdToRawDataLiteOne.put(blockID, null);
             mapOfBlockIdToFinalModel.put(blockID, null);
-
-
-//            if (null != analysisMethod) {
-//                boolean[][] blockIncludedOnPeak = new boolean[analysisMethod.getSpeciesListSortedByMass().size()][];
-//                for (int index = 0; index < blockIncludedOnPeak.length; index++) {
-//                    boolean[] row = new boolean[massSpecExtractedData.getBlocksDataFull().get(blockID).onPeakIntensities().length];
-//                    Arrays.fill(row, true);
-//                    blockIncludedOnPeak[index] = row;
-//                }
-//                mapOfBlockIdToIncludedPeakData.put(blockID, blockIncludedOnPeak);
-//            }
         }
     }
 
@@ -603,15 +604,15 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     }
 
     public final ETReduxFraction prepareFractionForETReduxExport() {
-        setEtReduxExportType(getAnalysisMethod().getUserFunctions().get(0).getEtReduxExportType());
+        setEtReduxExportType(userFunctions.get(0).getEtReduxExportType());
 
         ETReduxFraction etReduxFraction = ETReduxFraction.buildExportFraction(
                 getAnalysisSampleName(), getAnalysisFractionName(), getEtReduxExportType(), 0.00205);
-        for (UserFunction uf : getAnalysisMethod().getUserFunctions()) {
+        for (UserFunction uf : userFunctions) {
             String etReduxName = uf.getCorrectETReduxName();
             if (!etReduxName.isBlank() && etReduxFraction.getMeasuredRatioByName(etReduxName) != null) {
-                MeasuredUserFunctionModel measuredUserFunctionModel = etReduxFraction.getMeasuredRatioByName(etReduxName);
-                measuredUserFunctionModel.refreshStats(uf);
+                MeasuredUserFunction measuredUserFunction = etReduxFraction.getMeasuredRatioByName(etReduxName);
+                measuredUserFunction.refreshStats(uf);
             }
         }
         return etReduxFraction;
@@ -619,9 +620,9 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
     public final String prepareFractionForClipboardExport() {
         String retVal = "";
-        for (UserFunction uf : getAnalysisMethod().getUserFunctions()) {
+        for (UserFunction uf : userFunctions) {
             if (uf.isDisplayed()) {
-                MeasuredUserFunctionModel measuredUserFunctionModel = new MeasuredUserFunctionModel(uf.showCorrectName());
+                MeasuredUserFunction measuredUserFunctionModel = new MeasuredUserFunction(uf.showCorrectName());
                 measuredUserFunctionModel.refreshStats(uf);
                 retVal += measuredUserFunctionModel.showClipBoardOutput();
             }
@@ -770,6 +771,15 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     public AnalysisMethod getAnalysisMethod() {
         return analysisMethod;
     }
+
+    public List<UserFunction> getUserFunctions() {
+        return userFunctions;
+    }
+
+    public void setUserFunctions(List<UserFunction> userFunctions) {
+        this.userFunctions = userFunctions;
+    }
+
 
     // TODO: Merge multiple setters (check line 604)
     public void setAnalysisMethod(AnalysisMethod analysisMethod) {
