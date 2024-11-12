@@ -30,10 +30,12 @@ import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioPlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioRecord;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.SpeciesIntensityAnalysisBuilder;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import org.cirdles.tripoli.plots.histograms.HistogramRecord;
 import org.cirdles.tripoli.plots.histograms.RatioHistogramBuilder;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelDriver;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
@@ -150,10 +152,8 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         if (null != analysisMethod) {
             plotSpecsSpeciesIntensityAnalysis = new SpeciesIntensityAnalysisBuilder.PlotSpecsSpeciesIntensityAnalysis(
                     new boolean[analysisMethod.getSpeciesList().size()], true, true, true, true, true, false);
-            userFunctions = analysisMethod.createUserFunctions();
-        } else {
-            userFunctions = new ArrayList<>();
         }
+        userFunctions = new ArrayList<>();
     }
 
     public static AnalysisInterface concatenateTwoAnalysesLite(AnalysisInterface analysisOne, AnalysisInterface analysisTwo) throws TripoliException {
@@ -162,6 +162,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
         AnalysisInterface analysisConcat = new Analysis(
                 "AnalysisConcatTest", analysisOne.getAnalysisMethod(), analysisOne.getAnalysisSampleName());
+        ((Analysis)analysisConcat).setUserFunctions(analysisConcat.getAnalysisMethod().createUserFunctions());
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String analysisTime = df.format(new Date());
@@ -169,15 +170,43 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         analysisConcat.setAnalysisStartTime(analysisTime);
 
         // for plotting analysis boundaries
+        // TODO: synchronize tree maps per above
         int[] concatenatedBlockCounts = new int[1];
         concatenatedBlockCounts[0] = analysisOne.getMapOfBlockIdToRawDataLiteOne().size() + analysisTwo.getMapOfBlockIdToRawDataLiteOne().size();
-        for (UserFunction uf : ((Analysis)analysisOne).getUserFunctions()) {
+        Map<Integer, PlotBlockCyclesRecord> userFunctionConcatMapBlockToCyclesRecord = new TreeMap<>();
 
-//            userFunction.setMapBlockIdToBlockCyclesRecord(mapBlockIdToBlockCyclesRecord);
-//            userFunction.calculateAnalysisStatsRecord(analysis);
+        int concatBlockId = 1;
+        for (UserFunction uf : analysisOne.getUserFunctions()) {
+            Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMap = uf.getMapBlockIdToBlockCyclesRecord();
+            for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMap.entrySet()) {
+                userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
+                concatBlockId ++;
+            }
+        }
+        for (UserFunction uf : analysisTwo.getUserFunctions()) {
+            Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMap = uf.getMapBlockIdToBlockCyclesRecord();
+            for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMap.entrySet()) {
+                userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
+                concatBlockId ++;
+            }
+        }
 
-            uf.setConcatenatedBlockCounts(concatenatedBlockCounts);
+        // TODO: Assuming uf always in same order ... need to use sortedlist
+        for (UserFunction uf : analysisConcat.getUserFunctions()) {
+            uf.setMapBlockIdToBlockCyclesRecord(userFunctionConcatMapBlockToCyclesRecord);
+        }
 
+        AllBlockInitForDataLiteOne.initBlockModels(analysisOne);
+        AllBlockInitForDataLiteOne.initBlockModels(analysisTwo);
+        concatBlockId = 1;
+        Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOneConcat = analysisConcat.getMapOfBlockIdToRawDataLiteOne();
+        for (Map.Entry<Integer, SingleBlockRawDataLiteSetRecord> entry : analysisOne.getMapOfBlockIdToRawDataLiteOne().entrySet()) {
+            mapOfBlockIdToRawDataLiteOneConcat.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
+            concatBlockId++;
+        }
+        for (Map.Entry<Integer, SingleBlockRawDataLiteSetRecord> entry : analysisTwo.getMapOfBlockIdToRawDataLiteOne().entrySet()) {
+            mapOfBlockIdToRawDataLiteOneConcat.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
+            concatBlockId++;
         }
 
         MassSpecExtractedData massSpecExtractedData = analysisConcat.getMassSpecExtractedData();
@@ -324,7 +353,10 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         } else {
             // case1
             setMethod(AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData));
-            userFunctions = analysisMethod.createUserFunctions();
+            if (userFunctions.isEmpty()){
+                userFunctions = analysisMethod.createUserFunctions();
+            }
+
             extractedAnalysisName = dataFilePath.toFile().getName().substring(0, dataFilePath.toFile().getName().length() - 4);
             initializeBlockProcessing();
         }

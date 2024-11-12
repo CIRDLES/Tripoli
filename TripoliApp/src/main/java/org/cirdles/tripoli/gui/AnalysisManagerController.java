@@ -271,17 +271,17 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         setupListeners();
 
-        try {
-            if (readingFile) {
-                readingFile = false;
-                previewAndSculptDataFromFile();
-            } else {
-                previewAndSculptDataAction();
-            }
+//        try {
+//            if (readingFile) {
+//                readingFile = false;
+//                previewAndSculptDataFromFile();
+//            } else {
+//                previewAndSculptDataAction();
+//            }
             populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
-        } catch (TripoliException e) {
+//        } catch (TripoliException e) {
 //TODO: ALL need fixing:           throw new RuntimeException(e);
-        }
+//        }
 
         ImageView imageView = new ImageView(getClass().getResource("/" + TRIPOLI_CLIPBOARD_ICON).toExternalForm());
         exportToClipBoardButton.setGraphic(imageView);
