@@ -19,6 +19,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -42,8 +43,13 @@ public enum NuMassSpec {
      * @throws IOException
      */
     @SuppressWarnings("unused")
-    public static MassSpecExtractedData extractMetaAndBlockDataFromFileNu(Path inputDataFile) throws IOException {
-        MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
+    public static MassSpecExtractedData extractMetaAndBlockDataFromFileNu(Path inputDataFile) throws IOException, TripoliException {
+        MassSpecExtractedData massSpecExtractedData = null;
+        try {
+            massSpecExtractedData = new MassSpecExtractedData();
+        } catch (TripoliException e) {
+            throw new RuntimeException(e);
+        }
         List<String> contentsByLine = new ArrayList<>(Files.readAllLines(inputDataFile, Charset.defaultCharset()));
         List<List<String>> dataByBlocks = new ArrayList<>();
         List<String[]> headerByLineSplit = new ArrayList<>();

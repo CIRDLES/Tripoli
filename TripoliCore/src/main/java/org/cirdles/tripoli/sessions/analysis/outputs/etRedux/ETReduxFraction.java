@@ -40,7 +40,7 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
     private String fractionID;
     private TripoliConstants.ETReduxExportTypeEnum etReduxExportTypeEnum = TripoliConstants.ETReduxExportTypeEnum.NONE;
     private String pedigree;
-    private MeasuredUserFunctionModel[] measuredRatios;
+    private MeasuredUserFunction[] measuredRatios;
     private double meanAlphaU;
     private double meanAlphaPb;
     private double r18O_16O;
@@ -59,7 +59,7 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
         this.fractionID = fractionID;
         this.etReduxExportTypeEnum = etReduxExportTypeEnum;
         this.pedigree = "None";
-        this.measuredRatios = new MeasuredUserFunctionModel[0];
+        this.measuredRatios = new MeasuredUserFunction[0];
         this.meanAlphaU = 0.0;
         this.meanAlphaPb = 0.0;
         this.labUBlankMass = 0.0;
@@ -75,13 +75,13 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
         // filter measured ratios
         // modified april 2010 to split "U" fractions from "Pb" fractions parts for LiveUpdate
         if (etReduxExportTypeEnum.compareTo(TripoliConstants.ETReduxExportTypeEnum.U) == 0) {
-            etReduxFraction.measuredRatios = new MeasuredUserFunctionModel[DataDictionary.etReduxUraniumMeasuredRatioNames.length];
+            etReduxFraction.measuredRatios = new MeasuredUserFunction[DataDictionary.etReduxUraniumMeasuredRatioNames.length];
         } else {
-            etReduxFraction.measuredRatios = new MeasuredUserFunctionModel[DataDictionary.etReduxLeadMeasuredRatioNames.length];
+            etReduxFraction.measuredRatios = new MeasuredUserFunction[DataDictionary.etReduxLeadMeasuredRatioNames.length];
         }
         for (int i = 0; i < etReduxFraction.measuredRatios.length; i++) {
             etReduxFraction.measuredRatios[i] =
-                    new MeasuredUserFunctionModel(
+                    new MeasuredUserFunction(
                             (etReduxExportTypeEnum.compareTo(TripoliConstants.ETReduxExportTypeEnum.U) == 0) ?
                                     DataDictionary.etReduxUraniumMeasuredRatioNames[i] :
                                     DataDictionary.etReduxLeadMeasuredRatioNames[i], 0.0, 0.0, false, false);
@@ -94,11 +94,11 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
         return schemaURI;
     }
 
-    public MeasuredUserFunctionModel getMeasuredRatioByName(String myRatioName) {
+    public MeasuredUserFunction getMeasuredRatioByName(String myRatioName) {
         // NOV 2009 NOTE: Tripoli still uses no r and no m ... TODO: fix this!!
         // April 2024 - still true and also for new Tripoli
         String ratioName = myRatioName.trim();
-        MeasuredUserFunctionModel retval = null;
+        MeasuredUserFunction retval = null;
 
         // look for ratio
         for (int i = 0; i < measuredRatios.length; i++) {
@@ -141,11 +141,11 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
         this.pedigree = pedigree;
     }
 
-    public MeasuredUserFunctionModel[] getMeasuredRatios() {
+    public MeasuredUserFunction[] getMeasuredRatios() {
         return measuredRatios;
     }
 
-    public void setMeasuredRatios(MeasuredUserFunctionModel[] measuredRatios) {
+    public void setMeasuredRatios(MeasuredUserFunction[] measuredRatios) {
         this.measuredRatios = measuredRatios;
     }
 
@@ -212,7 +212,7 @@ public class ETReduxFraction implements Comparable, Serializable, XMLSerializerI
     public void customizeXstream(XStream xstream) {
         xstream.registerConverter(new ETReduxFractionXMLConverter());
         xstream.alias("UPbReduxFraction", ETReduxFraction.class);
-        xstream.alias("MeasuredUserFunctionModel", MeasuredUserFunctionModel.class);
+        xstream.alias("MeasuredUserFunctionModel", MeasuredUserFunction.class);
     }
 
     /**

@@ -73,11 +73,11 @@ public class OGTripoliViewController {
         });
 
         plotWindowVBox.heightProperty().addListener((observable, oldValue, newValue) -> {
-            plotTabPane.setMinHeight(((Double) newValue) - 30.0);
-            ogtCycleRatioPlotsAnchorPane.setMinHeight(((Double) newValue) - plotsWallPaneRatios.getToolBarCount() * plotsWallPaneRatios.getToolBarHeight() - 30.0);
+            plotTabPane.setMinHeight(((Double) newValue));
+            ogtCycleRatioPlotsAnchorPane.setMinHeight(((Double) newValue) - plotsWallPaneRatios.getToolBarCount() * plotsWallPaneRatios.getToolBarHeight());
             if (analysis.getAnalysisCaseNumber() > 1) {
-                ogtSpeciesIntensitiesPlotAnchorPane.setMinHeight(((Double) newValue) - plotsWallPaneIntensities.getToolBarCount() * plotsWallPaneIntensities.getToolBarHeight() - 30.0);
-                ogtSpeciesResidualsPlotAnchorPane.setMinHeight(((Double) newValue) - plotsWallPaneResiduals.getToolBarCount() * plotsWallPaneResiduals.getToolBarHeight() - 30.0);
+                ogtSpeciesIntensitiesPlotAnchorPane.setMinHeight(((Double) newValue) - plotsWallPaneIntensities.getToolBarCount() * plotsWallPaneIntensities.getToolBarHeight());
+                ogtSpeciesResidualsPlotAnchorPane.setMinHeight(((Double) newValue) - plotsWallPaneResiduals.getToolBarCount() * plotsWallPaneResiduals.getToolBarHeight());
             }
         });
 
@@ -129,14 +129,14 @@ public class OGTripoliViewController {
                 Arrays.fill(DUMMY_CYCLES_INCLUDED, true);
 
                 // build list of userFunctions to plot
-                List<UserFunction> ratiosToPlot = new ArrayList<>();
-                for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
+                List<UserFunction> userFunctionsToPlot = new ArrayList<>();
+                for (UserFunction userFunction : analysis.getUserFunctions()) {
                     if (userFunction.isDisplayed()) {
-                        ratiosToPlot.add(userFunction);
+                        userFunctionsToPlot.add(userFunction);
                     }
                 }
 
-                for (UserFunction userFunction : ratiosToPlot) {
+                for (UserFunction userFunction : userFunctionsToPlot) {
                     TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPaneRatios);
 //
 //                    // todo: simplify since analysis carries most of the info
@@ -221,7 +221,8 @@ public class OGTripoliViewController {
                     }
                     BlockAnalysisRatioCyclesBuilder blockAnalysisRatioCyclesBuilder =
                             BlockAnalysisRatioCyclesBuilder.initializeBlockAnalysisRatioCycles(
-                                    isotopicRatio.prettyPrint(), plotBlockCyclesRecords,
+                                    isotopicRatio.prettyPrint(),
+                                    plotBlockCyclesRecords,
                                     analysis.getMapOfBlockIdToProcessStatus(),
                                     analysis.getMassSpecExtractedData().assignBlockIdToSessionTimeFull(),
 
@@ -274,7 +275,7 @@ public class OGTripoliViewController {
 
         ogtSpeciesResidualsPlotAnchorPane.getChildren().add(((Pane) plotsWallPaneResiduals));
         ogtSpeciesResidualsPlotAnchorPane.getChildren().addListener((ListChangeListener<Node>) change -> {
-            if (change.wasRemoved() && change.getRemoved().contains(plotsWallPaneResiduals)){
+            if (change.wasRemoved() && change.getRemoved().contains(plotsWallPaneResiduals)) {
                 ((PlotWallPaneIntensities) plotsWallPaneResiduals).close();
             }
         });

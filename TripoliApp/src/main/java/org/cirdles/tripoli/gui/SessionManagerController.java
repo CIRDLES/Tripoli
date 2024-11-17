@@ -93,31 +93,33 @@ public class SessionManagerController implements Initializable {
         sessionGridPane.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
             if (event.getDragboard().hasFiles()) {
-                File dataFile = db.getFiles().get(0);
+                for (int i = 0; i < db.getFiles().size(); i++) {
+                    File dataFile = db.getFiles().get(i);
 
-                AnalysisInterface analysisProposed = AnalysisInterface.initializeNewAnalysis(0);
-                try {
-                    String analysisName = analysisProposed.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
-                    if (tripoliSession.getMapOfAnalyses().containsKey(analysisName))
-                        tripoliSession.getMapOfAnalyses().remove(analysisName);
-                    if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
-                        analysisProposed.setAnalysisName(analysisName);
-                        analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
-                        tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
-                        analysis = analysisProposed;
-                        // manage analysis
-                        MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
-                                .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
-                        menuItemAnalysesManager.fire();
-                    } else {
-                        analysis = null;
-                        TripoliMessageDialog.showWarningDialog("Tripoli does not recognize this file format.", primaryStageWindow);
+                    AnalysisInterface analysisProposed;
+                    try {
+                        analysisProposed = AnalysisInterface.initializeNewAnalysis(0);
+                        String analysisName = analysisProposed.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
+                        if (tripoliSession.getMapOfAnalyses().containsKey(analysisName))
+                            tripoliSession.getMapOfAnalyses().remove(analysisName);
+                        if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
+                            analysisProposed.setAnalysisName(analysisName);
+                            analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
+                            tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
+                            analysis = analysisProposed;
+                            AnalysisManagerController.readingFile = true;
+                        } else {
+                            analysis = null;
+                            TripoliMessageDialog.showWarningDialog("Tripoli does not recognize this file format.", primaryStageWindow);
+                        }
+                    } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException |
+                             IllegalAccessException | TripoliException e) {
+//                    throw new RuntimeException(e);
                     }
-                } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
-//                    throw new RuntimeException(e);
-                } catch (IllegalAccessException | TripoliException e) {
-//                    throw new RuntimeException(e);
                 }
+                MenuItem menuItemSessionManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                        .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(0);
+                menuItemSessionManager.fire();
             }
         });
         // end implement drag n drop of files ===================================================================
@@ -179,7 +181,7 @@ public class SessionManagerController implements Initializable {
         });
     }
 
-    public void testConcatAction() {
+    public void testConcatAction() throws TripoliException {
         Stream<AnalysisInterface> stream = tripoliSession.getMapOfAnalyses().values().stream();
         Object[] analyses = stream.sorted().toArray();
         AnalysisInterface analysisConcat = Analysis.concatenateTwoAnalysesLite((AnalysisInterface) analyses[0], (AnalysisInterface) analyses[1]);

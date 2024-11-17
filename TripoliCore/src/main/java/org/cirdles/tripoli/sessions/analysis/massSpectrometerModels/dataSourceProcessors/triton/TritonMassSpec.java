@@ -18,6 +18,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -41,7 +42,7 @@ public enum TritonMassSpec {
      * @throws IOException
      */
     @SuppressWarnings("unused")
-    public static MassSpecExtractedData extractMetaAndBlockDataFromFileTriton(Path inputDataFile) throws IOException {
+    public static MassSpecExtractedData extractMetaAndBlockDataFromFileTriton(Path inputDataFile) throws IOException, TripoliException {
         MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
         List<String> contentsByLine = new ArrayList<>();
         FileReader fileReader = new FileReader(inputDataFile.toFile());
@@ -137,6 +138,7 @@ public enum TritonMassSpec {
             for (int i = 0; i < numbersAsStrings.length; i++) {
                 numbersAsStrings[i] = numbersAsStrings[i].replaceAll("X", "");
                 numbersAsStrings[i] = numbersAsStrings[i].replaceAll("D", "");
+                numbersAsStrings[i] = numbersAsStrings[i].replaceAll("Invalid Norm", "0.0");
             }
             cycleData[index] = Arrays.stream(numbersAsStrings)
                     .mapToDouble(Double::parseDouble)

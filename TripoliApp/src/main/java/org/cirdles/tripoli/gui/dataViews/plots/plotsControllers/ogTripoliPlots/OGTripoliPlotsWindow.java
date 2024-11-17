@@ -33,10 +33,10 @@ public class OGTripoliPlotsWindow {
 
     public static final double PLOT_WINDOW_WIDTH = 1000.0;
     public static final double PLOT_WINDOW_HEIGHT = 700.0;
-    protected OGTripoliViewController ogTripoliViewController;
     private final Stage plottingStage;
-    private Window plottingWindow;
     private final Stage primaryStage;
+    protected OGTripoliViewController ogTripoliViewController;
+    private Window plottingWindow;
     private AllBlockInitForMCMC.PlottingData plottingData;
 
     public OGTripoliPlotsWindow(Stage primaryStage, AnalysisManagerCallbackI analysisManagerCallbackI, AllBlockInitForMCMC.PlottingData plottingData) {

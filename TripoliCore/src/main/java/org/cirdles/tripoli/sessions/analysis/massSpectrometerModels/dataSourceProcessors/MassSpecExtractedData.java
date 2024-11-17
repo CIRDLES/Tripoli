@@ -4,6 +4,8 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -22,7 +24,7 @@ public class MassSpecExtractedData implements Serializable {
     private Map<Integer, MassSpecOutputBlockRecordFull> blocksDataFull;
     private Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite;
 
-    public MassSpecExtractedData() {
+    public MassSpecExtractedData() throws TripoliException {
         massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
         populateHeader(new ArrayList<>());
         populateColumnNamesList(new ArrayList<>());
@@ -54,7 +56,7 @@ public class MassSpecExtractedData implements Serializable {
         blocksDataLite.put(massSpecOutputBlockRecordLite.blockID(), massSpecOutputBlockRecordLite);
     }
 
-    public void populateHeader(List<String[]> headerData) {
+    public void populateHeader(List<String[]> headerData) throws TripoliException {
         String softwareVersion = "";
         String filename = "";
         String sampleName = "";
@@ -66,11 +68,13 @@ public class MassSpecExtractedData implements Serializable {
         String analysisStartTime = java.time.LocalDateTime.now().toLocalDate().toString();
         for (String[] headerStrings : headerData) {
             switch (headerStrings[0].trim().toUpperCase()) {
+                // All
+                case "METHODNAME" -> methodName = headerStrings[1].trim();
+                case "METHOD NAME" -> methodName = headerStrings[1].trim();
+
                 // Phoenix
                 case "VERSION" -> softwareVersion = headerStrings[1].trim();
                 case "FILENAME" -> filename = headerStrings[1].trim();
-                case "METHODNAME" -> methodName = headerStrings[1].trim();
-                case "METHOD NAME" -> methodName = headerStrings[1].trim();
                 case "CORRECTED" ->
                         isCorrected = Boolean.parseBoolean(headerStrings[1].trim().toUpperCase().replace("YES", "TRUE"));
                 case "BCHANNELS" ->
@@ -94,6 +98,9 @@ public class MassSpecExtractedData implements Serializable {
             }
         }
 
+        String[] methodLocNameArray = methodName.split("\\\\");
+        methodName = methodLocNameArray[methodLocNameArray.length - 1];
+
         Date date = null;
         try {
             date = DateUtils.parseDate(analysisStartTime,
@@ -107,6 +114,17 @@ public class MassSpecExtractedData implements Serializable {
             }
         }
 
+        //  if (cyclesPerBlock == 0){
+        if (TripoliPersistentState.getExistingPersistentState().getMapMethodNamesToDefaults().containsKey(methodName)) {
+            cyclesPerBlock = TripoliPersistentState.getExistingPersistentState().getMapMethodNamesToDefaults().get(methodName).getCyclesPerBlock();
+        } //else cyclesPerBlock = 10;
+        //    }
+        if (cyclesPerBlock == 0) {
+            cyclesPerBlock = 10;
+        }
+
+        int totalUsedCycles = 0;
+
         header = new MassSpecExtractedHeader(
                 softwareVersion,
                 filename,
@@ -115,7 +133,7 @@ public class MassSpecExtractedData implements Serializable {
                 isCorrected,
                 hasBChannels,
                 analysisStartTime,
-                (cyclesPerBlock == 0) ? 10 : cyclesPerBlock //TODO: fix this hack for triton
+                cyclesPerBlock
         );
     }
 
@@ -286,6 +304,7 @@ public class MassSpecExtractedData implements Serializable {
             boolean hasBChannels,
             String analysisStartTime,
             int cyclesPerBlock
-    ) implements Serializable {
+    )
+            implements Serializable {
     }
 }

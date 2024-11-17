@@ -57,6 +57,7 @@ public enum TripoliFileResources {
         retrieveResourceFiles(SYNTHETIC_DATA_FOLDER_2ISOTOPE, "dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData");
 //        retrieveResourceFiles(SYNTHETIC_DATA_FOLDER_DATA, "dataSourceProcessors/dataSources/syntheticData/data");
 //        retrieveResourceFiles(SYNTHETIC_DATA_FOLDER_METHODS, "dataSourceProcessors/dataSources/syntheticData/methods");
+        retrieveResourceFiles(SYNTHETIC_DATA_FOLDER_SYNTHETICFORTRIPOLI, "dataSourceProcessors/dataSources/syntheticData/SyntheticOutToTripoli");
 
         retrieveResourceFiles(NUCLIDESCHART_DATA_FOLDER, "species/nuclides");
         retrieveResourceFiles(PERIODICTABLE_DATA_FOLDER, "elements");

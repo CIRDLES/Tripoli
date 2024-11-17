@@ -43,7 +43,7 @@ public class Session implements Serializable {
     private String analystName;
     private String sessionFilePathAsString;
     private String sessionNotes;
-//    private Map<String, AnalysisInterface> mapOfAnalyses;
+    //    private Map<String, AnalysisInterface> mapOfAnalyses;
     private TripoliSessionAnalysisMap mapOfAnalyses;
     private boolean mutable;
     private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
@@ -109,17 +109,16 @@ public class Session implements Serializable {
         return sessionName;
     }
 
-    public void setSessionDefaultMapOfSpeciesToColors(TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors) {
-        this.sessionDefaultMapOfSpeciesToColors = sessionDefaultMapOfSpeciesToColors;
+    public void setSessionName(String sessionName) {
+        this.sessionName = sessionName;
     }
-
 
     public TripoliSpeciesColorMap getSessionDefaultMapOfSpeciesToColors() {
         return sessionDefaultMapOfSpeciesToColors;
     }
 
-    public void setSessionName(String sessionName) {
-        this.sessionName = sessionName;
+    public void setSessionDefaultMapOfSpeciesToColors(TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors) {
+        this.sessionDefaultMapOfSpeciesToColors = sessionDefaultMapOfSpeciesToColors;
     }
 
     public String getAnalystName() {

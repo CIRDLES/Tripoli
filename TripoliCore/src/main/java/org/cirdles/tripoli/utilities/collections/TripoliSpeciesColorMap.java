@@ -64,7 +64,7 @@ public class TripoliSpeciesColorMap implements Map<SpeciesRecordInterface, Speci
     @Nullable
     @Override
     public SpeciesColors put(SpeciesRecordInterface key, SpeciesColors value) {
-        return mapOfSpeciesToColors.put(key,value);
+        return mapOfSpeciesToColors.put(key, value);
     }
 
     @Override
