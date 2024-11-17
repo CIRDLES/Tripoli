@@ -16,10 +16,9 @@ import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_MOVI
 
 public class MultiLineIntensityPlot extends AbstractPlot {
 
+    private final PlotWallPane parentWallPane;
     private double[][] xData;
     private double[][] yData;
-
-    private final PlotWallPane parentWallPane;
 
     /**
      * @param bounds

@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.util.*;
 
-public class TripoliSessionAnalysisMap implements Map<String, AnalysisInterface>, Serializable{
+public class TripoliSessionAnalysisMap implements Map<String, AnalysisInterface>, Serializable {
 
     private final Map<String, AnalysisInterface> sessionMapOfAnalyses;
     private Session session;
@@ -44,7 +44,9 @@ public class TripoliSessionAnalysisMap implements Map<String, AnalysisInterface>
     }
 
     @Override
-    public AnalysisInterface get(Object key) {return sessionMapOfAnalyses.get(key);}
+    public AnalysisInterface get(Object key) {
+        return sessionMapOfAnalyses.get(key);
+    }
 
     @Nullable
     @Override
@@ -65,7 +67,7 @@ public class TripoliSessionAnalysisMap implements Map<String, AnalysisInterface>
         if (this.session != null) {
             for (AnalysisInterface analysisInterface : m.values()) {
                 if (analysisInterface instanceof Analysis) {
-                   ((Analysis) analysisInterface).initializeDefaultsFromSessionDefaults(this.session);
+                    ((Analysis) analysisInterface).initializeDefaultsFromSessionDefaults(this.session);
                 }
             }
         }

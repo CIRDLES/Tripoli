@@ -23,7 +23,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
-import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunctionModel;
+import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunction;
 
 import java.util.ArrayList;
 
@@ -127,16 +127,16 @@ public class ETReduxFractionXMLConverter implements Converter {
 
         reader.moveDown();
         if ("measuredRatios".equals(reader.getNodeName())) {
-            ArrayList<MeasuredUserFunctionModel> ratios = new ArrayList<>();
+            ArrayList<MeasuredUserFunction> ratios = new ArrayList<>();
             while (reader.hasMoreChildren()) {
                 reader.moveDown();
-                MeasuredUserFunctionModel item = new MeasuredUserFunctionModel();
-                item = (MeasuredUserFunctionModel) context.convertAnother(item, MeasuredUserFunctionModel.class);
+                MeasuredUserFunction item = new MeasuredUserFunction();
+                item = (MeasuredUserFunction) context.convertAnother(item, MeasuredUserFunction.class);
                 ratios.add(item);
                 reader.moveUp();
             }
             // Convert to array
-            MeasuredUserFunctionModel[] measuredRatios = new MeasuredUserFunctionModel[ratios.size()];
+            MeasuredUserFunction[] measuredRatios = new MeasuredUserFunction[ratios.size()];
             for (int i = 0; i < ratios.size(); i++) {
                 measuredRatios[i] = ratios.get(i);
             }

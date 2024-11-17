@@ -85,7 +85,28 @@ public class UserFunction implements Comparable, Serializable {
         return userFunction;
     }
 
+    public UserFunctionDisplay calcUserFunctionDisplay() {
+        return new UserFunctionDisplay(name, displayed, inverted);
+    }
+
     public AnalysisStatsRecord calculateAnalysisStatsRecord(AnalysisInterface analysis) {
+        if (!invertedETReduxName.isEmpty()) {
+            // detect if ratio to be treated as function because of negative or zero value Issue #214
+            boolean allPositive = true;
+            for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
+                PlotBlockCyclesRecord plotBlockCyclesRecord = entry.getValue();
+                if ((plotBlockCyclesRecord != null) && allPositive) {
+                    for (int i = 0; i < plotBlockCyclesRecord.cycleMeansData().length; i++) {
+                        if ((plotBlockCyclesRecord.cycleMeansData()[i] <= 0.0) && (plotBlockCyclesRecord.cyclesIncluded()[i])) {
+                            allPositive = false;
+                        }
+                    }
+                }
+            }
+
+            treatAsIsotopicRatio = allPositive;
+        }
+
         analysisStatsRecord = generateAnalysisStatsRecord(generateAnalysisBlockStatsRecords(this, mapBlockIdToBlockCyclesRecord));
         for (int i = 0; i < analysisStatsRecord.blockStatsRecords().length; i++) {
             BlockStatsRecord blockStatsRecord = analysisStatsRecord.blockStatsRecords()[i];
@@ -223,4 +244,5 @@ public class UserFunction implements Comparable, Serializable {
     public String getCorrectETReduxName() {
         return inverted ? invertedETReduxName : etReduxName;
     }
+
 }

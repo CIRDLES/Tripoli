@@ -56,15 +56,6 @@
             <MenuItem disable="true" mnemonicParsing="false" text="Export Analysis"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
         </Menu>
-        <Menu fx:id="methodsMenu" disable="true" mnemonicParsing="false" text="Methods">
-            <Menu mnemonicParsing="false" text="New Method from ...">
-                <MenuItem mnemonicParsing="false" text="Current Method"/>
-                <MenuItem mnemonicParsing="false" text="Empty Method"/>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Browse, Load, or Edit Method files">
-                <MenuItem mnemonicParsing="false" text="Tripoli Built-In Methods Library"/>
-            </Menu>
-        </Menu>
         <Menu fx:id="parametersMenu" disable="true" mnemonicParsing="false" text="Parameters">
             <MenuItem mnemonicParsing="false" text="Tracer Models"/>
         </Menu>
@@ -97,6 +88,7 @@
             <MenuItem mnemonicParsing="false" onAction="#showTripoliGitHubRepo" text="Tripoli GitHub Repository"/>
         </Menu>
         <Menu mnemonicParsing="false" text="Help">
+            <MenuItem mnemonicParsing="false" onAction="#showTripoliUserManual" text="Tripoli User Manual"/>
             <MenuItem mnemonicParsing="false" onAction="#showTripoliContributeIssue"
                       text="Contribute an Issue on Github"/>
             <MenuItem mnemonicParsing="false" onAction="#showTripoliDiscussionsAction"
