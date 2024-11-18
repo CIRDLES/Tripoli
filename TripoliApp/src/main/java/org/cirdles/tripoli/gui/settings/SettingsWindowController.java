@@ -46,8 +46,13 @@ public class SettingsWindowController implements Initializable {
     @FXML
     private ToolBar saveDefaultsToolbar;
 
+//    @FXML
+//    private Tab oldIntensityPlotTab;
     @FXML
-    private Tab oldIntensityPlotTab;
+    private TextField chauvenetRejectionProbabilityTextField;
+    @FXML
+    private TextField chauvenetMinimumDatumCountTextField;
+
 
     @FXML
     private Label speciesHeader;
@@ -57,9 +62,11 @@ public class SettingsWindowController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        oldIntensityPlotTab.getTabPane().getTabs().remove(oldIntensityPlotTab);
+//        oldIntensityPlotTab.getTabPane().getTabs().remove(oldIntensityPlotTab);
         // remove the above to see the old intensity plot implementation
         HBox.setMargin(speciesHeader, new Insets(0, 0, 0, 10));
+        chauvenetRejectionProbabilityTextField.setText("0.00000");
+        chauvenetMinimumDatumCountTextField.setText("N");
     }
 
     public VBox getvBoxRoot() {
@@ -112,4 +119,11 @@ public class SettingsWindowController implements Initializable {
         return plotIntensitiesVBox;
     }
 
+    public TextField getChauvenetRejectionProbabilityTextField() {
+        return chauvenetRejectionProbabilityTextField;
+    }
+
+    public TextField getChauvenetMinimumDatumCountTextField() {
+        return chauvenetMinimumDatumCountTextField;
+    }
 }

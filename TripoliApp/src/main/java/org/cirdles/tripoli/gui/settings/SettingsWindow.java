@@ -63,8 +63,8 @@ public class SettingsWindow {
             repaintRatiosDelegateActionSet = delegateActionSet;
             settingsWindowController = fxmlLoader.getController();
             settingsWindowController.getRatioColorSelectionAnchorPane().prefWidthProperty().bind(stage.widthProperty());
-            settingsWindowController.getPlotIntensitiesAnchorPane().prefWidthProperty().bind(stage.widthProperty());
-            HBox.setMargin(settingsWindowController.getPlotIntensitiesAnchorPane(), new Insets(0, 0, 0, 20));
+//            settingsWindowController.getPlotIntensitiesAnchorPane().prefWidthProperty().bind(stage.widthProperty());
+//            HBox.setMargin(settingsWindowController.getPlotIntensitiesAnchorPane(), new Insets(0, 0, 0, 20));
             stage.initOwner(owner);
             owner.xProperty().addListener((observable, oldValue, newValue) -> {
                 stage.setX(stage.getX() + newValue.doubleValue()- oldValue.doubleValue());

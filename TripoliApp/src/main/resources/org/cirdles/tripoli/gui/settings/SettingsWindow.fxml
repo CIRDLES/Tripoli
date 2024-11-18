@@ -82,9 +82,51 @@
                   </AnchorPane>
                </content>
             </Tab>
-            <Tab fx:id="oldIntensityPlotTab" closable="false" text="Plot Intensities Color Control">
+            <Tab fx:id="parametersTab" closable="false" text="Parameter Control">
                <content>
-                  <AnchorPane fx:id="plotIntensitiesAnchorPane" prefHeight="474.0" prefWidth="536.0" />
+                  <AnchorPane fx:id="parameterControlAnchorPane" prefHeight="474.0" prefWidth="536.0">
+                     <children>
+                        <HBox alignment="CENTER" layoutX="-1.0" prefHeight="64.0" prefWidth="536.0">
+                           <children>
+                              <Label alignment="CENTER" prefHeight="64.0" prefWidth="538.0" text="Parameter Control" textAlignment="CENTER">
+                                 <font>
+                                    <Font name="Consolas" size="48.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <Label layoutX="17.0" layoutY="64.0" prefHeight="38.0" prefWidth="520.0" text="Chauvenet's Criteria" textAlignment="CENTER">
+                           <font>
+                              <Font name="Consolas" size="24.0" />
+                           </font>
+                           <opaqueInsets>
+                              <Insets top="-9.0" />
+                           </opaqueInsets>
+                        </Label>
+                        <Region layoutX="-1.0" layoutY="58.0" prefHeight="383.0" prefWidth="18.0" />
+                        <HBox alignment="CENTER_LEFT" layoutX="17.0" layoutY="95.0" prefHeight="36.0" prefWidth="521.0">
+                           <children>
+                              <Label prefHeight="34.0" prefWidth="239.0" text="Rejection Probability">
+                                 <font>
+                                    <Font size="18.0" />
+                                 </font>
+                              </Label>
+                              <Region prefHeight="36.0" prefWidth="78.0" />
+                              <TextField fx:id="chauvenetRejectionProbabilityTextField" alignment="CENTER" prefHeight="25.0" prefWidth="100.0" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" layoutX="17.0" layoutY="131.0" prefHeight="36.0" prefWidth="521.0">
+                           <children>
+                              <Label prefHeight="34.0" prefWidth="239.0" text="Minimum Datum Count">
+                                 <font>
+                                    <Font size="18.0" />
+                                 </font>
+                              </Label>
+                              <Region prefHeight="36.0" prefWidth="78.0" />
+                              <TextField fx:id="chauvenetMinimumDatumCountTextField" alignment="CENTER" prefHeight="25.0" prefWidth="100.0" />
+                           </children>
+                        </HBox>
+                     </children></AnchorPane>
                </content>
             </Tab>
          </tabs>
