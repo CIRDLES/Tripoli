@@ -1,8 +1,10 @@
 package org.cirdles.tripoli.gui.settings;
 
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -61,6 +63,7 @@ public class SettingsWindow {
             settingsWindowController = fxmlLoader.getController();
             settingsWindowController.getRatioColorSelectionAnchorPane().prefWidthProperty().bind(stage.widthProperty());
             settingsWindowController.getPlotIntensitiesAnchorPane().prefWidthProperty().bind(stage.widthProperty());
+            HBox.setMargin(settingsWindowController.getPlotIntensitiesAnchorPane(), new Insets(0, 0, 0, 20));
             stage.initOwner(owner);
             owner.xProperty().addListener((observable, oldValue, newValue) -> {
                 stage.setX(stage.getX() + newValue.doubleValue()- oldValue.doubleValue());

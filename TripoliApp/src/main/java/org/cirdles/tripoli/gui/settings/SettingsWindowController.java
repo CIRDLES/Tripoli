@@ -3,11 +3,10 @@ package org.cirdles.tripoli.gui.settings;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.ToolBar;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesColorSelectionRow;
 
@@ -50,6 +49,8 @@ public class SettingsWindowController implements Initializable {
     @FXML
     private Tab oldIntensityPlotTab;
 
+    @FXML
+    private Label speciesHeader;
 
     @FXML
     private Button cancelButton;
@@ -58,6 +59,7 @@ public class SettingsWindowController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         oldIntensityPlotTab.getTabPane().getTabs().remove(oldIntensityPlotTab);
         // remove the above to see the old intensity plot implementation
+        HBox.setMargin(speciesHeader, new Insets(0, 0, 0, 10));
     }
 
     public VBox getvBoxRoot() {

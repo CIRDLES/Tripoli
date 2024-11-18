@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
@@ -36,10 +37,13 @@
                         </HBox>
                         <HBox layoutY="36.0" prefHeight="36.0" prefWidth="536.0">
                            <children>
-                              <Label prefHeight="36.0" prefWidth="124.0" text="Species">
+                              <Label fx:id="speciesHeader" graphicTextGap="0.0" prefHeight="36.0" prefWidth="124.0" text="Species">
                                  <font>
                                     <Font name="Consolas Bold" size="16.0" />
                                  </font>
+                                 <opaqueInsets>
+                                    <Insets />
+                                 </opaqueInsets>
                               </Label>
                               <Label alignment="CENTER" prefHeight="36.0" prefWidth="100.0" text="Faraday" textAlignment="CENTER">
                                  <font>
@@ -62,6 +66,9 @@
                                  </font>
                               </Label>
                            </children>
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
                         </HBox>
                         <ScrollPane layoutY="72.0" prefHeight="368.0" prefWidth="536.0">
                            <content>
@@ -69,6 +76,9 @@
                            </content>
                         </ScrollPane>
                      </children>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
                   </AnchorPane>
                </content>
             </Tab>

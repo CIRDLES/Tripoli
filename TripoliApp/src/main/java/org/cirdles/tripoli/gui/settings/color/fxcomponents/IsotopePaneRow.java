@@ -1,6 +1,7 @@
 package org.cirdles.tripoli.gui.settings.color.fxcomponents;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -40,10 +41,12 @@ public class IsotopePaneRow extends HBox {
     public IsotopePaneRow(SpeciesRecordInterface speciesRecordInterface,
                           Map<SpeciesRecordInterface, SpeciesColors> colorMap,
                           DelegateActionSet delegateActionSet) {
+        super();
         this.speciesRecord = speciesRecordInterface;
         this.speciesColorsProperty = new SimpleObjectProperty<>(colorMap.get(speciesRecordInterface));
         this.delegateActionSet = delegateActionSet;
         this.colorMap = colorMap;
+
         // Initialize all components
         this.title = new Label(speciesRecordInterface.prettyPrintShortForm());
         this.title.setFont(Font.font("Consolas", FontWeight.BOLD, 16));
@@ -127,6 +130,7 @@ public class IsotopePaneRow extends HBox {
                 splotch.textObjectProperty().setValue("Click Me");
             }
         });
+        HBox.setMargin(title, new Insets(0,0,0, PADDING));// provides a left margin around the species name
 
     }
 
