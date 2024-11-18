@@ -114,6 +114,19 @@ public record PlotBlockCyclesRecord(
         );
     }
 
+    public PlotBlockCyclesRecord changeBlockIDforConcat(int blockID) {
+        return new PlotBlockCyclesRecord(
+                blockID,
+                isRatio,
+                processed,
+                blockIncluded,
+                cyclesIncluded,
+                cycleMeansData,
+                cycleOneSigmaData,
+                title
+        );
+    }
+
     public PlotBlockCyclesRecord updateCyclesIncluded(boolean[] cyclesIncluded) {
         int countIncluded = countTrue(cyclesIncluded);
 

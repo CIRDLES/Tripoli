@@ -172,60 +172,36 @@ public class TripoliGUIController implements Initializable {
 //                        throw new RuntimeException(e);
                     }
                 } else {
-                    AnalysisInterface analysisProposed = null;
-                    try {
-                        analysisProposed = initializeNewAnalysis(0);
-                    } catch (TripoliException e) {
-//                        throw new RuntimeException(e);
-                    }
-                    try {
-                        String analysisName = analysisProposed.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
-                        if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
-                            // new session
-                            MenuItem menuItemSessionNew = ((MenuBar) TripoliGUI.primaryStage.getScene()
-                                    .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(2);
-                            menuItemSessionNew.fire();
-                            analysisProposed.setAnalysisName(analysisName);
-                            analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
-                            tripoliSession.getMapOfAnalyses().clear();
-                            tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
-                            analysis = analysisProposed;
-                            // manage analysis
-                            AnalysisManagerController.readingFile = true;
-                            MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
-                                    .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
-                            menuItemAnalysesManager.fire();
-                        } else {
-                            analysis = null;
-                            TripoliMessageDialog.showWarningDialog("Tripoli does not recognize this file format.", primaryStageWindow);
+                    // new session
+                    MenuItem menuItemSessionNew = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                            .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(2);
+                    menuItemSessionNew.fire();
+                    for (int i = 0; i < db.getFiles().size(); i++) {
+                        dataFile = db.getFiles().get(i);
+
+                        AnalysisInterface analysisProposed;
+                        try {
+                            analysisProposed = initializeNewAnalysis(0);
+                            String analysisName = analysisProposed.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
+                            if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
+
+                                analysisProposed.setAnalysisName(analysisName);
+                                analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
+                                tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
+                                analysis = analysisProposed;
+                                AnalysisManagerController.readingFile = true;
+                            } else {
+                                analysis = null;
+                                TripoliMessageDialog.showWarningDialog("Tripoli does not recognize this file format.", primaryStageWindow);
+                            }
+                        } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException |
+                                 IllegalAccessException | TripoliException e) {
+//                    throw new RuntimeException(e);
                         }
-                    } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
-//                    throw new RuntimeException(e);
-                    } catch (IllegalAccessException | TripoliException e) {
-//                    throw new RuntimeException(e);
                     }
-
-
-//                    MenuItem menuItemAnalysesNew = ((MenuBar) TripoliGUI.primaryStage.getScene()
-//                            .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(2);
-//                    menuItemAnalysesNew.fire();
-//
-//                    AnalysisInterface analysisSelected = analysis;
-//
-//                    try {
-//                        tripoliSession.getMapOfAnalyses().remove(analysisSelected.getAnalysisName());
-//                        analysis.setAnalysisName(analysisSelected.extractMassSpecDataFromPath(Path.of(dataFile.toURI())));
-//                        tripoliSession.getMapOfAnalyses().put(analysis.getAnalysisName(), analysis);
-//                    } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException |
-//                             IllegalAccessException | TripoliException e) {
-////                    throw new RuntimeException(e);
-//                    }
-//
-//                    // manage analysis
-//                    MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
-//                            .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
-//                    menuItemAnalysesManager.setDisable(false);
-//                    menuItemAnalysesManager.fire();
+                    MenuItem menuItemSessionManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                            .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(0);
+                    menuItemSessionManager.fire();
                 }
             }
         });

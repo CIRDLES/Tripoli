@@ -130,7 +130,7 @@ public class OGTripoliViewController {
 
                 // build list of userFunctions to plot
                 List<UserFunction> userFunctionsToPlot = new ArrayList<>();
-                for (UserFunction userFunction : analysis.getAnalysisMethod().getUserFunctions()) {
+                for (UserFunction userFunction : analysis.getUserFunctions()) {
                     if (userFunction.isDisplayed()) {
                         userFunctionsToPlot.add(userFunction);
                     }

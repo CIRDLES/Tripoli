@@ -160,7 +160,11 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         int cyclesPerBlock = mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
 
         if (reScaleX) {
-            xAxisData = new double[mapBlockIdToBlockCyclesRecord.size() * cyclesPerBlock];
+            int xDataLength = 0;
+            for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
+                xDataLength += entry.getValue().cycleMeansData().length;
+            }
+            xAxisData = new double[xDataLength];
             for (int i = 0; i < xAxisData.length; i++) {
                 xAxisData[i] = i + 1;
             }
@@ -888,7 +892,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             // cycle mode
             boolean[] cycleModeIncluded = analysisStatsRecord.cycleModeIncluded();
             double[] cycleModeData = analysisStatsRecord.cycleModeData();
-            if (Booleans.countTrue(cycleModeIncluded) == cycleModeIncluded.length) {
+//            if (Booleans.countTrue(cycleModeIncluded) == cycleModeIncluded.length) {
                 boolean[] chauvenets = applyChauvenetsCriterion(cycleModeData, cycleModeIncluded);
                 // reset included cycles for each block
                 BlockStatsRecord[] blockStatsRecords = analysisStatsRecord.blockStatsRecords();
@@ -906,7 +910,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
                 }
                 analysisStatsRecord = AnalysisStatsRecord.generateAnalysisStatsRecord(blockStatsRecords);
-            }
+//            }
         }
 
         repaint();

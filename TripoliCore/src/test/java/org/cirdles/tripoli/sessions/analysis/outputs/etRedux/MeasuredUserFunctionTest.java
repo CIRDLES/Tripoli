@@ -10,9 +10,9 @@ import java.nio.file.Files;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class MeasuredUserFunctionModelTest {
+class MeasuredUserFunctionTest {
 
-    MeasuredUserFunctionModel measuredUserFunctionModel = new MeasuredUserFunctionModel("TestRatioModel", 12345.6789, 98765.4321, true, false);
+    MeasuredUserFunction measuredUserFunctionModel = new MeasuredUserFunction("TestRatioModel", 12345.6789, 98765.4321, true, false);
     String fileNameForXML = "testMeasuredRatioModel.xml";
 
     @BeforeEach
@@ -27,7 +27,7 @@ class MeasuredUserFunctionModelTest {
     @Test
     void validateSerializationXML() {
         measuredUserFunctionModel.serializeXMLObject(fileNameForXML);
-        MeasuredUserFunctionModel measuredUserFunctionModel2 = (MeasuredUserFunctionModel) measuredUserFunctionModel.readXMLObject(fileNameForXML, false);
+        MeasuredUserFunction measuredUserFunctionModel2 = (MeasuredUserFunction) measuredUserFunctionModel.readXMLObject(fileNameForXML, false);
         assertEquals(measuredUserFunctionModel, measuredUserFunctionModel2);
     }
 }
