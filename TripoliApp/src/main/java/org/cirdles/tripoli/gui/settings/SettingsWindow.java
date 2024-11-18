@@ -4,14 +4,21 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.util.StringConverter;
+import javafx.util.converter.DoubleStringConverter;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneIntensities;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.*;
+import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
@@ -40,6 +47,8 @@ public class SettingsWindow {
     private String originalMeanHexColor;
     private ArrayList<IsotopePaneRow> isotopePaneRows;
     private SpeciesColorSelectionScrollPane speciesColorSelectionScrollPane;
+    private Parameters originalParameters;
+
 
     private SpeciesIntensityColorSelectionScrollPane speciesIntensityColorSelectionScrollPane;
 
@@ -52,6 +61,7 @@ public class SettingsWindow {
             stage = new Stage();
             stage.setResizable(false);
             this.analysis = analysis;
+            this.originalParameters = analysis.getParameters().copy();
             originalSpeciesColors = new TripoliSpeciesColorMap(
                     ((Analysis) analysis).getAnalysisMapOfSpeciesToColors());
             this.originalTwoSigmaHexColor = analysis.getTwoSigmaHexColorString();
@@ -63,8 +73,6 @@ public class SettingsWindow {
             repaintRatiosDelegateActionSet = delegateActionSet;
             settingsWindowController = fxmlLoader.getController();
             settingsWindowController.getRatioColorSelectionAnchorPane().prefWidthProperty().bind(stage.widthProperty());
-            settingsWindowController.getPlotIntensitiesAnchorPane().prefWidthProperty().bind(stage.widthProperty());
-            HBox.setMargin(settingsWindowController.getPlotIntensitiesAnchorPane(), new Insets(0, 0, 0, 20));
             stage.initOwner(owner);
             owner.xProperty().addListener((observable, oldValue, newValue) -> {
                 stage.setX(stage.getX() + newValue.doubleValue()- oldValue.doubleValue());
@@ -80,10 +88,6 @@ public class SettingsWindow {
             speciesColorSelectionScrollPane = SpeciesColorSelectionScrollPane.buildSpeciesColorSelectionScrollPane(
                     AnalysisInterface.convertToAnalysis(analysis),
                     PlotWallPaneIntensities.getDelegateActionSet());
-//            settingsWindowController.getPlotIntensitiesAnchorPane().getChildren().clear();
-//            settingsWindowController.getPlotIntensitiesAnchorPane().getChildren().add(
-//                    speciesColorSelectionScrollPane
-//            );
             ratioColorSelectionPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
             ratioColorSelectionPane.prefWidthProperty().bind(stage.widthProperty());
             initializeToolbarButtons();
@@ -109,9 +113,96 @@ public class SettingsWindow {
                 settingsWindowController.getPlotIntensitiesVBox().getChildren().add(row);
             }
             stage.setTitle("Settings");
+            initParameterTextFields();
         } catch (IOException | TripoliException e) {
             e.printStackTrace();
         }
+    }
+
+    private void initParameterTextFields() {
+        initProbabilitySpinner();
+        initDatumCountSpinner();
+    }
+
+    private void initProbabilitySpinner() {
+        Spinner<Double> probabilitySpinner = settingsWindowController.getChauvenetRejectionProbabilitySpinner();
+        probabilitySpinner.setValueFactory( new SpinnerValueFactory.DoubleSpinnerValueFactory(
+                0.0,
+                1.0,
+                analysis.getParameters().getChauvenetRejectionProbability(), 0.01));
+        probabilitySpinner.setEditable(true);
+        probabilitySpinner.addEventFilter(KeyEvent.KEY_TYPED, event -> {
+            String input = event.getCharacter();
+            if (!input.matches("[0-9.]") || (input.equals(".") && probabilitySpinner.getEditor().getText().contains("."))) {
+                event.consume();
+            }
+        });
+        probabilitySpinner.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+
+            probabilitySpinner.commitValue();
+        });
+        probabilitySpinner.getValueFactory().setConverter(new StringConverter<>() {
+
+            @Override
+            public String toString(Double value) {
+                if (value == null) {
+                    return "";
+                }
+                return String.format("%.2f", value);
+            }
+
+            @Override
+            public Double fromString(String string) {
+                try {
+                    return Double.parseDouble(string);
+                } catch (NumberFormatException e) {
+                    return analysis.getParameters().getChauvenetRejectionProbability();
+                }
+            }
+        });
+        probabilitySpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+           analysis.getParameters().setChauvenetRejectionProbability(newValue);
+        });
+    }
+
+    private void initDatumCountSpinner() {
+        Spinner<Integer> datumCountSpinner = settingsWindowController.getChauvenetMinimumDatumCountSpinner();
+        datumCountSpinner.setValueFactory( new SpinnerValueFactory.IntegerSpinnerValueFactory(
+                20,
+                300,
+                analysis.getParameters().getRequiredMinDatumCount(),
+                1));
+        datumCountSpinner.setEditable(true);
+        datumCountSpinner.addEventFilter(KeyEvent.KEY_TYPED, event -> {
+            String input = event.getCharacter();
+            if (!input.matches("[0-9]")) {
+                event.consume();
+            }
+        });
+        datumCountSpinner.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            datumCountSpinner.commitValue();
+        });
+        datumCountSpinner.getValueFactory().setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Integer value) {
+                if (value == null) {
+                    return "";
+                }
+                return String.format("%d",value);
+            }
+
+            @Override
+            public Integer fromString(String string) {
+                try {
+                    return Integer.parseInt(string);
+                } catch (NumberFormatException e) {
+                    return analysis.getParameters().getRequiredMinDatumCount();
+                }
+            }
+        });
+        datumCountSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+            analysis.getParameters().setRequiredMinDatumCount(newValue);
+        });
     }
 
     public static SettingsWindow requestSettingsWindow(
@@ -162,6 +253,11 @@ public class SettingsWindow {
         });
         settingsWindowController.getSaveAsSessionDefaultsButton().setOnAction(e -> {
             Session currentSession = ((Analysis) analysis).getParentSession();
+            currentSession.getSessionDefaultParameters().setRequiredMinDatumCount(
+                    analysis.getParameters().getRequiredMinDatumCount());
+            currentSession.getSessionDefaultParameters().setChauvenetRejectionProbability(
+                    analysis.getParameters().getChauvenetRejectionProbability()
+            );
             currentSession.setTwoSigmaHexColorString(analysis.getTwoSigmaHexColorString());
             currentSession.setOneSigmaHexColorString(analysis.getOneSigmaHexColorString());
             currentSession.setTwoStdErrHexColorString(analysis.getTwoStandardErrorHexColorString());
@@ -178,6 +274,10 @@ public class SettingsWindow {
         settingsWindowController.getSaveAsUserDefaultsButton().setOnAction(e -> {
             try{
                 TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+                tripoliPersistentState.getTripoliPersistentParameters().setChauvenetRejectionProbability(
+                        analysis.getParameters().getChauvenetRejectionProbability());
+                tripoliPersistentState.getTripoliPersistentParameters().setRequiredMinDatumCount(
+                        analysis.getParameters().getRequiredMinDatumCount());
                 tripoliPersistentState.setTwoSigmaHexColorString(analysis.getTwoSigmaHexColorString());
                 tripoliPersistentState.setOneSigmaHexColorString(analysis.getOneSigmaHexColorString());
                 tripoliPersistentState.setTwoStdErrHexColorString(analysis.getTwoStandardErrorHexColorString());
@@ -191,6 +291,18 @@ public class SettingsWindow {
         });
         settingsWindowController.getRestoreSessionDefaultsButton().setOnAction(e -> {
             Session currentSession = ((Analysis) analysis).getParentSession();
+            analysis.getParameters().setChauvenetRejectionProbability(
+                    currentSession.getSessionDefaultParameters().getChauvenetRejectionProbability()
+            );
+            settingsWindowController.getChauvenetRejectionProbabilitySpinner().getValueFactory().setValue(
+                    analysis.getParameters().getChauvenetRejectionProbability()
+            );
+            analysis.getParameters().setRequiredMinDatumCount(
+                    currentSession.getSessionDefaultParameters().getRequiredMinDatumCount()
+            );
+            settingsWindowController.getChauvenetMinimumDatumCountSpinner().getValueFactory().setValue(
+                    analysis.getParameters().getRequiredMinDatumCount()
+            );
             analysis.setTwoSigmaHexColorString(currentSession.getTwoSigmaHexColorString());
             analysis.setTwoStandardErrorHexColorString(currentSession.getTwoStdErrHexColorString());
             analysis.setMeanHexColorString(currentSession.getMeanHexColorString());
@@ -204,6 +316,18 @@ public class SettingsWindow {
         settingsWindowController.getRestoreUserDefaultsButton().setOnAction(e -> {
             try{
                 TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+                analysis.getParameters().setRequiredMinDatumCount(
+                        tripoliPersistentState.getTripoliPersistentParameters().getRequiredMinDatumCount()
+                );
+                settingsWindowController.getChauvenetMinimumDatumCountSpinner().getValueFactory().setValue(
+                        analysis.getParameters().getRequiredMinDatumCount()
+                );
+                analysis.getParameters().setChauvenetRejectionProbability(
+                        tripoliPersistentState.getTripoliPersistentParameters().getChauvenetRejectionProbability()
+                );
+                settingsWindowController.getChauvenetRejectionProbabilitySpinner().getValueFactory().setValue(
+                        analysis.getParameters().getChauvenetRejectionProbability()
+                );
                 analysis.setTwoSigmaHexColorString(tripoliPersistentState.getTwoSigmaHexColorString());
                 analysis.setOneSigmaHexColorString(tripoliPersistentState.getOneSigmaHexColorString());
                 analysis.setTwoStandardErrorHexColorString(tripoliPersistentState.getTwoStdErrHexColorString());
@@ -219,6 +343,12 @@ public class SettingsWindow {
         });
         settingsWindowController.getCancelButton().setOnAction(e -> {
             analysis.setTwoSigmaHexColorString(originalTwoSigmaHexColor);
+            analysis.getParameters().setChauvenetRejectionProbability(originalParameters.getChauvenetRejectionProbability());
+            analysis.getParameters().setRequiredMinDatumCount(originalParameters.getRequiredMinDatumCount());
+            settingsWindowController.getChauvenetRejectionProbabilitySpinner().getValueFactory().setValue(
+                    originalParameters.getChauvenetRejectionProbability());
+            settingsWindowController.getChauvenetMinimumDatumCountSpinner().getValueFactory().setValue(
+                    originalParameters.getRequiredMinDatumCount());
             ratioColorSelectionPane.getTwoSigmaSplotch().
                     colorProperty().setValue(Color.web(originalTwoSigmaHexColor));
             analysis.setOneSigmaHexColorString(originalOneSigmaHexColor);

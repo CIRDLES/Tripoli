@@ -18,6 +18,7 @@
 package org.cirdles.tripoli.utilities.stateUtilities;
 
 import org.cirdles.tripoli.constants.TripoliConstants;
+import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
@@ -55,6 +56,7 @@ public class TripoliPersistentState implements Serializable {
     private String MRUExportFolderPath;
     private TripoliSpeciesColorMap mapOfSpeciesToColors;
     private Map<String, AnalysisMethodPersistance> mapMethodNamesToDefaults;
+    private Parameters tripoliPersistentParameters;
 
     //  Ratio Stat plot colors
     private String twoSigmaHexColorString;
@@ -106,6 +108,8 @@ public class TripoliPersistentState implements Serializable {
         mapOfSpeciesToColors = new TripoliSpeciesColorMap();
 
         mapMethodNamesToDefaults = new TreeMap<>();
+
+        tripoliPersistentParameters = new Parameters();
 
         serializeSelf();
     }
@@ -172,6 +176,14 @@ public class TripoliPersistentState implements Serializable {
     //properties
 
 
+    public Parameters getTripoliPersistentParameters() {
+        if (tripoliPersistentParameters == null) {
+            tripoliPersistentParameters = new Parameters();
+            serializeSelf();
+        }
+        return tripoliPersistentParameters;
+    }
+
     public Map<String, AnalysisMethodPersistance> getMapMethodNamesToDefaults() {
         if (mapMethodNamesToDefaults == null) {
             mapMethodNamesToDefaults = new TreeMap<>();
@@ -235,6 +247,7 @@ public class TripoliPersistentState implements Serializable {
         }
         return meanHexColorString;
     }
+
 
     public void updateTripoliPersistentState() {
         serializeSelf();
