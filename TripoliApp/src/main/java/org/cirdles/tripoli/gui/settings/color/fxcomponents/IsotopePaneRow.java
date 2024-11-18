@@ -121,12 +121,10 @@ public class IsotopePaneRow extends HBox {
                 pmModel
         );
         this.getChildren().forEach(child -> {
-            if (child instanceof Region) {
-                Region region = (Region) child;
+            if (child instanceof Region region) {
                 region.prefHeightProperty().bind(this.heightProperty());
             }
-            if (child instanceof ColorPickerSplotch) {
-                ColorPickerSplotch splotch = (ColorPickerSplotch) child;
+            if (child instanceof ColorPickerSplotch splotch) {
                 splotch.textObjectProperty().setValue("Click Me");
             }
         });

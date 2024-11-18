@@ -50,6 +50,7 @@ public class SettingsWindow {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("SettingsWindow.fxml"));
         try {
             stage = new Stage();
+            stage.setResizable(false);
             this.analysis = analysis;
             originalSpeciesColors = new TripoliSpeciesColorMap(
                     ((Analysis) analysis).getAnalysisMapOfSpeciesToColors());

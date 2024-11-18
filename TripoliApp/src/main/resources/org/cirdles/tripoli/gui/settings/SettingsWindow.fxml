@@ -21,7 +21,7 @@
                      <children>
                         <HBox prefHeight="36.0" prefWidth="536.0">
                            <children>
-                              <Region prefHeight="36.0" prefWidth="122.0" />
+                              <Region prefHeight="36.0" prefWidth="137.0" />
                               <Label alignment="CENTER" prefHeight="35.0" prefWidth="166.0" text="Data Color" textAlignment="JUSTIFY">
                                  <font>
                                     <Font name="Consolas Bold" size="24.0" />
