@@ -62,8 +62,6 @@ public class SettingsWindowController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-//        oldIntensityPlotTab.getTabPane().getTabs().remove(oldIntensityPlotTab);
-        // remove the above to see the old intensity plot implementation
         HBox.setMargin(speciesHeader, new Insets(0, 0, 0, 10));
     }
 
