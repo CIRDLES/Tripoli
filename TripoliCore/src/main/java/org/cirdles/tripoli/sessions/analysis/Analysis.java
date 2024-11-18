@@ -749,6 +749,11 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         meanHexColorString = newHexColor;
     }
 
+    @Override
+    public Parameters getParameters() {
+        return this.analysisParameters;
+    }
+
     public Session getParentSession() {
         return parentSession;
     }

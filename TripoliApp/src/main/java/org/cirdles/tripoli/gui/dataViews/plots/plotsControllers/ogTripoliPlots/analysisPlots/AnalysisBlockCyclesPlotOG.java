@@ -878,7 +878,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         if (blockMode) {
             for (int i = 0; i < mapBlockIdToBlockCyclesRecord.size(); i++) {
                 int blockID = i + 1;
-                PlotBlockCyclesRecord plotBlockCyclesRecord = mapBlockIdToBlockCyclesRecord.get(blockID).performChauvenets();
+                PlotBlockCyclesRecord plotBlockCyclesRecord = mapBlockIdToBlockCyclesRecord.get(blockID).performChauvenets(analysis.getParameters());
                 mapBlockIdToBlockCyclesRecord.put(blockID, plotBlockCyclesRecord);
                 analysis.getMapOfBlockIdToRawDataLiteOne().put(blockID,
                         analysis.getMapOfBlockIdToRawDataLiteOne().get(i + 1).recordChauvenets(userFunction, plotBlockCyclesRecord.cyclesIncluded()));
@@ -893,7 +893,10 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             boolean[] cycleModeIncluded = analysisStatsRecord.cycleModeIncluded();
             double[] cycleModeData = analysisStatsRecord.cycleModeData();
 //            if (Booleans.countTrue(cycleModeIncluded) == cycleModeIncluded.length) {
-                boolean[] chauvenets = applyChauvenetsCriterion(cycleModeData, cycleModeIncluded);
+                boolean[] chauvenets = applyChauvenetsCriterion(
+                        cycleModeData,
+                        cycleModeIncluded,
+                        analysis.getParameters());
                 // reset included cycles for each block
                 BlockStatsRecord[] blockStatsRecords = analysisStatsRecord.blockStatsRecords();
                 int countOfProcessedCycles = 0;
