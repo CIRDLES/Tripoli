@@ -94,6 +94,7 @@ public class MathUtilities {
         int requiredMinDatumCount = 20;
 
         boolean[] includedIndices = includedIndicesIn.clone();
+        // TODO: document changes that loosen chauvenet restrictions
         //if ((Booleans.countTrue(includedIndicesIn) == includedIndicesIn.length) && (includedIndicesIn.length >= requiredMinDatumCount)) {
         if ((Booleans.countTrue(includedIndices) >= requiredMinDatumCount)) {
             DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics();

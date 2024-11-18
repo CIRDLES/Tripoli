@@ -4,6 +4,7 @@ import jakarta.xml.bind.JAXBException;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
@@ -169,4 +170,6 @@ public interface AnalysisInterface {
     String prepareFractionForClipboardExport();
 
     void setAnalysisStartTime(String s);
+
+    List<UserFunction> getUserFunctions();
 }

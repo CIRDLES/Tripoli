@@ -34,7 +34,7 @@ import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.gen
 /**
  * Ported from OG Tripoli; based on Bowring's ValueModel
  */
-public class MeasuredUserFunctionModel implements Comparable, Serializable, XMLSerializerInterface {
+public class MeasuredUserFunction implements Comparable, Serializable, XMLSerializerInterface {
     private String name;
     private double value;
     private String uncertaintyType;
@@ -42,15 +42,15 @@ public class MeasuredUserFunctionModel implements Comparable, Serializable, XMLS
     private boolean fracCorr; // fractionation corrected by Tripoli
     private boolean oxideCorr; // oxide corrected by Tripoli
 
-    public MeasuredUserFunctionModel() {
+    public MeasuredUserFunction() {
     }
 
-    public MeasuredUserFunctionModel(
+    public MeasuredUserFunction(
             String name) {
         this(name, 0, 0, false, false);
     }
 
-    public MeasuredUserFunctionModel(
+    public MeasuredUserFunction(
             String name, double value, double oneSigma, boolean fracCorr, boolean oxideCorr) {
         this.name = name;
         this.value = value;
@@ -191,7 +191,7 @@ public class MeasuredUserFunctionModel implements Comparable, Serializable, XMLS
     @Override
     public void customizeXstream(XStream xstream) {
         xstream.registerConverter(new MeasuredRatioModelXMLConverter());
-        xstream.alias("MeasuredUserFunctionModel", MeasuredUserFunctionModel.class);
+        xstream.alias("MeasuredUserFunctionModel", MeasuredUserFunction.class);
     }
 
     /**
@@ -200,8 +200,8 @@ public class MeasuredUserFunctionModel implements Comparable, Serializable, XMLS
      */
     @Override
     public int compareTo(@NotNull Object o) {
-        if (o instanceof MeasuredUserFunctionModel) {
-            return (name + value).compareTo(((MeasuredUserFunctionModel) o).name + ((MeasuredUserFunctionModel) o).value);
+        if (o instanceof MeasuredUserFunction) {
+            return (name + value).compareTo(((MeasuredUserFunction) o).name + ((MeasuredUserFunction) o).value);
         } else return 0;
     }
 
@@ -209,7 +209,7 @@ public class MeasuredUserFunctionModel implements Comparable, Serializable, XMLS
     public boolean equals(Object o) {
         if (this == o) return true;
         if (null == o || getClass() != o.getClass()) return false;
-        MeasuredUserFunctionModel that = (MeasuredUserFunctionModel) o;
+        MeasuredUserFunction that = (MeasuredUserFunction) o;
         return 0 == Double.compare(value, that.value)
                 && 0 == Double.compare(oneSigma, that.oneSigma)
                 && fracCorr == that.fracCorr
