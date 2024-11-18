@@ -26,6 +26,7 @@ import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
+import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioPlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioRecord;
@@ -132,6 +133,9 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     private String meanHexColorString;
     // END Block Stats color hex
 
+    // Parameters
+    private Parameters analysisParameters;
+
     private Analysis() {
     }
 
@@ -140,9 +144,13 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
                        String analysisSampleName) throws TripoliException {
         this.analysisName = analysisName;
         try {
+            TripoliPersistentState persistentState = TripoliPersistentState.getExistingPersistentState();
             this.analysisMapOfSpeciesToColors =
                     new TripoliSpeciesColorMap(
-                            TripoliPersistentState.getExistingPersistentState().getMapOfSpeciesToColors());// Default if not added
+                            persistentState.getMapOfSpeciesToColors());// Default if not added
+            this.analysisParameters =
+                    persistentState.getTripoliPersistentParameters().copy();
+
         } catch (TripoliException e) {
             e.printStackTrace();
         }
@@ -803,7 +811,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     // TODO: Merge Multiple setters (check line 621, public void setAnalysisMethod(AnalysisMethod analysisMethod))
     @Override
     public void setMethod(AnalysisMethod analysisMethod) {
-        // Will use this method to initialize mapOfSpeciesToColors
         this.analysisMethod = analysisMethod;
     }
 
@@ -812,6 +819,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         setAnalysisMapOfSpeciesToColors(
                 new TripoliSpeciesColorMap(session.getSessionDefaultMapOfSpeciesToColors()));
         this.parentSession = session;
+        this.analysisParameters = session.getSessionDefaultParameters().copy();
         this.sessionDefaultMapOfSpeciesToColors = session.getSessionDefaultMapOfSpeciesToColors();
         setTwoSigmaHexColorString(session.getTwoSigmaHexColorString());
         setOneSigmaHexColorString(session.getOneSigmaHexColorString());

@@ -16,6 +16,16 @@ public class Parameters implements Serializable {
         this.requiredMinDatumCount = CHAUVENETS_DEFAULT_MIN_DATUM_COUNT;
     }
 
+    // Copy Constructor
+    public Parameters(Parameters other) {
+        this.chauvenetRejectionProbability = other.getChauvenetRejectionProbability();
+        this.requiredMinDatumCount = other.getRequiredMinDatumCount();
+    }
+
+    // Provides a deep copy of this instance
+    public Parameters copy() {
+        return new Parameters(this);
+    }
 
     public double getChauvenetRejectionProbability() {
         return chauvenetRejectionProbability;

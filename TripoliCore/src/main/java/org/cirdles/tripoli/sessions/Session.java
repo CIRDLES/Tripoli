@@ -81,7 +81,7 @@ public class Session implements Serializable {
 //        session.addAnalysis(initializeNewAnalysis(1));
         try {
             TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
-            session.sessionDefaultParameters = tripoliPersistentState.getTripoliPersistentParameters();
+            session.sessionDefaultParameters = tripoliPersistentState.getTripoliPersistentParameters().copy();
             session.sessionDefaultMapOfSpeciesToColors = tripoliPersistentState.getMapOfSpeciesToColors();
             session.twoSigmaHexColorString = tripoliPersistentState.getTwoSigmaHexColorString();
             session.oneSigmaHexColorString = tripoliPersistentState.getOneSigmaHexColorString();
@@ -97,7 +97,7 @@ public class Session implements Serializable {
         Session session = new Session(sessionName);
         try {
             TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
-            session.sessionDefaultParameters = tripoliPersistentState.getTripoliPersistentParameters();
+            session.sessionDefaultParameters = tripoliPersistentState.getTripoliPersistentParameters().copy();
             session.sessionDefaultMapOfSpeciesToColors = tripoliPersistentState.getMapOfSpeciesToColors();
             session.twoSigmaHexColorString = tripoliPersistentState.getTwoSigmaHexColorString();
             session.oneSigmaHexColorString = tripoliPersistentState.getOneSigmaHexColorString();
@@ -135,10 +135,6 @@ public class Session implements Serializable {
         return sessionDefaultMapOfSpeciesToColors;
     }
 
-    public void setSessionDefaultMapOfSpeciesToColors(TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors) {
-        this.sessionDefaultMapOfSpeciesToColors = sessionDefaultMapOfSpeciesToColors;
-    }
-
     public String getAnalystName() {
         return analystName;
     }
@@ -159,9 +155,6 @@ public class Session implements Serializable {
         return mapOfAnalyses;
     }
 
-    public void setMapOfAnalyses(Map<String, AnalysisInterface> mapOfAnalyses) {
-        this.mapOfAnalyses = (TripoliSessionAnalysisMap) mapOfAnalyses;
-    }
 
     public String getSessionNotes() {
         return sessionNotes;
@@ -181,10 +174,6 @@ public class Session implements Serializable {
 
     public Parameters getSessionDefaultParameters() {
         return sessionDefaultParameters;
-    }
-
-    public void setSessionDefaultParameters(Parameters sessionDefaultParameters) {
-        this.sessionDefaultParameters = sessionDefaultParameters;
     }
 
     public String getTwoSigmaHexColorString() {

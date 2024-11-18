@@ -248,9 +248,6 @@ public class TripoliPersistentState implements Serializable {
         return meanHexColorString;
     }
 
-    public void setTripoliPersistentParameters(Parameters tripoliPersistentParameters) {
-        this.tripoliPersistentParameters = tripoliPersistentParameters;
-    }
 
     public void updateTripoliPersistentState() {
         serializeSelf();
