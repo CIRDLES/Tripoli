@@ -112,7 +112,7 @@
                                  </font>
                               </Label>
                               <Region prefHeight="36.0" prefWidth="78.0" />
-                              <TextField fx:id="chauvenetRejectionProbabilityTextField" alignment="CENTER" prefHeight="25.0" prefWidth="100.0" />
+                              <Spinner fx:id="chauvenetRejectionProbabilitySpinner" prefHeight="25.0" prefWidth="100.0" />
                            </children>
                         </HBox>
                         <HBox alignment="CENTER_LEFT" layoutX="17.0" layoutY="131.0" prefHeight="36.0" prefWidth="521.0">
@@ -123,7 +123,7 @@
                                  </font>
                               </Label>
                               <Region prefHeight="36.0" prefWidth="78.0" />
-                              <TextField fx:id="chauvenetMinimumDatumCountTextField" alignment="CENTER" prefHeight="25.0" prefWidth="100.0" />
+                              <Spinner fx:id="chauvenetMinimumDatumCountSpinner" prefHeight="25.0" prefWidth="100.0" />
                            </children>
                         </HBox>
                      </children></AnchorPane>
