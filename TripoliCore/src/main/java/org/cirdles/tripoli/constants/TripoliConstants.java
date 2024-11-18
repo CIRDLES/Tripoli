@@ -86,6 +86,10 @@ public enum TripoliConstants {
                     "#5272bd" ,"#9e6fb1" ,"#4d3656" ,"#608f4d" ,"#b1c9a9" ,"#baff78" ,"#6e9747" ,
                     "#440087" ,"#9167b7" ,"#ffa056" ,"#b2703c" ,"#005ea9" ,"#4c8fc3" });
 
+    // Chauvenet's parameter defaults
+    public static final double CHAUVENETS_DEFAULT_REJECT_PROBABILITY = 0.5;
+    public static final int CHAUVENETS_DEFAULT_MIN_DATUM_COUNT = 20;
+    // END Chauvenet's parameter defaults
 
     public enum DetectorPlotFlavor {
 
