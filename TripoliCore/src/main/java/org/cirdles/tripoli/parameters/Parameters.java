@@ -16,6 +16,7 @@ public class Parameters implements Serializable {
         this.requiredMinDatumCount = CHAUVENETS_DEFAULT_MIN_DATUM_COUNT;
     }
 
+
     public double getChauvenetRejectionProbability() {
         return chauvenetRejectionProbability;
     }
