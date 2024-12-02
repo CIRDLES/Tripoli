@@ -29,6 +29,7 @@ import javafx.stage.WindowEvent;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController;
+import org.cirdles.tripoli.gui.settings.SettingsRequestType;
 import org.cirdles.tripoli.gui.settings.SettingsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.SettingsButton;
@@ -350,7 +351,8 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
             SettingsWindow settingsWindow =
                     SettingsWindow.requestSettingsWindow(getScene().getWindow(),
                             PlotWallPane.getRepaintDelegateActionSet(),
-                            OGTripoliViewController.analysis);
+                            OGTripoliViewController.analysis,
+                            SettingsRequestType.INTENSITIES);
             settingsWindow.show();
         });
         scaleControlsToolbar.getItems().add(settingsButton);

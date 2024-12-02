@@ -43,4 +43,8 @@ public class DelegateActionSet {
         this.actionSet.clear();
     }
 
+    public int size() { return this.actionSet.size(); }
+
+    public boolean isEmpty() { return this.actionSet.isEmpty(); }
+
 }

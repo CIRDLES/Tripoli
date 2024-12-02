@@ -38,6 +38,7 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
+import org.cirdles.tripoli.gui.settings.SettingsRequestType;
 import org.cirdles.tripoli.gui.settings.SettingsWindow;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
@@ -530,7 +531,11 @@ public class TripoliGUIController implements Initializable {
 
     public void parameterControlMenuItemOnAction() {
         SettingsWindow settingsWindow =
-                SettingsWindow.requestSettingsWindow(primaryStage, new DelegateActionSet(), analysis);
+                SettingsWindow.requestSettingsWindow(
+                        primaryStage,
+                        new DelegateActionSet(),
+                        analysis,
+                        SettingsRequestType.MENU_ITEM);
         settingsWindow.show();
     }
 

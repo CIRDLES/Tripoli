@@ -35,6 +35,7 @@ import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotI;
+import org.cirdles.tripoli.gui.settings.SettingsRequestType;
 import org.cirdles.tripoli.gui.settings.SettingsWindow;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.SettingsButton;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
@@ -377,7 +378,8 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
             SettingsWindow settingsWindow =
                     SettingsWindow.requestSettingsWindow(getScene().getWindow(),
                             repaintDelegateActionSet,
-                            analysis);
+                            analysis,
+                            SettingsRequestType.RATIOS);
             settingsWindow.show();
         });
         scaleControlsToolbar.getItems().add(settingsGearButton);

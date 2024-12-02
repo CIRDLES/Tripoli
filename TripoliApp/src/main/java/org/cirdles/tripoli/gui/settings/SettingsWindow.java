@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -94,20 +95,22 @@ public class SettingsWindow {
             settingsWindowController.getPlotIntensitiesAnchorPaneExp().getChildren().add(
                     speciesIntensityColorSelectionScrollPane
             );
-            for (SpeciesRecordInterface speciesRecordInterface : analysis.getAnalysisMethod().getSpeciesList()) {
-                Region region = new Region();
-                region.setPrefHeight(20);
-                settingsWindowController.getPlotIntensitiesVBox().getChildren().add(
-                        region
-                );
-                IsotopePaneRow row =
-                        new IsotopePaneRow(
-                                speciesRecordInterface,
-                                ((Analysis) analysis).getAnalysisMapOfSpeciesToColors(),
-                                PlotWallPaneIntensities.getDelegateActionSet(),
-                                35);
-                isotopePaneRows.add(row);
-                settingsWindowController.getPlotIntensitiesVBox().getChildren().add(row);
+            if (analysis.getAnalysisMethod() != null && analysis.getAnalysisMethod().getSpeciesList() != null) {
+                for (SpeciesRecordInterface speciesRecordInterface : analysis.getAnalysisMethod().getSpeciesList()) {
+                    Region region = new Region();
+                    region.setPrefHeight(20);
+                    settingsWindowController.getPlotIntensitiesVBox().getChildren().add(
+                            region
+                    );
+                    IsotopePaneRow row =
+                            new IsotopePaneRow(
+                                    speciesRecordInterface,
+                                    ((Analysis) analysis).getAnalysisMapOfSpeciesToColors(),
+                                    PlotWallPaneIntensities.getDelegateActionSet(),
+                                    35);
+                    isotopePaneRows.add(row);
+                    settingsWindowController.getPlotIntensitiesVBox().getChildren().add(row);
+                }
             }
             initParameterTextFields();
         } catch (IOException | TripoliException e) {
@@ -201,7 +204,8 @@ public class SettingsWindow {
     public static SettingsWindow requestSettingsWindow(
             Window owner,
             DelegateActionSet delegateActionSet,
-            AnalysisInterface analysis) {
+            AnalysisInterface analysis,
+            SettingsRequestType requestType) {
         if (instance == null) {
             instance = new SettingsWindow(owner, delegateActionSet, analysis);
         }
@@ -210,6 +214,32 @@ public class SettingsWindow {
                 !delegateActionSet.equals(instance.repaintRatiosDelegateActionSet)) {
             instance.close();
             instance = new SettingsWindow(owner, delegateActionSet, analysis);
+        }
+        instance.settingsWindowController.getSettingsTabPane().requestFocus();
+        switch (SettingsRequestType.valueOf(requestType.name())) {
+            case RATIOS -> {
+                instance.settingsWindowController.getSettingsTabPane().getSelectionModel().select(
+                        instance.settingsWindowController.getRatiosColorTab()
+                );
+            }
+            case INTENSITIES -> {
+                instance.settingsWindowController.getSettingsTabPane().getSelectionModel().select(
+                        instance.settingsWindowController.getIntensitiesColorTab()
+                );
+            }
+            case MENU_ITEM -> {
+                instance.settingsWindowController.getSettingsTabPane().getSelectionModel().select(
+                        instance.settingsWindowController.getParameterControlTab()
+                );
+                if (instance.analysis.getAnalysisMethod() == null || instance.repaintRatiosDelegateActionSet.isEmpty()) {
+                    instance.settingsWindowController.getSettingsTabPane().getTabs().remove(
+                            instance.settingsWindowController.getRatiosColorTab()
+                    );
+                    instance.settingsWindowController.getSettingsTabPane().getTabs().remove(
+                            instance.settingsWindowController.getIntensitiesColorTab()
+                    );
+                }
+            }
         }
         return instance;
     }

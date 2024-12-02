@@ -37,13 +37,15 @@ public class SpeciesColorSelectionScrollPane extends ScrollPane {
         this.analysis = analysis;
         this.delegateActionSet = delegateActionSet;
         speciesIntensityColorSelectionPanes = new ArrayList<>();
-        for (SpeciesRecordInterface speciesRecordInterface: analysis.getAnalysisMethod().getSpeciesList()) {
-            SpeciesIntensityColorSelectionPane pane = new SpeciesIntensityColorSelectionPane(speciesRecordInterface,
-                    analysis.getAnalysisMapOfSpeciesToColors(),
-                    delegateActionSet,
-                           140); // TODO: make this more robust to deal with minimum sized fonts
-            paneVBox.getChildren().add(pane);
-            speciesIntensityColorSelectionPanes.add(pane);
+        if (analysis.getAnalysisMethod() != null && analysis.getAnalysisMethod().getSpeciesList() != null) {
+            for (SpeciesRecordInterface speciesRecordInterface: analysis.getAnalysisMethod().getSpeciesList()) {
+                SpeciesIntensityColorSelectionPane pane = new SpeciesIntensityColorSelectionPane(speciesRecordInterface,
+                        analysis.getAnalysisMapOfSpeciesToColors(),
+                        delegateActionSet,
+                        140); // TODO: make this more robust to deal with minimum sized fonts
+                paneVBox.getChildren().add(pane);
+                speciesIntensityColorSelectionPanes.add(pane);
+            }
         }
     }
 
