@@ -1,9 +1,9 @@
 package org.cirdles.tripoli.utilities.collections;
 
-public class CircularArray<T> {
+public class FixedLengthCircularQueue<T> {
     private final T[] array;
 
-    public CircularArray(T[] values) {
+    public FixedLengthCircularQueue(T[] values) {
         this.array = values;
     }
 

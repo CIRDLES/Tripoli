@@ -5,6 +5,7 @@ import jxl.Workbook;
 import jxl.read.biff.BiffException;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
+import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
@@ -37,6 +38,16 @@ public interface AnalysisInterface {
 
     static Analysis initializeNewAnalysis(int suffix) throws TripoliException {
         return new Analysis("New Analysis" + "_" + (suffix), null, MISSING_STRING_FIELD);
+    }
+
+    static Analysis convertToAnalysis(AnalysisInterface analysis) throws TripoliException {
+        Analysis result;
+        if (analysis instanceof Analysis) {
+            result = (Analysis) analysis;
+        } else {
+            result = new Analysis(analysis.getAnalysisName(), analysis.getAnalysisMethod(), analysis.getAnalysisSampleName());
+        }
+        return result;
     }
 
     static MassSpectrometerContextEnum determineMassSpectrometerContextFromDataFile(Path dataFilePath) throws IOException {
@@ -160,6 +171,19 @@ public interface AnalysisInterface {
     Map<Integer, List<EnsemblesStore.EnsembleRecord>> getMapBlockIDToEnsembles();
 
     Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount();
+
+    String getTwoSigmaHexColorString();
+    String getOneSigmaHexColorString();
+    String getTwoStandardErrorHexColorString();
+    String getMeanHexColorString();
+
+
+    void setOneSigmaHexColorString(String hexColor);
+    void setTwoSigmaHexColorString(String hexColor);
+    void setTwoStandardErrorHexColorString(String hexColor);
+    void setMeanHexColorString(String hexColor);
+
+    Parameters getParameters();
 
     void resetAnalysis();
 

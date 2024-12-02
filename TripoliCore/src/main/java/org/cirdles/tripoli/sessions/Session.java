@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.sessions;
 
 import jakarta.xml.bind.JAXBException;
+import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.utilities.collections.TripoliSessionAnalysisMap;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
@@ -47,7 +48,14 @@ public class Session implements Serializable {
     private TripoliSessionAnalysisMap mapOfAnalyses;
     private boolean mutable;
     private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
+    private Parameters sessionDefaultParameters;
 
+    // Color Strings for ratio plots
+    private String twoSigmaHexColorString;
+    private String oneSigmaHexColorString;
+    private String twoStdErrHexColorString;
+    private String meanHexColorString;
+    // END OF ratio plot Color Strings
 
     private Session() {
         this("New Session");
@@ -72,8 +80,13 @@ public class Session implements Serializable {
         Session session = new Session();
 //        session.addAnalysis(initializeNewAnalysis(1));
         try {
-            session.sessionDefaultMapOfSpeciesToColors =
-                    TripoliPersistentState.getExistingPersistentState().getMapOfSpeciesToColors();
+            TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+            session.sessionDefaultParameters = tripoliPersistentState.getTripoliPersistentParameters().copy();
+            session.sessionDefaultMapOfSpeciesToColors = tripoliPersistentState.getMapOfSpeciesToColors();
+            session.twoSigmaHexColorString = tripoliPersistentState.getTwoSigmaHexColorString();
+            session.oneSigmaHexColorString = tripoliPersistentState.getOneSigmaHexColorString();
+            session.twoStdErrHexColorString = tripoliPersistentState.getTwoStdErrHexColorString();
+            session.meanHexColorString = tripoliPersistentState.getMeanHexColorString();
         } catch (TripoliException e) {
             e.printStackTrace();
         }
@@ -83,8 +96,13 @@ public class Session implements Serializable {
     public static Session initializeSession(String sessionName) {
         Session session = new Session(sessionName);
         try {
-            session.sessionDefaultMapOfSpeciesToColors =
-                    TripoliPersistentState.getExistingPersistentState().getMapOfSpeciesToColors();
+            TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+            session.sessionDefaultParameters = tripoliPersistentState.getTripoliPersistentParameters().copy();
+            session.sessionDefaultMapOfSpeciesToColors = tripoliPersistentState.getMapOfSpeciesToColors();
+            session.twoSigmaHexColorString = tripoliPersistentState.getTwoSigmaHexColorString();
+            session.oneSigmaHexColorString = tripoliPersistentState.getOneSigmaHexColorString();
+            session.twoStdErrHexColorString = tripoliPersistentState.getTwoStdErrHexColorString();
+            session.meanHexColorString = tripoliPersistentState.getMeanHexColorString();
         } catch (TripoliException e) {
             e.printStackTrace();
         }
@@ -117,10 +135,6 @@ public class Session implements Serializable {
         return sessionDefaultMapOfSpeciesToColors;
     }
 
-    public void setSessionDefaultMapOfSpeciesToColors(TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors) {
-        this.sessionDefaultMapOfSpeciesToColors = sessionDefaultMapOfSpeciesToColors;
-    }
-
     public String getAnalystName() {
         return analystName;
     }
@@ -141,9 +155,6 @@ public class Session implements Serializable {
         return mapOfAnalyses;
     }
 
-    public void setMapOfAnalyses(Map<String, AnalysisInterface> mapOfAnalyses) {
-        this.mapOfAnalyses = (TripoliSessionAnalysisMap) mapOfAnalyses;
-    }
 
     public String getSessionNotes() {
         return sessionNotes;
@@ -159,6 +170,42 @@ public class Session implements Serializable {
 
     public void setMutable(boolean mutable) {
         this.mutable = mutable;
+    }
+
+    public Parameters getSessionDefaultParameters() {
+        return sessionDefaultParameters;
+    }
+
+    public String getTwoSigmaHexColorString() {
+        return twoSigmaHexColorString;
+    }
+
+    public String getOneSigmaHexColorString() {
+        return oneSigmaHexColorString;
+    }
+
+    public String getTwoStdErrHexColorString() {
+        return twoStdErrHexColorString;
+    }
+
+    public String getMeanHexColorString() {
+        return meanHexColorString;
+    }
+
+    public void setTwoSigmaHexColorString(String twoSigmaHexColorString) {
+        this.twoSigmaHexColorString = twoSigmaHexColorString;
+    }
+
+    public void setOneSigmaHexColorString(String oneSigmaHexColorString) {
+        this.oneSigmaHexColorString = oneSigmaHexColorString;
+    }
+
+    public void setTwoStdErrHexColorString(String twoStdErrHexColorString) {
+        this.twoStdErrHexColorString = twoStdErrHexColorString;
+    }
+
+    public void setMeanHexColorString(String meanHexColorString) {
+        this.meanHexColorString = meanHexColorString;
     }
 
     /**

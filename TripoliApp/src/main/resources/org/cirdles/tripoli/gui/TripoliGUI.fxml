@@ -16,64 +16,52 @@
  * limitations under the License.
 -->
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" prefHeight="725.0" prefWidth="1250.0" stylesheets="@css/tripoli.css"
-      xmlns="http://javafx.com/javafx/17" fx:controller="org.cirdles.tripoli.gui.TripoliGUIController">
+<?import javafx.scene.text.*?>
+
+<VBox prefHeight="725.0" prefWidth="1250.0" stylesheets="@css/tripoli.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.TripoliGUIController">
     <MenuBar prefHeight="17.0" prefWidth="1234.0" VBox.vgrow="NEVER">
         <Menu mnemonicParsing="false" text="Session">
-            <MenuItem fx:id="sessionManagerMenuItem" mnemonicParsing="false" onAction="#sessionManagerMenuItemAction"
-                      text="Manage Session"/>
-            <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem fx:id="newSessionMenuItem" mnemonicParsing="false" onAction="#newSessionMenuItemAction"
-                      text="New Session"/>
-            <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem fx:id="openSessionMenuItem" mnemonicParsing="false" onAction="#openSessionMenuItemAction"
-                      text="Open Session"/>
-            <Menu fx:id="openRecentSessionMenu" mnemonicParsing="false" text="Open Recent Session"/>
-            <MenuItem mnemonicParsing="false" onAction="#openDemonstrationSessionMenuItemAction"
-                      text="Open Demonstration Session"/>
-            <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem fx:id="saveSessionMenuItem" mnemonicParsing="false" onAction="#saveSessionMenuItemAction"
-                      text="Save  Session"/>
-            <MenuItem fx:id="saveSessionAsMenuItem" mnemonicParsing="false" onAction="#saveSessionAsMenuItemAction"
-                      text="Save  Session as ..."/>
-            <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem fx:id="closeSessionMenuItem" mnemonicParsing="false" onAction="#closeSessionMenuItemAction"
-                      text="Close  Session"/>
-            <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem mnemonicParsing="false" onAction="#quitAction" text="Quit"/>
+            <MenuItem fx:id="sessionManagerMenuItem" mnemonicParsing="false" onAction="#sessionManagerMenuItemAction" text="Manage Session" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem fx:id="newSessionMenuItem" mnemonicParsing="false" onAction="#newSessionMenuItemAction" text="New Session" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem fx:id="openSessionMenuItem" mnemonicParsing="false" onAction="#openSessionMenuItemAction" text="Open Session" />
+            <Menu fx:id="openRecentSessionMenu" mnemonicParsing="false" text="Open Recent Session" />
+            <MenuItem mnemonicParsing="false" onAction="#openDemonstrationSessionMenuItemAction" text="Open Demonstration Session" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem fx:id="saveSessionMenuItem" mnemonicParsing="false" onAction="#saveSessionMenuItemAction" text="Save  Session" />
+            <MenuItem fx:id="saveSessionAsMenuItem" mnemonicParsing="false" onAction="#saveSessionAsMenuItemAction" text="Save  Session as ..." />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem fx:id="closeSessionMenuItem" mnemonicParsing="false" onAction="#closeSessionMenuItemAction" text="Close  Session" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" onAction="#quitAction" text="Quit" />
         </Menu>
         <Menu fx:id="analysisMenu" mnemonicParsing="false" text="Analysis">
-            <MenuItem fx:id="manageAnalysisMenuItem" mnemonicParsing="false" onAction="#manageAnalysisMenuItemAction"
-                      text="Manage Analysis" visible="false"/>
-            <MenuItem mnemonicParsing="false" onAction="#newAnalysisMenuItemOnAction" text="New Analysis"/>
-            <MenuItem disable="true" mnemonicParsing="false" text="Import Analysis"/>
-            <MenuItem disable="true" mnemonicParsing="false" text="Export Analysis"/>
-            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem fx:id="manageAnalysisMenuItem" mnemonicParsing="false" onAction="#manageAnalysisMenuItemAction" text="Manage Analysis" visible="false" />
+            <MenuItem mnemonicParsing="false" onAction="#newAnalysisMenuItemOnAction" text="New Analysis" />
+            <MenuItem disable="true" mnemonicParsing="false" text="Import Analysis" />
+            <MenuItem disable="true" mnemonicParsing="false" text="Export Analysis" />
+            <SeparatorMenuItem mnemonicParsing="false" />
         </Menu>
-        <Menu fx:id="parametersMenu" disable="true" mnemonicParsing="false" text="Parameters">
-            <MenuItem mnemonicParsing="false" text="Tracer Models"/>
+        <Menu fx:id="parametersMenu" mnemonicParsing="false" text="Parameters">
+            <MenuItem fx:id="parameterControlMenuItem" mnemonicParsing="false" onAction="#parameterControlMenuItemOnAction" text="Parameter Control" />
         </Menu>
         <Menu fx:id="reportsMenu" mnemonicParsing="false" text="Reports">
             <items>
-                <MenuItem mnemonicParsing="false" text="Report Builder"/>
+                <MenuItem mnemonicParsing="false" text="Report Builder" />
                 <Menu mnemonicParsing="false" text="Builtin Reports">
                     <items>
-                        <MenuItem mnemonicParsing="false" onAction="#etReduxExportAction" text="ET_Redux Export"/>
-                        <MenuItem mnemonicParsing="false" onAction="#clipboardExportAction" text="Clipboard Export"/>
+                        <MenuItem mnemonicParsing="false" onAction="#etReduxExportAction" text="ET_Redux Export" />
+                        <MenuItem mnemonicParsing="false" onAction="#clipboardExportAction" text="Clipboard Export" />
                         <Menu mnemonicParsing="false" text="Analysis Reports">
                             <items>
-                                <MenuItem mnemonicParsing="false" onAction="#generateMCMCDetailsPerBlockAction"
-                                          text="Generate  MCMC details per block"/>
-                                <MenuItem mnemonicParsing="false" onAction="#generateMCMCVectorsPerBlockAction"
-                                          text="Generate  MCMC vectors per block"/>
-                                <MenuItem mnemonicParsing="false" onAction="#reportTemplateOneAction"
-                                          text="Generate Report  using Template 1"/>
+                                <MenuItem mnemonicParsing="false" onAction="#generateMCMCDetailsPerBlockAction" text="Generate  MCMC details per block" />
+                                <MenuItem mnemonicParsing="false" onAction="#generateMCMCVectorsPerBlockAction" text="Generate  MCMC vectors per block" />
+                                <MenuItem mnemonicParsing="false" onAction="#reportTemplateOneAction" text="Generate Report  using Template 1" />
                             </items>
                         </Menu>
                     </items>
@@ -81,69 +69,53 @@
             </items>
         </Menu>
         <Menu mnemonicParsing="false" text="Resources">
-            <MenuItem mnemonicParsing="false" onAction="#showPeriodicTable" text="Periodic Table"/>
+            <MenuItem mnemonicParsing="false" onAction="#showPeriodicTable" text="Periodic Table" />
         </Menu>
         <Menu mnemonicParsing="false" text="About">
-            <MenuItem mnemonicParsing="false" onAction="#showTripoliAbout" text="About Tripoli"/>
-            <MenuItem mnemonicParsing="false" onAction="#showTripoliGitHubRepo" text="Tripoli GitHub Repository"/>
+            <MenuItem mnemonicParsing="false" onAction="#showTripoliAbout" text="About Tripoli" />
+            <MenuItem mnemonicParsing="false" onAction="#showTripoliGitHubRepo" text="Tripoli GitHub Repository" />
         </Menu>
         <Menu mnemonicParsing="false" text="Help">
-            <MenuItem mnemonicParsing="false" onAction="#showTripoliUserManual" text="Tripoli User Manual"/>
-            <MenuItem mnemonicParsing="false" onAction="#showTripoliContributeIssue"
-                      text="Contribute an Issue on Github"/>
-            <MenuItem mnemonicParsing="false" onAction="#showTripoliDiscussionsAction"
-                      text="Visit Tripoli Discussions on GitHub"/>
+            <MenuItem mnemonicParsing="false" onAction="#showTripoliUserManual" text="Tripoli User Manual" />
+            <MenuItem mnemonicParsing="false" onAction="#showTripoliContributeIssue" text="Contribute an Issue on Github" />
+            <MenuItem mnemonicParsing="false" onAction="#showTripoliDiscussionsAction" text="Visit Tripoli Discussions on GitHub" />
         </Menu>
         <Menu disable="true" mnemonicParsing="false" text="Demos" visible="false">
-            <MenuItem mnemonicParsing="false" onAction="#showDemo1" text="Demo1: RJ MMC for 2-isotope analysis"
-                      visible="false"/>
-            <MenuItem mnemonicParsing="false" onAction="#showDemo2" text="Demo: PeakShapes"/>
+            <MenuItem mnemonicParsing="false" onAction="#showDemo1" text="Demo1: RJ MMC for 2-isotope analysis" visible="false" />
+            <MenuItem mnemonicParsing="false" onAction="#showDemo2" text="Demo: PeakShapes" />
         </Menu>
     </MenuBar>
-    <AnchorPane fx:id="splashAnchor" prefHeight="673.0" prefWidth="900.0" style="-fx-background-color: #faf0e6;"
-                VBox.vgrow="ALWAYS">
-        <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                    AnchorPane.topAnchor="0.0">
+    <AnchorPane fx:id="splashAnchor" prefHeight="673.0" prefWidth="900.0" style="-fx-background-color: #faf0e6;" VBox.vgrow="ALWAYS">
+        <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <center>
                 <HBox fx:id="newVersionAnnounceHBox" alignment="CENTER" prefHeight="691.0" prefWidth="1234.0">
                     <VBox alignment="CENTER">
                         <opaqueInsets>
-                            <Insets/>
+                            <Insets />
                         </opaqueInsets>
                         <HBox.margin>
-                            <Insets/>
+                            <Insets />
                         </HBox.margin>
                         <ImageView fitHeight="247.0" fitWidth="246.0" pickOnBounds="true" preserveRatio="true">
-                            <Image url="@images/TripoliJune2022.png"/>
+                            <Image url="@images/TripoliJune2022.png" />
                         </ImageView>
-                        <Label alignment="CENTER" prefHeight="68.0" prefWidth="248.0"
-                               style="-fx-text-fill: black; -fx-font-size: 48; -fx-font-family: SansSerif;"
-                               text="Tripoli" textFill="#fffdfd"/>
-                        <Label fx:id="versionLabel" alignment="CENTER" layoutX="10.0" layoutY="256.0" prefHeight="35.0"
-                               prefWidth="248.0"
-                               style="-fx-text-fill: black; -fx-font-size: 24; -fx-font-family: SansSerif;"
-                               text="v1.0.0.0" textFill="#fffdfd"/>
-                        <Label fx:id="versionBuildDate" alignment="CENTER" layoutX="10.0" layoutY="414.0"
-                               prefHeight="24.0" prefWidth="248.0"
-                               style="-fx-text-fill: black; -fx-font-size: 16; -fx-font-family: SansSerif;"
-                               text="build date" textFill="#fffdfd"/>
+                        <Label alignment="CENTER" prefHeight="68.0" prefWidth="248.0" style="-fx-text-fill: black; -fx-font-size: 48; -fx-font-family: SansSerif;" text="Tripoli" textFill="#fffdfd" />
+                        <Label fx:id="versionLabel" alignment="CENTER" layoutX="10.0" layoutY="256.0" prefHeight="35.0" prefWidth="248.0" style="-fx-text-fill: black; -fx-font-size: 24; -fx-font-family: SansSerif;" text="v1.0.0.0" textFill="#fffdfd" />
+                        <Label fx:id="versionBuildDate" alignment="CENTER" layoutX="10.0" layoutY="414.0" prefHeight="24.0" prefWidth="248.0" style="-fx-text-fill: black; -fx-font-size: 16; -fx-font-family: SansSerif;" text="build date" textFill="#fffdfd" />
                     </VBox>
                 </HBox>
             </center>
             <bottom>
                 <HBox fx:id="latestVersionHBox" BorderPane.alignment="CENTER">
                     <children>
-                        <Label fx:id="newVersionLabel" alignment="CENTER_RIGHT" prefHeight="56.0" prefWidth="506.0"
-                               style="-fx-text-fill: red;" text="New Version v0.0.0 at: ">
+                        <Label fx:id="newVersionLabel" alignment="CENTER_RIGHT" prefHeight="56.0" prefWidth="506.0" style="-fx-text-fill: red;" text="New Version v0.0.0 at: ">
                             <font>
-                                <Font size="24.0"/>
+                                <Font size="24.0" />
                             </font>
                         </Label>
-                        <Hyperlink onAction="#visitLatestVersionAction" prefHeight="56.0" prefWidth="754.0"
-                                   style="-fx-border-color: transparent;"
-                                   text="https://github.com/CIRDLES/Tripoli/releases/latest">
+                        <Hyperlink onAction="#visitLatestVersionAction" prefHeight="56.0" prefWidth="754.0" style="-fx-border-color: transparent;" text="https://github.com/CIRDLES/Tripoli/releases/latest">
                             <font>
-                                <Font size="24.0"/>
+                                <Font size="24.0" />
                             </font>
                         </Hyperlink>
                     </children>

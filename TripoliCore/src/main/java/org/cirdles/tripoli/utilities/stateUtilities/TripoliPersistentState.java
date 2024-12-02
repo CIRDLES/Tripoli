@@ -17,6 +17,8 @@
  */
 package org.cirdles.tripoli.utilities.stateUtilities;
 
+import org.cirdles.tripoli.constants.TripoliConstants;
+import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
@@ -54,6 +56,14 @@ public class TripoliPersistentState implements Serializable {
     private String MRUExportFolderPath;
     private TripoliSpeciesColorMap mapOfSpeciesToColors;
     private Map<String, AnalysisMethodPersistance> mapMethodNamesToDefaults;
+    private Parameters tripoliPersistentParameters;
+
+    //  Ratio Stat plot colors
+    private String twoSigmaHexColorString;
+    private String oneSigmaHexColorString;
+    private String twoStdErrHexColorString;
+    private String meanHexColorString;
+    // END Ratio Stat plot colors
 
 //    private void readObject(ObjectInputStream stream) throws IOException,
 //            ClassNotFoundException {
@@ -98,6 +108,8 @@ public class TripoliPersistentState implements Serializable {
         mapOfSpeciesToColors = new TripoliSpeciesColorMap();
 
         mapMethodNamesToDefaults = new TreeMap<>();
+
+        tripoliPersistentParameters = new Parameters();
 
         serializeSelf();
     }
@@ -164,6 +176,14 @@ public class TripoliPersistentState implements Serializable {
     //properties
 
 
+    public Parameters getTripoliPersistentParameters() {
+        if (tripoliPersistentParameters == null) {
+            tripoliPersistentParameters = new Parameters();
+            serializeSelf();
+        }
+        return tripoliPersistentParameters;
+    }
+
     public Map<String, AnalysisMethodPersistance> getMapMethodNamesToDefaults() {
         if (mapMethodNamesToDefaults == null) {
             mapMethodNamesToDefaults = new TreeMap<>();
@@ -179,6 +199,55 @@ public class TripoliPersistentState implements Serializable {
         }
         return mapOfSpeciesToColors;
     }
+
+    public String getTwoSigmaHexColorString() {
+        if (twoSigmaHexColorString == null) {
+            twoSigmaHexColorString = TripoliConstants.OGTRIPOLI_TWOSIGMA_HEX;
+            serializeSelf();
+        }
+        return twoSigmaHexColorString;
+    }
+
+    public String getOneSigmaHexColorString() {
+        if (oneSigmaHexColorString == null) {
+            oneSigmaHexColorString = TripoliConstants.OGTRIPOLI_ONESIGMA_HEX;
+            serializeSelf();
+        }
+        return oneSigmaHexColorString;
+    }
+
+    public String getTwoStdErrHexColorString() {
+        if (twoStdErrHexColorString == null) {
+            twoStdErrHexColorString = TripoliConstants.OGTRIPOLI_TWOSTDERR_HEX;
+            serializeSelf();
+        }
+        return twoStdErrHexColorString;
+    }
+
+    public void setTwoSigmaHexColorString(String twoSigmaHexColorString) {
+        this.twoSigmaHexColorString = twoSigmaHexColorString;
+    }
+
+    public void setOneSigmaHexColorString(String oneSigmaHexColorString) {
+        this.oneSigmaHexColorString = oneSigmaHexColorString;
+    }
+
+    public void setTwoStdErrHexColorString(String twoStdErrHexColorString) {
+        this.twoStdErrHexColorString = twoStdErrHexColorString;
+    }
+
+    public void setMeanHexColorString(String meanHexColorString) {
+        this.meanHexColorString = meanHexColorString;
+    }
+
+    public String getMeanHexColorString() {
+        if (meanHexColorString == null) {
+            meanHexColorString = TripoliConstants.OGTRIPOLI_MEAN_HEX;
+            serializeSelf();
+        }
+        return meanHexColorString;
+    }
+
 
     public void updateTripoliPersistentState() {
         serializeSelf();
