@@ -50,7 +50,7 @@ public class RatioColorSelectionPane extends ScrollPane implements Initializable
         try {
             loader.load();
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace();// TODO: Logging
         }
         getOneSigmaSplotch().getDelegateActionSet().addDelegateActions(delegateActionSet);
         getOneSigmaSplotch().setHexColorSetter(analysis::setOneSigmaHexColorString);

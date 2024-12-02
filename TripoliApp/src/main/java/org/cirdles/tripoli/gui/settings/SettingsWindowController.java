@@ -1,23 +1,25 @@
 package org.cirdles.tripoli.gui.settings;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesColorSelectionRow;
-
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class SettingsWindowController implements Initializable {
 
-
     @FXML
-    private AnchorPane plotIntensitiesAnchorPane;
+    private TabPane settingsTabPane;
+    @FXML
+    private Tab ratiosColorTab;
+    @FXML
+    private Tab intensitiesColorTab;
+    @FXML
+    private Tab parameterControlTab;
     @FXML
     private Button saveAnalysisSettingsButton;
     @FXML
@@ -29,34 +31,17 @@ public class SettingsWindowController implements Initializable {
     @FXML
     private Button restoreUserDefaultsButton;
     @FXML
-    private ToolBar revertToolbar;
-    @FXML
-    private VBox vBoxRoot;
-    @FXML
-    private TabPane plotRatiosTabPane;
-    @FXML
     private AnchorPane ratioColorSelectionAnchorPane;
-
     @FXML
     private AnchorPane plotIntensitiesAnchorPaneExp;
-
     @FXML
     private VBox plotIntensitiesVBox;
-
-    @FXML
-    private ToolBar saveDefaultsToolbar;
-
-//    @FXML
-//    private Tab oldIntensityPlotTab;
     @FXML
     private Spinner<Double> chauvenetRejectionProbabilitySpinner;
     @FXML
     private Spinner<Integer> chauvenetMinimumDatumCountSpinner;
-
-
     @FXML
     private Label speciesHeader;
-
     @FXML
     private Button cancelButton;
 
@@ -65,22 +50,8 @@ public class SettingsWindowController implements Initializable {
         HBox.setMargin(speciesHeader, new Insets(0, 0, 0, 10));
     }
 
-    public VBox getvBoxRoot() {
-        return vBoxRoot;
-    }
-
-    public TabPane getPlotRatiosTabPane() {
-        return plotRatiosTabPane;
-    }
-
     public AnchorPane getRatioColorSelectionAnchorPane() {
         return ratioColorSelectionAnchorPane;
-    }
-
-    public AnchorPane getPlotIntensitiesAnchorPane() { return plotIntensitiesAnchorPane;}
-
-    public ToolBar getSaveDefaultsToolbar() {
-        return saveDefaultsToolbar;
     }
 
     public Button getSaveAnalysisSettingsButton() {
@@ -121,5 +92,21 @@ public class SettingsWindowController implements Initializable {
 
     public Spinner<Integer> getChauvenetMinimumDatumCountSpinner() {
         return chauvenetMinimumDatumCountSpinner;
+    }
+
+    public TabPane getSettingsTabPane() {
+        return settingsTabPane;
+    }
+
+    public Tab getRatiosColorTab() {
+        return ratiosColorTab;
+    }
+
+    public Tab getIntensitiesColorTab() {
+        return intensitiesColorTab;
+    }
+
+    public Tab getParameterControlTab() {
+        return parameterControlTab;
     }
 }

@@ -11,6 +11,7 @@ public class DelegateActionSet {
         actionSet = new HashSet<>();
     }
 
+
     public DelegateActionSet(DelegateActionInterface... actionInterfaces) {
         this.actionSet = new HashSet<>();
         actionSet.addAll(Arrays.asList(actionInterfaces));

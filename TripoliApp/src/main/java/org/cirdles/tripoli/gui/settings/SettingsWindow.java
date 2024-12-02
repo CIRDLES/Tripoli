@@ -1,20 +1,16 @@
 package org.cirdles.tripoli.gui.settings;
 
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
-import javafx.util.converter.DoubleStringConverter;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneIntensities;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.*;
@@ -58,31 +54,33 @@ public class SettingsWindow {
     private SettingsWindow(Window owner, DelegateActionSet delegateActionSet, AnalysisInterface analysis) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("SettingsWindow.fxml"));
         try {
-            stage = new Stage();
-            stage.setResizable(false);
+            this.stage = new Stage();
+            this.stage.setResizable(false);
+            this.stage.setScene(new Scene(fxmlLoader.load()));
             this.analysis = analysis;
-            this.originalParameters = analysis.getParameters().copy();
-            originalSpeciesColors = new TripoliSpeciesColorMap(
-                    ((Analysis) analysis).getAnalysisMapOfSpeciesToColors());
-            this.originalTwoSigmaHexColor = analysis.getTwoSigmaHexColorString();
-            this.originalOneSigmaHexColor = analysis.getOneSigmaHexColorString();
-            this.originalStdErrHexColor = analysis.getTwoStandardErrorHexColorString();
-            this.originalMeanHexColor = analysis.getMeanHexColorString();
-            this.isotopePaneRows = new ArrayList<>();
-            stage.setScene(new Scene(fxmlLoader.load()));
-            repaintRatiosDelegateActionSet = delegateActionSet;
-            settingsWindowController = fxmlLoader.getController();
-            settingsWindowController.getRatioColorSelectionAnchorPane().prefWidthProperty().bind(stage.widthProperty());
-            stage.initOwner(owner);
+            this.repaintRatiosDelegateActionSet = delegateActionSet;
+            this.settingsWindowController = fxmlLoader.getController();
+            this.settingsWindowController.getRatioColorSelectionAnchorPane().prefWidthProperty().bind(stage.widthProperty());
+            this.stage.initOwner(owner);
+            this.stage.setTitle("Settings");
+
             owner.xProperty().addListener((observable, oldValue, newValue) -> {
                 stage.setX(stage.getX() + newValue.doubleValue()- oldValue.doubleValue());
             });
             owner.yProperty().addListener((observable, oldValue, newValue) -> {
                 stage.setY(stage.getY() + newValue.doubleValue()- oldValue.doubleValue());
             });
-            ratioColorSelectionPane = new RatioColorSelectionPane(delegateActionSet, analysis);
-            settingsWindowController.getRatioColorSelectionAnchorPane().getChildren().clear();
-            settingsWindowController.getRatioColorSelectionAnchorPane().getChildren().add(
+            this.originalParameters = analysis.getParameters().copy();
+            this.originalSpeciesColors = new TripoliSpeciesColorMap(
+                    ((Analysis) analysis).getAnalysisMapOfSpeciesToColors());
+            this.originalTwoSigmaHexColor = analysis.getTwoSigmaHexColorString();
+            this.originalOneSigmaHexColor = analysis.getOneSigmaHexColorString();
+            this.originalStdErrHexColor = analysis.getTwoStandardErrorHexColorString();
+            this.originalMeanHexColor = analysis.getMeanHexColorString();
+            this.isotopePaneRows = new ArrayList<>();
+            this.ratioColorSelectionPane = new RatioColorSelectionPane(delegateActionSet, analysis);
+            this.settingsWindowController.getRatioColorSelectionAnchorPane().getChildren().clear();
+            this.settingsWindowController.getRatioColorSelectionAnchorPane().getChildren().add(
                     ratioColorSelectionPane
             );
             speciesColorSelectionScrollPane = SpeciesColorSelectionScrollPane.buildSpeciesColorSelectionScrollPane(
@@ -96,7 +94,6 @@ public class SettingsWindow {
             settingsWindowController.getPlotIntensitiesAnchorPaneExp().getChildren().add(
                     speciesIntensityColorSelectionScrollPane
             );
-            //  Experimental
             for (SpeciesRecordInterface speciesRecordInterface : analysis.getAnalysisMethod().getSpeciesList()) {
                 Region region = new Region();
                 region.setPrefHeight(20);
@@ -105,14 +102,13 @@ public class SettingsWindow {
                 );
                 IsotopePaneRow row =
                         new IsotopePaneRow(
-                        speciesRecordInterface,
-                        ((Analysis) analysis).getAnalysisMapOfSpeciesToColors(),
-                        PlotWallPaneIntensities.getDelegateActionSet(),
-                        35);
+                                speciesRecordInterface,
+                                ((Analysis) analysis).getAnalysisMapOfSpeciesToColors(),
+                                PlotWallPaneIntensities.getDelegateActionSet(),
+                                35);
                 isotopePaneRows.add(row);
                 settingsWindowController.getPlotIntensitiesVBox().getChildren().add(row);
             }
-            stage.setTitle("Settings");
             initParameterTextFields();
         } catch (IOException | TripoliException e) {
             e.printStackTrace();
@@ -129,8 +125,7 @@ public class SettingsWindow {
         probabilitySpinner.setValueFactory( new SpinnerValueFactory.DoubleSpinnerValueFactory(
                 0.0,
                 1.0,
-                analysis.getParameters().getChauvenetRejectionProbability(), 0.01));
-        probabilitySpinner.setEditable(true);
+                analysis.getParameters().getChauvenetRejectionProbability(), 0.05));
         probabilitySpinner.addEventFilter(KeyEvent.KEY_TYPED, event -> {
             String input = event.getCharacter();
             if (!input.matches("[0-9.]") || (input.equals(".") && probabilitySpinner.getEditor().getText().contains("."))) {
@@ -138,7 +133,6 @@ public class SettingsWindow {
             }
         });
         probabilitySpinner.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-
             probabilitySpinner.commitValue();
         });
         probabilitySpinner.getValueFactory().setConverter(new StringConverter<>() {
@@ -171,8 +165,7 @@ public class SettingsWindow {
                 20,
                 300,
                 analysis.getParameters().getRequiredMinDatumCount(),
-                1));
-        datumCountSpinner.setEditable(true);
+                5));
         datumCountSpinner.addEventFilter(KeyEvent.KEY_TYPED, event -> {
             String input = event.getCharacter();
             if (!input.matches("[0-9]")) {
@@ -212,7 +205,9 @@ public class SettingsWindow {
         if (instance == null) {
             instance = new SettingsWindow(owner, delegateActionSet, analysis);
         }
-        else if (!instance.stage.getOwner().equals(owner)) {
+        else if (!instance.stage.getOwner().equals(owner) ||
+                !analysis.equals(instance.analysis) ||
+                !delegateActionSet.equals(instance.repaintRatiosDelegateActionSet)) {
             instance.close();
             instance = new SettingsWindow(owner, delegateActionSet, analysis);
         }
@@ -311,7 +306,6 @@ public class SettingsWindow {
                     putAll(currentSession.getSessionDefaultMapOfSpeciesToColors());
             repaintRatiosDelegateActionSet.executeDelegateActions();
             updateRatioColorSelectionPane();
-//            close();
         });
         settingsWindowController.getRestoreUserDefaultsButton().setOnAction(e -> {
             try{

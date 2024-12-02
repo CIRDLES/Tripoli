@@ -8,14 +8,14 @@
 
 <VBox fx:id="vBoxRoot" prefHeight="543.0" prefWidth="536.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.settings.SettingsWindowController">
    <children>
-      <TabPane fx:id="plotRatiosTabPane" prefWidth="414.0">
+      <TabPane fx:id="settingsTabPane" prefWidth="414.0">
          <tabs>
-            <Tab closable="false" text="Ratios Color Control">
+            <Tab fx:id="ratiosColorTab" closable="false" text="Ratios Color Control">
                <content>
                   <AnchorPane fx:id="ratioColorSelectionAnchorPane" prefHeight="367.0" prefWidth="536.0" />
                </content>
             </Tab>
-            <Tab closable="false" text="Intensity/Residuals Color Control">
+            <Tab fx:id="intensitiesColorTab" closable="false" text="Intensity/Residuals Color Control">
                <content>
                   <AnchorPane fx:id="plotIntensitiesAnchorPaneExp" prefHeight="474.0" prefWidth="536.0">
                      <children>
