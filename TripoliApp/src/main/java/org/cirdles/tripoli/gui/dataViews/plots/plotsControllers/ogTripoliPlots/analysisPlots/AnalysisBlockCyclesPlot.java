@@ -47,7 +47,6 @@ import java.util.Arrays;
 import java.util.Map;
 
 import static java.lang.StrictMath.log;
-import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.RUN;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.SKIP;
 import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.generateGeometricMeanStats;
@@ -546,6 +545,11 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
         g2d.setLineWidth(1.5);
         g2d.strokeLine(textLeft + 5, textTop + textDeltaY + 50, textLeft + 90, textTop + textDeltaY + 50);
         g2d.fillText("x\u0304", textLeft + 95, textTop + 2.9 * textDeltaY + 12);
+        // TODO: remove boiler plate for viewing anti-data-string
+        // Begin boiler-plate
+        g2d.setFill(Color.web(analysis.getAntiDataHexColorString()));
+        g2d.fillRect(textLeft, textTop + textDeltaY + 50, 50, 50);
+        g2d.setFill(Color.BLACK);
     }
 
     private String appendTrailingZeroIfNeeded(String valueString, int countOfTrailingDigits) {
@@ -619,8 +623,10 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
 //                g2d.setStroke(dataColor.color());
                 g2d.setStroke(Color.web(analysis.getDataHexColorString()));
                 if (!mapBlockIdToBlockCyclesRecord.get(blockID).blockIncluded()) {
-                    g2d.setFill(Color.RED);
-                    g2d.setStroke(Color.RED);
+//                    g2d.setFill(Color.RED);
+//                    g2d.setStroke(Color.RED);
+                    g2d.setFill(Color.web(analysis.getAntiDataHexColorString()));
+                    g2d.setStroke(Color.web(analysis.getAntiDataHexColorString()));
                 }
                 double dataX = mapX(xAxisData[i]);
                 double dataY = mapY(yAxisData[i]);

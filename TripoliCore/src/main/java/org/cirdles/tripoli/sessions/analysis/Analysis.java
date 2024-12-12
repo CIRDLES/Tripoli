@@ -160,7 +160,8 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
                 OGTRIPOLI_TWOSIGMA_HEX,
                 OGTRIPOLI_TWOSTDERR_HEX,
                 OGTRIPOLI_MEAN_HEX,
-                OGTRIPOLI_DATA_HEX
+                OGTRIPOLI_DATA_HEX,
+                OGTRIPOLI_ANTI_DATA_HEX
         );
         //  END default coloring
         this.analysisSampleName = analysisSampleName;
@@ -764,6 +765,11 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     }
 
     @Override
+    public void setAntiDataHexColorString(String hexColor) {
+        setBlockCyclesPlotColors(ANTI_DATA_COLOR, hexColor);
+    }
+
+    @Override
     public Parameters getParameters() {
         return this.analysisParameters;
     }
@@ -967,6 +973,11 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
     public void setAnalysisStartTime(String analysisStartTime) {
         this.analysisStartTime = analysisStartTime;
+    }
+
+    @Override
+    public String getAntiDataHexColorString() {
+        return blockCyclesPlotColors.get(ANTI_DATA_COLOR);
     }
 
     @Override

@@ -177,6 +177,7 @@ public interface AnalysisInterface {
     String getTwoStandardErrorHexColorString();
     String getMeanHexColorString();
     String getDataHexColorString();
+    String getAntiDataHexColorString();
 
 
     void setOneSigmaHexColorString(String hexColor);
@@ -184,6 +185,7 @@ public interface AnalysisInterface {
     void setTwoStandardErrorHexColorString(String hexColor);
     void setMeanHexColorString(String hexColor);
     void setDataHexColorString(String hexColor);
+    void setAntiDataHexColorString(String hexColor);
 
     Parameters getParameters();
 

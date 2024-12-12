@@ -10,7 +10,8 @@ public record BlockCyclesPlotColors  (
         String twoSigmaShade,
         String twoStdErrShade,
         String meanColor,
-        String dataColor
+        String dataColor,
+        String dataAntiColor
 ) implements Serializable {
 
     public String get(BlockCyclesPlotColorFlavor plotColorFlavor) {
@@ -21,6 +22,7 @@ public record BlockCyclesPlotColors  (
             case TWO_STD_ERR_SHADE -> result.append(twoStdErrShade);
             case MEAN_COLOR -> result.append(meanColor);
             case DATA_COLOR -> result.append(dataColor);
+            case ANTI_DATA_COLOR -> result.append(dataAntiColor);
         }
         return result.toString();
     }
@@ -31,19 +33,22 @@ public record BlockCyclesPlotColors  (
         String twoStdErrShade = twoStdErrShade();
         String meanColor = meanColor();
         String dataColor = dataColor();
+        String dataAntiColor = dataAntiColor();
         switch (flavor) {
             case ONE_SIGMA_SHADE -> oneSigmaShade = hexColor;
             case TWO_SIGMA_SHADE -> twoSigmaShade = hexColor;
             case TWO_STD_ERR_SHADE -> twoStdErrShade = hexColor;
             case MEAN_COLOR -> meanColor = hexColor;
             case DATA_COLOR -> dataColor = hexColor;
+            case ANTI_DATA_COLOR -> dataAntiColor = hexColor;
         }
         return new BlockCyclesPlotColors(
                 oneSigmaShade,
                 twoSigmaShade,
                 twoStdErrShade,
                 meanColor,
-                dataColor
+                dataColor,
+                dataAntiColor
         );
     }
 

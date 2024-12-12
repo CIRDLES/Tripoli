@@ -619,6 +619,13 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         g2d.strokeLine(textLeft + 5, textTop + textDeltaY + 50, textLeft + 90, textTop + textDeltaY + 50);
         g2d.fillText("x", textLeft + 95, textTop + 3.2 * textDeltaY + 14);
         g2d.fillText("\u0304", textLeft + 95, textTop + 3.2 * textDeltaY + 14);
+
+        // TODO: remove boiler plate for viewing anti-data-string
+        // Begin boiler-plate
+        g2d.setFill(Color.web(analysis.getAntiDataHexColorString()));
+        g2d.fillRect(textLeft, textTop - textDeltaY - 50, 50, 50);
+        g2d.setFill(Color.BLACK);
+
     }
 
     private String appendTrailingZeroIfNeeded(String valueString, int countOfTrailingDigits) {
@@ -674,8 +681,10 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 //                g2d.setStroke(dataColor.color());
                 g2d.setStroke(Color.web(analysis.getDataHexColorString()));
                 if (!analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).blockRawDataLiteIncludedArray()[cycleCount][userFunction.getColumnIndex()]) {
-                    g2d.setFill(Color.RED);
-                    g2d.setStroke(Color.RED);
+//                    g2d.setFill(Color.RED);
+//                    g2d.setStroke(Color.RED);
+                    g2d.setFill(Color.web(analysis.getAntiDataHexColorString()));
+                    g2d.setStroke(Color.web(analysis.getAntiDataHexColorString()));
                 }
                 double dataX = mapX(xAxisData[i]);
                 double dataY = mapY(yAxisData[i]);
