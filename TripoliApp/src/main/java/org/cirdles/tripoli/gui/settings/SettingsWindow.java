@@ -39,10 +39,6 @@ public class SettingsWindow {
     private Map<SpeciesRecordInterface, SpeciesColors> originalSpeciesColors;
     private DelegateActionSet repaintRatiosDelegateActionSet;
     private BlockCyclesPlotColors originalBlockCyclesPlotColors;
-    private String originalTwoSigmaHexColor;
-    private String originalOneSigmaHexColor;
-    private String originalStdErrHexColor;
-    private String originalMeanHexColor;
     private ArrayList<IsotopePaneRow> isotopePaneRows;
     private SpeciesColorSelectionScrollPane speciesColorSelectionScrollPane;
     private Parameters originalParameters;
