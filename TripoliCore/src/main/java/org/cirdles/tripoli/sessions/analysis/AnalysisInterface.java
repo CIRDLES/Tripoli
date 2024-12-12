@@ -164,7 +164,7 @@ public interface AnalysisInterface {
 
     Map<Integer, SingleBlockRawDataSetRecord> getMapOfBlockIdToRawData();
 
-    public Map<Integer, SingleBlockRawDataLiteSetRecord> getMapOfBlockIdToRawDataLiteOne();
+    Map<Integer, SingleBlockRawDataLiteSetRecord> getMapOfBlockIdToRawDataLiteOne();
 
     Map<Integer, SingleBlockModelRecord> getMapOfBlockIdToFinalModel();
 
@@ -176,12 +176,14 @@ public interface AnalysisInterface {
     String getOneSigmaHexColorString();
     String getTwoStandardErrorHexColorString();
     String getMeanHexColorString();
+    String getBlockCyclesHexColorString();
 
 
     void setOneSigmaHexColorString(String hexColor);
     void setTwoSigmaHexColorString(String hexColor);
     void setTwoStandardErrorHexColorString(String hexColor);
     void setMeanHexColorString(String hexColor);
+    void setBlockCycleDataColor(String hexColor);
 
     Parameters getParameters();
 
@@ -196,4 +198,5 @@ public interface AnalysisInterface {
     void setAnalysisStartTime(String s);
 
     List<UserFunction> getUserFunctions();
+
 }

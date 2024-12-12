@@ -27,6 +27,7 @@ public enum TripoliConstants {
     public static final String OGTRIPOLI_ONESIGMA_HEX = "#FFEA00";
     public static final String OGTRIPOLI_TWOSTDERR_HEX = "#90EE8F";
     public static final String OGTRIPOLI_MEAN_HEX = "#FF0000";
+    public static final String OGTRIPOLI_DATA_HEX = "#0000FF";
 
     public static final File TRIPOLI_RESOURCES_FOLDER = new File("TripoliResources");
     public static final File DOCS_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "Docs");

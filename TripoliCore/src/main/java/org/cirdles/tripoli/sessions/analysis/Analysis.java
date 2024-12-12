@@ -50,6 +50,7 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactor
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunction;
+import org.cirdles.tripoli.settings.plots.BlockCyclesPlotColors;
 import org.cirdles.tripoli.settings.plots.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
@@ -74,6 +75,7 @@ import java.util.regex.Pattern;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_FULL_SYNTHETIC;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
 import static org.cirdles.tripoli.constants.TripoliConstants.*;
+import static org.cirdles.tripoli.constants.TripoliConstants.BlockCyclesPlotColorFlavor.*;
 import static org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioPlotBuilder.initializeAnalysisRatioPlotBuilder;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB;
@@ -127,10 +129,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     private String analysisStartTime = "01/01/2001 00:00:00";
 
     // Block Color Hex
-    private String twoSigmaHexColorString;
-    private String oneSigmaHexColorString;
-    private String twoStdErrHexColorString;
-    private String meanHexColorString;
+    private BlockCyclesPlotColors blockCyclesPlotColors;
     // END Block Stats color hex
 
     // Parameters
@@ -156,10 +155,13 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         }
         setMethod(analysisMethod);
         //  Initialize default colors from Analysis
-        twoSigmaHexColorString = OGTRIPOLI_TWOSIGMA_HEX;
-        oneSigmaHexColorString = OGTRIPOLI_ONESIGMA_HEX;
-        twoStdErrHexColorString = OGTRIPOLI_TWOSTDERR_HEX;
-        meanHexColorString = OGTRIPOLI_MEAN_HEX;
+        blockCyclesPlotColors = new BlockCyclesPlotColors(
+                OGTRIPOLI_ONESIGMA_HEX,
+                OGTRIPOLI_TWOSIGMA_HEX,
+                OGTRIPOLI_TWOSTDERR_HEX,
+                OGTRIPOLI_MEAN_HEX,
+                OGTRIPOLI_DATA_HEX
+        );
         //  END default coloring
         this.analysisSampleName = analysisSampleName;
         this.analysisFractionName = MISSING_STRING_FIELD;
@@ -732,22 +734,36 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return sb.toString();
     }
 
+    private void setBlockCyclesPlotColors(BlockCyclesPlotColorFlavor flavor, String hexColor) {
+        this.blockCyclesPlotColors = this.blockCyclesPlotColors.altered(flavor, hexColor);
+    }
+
+    @Override
     public void setTwoSigmaHexColorString(String newHexColor) {
-        twoSigmaHexColorString = newHexColor;
+        setBlockCyclesPlotColors(TWO_SIGMA_SHADE, newHexColor);
     }
 
     @Override
     public void setTwoStandardErrorHexColorString(String hexColor) {
-        twoStdErrHexColorString = hexColor;
+        setBlockCyclesPlotColors(TWO_STD_ERR_SHADE, hexColor);
     }
 
+    @Override
     public void setOneSigmaHexColorString(String newHexColor) {
-        oneSigmaHexColorString = newHexColor;
+        setBlockCyclesPlotColors(ONE_SIGMA_SHADE, newHexColor);
     }
 
+    @Override
     public void setMeanHexColorString(String newHexColor) {
-        meanHexColorString = newHexColor;
+        setBlockCyclesPlotColors(MEAN_COLOR, newHexColor);
     }
+
+    @Override
+    public void setBlockCycleDataColor(String hexColor) {
+        setBlockCyclesPlotColors(DATA_COLOR, hexColor);
+    }
+
+
 
     @Override
     public Parameters getParameters() {
@@ -957,23 +973,29 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
     @Override
     public String getOneSigmaHexColorString() {
-        return oneSigmaHexColorString;
+        return blockCyclesPlotColors.get(ONE_SIGMA_SHADE);
     }
 
     @Override
     public String getTwoSigmaHexColorString() {
-        return twoSigmaHexColorString;
+        return blockCyclesPlotColors.get(TWO_SIGMA_SHADE);
     }
 
     @Override
     public String getTwoStandardErrorHexColorString() {
-        return twoStdErrHexColorString;
+        return blockCyclesPlotColors.get(TWO_STD_ERR_SHADE);
     }
 
     @Override
     public String getMeanHexColorString() {
-        return meanHexColorString;
+        return blockCyclesPlotColors.get(MEAN_COLOR);
     }
+
+    @Override
+    public String getBlockCyclesHexColorString() {
+        return blockCyclesPlotColors.get(DATA_COLOR);
+    }
+
     /**
      * @param o the object to be compared.
      * @return
