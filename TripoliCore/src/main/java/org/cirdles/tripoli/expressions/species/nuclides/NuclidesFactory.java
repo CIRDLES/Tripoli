@@ -40,7 +40,7 @@ public final class NuclidesFactory implements Serializable {
         List<String> contentsByLine = new ArrayList<>();
         try {
             nuclidesChartData = RESOURCE_EXTRACTOR
-                    .extractResourceAsFile("/org/cirdles/tripoli/species/nuclides/NuclidesChartData.csv").toPath();
+                    .extractResourceAsFile("/org/cirdles/tripoli/settings/nuclides/NuclidesChartData.csv").toPath();
             contentsByLine.addAll(Files.readAllLines(nuclidesChartData, Charset.defaultCharset()));
         } catch (Exception e) {
             e.printStackTrace();

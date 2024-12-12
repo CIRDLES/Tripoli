@@ -110,6 +110,20 @@ public enum TripoliConstants {
 
     }
 
+    public enum BlockCyclesPlotColorFlavor {
+        ONE_SIGMA_SHADE("One \u03C3 Shading Color"),
+        TWO_SIGMA_SHADE("Two \u03C3 Shading Color"),
+        TWO_STD_ERR_SHADE("Two \u03C3 Standard Error Shading Color"),
+        MEAN_COLOR("Mean Color"),
+        DATA_COLOR("Data Color");
+
+        private final String name;
+
+        BlockCyclesPlotColorFlavor(String name) {this.name = name;}
+
+        public String getName() {return this.name;}
+    }
+
     public enum IntensityUnits {
         COUNTS(),
         VOLTS(),

@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.species;
+package org.cirdles.tripoli.settings.plots.species;
 
 import java.io.Serializable;
 
@@ -17,7 +17,7 @@ public record SpeciesColors(
             case PM_DATA -> result = pmHexColor;
             case FARADAY_DATA -> result = faradayHexColor;
             case FARADAY_MODEL -> result = faradayModelHexColor;
-            case PM_MODEL -> result = pmModelHexColor();
+            case PM_MODEL -> result = pmModelHexColor;
         }
         return result;
     }

@@ -10,7 +10,7 @@ import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
-import org.cirdles.tripoli.species.SpeciesColors;
+import org.cirdles.tripoli.settings.plots.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 
 import java.io.IOException;
