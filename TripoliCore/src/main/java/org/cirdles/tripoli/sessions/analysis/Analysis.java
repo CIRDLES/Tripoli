@@ -759,11 +759,9 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     }
 
     @Override
-    public void setBlockCycleDataColor(String hexColor) {
+    public void setDataHexColorString(String hexColor) {
         setBlockCyclesPlotColors(DATA_COLOR, hexColor);
     }
-
-
 
     @Override
     public Parameters getParameters() {
@@ -992,7 +990,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     }
 
     @Override
-    public String getBlockCyclesHexColorString() {
+    public String getDataHexColorString() {
         return blockCyclesPlotColors.get(DATA_COLOR);
     }
 

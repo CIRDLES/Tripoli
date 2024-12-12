@@ -49,7 +49,6 @@ import java.util.Map;
 
 import static java.lang.StrictMath.*;
 import static java.util.Arrays.binarySearch;
-import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
 import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.generateGeometricMeanStats;
 import static org.cirdles.tripoli.utilities.mathUtilities.FormatterForSigFigN.countOfTrailingDigitsForSigFig;
 import static org.cirdles.tripoli.utilities.mathUtilities.MathUtilities.applyChauvenetsCriterion;
@@ -659,8 +658,10 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
     @Override
     public void plotData(GraphicsContext g2d) {
-        g2d.setFill(dataColor.color());
-        g2d.setStroke(dataColor.color());
+//        g2d.setFill(dataColor.color());
+        g2d.setFill(Color.web(analysis.getDataHexColorString()));
+//        g2d.setStroke(dataColor.color());
+        g2d.setStroke(Color.web(analysis.getDataHexColorString()));
         g2d.setLineWidth(1.0);
 
         int cyclesPerBlock = mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
@@ -668,8 +669,10 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         for (int i = 0; i < xAxisData.length; i++) {
             int blockID = (int) ((xAxisData[i] - 0.7) / cyclesPerBlock) + 1;
             if (pointInPlot(xAxisData[i], yAxisData[i]) && (yAxisData[i] != 0.0)) {
-                g2d.setFill(dataColor.color());
-                g2d.setStroke(dataColor.color());
+//                g2d.setFill(dataColor.color());
+                g2d.setFill(Color.web(analysis.getDataHexColorString()));
+//                g2d.setStroke(dataColor.color());
+                g2d.setStroke(Color.web(analysis.getDataHexColorString()));
                 if (!analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).blockRawDataLiteIncludedArray()[cycleCount][userFunction.getColumnIndex()]) {
                     g2d.setFill(Color.RED);
                     g2d.setStroke(Color.RED);

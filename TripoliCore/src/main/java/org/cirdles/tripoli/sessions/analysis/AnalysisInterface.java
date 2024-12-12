@@ -176,14 +176,14 @@ public interface AnalysisInterface {
     String getOneSigmaHexColorString();
     String getTwoStandardErrorHexColorString();
     String getMeanHexColorString();
-    String getBlockCyclesHexColorString();
+    String getDataHexColorString();
 
 
     void setOneSigmaHexColorString(String hexColor);
     void setTwoSigmaHexColorString(String hexColor);
     void setTwoStandardErrorHexColorString(String hexColor);
     void setMeanHexColorString(String hexColor);
-    void setBlockCycleDataColor(String hexColor);
+    void setDataHexColorString(String hexColor);
 
     Parameters getParameters();
 

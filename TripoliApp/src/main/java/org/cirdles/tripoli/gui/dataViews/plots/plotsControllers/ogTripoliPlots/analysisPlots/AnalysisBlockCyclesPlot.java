@@ -603,8 +603,10 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
 
     @Override
     public void plotData(GraphicsContext g2d) {
-        g2d.setFill(dataColor.color());
-        g2d.setStroke(dataColor.color());
+//        g2d.setFill(dataColor.color());
+        g2d.setFill(Color.web(analysis.getDataHexColorString()));
+//        g2d.setStroke(dataColor.color());
+        g2d.setStroke(Color.web(analysis.getDataHexColorString()));
         g2d.setLineWidth(1.0);
 
         int cyclesPerBlock = analysisBlockCyclesRecord.cyclesPerBlock();
@@ -612,8 +614,10 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
         for (int i = 0; i < xAxisData.length; i++) {
             int blockID = (int) ((xAxisData[i] - 0.7) / cyclesPerBlock) + 1;
             if (pointInPlot(xAxisData[i], yAxisData[i]) && (mapBlockIdToBlockCyclesRecord.get(blockID) != null)) {
-                g2d.setFill(dataColor.color());
-                g2d.setStroke(dataColor.color());
+//                g2d.setFill(dataColor.color());
+                g2d.setFill(Color.web(analysis.getDataHexColorString()));
+//                g2d.setStroke(dataColor.color());
+                g2d.setStroke(Color.web(analysis.getDataHexColorString()));
                 if (!mapBlockIdToBlockCyclesRecord.get(blockID).blockIncluded()) {
                     g2d.setFill(Color.RED);
                     g2d.setStroke(Color.RED);
