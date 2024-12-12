@@ -19,6 +19,7 @@ package org.cirdles.tripoli.sessions;
 import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.settings.plots.BlockCyclesPlotColors;
 import org.cirdles.tripoli.utilities.collections.TripoliSessionAnalysisMap;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -50,11 +51,9 @@ public class Session implements Serializable {
     private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
     private Parameters sessionDefaultParameters;
 
+
     // Color Strings for ratio plots
-    private String twoSigmaHexColorString;
-    private String oneSigmaHexColorString;
-    private String twoStdErrHexColorString;
-    private String meanHexColorString;
+    private BlockCyclesPlotColors blockCyclesPlotColors;
     // END OF ratio plot Color Strings
 
     private Session() {
@@ -83,10 +82,7 @@ public class Session implements Serializable {
             TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
             session.sessionDefaultParameters = tripoliPersistentState.getTripoliPersistentParameters().copy();
             session.sessionDefaultMapOfSpeciesToColors = tripoliPersistentState.getMapOfSpeciesToColors();
-            session.twoSigmaHexColorString = tripoliPersistentState.getTwoSigmaHexColorString();
-            session.oneSigmaHexColorString = tripoliPersistentState.getOneSigmaHexColorString();
-            session.twoStdErrHexColorString = tripoliPersistentState.getTwoStdErrHexColorString();
-            session.meanHexColorString = tripoliPersistentState.getMeanHexColorString();
+            session.blockCyclesPlotColors = tripoliPersistentState.getBlockCyclesPlotColors();
         } catch (TripoliException e) {
             e.printStackTrace();
         }
@@ -99,10 +95,7 @@ public class Session implements Serializable {
             TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
             session.sessionDefaultParameters = tripoliPersistentState.getTripoliPersistentParameters().copy();
             session.sessionDefaultMapOfSpeciesToColors = tripoliPersistentState.getMapOfSpeciesToColors();
-            session.twoSigmaHexColorString = tripoliPersistentState.getTwoSigmaHexColorString();
-            session.oneSigmaHexColorString = tripoliPersistentState.getOneSigmaHexColorString();
-            session.twoStdErrHexColorString = tripoliPersistentState.getTwoStdErrHexColorString();
-            session.meanHexColorString = tripoliPersistentState.getMeanHexColorString();
+            session.blockCyclesPlotColors = tripoliPersistentState.getBlockCyclesPlotColors();
         } catch (TripoliException e) {
             e.printStackTrace();
         }
@@ -111,6 +104,10 @@ public class Session implements Serializable {
 
     public static boolean isSessionChanged() {
         return sessionChanged;
+    }
+
+    public BlockCyclesPlotColors getBlockCyclesPlotColors() {
+        return blockCyclesPlotColors;
     }
 
     public static void setSessionChanged(boolean mySessionChanged) {
@@ -176,36 +173,8 @@ public class Session implements Serializable {
         return sessionDefaultParameters;
     }
 
-    public String getTwoSigmaHexColorString() {
-        return twoSigmaHexColorString;
-    }
-
-    public String getOneSigmaHexColorString() {
-        return oneSigmaHexColorString;
-    }
-
-    public String getTwoStdErrHexColorString() {
-        return twoStdErrHexColorString;
-    }
-
-    public String getMeanHexColorString() {
-        return meanHexColorString;
-    }
-
-    public void setTwoSigmaHexColorString(String twoSigmaHexColorString) {
-        this.twoSigmaHexColorString = twoSigmaHexColorString;
-    }
-
-    public void setOneSigmaHexColorString(String oneSigmaHexColorString) {
-        this.oneSigmaHexColorString = oneSigmaHexColorString;
-    }
-
-    public void setTwoStdErrHexColorString(String twoStdErrHexColorString) {
-        this.twoStdErrHexColorString = twoStdErrHexColorString;
-    }
-
-    public void setMeanHexColorString(String meanHexColorString) {
-        this.meanHexColorString = meanHexColorString;
+    public void setBlockCyclesPlotColors(BlockCyclesPlotColors blockCyclesPlotColors) {
+        this.blockCyclesPlotColors = blockCyclesPlotColors;
     }
 
     /**

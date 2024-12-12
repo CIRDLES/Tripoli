@@ -15,6 +15,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
+import org.cirdles.tripoli.settings.plots.BlockCyclesPlotColors;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
@@ -178,6 +179,7 @@ public interface AnalysisInterface {
     String getMeanHexColorString();
     String getDataHexColorString();
     String getAntiDataHexColorString();
+    BlockCyclesPlotColors getBlockCyclesPlotColors();
 
 
     void setOneSigmaHexColorString(String hexColor);
@@ -186,6 +188,7 @@ public interface AnalysisInterface {
     void setMeanHexColorString(String hexColor);
     void setDataHexColorString(String hexColor);
     void setAntiDataHexColorString(String hexColor);
+    void setBlockCyclesPlotColors(BlockCyclesPlotColors blockCyclesPlotColors);
 
     Parameters getParameters();
 

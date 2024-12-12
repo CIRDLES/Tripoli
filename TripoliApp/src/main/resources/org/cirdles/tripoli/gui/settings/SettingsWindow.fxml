@@ -182,7 +182,7 @@
       </ToolBar>
       <ToolBar fx:id="revertToolbar" layoutX="10.0" layoutY="428.0" prefHeight="40.0" prefWidth="516.0">
          <items>
-            <Button fx:id="cancelButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="132.0" text="Undo" textFill="#a45151" wrapText="true">
+            <Button fx:id="undoAllButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="132.0" text="Undo" textFill="#a45151" wrapText="true">
                <font>
                   <Font name="Monospaced Bold" size="12.0" />
                </font>

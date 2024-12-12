@@ -18,6 +18,7 @@ import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.settings.plots.BlockCyclesPlotColors;
 import org.cirdles.tripoli.settings.plots.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
@@ -37,6 +38,7 @@ public class SettingsWindow {
     private AnalysisInterface analysis;
     private Map<SpeciesRecordInterface, SpeciesColors> originalSpeciesColors;
     private DelegateActionSet repaintRatiosDelegateActionSet;
+    private BlockCyclesPlotColors originalBlockCyclesPlotColors;
     private String originalTwoSigmaHexColor;
     private String originalOneSigmaHexColor;
     private String originalStdErrHexColor;
@@ -73,10 +75,7 @@ public class SettingsWindow {
             this.originalParameters = analysis.getParameters().copy();
             this.originalSpeciesColors = new TripoliSpeciesColorMap(
                     ((Analysis) analysis).getAnalysisMapOfSpeciesToColors());
-            this.originalTwoSigmaHexColor = analysis.getTwoSigmaHexColorString();
-            this.originalOneSigmaHexColor = analysis.getOneSigmaHexColorString();
-            this.originalStdErrHexColor = analysis.getTwoStandardErrorHexColorString();
-            this.originalMeanHexColor = analysis.getMeanHexColorString();
+            this.originalBlockCyclesPlotColors = analysis.getBlockCyclesPlotColors();
             this.isotopePaneRows = new ArrayList<>();
             this.ratioColorSelectionPane = new RatioColorSelectionPane(delegateActionSet, analysis);
             this.settingsWindowController.getRatioColorSelectionAnchorPane().getChildren().clear();
@@ -282,10 +281,7 @@ public class SettingsWindow {
             currentSession.getSessionDefaultParameters().setChauvenetRejectionProbability(
                     analysis.getParameters().getChauvenetRejectionProbability()
             );
-            currentSession.setTwoSigmaHexColorString(analysis.getTwoSigmaHexColorString());
-            currentSession.setOneSigmaHexColorString(analysis.getOneSigmaHexColorString());
-            currentSession.setTwoStdErrHexColorString(analysis.getTwoStandardErrorHexColorString());
-            currentSession.setMeanHexColorString(analysis.getMeanHexColorString());
+            currentSession.setBlockCyclesPlotColors(analysis.getBlockCyclesPlotColors());
             currentSession.getSessionDefaultMapOfSpeciesToColors().
                     putAll(((Analysis) analysis).getAnalysisMapOfSpeciesToColors());
             try {
@@ -302,10 +298,7 @@ public class SettingsWindow {
                         analysis.getParameters().getChauvenetRejectionProbability());
                 tripoliPersistentState.getTripoliPersistentParameters().setRequiredMinDatumCount(
                         analysis.getParameters().getRequiredMinDatumCount());
-                tripoliPersistentState.setTwoSigmaHexColorString(analysis.getTwoSigmaHexColorString());
-                tripoliPersistentState.setOneSigmaHexColorString(analysis.getOneSigmaHexColorString());
-                tripoliPersistentState.setTwoStdErrHexColorString(analysis.getTwoStandardErrorHexColorString());
-                tripoliPersistentState.setMeanHexColorString(analysis.getMeanHexColorString());
+                tripoliPersistentState.setBlockCyclesPlotColors(analysis.getBlockCyclesPlotColors());
                 tripoliPersistentState.getMapOfSpeciesToColors().
                         putAll(((Analysis) analysis).getAnalysisMapOfSpeciesToColors());
                 tripoliPersistentState.updateTripoliPersistentState();
@@ -327,10 +320,7 @@ public class SettingsWindow {
             settingsWindowController.getChauvenetMinimumDatumCountSpinner().getValueFactory().setValue(
                     analysis.getParameters().getRequiredMinDatumCount()
             );
-            analysis.setTwoSigmaHexColorString(currentSession.getTwoSigmaHexColorString());
-            analysis.setTwoStandardErrorHexColorString(currentSession.getTwoStdErrHexColorString());
-            analysis.setMeanHexColorString(currentSession.getMeanHexColorString());
-            analysis.setOneSigmaHexColorString(currentSession.getOneSigmaHexColorString());
+            analysis.setBlockCyclesPlotColors(currentSession.getBlockCyclesPlotColors());
             ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().
                     putAll(currentSession.getSessionDefaultMapOfSpeciesToColors());
             repaintRatiosDelegateActionSet.executeDelegateActions();
@@ -364,25 +354,26 @@ public class SettingsWindow {
                 ex.printStackTrace();
             }
         });
-        settingsWindowController.getCancelButton().setOnAction(e -> {
-            analysis.setTwoSigmaHexColorString(originalTwoSigmaHexColor);
+        settingsWindowController.getUndoAllButton().setOnAction(e -> {
             analysis.getParameters().setChauvenetRejectionProbability(originalParameters.getChauvenetRejectionProbability());
             analysis.getParameters().setRequiredMinDatumCount(originalParameters.getRequiredMinDatumCount());
             settingsWindowController.getChauvenetRejectionProbabilitySpinner().getValueFactory().setValue(
                     originalParameters.getChauvenetRejectionProbability());
             settingsWindowController.getChauvenetMinimumDatumCountSpinner().getValueFactory().setValue(
                     originalParameters.getRequiredMinDatumCount());
+            analysis.setBlockCyclesPlotColors(originalBlockCyclesPlotColors);
+//            analysis.setTwoSigmaHexColorString(originalTwoSigmaHexColor);
             ratioColorSelectionPane.getTwoSigmaSplotch().
-                    colorProperty().setValue(Color.web(originalTwoSigmaHexColor));
-            analysis.setOneSigmaHexColorString(originalOneSigmaHexColor);
+                    colorProperty().setValue(Color.web(analysis.getTwoSigmaHexColorString()));
+//            analysis.setOneSigmaHexColorString(originalOneSigmaHexColor);
             ratioColorSelectionPane.getOneSigmaSplotch().
-                    colorProperty().setValue(Color.web(originalOneSigmaHexColor));
-            analysis.setTwoStandardErrorHexColorString(originalStdErrHexColor);
+                    colorProperty().setValue(Color.web(analysis.getOneSigmaHexColorString()));
+//            analysis.setTwoStandardErrorHexColorString(originalStdErrHexColor);
             ratioColorSelectionPane.getStdErrorSplotch().
-                    colorProperty().setValue(Color.web(originalStdErrHexColor));
-            analysis.setMeanHexColorString(originalMeanHexColor);
+                    colorProperty().setValue(Color.web(analysis.getTwoStandardErrorHexColorString()));
+//            analysis.setMeanHexColorString(originalMeanHexColor);
             ratioColorSelectionPane.getMeanSplotch().
-                    colorProperty().setValue(Color.web(originalMeanHexColor));
+                    colorProperty().setValue(Color.web(analysis.getMeanHexColorString()));
             ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().clear();
             ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().putAll(
                     originalSpeciesColors

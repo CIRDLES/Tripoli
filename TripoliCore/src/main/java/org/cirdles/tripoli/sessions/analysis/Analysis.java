@@ -735,6 +735,11 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return sb.toString();
     }
 
+    @Override
+    public void setBlockCyclesPlotColors(BlockCyclesPlotColors blockCyclesPlotColors) {
+        this.blockCyclesPlotColors = blockCyclesPlotColors;
+    }
+
     private void setBlockCyclesPlotColors(BlockCyclesPlotColorFlavor flavor, String hexColor) {
         this.blockCyclesPlotColors = this.blockCyclesPlotColors.altered(flavor, hexColor);
     }
@@ -846,10 +851,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         this.parentSession = session;
         this.analysisParameters = session.getSessionDefaultParameters().copy();
         this.sessionDefaultMapOfSpeciesToColors = session.getSessionDefaultMapOfSpeciesToColors();
-        setTwoSigmaHexColorString(session.getTwoSigmaHexColorString());
-        setOneSigmaHexColorString(session.getOneSigmaHexColorString());
-        setMeanHexColorString(session.getMeanHexColorString());
-        setTwoStandardErrorHexColorString(session.getTwoStdErrHexColorString());
+        this.blockCyclesPlotColors = session.getBlockCyclesPlotColors();
     }
 
 
@@ -973,6 +975,11 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
     public void setAnalysisStartTime(String analysisStartTime) {
         this.analysisStartTime = analysisStartTime;
+    }
+
+    @Override
+    public BlockCyclesPlotColors getBlockCyclesPlotColors(){
+        return this.blockCyclesPlotColors;
     }
 
     @Override

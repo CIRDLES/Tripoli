@@ -1,8 +1,8 @@
 package org.cirdles.tripoli.settings.plots;
 
-import static org.cirdles.tripoli.constants.TripoliConstants.BlockCyclesPlotColorFlavor;
-
 import java.io.Serializable;
+
+import static org.cirdles.tripoli.constants.TripoliConstants.*;
 
 
 public record BlockCyclesPlotColors  (
@@ -25,6 +25,17 @@ public record BlockCyclesPlotColors  (
             case ANTI_DATA_COLOR -> result.append(dataAntiColor);
         }
         return result.toString();
+    }
+
+    public static BlockCyclesPlotColors defaultBlockCyclesPlotColors() {
+        return new BlockCyclesPlotColors(
+                OGTRIPOLI_ONESIGMA_HEX,
+                OGTRIPOLI_TWOSIGMA_HEX,
+                OGTRIPOLI_TWOSTDERR_HEX,
+                OGTRIPOLI_MEAN_HEX,
+                OGTRIPOLI_DATA_HEX,
+                OGTRIPOLI_ANTI_DATA_HEX
+        );
     }
 
     public BlockCyclesPlotColors altered(BlockCyclesPlotColorFlavor flavor, String hexColor) {

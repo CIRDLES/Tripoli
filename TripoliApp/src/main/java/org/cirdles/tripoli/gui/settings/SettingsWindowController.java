@@ -43,7 +43,7 @@ public class SettingsWindowController implements Initializable {
     @FXML
     private Label speciesHeader;
     @FXML
-    private Button cancelButton;
+    private Button undoAllButton;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -74,8 +74,8 @@ public class SettingsWindowController implements Initializable {
         return restoreUserDefaultsButton;
     }
 
-    public Button getCancelButton() {
-        return cancelButton;
+    public Button getUndoAllButton() {
+        return undoAllButton;
     }
 
     public AnchorPane getPlotIntensitiesAnchorPaneExp() {

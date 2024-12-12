@@ -621,10 +621,10 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         g2d.fillText("\u0304", textLeft + 95, textTop + 3.2 * textDeltaY + 14);
 
         // TODO: remove boiler plate for viewing anti-data-string
-        // Begin boiler-plate
-        g2d.setFill(Color.web(analysis.getAntiDataHexColorString()));
-        g2d.fillRect(textLeft, textTop - textDeltaY - 50, 50, 50);
-        g2d.setFill(Color.BLACK);
+//        // Begin boiler-plate
+//        g2d.setFill(Color.web(analysis.getAntiDataHexColorString()));
+//        g2d.fillRect(textLeft, textTop - textDeltaY - 50, 50, 50);
+//        g2d.setFill(Color.BLACK);
 
     }
 
