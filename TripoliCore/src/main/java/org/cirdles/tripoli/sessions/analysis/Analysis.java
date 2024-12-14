@@ -50,7 +50,7 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactor
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunction;
-import org.cirdles.tripoli.settings.plots.BlockCyclesPlotColors;
+import org.cirdles.tripoli.settings.plots.RatiosColors;
 import org.cirdles.tripoli.settings.plots.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
@@ -75,7 +75,7 @@ import java.util.regex.Pattern;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_FULL_SYNTHETIC;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
 import static org.cirdles.tripoli.constants.TripoliConstants.*;
-import static org.cirdles.tripoli.constants.TripoliConstants.BlockCyclesPlotColorFlavor.*;
+import static org.cirdles.tripoli.constants.TripoliConstants.RatiosPlotColorFlavor.*;
 import static org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioPlotBuilder.initializeAnalysisRatioPlotBuilder;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB;
@@ -129,7 +129,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     private String analysisStartTime = "01/01/2001 00:00:00";
 
     // Block Color Hex
-    private BlockCyclesPlotColors blockCyclesPlotColors;
+    private RatiosColors ratiosColors;
     // END Block Stats color hex
 
     // Parameters
@@ -155,7 +155,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         }
         setMethod(analysisMethod);
         //  Initialize default colors from Analysis
-        blockCyclesPlotColors = new BlockCyclesPlotColors(
+        ratiosColors = new RatiosColors(
                 OGTRIPOLI_ONESIGMA_HEX,
                 OGTRIPOLI_TWOSIGMA_HEX,
                 OGTRIPOLI_TWOSTDERR_HEX,
@@ -736,12 +736,12 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     }
 
     @Override
-    public void setBlockCyclesPlotColors(BlockCyclesPlotColors blockCyclesPlotColors) {
-        this.blockCyclesPlotColors = blockCyclesPlotColors;
+    public void setRatioColors(RatiosColors ratiosColors) {
+        this.ratiosColors = ratiosColors;
     }
 
-    private void setBlockCyclesPlotColors(BlockCyclesPlotColorFlavor flavor, String hexColor) {
-        this.blockCyclesPlotColors = this.blockCyclesPlotColors.altered(flavor, hexColor);
+    private void setBlockCyclesPlotColors(RatiosPlotColorFlavor flavor, String hexColor) {
+        this.ratiosColors = this.ratiosColors.altered(flavor, hexColor);
     }
 
     @Override
@@ -851,7 +851,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         this.parentSession = session;
         this.analysisParameters = session.getSessionDefaultParameters().copy();
         this.sessionDefaultMapOfSpeciesToColors = session.getSessionDefaultMapOfSpeciesToColors();
-        this.blockCyclesPlotColors = session.getBlockCyclesPlotColors();
+        this.ratiosColors = session.getBlockCyclesPlotColors();
     }
 
 
@@ -978,38 +978,38 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     }
 
     @Override
-    public BlockCyclesPlotColors getBlockCyclesPlotColors(){
-        return this.blockCyclesPlotColors;
+    public RatiosColors getRatioColors(){
+        return this.ratiosColors;
     }
 
     @Override
     public String getAntiDataHexColorString() {
-        return blockCyclesPlotColors.get(ANTI_DATA_COLOR);
+        return ratiosColors.get(ANTI_DATA_COLOR);
     }
 
     @Override
     public String getOneSigmaHexColorString() {
-        return blockCyclesPlotColors.get(ONE_SIGMA_SHADE);
+        return ratiosColors.get(ONE_SIGMA_SHADE);
     }
 
     @Override
     public String getTwoSigmaHexColorString() {
-        return blockCyclesPlotColors.get(TWO_SIGMA_SHADE);
+        return ratiosColors.get(TWO_SIGMA_SHADE);
     }
 
     @Override
     public String getTwoStandardErrorHexColorString() {
-        return blockCyclesPlotColors.get(TWO_STD_ERR_SHADE);
+        return ratiosColors.get(TWO_STD_ERR_SHADE);
     }
 
     @Override
     public String getMeanHexColorString() {
-        return blockCyclesPlotColors.get(MEAN_COLOR);
+        return ratiosColors.get(MEAN_COLOR);
     }
 
     @Override
     public String getDataHexColorString() {
-        return blockCyclesPlotColors.get(DATA_COLOR);
+        return ratiosColors.get(DATA_COLOR);
     }
 
     /**

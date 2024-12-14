@@ -112,17 +112,17 @@ public enum TripoliConstants {
 
     }
 
-    public enum BlockCyclesPlotColorFlavor {
-        ONE_SIGMA_SHADE("One \u03C3 Shading Color"),
-        TWO_SIGMA_SHADE("Two \u03C3 Shading Color"),
-        TWO_STD_ERR_SHADE("Two \u03C3 Standard Error Shading Color"),
+    public enum RatiosPlotColorFlavor {
+        ONE_SIGMA_SHADE("One \u03C3 Shading"),
+        TWO_SIGMA_SHADE("Two \u03C3 Shading"),
+        TWO_STD_ERR_SHADE("Two \u03C3 Standard Error Shading"),
         MEAN_COLOR("Mean Color"),
         DATA_COLOR("Data Color"),
         ANTI_DATA_COLOR("Anti-Data Color");
 
         private final String name;
 
-        BlockCyclesPlotColorFlavor(String name) {this.name = name;}
+        RatiosPlotColorFlavor(String name) {this.name = name;}
 
         public String getName() {return this.name;}
     }

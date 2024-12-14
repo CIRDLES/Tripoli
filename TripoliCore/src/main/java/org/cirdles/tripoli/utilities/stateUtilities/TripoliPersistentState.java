@@ -17,9 +17,8 @@
  */
 package org.cirdles.tripoli.utilities.stateUtilities;
 
-import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.parameters.Parameters;
-import org.cirdles.tripoli.settings.plots.BlockCyclesPlotColors;
+import org.cirdles.tripoli.settings.plots.RatiosColors;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
@@ -61,7 +60,7 @@ public class TripoliPersistentState implements Serializable {
 
 
     //  Ratio Stat plot colors
-    private BlockCyclesPlotColors blockCyclesPlotColors;
+    private RatiosColors ratiosColors;
     // END Ratio Stat plot colors
 
 //    private void readObject(ObjectInputStream stream) throws IOException,
@@ -200,12 +199,12 @@ public class TripoliPersistentState implements Serializable {
         return mapOfSpeciesToColors;
     }
 
-    public BlockCyclesPlotColors getBlockCyclesPlotColors() {
-        if (this.blockCyclesPlotColors == null) {
-            this.blockCyclesPlotColors = BlockCyclesPlotColors.defaultBlockCyclesPlotColors();
+    public RatiosColors getBlockCyclesPlotColors() {
+        if (this.ratiosColors == null) {
+            this.ratiosColors = RatiosColors.defaultBlockCyclesPlotColors();
             serializeSelf();
         }
-        return blockCyclesPlotColors;
+        return ratiosColors;
     }
 
     public String getTwoSigmaHexColorString() {
@@ -224,8 +223,8 @@ public class TripoliPersistentState implements Serializable {
         return getBlockCyclesPlotColors().meanColor();
     }
 
-    public void setBlockCyclesPlotColors(BlockCyclesPlotColors blockCyclesPlotColors) {
-        this.blockCyclesPlotColors = blockCyclesPlotColors;
+    public void setBlockCyclesPlotColors(RatiosColors ratiosColors) {
+        this.ratiosColors = ratiosColors;
     }
 
     public void updateTripoliPersistentState() {

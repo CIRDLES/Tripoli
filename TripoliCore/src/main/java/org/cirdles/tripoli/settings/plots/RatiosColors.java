@@ -5,7 +5,7 @@ import java.io.Serializable;
 import static org.cirdles.tripoli.constants.TripoliConstants.*;
 
 
-public record BlockCyclesPlotColors  (
+public record RatiosColors(
         String oneSigmaShade,
         String twoSigmaShade,
         String twoStdErrShade,
@@ -14,7 +14,7 @@ public record BlockCyclesPlotColors  (
         String dataAntiColor
 ) implements Serializable {
 
-    public String get(BlockCyclesPlotColorFlavor plotColorFlavor) {
+    public String get(RatiosPlotColorFlavor plotColorFlavor) {
         StringBuilder result = new StringBuilder();
         switch (plotColorFlavor) {
             case ONE_SIGMA_SHADE -> result.append(oneSigmaShade);
@@ -27,8 +27,8 @@ public record BlockCyclesPlotColors  (
         return result.toString();
     }
 
-    public static BlockCyclesPlotColors defaultBlockCyclesPlotColors() {
-        return new BlockCyclesPlotColors(
+    public static RatiosColors defaultBlockCyclesPlotColors() {
+        return new RatiosColors(
                 OGTRIPOLI_ONESIGMA_HEX,
                 OGTRIPOLI_TWOSIGMA_HEX,
                 OGTRIPOLI_TWOSTDERR_HEX,
@@ -38,7 +38,7 @@ public record BlockCyclesPlotColors  (
         );
     }
 
-    public BlockCyclesPlotColors altered(BlockCyclesPlotColorFlavor flavor, String hexColor) {
+    public RatiosColors altered(RatiosPlotColorFlavor flavor, String hexColor) {
         String oneSigmaShade = oneSigmaShade();
         String twoSigmaShade = twoSigmaShade();
         String twoStdErrShade = twoStdErrShade();
@@ -53,7 +53,7 @@ public record BlockCyclesPlotColors  (
             case DATA_COLOR -> dataColor = hexColor;
             case ANTI_DATA_COLOR -> dataAntiColor = hexColor;
         }
-        return new BlockCyclesPlotColors(
+        return new RatiosColors(
                 oneSigmaShade,
                 twoSigmaShade,
                 twoStdErrShade,

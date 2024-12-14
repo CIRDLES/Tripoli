@@ -2,7 +2,6 @@ package org.cirdles.tripoli.gui.settings;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.input.KeyEvent;
@@ -18,7 +17,7 @@ import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.settings.plots.BlockCyclesPlotColors;
+import org.cirdles.tripoli.settings.plots.RatiosColors;
 import org.cirdles.tripoli.settings.plots.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
@@ -38,7 +37,7 @@ public class SettingsWindow {
     private AnalysisInterface analysis;
     private Map<SpeciesRecordInterface, SpeciesColors> originalSpeciesColors;
     private DelegateActionSet repaintRatiosDelegateActionSet;
-    private BlockCyclesPlotColors originalBlockCyclesPlotColors;
+    private RatiosColors originalRatiosColors;
     private ArrayList<IsotopePaneRow> isotopePaneRows;
     private SpeciesColorSelectionScrollPane speciesColorSelectionScrollPane;
     private Parameters originalParameters;
@@ -71,7 +70,7 @@ public class SettingsWindow {
             this.originalParameters = analysis.getParameters().copy();
             this.originalSpeciesColors = new TripoliSpeciesColorMap(
                     ((Analysis) analysis).getAnalysisMapOfSpeciesToColors());
-            this.originalBlockCyclesPlotColors = analysis.getBlockCyclesPlotColors();
+            this.originalRatiosColors = analysis.getRatioColors();
             this.isotopePaneRows = new ArrayList<>();
             this.ratioColorSelectionPane = new RatioColorSelectionPane(delegateActionSet, analysis);
             this.settingsWindowController.getRatioColorSelectionAnchorPane().getChildren().clear();
@@ -81,7 +80,7 @@ public class SettingsWindow {
             speciesColorSelectionScrollPane = SpeciesColorSelectionScrollPane.buildSpeciesColorSelectionScrollPane(
                     AnalysisInterface.convertToAnalysis(analysis),
                     PlotWallPaneIntensities.getDelegateActionSet());
-            ratioColorSelectionPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+//            ratioColorSelectionPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
             ratioColorSelectionPane.prefWidthProperty().bind(stage.widthProperty());
             initializeToolbarButtons();
             speciesIntensityColorSelectionScrollPane = new SpeciesIntensityColorSelectionScrollPane();
@@ -277,7 +276,7 @@ public class SettingsWindow {
             currentSession.getSessionDefaultParameters().setChauvenetRejectionProbability(
                     analysis.getParameters().getChauvenetRejectionProbability()
             );
-            currentSession.setBlockCyclesPlotColors(analysis.getBlockCyclesPlotColors());
+            currentSession.setBlockCyclesPlotColors(analysis.getRatioColors());
             currentSession.getSessionDefaultMapOfSpeciesToColors().
                     putAll(((Analysis) analysis).getAnalysisMapOfSpeciesToColors());
             try {
@@ -294,7 +293,7 @@ public class SettingsWindow {
                         analysis.getParameters().getChauvenetRejectionProbability());
                 tripoliPersistentState.getTripoliPersistentParameters().setRequiredMinDatumCount(
                         analysis.getParameters().getRequiredMinDatumCount());
-                tripoliPersistentState.setBlockCyclesPlotColors(analysis.getBlockCyclesPlotColors());
+                tripoliPersistentState.setBlockCyclesPlotColors(analysis.getRatioColors());
                 tripoliPersistentState.getMapOfSpeciesToColors().
                         putAll(((Analysis) analysis).getAnalysisMapOfSpeciesToColors());
                 tripoliPersistentState.updateTripoliPersistentState();
@@ -316,7 +315,7 @@ public class SettingsWindow {
             settingsWindowController.getChauvenetMinimumDatumCountSpinner().getValueFactory().setValue(
                     analysis.getParameters().getRequiredMinDatumCount()
             );
-            analysis.setBlockCyclesPlotColors(currentSession.getBlockCyclesPlotColors());
+            analysis.setRatioColors(currentSession.getBlockCyclesPlotColors());
             ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().
                     putAll(currentSession.getSessionDefaultMapOfSpeciesToColors());
             repaintRatiosDelegateActionSet.executeDelegateActions();
@@ -357,19 +356,18 @@ public class SettingsWindow {
                     originalParameters.getChauvenetRejectionProbability());
             settingsWindowController.getChauvenetMinimumDatumCountSpinner().getValueFactory().setValue(
                     originalParameters.getRequiredMinDatumCount());
-            analysis.setBlockCyclesPlotColors(originalBlockCyclesPlotColors);
+            analysis.setRatioColors(originalRatiosColors);
 //            analysis.setTwoSigmaHexColorString(originalTwoSigmaHexColor);
-            ratioColorSelectionPane.getTwoSigmaSplotch().
-                    colorProperty().setValue(Color.web(analysis.getTwoSigmaHexColorString()));
+            ratioColorSelectionPane.updateRatioColorsProperty(analysis.getRatioColors());
 //            analysis.setOneSigmaHexColorString(originalOneSigmaHexColor);
-            ratioColorSelectionPane.getOneSigmaSplotch().
-                    colorProperty().setValue(Color.web(analysis.getOneSigmaHexColorString()));
+//            ratioColorSelectionPane.getOneSigmaSplotch().
+//                    colorProperty().setValue(Color.web(analysis.getOneSigmaHexColorString()));
 //            analysis.setTwoStandardErrorHexColorString(originalStdErrHexColor);
-            ratioColorSelectionPane.getStdErrorSplotch().
-                    colorProperty().setValue(Color.web(analysis.getTwoStandardErrorHexColorString()));
+//            ratioColorSelectionPane.getStdErrorSplotch().
+//                    colorProperty().setValue(Color.web(analysis.getTwoStandardErrorHexColorString()));
 //            analysis.setMeanHexColorString(originalMeanHexColor);
-            ratioColorSelectionPane.getMeanSplotch().
-                    colorProperty().setValue(Color.web(analysis.getMeanHexColorString()));
+//            ratioColorSelectionPane.getMeanSplotch().
+//                    colorProperty().setValue(Color.web(analysis.getMeanHexColorString()));
             ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().clear();
             ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().putAll(
                     originalSpeciesColors
@@ -384,14 +382,15 @@ public class SettingsWindow {
     }
 
     public void updateRatioColorSelectionPane() {
-        ratioColorSelectionPane.getTwoSigmaSplotch().colorProperty().setValue(
-                Color.web(analysis.getTwoSigmaHexColorString()));
-        ratioColorSelectionPane.getOneSigmaSplotch().colorProperty().setValue(Color.web(
-                analysis.getOneSigmaHexColorString()));
-        ratioColorSelectionPane.getStdErrorSplotch().colorProperty().setValue(Color.web(
-                analysis.getTwoStandardErrorHexColorString()));
-        ratioColorSelectionPane.getMeanSplotch().colorProperty().setValue(Color.web(
-                analysis.getMeanHexColorString()));
+//        ratioColorSelectionPane.getTwoSigmaSplotch().colorProperty().setValue(
+//                Color.web(analysis.getTwoSigmaHexColorString()));
+//        ratioColorSelectionPane.getOneSigmaSplotch().colorProperty().setValue(Color.web(
+//                analysis.getOneSigmaHexColorString()));
+//        ratioColorSelectionPane.getStdErrorSplotch().colorProperty().setValue(Color.web(
+//                analysis.getTwoStandardErrorHexColorString()));
+//        ratioColorSelectionPane.getMeanSplotch().colorProperty().setValue(Color.web(
+//                analysis.getMeanHexColorString()));
+        ratioColorSelectionPane.updateRatioColorsProperty(analysis.getRatioColors());
         speciesColorSelectionScrollPane.getSpeciesIntensityColorSelectionPanes().forEach(
                 SpeciesIntensityColorSelectionPane::updateColorProperties);
     };

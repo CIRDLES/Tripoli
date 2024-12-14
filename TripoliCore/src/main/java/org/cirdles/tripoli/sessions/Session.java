@@ -19,7 +19,7 @@ package org.cirdles.tripoli.sessions;
 import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.settings.plots.BlockCyclesPlotColors;
+import org.cirdles.tripoli.settings.plots.RatiosColors;
 import org.cirdles.tripoli.utilities.collections.TripoliSessionAnalysisMap;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -53,7 +53,7 @@ public class Session implements Serializable {
 
 
     // Color Strings for ratio plots
-    private BlockCyclesPlotColors blockCyclesPlotColors;
+    private RatiosColors ratiosColors;
     // END OF ratio plot Color Strings
 
     private Session() {
@@ -82,7 +82,7 @@ public class Session implements Serializable {
             TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
             session.sessionDefaultParameters = tripoliPersistentState.getTripoliPersistentParameters().copy();
             session.sessionDefaultMapOfSpeciesToColors = tripoliPersistentState.getMapOfSpeciesToColors();
-            session.blockCyclesPlotColors = tripoliPersistentState.getBlockCyclesPlotColors();
+            session.ratiosColors = tripoliPersistentState.getBlockCyclesPlotColors();
         } catch (TripoliException e) {
             e.printStackTrace();
         }
@@ -95,7 +95,7 @@ public class Session implements Serializable {
             TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
             session.sessionDefaultParameters = tripoliPersistentState.getTripoliPersistentParameters().copy();
             session.sessionDefaultMapOfSpeciesToColors = tripoliPersistentState.getMapOfSpeciesToColors();
-            session.blockCyclesPlotColors = tripoliPersistentState.getBlockCyclesPlotColors();
+            session.ratiosColors = tripoliPersistentState.getBlockCyclesPlotColors();
         } catch (TripoliException e) {
             e.printStackTrace();
         }
@@ -106,8 +106,8 @@ public class Session implements Serializable {
         return sessionChanged;
     }
 
-    public BlockCyclesPlotColors getBlockCyclesPlotColors() {
-        return blockCyclesPlotColors;
+    public RatiosColors getBlockCyclesPlotColors() {
+        return ratiosColors;
     }
 
     public static void setSessionChanged(boolean mySessionChanged) {
@@ -173,8 +173,8 @@ public class Session implements Serializable {
         return sessionDefaultParameters;
     }
 
-    public void setBlockCyclesPlotColors(BlockCyclesPlotColors blockCyclesPlotColors) {
-        this.blockCyclesPlotColors = blockCyclesPlotColors;
+    public void setBlockCyclesPlotColors(RatiosColors ratiosColors) {
+        this.ratiosColors = ratiosColors;
     }
 
     /**

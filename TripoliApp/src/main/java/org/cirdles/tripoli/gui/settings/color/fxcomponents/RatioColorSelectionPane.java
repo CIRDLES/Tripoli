@@ -1,46 +1,37 @@
 package org.cirdles.tripoli.gui.settings.color.fxcomponents;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import org.cirdles.tripoli.constants.TripoliConstants;
+import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.settings.plots.RatiosColors;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
+import static org.cirdles.tripoli.constants.TripoliConstants.RatiosPlotColorFlavor;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class RatioColorSelectionPane extends ScrollPane implements Initializable {
 
     @FXML
     private VBox vBox;
-    @FXML
-    private HBox twoSigmaHBox;
-    @FXML
-    private StackPane twoSigmaStackPane;
-    @FXML
-    private HBox oneSigmaHBox;
-    @FXML
-    private StackPane oneSigmaStackPane;
-    @FXML
-    private HBox stdErrorHBox;
-    @FXML
-    private StackPane stdErrorStackPane;
-    @FXML
-    private HBox meanHBox;
-    @FXML
-    private StackPane meanStackPane;
 
-    private ColorPickerSplotch twoSigmaSplotch;
-    private ColorPickerSplotch oneSigmaSplotch;
-    private ColorPickerSplotch stdErrorSplotch;
-    private ColorPickerSplotch meanSplotch;
+    private ObjectProperty<RatiosColors> ratioColorsProperty;
+    private List<RatioColorRow> ratioColorRowList;
+
 
     public RatioColorSelectionPane(DelegateActionSet delegateActionSet, AnalysisInterface analysis) {
         super();
@@ -52,64 +43,43 @@ public class RatioColorSelectionPane extends ScrollPane implements Initializable
         } catch (IOException e) {
             e.printStackTrace();// TODO: Logging
         }
-        getOneSigmaSplotch().getDelegateActionSet().addDelegateActions(delegateActionSet);
-        getOneSigmaSplotch().setHexColorSetter(analysis::setOneSigmaHexColorString);
-        getOneSigmaSplotch().getColorPicker().setValue(Color.web(analysis.getOneSigmaHexColorString()));
-        getTwoSigmaSplotch().getDelegateActionSet().addDelegateActions(delegateActionSet);
-        getTwoSigmaSplotch().setHexColorSetter(analysis::setTwoSigmaHexColorString);
-        getTwoSigmaSplotch().getColorPicker().setValue(Color.web(analysis.getTwoSigmaHexColorString()));
-        getStdErrorSplotch().getDelegateActionSet().addDelegateActions(delegateActionSet);
-        getStdErrorSplotch().setHexColorSetter(analysis::setTwoStandardErrorHexColorString);
-        getStdErrorSplotch().getColorPicker().setValue(Color.web(analysis.getTwoStandardErrorHexColorString()));
-        getMeanSplotch().getDelegateActionSet().addDelegateActions(delegateActionSet);
-        getMeanSplotch().setHexColorSetter(analysis::setMeanHexColorString);
-        getMeanSplotch().getColorPicker().setValue(Color.web(analysis.getMeanHexColorString()));
+        this.ratioColorsProperty = new SimpleObjectProperty<>(analysis.getRatioColors());
+        ratioColorRowList = new ArrayList<>();
+        if (analysis.getRatioColors() != null) {
+            for (RatiosPlotColorFlavor flavor : RatiosPlotColorFlavor.values()){
+                RatioColorRow ratioColorRow = new RatioColorRow(analysis.getRatioColors(), flavor);
+                ratioColorRow.setPrefHeight(30);
+                Region region = new Region();
+                region.setPrefHeight(35);
+                vBox.getChildren().addAll(region, ratioColorRow);
+                ratioColorRowList.add(ratioColorRow);
+                ratioColorRow.colorProperty().addListener(((observable, oldValue, newValue) -> {
+                    ratioColorsProperty.set(ratioColorsProperty.get().altered(
+                            ratioColorRow.getPlotColorFlavor(),
+                            ConstantsTripoliApp.convertColorToHex(newValue)
+                    ));
+                    analysis.setRatioColors(ratioColorsProperty.get());
+                    delegateActionSet.executeDelegateActions();
+                }));
+            }
+        }
+    }
+
+    public void updateRatioColorsProperty(RatiosColors ratiosColors) {
+        this.ratioColorsProperty.set(ratiosColors);
+        for (RatioColorRow ratioColorRow : ratioColorRowList) {
+            ratioColorRow.colorProperty().set(
+                    Color.web(
+                            ratioColorsProperty.get().get(ratioColorRow.getPlotColorFlavor())
+                    )
+            );
+        }
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        twoSigmaSplotch = new ColorPickerSplotch();
-        twoSigmaSplotch.getColorPicker().setValue(OGTRIPOLI_TWOSIGMA);
-        twoSigmaSplotch.setPrefWidth(twoSigmaStackPane.getPrefWidth());
-        twoSigmaSplotch.setPrefHeight(twoSigmaStackPane.getPrefHeight());
-        twoSigmaHBox.getChildren().remove(twoSigmaStackPane);
-        twoSigmaStackPane = twoSigmaSplotch;
-        twoSigmaHBox.getChildren().add(twoSigmaHBox.getChildren().size() - 1, twoSigmaSplotch);
-        oneSigmaSplotch = new ColorPickerSplotch();
-        oneSigmaSplotch.getColorPicker().setValue(OGTRIPOLI_ONESIGMA);
-        oneSigmaSplotch.setPrefWidth(oneSigmaStackPane.getPrefWidth());
-        oneSigmaSplotch.setPrefHeight(oneSigmaStackPane.getPrefHeight());
-        oneSigmaHBox.getChildren().remove(oneSigmaStackPane);
-        oneSigmaHBox.getChildren().add(oneSigmaHBox.getChildren().size() - 1,oneSigmaSplotch);
-        stdErrorSplotch = new ColorPickerSplotch();
-        stdErrorSplotch.getColorPicker().setValue(OGTRIPOLI_TWOSTDERR);
-        stdErrorSplotch.setPrefWidth(stdErrorStackPane.getPrefWidth());
-        stdErrorSplotch.setPrefHeight(stdErrorStackPane.getPrefHeight());
-        stdErrorHBox.getChildren().remove(stdErrorStackPane);
-        stdErrorHBox.getChildren().add(stdErrorHBox.getChildren().size() - 1, stdErrorSplotch);
-        meanSplotch = new ColorPickerSplotch();
-        meanSplotch.getColorPicker().setValue(OGTRIPOLI_MEAN);
-        meanSplotch.setPrefWidth(meanStackPane.getPrefWidth());
-        meanSplotch.setPrefHeight(meanStackPane.getPrefHeight());
-        meanHBox.getChildren().remove(meanStackPane);
-        meanHBox.getChildren().add(meanHBox.getChildren().size() - 1, meanSplotch);
     }
 
-    public ColorPickerSplotch getTwoSigmaSplotch() {
-        return twoSigmaSplotch;
-    }
-
-    public ColorPickerSplotch getOneSigmaSplotch() {
-        return oneSigmaSplotch;
-    }
-
-    public ColorPickerSplotch getStdErrorSplotch() {
-        return stdErrorSplotch;
-    }
-
-    public ColorPickerSplotch getMeanSplotch() {
-        return meanSplotch;
-    }
 
     public VBox getVBoxRoot() {
         return vBox;

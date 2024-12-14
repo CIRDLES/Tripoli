@@ -59,7 +59,7 @@ public class ColorPickerSplotch extends StackPane {
                             new Background(
                                     new BackgroundFill(
                                             newValue,
-                                            new CornerRadii(2, false),
+                                            new CornerRadii(5, false),
                                             new Insets(2))));
             this.label.setTextFill(newValue.invert());
             this.hexColorSetter.set(ConstantsTripoliApp.convertColorToHex(newValue));
