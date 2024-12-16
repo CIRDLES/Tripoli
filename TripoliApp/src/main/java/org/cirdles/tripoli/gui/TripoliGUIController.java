@@ -20,10 +20,12 @@ package org.cirdles.tripoli.gui;
 import jakarta.xml.bind.JAXBException;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -41,6 +43,7 @@ import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.gui.settings.SettingsRequestType;
 import org.cirdles.tripoli.gui.settings.SettingsWindow;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
+import org.cirdles.tripoli.gui.utilities.events.PlotTabSelectedEvent;
 import org.cirdles.tripoli.gui.utilities.events.SaveCurrentSessionEvent;
 import org.cirdles.tripoli.gui.utilities.events.SaveSessionAsEvent;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
@@ -63,6 +66,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
@@ -547,13 +551,22 @@ public class TripoliGUIController implements Initializable {
     }
 
     public void parameterControlMenuItemOnAction() {
-        SettingsWindow settingsWindow =
-                SettingsWindow.requestSettingsWindow(
-                        primaryStage,
-                        new DelegateActionSet(),
-                        analysis,
-                        SettingsRequestType.MENU_ITEM);
-        settingsWindow.show();
+        Optional<Scene> optionalSettingScene = SettingsWindow.getCurrentScene();
+        if (optionalSettingScene.isPresent()) {
+            optionalSettingScene.ifPresent(
+                    scene -> {
+                        Event.fireEvent(scene, PlotTabSelectedEvent.create(SettingsRequestType.MENU_ITEM));
+                    }
+            );
+        } else {
+            SettingsWindow settingsWindow =
+                    SettingsWindow.requestSettingsWindow(
+                            primaryStage,
+                            new DelegateActionSet(),
+                            analysis,
+                            SettingsRequestType.MENU_ITEM);
+            settingsWindow.show();
+        }
     }
 
 
