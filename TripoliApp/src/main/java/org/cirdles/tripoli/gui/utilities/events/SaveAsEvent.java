@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.gui.utilities;
+package org.cirdles.tripoli.gui.utilities.events;
 import javafx.event.EventType;
 import javafx.event.Event;
 import org.cirdles.tripoli.sessions.Session;

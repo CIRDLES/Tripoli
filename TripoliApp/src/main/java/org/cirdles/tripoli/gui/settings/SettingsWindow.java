@@ -6,17 +6,15 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.TripoliGUI;
-import org.cirdles.tripoli.gui.TripoliGUIController;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneIntensities;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.*;
-import org.cirdles.tripoli.gui.utilities.SaveAsEvent;
-import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
+import org.cirdles.tripoli.gui.utilities.events.PlotTabSelectedEvent;
+import org.cirdles.tripoli.gui.utilities.events.SaveAsEvent;
 import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
@@ -29,10 +27,10 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 
 import static javafx.event.Event.fireEvent;
 
@@ -113,6 +111,30 @@ public class SettingsWindow {
                     settingsWindowController.getPlotIntensitiesVBox().getChildren().add(row);
                 }
             }
+            this.stage.getScene().addEventFilter(
+                    PlotTabSelectedEvent.PLOT_TAB_SELECTED,
+                    plotTabSelectedEvent -> {
+                        SettingsRequestType settingsRequestType = plotTabSelectedEvent.getRequestType();
+                        switch (settingsRequestType) {
+                            case RATIOS -> {
+                                settingsWindowController.getSettingsTabPane().
+                                        getSelectionModel().
+                                        select(settingsWindowController.getRatiosColorTab());
+                            }
+                            case INTENSITIES -> {
+                                settingsWindowController.getSettingsTabPane().
+                                        getSelectionModel().
+                                        select(settingsWindowController.getIntensitiesColorTab());
+                            }
+                            case MENU_ITEM -> {
+                                settingsWindowController.getSettingsTabPane().
+                                        getSelectionModel().
+                                        select(settingsWindowController.getParameterControlTab());
+                            }
+                        }
+                        plotTabSelectedEvent.consume();
+                    }
+            );
             initParameterTextFields();
         } catch (IOException | TripoliException e) {
             e.printStackTrace();
@@ -413,7 +435,21 @@ public class SettingsWindow {
         ratioColorSelectionPane.updateRatioColorsProperty(analysis.getRatioColors());
         speciesColorSelectionScrollPane.getSpeciesIntensityColorSelectionPanes().forEach(
                 SpeciesIntensityColorSelectionPane::updateColorProperties);
-    };
+    }
+
+    /**
+     * Allows callers to evaluate whether a scene exists in memory.
+     * @return
+     */
+    public static Optional<Scene> getCurrentScene() {
+        Optional<Scene> optionalScene = Optional.empty();
+        if (instance != null &&
+                instance.getStage() != null &&
+                instance.getStage().getScene() != null) {
+            optionalScene = Optional.of(instance.getStage().getScene());
+        }
+        return optionalScene;
+    }
 
     public void close() {
         instance = null;
