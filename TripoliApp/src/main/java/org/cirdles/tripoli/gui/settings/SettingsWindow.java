@@ -11,8 +11,12 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
+import org.cirdles.tripoli.gui.TripoliGUI;
+import org.cirdles.tripoli.gui.TripoliGUIController;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneIntensities;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.*;
+import org.cirdles.tripoli.gui.utilities.SaveAsEvent;
+import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
@@ -25,9 +29,13 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
+
+import static javafx.event.Event.fireEvent;
+
 
 public class SettingsWindow {
 
@@ -262,10 +270,16 @@ public class SettingsWindow {
         settingsWindowController.getSaveAnalysisSettingsButton().setOnAction(e -> {
             try {
                 Session currentSession = ((Analysis) analysis).getParentSession();
-                TripoliSerializer.serializeObjectToFile(currentSession,
-                    TripoliPersistentState.getExistingPersistentState().getMRUSessionFile().getAbsolutePath());
-                close();
-            } catch (TripoliException ex) {
+                TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+                if (tripoliPersistentState != null && tripoliPersistentState.getMRUSessionFile() != null) {
+                    TripoliSerializer.serializeObjectToFile(
+                            currentSession,
+                            tripoliPersistentState.getMRUSessionFile().getAbsolutePath());
+                } else {
+                    SaveAsEvent saveAsEvent = new SaveAsEvent(currentSession);
+                    fireEvent(TripoliGUI.primaryStage.getScene(), saveAsEvent);
+                }
+            } catch (TripoliException  | NullPointerException ex ) {
                 ex.printStackTrace();
             }
         });
@@ -280,9 +294,15 @@ public class SettingsWindow {
             currentSession.getSessionDefaultMapOfSpeciesToColors().
                     putAll(((Analysis) analysis).getAnalysisMapOfSpeciesToColors());
             try {
-                TripoliSerializer.serializeObjectToFile(currentSession,
-                        TripoliPersistentState.getExistingPersistentState().getMRUSessionFile().getAbsolutePath());
-            } catch (TripoliException ex) {
+                TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+                if (tripoliPersistentState != null && tripoliPersistentState.getMRUSessionFile() != null) {
+                    TripoliSerializer.serializeObjectToFile(
+                            currentSession,
+                            tripoliPersistentState.getMRUSessionFile().getAbsolutePath());
+                } else {
+                   fireEvent(TripoliGUI.primaryStage.getScene(), new SaveAsEvent(currentSession));
+                }
+            } catch (TripoliException |  NullPointerException ex) {
                 ex.printStackTrace();
             }
         });

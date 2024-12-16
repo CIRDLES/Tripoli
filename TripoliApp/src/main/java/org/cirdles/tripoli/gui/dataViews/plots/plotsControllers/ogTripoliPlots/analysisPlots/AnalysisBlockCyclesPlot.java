@@ -519,19 +519,18 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
             }
         }
         g2d.fillText("Legend:", textLeft + 5, textTop += textDeltaY * 2);
-//        g2d.setFill(OGTRIPOLI_TWOSIGMA);
+
+
         g2d.setFill(Color.web(analysis.getTwoSigmaHexColorString()));
         g2d.fillRect(textLeft + 10, textTop + textDeltaY, 25, 50);
         g2d.setFill(Paint.valueOf("BLACK"));
         g2d.fillText("2\u03C3", textLeft + 15, textTop + 2 * textDeltaY);
 
-//        g2d.setFill(OGTRIPOLI_ONESIGMA);
         g2d.setFill(Color.web(analysis.getOneSigmaHexColorString()));
         g2d.fillRect(textLeft + 35, textTop + textDeltaY + 25, 25, 25);
         g2d.setFill(Paint.valueOf("BLACK"));
         g2d.fillText("\u03C3", textLeft + 42, textTop + 2.9 * textDeltaY);
 
-//        g2d.setFill(OGTRIPOLI_TWOSTDERR);
         g2d.setFill(Color.web(analysis.getTwoStandardErrorHexColorString()));
         g2d.fillRect(textLeft + 60, textTop + textDeltaY + 25, 25, 25);
         g2d.setFill(Paint.valueOf("BLACK"));
@@ -540,16 +539,11 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
         g2d.fillText("x\u0304", textLeft + 80, textTop + 2.9 * textDeltaY + 6);
         g2d.setFont(normalFourteen);
 
-//        g2d.setStroke(OGTRIPOLI_MEAN);
         g2d.setStroke(Color.web(analysis.getMeanHexColorString()));
         g2d.setLineWidth(1.5);
         g2d.strokeLine(textLeft + 5, textTop + textDeltaY + 50, textLeft + 90, textTop + textDeltaY + 50);
         g2d.fillText("x\u0304", textLeft + 95, textTop + 2.9 * textDeltaY + 12);
-        // TODO: remove boiler plate for viewing anti-data-string
-        // Begin boiler-plate
-        g2d.setFill(Color.web(analysis.getAntiDataHexColorString()));
-        g2d.fillRect(textLeft, textTop + textDeltaY + 50, 50, 50);
-        g2d.setFill(Color.BLACK);
+
     }
 
     private String appendTrailingZeroIfNeeded(String valueString, int countOfTrailingDigits) {

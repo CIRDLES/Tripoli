@@ -48,9 +48,9 @@ public class RatioColorSelectionPane extends ScrollPane implements Initializable
         if (analysis.getRatioColors() != null) {
             for (RatiosPlotColorFlavor flavor : RatiosPlotColorFlavor.values()){
                 RatioColorRow ratioColorRow = new RatioColorRow(analysis.getRatioColors(), flavor);
-                ratioColorRow.setPrefHeight(30);
+                ratioColorRow.setPrefHeight(35);
                 Region region = new Region();
-                region.setPrefHeight(35);
+                region.setPrefHeight(20);
                 vBox.getChildren().addAll(region, ratioColorRow);
                 ratioColorRowList.add(ratioColorRow);
                 ratioColorRow.colorProperty().addListener(((observable, oldValue, newValue) -> {
