@@ -56,7 +56,7 @@ public class RatioColorSelectionPane extends ScrollPane implements Initializable
                 ratioColorRow.colorProperty().addListener(((observable, oldValue, newValue) -> {
                     ratioColorsProperty.set(ratioColorsProperty.get().altered(
                             ratioColorRow.getPlotColorFlavor(),
-                            ConstantsTripoliApp.convertColorToHex(newValue)
+                            convertColorToHex(newValue)
                     ));
                     analysis.setRatioColors(ratioColorsProperty.get());
                     delegateActionSet.executeDelegateActions();
