@@ -118,7 +118,7 @@ public enum TripoliConstants {
         TWO_STD_ERR_SHADE("Two \u03C3 Standard Error Shading"),
         MEAN_COLOR("Mean Color"),
         DATA_COLOR("Data Color"),
-        ANTI_DATA_COLOR("Anti-Data Color");
+        REJECTED_COLOR("Rejected Data Color");
 
         private final String name;
 

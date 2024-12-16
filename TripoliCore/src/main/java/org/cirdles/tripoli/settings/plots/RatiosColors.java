@@ -22,7 +22,7 @@ public record RatiosColors(
             case TWO_STD_ERR_SHADE -> result.append(twoStdErrShade);
             case MEAN_COLOR -> result.append(meanColor);
             case DATA_COLOR -> result.append(dataColor);
-            case ANTI_DATA_COLOR -> result.append(dataAntiColor);
+            case REJECTED_COLOR -> result.append(dataAntiColor);
         }
         return result.toString();
     }
@@ -51,7 +51,7 @@ public record RatiosColors(
             case TWO_STD_ERR_SHADE -> twoStdErrShade = hexColor;
             case MEAN_COLOR -> meanColor = hexColor;
             case DATA_COLOR -> dataColor = hexColor;
-            case ANTI_DATA_COLOR -> dataAntiColor = hexColor;
+            case REJECTED_COLOR -> dataAntiColor = hexColor;
         }
         return new RatiosColors(
                 oneSigmaShade,

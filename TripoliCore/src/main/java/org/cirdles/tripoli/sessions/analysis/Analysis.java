@@ -771,7 +771,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
     @Override
     public void setAntiDataHexColorString(String hexColor) {
-        setBlockCyclesPlotColors(ANTI_DATA_COLOR, hexColor);
+        setBlockCyclesPlotColors(REJECTED_COLOR, hexColor);
     }
 
     @Override
@@ -984,7 +984,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
     @Override
     public String getAntiDataHexColorString() {
-        return ratiosColors.get(ANTI_DATA_COLOR);
+        return ratiosColors.get(REJECTED_COLOR);
     }
 
     @Override
