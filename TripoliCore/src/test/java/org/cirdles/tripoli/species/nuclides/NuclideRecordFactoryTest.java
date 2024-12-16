@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.settings.nuclides;
+package org.cirdles.tripoli.species.nuclides;
 
 import org.cirdles.tripoli.expressions.species.nuclides.NuclideRecord;
 import org.cirdles.tripoli.expressions.species.nuclides.NuclidesFactory;
