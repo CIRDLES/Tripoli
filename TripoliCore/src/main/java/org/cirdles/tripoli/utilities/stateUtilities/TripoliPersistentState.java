@@ -17,6 +17,8 @@
  */
 package org.cirdles.tripoli.utilities.stateUtilities;
 
+import org.cirdles.tripoli.parameters.Parameters;
+import org.cirdles.tripoli.settings.plots.RatiosColors;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
@@ -54,6 +56,12 @@ public class TripoliPersistentState implements Serializable {
     private String MRUExportFolderPath;
     private TripoliSpeciesColorMap mapOfSpeciesToColors;
     private Map<String, AnalysisMethodPersistance> mapMethodNamesToDefaults;
+    private Parameters tripoliPersistentParameters;
+
+
+    //  Ratio Stat plot colors
+    private RatiosColors ratiosColors;
+    // END Ratio Stat plot colors
 
 //    private void readObject(ObjectInputStream stream) throws IOException,
 //            ClassNotFoundException {
@@ -98,6 +106,8 @@ public class TripoliPersistentState implements Serializable {
         mapOfSpeciesToColors = new TripoliSpeciesColorMap();
 
         mapMethodNamesToDefaults = new TreeMap<>();
+
+        tripoliPersistentParameters = new Parameters();
 
         serializeSelf();
     }
@@ -164,6 +174,14 @@ public class TripoliPersistentState implements Serializable {
     //properties
 
 
+    public Parameters getTripoliPersistentParameters() {
+        if (tripoliPersistentParameters == null) {
+            tripoliPersistentParameters = new Parameters();
+            serializeSelf();
+        }
+        return tripoliPersistentParameters;
+    }
+
     public Map<String, AnalysisMethodPersistance> getMapMethodNamesToDefaults() {
         if (mapMethodNamesToDefaults == null) {
             mapMethodNamesToDefaults = new TreeMap<>();
@@ -172,12 +190,41 @@ public class TripoliPersistentState implements Serializable {
         return mapMethodNamesToDefaults;
     }
 
+
     public TripoliSpeciesColorMap getMapOfSpeciesToColors() {
         if (mapOfSpeciesToColors == null) {
             mapOfSpeciesToColors = new TripoliSpeciesColorMap();
             serializeSelf();
         }
         return mapOfSpeciesToColors;
+    }
+
+    public RatiosColors getBlockCyclesPlotColors() {
+        if (this.ratiosColors == null) {
+            this.ratiosColors = RatiosColors.defaultBlockCyclesPlotColors();
+            serializeSelf();
+        }
+        return ratiosColors;
+    }
+
+    public String getTwoSigmaHexColorString() {
+        return getBlockCyclesPlotColors().twoSigmaShade();
+    }
+
+    public String getOneSigmaHexColorString() {
+        return getBlockCyclesPlotColors().oneSigmaShade();
+    }
+
+    public String getTwoStdErrHexColorString() {
+        return getBlockCyclesPlotColors().twoStdErrShade();
+    }
+
+    public String getMeanHexColorString() {
+        return getBlockCyclesPlotColors().meanColor();
+    }
+
+    public void setBlockCyclesPlotColors(RatiosColors ratiosColors) {
+        this.ratiosColors = ratiosColors;
     }
 
     public void updateTripoliPersistentState() {

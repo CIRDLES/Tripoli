@@ -1,4 +1,4 @@
-package org.cirdles.tripoli.species;
+package org.cirdles.tripoli.settings.plots.species;
 
 import java.io.Serializable;
 

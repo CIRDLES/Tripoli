@@ -1,6 +1,9 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
+import org.cirdles.tripoli.utilities.DelegateActionInterface;
+
 public interface PlotWallPaneInterface {
+
     void buildToolBar();
 
     void buildScaleControlsToolbar();
@@ -24,4 +27,7 @@ public interface PlotWallPaneInterface {
     void updateStatusOfCycleCheckBox();
 
     void toggleSculptingMode();
+
+    void addRepaintDelegateAction(DelegateActionInterface delegateAction);
+    void removeRepaintDelegateAction(DelegateActionInterface delegateAction);
 }

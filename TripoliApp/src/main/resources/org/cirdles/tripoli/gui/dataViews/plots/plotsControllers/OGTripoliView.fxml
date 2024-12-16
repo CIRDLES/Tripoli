@@ -10,7 +10,7 @@
     <children>
         <TabPane fx:id="plotTabPane">
             <tabs>
-                <Tab closable="false" text="Ratios by Cycles and Blocks">
+                <Tab fx:id="ratiosPlotTab" closable="false" text="Ratios by Cycles and Blocks">
                     <content>
                         <AnchorPane fx:id="ogtCycleRatioPlotsAnchorPane" prefHeight="579.0" prefWidth="1000.0"
                                     style="-fx-background-color: lightgrey;">

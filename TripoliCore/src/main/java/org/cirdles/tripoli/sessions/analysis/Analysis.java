@@ -26,6 +26,7 @@ import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
+import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioPlotBuilder;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioRecord;
@@ -49,7 +50,8 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactor
 import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassSpec.PhoenixAnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunction;
-import org.cirdles.tripoli.species.SpeciesColors;
+import org.cirdles.tripoli.settings.plots.RatiosColors;
+import org.cirdles.tripoli.settings.plots.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.IntuitiveStringComparator;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
@@ -73,6 +75,7 @@ import java.util.regex.Pattern;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.PHOENIX_FULL_SYNTHETIC;
 import static org.cirdles.tripoli.constants.MassSpectrometerContextEnum.UNKNOWN;
 import static org.cirdles.tripoli.constants.TripoliConstants.*;
+import static org.cirdles.tripoli.constants.TripoliConstants.RatiosPlotColorFlavor.*;
 import static org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisRatioPlotBuilder.initializeAnalysisRatioPlotBuilder;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.BURDICK_BL_SYNTHETIC_DATA;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethodBuiltinFactory.KU_204_5_6_7_8_DALY_ALL_FARADAY_PB;
@@ -100,7 +103,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     private final Map<IsotopicRatio, AnalysisRatioRecord> mapOfRatioToAnalysisRatioRecord = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = Collections.synchronizedSortedMap(new TreeMap<>());
-    //    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
+//    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
     private TripoliSpeciesColorMap analysisMapOfSpeciesToColors;
     private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
     private Session parentSession;
@@ -125,6 +128,12 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     private ETReduxExportTypeEnum etReduxExportType = ETReduxExportTypeEnum.NONE;
     private String analysisStartTime = "01/01/2001 00:00:00";
 
+    // Block Color Hex
+    private RatiosColors ratiosColors;
+    // END Block Stats color hex
+
+    // Parameters
+    private Parameters analysisParameters;
 
     private Analysis() {
     }
@@ -134,13 +143,27 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
                        String analysisSampleName) throws TripoliException {
         this.analysisName = analysisName;
         try {
+            TripoliPersistentState persistentState = TripoliPersistentState.getExistingPersistentState();
             this.analysisMapOfSpeciesToColors =
                     new TripoliSpeciesColorMap(
-                            TripoliPersistentState.getExistingPersistentState().getMapOfSpeciesToColors());// Default if not added
+                            persistentState.getMapOfSpeciesToColors());// Default if not added
+            this.analysisParameters =
+                    persistentState.getTripoliPersistentParameters().copy();
+
         } catch (TripoliException e) {
             e.printStackTrace();
         }
         setMethod(analysisMethod);
+        //  Initialize default colors from Analysis
+        ratiosColors = new RatiosColors(
+                OGTRIPOLI_ONESIGMA_HEX,
+                OGTRIPOLI_TWOSIGMA_HEX,
+                OGTRIPOLI_TWOSTDERR_HEX,
+                OGTRIPOLI_MEAN_HEX,
+                OGTRIPOLI_DATA_HEX,
+                OGTRIPOLI_ANTI_DATA_HEX
+        );
+        //  END default coloring
         this.analysisSampleName = analysisSampleName;
         this.analysisFractionName = MISSING_STRING_FIELD;
         analystName = MISSING_STRING_FIELD;
@@ -155,6 +178,8 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         }
         userFunctions = new ArrayList<>();
     }
+
+
 
     public static AnalysisInterface concatenateTwoAnalysesLite(AnalysisInterface analysisOne, AnalysisInterface analysisTwo) throws TripoliException {
         // assume for now that these are two sequential runs with all the same metadata
@@ -710,6 +735,49 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return sb.toString();
     }
 
+    @Override
+    public void setRatioColors(RatiosColors ratiosColors) {
+        this.ratiosColors = ratiosColors;
+    }
+
+    private void setBlockCyclesPlotColors(RatiosPlotColorFlavor flavor, String hexColor) {
+        this.ratiosColors = this.ratiosColors.altered(flavor, hexColor);
+    }
+
+    @Override
+    public void setTwoSigmaHexColorString(String newHexColor) {
+        setBlockCyclesPlotColors(TWO_SIGMA_SHADE, newHexColor);
+    }
+
+    @Override
+    public void setTwoStandardErrorHexColorString(String hexColor) {
+        setBlockCyclesPlotColors(TWO_STD_ERR_SHADE, hexColor);
+    }
+
+    @Override
+    public void setOneSigmaHexColorString(String newHexColor) {
+        setBlockCyclesPlotColors(ONE_SIGMA_SHADE, newHexColor);
+    }
+
+    @Override
+    public void setMeanHexColorString(String newHexColor) {
+        setBlockCyclesPlotColors(MEAN_COLOR, newHexColor);
+    }
+
+    @Override
+    public void setDataHexColorString(String hexColor) {
+        setBlockCyclesPlotColors(DATA_COLOR, hexColor);
+    }
+
+    @Override
+    public void setAntiDataHexColorString(String hexColor) {
+        setBlockCyclesPlotColors(REJECTED_COLOR, hexColor);
+    }
+
+    @Override
+    public Parameters getParameters() {
+        return this.analysisParameters;
+    }
 
     public Session getParentSession() {
         return parentSession;
@@ -773,7 +841,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     // TODO: Merge Multiple setters (check line 621, public void setAnalysisMethod(AnalysisMethod analysisMethod))
     @Override
     public void setMethod(AnalysisMethod analysisMethod) {
-        // Will use this method to initialize mapOfSpeciesToColors
         this.analysisMethod = analysisMethod;
     }
 
@@ -782,7 +849,14 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         setAnalysisMapOfSpeciesToColors(
                 new TripoliSpeciesColorMap(session.getSessionDefaultMapOfSpeciesToColors()));
         this.parentSession = session;
+        this.analysisParameters = session.getSessionDefaultParameters().copy();
         this.sessionDefaultMapOfSpeciesToColors = session.getSessionDefaultMapOfSpeciesToColors();
+        this.ratiosColors = session.getBlockCyclesPlotColors();
+    }
+
+
+    public void setAnalysisMapOfSpeciesToColors(TripoliSpeciesColorMap analysisMapOfSpeciesToColors) {
+        this.analysisMapOfSpeciesToColors = analysisMapOfSpeciesToColors;
     }
 
     public TripoliSpeciesColorMap getSessionDefaultMapOfSpeciesToColors() {
@@ -874,9 +948,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return analysisMapOfSpeciesToColors;
     }
 
-    public void setAnalysisMapOfSpeciesToColors(TripoliSpeciesColorMap analysisMapOfSpeciesToColors) {
-        this.analysisMapOfSpeciesToColors = analysisMapOfSpeciesToColors;
-    }
 
     public void setAnalysisDalyFaradayGainMean(double analysisDalyFaradayGainMean) {
         this.analysisDalyFaradayGainMean = analysisDalyFaradayGainMean;
@@ -904,6 +975,41 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
 
     public void setAnalysisStartTime(String analysisStartTime) {
         this.analysisStartTime = analysisStartTime;
+    }
+
+    @Override
+    public RatiosColors getRatioColors(){
+        return this.ratiosColors;
+    }
+
+    @Override
+    public String getAntiDataHexColorString() {
+        return ratiosColors.get(REJECTED_COLOR);
+    }
+
+    @Override
+    public String getOneSigmaHexColorString() {
+        return ratiosColors.get(ONE_SIGMA_SHADE);
+    }
+
+    @Override
+    public String getTwoSigmaHexColorString() {
+        return ratiosColors.get(TWO_SIGMA_SHADE);
+    }
+
+    @Override
+    public String getTwoStandardErrorHexColorString() {
+        return ratiosColors.get(TWO_STD_ERR_SHADE);
+    }
+
+    @Override
+    public String getMeanHexColorString() {
+        return ratiosColors.get(MEAN_COLOR);
+    }
+
+    @Override
+    public String getDataHexColorString() {
+        return ratiosColors.get(DATA_COLOR);
     }
 
     /**

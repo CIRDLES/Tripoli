@@ -28,9 +28,12 @@ import javafx.scene.paint.Color;
 import javafx.stage.WindowEvent;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
-import org.cirdles.tripoli.gui.dataViews.plots.color.ColorSelectionWindow;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController;
+import org.cirdles.tripoli.gui.settings.SettingsRequestType;
+import org.cirdles.tripoli.gui.settings.SettingsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
-import org.cirdles.tripoli.species.SpeciesColors;
+import org.cirdles.tripoli.gui.settings.color.fxcomponents.SettingsButton;
+import org.cirdles.tripoli.settings.plots.species.SpeciesColors;
 import org.cirdles.tripoli.utilities.DelegateActionInterface;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 
@@ -85,9 +88,6 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
         }
     }
 
-    public static void clearDelegates() {
-        delegateActionSet.clear();
-    }
 
     public void close() {
         removeDelegateAction.act();
@@ -159,6 +159,16 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     @Override
     public void toggleSculptingMode() {
 
+    }
+
+    @Override
+    public void addRepaintDelegateAction(DelegateActionInterface delegateAction) {
+        delegateActionSet.addDelegateAction(delegateAction);
+    }
+
+    @Override
+    public void removeRepaintDelegateAction(DelegateActionInterface delegateAction) {
+        delegateActionSet.removeDelegateAction(delegateAction);
     }
 
     public void buildIntensitiesPlotToolBar(boolean showResiduals,
@@ -295,28 +305,28 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
                     rebuildPlot(false, false);
                 });
 
-        Label colorButtonSpace = new Label();
-        Button colorButton = new Button("Customize Colors");
-        colorButtonSpace.setLabelFor(colorButton);
-        colorButtonSpace.setPrefWidth(30);
-        colorButton.setOnAction(click -> {
-            int indexOfFirstCheckedSpecies = 0;
-            for (int i = 0; i < speciesChecked.length; i++) {
-                if (speciesChecked[i]) {
-                    indexOfFirstCheckedSpecies = i;
-                    break;
-                }
-            }
-            ColorSelectionWindow window =
-                    ColorSelectionWindow.colorSelectionWindowRequest(analysisMapOfSpeciesToColors,
-                            species,
-                            sessionDefaultMapOfSpeciesToColors,
-                            indexOfFirstCheckedSpecies,
-                            getScene().getWindow(), delegateActionSet);
-            window.show();
-        });
-        toolBar.getItems().add(colorButtonSpace);
-        toolBar.getItems().add(colorButton);
+//        Label colorButtonSpace = new Label();
+//        Button colorButton = new Button("Customize Colors");
+//        colorButtonSpace.setLabelFor(colorButton);
+//        colorButtonSpace.setPrefWidth(30);
+//        colorButton.setOnAction(click -> {
+//            int indexOfFirstCheckedSpecies = 0;
+//            for (int i = 0; i < speciesChecked.length; i++) {
+//                if (speciesChecked[i]) {
+//                    indexOfFirstCheckedSpecies = i;
+//                    break;
+//                }
+//            }
+//            IntensityPlotColorSelectionWindow window =
+//                    IntensityPlotColorSelectionWindow.colorSelectionWindowRequest(analysisMapOfSpeciesToColors,
+//                            species,
+//                            sessionDefaultMapOfSpeciesToColors,
+//                            indexOfFirstCheckedSpecies,
+//                            getScene().getWindow(), delegateActionSet);
+//            window.show();
+//        });
+//        toolBar.getItems().add(colorButtonSpace);
+//        toolBar.getItems().add(colorButton);
         getChildren().add(0, toolBar);
     }
 
@@ -328,10 +338,24 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
 
     }
 
+    public static void clearDelegates() {
+        delegateActionSet.clear();
+    }
     public void buildScaleControlsToolbar() {
         scaleControlsToolbar = new ToolBar();
         scaleControlsToolbar.setPrefHeight(toolBarHeight);
         scaleControlsToolbar.setLayoutY(toolBarHeight);
+
+        SettingsButton settingsButton = new SettingsButton();
+        settingsButton.setOnAction(settingsClickAction -> {
+            SettingsWindow settingsWindow =
+                    SettingsWindow.requestSettingsWindow(getScene().getWindow(),
+                            PlotWallPane.getRepaintDelegateActionSet(),
+                            OGTripoliViewController.analysis,
+                            SettingsRequestType.INTENSITIES);
+            settingsWindow.show();
+        });
+        scaleControlsToolbar.getItems().add(settingsButton);
 
         Button restoreButton = new Button("Restore Plot");
 
@@ -468,5 +492,9 @@ public class PlotWallPaneIntensities extends Pane implements PlotWallPaneInterfa
     @Override
     public void setToolBarCount(int toolBarCount) {
         this.toolBarCount = toolBarCount;
+    }
+
+    public static DelegateActionSet getDelegateActionSet() {
+        return delegateActionSet;
     }
 }
