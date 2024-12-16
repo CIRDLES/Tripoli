@@ -41,7 +41,8 @@ import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.gui.settings.SettingsRequestType;
 import org.cirdles.tripoli.gui.settings.SettingsWindow;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
-import org.cirdles.tripoli.gui.utilities.events.SaveAsEvent;
+import org.cirdles.tripoli.gui.utilities.events.SaveCurrentSessionEvent;
+import org.cirdles.tripoli.gui.utilities.events.SaveSessionAsEvent;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.SessionBuiltinFactory;
@@ -154,16 +155,20 @@ public class TripoliGUIController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        primaryStage.getScene().addEventFilter(SaveAsEvent.SAVE_AS_EVENT_EVENT_TYPE,
-                saveAsEvent -> {
-                    tripoliSession = saveAsEvent.getSession();
+        primaryStage.getScene().addEventFilter(SaveSessionAsEvent.SAVE_SESSION_AS_EVENT_EVENT_TYPE,
+                saveSessionAsEvent -> {
                     try{
                         saveSessionAsMenuItemAction();
                     } catch ( TripoliException ex) {
                         ex.printStackTrace();
                     } finally {
-                        saveAsEvent.consume();
+                        saveSessionAsEvent.consume();
                     }
+        });
+        primaryStage.getScene().addEventFilter(SaveCurrentSessionEvent.SAVE_CURRENT_SESSION_EVENT,
+                saveCurrentSessionEvent -> {
+                saveSessionMenuItemAction();
+                saveCurrentSessionEvent.consume();
         });
         versionLabel.setText("v" + Tripoli.VERSION);
         versionBuildDate.setText(Tripoli.RELEASE_DATE);

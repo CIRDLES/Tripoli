@@ -11,10 +11,12 @@ import javafx.stage.Window;
 import javafx.util.StringConverter;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.TripoliGUI;
+import org.cirdles.tripoli.gui.TripoliGUIController;
 import org.cirdles.tripoli.gui.dataViews.plots.PlotWallPaneIntensities;
 import org.cirdles.tripoli.gui.settings.color.fxcomponents.*;
 import org.cirdles.tripoli.gui.utilities.events.PlotTabSelectedEvent;
-import org.cirdles.tripoli.gui.utilities.events.SaveAsEvent;
+import org.cirdles.tripoli.gui.utilities.events.SaveCurrentSessionEvent;
+import org.cirdles.tripoli.gui.utilities.events.SaveSessionAsEvent;
 import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
@@ -86,7 +88,6 @@ public class SettingsWindow {
             speciesColorSelectionScrollPane = SpeciesColorSelectionScrollPane.buildSpeciesColorSelectionScrollPane(
                     AnalysisInterface.convertToAnalysis(analysis),
                     PlotWallPaneIntensities.getDelegateActionSet());
-//            ratioColorSelectionPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
             ratioColorSelectionPane.prefWidthProperty().bind(stage.widthProperty());
             initializeToolbarButtons();
             speciesIntensityColorSelectionScrollPane = new SpeciesIntensityColorSelectionScrollPane();
@@ -290,19 +291,12 @@ public class SettingsWindow {
 
     public void initializeToolbarButtons() {
         settingsWindowController.getSaveAnalysisSettingsButton().setOnAction(e -> {
-            try {
-                Session currentSession = ((Analysis) analysis).getParentSession();
-                TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
-                if (tripoliPersistentState != null && tripoliPersistentState.getMRUSessionFile() != null) {
-                    TripoliSerializer.serializeObjectToFile(
-                            currentSession,
-                            tripoliPersistentState.getMRUSessionFile().getAbsolutePath());
-                } else {
-                    SaveAsEvent saveAsEvent = new SaveAsEvent(currentSession);
-                    fireEvent(TripoliGUI.primaryStage.getScene(), saveAsEvent);
-                }
-            } catch (TripoliException  | NullPointerException ex ) {
-                ex.printStackTrace();
+            if (TripoliGUIController.sessionFileName != null) {
+                SaveCurrentSessionEvent saveCurrentSessionEvent = new SaveCurrentSessionEvent();
+                fireEvent(TripoliGUI.primaryStage.getScene(), saveCurrentSessionEvent);
+            } else {
+                SaveSessionAsEvent saveSessionAsEvent = new SaveSessionAsEvent();
+                fireEvent(TripoliGUI.primaryStage.getScene(), saveSessionAsEvent);
             }
         });
         settingsWindowController.getSaveAsSessionDefaultsButton().setOnAction(e -> {
@@ -315,17 +309,12 @@ public class SettingsWindow {
             currentSession.setBlockCyclesPlotColors(analysis.getRatioColors());
             currentSession.getSessionDefaultMapOfSpeciesToColors().
                     putAll(((Analysis) analysis).getAnalysisMapOfSpeciesToColors());
-            try {
-                TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
-                if (tripoliPersistentState != null && tripoliPersistentState.getMRUSessionFile() != null) {
-                    TripoliSerializer.serializeObjectToFile(
-                            currentSession,
-                            tripoliPersistentState.getMRUSessionFile().getAbsolutePath());
-                } else {
-                   fireEvent(TripoliGUI.primaryStage.getScene(), new SaveAsEvent(currentSession));
-                }
-            } catch (TripoliException |  NullPointerException ex) {
-                ex.printStackTrace();
+            if (TripoliGUIController.sessionFileName != null) {
+                SaveCurrentSessionEvent saveCurrentSessionEvent = new SaveCurrentSessionEvent();
+                fireEvent(TripoliGUI.primaryStage.getScene(), saveCurrentSessionEvent);
+            } else {
+                SaveSessionAsEvent saveSessionAsEvent = new SaveSessionAsEvent();
+                fireEvent(TripoliGUI.primaryStage.getScene(), saveSessionAsEvent);
             }
         });
         settingsWindowController.getSaveAsUserDefaultsButton().setOnAction(e -> {
@@ -360,6 +349,10 @@ public class SettingsWindow {
             analysis.setRatioColors(currentSession.getBlockCyclesPlotColors());
             ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().
                     putAll(currentSession.getSessionDefaultMapOfSpeciesToColors());
+            isotopePaneRows.forEach(isotopePaneRow -> {
+                isotopePaneRow.speciesColorsProperty().set(((Analysis) analysis).
+                        getAnalysisMapOfSpeciesToColors().get(isotopePaneRow.getSpeciesRecord()));
+            });
             repaintRatiosDelegateActionSet.executeDelegateActions();
             updateRatioColorSelectionPane();
         });
@@ -384,6 +377,12 @@ public class SettingsWindow {
                 analysis.setMeanHexColorString(tripoliPersistentState.getMeanHexColorString());
                 ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().putAll(
                         tripoliPersistentState.getMapOfSpeciesToColors());
+                isotopePaneRows.forEach(isotopePaneRow -> {
+                    isotopePaneRow.speciesColorsProperty().set(
+                            ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().
+                                    get(isotopePaneRow.getSpeciesRecord())
+                    );
+                });
                 repaintRatiosDelegateActionSet.executeDelegateActions();
                 updateRatioColorSelectionPane();
 //                close();
@@ -399,17 +398,7 @@ public class SettingsWindow {
             settingsWindowController.getChauvenetMinimumDatumCountSpinner().getValueFactory().setValue(
                     originalParameters.getRequiredMinDatumCount());
             analysis.setRatioColors(originalRatiosColors);
-//            analysis.setTwoSigmaHexColorString(originalTwoSigmaHexColor);
             ratioColorSelectionPane.updateRatioColorsProperty(analysis.getRatioColors());
-//            analysis.setOneSigmaHexColorString(originalOneSigmaHexColor);
-//            ratioColorSelectionPane.getOneSigmaSplotch().
-//                    colorProperty().setValue(Color.web(analysis.getOneSigmaHexColorString()));
-//            analysis.setTwoStandardErrorHexColorString(originalStdErrHexColor);
-//            ratioColorSelectionPane.getStdErrorSplotch().
-//                    colorProperty().setValue(Color.web(analysis.getTwoStandardErrorHexColorString()));
-//            analysis.setMeanHexColorString(originalMeanHexColor);
-//            ratioColorSelectionPane.getMeanSplotch().
-//                    colorProperty().setValue(Color.web(analysis.getMeanHexColorString()));
             ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().clear();
             ((Analysis) analysis).getAnalysisMapOfSpeciesToColors().putAll(
                     originalSpeciesColors
@@ -419,19 +408,10 @@ public class SettingsWindow {
             }
             repaintRatiosDelegateActionSet.executeDelegateActions();
             speciesColorSelectionScrollPane.getDelegateActionSet().executeDelegateActions(); // TODO: make these standard
-//            close();
         });
     }
 
     public void updateRatioColorSelectionPane() {
-//        ratioColorSelectionPane.getTwoSigmaSplotch().colorProperty().setValue(
-//                Color.web(analysis.getTwoSigmaHexColorString()));
-//        ratioColorSelectionPane.getOneSigmaSplotch().colorProperty().setValue(Color.web(
-//                analysis.getOneSigmaHexColorString()));
-//        ratioColorSelectionPane.getStdErrorSplotch().colorProperty().setValue(Color.web(
-//                analysis.getTwoStandardErrorHexColorString()));
-//        ratioColorSelectionPane.getMeanSplotch().colorProperty().setValue(Color.web(
-//                analysis.getMeanHexColorString()));
         ratioColorSelectionPane.updateRatioColorsProperty(analysis.getRatioColors());
         speciesColorSelectionScrollPane.getSpeciesIntensityColorSelectionPanes().forEach(
                 SpeciesIntensityColorSelectionPane::updateColorProperties);
@@ -439,7 +419,7 @@ public class SettingsWindow {
 
     /**
      * Allows callers to evaluate whether a scene exists in memory.
-     * @return
+     * @return An `Optional` wrapper for the current scene, or `Optional.empty()`
      */
     public static Optional<Scene> getCurrentScene() {
         Optional<Scene> optionalScene = Optional.empty();

@@ -29,6 +29,7 @@ public class IsotopePaneRow extends HBox {
     private final Map<SpeciesRecordInterface, SpeciesColors> colorMap;
     private SpeciesRecordInterface speciesRecord;
     private ObjectProperty<SpeciesColors> speciesColorsProperty;
+    private boolean speciesColorsSet = false;
     private DelegateActionSet delegateActionSet;
 
 
@@ -54,11 +55,13 @@ public class IsotopePaneRow extends HBox {
         this.faradayData = new ColorPickerSplotch();
         this.faradayData.prefWidthProperty().set(COLOR_WIDTH);
         this.faradayData.colorProperty().addListener(((observable, oldValue, newValue) -> {
+            if (!speciesColorsSet) {
+                speciesColorsProperty.set(speciesColorsProperty.get().altered(
+                        TripoliConstants.DetectorPlotFlavor.FARADAY_DATA,
+                        ConstantsTripoliApp.convertColorToHex(newValue)
+                ));
+            }
             // Change listener only activated when new value is not equal to old value
-            speciesColorsProperty.set(speciesColorsProperty.get().altered(
-                    TripoliConstants.DetectorPlotFlavor.FARADAY_DATA,
-                    ConstantsTripoliApp.convertColorToHex(newValue)
-            ));
         }));
         this.faradayData.colorProperty().setValue(
                 Color.web(speciesColorsProperty.get().faradayHexColor())
@@ -66,10 +69,12 @@ public class IsotopePaneRow extends HBox {
         this.pmData = new ColorPickerSplotch();
         this.pmData.prefWidthProperty().set(COLOR_WIDTH);
         this.pmData.colorProperty().addListener(((observable, oldValue, newValue) -> {
-            speciesColorsProperty.set(speciesColorsProperty.get().altered(
-                    TripoliConstants.DetectorPlotFlavor.PM_DATA,
-                    ConstantsTripoliApp.convertColorToHex(newValue)
-            ));
+            if (!speciesColorsSet) {
+                speciesColorsProperty.set(speciesColorsProperty.get().altered(
+                        TripoliConstants.DetectorPlotFlavor.PM_DATA,
+                        ConstantsTripoliApp.convertColorToHex(newValue)
+                ));
+            }
         }));
         this.pmData.colorProperty().setValue(
                 Color.web(speciesColorsProperty.get().pmHexColor())
@@ -77,10 +82,12 @@ public class IsotopePaneRow extends HBox {
         this.faradayModel = new ColorPickerSplotch();
         this.faradayModel.prefWidthProperty().set(COLOR_WIDTH);
         this.faradayModel.colorProperty().addListener(((observable, oldValue, newValue) -> {
-            speciesColorsProperty.set(speciesColorsProperty.get().altered(
-                    TripoliConstants.DetectorPlotFlavor.FARADAY_MODEL,
-                    ConstantsTripoliApp.convertColorToHex(newValue)
-            ));
+            if (!speciesColorsSet) {
+                speciesColorsProperty.set(speciesColorsProperty.get().altered(
+                        TripoliConstants.DetectorPlotFlavor.FARADAY_MODEL,
+                        ConstantsTripoliApp.convertColorToHex(newValue)
+                ));
+            }
         }));
         this.faradayModel.colorProperty().setValue(
                 Color.web(speciesColorsProperty.get().faradayModelHexColor())
@@ -88,22 +95,26 @@ public class IsotopePaneRow extends HBox {
         this.pmModel = new ColorPickerSplotch();
         this.pmModel.prefWidthProperty().set(COLOR_WIDTH);
         this.pmModel.colorProperty().addListener(((observable, oldValue, newValue) -> {
-            speciesColorsProperty.set(speciesColorsProperty.get().altered(
-                    TripoliConstants.DetectorPlotFlavor.PM_MODEL,
-                    ConstantsTripoliApp.convertColorToHex(newValue)
-            ));
+            if (!speciesColorsSet) {
+                speciesColorsProperty.set(speciesColorsProperty.get().altered(
+                        TripoliConstants.DetectorPlotFlavor.PM_MODEL,
+                        ConstantsTripoliApp.convertColorToHex(newValue)
+                ));
+            }
         }));
         this.pmModel.colorProperty().setValue(
                 Color.web(speciesColorsProperty.get().pmModelHexColor())
         );
 
         this.speciesColorsProperty.addListener((observable, oldValue, newValue) -> {
+            speciesColorsSet = true;
             colorMap.put(speciesRecord, newValue);
             delegateActionSet.executeDelegateActions();
             faradayData.colorProperty().set(Color.web(newValue.faradayHexColor()));
             pmData.colorProperty().set(Color.web(newValue.pmHexColor()));
             faradayModel.colorProperty().set(Color.web(newValue.faradayModelHexColor()));
             pmModel.colorProperty().set(Color.web(newValue.pmModelHexColor()));
+            speciesColorsSet = false;
         });
         Region spacer1 = new Region();
         Region spacer2 = new Region();
