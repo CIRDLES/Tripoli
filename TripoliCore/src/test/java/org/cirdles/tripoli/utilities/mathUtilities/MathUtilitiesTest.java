@@ -100,7 +100,7 @@ class MathUtilitiesTest {
         Numbers greater than 10, Numbers less than 10, Numbers with Spurious Digits, Numbers with 0s in between Non-Zero digits,
 
          */
-        double[] nums = {6.1542565, 2.30089, 8.9125, 0.025483, 10.5475, 103.2578, 0.00012563, 0.2000, 0.0000, 2.0};
+        double[] nums = {6.1542565, 2.30089, 8.9125, 0.025483, 10.5475, 103.2578, 0.00012563, 0.2000, 0.0000, 2.0, 3};
 
         for (double num : nums) {
             System.out.println("Output: " + FormatterForSigFigN.countOfTrailingDigitsForSigFig(num, 4));
