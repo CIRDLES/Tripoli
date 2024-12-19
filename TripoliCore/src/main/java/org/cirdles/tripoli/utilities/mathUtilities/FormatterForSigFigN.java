@@ -18,15 +18,41 @@ public class FormatterForSigFigN {
      */
     public static int countOfTrailingDigitsForSigFig(double standardError, int sigFig) {
         int countOfTrailingDigitsForSigFig = 0;
-        if (Math.abs(standardError) < 10.0) {
+        if (Math.abs(standardError) < 10.0 && Math.abs(standardError) > 0.0) {
             double rounded = MathUtilities.roundedToSize(standardError, sigFig);
-            DecimalFormat df = new DecimalFormat("#");
+            String pattern = generatePattern(rounded, sigFig);
+            DecimalFormat df = new DecimalFormat(pattern);
             df.setMaximumFractionDigits(8);
             String roundedString = df.format(rounded);
-            int dotIndex = roundedString.indexOf(".");
-            countOfTrailingDigitsForSigFig = Math.max(roundedString.length() - dotIndex - 1, sigFig);
+            int scale = roundedString.split("\\.")[1].length();
+            countOfTrailingDigitsForSigFig = scale;
         }
         return countOfTrailingDigitsForSigFig;
+    }
+
+    /**
+     * Generates a DecimalFormat pattern that allows for a certain amount of trailing zeros specified by
+     * the amount of significant figures
+     * @param rounded
+     * @return String pattern to be used in DecimalFormat
+     */
+    public static String generatePattern(double rounded, int sigFig) {
+        String pattern = "#.";
+        if (Double.isFinite(rounded)) {
+            // Converts the decimal value to a BigDecimal to find the scale
+            BigDecimal valueBD = new BigDecimal(String.valueOf(rounded));
+            int scale = sigFig - (valueBD.precision() - valueBD.scale());
+
+            // Allows for a trailing zero in each decimal place within the scale
+            for (int i = 0; i < scale; i++) {
+                pattern += "0";
+            }
+
+            return pattern;
+        }
+
+        // Returns default pattern if rounded number is infinite
+        return "#";
     }
 
     /**
