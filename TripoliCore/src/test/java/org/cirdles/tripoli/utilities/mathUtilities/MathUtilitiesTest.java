@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -30,7 +31,7 @@ class MathUtilitiesTest {
         indices = new boolean[] {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
 
 
-        solvedIndices = new boolean[] {false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false};
+        solvedIndices = new boolean[] {false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false};
     }
 
     @AfterEach
@@ -64,7 +65,7 @@ class MathUtilitiesTest {
 
     @Test
     void applyChauvenetsCriterion() {
-        assertEquals(solvedIndices, MathUtilities.applyChauvenetsCriterion(arr, indices));
+        assertArrayEquals(solvedIndices, MathUtilities.applyChauvenetsCriterion(arr, indices));
     }
 
     @Test

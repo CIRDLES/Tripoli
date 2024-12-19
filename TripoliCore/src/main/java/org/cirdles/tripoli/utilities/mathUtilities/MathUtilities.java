@@ -102,7 +102,6 @@ public class MathUtilities {
             double[] absZ = new double[dataIn.length];
             for (int i = 0; i < dataIn.length; i++) {
                 absZ[i] = Math.abs(dataIn[i] - xbar) / stddev;
-                System.out.println(erfc(absZ[i]) + ", " + Math.round(erfc(absZ[i])));
                 double chauvenetsCriterion = erfc(absZ[i]) * descriptiveStatistics.getN();
                 if (chauvenetsCriterion < chauvenetRejectionProbability) {
                     includedIndices[i] = false;
