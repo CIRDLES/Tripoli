@@ -86,25 +86,40 @@ class MathUtilitiesTest {
 
     @Test
     void testRoundedToSize() {
-        double[] nums = {6.1542565, 2.36489, 8.9125, 0.025483, 10.5475, 103.2578, 0.00012563, 0.2000, 0.0000, 2.0};
+        int sigFigs = 4;
 
-        for (double num : nums) {
-            System.out.println("Output: " + MathUtilities.roundedToSize(num, 4));
+        double[] nums = {6.1542565, 2.36489, 8.9125, 0.025483, 10.5475, 103.2578, 0.00012563, 0.2000, 0.0000, 2.0, 3};
+
+        double[] actual = new double[nums.length];
+
+        double[] expected = {6.154,2.365,8.913,0.02548,10.55,103.3,0.0001256,0.2000,0.0000,2.000,3.000}; // Iff sigFigs is equal to 4
+
+        for (int i = 0; i < nums.length; i++) {
+            actual[i] = MathUtilities.roundedToSize(nums[i], sigFigs);
         }
+
+        assertArrayEquals(expected, actual);
     }
 
 
     @Test
     void testCountOfTrailingDigits() {
+        int sigFigs = 4;
+
         /*
         Conditions for a Good Set of Numbers: Include Whole Integers, Numbers with Trailing Zeros, Numbers with Leading Zeros,
         Numbers greater than 10, Numbers less than 10, Numbers with Spurious Digits, Numbers with 0s in between Non-Zero digits,
 
          */
         double[] nums = {6.1542565, 2.30089, 8.9125, 0.025483, 10.5475, 103.2578, 0.00012563, 0.2000, 0.0000, 2.0, 3};
+        double[] actual = new double[nums.length];
 
-        for (double num : nums) {
-            System.out.println("Output: " + FormatterForSigFigN.countOfTrailingDigitsForSigFig(num, 4));
+        double[] expected = {3,3,3,5,0,0,7,4,0,3,3}; // Iff sigFigs is equal to 4
+
+        for (int i = 0; i < nums.length; i++) {
+            actual[i] = FormatterForSigFigN.countOfTrailingDigitsForSigFig(nums[i], sigFigs);
         }
+
+        assertArrayEquals(expected, actual);
     }
 }
