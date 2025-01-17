@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
+<?import org.cirdles.tripoli.gui.settings.color.fxcomponents.SpeciesColorSelectionRow?>
+
+<fx:root maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="185.0" prefWidth="536.0" type="Pane" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
+   <VBox prefHeight="185.0" prefWidth="536.0">
+      <Label fx:id="title" alignment="CENTER" prefHeight="37.0" prefWidth="536.0" text="Species Name Goes Here">
+         <font>
+            <Font name="System Bold" size="18.0" />
+         </font>
+      </Label>
+      <SpeciesColorSelectionRow fx:id="faradayDataRow" textProperty="Faraday Data:">
+         <colorProperty>
+            <Color red="0.8026315569877625" green="0.36044102907180786" blue="0.36044102907180786" />
+         </colorProperty></SpeciesColorSelectionRow>
+      <SpeciesColorSelectionRow fx:id="photomultiplierDataRow" layoutX="10.0" layoutY="48.0" textProperty="Photomultiplier Data:">
+         <colorProperty>
+            <Color red="0.4143213927745819" green="0.8026315569877625" blue="0.39388400316238403" />
+         </colorProperty></SpeciesColorSelectionRow>
+      <SpeciesColorSelectionRow fx:id="faradayModelRow" layoutX="10.0" layoutY="85.0" textProperty="Faraday Model:">
+         <colorProperty>
+            <Color red="0.2894493043422699" green="0.11257310211658478" blue="0.7368420958518982" />
+         </colorProperty></SpeciesColorSelectionRow>
+      <SpeciesColorSelectionRow fx:id="photomultiplierModelRow" layoutX="10.0" layoutY="123.0" textProperty="Photomultiplier Model:">
+         <colorProperty>
+            <Color red="0.817053496837616" green="0.8552631735801697" blue="0.09106969088315964" />
+         </colorProperty></SpeciesColorSelectionRow>
+   </VBox>
+</fx:root>

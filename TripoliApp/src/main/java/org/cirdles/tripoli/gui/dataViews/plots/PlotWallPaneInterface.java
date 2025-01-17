@@ -1,23 +1,33 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
+import org.cirdles.tripoli.utilities.DelegateActionInterface;
+
 public interface PlotWallPaneInterface {
-    public void buildToolBar();
 
-    public void buildScaleControlsToolbar();
+    void buildToolBar();
 
-    public double getToolBarHeight();
+    void buildScaleControlsToolbar();
 
-    public void setToolBarHeight(double toolBarHeight);
+    double getToolBarHeight();
 
-    public int getToolBarCount();
+    void setToolBarHeight(double toolBarHeight);
 
-    public void setToolBarCount(int toolBarCount);
+    int getToolBarCount();
 
-    public void stackPlots();
+    void setToolBarCount(int toolBarCount);
 
-    public void tilePlots();
+    void stackPlots();
 
-    public void toggleShowStatsAllPlots();
+    void tilePlots();
+
+    void toggleShowStatsAllPlots();
 
     void repeatLayoutStyle();
+
+    void updateStatusOfCycleCheckBox();
+
+    void toggleSculptingMode();
+
+    void addRepaintDelegateAction(DelegateActionInterface delegateAction);
+    void removeRepaintDelegateAction(DelegateActionInterface delegateAction);
 }

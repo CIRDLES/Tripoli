@@ -18,7 +18,9 @@ package org.cirdles.tripoli.expressions.userFunctions;
 
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
+import org.cirdles.tripoli.sessions.analysis.BlockStatsRecord;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
@@ -38,7 +40,7 @@ public class UserFunction implements Comparable, Serializable {
     private String etReduxName;
     private String invertedETReduxName;
     private boolean oxideCorrected;
-    private TripoliConstants.ReductionModeEnum reductionMode = TripoliConstants.ReductionModeEnum.BLOCK;
+    private TripoliConstants.ReductionModeEnum reductionMode;
     private TripoliConstants.ETReduxExportTypeEnum etReduxExportTypeEnum = TripoliConstants.ETReduxExportTypeEnum.NONE;
     private int columnIndex;
     private boolean treatAsIsotopicRatio;
@@ -46,6 +48,7 @@ public class UserFunction implements Comparable, Serializable {
     private boolean inverted;
     private AnalysisStatsRecord analysisStatsRecord;
     private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord = new TreeMap<>();
+    private int[] concatenatedBlockCounts;
 
     public UserFunction(String name, int columnIndex) {
         this(name, columnIndex, false, true);
@@ -57,9 +60,11 @@ public class UserFunction implements Comparable, Serializable {
         this.invertedETReduxName = "";
         this.oxideCorrected = false;
         this.columnIndex = columnIndex;
+        this.reductionMode = TripoliConstants.ReductionModeEnum.CYCLE;
         this.treatAsIsotopicRatio = treatAsIsotopicRatio;
         this.displayed = displayed;
         this.inverted = false;
+        this.concatenatedBlockCounts = new int[]{-1};
 
         if (name.contains("20")) {
             etReduxExportTypeEnum = TripoliConstants.ETReduxExportTypeEnum.Pb;
@@ -68,8 +73,48 @@ public class UserFunction implements Comparable, Serializable {
         }
     }
 
-    public AnalysisStatsRecord calculateAnalysisStatsRecord() {
-        analysisStatsRecord = AnalysisStatsRecord.generateAnalysisStatsRecord(generateAnalysisBlockStatsRecords(this, mapBlockIdToBlockCyclesRecord));
+    public UserFunction copy() {
+        UserFunction userFunction = new UserFunction(this.name, this.columnIndex, this.treatAsIsotopicRatio, this.displayed);
+        userFunction.setEtReduxName(this.etReduxName);
+        userFunction.setInvertedETReduxName(this.invertedETReduxName);
+        userFunction.setOxideCorrected(this.oxideCorrected);
+        userFunction.setReductionMode(this.reductionMode);
+        userFunction.setInverted(this.inverted);
+        userFunction.setEtReduxExportType(this.etReduxExportTypeEnum);
+
+        return userFunction;
+    }
+
+    public UserFunctionDisplay calcUserFunctionDisplay() {
+        return new UserFunctionDisplay(name, displayed, inverted);
+    }
+
+    public AnalysisStatsRecord calculateAnalysisStatsRecord(AnalysisInterface analysis) {
+        if (!invertedETReduxName.isEmpty()) {
+            // detect if ratio to be treated as function because of negative or zero value Issue #214
+            boolean allPositive = true;
+            for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
+                PlotBlockCyclesRecord plotBlockCyclesRecord = entry.getValue();
+                if ((plotBlockCyclesRecord != null) && allPositive) {
+                    for (int i = 0; i < plotBlockCyclesRecord.cycleMeansData().length; i++) {
+                        if ((plotBlockCyclesRecord.cycleMeansData()[i] <= 0.0) && (plotBlockCyclesRecord.cyclesIncluded()[i])) {
+                            allPositive = false;
+                        }
+                    }
+                }
+            }
+
+            treatAsIsotopicRatio = allPositive;
+        }
+
+        analysisStatsRecord = generateAnalysisStatsRecord(generateAnalysisBlockStatsRecords(this, mapBlockIdToBlockCyclesRecord));
+        for (int i = 0; i < analysisStatsRecord.blockStatsRecords().length; i++) {
+            BlockStatsRecord blockStatsRecord = analysisStatsRecord.blockStatsRecords()[i];
+            int blockID = blockStatsRecord.blockID();
+            boolean[] cyclesIncluded = blockStatsRecord.cyclesIncluded();
+            analysis.getMapOfBlockIdToRawDataLiteOne().put(blockID,
+                    analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).updateIncludedCycles(this, cyclesIncluded));
+        }
         return analysisStatsRecord;
     }
 
@@ -93,7 +138,7 @@ public class UserFunction implements Comparable, Serializable {
         this.invertedETReduxName = invertedETReduxName;
     }
 
-    public String showName() {
+    public String showCorrectName() {
         String retVal = name;
         if (inverted && treatAsIsotopicRatio) {
             String[] nameSplit = name.split("/");
@@ -158,12 +203,24 @@ public class UserFunction implements Comparable, Serializable {
         return analysisStatsRecord;
     }
 
+    public void setAnalysisStatsRecord(AnalysisStatsRecord analysisStatsRecord) {
+        this.analysisStatsRecord = analysisStatsRecord;
+    }
+
     public Map<Integer, PlotBlockCyclesRecord> getMapBlockIdToBlockCyclesRecord() {
         return mapBlockIdToBlockCyclesRecord;
     }
 
     public void setMapBlockIdToBlockCyclesRecord(Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord) {
         this.mapBlockIdToBlockCyclesRecord = mapBlockIdToBlockCyclesRecord;
+    }
+
+    public int[] getConcatenatedBlockCounts() {
+        return concatenatedBlockCounts;
+    }
+
+    public void setConcatenatedBlockCounts(int[] concatenatedBlockCounts) {
+        this.concatenatedBlockCounts = concatenatedBlockCounts;
     }
 
     /**
@@ -187,4 +244,5 @@ public class UserFunction implements Comparable, Serializable {
     public String getCorrectETReduxName() {
         return inverted ? invertedETReduxName : etReduxName;
     }
+
 }

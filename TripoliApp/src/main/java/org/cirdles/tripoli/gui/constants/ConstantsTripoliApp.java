@@ -18,12 +18,18 @@ package org.cirdles.tripoli.gui.constants;
 
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NonNls;
+import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_DEFAULT_HEX_COLORS;
 
 /**
  * @author James F. Bowring
  */
 public enum ConstantsTripoliApp {
     ;
+    public static final String TRIPOLI_LOGO_SANS_TEXT_URL = "org/cirdles/tripoli/gui/images/TripoliJune2022.png";
+    public static final String TRIPOLI_RATIO_FLIPPER_URL = "org/cirdles/tripoli/gui/images/RotateFlip.png";
+    public static final String TRIPOLI_MICHAELANGELO_URL = "org/cirdles/tripoli/gui/images/noun-michelangelo-5298215.png";
+    public static final String TRIPOLI_CLIPBOARD_ICON = "org/cirdles/tripoli/gui/images/noun-copy-to-clipboard-3401852c.png";
+    public static final String TRIPOLI_GEAR_ICON = "org/cirdles/tripoli/gui/images/gear-icon-image.png";//
 
     public static final Color TRIPOLI_STARTING_YELLOW = new Color(243.0 / 256.0, 227.0 / 256.0, 118.0 / 256.0, 1.0);
     public static final Color TRIPOLI_SESSION_LINEN = Color.LINEN;
@@ -45,6 +51,8 @@ public enum ConstantsTripoliApp {
     // JFB: Moved red to end since using red to toss points
     //    https://chartio.com/learn/charts/how-to-choose-colors-data-visualization/
     public static final String[] TRIPOLI_PALLETTE_FIVE = {"#0d84a5", "#f6c85f", "#6f4e7c", "#9ed866", "#ffa056", "#8dddd0", "#ca472f"};
+
+    public static final String TRIPOLI_HIGHLIGHTED_HEX = "#b0b0b0";
     public static final Color TRIPOLI_MOVING_SHADE = new Color(255.0 / 256.0, 182.0 / 256.0, 193.0 / 256.0, 0.5);
 
     public static final Color OGTRIPOLI_TWOSIGMA = new Color(255.0 / 256.0, 191.0 / 256.0, 203.0 / 256.0, 1.0);
@@ -55,15 +63,18 @@ public enum ConstantsTripoliApp {
 
     public static @NonNls String convertColorToHex(Color color) {
         String red = Integer.toHexString((int) (color.getRed() * 255));
+        red = red.length() == 1 ? "0" + red : red;
         String green = Integer.toHexString((int) (color.getGreen() * 255));
+        green = green.length() == 1 ? "0" + green : green;
         String blue = Integer.toHexString((int) (color.getBlue() * 255));
+        blue = blue.length() == 1 ? "0" + blue : blue;
 
         return "#" + red + green + blue;
     }
 
-    public static enum PlotLayoutStyle {
+    public enum PlotLayoutStyle {
         TILE(),
-        STACK();
+        STACK()
     }
 
 

@@ -20,7 +20,6 @@ public class BasicScatterPlot extends AbstractPlot {
                 intensityLinePlotBuilder.getTitle(),
                 intensityLinePlotBuilder.getxAxisLabel(),
                 intensityLinePlotBuilder.getyAxisLabel());
-        ;
         this.intensityLinePlotBuilder = intensityLinePlotBuilder;
     }
 

@@ -1,10 +1,11 @@
 package org.cirdles.tripoli.sessions.analysis;
 
 import jakarta.xml.bind.JAXBException;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.ss.extractor.ExcelExtractor;
+import jxl.Workbook;
+import jxl.read.biff.BiffException;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
+import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
@@ -13,10 +14,14 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
+import org.cirdles.tripoli.settings.plots.RatiosColors;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -26,27 +31,38 @@ import java.util.Map;
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
 
 public interface AnalysisInterface {
-    static Analysis initializeAnalysis(String analysisName, AnalysisMethod analysisMethod, String analysisSampleName) {
+    static Analysis initializeAnalysis(String analysisName,
+                                       AnalysisMethod analysisMethod,
+                                       String analysisSampleName) throws TripoliException {
         return new Analysis(analysisName, analysisMethod, analysisSampleName);
     }
 
-    static Analysis initializeNewAnalysis(int suffix) {
+    static Analysis initializeNewAnalysis(int suffix) throws TripoliException {
         return new Analysis("New Analysis" + "_" + (suffix), null, MISSING_STRING_FIELD);
+    }
+
+    static Analysis convertToAnalysis(AnalysisInterface analysis) throws TripoliException {
+        Analysis result;
+        if (analysis instanceof Analysis) {
+            result = (Analysis) analysis;
+        } else {
+            result = new Analysis(analysis.getAnalysisName(), analysis.getAnalysisMethod(), analysis.getAnalysisSampleName());
+        }
+        return result;
     }
 
     static MassSpectrometerContextEnum determineMassSpectrometerContextFromDataFile(Path dataFilePath) throws IOException {
         MassSpectrometerContextEnum retVal = MassSpectrometerContextEnum.UNKNOWN;
         if (dataFilePath.toString().endsWith(".xls")) {
-            InputStream inputStream = new FileInputStream(dataFilePath.toFile());
-            HSSFWorkbook wb = new HSSFWorkbook(new POIFSFileSystem(inputStream));
-            ExcelExtractor extractor = new org.apache.poi.hssf.extractor.ExcelExtractor(wb);
-            extractor.setFormulasNotResults(true);
-            extractor.setIncludeSheetNames(true);
 
-            String text = extractor.getText();
-            String[] lines = text.split("\n");
-            if (lines[0].trim().compareTo("STD") == 0) {
-                retVal = MassSpectrometerContextEnum.PHOENIX_IONVANTAGE_XLS;
+            Workbook workbook = null;
+            try {
+                workbook = Workbook.getWorkbook(dataFilePath.toFile());
+                if (workbook.getSheet("SUMMARY").getCell(0, 0).getContents().compareToIgnoreCase("Summary Report") == 0) {
+                    retVal = MassSpectrometerContextEnum.PHOENIX_IONVANTAGE_XLS;
+                }
+            } catch (BiffException e) {
+                throw new RuntimeException(e);
             }
 
         } else {
@@ -61,7 +77,6 @@ public interface AnalysisInterface {
             }
             bufferedReader.close();
 
-//            List<String> contentsByLine = new ArrayList<>(Files.readAllLines(dataFilePath, Charset.defaultCharset()));
             for (MassSpectrometerContextEnum massSpecContext : MassSpectrometerContextEnum.values()) {
                 List<String> keyWordList = massSpecContext.getKeyWordsList();
                 boolean keywordsMatch = true;
@@ -78,7 +93,7 @@ public interface AnalysisInterface {
         return retVal;
     }
 
-    void extractMassSpecDataFromPath(Path dataFilePath) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, JAXBException, TripoliException;
+    String extractMassSpecDataFromPath(Path dataFilePath) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, JAXBException, TripoliException;
 
     AnalysisMethod extractAnalysisMethodfromPath(Path phoenixAnalysisMethodDataFilePath) throws JAXBException;
 
@@ -90,7 +105,7 @@ public interface AnalysisInterface {
 
     String uppdateLogsByBlock(int blockNumber, String logEntry);
 
-    public AllBlockInitForMCMC.PlottingData assemblePostProcessPlottingData();
+    AllBlockInitForMCMC.PlottingData assemblePostProcessPlottingData();
 
     String getAnalysisName();
 
@@ -150,7 +165,7 @@ public interface AnalysisInterface {
 
     Map<Integer, SingleBlockRawDataSetRecord> getMapOfBlockIdToRawData();
 
-    public Map<Integer, SingleBlockRawDataLiteSetRecord> getMapOfBlockIdToRawDataLiteOne();
+    Map<Integer, SingleBlockRawDataLiteSetRecord> getMapOfBlockIdToRawDataLiteOne();
 
     Map<Integer, SingleBlockModelRecord> getMapOfBlockIdToFinalModel();
 
@@ -158,7 +173,35 @@ public interface AnalysisInterface {
 
     Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount();
 
+    String getTwoSigmaHexColorString();
+    String getOneSigmaHexColorString();
+    String getTwoStandardErrorHexColorString();
+    String getMeanHexColorString();
+    String getDataHexColorString();
+    String getAntiDataHexColorString();
+    RatiosColors getRatioColors();
+
+
+    void setOneSigmaHexColorString(String hexColor);
+    void setTwoSigmaHexColorString(String hexColor);
+    void setTwoStandardErrorHexColorString(String hexColor);
+    void setMeanHexColorString(String hexColor);
+    void setDataHexColorString(String hexColor);
+    void setAntiDataHexColorString(String hexColor);
+    void setRatioColors(RatiosColors ratiosColors);
+
+    Parameters getParameters();
+
     void resetAnalysis();
 
     int getAnalysisCaseNumber();
+
+    ETReduxFraction prepareFractionForETReduxExport();
+
+    String prepareFractionForClipboardExport();
+
+    void setAnalysisStartTime(String s);
+
+    List<UserFunction> getUserFunctions();
+
 }

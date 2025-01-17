@@ -20,6 +20,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.expressions.species.nuclides.NuclidesFactory;
@@ -56,7 +57,7 @@ public class AnalysisMethod implements Serializable {
     private List<IsotopicRatio> isotopicRatiosList;
     private List<IsotopicRatio> derivedIsotopicRatiosList;
     private BiMap<IsotopicRatio, IsotopicRatio> biMapOfRatiosAndInverses = HashBiMap.create();
-    private List<UserFunction> userFunctions;
+    private List<UserFunction> userFunctionsModel;
     private boolean useLinearKnots;
 
     private AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
@@ -72,7 +73,7 @@ public class AnalysisMethod implements Serializable {
         isotopicRatiosList = new ArrayList<>();
         derivedIsotopicRatiosList = new ArrayList<>();
         mapOfRatioNamesToInvertedFlag = new TreeMap<>();
-        userFunctions = new ArrayList<>();
+        userFunctionsModel = new ArrayList<>();
         this.useLinearKnots = true;
     }
 
@@ -80,11 +81,19 @@ public class AnalysisMethod implements Serializable {
         return new AnalysisMethod(methodName, massSpectrometerContext);
     }
 
+    public List<UserFunction> createUserFunctions(){
+        List<UserFunction> userFunctions = new ArrayList<>();
+        for (UserFunction uf : userFunctionsModel){
+            userFunctions.add(uf.copy());
+        }
+        return userFunctions;
+    }
+
     public static AnalysisMethod createAnalysisMethodFromCase1(
             MassSpecExtractedData massSpecExtractedData) {
         int r270_267ColumnIndex = -1;
         int r265_267ColumnIndex = -1;
-        AnalysisMethod analysisMethod = new AnalysisMethod("Derived for Case1", massSpecExtractedData.getMassSpectrometerContext());
+        AnalysisMethod analysisMethod = new AnalysisMethod(massSpecExtractedData.getHeader().methodName(), massSpecExtractedData.getMassSpectrometerContext());
         String[] columnHeaders = massSpecExtractedData.getColumnHeaders();
         // ignore first two columns: Cycle, Time
         String regex = "[^alpha].*\\d?:?\\(?\\d{2,3}.{0,2}\\/\\d?:?\\d{2,3}.{0,2}.*";
@@ -93,9 +102,10 @@ public class AnalysisMethod implements Serializable {
             UserFunction userFunction = new UserFunction(columnHeaders[i].trim(), i - 2);
             if (columnHeaders[i].matches(regex)) {
                 userFunction.setTreatAsIsotopicRatio(true);
+                userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.CYCLE);
                 int indexOfDivide = columnHeaders[i].indexOf("/");
                 // assume three digits / three digits
-                String numerator = columnHeaders[i].substring(indexOfDivide - 3, 3);
+                String numerator = columnHeaders[i].substring(indexOfDivide - 3, indexOfDivide);
                 String denominator = columnHeaders[i].substring(indexOfDivide + 1, indexOfDivide + 4);
                 String etReduxRatioName = numerator + "_" + denominator;
                 if (isLegalETReduxName(etReduxRatioName)) {
@@ -112,13 +122,17 @@ public class AnalysisMethod implements Serializable {
                 String invertedETReduxRatioName = denominator + "_" + numerator;
                 if (isLegalETReduxName(invertedETReduxRatioName)) {
                     userFunction.setInvertedETReduxName(invertedETReduxRatioName);
-                    userFunction.setInverted(true);
+                    // postpone decision until data processed  userFunction.setInverted(true);
                 }
+            } else {
+                userFunction.setTreatAsIsotopicRatio(false);
+                userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.CYCLE);
             }
-            analysisMethod.getUserFunctions().add(userFunction);
+            analysisMethod.getUserFunctionsModel().add(userFunction);
         }
 
         // Uranium Oxide Correction : https://docs.google.com/document/d/14PPEDEJPylNMavpJDpYSuemNb0gF5dz_To3Ek1Y_Agw/edit#bookmark=id.xvyds659gu4x
+        //TODO: make parameter manager
         if ((r270_267ColumnIndex > -1) && (r265_267ColumnIndex > -1)) {
             massSpecExtractedData.expandCycleDataForUraniumOxideCorrection(r270_267ColumnIndex, r265_267ColumnIndex, 0.00205);
             String[] columnHeadersExpanded = new String[columnHeaders.length + 3];
@@ -129,19 +143,19 @@ public class AnalysisMethod implements Serializable {
             UserFunction userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length], columnHeaders.length - 2, true, true);
             userFunction.setEtReduxName("233_235");
             userFunction.setOxideCorrected(true);
-            analysisMethod.getUserFunctions().add(userFunction);
+            analysisMethod.getUserFunctionsModel().add(userFunction);
 
             columnHeadersExpanded[columnHeaders.length + 1] = "238/235oc";
             userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length + 1], columnHeaders.length - 1, true, true);
             userFunction.setEtReduxName("238_235");
             userFunction.setOxideCorrected(true);
-            analysisMethod.getUserFunctions().add(userFunction);
+            analysisMethod.getUserFunctionsModel().add(userFunction);
 
             columnHeadersExpanded[columnHeaders.length + 2] = "238/233oc";
             userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length + 2], columnHeaders.length, true, true);
             userFunction.setEtReduxName("238_233");
             userFunction.setOxideCorrected(true);
-            analysisMethod.getUserFunctions().add(userFunction);
+            analysisMethod.getUserFunctionsModel().add(userFunction);
 
             massSpecExtractedData.setColumnHeaders(columnHeadersExpanded);
 
@@ -323,7 +337,7 @@ public class AnalysisMethod implements Serializable {
             for (IsotopicRatio ratio : isotopicRatiosList) {
                 retVal.append("\n\t\t" + ratio.prettyPrint());
             }
-            for (UserFunction userFunction : userFunctions) {
+            for (UserFunction userFunction : userFunctionsModel) {
                 if (userFunction.isTreatAsIsotopicRatio()) {
                     retVal.append("\n\t\t" + userFunction.getName());
                 }
@@ -433,8 +447,8 @@ public class AnalysisMethod implements Serializable {
         return mapOfRatioNamesToInvertedFlag;
     }
 
-    public List<UserFunction> getUserFunctions() {
-        return userFunctions;
+    public List<UserFunction> getUserFunctionsModel() {
+        return userFunctionsModel;
     }
 
     public void addRatioToIsotopicRatiosList(IsotopicRatio isotopicRatio) {

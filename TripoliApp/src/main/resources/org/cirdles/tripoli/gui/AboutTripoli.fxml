@@ -25,17 +25,17 @@
       prefHeight="700.0" prefWidth="550.0" styleClass="main-Pain" stylesheets="@css/about.css"
       xmlns="http://javafx.com/javafx/17" fx:controller="org.cirdles.tripoli.gui.AboutTripoliController">
     <children>
-        <Label fx:id="versionText" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" layoutX="94.0"
+        <Label fx:id="versionText" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" layoutX="93.0"
                layoutY="206.0" prefHeight="45.0" prefWidth="360.0" text="Tripoli  v 1.0.0" textAlignment="CENTER">
             <styleClass>
                 <String fx:value="project-Title"/>
                 <String fx:value="main-Text-Color"/>
             </styleClass>
         </Label>
-        <ImageView fitHeight="75.0" fitWidth="156.0" layoutX="345.0" layoutY="603.0" pickOnBounds="true"
+        <ImageView fitHeight="75.0" fitWidth="156.0" layoutX="302.0" layoutY="603.0" pickOnBounds="true"
                    preserveRatio="true" scaleX="0.75" scaleY="0.75">
             <image>
-                <Image url="@images/TripoliJune2022.png"/>
+                <Image url="@images/cirdles-logov2.png"/>
             </image>
         </ImageView>
         <Hyperlink layoutX="326.0" layoutY="669.0" onAction="#visitTripoliOnCirdlesAction" styleClass="links"

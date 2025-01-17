@@ -33,10 +33,10 @@ public class OGTripoliPlotsWindow {
 
     public static final double PLOT_WINDOW_WIDTH = 1000.0;
     public static final double PLOT_WINDOW_HEIGHT = 700.0;
+    private final Stage plottingStage;
+    private final Stage primaryStage;
     protected OGTripoliViewController ogTripoliViewController;
-    private Stage plottingStage;
     private Window plottingWindow;
-    private Stage primaryStage;
     private AllBlockInitForMCMC.PlottingData plottingData;
 
     public OGTripoliPlotsWindow(Stage primaryStage, AnalysisManagerCallbackI analysisManagerCallbackI, AllBlockInitForMCMC.PlottingData plottingData) {
@@ -77,7 +77,8 @@ public class OGTripoliPlotsWindow {
                 iOException.printStackTrace();
             }
             plottingWindow = plottingStage.getScene().getWindow();
-            plottingStage.setTitle("Tripoli " + (plottingData.preview() ? "PREVIEW" : "REVIEW") + " and Sculpt Data");
+            plottingStage.setTitle("Tripoli " + (plottingData.preview() ? "PREVIEW" : "REVIEW") + " and Sculpt Data from Analysis:   " + OGTripoliViewController.analysis.getAnalysisName());
+
 
             ogTripoliViewController = loader.getController();
             ogTripoliViewController.setPlottingData(plottingData);

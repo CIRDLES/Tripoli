@@ -19,6 +19,8 @@ package org.cirdles.tripoli.plots.analysisPlotBuilders;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 
+import java.io.Serializable;
+
 public class SpeciesIntensityAnalysisBuilder extends PlotBuilder {
 
     private final double[] xData;
@@ -29,9 +31,9 @@ public class SpeciesIntensityAnalysisBuilder extends PlotBuilder {
     private final int[] xAxisBlockIDs;
     private final boolean showResiduals;
 
-    private AnalysisInterface analysis;
+    private final AnalysisInterface analysis;
+    private final double[][] onPeakDataSignalNoiseArray;
     private boolean[][] onPeakDataIncludedAllBlocks;
-    private double[][] onPeakDataSignalNoiseArray;
 
     protected SpeciesIntensityAnalysisBuilder(boolean showResiduals, AnalysisInterface analysis, double[] xData,
                                               boolean[][] onPeakDataIncludedAllBlocks, int[] xAxisBlockIDs, double[][] yData,
@@ -110,7 +112,7 @@ public class SpeciesIntensityAnalysisBuilder extends PlotBuilder {
             boolean baselineCorr,
             boolean gainCorr,
             boolean logScale
-    ) {
+    ) implements Serializable {
     }
 
 }

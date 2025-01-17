@@ -16,20 +16,20 @@
 
 package org.cirdles.tripoli.expressions.species;
 
-import org.jetbrains.annotations.NotNull;
+import java.io.Serializable;
 
-public interface SpeciesRecordInterface {
+public interface SpeciesRecordInterface extends Comparable<SpeciesRecordInterface> {
     String getMolecularFormula();
 
     double getAtomicMass();
 
-    public int getMassNumber();
+    int getMassNumber();
 
     double getNaturalAbundancePercent();
 
-    public int compareTo(@NotNull Object o);
+//    int compareTo(@NotNull Object o);
 
     String prettyPrintShortForm();
 
-
+    SpeciesRecordInterface copy();
 }

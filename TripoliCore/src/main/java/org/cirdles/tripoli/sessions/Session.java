@@ -17,16 +17,20 @@
 package org.cirdles.tripoli.sessions;
 
 import jakarta.xml.bind.JAXBException;
+import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.settings.plots.RatiosColors;
+import org.cirdles.tripoli.utilities.collections.TripoliSessionAnalysisMap;
+import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
-import static org.cirdles.tripoli.sessions.analysis.AnalysisInterface.initializeNewAnalysis;
 
 /**
  * @author James F. Bowring
@@ -41,22 +45,29 @@ public class Session implements Serializable {
     private String analystName;
     private String sessionFilePathAsString;
     private String sessionNotes;
-    private Map<String, AnalysisInterface> mapOfAnalyses;
+    //    private Map<String, AnalysisInterface> mapOfAnalyses;
+    private TripoliSessionAnalysisMap mapOfAnalyses;
     private boolean mutable;
+    private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
+    private Parameters sessionDefaultParameters;
 
+
+    // Color Strings for ratio plots
+    private RatiosColors ratiosColors;
+    // END OF ratio plot Color Strings
 
     private Session() {
         this("New Session");
     }
 
     private Session(String sessionName) {
-        this(sessionName, new TreeMap<>());
+        this(sessionName, new TripoliSessionAnalysisMap());
     }
 
     private Session(String sessionName, Map<String, AnalysisInterface> mapOfAnalyses) {
         this.sessionName = sessionName;
-        this.mapOfAnalyses = mapOfAnalyses;
-
+        this.mapOfAnalyses = ((TripoliSessionAnalysisMap) mapOfAnalyses);
+        this.mapOfAnalyses.setSession(this);
         analystName = MISSING_STRING_FIELD;
         sessionNotes = MISSING_STRING_FIELD;
         sessionFilePathAsString = "";
@@ -66,17 +77,37 @@ public class Session implements Serializable {
 
     public static Session initializeDefaultSession() throws JAXBException {
         Session session = new Session();
-        session.addAnalysis(initializeNewAnalysis(1));
+//        session.addAnalysis(initializeNewAnalysis(1));
+        try {
+            TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+            session.sessionDefaultParameters = tripoliPersistentState.getTripoliPersistentParameters().copy();
+            session.sessionDefaultMapOfSpeciesToColors = tripoliPersistentState.getMapOfSpeciesToColors();
+            session.ratiosColors = tripoliPersistentState.getBlockCyclesPlotColors();
+        } catch (TripoliException e) {
+            e.printStackTrace();
+        }
         return session;
     }
 
     public static Session initializeSession(String sessionName) {
         Session session = new Session(sessionName);
+        try {
+            TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+            session.sessionDefaultParameters = tripoliPersistentState.getTripoliPersistentParameters().copy();
+            session.sessionDefaultMapOfSpeciesToColors = tripoliPersistentState.getMapOfSpeciesToColors();
+            session.ratiosColors = tripoliPersistentState.getBlockCyclesPlotColors();
+        } catch (TripoliException e) {
+            e.printStackTrace();
+        }
         return session;
     }
 
     public static boolean isSessionChanged() {
         return sessionChanged;
+    }
+
+    public RatiosColors getBlockCyclesPlotColors() {
+        return ratiosColors;
     }
 
     public static void setSessionChanged(boolean mySessionChanged) {
@@ -95,6 +126,10 @@ public class Session implements Serializable {
 
     public void setSessionName(String sessionName) {
         this.sessionName = sessionName;
+    }
+
+    public TripoliSpeciesColorMap getSessionDefaultMapOfSpeciesToColors() {
+        return sessionDefaultMapOfSpeciesToColors;
     }
 
     public String getAnalystName() {
@@ -117,9 +152,6 @@ public class Session implements Serializable {
         return mapOfAnalyses;
     }
 
-    public void setMapOfAnalyses(Map<String, AnalysisInterface> mapOfAnalyses) {
-        this.mapOfAnalyses = mapOfAnalyses;
-    }
 
     public String getSessionNotes() {
         return sessionNotes;
@@ -135,6 +167,14 @@ public class Session implements Serializable {
 
     public void setMutable(boolean mutable) {
         this.mutable = mutable;
+    }
+
+    public Parameters getSessionDefaultParameters() {
+        return sessionDefaultParameters;
+    }
+
+    public void setBlockCyclesPlotColors(RatiosColors ratiosColors) {
+        this.ratiosColors = ratiosColors;
     }
 
     /**

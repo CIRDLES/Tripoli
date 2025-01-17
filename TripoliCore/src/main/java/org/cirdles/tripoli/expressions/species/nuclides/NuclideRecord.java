@@ -34,7 +34,7 @@ public record NuclideRecord(
         double atomicMass,
         double halfLifeAnnum,
         double naturalAbundancePercent
-) implements SpeciesRecordInterface, Serializable, Comparable {
+) implements SpeciesRecordInterface, Serializable {
 
     public String prettyPrintLongForm() {
         DecimalFormat df = new DecimalFormat("###0.0000000#####           ");
@@ -73,11 +73,10 @@ public record NuclideRecord(
      * @param o the object to be compared.
      * @return
      */
-    @Override
-    public int compareTo(@NotNull Object o) {
-        return Integer.compare(protonsZ + neutronsN, ((NuclideRecord) o).neutronsN + ((NuclideRecord) o).protonsZ);
-    }
-
+//    @Override
+//    public int compareTo(@NotNull Object o) {
+//        return Integer.compare(protonsZ + neutronsN, ((NuclideRecord) o).neutronsN + ((NuclideRecord) o).protonsZ);
+//    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -89,5 +88,21 @@ public record NuclideRecord(
     @Override
     public int hashCode() {
         return Objects.hash(elementSymbol, protonsZ, neutronsN);
+    }
+
+    @Override
+    public int compareTo(@NotNull SpeciesRecordInterface o) {
+        return prettyPrintShortForm().compareTo(o.prettyPrintShortForm());
+    }
+
+    @Override
+    public SpeciesRecordInterface copy() {
+        return new NuclideRecord(
+                this.elementSymbol,
+                this.protonsZ,
+                this.neutronsN,
+                this.atomicMass,
+                this.halfLifeAnnum,
+                this.naturalAbundancePercent);
     }
 }

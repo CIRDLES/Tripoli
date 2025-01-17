@@ -50,4 +50,5 @@ public class TripoliColor implements Serializable {
     public Color color() {
         return Color.rgb(red, green, blue);
     }
+
 }

@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 class SessionTest {
 
     Path testFilePath = (new File("TestSession.tripoli")).toPath();
@@ -43,6 +41,6 @@ class SessionTest {
 //        AnalysisMethod a = testSession.getMapOfAnalyses().entrySet().stream().findFirst().get().getValue().getMethod();
 //        AnalysisMethod b = testSession2.getMapOfAnalyses().entrySet().stream().findFirst().get().getValue().getMethod();
 //        assertEquals(a, b);
-        assertEquals(true, true);
+//        assertTrue(true);
     }
 }

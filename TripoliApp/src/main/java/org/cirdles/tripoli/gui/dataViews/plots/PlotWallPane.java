@@ -16,11 +16,17 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots;
 
+import com.google.common.primitives.Booleans;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
@@ -29,17 +35,24 @@ import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotI;
+import org.cirdles.tripoli.gui.settings.SettingsRequestType;
+import org.cirdles.tripoli.gui.settings.SettingsWindow;
+import org.cirdles.tripoli.gui.settings.color.fxcomponents.SettingsButton;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
+import org.cirdles.tripoli.utilities.DelegateActionInterface;
+import org.cirdles.tripoli.utilities.DelegateActionSet;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.cirdles.tripoli.Tripoli.TRIPOLI_RESOURCE_EXTRACTOR;
 import static org.cirdles.tripoli.constants.TripoliConstants.*;
 import static org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.BlockEnsemblesPlotter.blockEnsemblePlotEngine;
 
@@ -59,10 +72,16 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private int toolBarCount;
     private boolean logScale;
     private boolean blockMode;
+    private static final DelegateActionSet repaintDelegateActionSet = new DelegateActionSet();
+    ChangeListener<Boolean> cycleCBChangeListener = (observable, oldValue, newValue) -> {
+        blockMode = !newValue;
+        rebuildPlot(false, true);
+    };
     private ConstantsTripoliApp.PlotLayoutStyle plotLayoutStyle;
     private ToolBar scaleControlsToolbar;
     private TripoliPlotPane zoomedPlot;
-    private Button chauvenetButton;
+    private Button toggleSculptingModeButton;
+    private CheckBox cycleCB;
 
     private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsController, AnalysisManagerCallbackI analysisManagerCallbackI) {
         this.iD = iD;
@@ -72,8 +91,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         this.mcmcPlotsController = mcmcPlotsController;
         this.analysisManagerCallbackI = analysisManagerCallbackI;
         plotLayoutStyle = ConstantsTripoliApp.PlotLayoutStyle.TILE;
-        this.blockMode = true;
-
+        this.blockMode = false;
     }
 
     public static PlotWallPaneInterface createPlotWallPane(
@@ -150,7 +168,6 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
 
             // preserves display order
             plotPanes.sort(Comparator.comparing(o -> ((TripoliPlotPane) o)));
-
             double tileWidth;
             double displayHeight;
             if (0 == iD.compareToIgnoreCase("OGTripoliSession")) {
@@ -218,12 +235,38 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         }
     }
 
+    public void performIgnoreRejects(boolean ignoreRejects) {
+        for (Node plotPane : getChildren()) {
+            if (plotPane instanceof TripoliPlotPane) {
+                ((TripoliPlotPane) plotPane).performIgnoreRejects(ignoreRejects);
+            }
+        }
+    }
+
     public void toggleShowStatsAllPlots() {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
                 ((TripoliPlotPane) plotPane).toggleShowStats();
             }
         }
+    }
+
+    public void toggleSculptingMode() {
+        for (Node plotPane : getChildren()) {
+            if (plotPane instanceof TripoliPlotPane) {
+                ((TripoliPlotPane) plotPane).toggleSculptingMode();
+            }
+        }
+    }
+
+    @Override
+    public void addRepaintDelegateAction(DelegateActionInterface delegateAction) {
+        repaintDelegateActionSet.addDelegateAction(delegateAction);
+    }
+
+    @Override
+    public void removeRepaintDelegateAction(DelegateActionInterface delegateAction) {
+        repaintDelegateActionSet.removeDelegateAction(delegateAction);
     }
 
     public void toggleRatiosLogRatios() {
@@ -329,13 +372,42 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         scaleControlsToolbar.setStyle(scaleControlsToolbar.getStyle() + ";-fx-background-color:LINEN");
         scaleControlsToolbar.setLayoutY(0.0);
 
+        // BEGIN settings button
+        SettingsButton settingsGearButton = new SettingsButton();
+        settingsGearButton.setOnAction(settingsClickAction -> {
+            SettingsWindow settingsWindow =
+                    SettingsWindow.requestSettingsWindow(getScene().getWindow(),
+                            repaintDelegateActionSet,
+                            analysis,
+                            SettingsRequestType.RATIOS);
+            settingsWindow.show();
+        });
+        scaleControlsToolbar.getItems().add(settingsGearButton);
+        // END OF settings button
+
         Button infoButton = new Button("?");
         infoButton.setFont(commandFont);
         infoButton.setOnAction(event -> {
-            Path resourcePath = TRIPOLI_RESOURCE_EXTRACTOR.extractResourceAsPath("docs/ogTripoliHelp.md");
+            Path resourcePath = Path.of(DOCS_FOLDER.getAbsolutePath() + File.separator + "ogTripoliHelp.md.html");
             BrowserControl.showURI(resourcePath.toString());
         });
         scaleControlsToolbar.getItems().add(infoButton);
+        // TODO: Create issue/bugfix for bad url above ^^
+
+        Button stackButton = new Button("Stack Plots");
+        stackButton.setFont(commandFont);
+        stackButton.setOnAction(event -> stackPlots());
+        scaleControlsToolbar.getItems().add(stackButton);
+
+//        Button toggleStatsButton = new Button("Toggle Stats");
+//        toggleStatsButton.setFont(commandFont);
+//        toggleStatsButton.setOnAction(event -> toggleShowStatsAllPlots());
+//        scaleControlsToolbar.getItems().add(toggleStatsButton);
+
+        Button tileButton = new Button("Tile Plots");
+        tileButton.setFont(commandFont);
+        tileButton.setOnAction(event -> tilePlots());
+        scaleControlsToolbar.getItems().add(tileButton);
 
         Button replotAllButton = new Button("Replot All");
         replotAllButton.setFont(commandFont);
@@ -346,32 +418,25 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         resetAllDataButton.setFont(commandFont);
         resetAllDataButton.setOnAction(event -> {
             resetDataAll();
-            chauvenetButton.setDisable(false);
         });
         scaleControlsToolbar.getItems().add(resetAllDataButton);
 
-        chauvenetButton = new Button("Chauvenet");
-        chauvenetButton.setFont(commandFont);
-        chauvenetButton.setOnAction(event -> {
-            performChauvenets();
-            chauvenetButton.setDisable(true);
+        toggleSculptingModeButton = new Button("Toggle ALL Sculpting Mode");
+        toggleSculptingModeButton.setFont(commandFont);
+        toggleSculptingModeButton.setStyle(toggleSculptingModeButton.getStyle() + ";-fx-text-fill: RED;");
+        toggleSculptingModeButton.setOnAction(event -> {
+            toggleSculptingMode();
         });
-        scaleControlsToolbar.getItems().add(chauvenetButton);
+        scaleControlsToolbar.getItems().add(toggleSculptingModeButton);
 
-        Button toggleStatsButton = new Button("Toggle Stats");
-        toggleStatsButton.setFont(commandFont);
-        toggleStatsButton.setOnAction(event -> toggleShowStatsAllPlots());
-        scaleControlsToolbar.getItems().add(toggleStatsButton);
+        CheckBox ignoreCB = new CheckBox("Ignore Rejects");
+        scaleControlsToolbar.getItems().add(ignoreCB);
+        ignoreCB.setSelected(false);
+        ignoreCB.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                    performIgnoreRejects(newVal);
+                });
 
-        Button tileButton = new Button("Tile Plots");
-        tileButton.setFont(commandFont);
-        tileButton.setOnAction(event -> tilePlots());
-        scaleControlsToolbar.getItems().add(tileButton);
-
-        Button stackButton = new Button("Stack Plots");
-        stackButton.setFont(commandFont);
-        stackButton.setOnAction(event -> stackPlots());
-        scaleControlsToolbar.getItems().add(stackButton);
 
         Label labelMode = new Label("Mode:");
         labelMode.setFont(commandFont);
@@ -379,13 +444,11 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         labelMode.setPrefWidth(50);
         scaleControlsToolbar.getItems().add(labelMode);
 
-        CheckBox cycleCB = new CheckBox("Cycle");
+        cycleCB = new CheckBox("Cycle");
         scaleControlsToolbar.getItems().add(cycleCB);
-        cycleCB.selectedProperty().addListener(
-                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
-                    blockMode = !newVal;
-                    rebuildPlot(false, true);
-                });
+        cycleCB.setSelected(true);
+        cycleCB.selectedProperty().addListener(cycleCBChangeListener);
+        updateStatusOfCycleCheckBox();
 
         Label labelScale = new Label("Ratio Scale:");
         labelScale.setFont(commandFont);
@@ -547,4 +610,29 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         }
         analysisManagerCallbackI.callBackSetBlockIncludedStatus(blockID, included);
     }
+
+    public void updateStatusOfCycleCheckBox() {
+        ObservableList<Node> children = getChildren();
+        List<Boolean> allShowCycle = new ArrayList<>();
+        for (Node child : children) {
+            if (child instanceof TripoliPlotPane) {
+                AnalysisBlockCyclesPlotI childPlot = (AnalysisBlockCyclesPlotI) ((TripoliPlotPane) child).getPlot();
+                allShowCycle.add(!childPlot.getBlockMode());
+            }
+        }
+        int countOfShowCycles = Booleans.countTrue(Booleans.toArray(allShowCycle));
+        cycleCB.selectedProperty().removeListener(cycleCBChangeListener);
+        cycleCB.selectedProperty().setValue(countOfShowCycles == allShowCycle.size());
+        cycleCB.setIndeterminate(false);
+        if ((countOfShowCycles != allShowCycle.size()) && (countOfShowCycles > 0)) {
+            cycleCB.selectedProperty().setValue(true);
+            cycleCB.setIndeterminate(true);
+        }
+        cycleCB.selectedProperty().addListener(cycleCBChangeListener);
+    }
+
+    public static DelegateActionSet getRepaintDelegateActionSet() {
+        return repaintDelegateActionSet;
+    }
+
 }

@@ -18,6 +18,7 @@ package org.cirdles.tripoli.utilities.mathUtilities;
 
 import com.google.common.primitives.Booleans;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.cirdles.tripoli.parameters.Parameters;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -68,7 +69,7 @@ public class MathUtilities {
      * @param dataIn
      * @return
      */
-    public static boolean[] applyChauvenetsCriterion(double[] dataIn, boolean[] includedIndicesIn) {
+    public static boolean[] applyChauvenetsCriterion(double[] dataIn, boolean[] includedIndicesIn, Parameters parameters) {
         /*
         Apply Chauvenet’s criterion to an entire measurement in Cycle Mode if there are 20 or more included cycles.
         Or, apply Chauvenet’s criterion to each block in Block Mode for blocks with greater than or equal to 20 cycles.
@@ -87,15 +88,22 @@ public class MathUtilities {
         Gray out the Chauvenet button so that it can’t be re-applied.
          */
 
-        // TODO: move these to parameters
-        double chauvenetRejectionProbability = 0.5;
-        int requiredMinDatumCount = 20;
+        /*
+        Logic changed per discussion #261
+         */
+
+        double chauvenetRejectionProbability = parameters.getChauvenetRejectionProbability();
+        int requiredMinDatumCount = parameters.getRequiredMinDatumCount();
 
         boolean[] includedIndices = includedIndicesIn.clone();
-        if ((Booleans.countTrue(includedIndicesIn) == includedIndicesIn.length) && (includedIndicesIn.length >= requiredMinDatumCount)) {
+        // TODO: document changes that loosen chauvenet restrictions
+        //if ((Booleans.countTrue(includedIndicesIn) == includedIndicesIn.length) && (includedIndicesIn.length >= requiredMinDatumCount)) {
+        if ((Booleans.countTrue(includedIndices) >= requiredMinDatumCount)) {
             DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics();
             for (int i = 0; i < dataIn.length; i++) {
-                descriptiveStatistics.addValue(dataIn[i]);
+                if (includedIndices[i]) {
+                    descriptiveStatistics.addValue(dataIn[i]);
+                }
             }
             double xbar = descriptiveStatistics.getMean();
             double stddev = descriptiveStatistics.getStandardDeviation();

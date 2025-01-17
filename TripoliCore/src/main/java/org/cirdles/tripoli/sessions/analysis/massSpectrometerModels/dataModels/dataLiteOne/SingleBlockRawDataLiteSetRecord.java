@@ -52,6 +52,14 @@ public record SingleBlockRawDataLiteSetRecord(
         return new double[blockRawDataLiteArray.length];
     }
 
+    public SingleBlockRawDataLiteSetRecord changeBlockIDforConcat(int blockID) {
+        return new SingleBlockRawDataLiteSetRecord(
+                blockID,
+                isIncluded,
+                blockRawDataLiteArray,
+                blockRawDataLiteIncludedArray);
+    }
+
     public SingleBlockRawDataLiteSetRecord resetAllDataIncluded(UserFunction userFunction) {
         int col = userFunction.getColumnIndex();
         boolean[][] blockRawDataLiteIncludedArrayUpdated = blockRawDataLiteIncludedArray.clone();

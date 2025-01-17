@@ -21,33 +21,33 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredRatioModel;
+import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunction;
 
 public class MeasuredRatioModelXMLConverter implements Converter {
     /**
-     * checks the argument <code>clazz</code> against this <code>MeasuredRatioModel</code>'s
+     * checks the argument <code>clazz</code> against this <code>MeasuredUserFunctionModel</code>'s
      * <code>Class</code>. Used to ensure that the object about to be
      * marshalled/unmarshalled is of the correct type.
      *
      * @param clazz <code>Class</code> of the <code>Object</code> you wish
      *              to convert to/from XML
      * @return <code>boolean</code> - <code>true</code> if <code>clazz</code> matches
-     * <code>MeasuredRatioModel</code>'s <code>Class</code>; else <code>false</code>.
+     * <code>MeasuredUserFunctionModel</code>'s <code>Class</code>; else <code>false</code>.
      * @pre argument <code>clazz</code> is a valid <code>Class</code>
      * @post <code>boolean</code> is returned comparing <code>clazz</code>
-     * against <code>MeasuredRatioModel.class</code>
+     * against <code>MeasuredUserFunctionModel.class</code>
      */
     public boolean canConvert(Class clazz) {
-        return clazz.equals(MeasuredRatioModel.class);
+        return clazz.equals(MeasuredUserFunction.class);
     }
 
     /**
      * writes the argument <code>value</code> to the XML file specified through <code>writer</code>
      *
-     * @param value   <code>MeasuredRatioModel</code> that you wish to write to a file
+     * @param value   <code>MeasuredUserFunctionModel</code> that you wish to write to a file
      * @param writer  stream to write through
      * @param context <code>MarshallingContext</code> used to store generic data
-     * @pre <code>value</code> is a valid <code>MeasuredRatioModel</code>,
+     * @pre <code>value</code> is a valid <code>MeasuredUserFunctionModel</code>,
      * <code>writer</code> is a valid <code>HierarchicalStreamWriter</code>,
      * and <code>context</code> is a valid <code>MarshallingContext</code>
      * @post <code>value</code> is written to the XML file specified via <code>writer</code>
@@ -55,7 +55,7 @@ public class MeasuredRatioModelXMLConverter implements Converter {
     public void marshal(Object value, HierarchicalStreamWriter writer,
                         MarshallingContext context) {
 
-        MeasuredRatioModel measuredRatio = (MeasuredRatioModel) value;
+        MeasuredUserFunction measuredRatio = (MeasuredUserFunction) value;
 
         writer.startNode("name");
         writer.setValue(measuredRatio.getName());
@@ -84,20 +84,20 @@ public class MeasuredRatioModelXMLConverter implements Converter {
     }
 
     /**
-     * reads a <code>MeasuredRatioModel</code> from the XML file specified
+     * reads a <code>MeasuredUserFunctionModel</code> from the XML file specified
      * through <code>reader</code>
      *
      * @param reader  stream to read through
      * @param context <code>UnmarshallingContext</code> used to store generic data
-     * @return <code>MeasuredRatioModel</code> - <code>MeasuredRatioModel</code>
+     * @return <code>MeasuredUserFunctionModel</code> - <code>MeasuredUserFunctionModel</code>
      * read from file specified by <code>reader</code>
-     * @pre <code>reader</code> leads to a valid <code>MeasuredRatioModel</code>
-     * @post returns the <code>MeasuredRatioModel</code> read from the XML file
+     * @pre <code>reader</code> leads to a valid <code>MeasuredUserFunctionModel</code>
+     * @post returns the <code>MeasuredUserFunctionModel</code> read from the XML file
      */
     public Object unmarshal(HierarchicalStreamReader reader,
                             UnmarshallingContext context) {
 
-        MeasuredRatioModel measuredRatio = new MeasuredRatioModel();
+        MeasuredUserFunction measuredRatio = new MeasuredUserFunction();
 
         reader.moveDown();
         measuredRatio.setName(reader.getValue());

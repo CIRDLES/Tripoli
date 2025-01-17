@@ -33,10 +33,10 @@ import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 public class RatioHistogramPlot extends HistogramSinglePlot {
 
     private final HistogramRecord invertedRatioHistogramRecord;
+    private final HistogramRecord logRatioHistogramRecord;
+    private final HistogramRecord invertedLogRatioHistogramRecord;
+    private final AnalysisMethod analysisMethod;
     private HistogramRecord histogramRecordActive;
-    private HistogramRecord logRatioHistogramRecord;
-    private HistogramRecord invertedLogRatioHistogramRecord;
-    private AnalysisMethod analysisMethod;
     private boolean logMode;
 
     private RatioHistogramPlot(

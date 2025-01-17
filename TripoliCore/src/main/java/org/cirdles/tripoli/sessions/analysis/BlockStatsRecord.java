@@ -31,10 +31,16 @@ public record BlockStatsRecord(
         for (int i = 0; i < cycleMeansData.length; i++) {
             if (cyclesIncluded[i]) {
                 if (isRatio) {
-                    if (isInverted) {
-                        descriptiveStatisticsBlockStats.addValue(-StrictMath.log(cycleMeansData[i]));
+                    // trap for negative ratios == no log possible
+                    if (cycleMeansData[i] > 0.0) {
+                        if (isInverted) {
+                            descriptiveStatisticsBlockStats.addValue(-StrictMath.log(cycleMeansData[i]));
+                        } else {
+                            descriptiveStatisticsBlockStats.addValue(StrictMath.log(cycleMeansData[i]));
+                        }
                     } else {
-                        descriptiveStatisticsBlockStats.addValue(StrictMath.log(cycleMeansData[i]));
+                        // Issue #214 decided to keep <= 0 value and convert ratio to userfunction before code gets here
+                        cyclesIncluded[i] = false;
                     }
                 } else {
                     descriptiveStatisticsBlockStats.addValue(cycleMeansData[i]);

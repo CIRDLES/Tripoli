@@ -39,6 +39,7 @@ import org.cirdles.tripoli.gui.utilities.TripoliColor;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.LinePlotBuilder;
 import org.cirdles.tripoli.plots.linePlots.MultiLinePlotBuilder;
+import org.cirdles.tripoli.utilities.DelegateActionInterface;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -153,14 +154,12 @@ public abstract class AbstractPlot extends Canvas {
                     } else {
                         sourceAnalysisBlockCyclesPlot.adjustOffsetsForDrag(event.getX(), event.getY());
                     }
-                } else if (event.getSource() instanceof LinePlot) {
-                    LinePlot sourceLinePlot = (LinePlot) event.getSource();
+                } else if (event.getSource() instanceof LinePlot sourceLinePlot) {
                     if (mouseInShadeHandle(plotBuilder.getShadeWidthForModelConvergence(), event.getX(), event.getY())) {
                         plotBuilder.setShadeWidthForModelConvergence(convertMouseXToValue(event.getX()));
                         sourceLinePlot.getParentWallPane().synchronizeConvergencePlotsShade(((LinePlotBuilder) plotBuilder).getBlockID(), convertMouseXToValue(event.getX()));
                     }
-                } else if (event.getSource() instanceof MultiLineIntensityPlot) {
-                    MultiLineIntensityPlot sourceLinePlot = (MultiLineIntensityPlot) event.getSource();
+                } else if (event.getSource() instanceof MultiLineIntensityPlot sourceLinePlot) {
                     if (mouseInShadeHandle(plotBuilder.getShadeWidthForModelConvergence(), event.getX(), event.getY())) {
                         plotBuilder.setShadeWidthForModelConvergence(convertMouseXToValue(event.getX()));
                         sourceLinePlot.getParentWallPane().synchronizeConvergencePlotsShade(((MultiLinePlotBuilder) plotBuilder).getBlockID(), convertMouseXToValue(event.getX()));
@@ -194,6 +193,9 @@ public abstract class AbstractPlot extends Canvas {
         };
         addEventFilter(MouseEvent.MOUSE_PRESSED, mousePressedEventHandler);
 //        setOnMouseClicked(new MouseClickEventHandler());
+        parentProperty().addListener(((observable, oldValue, newValue) -> {
+            // TODO: Do we need this?
+        }));
 
     }
 
@@ -383,7 +385,7 @@ public abstract class AbstractPlot extends Canvas {
 
     public abstract void showLegend(GraphicsContext g2d);
 
-    private void labelAxisX(GraphicsContext g2d) {
+    public void labelAxisX(GraphicsContext g2d) {
         Paint savedPaint = g2d.getFill();
         g2d.setFill(Paint.valueOf("BLACK"));
         g2d.setFont(Font.font("SansSerif", 14));
@@ -431,6 +433,8 @@ public abstract class AbstractPlot extends Canvas {
                 plotHeight);
         g2d.setFill(Paint.valueOf("BLACK"));
     }
+
+    public DelegateActionInterface getRepaintDelegateAction() {return this::repaint;}
 
     /**
      * @param x
@@ -561,6 +565,9 @@ public abstract class AbstractPlot extends Canvas {
         showStats = !showStats;
     }
 
+    public void toggleSculptingMode() {
+    }
+
     /**
      * @param x
      * @return
@@ -583,8 +590,8 @@ public abstract class AbstractPlot extends Canvas {
     protected boolean mouseInHouse(double sceneX, double sceneY) {
         return ((sceneX >= leftMargin)
                 && (sceneY >= topMargin)
-                && (sceneY < plotHeight + topMargin - 2)
-                && (sceneX < (plotWidth + leftMargin - 2)));
+                && (sceneY < plotHeight + topMargin + 2)
+                && (sceneX < (plotWidth + leftMargin + 5)));
     }
 
     public void updatePlotSize(double width, double height) {
