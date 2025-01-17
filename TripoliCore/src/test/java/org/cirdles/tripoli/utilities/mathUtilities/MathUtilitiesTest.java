@@ -1,5 +1,6 @@
 package org.cirdles.tripoli.utilities.mathUtilities;
 
+import org.cirdles.tripoli.parameters.Parameters;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,7 +66,7 @@ class MathUtilitiesTest {
 
     @Test
     void applyChauvenetsCriterion() {
-        assertArrayEquals(solvedIndices, MathUtilities.applyChauvenetsCriterion(arr, indices));
+        assertArrayEquals(solvedIndices, MathUtilities.applyChauvenetsCriterion(arr, indices, new Parameters()));
     }
 
     @Test
