@@ -18,6 +18,7 @@ package org.cirdles.tripoli.utilities.mathUtilities;
 
 import com.google.common.primitives.Booleans;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.cirdles.tripoli.parameters.Parameters;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -68,7 +69,7 @@ public class MathUtilities {
      * @param dataIn
      * @return
      */
-    public static boolean[] applyChauvenetsCriterion(double[] dataIn, boolean[] includedIndicesIn) {
+    public static boolean[] applyChauvenetsCriterion(double[] dataIn, boolean[] includedIndicesIn, Parameters parameters) {
         /*
         Apply Chauvenet’s criterion to an entire measurement in Cycle Mode if there are 20 or more included cycles.
         Or, apply Chauvenet’s criterion to each block in Block Mode for blocks with greater than or equal to 20 cycles.
@@ -89,9 +90,8 @@ public class MathUtilities {
         Logic changed per discussion #261
          */
 
-        // TODO: move these to parameters
-        double chauvenetRejectionProbability = 0.5;
-        int requiredMinDatumCount = 20;
+        double chauvenetRejectionProbability = parameters.getChauvenetRejectionProbability();
+        int requiredMinDatumCount = parameters.getRequiredMinDatumCount();
 
         boolean[] includedIndices = includedIndicesIn.clone();
         // TODO: document changes that loosen chauvenet restrictions
