@@ -64,7 +64,7 @@ public class MathUtilities {
 
     /**
      * see https://docs.google.com/document/d/14PPEDEJPylNMavpJDpYSuemNb0gF5dz_To3Ek1Y_Agw/edit#bookmark=id.k016qg1ghequ
-     * seehttps://www.lexjansen.com/wuss/2007/DatabaseMgtWarehousing/DMW_Lin_CleaningData.pdf
+     * see https://www.lexjansen.com/wuss/2007/DatabaseMgtWarehousing/DMW_Lin_CleaningData.pdf
      *
      * @param dataIn
      * @return
@@ -76,12 +76,14 @@ public class MathUtilities {
 
         For now, assume a default value of ChauvenetRejectionProbability = 0.5.  In the future, we can ask the user to input
         this constant (must be on [0,1]), but I’ve never heard of anyone using a different value than 0.5.
+        ***
         Assemble the data to evaluate into a vector called data. Do not include cycles and blocks previously rejected by the user in the data vector.
         The number of elements in data is n
         Calculate the mean and standard deviation of data, xbar and stddev.
         For each element of data, calculate absZ_i = abs(data_i - xbar) / stddev where abs() is the absolute value
         Calculate Chauvenet’s criterion, C_i = n * erfc(absZ_i) for each absZ_i
         Identify all data with C_i > ChauvenetRejectionProbability as an outlier by Chauvenet’s Criterion
+        ***
         Plot Chauvenet-identified outliers in red and recalculate all statistics after rejecting the identified outliers.
         Gray out the Chauvenet button so that it can’t be re-applied.
          */
