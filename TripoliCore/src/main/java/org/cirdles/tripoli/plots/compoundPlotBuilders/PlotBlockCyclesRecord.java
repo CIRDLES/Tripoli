@@ -1,5 +1,7 @@
 package org.cirdles.tripoli.plots.compoundPlotBuilders;
 
+import org.cirdles.tripoli.parameters.Parameters;
+
 import java.io.Serializable;
 
 import static com.google.common.primitives.Booleans.countTrue;
@@ -41,8 +43,11 @@ public record PlotBlockCyclesRecord(
         );
     }
 
-    public PlotBlockCyclesRecord performChauvenets() {
-        boolean[] cyclesIncludedChauvenet = applyChauvenetsCriterion(cycleMeansData, cyclesIncluded);
+    public PlotBlockCyclesRecord performChauvenets(Parameters parameters) {
+        boolean[] cyclesIncludedChauvenet = applyChauvenetsCriterion(
+                    cycleMeansData,
+                    cyclesIncluded,
+                    parameters);
 
         return new PlotBlockCyclesRecord(
                 blockID,

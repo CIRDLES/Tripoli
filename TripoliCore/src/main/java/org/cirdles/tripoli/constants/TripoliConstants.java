@@ -16,13 +16,19 @@
 
 package org.cirdles.tripoli.constants;
 
-import org.cirdles.tripoli.utilities.collections.CircularArray;
+import org.cirdles.tripoli.utilities.collections.FixedLengthCircularQueue;
 
 import java.io.File;
 import java.nio.CharBuffer;
 
 public enum TripoliConstants {
-    ;
+    ;// Why...?
+    public static final String OGTRIPOLI_TWOSIGMA_HEX = "#FFBFCB";
+    public static final String OGTRIPOLI_ONESIGMA_HEX = "#FFEA00";
+    public static final String OGTRIPOLI_TWOSTDERR_HEX = "#90EE8F";
+    public static final String OGTRIPOLI_MEAN_HEX = "#FF0000";
+    public static final String OGTRIPOLI_DATA_HEX = "#0000FF";
+    public static final String OGTRIPOLI_ANTI_DATA_HEX = "#FF0000";
 
     public static final File TRIPOLI_RESOURCES_FOLDER = new File("TripoliResources");
     public static final File DOCS_FOLDER = new File(TRIPOLI_RESOURCES_FOLDER.getAbsolutePath() + File.separator + "Docs");
@@ -71,10 +77,21 @@ public enum TripoliConstants {
     public static final String PLOT_TAB_CONVERGE = "Converge";
     public static final String PLOT_TAB_CONVERGE_INTENSITY = "Converge Intensity";
 
-    public static final CircularArray<String> TRIPOLI_DEFAULT_HEX_COLORS = new CircularArray<>(new String[]{
-            "#12bceb", "#095c73", "#ff0000", "#7fffd4", "#ffcf62", "#ac8c42", "#ff0000",
-            "#7fffd4", "#9e6fb1", "#4d3656", "#ff0000", "#7fffd4", "#baff78", "#6e9747", "#ff0000",
-            "#7fffd4", "#ffa056", "#b2703c", "#ff0000", "#7fffd4"});
+//    public static final FixedLengthCircularQueue<String> TRIPOLI_DEFAULT_HEX_COLORS =
+//            new FixedLengthCircularQueue<>(new String[]{
+//                    "#12bceb", "#095c73", "#ff0000", "#7fffd4", "#ffcf62", "#ac8c42", "#ff0000",
+//                    "#7fffd4", "#9e6fb1", "#4d3656", "#ff0000", "#7fffd4", "#baff78", "#6e9747", "#ff0000",
+//                    "#7fffd4", "#ffa056", "#b2703c", "#ff0000", "#7fffd4"});
+    public static final FixedLengthCircularQueue<String> TRIPOLI_DEFAULT_HEX_COLORS =
+            new FixedLengthCircularQueue<>(new String[]{
+                    "#12bceb" ,"#095c73" ,"#ed4213" ,"#f6a38b" ,"#ffcf62" ,"#ac8c42" ,"#002f9d" ,
+                    "#5272bd" ,"#9e6fb1" ,"#4d3656" ,"#608f4d" ,"#b1c9a9" ,"#baff78" ,"#6e9747" ,
+                    "#440087" ,"#9167b7" ,"#ffa056" ,"#b2703c" ,"#005ea9" ,"#4c8fc3" });
+
+    // Chauvenet's parameter defaults
+    public static final double CHAUVENETS_DEFAULT_REJECT_PROBABILITY = 0.5;
+    public static final int CHAUVENETS_DEFAULT_MIN_DATUM_COUNT = 20;
+    // END Chauvenet's parameter defaults
 
     public enum DetectorPlotFlavor {
 
@@ -93,6 +110,21 @@ public enum TripoliConstants {
             return this.name;
         }
 
+    }
+
+    public enum RatiosPlotColorFlavor {
+        ONE_SIGMA_SHADE("One \u03C3 Shading"),
+        TWO_SIGMA_SHADE("Two \u03C3 Shading"),
+        TWO_STD_ERR_SHADE("Two \u03C3 Standard Error Shading"),
+        MEAN_COLOR("Mean Color"),
+        DATA_COLOR("Data Color"),
+        REJECTED_COLOR("Rejected Data Color");
+
+        private final String name;
+
+        RatiosPlotColorFlavor(String name) {this.name = name;}
+
+        public String getName() {return this.name;}
     }
 
     public enum IntensityUnits {

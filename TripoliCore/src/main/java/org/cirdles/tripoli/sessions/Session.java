@@ -17,7 +17,9 @@
 package org.cirdles.tripoli.sessions;
 
 import jakarta.xml.bind.JAXBException;
+import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.settings.plots.RatiosColors;
 import org.cirdles.tripoli.utilities.collections.TripoliSessionAnalysisMap;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -47,7 +49,12 @@ public class Session implements Serializable {
     private TripoliSessionAnalysisMap mapOfAnalyses;
     private boolean mutable;
     private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
+    private Parameters sessionDefaultParameters;
 
+
+    // Color Strings for ratio plots
+    private RatiosColors ratiosColors;
+    // END OF ratio plot Color Strings
 
     private Session() {
         this("New Session");
@@ -72,8 +79,10 @@ public class Session implements Serializable {
         Session session = new Session();
 //        session.addAnalysis(initializeNewAnalysis(1));
         try {
-            session.sessionDefaultMapOfSpeciesToColors =
-                    TripoliPersistentState.getExistingPersistentState().getMapOfSpeciesToColors();
+            TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+            session.sessionDefaultParameters = tripoliPersistentState.getTripoliPersistentParameters().copy();
+            session.sessionDefaultMapOfSpeciesToColors = tripoliPersistentState.getMapOfSpeciesToColors();
+            session.ratiosColors = tripoliPersistentState.getBlockCyclesPlotColors();
         } catch (TripoliException e) {
             e.printStackTrace();
         }
@@ -83,8 +92,10 @@ public class Session implements Serializable {
     public static Session initializeSession(String sessionName) {
         Session session = new Session(sessionName);
         try {
-            session.sessionDefaultMapOfSpeciesToColors =
-                    TripoliPersistentState.getExistingPersistentState().getMapOfSpeciesToColors();
+            TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+            session.sessionDefaultParameters = tripoliPersistentState.getTripoliPersistentParameters().copy();
+            session.sessionDefaultMapOfSpeciesToColors = tripoliPersistentState.getMapOfSpeciesToColors();
+            session.ratiosColors = tripoliPersistentState.getBlockCyclesPlotColors();
         } catch (TripoliException e) {
             e.printStackTrace();
         }
@@ -93,6 +104,10 @@ public class Session implements Serializable {
 
     public static boolean isSessionChanged() {
         return sessionChanged;
+    }
+
+    public RatiosColors getBlockCyclesPlotColors() {
+        return ratiosColors;
     }
 
     public static void setSessionChanged(boolean mySessionChanged) {
@@ -117,10 +132,6 @@ public class Session implements Serializable {
         return sessionDefaultMapOfSpeciesToColors;
     }
 
-    public void setSessionDefaultMapOfSpeciesToColors(TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors) {
-        this.sessionDefaultMapOfSpeciesToColors = sessionDefaultMapOfSpeciesToColors;
-    }
-
     public String getAnalystName() {
         return analystName;
     }
@@ -141,9 +152,6 @@ public class Session implements Serializable {
         return mapOfAnalyses;
     }
 
-    public void setMapOfAnalyses(Map<String, AnalysisInterface> mapOfAnalyses) {
-        this.mapOfAnalyses = (TripoliSessionAnalysisMap) mapOfAnalyses;
-    }
 
     public String getSessionNotes() {
         return sessionNotes;
@@ -159,6 +167,14 @@ public class Session implements Serializable {
 
     public void setMutable(boolean mutable) {
         this.mutable = mutable;
+    }
+
+    public Parameters getSessionDefaultParameters() {
+        return sessionDefaultParameters;
+    }
+
+    public void setBlockCyclesPlotColors(RatiosColors ratiosColors) {
+        this.ratiosColors = ratiosColors;
     }
 
     /**

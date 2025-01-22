@@ -18,6 +18,7 @@ package org.cirdles.tripoli.utilities.mathUtilities;
 
 import com.google.common.primitives.Booleans;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.cirdles.tripoli.parameters.Parameters;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -63,24 +64,26 @@ public class MathUtilities {
 
     /**
      * see https://docs.google.com/document/d/14PPEDEJPylNMavpJDpYSuemNb0gF5dz_To3Ek1Y_Agw/edit#bookmark=id.k016qg1ghequ
-     * seehttps://www.lexjansen.com/wuss/2007/DatabaseMgtWarehousing/DMW_Lin_CleaningData.pdf
+     * see https://www.lexjansen.com/wuss/2007/DatabaseMgtWarehousing/DMW_Lin_CleaningData.pdf
      *
      * @param dataIn
      * @return
      */
-    public static boolean[] applyChauvenetsCriterion(double[] dataIn, boolean[] includedIndicesIn) {
+    public static boolean[] applyChauvenetsCriterion(double[] dataIn, boolean[] includedIndicesIn, Parameters parameters) {
         /*
         Apply Chauvenet’s criterion to an entire measurement in Cycle Mode if there are 20 or more included cycles.
         Or, apply Chauvenet’s criterion to each block in Block Mode for blocks with greater than or equal to 20 cycles.
 
         For now, assume a default value of ChauvenetRejectionProbability = 0.5.  In the future, we can ask the user to input
         this constant (must be on [0,1]), but I’ve never heard of anyone using a different value than 0.5.
+        ***
         Assemble the data to evaluate into a vector called data. Do not include cycles and blocks previously rejected by the user in the data vector.
         The number of elements in data is n
         Calculate the mean and standard deviation of data, xbar and stddev.
         For each element of data, calculate absZ_i = abs(data_i - xbar) / stddev where abs() is the absolute value
         Calculate Chauvenet’s criterion, C_i = n * erfc(absZ_i) for each absZ_i
         Identify all data with C_i > ChauvenetRejectionProbability as an outlier by Chauvenet’s Criterion
+        ***
         Plot Chauvenet-identified outliers in red and recalculate all statistics after rejecting the identified outliers.
         Gray out the Chauvenet button so that it can’t be re-applied.
          */
@@ -89,9 +92,8 @@ public class MathUtilities {
         Logic changed per discussion #261
          */
 
-        // TODO: move these to parameters
-        double chauvenetRejectionProbability = 0.5;
-        int requiredMinDatumCount = 20;
+        double chauvenetRejectionProbability = parameters.getChauvenetRejectionProbability();
+        int requiredMinDatumCount = parameters.getRequiredMinDatumCount();
 
         boolean[] includedIndices = includedIndicesIn.clone();
         // TODO: document changes that loosen chauvenet restrictions

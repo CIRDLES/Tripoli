@@ -1,7 +1,7 @@
 package org.cirdles.tripoli.utilities.collections;
 
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
-import org.cirdles.tripoli.species.SpeciesColors;
+import org.cirdles.tripoli.settings.plots.species.SpeciesColors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

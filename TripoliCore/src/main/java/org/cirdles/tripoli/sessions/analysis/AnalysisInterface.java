@@ -5,6 +5,7 @@ import jxl.Workbook;
 import jxl.read.biff.BiffException;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
+import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.plots.PlotBuilder;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
@@ -14,6 +15,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
+import org.cirdles.tripoli.settings.plots.RatiosColors;
 import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
@@ -37,6 +39,16 @@ public interface AnalysisInterface {
 
     static Analysis initializeNewAnalysis(int suffix) throws TripoliException {
         return new Analysis("New Analysis" + "_" + (suffix), null, MISSING_STRING_FIELD);
+    }
+
+    static Analysis convertToAnalysis(AnalysisInterface analysis) throws TripoliException {
+        Analysis result;
+        if (analysis instanceof Analysis) {
+            result = (Analysis) analysis;
+        } else {
+            result = new Analysis(analysis.getAnalysisName(), analysis.getAnalysisMethod(), analysis.getAnalysisSampleName());
+        }
+        return result;
     }
 
     static MassSpectrometerContextEnum determineMassSpectrometerContextFromDataFile(Path dataFilePath) throws IOException {
@@ -153,13 +165,32 @@ public interface AnalysisInterface {
 
     Map<Integer, SingleBlockRawDataSetRecord> getMapOfBlockIdToRawData();
 
-    public Map<Integer, SingleBlockRawDataLiteSetRecord> getMapOfBlockIdToRawDataLiteOne();
+    Map<Integer, SingleBlockRawDataLiteSetRecord> getMapOfBlockIdToRawDataLiteOne();
 
     Map<Integer, SingleBlockModelRecord> getMapOfBlockIdToFinalModel();
 
     Map<Integer, List<EnsemblesStore.EnsembleRecord>> getMapBlockIDToEnsembles();
 
     Map<Integer, Integer> getMapOfBlockIdToModelsBurnCount();
+
+    String getTwoSigmaHexColorString();
+    String getOneSigmaHexColorString();
+    String getTwoStandardErrorHexColorString();
+    String getMeanHexColorString();
+    String getDataHexColorString();
+    String getAntiDataHexColorString();
+    RatiosColors getRatioColors();
+
+
+    void setOneSigmaHexColorString(String hexColor);
+    void setTwoSigmaHexColorString(String hexColor);
+    void setTwoStandardErrorHexColorString(String hexColor);
+    void setMeanHexColorString(String hexColor);
+    void setDataHexColorString(String hexColor);
+    void setAntiDataHexColorString(String hexColor);
+    void setRatioColors(RatiosColors ratiosColors);
+
+    Parameters getParameters();
 
     void resetAnalysis();
 
@@ -172,4 +203,5 @@ public interface AnalysisInterface {
     void setAnalysisStartTime(String s);
 
     List<UserFunction> getUserFunctions();
+
 }

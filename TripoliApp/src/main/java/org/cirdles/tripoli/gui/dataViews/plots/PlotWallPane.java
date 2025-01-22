@@ -17,12 +17,16 @@
 package org.cirdles.tripoli.gui.dataViews.plots;
 
 import com.google.common.primitives.Booleans;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
@@ -31,12 +35,18 @@ import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.constants.ConstantsTripoliApp;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsControllerInterface;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotI;
+import org.cirdles.tripoli.gui.settings.SettingsRequestType;
+import org.cirdles.tripoli.gui.settings.SettingsWindow;
+import org.cirdles.tripoli.gui.settings.color.fxcomponents.SettingsButton;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.EnsemblesStore;
+import org.cirdles.tripoli.utilities.DelegateActionInterface;
+import org.cirdles.tripoli.utilities.DelegateActionSet;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -62,6 +72,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private int toolBarCount;
     private boolean logScale;
     private boolean blockMode;
+    private static final DelegateActionSet repaintDelegateActionSet = new DelegateActionSet();
     ChangeListener<Boolean> cycleCBChangeListener = (observable, oldValue, newValue) -> {
         blockMode = !newValue;
         rebuildPlot(false, true);
@@ -248,6 +259,16 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         }
     }
 
+    @Override
+    public void addRepaintDelegateAction(DelegateActionInterface delegateAction) {
+        repaintDelegateActionSet.addDelegateAction(delegateAction);
+    }
+
+    @Override
+    public void removeRepaintDelegateAction(DelegateActionInterface delegateAction) {
+        repaintDelegateActionSet.removeDelegateAction(delegateAction);
+    }
+
     public void toggleRatiosLogRatios() {
         for (Node plotPane : getChildren()) {
             if (plotPane instanceof TripoliPlotPane) {
@@ -351,6 +372,19 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         scaleControlsToolbar.setStyle(scaleControlsToolbar.getStyle() + ";-fx-background-color:LINEN");
         scaleControlsToolbar.setLayoutY(0.0);
 
+        // BEGIN settings button
+        SettingsButton settingsGearButton = new SettingsButton();
+        settingsGearButton.setOnAction(settingsClickAction -> {
+            SettingsWindow settingsWindow =
+                    SettingsWindow.requestSettingsWindow(getScene().getWindow(),
+                            repaintDelegateActionSet,
+                            analysis,
+                            SettingsRequestType.RATIOS);
+            settingsWindow.show();
+        });
+        scaleControlsToolbar.getItems().add(settingsGearButton);
+        // END OF settings button
+
         Button infoButton = new Button("?");
         infoButton.setFont(commandFont);
         infoButton.setOnAction(event -> {
@@ -358,6 +392,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
             BrowserControl.showURI(resourcePath.toString());
         });
         scaleControlsToolbar.getItems().add(infoButton);
+        // TODO: Create issue/bugfix for bad url above ^^
 
         Button stackButton = new Button("Stack Plots");
         stackButton.setFont(commandFont);
@@ -595,4 +630,9 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         }
         cycleCB.selectedProperty().addListener(cycleCBChangeListener);
     }
+
+    public static DelegateActionSet getRepaintDelegateActionSet() {
+        return repaintDelegateActionSet;
+    }
+
 }
