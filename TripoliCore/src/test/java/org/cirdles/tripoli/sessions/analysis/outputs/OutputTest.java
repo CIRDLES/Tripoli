@@ -36,13 +36,14 @@ public class OutputTest {
     }
 
     @Test
-    public void nbs981test() throws TripoliException, JAXBException, IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public void isolinxV1test() throws TripoliException, JAXBException, IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
 
         ResourceExtractor testResourceExtractor = new ResourceExtractor(OutputTest.class);
         ResourceExtractor coreResourceExtractor = new ResourceExtractor(Tripoli.class);
         Path expectedPath = testResourceExtractor.extractResourceAsPath("/org/cirdles/tripoli/core/NBS981_210325b-392_output.txt");
         outputPath = expectedPath.getParent().resolve("output.txt");
-        Path timsdpPath = coreResourceExtractor.extractResourceAsPath("/org/cirdles/tripoli/dataSourceProcessors/dataSources/ogTripoli/isotopxPhoenix/timsDP/NBS981_210325b-392.TIMSDP");
+        Path timsdpPath = coreResourceExtractor.extractResourceAsPath(
+                "/org/cirdles/tripoli/dataSourceProcessors/dataSources/ogTripoli/isotopxPhoenixTIMS/kU_IGL/IsolinxVersion1/NBS981_210325b-392.TIMSDP");
 
         analysis.setAnalysisName(analysis.extractMassSpecDataFromPath(timsdpPath));
         AllBlockInitForDataLiteOne.initBlockModels(analysis);
