@@ -82,7 +82,7 @@ public class OutputTest {
     public void isolinxV1test() throws TripoliException, JAXBException, IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
 
         intializeAnalysis("NBS981_210325b-392.txt",
-                "isotopxPhoenixTIMS/kU_IGL/IsolinxVersion1/NBS981_210325b-392.TIMSDP");
+                "isotopxPhoenixTIMS/kU_IGL/isolinxVersion1/NBS981_210325b-392.TIMSDP");
 
         String clipBoardString = analysis.prepareFractionForClipboardExport();
         Files.write(outputPath, clipBoardString.getBytes());
@@ -94,7 +94,7 @@ public class OutputTest {
     public void isolinxV2test() throws TripoliException, JAXBException, IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
 
         intializeAnalysis("NBS981_230024a-145.txt",
-                "isotopxPhoenixTIMS/kU_IGL/IsolinxVersion2/NBS981_230024a-145.TIMSDP");
+                "isotopxPhoenixTIMS/kU_IGL/isolinxVersion2/NBS981_230024a-145.TIMSDP");
 
         String clipBoardString = analysis.prepareFractionForClipboardExport();
         Files.write(outputPath, clipBoardString.getBytes());
