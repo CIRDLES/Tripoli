@@ -10,6 +10,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
@@ -31,27 +32,31 @@ public class OutputTest {
     }
     @AfterEach
     void tearDown() throws IOException {
-        if (Files.exists(outputPath)) {
-            Files.delete(outputPath);
-        }
-        analysis = null;
-        outputPath = null;
+        Files.deleteIfExists(outputPath);
+        Files.deleteIfExists(oraclePath);
+        analysis.resetAnalysis();
     }
 
-    public void intializeAnalysis(String oracleFilename, String testPathString) throws JAXBException, TripoliException, IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
-        String testPrefix = "/org/cirdles/tripoli/dataSourceProcessors/dataSources/ogTripoli/";
+    public void intializeAnalysis(String oracleFilename, String dataFilePathString) throws JAXBException, TripoliException, IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        String dataFilePrefix = "/org/cirdles/tripoli/dataSourceProcessors/dataSources/ogTripoli/";
         String oraclePrefix = "/org/cirdles/tripoli/core/outputs/";
 
         ResourceExtractor testResourceExtractor = new ResourceExtractor(OutputTest.class);
         ResourceExtractor coreResourceExtractor = new ResourceExtractor(Tripoli.class);
 
         oraclePath = testResourceExtractor.extractResourceAsPath(oraclePrefix + oracleFilename);
-        Path testPath = coreResourceExtractor.extractResourceAsPath(testPrefix + testPathString);
+        File dataFile = coreResourceExtractor.extractResourceAsFile(dataFilePrefix + dataFilePathString);
+
+        String dataFileName = dataFilePathString.split("/")[dataFilePathString.split("/").length-1];
+        File newDataFileName = new File(dataFile.getParent() + File.separator + dataFileName);
+        dataFile.renameTo(newDataFileName);
+        dataFile = newDataFileName;
         outputPath = oraclePath.getParent().resolve("output.txt");
 
-        analysis.setAnalysisName(analysis.extractMassSpecDataFromPath(testPath));
+        analysis.setAnalysisName(analysis.extractMassSpecDataFromPath(dataFile.toPath()));
         AllBlockInitForDataLiteOne.initBlockModels(analysis);
         analysis.getUserFunctions().sort(null);
+        Files.deleteIfExists(dataFile.toPath());
     }
     @Test
     public void boiseStateTest() throws TripoliException, JAXBException, IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
