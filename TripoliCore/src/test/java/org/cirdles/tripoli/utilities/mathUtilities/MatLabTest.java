@@ -124,9 +124,10 @@ class MatLabTest {
      */
     @Test
     void kronTest() throws IOException {
-        ArrayList<double[][]> aList = read_csv("kron_matrix_A.txt");
-        ArrayList<double[][]> bList = read_csv("kron_matrix_B.txt");
-        ArrayList<double[][]> answerList = read_csv("kron_answers.txt");
+        String fileDirectoryPrefix = "matLab/kron/";
+        ArrayList<double[][]> aList = read_csv(fileDirectoryPrefix+"kron_matrix_A.txt");
+        ArrayList<double[][]> bList = read_csv(fileDirectoryPrefix+"kron_matrix_B.txt");
+        ArrayList<double[][]> answerList = read_csv(fileDirectoryPrefix+"kron_answers.txt");
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
         Primitive64Store a;
         Primitive64Store b;
@@ -189,9 +190,10 @@ class MatLabTest {
      */
     @Test
     void expMatrixTest() throws IOException {
+        String fileDirectoryPrefix = "matLab/exp/";
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        ArrayList<double[][]> aList = read_csv("exp_matrix_A.txt");
-        ArrayList<double[][]> answerList = read_csv("exp_answers.txt");
+        ArrayList<double[][]> aList = read_csv(fileDirectoryPrefix + "exp_matrix_A.txt");
+        ArrayList<double[][]> answerList = read_csv(fileDirectoryPrefix + "exp_answers.txt");
         double[][] expected;
         Primitive64Store actual;
         Primitive64Store a;
@@ -220,9 +222,10 @@ class MatLabTest {
 
     @Test
     void diffTest() throws IOException {
+        String fileDirectoryPrefix = "matLab/diff/";
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        ArrayList<double[][]> A_list = read_csv("diff_matrix_A.txt");
-        ArrayList<double[][]> Answer_list = read_csv("diff_answers.txt");
+        ArrayList<double[][]> A_list = read_csv(fileDirectoryPrefix + "diff_matrix_A.txt");
+        ArrayList<double[][]> Answer_list = read_csv(fileDirectoryPrefix + "diff_answers.txt");
         double[][] expected;
         Primitive64Store actual;
         Primitive64Store A;
@@ -240,9 +243,10 @@ class MatLabTest {
 
     @Test
     void greaterOrEqualTest() throws IOException {
+        String fileDirectoryPrefix = "matLab/greaterOrEqual/";
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        ArrayList<double[][]> A_list = read_csv("greater_or_equal_matrix_A.txt");
-        ArrayList<double[][]> Answer_list = read_csv("greater_or_equal_answers.txt");
+        ArrayList<double[][]> A_list = read_csv(fileDirectoryPrefix + "greater_or_equal_matrix_A.txt");
+        ArrayList<double[][]> Answer_list = read_csv(fileDirectoryPrefix + "greater_or_equal_answers.txt");
         double[][] expected;
         Primitive64Store actual;
         Primitive64Store A;
@@ -256,9 +260,10 @@ class MatLabTest {
 
     @Test
     void sizeTest() throws IOException {
+        String fileDirectoryPrefix = "matLab/size/";
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        ArrayList<double[][]> A_list = read_csv("size_matrix_A.txt");
-        ArrayList<double[][]> Answer_list = read_csv("size_answers.txt");
+        ArrayList<double[][]> A_list = read_csv(fileDirectoryPrefix + "size_matrix_A.txt");
+        ArrayList<double[][]> Answer_list = read_csv(fileDirectoryPrefix + "size_answers.txt");
         double expected1;
         double expected2;
         int actual1;
@@ -310,8 +315,9 @@ class MatLabTest {
      */
     @Test
     void linspace2Test() throws IOException {
-        ArrayList<double[][]> A_list = read_csv("linspace_matrix_A.txt");
-        ArrayList<double[][]> Answer_list = read_csv("linspace_answers.txt");
+        String fileDirectoryPrefix = "matLab/linspace/";
+        ArrayList<double[][]> A_list = read_csv(fileDirectoryPrefix + "linspace_matrix_A.txt");
+        ArrayList<double[][]> Answer_list = read_csv(fileDirectoryPrefix + "linspace_answers.txt");
         double val1;
         double val2;
         double points;
@@ -407,10 +413,11 @@ class MatLabTest {
     // TODO: Make sure the original rDivide (flipped parameters) is okay.
     @Test
     void rDivide2Test() throws IOException {
+        String fileDirectoryPrefix = "matLab/rDivide/";
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        ArrayList<double[][]> A_list = read_csv("rDivide_matrix_A.txt");
-        ArrayList<double[][]> B_list = read_csv("rDivide_matrix_B.txt");
-        ArrayList<double[][]> Answer_list = read_csv("rDivide_answers.txt");
+        ArrayList<double[][]> A_list = read_csv(fileDirectoryPrefix + "rDivide_matrix_A.txt");
+        ArrayList<double[][]> B_list = read_csv(fileDirectoryPrefix + "rDivide_matrix_B.txt");
+        ArrayList<double[][]> Answer_list = read_csv(fileDirectoryPrefix + "rDivide_answers.txt");
         double[][] expected;
         double[][] actualArray;
         Primitive64Store actual;
@@ -496,9 +503,10 @@ class MatLabTest {
      */
     @Test
     void diagTest() throws IOException {
+        String fileDirectoryPrefix = "matLab/diag/";
         PhysicalStore.Factory<Double, Primitive64Store> storeFactory = Primitive64Store.FACTORY;
-        ArrayList<double[][]> A_list = read_csv("diag_matrix_A.txt");
-        ArrayList<double[][]> Answer_list = read_csv("diag_answers.txt");
+        ArrayList<double[][]> A_list = read_csv(fileDirectoryPrefix + "diag_matrix_A.txt");
+        ArrayList<double[][]> Answer_list = read_csv(fileDirectoryPrefix + "diag_answers.txt");
         double[][] expected;
         Primitive64Store actual;
         Primitive64Store A;
