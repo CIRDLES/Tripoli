@@ -18,6 +18,7 @@ package org.cirdles.tripoli.sessions.analysis;
 
 import jakarta.xml.bind.JAXBException;
 import jxl.Workbook;
+import jxl.WorkbookSettings;
 import jxl.read.biff.BiffException;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
@@ -73,7 +74,9 @@ public interface AnalysisInterface {
 
             Workbook workbook = null;
             try {
-                workbook = Workbook.getWorkbook(dataFilePath.toFile());
+                WorkbookSettings workbookSettings = new WorkbookSettings();
+                workbookSettings.setSuppressWarnings(true);
+                workbook = Workbook.getWorkbook(dataFilePath.toFile(), workbookSettings);
                 if (workbook.getSheet("SUMMARY").getCell(0, 0).getContents().compareToIgnoreCase("Summary Report") == 0) {
                     retVal = MassSpectrometerContextEnum.PHOENIX_IONVANTAGE_XLS;
                 }

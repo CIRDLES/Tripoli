@@ -1,6 +1,21 @@
+/*
+ * Copyright 2022 James Bowring, Noah McLean, Scott Burdick, and CIRDLES.org.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.cirdles.tripoli.sessions.analysis.outputs;
 
-import jakarta.annotation.Resource;
 import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
@@ -21,18 +36,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-
+/**
+ * Compares clipboard output for MassSpec data against known formatting
+ */
 public class OutputTest {
 
     AnalysisInterface analysis;
     Path outputPath;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
 
     }
 
@@ -48,7 +63,8 @@ public class OutputTest {
         analysis.getUserFunctions().sort(null);
 
     }
-    public List<Path> generateListOfPaths(String directoryString, Class directoryClass) throws URISyntaxException, IOException {
+
+    public List<Path> generateListOfPaths(String directoryString) throws URISyntaxException, IOException {
 
         File directoryFile = new File(Objects.requireNonNull(Tripoli.class.getResource(directoryString)).toURI());
         List<Path> filePathsList;
@@ -60,31 +76,34 @@ public class OutputTest {
     }
 
     @Test
-    public void massSpecOutputTest() throws URISyntaxException, IOException {
+    public void massSpecOutputTest() throws URISyntaxException, IOException, JAXBException, TripoliException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         String dataDirectoryString = "/org/cirdles/tripoli/dataSourceProcessors/dataSources/ogTripoli/";
         String oracleDirectoryString = "/org/cirdles/tripoli/core/outputs/";
 
-        List<Path> dataFilePaths = generateListOfPaths(dataDirectoryString, Tripoli.class);
-        List<Path> oracleFilePaths = generateListOfPaths(oracleDirectoryString, OutputTest.class);
+        List<Path> dataFilePaths = generateListOfPaths(dataDirectoryString);
+        List<Path> oracleFilePaths = generateListOfPaths(oracleDirectoryString);
 
         String outputDirectory = String.valueOf(oracleFilePaths.get(0));
         outputDirectory = outputDirectory.replaceAll("outputs.*", "");
         outputPath = Paths.get(outputDirectory, "outputs/output.txt");
 
-        assertAll(
-                () -> {
-                    // Compare Files with Default UserFunctions
-                    for (Path path : dataFilePaths) {
-                        int index = dataFilePaths.indexOf(path);
-                        initializeAnalysis(path);
+        boolean mismatchFound = false;
 
-                        String clipBoardString = analysis.prepareFractionForClipboardExport();
-                        Files.write(outputPath, clipBoardString.getBytes());
+        for (Path path : dataFilePaths) {
+            int index = dataFilePaths.indexOf(path);
+            initializeAnalysis(path);
 
-                        assertEquals(-1L, Files.mismatch(outputPath, oracleFilePaths.get(index)));
-                    }
-                }
-        );
+            String clipBoardString = analysis.prepareFractionForClipboardExport();
+            Files.write(outputPath, clipBoardString.getBytes());
+
+            long byteIndex = Files.mismatch(outputPath, oracleFilePaths.get(index));
+            if ( byteIndex!= -1L){
+                System.out.println("Mismatch found on file: " + path.toString().split("ogTripoli")[1] + " on position " + byteIndex);
+                mismatchFound = true;
+            }
+        }
+
+        assertFalse(mismatchFound);
 
     }
 
