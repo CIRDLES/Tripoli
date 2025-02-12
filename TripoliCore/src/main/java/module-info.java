@@ -50,6 +50,7 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.peakShapes;
     exports org.cirdles.tripoli.plots.histograms;
     exports org.cirdles.tripoli.plots.linePlots;
+    exports org.cirdles.tripoli.plots.reports;
     exports org.cirdles.tripoli.plots;
     exports org.cirdles.tripoli.utilities;
 

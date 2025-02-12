@@ -56,6 +56,7 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.jetbrains.annotations.Nullable;
+import org.cirdles.tripoli.plots.reports.Report;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -112,6 +113,7 @@ public class TripoliGUIController implements Initializable {
     public Label newVersionLabel;
     public Menu reportsMenu;
     public MenuItem manageAnalysisMenuItem;
+    public Menu customReportMenu;
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
     @FXML // URL location of the FXML file that was given to the FXMLLoader
@@ -180,7 +182,11 @@ public class TripoliGUIController implements Initializable {
 
         buildSessionMenuMRU();
         showStartingMenus();
-
+        try {
+            buildCustomReportMenu();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         detectLatestVersion();
 
         // March 2024 implement drag n drop of files ===================================================================
@@ -338,6 +344,26 @@ public class TripoliGUIController implements Initializable {
             });
             openRecentSessionMenu.getItems().add(menuItem);
         }
+    }
+
+    private void buildCustomReportMenu() throws IOException {
+        List<Path> reportFiles = Report.generateReportList();
+        for (Path reportPath : reportFiles) {
+            String fileName = reportPath.getFileName().toString().replace(".bin", "");
+            MenuItem menuItem = new MenuItem(fileName);
+            menuItem.setOnAction((ActionEvent t) -> {
+                try {
+                    openCustomReport(reportPath);
+                } catch (TripoliException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            customReportMenu.getItems().add(menuItem);
+        }
+    }
+
+    private void openCustomReport(Path reportPath) throws TripoliException {
+        Report customReport = (Report) TripoliSerializer.getSerializedObjectFromFile(reportPath.toString(), true);
     }
 
     @FXML
@@ -639,5 +665,11 @@ public class TripoliGUIController implements Initializable {
 
     public void showTripoliUserManual() {
         BrowserControl.showURI("https://cirdles.org/tripoli-manual");
+    }
+
+    public void defaultReportOnAction(ActionEvent actionEvent) {
+    }
+    public void customReportOnAction(ActionEvent actionEvent) {
+
     }
 }
