@@ -25,6 +25,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
@@ -34,6 +35,8 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
@@ -92,6 +95,8 @@ public class TripoliGUIController implements Initializable {
     private static GridPane sessionManagerUI;
     @FXML
     private static GridPane analysesManagerUI;
+    @FXML
+    private static VBox reportManagerUI;
 
     static {
         try {
@@ -361,9 +366,29 @@ public class TripoliGUIController implements Initializable {
             customReportMenu.getItems().add(menuItem);
         }
     }
+    public void defaultReportOnAction() throws TripoliException, IOException {
+        removeAllManagers();
+
+        reportManagerUI = FXMLLoader.load(getClass().getResource("dataViews/plots/reports/ReportBuilder.fxml"));
+        reportManagerUI.setId("ReportBuilder");
+
+        AnchorPane.setLeftAnchor(reportManagerUI, 0.0);
+        AnchorPane.setRightAnchor(reportManagerUI, 0.0);
+        AnchorPane.setTopAnchor(reportManagerUI, 0.0);
+        AnchorPane.setBottomAnchor(reportManagerUI, 0.0);
+
+        splashAnchor.getChildren().add(reportManagerUI);
+        reportManagerUI.setVisible(true);
+
+    }
+    public void customReportOnAction(ActionEvent actionEvent) throws TripoliException {
+        openCustomReport(Path.of(""));
+    }
 
     private void openCustomReport(Path reportPath) throws TripoliException {
         Report customReport = (Report) TripoliSerializer.getSerializedObjectFromFile(reportPath.toString(), true);
+
+        // todo: open report window
     }
 
     @FXML
@@ -667,9 +692,4 @@ public class TripoliGUIController implements Initializable {
         BrowserControl.showURI("https://cirdles.org/tripoli-manual");
     }
 
-    public void defaultReportOnAction(ActionEvent actionEvent) {
-    }
-    public void customReportOnAction(ActionEvent actionEvent) {
-
-    }
 }

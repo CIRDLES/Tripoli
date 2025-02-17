@@ -29,4 +29,9 @@ public class ReportDetails implements Serializable {
         reportFunctions = analysis.getUserFunctions();
     }
 
+    public void moveFunctionPosition(UserFunction function, int newPosition) {
+        reportFunctions.remove(function);
+        reportFunctions.add(newPosition, function);
+    }
+
 }
