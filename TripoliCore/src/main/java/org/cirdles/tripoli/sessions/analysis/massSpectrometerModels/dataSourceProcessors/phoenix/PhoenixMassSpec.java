@@ -55,7 +55,9 @@ public enum PhoenixMassSpec {
 
 
         try {
-            workbook = Workbook.getWorkbook(inputDataFile.toFile());
+            WorkbookSettings workbookSettings = new WorkbookSettings();
+            workbookSettings.setSuppressWarnings(true);
+            workbook = Workbook.getWorkbook(inputDataFile.toFile(), workbookSettings);
             cycleSheet = workbook.getSheet("CYCLE");
         } catch (BiffException e) {
             throw new RuntimeException(e);
