@@ -16,11 +16,15 @@
 
 package org.cirdles.tripoli.reports;
 
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -35,6 +39,7 @@ public class Report implements Serializable{
     private static File tripoliReportDirectoryLocal;
 
     private String reportName;
+    private AnalysisMethod analysisMethod;
 
 
     Set<ReportCategory> categoryColumns;
@@ -59,13 +64,14 @@ public class Report implements Serializable{
         List<Path> reportList;
         try (Stream<Path> pathStream = Files.walk(tripoliReportDirectoryLocal.toPath())) {
             reportList = pathStream.filter(Files::isRegularFile)
+                    .sorted(Comparator.comparing(path -> path.getFileName().toString()))
                     .toList();
         }
         return reportList;
     }
 
-    // Check if local report folder exists and create if it does not
-    // also init the directory variable in non-static context
+    // Check if local report folder exists and create if not
+    // Init the directory variable in non-static context
     private static void createReportDirectory() {
         String tripoliUserHomeDirectoryLocal = System.getProperty("user.home");
 
@@ -76,5 +82,13 @@ public class Report implements Serializable{
         }
     }
 
+    public void serializeReport() throws TripoliException {
+        File reportMethodDirectory = new File(tripoliReportDirectoryLocal.getAbsolutePath() + File.separator + analysisMethod.getMethodName());
+
+        if(!reportMethodDirectory.exists()){
+            reportMethodDirectory.mkdir();
+        }
+        TripoliSerializer.serializeObjectToFile(this, reportMethodDirectory.getAbsolutePath()+reportName+".tpr");
+    }
 }
 

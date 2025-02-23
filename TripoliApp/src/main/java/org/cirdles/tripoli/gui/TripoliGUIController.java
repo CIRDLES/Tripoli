@@ -67,9 +67,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStage;
@@ -95,6 +93,7 @@ public class TripoliGUIController implements Initializable {
     private static GridPane analysesManagerUI;
     @FXML
     private static VBox reportManagerUI;
+    HashMap<String, String> reportMethodMap; // <FileName, MethodName>
 
     static {
         try {
@@ -351,9 +350,15 @@ public class TripoliGUIController implements Initializable {
 
     private void buildCustomReportMenu() throws IOException {
         List<Path> reportFiles = Report.generateReportList();
+        reportMethodMap = new HashMap<>();
+        customReportMenu.getItems().add(new SeparatorMenuItem());
         for (Path reportPath : reportFiles) {
-            String fileName = reportPath.getFileName().toString().replace(".tpr", "");
-            MenuItem menuItem = new MenuItem(fileName);
+            String methodName = reportPath.getParent().getFileName().toString();
+            String reportName =  reportPath.getFileName().toString().replace(".tpr", "");
+
+            reportMethodMap.put(reportName, methodName);
+
+            MenuItem menuItem = new MenuItem(reportName);
             menuItem.setOnAction((ActionEvent t) -> {
                 try {
                     openCustomReport(reportPath);
@@ -362,6 +367,20 @@ public class TripoliGUIController implements Initializable {
                 }
             });
             customReportMenu.getItems().add(menuItem);
+        }
+        reportMenuVisibility();
+    }
+    private void reportMenuVisibility() {
+        for (MenuItem menuItem : customReportMenu.getItems()) {
+            if (menuItem instanceof SeparatorMenuItem || menuItem.getText().equals("Default Report")) {
+                menuItem.setVisible(true);
+            } else if (analysis == null) {
+                menuItem.setVisible(false);
+            } else if (Objects.equals(reportMethodMap.get(menuItem.getText()), analysis.getAnalysisMethod().getMethodName())) {
+                menuItem.setVisible(true);
+            } else {
+                menuItem.setVisible(false);
+            }
         }
     }
     public void defaultReportOnAction() throws TripoliException, IOException {
@@ -547,6 +566,7 @@ public class TripoliGUIController implements Initializable {
             splashAnchor.getChildren().add(analysesManagerUI);
             analysesManagerUI.setVisible(true);
             parametersMenu.setDisable(false);
+            reportMenuVisibility();
         }
     }
 
