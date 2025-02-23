@@ -16,11 +16,9 @@
 
 package org.cirdles.tripoli.reports;
 
-import org.jetbrains.annotations.NotNull;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -31,7 +29,8 @@ import java.util.stream.Stream;
 import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_USERS_DATA_FOLDER_NAME;
 
 
-public class Report implements Serializable, Comparable<ReportCategory>{
+public class Report implements Serializable{
+    private static final long serialVersionUID = 1064098835718283672L;
     private static final String TRIPOLI_CUSTOM_REPORTS_FOLDER = "CustomReports";
     private static File tripoliReportDirectoryLocal;
 
@@ -41,18 +40,20 @@ public class Report implements Serializable, Comparable<ReportCategory>{
     Set<ReportCategory> categoryColumns;
 
     public Report() {
-
+        createReportDirectory();
         categoryColumns = new TreeSet<>();
     }
-    @Override
-    public int compareTo(@NotNull ReportCategory o) {
-        return o.getPositionIndex();
-    }
+
     public String getReportName() {
         return reportName;
     }
 
-    // Generate list of saved reports
+    // todo: ensure report name is file-safe
+    public File getTripoliReportFile() {
+        return tripoliReportDirectoryLocal.toPath().resolve(this.getReportName()+".tpr").toFile();
+    }
+
+    // Generate list of saved reports for menu building
     public static List<Path> generateReportList() throws IOException {
         createReportDirectory();
         List<Path> reportList;
@@ -63,15 +64,17 @@ public class Report implements Serializable, Comparable<ReportCategory>{
         return reportList;
     }
 
+    // Check if local report folder exists and create if it does not
+    // also init the directory variable in non-static context
     private static void createReportDirectory() {
         String tripoliUserHomeDirectoryLocal = System.getProperty("user.home");
 
-        // check if local report folder exists and create if it does not
         tripoliReportDirectoryLocal = new File(
                 File.separator + tripoliUserHomeDirectoryLocal + File.separator + TRIPOLI_USERS_DATA_FOLDER_NAME + File.separator + TRIPOLI_CUSTOM_REPORTS_FOLDER);
         if (!tripoliReportDirectoryLocal.exists()) {
             tripoliReportDirectoryLocal.mkdir();
         }
     }
+
 }
 

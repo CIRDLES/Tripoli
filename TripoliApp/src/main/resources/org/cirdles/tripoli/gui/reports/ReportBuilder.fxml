@@ -1,4 +1,6 @@
-/*
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
  * Copyright 2022 James Bowring, Noah McLean, Scott Burdick, and CIRDLES.org.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,12 +14,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ -->
 
-package org.cirdles.tripoli.gui.reports;
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
+<VBox prefHeight="725.0" prefWidth="1250.0" style="-fx-background-color: #fbf6d5;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.reports.ReportBuilderController">
+    <children>
+        <AnchorPane fx:id="root" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+         <children>
 
-public class ReportBuilderController {
-
-
-}
+         </children>
+        </AnchorPane>
+    </children>
+</VBox>

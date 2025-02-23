@@ -16,20 +16,25 @@
 
 package org.cirdles.tripoli.reports;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serializable;
+import java.util.Objects;
 
-public class ReportCategory implements Serializable {
+public class ReportCategory implements Serializable, Comparable<ReportCategory> {
 
-    private String displayName;
+    private String categoryName;
     private int positionIndex;
     private ReportDetails columnDetails;
     private boolean visible;
 
+    private final String FIXED_CATEGORY_NAME = "Analysis";
+
     public ReportCategory() {
     }
 
-    public ReportCategory(String displayName, ReportDetails columnDetails, boolean visible) {
-        this.displayName = displayName;
+    public ReportCategory(String categoryName, ReportDetails columnDetails, boolean visible) {
+        this.categoryName = categoryName;
         this.positionIndex = 0;
         this.columnDetails = columnDetails;
         this.visible = visible;
@@ -45,5 +50,28 @@ public class ReportCategory implements Serializable {
         coulmn1.setPositionIndex(coulmn2.getPositionIndex());
         coulmn2.setPositionIndex(temp);
     }
+    public String getCategoryName() {return categoryName;}
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ReportCategory that = (ReportCategory) o;
+        return positionIndex == that.positionIndex && visible == that.visible && Objects.equals(categoryName, that.categoryName) && Objects.equals(columnDetails, that.columnDetails);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(categoryName, positionIndex, columnDetails, visible, FIXED_CATEGORY_NAME);
+    }
+
+    @Override
+    public int compareTo(@NotNull ReportCategory category) {
+        // Holds the fixed category name in its assigned index
+        if (this.categoryName.equals(FIXED_CATEGORY_NAME)){
+            return -1;
+        } else if (category.getCategoryName().equals(FIXED_CATEGORY_NAME)){
+            return 1;
+        }
+        return Integer.compare(this.positionIndex, category.getPositionIndex());
+    }
 }
