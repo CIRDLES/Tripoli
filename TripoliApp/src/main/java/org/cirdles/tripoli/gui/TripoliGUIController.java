@@ -25,7 +25,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
@@ -36,7 +35,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
@@ -59,7 +57,7 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.jetbrains.annotations.Nullable;
-import org.cirdles.tripoli.plots.reports.Report;
+import org.cirdles.tripoli.reports.Report;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -354,7 +352,7 @@ public class TripoliGUIController implements Initializable {
     private void buildCustomReportMenu() throws IOException {
         List<Path> reportFiles = Report.generateReportList();
         for (Path reportPath : reportFiles) {
-            String fileName = reportPath.getFileName().toString().replace(".bin", "");
+            String fileName = reportPath.getFileName().toString().replace(".tpr", "");
             MenuItem menuItem = new MenuItem(fileName);
             menuItem.setOnAction((ActionEvent t) -> {
                 try {

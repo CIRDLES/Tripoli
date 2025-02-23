@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.plots.reports;
+package org.cirdles.tripoli.reports;
 
 import java.io.Serializable;
 
