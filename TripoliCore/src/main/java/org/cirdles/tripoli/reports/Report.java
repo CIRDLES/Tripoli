@@ -39,8 +39,7 @@ public class Report implements Serializable{
     private static File tripoliReportDirectoryLocal;
 
     private String reportName;
-    private AnalysisMethod analysisMethod;
-
+    private String methodName;
 
     Set<ReportCategory> categoryColumns;
 
@@ -48,14 +47,26 @@ public class Report implements Serializable{
         createReportDirectory();
         categoryColumns = new TreeSet<>();
     }
-
-    public String getReportName() {
-        return reportName;
+    public Report(String reportName, String methodName, Set<ReportCategory> categoryColumns) {
+        this.reportName = reportName;
+        this.methodName = methodName;
+        this.categoryColumns = categoryColumns;
     }
 
-    // todo: ensure report name is file-safe
+    // Assumes Report Names will never contain underscores naturally
+    public String getReportName() {
+        return this.reportName.replaceAll("_", " "); }
+    public void setReportName(String reportName) {
+        this.reportName = reportName.replaceAll("[\\\\/:*?\"<>| ]", "_").trim(); }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName; }
+
+    public void addCategory(ReportCategory category) { categoryColumns.add(category); }
+    public Set<ReportCategory> getCategories() { return categoryColumns; }
+
     public File getTripoliReportFile() {
-        return tripoliReportDirectoryLocal.toPath().resolve(this.getReportName()+".tpr").toFile();
+        return tripoliReportDirectoryLocal.toPath().resolve(this.methodName + File.separator + this.getReportName()+".tpr").toFile();
     }
 
     // Generate list of saved reports for menu building
@@ -83,7 +94,7 @@ public class Report implements Serializable{
     }
 
     public void serializeReport() throws TripoliException {
-        File reportMethodDirectory = new File(tripoliReportDirectoryLocal.getAbsolutePath() + File.separator + analysisMethod.getMethodName());
+        File reportMethodDirectory = new File(tripoliReportDirectoryLocal.getAbsolutePath() + File.separator + methodName);
 
         if(!reportMethodDirectory.exists()){
             reportMethodDirectory.mkdir();

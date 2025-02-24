@@ -41,6 +41,7 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
+import org.cirdles.tripoli.gui.reports.ReportBuilderController;
 import org.cirdles.tripoli.gui.settings.SettingsRequestType;
 import org.cirdles.tripoli.gui.settings.SettingsWindow;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
@@ -48,8 +49,10 @@ import org.cirdles.tripoli.gui.utilities.events.PlotTabSelectedEvent;
 import org.cirdles.tripoli.gui.utilities.events.SaveCurrentSessionEvent;
 import org.cirdles.tripoli.gui.utilities.events.SaveSessionAsEvent;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
+import org.cirdles.tripoli.reports.ReportCategory;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.SessionBuiltinFactory;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
@@ -386,7 +389,7 @@ public class TripoliGUIController implements Initializable {
     public void defaultReportOnAction() throws TripoliException, IOException {
         removeAllManagers();
 
-        reportManagerUI = FXMLLoader.load(getClass().getResource("dataViews/plots/reports/ReportBuilder.fxml"));
+        reportManagerUI = FXMLLoader.load(getClass().getResource("reports/ReportBuilder.fxml"));
         reportManagerUI.setId("ReportBuilder");
 
         AnchorPane.setLeftAnchor(reportManagerUI, 0.0);
@@ -397,6 +400,19 @@ public class TripoliGUIController implements Initializable {
         splashAnchor.getChildren().add(reportManagerUI);
         reportManagerUI.setVisible(true);
 
+        Report defaultReport = new Report(); // init default report class
+        ReportCategory analysisInfo = ReportCategory.generateAnalysisInfo((Analysis) analysis);
+        ReportCategory isotopicRatios = ReportCategory.generateIsotopicRatios((Analysis) analysis);
+        ReportCategory userFunctions = ReportCategory.generateUserFunctions((Analysis) analysis);
+        ReportCategory unnamedCategory = new ReportCategory();
+
+        defaultReport.addCategory(analysisInfo);
+        defaultReport.addCategory(isotopicRatios);
+        defaultReport.addCategory(userFunctions);
+        defaultReport.addCategory(unnamedCategory);
+
+        ReportBuilderController.setContainer(reportManagerUI);
+        ReportBuilderController.setReport(defaultReport);
     }
     public void customReportOnAction(ActionEvent actionEvent) throws TripoliException {
         openCustomReport(Path.of(""));

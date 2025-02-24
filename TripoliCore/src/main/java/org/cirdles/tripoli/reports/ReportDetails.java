@@ -23,11 +23,20 @@ import java.io.Serializable;
 import java.util.List;
 
 public class ReportDetails implements Serializable {
-    List<UserFunction> reportFunctions;
+    private List<UserFunction> reportFunctions;
+    private String columnName;
+    private String columnDetails;
 
+    public ReportDetails(String title, String data) {
+        columnName = title;
+        columnDetails = data;
+    }
     public ReportDetails(Analysis analysis) {
         reportFunctions = analysis.getUserFunctions();
     }
+
+    public String getColumnName() { return columnName; }
+    public String getColumnDetails() { return columnDetails; }
 
     public void moveFunctionPosition(UserFunction function, int newPosition) {
         reportFunctions.remove(function);
