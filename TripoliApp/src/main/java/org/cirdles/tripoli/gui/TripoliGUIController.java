@@ -228,10 +228,12 @@ public class TripoliGUIController implements Initializable {
                                 tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
                                 analysis = analysisProposed;
                                 parametersMenu.setDisable(false);
+                                reportsMenu.setDisable(false);
                                 AnalysisManagerController.readingFile = true;
                             } else {
                                 analysis = null;
                                 parametersMenu.setDisable(true);
+                                reportsMenu.setDisable(true);
                                 TripoliMessageDialog.showWarningDialog("Tripoli does not recognize this file format.", primaryStageWindow);
                             }
                         } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException |
@@ -289,6 +291,7 @@ public class TripoliGUIController implements Initializable {
         manageAnalysisMenuItem.setDisable(true);
 
         parametersMenu.setDisable(true);
+        reportsMenu.setDisable(true);
     }
 
     private void removeAllManagers() throws TripoliException {

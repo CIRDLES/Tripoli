@@ -21,10 +21,6 @@
 
 <VBox prefHeight="725.0" prefWidth="1250.0" style="-fx-background-color: #fbf6d5;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.reports.ReportBuilderController">
     <children>
-        <AnchorPane fx:id="root" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
-         <children>
 
-         </children>
-        </AnchorPane>
     </children>
 </VBox>

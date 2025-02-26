@@ -16,23 +16,21 @@
 
 package org.cirdles.tripoli.reports;
 
-import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.Serializable;
+import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class ReportCategory implements Serializable, Comparable<ReportCategory> {
+    private static final long serialVersionUID = 6830475493400638448L;
 
     private String categoryName;
     private int positionIndex;
@@ -128,7 +126,7 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         List<ReportDetails> columnList = new ArrayList<>();
         for (UserFunction userFunction : userFunctionList){
             // todo: this is not complete to specification
-            columnList.add(new ReportDetails(userFunction.getName(), ""));
+            columnList.add(new ReportDetails(userFunction));
         }
         return new ReportCategory("User Functions", columnList);
     }

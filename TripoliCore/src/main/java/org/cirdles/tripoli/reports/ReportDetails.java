@@ -17,12 +17,14 @@
 package org.cirdles.tripoli.reports;
 
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
-import org.cirdles.tripoli.sessions.analysis.Analysis;
+import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunction;
 
 import java.io.Serializable;
 import java.util.List;
 
 public class ReportDetails implements Serializable {
+    private static final long serialVersionUID = 3378567673921898881L;
+
     private List<UserFunction> reportFunctions;
     private String columnName;
     private String columnDetails;
@@ -31,8 +33,12 @@ public class ReportDetails implements Serializable {
         columnName = title;
         columnDetails = data;
     }
-    public ReportDetails(Analysis analysis) {
-        reportFunctions = analysis.getUserFunctions();
+    public ReportDetails(UserFunction function) {
+        columnName = function.getName();
+        MeasuredUserFunction measuredUserFunctionModel = new MeasuredUserFunction(function.showCorrectName());
+        //measuredUserFunctionModel.refreshStats(function); todo: function is blank, must be initialized
+        columnDetails = String.valueOf(measuredUserFunctionModel.getValue());
+
     }
 
     public String getColumnName() { return columnName; }

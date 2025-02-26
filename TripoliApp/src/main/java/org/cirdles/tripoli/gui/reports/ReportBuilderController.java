@@ -21,6 +21,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.reports.Report;
 import org.cirdles.tripoli.reports.ReportCategory;
 import org.cirdles.tripoli.reports.ReportDetails;
@@ -44,7 +46,8 @@ public class ReportBuilderController {
 
                 // Category header
                 Label categoryLabel = new Label(category.getCategoryName());
-                categoryLabel.setStyle("-fx-font-weight: bold");
+                categoryLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+                categoryLabel.setStyle("-fx-text-fill:red");;
                 reportContainer.getChildren().add(categoryLabel);
 
                 GridPane gridpane = new GridPane();
