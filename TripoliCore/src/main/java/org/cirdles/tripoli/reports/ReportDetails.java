@@ -26,23 +26,23 @@ public class ReportDetails implements Serializable {
     private static final long serialVersionUID = 3378567673921898881L;
 
     private List<UserFunction> reportFunctions;
-    private String columnName;
-    private String columnDetails;
+    private final String columnName;
+    private final String columnValue;
 
     public ReportDetails(String title, String data) {
         columnName = title;
-        columnDetails = data;
+        columnValue = data;
     }
     public ReportDetails(UserFunction function) {
         columnName = function.getName();
         MeasuredUserFunction measuredUserFunctionModel = new MeasuredUserFunction(function.showCorrectName());
         //measuredUserFunctionModel.refreshStats(function); todo: function is blank, must be initialized
-        columnDetails = String.valueOf(measuredUserFunctionModel.getValue());
+        columnValue = String.valueOf(measuredUserFunctionModel.getValue());
 
     }
 
     public String getColumnName() { return columnName; }
-    public String getColumnDetails() { return columnDetails; }
+    public String getColumnValue() { return columnValue; }
 
     public void moveFunctionPosition(UserFunction function, int newPosition) {
         reportFunctions.remove(function);

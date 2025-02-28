@@ -17,12 +17,10 @@
 package org.cirdles.tripoli.gui.reports;
 
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.reports.Report;
 import org.cirdles.tripoli.reports.ReportCategory;
 import org.cirdles.tripoli.reports.ReportDetails;
@@ -42,29 +40,60 @@ public class ReportBuilderController {
 
     private static void generateUI() {
         if (report != null && report.getCategories() != null) {
+            // Create the master TableView
+            TableView<Report> parentTable = new TableView<>();
+            parentTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+
+            boolean firstCat  = true;
+            // Create a single row with multiple category columns
             for (ReportCategory category : report.getCategories()) {
-
-                // Category header
-                Label categoryLabel = new Label(category.getCategoryName());
-                categoryLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
-                categoryLabel.setStyle("-fx-text-fill:red");;
-                reportContainer.getChildren().add(categoryLabel);
-
-                GridPane gridpane = new GridPane();
-                gridpane.setHgap(10);
-                gridpane.setVgap(5);
-
-                // Column Header
-                int index = 0;
-                for (ReportDetails columnDetail : category.getColumns()) {
-                    Label columnName = new Label(columnDetail.getColumnName());
-                    Label columnDetails = new Label(columnDetail.getColumnDetails());
-                    gridpane.add(columnName, index, 0);
-                    gridpane.add(columnDetails, index++, 1);
+                TableColumn<Report, ReportCategory> categoryCol = new TableColumn<>(category.getCategoryName());
+                categoryCol.setStyle("-fx-font-family: 'Arial'; -fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: red;");
+                if (firstCat) {
+                    categoryCol.setReorderable(false);
+                    firstCat = false;
                 }
-                reportContainer.getChildren().add(gridpane);
+
+                for (ReportDetails column : category.getColumns()) {
+                    TableColumn<Report, String> detailsCol = new TableColumn<>(column.getColumnName());
+
+                    detailsCol.setCellValueFactory(data -> {
+                        ReportCategory matchingCategory = report.getCategories()
+                                .stream()
+                                .filter(cat -> cat.getCategoryName().equals(category.getCategoryName()))
+                                .findFirst()
+                                .orElse(null);
+
+                        if (matchingCategory != null) {
+                            ReportDetails matchingDetail = matchingCategory.getColumns()
+                                    .stream()
+                                    .filter(detail -> detail.getColumnName().equals(column.getColumnName()))
+                                    .findFirst()
+                                    .orElse(null);
+
+                            return new SimpleStringProperty(matchingDetail != null ? matchingDetail.getColumnValue() : "");
+                        }
+                        return new SimpleStringProperty("");
+                    });
+
+                    categoryCol.getColumns().add(detailsCol);
+                }
+
+                parentTable.getColumns().add(categoryCol);
             }
+
+            // Add a single row for the entire report
+            parentTable.getItems().add(report);
+
+            // Wrap the TableView in a ScrollPane
+            ScrollPane scrollPane = new ScrollPane();
+            scrollPane.setContent(parentTable);
+            scrollPane.setFitToHeight(true);
+            scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+            reportContainer.getChildren().add(scrollPane);
         }
     }
+
 
 }

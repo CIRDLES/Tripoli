@@ -382,11 +382,7 @@ public class TripoliGUIController implements Initializable {
                 menuItem.setVisible(true);
             } else if (analysis == null) {
                 menuItem.setVisible(false);
-            } else if (Objects.equals(reportMethodMap.get(menuItem.getText()), analysis.getAnalysisMethod().getMethodName())) {
-                menuItem.setVisible(true);
-            } else {
-                menuItem.setVisible(false);
-            }
+            } else menuItem.setVisible(Objects.equals(reportMethodMap.get(menuItem.getText()), analysis.getAnalysisMethod().getMethodName()));
         }
     }
     public void defaultReportOnAction() throws TripoliException, IOException {
@@ -406,8 +402,11 @@ public class TripoliGUIController implements Initializable {
         Report defaultReport = new Report(); // init default report class
         ReportCategory analysisInfo = ReportCategory.generateAnalysisInfo((Analysis) analysis);
         ReportCategory isotopicRatios = ReportCategory.generateIsotopicRatios((Analysis) analysis);
+        isotopicRatios.setPositionIndex(1);
         ReportCategory userFunctions = ReportCategory.generateUserFunctions((Analysis) analysis);
+        userFunctions.setPositionIndex(2);
         ReportCategory unnamedCategory = new ReportCategory();
+        unnamedCategory.setPositionIndex(3);
 
         defaultReport.addCategory(analysisInfo);
         defaultReport.addCategory(isotopicRatios);

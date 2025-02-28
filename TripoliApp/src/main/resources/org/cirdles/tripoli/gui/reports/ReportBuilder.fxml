@@ -16,11 +16,6 @@
  * limitations under the License.
  -->
 
-<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox prefHeight="725.0" prefWidth="1250.0" style="-fx-background-color: #fbf6d5;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.reports.ReportBuilderController">
-    <children>
-
-    </children>
-</VBox>
+<VBox prefHeight="725.0" prefWidth="1250.0" style="-fx-background-color: #fbf6d5;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.reports.ReportBuilderController" />
