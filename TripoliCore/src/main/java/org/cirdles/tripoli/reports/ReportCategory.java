@@ -20,6 +20,7 @@ import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.jetbrains.annotations.NotNull;
 
@@ -106,26 +107,22 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         if (analysis == null) {
             return new ReportCategory("Isotopic Ratio Analysis");
         }
-        List<IsotopicRatio> ratioList = analysis.getAnalysisMethod().getIsotopicRatiosList();
 
         List<ReportDetails> columnList = new ArrayList<>();
 
-        for (IsotopicRatio ratio : ratioList){
-            //todo: theres no way this is the correct ratio value
-            columnList.add(new ReportDetails(ratio.prettyPrint(), ratio.getRatioValuesForBlockEnsembles().toString()));
-            //todo: missing other category options from report specification doc
+        for (UserFunction userFunction : analysis.getUserFunctions()) {
+            if (userFunction.isTreatAsIsotopicRatio()) {
+                columnList.add(new ReportDetails(userFunction));
+            }
         }
+
         return new ReportCategory("Isotopic Ratios", columnList);
     }
 
     public static ReportCategory generateUserFunctions(Analysis analysis) throws TripoliException {
-        if (analysis == null) {
-            analysis = AnalysisInterface.initializeNewAnalysis(0);
-        }
         List<UserFunction> userFunctionList = analysis.getUserFunctions();
         List<ReportDetails> columnList = new ArrayList<>();
         for (UserFunction userFunction : userFunctionList){
-            // todo: this is not complete to specification
             columnList.add(new ReportDetails(userFunction));
         }
         return new ReportCategory("User Functions", columnList);

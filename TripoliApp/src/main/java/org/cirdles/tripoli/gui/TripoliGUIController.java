@@ -54,6 +54,7 @@ import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.SessionBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -400,6 +401,7 @@ public class TripoliGUIController implements Initializable {
         reportManagerUI.setVisible(true);
 
         Report defaultReport = new Report(); // init default report class
+        AllBlockInitForDataLiteOne.initBlockModels(analysis); // init analysis data
         ReportCategory analysisInfo = ReportCategory.generateAnalysisInfo((Analysis) analysis);
         ReportCategory isotopicRatios = ReportCategory.generateIsotopicRatios((Analysis) analysis);
         isotopicRatios.setPositionIndex(1);

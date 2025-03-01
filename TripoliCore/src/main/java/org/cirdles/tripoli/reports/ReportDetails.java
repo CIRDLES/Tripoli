@@ -25,7 +25,6 @@ import java.util.List;
 public class ReportDetails implements Serializable {
     private static final long serialVersionUID = 3378567673921898881L;
 
-    private List<UserFunction> reportFunctions;
     private final String columnName;
     private final String columnValue;
 
@@ -36,7 +35,7 @@ public class ReportDetails implements Serializable {
     public ReportDetails(UserFunction function) {
         columnName = function.getName();
         MeasuredUserFunction measuredUserFunctionModel = new MeasuredUserFunction(function.showCorrectName());
-        //measuredUserFunctionModel.refreshStats(function); todo: function is blank, must be initialized
+        measuredUserFunctionModel.refreshStats(function);
         columnValue = String.valueOf(measuredUserFunctionModel.getValue());
 
     }
@@ -44,9 +43,5 @@ public class ReportDetails implements Serializable {
     public String getColumnName() { return columnName; }
     public String getColumnValue() { return columnValue; }
 
-    public void moveFunctionPosition(UserFunction function, int newPosition) {
-        reportFunctions.remove(function);
-        reportFunctions.add(newPosition, function);
-    }
 
 }
