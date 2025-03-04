@@ -252,6 +252,51 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     }
 
     /**
+     * Generates the values for the lesserSigmaPct, plusSigmaPct, and the minusSigmaPct
+     * Also returns the generated value for countOfTrailingDigitsForSigFig
+     * @param geoWeightedMeanRatio
+     * @return
+     */
+    double[] getSigmaPcts(double geoWeightedMeanRatio) {
+        int countOfTrailingDigitsForSigFig;
+
+        double geoWeightedMeanRatioPlusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() + analysisStatsRecord.blockModeWeightedMeanOneSigma());
+        double geoWeightedMeanRatioMinusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() - analysisStatsRecord.blockModeWeightedMeanOneSigma());
+        double geoWeightedMeanRatioPlusOneSigmaPct = (geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio) / geoWeightedMeanRatio * 100.0;
+        double geoWeightedMeanRatioMinusOneSigmaPct = (geoWeightedMeanRatio - geoWeightedMeanRatioMinusOneSigma) / geoWeightedMeanRatio * 100.0;
+
+        countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig(Math.min(geoWeightedMeanRatioPlusOneSigmaPct, geoWeightedMeanRatioMinusOneSigmaPct), 2);
+        double plusSigmaPct = (new BigDecimal(geoWeightedMeanRatioPlusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
+        double minusSigmaPct = (new BigDecimal(geoWeightedMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
+
+        double lesserSigmaPct = Math.min(plusSigmaPct, minusSigmaPct);
+
+        return new double[]{lesserSigmaPct, plusSigmaPct, minusSigmaPct, countOfTrailingDigitsForSigFig};
+    }
+
+    /**
+     * 
+     * @param geoWeightedMeanRat
+     * @param lesserSigmaPercent
+     * @return
+     */
+    String meanAsString(double geoWeightedMeanRat, double lesserSigmaPercent) {
+        double geoWeightedMeanRatio = geoWeightedMeanRat;
+        double lesserSigmaPct = lesserSigmaPercent;
+
+        FormatterForSigFigN.FormattedStats formattedStats;
+        if ((abs(geoWeightedMeanRatio) >= 1e7) || (abs(geoWeightedMeanRatio) <= 1e-5)) {
+            formattedStats =
+                    FormatterForSigFigN.formatToScientific(geoWeightedMeanRatio, lesserSigmaPct, 0, 2).padLeft();
+        } else {
+            formattedStats =
+                    FormatterForSigFigN.formatToSigFig(geoWeightedMeanRatio, lesserSigmaPct, 0, 2).padLeft();
+        }
+
+        return formattedStats.meanAsString();
+    }
+
+    /**
      * @param g2d
      */
     @Override
@@ -290,29 +335,14 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 double geoWeightedMeanRatio = exp(analysisStatsRecord.blockModeWeightedMean());
 
                 if (!Double.isNaN(geoWeightedMeanRatio)) {
-                    double geoWeightedMeanRatioPlusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() + analysisStatsRecord.blockModeWeightedMeanOneSigma());
-                    double geoWeightedMeanRatioMinusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() - analysisStatsRecord.blockModeWeightedMeanOneSigma());
-                    double geoWeightedMeanRatioPlusOneSigmaPct = (geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio) / geoWeightedMeanRatio * 100.0;
-                    double geoWeightedMeanRatioMinusOneSigmaPct = (geoWeightedMeanRatio - geoWeightedMeanRatioMinusOneSigma) / geoWeightedMeanRatio * 100.0;
+                    double[] sigmaPcts = getSigmaPcts(geoWeightedMeanRatio);
+                    double lesserSigmaPct = sigmaPcts[0];
+                    double plusSigmaPct = sigmaPcts[1];
+                    double minusSigmaPct = sigmaPcts[2];
 
-                    double lesserSigmaPct = (geoWeightedMeanRatioPlusOneSigmaPct > geoWeightedMeanRatioMinusOneSigmaPct) ?
-                            geoWeightedMeanRatioMinusOneSigmaPct : geoWeightedMeanRatioPlusOneSigmaPct;
+                    countOfTrailingDigitsForSigFig = (int) sigmaPcts[3];
 
-                    countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig(lesserSigmaPct, 2);
-                    double plusSigmaPct = (new BigDecimal(geoWeightedMeanRatioPlusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
-                    double minusSigmaPct = (new BigDecimal(geoWeightedMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
-
-                    lesserSigmaPct = (plusSigmaPct > minusSigmaPct) ? minusSigmaPct : plusSigmaPct;
-
-                    FormatterForSigFigN.FormattedStats formattedStats;
-                    if ((abs(geoWeightedMeanRatio) >= 1e7) || (abs(geoWeightedMeanRatio) <= 1e-5)) {
-                        formattedStats =
-                                FormatterForSigFigN.formatToScientific(geoWeightedMeanRatio, lesserSigmaPct, 0, 2).padLeft();
-                    } else {
-                        formattedStats =
-                                FormatterForSigFigN.formatToSigFig(geoWeightedMeanRatio, lesserSigmaPct, 0, 2).padLeft();
-                    }
-                    String meanAsString = formattedStats.meanAsString();
+                    String meanAsString = meanAsString(geoWeightedMeanRatio, lesserSigmaPct);
 
                     g2d.fillText("x  = " + meanAsString, textLeft + 10, textTop += textDeltaY);
                     g2d.fillText("\u0304", textLeft + 10, textTop);
