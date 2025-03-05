@@ -20,11 +20,9 @@ package org.cirdles.tripoli.gui.reports;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.geometry.Bounds;
 import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
@@ -34,8 +32,6 @@ import org.cirdles.tripoli.reports.ReportCategory;
 import org.cirdles.tripoli.reports.ReportColumn;
 
 import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ReportBuilderController {
@@ -127,13 +123,13 @@ public class ReportBuilderController {
 
                     if (draggedItem != null) {
                         int dropIndex = cell.getIndex();
-                        if (dropIndex <= fixedCategoryCell.get().getIndex()) {
+                        if (fixedCategoryCell.get() != null && dropIndex <= fixedCategoryCell.get().getIndex()) {
                             event.consume();
                             return;
                         }
                         categoryListView.getItems().remove(draggedItem);
                         categoryListView.getItems().add(dropIndex, draggedItem);
-                        updatePositionIndex(draggedItem, dropIndex);
+                        report.updateCategoryPosition(draggedItem, dropIndex);
 
                         success = true;
                     }
@@ -204,7 +200,7 @@ public class ReportBuilderController {
                         columnListView.getItems().remove(draggedItem);
                         int dropIndex = cell.getIndex();
                         columnListView.getItems().add(dropIndex, draggedItem);
-                        updatePositionIndex(draggedItem, dropIndex);
+                        categoryListView.getSelectionModel().getSelectedItem().updateColumnPosition(draggedItem, dropIndex);
 
                         success = true;
                     }
@@ -219,80 +215,6 @@ public class ReportBuilderController {
     }
     // <<<---------------------------------------------- Column End
 
-    // Method to update the position indices of the list items
-    private void updatePositionIndex(ReportColumn column, int newIndex) {
-        int oldIndex = column.getPositionIndex();
-
-        // If the index hasn't changed, no need to do anything
-        if (oldIndex == newIndex) {
-            return;
-        }
-        ReportCategory reportCategory = categoryListView.getSelectionModel().getSelectedItem();
-        // Remove the column temporarily from the TreeSet
-        reportCategory.getColumns().remove(column);
-
-        // Adjust the indices of the other columns
-        if (oldIndex > newIndex) {
-            // If the old index is higher than the new one, shift elements in the range [newIndex, oldIndex)
-            for (ReportColumn c : reportCategory.getColumns()) {
-                if (c.getPositionIndex() >= newIndex && c.getPositionIndex() < oldIndex) {
-                    // Shift the index of the element one position up
-                    c.setPositionIndex(c.getPositionIndex() + 1);
-                }
-            }
-        } else {
-            // If the old index is lower than the new one, shift elements in the range (oldIndex, newIndex]
-            for (ReportColumn c : reportCategory.getColumns()) {
-                if (c.getPositionIndex() > oldIndex && c.getPositionIndex() <= newIndex) {
-                    // Shift the index of the element one position down
-                    c.setPositionIndex(c.getPositionIndex() - 1);
-                }
-            }
-        }
-
-        // Update the position of the column to the new index
-        column.setPositionIndex(newIndex);
-
-        // Re-add the column with the updated positionIndex, this will automatically reorder the set
-        reportCategory.getColumns().add(column);
-    }
-
-    private void updatePositionIndex(ReportCategory category, int newIndex) {
-        int oldIndex = category.getPositionIndex();
-
-        // If the index hasn't changed, no need to do anything
-        if (oldIndex == newIndex) {
-            return;
-        }
-
-        // Remove the category temporarily from the TreeSet
-        report.getCategories().remove(category);
-
-        // Adjust the indices of the other categories
-        if (oldIndex > newIndex) {
-            // If the old index is higher than the new one, shift elements in the range [newIndex, oldIndex)
-            for (ReportCategory c : report.getCategories()) {
-                if (c.getPositionIndex() >= newIndex && c.getPositionIndex() < oldIndex) {
-                    // Shift the index of the element one position up
-                    c.setPositionIndex(c.getPositionIndex() + 1);
-                }
-            }
-        } else {
-            // If the old index is lower than the new one, shift elements in the range (oldIndex, newIndex]
-            for (ReportCategory c : report.getCategories()) {
-                if (c.getPositionIndex() > oldIndex && c.getPositionIndex() <= newIndex) {
-                    // Shift the index of the element one position down
-                    c.setPositionIndex(c.getPositionIndex() - 1);
-                }
-            }
-        }
-
-        // Update the position of the category to the new index
-        category.setPositionIndex(newIndex);
-
-        // Re-add the category with the updated positionIndex, this will automatically reorder the set
-        report.getCategories().add(category);
-    }
 }
 
 

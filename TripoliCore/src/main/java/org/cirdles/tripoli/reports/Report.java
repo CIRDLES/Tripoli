@@ -66,6 +66,35 @@ public class Report implements Serializable, Comparable<Report> {
 
     public Set<ReportCategory> getCategories() { return categoryColumns; }
 
+    public void updateCategoryPosition(ReportCategory category, int newIndex) {
+        int oldIndex = category.getPositionIndex();
+
+        if (oldIndex == newIndex) {
+            return;
+        }
+
+        categoryColumns.remove(category);
+
+        if (oldIndex > newIndex) {
+            for (ReportCategory c : categoryColumns) {
+                if (c.getPositionIndex() >= newIndex && c.getPositionIndex() < oldIndex) {
+                    c.setPositionIndex(c.getPositionIndex() + 1);
+                }
+            }
+        } else {
+            for (ReportCategory c : categoryColumns) {
+                if (c.getPositionIndex() > oldIndex && c.getPositionIndex() <= newIndex) {
+                    c.setPositionIndex(c.getPositionIndex() - 1);
+                }
+            }
+        }
+
+
+        category.setPositionIndex(newIndex);
+
+        categoryColumns.add(category);
+    }
+
     public File getTripoliReportFile() {
         return tripoliReportDirectoryLocal.toPath().resolve(this.methodName + File.separator + this.getReportName()+".tpr").toFile();
     }

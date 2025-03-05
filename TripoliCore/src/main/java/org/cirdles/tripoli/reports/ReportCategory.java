@@ -110,6 +110,32 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         }
         return new ReportCategory("User Functions", columnSet,2);
     }
+    public void updateColumnPosition(ReportColumn column, int newIndex) {
+        int oldIndex = column.getPositionIndex();
+        if (oldIndex == newIndex) {
+            return;
+        }
+
+        columnSet.remove(column);
+
+        if (oldIndex > newIndex) {
+            for (ReportColumn c : columnSet) {
+                if (c.getPositionIndex() >= newIndex && c.getPositionIndex() < oldIndex) {
+                    c.setPositionIndex(c.getPositionIndex() + 1);
+                }
+            }
+        } else {
+            for (ReportColumn c : columnSet) {
+                if (c.getPositionIndex() > oldIndex && c.getPositionIndex() <= newIndex) {
+                    c.setPositionIndex(c.getPositionIndex() - 1);
+                }
+            }
+        }
+
+        column.setPositionIndex(newIndex);
+
+        columnSet.add(column);
+    }
 
     @Override
     public boolean equals(Object o) {
