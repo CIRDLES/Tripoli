@@ -92,6 +92,7 @@ public class SessionManagerController implements Initializable {
         });
         sessionGridPane.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
+            int test = db.getFiles().size();
             if (event.getDragboard().hasFiles()) {
                 for (int i = 0; i < db.getFiles().size(); i++) {
                     File dataFile = db.getFiles().get(i);

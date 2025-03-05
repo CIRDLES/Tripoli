@@ -52,9 +52,7 @@
         </Menu>
         <Menu fx:id="reportsMenu" mnemonicParsing="false" text="Reports">
             <items>
-                <Menu mnemonicParsing="false" fx:id="customReportMenu" text="Custom Reports">
-                    <MenuItem mnemonicParsing="false" onAction="#defaultReportOnAction" text="Default Report"/>
-                </Menu>
+                <Menu mnemonicParsing="false" fx:id="customReportMenu" text="Custom Reports" />
                 <Menu mnemonicParsing="false" text="Builtin Reports">
                     <items>
                         <MenuItem mnemonicParsing="false" onAction="#etReduxExportAction" text="ET_Redux Export" />

@@ -16,49 +16,44 @@
 
 package org.cirdles.tripoli.reports;
 
-import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
-import org.cirdles.tripoli.sessions.analysis.Analysis;
-import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ReportCategory implements Serializable, Comparable<ReportCategory> {
     private static final long serialVersionUID = 6830475493400638448L;
 
     private String categoryName;
     private int positionIndex;
-    private List<ReportDetails> columnDetails;
+    private Set<ReportColumn> columnSet;
     public boolean visible;
 
-    private final String FIXED_CATEGORY_NAME = "Analysis Info";
+    public final String FIXED_CATEGORY_NAME = "Analysis Info";
 
     // Handle blank category with no column data
     // todo: handle null position index (Append to end of treeset)
     public ReportCategory() {
         categoryName = "<Create a Category>";
-        columnDetails = new ArrayList<>();
-        columnDetails.add(new ReportDetails("<Add Column>", "<Add Data>"));
+        columnSet = new TreeSet<>();
+        columnSet.add(new ReportColumn("<Add Column>", Integer.MAX_VALUE));
         visible = true;
     }
     // Handle importing existing category
-    public ReportCategory(String categoryName, List<ReportDetails> columnDetailsList) {
+    public ReportCategory(String categoryName, Set<ReportColumn> columnDetailsList, int positionIndex) {
         this.categoryName = categoryName;
-        this.columnDetails = columnDetailsList;
+        columnSet = columnDetailsList;
+        this.positionIndex = positionIndex;
         visible = true;
     }
 
     // Handle known name
-    public ReportCategory(String categoryName) {
+    public ReportCategory(String categoryName, int positionIndex) {
         this.categoryName = categoryName;
-        columnDetails = new ArrayList<>();
+        columnSet = new TreeSet<>();
+        this.positionIndex = positionIndex;
         visible = true;
     }
     public int getPositionIndex() {
@@ -70,74 +65,62 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
     }
 
     public void addColumn() {
-        columnDetails.add(new ReportDetails("<Add Column>", "<Add Data>"));
+        columnSet.add(new ReportColumn("<Add Column>", Integer.MAX_VALUE));
     }
-    public void addColumn(ReportDetails reportDetails) {
-        columnDetails.add(reportDetails);
+    public void addColumn(ReportColumn reportColumn) {
+        columnSet.add(reportColumn);
     }
-    public List<ReportDetails> getColumns(){ return columnDetails; }
+    public Set<ReportColumn> getColumns(){ return columnSet; }
     public String getCategoryName() {return categoryName;}
 
-    public static ReportCategory generateAnalysisInfo(Analysis analysis) throws TripoliException {
-        if (analysis == null) {
-            analysis = AnalysisInterface.initializeNewAnalysis(0);
+    public static ReportCategory generateAnalysisInfo() throws TripoliException {
+        Set<ReportColumn> columnSet = new TreeSet<>();
+        int i=0;
+        columnSet.add(new ReportColumn("Analysis Name", i++));
+        columnSet.add(new ReportColumn("Analyst", i++));
+        columnSet.add(new ReportColumn("Lab Name",i++));
+        columnSet.add(new ReportColumn("Sample Name",i++));
+        columnSet.add(new ReportColumn("Sample Description",i++));
+        columnSet.add(new ReportColumn("Fraction",i++));
+        columnSet.add(new ReportColumn("Data File Name",i++));
+        columnSet.add(new ReportColumn("Data File Path",i++));
+        columnSet.add(new ReportColumn("Method Name",i++));
+        columnSet.add(new ReportColumn("Start Time", i));
 
-        }
-        List<ReportDetails> columnList = new ArrayList<>();
-        columnList.add(new ReportDetails("Analysis Name", analysis.getAnalysisName()));
-        columnList.add(new ReportDetails("Analyst", analysis.getAnalystName()));
-        columnList.add(new ReportDetails("Lab Name", analysis.getLabName()));
-        columnList.add(new ReportDetails("Sample Name", analysis.getAnalysisSampleName()));
-        columnList.add(new ReportDetails("Sample Description", analysis.getAnalysisSampleDescription()));
-        columnList.add(new ReportDetails("Fraction", analysis.getAnalysisFractionName()));
-        columnList.add(new ReportDetails("Data File Name", Paths.get((analysis.getDataFilePathString())).getFileName().toString()));
-        columnList.add(new ReportDetails("Data File Path", analysis.getDataFilePathString()));
-        if (analysis.getMethod() != null) {
-            columnList.add(new ReportDetails("Method Name", analysis.getMethod().getMethodName()));
-        } else {
-            columnList.add(new ReportDetails("Method Name", ""));
-        }
-
-        columnList.add(new ReportDetails("Start Time", analysis.getAnalysisStartTime()));
-
-        return new ReportCategory("Analysis Info", columnList);
+        return new ReportCategory("Analysis Info", columnSet, 0);
     }
 
-    public static ReportCategory generateIsotopicRatios(Analysis analysis) throws TripoliException {
-        if (analysis == null) {
-            return new ReportCategory("Isotopic Ratio Analysis");
-        }
-
-        List<ReportDetails> columnList = new ArrayList<>();
-
-        for (UserFunction userFunction : analysis.getUserFunctions()) {
+    public static ReportCategory generateIsotopicRatios(List<UserFunction> userFunctionList) throws TripoliException {
+        Set<ReportColumn> columnSet = new TreeSet<>();
+        int i=0;
+        for (UserFunction userFunction : userFunctionList) {
             if (userFunction.isTreatAsIsotopicRatio()) {
-                columnList.add(new ReportDetails(userFunction));
+                columnSet.add(new ReportColumn(userFunction.getName(), i++));
             }
         }
 
-        return new ReportCategory("Isotopic Ratios", columnList);
+        return new ReportCategory("Isotopic Ratios", columnSet,1);
     }
 
-    public static ReportCategory generateUserFunctions(Analysis analysis) throws TripoliException {
-        List<UserFunction> userFunctionList = analysis.getUserFunctions();
-        List<ReportDetails> columnList = new ArrayList<>();
+    public static ReportCategory generateUserFunctions(List<UserFunction> userFunctionList) throws TripoliException {
+        Set<ReportColumn> columnSet = new TreeSet<>();
+        int i=0;
         for (UserFunction userFunction : userFunctionList){
-            columnList.add(new ReportDetails(userFunction));
+            columnSet.add(new ReportColumn(userFunction.getName(), i++));
         }
-        return new ReportCategory("User Functions", columnList);
+        return new ReportCategory("User Functions", columnSet,2);
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         ReportCategory that = (ReportCategory) o;
-        return positionIndex == that.positionIndex && visible == that.visible && Objects.equals(categoryName, that.categoryName) && Objects.equals(columnDetails, that.columnDetails);
+        return positionIndex == that.positionIndex && visible == that.visible && Objects.equals(categoryName, that.categoryName) && Objects.equals(columnSet, that.columnSet);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(categoryName, positionIndex, columnDetails, visible, FIXED_CATEGORY_NAME);
+        return Objects.hash(categoryName, positionIndex, columnSet, visible, FIXED_CATEGORY_NAME);
     }
 
     @Override

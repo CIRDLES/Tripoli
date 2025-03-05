@@ -17,83 +17,282 @@
 package org.cirdles.tripoli.gui.reports;
 
 
-import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
+import javafx.scene.Cursor;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
+import javafx.scene.layout.*;
+import javafx.util.Duration;
 import org.cirdles.tripoli.reports.Report;
 import org.cirdles.tripoli.reports.ReportCategory;
-import org.cirdles.tripoli.reports.ReportDetails;
+import org.cirdles.tripoli.reports.ReportColumn;
+
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ReportBuilderController {
 
     @FXML
-    private static VBox reportContainer;
+    private VBox reportContainer;
+    @FXML
+    private ListView<ReportCategory> categoryListView;
 
-    private static Report report;
+    @FXML
+    private ListView<ReportColumn> columnListView;
 
-    public static void setReport(Report report) {
-        ReportBuilderController.report = report;
-        generateUI();
+    private Report report;
+
+    private ObservableList<ReportCategory> categories;
+    private ObservableList<ReportColumn> columns;
+
+    public ReportBuilderController() {
     }
-    public static void setContainer(VBox container) { reportContainer = container; }
 
-    private static void generateUI() {
-        if (report != null && report.getCategories() != null) {
-            // Create the master TableView
-            TableView<Report> parentTable = new TableView<>();
-            parentTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+    public void setReport(Report report) {
+        this.report = report;
+        initializeListViews();
+    }
 
-            boolean firstCat  = true;
-            // Create a single row with multiple category columns
-            for (ReportCategory category : report.getCategories()) {
-                TableColumn<Report, ReportCategory> categoryCol = new TableColumn<>(category.getCategoryName());
-                categoryCol.setStyle("-fx-font-family: 'Arial'; -fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: red;");
-                if (firstCat) {
-                    categoryCol.setReorderable(false);
-                    firstCat = false;
-                }
+    private void initializeListViews() {
+        categories = FXCollections.observableArrayList(report.getCategories());
+        categoryListView.setItems(categories);
 
-                for (ReportDetails column : category.getColumns()) {
-                    TableColumn<Report, String> detailsCol = new TableColumn<>(column.getColumnName());
+        // Report Category ListView ----------------------------------------------------->>>
+        categoryListView.setCellFactory(lv -> {
+            // Save fixed category for future reference
+            final AtomicReference<ListCell<ReportCategory>> fixedCategoryCell = new AtomicReference<>();
+            ListCell<ReportCategory> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(ReportCategory item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) { // Empty Cell
+                        setText(null);
+                        setCursor(Cursor.DEFAULT);
+                        setTooltip(null);
+                    } else {
+                        setText(item.getCategoryName());
 
-                    detailsCol.setCellValueFactory(data -> {
-                        ReportCategory matchingCategory = report.getCategories()
-                                .stream()
-                                .filter(cat -> cat.getCategoryName().equals(category.getCategoryName()))
-                                .findFirst()
-                                .orElse(null);
-
-                        if (matchingCategory != null) {
-                            ReportDetails matchingDetail = matchingCategory.getColumns()
-                                    .stream()
-                                    .filter(detail -> detail.getColumnName().equals(column.getColumnName()))
-                                    .findFirst()
-                                    .orElse(null);
-
-                            return new SimpleStringProperty(matchingDetail != null ? matchingDetail.getColumnValue() : "");
+                        // Check if the current item is the fixed category
+                        if (Objects.equals(item.getCategoryName(), item.FIXED_CATEGORY_NAME)) {
+                            setCursor(Cursor.DISAPPEAR); // Todo: make this a x or something
+                            Tooltip tooltip = new Tooltip("This category cannot be moved.");
+                            tooltip.setShowDelay(Duration.seconds(0.5));
+                            setTooltip(tooltip);
+                            fixedCategoryCell.set(this);
+                        } else { // Other category
+                            setCursor(Cursor.CLOSED_HAND);
+                            setTooltip(null);
                         }
-                        return new SimpleStringProperty("");
-                    });
+                    }
+                }
+            };
 
-                    categoryCol.getColumns().add(detailsCol);
+            // Start drag
+            cell.setOnDragDetected(event -> {
+                if (!cell.isEmpty() && !Objects.equals(cell.getItem().getCategoryName(), cell.getItem().FIXED_CATEGORY_NAME)) {
+                    Dragboard db = cell.startDragAndDrop(TransferMode.MOVE);
+                    ClipboardContent content = new ClipboardContent();
+                    content.putString(cell.getItem().getCategoryName());
+                    db.setContent(content);
+
+                    categoryListView.setUserData(cell.getItem()); // Store dragged item
+                    event.consume();
                 }
 
-                parentTable.getColumns().add(categoryCol);
+            });
+
+            // Accept drag over the cell
+            cell.setOnDragOver(event -> {
+                if (event.getGestureSource() != cell && event.getDragboard().hasString()) {
+                    event.acceptTransferModes(TransferMode.MOVE);
+                }
+                event.consume();
+            });
+
+            // Handle drop
+            cell.setOnDragDropped(event -> {
+                Dragboard db = event.getDragboard();
+                boolean success = false;
+
+                if (db.hasString()) {
+                    ReportCategory draggedItem = (ReportCategory) categoryListView.getUserData();
+
+                    if (draggedItem != null) {
+                        int dropIndex = cell.getIndex();
+                        if (dropIndex <= fixedCategoryCell.get().getIndex()) {
+                            event.consume();
+                            return;
+                        }
+                        categoryListView.getItems().remove(draggedItem);
+                        categoryListView.getItems().add(dropIndex, draggedItem);
+                        updatePositionIndex(draggedItem, dropIndex);
+
+                        success = true;
+                    }
+                }
+
+                event.setDropCompleted(success);
+                event.consume();
+            });
+
+            return cell;
+        });
+
+        // Add listener to update columns when a category is selected
+        categoryListView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                // Set columns based on the selected category
+                columns = FXCollections.observableArrayList(newSelection.getColumns());
+                columnListView.setItems(columns);
             }
+        });
 
-            // Add a single row for the entire report
-            parentTable.getItems().add(report);
-
-            // Wrap the TableView in a ScrollPane
-            ScrollPane scrollPane = new ScrollPane();
-            scrollPane.setContent(parentTable);
-            scrollPane.setFitToHeight(true);
-            scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-
-            reportContainer.getChildren().add(scrollPane);
+        // Select the first category if available
+        if (!categories.isEmpty()) {
+            categoryListView.getSelectionModel().selectFirst();
         }
+        // <<<---------------------------------------------- Category End
+
+        // Report Column ListView ------------------------------------------------->>>
+        columnListView.setCellFactory(lv -> {
+            ListCell<ReportColumn> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(ReportColumn item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty || item == null ? null : item.getColumnName());
+                }
+            };
+
+            // Start drag
+            cell.setOnDragDetected(event -> {
+                if (!cell.isEmpty()) {
+                    Dragboard db = cell.startDragAndDrop(TransferMode.MOVE);
+                    ClipboardContent content = new ClipboardContent();
+                    content.putString(cell.getItem().getColumnName());
+                    db.setContent(content);
+
+                    columnListView.setUserData(cell.getItem()); // Store dragged item
+                    event.consume();
+                }
+            });
+
+            // Accept drag over the cell
+            cell.setOnDragOver(event -> {
+                if (event.getGestureSource() != cell && event.getDragboard().hasString()) {
+                    event.acceptTransferModes(TransferMode.MOVE);
+                }
+                event.consume();
+            });
+
+            // Handle drop
+            cell.setOnDragDropped(event -> {
+                Dragboard db = event.getDragboard();
+                boolean success = false;
+
+                if (db.hasString()) {
+                    ReportColumn draggedItem = (ReportColumn) columnListView.getUserData();
+
+                    if (draggedItem != null) {
+                        columnListView.getItems().remove(draggedItem);
+                        int dropIndex = cell.getIndex();
+                        columnListView.getItems().add(dropIndex, draggedItem);
+                        updatePositionIndex(draggedItem, dropIndex);
+
+                        success = true;
+                    }
+                }
+
+                event.setDropCompleted(success);
+                event.consume();
+            });
+
+            return cell;
+        });
+    }
+    // <<<---------------------------------------------- Column End
+
+    // Method to update the position indices of the list items
+    private void updatePositionIndex(ReportColumn column, int newIndex) {
+        int oldIndex = column.getPositionIndex();
+
+        // If the index hasn't changed, no need to do anything
+        if (oldIndex == newIndex) {
+            return;
+        }
+        ReportCategory reportCategory = categoryListView.getSelectionModel().getSelectedItem();
+        // Remove the column temporarily from the TreeSet
+        reportCategory.getColumns().remove(column);
+
+        // Adjust the indices of the other columns
+        if (oldIndex > newIndex) {
+            // If the old index is higher than the new one, shift elements in the range [newIndex, oldIndex)
+            for (ReportColumn c : reportCategory.getColumns()) {
+                if (c.getPositionIndex() >= newIndex && c.getPositionIndex() < oldIndex) {
+                    // Shift the index of the element one position up
+                    c.setPositionIndex(c.getPositionIndex() + 1);
+                }
+            }
+        } else {
+            // If the old index is lower than the new one, shift elements in the range (oldIndex, newIndex]
+            for (ReportColumn c : reportCategory.getColumns()) {
+                if (c.getPositionIndex() > oldIndex && c.getPositionIndex() <= newIndex) {
+                    // Shift the index of the element one position down
+                    c.setPositionIndex(c.getPositionIndex() - 1);
+                }
+            }
+        }
+
+        // Update the position of the column to the new index
+        column.setPositionIndex(newIndex);
+
+        // Re-add the column with the updated positionIndex, this will automatically reorder the set
+        reportCategory.getColumns().add(column);
     }
 
+    private void updatePositionIndex(ReportCategory category, int newIndex) {
+        int oldIndex = category.getPositionIndex();
 
+        // If the index hasn't changed, no need to do anything
+        if (oldIndex == newIndex) {
+            return;
+        }
+
+        // Remove the category temporarily from the TreeSet
+        report.getCategories().remove(category);
+
+        // Adjust the indices of the other categories
+        if (oldIndex > newIndex) {
+            // If the old index is higher than the new one, shift elements in the range [newIndex, oldIndex)
+            for (ReportCategory c : report.getCategories()) {
+                if (c.getPositionIndex() >= newIndex && c.getPositionIndex() < oldIndex) {
+                    // Shift the index of the element one position up
+                    c.setPositionIndex(c.getPositionIndex() + 1);
+                }
+            }
+        } else {
+            // If the old index is lower than the new one, shift elements in the range (oldIndex, newIndex]
+            for (ReportCategory c : report.getCategories()) {
+                if (c.getPositionIndex() > oldIndex && c.getPositionIndex() <= newIndex) {
+                    // Shift the index of the element one position down
+                    c.setPositionIndex(c.getPositionIndex() - 1);
+                }
+            }
+        }
+
+        // Update the position of the category to the new index
+        category.setPositionIndex(newIndex);
+
+        // Re-add the category with the updated positionIndex, this will automatically reorder the set
+        report.getCategories().add(category);
+    }
 }
+
+

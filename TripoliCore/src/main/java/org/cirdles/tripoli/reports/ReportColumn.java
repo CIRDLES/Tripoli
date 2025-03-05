@@ -16,32 +16,32 @@
 
 package org.cirdles.tripoli.reports;
 
-import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
-import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunction;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
-import java.util.List;
 
-public class ReportDetails implements Serializable {
+public class ReportColumn implements Serializable, Comparable<ReportColumn>{
     private static final long serialVersionUID = 3378567673921898881L;
 
     private final String columnName;
-    private final String columnValue;
+    private int positionIndex;
 
-    public ReportDetails(String title, String data) {
+
+    public ReportColumn(String title, int positionIndex) {
         columnName = title;
-        columnValue = data;
-    }
-    public ReportDetails(UserFunction function) {
-        columnName = function.getName();
-        MeasuredUserFunction measuredUserFunctionModel = new MeasuredUserFunction(function.showCorrectName());
-        measuredUserFunctionModel.refreshStats(function);
-        columnValue = String.valueOf(measuredUserFunctionModel.getValue());
-
+        this.positionIndex = positionIndex;
     }
 
     public String getColumnName() { return columnName; }
-    public String getColumnValue() { return columnValue; }
 
 
+    public void setPositionIndex(int i) {
+        positionIndex = i;
+    }
+    public int getPositionIndex() { return positionIndex; }
+
+    @Override
+    public int compareTo(@NotNull ReportColumn column) {
+        return Integer.compare(this.positionIndex, column.getPositionIndex());
+    }
 }

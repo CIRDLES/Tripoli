@@ -18,4 +18,11 @@
 
 <?import javafx.scene.layout.*?>
 
-<VBox prefHeight="725.0" prefWidth="1250.0" style="-fx-background-color: #fbf6d5;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.reports.ReportBuilderController" />
+<?import javafx.scene.control.ListView?>
+<VBox fx:id="reportContainer" xmlns:fx="http://javafx.com/fxml" fx:controller="org.cirdles.tripoli.gui.reports.ReportBuilderController">
+    <ListView fx:id="categoryListView">
+    </ListView>
+    <ListView fx:id="columnListView">
+    </ListView>
+</VBox>
+

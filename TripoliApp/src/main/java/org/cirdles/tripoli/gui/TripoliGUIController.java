@@ -25,6 +25,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
@@ -35,6 +36,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
@@ -50,6 +52,7 @@ import org.cirdles.tripoli.gui.utilities.events.SaveCurrentSessionEvent;
 import org.cirdles.tripoli.gui.utilities.events.SaveSessionAsEvent;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.reports.ReportCategory;
+import org.cirdles.tripoli.reports.ReportColumn;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.SessionBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
@@ -188,11 +191,6 @@ public class TripoliGUIController implements Initializable {
 
         buildSessionMenuMRU();
         showStartingMenus();
-        try {
-            buildCustomReportMenu();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         detectLatestVersion();
 
         // March 2024 implement drag n drop of files ===================================================================
@@ -228,6 +226,7 @@ public class TripoliGUIController implements Initializable {
                                 analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
                                 tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
                                 analysis = analysisProposed;
+                                buildCustomReportMenu();
                                 parametersMenu.setDisable(false);
                                 reportsMenu.setDisable(false);
                                 AnalysisManagerController.readingFile = true;
@@ -355,77 +354,37 @@ public class TripoliGUIController implements Initializable {
         }
     }
 
-    private void buildCustomReportMenu() throws IOException {
-        List<Path> reportFiles = Report.generateReportList();
-        reportMethodMap = new HashMap<>();
-        customReportMenu.getItems().add(new SeparatorMenuItem());
-        for (Path reportPath : reportFiles) {
-            String methodName = reportPath.getParent().getFileName().toString();
-            String reportName =  reportPath.getFileName().toString().replace(".tpr", "");
-
-            reportMethodMap.put(reportName, methodName);
-
-            MenuItem menuItem = new MenuItem(reportName);
-            menuItem.setOnAction((ActionEvent t) -> {
-                try {
-                    openCustomReport(reportPath);
-                } catch (TripoliException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            customReportMenu.getItems().add(menuItem);
-        }
-        reportMenuVisibility();
-    }
-    private void reportMenuVisibility() {
-        for (MenuItem menuItem : customReportMenu.getItems()) {
-            if (menuItem instanceof SeparatorMenuItem || menuItem.getText().equals("Default Report")) {
-                menuItem.setVisible(true);
-            } else if (analysis == null) {
-                menuItem.setVisible(false);
-            } else menuItem.setVisible(Objects.equals(reportMethodMap.get(menuItem.getText()), analysis.getAnalysisMethod().getMethodName()));
+    private void buildCustomReportMenu() throws IOException, TripoliException {
+        Set<Report> reportTreeSet = analysis.getAnalysisMethod().getReports();
+        customReportMenu.getItems().clear();
+        for (Report report : reportTreeSet) {
+            if (report.getReportName().equals("_Default Report")) {
+                MenuItem menuItem = new MenuItem(report.getReportName().replace("_", ""));
+                menuItem.setOnAction((ActionEvent t) -> {openCustomReport(report);});
+                customReportMenu.getItems().add(menuItem);
+                customReportMenu.getItems().add(new SeparatorMenuItem());
+            } else {
+                MenuItem menuItem = new MenuItem(report.getReportName());
+                menuItem.setOnAction((ActionEvent t) -> {openCustomReport(report);});
+                customReportMenu.getItems().add(menuItem);
+            }
         }
     }
-    public void defaultReportOnAction() throws TripoliException, IOException {
-        removeAllManagers();
 
-        reportManagerUI = FXMLLoader.load(getClass().getResource("reports/ReportBuilder.fxml"));
-        reportManagerUI.setId("ReportBuilder");
+    private void openCustomReport(Report report) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/reports/ReportBuilder.fxml"));
+            Parent root = loader.load();
+            ReportBuilderController controller = loader.getController();
+            controller.setReport(report);
+            Stage stage = new Stage();
+            stage.setTitle("Report Builder");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        AnchorPane.setLeftAnchor(reportManagerUI, 0.0);
-        AnchorPane.setRightAnchor(reportManagerUI, 0.0);
-        AnchorPane.setTopAnchor(reportManagerUI, 0.0);
-        AnchorPane.setBottomAnchor(reportManagerUI, 0.0);
-
-        splashAnchor.getChildren().add(reportManagerUI);
-        reportManagerUI.setVisible(true);
-
-        Report defaultReport = new Report(); // init default report class
-        AllBlockInitForDataLiteOne.initBlockModels(analysis); // init analysis data
-        ReportCategory analysisInfo = ReportCategory.generateAnalysisInfo((Analysis) analysis);
-        ReportCategory isotopicRatios = ReportCategory.generateIsotopicRatios((Analysis) analysis);
-        isotopicRatios.setPositionIndex(1);
-        ReportCategory userFunctions = ReportCategory.generateUserFunctions((Analysis) analysis);
-        userFunctions.setPositionIndex(2);
-        ReportCategory unnamedCategory = new ReportCategory();
-        unnamedCategory.setPositionIndex(3);
-
-        defaultReport.addCategory(analysisInfo);
-        defaultReport.addCategory(isotopicRatios);
-        defaultReport.addCategory(userFunctions);
-        defaultReport.addCategory(unnamedCategory);
-
-        ReportBuilderController.setContainer(reportManagerUI);
-        ReportBuilderController.setReport(defaultReport);
-    }
-    public void customReportOnAction(ActionEvent actionEvent) throws TripoliException {
-        openCustomReport(Path.of(""));
-    }
-
-    private void openCustomReport(Path reportPath) throws TripoliException {
-        Report customReport = (Report) TripoliSerializer.getSerializedObjectFromFile(reportPath.toString(), true);
-
-        // todo: open report window
     }
 
     @FXML
@@ -586,7 +545,6 @@ public class TripoliGUIController implements Initializable {
             splashAnchor.getChildren().add(analysesManagerUI);
             analysesManagerUI.setVisible(true);
             parametersMenu.setDisable(false);
-            reportMenuVisibility();
         }
     }
 
