@@ -29,7 +29,7 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
     private String categoryName;
     private int positionIndex;
     private Set<ReportColumn> columnSet;
-    public boolean visible;
+    private boolean visible;
 
     public final String FIXED_CATEGORY_NAME = "Analysis Info";
 
@@ -63,6 +63,9 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
     public void setPositionIndex(int positionIndex) {
         this.positionIndex = positionIndex;
     }
+
+    public void setVisible(boolean visible) {this.visible = visible;}
+    public boolean isVisible() {return visible;}
 
     public void addColumn() {
         columnSet.add(new ReportColumn("<Add Column>", Integer.MAX_VALUE));

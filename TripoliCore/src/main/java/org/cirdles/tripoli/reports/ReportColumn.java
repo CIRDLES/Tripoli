@@ -25,15 +25,18 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
 
     private final String columnName;
     private int positionIndex;
-
+    private boolean visible;
 
     public ReportColumn(String title, int positionIndex) {
         columnName = title;
         this.positionIndex = positionIndex;
+        visible = true;
     }
 
     public String getColumnName() { return columnName; }
 
+    public void setVisible(boolean visible) { this.visible = visible; }
+    public boolean isVisible() { return visible; }
 
     public void setPositionIndex(int i) {
         positionIndex = i;

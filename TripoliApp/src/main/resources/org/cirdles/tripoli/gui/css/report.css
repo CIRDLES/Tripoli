@@ -1,0 +1,18 @@
+.menu-bar {
+    -fx-background-color:LINEN;
+}
+
+.list-view-container {
+    -fx-font-family: Arial;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: black;
+}
+.list-view-container VBox {
+    -fx-background-color:LINEN;
+}
+
+.category-text-field {
+    -fx-font-weight: bold;
+    -fx-background-color: #FFDDC1;
+}
