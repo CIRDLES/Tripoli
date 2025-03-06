@@ -5,6 +5,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.MCMCVectorExporter;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
+import org.cirdles.tripoli.reports.Report;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
@@ -13,6 +14,7 @@ import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.file.SessionFileUtilities;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 
 import java.io.File;
 import java.io.IOException;
@@ -239,6 +241,20 @@ public enum FileHandlerUtil {
                     etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_" + etReduxFraction.getEtReduxExportType() + ".xml";
             etReduxFraction.serializeXMLObject(fileName);
         }
+    }
+    public static File importReportFile(Window ownerWindow){
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Tripoli Report File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Tripoli Report File (.trf)", "*.trf"));
+        File dataFile = fileChooser.showOpenDialog(ownerWindow);
+        if (dataFile != null) {
+            if (dataFile.getName().toLowerCase(Locale.US).endsWith(".trf")) {
+                return dataFile;
+            } else {
+                TripoliMessageDialog.showWarningDialog("Not a valid Report File", ownerWindow);
+            }
+        }
+        return null;
     }
 
 }

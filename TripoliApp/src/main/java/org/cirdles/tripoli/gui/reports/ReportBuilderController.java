@@ -30,13 +30,19 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.stage.Window;
 import javafx.util.Duration;
+import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
+import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.reports.Report;
 import org.cirdles.tripoli.reports.ReportCategory;
 import org.cirdles.tripoli.reports.ReportColumn;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 
-import javafx.scene.paint.Paint;
+import java.io.File;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ReportBuilderController {
@@ -65,6 +71,7 @@ public class ReportBuilderController {
     private ListView<ReportCategory> categoryListView;
     @FXML
     private ListView<ReportColumn> columnListView;
+    private Window reportWindow;
 
     private Report report;
 
@@ -74,9 +81,22 @@ public class ReportBuilderController {
     public ReportBuilderController() {
     }
 
+    public void setWindow(Window window) {
+        reportWindow = window;
+    }
+
     public void setReport(Report report) {
         this.report = report;
+        saveButton.setDisable(false);
+        restoreButton.setDisable(false);
+        // Cannot rename or delete the default report
+        if(!"Default Report".equals(report.getReportName())){
+            renameButton.setDisable(false);
+            deleteButton.setDisable(false);
+        }
+        exportButton.setDisable(false);
         initializeListViews();
+
     }
 
     private void initializeListViews() {
@@ -293,18 +313,39 @@ public class ReportBuilderController {
 
 
     public void newOnAction(ActionEvent actionEvent) {
+        // Set new report as default initialized report
+        //report.reset();
     }
 
     public void copyOnAction(ActionEvent actionEvent) {
     }
 
-    public void saveOnAction(ActionEvent actionEvent) {
+    public void saveOnAction(ActionEvent actionEvent) throws TripoliException {
+        if (report.getReportName() == null){
+            TripoliMessageDialog.showWarningDialog("Report must have a name", reportWindow);
+        } else if (Objects.equals(report.getReportName(), "Default Report")){
+            TripoliMessageDialog.showWarningDialog("Report name: 'Default Report' is restricted", reportWindow);
+        } else {
+
+            TripoliMessageDialog.showSavedAsDialog(report.serializeReport(), reportWindow);
+        }
     }
 
     public void restoreOnAction(ActionEvent actionEvent) {
     }
 
     public void renameOnAction(ActionEvent actionEvent) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Rename Report");
+        dialog.setHeaderText("Current Report: '" + report.getReportName()+"'");
+        dialog.setContentText("Enter new report name: ");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(newName -> {
+            if (!newName.trim().isEmpty()) {
+                report.setReportName(newName.trim());
+            }
+        });
     }
 
     public void deleteOnAction(ActionEvent actionEvent) {
@@ -313,7 +354,15 @@ public class ReportBuilderController {
     public void exportOnAction(ActionEvent actionEvent) {
     }
 
-    public void importOnAction(ActionEvent actionEvent) {
+    public void importOnAction(ActionEvent actionEvent) throws TripoliException {
+        File reportFile = FileHandlerUtil.importReportFile(reportWindow);
+        if (reportFile != null) {
+            try { // todo: Check for unsaved changes and confirm
+                this.report = (Report) TripoliSerializer.getSerializedObjectFromFile(String.valueOf(reportFile), true);
+            } catch (TripoliException e) {
+                TripoliMessageDialog.showWarningDialog("Not a valid .trf file!", reportWindow);
+            }
+        }
     }
 
     public void createCategoryOnAction(ActionEvent actionEvent) {

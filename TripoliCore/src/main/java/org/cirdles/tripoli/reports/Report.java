@@ -49,7 +49,7 @@ public class Report implements Serializable, Comparable<Report> {
 
     // Assumes Report Names will never contain underscores naturally
     public String getReportName() {
-        return this.reportName.replaceAll("_", " "); }
+        return this.reportName.replaceAll("_", " ").trim(); }
 
     public void setReportName(String reportName) {
         this.reportName = reportName.replaceAll("[\\\\/:*?\"<>| ]", "_").trim(); }
@@ -57,46 +57,29 @@ public class Report implements Serializable, Comparable<Report> {
     public void setMethodName(String methodName) {
         this.methodName = methodName; }
 
-    public void addCategory(ReportCategory category) {
-        // If category doesn't have a defined index, append it to the end
-        if (category.getColumns() == null) {
-            category.setPositionIndex(categoryColumns.size());
-        } else { categoryColumns.add(category); }
-    }
 
     public Set<ReportCategory> getCategories() { return categoryColumns; }
 
     public void updateCategoryPosition(ReportCategory category, int newIndex) {
         int oldIndex = category.getPositionIndex();
-
-        if (oldIndex == newIndex) {
-            return;
-        }
-
+        if (oldIndex == newIndex) { return; }
         categoryColumns.remove(category);
 
-        if (oldIndex > newIndex) {
-            for (ReportCategory c : categoryColumns) {
-                if (c.getPositionIndex() >= newIndex && c.getPositionIndex() < oldIndex) {
-                    c.setPositionIndex(c.getPositionIndex() + 1);
-                }
-            }
-        } else {
-            for (ReportCategory c : categoryColumns) {
-                if (c.getPositionIndex() > oldIndex && c.getPositionIndex() <= newIndex) {
-                    c.setPositionIndex(c.getPositionIndex() - 1);
-                }
+        // Adjust indicies for new spot
+        for (ReportCategory c : categoryColumns) {
+            int currentIndex = c.getPositionIndex();
+            if (currentIndex >= newIndex && currentIndex < oldIndex) {
+                c.setPositionIndex(currentIndex + 1);
+            } else if (currentIndex > oldIndex && currentIndex <= newIndex) {
+                c.setPositionIndex(currentIndex - 1);
             }
         }
-
-
         category.setPositionIndex(newIndex);
-
         categoryColumns.add(category);
     }
 
     public File getTripoliReportFile() {
-        return tripoliReportDirectoryLocal.toPath().resolve(this.methodName + File.separator + this.getReportName()+".tpr").toFile();
+        return tripoliReportDirectoryLocal.toPath().resolve(this.methodName + File.separator + this.getReportName()+".trf").toFile();
     }
 
     /**
@@ -109,6 +92,7 @@ public class Report implements Serializable, Comparable<Report> {
      * @throws TripoliException
      */
     public static List<Report> generateReportList(String methodName, List<UserFunction> userFunctionList) throws IOException, TripoliException {
+
         createReportDirectory();
         List<Report> reportList = new ArrayList<>();
         File methodReportDirectory = new File(tripoliReportDirectoryLocal, methodName);
@@ -137,7 +121,7 @@ public class Report implements Serializable, Comparable<Report> {
         categories.add(ReportCategory.generateIsotopicRatios(ufList));
         categories.add(ReportCategory.generateUserFunctions(ufList));
 
-        return new Report("_Default Report", methodName, categories);
+        return new Report("Default Report", methodName, categories);
     }
 
     // Check if local report folder exists and create if not
@@ -156,13 +140,15 @@ public class Report implements Serializable, Comparable<Report> {
      * Saves report structure to local file directory with method name file separation
      * @throws TripoliException
      */
-    public void serializeReport() throws TripoliException {
+    public File serializeReport() throws TripoliException {
         File reportMethodDirectory = new File(tripoliReportDirectoryLocal.getAbsolutePath() + File.separator + methodName);
 
         if(!reportMethodDirectory.exists()){
             reportMethodDirectory.mkdir();
         }
-        TripoliSerializer.serializeObjectToFile(this, reportMethodDirectory.getAbsolutePath()+reportName+".tpr");
+        File reportFile = new File(reportMethodDirectory.getAbsolutePath() + File.separator + this.getReportName()+".trf");
+        TripoliSerializer.serializeObjectToFile(this, reportFile.getAbsolutePath());
+        return reportFile;
     }
 
     @Override

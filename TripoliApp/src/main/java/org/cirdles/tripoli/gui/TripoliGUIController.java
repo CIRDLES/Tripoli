@@ -358,11 +358,11 @@ public class TripoliGUIController implements Initializable {
         Set<Report> reportTreeSet = analysis.getAnalysisMethod().getReports();
         customReportMenu.getItems().clear();
         for (Report report : reportTreeSet) {
-            if (report.getReportName().equals("_Default Report")) {
+            if (report.getReportName().equals("Default Report")) {
                 MenuItem menuItem = new MenuItem(report.getReportName().replace("_", ""));
                 menuItem.setOnAction((ActionEvent t) -> {openCustomReport(report);});
-                customReportMenu.getItems().add(menuItem);
-                customReportMenu.getItems().add(new SeparatorMenuItem());
+                customReportMenu.getItems().add(0, menuItem);
+                customReportMenu.getItems().add(1, new SeparatorMenuItem());
             } else {
                 MenuItem menuItem = new MenuItem(report.getReportName());
                 menuItem.setOnAction((ActionEvent t) -> {openCustomReport(report);});
@@ -373,6 +373,7 @@ public class TripoliGUIController implements Initializable {
 
     private void openCustomReport(Report report) {
         try {
+            // This is getting a bit crazy
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/reports/ReportBuilder.fxml"));
             Parent root = loader.load();
             ReportBuilderController controller = loader.getController();
@@ -380,6 +381,7 @@ public class TripoliGUIController implements Initializable {
             Stage stage = new Stage();
             stage.setTitle("Report Builder");
             stage.setScene(new Scene(root));
+            controller.setWindow(stage);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
