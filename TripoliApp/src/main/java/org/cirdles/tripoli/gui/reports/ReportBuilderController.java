@@ -73,10 +73,12 @@ public class ReportBuilderController {
     private ListView<ReportColumn> columnListView;
     private Window reportWindow;
 
-    private Report report;
+    private Report currentReport;
+    private Report initalReport;
 
     private ObservableList<ReportCategory> categories;
     private ObservableList<ReportColumn> columns;
+    private boolean unsavedChanges = false;
 
     public ReportBuilderController() {
     }
@@ -85,13 +87,14 @@ public class ReportBuilderController {
         reportWindow = window;
     }
 
-    public void setReport(Report report) {
-        this.report = report;
+    public void setCurrentReport(Report currentReport) {
+        this.currentReport = currentReport;
+        this.initalReport = new Report(currentReport);
         saveButton.setDisable(false);
         restoreButton.setDisable(false);
+        renameButton.setDisable(false);
         // Cannot rename or delete the default report
-        if(!"Default Report".equals(report.getReportName())){
-            renameButton.setDisable(false);
+        if(!"Default Report".equals(currentReport.getReportName())){
             deleteButton.setDisable(false);
         }
         exportButton.setDisable(false);
@@ -100,7 +103,7 @@ public class ReportBuilderController {
     }
 
     private void initializeListViews() {
-        categories = FXCollections.observableArrayList(report.getCategories());
+        categories = FXCollections.observableArrayList(currentReport.getCategories());
         categoryListView.setItems(categories);
 
         // Report Category ListView ----------------------------------------------------->>>
@@ -172,7 +175,7 @@ public class ReportBuilderController {
                         }
                         categoryListView.getItems().remove(draggedItem);
                         categoryListView.getItems().add(dropIndex, draggedItem);
-                        report.updateCategoryPosition(draggedItem, dropIndex);
+                        currentReport.updateCategoryPosition(draggedItem, dropIndex);
 
                         success = true;
                     }
@@ -321,51 +324,88 @@ public class ReportBuilderController {
     }
 
     public void saveOnAction(ActionEvent actionEvent) throws TripoliException {
-        if (report.getReportName() == null){
+        if (currentReport.getReportName() == null){
             TripoliMessageDialog.showWarningDialog("Report must have a name", reportWindow);
-        } else if (Objects.equals(report.getReportName(), "Default Report")){
+        } else if (Objects.equals(currentReport.getReportName(), "Default Report")){
             TripoliMessageDialog.showWarningDialog("Report name: 'Default Report' is restricted", reportWindow);
         } else {
-
-            TripoliMessageDialog.showSavedAsDialog(report.serializeReport(), reportWindow);
+            TripoliMessageDialog.showSavedAsDialog(currentReport.serializeReport(), reportWindow);
+            initalReport = new Report(currentReport); // Reset saved state
         }
     }
 
     public void restoreOnAction(ActionEvent actionEvent) {
+        boolean proceed = true;
+        if (hasUnsavedChanges()){
+            proceed = TripoliMessageDialog.showChoiceDialog("Unsaved changes exist! Are you sure?", reportWindow);
+        }
+        if (proceed) {
+            currentReport = new Report(initalReport);
+        }
     }
 
     public void renameOnAction(ActionEvent actionEvent) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Rename Report");
-        dialog.setHeaderText("Current Report: '" + report.getReportName()+"'");
+        dialog.setHeaderText("Current Report: '" + currentReport.getReportName()+"'");
         dialog.setContentText("Enter new report name: ");
 
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(newName -> {
             if (!newName.trim().isEmpty()) {
-                report.setReportName(newName.trim());
+                currentReport.setReportName(newName.trim());
             }
         });
     }
 
     public void deleteOnAction(ActionEvent actionEvent) {
+        if (!currentReport.getTripoliReportFile().exists()){
+            TripoliMessageDialog.showWarningDialog("Report does not exist!", reportWindow);
+            return;
+        }
+        if (TripoliMessageDialog.showChoiceDialog("Are you sure? \n Delete Report: "+ currentReport.getReportName() + "?", reportWindow)){
+            if (currentReport.deleteReport()){
+                TripoliMessageDialog.showInfoDialog("Report Deleted!", reportWindow);
+            }
+        }
     }
 
     public void exportOnAction(ActionEvent actionEvent) {
     }
 
     public void importOnAction(ActionEvent actionEvent) throws TripoliException {
+        boolean proceed = true;
+        if (hasUnsavedChanges()){ proceed = TripoliMessageDialog.showChoiceDialog("Unsaved changes to this report exist. These changes will be lost. Are you sure?", reportWindow);}
+        if (!proceed) { return; }
+
         File reportFile = FileHandlerUtil.importReportFile(reportWindow);
-        if (reportFile != null) {
-            try { // todo: Check for unsaved changes and confirm
-                this.report = (Report) TripoliSerializer.getSerializedObjectFromFile(String.valueOf(reportFile), true);
-            } catch (TripoliException e) {
-                TripoliMessageDialog.showWarningDialog("Not a valid .trf file!", reportWindow);
-            }
+        if (reportFile == null) { return; }
+
+        Report newReport;
+        try {
+            newReport = (Report) TripoliSerializer.getSerializedObjectFromFile(reportFile.getAbsolutePath(), true);
+        } catch (TripoliException e) {
+            TripoliMessageDialog.showWarningDialog("Not a valid .trf file!", reportWindow);
+            return;
         }
+        if (!newReport.getMethodName().equals(currentReport.getMethodName())){
+            if (TripoliMessageDialog.showChoiceDialog("Cannot open report of different Method right now. Would you like to save report to your local directory?", reportWindow)){
+                newReport.serializeReport();
+            }
+        } else {
+            currentReport = newReport;
+        }
+
     }
 
     public void createCategoryOnAction(ActionEvent actionEvent) {
+        String categoryName = categoryTextField.getText();
+        if (categoryName != null && !categoryName.trim().isEmpty()) {
+            currentReport.addCategory(categoryName);
+        }
+    }
+    private boolean hasUnsavedChanges() {
+        return !currentReport.equals(initalReport);
     }
 }
 

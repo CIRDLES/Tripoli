@@ -19,6 +19,7 @@ package org.cirdles.tripoli.reports;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class ReportColumn implements Serializable, Comparable<ReportColumn>{
     private static final long serialVersionUID = 3378567673921898881L;
@@ -31,6 +32,11 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
         columnName = title;
         this.positionIndex = positionIndex;
         visible = true;
+    }
+    public ReportColumn(ReportColumn otherColumn) {
+        columnName = otherColumn.columnName;
+        positionIndex = otherColumn.positionIndex;
+        visible = otherColumn.visible;
     }
 
     public String getColumnName() { return columnName; }
@@ -46,5 +52,18 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
     @Override
     public int compareTo(@NotNull ReportColumn column) {
         return Integer.compare(this.positionIndex, column.getPositionIndex());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ReportColumn that = (ReportColumn) o;
+
+        return positionIndex == that.positionIndex && visible == that.visible && Objects.equals(columnName, that.columnName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash( positionIndex, visible, columnName);
     }
 }

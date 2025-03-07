@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ReportCategory implements Serializable, Comparable<ReportCategory> {
     private static final long serialVersionUID = 6830475493400638448L;
@@ -42,20 +43,29 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         visible = true;
     }
     // Handle importing existing category
-    public ReportCategory(String categoryName, Set<ReportColumn> columnDetailsList, int positionIndex) {
+    public ReportCategory(String categoryName, Set<ReportColumn> reportColumnSet, int positionIndex) {
         this.categoryName = categoryName;
-        columnSet = columnDetailsList;
+        columnSet = reportColumnSet;
         this.positionIndex = positionIndex;
         visible = true;
     }
 
-    // Handle known name
+    // Handle known name, no columns
     public ReportCategory(String categoryName, int positionIndex) {
         this.categoryName = categoryName;
         columnSet = new TreeSet<>();
         this.positionIndex = positionIndex;
         visible = true;
     }
+    public ReportCategory(ReportCategory otherCategory) {
+        this.categoryName = otherCategory.categoryName;
+        this.positionIndex = otherCategory.positionIndex;
+        this.visible = otherCategory.visible;
+        this.columnSet = otherCategory.columnSet.stream()
+                .map(ReportColumn::new)
+                .collect(Collectors.toCollection(TreeSet::new));
+    }
+
     public int getPositionIndex() {
         return positionIndex;
     }
@@ -70,8 +80,9 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
     public void addColumn() {
         columnSet.add(new ReportColumn("<Add Column>", Integer.MAX_VALUE));
     }
-    public void addColumn(ReportColumn reportColumn) {
+    public void addColumn(ReportColumn reportColumn, int positionIndex) {
         columnSet.add(reportColumn);
+        this.positionIndex = positionIndex;
     }
     public Set<ReportColumn> getColumns(){ return columnSet; }
     public String getCategoryName() {return categoryName;}
@@ -113,30 +124,23 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         }
         return new ReportCategory("User Functions", columnSet,2);
     }
+
     public void updateColumnPosition(ReportColumn column, int newIndex) {
         int oldIndex = column.getPositionIndex();
-        if (oldIndex == newIndex) {
-            return;
-        }
+        if (oldIndex == newIndex) {return;}
 
         columnSet.remove(column);
 
-        if (oldIndex > newIndex) {
-            for (ReportColumn c : columnSet) {
-                if (c.getPositionIndex() >= newIndex && c.getPositionIndex() < oldIndex) {
-                    c.setPositionIndex(c.getPositionIndex() + 1);
-                }
-            }
-        } else {
-            for (ReportColumn c : columnSet) {
-                if (c.getPositionIndex() > oldIndex && c.getPositionIndex() <= newIndex) {
-                    c.setPositionIndex(c.getPositionIndex() - 1);
-                }
+        for (ReportColumn c : columnSet) {
+            int currentIndex = c.getPositionIndex();
+            if (currentIndex >= newIndex && currentIndex < oldIndex) {
+                c.setPositionIndex(currentIndex + 1);
+            } else if (currentIndex > oldIndex && currentIndex <= newIndex) {
+                c.setPositionIndex(currentIndex - 1);
             }
         }
 
         column.setPositionIndex(newIndex);
-
         columnSet.add(column);
     }
 
@@ -144,12 +148,24 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         ReportCategory that = (ReportCategory) o;
-        return positionIndex == that.positionIndex && visible == that.visible && Objects.equals(categoryName, that.categoryName) && Objects.equals(columnSet, that.columnSet);
+        boolean columnsEqual = true;
+        Iterator<ReportColumn> columnIterator1 = this.columnSet.iterator();
+        Iterator<ReportColumn> columnIterator2 = that.columnSet.iterator();
+
+        if (this.columnSet.size() != that.columnSet.size()) { columnsEqual = false; }
+        while (columnIterator1.hasNext() && columnIterator2.hasNext()) {
+            ReportColumn column1 = columnIterator1.next();
+            ReportColumn column2 = columnIterator2.next();
+            if (!column1.equals(column2)) {
+                columnsEqual = false;
+            }
+        }
+        return positionIndex == that.positionIndex && visible == that.visible && Objects.equals(categoryName, that.categoryName) && columnsEqual;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(categoryName, positionIndex, columnSet, visible, FIXED_CATEGORY_NAME);
+        return Objects.hash(positionIndex, visible, categoryName, columnSet);
     }
 
     @Override

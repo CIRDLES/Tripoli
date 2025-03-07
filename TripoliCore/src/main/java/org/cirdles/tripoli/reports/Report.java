@@ -39,12 +39,24 @@ public class Report implements Serializable, Comparable<Report> {
     private String reportName;
     private String methodName;
 
-    Set<ReportCategory> categoryColumns;
+    private Set<ReportCategory> categorySet;
 
-    public Report(String reportName, String methodName, Set<ReportCategory> categoryColumns) {
+    public Report(String reportName, String methodName, Set<ReportCategory> categorySet) {
         this.reportName = reportName;
         this.methodName = methodName;
-        this.categoryColumns = categoryColumns;
+        this.categorySet = categorySet;
+    }
+
+    /**
+     * Creates a mutable copy from an existing Report
+     * @param otherReport Report to be copied
+     */
+    public Report(Report otherReport) {
+        this.reportName = otherReport.reportName;
+        this.methodName = otherReport.methodName;
+        this.categorySet = otherReport.categorySet.stream()
+                .map(ReportCategory::new) // Call copy constructor of ReportCategory
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     // Assumes Report Names will never contain underscores naturally
@@ -54,19 +66,22 @@ public class Report implements Serializable, Comparable<Report> {
     public void setReportName(String reportName) {
         this.reportName = reportName.replaceAll("[\\\\/:*?\"<>| ]", "_").trim(); }
 
-    public void setMethodName(String methodName) {
-        this.methodName = methodName; }
+    public void setMethodName(String methodName) { this.methodName = methodName; }
+    public String getMethodName() { return this.methodName; }
 
+    public void addCategory(String categoryName) {
+        this.categorySet.add(new ReportCategory(categoryName, categorySet.size()));
+    }
 
-    public Set<ReportCategory> getCategories() { return categoryColumns; }
+    public Set<ReportCategory> getCategories() { return categorySet; }
 
     public void updateCategoryPosition(ReportCategory category, int newIndex) {
         int oldIndex = category.getPositionIndex();
         if (oldIndex == newIndex) { return; }
-        categoryColumns.remove(category);
+        categorySet.remove(category);
 
         // Adjust indicies for new spot
-        for (ReportCategory c : categoryColumns) {
+        for (ReportCategory c : categorySet) {
             int currentIndex = c.getPositionIndex();
             if (currentIndex >= newIndex && currentIndex < oldIndex) {
                 c.setPositionIndex(currentIndex + 1);
@@ -75,7 +90,7 @@ public class Report implements Serializable, Comparable<Report> {
             }
         }
         category.setPositionIndex(newIndex);
-        categoryColumns.add(category);
+        categorySet.add(category);
     }
 
     public File getTripoliReportFile() {
@@ -150,10 +165,40 @@ public class Report implements Serializable, Comparable<Report> {
         TripoliSerializer.serializeObjectToFile(this, reportFile.getAbsolutePath());
         return reportFile;
     }
+    public boolean deleteReport() {
+        return this.getTripoliReportFile().delete();
+    }
 
     @Override
     public int compareTo(@NotNull Report o) {
         return this.reportName.compareTo(o.reportName);
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Report that = (Report) o;
+
+        boolean categoriesEqual = true;
+        Iterator<ReportCategory> categoriesIterator = this.categorySet.iterator();
+        Iterator<ReportCategory> categoriesIterator2 = that.categorySet.iterator();
+
+        if (this.categorySet.size() != that.categorySet.size()) { categoriesEqual = false; }
+        while (categoriesIterator.hasNext() && categoriesIterator2.hasNext()) {
+            ReportCategory category1 = categoriesIterator.next();
+            ReportCategory category2 = categoriesIterator2.next();
+            if (!category1.equals(category2)) {
+                categoriesEqual = false;
+            }
+        }
+
+        return Objects.equals(reportName, that.reportName) && Objects.equals(methodName, that.methodName) && categoriesEqual;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(reportName, methodName, categorySet);
     }
 }
 

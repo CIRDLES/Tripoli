@@ -11,6 +11,9 @@
 .list-view-container VBox {
     -fx-background-color:LINEN;
 }
+.list-view-content {
+    -fx-font-weight: normal;
+}
 
 .category-text-field {
     -fx-font-weight: bold;

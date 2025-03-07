@@ -93,12 +93,12 @@
                                    <Insets />
                                </opaqueInsets>
                            </HBox>
-                           <ListView fx:id="categoryListView" prefHeight="165.0" prefWidth="637.0" />
+                           <ListView  styleClass="list-view-content"  fx:id="categoryListView" prefHeight="165.0" prefWidth="637.0" />
                        </VBox>
                    </TitledPane>
                    <TitledPane animated="false" collapsible="false" prefHeight="296.0" prefWidth="595.0" styleClass="list-view-container" text="Columns - Drag and Drop to reorder">
                        <VBox prefWidth="731.0">
-                           <ListView fx:id="columnListView" prefHeight="342.0" prefWidth="711.0" />
+                           <ListView styleClass="list-view-content" fx:id="columnListView" prefHeight="342.0" prefWidth="711.0" />
                        </VBox>
                    </TitledPane>
                </VBox>
