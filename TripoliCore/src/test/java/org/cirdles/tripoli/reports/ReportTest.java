@@ -1,5 +1,9 @@
 package org.cirdles.tripoli.reports;
 
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
@@ -9,47 +13,73 @@ import java.util.TreeSet;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ReportTest {
+    static ReportColumn testColumn;
+    static ReportCategory testCategory;
+    static Report testReport;
+
+    /**
+     * Build report structure using semi-realistic data
+     */
+    @BeforeAll
+    static void setUpBeforeClass(){
+        Set<ReportColumn> analysisColumns = new TreeSet<>();
+        Set<ReportColumn> isotopicColumns = new TreeSet<>();
+        Set<ReportCategory> reportCategories = new TreeSet<>();
+
+        testColumn = new ReportColumn("Analysis", 0);
+        testCategory = new ReportCategory("Isotopic Ratios", 0);
+        testCategory.addColumn(testColumn);
+
+        analysisColumns.add(new ReportColumn("Analysis", 0));
+        analysisColumns.add(new ReportColumn("Session", 1));
+
+        isotopicColumns.add(new ReportColumn("206Pb/238U", 0));
+        isotopicColumns.add(new ReportColumn("207Pb/235U", 1));
+        isotopicColumns.add(new ReportColumn("207Pb/206Pb", 2));
+
+        reportCategories.add(new ReportCategory("Analysis Info", analysisColumns, 0));
+        reportCategories.add(new ReportCategory("Isotopic Ratios", isotopicColumns, 1));
+
+        testReport = new Report("Test Report", "Test Report Method", reportCategories);
+    }
+
+    /**
+     * Ensures serialized reports maintain data integrity
+     * @throws TripoliException
+     */
+    @Test
+    public void reportSerializeTest() throws TripoliException {
+        testReport.serializeReport();
+        Report deserializedReport = (Report) TripoliSerializer.getSerializedObjectFromFile(testReport.getTripoliReportFile().getAbsolutePath(), true);
+        assertTrue(testReport.equals(deserializedReport));
+    }
+
+    /**
+     * Ensures the overridden equals method properly compares all elements in each class as well
+     * as the nested structure of the parent classes
+     */
     @Test
     public void reportEqualsTest() {
-        Set<ReportColumn> reportColumns1 = new TreeSet<>();
-        Set<ReportColumn> reportColumns2 = new TreeSet<>();
-        Set<ReportCategory> categorySet1 = new TreeSet<>();
-        Set<ReportCategory> categorySet2 = new TreeSet<>();
+        ReportColumn dupeColumn = new ReportColumn(testColumn);
+        ReportColumn alteredColumn = new ReportColumn(testColumn);
+        ReportCategory dupeCategory = new ReportCategory(testCategory);
+        ReportCategory alteredCategory = new ReportCategory(testCategory);
+        Report dupeReport = new Report(testReport);
+        Report alteredReport = new Report(testReport);
 
-        ReportColumn column1 = new ReportColumn("Analysis", 0);
-        ReportColumn column2 = new ReportColumn("Session", 1);
-        ReportColumn columnDupe = new ReportColumn("Analysis", 0);
-        ReportColumn column3 = new ReportColumn("Analysis", 0);
-        ReportColumn column4 = new ReportColumn("Session", 1);
-
-        reportColumns1.add(column1);
-        reportColumns1.add(column2);
-        reportColumns2.add(column3);
-        reportColumns2.add(column4);
-
-        ReportCategory reportCategory1 = new ReportCategory("Info", reportColumns1, 0);
-        ReportCategory reportCategory2 = new ReportCategory("AdditonalInfo", reportColumns2, 1);
-        ReportCategory reportCategoryDupe = new ReportCategory("Info", reportColumns2, 0);
-        ReportCategory reportCategory3 = new ReportCategory("Info", reportColumns1, 0);
-        ReportCategory reportCategory4 = new ReportCategory("AdditonalInfo", reportColumns2, 1);
-
-        categorySet1.add(reportCategory1);
-        categorySet1.add(reportCategory2);
-        categorySet2.add(reportCategory3);
-        categorySet2.add(reportCategory4);
-
-        Report report1 = new Report("TestReport", "", categorySet1);
-        Report report2 = new Report("TestReport", "", categorySet2);
-        Report reportCopy = new Report(report2);
-        Report reportCopy2 = new Report(report1);
-        reportCopy2.getCategories().add(new ReportCategory("Test", 2));
+        alteredReport.addCategory(new ReportCategory("Test Category", 2));
+        alteredCategory.addColumn(new ReportColumn("Test Column", 1));
+        alteredColumn.setPositionIndex(2);
 
         assertAll(
-                () -> assertTrue(column1.equals(columnDupe), "ReportColumns not equal"),
-                () -> assertTrue(reportCategory1.equals(reportCategoryDupe), "ReportCategory not equal"),
-                () -> assertTrue(report1.equals(report2),"Report not equal"),
-                () -> assertTrue(report1.equals(reportCopy), "Copy not equal"),
-                () -> assertFalse(report1.equals(reportCopy2), "Report shouldnt be equal")
+                () -> assertTrue(testColumn.equals(dupeColumn), "ReportColumns should be equal"),
+                () -> assertTrue(testCategory.equals(dupeCategory), "ReportCategory should be equal"),
+                () -> assertTrue(testReport.equals(dupeReport),"Report should be equal"),
+
+                () -> assertFalse(testReport.equals(alteredReport), "Reports should NOT be equal"),
+                () -> assertFalse(testCategory.equals(alteredCategory), "Categories should NOT be equal"),
+                () -> assertFalse(testColumn.equals(alteredColumn), "Columns should NOT be equal")
         );
     }
+
 }

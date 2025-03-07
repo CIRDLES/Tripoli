@@ -72,6 +72,9 @@ public class Report implements Serializable, Comparable<Report> {
     public void addCategory(String categoryName) {
         this.categorySet.add(new ReportCategory(categoryName, categorySet.size()));
     }
+    public void addCategory(ReportCategory category) {
+        this.categorySet.add(category);
+    }
 
     public Set<ReportCategory> getCategories() { return categorySet; }
 
@@ -94,6 +97,8 @@ public class Report implements Serializable, Comparable<Report> {
     }
 
     public File getTripoliReportFile() {
+        if (tripoliReportDirectoryLocal == null) createReportDirectory();
+
         return tripoliReportDirectoryLocal.toPath().resolve(this.methodName + File.separator + this.getReportName()+".trf").toFile();
     }
 
@@ -107,8 +112,8 @@ public class Report implements Serializable, Comparable<Report> {
      * @throws TripoliException
      */
     public static List<Report> generateReportList(String methodName, List<UserFunction> userFunctionList) throws IOException, TripoliException {
+        if (tripoliReportDirectoryLocal == null) createReportDirectory();
 
-        createReportDirectory();
         List<Report> reportList = new ArrayList<>();
         File methodReportDirectory = new File(tripoliReportDirectoryLocal, methodName);
 
@@ -156,6 +161,7 @@ public class Report implements Serializable, Comparable<Report> {
      * @throws TripoliException
      */
     public File serializeReport() throws TripoliException {
+        if (tripoliReportDirectoryLocal == null) createReportDirectory();
         File reportMethodDirectory = new File(tripoliReportDirectoryLocal.getAbsolutePath() + File.separator + methodName);
 
         if(!reportMethodDirectory.exists()){

@@ -77,13 +77,10 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
     public void setVisible(boolean visible) {this.visible = visible;}
     public boolean isVisible() {return visible;}
 
-    public void addColumn() {
-        columnSet.add(new ReportColumn("<Add Column>", Integer.MAX_VALUE));
-    }
-    public void addColumn(ReportColumn reportColumn, int positionIndex) {
+    public void addColumn(ReportColumn reportColumn) {
         columnSet.add(reportColumn);
-        this.positionIndex = positionIndex;
     }
+
     public Set<ReportColumn> getColumns(){ return columnSet; }
     public String getCategoryName() {return categoryName;}
 
