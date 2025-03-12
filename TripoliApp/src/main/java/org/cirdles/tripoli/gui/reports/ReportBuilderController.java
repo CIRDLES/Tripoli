@@ -30,7 +30,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.stage.Window;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
@@ -71,20 +71,26 @@ public class ReportBuilderController {
     private ListView<ReportCategory> categoryListView;
     @FXML
     private ListView<ReportColumn> columnListView;
-    private Window reportWindow;
+    private Stage reportStage;
+
 
     private Report currentReport;
     private Report initalReport;
 
     private ObservableList<ReportCategory> categories;
     private ObservableList<ReportColumn> columns;
-    private boolean unsavedChanges = false;
+
+    boolean unsavedChanges;
 
     public ReportBuilderController() {
     }
 
-    public void setWindow(Window window) {
-        reportWindow = window;
+    public void setStage(Stage stage) {
+        reportStage = stage;
+        reportStage.setOnCloseRequest(event -> {
+            if (!proceedWithUnsavedDialog()) { event.consume(); }
+        });
+
     }
 
     public void setCurrentReport(Report currentReport) {
@@ -99,7 +105,7 @@ public class ReportBuilderController {
         }
         exportButton.setDisable(false);
         initializeListViews();
-
+        reportStage.setTitle("Report Builder - " + currentReport.getReportName());
     }
 
     private void initializeListViews() {
@@ -176,6 +182,7 @@ public class ReportBuilderController {
                         categoryListView.getItems().remove(draggedItem);
                         categoryListView.getItems().add(dropIndex, draggedItem);
                         currentReport.updateCategoryPosition(draggedItem, dropIndex);
+                        handleTrackingChanges();
 
                         success = true;
                     }
@@ -254,6 +261,7 @@ public class ReportBuilderController {
                         int dropIndex = cell.getIndex();
                         columnListView.getItems().add(dropIndex, draggedItem);
                         categoryListView.getSelectionModel().getSelectedItem().updateColumnPosition(draggedItem, dropIndex);
+                        handleTrackingChanges();
 
                         success = true;
                     }
@@ -281,17 +289,16 @@ public class ReportBuilderController {
      * @param <T> Must be ReportCategory or ReportColumn type
      */
     private <T> void handleVisible(ListCell<T> cell, Boolean toggle) {
-        if (cell.getItem() != null) {  // Only proceed if item is non-null
+        if (cell.getItem() != null) {
             Object item = cell.getItem();
             boolean isVisible = (item instanceof ReportColumn) ? ((ReportColumn) item).isVisible() : ((ReportCategory) item).isVisible();
 
-            // Determine if we are showing or hiding, based on toggle
             boolean newVisibility = toggle != isVisible;
             Color textColor = newVisibility ? Color.BLACK : Color.GRAY;
             boolean strikethrough = !newVisibility;
 
-            // Update visibility and style
             setItemVisibilityAndStyle(cell, item, newVisibility, textColor, strikethrough);
+            handleTrackingChanges();
         }
     }
 
@@ -302,8 +309,6 @@ public class ReportBuilderController {
             ((ReportCategory) item).setVisible(visible);
         }
 
-        // Could not apply the style settings to cell text so we apply it to
-        // Text class and set that as the cell graphic
         if (cell.getGraphic() instanceof Text) {
             Text text = new Text(((Text) cell.getGraphic()).getText());
             text.setFill(textColorStyle);
@@ -315,37 +320,35 @@ public class ReportBuilderController {
     }
 
 
-    public void newOnAction(ActionEvent actionEvent) {
-        // Set new report as default initialized report
+    public void newOnAction() {
+
         //report.reset();
     }
 
-    public void copyOnAction(ActionEvent actionEvent) {
+    public void copyOnAction() {
     }
 
-    public void saveOnAction(ActionEvent actionEvent) throws TripoliException {
+    public void saveOnAction() throws TripoliException {
         if (currentReport.getReportName() == null){
-            TripoliMessageDialog.showWarningDialog("Report must have a name", reportWindow);
+            TripoliMessageDialog.showWarningDialog("Report must have a name", reportStage);
         } else if (Objects.equals(currentReport.getReportName(), "Default Report")){
-            TripoliMessageDialog.showWarningDialog("Report name: 'Default Report' is restricted", reportWindow);
+            TripoliMessageDialog.showWarningDialog("Report name: 'Default Report' is restricted", reportStage);
         } else {
-            TripoliMessageDialog.showSavedAsDialog(currentReport.serializeReport(), reportWindow);
+            TripoliMessageDialog.showSavedAsDialog(currentReport.serializeReport(), reportStage);
             initalReport = new Report(currentReport); // Reset saved state
+            handleTrackingChanges();
         }
     }
 
-    public void restoreOnAction(ActionEvent actionEvent) {
-        boolean proceed = true;
-        if (hasUnsavedChanges()){
-            proceed = TripoliMessageDialog.showChoiceDialog("Unsaved changes exist! Are you sure?", reportWindow);
-        }
-        if (proceed) {
+    public void restoreOnAction() {
+        if (proceedWithUnsavedDialog()) {
             currentReport = new Report(initalReport);
+            initializeListViews();
         }
     }
 
-    public void renameOnAction(ActionEvent actionEvent) {
-        TextInputDialog dialog = new TextInputDialog();
+    public void renameOnAction() {
+        TextInputDialog dialog = new TextInputDialog(currentReport.getReportName());
         dialog.setTitle("Rename Report");
         dialog.setHeaderText("Current Report: '" + currentReport.getReportName()+"'");
         dialog.setContentText("Enter new report name: ");
@@ -354,58 +357,76 @@ public class ReportBuilderController {
         result.ifPresent(newName -> {
             if (!newName.trim().isEmpty()) {
                 currentReport.setReportName(newName.trim());
+                handleTrackingChanges();
             }
         });
     }
 
-    public void deleteOnAction(ActionEvent actionEvent) {
+    public void deleteOnAction() {
         if (!currentReport.getTripoliReportFile().exists()){
-            TripoliMessageDialog.showWarningDialog("Report does not exist!", reportWindow);
+            TripoliMessageDialog.showWarningDialog("Report does not exist!", reportStage);
             return;
         }
-        if (TripoliMessageDialog.showChoiceDialog("Are you sure? \n Delete Report: "+ currentReport.getReportName() + "?", reportWindow)){
+        if (TripoliMessageDialog.showChoiceDialog("Are you sure? \n Delete Report: "+ currentReport.getReportName() + "?", reportStage)){
             if (currentReport.deleteReport()){
-                TripoliMessageDialog.showInfoDialog("Report Deleted!", reportWindow);
+                TripoliMessageDialog.showInfoDialog("Report Deleted!", reportStage);
             }
         }
     }
 
-    public void exportOnAction(ActionEvent actionEvent) {
+    public void exportOnAction() {
+        // for future implementation
     }
 
-    public void importOnAction(ActionEvent actionEvent) throws TripoliException {
-        boolean proceed = true;
-        if (hasUnsavedChanges()){ proceed = TripoliMessageDialog.showChoiceDialog("Unsaved changes to this report exist. These changes will be lost. Are you sure?", reportWindow);}
-        if (!proceed) { return; }
+    public void importOnAction() throws TripoliException {
+        if (!proceedWithUnsavedDialog()) { return; }
 
-        File reportFile = FileHandlerUtil.importReportFile(reportWindow);
+        File reportFile = FileHandlerUtil.importReportFile(reportStage);
         if (reportFile == null) { return; }
 
         Report newReport;
         try {
             newReport = (Report) TripoliSerializer.getSerializedObjectFromFile(reportFile.getAbsolutePath(), true);
         } catch (TripoliException e) {
-            TripoliMessageDialog.showWarningDialog("Not a valid .trf file!", reportWindow);
+            TripoliMessageDialog.showWarningDialog("Not a valid .trf file!", reportStage);
             return;
         }
         if (!newReport.getMethodName().equals(currentReport.getMethodName())){
-            if (TripoliMessageDialog.showChoiceDialog("Cannot open report of different Method right now. Would you like to save report to your local directory?", reportWindow)){
+            if (TripoliMessageDialog.showChoiceDialog("Cannot open report of different Method right now. Would you like to save report to your local directory?", reportStage)){
                 newReport.serializeReport();
             }
         } else {
             currentReport = newReport;
+            initalReport = new Report(newReport);
+            initializeListViews();
+            handleTrackingChanges();
         }
-
     }
 
     public void createCategoryOnAction(ActionEvent actionEvent) {
         String categoryName = categoryTextField.getText();
         if (categoryName != null && !categoryName.trim().isEmpty()) {
-            currentReport.addCategory(categoryName);
+            ReportCategory newCategory = new ReportCategory(categoryName, categories.size());
+            categories.add(newCategory);
+            currentReport.addCategory(newCategory);
+            handleTrackingChanges();
         }
     }
-    private boolean hasUnsavedChanges() {
-        return !currentReport.equals(initalReport);
+
+    private void handleTrackingChanges() {
+        if (!currentReport.equals(initalReport)) {
+            unsavedChanges = true;
+            reportStage.setTitle("Report Builder - " + currentReport.getReportName() + "*");
+        } else {
+            unsavedChanges = false;
+            reportStage.setTitle("Report Builder - " + currentReport.getReportName());
+        }
+    }
+    private boolean proceedWithUnsavedDialog(){
+        if (unsavedChanges){
+            return TripoliMessageDialog.showChoiceDialog("Unsaved changes exist! Are you sure?", reportStage);
+        }
+        return true;
     }
 }
 

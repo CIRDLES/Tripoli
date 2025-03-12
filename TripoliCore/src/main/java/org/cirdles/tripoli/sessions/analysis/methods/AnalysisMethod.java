@@ -167,7 +167,7 @@ public class AnalysisMethod implements Serializable {
             System.out.println(columnHeaders[r270_267ColumnIndex + 2]);
 
         }
-        reportSet.addAll(Report.generateReportList(methodName, userFunctionsModel));
+        refreshReports();
         return analysisMethod;
     }
 
@@ -507,4 +507,10 @@ public class AnalysisMethod implements Serializable {
         Collections.sort(derivedIsotopicRatiosList, (ratio1, ratio2) -> ratio1.getNumerator().compareTo(ratio2.getNumerator()));
     }
     public Set<Report> getReports() { return reportSet; }
+
+    public static void refreshReports() throws TripoliException, IOException {
+        reportSet.clear();
+        reportSet.addAll(Report.generateReportList(methodName, userFunctionsModel));
+
+    }
 }
