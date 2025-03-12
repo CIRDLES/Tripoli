@@ -79,7 +79,6 @@ public class AnalysisMethod implements Serializable {
         mapOfRatioNamesToInvertedFlag = new TreeMap<>();
         userFunctionsModel = new ArrayList<>();
         this.useLinearKnots = true;
-        reportSet = new TreeSet<>();
     }
 
     public static AnalysisMethod initializeAnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
@@ -509,7 +508,7 @@ public class AnalysisMethod implements Serializable {
     public Set<Report> getReports() { return reportSet; }
 
     public static void refreshReports() throws TripoliException, IOException {
-        reportSet.clear();
+        reportSet = new TreeSet<>();
         reportSet.addAll(Report.generateReportList(methodName, userFunctionsModel));
 
     }

@@ -225,7 +225,6 @@ public class TripoliGUIController implements Initializable {
                                 analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
                                 tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
                                 analysis = analysisProposed;
-                                //buildCustomReportMenu();
                                 parametersMenu.setDisable(false);
                                 reportsMenu.setDisable(false);
                                 AnalysisManagerController.readingFile = true;
@@ -251,7 +250,7 @@ public class TripoliGUIController implements Initializable {
             try {
                 buildCustomReportMenu();
             } catch (TripoliException | IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Failed to build menu", e);
             }
         });
     }

@@ -35,7 +35,6 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
     public final String FIXED_CATEGORY_NAME = "Analysis Info";
 
     // Handle blank category with no column data
-    // todo: handle null position index (Append to end of treeset)
     public ReportCategory() {
         categoryName = "<Create a Category>";
         columnSet = new TreeSet<>();
@@ -49,7 +48,6 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         this.positionIndex = positionIndex;
         visible = true;
     }
-
     // Handle known name, no columns
     public ReportCategory(String categoryName, int positionIndex) {
         this.categoryName = categoryName;

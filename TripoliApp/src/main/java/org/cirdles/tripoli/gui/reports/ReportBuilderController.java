@@ -19,7 +19,6 @@ package org.cirdles.tripoli.gui.reports;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.control.*;
@@ -283,7 +282,7 @@ public class ReportBuilderController {
     // <<<---------------------------------------------- Column End
 
     /**
-     * Handle all visiblity calls for the ListViews and Report classes
+     * Handle all visibility calls for the ListViews and Report classes
      * @param cell ListCell to be adjusted
      * @param toggle Whether to toggle visibility
      * @param <T> Must be ReportCategory or ReportColumn type
@@ -367,11 +366,11 @@ public class ReportBuilderController {
             TripoliMessageDialog.showWarningDialog("Report does not exist!", reportStage);
             return;
         }
-        if (TripoliMessageDialog.showChoiceDialog("Are you sure? \n Delete Report: "+ currentReport.getReportName() + "?", reportStage)){
-            if (currentReport.deleteReport()){
-                TripoliMessageDialog.showInfoDialog("Report Deleted!", reportStage);
-            }
+        boolean proceed = TripoliMessageDialog.showChoiceDialog("Are you sure? \n Delete Report: "+ currentReport.getReportName() + "?", reportStage);
+        if (proceed && currentReport.deleteReport()){
+            TripoliMessageDialog.showInfoDialog("Report Deleted!", reportStage);
         }
+
     }
 
     public void exportOnAction() {
@@ -403,7 +402,7 @@ public class ReportBuilderController {
         }
     }
 
-    public void createCategoryOnAction(ActionEvent actionEvent) {
+    public void createCategoryOnAction() {
         String categoryName = categoryTextField.getText();
         if (categoryName != null && !categoryName.trim().isEmpty()) {
             ReportCategory newCategory = new ReportCategory(categoryName, categories.size());

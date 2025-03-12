@@ -83,7 +83,7 @@ public class Report implements Serializable, Comparable<Report> {
         if (oldIndex == newIndex) { return; }
         categorySet.remove(category);
 
-        // Adjust indicies for new spot
+        // Adjust indices for new spot
         for (ReportCategory c : categorySet) {
             int currentIndex = c.getPositionIndex();
             if (currentIndex >= newIndex && currentIndex < oldIndex) {
@@ -124,7 +124,7 @@ public class Report implements Serializable, Comparable<Report> {
                             try {
                                 return (Report) TripoliSerializer.getSerializedObjectFromFile(path.toString(), true);
                             } catch (TripoliException e) {
-                                throw new RuntimeException(e);
+                                throw new RuntimeException("Failed to deserialize report", e);
                             }
                         })
                         .collect(Collectors.toCollection(ArrayList::new));
