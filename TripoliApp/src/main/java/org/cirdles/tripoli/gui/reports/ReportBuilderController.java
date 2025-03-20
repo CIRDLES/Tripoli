@@ -70,7 +70,6 @@ public class ReportBuilderController {
     private ListView<ReportColumn> columnListView;
     private Stage reportStage;
 
-
     private Report currentReport;
     private Report initalReport;
 
@@ -126,11 +125,13 @@ public class ReportBuilderController {
             // Save fixed category for future reference
             final AtomicReference<ListCell<ReportCategory>> fixedCategoryCell = new AtomicReference<>();
             ListCell<ReportCategory> cell = new ListCell<>() {
+
                 @Override
                 protected void updateItem(ReportCategory item, boolean empty) {
                     super.updateItem(item, empty);
                     if (empty || item == null) { // Empty Cell
                         setText(null);
+                        setGraphic(null);
                         setCursor(Cursor.DEFAULT);
                         setTooltip(null);
                     } else {
@@ -156,7 +157,6 @@ public class ReportBuilderController {
                     }
                 }
             };
-
             // Start drag
             cell.setOnDragDetected(event -> {
                 if (!cell.isEmpty()
@@ -219,6 +219,25 @@ public class ReportBuilderController {
                         && !Objects.equals(cell.getItem().getCategoryName(), cell.getItem().FIXED_CATEGORY_NAME)
                         && !currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())) {
                     handleVisible(cell, true);
+                }
+            });
+
+            ContextMenu contextMenu = new ContextMenu();
+            MenuItem removeItem = new MenuItem("Remove Category");
+            removeItem.setOnAction(event -> {
+                ReportCategory item = cell.getItem();
+                if (item != null) {
+                    categoryListView.getItems().remove(item);
+                    currentReport.removeCategory(item);
+                    handleTrackingChanges();
+                }
+            });
+            contextMenu.getItems().add(removeItem);
+            cell.setContextMenu(contextMenu);
+
+            cell.setOnContextMenuRequested(event -> {
+                if (!cell.isEmpty() && cell.getItem() != null) {
+                    contextMenu.show(cell, event.getScreenX(), event.getScreenY());
                 }
             });
 
@@ -339,6 +358,25 @@ public class ReportBuilderController {
                         && !Objects.equals(cell.getItem().getColumnName(), cell.getItem().FIXED_COLUMN_NAME)
                         && !currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())) {
                     handleVisible(cell, true);
+                }
+            });
+
+            ContextMenu contextMenu = new ContextMenu();
+            MenuItem removeItem = new MenuItem("Remove Column");
+            removeItem.setOnAction(event -> {
+                ReportColumn item = cell.getItem();
+                if (item != null) {
+                    columnListView.getItems().remove(item);
+                    categoryListView.getSelectionModel().getSelectedItem().removeColumn(item);
+                    handleTrackingChanges();
+                }
+            });
+            contextMenu.getItems().add(removeItem);
+            cell.setContextMenu(contextMenu);
+
+            cell.setOnContextMenuRequested(event -> {
+                if (!cell.isEmpty() && cell.getItem() != null) {
+                    contextMenu.show(cell, event.getScreenX(), event.getScreenY());
                 }
             });
 
@@ -466,6 +504,7 @@ public class ReportBuilderController {
             categories.add(newCategory);
             currentReport.addCategory(newCategory);
             handleTrackingChanges();
+            categoryTextField.setText("");
         }
     }
 
