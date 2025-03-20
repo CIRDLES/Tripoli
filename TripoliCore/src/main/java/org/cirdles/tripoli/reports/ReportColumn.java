@@ -23,6 +23,7 @@ import java.util.Objects;
 
 public class ReportColumn implements Serializable, Comparable<ReportColumn>{
     private static final long serialVersionUID = 3378567673921898881L;
+    public final String FIXED_COLUMN_NAME = "Analysis Name";
 
     private final String columnName;
     private int positionIndex;
@@ -51,6 +52,11 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
 
     @Override
     public int compareTo(@NotNull ReportColumn column) {
+        if (this.columnName.equals(FIXED_COLUMN_NAME)){
+            return -1;
+        } else if (column.getColumnName().equals(FIXED_COLUMN_NAME)){
+            return 1;
+        }
         return Integer.compare(this.positionIndex, column.getPositionIndex());
     }
 

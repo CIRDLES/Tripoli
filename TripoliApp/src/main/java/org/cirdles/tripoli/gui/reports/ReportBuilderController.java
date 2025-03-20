@@ -19,6 +19,7 @@ package org.cirdles.tripoli.gui.reports;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.control.*;
@@ -32,17 +33,16 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
-import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.reports.Report;
 import org.cirdles.tripoli.reports.ReportCategory;
 import org.cirdles.tripoli.reports.ReportColumn;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
-import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 
-import java.io.File;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
 
 public class ReportBuilderController {
 
@@ -50,10 +50,6 @@ public class ReportBuilderController {
     public Button createCategoryButton;
     @FXML
     public TextField categoryTextField;
-    @FXML
-    public Button newButton;
-    @FXML
-    public Button copyButton;
     @FXML
     public Button saveButton;
     @FXML
@@ -63,9 +59,11 @@ public class ReportBuilderController {
     @FXML
     public Button deleteButton;
     @FXML
-    public Button exportButton;
+    public Button generateButton;
     @FXML
-    public Button importButton;
+    public MenuItem newBlankButton;
+    @FXML
+    public MenuItem newFullButton;
     @FXML
     private ListView<ReportCategory> categoryListView;
     @FXML
@@ -98,11 +96,22 @@ public class ReportBuilderController {
         saveButton.setDisable(false);
         restoreButton.setDisable(false);
         renameButton.setDisable(false);
-        // Cannot rename or delete the default report
-        if(!"Default Report".equals(currentReport.getReportName())){
-            deleteButton.setDisable(false);
+        deleteButton.setDisable(false);
+        categoryListView.setDisable(false);
+        columnListView.setDisable(false);
+        generateButton.setDisable(false);
+        createCategoryButton.setDisable(false);
+        categoryTextField.setDisable(false);
+
+        // Remove editing for the full report
+        if(currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())){
+            createCategoryButton.setDisable(true);
+            categoryTextField.setDisable(true);
+            deleteButton.setDisable(true);
+            renameButton.setDisable(true);
+            restoreButton.setDisable(true);
+            saveButton.setDisable(true);
         }
-        exportButton.setDisable(false);
         initializeListViews();
         reportStage.setTitle("Report Builder - " + currentReport.getReportName());
     }
@@ -113,6 +122,7 @@ public class ReportBuilderController {
 
         // Report Category ListView ----------------------------------------------------->>>
         categoryListView.setCellFactory(lv -> {
+
             // Save fixed category for future reference
             final AtomicReference<ListCell<ReportCategory>> fixedCategoryCell = new AtomicReference<>();
             ListCell<ReportCategory> cell = new ListCell<>() {
@@ -134,6 +144,11 @@ public class ReportBuilderController {
                             tooltip.setShowDelay(Duration.seconds(0.5));
                             setTooltip(tooltip);
                             fixedCategoryCell.set(this);
+                        } else if(currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())) {
+                            setCursor(Cursor.DISAPPEAR); // Todo: make this a x or something
+                            Tooltip tooltip = new Tooltip("Editing of " + currentReport.FIXED_REPORT_NAME + " is not allowed");
+                            tooltip.setShowDelay(Duration.seconds(0.1));
+                            setTooltip(tooltip);
                         } else { // Other category
                             setCursor(Cursor.CLOSED_HAND);
                             setTooltip(null);
@@ -144,7 +159,9 @@ public class ReportBuilderController {
 
             // Start drag
             cell.setOnDragDetected(event -> {
-                if (!cell.isEmpty() && !Objects.equals(cell.getItem().getCategoryName(), cell.getItem().FIXED_CATEGORY_NAME)) {
+                if (!cell.isEmpty()
+                        && !Objects.equals(cell.getItem().getCategoryName(), cell.getItem().FIXED_CATEGORY_NAME)
+                        && !currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())) {
                     Dragboard db = cell.startDragAndDrop(TransferMode.MOVE);
                     ClipboardContent content = new ClipboardContent();
                     content.putString(cell.getItem().getCategoryName());
@@ -158,7 +175,9 @@ public class ReportBuilderController {
 
             // Accept drag over the cell
             cell.setOnDragOver(event -> {
-                if (event.getGestureSource() != cell && event.getDragboard().hasString()) {
+                if (event.getGestureSource() instanceof ListCell<?> sourceCell
+                        && sourceCell.getListView() == cell.getListView() // Ensure same ListView
+                        && event.getDragboard().hasString()) {
                     event.acceptTransferModes(TransferMode.MOVE);
                 }
                 event.consume();
@@ -169,11 +188,14 @@ public class ReportBuilderController {
                 Dragboard db = event.getDragboard();
                 boolean success = false;
 
-                if (db.hasString()) {
+                if (db.hasString()
+                        && event.getGestureSource() instanceof ListCell<?> sourceCell
+                        && sourceCell.getListView() == cell.getListView()) {
                     ReportCategory draggedItem = (ReportCategory) categoryListView.getUserData();
 
                     if (draggedItem != null) {
                         int dropIndex = cell.getIndex();
+                        dropIndex = Math.min(dropIndex, categoryListView.getItems().size() - 1);
                         if (fixedCategoryCell.get() != null && dropIndex <= fixedCategoryCell.get().getIndex()) {
                             event.consume();
                             return;
@@ -192,7 +214,10 @@ public class ReportBuilderController {
             });
             // Add a mouse click listener to handle double-click
             cell.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && !cell.isEmpty()) {
+                if (event.getClickCount() == 2
+                        && !cell.isEmpty()
+                        && !Objects.equals(cell.getItem().getCategoryName(), cell.getItem().FIXED_CATEGORY_NAME)
+                        && !currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())) {
                     handleVisible(cell, true);
                 }
             });
@@ -216,19 +241,48 @@ public class ReportBuilderController {
         // <<<---------------------------------------------- Category End
 
         // Report Column ListView ------------------------------------------------->>>
+        final AtomicReference<ListCell<ReportColumn>> fixedColumnCell = new AtomicReference<>();
         columnListView.setCellFactory(lv -> {
             ListCell<ReportColumn> cell = new ListCell<>() {
+
                 @Override
                 protected void updateItem(ReportColumn item, boolean empty) {
                     super.updateItem(item, empty);
-                    setGraphic(empty || item == null ? null : new Text(item.getColumnName()));
-                    handleVisible(this,false);
+
+                    if (empty || item == null) {
+                        setText(null);
+                        setGraphic(null);
+                        setCursor(Cursor.DEFAULT);
+                        setTooltip(null);
+                    } else {
+                        setGraphic(new Text(item.getColumnName()));
+                        handleVisible(this, false);
+
+                        // Tooltip and cursor logic
+                        if (Objects.equals(item.getColumnName(), item.FIXED_COLUMN_NAME)) {
+                            setCursor(Cursor.DISAPPEAR); // Prevent movement
+                            Tooltip tooltip = new Tooltip("This Column cannot be moved.");
+                            tooltip.setShowDelay(Duration.seconds(0.5));
+                            setTooltip(tooltip);
+                            fixedColumnCell.set(this);
+                        } else if (Objects.equals(currentReport.getReportName(), currentReport.FIXED_REPORT_NAME)) {
+                            setCursor(Cursor.DISAPPEAR);
+                            Tooltip tooltip = new Tooltip("Editing of " + currentReport.FIXED_REPORT_NAME + " is not allowed");
+                            tooltip.setShowDelay(Duration.seconds(0.1));
+                            setTooltip(tooltip);
+                        } else {
+                            setCursor(Cursor.CLOSED_HAND); // Allow movement
+                            setTooltip(null);
+                        }
+                    }
                 }
             };
 
             // Start drag
             cell.setOnDragDetected(event -> {
-                if (!cell.isEmpty()) {
+                if (!cell.isEmpty()
+                        && !cell.getItem().FIXED_COLUMN_NAME.equals(cell.getItem().getColumnName())
+                        && !currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())) {
                     Dragboard db = cell.startDragAndDrop(TransferMode.MOVE);
                     ClipboardContent content = new ClipboardContent();
                     content.putString(cell.getItem().getColumnName());
@@ -241,7 +295,9 @@ public class ReportBuilderController {
 
             // Accept drag over the cell
             cell.setOnDragOver(event -> {
-                if (event.getGestureSource() != cell && event.getDragboard().hasString()) {
+                if (event.getGestureSource() instanceof ListCell<?> sourceCell
+                        && sourceCell.getListView() == cell.getListView() // Ensure same ListView
+                        && event.getDragboard().hasString()) {
                     event.acceptTransferModes(TransferMode.MOVE);
                 }
                 event.consume();
@@ -252,12 +308,19 @@ public class ReportBuilderController {
                 Dragboard db = event.getDragboard();
                 boolean success = false;
 
-                if (db.hasString()) {
+                if (db.hasString()
+                        && event.getGestureSource() instanceof ListCell<?> sourceCell
+                        && sourceCell.getListView() == cell.getListView()) {
                     ReportColumn draggedItem = (ReportColumn) columnListView.getUserData();
 
                     if (draggedItem != null) {
-                        columnListView.getItems().remove(draggedItem);
                         int dropIndex = cell.getIndex();
+                        dropIndex = Math.min(dropIndex, columnListView.getItems().size() - 1);
+                        if (fixedColumnCell.get() != null && dropIndex <= fixedColumnCell.get().getIndex()) {
+                            event.consume();
+                            return;
+                        }
+                        columnListView.getItems().remove(draggedItem);
                         columnListView.getItems().add(dropIndex, draggedItem);
                         categoryListView.getSelectionModel().getSelectedItem().updateColumnPosition(draggedItem, dropIndex);
                         handleTrackingChanges();
@@ -271,7 +334,10 @@ public class ReportBuilderController {
             });
             // Add a mouse click listener to handle double-click
             cell.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && !cell.isEmpty()) {
+                if (event.getClickCount() == 2
+                        && !cell.isEmpty()
+                        && !Objects.equals(cell.getItem().getColumnName(), cell.getItem().FIXED_COLUMN_NAME)
+                        && !currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())) {
                     handleVisible(cell, true);
                 }
             });
@@ -318,20 +384,35 @@ public class ReportBuilderController {
 
     }
 
+    public void newOnAction(ActionEvent event) {
+        boolean proceed = proceedWithUnsavedDialog();
+        if (proceed) {
+            TextInputDialog dialog = new TextInputDialog("Enter Report Name");
+            dialog.setTitle("New Report");
+            dialog.setHeaderText("Create a new Report");
+            dialog.setContentText("Enter new report name: ");
 
-    public void newOnAction() {
+            Optional<String> result = dialog.showAndWait();
+            result.ifPresent(newName -> {
+                if (newName.trim().equals(currentReport.FIXED_REPORT_NAME)){
+                    TripoliMessageDialog.showWarningDialog("Report name: " + currentReport.FIXED_REPORT_NAME + " is restricted", reportStage);
+                } else if (!newName.trim().isEmpty()) {
+                    if (event.getSource() == newFullButton){ // Generate full report template
+                        setCurrentReport(Report.createFullReport(newName, currentReport.getMethodName(), analysis.getUserFunctions()));
+                    } else { // Generate Blank Report Template
+                        setCurrentReport(Report.createBlankReport(newName.trim(), currentReport.getMethodName()));
 
-        //report.reset();
-    }
-
-    public void copyOnAction() {
+                    }
+                }
+            });
+        }
     }
 
     public void saveOnAction() throws TripoliException {
         if (currentReport.getReportName() == null){
             TripoliMessageDialog.showWarningDialog("Report must have a name", reportStage);
-        } else if (Objects.equals(currentReport.getReportName(), "Default Report")){
-            TripoliMessageDialog.showWarningDialog("Report name: 'Default Report' is restricted", reportStage);
+        } else if (currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())) {
+            TripoliMessageDialog.showWarningDialog("Report name: " + currentReport.FIXED_REPORT_NAME + " is restricted", reportStage);
         } else {
             TripoliMessageDialog.showSavedAsDialog(currentReport.serializeReport(), reportStage);
             initalReport = new Report(currentReport); // Reset saved state
@@ -373,34 +454,10 @@ public class ReportBuilderController {
 
     }
 
-    public void exportOnAction() {
+    public void generateOnAction() {
         // for future implementation
     }
 
-    public void importOnAction() throws TripoliException {
-        if (!proceedWithUnsavedDialog()) { return; }
-
-        File reportFile = FileHandlerUtil.importReportFile(reportStage);
-        if (reportFile == null) { return; }
-
-        Report newReport;
-        try {
-            newReport = (Report) TripoliSerializer.getSerializedObjectFromFile(reportFile.getAbsolutePath(), true);
-        } catch (TripoliException e) {
-            TripoliMessageDialog.showWarningDialog("Not a valid .trf file!", reportStage);
-            return;
-        }
-        if (!newReport.getMethodName().equals(currentReport.getMethodName())){
-            if (TripoliMessageDialog.showChoiceDialog("Cannot open report of different Method right now. Would you like to save report to your local directory?", reportStage)){
-                newReport.serializeReport();
-            }
-        } else {
-            currentReport = newReport;
-            initalReport = new Report(newReport);
-            initializeListViews();
-            handleTrackingChanges();
-        }
-    }
 
     public void createCategoryOnAction() {
         String categoryName = categoryTextField.getText();
@@ -415,9 +472,11 @@ public class ReportBuilderController {
     private void handleTrackingChanges() {
         if (!currentReport.equals(initalReport)) {
             unsavedChanges = true;
+            restoreButton.setDisable(false);
             reportStage.setTitle("Report Builder - " + currentReport.getReportName() + "*");
         } else {
             unsavedChanges = false;
+            restoreButton.setDisable(true);
             reportStage.setTitle("Report Builder - " + currentReport.getReportName());
         }
     }

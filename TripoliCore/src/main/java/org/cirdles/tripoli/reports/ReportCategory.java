@@ -78,11 +78,12 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
     public void addColumn(ReportColumn reportColumn) {
         columnSet.add(reportColumn);
     }
+    public void removeColumn(ReportColumn reportColumn) { columnSet.remove(reportColumn); }
 
     public Set<ReportColumn> getColumns(){ return columnSet; }
     public String getCategoryName() {return categoryName;}
 
-    public static ReportCategory generateAnalysisInfo() throws TripoliException {
+    public static ReportCategory generateAnalysisInfo() {
         Set<ReportColumn> columnSet = new TreeSet<>();
         int i=0;
         columnSet.add(new ReportColumn("Analysis Name", i++));
@@ -99,7 +100,7 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         return new ReportCategory("Analysis Info", columnSet, 0);
     }
 
-    public static ReportCategory generateIsotopicRatios(List<UserFunction> userFunctionList) throws TripoliException {
+    public static ReportCategory generateIsotopicRatios(List<UserFunction> userFunctionList){
         Set<ReportColumn> columnSet = new TreeSet<>();
         int i=0;
         for (UserFunction userFunction : userFunctionList) {
@@ -111,7 +112,7 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         return new ReportCategory("Isotopic Ratios", columnSet,1);
     }
 
-    public static ReportCategory generateUserFunctions(List<UserFunction> userFunctionList) throws TripoliException {
+    public static ReportCategory generateUserFunctions(List<UserFunction> userFunctionList) {
         Set<ReportColumn> columnSet = new TreeSet<>();
         int i=0;
         for (UserFunction userFunction : userFunctionList){

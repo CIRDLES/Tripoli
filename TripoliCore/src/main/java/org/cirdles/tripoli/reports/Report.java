@@ -17,6 +17,7 @@
 package org.cirdles.tripoli.reports;
 
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +35,7 @@ import static org.cirdles.tripoli.constants.TripoliConstants.TRIPOLI_USERS_DATA_
 public class Report implements Serializable, Comparable<Report> {
     private static final long serialVersionUID = 1064098835718283672L;
     private static final String TRIPOLI_CUSTOM_REPORTS_FOLDER = "CustomReports";
+    public final String FIXED_REPORT_NAME = "Full Report";
     private static File tripoliReportDirectoryLocal;
 
     private String reportName;
@@ -60,21 +62,17 @@ public class Report implements Serializable, Comparable<Report> {
     }
 
     // Assumes Report Names will never contain underscores naturally
-    public String getReportName() {
-        return this.reportName.replaceAll("_", " ").trim(); }
-
-    public void setReportName(String reportName) {
-        this.reportName = reportName.replaceAll("[\\\\/:*?\"<>| ]", "_").trim(); }
+    public String getReportName() { return this.reportName.replaceAll("_", " ").trim(); }
+    public void setReportName(String reportName) { this.reportName = reportName.replaceAll("[\\\\/:*?\"<>| ]", "_").trim(); }
 
     public void setMethodName(String methodName) { this.methodName = methodName; }
     public String getMethodName() { return this.methodName; }
 
-    public void addCategory(String categoryName) {
-        this.categorySet.add(new ReportCategory(categoryName, categorySet.size()));
-    }
+    public void addCategory(String categoryName) { this.categorySet.add(new ReportCategory(categoryName, categorySet.size())); }
     public void addCategory(ReportCategory category) {
         this.categorySet.add(category);
     }
+    public void removeCategory(ReportCategory category) { this.categorySet.remove(category); }
 
     public Set<ReportCategory> getCategories() { return categorySet; }
 
@@ -104,10 +102,10 @@ public class Report implements Serializable, Comparable<Report> {
 
     /**
      *  Walks local report directory to gather all report files pertaining to a specific analysis method. Also creates
-     *  the default report for that method.
+     *  the full report for that method.
      * @param methodName Name of method to compare reports against
      * @param userFunctionList User functions must belong to the method of the methodName parameter
-     * @return List of reports with method specific 'Default Report' initialized at the end
+     * @return List of reports with method specific 'Full Report' initialized at the end
      * @throws IOException
      * @throws TripoliException
      */
@@ -124,24 +122,34 @@ public class Report implements Serializable, Comparable<Report> {
                             try {
                                 return (Report) TripoliSerializer.getSerializedObjectFromFile(path.toString(), true);
                             } catch (TripoliException e) {
-                                throw new RuntimeException("Failed to deserialize report", e);
+                                e.printStackTrace();
                             }
+                            return null;
                         })
                         .collect(Collectors.toCollection(ArrayList::new));
             }
         }
-        reportList.add(createDefaultReport(methodName, userFunctionList));
+        reportList.add(createFullReport("Full Report", methodName, userFunctionList));
 
         return reportList;
     }
 
-    private static Report createDefaultReport(String methodName, List<UserFunction> ufList) throws TripoliException {
+    public static Report createBlankReport(String reportName, String methodName) {
+        ReportColumn analysisName = new ReportColumn("Analysis Name", 0);
+        ReportCategory analysisInfo = new ReportCategory("Analysis Info", 0);
+        analysisInfo.addColumn(analysisName);
+        Set<ReportCategory> categorySet = new HashSet<>();
+        categorySet.add(analysisInfo);
+        return new Report(reportName, methodName, categorySet);
+    }
+
+    public static Report createFullReport(String reportName, String methodName, List<UserFunction> ufList) {
         Set<ReportCategory> categories = new TreeSet<>();
         categories.add(ReportCategory.generateAnalysisInfo());
         categories.add(ReportCategory.generateIsotopicRatios(ufList));
         categories.add(ReportCategory.generateUserFunctions(ufList));
 
-        return new Report("Default Report", methodName, categories);
+        return new Report(reportName, methodName, categories);
     }
 
     // Check if local report folder exists and create if not

@@ -23,63 +23,54 @@
 <AnchorPane prefHeight="639.0" prefWidth="915.0" stylesheets="@../css/report.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.reports.ReportBuilderController">
        <VBox prefHeight="583.0" prefWidth="793.0">
            <!-- Menu Bar -->
-            <HBox alignment="CENTER_LEFT" styleClass="menu-bar">
-                   <children>
-                       <Button fx:id="newButton" minWidth="63.0" mnemonicParsing="false" onAction="#newOnAction" prefHeight="25.0" prefWidth="63.0" text="New" HBox.hgrow="ALWAYS">
-                           <HBox.margin>
-                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </HBox.margin>
-                       </Button>
-                       <Button fx:id="copyButton" minWidth="60.0" mnemonicParsing="false" onAction="#copyOnAction" prefHeight="25.0" prefWidth="60.0" text="Copy" HBox.hgrow="ALWAYS">
-                           <HBox.margin>
-                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </HBox.margin>
-                       </Button>
-                       <Button fx:id="saveButton" minWidth="62.0" mnemonicParsing="false" onAction="#saveOnAction" prefHeight="25.0" prefWidth="62.0" text="Save" HBox.hgrow="ALWAYS">
-                           <HBox.margin>
-                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </HBox.margin>
-                       </Button>
-                       <Button fx:id="restoreButton" minWidth="68.0" mnemonicParsing="false" onAction="#restoreOnAction" prefHeight="25.0" prefWidth="68.0" text="Cancel" HBox.hgrow="ALWAYS">
-                           <HBox.margin>
-                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </HBox.margin>
-                       </Button>
-                       <Button fx:id="renameButton" minWidth="73.0" mnemonicParsing="false" onAction="#renameOnAction" prefHeight="25.0" prefWidth="73.0" text="Rename">
-                           <HBox.margin>
-                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </HBox.margin>
-                       </Button>
+           <HBox alignment="CENTER_LEFT" styleClass="menu-bar">
+               <opaqueInsets>
+                   <Insets/>
+               </opaqueInsets>
+               <padding>
+                   <Insets left="20.0"/>
+               </padding>
+               <MenuButton minWidth="63.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="63.0" text="New">
+                   <items>
+                       <MenuItem fx:id="newBlankButton" text="Report from Blank" onAction="#newOnAction"/>
+                       <MenuItem fx:id="newFullButton" text="Report from Full" onAction="#newOnAction"/>
+                   </items>
+               </MenuButton>
+               <Button fx:id="saveButton" minWidth="62.0" mnemonicParsing="false" onAction="#saveOnAction"
+                       prefHeight="25.0" prefWidth="62.0" text="Save" HBox.hgrow="ALWAYS">
+                   <HBox.margin>
+                       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                   </HBox.margin>
+               </Button>
+               <Button fx:id="restoreButton" minWidth="68.0" mnemonicParsing="false" onAction="#restoreOnAction"
+                       prefHeight="25.0" prefWidth="103.0" text="Cancel Changes" HBox.hgrow="ALWAYS">
+                   <HBox.margin>
+                       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                   </HBox.margin>
+               </Button>
+               <Button fx:id="renameButton" minWidth="65.0" mnemonicParsing="false" onAction="#renameOnAction"
+                       prefHeight="25.0" prefWidth="65.0" text="Rename">
+                   <HBox.margin>
+                       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                   </HBox.margin>
+               </Button>
 
-                       <Button fx:id="deleteButton" minWidth="67.0" mnemonicParsing="false" onAction="#deleteOnAction" prefHeight="25.0" prefWidth="67.0" text="Delete" HBox.hgrow="ALWAYS">
-                           <HBox.margin>
-                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </HBox.margin>
-                       </Button>
-                       <Button fx:id="exportButton" minWidth="75.0" mnemonicParsing="false" onAction="#exportOnAction" prefHeight="25.0" prefWidth="75.0" text="Export" HBox.hgrow="ALWAYS">
-                                 <padding>
-                               <Insets left="20.0" right="20.0" />
-                           </padding>
-                           <HBox.margin>
-                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </HBox.margin>
-                       </Button>
-                       <Button fx:id="importButton" minWidth="74.0" mnemonicParsing="false" onAction="#importOnAction" prefHeight="25.0" prefWidth="80.0" text="Import" HBox.hgrow="ALWAYS">
-                           <padding>
-                               <Insets left="20.0" right="20.0" />
-                           </padding>
-                           <HBox.margin>
-                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </HBox.margin>
-                       </Button>
-                   </children>
-                   <opaqueInsets>
-                       <Insets />
-                   </opaqueInsets>
+               <Button fx:id="deleteButton" minWidth="67.0" mnemonicParsing="false" onAction="#deleteOnAction"
+                       prefHeight="25.0" prefWidth="67.0" text="Delete" HBox.hgrow="ALWAYS">
+                   <HBox.margin>
+                       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                   </HBox.margin>
+               </Button>
+               <Button fx:id="generateButton" minWidth="75.0" mnemonicParsing="false" onAction="#generateOnAction"
+                       prefHeight="25.0" prefWidth="89.0" text="Generate" HBox.hgrow="ALWAYS">
                    <padding>
-                       <Insets left="20.0" />
+                       <Insets left="20.0" right="20.0"/>
                    </padding>
-               </HBox>
+                   <HBox.margin>
+                       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                   </HBox.margin>
+               </Button>
+           </HBox>
            <HBox>
                <VBox prefHeight="538.0" prefWidth="595.0">
                    <TitledPane animated="false" collapsible="false" prefHeight="242.0" prefWidth="689.0" styleClass="list-view-container" text="Categories - Drag and Drop to reorder">

@@ -249,8 +249,7 @@ public class TripoliGUIController implements Initializable {
         reportsMenu.setOnShowing(event -> {
             try {
                 buildCustomReportMenu();
-            } catch (TripoliException | IOException e) {
-                throw new RuntimeException("Failed to build menu", e);
+            } catch (TripoliException | IOException ignored) {
             }
         });
     }
@@ -365,7 +364,7 @@ public class TripoliGUIController implements Initializable {
         Set<Report> reportTreeSet = analysis.getAnalysisMethod().getReports();
         customReportMenu.getItems().clear();
         for (Report report : reportTreeSet) {
-            if (report.getReportName().equals("Default Report")) {
+            if (report.getReportName().equals(report.FIXED_REPORT_NAME)) {
                 MenuItem menuItem = new MenuItem(report.getReportName().replace("_", ""));
                 menuItem.setOnAction((ActionEvent t) -> {openCustomReport(report);});
                 customReportMenu.getItems().add(0, menuItem);
