@@ -27,6 +27,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -214,32 +215,38 @@ public class ReportBuilderController {
             });
             // Add a mouse click listener to handle double-click
             cell.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2
+                if (event.getButton() == MouseButton.PRIMARY
+                        && event.getClickCount() == 2
                         && !cell.isEmpty()
-                        && !Objects.equals(cell.getItem().getCategoryName(), cell.getItem().FIXED_CATEGORY_NAME)
+                        && !cell.getItem().FIXED_CATEGORY_NAME.equals(cell.getItem().getCategoryName())
                         && !currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())) {
                     handleVisible(cell, true);
                 }
             });
 
-            ContextMenu contextMenu = new ContextMenu();
-            MenuItem removeItem = new MenuItem("Remove Category");
-            removeItem.setOnAction(event -> {
-                ReportCategory item = cell.getItem();
-                if (item != null) {
-                    categoryListView.getItems().remove(item);
-                    currentReport.removeCategory(item);
-                    handleTrackingChanges();
-                }
-            });
-            contextMenu.getItems().add(removeItem);
-            cell.setContextMenu(contextMenu);
+                ContextMenu contextMenu = new ContextMenu();
+                MenuItem removeItem = new MenuItem("Remove Category");
+                removeItem.setOnAction(event -> {
+                    ReportCategory item = cell.getItem();
+                    if (item != null) {
+                        categoryListView.getItems().remove(item);
+                        currentReport.removeCategory(item);
+                        handleTrackingChanges();
+                    }
+                });
+                contextMenu.getItems().add(removeItem);
+                cell.setContextMenu(contextMenu);
 
-            cell.setOnContextMenuRequested(event -> {
-                if (!cell.isEmpty() && cell.getItem() != null) {
-                    contextMenu.show(cell, event.getScreenX(), event.getScreenY());
-                }
-            });
+                cell.setOnContextMenuRequested(event -> {
+                    if (!cell.isEmpty()
+                            && cell.getItem() != null
+                            && !cell.getItem().FIXED_CATEGORY_NAME.equals(cell.getItem().getCategoryName())) {
+                        contextMenu.show(cell, event.getScreenX(), event.getScreenY());
+                    } else {
+                        contextMenu.hide();
+                    }
+                });
+
 
             return cell;
         });
@@ -353,9 +360,10 @@ public class ReportBuilderController {
             });
             // Add a mouse click listener to handle double-click
             cell.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2
+                if (event.getButton() == MouseButton.PRIMARY
+                        && event.getClickCount() == 2
                         && !cell.isEmpty()
-                        && !Objects.equals(cell.getItem().getColumnName(), cell.getItem().FIXED_COLUMN_NAME)
+                        && !cell.getItem().FIXED_COLUMN_NAME.equals(cell.getItem().getColumnName())
                         && !currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())) {
                     handleVisible(cell, true);
                 }
@@ -375,8 +383,12 @@ public class ReportBuilderController {
             cell.setContextMenu(contextMenu);
 
             cell.setOnContextMenuRequested(event -> {
-                if (!cell.isEmpty() && cell.getItem() != null) {
+                if (!cell.isEmpty()
+                        && cell.getItem() != null
+                        && !cell.getItem().FIXED_COLUMN_NAME.equals(cell.getItem().getColumnName())) {
                     contextMenu.show(cell, event.getScreenX(), event.getScreenY());
+                }else {
+                    contextMenu.hide();
                 }
             });
 
