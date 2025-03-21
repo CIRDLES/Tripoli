@@ -21,7 +21,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -39,11 +42,13 @@ import org.cirdles.tripoli.reports.ReportCategory;
 import org.cirdles.tripoli.reports.ReportColumn;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
+import static org.cirdles.tripoli.gui.TripoliGUI.primaryStage;
 
 public class ReportBuilderController {
 
@@ -80,6 +85,25 @@ public class ReportBuilderController {
     boolean unsavedChanges;
 
     public ReportBuilderController() {
+    }
+
+    public static void loadReportBuilder(Report report){
+        try {
+            FXMLLoader loader = new FXMLLoader(ReportBuilderController.class.getResource("/org/cirdles/tripoli/gui/reports/ReportBuilder.fxml"));
+            Parent root = loader.load();
+            ReportBuilderController controller = loader.getController();
+            Stage stage = new Stage();
+            stage.setTitle("Report Builder");
+            stage.setScene(new Scene(root));
+            stage.setX(primaryStage.getX() + (primaryStage.getWidth() - 915) / 2);
+            stage.setY(primaryStage.getY() + (primaryStage.getHeight() - 639) / 2);
+            controller.setStage(stage);
+            controller.setCurrentReport(report);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void setStage(Stage stage) {
@@ -511,7 +535,13 @@ public class ReportBuilderController {
 
     public void createCategoryOnAction() {
         String categoryName = categoryTextField.getText();
-        if (categoryName != null && !categoryName.trim().isEmpty()) {
+
+        // Category cannot already exist
+        if (categoryName.trim().isEmpty()
+                || categoryListView.getItems().stream().anyMatch(t -> t.getCategoryName().equalsIgnoreCase(categoryName))) {
+            TripoliMessageDialog.showWarningDialog("Category already exists!", reportStage);
+            categoryTextField.setText("");
+        }else {
             ReportCategory newCategory = new ReportCategory(categoryName, categories.size());
             categories.add(newCategory);
             currentReport.addCategory(newCategory);

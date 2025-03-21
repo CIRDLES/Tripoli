@@ -25,7 +25,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
@@ -36,7 +35,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
@@ -95,9 +93,6 @@ public class TripoliGUIController implements Initializable {
     private static GridPane sessionManagerUI;
     @FXML
     private static GridPane analysesManagerUI;
-    @FXML
-    private static VBox reportManagerUI;
-    HashMap<String, String> reportMethodMap; // <FileName, MethodName>
 
     static {
         try {
@@ -365,7 +360,7 @@ public class TripoliGUIController implements Initializable {
         customReportMenu.getItems().clear();
         for (Report report : reportTreeSet) {
             if (report.getReportName().equals(report.FIXED_REPORT_NAME)) {
-                MenuItem menuItem = new MenuItem(report.getReportName().replace("_", ""));
+                MenuItem menuItem = new MenuItem(report.getReportName());
                 menuItem.setOnAction((ActionEvent t) -> {openCustomReport(report);});
                 customReportMenu.getItems().add(0, menuItem);
                 customReportMenu.getItems().add(1, new SeparatorMenuItem());
@@ -378,21 +373,7 @@ public class TripoliGUIController implements Initializable {
     }
 
     private void openCustomReport(Report report) {
-        try {
-            // This is getting a bit crazy
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/reports/ReportBuilder.fxml"));
-            Parent root = loader.load();
-            ReportBuilderController controller = loader.getController();
-            Stage stage = new Stage();
-            stage.setTitle("Report Builder");
-            stage.setScene(new Scene(root));
-            controller.setStage(stage);
-            controller.setCurrentReport(report);
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        ReportBuilderController.loadReportBuilder(report);
     }
 
     @FXML
