@@ -23,7 +23,7 @@ import java.util.Objects;
 
 public class ReportColumn implements Serializable, Comparable<ReportColumn>{
     private static final long serialVersionUID = 3378567673921898881L;
-    public final String FIXED_COLUMN_NAME = "Analysis Name";
+    public String FIXED_COLUMN_NAME = "Analysis Name";
 
     private final String columnName;
     private int positionIndex;
@@ -38,6 +38,7 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
         columnName = otherColumn.columnName;
         positionIndex = otherColumn.positionIndex;
         visible = otherColumn.visible;
+        FIXED_COLUMN_NAME = otherColumn.FIXED_COLUMN_NAME;
     }
 
     public String getColumnName() { return columnName; }

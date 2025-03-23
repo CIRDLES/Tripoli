@@ -71,6 +71,8 @@ public class ReportBuilderController {
     @FXML
     public MenuItem newFullButton;
     @FXML
+    public Accordion columnAccordion;
+    @FXML
     private ListView<ReportCategory> categoryListView;
     @FXML
     private ListView<ReportColumn> columnListView;
@@ -111,7 +113,7 @@ public class ReportBuilderController {
         reportStage.setOnCloseRequest(event -> {
             if (!proceedWithUnsavedDialog()) { event.consume(); }
         });
-
+        populateAccordion();
     }
 
     public void setCurrentReport(Report currentReport) {
@@ -297,34 +299,33 @@ public class ReportBuilderController {
 
                 @Override
                 protected void updateItem(ReportColumn item, boolean empty) {
-                    super.updateItem(item, empty);
+                super.updateItem(item, empty);
 
-                    if (empty || item == null) {
-                        setText(null);
-                        setGraphic(null);
-                        setCursor(Cursor.DEFAULT);
-                        setTooltip(null);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    setCursor(Cursor.DEFAULT);
+                    setTooltip(null);
+                } else {
+                    setGraphic(new Text(item.getColumnName()));
+                    handleVisible(this, false);
+
+                    if (Objects.equals(item.getColumnName(), item.FIXED_COLUMN_NAME)) {
+                        setCursor(Cursor.DISAPPEAR); // Prevent movement
+                        Tooltip tooltip = new Tooltip("This Column cannot be moved.");
+                        tooltip.setShowDelay(Duration.seconds(0.5));
+                        setTooltip(tooltip);
+                        fixedColumnCell.set(this);
+                    } else if (Objects.equals(currentReport.getReportName(), currentReport.FIXED_REPORT_NAME)) {
+                        setCursor(Cursor.DISAPPEAR);
+                        Tooltip tooltip = new Tooltip("Editing of " + currentReport.FIXED_REPORT_NAME + " is not allowed");
+                        tooltip.setShowDelay(Duration.seconds(0.1));
+                        setTooltip(tooltip);
                     } else {
-                        setGraphic(new Text(item.getColumnName()));
-                        handleVisible(this, false);
-
-                        // Tooltip and cursor logic
-                        if (Objects.equals(item.getColumnName(), item.FIXED_COLUMN_NAME)) {
-                            setCursor(Cursor.DISAPPEAR); // Prevent movement
-                            Tooltip tooltip = new Tooltip("This Column cannot be moved.");
-                            tooltip.setShowDelay(Duration.seconds(0.5));
-                            setTooltip(tooltip);
-                            fixedColumnCell.set(this);
-                        } else if (Objects.equals(currentReport.getReportName(), currentReport.FIXED_REPORT_NAME)) {
-                            setCursor(Cursor.DISAPPEAR);
-                            Tooltip tooltip = new Tooltip("Editing of " + currentReport.FIXED_REPORT_NAME + " is not allowed");
-                            tooltip.setShowDelay(Duration.seconds(0.1));
-                            setTooltip(tooltip);
-                        } else {
-                            setCursor(Cursor.CLOSED_HAND); // Allow movement
-                            setTooltip(null);
-                        }
+                        setCursor(Cursor.CLOSED_HAND);
+                        setTooltip(null);
                     }
+                }
                 }
             };
 
@@ -338,7 +339,7 @@ public class ReportBuilderController {
                     content.putString(cell.getItem().getColumnName());
                     db.setContent(content);
 
-                    columnListView.setUserData(cell.getItem()); // Store dragged item
+                    columnListView.setUserData(cell.getItem());
                     event.consume();
                 }
             });
@@ -346,7 +347,7 @@ public class ReportBuilderController {
             // Accept drag over the cell
             cell.setOnDragOver(event -> {
                 if (event.getGestureSource() instanceof ListCell<?> sourceCell
-                        && sourceCell.getListView() == cell.getListView() // Ensure same ListView
+                        && sourceCell.getListView() != categoryListView
                         && event.getDragboard().hasString()) {
                     event.acceptTransferModes(TransferMode.MOVE);
                 }
@@ -360,8 +361,8 @@ public class ReportBuilderController {
 
                 if (db.hasString()
                         && event.getGestureSource() instanceof ListCell<?> sourceCell
-                        && sourceCell.getListView() == cell.getListView()) {
-                    ReportColumn draggedItem = (ReportColumn) columnListView.getUserData();
+                        && sourceCell.getListView() != categoryListView) {
+                    ReportColumn draggedItem = (ReportColumn) sourceCell.getListView().getUserData();
 
                     if (draggedItem != null) {
                         int dropIndex = cell.getIndex();
@@ -370,9 +371,16 @@ public class ReportBuilderController {
                             event.consume();
                             return;
                         }
-                        columnListView.getItems().remove(draggedItem);
-                        columnListView.getItems().add(dropIndex, draggedItem);
-                        categoryListView.getSelectionModel().getSelectedItem().updateColumnPosition(draggedItem, dropIndex);
+
+                        if (sourceCell.getListView() != columnListView){
+                            ReportColumn draggedItemCopy = new ReportColumn(draggedItem);
+                            categoryListView.getSelectionModel().getSelectedItem().insertColumnAtPosition(draggedItemCopy, dropIndex);
+                            columnListView.getItems().add(dropIndex, draggedItemCopy);
+                        } else{
+                            columnListView.getItems().remove(draggedItem);
+                            columnListView.getItems().add(dropIndex, draggedItem);
+                            categoryListView.getSelectionModel().getSelectedItem().updateColumnPosition(draggedItem, dropIndex);
+                        }
                         handleTrackingChanges();
 
                         success = true;
@@ -420,7 +428,46 @@ public class ReportBuilderController {
         });
     }
     // <<<---------------------------------------------- Column End
+    private void populateAccordion() {
+        Report accReport = Report.createFullReport("", analysis.getAnalysisMethod().getMethodName(), analysis.getUserFunctions());
+        for (ReportCategory cat : accReport.getCategories()) {
+            ListView<ReportColumn> accColumnlv = new ListView<>();
+            accColumnlv.getItems().addAll(cat.getColumns()); // Add columns to the ListView
 
+            // Enable drag detection for moving columns
+            accColumnlv.setCellFactory(param -> new ListCell<>() {
+                @Override
+                protected void updateItem(ReportColumn col, boolean empty) {
+                    super.updateItem(col, empty);
+                    if (empty || col == null) {
+                        setText(null);
+                    } else {
+                        setText(col.getColumnName());
+                        col.FIXED_COLUMN_NAME = "";
+
+                        // Enable drag
+                        setOnDragDetected(event -> {
+                            if (!currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())) {
+                                Dragboard db = startDragAndDrop(TransferMode.MOVE);
+                                ClipboardContent content = new ClipboardContent();
+                                content.putString(col.getColumnName());
+                                db.setContent(content);
+
+                                accColumnlv.setUserData(col);
+                                event.consume();
+                            }
+                        });
+                    }
+                }
+            });
+            TitledPane accCat = new TitledPane(cat.getCategoryName(), accColumnlv);
+            columnAccordion.getPanes().add(accCat);
+        }
+
+        if (!columnAccordion.getPanes().isEmpty()) {
+            columnAccordion.setExpandedPane(columnAccordion.getPanes().get(0));
+        }
+    }
     /**
      * Handle all visibility calls for the ListViews and Report classes
      * @param cell ListCell to be adjusted
@@ -525,7 +572,7 @@ public class ReportBuilderController {
         if (proceed && currentReport.deleteReport()){
             TripoliMessageDialog.showInfoDialog("Report Deleted!", reportStage);
         }
-
+        reportStage.close();
     }
 
     public void generateOnAction() {

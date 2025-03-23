@@ -121,6 +121,11 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         return new ReportCategory("User Functions", columnSet,2);
     }
 
+    /**
+     * Updates a column move within the set. Pushes column indices up or down based on the placement of the index
+     * @param column column to be moved
+     * @param newIndex new index for the column in the set
+     */
     public void updateColumnPosition(ReportColumn column, int newIndex) {
         int oldIndex = column.getPositionIndex();
         if (oldIndex == newIndex) {return;}
@@ -137,6 +142,21 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         }
 
         column.setPositionIndex(newIndex);
+        columnSet.add(column);
+    }
+
+    /**
+     * Placing a new column at a specific index in the set. Makes a mutable copy so that the entry can be a duplicate.
+     * @param column ReportColumn instance to be copied
+     * @param index Index to be inserted at. All greater indices will be shifted up.
+     */
+    public void insertColumnAtPosition(ReportColumn column, int index) {
+        for (ReportColumn c : columnSet) {
+            if (c.getPositionIndex() >= index) {
+                c.setPositionIndex(c.getPositionIndex() + 1);
+            }
+        }
+        column.setPositionIndex(index);
         columnSet.add(column);
     }
 
