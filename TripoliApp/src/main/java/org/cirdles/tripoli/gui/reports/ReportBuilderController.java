@@ -97,8 +97,8 @@ public class ReportBuilderController {
             Stage stage = new Stage();
             stage.setTitle("Report Builder");
             stage.setScene(new Scene(root));
-            stage.setX(primaryStage.getX() + (primaryStage.getWidth() - 915) / 2);
-            stage.setY(primaryStage.getY() + (primaryStage.getHeight() - 639) / 2);
+            stage.setX(primaryStage.getX() + (primaryStage.getWidth() - 875) / 2);
+            stage.setY(primaryStage.getY() + (primaryStage.getHeight() - 650) / 2);
             controller.setStage(stage);
             controller.setCurrentReport(report);
             stage.show();

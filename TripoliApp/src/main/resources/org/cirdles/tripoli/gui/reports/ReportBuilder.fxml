@@ -20,7 +20,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox prefHeight="649.0" prefWidth="878.0" style="-fx-background-color: LINEN;" stylesheets="@../css/report.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.reports.ReportBuilderController">
+<VBox prefHeight="650.0" prefWidth="875.0" style="-fx-background-color: LINEN;" stylesheets="@../css/report.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.reports.ReportBuilderController">
        <!-- Menu Bar -->
        <HBox alignment="CENTER_LEFT" minHeight="-Infinity" styleClass="menu-bar" VBox.vgrow="NEVER">
            <opaqueInsets>
