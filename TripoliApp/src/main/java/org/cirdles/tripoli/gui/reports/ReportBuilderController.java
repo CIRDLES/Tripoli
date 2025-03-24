@@ -73,9 +73,16 @@ public class ReportBuilderController {
     @FXML
     public Accordion columnAccordion;
     @FXML
+    public ListView columnDetailsListView;
+    @FXML
+    public TextField reportNameTextField;
+    @FXML
+    public TextField methodNameTextField;
+    @FXML
     private ListView<ReportCategory> categoryListView;
     @FXML
     private ListView<ReportColumn> columnListView;
+
     private Stage reportStage;
 
     private Report currentReport;
@@ -128,6 +135,7 @@ public class ReportBuilderController {
         generateButton.setDisable(false);
         createCategoryButton.setDisable(false);
         categoryTextField.setDisable(false);
+        columnAccordion.setDisable(false);
 
         // Remove editing for the full report
         if(currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())){
@@ -137,9 +145,12 @@ public class ReportBuilderController {
             renameButton.setDisable(true);
             restoreButton.setDisable(true);
             saveButton.setDisable(true);
+            columnAccordion.setDisable(true);
         }
         initializeListViews();
         reportStage.setTitle("Report Builder - " + currentReport.getReportName());
+        reportNameTextField.setText(currentReport.getReportName());
+        methodNameTextField.setText(currentReport.getMethodName());
     }
 
     private void initializeListViews() {
@@ -222,7 +233,7 @@ public class ReportBuilderController {
 
                     if (draggedItem != null) {
                         int dropIndex = cell.getIndex();
-                        dropIndex = Math.min(dropIndex, categoryListView.getItems().size() - 1);
+                        dropIndex = Math.min(dropIndex, categoryListView.getItems().size()-1);
                         if (fixedCategoryCell.get() != null && dropIndex <= fixedCategoryCell.get().getIndex()) {
                             event.consume();
                             return;
@@ -366,8 +377,15 @@ public class ReportBuilderController {
 
                     if (draggedItem != null) {
                         int dropIndex = cell.getIndex();
-                        dropIndex = Math.min(dropIndex, columnListView.getItems().size() - 1);
-                        if (fixedColumnCell.get() != null && dropIndex <= fixedColumnCell.get().getIndex()) {
+                        if (sourceCell.getListView() == columnListView){
+                            dropIndex = Math.min(dropIndex, columnListView.getItems().size()-1);
+                        } else {
+                            dropIndex = Math.min(dropIndex, columnListView.getItems().size());
+                        }
+
+                        if (fixedColumnCell.get() != null
+                                && categoryListView.getSelectionModel().isSelected(0)
+                                && dropIndex <= fixedColumnCell.get().getIndex()) {
                             event.consume();
                             return;
                         }
@@ -425,6 +443,35 @@ public class ReportBuilderController {
             });
 
             return cell;
+        });
+        // Enable drag-over for the entire ListView (even if empty)
+        columnListView.setOnDragOver(event -> {
+            if (event.getGestureSource() != columnListView && event.getDragboard().hasString()) {
+                event.acceptTransferModes(TransferMode.MOVE);
+            }
+            event.consume();
+        });
+
+        // Handle drop events on the empty ListView
+        columnListView.setOnDragDropped(event -> {
+            Dragboard db = event.getDragboard();
+            boolean success = false;
+
+            if (db.hasString() && event.getGestureSource() instanceof ListCell<?> sourceCell) {
+                ReportColumn draggedItem = (ReportColumn) sourceCell.getListView().getUserData();
+
+                if (draggedItem != null) {
+                    // Add the dragged item at the first position if the list is empty
+                    ReportColumn draggedItemCopy = new ReportColumn(draggedItem);
+                    categoryListView.getSelectionModel().getSelectedItem().insertColumnAtPosition(draggedItemCopy, 0);
+                    columnListView.getItems().add(0, draggedItem);
+                    handleTrackingChanges();
+                    success = true;
+                }
+            }
+
+            event.setDropCompleted(success);
+            event.consume();
         });
     }
     // <<<---------------------------------------------- Column End
@@ -584,16 +631,18 @@ public class ReportBuilderController {
         String categoryName = categoryTextField.getText();
 
         // Category cannot already exist
-        if (categoryName.trim().isEmpty()
-                || categoryListView.getItems().stream().anyMatch(t -> t.getCategoryName().equalsIgnoreCase(categoryName))) {
+        if (categoryName.trim().isEmpty()) {
+            TripoliMessageDialog.showWarningDialog("Category must have name!", reportStage);
+            categoryTextField.setText("");
+        } else if (categoryListView.getItems().stream().anyMatch(t -> t.getCategoryName().equalsIgnoreCase(categoryName))) {
             TripoliMessageDialog.showWarningDialog("Category already exists!", reportStage);
             categoryTextField.setText("");
         }else {
             ReportCategory newCategory = new ReportCategory(categoryName, categories.size());
-            categories.add(newCategory);
             currentReport.addCategory(newCategory);
             handleTrackingChanges();
             categoryTextField.setText("");
+            initializeListViews();
         }
     }
 
@@ -602,10 +651,12 @@ public class ReportBuilderController {
             unsavedChanges = true;
             restoreButton.setDisable(false);
             reportStage.setTitle("Report Builder - " + currentReport.getReportName() + "*");
+            reportNameTextField.setText(currentReport.getReportName() + "*");
         } else {
             unsavedChanges = false;
             restoreButton.setDisable(true);
             reportStage.setTitle("Report Builder - " + currentReport.getReportName());
+            reportNameTextField.setText(currentReport.getReportName());
         }
     }
     private boolean proceedWithUnsavedDialog(){

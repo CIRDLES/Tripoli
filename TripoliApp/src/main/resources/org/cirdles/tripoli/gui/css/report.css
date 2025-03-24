@@ -2,10 +2,6 @@
     -fx-font-family: 'Inter', sans-serif;
 }
 
-.menu-bar {
-    -fx-background-color:LINEN;
-}
-
 .list-view-container {
     -fx-font-weight: bold;
     -fx-font-size: 14px;
