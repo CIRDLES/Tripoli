@@ -135,7 +135,7 @@ public class Report implements Serializable, Comparable<Report> {
     }
 
     public static Report createBlankReport(String reportName, String methodName) {
-        ReportColumn analysisName = new ReportColumn("Analysis Name", 0);
+        ReportColumn analysisName = new ReportColumn("Analysis Name", 0, "getAnalysisName");
         ReportCategory analysisInfo = new ReportCategory("Analysis Info", 0);
         analysisInfo.addColumn(analysisName);
         Set<ReportCategory> categorySet = new HashSet<>();

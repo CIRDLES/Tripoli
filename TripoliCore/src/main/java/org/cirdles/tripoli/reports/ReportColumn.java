@@ -16,9 +16,17 @@
 
 package org.cirdles.tripoli.reports;
 
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
+import org.cirdles.tripoli.sessions.analysis.Analysis;
+import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 
 public class ReportColumn implements Serializable, Comparable<ReportColumn>{
@@ -28,17 +36,20 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
     private final String columnName;
     private int positionIndex;
     private boolean visible;
+    private String methodName;
 
-    public ReportColumn(String title, int positionIndex) {
+    public ReportColumn(String title, int positionIndex, String methodName) {
         columnName = title;
         this.positionIndex = positionIndex;
         visible = true;
+        this.methodName = methodName;
     }
     public ReportColumn(ReportColumn otherColumn) {
         columnName = otherColumn.columnName;
         positionIndex = otherColumn.positionIndex;
         visible = otherColumn.visible;
         FIXED_COLUMN_NAME = otherColumn.FIXED_COLUMN_NAME;
+        methodName = otherColumn.methodName;
     }
 
     public String getColumnName() { return columnName; }
@@ -50,6 +61,55 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
         positionIndex = i;
     }
     public int getPositionIndex() { return positionIndex; }
+
+    public void setMethodName(String methodName) { this.methodName = methodName; }
+    public String getMethodName() { return methodName; }
+
+    public String retrieveData(Analysis analysis) {
+        if (methodName == null) {
+            return "null";
+        }
+
+        if (methodName.equals("getUserFunctions")) {
+            return retrieveUserFunctionData(analysis.getUserFunctions());
+        }
+
+        return invokeAnalysisMethod(analysis);
+    }
+
+    private String retrieveUserFunctionData(List<UserFunction> userFunctions) {
+        return userFunctions.stream()
+                .filter(f -> f.getName().equals(columnName))
+                .findFirst()
+                .map(userFunction -> {
+                    AnalysisStatsRecord stats = userFunction.getAnalysisStatsRecord();
+                    return String.format(
+                            "Mean: %s, Variance: %s, Std Dev: %s",
+                            stats.cycleModeMean(),
+                            stats.cycleModeVariance(),
+                            stats.cycleModeStandardDeviation()
+                    );
+                })
+                .orElse("Error: Function not found");
+    }
+
+    private String invokeAnalysisMethod(Analysis analysis) {
+        try {
+            Method columnMethod = Analysis.class.getMethod(methodName);
+            Object result = columnMethod.invoke(analysis);
+
+            if (result instanceof AnalysisMethod analysisMethod) {
+                return analysisMethod.getMethodName();
+            } else if ("Data File Name".equals(columnName)) {
+                return Path.of((String) result).getFileName().toString();
+            } else {
+                return result.toString();
+            }
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            e.printStackTrace();
+            return "Error invoking method: " + methodName;
+        }
+    }
 
     @Override
     public int compareTo(@NotNull ReportColumn column) {

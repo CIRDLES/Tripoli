@@ -34,13 +34,6 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
 
     public final String FIXED_CATEGORY_NAME = "Analysis Info";
 
-    // Handle blank category with no column data
-    public ReportCategory() {
-        categoryName = "<Create a Category>";
-        columnSet = new TreeSet<>();
-        columnSet.add(new ReportColumn("<Add Column>", Integer.MAX_VALUE));
-        visible = true;
-    }
     // Handle importing existing category
     public ReportCategory(String categoryName, Set<ReportColumn> reportColumnSet, int positionIndex) {
         this.categoryName = categoryName;
@@ -86,16 +79,16 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
     public static ReportCategory generateAnalysisInfo() {
         Set<ReportColumn> columnSet = new TreeSet<>();
         int i=0;
-        columnSet.add(new ReportColumn("Analysis Name", i++));
-        columnSet.add(new ReportColumn("Analyst", i++));
-        columnSet.add(new ReportColumn("Lab Name",i++));
-        columnSet.add(new ReportColumn("Sample Name",i++));
-        columnSet.add(new ReportColumn("Sample Description",i++));
-        columnSet.add(new ReportColumn("Fraction",i++));
-        columnSet.add(new ReportColumn("Data File Name",i++));
-        columnSet.add(new ReportColumn("Data File Path",i++));
-        columnSet.add(new ReportColumn("Method Name",i++));
-        columnSet.add(new ReportColumn("Start Time", i));
+        columnSet.add(new ReportColumn("Analysis Name", i++, "getAnalysisName"));
+        columnSet.add(new ReportColumn("Analyst", i++, "getAnalystName"));
+        columnSet.add(new ReportColumn("Lab Name",i++, "getLabName"));
+        columnSet.add(new ReportColumn("Sample Name",i++, "getAnalysisSampleName"));
+        columnSet.add(new ReportColumn("Sample Description",i++, "getAnalysisSampleDescription"));
+        columnSet.add(new ReportColumn("Fraction",i++, "getAnalysisFractionName"));
+        columnSet.add(new ReportColumn("Data File Name",i++, "getDataFilePathString"));
+        columnSet.add(new ReportColumn("Data File Path",i++, "getDataFilePathString"));
+        columnSet.add(new ReportColumn("Method Name",i++, "getAnalysisMethod"));
+        columnSet.add(new ReportColumn("Start Time", i, "getAnalysisStartTime"));
 
         return new ReportCategory("Analysis Info", columnSet, 0);
     }
@@ -105,7 +98,7 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         int i=0;
         for (UserFunction userFunction : userFunctionList) {
             if (userFunction.isTreatAsIsotopicRatio()) {
-                columnSet.add(new ReportColumn(userFunction.getName(), i++));
+                columnSet.add(new ReportColumn(userFunction.getName(), i++, "getUserFunctions"));
             }
         }
 
@@ -116,7 +109,7 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         Set<ReportColumn> columnSet = new TreeSet<>();
         int i=0;
         for (UserFunction userFunction : userFunctionList){
-            columnSet.add(new ReportColumn(userFunction.getName(), i++));
+            columnSet.add(new ReportColumn(userFunction.getName(), i++, "getUserFunctions"));
         }
         return new ReportCategory("User Functions", columnSet,2);
     }

@@ -26,16 +26,16 @@ public class ReportTest {
         Set<ReportColumn> isotopicColumns = new TreeSet<>();
         Set<ReportCategory> reportCategories = new TreeSet<>();
 
-        testColumn = new ReportColumn("Analysis", 0);
+        testColumn = new ReportColumn("Analysis", 0, null);
         testCategory = new ReportCategory("Isotopic Ratios", 0);
         testCategory.addColumn(testColumn);
 
-        analysisColumns.add(new ReportColumn("Analysis", 0));
-        analysisColumns.add(new ReportColumn("Session", 1));
+        analysisColumns.add(new ReportColumn("Analysis", 0, null));
+        analysisColumns.add(new ReportColumn("Session", 1, null));
 
-        isotopicColumns.add(new ReportColumn("206Pb/238U", 0));
-        isotopicColumns.add(new ReportColumn("207Pb/235U", 1));
-        isotopicColumns.add(new ReportColumn("207Pb/206Pb", 2));
+        isotopicColumns.add(new ReportColumn("206Pb/238U", 0, null));
+        isotopicColumns.add(new ReportColumn("207Pb/235U", 1, null));
+        isotopicColumns.add(new ReportColumn("207Pb/206Pb", 2, null));
 
         reportCategories.add(new ReportCategory("Analysis Info", analysisColumns, 0));
         reportCategories.add(new ReportCategory("Isotopic Ratios", isotopicColumns, 1));
@@ -68,7 +68,7 @@ public class ReportTest {
         Report alteredReport = new Report(testReport);
 
         alteredReport.addCategory(new ReportCategory("Test Category", 2));
-        alteredCategory.addColumn(new ReportColumn("Test Column", 1));
+        alteredCategory.addColumn(new ReportColumn("Test Column", 1, null));
         alteredColumn.setPositionIndex(2);
 
         assertAll(

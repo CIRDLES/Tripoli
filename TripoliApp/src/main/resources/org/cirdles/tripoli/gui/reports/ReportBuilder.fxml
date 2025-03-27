@@ -82,7 +82,7 @@
 
            <TitledPane animated="false" styleClass="list-view-container" text="Column Details - Peek at values for selected column" VBox.vgrow="ALWAYS">
                <VBox prefWidth="731.0" VBox.vgrow="SOMETIMES">
-                   <ListView fx:id="columnDetailsListView" prefHeight="342.0" prefWidth="711.0" styleClass="list-view-content" VBox.vgrow="ALWAYS" />
+                   <TextArea fx:id="columnDetailsTextArea" prefHeight="342.0" prefWidth="711.0" styleClass="list-view-content" VBox.vgrow="ALWAYS" />
                </VBox>
            </TitledPane>
        </SplitPane>
