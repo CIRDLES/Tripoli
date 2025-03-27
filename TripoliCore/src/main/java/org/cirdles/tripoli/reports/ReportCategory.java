@@ -98,7 +98,7 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         int i=0;
         for (UserFunction userFunction : userFunctionList) {
             if (userFunction.isTreatAsIsotopicRatio()) {
-                columnSet.add(new ReportColumn(userFunction.getName(), i++, "getUserFunctions"));
+                columnSet.add(new ReportColumn(userFunction.getName(), i++, true));
             }
         }
 
@@ -109,7 +109,7 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         Set<ReportColumn> columnSet = new TreeSet<>();
         int i=0;
         for (UserFunction userFunction : userFunctionList){
-            columnSet.add(new ReportColumn(userFunction.getName(), i++, "getUserFunctions"));
+            columnSet.add(new ReportColumn(userFunction.getName(), i++, true));
         }
         return new ReportCategory("User Functions", columnSet,2);
     }

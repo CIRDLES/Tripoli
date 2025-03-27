@@ -18,6 +18,7 @@ package org.cirdles.tripoli.reports;
 
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.jetbrains.annotations.NotNull;
@@ -181,6 +182,80 @@ public class Report implements Serializable, Comparable<Report> {
     }
     public boolean deleteReport() {
         return this.getTripoliReportFile().delete();
+    }
+
+    public File generateCSVFile(List<AnalysisInterface> listOfAnalyses){
+        File reportCSVFile = new File(System.getProperty("user.home") + File.separator + this.getReportName() + ".csv");
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(reportCSVFile))) {
+            Set<ReportCategory> categories = this.getCategories();
+
+            // Collect all unique columns across categories
+            List<ReportColumn> allColumns = categories.stream()
+                    .flatMap(category -> category.getColumns().stream())
+                    .toList();
+
+            // First header row (Group Headers)
+            List<String> groupHeaders = new ArrayList<>();
+            for (ReportColumn column : allColumns) {
+                if (column.isUserFunction()) {
+                    groupHeaders.add(column.getColumnName());  // User function name spans three columns
+                    groupHeaders.add("");
+                    groupHeaders.add("");
+                } else {
+                    groupHeaders.add(column.getColumnName());
+                }
+            }
+            writer.write(String.join(",", groupHeaders));
+            writer.newLine();
+
+            // Second header row (Sub-Headers)
+            List<String> headers = new ArrayList<>();
+            for (ReportColumn column : allColumns) {
+                if (column.isUserFunction()) {
+                    headers.add("Mean");
+                    headers.add("Variance");
+                    headers.add("StdDev");
+                } else {
+                    headers.add("");  // No sub-header for normal columns
+                }
+            }
+            writer.write(String.join(",", headers));
+            writer.newLine();
+
+            // Write each analysis row
+            for (AnalysisInterface analysis : listOfAnalyses) {
+                Analysis thisAnalysis = (Analysis) analysis;
+                List<String> rowValues = new ArrayList<>();
+
+                for (ReportColumn column : allColumns) {
+                    if (column.isUserFunction()) {
+                        UserFunction function = thisAnalysis.getUserFunctions().stream()
+                                .filter(f -> f.getName().equals(column.getColumnName()))
+                                .findFirst().orElse(null);
+
+                        if (function != null) {
+                            rowValues.add(String.valueOf(function.getAnalysisStatsRecord().cycleModeMean()));
+                            rowValues.add(String.valueOf(function.getAnalysisStatsRecord().cycleModeVariance()));
+                            rowValues.add(String.valueOf(function.getAnalysisStatsRecord().cycleModeStandardDeviation()));
+                        } else {
+                            rowValues.add("N/A");
+                            rowValues.add("N/A");
+                            rowValues.add("N/A");
+                        }
+                    } else {
+                        rowValues.add(column.retrieveData(thisAnalysis));
+                    }
+                }
+
+                writer.write(String.join(",", rowValues));
+                writer.newLine();
+            }
+            return reportCSVFile;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override

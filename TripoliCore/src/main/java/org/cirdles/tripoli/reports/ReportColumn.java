@@ -37,12 +37,20 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
     private int positionIndex;
     private boolean visible;
     private String methodName;
+    private boolean isUserFunction;
 
     public ReportColumn(String title, int positionIndex, String methodName) {
         columnName = title;
         this.positionIndex = positionIndex;
         visible = true;
         this.methodName = methodName;
+        isUserFunction = false;
+    }
+    public ReportColumn(String title, int positionIndex, boolean isUserFunction) {
+        columnName = title;
+        this.positionIndex = positionIndex;
+        visible = true;
+        this.isUserFunction = isUserFunction;
     }
     public ReportColumn(ReportColumn otherColumn) {
         columnName = otherColumn.columnName;
@@ -50,6 +58,7 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
         visible = otherColumn.visible;
         FIXED_COLUMN_NAME = otherColumn.FIXED_COLUMN_NAME;
         methodName = otherColumn.methodName;
+        isUserFunction = otherColumn.isUserFunction;
     }
 
     public String getColumnName() { return columnName; }
@@ -64,6 +73,8 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
 
     public void setMethodName(String methodName) { this.methodName = methodName; }
     public String getMethodName() { return methodName; }
+
+    public boolean isUserFunction() { return isUserFunction; }
 
     public String retrieveData(Analysis analysis) {
         if (methodName == null) {

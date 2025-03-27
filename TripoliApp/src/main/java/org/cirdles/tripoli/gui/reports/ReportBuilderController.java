@@ -36,6 +36,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.reports.Report;
 import org.cirdles.tripoli.reports.ReportCategory;
@@ -45,11 +46,11 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
@@ -493,6 +494,7 @@ public class ReportBuilderController {
             }
         });
     }
+    // <<<---------------------------------------------- Column End
 
     private String formatColumnDetails(ReportColumn column) {
         StringBuilder result = new StringBuilder(column.getColumnName()+ "\n");
@@ -506,7 +508,6 @@ public class ReportBuilderController {
         return result.toString();
     }
 
-    // <<<---------------------------------------------- Column End
     private void populateAccordion() {
         Report accReport = Report.createFullReport("", analysis.getAnalysisMethod().getMethodName(), analysis.getUserFunctions());
         for (ReportCategory cat : accReport.getCategories()) {
@@ -655,7 +656,12 @@ public class ReportBuilderController {
     }
 
     public void generateOnAction() {
-        // for future implementation
+        File csvFile = currentReport.generateCSVFile(listOfAnalyses);
+        if (csvFile != null){
+            TripoliMessageDialog.showSavedAsDialog(csvFile, reportStage);
+        } else {
+            TripoliMessageDialog.showWarningDialog("Something went wrong and the report could not be generated", reportStage);
+        }
     }
 
 
