@@ -323,7 +323,7 @@ public class AnalysisMethod implements Serializable {
 
     public String prettyPrintMethodSummary(boolean verbose) {
         StringBuilder retVal = new StringBuilder();
-        retVal.append("Method: ").append(methodName).append(SPACES_100, 0, 55 - methodName.length());
+        retVal.append("Method: ").append(methodName).append(SPACES_100, 0, 75 - methodName.length());
         if (speciesList.size() > 0) {
             retVal.append(verbose ? "\nSpecies: " : "  Species: ");
             List<SpeciesRecordInterface> speciesAlphabetic = new ArrayList<>(speciesList);
