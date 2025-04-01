@@ -242,13 +242,13 @@ public class ReportBuilderController {
 
                     if (draggedItem != null) {
                         int dropIndex = cell.getIndex();
-                        dropIndex = Math.min(dropIndex, categoryListView.getItems().size()-1);
+                        dropIndex = Math.min(dropIndex, categories.size()-1);
                         if (fixedCategoryCell.get() != null && dropIndex <= fixedCategoryCell.get().getIndex()) {
                             event.consume();
                             return;
                         }
-                        categoryListView.getItems().remove(draggedItem);
-                        categoryListView.getItems().add(dropIndex, draggedItem);
+                        categories.remove(draggedItem);
+                        categories.add(dropIndex, draggedItem);
                         currentReport.updateCategoryPosition(draggedItem, dropIndex);
                         handleTrackingChanges();
 
@@ -275,7 +275,7 @@ public class ReportBuilderController {
                 removeItem.setOnAction(event -> {
                     ReportCategory item = cell.getItem();
                     if (item != null) {
-                        categoryListView.getItems().remove(item);
+                        categories.remove(item);
                         currentReport.removeCategory(item);
                         handleTrackingChanges();
                     }
@@ -391,9 +391,9 @@ public class ReportBuilderController {
                     if (draggedItem != null) {
                         int dropIndex = cell.getIndex();
                         if (sourceCell.getListView() == columnListView){
-                            dropIndex = Math.min(dropIndex, columnListView.getItems().size()-1);
+                            dropIndex = Math.min(dropIndex, columns.size()-1);
                         } else {
-                            dropIndex = Math.min(dropIndex, columnListView.getItems().size());
+                            dropIndex = Math.min(dropIndex, columns.size());
                         }
 
                         if (fixedColumnCell.get() != null
@@ -406,10 +406,10 @@ public class ReportBuilderController {
                         if (sourceCell.getListView() != columnListView){
                             ReportColumn draggedItemCopy = new ReportColumn(draggedItem);
                             categoryListView.getSelectionModel().getSelectedItem().insertColumnAtPosition(draggedItemCopy, dropIndex);
-                            columnListView.getItems().add(dropIndex, draggedItemCopy);
+                            columns.add(dropIndex, draggedItemCopy);
                         } else{
-                            columnListView.getItems().remove(draggedItem);
-                            columnListView.getItems().add(dropIndex, draggedItem);
+                            columns.remove(draggedItem);
+                            columns.add(dropIndex, draggedItem);
                             categoryListView.getSelectionModel().getSelectedItem().updateColumnPosition(draggedItem, dropIndex);
                         }
                         handleTrackingChanges();
@@ -437,7 +437,7 @@ public class ReportBuilderController {
             removeItem.setOnAction(event -> {
                 ReportColumn item = cell.getItem();
                 if (item != null) {
-                    columnListView.getItems().remove(item);
+                    columns.remove(item);
                     categoryListView.getSelectionModel().getSelectedItem().removeColumn(item);
                     handleTrackingChanges();
                 }
@@ -477,7 +477,7 @@ public class ReportBuilderController {
                     // Add the dragged item at the first position if the list is empty
                     ReportColumn draggedItemCopy = new ReportColumn(draggedItem);
                     categoryListView.getSelectionModel().getSelectedItem().insertColumnAtPosition(draggedItemCopy, 0);
-                    columnListView.getItems().add(0, draggedItem);
+                    columns.add(0, draggedItem);
                     handleTrackingChanges();
                     success = true;
                 }
@@ -497,14 +497,17 @@ public class ReportBuilderController {
     // <<<---------------------------------------------- Column End
 
     private String formatColumnDetails(ReportColumn column) {
-        StringBuilder result = new StringBuilder(column.getColumnName()+ "\n");
+        StringBuilder result = new StringBuilder(column.getColumnName() + "\n");
+
         listOfAnalyses.stream()
                 .filter(Analysis.class::isInstance)
                 .map(Analysis.class::cast)
+                .filter(analysis -> analysis.getAnalysisMethod().getMethodName().equals(currentReport.getMethodName())) // Filter by method name
                 .forEach(analysis -> {
                     AllBlockInitForDataLiteOne.initBlockModels(analysis); // Init values
                     result.append(column.retrieveData(analysis)).append("\n");
                 });
+
         return result.toString();
     }
 
@@ -512,12 +515,15 @@ public class ReportBuilderController {
         Report accReport = Report.createFullReport("", analysis.getAnalysisMethod().getMethodName(), analysis.getUserFunctions());
         Set<ReportCategory> repoCat  = accReport.getCategories();
 
+        /**
+         * Temporary Data inserted for future custom expressions
+         */
         Set<ReportColumn> custCol = new TreeSet<>();
         custCol.add(new ReportColumn("Alpha", 0, null));
         custCol.add(new ReportColumn("Beta", 1, null));
         custCol.add(new ReportColumn("Gamma", 2, null));
-
         repoCat.add(new ReportCategory("Custom Expressions", custCol, 3));
+
         for (ReportCategory cat : accReport.getCategories()) {
             ListView<ReportColumn> accColumnlv = new ListView<>();
             accColumnlv.getItems().addAll(cat.getColumns()); // Add columns to the ListView
@@ -680,7 +686,7 @@ public class ReportBuilderController {
         if (categoryName.trim().isEmpty()) {
             TripoliMessageDialog.showWarningDialog("Category must have name!", reportStage);
             categoryTextField.setText("");
-        } else if (categoryListView.getItems().stream().anyMatch(t -> t.getCategoryName().equalsIgnoreCase(categoryName))) {
+        } else if (categories.stream().anyMatch(t -> t.getCategoryName().equalsIgnoreCase(categoryName))) {
             TripoliMessageDialog.showWarningDialog("Category already exists!", reportStage);
             categoryTextField.setText("");
         }else {

@@ -77,6 +77,14 @@ public class Report implements Serializable, Comparable<Report> {
 
     public Set<ReportCategory> getCategories() { return categorySet; }
 
+    /**
+     * Inserts a category's new index position respecting the position of the category that already exists there.
+     * If the moving category is moving up in the set then the categories residing between the old index and the new one
+     * will be shifted DOWN to preserve order integrity. Likewise, categories moving down the set will force categories
+     * to shift UP.
+     * @param category The existing category that will have its index updated
+     * @param newIndex New index for that category
+     */
     public void updateCategoryPosition(ReportCategory category, int newIndex) {
         int oldIndex = category.getPositionIndex();
         if (oldIndex == newIndex) { return; }
@@ -95,6 +103,10 @@ public class Report implements Serializable, Comparable<Report> {
         categorySet.add(category);
     }
 
+    /**
+     * Returns the report as a File type with its Path set to the local report directory relevant to its set method name
+     * @return Report File
+     */
     public File getTripoliReportFile() {
         if (tripoliReportDirectoryLocal == null) createReportDirectory();
 
@@ -103,14 +115,14 @@ public class Report implements Serializable, Comparable<Report> {
 
     /**
      *  Walks local report directory to gather all report files pertaining to a specific analysis method. Also creates
-     *  the full report for that method.
+     *  the full report for that method to be displayed in the report menu dropdown.
      * @param methodName Name of method to compare reports against
      * @param userFunctionList User functions must belong to the method of the methodName parameter
      * @return List of reports with method specific 'Full Report' initialized at the end
      * @throws IOException
      * @throws TripoliException
      */
-    public static List<Report> generateReportList(String methodName, List<UserFunction> userFunctionList) throws IOException, TripoliException {
+    public static List<Report> generateReportList(String methodName, List<UserFunction> userFunctionList) throws IOException {
         if (tripoliReportDirectoryLocal == null) createReportDirectory();
 
         List<Report> reportList = new ArrayList<>();
@@ -135,6 +147,13 @@ public class Report implements Serializable, Comparable<Report> {
         return reportList;
     }
 
+    /**
+     * Creates a blank report class which only has the fixed category and column initialized. Since all reports are bound
+     * to a method name, that is required to be passed
+     * @param reportName Name of the report
+     * @param methodName Analysis method relevant to this report
+     * @return A report class object
+     */
     public static Report createBlankReport(String reportName, String methodName) {
         ReportColumn analysisName = new ReportColumn("Analysis Name", 0, "getAnalysisName");
         ReportCategory analysisInfo = new ReportCategory("Analysis Info", 0);
@@ -144,6 +163,13 @@ public class Report implements Serializable, Comparable<Report> {
         return new Report(reportName, methodName, categorySet);
     }
 
+    /**
+     * Creates a full report which contains every possible (excluding custom) category and column for a given method
+     * @param reportName Name of the report
+     * @param methodName
+     * @param ufList
+     * @return
+     */
     public static Report createFullReport(String reportName, String methodName, List<UserFunction> ufList) {
         Set<ReportCategory> categories = new TreeSet<>();
         categories.add(ReportCategory.generateAnalysisInfo());
@@ -184,6 +210,12 @@ public class Report implements Serializable, Comparable<Report> {
         return this.getTripoliReportFile().delete();
     }
 
+    /**
+     * Generates a CSV output and creates it at the report directory. Creates a row in the file for each analysis given.
+     * Internally filters out analyses that don't match the report.
+     * @param listOfAnalyses List of all loaded analyses
+     * @return File of the created CSV. Null if process failed.
+     */
     public File generateCSVFile(List<AnalysisInterface> listOfAnalyses){
         File reportCSVFile = new File(System.getProperty("user.home") + File.separator + this.getReportName() + ".csv");
 
@@ -225,31 +257,33 @@ public class Report implements Serializable, Comparable<Report> {
 
             // Write each analysis row
             for (AnalysisInterface analysis : listOfAnalyses) {
-                Analysis thisAnalysis = (Analysis) analysis;
-                List<String> rowValues = new ArrayList<>();
+                if (analysis.getAnalysisMethod().getMethodName().equals(methodName)) { // Only checks analyses of the same method
+                    Analysis thisAnalysis = (Analysis) analysis;
+                    List<String> rowValues = new ArrayList<>();
 
-                for (ReportColumn column : allColumns) {
-                    if (column.isUserFunction()) {
-                        UserFunction function = thisAnalysis.getUserFunctions().stream()
-                                .filter(f -> f.getName().equals(column.getColumnName()))
-                                .findFirst().orElse(null);
+                    for (ReportColumn column : allColumns) {
+                        if (column.isUserFunction()) {
+                            UserFunction function = thisAnalysis.getUserFunctions().stream()
+                                    .filter(f -> f.getName().equals(column.getColumnName()))
+                                    .findFirst().orElse(null);
 
-                        if (function != null) {
-                            rowValues.add(String.valueOf(function.getAnalysisStatsRecord().cycleModeMean()));
-                            rowValues.add(String.valueOf(function.getAnalysisStatsRecord().cycleModeVariance()));
-                            rowValues.add(String.valueOf(function.getAnalysisStatsRecord().cycleModeStandardDeviation()));
+                            if (function != null) {
+                                rowValues.add(String.valueOf(function.getAnalysisStatsRecord().cycleModeMean()));
+                                rowValues.add(String.valueOf(function.getAnalysisStatsRecord().cycleModeVariance()));
+                                rowValues.add(String.valueOf(function.getAnalysisStatsRecord().cycleModeStandardDeviation()));
+                            } else {
+                                rowValues.add("N/A");
+                                rowValues.add("N/A");
+                                rowValues.add("N/A");
+                            }
                         } else {
-                            rowValues.add("N/A");
-                            rowValues.add("N/A");
-                            rowValues.add("N/A");
+                            rowValues.add(column.retrieveData(thisAnalysis));
                         }
-                    } else {
-                        rowValues.add(column.retrieveData(thisAnalysis));
                     }
-                }
 
-                writer.write(String.join(",", rowValues));
-                writer.newLine();
+                    writer.write(String.join(",", rowValues));
+                    writer.newLine();
+                }
             }
             return reportCSVFile;
         } catch (IOException e) {
@@ -262,7 +296,6 @@ public class Report implements Serializable, Comparable<Report> {
     public int compareTo(@NotNull Report o) {
         return this.reportName.compareTo(o.reportName);
     }
-
 
     @Override
     public boolean equals(Object o) {

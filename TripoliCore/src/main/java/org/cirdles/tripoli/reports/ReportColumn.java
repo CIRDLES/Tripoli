@@ -76,6 +76,12 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
 
     public boolean isUserFunction() { return isUserFunction; }
 
+    /**
+     * Use the supplied analysis to extract data for the current column. Handles user function based columns as well as
+     * method-defined non-uf columns.
+     * @param analysis the analysis data to be extracted
+     * @return The data based on the analysis, a null result represents a misconfigured column
+     */
     public String retrieveData(Analysis analysis) {
         if (isUserFunction) {
             return retrieveUserFunctionData(analysis.getUserFunctions());

@@ -17,7 +17,6 @@
 package org.cirdles.tripoli.reports;
 
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
-import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -76,6 +75,10 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
     public Set<ReportColumn> getColumns(){ return columnSet; }
     public String getCategoryName() {return categoryName;}
 
+    /**
+     * Generates the default columns for the Analysis Info category used in the full report
+     * @return Default ReportCategory for Analysis Info
+     */
     public static ReportCategory generateAnalysisInfo() {
         Set<ReportColumn> columnSet = new TreeSet<>();
         int i=0;
@@ -93,6 +96,10 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         return new ReportCategory("Analysis Info", columnSet, 0);
     }
 
+    /**
+     * Generates the default columns for the Isotopic Ratios category used in the full report based on a list of UserFunctions
+     * @return Default ReportCategory for Isotopic Ratios
+     */
     public static ReportCategory generateIsotopicRatios(List<UserFunction> userFunctionList){
         Set<ReportColumn> columnSet = new TreeSet<>();
         int i=0;
@@ -105,6 +112,10 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         return new ReportCategory("Isotopic Ratios", columnSet,1);
     }
 
+    /**
+     * Generates the default columns for the User Function category used in the full report based on a list of UserFunctions
+     * @return Default ReportCategory for User Functions
+     */
     public static ReportCategory generateUserFunctions(List<UserFunction> userFunctionList) {
         Set<ReportColumn> columnSet = new TreeSet<>();
         int i=0;
