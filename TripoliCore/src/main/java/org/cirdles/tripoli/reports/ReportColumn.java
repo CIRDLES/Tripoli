@@ -77,12 +77,11 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
     public boolean isUserFunction() { return isUserFunction; }
 
     public String retrieveData(Analysis analysis) {
+        if (isUserFunction) {
+            return retrieveUserFunctionData(analysis.getUserFunctions());
+        }
         if (methodName == null) {
             return "null";
-        }
-
-        if (methodName.equals("getUserFunctions")) {
-            return retrieveUserFunctionData(analysis.getUserFunctions());
         }
 
         return invokeAnalysisMethod(analysis);

@@ -510,6 +510,14 @@ public class ReportBuilderController {
 
     private void populateAccordion() {
         Report accReport = Report.createFullReport("", analysis.getAnalysisMethod().getMethodName(), analysis.getUserFunctions());
+        Set<ReportCategory> repoCat  = accReport.getCategories();
+
+        Set<ReportColumn> custCol = new TreeSet<>();
+        custCol.add(new ReportColumn("Alpha", 0, null));
+        custCol.add(new ReportColumn("Beta", 1, null));
+        custCol.add(new ReportColumn("Gamma", 2, null));
+
+        repoCat.add(new ReportCategory("Custom Expressions", custCol, 3));
         for (ReportCategory cat : accReport.getCategories()) {
             ListView<ReportColumn> accColumnlv = new ListView<>();
             accColumnlv.getItems().addAll(cat.getColumns()); // Add columns to the ListView
