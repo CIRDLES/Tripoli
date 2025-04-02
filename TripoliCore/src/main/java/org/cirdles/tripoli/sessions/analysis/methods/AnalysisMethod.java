@@ -53,16 +53,16 @@ public class AnalysisMethod implements Serializable {
     private static final long serialVersionUID = -642166785514147638L;
     private final MassSpectrometerContextEnum massSpectrometerContext;
     public Map<String, Boolean> mapOfRatioNamesToInvertedFlag;
-    private static String methodName;
+    private String methodName;
     private BaselineTable baselineTable;
     private SequenceTable sequenceTable;
     private List<SpeciesRecordInterface> speciesList;
     private List<IsotopicRatio> isotopicRatiosList;
     private List<IsotopicRatio> derivedIsotopicRatiosList;
     private BiMap<IsotopicRatio, IsotopicRatio> biMapOfRatiosAndInverses = HashBiMap.create();
-    private static List<UserFunction> userFunctionsModel;
+    private List<UserFunction> userFunctionsModel;
     private boolean useLinearKnots;
-    private static Set<Report> reportSet;
+    private Set<Report> reportSet;
 
     private AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
         this(methodName, massSpectrometerContext, BaselineTable.createEmptyBaselineTable(), SequenceTable.createEmptySequenceTable());
@@ -166,7 +166,7 @@ public class AnalysisMethod implements Serializable {
             System.out.println(columnHeaders[r270_267ColumnIndex + 2]);
 
         }
-        refreshReports();
+        analysisMethod.refreshReports();
         return analysisMethod;
     }
 
@@ -507,7 +507,7 @@ public class AnalysisMethod implements Serializable {
     }
     public Set<Report> getReports() { return reportSet; }
 
-    public static void refreshReports() throws TripoliException, IOException {
+    public void refreshReports() throws IOException {
         reportSet = new TreeSet<>();
         reportSet.addAll(Report.generateReportList(methodName, userFunctionsModel));
 

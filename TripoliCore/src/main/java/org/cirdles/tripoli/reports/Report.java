@@ -257,7 +257,7 @@ public class Report implements Serializable, Comparable<Report> {
 
             // Write each analysis row
             for (AnalysisInterface analysis : listOfAnalyses) {
-                if (analysis.getAnalysisMethod().getMethodName().equals(methodName)) { // Only checks analyses of the same method
+                if (analysis.getMethod().getMethodName().equals(methodName)) { // Only checks analyses of the same method
                     Analysis thisAnalysis = (Analysis) analysis;
                     List<String> rowValues = new ArrayList<>();
 

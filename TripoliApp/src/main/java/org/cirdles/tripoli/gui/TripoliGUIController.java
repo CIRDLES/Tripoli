@@ -34,7 +34,6 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
@@ -355,8 +354,8 @@ public class TripoliGUIController implements Initializable {
     @FXML
     public void buildCustomReportMenu() throws TripoliException, IOException {
         System.out.println("Building Custom Report Menu");
-        AnalysisMethod.refreshReports();
-        Set<Report> reportTreeSet = analysis.getAnalysisMethod().getReports();
+        analysis.getAnalysisMethod().refreshReports();
+        Set<Report> reportTreeSet = analysis.getMethod().getReports();
         customReportMenu.getItems().clear();
         for (Report report : reportTreeSet) {
             if (report.getReportName().equals(report.FIXED_REPORT_NAME)) {

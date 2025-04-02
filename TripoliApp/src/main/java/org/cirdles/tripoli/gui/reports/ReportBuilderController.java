@@ -502,7 +502,7 @@ public class ReportBuilderController {
         listOfAnalyses.stream()
                 .filter(Analysis.class::isInstance)
                 .map(Analysis.class::cast)
-                .filter(analysis -> analysis.getAnalysisMethod().getMethodName().equals(currentReport.getMethodName())) // Filter by method name
+                .filter(analysis -> analysis.getMethod().getMethodName().equals(currentReport.getMethodName())) // Filter by method name
                 .forEach(analysis -> {
                     AllBlockInitForDataLiteOne.initBlockModels(analysis); // Init values
                     result.append(column.retrieveData(analysis)).append("\n");
@@ -512,7 +512,7 @@ public class ReportBuilderController {
     }
 
     private void populateAccordion() {
-        Report accReport = Report.createFullReport("", analysis.getAnalysisMethod().getMethodName(), analysis.getUserFunctions());
+        Report accReport = Report.createFullReport("", analysis.getMethod().getMethodName(), analysis.getUserFunctions());
         Set<ReportCategory> repoCat  = accReport.getCategories();
 
         /**
