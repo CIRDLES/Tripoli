@@ -1,15 +1,14 @@
 package org.cirdles.tripoli.reports;
 
-import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
+import java.io.File;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -46,6 +45,12 @@ public class ReportTest {
         reportCategories.add(new ReportCategory("Isotopic Ratios", isotopicColumns, 1));
 
         testReport = new Report("Test Report", "Test Report Method", reportCategories);
+    }
+    @AfterAll
+    static void tearDownAfterClass() {
+        File reportParent = testReport.getTripoliReportFile().getParentFile();
+        testReport.deleteReport();
+        reportParent.delete();
     }
 
     /**
