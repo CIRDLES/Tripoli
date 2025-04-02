@@ -1,5 +1,8 @@
 package org.cirdles.tripoli.reports;
 
+import org.cirdles.tripoli.sessions.analysis.Analysis;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.junit.jupiter.api.BeforeAll;
@@ -16,12 +19,14 @@ public class ReportTest {
     static ReportColumn testColumn;
     static ReportCategory testCategory;
     static Report testReport;
+    static AnalysisInterface analysis;
 
     /**
      * Build report structure using semi-realistic data
      */
     @BeforeAll
-    static void setUpBeforeClass(){
+    static void setUpBeforeClass() throws TripoliException {
+        analysis = AnalysisInterface.initializeNewAnalysis(0);
         Set<ReportColumn> analysisColumns = new TreeSet<>();
         Set<ReportColumn> isotopicColumns = new TreeSet<>();
         Set<ReportCategory> reportCategories = new TreeSet<>();

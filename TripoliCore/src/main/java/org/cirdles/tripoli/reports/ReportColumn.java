@@ -20,6 +20,7 @@ import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
+import org.cirdles.tripoli.utilities.mathUtilities.MathUtilities;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
@@ -100,13 +101,13 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
                 .map(userFunction -> {
                     AnalysisStatsRecord stats = userFunction.getAnalysisStatsRecord();
                     return String.format(
-                            "Mean: %s, Variance: %s, Std Dev: %s",
-                            stats.cycleModeMean(),
-                            stats.cycleModeVariance(),
-                            stats.cycleModeStandardDeviation()
+                            "%s,%s,%s",
+                            MathUtilities.roundedToSize(stats.cycleModeMean(), 4),
+                            MathUtilities.roundedToSize(stats.cycleModeVariance(), 4),
+                            MathUtilities.roundedToSize(stats.cycleModeStandardDeviation(), 4)
                     );
                 })
-                .orElse("Error: Function not found");
+                .orElse("Error,Error,Error");
     }
 
     private String invokeAnalysisMethod(Analysis analysis) {

@@ -125,6 +125,17 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         return new ReportCategory("User Functions", columnSet,2);
     }
 
+    public static ReportCategory generateCustomExpressions(List<UserFunction> userFunctionList){
+        Set<ReportColumn> columnSet = new TreeSet<>();
+        int i=0;
+        for (UserFunction userFunction : userFunctionList){
+            if (userFunction.isCustomExpression()){
+                columnSet.add(new ReportColumn(userFunction.getName(), i++, true));
+            }
+        }
+        return new ReportCategory("Custom Expressions", columnSet,3);
+    }
+
     /**
      * Updates a column move within the set. Pushes column indices up or down based on the placement of the index
      * @param column column to be moved

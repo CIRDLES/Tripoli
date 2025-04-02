@@ -16,9 +16,11 @@
 
 package org.cirdles.tripoli.reports;
 
+import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.jetbrains.annotations.NotNull;
@@ -26,6 +28,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -104,13 +108,25 @@ public class Report implements Serializable, Comparable<Report> {
     }
 
     /**
-     * Returns the report as a File type with its Path set to the local report directory relevant to its set method name
+     * Returns the current report as a file type with its Path set to the local report directory with the current name
      * @return Report File
      */
     public File getTripoliReportFile() {
         if (tripoliReportDirectoryLocal == null) createReportDirectory();
 
-        return tripoliReportDirectoryLocal.toPath().resolve(this.methodName + File.separator + this.getReportName()+".trf").toFile();
+        return tripoliReportDirectoryLocal.toPath().resolve(this.methodName + File.separator + this.getReportName() + ".tripreport").toFile();
+    }
+
+    /**
+     * Returns the current report as a file type with its Path set to the local report directory with the given name as
+     * its to-be-saved-as name. This method is intended for Save-as prompts
+     * @param newReportName Name to be saved as
+     * @return Report File
+     */
+    public File getTripoliReportFile(String newReportName) {
+        if (tripoliReportDirectoryLocal == null) createReportDirectory();
+
+        return tripoliReportDirectoryLocal.toPath().resolve(this.methodName + File.separator + newReportName +".tripreport").toFile();
     }
 
     /**
@@ -175,6 +191,7 @@ public class Report implements Serializable, Comparable<Report> {
         categories.add(ReportCategory.generateAnalysisInfo());
         categories.add(ReportCategory.generateIsotopicRatios(ufList));
         categories.add(ReportCategory.generateUserFunctions(ufList));
+        categories.add(ReportCategory.generateCustomExpressions(ufList));
 
         return new Report(reportName, methodName, categories);
     }
@@ -195,16 +212,16 @@ public class Report implements Serializable, Comparable<Report> {
      * Saves report structure to local file directory with method name file separation
      * @throws TripoliException
      */
-    public File serializeReport() throws TripoliException {
+    public void serializeReport() throws TripoliException {
         if (tripoliReportDirectoryLocal == null) createReportDirectory();
         File reportMethodDirectory = new File(tripoliReportDirectoryLocal.getAbsolutePath() + File.separator + methodName);
 
         if(!reportMethodDirectory.exists()){
             reportMethodDirectory.mkdir();
         }
-        File reportFile = new File(reportMethodDirectory.getAbsolutePath() + File.separator + this.getReportName()+".trf");
+        File reportFile = new File(reportMethodDirectory.getAbsolutePath() + File.separator + this.getReportName()+".tripreport");
         TripoliSerializer.serializeObjectToFile(this, reportFile.getAbsolutePath());
-        return reportFile;
+
     }
     public boolean deleteReport() {
         return this.getTripoliReportFile().delete();
@@ -214,10 +231,12 @@ public class Report implements Serializable, Comparable<Report> {
      * Generates a CSV output and creates it at the report directory. Creates a row in the file for each analysis given.
      * Internally filters out analyses that don't match the report.
      * @param listOfAnalyses List of all loaded analyses
+     * @param currentAnalysis The analysis of the relevant report to which the csv directory will be saved
      * @return File of the created CSV. Null if process failed.
      */
-    public File generateCSVFile(List<AnalysisInterface> listOfAnalyses){
-        File reportCSVFile = new File(System.getProperty("user.home") + File.separator + this.getReportName() + ".csv");
+    public File generateCSVFile(List<AnalysisInterface> listOfAnalyses, AnalysisInterface currentAnalysis) {
+        File reportCSVFile = new File(currentAnalysis.getDataFilePathString().substring(0,
+                currentAnalysis.getDataFilePathString().lastIndexOf(File.separator)) + File.separator + this.getReportName() + ".csv");
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(reportCSVFile))) {
             Set<ReportCategory> categories = this.getCategories();
@@ -227,29 +246,15 @@ public class Report implements Serializable, Comparable<Report> {
                     .flatMap(category -> category.getColumns().stream())
                     .toList();
 
-            // First header row (Group Headers)
-            List<String> groupHeaders = new ArrayList<>();
-            for (ReportColumn column : allColumns) {
-                if (column.isUserFunction()) {
-                    groupHeaders.add(column.getColumnName());  // User function name spans three columns
-                    groupHeaders.add("");
-                    groupHeaders.add("");
-                } else {
-                    groupHeaders.add(column.getColumnName());
-                }
-            }
-            writer.write(String.join(",", groupHeaders));
-            writer.newLine();
-
-            // Second header row (Sub-Headers)
+            // Header row with proper naming for user function columns
             List<String> headers = new ArrayList<>();
             for (ReportColumn column : allColumns) {
                 if (column.isUserFunction()) {
-                    headers.add("Mean");
-                    headers.add("Variance");
+                    headers.add(column.getColumnName() + " Mean");
                     headers.add("StdDev");
+                    headers.add("Variance");
                 } else {
-                    headers.add("");  // No sub-header for normal columns
+                    headers.add(column.getColumnName());
                 }
             }
             writer.write(String.join(",", headers));
@@ -257,27 +262,20 @@ public class Report implements Serializable, Comparable<Report> {
 
             // Write each analysis row
             for (AnalysisInterface analysis : listOfAnalyses) {
-                if (analysis.getMethod().getMethodName().equals(methodName)) { // Only checks analyses of the same method
+                if (analysis.getMethod().getMethodName().equals(methodName)) { // Only process analyses of the same method
+                    AllBlockInitForDataLiteOne.initBlockModels(analysis); // Init values
                     Analysis thisAnalysis = (Analysis) analysis;
                     List<String> rowValues = new ArrayList<>();
 
                     for (ReportColumn column : allColumns) {
-                        if (column.isUserFunction()) {
-                            UserFunction function = thisAnalysis.getUserFunctions().stream()
-                                    .filter(f -> f.getName().equals(column.getColumnName()))
-                                    .findFirst().orElse(null);
+                        String columnData = column.retrieveData(thisAnalysis);
 
-                            if (function != null) {
-                                rowValues.add(String.valueOf(function.getAnalysisStatsRecord().cycleModeMean()));
-                                rowValues.add(String.valueOf(function.getAnalysisStatsRecord().cycleModeVariance()));
-                                rowValues.add(String.valueOf(function.getAnalysisStatsRecord().cycleModeStandardDeviation()));
-                            } else {
-                                rowValues.add("N/A");
-                                rowValues.add("N/A");
-                                rowValues.add("N/A");
-                            }
+                        // If user function, split the comma-separated values
+                        if (column.isUserFunction()) {
+                            String[] splitData = columnData.split(",");
+                            rowValues.addAll(Arrays.asList(splitData));
                         } else {
-                            rowValues.add(column.retrieveData(thisAnalysis));
+                            rowValues.add(columnData);
                         }
                     }
 
@@ -285,12 +283,23 @@ public class Report implements Serializable, Comparable<Report> {
                     writer.newLine();
                 }
             }
+
+            for (int i = 0; i < 10; i++) {
+                writer.newLine();
+            }
+            writer.write(reportCSVFile.getName()+ "  ");
+            writer.write("Created on: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + "  ");
+            writer.write("Tripoli  "); // Replace with actual program name
+            writer.write(Tripoli.VERSION); // Replace with actual version number
+
+
             return reportCSVFile;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
+
 
     @Override
     public int compareTo(@NotNull Report o) {

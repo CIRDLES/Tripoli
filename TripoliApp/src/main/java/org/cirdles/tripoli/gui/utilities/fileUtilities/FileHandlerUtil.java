@@ -245,10 +245,10 @@ public enum FileHandlerUtil {
     public static File importReportFile(Window ownerWindow){
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Tripoli Report File");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Tripoli Report File (.trf)", "*.trf"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Tripoli Report File (.tripreport)", "*.tripreport"));
         File dataFile = fileChooser.showOpenDialog(ownerWindow);
         if (dataFile != null) {
-            if (dataFile.getName().toLowerCase(Locale.US).endsWith(".trf")) {
+            if (dataFile.getName().toLowerCase(Locale.US).endsWith(".tripreport")) {
                 return dataFile;
             } else {
                 TripoliMessageDialog.showWarningDialog("Not a valid Report File", ownerWindow);

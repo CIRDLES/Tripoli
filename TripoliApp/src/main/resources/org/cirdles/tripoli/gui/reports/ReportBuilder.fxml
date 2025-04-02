@@ -28,9 +28,9 @@
         </padding>
         <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="0" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1">
             <Label prefHeight="17.0" prefWidth="102.0" style="-fx-text-fill: #3c77c9;" text="Report Name:" />
-            <TextField fx:id="reportNameTextField" editable="false" prefHeight="23.0" prefWidth="114.0" promptText="Report name" HBox.hgrow="SOMETIMES" />
-            <Label prefHeight="17.0" prefWidth="98.0" style="-fx-text-fill: #3c77c9;" text="Method Name:" />
-            <TextField fx:id="methodNameTextField" editable="false" prefHeight="23.0" prefWidth="225.0" promptText="Method Name" HBox.hgrow="SOMETIMES" />
+            <TextField fx:id="reportNameTextField" prefHeight="23.0" prefWidth="286.0" promptText="Report name" HBox.hgrow="SOMETIMES" />
+            <Label prefHeight="17.0" prefWidth="91.0" style="-fx-text-fill: #3c77c9;" text="Method Name:" />
+            <Label fx:id="methodNameLabel" prefHeight="23.0" prefWidth="347.0" HBox.hgrow="SOMETIMES" />
         </HBox>
 
         <HBox alignment="CENTER_LEFT" prefHeight="23.0" prefWidth="844.0" spacing="10.0" GridPane.rowIndex="2" VBox.vgrow="NEVER">
@@ -43,7 +43,6 @@
             </MenuButton>
             <Button fx:id="saveButton" minWidth="62.0" mnemonicParsing="false" onAction="#saveOnAction" prefHeight="25.0" prefWidth="62.0" text="Save" HBox.hgrow="ALWAYS" />
             <Button fx:id="restoreButton" minWidth="68.0" mnemonicParsing="false" onAction="#restoreOnAction" prefHeight="25.0" prefWidth="119.0" text="Cancel Changes" HBox.hgrow="ALWAYS" />
-            <Button fx:id="renameButton" minWidth="65.0" mnemonicParsing="false" onAction="#renameOnAction" prefHeight="25.0" prefWidth="65.0" text="Rename" />
             <Button fx:id="deleteButton" minWidth="67.0" mnemonicParsing="false" onAction="#deleteOnAction" prefHeight="25.0" prefWidth="67.0" text="Delete" HBox.hgrow="ALWAYS" />
             <Button fx:id="generateButton" minWidth="75.0" mnemonicParsing="false" onAction="#generateOnAction" prefHeight="25.0" prefWidth="89.0" text="Generate" HBox.hgrow="ALWAYS" />
         </HBox>
@@ -82,7 +81,7 @@
 
            <TitledPane animated="false" styleClass="list-view-container" text="Column Details - Peek at values for selected column" VBox.vgrow="ALWAYS">
                <VBox prefWidth="731.0" VBox.vgrow="SOMETIMES">
-                   <TextArea fx:id="columnDetailsTextArea" prefHeight="342.0" prefWidth="711.0" styleClass="list-view-content" VBox.vgrow="ALWAYS" />
+                   <TextArea fx:id="columnDetailsTextArea" prefHeight="342.0" prefWidth="711.0" styleClass="column-details" VBox.vgrow="ALWAYS" />
                </VBox>
            </TitledPane>
        </SplitPane>

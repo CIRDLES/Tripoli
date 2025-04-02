@@ -16,5 +16,11 @@
 
 .category-text-field {
     -fx-font-weight: bold;
+    -fx-prompt-text-fill: rgba(255, 0, 0, 0.70);
     -fx-background-color: #FFDDC1;
+}
+
+.column-details {
+    -fx-font-family: Monospaced;
+    -fx-font-weight: normal;
 }

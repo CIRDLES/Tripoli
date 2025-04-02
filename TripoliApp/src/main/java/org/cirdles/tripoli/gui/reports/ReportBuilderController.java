@@ -36,7 +36,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.reports.Report;
 import org.cirdles.tripoli.reports.ReportCategory;
@@ -46,9 +45,7 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -68,8 +65,6 @@ public class ReportBuilderController {
     @FXML
     public Button restoreButton;
     @FXML
-    public Button renameButton;
-    @FXML
     public Button deleteButton;
     @FXML
     public Button generateButton;
@@ -84,7 +79,7 @@ public class ReportBuilderController {
     @FXML
     public TextField reportNameTextField;
     @FXML
-    public TextField methodNameTextField;
+    public Label methodNameLabel;
     @FXML
     private ListView<ReportCategory> categoryListView;
     @FXML
@@ -137,7 +132,6 @@ public class ReportBuilderController {
         this.initalReport = new Report(currentReport);
         saveButton.setDisable(false);
         restoreButton.setDisable(false);
-        renameButton.setDisable(false);
         deleteButton.setDisable(false);
         categoryListView.setDisable(false);
         columnListView.setDisable(false);
@@ -145,21 +139,21 @@ public class ReportBuilderController {
         createCategoryButton.setDisable(false);
         categoryTextField.setDisable(false);
         columnAccordion.setDisable(false);
+        reportNameTextField.setDisable(false);
+        methodNameLabel.setText(currentReport.getMethodName());
 
         // Remove editing for the full report
         if(currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())){
             createCategoryButton.setDisable(true);
             categoryTextField.setDisable(true);
             deleteButton.setDisable(true);
-            renameButton.setDisable(true);
             restoreButton.setDisable(true);
             saveButton.setDisable(true);
             columnAccordion.setDisable(true);
+            reportNameTextField.setDisable(true);
         }
+
         initializeListViews();
-        reportStage.setTitle("Report Builder - " + currentReport.getReportName());
-        reportNameTextField.setText(currentReport.getReportName());
-        methodNameTextField.setText(currentReport.getMethodName());
     }
 
     private void initializeListViews() {
@@ -497,7 +491,14 @@ public class ReportBuilderController {
     // <<<---------------------------------------------- Column End
 
     private String formatColumnDetails(ReportColumn column) {
-        StringBuilder result = new StringBuilder(column.getColumnName() + "\n");
+        ReportColumn analysisNameColumn = categories.get(0).getColumns().stream().toList().get(0);
+        StringBuilder result = new StringBuilder();
+
+        if (column.isUserFunction()){
+            result.append(String.format("%-35s %-20s %-10s %-10s%n", analysisNameColumn.getColumnName(), column.getColumnName()+" Mean", "StdDev", "Variance"));
+        } else {
+            result.append(String.format("%-35s %-45s%n", analysisNameColumn.getColumnName(), column.getColumnName()));
+        }
 
         listOfAnalyses.stream()
                 .filter(Analysis.class::isInstance)
@@ -505,7 +506,13 @@ public class ReportBuilderController {
                 .filter(analysis -> analysis.getMethod().getMethodName().equals(currentReport.getMethodName())) // Filter by method name
                 .forEach(analysis -> {
                     AllBlockInitForDataLiteOne.initBlockModels(analysis); // Init values
-                    result.append(column.retrieveData(analysis)).append("\n");
+                    if (column.isUserFunction()){
+                        String[] ufString = column.retrieveData(analysis).split(",");
+                        if (ufString.length == 1) {ufString = new String[]{ufString[0], "", ""};} // Handle UF error
+                        result.append(String.format("%-35s %-20s %-10s %-10s%n", analysisNameColumn.retrieveData(analysis), ufString[0], ufString[1], ufString[2]) );
+                    } else {
+                        result.append(String.format("%-35s %-45s%n", analysisNameColumn.retrieveData(analysis), column.retrieveData(analysis)));
+                    }
                 });
 
         return result.toString();
@@ -602,36 +609,30 @@ public class ReportBuilderController {
     public void newOnAction(ActionEvent event) {
         boolean proceed = proceedWithUnsavedDialog();
         if (proceed) {
-            TextInputDialog dialog = new TextInputDialog("Enter Report Name");
-            dialog.setTitle("New Report");
-            dialog.setHeaderText("Create a new Report");
-            dialog.setContentText("Enter new report name: ");
+        File analysisFile = new File(analysis.getDataFilePathString());
+        String analysisFileName = analysisFile.getName().substring(0, analysisFile.getName().lastIndexOf("."));
+            if (event.getSource() == newFullButton){ // Generate full report template
+                setCurrentReport(Report.createFullReport(analysisFileName, currentReport.getMethodName(), analysis.getUserFunctions()));
+            } else { // Generate Blank Report Template
+                setCurrentReport(Report.createBlankReport(analysisFileName, currentReport.getMethodName()));
 
-            Optional<String> result = dialog.showAndWait();
-            result.ifPresent(newName -> {
-                if (newName.trim().equals(currentReport.FIXED_REPORT_NAME)){
-                    TripoliMessageDialog.showWarningDialog("Report name: " + currentReport.FIXED_REPORT_NAME + " is restricted", reportStage);
-                } else if (!newName.trim().isEmpty()) {
-                    if (event.getSource() == newFullButton){ // Generate full report template
-                        setCurrentReport(Report.createFullReport(newName, currentReport.getMethodName(), analysis.getUserFunctions()));
-                    } else { // Generate Blank Report Template
-                        setCurrentReport(Report.createBlankReport(newName.trim(), currentReport.getMethodName()));
-
-                    }
-                }
-            });
+            }
         }
     }
 
     public void saveOnAction() throws TripoliException {
-        if (currentReport.getReportName() == null){
+        if (reportNameTextField.getText().isEmpty()){
             TripoliMessageDialog.showWarningDialog("Report must have a name", reportStage);
-        } else if (currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())) {
+        } else if (currentReport.FIXED_REPORT_NAME.equals(reportNameTextField.getText())) {
             TripoliMessageDialog.showWarningDialog("Report name: " + currentReport.FIXED_REPORT_NAME + " is restricted", reportStage);
         } else {
-            TripoliMessageDialog.showSavedAsDialog(currentReport.serializeReport(), reportStage);
-            initalReport = new Report(currentReport); // Reset saved state
-            handleTrackingChanges();
+            boolean proceed = TripoliMessageDialog.showSavedAsConfirmDialog(currentReport.getTripoliReportFile(reportNameTextField.getText()), reportStage);
+            if (proceed) {
+                currentReport.setReportName(reportNameTextField.getText());
+                currentReport.serializeReport();
+                initalReport = new Report(currentReport); // Reset saved state
+                handleTrackingChanges();
+            }
         }
     }
 
@@ -640,21 +641,6 @@ public class ReportBuilderController {
             currentReport = new Report(initalReport);
             initializeListViews();
         }
-    }
-
-    public void renameOnAction() {
-        TextInputDialog dialog = new TextInputDialog(currentReport.getReportName());
-        dialog.setTitle("Rename Report");
-        dialog.setHeaderText("Current Report: '" + currentReport.getReportName()+"'");
-        dialog.setContentText("Enter new report name: ");
-
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(newName -> {
-            if (!newName.trim().isEmpty()) {
-                currentReport.setReportName(newName.trim());
-                handleTrackingChanges();
-            }
-        });
     }
 
     public void deleteOnAction() {
@@ -670,11 +656,16 @@ public class ReportBuilderController {
     }
 
     public void generateOnAction() {
-        File csvFile = currentReport.generateCSVFile(listOfAnalyses);
-        if (csvFile != null){
-            TripoliMessageDialog.showSavedAsDialog(csvFile, reportStage);
-        } else {
-            TripoliMessageDialog.showWarningDialog("Something went wrong and the report could not be generated", reportStage);
+        File reportCSVFile = new File(analysis.getDataFilePathString().substring(0, analysis.getDataFilePathString().lastIndexOf(File.separator))+File.separator + currentReport.getReportName() + ".csv");
+
+        boolean proceed = TripoliMessageDialog.showSavedAsConfirmDialog(reportCSVFile, reportStage);
+        if (proceed) {
+            File csvFile = currentReport.generateCSVFile(listOfAnalyses, analysis);
+            if (csvFile != null){
+                TripoliMessageDialog.showSavedAsDialog(csvFile, reportStage);
+            } else {
+                TripoliMessageDialog.showWarningDialog("Something went wrong and the report could not be generated", reportStage);
+            }
         }
     }
 
@@ -699,7 +690,10 @@ public class ReportBuilderController {
     }
 
     private void handleTrackingChanges() {
-        if (!currentReport.equals(initalReport)) {
+        if (currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())) {
+            reportNameTextField.setText(currentReport.getReportName() + " (Not Editable)");
+            reportStage.setTitle("Report Builder - " + currentReport.getReportName() + " (Not Editable)");
+        } else if (!currentReport.equals(initalReport)) {
             unsavedChanges = true;
             restoreButton.setDisable(false);
             reportStage.setTitle("Report Builder - " + currentReport.getReportName() + "*");
@@ -710,6 +704,7 @@ public class ReportBuilderController {
             reportStage.setTitle("Report Builder - " + currentReport.getReportName());
             reportNameTextField.setText(currentReport.getReportName());
         }
+
     }
     private boolean proceedWithUnsavedDialog(){
         if (unsavedChanges){
