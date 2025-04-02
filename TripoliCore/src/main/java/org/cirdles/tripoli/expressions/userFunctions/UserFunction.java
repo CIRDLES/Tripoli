@@ -44,6 +44,7 @@ public class UserFunction implements Comparable, Serializable {
     private TripoliConstants.ETReduxExportTypeEnum etReduxExportTypeEnum = TripoliConstants.ETReduxExportTypeEnum.NONE;
     private int columnIndex;
     private boolean treatAsIsotopicRatio;
+    private boolean isCustomExpression;
     private boolean displayed;
     private boolean inverted;
     private AnalysisStatsRecord analysisStatsRecord;
@@ -245,4 +246,7 @@ public class UserFunction implements Comparable, Serializable {
         return inverted ? invertedETReduxName : etReduxName;
     }
 
+    public boolean isCustomExpression() {
+        return false; // TODO: false until CE is implemented
+    }
 }

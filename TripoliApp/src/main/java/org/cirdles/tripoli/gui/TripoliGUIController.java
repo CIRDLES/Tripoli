@@ -40,6 +40,7 @@ import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
+import org.cirdles.tripoli.gui.reports.ReportBuilderController;
 import org.cirdles.tripoli.gui.settings.SettingsRequestType;
 import org.cirdles.tripoli.gui.settings.SettingsWindow;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
@@ -50,12 +51,14 @@ import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.SessionBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.jetbrains.annotations.Nullable;
+import org.cirdles.tripoli.reports.Report;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -65,9 +68,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStage;
@@ -110,8 +111,11 @@ public class TripoliGUIController implements Initializable {
     public HBox latestVersionHBox;
     @FXML
     public Label newVersionLabel;
+    @FXML
     public Menu reportsMenu;
     public MenuItem manageAnalysisMenuItem;
+    @FXML
+    public Menu customReportMenu;
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
     @FXML // URL location of the FXML file that was given to the FXMLLoader
@@ -180,7 +184,6 @@ public class TripoliGUIController implements Initializable {
 
         buildSessionMenuMRU();
         showStartingMenus();
-
         detectLatestVersion();
 
         // March 2024 implement drag n drop of files ===================================================================
@@ -217,10 +220,12 @@ public class TripoliGUIController implements Initializable {
                                 tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
                                 analysis = analysisProposed;
                                 parametersMenu.setDisable(false);
+                                reportsMenu.setDisable(false);
                                 AnalysisManagerController.readingFile = true;
                             } else {
                                 analysis = null;
                                 parametersMenu.setDisable(true);
+                                reportsMenu.setDisable(true);
                                 TripoliMessageDialog.showWarningDialog("Tripoli does not recognize this file format.", primaryStageWindow);
                             }
                         } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException |
@@ -235,7 +240,12 @@ public class TripoliGUIController implements Initializable {
             }
         });
         // end implement drag n drop of files ===================================================================
-
+        reportsMenu.setOnShowing(event -> {
+            try {
+                buildCustomReportMenu();
+            } catch (TripoliException | IOException ignored) {
+            }
+        });
     }
 
     private void detectLatestVersion() {
@@ -278,6 +288,7 @@ public class TripoliGUIController implements Initializable {
         manageAnalysisMenuItem.setDisable(true);
 
         parametersMenu.setDisable(true);
+        reportsMenu.setDisable(true);
     }
 
     private void removeAllManagers() throws TripoliException {
@@ -338,6 +349,30 @@ public class TripoliGUIController implements Initializable {
             });
             openRecentSessionMenu.getItems().add(menuItem);
         }
+    }
+
+    @FXML
+    public void buildCustomReportMenu() throws TripoliException, IOException {
+        System.out.println("Building Custom Report Menu");
+        analysis.getAnalysisMethod().refreshReports();
+        Set<Report> reportTreeSet = analysis.getMethod().getReports();
+        customReportMenu.getItems().clear();
+        for (Report report : reportTreeSet) {
+            if (report.getReportName().equals(report.FIXED_REPORT_NAME)) {
+                MenuItem menuItem = new MenuItem(report.getReportName());
+                menuItem.setOnAction((ActionEvent t) -> {openCustomReport(report);});
+                customReportMenu.getItems().add(0, menuItem);
+                customReportMenu.getItems().add(1, new SeparatorMenuItem());
+            } else {
+                MenuItem menuItem = new MenuItem(report.getReportName());
+                menuItem.setOnAction((ActionEvent t) -> {openCustomReport(report);});
+                customReportMenu.getItems().add(menuItem);
+            }
+        }
+    }
+
+    private void openCustomReport(Report report) {
+        ReportBuilderController.loadReportBuilder(report);
     }
 
     @FXML
@@ -640,4 +675,5 @@ public class TripoliGUIController implements Initializable {
     public void showTripoliUserManual() {
         BrowserControl.showURI("https://cirdles.org/tripoli-manual");
     }
+
 }
