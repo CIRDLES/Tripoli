@@ -294,6 +294,9 @@
                 </SplitPane>
             </content>
         </Tab>
+        <Tab fx:id="customExpressionsTab" text="Custom Expressions">
+
+        </Tab>
     </TabPane>
     <VBox GridPane.rowIndex="7">
         <children>

@@ -242,7 +242,12 @@ public class TripoliGUIController implements Initializable {
         // end implement drag n drop of files ===================================================================
         reportsMenu.setOnShowing(event -> {
             try {
-                buildCustomReportMenu();
+                if (analysis.getAnalysisMethod() != null) {
+                    buildCustomReportMenu();
+                } else {
+                    customReportMenu.getItems().clear();
+                }
+
             } catch (TripoliException | IOException ignored) {
             }
         });
@@ -625,7 +630,7 @@ public class TripoliGUIController implements Initializable {
         tripoliSession.addAnalysis(analysisSelected);
         analysis = analysisSelected;
         parametersMenu.setDisable(false);
-        // reportsMenu.setDisable(false); ???
+        reportsMenu.setDisable(false);
         manageAnalysisMenuItem.setDisable(false);
         // manage analysis
         MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
