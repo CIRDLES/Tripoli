@@ -328,7 +328,10 @@ public class TripoliGUIController implements Initializable {
         closeSessionMenuItem.setDisable(false);
         analysisMenu.setDisable(false);
         manageAnalysisMenuItem.setDisable(false);
-//        parametersMenu.setDisable(false);
+        if (analysis != null) {
+            reportsMenu.setDisable(false);
+            parametersMenu.setDisable(false);
+        }
     }
 
     private void buildSessionMenuMRU() {
@@ -353,7 +356,6 @@ public class TripoliGUIController implements Initializable {
 
     @FXML
     public void buildCustomReportMenu() throws TripoliException, IOException {
-        System.out.println("Building Custom Report Menu");
         analysis.getAnalysisMethod().refreshReports();
         Set<Report> reportTreeSet = analysis.getMethod().getReports();
         customReportMenu.getItems().clear();
@@ -623,6 +625,7 @@ public class TripoliGUIController implements Initializable {
         tripoliSession.addAnalysis(analysisSelected);
         analysis = analysisSelected;
         parametersMenu.setDisable(false);
+        // reportsMenu.setDisable(false); ???
         manageAnalysisMenuItem.setDisable(false);
         // manage analysis
         MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
