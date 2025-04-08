@@ -37,6 +37,9 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.TextFlow?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Text?>
 
 <GridPane fx:id="analysisManagerGridPane" hgap="15.0" minWidth="250.0" prefHeight="640.0" prefWidth="1250.0" style="-fx-background-color: #fbf6d5;" stylesheets="@css/tripoli.css" vgap="10.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.AnalysisManagerController">
     <columnConstraints>
@@ -291,6 +294,18 @@
                             </children>
                         </VBox>
                     </items>
+                </SplitPane>
+            </content>
+        </Tab>
+        <Tab fx:id="customExpressionsTab" closable="false" text="Custom Expressions">
+            <content>
+                <SplitPane dividerPositions="0.2" prefHeight="242.0" prefWidth="1065.0">
+                    <VBox prefHeight="537.0" prefWidth="300" SplitPane.resizableWithParent="false" VBox.vgrow="SOMETIMES">
+                        <Accordion fx:id="expressionAccordion" minWidth="200" VBox.vgrow="ALWAYS" />
+                    </VBox>
+                    <StackPane>
+                        <Text fx:id="expressionText" text="Sample text" VBox.vgrow="SOMETIMES"/>
+                    </StackPane>
                 </SplitPane>
             </content>
         </Tab>

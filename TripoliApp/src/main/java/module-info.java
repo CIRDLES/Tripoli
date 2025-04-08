@@ -27,4 +27,5 @@ module Tripoli.TripoliApp {
     requires org.jetbrains.annotations;
     requires commons.math3;
     requires com.google.common;
+    requires java.logging;
 }

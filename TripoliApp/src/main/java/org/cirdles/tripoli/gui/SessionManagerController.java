@@ -92,6 +92,7 @@ public class SessionManagerController implements Initializable {
         });
         sessionGridPane.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
+
             if (event.getDragboard().hasFiles()) {
                 for (int i = 0; i < db.getFiles().size(); i++) {
                     File dataFile = db.getFiles().get(i);
@@ -206,6 +207,14 @@ public class SessionManagerController implements Initializable {
             deleteItem.setOnAction(event -> {
                 tripoliSession.getMapOfAnalyses().remove(getItem().getAnalysisName());
                 AnalysisManagerController.analysis = null;
+                if (tripoliSession.getMapOfAnalyses().isEmpty()) {
+                    MenuItem reportMenu = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                            .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(3);
+                    MenuItem parameterMenu = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                            .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(2);
+                    reportMenu.setDisable(true);
+                    parameterMenu.setDisable(true);
+                }
                 // manage session
                 MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
                         .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(0);
