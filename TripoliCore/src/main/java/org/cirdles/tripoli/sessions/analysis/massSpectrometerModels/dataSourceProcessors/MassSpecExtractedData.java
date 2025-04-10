@@ -257,6 +257,12 @@ public class MassSpecExtractedData implements Serializable {
         }
     }
 
+    public void expandCycleDataForCustomExpression(){
+        for (Integer blockID : blocksDataLite.keySet()) {
+            blocksDataLite.put(blockID, blocksDataLite.get(blockID).expandForCustomExpression());
+        }
+    }
+
     public MassSpectrometerContextEnum getMassSpectrometerContext() {
         return massSpectrometerContext;
     }
