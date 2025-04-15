@@ -48,7 +48,7 @@ public record MassSpecOutputBlockRecordLite(
             System.arraycopy(cycleData[row], 0, cycleDataExpand[row], 0, cycleData[row].length);
 
             cycleDataExpand[row][cycleData[row].length] =
-                    10.00;
+                    10.00; // This will hold the expression tree value
         }
         return new MassSpecOutputBlockRecordLite(blockID, cycleDataExpand);
     }
