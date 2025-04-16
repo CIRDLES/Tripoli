@@ -49,6 +49,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
 import static org.cirdles.tripoli.gui.SessionManagerController.tripoliSession;
@@ -169,6 +170,7 @@ public class ReportBuilderController {
         initializeListViews();
     }
 
+    @SuppressWarnings("unchecked")
     private void initializeListViews() {
         categories = FXCollections.observableArrayList(currentReport.getCategories());
         categoryListView.setItems(categories);
@@ -222,6 +224,7 @@ public class ReportBuilderController {
                     db.setContent(content);
 
                     categoryListView.setUserData(cell.getItem()); // Store dragged item
+                    db.setDragView(cell.snapshot(null, null));
                     event.consume();
                 }
 
@@ -372,6 +375,7 @@ public class ReportBuilderController {
                     db.setContent(content);
 
                     columnListView.setUserData(cell.getItem());
+                    db.setDragView(cell.snapshot(null, null));
                     event.consume();
                 }
             });
@@ -394,9 +398,14 @@ public class ReportBuilderController {
                 if (db.hasString()
                         && event.getGestureSource() instanceof ListCell<?> sourceCell
                         && sourceCell.getListView() != categoryListView) {
-                    ReportColumn draggedItem = (ReportColumn) sourceCell.getListView().getUserData();
+                    List<ReportColumn> draggedItems = new ArrayList<>();
+                    ReportColumn draggedItem = null;
+                    if (sourceCell.getListView().getUserData() instanceof ArrayList<?>) {
+                        draggedItems = (List<ReportColumn>) sourceCell.getListView().getUserData();
+                    } else {
+                        draggedItem = (ReportColumn) sourceCell.getListView().getUserData();
+                    }
 
-                    if (draggedItem != null) {
                         int dropIndex = cell.getIndex();
                         if (sourceCell.getListView() == columnListView){
                             dropIndex = Math.min(dropIndex, columns.size()-1);
@@ -411,11 +420,17 @@ public class ReportBuilderController {
                             return;
                         }
 
-                        if (sourceCell.getListView() != columnListView){
-                            ReportColumn draggedItemCopy = new ReportColumn(draggedItem);
-                            categoryListView.getSelectionModel().getSelectedItem().insertColumnAtPosition(draggedItemCopy, dropIndex);
-                            columns.add(dropIndex, draggedItemCopy);
-                        } else{
+                        if (sourceCell.getListView() != columnListView) {
+                            int insertPos = dropIndex;
+                            for (ReportColumn col : draggedItems) {
+                                ReportColumn draggedItemCopy = new ReportColumn(col);
+                                categoryListView.getSelectionModel()
+                                        .getSelectedItem()
+                                        .insertColumnAtPosition(draggedItemCopy, insertPos);
+                                columns.add(insertPos, draggedItemCopy);
+                                insertPos++; // increment index to maintain order
+                            }
+                        } else if (draggedItem != null){
                             columns.remove(draggedItem);
                             columns.add(dropIndex, draggedItem);
                             categoryListView.getSelectionModel().getSelectedItem().updateColumnPosition(draggedItem, dropIndex);
@@ -424,7 +439,7 @@ public class ReportBuilderController {
 
                         success = true;
                     }
-                }
+
 
                 event.setDropCompleted(success);
                 event.consume();
@@ -547,7 +562,8 @@ public class ReportBuilderController {
 
         for (ReportCategory cat : accReport.getCategories()) {
             ListView<ReportColumn> accColumnlv = new ListView<>();
-            accColumnlv.getItems().addAll(cat.getColumns()); // Add columns to the ListView
+            accColumnlv.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+            accColumnlv.getItems().addAll(cat.getColumns());
 
             // Enable drag detection for moving columns
             accColumnlv.setCellFactory(param -> new ListCell<>() {
@@ -563,13 +579,21 @@ public class ReportBuilderController {
                         // Enable drag
                         setOnDragDetected(event -> {
                             if (!currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())) {
-                                Dragboard db = startDragAndDrop(TransferMode.MOVE);
+                                ObservableList<ReportColumn> selectedItems = accColumnlv.getSelectionModel().getSelectedItems();
+
+                                if (!selectedItems.isEmpty()) {
+
+                                    Dragboard db = startDragAndDrop(TransferMode.MOVE);
                                 ClipboardContent content = new ClipboardContent();
-                                content.putString(col.getColumnName());
+                                content.putString(selectedItems.stream()
+                                        .map(ReportColumn::getColumnName)
+                                        .collect(Collectors.joining(",")));
                                 db.setContent(content);
 
-                                accColumnlv.setUserData(col);
+                                accColumnlv.setUserData(new ArrayList<>(selectedItems));
+                                db.setDragView(this.snapshot(null, null));
                                 event.consume();
+                                }
                             }
                         });
                     }
