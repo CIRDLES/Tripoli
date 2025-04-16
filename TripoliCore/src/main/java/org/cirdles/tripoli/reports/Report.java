@@ -70,10 +70,8 @@ public class Report implements Serializable, Comparable<Report> {
     public String getReportName() { return this.reportName.replaceAll("_", " ").trim(); }
     public void setReportName(String reportName) { this.reportName = reportName.replaceAll("[\\\\/:*?\"<>| ]", "_").trim(); }
 
-    public void setMethodName(String methodName) { this.methodName = methodName; }
     public String getMethodName() { return this.methodName; }
 
-    public void addCategory(String categoryName) { this.categorySet.add(new ReportCategory(categoryName, categorySet.size())); }
     public void addCategory(ReportCategory category) {
         this.categorySet.add(category);
     }
@@ -114,7 +112,7 @@ public class Report implements Serializable, Comparable<Report> {
     public File getTripoliReportFile() {
         if (tripoliReportDirectoryLocal == null) createReportDirectory();
 
-        return tripoliReportDirectoryLocal.toPath().resolve(this.methodName + File.separator + this.getReportName() + ".tripreport").toFile();
+        return tripoliReportDirectoryLocal.toPath().resolve(this.methodName + File.separator + this.getReportName() + ".tripReport").toFile();
     }
 
     /**
@@ -126,7 +124,7 @@ public class Report implements Serializable, Comparable<Report> {
     public File getTripoliReportFile(String newReportName) {
         if (tripoliReportDirectoryLocal == null) createReportDirectory();
 
-        return tripoliReportDirectoryLocal.toPath().resolve(this.methodName + File.separator + newReportName +".tripreport").toFile();
+        return tripoliReportDirectoryLocal.toPath().resolve(this.methodName + File.separator + newReportName +".tripReport").toFile();
     }
 
     /**
@@ -219,7 +217,7 @@ public class Report implements Serializable, Comparable<Report> {
         if(!reportMethodDirectory.exists()){
             reportMethodDirectory.mkdir();
         }
-        File reportFile = new File(reportMethodDirectory.getAbsolutePath() + File.separator + this.getReportName()+".tripreport");
+        File reportFile = new File(reportMethodDirectory.getAbsolutePath() + File.separator + this.getReportName()+".tripReport");
         TripoliSerializer.serializeObjectToFile(this, reportFile.getAbsolutePath());
 
     }

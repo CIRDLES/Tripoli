@@ -85,7 +85,7 @@ public class ReportBuilderController {
     @FXML
     private ListView<ReportColumn> columnListView;
 
-    private Stage reportStage;
+    private static Stage reportBuilderStage;
 
     private Report currentReport;
     private Report initalReport;
@@ -101,26 +101,39 @@ public class ReportBuilderController {
     }
 
     public static void loadReportBuilder(Report report){
+        if (reportBuilderStage != null && reportBuilderStage.isShowing()) {
+            // Bring existing window to front
+            reportBuilderStage.toFront();
+            reportBuilderStage.requestFocus();
+            return;
+        }
+
         try {
             FXMLLoader loader = new FXMLLoader(ReportBuilderController.class.getResource("/org/cirdles/tripoli/gui/reports/ReportBuilder.fxml"));
             Parent root = loader.load();
             ReportBuilderController controller = loader.getController();
-            Stage stage = new Stage();
-            stage.setTitle("Report Builder");
-            stage.setScene(new Scene(root));
-            stage.setX(primaryStage.getX() + (primaryStage.getWidth() - 875) / 2);
-            stage.setY(primaryStage.getY() + (primaryStage.getHeight() - 650) / 2);
-            controller.setStage(stage);
+
+            reportBuilderStage = new Stage();
+            reportBuilderStage.setTitle("Report Builder");
+            reportBuilderStage.setScene(new Scene(root));
+
+            reportBuilderStage.setX(primaryStage.getX() + (primaryStage.getWidth() - 875) / 2);
+            reportBuilderStage.setY(primaryStage.getY() + (primaryStage.getHeight() - 650) / 2);
+
+            controller.setStage(reportBuilderStage);
             controller.setCurrentReport(report);
-            stage.show();
+
+            reportBuilderStage.setOnHidden(e -> reportBuilderStage = null);
+
+            reportBuilderStage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void setStage(Stage stage) {
-        reportStage = stage;
-        reportStage.setOnCloseRequest(event -> {
+        reportBuilderStage = stage;
+        reportBuilderStage.setOnCloseRequest(event -> {
             if (!proceedWithUnsavedDialog()) { event.consume(); }
         });
         populateAccordion();
@@ -181,13 +194,13 @@ public class ReportBuilderController {
 
                         // Check if the current item is the fixed category
                         if (Objects.equals(item.getCategoryName(), item.FIXED_CATEGORY_NAME)) {
-                            setCursor(Cursor.DISAPPEAR); // Todo: make this a x or something
+                            setCursor(Cursor.DISAPPEAR);
                             Tooltip tooltip = new Tooltip("This category cannot be moved.");
                             tooltip.setShowDelay(Duration.seconds(0.5));
                             setTooltip(tooltip);
                             fixedCategoryCell.set(this);
                         } else if(currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())) {
-                            setCursor(Cursor.DISAPPEAR); // Todo: make this a x or something
+                            setCursor(Cursor.DISAPPEAR);
                             Tooltip tooltip = new Tooltip("Editing of " + currentReport.FIXED_REPORT_NAME + " is not allowed");
                             tooltip.setShowDelay(Duration.seconds(0.1));
                             setTooltip(tooltip);
@@ -300,6 +313,7 @@ public class ReportBuilderController {
 
                 if (!columns.isEmpty()) {
                     columnListView.getSelectionModel().selectFirst();
+                    columnDetailsTextArea.setText(formatColumnDetails(columns.get(0)));
                 }
             }
         });
@@ -609,30 +623,36 @@ public class ReportBuilderController {
     public void newOnAction(ActionEvent event) {
         boolean proceed = proceedWithUnsavedDialog();
         if (proceed) {
-        File analysisFile = new File(analysis.getDataFilePathString());
-        String analysisFileName = analysisFile.getName().substring(0, analysisFile.getName().lastIndexOf("."));
+        String analysisMethodName = analysis.getMethod().getMethodName();
             if (event.getSource() == newFullButton){ // Generate full report template
-                setCurrentReport(Report.createFullReport(analysisFileName, currentReport.getMethodName(), analysis.getUserFunctions()));
+                setCurrentReport(Report.createFullReport(analysisMethodName.replaceAll(" ", "_"), analysisMethodName, analysis.getUserFunctions()));
             } else { // Generate Blank Report Template
-                setCurrentReport(Report.createBlankReport(analysisFileName, currentReport.getMethodName()));
+                setCurrentReport(Report.createBlankReport(analysisMethodName.replaceAll(" ", "_"), analysisMethodName));
 
             }
         }
     }
 
     public void saveOnAction() throws TripoliException {
+        boolean proceed;
+        String reportName = reportNameTextField.getText().substring(0, reportNameTextField.getText().lastIndexOf("*"));
         if (reportNameTextField.getText().isEmpty()){
-            TripoliMessageDialog.showWarningDialog("Report must have a name", reportStage);
+            TripoliMessageDialog.showWarningDialog("Report must have a name", reportBuilderStage);
         } else if (currentReport.FIXED_REPORT_NAME.equals(reportNameTextField.getText())) {
-            TripoliMessageDialog.showWarningDialog("Report name: " + currentReport.FIXED_REPORT_NAME + " is restricted", reportStage);
-        } else {
-            boolean proceed = TripoliMessageDialog.showSavedAsConfirmDialog(currentReport.getTripoliReportFile(reportNameTextField.getText()), reportStage);
+            TripoliMessageDialog.showWarningDialog("Report name: " + currentReport.FIXED_REPORT_NAME + " is restricted", reportBuilderStage);
+        } else if (currentReport.getTripoliReportFile().exists()) {
+            proceed = TripoliMessageDialog.showOverwriteDialog(currentReport.getTripoliReportFile(), reportBuilderStage);
             if (proceed) {
-                currentReport.setReportName(reportNameTextField.getText());
+                currentReport.setReportName(reportName);
                 currentReport.serializeReport();
                 initalReport = new Report(currentReport); // Reset saved state
                 handleTrackingChanges();
             }
+        } else {
+            currentReport.setReportName(reportName);
+            currentReport.serializeReport();
+            initalReport = new Report(currentReport); // Reset saved state
+            handleTrackingChanges();
         }
     }
 
@@ -645,26 +665,26 @@ public class ReportBuilderController {
 
     public void deleteOnAction() {
         if (!currentReport.getTripoliReportFile().exists()){
-            TripoliMessageDialog.showWarningDialog("Report does not exist!", reportStage);
+            TripoliMessageDialog.showWarningDialog("Report does not exist!", reportBuilderStage);
             return;
         }
-        boolean proceed = TripoliMessageDialog.showChoiceDialog("Are you sure? \n Delete Report: "+ currentReport.getReportName() + "?", reportStage);
-        if (proceed && currentReport.deleteReport()){
-            TripoliMessageDialog.showInfoDialog("Report Deleted!", reportStage);
+        boolean proceed = TripoliMessageDialog.showChoiceDialog("Are you sure? \n Delete Report: "+ currentReport.getReportName() + "?", reportBuilderStage);
+        if (proceed && !currentReport.deleteReport()){
+            TripoliMessageDialog.showWarningDialog("Error has occurred! Report not deleted.", reportBuilderStage);
         }
-        reportStage.close();
+        reportBuilderStage.close();
     }
 
     public void generateOnAction() {
         File reportCSVFile = new File(analysis.getDataFilePathString().substring(0, analysis.getDataFilePathString().lastIndexOf(File.separator))+File.separator + currentReport.getReportName() + ".csv");
 
-        boolean proceed = TripoliMessageDialog.showSavedAsConfirmDialog(reportCSVFile, reportStage);
+        boolean proceed = TripoliMessageDialog.showSavedAsConfirmDialog(reportCSVFile, reportBuilderStage);
         if (proceed) {
             File csvFile = currentReport.generateCSVFile(listOfAnalyses, analysis);
             if (csvFile != null){
-                TripoliMessageDialog.showSavedAsDialog(csvFile, reportStage);
+                TripoliMessageDialog.showSavedAsDialog(csvFile, reportBuilderStage);
             } else {
-                TripoliMessageDialog.showWarningDialog("Something went wrong and the report could not be generated", reportStage);
+                TripoliMessageDialog.showWarningDialog("Something went wrong and the report could not be generated", reportBuilderStage);
             }
         }
     }
@@ -675,10 +695,10 @@ public class ReportBuilderController {
 
         // Category cannot already exist
         if (categoryName.trim().isEmpty()) {
-            TripoliMessageDialog.showWarningDialog("Category must have name!", reportStage);
+            TripoliMessageDialog.showWarningDialog("Category must have name!", reportBuilderStage);
             categoryTextField.setText("");
         } else if (categories.stream().anyMatch(t -> t.getCategoryName().equalsIgnoreCase(categoryName))) {
-            TripoliMessageDialog.showWarningDialog("Category already exists!", reportStage);
+            TripoliMessageDialog.showWarningDialog("Category already exists!", reportBuilderStage);
             categoryTextField.setText("");
         }else {
             ReportCategory newCategory = new ReportCategory(categoryName, categories.size());
@@ -692,23 +712,23 @@ public class ReportBuilderController {
     private void handleTrackingChanges() {
         if (currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())) {
             reportNameTextField.setText(currentReport.getReportName() + " (Not Editable)");
-            reportStage.setTitle("Report Builder - " + currentReport.getReportName() + " (Not Editable)");
+            reportBuilderStage.setTitle("Report Builder - " + currentReport.getReportName() + " (Not Editable)");
         } else if (!currentReport.equals(initalReport)) {
             unsavedChanges = true;
             restoreButton.setDisable(false);
-            reportStage.setTitle("Report Builder - " + currentReport.getReportName() + "*");
+            reportBuilderStage.setTitle("Report Builder - " + currentReport.getReportName() + "*");
             reportNameTextField.setText(currentReport.getReportName() + "*");
         } else {
             unsavedChanges = false;
             restoreButton.setDisable(true);
-            reportStage.setTitle("Report Builder - " + currentReport.getReportName());
+            reportBuilderStage.setTitle("Report Builder - " + currentReport.getReportName());
             reportNameTextField.setText(currentReport.getReportName());
         }
 
     }
     private boolean proceedWithUnsavedDialog(){
         if (unsavedChanges){
-            return TripoliMessageDialog.showChoiceDialog("Unsaved changes exist! Are you sure?", reportStage);
+            return TripoliMessageDialog.showChoiceDialog("Unsaved changes exist! Are you sure?", reportBuilderStage);
         }
         return true;
     }

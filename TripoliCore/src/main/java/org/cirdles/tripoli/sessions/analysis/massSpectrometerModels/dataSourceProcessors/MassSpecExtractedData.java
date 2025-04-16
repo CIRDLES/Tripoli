@@ -85,7 +85,7 @@ public class MassSpecExtractedData implements Serializable {
         for (String[] headerStrings : headerData) {
             switch (headerStrings[0].trim().toUpperCase()) {
                 // All
-                case "METHODNAME" -> methodName = headerStrings[1].trim();
+                case "METHODNAME" -> methodName = headerStrings[1].trim().substring(0, headerStrings[1].lastIndexOf('.'));
                 case "METHOD NAME" -> methodName = headerStrings[1].trim();
 
                 // Phoenix
