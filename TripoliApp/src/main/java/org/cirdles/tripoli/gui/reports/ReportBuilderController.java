@@ -693,12 +693,13 @@ public class ReportBuilderController {
 
     public void saveOnAction() throws TripoliException {
         boolean proceed;
-        String reportName = reportNameTextField.getText().substring(0, reportNameTextField.getText().lastIndexOf("*"));
-        if (reportNameTextField.getText().isEmpty()){
+        reportNameTextField.setText(reportNameTextField.getText().replaceAll("\\*", ""));
+        String reportName = reportNameTextField.getText();
+        if (reportName.isEmpty()){
             TripoliMessageDialog.showWarningDialog("Report must have a name", reportBuilderStage);
-        } else if (currentReport.FIXED_REPORT_NAME.equals(reportNameTextField.getText())) {
+        } else if (currentReport.FIXED_REPORT_NAME.equals(reportName)) {
             TripoliMessageDialog.showWarningDialog("Report name: " + currentReport.FIXED_REPORT_NAME + " is restricted", reportBuilderStage);
-        } else if (currentReport.getTripoliReportFile().exists()) {
+        } else if (currentReport.getTripoliReportFile(reportName).exists()) {
             proceed = TripoliMessageDialog.showOverwriteDialog(currentReport.getTripoliReportFile(), reportBuilderStage);
             if (proceed) {
                 currentReport.setReportName(reportName);
