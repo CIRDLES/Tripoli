@@ -241,7 +241,7 @@ public class ReportBuilderController {
                     int targetIndex = cell.getIndex();
                     int draggedIndex = sourceCell.getIndex();
 
-                    if (draggedIndex < targetIndex) {
+                    if (draggedIndex < targetIndex || targetIndex == 0) {
                         cell.setStyle(DROPBARSTYLEDOWN);
                     } else {
                         cell.setStyle(DROPBARSTYLEUP);
@@ -267,14 +267,13 @@ public class ReportBuilderController {
                         int dropIndex = cell.getIndex();
                         dropIndex = Math.min(dropIndex, categories.size()-1);
                         if (fixedCategoryCell.get() != null && dropIndex <= fixedCategoryCell.get().getIndex()) {
-                            event.consume();
-                            return;
+                            dropIndex = 1;
                         }
                         categories.remove(draggedItem);
                         categories.add(dropIndex, draggedItem);
                         currentReport.updateCategoryPosition(draggedItem, dropIndex);
                         handleTrackingChanges();
-
+                        categoryListView.getSelectionModel().select(dropIndex);
                         success = true;
                     }
                 }
@@ -406,7 +405,7 @@ public class ReportBuilderController {
                         draggedIndex = draggedItems.get(0).getPositionIndex();
                     }
 
-                    if (draggedIndex < targetIndex) {
+                    if (draggedIndex < targetIndex  || targetIndex == 0) {
                         cell.setStyle(DROPBARSTYLEDOWN);
                     } else {
                         cell.setStyle(DROPBARSTYLEUP);
@@ -442,8 +441,7 @@ public class ReportBuilderController {
                     if (fixedColumnCell.get() != null
                             && categoryListView.getSelectionModel().isSelected(0)
                             && dropIndex <= fixedColumnCell.get().getIndex()) {
-                        event.consume();
-                        return;
+                        dropIndex = 1;
                     }
 
                     if (sourceCell.getListView() != columnListView
@@ -463,6 +461,7 @@ public class ReportBuilderController {
                         categoryListView.getSelectionModel().getSelectedItem().updateColumnPosition(draggedItems.get(0), dropIndex);
                     }
                     handleTrackingChanges();
+                    columnListView.getSelectionModel().select(dropIndex);
                     success = true;
                 }
                 event.setDropCompleted(success);
