@@ -97,6 +97,9 @@ public class ReportBuilderController {
 
     boolean unsavedChanges;
 
+    final String DROPBARSTYLEDOWN = "-fx-border-color: dodgerblue; -fx-border-width: 0 0 2 0;";
+    final String DROPBARSTYLEUP = "-fx-border-color: dodgerblue; -fx-border-width: 2 0 0 0;";
+
     public ReportBuilderController() {
         listOfAnalyses = new ArrayList<>();
     }
@@ -235,10 +238,20 @@ public class ReportBuilderController {
                 if (event.getGestureSource() instanceof ListCell<?> sourceCell
                         && sourceCell.getListView() == cell.getListView() // Ensure same ListView
                         && event.getDragboard().hasString()) {
+                    int targetIndex = cell.getIndex();
+                    int draggedIndex = sourceCell.getIndex();
+
+                    if (draggedIndex < targetIndex) {
+                        cell.setStyle(DROPBARSTYLEDOWN);
+                    } else {
+                        cell.setStyle(DROPBARSTYLEUP);
+                    }
                     event.acceptTransferModes(TransferMode.MOVE);
                 }
                 event.consume();
             });
+
+            cell.setOnDragExited(e -> cell.setStyle(""));
 
             // Handle drop
             cell.setOnDragDropped(event -> {
@@ -385,10 +398,24 @@ public class ReportBuilderController {
                 if (event.getGestureSource() instanceof ListCell<?> sourceCell
                         && sourceCell.getListView() != categoryListView
                         && event.getDragboard().hasString()) {
+                    int targetIndex = cell.getIndex();
+                    List<ReportColumn> draggedItems = new ArrayList<>();
+                    int draggedIndex = Integer.MAX_VALUE;
+                    if (sourceCell.getListView().getUserData() instanceof ReportColumn) {
+                        draggedItems.add((ReportColumn) sourceCell.getListView().getUserData());
+                        draggedIndex = draggedItems.get(0).getPositionIndex();
+                    }
+
+                    if (draggedIndex < targetIndex) {
+                        cell.setStyle(DROPBARSTYLEDOWN);
+                    } else {
+                        cell.setStyle(DROPBARSTYLEUP);
+                    }
                     event.acceptTransferModes(TransferMode.MOVE);
                 }
                 event.consume();
             });
+            cell.setOnDragExited(e -> cell.setStyle(""));
 
             // Handle drop
             cell.setOnDragDropped(event -> {
