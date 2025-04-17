@@ -109,7 +109,7 @@ public class TripoliMessageDialog extends Alert {
         return false;
     }
 
-    public static void showSavedAsDialog(File file, Window owner) {
+    public static String showSavedAsDialog(File file, Window owner) {
         if (null == file) {
             Alert dialog = new TripoliMessageDialog(AlertType.WARNING,
                     "Path is null!",
@@ -121,39 +121,15 @@ public class TripoliMessageDialog extends Alert {
                     showLongfilePath(file.getAbsolutePath()),
                     (file.isDirectory() ? "Files saved in:" : "File saved as:"),
                     owner);
-            ButtonType openButton = new ButtonType((file.isDirectory() ? "Open Directory" : "Open File"), ButtonBar.ButtonData.APPLY);
-            dialog.getButtonTypes().setAll(openButton, ButtonType.OK);
-            dialog.setOnCloseRequest(event -> {dialog.close();});
-            dialog.showAndWait().ifPresent(action -> {
-                if (action == openButton) {
-                    try {
-                        Desktop.getDesktop().open(file);
-                    } catch (IOException e) {
-                    }
-                }
-            });
-        }
-    }
-
-    public static boolean showSavedAsConfirmDialog(File file, Window owner) {
-        if (null == file) {
-            Alert dialog = new TripoliMessageDialog(AlertType.WARNING,
-                    "Path is null!",
-                    "Check permissions ...",
-                    owner);
-            dialog.showAndWait();
-        } else {
-            Alert dialog = new TripoliMessageDialog(AlertType.CONFIRMATION,
-                    showLongfilePath(file.getAbsolutePath()),
-                    "Save File As?",
-                    owner);
-            dialog.getButtonTypes().setAll(ButtonType.CANCEL, ButtonType.YES);
+            ButtonType saveAndOpenButton = new ButtonType("Save and Open", ButtonBar.ButtonData.OK_DONE);
+            ButtonType saveButton = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+            dialog.getButtonTypes().setAll(ButtonType.CANCEL, saveButton, saveAndOpenButton);
             dialog.setOnCloseRequest(event -> {dialog.close();});
 
-            Optional<ButtonType> result = dialog.showAndWait();
-            return result.isPresent() && result.get() == ButtonType.YES;
+            return dialog.showAndWait().get().getText();
+
         }
-        return false;
+        return null;
     }
 
     public static String showLongfilePath(String path) {

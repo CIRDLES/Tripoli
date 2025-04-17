@@ -27,6 +27,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
@@ -45,9 +48,11 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -737,14 +742,16 @@ public class ReportBuilderController {
     public void generateOnAction() {
         File reportCSVFile = new File(analysis.getDataFilePathString().substring(0, analysis.getDataFilePathString().lastIndexOf(File.separator))+File.separator + currentReport.getReportName() + ".csv");
 
-        boolean proceed = TripoliMessageDialog.showSavedAsConfirmDialog(reportCSVFile, reportBuilderStage);
-        if (proceed) {
-            File csvFile = currentReport.generateCSVFile(listOfAnalyses, analysis);
-            if (csvFile != null){
-                TripoliMessageDialog.showSavedAsDialog(csvFile, reportBuilderStage);
-            } else {
-                TripoliMessageDialog.showWarningDialog("Something went wrong and the report could not be generated", reportBuilderStage);
+        String proceed = TripoliMessageDialog.showSavedAsDialog(reportCSVFile, reportBuilderStage);
+
+        if (proceed != null && proceed.equals("Save and Open")){
+            try {
+                reportCSVFile = currentReport.generateCSVFile(listOfAnalyses, analysis);
+                Desktop.getDesktop().open(reportCSVFile);
+            } catch (IOException e) {
             }
+        } else if (proceed.equals("Save")){
+            currentReport.generateCSVFile(listOfAnalyses, analysis);
         }
     }
 
