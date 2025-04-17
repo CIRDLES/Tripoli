@@ -399,51 +399,49 @@ public class ReportBuilderController {
                         && event.getGestureSource() instanceof ListCell<?> sourceCell
                         && sourceCell.getListView() != categoryListView) {
                     List<ReportColumn> draggedItems = new ArrayList<>();
-                    ReportColumn draggedItem = null;
                     if (sourceCell.getListView().getUserData() instanceof ArrayList<?>) {
                         draggedItems = (List<ReportColumn>) sourceCell.getListView().getUserData();
                     } else {
-                        draggedItem = (ReportColumn) sourceCell.getListView().getUserData();
+                        draggedItems.add((ReportColumn) sourceCell.getListView().getUserData());
                     }
 
-                        int dropIndex = cell.getIndex();
-                        if (sourceCell.getListView() == columnListView){
-                            dropIndex = Math.min(dropIndex, columns.size()-1);
-                        } else {
-                            dropIndex = Math.min(dropIndex, columns.size());
-                        }
+                    int dropIndex = cell.getIndex();
+                    if (sourceCell.getListView() == columnListView){
+                        dropIndex = Math.min(dropIndex, columns.size()-1);
+                    } else {
+                        dropIndex = Math.min(dropIndex, columns.size());
+                    }
 
-                        if (fixedColumnCell.get() != null
-                                && categoryListView.getSelectionModel().isSelected(0)
-                                && dropIndex <= fixedColumnCell.get().getIndex()) {
-                            event.consume();
-                            return;
-                        }
+                    if (fixedColumnCell.get() != null
+                            && categoryListView.getSelectionModel().isSelected(0)
+                            && dropIndex <= fixedColumnCell.get().getIndex()) {
+                        event.consume();
+                        return;
+                    }
 
-                        if (sourceCell.getListView() != columnListView) {
-                            int insertPos = dropIndex;
-                            for (ReportColumn col : draggedItems) {
-                                ReportColumn draggedItemCopy = new ReportColumn(col);
-                                categoryListView.getSelectionModel()
-                                        .getSelectedItem()
-                                        .insertColumnAtPosition(draggedItemCopy, insertPos);
-                                columns.add(insertPos, draggedItemCopy);
-                                insertPos++; // increment index to maintain order
+                    if (sourceCell.getListView() != columnListView
+                            && draggedItems != null) {
+                        int insertPos = dropIndex;
+                        for (ReportColumn col : draggedItems) {
+                            ReportColumn draggedItemCopy = new ReportColumn(col);
+                            categoryListView.getSelectionModel()
+                                    .getSelectedItem()
+                                    .insertColumnAtPosition(draggedItemCopy, insertPos);
+                            columns.add(insertPos, draggedItemCopy);
+                            insertPos++;
                             }
-                        } else if (draggedItem != null){
-                            columns.remove(draggedItem);
-                            columns.add(dropIndex, draggedItem);
-                            categoryListView.getSelectionModel().getSelectedItem().updateColumnPosition(draggedItem, dropIndex);
-                        }
-                        handleTrackingChanges();
-
-                        success = true;
+                    } else if (draggedItems != null){ // Internal move can only be 1 item
+                        columns.remove(draggedItems.get(0));
+                        columns.add(dropIndex, draggedItems.get(0));
+                        categoryListView.getSelectionModel().getSelectedItem().updateColumnPosition(draggedItems.get(0), dropIndex);
                     }
-
-
+                    handleTrackingChanges();
+                    success = true;
+                }
                 event.setDropCompleted(success);
                 event.consume();
             });
+
             // Add a mouse click listener to handle double-click
             cell.setOnMouseClicked(event -> {
                 if (event.getButton() == MouseButton.PRIMARY
@@ -493,14 +491,24 @@ public class ReportBuilderController {
             Dragboard db = event.getDragboard();
             boolean success = false;
 
-            if (db.hasString() && event.getGestureSource() instanceof ListCell<?> sourceCell) {
-                ReportColumn draggedItem = (ReportColumn) sourceCell.getListView().getUserData();
+            if (db.hasString()
+                    && event.getGestureSource() instanceof ListCell<?> sourceCell
+                    && sourceCell.getListView() != categoryListView) {
+                List<ReportColumn> draggedItems = new ArrayList<>();
+                if (sourceCell.getListView().getUserData() instanceof ArrayList<?>) {
+                    draggedItems = (List<ReportColumn>) sourceCell.getListView().getUserData();
+                } else {
+                    draggedItems.add((ReportColumn) sourceCell.getListView().getUserData());
+                }
 
-                if (draggedItem != null) {
-                    // Add the dragged item at the first position if the list is empty
-                    ReportColumn draggedItemCopy = new ReportColumn(draggedItem);
-                    categoryListView.getSelectionModel().getSelectedItem().insertColumnAtPosition(draggedItemCopy, 0);
-                    columns.add(0, draggedItem);
+                if (draggedItems != null) {
+                    int index = 0;
+                    for (ReportColumn col : draggedItems) {
+                        ReportColumn draggedItemCopy = new ReportColumn(col);
+                        categoryListView.getSelectionModel().getSelectedItem().insertColumnAtPosition(draggedItemCopy, 0);
+                        columns.add(index, draggedItemCopy);
+                        index++;
+                    }
                     handleTrackingChanges();
                     success = true;
                 }
