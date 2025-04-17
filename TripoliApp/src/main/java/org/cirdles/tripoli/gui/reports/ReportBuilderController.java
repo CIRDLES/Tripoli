@@ -740,18 +740,18 @@ public class ReportBuilderController {
     }
 
     public void generateOnAction() {
-        File reportCSVFile = new File(analysis.getDataFilePathString().substring(0, analysis.getDataFilePathString().lastIndexOf(File.separator))+File.separator + currentReport.getReportName() + ".csv");
+        File reportCSVFile = Report.getReportCSVFile(listOfAnalyses, tripoliSession.getSessionName());
 
         String proceed = TripoliMessageDialog.showSavedAsDialog(reportCSVFile, reportBuilderStage);
 
         if (proceed != null && proceed.equals("Save and Open")){
             try {
-                reportCSVFile = currentReport.generateCSVFile(listOfAnalyses, analysis);
+                reportCSVFile = currentReport.generateCSVFile(listOfAnalyses, tripoliSession.getSessionName());
                 Desktop.getDesktop().open(reportCSVFile);
             } catch (IOException e) {
             }
         } else if (proceed.equals("Save")){
-            currentReport.generateCSVFile(listOfAnalyses, analysis);
+            currentReport.generateCSVFile(listOfAnalyses, tripoliSession.getSessionName());
         }
     }
 

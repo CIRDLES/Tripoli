@@ -226,19 +226,35 @@ public class Report implements Serializable, Comparable<Report> {
     }
 
     /**
+     * Creates a class type of File for the location of a generated CSV report. Location is in the same directory as
+     * the first analysis and the name is as follows: [SessionName]-[Each Analysis Name]-report.csc
+     * <p>THIS METHOD DOES NOT GENERATE THE CSV</p>
+     * @param listOfAnalyses analyses to be appended to file name
+     * @param sessionName current session name
+     * @return File class pointing to the expected output for a CSV file of the generated report
+     */
+    public static File getReportCSVFile(List<AnalysisInterface> listOfAnalyses, String sessionName){
+        StringBuilder filePathString = new StringBuilder(listOfAnalyses.get(0).getDataFilePathString());
+        filePathString.replace(filePathString.lastIndexOf(File.separator),filePathString.length(), File.separator);
+        filePathString.append(sessionName).append("-");
+        for (AnalysisInterface analysis : listOfAnalyses) {
+            filePathString.append(analysis.getAnalysisName()).append("-");
+        }
+        filePathString.append("report.csv");
+
+        return new File(filePathString.toString());
+    }
+    /**
      * Generates a CSV output and creates it at the report directory. Creates a row in the file for each analysis given.
      * Internally filters out analyses that don't match the report.
      * @param listOfAnalyses List of all loaded analyses
-     * @param currentAnalysis The analysis of the relevant report to which the csv directory will be saved
      * @return File of the created CSV. Null if process failed.
      */
-    public File generateCSVFile(List<AnalysisInterface> listOfAnalyses, AnalysisInterface currentAnalysis) {
-        File reportCSVFile = new File(currentAnalysis.getDataFilePathString().substring(0,
-                currentAnalysis.getDataFilePathString().lastIndexOf(File.separator)) + File.separator + this.getReportName() + ".csv");
+    public File generateCSVFile(List<AnalysisInterface> listOfAnalyses, String sessionName) {
+        File reportCSVFile = getReportCSVFile(listOfAnalyses, sessionName);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(reportCSVFile))) {
             Set<ReportCategory> categories = this.getCategories();
-
             // Collect all unique columns across categories
             List<ReportColumn> allColumns = categories.stream()
                     .flatMap(category -> category.getColumns().stream())
