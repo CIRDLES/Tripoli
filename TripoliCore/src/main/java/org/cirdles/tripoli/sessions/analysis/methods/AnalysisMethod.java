@@ -162,6 +162,17 @@ public class AnalysisMethod implements Serializable {
             System.out.println(columnHeaders[r270_267ColumnIndex + 2]);
 
         }
+        columnHeaders = massSpecExtractedData.getColumnHeaders();
+        massSpecExtractedData.expandCycleDataForCustomExpression();
+        String[] columnHeadersExpanded = new String[columnHeaders.length + 1];
+        System.arraycopy(columnHeaders, 0, columnHeadersExpanded, 0, columnHeaders.length);
+        columnHeadersExpanded[columnHeaders.length] = "Test Function";
+        UserFunction userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length], columnHeaders.length - 2, true, true);
+        userFunction.setEtReduxName("Test Function");
+        userFunction.setOxideCorrected(true);
+        analysisMethod.getUserFunctionsModel().add(userFunction);
+
+        massSpecExtractedData.setColumnHeaders(columnHeadersExpanded);
 
         return analysisMethod;
     }
