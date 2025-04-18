@@ -51,7 +51,6 @@ import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.SessionBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -78,6 +77,7 @@ import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.*;
 import static org.cirdles.tripoli.sessions.SessionBuiltinFactory.TRIPOLI_DEMONSTRATION_SESSION;
 import static org.cirdles.tripoli.sessions.analysis.AnalysisInterface.initializeNewAnalysis;
 import static org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer.serializeObjectToFile;
+import static org.cirdles.tripoli.gui.SessionManagerController.listOfSelectedAnalyses;
 
 /**
  * @author James F. Bowring
@@ -379,7 +379,19 @@ public class TripoliGUIController implements Initializable {
     }
 
     private void openCustomReport(Report report) {
-        ReportBuilderController.loadReportBuilder(report);
+        if (listOfSelectedAnalyses == null || listOfSelectedAnalyses.isEmpty()) {
+            return;
+        }
+
+        String referenceMethodName = listOfSelectedAnalyses.get(0).getMethod().getMethodName();
+
+        if (listOfSelectedAnalyses.stream()
+                .allMatch(analysis ->
+                        analysis.getMethod().getMethodName().equals(referenceMethodName))){
+            ReportBuilderController.loadReportBuilder(report, listOfSelectedAnalyses);
+        } else {
+            TripoliMessageDialog.showWarningDialog("All selected analyses must have the same method name.", primaryStage);
+        }
     }
 
     @FXML

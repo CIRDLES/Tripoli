@@ -109,7 +109,7 @@ public class ReportBuilderController {
         listOfAnalyses = new ArrayList<>();
     }
 
-    public static void loadReportBuilder(Report report){
+    public static void loadReportBuilder(Report report, List<AnalysisInterface> listOfAnalyses) {
         if (reportBuilderStage != null && reportBuilderStage.isShowing()) {
             reportBuilderStage.close();
         }
@@ -127,6 +127,7 @@ public class ReportBuilderController {
             reportBuilderStage.setY(primaryStage.getY() + (primaryStage.getHeight() - 650) / 2);
 
             controller.setStage(reportBuilderStage);
+            controller.setAnalyses(listOfAnalyses);
             controller.setCurrentReport(report);
 
             reportBuilderStage.setOnHidden(e -> reportBuilderStage = null);
@@ -137,13 +138,16 @@ public class ReportBuilderController {
         }
     }
 
+    private void setAnalyses(List<AnalysisInterface> listOfAnalyses) {
+        this.listOfAnalyses = listOfAnalyses;
+    }
+
     public void setStage(Stage stage) {
         reportBuilderStage = stage;
         reportBuilderStage.setOnCloseRequest(event -> {
             if (!proceedWithUnsavedDialog()) { event.consume(); }
         });
         populateAccordion();
-        listOfAnalyses.addAll(tripoliSession.getMapOfAnalyses().values());
     }
 
     public void setCurrentReport(Report currentReport) {
@@ -563,7 +567,7 @@ public class ReportBuilderController {
         StringBuilder result = new StringBuilder();
 
         if (column.isUserFunction()){
-            result.append(String.format("%-35s %-20s %-10s %-10s%n", analysisNameColumn.getColumnName(), column.getColumnName()+" Mean", "StdDev", "Variance"));
+            result.append(String.format("%-35s %-25s %-10s %-10s%n", analysisNameColumn.getColumnName(), column.getColumnName()+" Mean", "StdDev", "Variance"));
         } else {
             result.append(String.format("%-35s %-45s%n", analysisNameColumn.getColumnName(), column.getColumnName()));
         }
@@ -577,7 +581,7 @@ public class ReportBuilderController {
                     if (column.isUserFunction()){
                         String[] ufString = column.retrieveData(analysis).split(",");
                         if (ufString.length == 1) {ufString = new String[]{ufString[0], "", ""};} // Handle UF error
-                        result.append(String.format("%-35s %-20s %-10s %-10s%n", analysisNameColumn.retrieveData(analysis), ufString[0], ufString[1], ufString[2]) );
+                        result.append(String.format("%-35s %-25s %-10s %-10s%n", analysisNameColumn.retrieveData(analysis), ufString[0], ufString[1], ufString[2]) );
                     } else {
                         result.append(String.format("%-35s %-45s%n", analysisNameColumn.retrieveData(analysis), column.retrieveData(analysis)));
                     }
@@ -650,7 +654,7 @@ public class ReportBuilderController {
      * Handle all visibility calls for the ListViews and Report classes
      * @param cell ListCell to be adjusted
      * @param toggle Whether to toggle visibility
-     * @param <T> Must be ReportCategory or ReportColumn type
+     * @param <T> Must be a ReportCategory or ReportColumn type
      */
     private <T> void handleVisible(ListCell<T> cell, Boolean toggle) {
         if (cell.getItem() != null) {

@@ -42,6 +42,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
@@ -69,6 +71,7 @@ public class SessionManagerController implements Initializable {
     private TextField sessionFilePathAsStringText;
     @FXML
     private ListView<AnalysisInterface> listViewOfAnalyses;
+    public static List<AnalysisInterface> listOfSelectedAnalyses = new ArrayList<>();
 
     /**
      * @param location  The location used to resolve relative paths for the root object, or
@@ -151,6 +154,8 @@ public class SessionManagerController implements Initializable {
         listViewOfAnalyses.setOnMouseClicked(event -> {
             AnalysisInterface analysisSelected = ((AnalysisInterface) ((ListView) event.getSource()).getSelectionModel().getSelectedItem());
             analysis = analysisSelected;
+            listOfSelectedAnalyses.clear();
+            listOfSelectedAnalyses.addAll(listViewOfAnalyses.getSelectionModel().getSelectedItems());
             if (MouseButton.PRIMARY == event.getButton() && (null != analysis)) {
                 if (2 == event.getClickCount() && -1 == event.getTarget().toString().lastIndexOf("null")) {
                     File dataFile = new File(analysisSelected.getDataFilePathString());
@@ -161,9 +166,12 @@ public class SessionManagerController implements Initializable {
                 }
             }
         });
+        listViewOfAnalyses.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         if (0 < items.size()) {
             listViewOfAnalyses.getSelectionModel().selectFirst();
             analysis = listViewOfAnalyses.getSelectionModel().getSelectedItem();
+            listOfSelectedAnalyses.clear();
+            listOfSelectedAnalyses.addAll(listViewOfAnalyses.getSelectionModel().getSelectedItems());
         }
     }
 
