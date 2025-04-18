@@ -111,10 +111,7 @@ public class ReportBuilderController {
 
     public static void loadReportBuilder(Report report){
         if (reportBuilderStage != null && reportBuilderStage.isShowing()) {
-            // Bring existing window to front
-            reportBuilderStage.toFront();
-            reportBuilderStage.requestFocus();
-            return;
+            reportBuilderStage.close();
         }
 
         try {
