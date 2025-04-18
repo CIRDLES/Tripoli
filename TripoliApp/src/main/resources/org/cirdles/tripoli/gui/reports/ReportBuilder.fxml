@@ -22,19 +22,23 @@
 
 <VBox prefHeight="810.0" prefWidth="875.0" style="-fx-background-color: LINEN;" stylesheets="@../css/report.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.reports.ReportBuilderController">
        <!-- Menu Bar -->
-    <GridPane hgap="15.0" prefHeight="87.0" prefWidth="875.0" vgap="10.0">
+    <GridPane hgap="15.0" prefHeight="115.0" prefWidth="875.0" vgap="10.0">
         <padding>
             <Insets bottom="1.0" left="20.0" right="20.0" top="5.0" />
         </padding>
-        <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="0" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1">
+        <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.hgrow="SOMETIMES" GridPane.columnIndex="0" GridPane.rowIndex="1">
             <Label prefHeight="17.0" prefWidth="102.0" style="-fx-text-fill: #3c77c9;" text="Report Name:" />
             <TextField fx:id="reportNameTextField" prefHeight="23.0" prefWidth="286.0" promptText="Report name" HBox.hgrow="SOMETIMES" />
-            <Label prefHeight="17.0" prefWidth="91.0" style="-fx-text-fill: #3c77c9;" text="Method Name:" />
-            <Label fx:id="methodNameLabel" prefHeight="23.0" prefWidth="347.0" HBox.hgrow="SOMETIMES" />
+            <Label fx:id="unsavedChangesLabel" alignment="CENTER_RIGHT" prefWidth="130" style="-fx-text-fill: RED" text="UNSAVED CHANGES!" HBox.hgrow="NEVER" />
         </HBox>
 
-        <HBox alignment="CENTER_LEFT" prefHeight="23.0" prefWidth="844.0" spacing="10.0" GridPane.rowIndex="2" VBox.vgrow="NEVER">
-            <Label prefHeight="17.0" prefWidth="103.0" style="-fx-text-fill: #3c77c9;" text="Report Actions:" />
+        <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.hgrow="SOMETIMES" GridPane.columnIndex="0" GridPane.rowIndex="2">
+            <Label prefHeight="17.0" prefWidth="102.0" style="-fx-text-fill: #3c77c9;" text="Method Name:" />
+            <Label fx:id="methodNameLabel" prefHeight="23.0" prefWidth="338.0" HBox.hgrow="SOMETIMES" />
+        </HBox>
+
+        <HBox alignment="CENTER_LEFT" prefHeight="23.0" prefWidth="844.0" spacing="10.0" GridPane.rowIndex="3" VBox.vgrow="NEVER">
+            <Label prefHeight="17.0" prefWidth="102.0" style="-fx-text-fill: #3c77c9;" text="Report Actions:" />
             <MenuButton minWidth="63.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="63.0" text="New">
                 <items>
                     <MenuItem fx:id="newBlankButton" onAction="#newOnAction" text="Report from Blank" />
@@ -50,6 +54,7 @@
          <ColumnConstraints />
       </columnConstraints>
       <rowConstraints>
+         <RowConstraints />
          <RowConstraints />
          <RowConstraints />
          <RowConstraints />

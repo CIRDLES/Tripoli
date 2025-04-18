@@ -87,6 +87,8 @@ public class ReportBuilderController {
     @FXML
     public Label methodNameLabel;
     @FXML
+    public Label unsavedChangesLabel;
+    @FXML
     private ListView<ReportCategory> categoryListView;
     @FXML
     private ListView<ReportColumn> columnListView;
@@ -99,8 +101,6 @@ public class ReportBuilderController {
     private ObservableList<ReportCategory> categories;
     private ObservableList<ReportColumn> columns;
     private List<AnalysisInterface> listOfAnalyses;
-
-    boolean unsavedChanges;
 
     final String DROPBARSTYLEDOWN = "-fx-border-color: dodgerblue; -fx-border-width: 0 0 2 0;";
     final String DROPBARSTYLEUP = "-fx-border-color: dodgerblue; -fx-border-width: 2 0 0 0;";
@@ -163,6 +163,9 @@ public class ReportBuilderController {
         columnAccordion.setDisable(false);
         reportNameTextField.setDisable(false);
         methodNameLabel.setText(currentReport.getMethodName());
+        unsavedChangesLabel.setVisible(false);
+        reportBuilderStage.setTitle("Report Builder - " + currentReport.getReportName());
+        reportNameTextField.setText(currentReport.getReportName());
 
         // Remove editing for the full report
         if(currentReport.FIXED_REPORT_NAME.equals(currentReport.getReportName())){
@@ -780,20 +783,16 @@ public class ReportBuilderController {
             reportNameTextField.setText(currentReport.getReportName() + " (Not Editable)");
             reportBuilderStage.setTitle("Report Builder - " + currentReport.getReportName() + " (Not Editable)");
         } else if (!currentReport.equals(initalReport)) {
-            unsavedChanges = true;
+            unsavedChangesLabel.setVisible(true);
             restoreButton.setDisable(false);
-            reportBuilderStage.setTitle("Report Builder - " + currentReport.getReportName() + "*");
-            reportNameTextField.setText(currentReport.getReportName() + "*");
         } else {
-            unsavedChanges = false;
+            unsavedChangesLabel.setVisible(false);
             restoreButton.setDisable(true);
-            reportBuilderStage.setTitle("Report Builder - " + currentReport.getReportName());
-            reportNameTextField.setText(currentReport.getReportName());
         }
 
     }
     private boolean proceedWithUnsavedDialog(){
-        if (unsavedChanges){
+        if (unsavedChangesLabel.isVisible()) {
             return TripoliMessageDialog.showChoiceDialog("Unsaved changes exist! Are you sure?", reportBuilderStage);
         }
         return true;
