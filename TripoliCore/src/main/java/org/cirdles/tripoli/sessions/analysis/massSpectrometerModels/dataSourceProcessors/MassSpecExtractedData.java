@@ -86,7 +86,7 @@ public class MassSpecExtractedData implements Serializable {
             switch (headerStrings[0].trim().toUpperCase()) {
                 // All
                 case "METHODNAME" -> methodName = headerStrings[1].trim().substring(0, headerStrings[1].lastIndexOf('.'));
-                case "METHOD NAME" -> methodName = headerStrings[1].trim();
+                case "METHOD NAME" -> methodName = headerStrings[1].trim().substring(0, headerStrings[1].lastIndexOf('.'));
 
                 // Phoenix
                 case "VERSION" -> softwareVersion = headerStrings[1].trim();
@@ -109,7 +109,10 @@ public class MassSpecExtractedData implements Serializable {
                 // Nu
                 case "VERSION NUMBER" -> softwareVersion = headerStrings[1].trim();
                 case "SAMPLE NAME" -> sampleName = headerStrings[1].trim();
-                case "ANALYSIS FILE NAME" -> filename = headerStrings[1].trim();
+                case "ANALYSIS FILE NAME" -> {
+                    filename = headerStrings[1].trim();
+                    if (methodName.isEmpty()) {methodName = headerStrings[1].trim();}
+                }
                 case "NUMBER OF MEASUREMENTS PER BLOCK" -> cyclesPerBlock = Integer.parseInt(headerStrings[1].trim());
             }
         }
