@@ -3,10 +3,8 @@ package org.cirdles.tripoli.expressions;
 import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
-import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTreeInterface;
 import org.cirdles.tripoli.expressions.operations.Add;
 import org.cirdles.tripoli.expressions.operations.Divide;
-import org.cirdles.tripoli.expressions.operations.Operation;
 import org.cirdles.tripoli.expressions.parsing.ShuntingYard;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunctionNode;
@@ -23,6 +21,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ExpressionTreeTest {
     AnalysisInterface analysis;
@@ -73,6 +73,7 @@ public class ExpressionTreeTest {
                 new Divide());
         printPlainExpressionTree();
         System.out.println(tree2.eval(analysis));
+        assertEquals(1.0, tree2.eval(analysis));
     }
 
     @Test
@@ -101,7 +102,8 @@ public class ExpressionTreeTest {
         ExpressionTree tree = (ExpressionTree) ExpressionTree.buildTree(postfixList);
         System.out.println(tree.prettyPrint(tree, analysis));
         System.out.println("Val = " + tree.eval(analysis));
-    }
 
+        assertEquals(-3.3786352844263718E10, tree.eval(analysis));
+    }
 
 }
