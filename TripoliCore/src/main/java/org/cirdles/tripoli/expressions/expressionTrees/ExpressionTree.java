@@ -1,21 +1,39 @@
+/*
+ * Copyright 2022 James Bowring, Noah McLean, Scott Burdick, and CIRDLES.org.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.cirdles.tripoli.expressions.expressionTrees;
 
 import org.cirdles.tripoli.expressions.operations.Operation;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunctionNode;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Stack;
 
 
-public class ExpressionTree implements ExpressionTreeInterface{
-    //    private static final long serialVersionUID = 69881766695649050L;
+public class ExpressionTree implements ExpressionTreeInterface, Serializable {
+    private static final long serialVersionUID = -2418173823255685906L;
     protected String name;
     protected ExpressionTreeInterface leftChildET;
     protected ExpressionTreeInterface rightChildET;
     public Operation rootOperator;
     protected boolean rootExpressionTree;
 
+    public ExpressionTree() {}
 
     public ExpressionTree(String name, ExpressionTreeInterface leftChildET, ExpressionTreeInterface rightChildET, Operation rootOperator) {
         this.name = name;
@@ -37,16 +55,13 @@ public class ExpressionTree implements ExpressionTreeInterface{
         Stack<ExpressionTreeInterface> stack = new Stack<>();
 
         for (String token : parsedRPN) {
-            // Check if the token is an operator (using your custom operations map)
             if (Operation.OPERATIONS_MAP.containsKey(token)) {
-                // Verify there are at least two elements available on the stack
                 if (stack.size() < 2) {
                     throw new IllegalArgumentException("Invalid RPN expression: insufficient operands for operator " + token);
                 }
                 ExpressionTreeInterface rightChild = stack.pop();
                 ExpressionTreeInterface leftChild = stack.pop();
 
-                // Create a new ExpressionTree node for the operator
                 ExpressionTreeInterface node = new ExpressionTree(
                         "",
                         leftChild,
@@ -54,16 +69,13 @@ public class ExpressionTree implements ExpressionTreeInterface{
                         Operation.OPERATIONS_MAP.get(token)
                 );
 
-                // Push the new node back onto the stack
                 stack.push(node);
             } else {
-                // It's an operand: create a leaf node and push it onto the stack.
                 ExpressionTreeInterface leaf = new UserFunctionNode(token);
                 stack.push(leaf);
             }
         }
 
-        // There should be exactly one element in the stack (the root of the tree).
         if (stack.size() != 1) {
             throw new IllegalStateException("Invalid RPN expression: the final stack size is " + stack.size());
         }
@@ -76,27 +88,21 @@ public class ExpressionTree implements ExpressionTreeInterface{
             return "";
         }
 
-        // If the node is a leaf (operand/user function), simply return the token string.
         if (node instanceof UserFunctionNode) {
-            // Assuming getToken() returns the operand or variable value
             return String.valueOf(node.eval(analysis));
         }
 
-        // If the node is an operator node, assume it's an instance of ExpressionTree.
         if (node instanceof ExpressionTree) {
             ExpressionTree tree = (ExpressionTree) node;
 
-            // Recursively prettyPrint the left and right subtrees.
             String leftStr = prettyPrint(tree.getLeft(), analysis);
             String rightStr = prettyPrint(tree.getRight(), analysis);
-            // Assuming getOperation() returns an Operation instance that has a getSymbol() method.
+
             String operatorSymbol = tree.getOperation().getName();
 
-            // Wrap the expression in parentheses to preserve order of operations.
             return "(" + leftStr + " " + operatorSymbol + " " + rightStr + ")";
         }
 
-        // If you have other types of nodes, handle them here.
         return "";
     }
 

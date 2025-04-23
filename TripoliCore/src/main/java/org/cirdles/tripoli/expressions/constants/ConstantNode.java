@@ -14,18 +14,29 @@
  * limitations under the License.
  */
 
-package org.cirdles.tripoli.expressions.operations;
+package org.cirdles.tripoli.expressions.constants;
 
-import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTreeInterface;
+import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 
-public class Multiply extends Operation {
-    public Multiply() {
-        name = "multiply";
-        precedence = 3;
+public class ConstantNode extends ExpressionTree {
+    private static final long serialVersionUID = 750641824380081476L;
+
+    String name;
+    Double value;
+
+    public ConstantNode(String name, Double value) {
+        this.name = name;
+        this.value = value;
     }
+
     @Override
-    public Double eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis){
-        return leftChild.eval(analysis) * rightChild.eval(analysis);
+    public Double eval(AnalysisInterface analysis) {
+        return value;
+    }
+
+    @Override
+    public int getOperationPrecedence() {
+        return 0;
     }
 }
