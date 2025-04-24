@@ -23,4 +23,6 @@ public interface ExpressionTreeInterface {
 
     Double eval(AnalysisInterface analysis);
     int getOperationPrecedence();
+
+    String getName();
 }

@@ -126,4 +126,9 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
 
         return retVal;
     }
+
+    @Override
+    public String getName() {
+        return name;
+    }
 }

@@ -30,8 +30,7 @@ public class UserFunctionNode extends ExpressionTree {
     public UserFunctionNode(String name) {
         this.name = name;
     }
-
-    @Override
+    
     public Double eval(AnalysisInterface analysis) {
         AllBlockInitForDataLiteOne.initBlockModels(analysis);
         List<UserFunction> ufList = analysis.getUserFunctions();
@@ -43,8 +42,7 @@ public class UserFunctionNode extends ExpressionTree {
         return 0.0;
     }
 
-    @Override
-    public int getOperationPrecedence() {
-        return 0;
+    public String getName() {
+        return name;
     }
 }

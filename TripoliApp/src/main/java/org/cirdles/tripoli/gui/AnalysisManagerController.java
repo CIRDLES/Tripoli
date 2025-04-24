@@ -41,10 +41,14 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTreeInterface;
+import org.cirdles.tripoli.expressions.operations.Operation;
+import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunctionDisplay;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunctionNode;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMC2PlotsController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMC2PlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
@@ -75,6 +79,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
+import static org.cirdles.tripoli.expressions.operations.Operation.OPERATIONS_MAP;
 import static org.cirdles.tripoli.gui.SessionManagerController.tripoliSession;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
@@ -133,6 +138,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public Button reloadDataForCyclesPerBlockBtn;
     public HBox ratiosHeaderHBox;
     public HBox functionsHeaderHBox;
+    @FXML
+    public Accordion expressionAccordion;
+    @FXML
+    public Text expressionText;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -309,7 +318,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty()
                         && analysis.getMassSpecExtractedData().getBlocksDataFull().isEmpty());
         exportToClipBoardButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
-
+        populateCustomExpressions();
     }
 
     private void setupListeners() {
@@ -857,6 +866,68 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         proposedRatioVBox.getChildren().get(1).setOnMouseClicked((MouseEvent event) -> {
             if (event.getEventType().equals(MouseEvent.MOUSE_CLICKED)) {
                 invertProposedRatio();
+            }
+        });
+    }
+
+    private void populateCustomExpressions() {
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+        List<Operation> operationList = new ArrayList<>(OPERATIONS_MAP.values());
+
+        ListView<ExpressionTreeInterface> userFunctionLV = new ListView<>();
+        ListView<ExpressionTreeInterface> isotopicRatioLV = new ListView<>();
+        ListView<ExpressionTreeInterface> operationLV = new ListView<>();
+        ListView<ExpressionTreeInterface> customExpressionLV = new ListView<>();
+        for (UserFunction userFunction : userFunctions) {
+            if (userFunction.isTreatAsIsotopicRatio()) {
+                isotopicRatioLV.getItems().add(new UserFunctionNode(userFunction.getName()));
+            } else if(userFunction.isTreatAsCustomExpression()) {
+                customExpressionLV.getItems().add(userFunction.getCustomExpression());
+            } else {
+                userFunctionLV.getItems().add(new UserFunctionNode(userFunction.getName()));
+            }
+        }
+        operationLV.getItems().addAll(operationList);
+        
+        setAccordionListViewListener(userFunctionLV);
+        setAccordionListViewListener(isotopicRatioLV);
+        setAccordionListViewListener(operationLV);
+        setAccordionListViewListener(customExpressionLV);
+
+        TitledPane ufPane = new TitledPane("User Functions", userFunctionLV);
+        TitledPane irPane = new TitledPane("Isotopic Ratios", isotopicRatioLV);
+        TitledPane opPane = new TitledPane("Operations", operationLV);
+        TitledPane cePane = new TitledPane("Custom Expressions", customExpressionLV);
+
+        expressionAccordion.getPanes().addAll(ufPane, irPane, opPane, cePane);
+    }
+
+    private void setAccordionListViewListener(ListView<ExpressionTreeInterface> accordionLV) {
+        accordionLV.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(ExpressionTreeInterface item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.getName());
+
+                    // Enable drag
+                    setOnDragDetected(event -> {
+                        ExpressionTreeInterface selectedItem = accordionLV.getSelectionModel().getSelectedItem();
+                        if (selectedItem != null) {
+                            Dragboard db = startDragAndDrop(TransferMode.MOVE);
+                            ClipboardContent content = new ClipboardContent();
+                            content.putString(selectedItem.getName());
+                            db.setContent(content);
+
+                            accordionLV.setUserData(selectedItem);
+                            db.setDragView(this.snapshot(null, null));
+                            event.consume();
+
+                        }
+                    });
+                }
             }
         });
     }

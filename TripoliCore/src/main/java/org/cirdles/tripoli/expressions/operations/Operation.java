@@ -16,6 +16,7 @@
 
 package org.cirdles.tripoli.expressions.operations;
 
+import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
 import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTreeInterface;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 
@@ -23,7 +24,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.TreeMap;
 
-public abstract class Operation implements Serializable {
+public abstract class Operation extends ExpressionTree implements Serializable {
 
     protected String name;
     protected int precedence;
