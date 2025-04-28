@@ -141,7 +141,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     @FXML
     public Accordion expressionAccordion;
     @FXML
-    public Text expressionText;
+    public TextFlow expressionTextFlow;
+    @FXML
+    public ScrollPane expressionScrollPane;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -173,6 +175,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private List<IsotopicRatio> allRatios;
     @FXML
     private Button addRatioButton;
+    Text insertIndicator = new Text("|");
 
     public static void closePlotWindows() {
         if (null != ogTripoliPreviewPlotsWindow) {
@@ -319,6 +322,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                         && analysis.getMassSpecExtractedData().getBlocksDataFull().isEmpty());
         exportToClipBoardButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
         populateCustomExpressions();
+        setTextFlowListener();
     }
 
     private void setupListeners() {
@@ -900,35 +904,86 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         TitledPane cePane = new TitledPane("Custom Expressions", customExpressionLV);
 
         expressionAccordion.getPanes().addAll(ufPane, irPane, opPane, cePane);
+
+        expressionAccordion.setExpandedPane(expressionAccordion.getPanes().get(0));
     }
 
     private void setAccordionListViewListener(ListView<ExpressionTreeInterface> accordionLV) {
-        accordionLV.setCellFactory(param -> new ListCell<>() {
-            @Override
-            protected void updateItem(ExpressionTreeInterface item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(item.getName());
-
-                    // Enable drag
-                    setOnDragDetected(event -> {
-                        ExpressionTreeInterface selectedItem = accordionLV.getSelectionModel().getSelectedItem();
-                        if (selectedItem != null) {
-                            Dragboard db = startDragAndDrop(TransferMode.MOVE);
-                            ClipboardContent content = new ClipboardContent();
-                            content.putString(selectedItem.getName());
-                            db.setContent(content);
-
-                            accordionLV.setUserData(selectedItem);
-                            db.setDragView(this.snapshot(null, null));
-                            event.consume();
-
-                        }
-                    });
+        accordionLV.setCellFactory(param -> {
+            ListCell<ExpressionTreeInterface> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(ExpressionTreeInterface item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                    } else {
+                        setText(item.getName());
+                    }
                 }
+            };
+
+            cell.setOnDragDetected(event -> {
+                ExpressionTreeInterface selectedItem = accordionLV.getSelectionModel().getSelectedItem();
+                if (selectedItem != null) {
+                    Dragboard dragboard = cell.startDragAndDrop(TransferMode.MOVE);
+                    ClipboardContent content = new ClipboardContent();
+                    if (selectedItem instanceof Operation) { // get operator rather than name
+                        String key = OPERATIONS_MAP.entrySet()
+                                .stream()
+                                .filter(entry -> entry.getValue().equals(selectedItem))
+                                .map(Map.Entry::getKey)
+                                .findFirst()
+                                .orElse(null);
+                        content.putString(key);
+                    } else {
+                        content.putString(selectedItem.getName());
+                    }
+                    dragboard.setContent(content);
+                    dragboard.setDragView(cell.snapshot(null, null));
+                    accordionLV.setUserData(selectedItem);
+                    event.consume();
+                }
+            });
+
+            return cell;
+        });
+    }
+
+    private void setTextFlowListener(){
+        insertIndicator.setFill(Color.RED);
+        insertIndicator.setFont(Font.font("SansSerif", FontWeight.BOLD, 12));
+        expressionScrollPane.setOnDragOver(event -> {
+            Dragboard dragboard = event.getDragboard();
+            if (dragboard.hasString()) {
+                event.acceptTransferModes(TransferMode.MOVE);
             }
+            event.consume();
+        });
+
+        expressionScrollPane.setOnDragEntered(event -> {
+            expressionTextFlow.getChildren().remove(insertIndicator);
+            expressionTextFlow.getChildren().add(insertIndicator);
+        });
+
+        expressionScrollPane.setOnDragExited(event -> {
+            expressionTextFlow.getChildren().remove(insertIndicator);
+        });
+
+        expressionScrollPane.setOnDragDropped(event -> {
+
+            Dragboard dragboard = event.getDragboard();
+            boolean success = false;
+
+            int index = expressionTextFlow.getChildren().indexOf(insertIndicator);
+            expressionTextFlow.getChildren().remove(insertIndicator);
+
+            if (dragboard.hasString()) {
+                String draggedText = dragboard.getString();
+                expressionTextFlow.getChildren().add(index, new ExpressionText(' ' + draggedText + ' ', index));
+                success = true;
+            }
+            event.setDropCompleted(success);
+            event.consume();
         });
     }
 
@@ -1442,6 +1497,80 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             boolean displayed = newValue;
             IsotopicRatio ratio = (IsotopicRatio) checkBox.getUserData();
             updateAnalysisRatios(ratio, displayed);
+        }
+    }
+
+    private class ExpressionText extends Text {
+        private int index;
+
+        public ExpressionText(String text, int index) {
+            super(text);
+            this.index = index;
+            setupDragHandlers();
+            setupContextMenu();
+        }
+
+        public int getIndex() { return index; }
+        public void setIndex(int index) { this.index = index; }
+
+        private void setupDragHandlers() {
+            setOnDragOver(event -> {
+                if (event.getGestureSource() != this && event.getDragboard().hasString()) {
+                    event.acceptTransferModes(TransferMode.MOVE);
+                }
+                event.consume();
+            });
+
+            setOnDragEntered(event -> {
+                if (!expressionTextFlow.getChildren().contains(insertIndicator)) {
+                    expressionTextFlow.getChildren().add(insertIndicator);
+                }
+                moveInsertIndicatorToIndex(this.index);
+                event.consume();
+            });
+
+            setOnDragDropped(event -> {
+                Dragboard db = event.getDragboard();
+                boolean success = false;
+                if (db.hasString()) {
+                    String droppedText = db.getString();
+
+                    ExpressionText newText = new ExpressionText(" " + droppedText + " ", index);
+
+                    expressionTextFlow.getChildren().add(index, newText);
+                    reindexTextFlow();
+
+                    success = true;
+                }
+                event.setDropCompleted(success);
+                event.consume();
+            });
+        }
+        private void moveInsertIndicatorToIndex(int index) {
+            expressionTextFlow.getChildren().remove(insertIndicator);
+            expressionTextFlow.getChildren().add(index, insertIndicator);
+        }
+
+        private void reindexTextFlow() {
+            for (int i = 0; i < expressionTextFlow.getChildren().size(); i++) {
+                Node node = expressionTextFlow.getChildren().get(i);
+                if (node instanceof ExpressionText et) {
+                    et.setIndex(i);
+                }
+            }
+        }
+        private void setupContextMenu() {
+            MenuItem deleteItem = new MenuItem("Delete");
+            deleteItem.setOnAction(event -> {
+                expressionTextFlow.getChildren().remove(this);
+                reindexTextFlow();
+            });
+
+            ContextMenu contextMenu = new ContextMenu(deleteItem);
+
+            setOnContextMenuRequested(event -> {
+                contextMenu.show(this, event.getScreenX(), event.getScreenY());
+            });
         }
     }
 }

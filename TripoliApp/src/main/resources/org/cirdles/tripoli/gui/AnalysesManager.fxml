@@ -306,9 +306,9 @@
                     <VBox prefHeight="537.0" prefWidth="300" SplitPane.resizableWithParent="false" VBox.vgrow="SOMETIMES">
                         <Accordion fx:id="expressionAccordion" minWidth="200" VBox.vgrow="ALWAYS" />
                     </VBox>
-                    <StackPane>
-                        <Text fx:id="expressionText" text="Sample text" VBox.vgrow="SOMETIMES"/>
-                    </StackPane>
+                    <ScrollPane fx:id="expressionScrollPane">
+                        <TextFlow fx:id="expressionTextFlow" VBox.vgrow="SOMETIMES"/>
+                    </ScrollPane>
                 </SplitPane>
             </content>
         </Tab>
