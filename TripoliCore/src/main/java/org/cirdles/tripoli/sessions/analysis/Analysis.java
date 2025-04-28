@@ -381,8 +381,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
             if (userFunctions.isEmpty()){
                 userFunctions = analysisMethod.createUserFunctions();
             }
-
-            extractedAnalysisName = dataFilePath.toFile().getName().substring(0, dataFilePath.toFile().getName().length() - 4);
+            extractedAnalysisName = dataFilePath.toFile().getName().substring(0, dataFilePath.toFile().getName().lastIndexOf('.'));
             initializeBlockProcessing();
         }
 

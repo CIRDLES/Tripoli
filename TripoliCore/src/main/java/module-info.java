@@ -77,4 +77,5 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc2;
     exports org.cirdles.tripoli.parameters;
     exports org.cirdles.tripoli.settings.plots.species;
+    exports org.cirdles.tripoli.reports;
 }
