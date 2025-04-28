@@ -37,6 +37,9 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.TextFlow?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Text?>
 
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.control.Accordion?>

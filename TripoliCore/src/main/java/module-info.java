@@ -79,4 +79,5 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.settings.plots.species;
     exports org.cirdles.tripoli.expressions.operations;
     exports org.cirdles.tripoli.expressions.expressionTrees;
+    exports org.cirdles.tripoli.reports;
 }

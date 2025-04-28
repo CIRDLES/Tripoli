@@ -1,0 +1,26 @@
+.root {
+    -fx-font-family: 'Inter', sans-serif;
+}
+
+.list-view-container {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: black;
+}
+.list-view-container VBox {
+    -fx-background-color:LINEN;
+}
+.list-view-content {
+    -fx-font-weight: normal;
+}
+
+.category-text-field {
+    -fx-font-weight: bold;
+    -fx-prompt-text-fill: rgba(255, 0, 0, 0.70);
+    -fx-background-color: #FFDDC1;
+}
+
+.column-details {
+    -fx-font-family: Monospaced;
+    -fx-font-weight: normal;
+}
