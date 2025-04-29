@@ -19,6 +19,7 @@ package org.cirdles.tripoli.gui;
 import jakarta.xml.bind.JAXBException;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -144,6 +145,22 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public TextFlow expressionTextFlow;
     @FXML
     public ScrollPane expressionScrollPane;
+    @FXML
+    public Button createExpressionButton;
+    @FXML
+    public Button editExpressionButton;
+    @FXML
+    public Button cancelExpressionButton;
+    @FXML
+    public Button saveExpressionButton;
+    @FXML
+    public TextField expressionNameTextField;
+    @FXML
+    public Button expressionClearBtn;
+    @FXML
+    public Button expressionUndoBtn;
+    @FXML
+    public Button expressionRedoBtn;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -1423,6 +1440,27 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
 
         tripoliPersistentState.updateTripoliPersistentState();
+    }
+
+    public void newCustomExpressionOnAction(ActionEvent actionEvent) {
+    }
+
+    public void editCustomExpressionOnAction(ActionEvent actionEvent) {
+    }
+
+    public void cancelCustomExpressionOnAction(ActionEvent actionEvent) {
+    }
+
+    public void saveCustomExpressionOnAction(ActionEvent actionEvent) {
+    }
+
+    public void expressionClearAction(ActionEvent actionEvent) {
+    }
+
+    public void expressionUndoAction(ActionEvent actionEvent) {
+    }
+
+    public void expressionRedoAction(ActionEvent actionEvent) {
     }
 
     class RatioClickHandler implements EventHandler<MouseEvent> {
