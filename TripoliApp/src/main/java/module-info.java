@@ -28,4 +28,5 @@ module Tripoli.TripoliApp {
     requires commons.math3;
     requires com.google.common;
     requires java.logging;
+    requires org.antlr.antlr4.runtime;
 }

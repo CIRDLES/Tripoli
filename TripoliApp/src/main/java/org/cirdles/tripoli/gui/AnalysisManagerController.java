@@ -17,6 +17,10 @@
 package org.cirdles.tripoli.gui;
 
 import jakarta.xml.bind.JAXBException;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -37,14 +41,14 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
+import javafx.scene.text.*;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.Token;
+import org.cirdles.tripoli.ExpressionsForTripoliLexer;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTreeInterface;
 import org.cirdles.tripoli.expressions.operations.Operation;
-import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
+import org.cirdles.tripoli.expressions.parsing.ShuntingYard;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
@@ -71,10 +75,13 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.AnalysisMethodPersistance;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -162,6 +169,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     @FXML
     public Button expressionRedoBtn;
     @FXML
+    public Button expressionAsTextBtn;
+    @FXML
+    public AnchorPane expressionPane;
+    @FXML
     private GridPane analysisManagerGridPane;
     @FXML
     private TextField analysisNameTextField;
@@ -193,6 +204,26 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     @FXML
     private Button addRatioButton;
     Text insertIndicator = new Text("|");
+    private final TextArea expressionAsTextArea = new TextArea();
+    private final BooleanProperty editAsText = new SimpleBooleanProperty(false);
+    private final StringProperty expressionString = new SimpleStringProperty();
+    private final int EXPRESSION_BUILDER_DEFAULT_FONTSIZE = 13;
+    private int fontSizeModifier = 0; // todo: remove if not implementing font resizing
+    private static final String NUMBER_STRING = "NUMBER";
+    private static final String INVISIBLE_NEWLINE_PLACEHOLDER = " \n";
+    private static final String VISIBLE_NEWLINE_PLACEHOLDER = "\u23CE\n";
+    private static final String INVISIBLE_TAB_PLACEHOLDER = "  ";
+    private static final String VISIBLE_TAB_PLACEHOLDER = " \u21E5";
+    private static final String VISIBLE_WHITESPACE_PLACEHOLDER = "\u2423";
+    private static final String INVISIBLE_WHITESPACE_PLACEHOLDER = " ";
+    private List<String> listOperators = new ArrayList<>();
+    private final Map<String, String> presentationMap = new HashMap<>();
+
+    {
+        presentationMap.put("New line", INVISIBLE_NEWLINE_PLACEHOLDER);
+        presentationMap.put("Tab", INVISIBLE_TAB_PLACEHOLDER);
+        presentationMap.put("White space", INVISIBLE_WHITESPACE_PLACEHOLDER);
+    }
 
     public static void closePlotWindows() {
         if (null != ogTripoliPreviewPlotsWindow) {
@@ -340,6 +371,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         exportToClipBoardButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
         populateCustomExpressions();
         setTextFlowListener();
+        initExpressionTextFlowAndTextArea();
     }
 
     private void setupListeners() {
@@ -894,6 +926,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private void populateCustomExpressions() {
         List<UserFunction> userFunctions = analysis.getUserFunctions();
         List<Operation> operationList = new ArrayList<>(OPERATIONS_MAP.values());
+        listOperators = OPERATIONS_MAP.keySet().stream().toList();
 
         ListView<ExpressionTreeInterface> userFunctionLV = new ListView<>();
         ListView<ExpressionTreeInterface> isotopicRatioLV = new ListView<>();
@@ -986,22 +1019,149 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             expressionTextFlow.getChildren().remove(insertIndicator);
         });
 
-        expressionScrollPane.setOnDragDropped(event -> {
+        expressionScrollPane.setOnDragDropped((DragEvent event) -> {
 
-            Dragboard dragboard = event.getDragboard();
-            boolean success = false;
-
-            int index = expressionTextFlow.getChildren().indexOf(insertIndicator);
             expressionTextFlow.getChildren().remove(insertIndicator);
 
-            if (dragboard.hasString()) {
-                String draggedText = dragboard.getString();
-                expressionTextFlow.getChildren().add(index, new ExpressionText(' ' + draggedText + ' ', index));
+            Dragboard db = event.getDragboard();
+            boolean success = false;
+
+            int index = expressionTextFlow.getChildren().size();
+
+            if (db.hasString()) {
+                String content = db.getString();
+                if (OPERATIONS_MAP.containsKey(content)) {
+                    // case of operation
+                    insertOperationIntoExpressionTextFlow(content, index);
+                } else if ( content.contains(NUMBER_STRING)) {
+                    // case of "NUMBER"
+                    insertNumberIntoExpressionTextFlow(index);
+                } else if (presentationMap.containsKey(content)) {
+                    // case of presentation (new line, tab)
+                    insertPresentationIntoExpressionTextFlow(presentationMap.get(content), index);
+                } else {
+                    // case of expression
+                    insertExpressionIntoExpressionTextFlow(content, index);
+                }
+
                 success = true;
             }
+
             event.setDropCompleted(success);
+
             event.consume();
         });
+    }
+
+    private void insertOperationIntoExpressionTextFlow(String content, int index) {
+        //Add spaces
+        ExpressionTextNode exp = new OperationTextNode(' ' + content.trim() + ' ');
+        exp.setIndex(index);
+        expressionTextFlow.getChildren().add(exp);
+        updateExpressionTextFlowChildren();
+    }
+    private void insertNumberIntoExpressionTextFlow(int index) {
+        //Add spaces
+        ExpressionTextNode exp = new NumberTextNode(' ' + NUMBER_STRING.trim() + ' ');
+        exp.setIndex(index);
+        expressionTextFlow.getChildren().add(exp);
+        updateExpressionTextFlowChildren();
+    }
+    private void insertExpressionIntoExpressionTextFlow(String content, int index) {
+        //Add spaces
+        ExpressionTextNode exp = new ExpressionTextNode(' ' + content.trim() + ' ');
+        exp.setIndex(index);
+        expressionTextFlow.getChildren().add(exp);
+        updateExpressionTextFlowChildren();
+    }
+    private void insertPresentationIntoExpressionTextFlow(String content, int index) {
+        ExpressionTextNode exp = new PresentationTextNode(content);
+        exp.setIndex(index);
+        expressionTextFlow.getChildren().add(exp);
+        updateExpressionTextFlowChildren();
+    }
+
+    private void updateExpressionTextFlowChildren() {
+        // extract and sort
+        List<Node> children = new ArrayList<>(expressionTextFlow.getChildren());
+        // sort
+        children.sort((Node o1, Node o2) -> {
+            int retVal = 0;
+            if (o1 instanceof ExpressionTextNode && o2 instanceof ExpressionTextNode) {
+                retVal = Double.compare(((ExpressionTextNode) o1).getIndex(), ((ExpressionTextNode) o2).getIndex());
+            }
+            return retVal;
+        });
+
+        // reset ordinals to integer values
+        int index = 0;
+        for (Node etn : children) {
+            ((ExpressionTextNode) etn).setIndex(index);
+            index++;
+        }
+
+        expressionTextFlow.getChildren().setAll(children);
+
+        expressionString.set(makeStringFromExpressionTextNodeList(expressionTextFlow.getChildren()));
+
+    }
+
+    private void initExpressionTextFlowAndTextArea() {
+
+        //Init of the textarea
+        expressionAsTextArea.setFont(Font.font("Monospaced"));
+
+        expressionAsTextArea.textProperty().bindBidirectional(expressionString);
+        expressionString.addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                //refreshSaved();
+                if (!makeStringFromExpressionTextNodeList(expressionTextFlow.getChildren()).equals(newValue)) {
+                    makeTextFlowFromString(newValue);
+                }
+            }
+        });
+
+        expressionNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if ((newValue != null) && newValue.compareTo(oldValue) != 0) {
+                // remove spaces
+                //expressionNameTextField.setText(FileNameFixer.fixFileName(newValue));
+                //updateEditor();
+                //refreshSaved();
+            }
+        });
+
+    }
+
+    private String makeStringFromExpressionTextNodeList(List<Node> list) {
+        StringBuilder sb = new StringBuilder();
+        for (Node node : list) {
+            if (node instanceof ExpressionTextNode) {
+                switch (((ExpressionTextNode) node).getText()) {
+                    case VISIBLE_NEWLINE_PLACEHOLDER:
+                    case INVISIBLE_NEWLINE_PLACEHOLDER:
+                        sb.append("\n");
+                        break;
+                    case VISIBLE_TAB_PLACEHOLDER:
+                    case INVISIBLE_TAB_PLACEHOLDER:
+                        sb.append("\t");
+                        break;
+                    case INVISIBLE_WHITESPACE_PLACEHOLDER:
+                    case VISIBLE_WHITESPACE_PLACEHOLDER:
+                        sb.append(" ");
+                        break;
+                    default:
+                        String txt = ((ExpressionTextNode) node).getText().trim();
+                        String nonLetter = "\t\n\r [](),+-*/<>=^\"";
+                        if (sb.length() == 0 || nonLetter.indexOf(sb.charAt(sb.length() - 1)) != -1 || nonLetter.indexOf(txt.charAt(0)) != -1) {
+                            sb.append(txt);
+                        } else {
+                            sb.append(" ").append(txt);
+                        }
+                        break;
+                }
+            }
+        }
+        return sb.toString();
     }
 
     private boolean checkLegalityOfProposedRatio() {
@@ -1463,6 +1623,73 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public void expressionRedoAction(ActionEvent actionEvent) {
     }
 
+    public void expressionAsTextAction() {
+        if (!editAsText.get()) {
+
+            editAsText.set(true);
+
+            expressionPane.getChildren().setAll(expressionAsTextArea);
+            AnchorPane.setBottomAnchor(expressionAsTextArea, 0.0);
+            AnchorPane.setTopAnchor(expressionAsTextArea, 0.0);
+            AnchorPane.setRightAnchor(expressionAsTextArea, 0.0);
+            AnchorPane.setLeftAnchor(expressionAsTextArea, 0.0);
+            expressionAsTextBtn.setText("Switch to d&d");
+            expressionAsTextArea.requestFocus();
+
+        } else {
+
+            editAsText.set(false);
+
+            expressionPane.getChildren().setAll(expressionScrollPane);
+            AnchorPane.setBottomAnchor(expressionScrollPane, 0.0);
+            AnchorPane.setTopAnchor(expressionScrollPane, 0.0);
+            AnchorPane.setRightAnchor(expressionScrollPane, 0.0);
+            AnchorPane.setLeftAnchor(expressionScrollPane, 0.0);
+            expressionAsTextBtn.setText("Switch to text");
+
+            expressionTextFlow.getChildren().clear();
+            String expression = expressionString.get();
+            expression = expression.replaceAll("( )*\\[", "[");
+            makeTextFlowFromString(expression);
+        }
+    }
+
+    private void makeTextFlowFromString(String string) {
+        List<Node> children = new ArrayList<>();
+
+        try {
+            InputStream stream = new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
+            ExpressionsForTripoliLexer lexer = new ExpressionsForTripoliLexer(CharStreams.fromStream(stream, StandardCharsets.UTF_8));
+            List<? extends Token> tokens = lexer.getAllTokens();
+
+            for (int i = 0; i < tokens.size(); i++) {
+                Token token = tokens.get(i);
+                String nodeText = token.getText();
+
+                ExpressionTextNode etn;
+
+                if (ShuntingYard.isNumber(nodeText) || NUMBER_STRING.equals(nodeText)) {
+                    etn = new NumberTextNode(' ' + nodeText + ' ');
+                } else if (listOperators.contains(nodeText)) {
+                    etn = new OperationTextNode(' ' + nodeText + ' ');
+                } else if (nodeText.equals("\n") || nodeText.equals("\r")) {
+                    etn = new PresentationTextNode(INVISIBLE_NEWLINE_PLACEHOLDER);
+                } else if (nodeText.equals("\t")) {
+                    etn = new PresentationTextNode(INVISIBLE_TAB_PLACEHOLDER);
+                } else if (nodeText.equals(" ")) {
+                    etn = new PresentationTextNode(INVISIBLE_WHITESPACE_PLACEHOLDER);
+                } else {
+                    etn = new ExpressionTextNode(' ' + nodeText + ' ');
+                }
+
+                etn.setIndex(i);
+                children.add(etn);
+            }
+        } catch (IOException ignored) {
+        }
+        expressionTextFlow.getChildren().setAll(children);
+    }
+
     class RatioClickHandler implements EventHandler<MouseEvent> {
         IsotopicRatio ratio;
         VBox ratioVBox;
@@ -1538,16 +1765,36 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
     }
 
-    private class ExpressionText extends Text {
+    private class ExpressionTextNode extends Text {
+        private final String text;
         private int index;
+        protected Color regularColor;
+        protected Color selectedColor;
+        protected Color oppositeColor;
+        protected int fontSize;
 
-        public ExpressionText(String text, int index) {
+        public ExpressionTextNode(String text) {
             super(text);
-            this.index = index;
+
+            setFontSmoothingType(FontSmoothingType.LCD);
+            setFont(Font.font("SansSerif"));
+
+            this.selectedColor = Color.RED;
+            this.regularColor = Color.BLACK;
+            this.oppositeColor = Color.LIME;
+
+            setFill(regularColor);
+
+            this.text = text;
+
+            this.fontSize = EXPRESSION_BUILDER_DEFAULT_FONTSIZE;
+            updateFontSize();
             setupDragHandlers();
             setupContextMenu();
         }
-
+        public final void updateFontSize() {
+            setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, fontSize + fontSizeModifier));
+        }
         public int getIndex() { return index; }
         public void setIndex(int index) { this.index = index; }
 
@@ -1573,8 +1820,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 if (db.hasString()) {
                     String droppedText = db.getString();
 
-                    ExpressionText newText = new ExpressionText(" " + droppedText + " ", index);
-
+                    ExpressionTextNode newText = new ExpressionTextNode(" " + droppedText + " ");
+                    newText.setIndex(index);
                     expressionTextFlow.getChildren().add(index, newText);
                     reindexTextFlow();
 
@@ -1592,7 +1839,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         private void reindexTextFlow() {
             for (int i = 0; i < expressionTextFlow.getChildren().size(); i++) {
                 Node node = expressionTextFlow.getChildren().get(i);
-                if (node instanceof ExpressionText et) {
+                if (node instanceof ExpressionTextNode et) {
                     et.setIndex(i);
                 }
             }
@@ -1609,6 +1856,31 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             setOnContextMenuRequested(event -> {
                 contextMenu.show(this, event.getScreenX(), event.getScreenY());
             });
+        }
+    }
+
+    private class NumberTextNode extends ExpressionTextNode {
+        public NumberTextNode(String text) {
+            super(text);
+        }
+    }
+
+    private class OperationTextNode extends ExpressionTextNode {
+
+        public OperationTextNode(String text) {
+            super(text);
+            this.regularColor = Color.GREEN;
+            setFill(regularColor);
+            this.fontSize = EXPRESSION_BUILDER_DEFAULT_FONTSIZE + 3;
+            updateFontSize();
+        }
+    }
+    private class PresentationTextNode extends ExpressionTextNode {
+
+        public PresentationTextNode(String text) {
+            super(text);
+            this.fontSize = EXPRESSION_BUILDER_DEFAULT_FONTSIZE + 3;
+            updateFontSize();
         }
     }
 }

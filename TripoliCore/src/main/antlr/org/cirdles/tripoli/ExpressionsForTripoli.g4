@@ -49,8 +49,8 @@
 
  // http://meri-stuff.blogspot.com/2011/09/antlr-tutorial-expression-language.html
 
- expr:   FUNCTION WS* '(' exprList+ WS* ')'    // func call like f(), f(x), f(1,2) switched ? to + to require 1 arg min
-     |   expr expr
+ expr:
+         expr expr
      |   '(' expr ')'
      |   '-' expr                // unary minus
      |   '!' expr                // boolean not
@@ -60,12 +60,12 @@
      |   WS expr
      |   expr WS
      |   ARRAY_CALL
+     |   ISOTOPIC_RATIO
      |   NAMED_EXPRESSION
      |   ID                      // variable reference
      |   DOUBLE
      |   INT
      ;
- exprList : expr (',' expr)* ;   // arg list
 
  // provides for case-insensitive function names
  fragment A:('a'|'A');
@@ -95,56 +95,11 @@
  fragment Y:('y'|'Y');
  fragment Z:('z'|'Z');
 
- FUNCTION :
-     A G E P B '76' |
-     A G E P B '76' W I T H E R R |
-     A G E '7' C O R R W I T H E R R |
-     A G E '8' C O R R W I T H E R R |
-     A G E '7' C O R R P B '8' T H '2' W I T H E R R |
-     R A D '8' C O R P B '7' U '5' W I T H E R R |
-     R A D '8' C O R C O N C R H O |
-     P B '76' |
-     P B '46' C O R '7' |
-     P B '46' C O R '8' |
-     P B '206' U '238' R A D |
-     S T D P B '86' R A D C O R '7' P E R |
-     P B '86' R A D C O R '7' P E R |
-     A N D |
-     O R |
-     C O N C O R D I A T W |
-     C O N C O R D I A |
-     E X P |
-     I F |
-     N O T |
-     L N |
-     L O G |
-     S Q R T |
-     R O B R E G |
-     S Q B I W E I G H T |
-     B I W E I G H T |
-     S Q W T D A V |
-     W T D A V |
-     T O T A L C P S |
-     T O T A L C P S T I M E |
-     M A X |
-     M I N |
-     A B S |
-     A V E R A G E |
-     M E D I A N |
-     S U M |
-     C O U N T |
-     C O U N T I F |
-     T I N V |
-     R O U N D |
-     S T D E V |
-     S T D E V P |
-     C A L C U L A T E M E A N C O N C S T D |
-     W T D M E A N A C A L C |
-     V A L U E M O D E L |
-     O R I G
- ;
-
  ARRAY_CALL : (ID | NAMED_EXPRESSION) ((' ')* '[' INT ']' (' ')*);       // array index like a[1]
+
+ISOTOPIC_RATIO : 
+    ([0-9]+ ':')? [0-9]+ [a-zA-Z]+ '/' ([0-9]+ ':')? [0-9]+ [a-zA-Z]+ [ \t\r\n]* '(' [0-9]+ ')';
+ USER_FUNCTION : [0-9]+ ':' [0-9]+ [a-zA-Z]+;
 
  NAMED_EXPRESSION : '[' (' ')? ('\u00B1')? ('%')? '"' ID (ID | '/' | ' ' | '*' | '.' | '_' | '%' | '-')* PARENS* (' %err')* '"' ']' ;
 

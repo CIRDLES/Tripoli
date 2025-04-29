@@ -302,18 +302,19 @@
                         <padding>
                            <Insets left="5.0" />
                         </padding></Label>
-                            <TextField fx:id="expressionNameTextField"
-                                       maxWidth="400.0" minWidth="120.0" opacity="0.99"
-                                       promptText="type your new expression name here"
-                                       HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
+                            <TextField fx:id="expressionNameTextField" maxWidth="400.0" minWidth="120.0" opacity="0.99" promptText="type your new expression name here" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
                         </HBox>
-                        <ScrollPane fx:id="expressionScrollPane">
-                            <TextFlow fx:id="expressionTextFlow" prefHeight="75" VBox.vgrow="SOMETIMES" />
-                        </ScrollPane>
+                        <AnchorPane fx:id="expressionPane">
+                            <ScrollPane fx:id="expressionScrollPane" prefHeight="77.0" prefWidth="857.0" HBox.hgrow="ALWAYS">
+                                <TextFlow fx:id="expressionTextFlow" prefHeight="75" HBox.hgrow="ALWAYS" VBox.vgrow="SOMETIMES" />
+                            </ScrollPane>
+                        </AnchorPane>
                         <ToolBar style="-fx-background-color: #fbf6d5" VBox.vgrow="NEVER">
                             <Button fx:id="expressionClearBtn" mnemonicParsing="false" onAction="#expressionClearAction" text="Clear" />
                             <Button fx:id="expressionUndoBtn" mnemonicParsing="false" onAction="#expressionUndoAction" text="Undo" />
                             <Button fx:id="expressionRedoBtn" mnemonicParsing="false" onAction="#expressionRedoAction" text="Redo" />
+                            <Region prefWidth="100" />
+                            <Button fx:id="expressionAsTextBtn" mnemonicParsing="false" onAction="#expressionAsTextAction" text="Switch to Text" />
                         </ToolBar>
                     </VBox>
                 </SplitPane>

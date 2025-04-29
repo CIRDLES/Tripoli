@@ -32,6 +32,7 @@ module Tripoli.TripoliCore {
     requires org.apache.commons.rng.simple;
     requires org.apache.poi.ooxml;
     requires jxl;
+    requires org.antlr.antlr4.runtime;
 
 
     exports org.cirdles.tripoli;
@@ -80,4 +81,5 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.expressions.operations;
     exports org.cirdles.tripoli.expressions.expressionTrees;
     exports org.cirdles.tripoli.reports;
+    exports org.cirdles.tripoli.expressions.parsing;
 }
