@@ -219,12 +219,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private List<String> listOperators = new ArrayList<>();
     private final Map<String, String> presentationMap = new HashMap<>();
 
-    {
-        presentationMap.put("New line", INVISIBLE_NEWLINE_PLACEHOLDER);
-        presentationMap.put("Tab", INVISIBLE_TAB_PLACEHOLDER);
-        presentationMap.put("White space", INVISIBLE_WHITESPACE_PLACEHOLDER);
-    }
-
     public static void closePlotWindows() {
         if (null != ogTripoliPreviewPlotsWindow) {
             ogTripoliPreviewPlotsWindow.close();
@@ -369,6 +363,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty()
                         && analysis.getMassSpecExtractedData().getBlocksDataFull().isEmpty());
         exportToClipBoardButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
+
+        presentationMap.put("New line", INVISIBLE_NEWLINE_PLACEHOLDER);
+        presentationMap.put("Tab", INVISIBLE_TAB_PLACEHOLDER);
+        presentationMap.put("White space", INVISIBLE_WHITESPACE_PLACEHOLDER);
+
+
         populateCustomExpressions();
         setTextFlowListener();
         initExpressionTextFlowAndTextArea();
@@ -1113,11 +1113,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         expressionAsTextArea.textProperty().bindBidirectional(expressionString);
         expressionString.addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                //refreshSaved();
-                if (!makeStringFromExpressionTextNodeList(expressionTextFlow.getChildren()).equals(newValue)) {
-                    makeTextFlowFromString(newValue);
-                }
+            if (newValue != null && !makeStringFromExpressionTextNodeList(expressionTextFlow.getChildren()).equals(newValue)) {
+                makeTextFlowFromString(newValue);
             }
         });
 

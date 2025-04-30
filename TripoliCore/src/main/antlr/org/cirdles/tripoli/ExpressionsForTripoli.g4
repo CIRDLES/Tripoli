@@ -47,11 +47,14 @@
      ;
  */
 
+ neg_number: NEG_NUMBER;
+
  // http://meri-stuff.blogspot.com/2011/09/antlr-tutorial-expression-language.html
 
  expr:
          expr expr
      |   '(' expr ')'
+     |   neg_number
      |   '-' expr                // unary minus
      |   '!' expr                // boolean not
      |   expr ('*'|'/') expr
@@ -97,7 +100,7 @@
 
  ARRAY_CALL : (ID | NAMED_EXPRESSION) ((' ')* '[' INT ']' (' ')*);       // array index like a[1]
 
-ISOTOPIC_RATIO : 
+ ISOTOPIC_RATIO :
     ([0-9]+ ':')? [0-9]+ [a-zA-Z]+ '/' ([0-9]+ ':')? [0-9]+ [a-zA-Z]+ [ \t\r\n]* '(' [0-9]+ ')';
  USER_FUNCTION : [0-9]+ ':' [0-9]+ [a-zA-Z]+;
 
@@ -108,6 +111,8 @@ ISOTOPIC_RATIO :
  PARENS : '(' (LETTER | NUMBER | '.' | ' ')* ')';
 
  LETTER : [a-zA-Z_] ;
+
+ NEG_NUMBER: '-' [0-9]+ ('.' [0-9]+)?;
 
  NUMBER : [0-9] ;
 
