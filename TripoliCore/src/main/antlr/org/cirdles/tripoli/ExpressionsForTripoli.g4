@@ -20,39 +20,11 @@
     package org.cirdles.tripoli; //- this causes problems with maven by writing twice
  }
 
- /*file:   (functionDecl | varDecl)+ ;
-
- varDecl
-     :   type ID ('=' expr)? ';'
-     ;
- type:   'float' | 'int' | 'void' ; // user-defined types
-
- functionDecl
-     :   type FUNCTION '(' formalParameters? ')' block // "void f(int x) {...}"
-     ;
- formalParameters
-     :   formalParameter (',' formalParameter)*
-     ;
- formalParameter
-     :   type ID
-     ;
-
- block:  '{' stat* '}' ;   // possibly empty statement block
- stat:   block
-     |   varDecl
-     |   'if' expr 'then' stat ('else' stat)?
-     |   'return' expr? ';'
-     |   expr '=' expr ';' // assignment
-     |   expr ';'          // func call
-     ;
- */
-
  neg_number: NEG_NUMBER;
+ namedFunction : NAMED_EXPRESSION;
 
- // http://meri-stuff.blogspot.com/2011/09/antlr-tutorial-expression-language.html
-
- expr:
-         expr expr
+ expr
+     :   expr expr
      |   '(' expr ')'
      |   neg_number
      |   '-' expr                // unary minus
@@ -62,10 +34,7 @@
      |   expr ('^') expr
      |   WS expr
      |   expr WS
-     |   ARRAY_CALL
-     |   ISOTOPIC_RATIO
      |   NAMED_EXPRESSION
-     |   ID                      // variable reference
      |   DOUBLE
      |   INT
      ;
@@ -98,17 +67,12 @@
  fragment Y:('y'|'Y');
  fragment Z:('z'|'Z');
 
- ARRAY_CALL : (ID | NAMED_EXPRESSION) ((' ')* '[' INT ']' (' ')*);       // array index like a[1]
+ NAMED_EXPRESSION : '[' (' ')? ('\u00B1')? ('%')? ID (ID | '/' | ' ' | '*' | '.' | '_' | '%' | '-' | ':')* Parens* (' %err')* ']' ;
 
- ISOTOPIC_RATIO :
-    ([0-9]+ ':')? [0-9]+ [a-zA-Z]+ '/' ([0-9]+ ':')? [0-9]+ [a-zA-Z]+ [ \t\r\n]* '(' [0-9]+ ')';
- USER_FUNCTION : [0-9]+ ':' [0-9]+ [a-zA-Z]+;
+ ID  : (LETTER | NUMBER) (LETTER | NUMBER)* ;
 
- NAMED_EXPRESSION : '[' (' ')? ('\u00B1')? ('%')? '"' ID (ID | '/' | ' ' | '*' | '.' | '_' | '%' | '-')* PARENS* (' %err')* '"' ']' ;
-
- ID  :   (LETTER | NUMBER) (LETTER | NUMBER)* ;
  fragment
- PARENS : '(' (LETTER | NUMBER | '.' | ' ')* ')';
+ Parens : '(' (LETTER | NUMBER | '.' | ' ')* ')';
 
  LETTER : [a-zA-Z_] ;
 
@@ -116,17 +80,17 @@
 
  NUMBER : [0-9] ;
 
- INT :   [0-9]+ ;
+ INT : [0-9]+ ;
 
- INTEGER:                '0' | ([1-9][0-9]*);
+ INTEGER : '0' | ([1-9][0-9]*);
 
- DOUBLE :              ('0' | ([1-9][0-9]*)) ('.' [0-9]*)? Exponent? ;
+ DOUBLE : ('0' | ([1-9][0-9]*)) ('.' [0-9]*)? Exponent? ;
 
  fragment
  Exponent : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;
 
 
- WS  :   (' ' | '\t' | '\n' | '\r') ;
+ WS : (' ' | '\t' | '\n' | '\r') ;
 
  SL_COMMENT
      :   '//' .*? '\n' -> skip

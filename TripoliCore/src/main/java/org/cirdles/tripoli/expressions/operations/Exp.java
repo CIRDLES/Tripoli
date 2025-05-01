@@ -24,6 +24,7 @@ public class Exp extends Operation {
         super();
         name = "exponential";
         precedence = 4;
+        singleArg = true;
     }
 
     @Override

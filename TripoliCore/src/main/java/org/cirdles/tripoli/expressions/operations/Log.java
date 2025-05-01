@@ -24,14 +24,11 @@ public class Log extends Operation {
         super();
         name = "logarithmic";
         precedence = 4;
+        singleArg = true;
     }
 
     @Override
     public Double eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis){
-        if (rightChild == null){
-            return StrictMath.log10(leftChild.eval(analysis));
-        } else {
-            return StrictMath.log(leftChild.eval(analysis)) / StrictMath.log(rightChild.eval(analysis)); // Log base [right value] of [left value]
-        }
+        return StrictMath.log10(leftChild.eval(analysis));
     }
 }

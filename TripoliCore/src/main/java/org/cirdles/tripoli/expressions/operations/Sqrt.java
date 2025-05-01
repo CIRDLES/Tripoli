@@ -20,18 +20,16 @@ import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTreeInterface;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 
 public class Sqrt extends Operation {
+
     public Sqrt(){
         super();
         name = "square root";
         precedence = 4;
+        singleArg = true;
     }
 
     @Override
     public Double eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis){
-        if (rightChild == null){
-            return StrictMath.sqrt(leftChild.eval(analysis));
-        } else {
-            return StrictMath.pow(leftChild.eval(analysis), 1.0/rightChild.eval(analysis)); // [Right value]th root of [left value]
-        }
+        return StrictMath.sqrt(leftChild.eval(analysis));
     }
 }

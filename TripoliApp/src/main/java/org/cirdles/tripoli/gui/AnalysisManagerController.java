@@ -941,7 +941,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 userFunctionLV.getItems().add(new UserFunctionNode(userFunction.getName()));
             }
         }
-        operationLV.getItems().addAll(operationList);
+        for (Operation op : operationList){
+            op.setName(listOperators.get(operationList.indexOf(op)) + " : "+ op.getName());
+            operationLV.getItems().add(op);
+        }
         
         setAccordionListViewListener(userFunctionLV);
         setAccordionListViewListener(isotopicRatioLV);
@@ -977,15 +980,15 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 if (selectedItem != null) {
                     Dragboard dragboard = cell.startDragAndDrop(TransferMode.MOVE);
                     ClipboardContent content = new ClipboardContent();
-                    if (selectedItem instanceof Operation) { // get operator rather than name
-                        String key = OPERATIONS_MAP.entrySet()
-                                .stream()
-                                .filter(entry -> entry.getValue().equals(selectedItem))
-                                .map(Map.Entry::getKey)
-                                .findFirst()
-                                .orElse(null);
+                    if (selectedItem instanceof Operation) { // OPERATION
+                        String key = selectedItem.getName();
+                        if (((Operation) selectedItem).isSingleArg()){
+                            key += "(";
+                        }
                         content.putString(key);
-                    } else {
+                    } else if (selectedItem instanceof UserFunctionNode) { // USER FUNCTION / RATIO
+                        content.putString("["+ selectedItem.getName() +"]");
+                    } else { // CUSTOM EXPRESSION / NUMBER todo: add number
                         content.putString(selectedItem.getName());
                     }
                     dragboard.setContent(content);
@@ -1030,36 +1033,54 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
             if (db.hasString()) {
                 String content = db.getString();
-                if (OPERATIONS_MAP.containsKey(content)) {
-                    // case of operation
-                    insertOperationIntoExpressionTextFlow(content, index);
-                } else if ( content.contains(NUMBER_STRING)) {
-                    // case of "NUMBER"
+                if (content.contains(":") && !content.contains("[")) { // OPERATION
+                    String operator = content.split(":")[0];
+                    if (content.contains("(")) {
+                        operator += "(";
+                    }
+                    insertOperationIntoExpressionTextFlow(operator, index);
+                } else if (content.contains("[")) { // FUNCTION
+                    insertUserFunctionIntoExpressionTextFlow(content, index);
+                } else if ( content.contains(NUMBER_STRING)) { // NUMBER
                     insertNumberIntoExpressionTextFlow(index);
-                } else if (presentationMap.containsKey(content)) {
-                    // case of presentation (new line, tab)
+                } else if (presentationMap.containsKey(content)) { // WS
                     insertPresentationIntoExpressionTextFlow(presentationMap.get(content), index);
-                } else {
-                    // case of expression
+                } else { // CE / NUMBER
                     insertExpressionIntoExpressionTextFlow(content, index);
                 }
-
                 success = true;
             }
 
             event.setDropCompleted(success);
-
             event.consume();
         });
     }
 
-    private void insertOperationIntoExpressionTextFlow(String content, int index) {
-        //Add spaces
-        ExpressionTextNode exp = new OperationTextNode(' ' + content.trim() + ' ');
-        exp.setIndex(index);
-        expressionTextFlow.getChildren().add(exp);
+    private void insertIntoExpressionTextFlow(ExpressionTextNode node, int index) {
+        node.setIndex(index);
+        expressionTextFlow.getChildren().add(node);
         updateExpressionTextFlowChildren();
     }
+
+    private void insertOperationIntoExpressionTextFlow(String content, int index) {
+        if (content.contains("(")){
+            ExpressionTextNode exp = new OperationTextNode(' ' + content.trim().substring(0, content.length()-2) + ' ');
+            exp.setIndex(index);
+            expressionTextFlow.getChildren().add(exp);
+            exp = new ExpressionTextNode("(");
+            exp.setIndex(index++);
+            expressionTextFlow.getChildren().add(exp);
+            exp = new ExpressionTextNode(")");
+            exp.setIndex(index++);
+            expressionTextFlow.getChildren().add(exp);
+        } else {
+            ExpressionTextNode exp = new OperationTextNode(' ' + content.trim() + ' ');
+            exp.setIndex(index);
+            expressionTextFlow.getChildren().add(exp);
+            updateExpressionTextFlowChildren();
+        }
+    }
+
     private void insertNumberIntoExpressionTextFlow(int index) {
         //Add spaces
         ExpressionTextNode exp = new NumberTextNode(' ' + NUMBER_STRING.trim() + ' ');
@@ -1067,24 +1088,21 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         expressionTextFlow.getChildren().add(exp);
         updateExpressionTextFlowChildren();
     }
+
     private void insertExpressionIntoExpressionTextFlow(String content, int index) {
-        //Add spaces
-        ExpressionTextNode exp = new ExpressionTextNode(' ' + content.trim() + ' ');
-        exp.setIndex(index);
-        expressionTextFlow.getChildren().add(exp);
-        updateExpressionTextFlowChildren();
+        insertIntoExpressionTextFlow(new ExpressionTextNode(' ' + content.trim() + ' '), index);
     }
+
     private void insertPresentationIntoExpressionTextFlow(String content, int index) {
-        ExpressionTextNode exp = new PresentationTextNode(content);
-        exp.setIndex(index);
-        expressionTextFlow.getChildren().add(exp);
-        updateExpressionTextFlowChildren();
+        insertIntoExpressionTextFlow(new PresentationTextNode(content), index);
+    }
+
+    private void insertUserFunctionIntoExpressionTextFlow(String content, int index) {
+        insertIntoExpressionTextFlow(new UserFunctionTextNode(content), index);
     }
 
     private void updateExpressionTextFlowChildren() {
-        // extract and sort
         List<Node> children = new ArrayList<>(expressionTextFlow.getChildren());
-        // sort
         children.sort((Node o1, Node o2) -> {
             int retVal = 0;
             if (o1 instanceof ExpressionTextNode && o2 instanceof ExpressionTextNode) {
@@ -1093,7 +1111,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             return retVal;
         });
 
-        // reset ordinals to integer values
         int index = 0;
         for (Node etn : children) {
             ((ExpressionTextNode) etn).setIndex(index);
@@ -1107,23 +1124,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     private void initExpressionTextFlowAndTextArea() {
-
-        //Init of the textarea
         expressionAsTextArea.setFont(Font.font("Monospaced"));
 
         expressionAsTextArea.textProperty().bindBidirectional(expressionString);
         expressionString.addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !makeStringFromExpressionTextNodeList(expressionTextFlow.getChildren()).equals(newValue)) {
                 makeTextFlowFromString(newValue);
-            }
-        });
-
-        expressionNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if ((newValue != null) && newValue.compareTo(oldValue) != 0) {
-                // remove spaces
-                //expressionNameTextField.setText(FileNameFixer.fixFileName(newValue));
-                //updateEditor();
-                //refreshSaved();
             }
         });
 
@@ -1675,6 +1681,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     etn = new PresentationTextNode(INVISIBLE_TAB_PLACEHOLDER);
                 } else if (nodeText.equals(" ")) {
                     etn = new PresentationTextNode(INVISIBLE_WHITESPACE_PLACEHOLDER);
+                } else if (nodeText.contains("[")){
+                    etn = new UserFunctionTextNode(' ' + nodeText + ' ');
                 } else {
                     etn = new ExpressionTextNode(' ' + nodeText + ' ');
                 }
@@ -1878,6 +1886,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             super(text);
             this.fontSize = EXPRESSION_BUILDER_DEFAULT_FONTSIZE + 3;
             updateFontSize();
+        }
+    }
+    private class UserFunctionTextNode extends ExpressionTextNode {
+
+        public UserFunctionTextNode(String text) {
+            super(text);
+            this.regularColor = Color.BLUE;
+            setFill(regularColor);
         }
     }
 }

@@ -30,6 +30,7 @@ public abstract class Operation extends ExpressionTree implements Serializable {
     protected int precedence;
     public final static Map<String, Operation> OPERATIONS_MAP = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private static final long serialVersionUID = 8219110032598495439L;
+    protected boolean singleArg = false;
 
     static {
 
@@ -46,21 +47,19 @@ public abstract class Operation extends ExpressionTree implements Serializable {
 
     public abstract Double eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis);
 
-    public int getPrecedence() {
-        return precedence;
-    }
-    public String getName() {
-        return name;
-    }
+    public int getPrecedence() { return precedence; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public boolean isSingleArg() { return singleArg; }
 
 
-    public static Operation add() {return new Add();}
-    public static Operation subtract() {return new Subtract();}
-    public static Operation divide() {return new Divide();}
-    public static Operation multiply() {return new Multiply();}
-    public static Operation power() {return new Power();}
-    public static Operation log() {return new Log();}
-    public static Operation exp() {return new Exp();}
-    public static Operation sqrt() {return new Sqrt();}
+    public static Operation add() { return new Add(); }
+    public static Operation subtract() { return new Subtract(); }
+    public static Operation divide() { return new Divide(); }
+    public static Operation multiply() { return new Multiply(); }
+    public static Operation power() { return new Power(); }
+    public static Operation log() { return new Log(); }
+    public static Operation exp() { return new Exp(); }
+    public static Operation sqrt() { return new Sqrt(); }
 
 }
