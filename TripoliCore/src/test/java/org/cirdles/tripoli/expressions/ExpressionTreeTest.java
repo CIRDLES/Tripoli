@@ -3,7 +3,6 @@ package org.cirdles.tripoli.expressions;
 import jakarta.xml.bind.JAXBException;
 import org.cirdles.commons.util.ResourceExtractor;
 import org.cirdles.tripoli.Tripoli;
-import org.cirdles.tripoli.expressions.constants.ConstantNode;
 import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
 import org.cirdles.tripoli.expressions.operations.Add;
 import org.cirdles.tripoli.expressions.operations.Divide;
@@ -19,10 +18,8 @@ import org.junit.jupiter.api.Test;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;

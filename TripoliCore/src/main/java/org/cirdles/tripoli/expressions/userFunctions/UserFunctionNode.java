@@ -23,6 +23,7 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.d
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class UserFunctionNode extends ExpressionTree {
     private static final long serialVersionUID = -8842667140841645591L;
@@ -32,26 +33,35 @@ public class UserFunctionNode extends ExpressionTree {
     public UserFunctionNode(String name) {
         this.name = name;
     }
-    
+
     public Double[][] eval(AnalysisInterface analysis) {
         AllBlockInitForDataLiteOne.initBlockModels(analysis);
         List<UserFunction> ufList = analysis.getUserFunctions();
-        for (UserFunction uf : ufList) {
-            if (uf.getName().equals(name)) {
-                Map<Integer, SingleBlockRawDataLiteSetRecord> o = analysis.getMapOfBlockIdToRawDataLiteOne();
-                Double[][] retVal = new Double[o.size()][];
-                for (Integer blockID : o.keySet()){
-                    retVal[blockID-1] = new Double[o.get(blockID).blockRawDataLiteArray().length];
-                    for (int d = 0; d<o.get(blockID).blockRawDataLiteArray().length; d++) {
-                        retVal[blockID-1][d] = o.get(blockID).blockRawDataLiteArray()[d][uf.getColumnIndex()];
-                    }
 
-                }
-                return retVal;
-                //return uf.getAnalysisStatsRecord().cycleModeMean();
-            }
+        Optional<UserFunction> maybeUserFunction = ufList.stream()
+                .filter(uf -> uf.getName().equals(name))
+                .findFirst();
+
+        if (maybeUserFunction.isEmpty()) {
+            return null;
         }
-        return null;
+
+        UserFunction targetFunction = maybeUserFunction.get();
+        Map<Integer, SingleBlockRawDataLiteSetRecord> blockDataMap = analysis.getMapOfBlockIdToRawDataLiteOne();
+        Double[][] retVal = new Double[blockDataMap.size()][];
+
+        for (Map.Entry<Integer, SingleBlockRawDataLiteSetRecord> entry : blockDataMap.entrySet()) {
+            int blockIndex = entry.getKey() - 1;
+            double[][] blockArray = entry.getValue().blockRawDataLiteArray();
+            Double[] columnData = new Double[blockArray.length];
+
+            for (int d = 0; d < blockArray.length; d++) {
+                columnData[d] = blockArray[d][targetFunction.getColumnIndex()];
+            }
+            retVal[blockIndex] = columnData;
+        }
+
+        return retVal;
     }
 
     public String getName() {
