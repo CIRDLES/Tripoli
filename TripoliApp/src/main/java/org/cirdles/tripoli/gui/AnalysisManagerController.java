@@ -1033,21 +1033,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
             if (db.hasString()) {
                 String content = db.getString();
-                if (content.contains(":") && !content.contains("[")) { // OPERATION
-                    String operator = content.split(":")[0];
-                    if (content.contains("(")) {
-                        operator += "(";
-                    }
-                    insertOperationIntoExpressionTextFlow(operator, index);
-                } else if (content.contains("[")) { // FUNCTION
-                    insertUserFunctionIntoExpressionTextFlow(content, index);
-                } else if ( content.contains(NUMBER_STRING)) { // NUMBER
-                    insertNumberIntoExpressionTextFlow(index);
-                } else if (presentationMap.containsKey(content)) { // WS
-                    insertPresentationIntoExpressionTextFlow(presentationMap.get(content), index);
-                } else { // CE / NUMBER
-                    insertExpressionIntoExpressionTextFlow(content, index);
-                }
+                determineNodeType(content, index);
                 success = true;
             }
 
@@ -1056,9 +1042,27 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         });
     }
 
+    private void determineNodeType(String content, int index){
+        if (content.contains(":") && !content.contains("[")) { // OPERATION
+            String operator = content.split(":")[0];
+            if (content.contains("(")) {
+                operator += "(";
+            }
+            insertOperationIntoExpressionTextFlow(operator, index);
+        } else if (content.contains("[")) { // FUNCTION
+            insertUserFunctionIntoExpressionTextFlow(content, index);
+        } else if ( content.contains(NUMBER_STRING)) { // NUMBER
+            insertNumberIntoExpressionTextFlow(index);
+        } else if (presentationMap.containsKey(content)) { // WS
+            insertPresentationIntoExpressionTextFlow(presentationMap.get(content), index);
+        } else { // CE / NUMBER
+            insertExpressionIntoExpressionTextFlow(content, index);
+        }
+    }
+
     private void insertIntoExpressionTextFlow(ExpressionTextNode node, int index) {
         node.setIndex(index);
-        expressionTextFlow.getChildren().add(node);
+        expressionTextFlow.getChildren().add(index, node);
         updateExpressionTextFlowChildren();
     }
 
@@ -1067,11 +1071,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             ExpressionTextNode exp = new OperationTextNode(' ' + content.trim().substring(0, content.length()-2) + ' ');
             exp.setIndex(index);
             expressionTextFlow.getChildren().add(exp);
-            exp = new ExpressionTextNode("(");
-            exp.setIndex(index++);
+            exp = new ExpressionTextNode(" ( ");
+            index++;
+            exp.setIndex(index);
             expressionTextFlow.getChildren().add(exp);
-            exp = new ExpressionTextNode(")");
-            exp.setIndex(index++);
+            exp = new ExpressionTextNode(" ) ");
+            index++;
+            exp.setIndex(index);
             expressionTextFlow.getChildren().add(exp);
         } else {
             ExpressionTextNode exp = new OperationTextNode(' ' + content.trim() + ' ');
@@ -1082,11 +1088,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     private void insertNumberIntoExpressionTextFlow(int index) {
-        //Add spaces
-        ExpressionTextNode exp = new NumberTextNode(' ' + NUMBER_STRING.trim() + ' ');
-        exp.setIndex(index);
-        expressionTextFlow.getChildren().add(exp);
-        updateExpressionTextFlowChildren();
+        insertIntoExpressionTextFlow(new NumberTextNode(' ' + NUMBER_STRING.trim() + ' '), index);
     }
 
     private void insertExpressionIntoExpressionTextFlow(String content, int index) {
@@ -1102,22 +1104,20 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     private void updateExpressionTextFlowChildren() {
-        List<Node> children = new ArrayList<>(expressionTextFlow.getChildren());
-        children.sort((Node o1, Node o2) -> {
-            int retVal = 0;
-            if (o1 instanceof ExpressionTextNode && o2 instanceof ExpressionTextNode) {
-                retVal = Double.compare(((ExpressionTextNode) o1).getIndex(), ((ExpressionTextNode) o2).getIndex());
+        for (int i = 0; i < expressionTextFlow.getChildren().size(); i++) {
+            Node node = expressionTextFlow.getChildren().get(i);
+            if (node instanceof ExpressionTextNode et) {
+                et.setIndex(i);
+                expressionTextFlow.getChildren().sort((Node o1, Node o2) -> {
+                    int retVal = 0;
+                    if (o1 instanceof ExpressionTextNode && o2 instanceof ExpressionTextNode) {
+                        retVal = Integer.compare(((ExpressionTextNode) o1).getIndex(), ((ExpressionTextNode) o2).getIndex());
+                    }
+                    return retVal;
+                });
+
             }
-            return retVal;
-        });
-
-        int index = 0;
-        for (Node etn : children) {
-            ((ExpressionTextNode) etn).setIndex(index);
-            index++;
         }
-
-        expressionTextFlow.getChildren().setAll(children);
 
         expressionString.set(makeStringFromExpressionTextNodeList(expressionTextFlow.getChildren()));
 
@@ -1825,10 +1825,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 if (db.hasString()) {
                     String droppedText = db.getString();
 
-                    ExpressionTextNode newText = new ExpressionTextNode(" " + droppedText + " ");
-                    newText.setIndex(index);
-                    expressionTextFlow.getChildren().add(index, newText);
-                    reindexTextFlow();
+                    expressionTextFlow.getChildren().remove(insertIndicator);
+                    determineNodeType(" " + droppedText + " ", index);
+                    updateExpressionTextFlowChildren();
 
                     success = true;
                 }
@@ -1841,19 +1840,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             expressionTextFlow.getChildren().add(index, insertIndicator);
         }
 
-        private void reindexTextFlow() {
-            for (int i = 0; i < expressionTextFlow.getChildren().size(); i++) {
-                Node node = expressionTextFlow.getChildren().get(i);
-                if (node instanceof ExpressionTextNode et) {
-                    et.setIndex(i);
-                }
-            }
-        }
+
         private void setupContextMenu() {
             MenuItem deleteItem = new MenuItem("Delete");
             deleteItem.setOnAction(event -> {
                 expressionTextFlow.getChildren().remove(this);
-                reindexTextFlow();
+                updateExpressionTextFlowChildren();
             });
 
             ContextMenu contextMenu = new ContextMenu(deleteItem);
