@@ -43,8 +43,8 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
     }
 
     @Override
-    public Double eval(AnalysisInterface analysis){
-        return rootOperator == null ? 0.0 : rootOperator.eval(leftChildET, rightChildET, analysis);
+    public Double[][] eval(AnalysisInterface analysis){
+        return rootOperator == null ? null : rootOperator.eval(leftChildET, rightChildET, analysis);
     }
 
     public ExpressionTree copy(){
@@ -83,20 +83,24 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
         return stack.pop();
     }
 
-    public String prettyPrint(ExpressionTreeInterface node, AnalysisInterface analysis) {
+    public String prettyPrint(ExpressionTreeInterface node, AnalysisInterface analysis, boolean showValues) {
         if (node == null) {
             return "";
         }
 
         if (node instanceof UserFunctionNode) {
-            return String.valueOf(node.eval(analysis));
+            if (showValues){
+                return String.valueOf(node.eval(analysis)[0][0]);
+            } else{
+                return node.getName();
+            }
+
         }
 
-        if (node instanceof ExpressionTree) {
-            ExpressionTree tree = (ExpressionTree) node;
+        if (node instanceof ExpressionTree tree) {
 
-            String leftStr = prettyPrint(tree.getLeft(), analysis);
-            String rightStr = prettyPrint(tree.getRight(), analysis);
+            String leftStr = prettyPrint(tree.getLeft(), analysis, showValues);
+            String rightStr = prettyPrint(tree.getRight(), analysis, showValues);
 
             String operatorSymbol = tree.getOperation().getName();
 

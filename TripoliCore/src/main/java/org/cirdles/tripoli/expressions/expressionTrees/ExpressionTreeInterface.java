@@ -21,7 +21,7 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 
 public interface ExpressionTreeInterface {
 
-    Double eval(AnalysisInterface analysis);
+    Double[][] eval(AnalysisInterface analysis);
     int getOperationPrecedence();
 
     String getName();

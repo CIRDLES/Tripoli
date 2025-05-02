@@ -45,7 +45,7 @@ public abstract class Operation extends ExpressionTree implements Serializable {
 
     }
 
-    public abstract Double eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis);
+    public abstract Double[][] eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis);
 
     public int getPrecedence() { return precedence; }
     public String getName() { return name; }

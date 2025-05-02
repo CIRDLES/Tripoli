@@ -1072,17 +1072,16 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             exp.setIndex(index);
             expressionTextFlow.getChildren().add(exp);
             exp = new ExpressionTextNode(" ( ");
-            index++;
-            exp.setIndex(index);
+            exp.setIndex(index + 1);
             expressionTextFlow.getChildren().add(exp);
             exp = new ExpressionTextNode(" ) ");
-            index++;
-            exp.setIndex(index);
+            exp.setIndex(index + 2);
             expressionTextFlow.getChildren().add(exp);
+            updateExpressionTextFlowChildren();
         } else {
             ExpressionTextNode exp = new OperationTextNode(' ' + content.trim() + ' ');
             exp.setIndex(index);
-            expressionTextFlow.getChildren().add(exp);
+            expressionTextFlow.getChildren().add(index, exp);
             updateExpressionTextFlowChildren();
         }
     }

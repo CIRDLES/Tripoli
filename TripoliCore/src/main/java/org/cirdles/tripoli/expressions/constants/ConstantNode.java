@@ -31,8 +31,8 @@ public class ConstantNode extends ExpressionTree {
     }
 
     @Override
-    public Double eval(AnalysisInterface analysis) {
-        return value;
+    public Double[][] eval(AnalysisInterface analysis) {
+        return new Double[][]{new Double[]{value}};
     }
 
     @Override

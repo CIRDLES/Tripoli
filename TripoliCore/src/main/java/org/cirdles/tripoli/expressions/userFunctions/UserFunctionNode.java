@@ -18,9 +18,11 @@ package org.cirdles.tripoli.expressions.userFunctions;
 
 import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 
 import java.util.List;
+import java.util.Map;
 
 public class UserFunctionNode extends ExpressionTree {
     private static final long serialVersionUID = -8842667140841645591L;
@@ -31,15 +33,25 @@ public class UserFunctionNode extends ExpressionTree {
         this.name = name;
     }
     
-    public Double eval(AnalysisInterface analysis) {
+    public Double[][] eval(AnalysisInterface analysis) {
         AllBlockInitForDataLiteOne.initBlockModels(analysis);
         List<UserFunction> ufList = analysis.getUserFunctions();
         for (UserFunction uf : ufList) {
             if (uf.getName().equals(name)) {
-                return uf.getAnalysisStatsRecord().cycleModeMean();
+                Map<Integer, SingleBlockRawDataLiteSetRecord> o = analysis.getMapOfBlockIdToRawDataLiteOne();
+                Double[][] retVal = new Double[o.size()][];
+                for (Integer blockID : o.keySet()){
+                    retVal[blockID-1] = new Double[o.get(blockID).blockRawDataLiteArray().length];
+                    for (int d = 0; d<o.get(blockID).blockRawDataLiteArray().length; d++) {
+                        retVal[blockID-1][d] = o.get(blockID).blockRawDataLiteArray()[d][uf.getColumnIndex()];
+                    }
+
+                }
+                return retVal;
+                //return uf.getAnalysisStatsRecord().cycleModeMean();
             }
         }
-        return 0.0;
+        return null;
     }
 
     public String getName() {
