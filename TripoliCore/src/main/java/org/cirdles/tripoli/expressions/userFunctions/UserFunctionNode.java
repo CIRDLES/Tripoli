@@ -17,10 +17,11 @@
 package org.cirdles.tripoli.expressions.userFunctions;
 
 import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,19 +48,14 @@ public class UserFunctionNode extends ExpressionTree {
         }
 
         UserFunction targetFunction = maybeUserFunction.get();
-        Map<Integer, SingleBlockRawDataLiteSetRecord> blockDataMap = analysis.getMapOfBlockIdToRawDataLiteOne();
-        Double[][] retVal = new Double[blockDataMap.size()][];
+        Map<Integer, PlotBlockCyclesRecord> cycleRecordMap = targetFunction.getMapBlockIdToBlockCyclesRecord();
 
-        for (Map.Entry<Integer, SingleBlockRawDataLiteSetRecord> entry : blockDataMap.entrySet()) {
-            int blockIndex = entry.getKey() - 1;
-            double[][] blockArray = entry.getValue().blockRawDataLiteArray();
-            Double[] columnData = new Double[blockArray.length];
-
-            for (int d = 0; d < blockArray.length; d++) {
-                columnData[d] = blockArray[d][targetFunction.getColumnIndex()];
-            }
-            retVal[blockIndex] = columnData;
-        }
+        Double[][] retVal = new Double[cycleRecordMap.size()][];
+        cycleRecordMap.forEach((k, v) ->
+                retVal[k-1] = Arrays.stream(v.cycleMeansData())
+                        .boxed()
+                        .toArray(Double[]::new)
+        );
 
         return retVal;
     }
