@@ -98,9 +98,14 @@ public class ShuntingYard {
 //                    lastWasOperationOrFunction = true;
 //                    break;
                 case LEFT_PAREN:
+                    if (!lastWasOperationOrFunction) {
+                        // If the last token was a value or right parenthesis, insert a multiplication operator
+                        operatorStack.push("*");
+                    }
                     operatorStack.push(token);
                     lastWasOperationOrFunction = true;
                     break;
+
                 case RIGHT_PAREN:
                     /* Until the token at the top of the stack is a left parenthesis, pop operators off the stack onto the output queue.
                     Pop the left parenthesis from the stack, but not onto the output queue.

@@ -18,6 +18,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -264,9 +265,10 @@ public class MassSpecExtractedData implements Serializable {
         }
     }
 
-    public void expandCycleDataForCustomExpression(){
+    public void expandCycleDataForCustomExpression(ExpressionTree tempExpression){
+        Double[][] expressionData = tempExpression.eval(columnHeaders, blocksDataLite);
         for (Integer blockID : blocksDataLite.keySet()) {
-            blocksDataLite.put(blockID, blocksDataLite.get(blockID).expandForCustomExpression());
+            blocksDataLite.put(blockID, blocksDataLite.get(blockID).expandForCustomExpression(expressionData[blockID-1]));
         }
     }
 

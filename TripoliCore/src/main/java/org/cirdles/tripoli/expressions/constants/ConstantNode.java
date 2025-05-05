@@ -18,6 +18,9 @@ package org.cirdles.tripoli.expressions.constants;
 
 import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
+
+import java.util.Map;
 
 public class ConstantNode extends ExpressionTree {
     private static final long serialVersionUID = 750641824380081476L;
@@ -34,6 +37,24 @@ public class ConstantNode extends ExpressionTree {
     public Double[][] eval(AnalysisInterface analysis) {
         return new Double[][]{new Double[]{value}};
     }
+
+    @Override
+    public Double[][] eval(String[] columnHeaders, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite) {
+
+        Double[][] retVal = new Double[blocksDataLite.size()][];
+
+        for (Integer blockID : blocksDataLite.keySet()) {
+            double[][] blockData = blocksDataLite.get(blockID).cycleData();
+            retVal[blockID-1] = new Double[blockData.length];
+
+            for (int i = 0; i < blockData.length; i++) {
+                retVal[blockID-1][i] = value;
+            }
+        }
+
+        return retVal;
+    }
+
 
     @Override
     public int getOperationPrecedence() {

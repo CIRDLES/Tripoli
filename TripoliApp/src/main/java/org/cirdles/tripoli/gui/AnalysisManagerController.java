@@ -107,7 +107,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public static OGTripoliPlotsWindow ogTripoliPreviewPlotsWindow;
     private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
     public Tab detectorDetailTab;
-    public TabPane analysiMethodTabPane;
+    public TabPane analysisMethodTabPane;
     @FXML
     public HBox blockStatusHBox;
     @FXML
@@ -172,6 +172,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public Button expressionAsTextBtn;
     @FXML
     public AnchorPane expressionPane;
+    @FXML
+    public HBox expressionsHeaderHBox;
+    @FXML
+    public ScrollPane expressionsScrollPane;
+    @FXML
+    public VBox expressionsVBox;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -436,28 +442,28 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         switch (caseNumber) {
             case 0 -> {
-                analysiMethodTabPane.getTabs().remove(detectorDetailTab);
-                analysiMethodTabPane.getTabs().remove(baselineTableTab);
-                analysiMethodTabPane.getTabs().remove(sequenceTableTab);
-                analysiMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
-                analysiMethodTabPane.getTabs().remove(selectColumnsToPlot);
+                analysisMethodTabPane.getTabs().remove(detectorDetailTab);
+                analysisMethodTabPane.getTabs().remove(baselineTableTab);
+                analysisMethodTabPane.getTabs().remove(sequenceTableTab);
+                analysisMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
+                analysisMethodTabPane.getTabs().remove(selectColumnsToPlot);
             }
             case 1 -> {
-                analysiMethodTabPane.getTabs().remove(detectorDetailTab);
-                analysiMethodTabPane.getTabs().remove(baselineTableTab);
-                analysiMethodTabPane.getTabs().remove(sequenceTableTab);
-                analysiMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
-                showTab(analysiMethodTabPane, 2, selectColumnsToPlot);
-                analysiMethodTabPane.getSelectionModel().select(2);
+                analysisMethodTabPane.getTabs().remove(detectorDetailTab);
+                analysisMethodTabPane.getTabs().remove(baselineTableTab);
+                analysisMethodTabPane.getTabs().remove(sequenceTableTab);
+                analysisMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
+                showTab(analysisMethodTabPane, 2, selectColumnsToPlot);
+                analysisMethodTabPane.getSelectionModel().select(2);
                 populateAnalysisMethodColumnsSelectorPane();
                 processingToolBar.setVisible(false);
             }
             case 2, 3, 4 -> {
-                showTab(analysiMethodTabPane, 2, detectorDetailTab);
-                showTab(analysiMethodTabPane, 3, baselineTableTab);
-                showTab(analysiMethodTabPane, 4, sequenceTableTab);
-                showTab(analysiMethodTabPane, 5, selectRatiosToPlotTab);
-                analysiMethodTabPane.getTabs().remove(selectColumnsToPlot);
+                showTab(analysisMethodTabPane, 2, detectorDetailTab);
+                showTab(analysisMethodTabPane, 3, baselineTableTab);
+                showTab(analysisMethodTabPane, 4, sequenceTableTab);
+                showTab(analysisMethodTabPane, 5, selectRatiosToPlotTab);
+                analysisMethodTabPane.getTabs().remove(selectColumnsToPlot);
                 populateAnalysisMethodGridPane();
                 populateAnalysisMethodRatioBuilderPane();
                 populateBlocksStatus();
@@ -624,6 +630,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         List<CheckBox> ratioCheckBoxList = new ArrayList<>();
         List<CheckBox> ratioInvertedCheckBoxList = new ArrayList<>();
         List<CheckBox> functionCheckBoxList = new ArrayList<>();
+        List<CheckBox> expressionCheckBoxList = new ArrayList<>();
         List<Label> exportLabelList = new ArrayList<>();
         List<RadioButton> cycleMeanRBs = new ArrayList<>();
 
@@ -642,8 +649,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 checkBoxRatio.setSelected(newValue);
             }
         };
+        ChangeListener<Boolean> allExpressionsChangeListener = (observable, oldValue, newValue) -> {
+            for (CheckBox checkBoxRatio : expressionCheckBoxList) {
+                checkBoxRatio.setSelected(newValue);
+            }
+        };
 
-        ratiosScrollPane.prefHeightProperty().bind(analysiMethodTabPane.heightProperty());
+        // Init Isotopic Ratio Box
+        ratiosScrollPane.prefHeightProperty().bind(analysisMethodTabPane.heightProperty());
         ratiosVBox.prefWidthProperty().bind(ratiosScrollPane.widthProperty());
         ratiosVBox.prefHeightProperty().bind(ratiosScrollPane.heightProperty());
         ratiosVBox.getChildren().clear();
@@ -705,11 +718,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         hBox.getChildren().addAll(toggleCycleMeansLabel, refreshButton);
         ratiosHeaderHBox.getChildren().add(hBox);
+        // ---------- end IR
 
-
+        // Init UserFunction Box
         functionsHeaderHBox.prefWidthProperty().bind(ratiosScrollPane.widthProperty());
         functionsHeaderHBox.getChildren().clear();
-        functionsScrollPane.prefHeightProperty().bind(analysiMethodTabPane.heightProperty());
+        functionsScrollPane.prefHeightProperty().bind(analysisMethodTabPane.heightProperty());
         functionsVBox.prefWidthProperty().bind(ratiosScrollPane.widthProperty());
         functionsVBox.prefHeightProperty().bind(ratiosScrollPane.heightProperty());
         functionsVBox.getChildren().clear();
@@ -723,7 +737,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         count = 0;
         selected = 0;
         for (UserFunction userFunction : userFunctions) {
-            if (!userFunction.isTreatAsIsotopicRatio()) {
+            if (!userFunction.isTreatAsIsotopicRatio() && !userFunction.isTreatAsCustomExpression()) {
                 count++;
                 selected += userFunction.isDisplayed() ? 1 : 0;
             }
@@ -734,6 +748,37 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         hBox.getChildren().add(checkBoxSelectAllFunctions);
         hBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
         functionsHeaderHBox.getChildren().add(hBox);
+        // ---------- end UF
+
+        // Init Custom Expression Box -------------------
+        expressionsHeaderHBox.prefWidthProperty().bind(functionsHeaderHBox.widthProperty());
+        expressionsHeaderHBox.getChildren().clear();
+        expressionsScrollPane.prefHeightProperty().bind(analysisMethodTabPane.heightProperty());
+        expressionsVBox.prefWidthProperty().bind(functionsHeaderHBox.widthProperty());
+        expressionsVBox.prefHeightProperty().bind(functionsHeaderHBox.heightProperty());
+        expressionsVBox.getChildren().clear();
+
+        hBox = new HBox();
+        hBox.setSpacing(5);
+        hBox.setAlignment(Pos.CENTER_LEFT);
+        hBox.setPadding(new Insets(5, 5, 5, 5));
+        hBox.prefWidthProperty().bind(expressionsVBox.widthProperty());
+        CheckBox checkBoxSelectAllExpressions = new CheckBox("Plot all Custom Expressions");
+        count = 0;
+        selected = 0;
+        for (UserFunction userFunction : userFunctions) {
+            if (userFunction.isTreatAsCustomExpression()) {
+                count++;
+                selected += userFunction.isDisplayed() ? 1 : 0;
+            }
+            checkBoxSelectAllExpressions.setSelected(selected == count);
+            checkBoxSelectAllExpressions.setIndeterminate((0 < selected) && (selected < count));
+        }
+        checkBoxSelectAllExpressions.selectedProperty().addListener(allExpressionsChangeListener);
+        hBox.getChildren().add(checkBoxSelectAllExpressions);
+        hBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+        expressionsHeaderHBox.getChildren().add(hBox);
+        // ---------- end CE
 
         userFunctions.sort(null);
         for (UserFunction userFunction : analysis.getUserFunctions()) {
@@ -752,8 +797,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                         ratioInvertedCheckBoxList.get(indexOfCheckBox).setSelected(false);
                     }
                     int selectedR = 0;
-                    for (CheckBox checkBoxRatio2 : ratioCheckBoxList) {
-                        selectedR += (checkBoxRatio2.isSelected() ? 1 : 0);
+                    for (CheckBox checkBoxRatioSingleton : ratioCheckBoxList) {
+                        selectedR += (checkBoxRatioSingleton.isSelected() ? 1 : 0);
                     }
                     checkBoxSelectAllRatios.selectedProperty().removeListener(allRatiosChangeListener);
                     checkBoxSelectAllRatios.setSelected(selectedR == ratioCheckBoxList.size());
@@ -805,6 +850,30 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 hBox.setPadding(new Insets(1, 1, 1, 25));
 
                 ratiosVBox.getChildren().add(hBox);
+            } else if (userFunction.isTreatAsCustomExpression()){
+                hBox = new HBox();
+                CheckBox checkBoxExpression = new CheckBox(userFunction.getName());
+                checkBoxExpression.setPrefWidth(500);
+                checkBoxExpression.setFont(Font.font("Monospaced", FontWeight.BOLD, 12));
+                checkBoxExpression.setUserData(userFunction);
+                checkBoxExpression.setSelected(userFunction.isDisplayed());
+                checkBoxExpression.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                    ((UserFunction) checkBoxExpression.getUserData()).setDisplayed(newValue);
+                    int selectedE = 0;
+                    for (CheckBox checkBoxExpressionSingleton : expressionCheckBoxList) {
+                        selectedE += (checkBoxExpressionSingleton.isSelected() ? 1 : 0);
+                    }
+                    checkBoxSelectAllExpressions.selectedProperty().removeListener(allExpressionsChangeListener);
+                    checkBoxSelectAllExpressions.setSelected(selectedE == expressionCheckBoxList.size());
+                    checkBoxSelectAllExpressions.setIndeterminate((0 < selectedE) && (selectedE < expressionCheckBoxList.size()));
+                    checkBoxSelectAllExpressions.selectedProperty().addListener(allExpressionsChangeListener);
+                });
+                expressionCheckBoxList.add(checkBoxExpression);
+                checkBoxExpression.setPrefWidth(175);
+                hBox.getChildren().add(checkBoxExpression);
+                hBox.setSpacing(45);
+                hBox.setPadding(new Insets(1, 1, 1, 15));
+                expressionsVBox.getChildren().add(hBox);
             } else {
                 hBox = new HBox();
                 CheckBox checkBoxFunction = new CheckBox(userFunction.getName());
@@ -813,8 +882,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 checkBoxFunction.selectedProperty().addListener((observable, oldValue, newValue) -> {
                     ((UserFunction) checkBoxFunction.getUserData()).setDisplayed(newValue);
                     int selectedF = 0;
-                    for (CheckBox checkBoxRatio2 : functionCheckBoxList) {
-                        selectedF += (checkBoxRatio2.isSelected() ? 1 : 0);
+                    for (CheckBox checkBoxFunctionSingleton : functionCheckBoxList) {
+                        selectedF += (checkBoxFunctionSingleton.isSelected() ? 1 : 0);
                     }
                     checkBoxSelectAllFunctions.selectedProperty().removeListener(allFunctionsChangeListener);
                     checkBoxSelectAllFunctions.setSelected(selectedF == functionCheckBoxList.size());
@@ -1077,11 +1146,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             exp = new ExpressionTextNode(" ) ");
             exp.setIndex(index + 2);
             expressionTextFlow.getChildren().add(exp);
+
             updateExpressionTextFlowChildren();
         } else {
             ExpressionTextNode exp = new OperationTextNode(' ' + content.trim() + ' ');
             exp.setIndex(index);
             expressionTextFlow.getChildren().add(index, exp);
+
             updateExpressionTextFlowChildren();
         }
     }
@@ -1154,7 +1225,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     default:
                         String txt = ((ExpressionTextNode) node).getText().trim();
                         String nonLetter = "\t\n\r [](),+-*/<>=^\"";
-                        if (sb.length() == 0 || nonLetter.indexOf(sb.charAt(sb.length() - 1)) != -1 || nonLetter.indexOf(txt.charAt(0)) != -1) {
+                        if (sb.isEmpty() || nonLetter.indexOf(sb.charAt(sb.length() - 1)) != -1 || nonLetter.indexOf(txt.charAt(0)) != -1) {
                             sb.append(txt);
                         } else {
                             sb.append(" ").append(txt);
@@ -1604,7 +1675,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         tripoliPersistentState.updateTripoliPersistentState();
     }
 
-    public void newCustomExpressionOnAction(ActionEvent actionEvent) {
+    public void newCustomExpressionOnAction() {
+
     }
 
     public void editCustomExpressionOnAction(ActionEvent actionEvent) {

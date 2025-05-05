@@ -84,6 +84,8 @@ public class UserFunction implements Comparable, Serializable {
         userFunction.setReductionMode(this.reductionMode);
         userFunction.setInverted(this.inverted);
         userFunction.setEtReduxExportType(this.etReduxExportTypeEnum);
+        userFunction.setTreatAsCustomExpression(this.treatAsCustomExpression);
+        userFunction.setCustomExpression(this.customExpression);
 
         return userFunction;
     }

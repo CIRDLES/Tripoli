@@ -19,6 +19,7 @@ package org.cirdles.tripoli.expressions.operations;
 import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
 import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTreeInterface;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -46,6 +47,7 @@ public abstract class Operation extends ExpressionTree implements Serializable {
     }
 
     public abstract Double[][] eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis);
+    public abstract Double[][] eval(ExpressionTreeInterface leftChildET, ExpressionTreeInterface rightChildET, String[] columnHeaders, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite);
 
     public int getPrecedence() { return precedence; }
     public String getName() { return name; }

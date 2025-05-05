@@ -21,10 +21,16 @@ import com.google.common.collect.HashBiMap;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.constants.TripoliConstants;
+import org.cirdles.tripoli.expressions.constants.ConstantNode;
+import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
+import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTreeInterface;
+import org.cirdles.tripoli.expressions.operations.Add;
+import org.cirdles.tripoli.expressions.parsing.ShuntingYard;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.expressions.species.nuclides.NuclidesFactory;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunctionNode;
 import org.cirdles.tripoli.reports.Report;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
@@ -166,14 +172,21 @@ public class AnalysisMethod implements Serializable {
             System.out.println(columnHeaders[r270_267ColumnIndex + 2]);
 
         }
+        // Build temp Expression
+        List<String> infixList = new ArrayList<>();
+        List<UserFunction> userFunctionList = analysisMethod.getUserFunctionsModel();
+        Collections.addAll(infixList, userFunctionList.get(0).getName(), "/", "2","+", userFunctionList.get(3).getName(), "(", userFunctionList.get(1).getName(), "/", "1", ")");
+
+        ExpressionTreeInterface tempExpression = ExpressionTree.buildTree(ShuntingYard.infixToPostfix(infixList));
+
         columnHeaders = massSpecExtractedData.getColumnHeaders();
-        massSpecExtractedData.expandCycleDataForCustomExpression();
+        massSpecExtractedData.expandCycleDataForCustomExpression((ExpressionTree) tempExpression);
         String[] columnHeadersExpanded = new String[columnHeaders.length + 1];
         System.arraycopy(columnHeaders, 0, columnHeadersExpanded, 0, columnHeaders.length);
-        columnHeadersExpanded[columnHeaders.length] = "Test Function";
-        UserFunction userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length], columnHeaders.length - 2, true, true);
-        userFunction.setEtReduxName("Test Function");
-        userFunction.setOxideCorrected(true);
+        columnHeadersExpanded[columnHeaders.length] = "Test Custom Expression";
+        UserFunction userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length], columnHeaders.length - 2, false, true);
+        userFunction.setTreatAsCustomExpression(true);
+        userFunction.setCustomExpression((ExpressionTree) tempExpression);
         analysisMethod.getUserFunctionsModel().add(userFunction);
 
         massSpecExtractedData.setColumnHeaders(columnHeadersExpanded);

@@ -16,6 +16,8 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
+import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
+
 import java.io.Serializable;
 
 /**
@@ -41,14 +43,14 @@ public record MassSpecOutputBlockRecordLite(
         }
         return new MassSpecOutputBlockRecordLite(blockID, cycleDataExpand);
     }
-    public MassSpecOutputBlockRecordLite expandForCustomExpression(){
+    public MassSpecOutputBlockRecordLite expandForCustomExpression(Double[] expressionData){
         double[][] cycleDataExpand = new double[cycleData.length][];
         for (int row = 0; row < cycleData.length; row++) {
             cycleDataExpand[row] = new double[cycleData[row].length + 1];
             System.arraycopy(cycleData[row], 0, cycleDataExpand[row], 0, cycleData[row].length);
 
             cycleDataExpand[row][cycleData[row].length] =
-                    10.00; // This will hold the expression tree value
+                    expressionData[row];
         }
         return new MassSpecOutputBlockRecordLite(blockID, cycleDataExpand);
     }

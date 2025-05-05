@@ -16,12 +16,15 @@
 
 package org.cirdles.tripoli.expressions.expressionTrees;
 
+import org.cirdles.tripoli.expressions.constants.ConstantNode;
 import org.cirdles.tripoli.expressions.operations.Operation;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunctionNode;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 
@@ -71,8 +74,14 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
 
                 stack.push(node);
             } else {
-                ExpressionTreeInterface leaf = new UserFunctionNode(token);
-                stack.push(leaf);
+                try {
+                    double value = Double.parseDouble(token);
+                    ExpressionTreeInterface leaf = new ConstantNode(token, value);
+                    stack.push(leaf);
+                } catch (NumberFormatException e) {
+                    ExpressionTreeInterface leaf = new UserFunctionNode(token);
+                    stack.push(leaf);
+                }
             }
         }
 
@@ -88,7 +97,7 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
             return "";
         }
 
-        if (node instanceof UserFunctionNode) {
+        if (node instanceof UserFunctionNode || node instanceof ConstantNode) {
             if (showValues){
                 return String.valueOf(node.eval(analysis)[0][0]);
             } else{
@@ -134,5 +143,9 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
     @Override
     public String getName() {
         return name;
+    }
+
+    public Double[][] eval(String[] columnHeaders, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite) {
+        return rootOperator == null ? null : rootOperator.eval(leftChildET, rightChildET, columnHeaders, blocksDataLite);
     }
 }

@@ -18,6 +18,11 @@ package org.cirdles.tripoli.expressions.operations;
 
 import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTreeInterface;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.IntStream;
 
 public class Add extends Operation {
     public Add(){
@@ -43,5 +48,27 @@ public class Add extends Operation {
         }
 
         return retVal;
+    }
+
+
+    @Override
+    public Double[][] eval(ExpressionTreeInterface leftChildET, ExpressionTreeInterface rightChildET, String[] columnHeaders, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite) {
+        Double[][] leftCycle = leftChildET.eval(columnHeaders, blocksDataLite);
+        Double[][] rightCycle = rightChildET.eval(columnHeaders, blocksDataLite);
+
+        Double[][] retVal = new Double[leftCycle.length][];
+
+        for (int i = 0; i < leftCycle.length; i++) {
+            Double[] leftCycleRow = leftCycle[i];
+            Double[] rightCycleRow = rightCycle[i];
+            retVal[i] = new Double[leftCycleRow.length];
+
+            for (int j = 0; j < leftCycleRow.length; j++) {
+                retVal[i][j] = leftCycleRow[j] + rightCycleRow[j];
+            }
+        }
+
+        return retVal;
+
     }
 }

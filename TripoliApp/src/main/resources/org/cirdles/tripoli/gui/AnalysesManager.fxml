@@ -113,7 +113,7 @@
     <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="156.0" style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Data Summary:" GridPane.rowIndex="5" />
     <TextArea fx:id="metaDataTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" style="-fx-font-family: Monospaced; -fx-font-weight: BOLD;" text="No meta data" GridPane.columnIndex="1" GridPane.rowIndex="4" />
     <TextArea fx:id="dataSummaryTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" style="-fx-font-family: Monospaced; -fx-font-weight: BOLD;" text="No data" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-    <TabPane fx:id="analysiMethodTabPane" style="-fx-border-color: BLACK;" tabMaxHeight="20.0" tabMinHeight="20.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
+    <TabPane fx:id="analysisMethodTabPane" style="-fx-border-color: BLACK;" tabMaxHeight="20.0" tabMinHeight="20.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
         <Tab id="tab0" closable="false" text="About">
             <HBox>
                 <children>
@@ -254,6 +254,7 @@
             <content>
                 <SplitPane dividerPositions="0.8" prefHeight="242.0" prefWidth="1065.0">
                     <items>
+
                         <VBox>
                             <children>
                                 <HBox fx:id="ratiosHeaderHBox" prefHeight="52.0" prefWidth="794.0" />
@@ -264,16 +265,30 @@
                                 </ScrollPane>
                             </children>
                         </VBox>
-                        <VBox>
-                            <children>
-                                <HBox fx:id="functionsHeaderHBox" prefHeight="53.0" prefWidth="262.0" />
-                                <ScrollPane fx:id="functionsScrollPane" hbarPolicy="NEVER">
-                                    <content>
-                                        <VBox fx:id="functionsVBox" prefHeight="239.0" prefWidth="527.0" />
-                                    </content>
-                                </ScrollPane>
-                            </children>
-                        </VBox>
+
+                        <SplitPane dividerPositions="0.5" orientation="VERTICAL">
+                            <VBox>
+                                <children>
+                                    <HBox fx:id="functionsHeaderHBox" prefHeight="53.0" prefWidth="262.0" />
+                                    <ScrollPane fx:id="functionsScrollPane" hbarPolicy="NEVER">
+                                        <content>
+                                            <VBox fx:id="functionsVBox" prefHeight="239.0" prefWidth="527.0" />
+                                        </content>
+                                    </ScrollPane>
+                                </children>
+                            </VBox>
+                            <VBox>
+                                <children>
+                                    <HBox fx:id="expressionsHeaderHBox" prefHeight="53.0" prefWidth="262.0" />
+                                    <ScrollPane fx:id="expressionsScrollPane" hbarPolicy="NEVER">
+                                        <content>
+                                            <VBox fx:id="expressionsVBox" prefHeight="239.0" prefWidth="527.0" />
+                                        </content>
+                                    </ScrollPane>
+                                </children>
+                            </VBox>
+                        </SplitPane>
+
                     </items>
                 </SplitPane>
             </content>
