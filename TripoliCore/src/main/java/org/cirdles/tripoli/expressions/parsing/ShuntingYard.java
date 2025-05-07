@@ -22,6 +22,8 @@ import java.util.Locale;
 import java.util.Stack;
 import java.util.regex.Pattern;
 
+import static org.cirdles.tripoli.expressions.operations.Operation.OPERATIONS_MAP;
+
 public class ShuntingYard {
     private static final Pattern NUMBER_PATTERN = Pattern.compile("-?\\d+(\\.\\d+)?");
     private static final Pattern NUMBER_SCIENTIFIC_PATTERN = Pattern.compile("([+-]?(?:0|[1-9]\\d*)(?:\\.\\d*)?(?:[eE][+\\-]?\\d+))");
@@ -287,8 +289,8 @@ public class ShuntingYard {
                 retVal = RIGHT_PAREN;
             } else if (token.equals(",")) {
                 retVal = COMMA;
-            //} else if (FUNCTIONS_MAP.containsKey(token)) {
-            //    retVal = FUNCTION;
+            } else if (OPERATIONS_MAP.containsKey(token)) {
+                retVal = FUNCTION;
             } else if (token.matches("\\[(±?)(%?)\"(.*?)\"\\]( )*\\[\\d\\]( )*")) {
                 retVal = NAMED_EXPRESSION_INDEXED;
             } else if (token.matches("\\w+\\[\\d\\]") && !token.matches("\\d+\\[\\d\\]")

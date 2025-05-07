@@ -18,6 +18,7 @@ package org.cirdles.tripoli.expressions.userFunctions;
 
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
+import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTreeInterface;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
@@ -49,7 +50,7 @@ public class UserFunction implements Comparable, Serializable {
     private boolean displayed;
     private boolean inverted;
     private AnalysisStatsRecord analysisStatsRecord;
-    private ExpressionTree customExpression;
+    private ExpressionTreeInterface customExpression;
     private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord = new TreeMap<>();
     private int[] concatenatedBlockCounts;
 
@@ -257,11 +258,11 @@ public class UserFunction implements Comparable, Serializable {
     }
 
 
-    public ExpressionTree getCustomExpression() {
+    public ExpressionTreeInterface getCustomExpression() {
         return customExpression;
     }
 
-    public void setCustomExpression(ExpressionTree customExpression) {
+    public void setCustomExpression(ExpressionTreeInterface customExpression) {
         this.customExpression = customExpression;
 
     }

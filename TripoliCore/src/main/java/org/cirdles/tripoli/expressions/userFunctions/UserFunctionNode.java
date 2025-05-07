@@ -63,31 +63,26 @@ public class UserFunctionNode extends ExpressionTree {
 
     @Override
     public Double[][] eval(String[] columnHeaders, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite) {
-        // Find the column index that matches this user function's name
         int columnIndex = -1;
         for (int i = 0; i < columnHeaders.length; i++) {
             if (columnHeaders[i].equals(name)) {
-                columnIndex = i - 2; // Adjust index (first two columns are Cycle, Time)
+                columnIndex = i - 2;
                 break;
             }
         }
         
-        // Return default value if column not found
         if (columnIndex < 0) {
-            // Create an empty result array with proper dimensions instead of returning null
             Double[][] defaultResult = new Double[blocksDataLite.size()][];
             for (Integer blockID : blocksDataLite.keySet()) {
                 double[][] blockData = blocksDataLite.get(blockID).cycleData();
                 defaultResult[blockID-1] = new Double[blockData.length];
-                // Fill with zeros or some default value
                 for (int i = 0; i < blockData.length; i++) {
-                    defaultResult[blockID-1][i] = 0.0; // Default value
+                    defaultResult[blockID-1][i] = 0.0;
                 }
             }
             return defaultResult;
         }
         
-        // Extract data for this column from all blocks
         Double[][] retVal = new Double[blocksDataLite.size()][];
         
         for (Integer blockID : blocksDataLite.keySet()) {
@@ -95,11 +90,10 @@ public class UserFunctionNode extends ExpressionTree {
             retVal[blockID-1] = new Double[blockData.length];
             
             for (int i = 0; i < blockData.length; i++) {
-                // Check if the index is valid before accessing
                 if (columnIndex < blockData[i].length) {
                     retVal[blockID-1][i] = blockData[i][columnIndex];
                 } else {
-                    retVal[blockID-1][i] = 0.0; // Default value if index out of bounds
+                    retVal[blockID-1][i] = 0.0;
                 }
             }
         }
@@ -109,6 +103,10 @@ public class UserFunctionNode extends ExpressionTree {
 
 
     public String getName() {
-        return name;
+        if (!name.contains("[")){
+            return "[" + name + "]";
+        } else {
+            return name;
+        }
     }
 }

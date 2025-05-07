@@ -58,7 +58,7 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
         Stack<ExpressionTreeInterface> stack = new Stack<>();
 
         for (String token : parsedRPN) {
-            if (Operation.OPERATIONS_MAP.containsKey(token)) {
+            if (Operation.OPERATIONS_MAP.containsKey(token.trim())) {
                 if (stack.size() < 2) {
                     throw new IllegalArgumentException("Invalid RPN expression: insufficient operands for operator " + token);
                 }
@@ -111,7 +111,7 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
             String leftStr = prettyPrint(tree.getLeft(), analysis, showValues);
             String rightStr = prettyPrint(tree.getRight(), analysis, showValues);
 
-            String operatorSymbol = tree.getOperation().getName();
+            String operatorSymbol = tree.getOperation().getName().split(":")[0];
 
             return "(" + leftStr + " " + operatorSymbol + " " + rightStr + ")";
         }
@@ -125,9 +125,7 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
     private ExpressionTreeInterface getRight() {
         return this.rightChildET;
     }
-    private Operation getOperation() {
-        return this.rootOperator;
-    }
+    private Operation getOperation() {return this.rootOperator;}
 
     @Override
     public int getOperationPrecedence() {
@@ -144,6 +142,8 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
     public String getName() {
         return name;
     }
+    @Override
+    public void setName(String name) {this.name = name;}
 
     public Double[][] eval(String[] columnHeaders, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite) {
         return rootOperator == null ? null : rootOperator.eval(leftChildET, rightChildET, columnHeaders, blocksDataLite);

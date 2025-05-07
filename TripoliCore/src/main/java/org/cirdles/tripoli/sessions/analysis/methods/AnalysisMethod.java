@@ -178,19 +178,14 @@ public class AnalysisMethod implements Serializable {
         Collections.addAll(infixList, userFunctionList.get(0).getName(), "/", "2","+", userFunctionList.get(3).getName(), "(", userFunctionList.get(1).getName(), "/", "1", ")");
 
         ExpressionTreeInterface tempExpression = ExpressionTree.buildTree(ShuntingYard.infixToPostfix(infixList));
+        tempExpression.setName("Test Custom Expression");
 
         columnHeaders = massSpecExtractedData.getColumnHeaders();
-        massSpecExtractedData.expandCycleDataForCustomExpression((ExpressionTree) tempExpression);
-        String[] columnHeadersExpanded = new String[columnHeaders.length + 1];
-        System.arraycopy(columnHeaders, 0, columnHeadersExpanded, 0, columnHeaders.length);
-        columnHeadersExpanded[columnHeaders.length] = "Test Custom Expression";
-        UserFunction userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length], columnHeaders.length - 2, false, true);
+        massSpecExtractedData.expandCycleDataForCustomExpression(tempExpression);
+        UserFunction userFunction = new UserFunction(tempExpression.getName(), columnHeaders.length - 2, false, true);
         userFunction.setTreatAsCustomExpression(true);
-        userFunction.setCustomExpression((ExpressionTree) tempExpression);
+        userFunction.setCustomExpression(tempExpression);
         analysisMethod.getUserFunctionsModel().add(userFunction);
-
-        massSpecExtractedData.setColumnHeaders(columnHeadersExpanded);
-
 
         analysisMethod.refreshReports();
 

@@ -60,4 +60,8 @@ public class ConstantNode extends ExpressionTree {
     public int getOperationPrecedence() {
         return 0;
     }
+    @Override
+    public String getName() {return name;}
+    @Override
+    public void setName(String newName) {name = newName;}
 }

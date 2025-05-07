@@ -30,4 +30,5 @@ public interface ExpressionTreeInterface {
     int getOperationPrecedence();
 
     String getName();
+    void setName(String newName);
 }
