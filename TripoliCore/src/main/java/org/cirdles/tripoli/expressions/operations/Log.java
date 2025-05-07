@@ -50,21 +50,20 @@ public class Log extends Operation {
 
     @Override
     public Double[][] eval(ExpressionTreeInterface leftChildET, ExpressionTreeInterface rightChildET, String[] columnHeaders, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite) {
-        Double[][] retVal = new Double[blocksDataLite.size()][];
+        Double[][] leftCycle = leftChildET.eval(columnHeaders, blocksDataLite);
 
-        int leftIndex = IntStream.range(0, columnHeaders.length)
-                .filter(i -> columnHeaders[i].equals(leftChildET.getName()))
-                .findFirst()
-                .orElse(-1);
-        leftIndex -= 2;
+        Double[][] retVal = new Double[leftCycle.length][];
 
-        for (Integer blockID : blocksDataLite.keySet()) {
-            double[][] blockData = blocksDataLite.get(blockID).cycleData();
-            retVal[blockID-1] = new Double[blockData.length];
-            for (int i = 0; i < blockData.length; i++ ) {
-                retVal[blockID-1][i] = StrictMath.log10(blockData[i][leftIndex]);
+        for (int i = 0; i < leftCycle.length; i++) {
+            Double[] leftCycleRow = leftCycle[i];
+            retVal[i] = new Double[leftCycleRow.length];
+
+            for (int j = 0; j < leftCycleRow.length; j++) {
+                retVal[i][j] = StrictMath.log10(leftCycleRow[j]);
             }
         }
+
         return retVal;
+
     }
 }

@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import static org.cirdles.tripoli.expressions.operations.Operation.OPERATIONS_MAP;
+
 
 public class ExpressionTree implements ExpressionTreeInterface, Serializable {
     private static final long serialVersionUID = -2418173823255685906L;
@@ -58,21 +60,39 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
         Stack<ExpressionTreeInterface> stack = new Stack<>();
 
         for (String token : parsedRPN) {
-            if (Operation.OPERATIONS_MAP.containsKey(token.trim())) {
-                if (stack.size() < 2) {
-                    throw new IllegalArgumentException("Invalid RPN expression: insufficient operands for operator " + token);
+            if (OPERATIONS_MAP.containsKey(token.trim())) {
+                Operation operation = OPERATIONS_MAP.get(token);
+                
+                if (operation.isSingleArg()) {
+                    if (stack.size() < 1) {
+                        throw new IllegalArgumentException("Invalid RPN expression: insufficient operands for operator " + token);
+                    }
+                    ExpressionTreeInterface child = stack.pop();
+                    
+                    ExpressionTreeInterface node = new ExpressionTree(
+                            "",
+                            child,
+                            null,
+                            operation
+                    );
+                    
+                    stack.push(node);
+                } else {
+                    if (stack.size() < 2) {
+                        throw new IllegalArgumentException("Invalid RPN expression: insufficient operands for operator " + token);
+                    }
+                    ExpressionTreeInterface rightChild = stack.pop();
+                    ExpressionTreeInterface leftChild = stack.pop();
+
+                    ExpressionTreeInterface node = new ExpressionTree(
+                            "",
+                            leftChild,
+                            rightChild,
+                            operation
+                    );
+
+                    stack.push(node);
                 }
-                ExpressionTreeInterface rightChild = stack.pop();
-                ExpressionTreeInterface leftChild = stack.pop();
-
-                ExpressionTreeInterface node = new ExpressionTree(
-                        "",
-                        leftChild,
-                        rightChild,
-                        Operation.OPERATIONS_MAP.get(token)
-                );
-
-                stack.push(node);
             } else {
                 try {
                     double value = Double.parseDouble(token);
