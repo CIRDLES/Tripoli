@@ -568,8 +568,8 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                         stdvAsString = formattedStats.stdvAsString();
                     }
                     g2d.fillText("x  = " + meanAsString, textLeft + 10, textTop += textDeltaY);
-                    g2d.fillText("\u0304", textLeft + 10, textTop += textDeltaY);
-                    g2d.fillText("\u03C3  = " + unctAsString, textLeft + 10, textTop);
+                    g2d.fillText("\u0304", textLeft + 10, textTop);
+                    g2d.fillText("\u03C3  = " + unctAsString, textLeft + 10, textTop += textDeltaY);
                     g2d.fillText("x", textLeft + 18, textTop + 6);
                     g2d.fillText("\u0304", textLeft + 18, textTop + 6);
                     g2d.fillText("\u03C3  = " + stdvAsString, textLeft + 10, textTop += textDeltaY);
