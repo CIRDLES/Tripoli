@@ -63,24 +63,17 @@ public class UserFunctionNode extends ExpressionTree {
 
     @Override
     public Double[][] eval(String[] columnHeaders, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite) {
+
+        if (name.contains("[")){
+            this.name = name.substring(1, name.length() - 1);
+        }
+
         int columnIndex = -1;
         for (int i = 0; i < columnHeaders.length; i++) {
             if (columnHeaders[i].equals(name)) {
                 columnIndex = i - 2;
                 break;
             }
-        }
-        
-        if (columnIndex < 0) {
-            Double[][] defaultResult = new Double[blocksDataLite.size()][];
-            for (Integer blockID : blocksDataLite.keySet()) {
-                double[][] blockData = blocksDataLite.get(blockID).cycleData();
-                defaultResult[blockID-1] = new Double[blockData.length];
-                for (int i = 0; i < blockData.length; i++) {
-                    defaultResult[blockID-1][i] = 0.0;
-                }
-            }
-            return defaultResult;
         }
         
         Double[][] retVal = new Double[blocksDataLite.size()][];

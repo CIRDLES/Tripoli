@@ -630,12 +630,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         List<UserFunction> expressionList = analysisMethodPersistance.getExpressionUserFunctionList();
         for (UserFunction customExpression : expressionList) {
-            userFunctions.add(customExpression);
+            if (!userFunctions.contains(customExpression)) {
+                userFunctions.add(customExpression);
+            }
             analysis.getMassSpecExtractedData().expandCycleDataForCustomExpression(customExpression.getCustomExpression());
-
         }
 
         tripoliPersistentState.updateTripoliPersistentState();
+        populateAnalysisMethodColumnsSelectorPane();
     }
 
     private void populateAnalysisMethodColumnsSelectorPane() {
@@ -1690,6 +1692,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             analysis.getMassSpecExtractedData().replaceCycleDataForCustomExpression(expressionTree);
 
             tripoliPersistentState.updateTripoliPersistentState();
+            populateAnalysisMethodColumnsSelectorPane();
+
         } else { // New Expression
 
             rpnList = ShuntingYard.infixToPostfix(textFlowToList());
