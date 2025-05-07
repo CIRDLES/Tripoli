@@ -305,6 +305,7 @@
                             <Button fx:id="editExpressionButton" onAction="#editCustomExpressionOnAction" text="Edit" />
                             <Button fx:id="cancelExpressionButton" onAction="#cancelCustomExpressionOnAction" text="Cancel" />
                             <Button fx:id="saveExpressionButton" onAction="#saveCustomExpressionOnAction" text="Save" />
+                            <Button fx:id="deleteExpressionButton" onAction="#deleteCustomExpressionOnAction" text="Delete" />
                      <opaqueInsets>
                         <Insets />
                      </opaqueInsets>

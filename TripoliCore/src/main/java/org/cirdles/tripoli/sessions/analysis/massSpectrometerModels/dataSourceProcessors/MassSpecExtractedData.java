@@ -276,6 +276,14 @@ public class MassSpecExtractedData implements Serializable {
         columnHeaders = columnHeadersExpanded;
     }
 
+    public void replaceCycleDataForCustomExpression(ExpressionTreeInterface customExpressionTree){
+        Double[][] expressionData = customExpressionTree.eval(columnHeaders, blocksDataLite);
+        int columnIndex = Arrays.asList(columnHeaders).indexOf(customExpressionTree.getName());
+        for (Integer blockID : blocksDataLite.keySet()) {
+            blocksDataLite.put(blockID, blocksDataLite.get(blockID).replaceForCustomExpression(expressionData[blockID-1], columnIndex));
+        }
+    }
+
     public MassSpectrometerContextEnum getMassSpectrometerContext() {
         return massSpectrometerContext;
     }

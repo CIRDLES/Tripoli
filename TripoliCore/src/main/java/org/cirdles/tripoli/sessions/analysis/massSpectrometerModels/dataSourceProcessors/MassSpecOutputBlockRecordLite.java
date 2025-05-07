@@ -55,6 +55,13 @@ public record MassSpecOutputBlockRecordLite(
         return new MassSpecOutputBlockRecordLite(blockID, cycleDataExpand);
     }
 
+    public MassSpecOutputBlockRecordLite replaceForCustomExpression(Double[] expressionData, int columnIndex){
+        for (int row = 0; row < cycleData.length; row++) {
+            cycleData[row][columnIndex-2] = expressionData[row];
+        }
+        return new MassSpecOutputBlockRecordLite(blockID, cycleData);
+    }
+
     public MassSpecOutputBlockRecordLite copyWithNewBlockID(int blockIDNew) {
         return new MassSpecOutputBlockRecordLite(blockIDNew, cycleData);
     }

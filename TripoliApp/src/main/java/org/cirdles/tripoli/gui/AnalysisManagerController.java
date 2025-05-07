@@ -66,10 +66,8 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.O
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
@@ -629,6 +627,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 }
             }
         }
+
+        List<UserFunction> expressionList = analysisMethodPersistance.getExpressionUserFunctionList();
+        for (UserFunction customExpression : expressionList) {
+            userFunctions.add(customExpression);
+            analysis.getMassSpecExtractedData().expandCycleDataForCustomExpression(customExpression.getCustomExpression());
+
+        }
+
         tripoliPersistentState.updateTripoliPersistentState();
     }
 
@@ -1643,9 +1649,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     public void editCustomExpressionOnAction(ActionEvent actionEvent) {
+        TripoliMessageDialog.showWarningDialog("This feature is not yet implemented.", TripoliGUI.primaryStage);
+
     }
 
     public void cancelCustomExpressionOnAction(ActionEvent actionEvent) {
+        TripoliMessageDialog.showWarningDialog("This feature is not yet implemented.", TripoliGUI.primaryStage);
+
     }
 
     public void saveCustomExpressionOnAction() {
@@ -1661,24 +1671,26 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         List<UserFunction> userFunctions = analysis.getUserFunctions();
         List<String> rpnList;
 
+        AnalysisMethodPersistance analysisMethodPersistance =
+                tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
 
         if (expressionName.isBlank()) {
             TripoliMessageDialog.showWarningDialog("Please enter a name for the expression.", TripoliGUI.primaryStage);
-        } else if (expressionText.toString().isBlank()) {
+        } else if (expressionText.isBlank()) {
             TripoliMessageDialog.showWarningDialog("Please enter an expression.", TripoliGUI.primaryStage);
         } else if (userFunctions.stream().anyMatch(uf -> uf.getName().equalsIgnoreCase(expressionName))) { // Existing Expression
-            AnalysisMethodPersistance analysisMethodPersistance =
-                    tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
 
             rpnList = ShuntingYard.infixToPostfix(textFlowToList());
             UserFunction customExpression = userFunctions.stream().filter(uf -> uf.getName().equalsIgnoreCase(expressionName)).findFirst().get();
-            customExpression.setCustomExpression(ExpressionTree.buildTree(rpnList));
 
-            analysisMethodPersistance.getUserFunctionDisplayMap().put(customExpression.getName(), new UserFunctionDisplay(customExpression.getName(), true, false));
+            ExpressionTreeInterface expressionTree = ExpressionTree.buildTree(rpnList);
+            expressionTree.setName(expressionName);
+            customExpression.setCustomExpression(expressionTree);
+
+            analysis.getMassSpecExtractedData().replaceCycleDataForCustomExpression(expressionTree);
+
             tripoliPersistentState.updateTripoliPersistentState();
         } else { // New Expression
-            AnalysisMethodPersistance analysisMethodPersistance =
-                    tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
 
             rpnList = ShuntingYard.infixToPostfix(textFlowToList());
             UserFunction customExpression = new UserFunction(expressionName, userFunctions.size(), false, true);
@@ -1688,12 +1700,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             expressionTree.setName(expressionName);
             customExpression.setCustomExpression(expressionTree);
 
-
             userFunctions.add(customExpression);
             customExpressionsList.add(expressionTree);
             analysis.getMassSpecExtractedData().expandCycleDataForCustomExpression(expressionTree);
 
             analysisMethodPersistance.getUserFunctionDisplayMap().put(customExpression.getName(), new UserFunctionDisplay(customExpression.getName(), true, false));
+            analysisMethodPersistance.getExpressionUserFunctionList().add(customExpression);
             tripoliPersistentState.updateTripoliPersistentState();
             populateAnalysisMethodColumnsSelectorPane();
         }
@@ -1707,9 +1719,40 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     public void expressionUndoAction(ActionEvent actionEvent) {
+        TripoliMessageDialog.showWarningDialog("This feature is not yet implemented.", TripoliGUI.primaryStage);
+
     }
 
     public void expressionRedoAction(ActionEvent actionEvent) {
+        TripoliMessageDialog.showWarningDialog("This feature is not yet implemented.", TripoliGUI.primaryStage);
+
+    }
+
+    public void deleteCustomExpressionOnAction() {
+        /*
+        implement warning
+         */
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+            e.printStackTrace();
+        }
+        String expressionName = expressionNameTextField.getText();
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+
+        AnalysisMethodPersistance analysisMethodPersistance =
+                tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+
+        UserFunction customExpression = userFunctions.stream().filter(uf -> uf.getName().equalsIgnoreCase(expressionName)).findFirst().get();
+        customExpressionsList.remove(customExpression.getCustomExpression());
+
+        analysisMethodPersistance.getUserFunctionDisplayMap().remove(customExpression.getName());
+        analysisMethodPersistance.getExpressionUserFunctionList().remove(customExpression);
+        userFunctions.remove(customExpression);
+
+        tripoliPersistentState.updateTripoliPersistentState();
+        populateAnalysisMethodColumnsSelectorPane();
     }
 
     private List<String> textFlowToList(){
