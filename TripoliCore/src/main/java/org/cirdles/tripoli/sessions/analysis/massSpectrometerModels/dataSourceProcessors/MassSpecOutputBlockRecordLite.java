@@ -43,23 +43,41 @@ public record MassSpecOutputBlockRecordLite(
         }
         return new MassSpecOutputBlockRecordLite(blockID, cycleDataExpand);
     }
-    public MassSpecOutputBlockRecordLite expandForCustomExpression(Double[] expressionData){
-        double[][] cycleDataExpand = new double[cycleData.length][];
-        for (int row = 0; row < cycleData.length; row++) {
-            cycleDataExpand[row] = new double[cycleData[row].length + 1];
-            System.arraycopy(cycleData[row], 0, cycleDataExpand[row], 0, cycleData[row].length);
+    public MassSpecOutputBlockRecordLite populateColumnForCustomExpression(Double[] expressionData, int columnIndex){
+        if (columnIndex == -1){ // New column
+            double[][] cycleDataExpand = new double[cycleData.length][];
+            for (int row = 0; row < cycleData.length; row++) {
+                cycleDataExpand[row] = new double[cycleData[row].length + 1];
+                System.arraycopy(cycleData[row], 0, cycleDataExpand[row], 0, cycleData[row].length);
 
-            cycleDataExpand[row][cycleData[row].length] =
-                    expressionData[row];
+                cycleDataExpand[row][cycleData[row].length] = expressionData[row];
+            }
+
+            return new MassSpecOutputBlockRecordLite(blockID, cycleDataExpand);
+
+        } else { // Existing column
+            for (int row = 0; row < cycleData.length; row++) {
+                cycleData[row][columnIndex-2] = expressionData[row];
+            }
+
+            return new MassSpecOutputBlockRecordLite(blockID, cycleData);
+
         }
-        return new MassSpecOutputBlockRecordLite(blockID, cycleDataExpand);
     }
 
-    public MassSpecOutputBlockRecordLite replaceForCustomExpression(Double[] expressionData, int columnIndex){
+    public MassSpecOutputBlockRecordLite removeColumnForCustomExpression(int columnIndex) {
+        int arrayIndex = columnIndex - 2;
+        
+        double[][] cycleDataReduce = new double[cycleData.length][];
         for (int row = 0; row < cycleData.length; row++) {
-            cycleData[row][columnIndex-2] = expressionData[row];
+            cycleDataReduce[row] = new double[cycleData[row].length - 1];
+            // Copy elements before the column to be removed
+            System.arraycopy(cycleData[row], 0, cycleDataReduce[row], 0, arrayIndex);
+            // Copy elements after the column to be removed
+            System.arraycopy(cycleData[row], arrayIndex + 1, cycleDataReduce[row], arrayIndex, 
+                         cycleData[row].length - (arrayIndex + 1));
         }
-        return new MassSpecOutputBlockRecordLite(blockID, cycleData);
+        return new MassSpecOutputBlockRecordLite(blockID, cycleDataReduce);
     }
 
     public MassSpecOutputBlockRecordLite copyWithNewBlockID(int blockIDNew) {

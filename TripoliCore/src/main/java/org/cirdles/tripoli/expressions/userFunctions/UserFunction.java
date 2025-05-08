@@ -180,6 +180,9 @@ public class UserFunction implements Comparable, Serializable {
     public int getColumnIndex() {
         return columnIndex;
     }
+    public void setColumnIndex(int columnIndex) {
+        this.columnIndex = columnIndex;
+    }
 
     public boolean isTreatAsIsotopicRatio() {
         return treatAsIsotopicRatio;

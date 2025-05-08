@@ -265,23 +265,41 @@ public class MassSpecExtractedData implements Serializable {
         }
     }
 
-    public void expandCycleDataForCustomExpression(ExpressionTreeInterface customExpressionTree){
-        Double[][] expressionData = customExpressionTree.eval(columnHeaders, blocksDataLite);
-        for (Integer blockID : blocksDataLite.keySet()) {
-            blocksDataLite.put(blockID, blocksDataLite.get(blockID).expandForCustomExpression(expressionData[blockID-1]));
-        }
-        String[] columnHeadersExpanded = new String[columnHeaders.length+1];
-        System.arraycopy(columnHeaders, 0, columnHeadersExpanded, 0, columnHeaders.length);
-        columnHeadersExpanded[columnHeaders.length] = customExpressionTree.getName();
-        columnHeaders = columnHeadersExpanded;
-    }
-
-    public void replaceCycleDataForCustomExpression(ExpressionTreeInterface customExpressionTree){
+    /**
+     * Checks if the expression already exists in the cycle data headers. If it does, will replace the data with a new evaluation
+     * of the expression tree. Otherwise, expands the cycle data table to add a new column populated with the evaluated
+     * data for the expression and populates a new column header with the expression name.
+     * @param customExpressionTree valid expression tree with name set to expected header name
+     */
+    public void populateCycleDataForCustomExpression(ExpressionTreeInterface customExpressionTree){
         Double[][] expressionData = customExpressionTree.eval(columnHeaders, blocksDataLite);
         int columnIndex = Arrays.asList(columnHeaders).indexOf(customExpressionTree.getName());
+
         for (Integer blockID : blocksDataLite.keySet()) {
-            blocksDataLite.put(blockID, blocksDataLite.get(blockID).replaceForCustomExpression(expressionData[blockID-1], columnIndex));
+            blocksDataLite.put(blockID, blocksDataLite.get(blockID).populateColumnForCustomExpression(expressionData[blockID-1], columnIndex));
         }
+
+        if (columnIndex == -1) {
+            String[] columnHeadersExpanded = new String[columnHeaders.length+1];
+            System.arraycopy(columnHeaders, 0, columnHeadersExpanded, 0, columnHeaders.length);
+            columnHeadersExpanded[columnHeaders.length] = customExpressionTree.getName();
+            columnHeaders = columnHeadersExpanded;
+        }
+
+    }
+
+    public void removeCycleDataForDeletedExpression(ExpressionTreeInterface customExpressionTree){
+        int columnIndex = Arrays.asList(columnHeaders).indexOf(customExpressionTree.getName());
+
+        for (Integer blockID : blocksDataLite.keySet()) {
+            blocksDataLite.put(blockID, blocksDataLite.get(blockID).removeColumnForCustomExpression(columnIndex));
+        }
+
+        String[] columnHeadersReduced = new String[columnHeaders.length - 1];
+        System.arraycopy(columnHeaders, 0, columnHeadersReduced, 0, columnIndex);
+        System.arraycopy(columnHeaders, columnIndex + 1, columnHeadersReduced, columnIndex, columnHeaders.length - columnIndex - 1);
+
+        columnHeaders = columnHeadersReduced;
     }
 
     public MassSpectrometerContextEnum getMassSpectrometerContext() {

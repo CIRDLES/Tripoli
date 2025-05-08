@@ -31,9 +31,11 @@ public class UserFunctionNode extends ExpressionTree {
     private static final long serialVersionUID = -8842667140841645591L;
 
     String name;
+    String value;
 
     public UserFunctionNode(String name) {
         this.name = name;
+        this.value = name;
     }
 
     public Double[][] eval(AnalysisInterface analysis) {
@@ -41,7 +43,7 @@ public class UserFunctionNode extends ExpressionTree {
         List<UserFunction> ufList = analysis.getUserFunctions();
 
         Optional<UserFunction> maybeUserFunction = ufList.stream()
-                .filter(uf -> uf.getName().equals(name))
+                .filter(uf -> uf.getName().equals(value))
                 .findFirst();
 
         if (maybeUserFunction.isEmpty()) {
@@ -64,13 +66,13 @@ public class UserFunctionNode extends ExpressionTree {
     @Override
     public Double[][] eval(String[] columnHeaders, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite) {
 
-        if (name.contains("[")){
-            this.name = name.substring(1, name.length() - 1);
+        if (value.contains("[")){
+            this.value = value.substring(1, value.length() - 1);
         }
 
         int columnIndex = -1;
         for (int i = 0; i < columnHeaders.length; i++) {
-            if (columnHeaders[i].equals(name)) {
+            if (columnHeaders[i].equals(value)) {
                 columnIndex = i - 2;
                 break;
             }
@@ -96,10 +98,16 @@ public class UserFunctionNode extends ExpressionTree {
 
 
     public String getName() {
-        if (!name.contains("[")){
-            return "[" + name + "]";
+        return name;
+    }
+    public void setName(String newName) {
+        name = newName;
+    }
+    public String getValue() {
+        if (!value.contains("[")){
+            return "[" + value + "]";
         } else {
-            return name;
+            return value;
         }
     }
 }

@@ -172,20 +172,6 @@ public class AnalysisMethod implements Serializable {
             System.out.println(columnHeaders[r270_267ColumnIndex + 2]);
 
         }
-        // Build temp Expression
-        List<String> infixList = new ArrayList<>();
-        List<UserFunction> userFunctionList = analysisMethod.getUserFunctionsModel();
-        Collections.addAll(infixList, userFunctionList.get(0).getName(), "/", "2","+", userFunctionList.get(3).getName(), "(", userFunctionList.get(1).getName(), "/", "1", ")");
-
-        ExpressionTreeInterface tempExpression = ExpressionTree.buildTree(ShuntingYard.infixToPostfix(infixList));
-        tempExpression.setName("Test Custom Expression");
-
-        columnHeaders = massSpecExtractedData.getColumnHeaders();
-        massSpecExtractedData.expandCycleDataForCustomExpression(tempExpression);
-        UserFunction userFunction = new UserFunction(tempExpression.getName(), columnHeaders.length - 2, false, true);
-        userFunction.setTreatAsCustomExpression(true);
-        userFunction.setCustomExpression(tempExpression);
-        analysisMethod.getUserFunctionsModel().add(userFunction);
 
         analysisMethod.refreshReports();
 

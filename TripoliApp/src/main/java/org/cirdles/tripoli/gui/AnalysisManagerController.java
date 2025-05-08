@@ -633,7 +633,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             if (!userFunctions.contains(customExpression)) {
                 userFunctions.add(customExpression);
             }
-            analysis.getMassSpecExtractedData().expandCycleDataForCustomExpression(customExpression.getCustomExpression());
+            analysis.getMassSpecExtractedData().populateCycleDataForCustomExpression(customExpression.getCustomExpression());
         }
 
         tripoliPersistentState.updateTripoliPersistentState();
@@ -1077,7 +1077,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                         }
                         content.putString(key);
                     } else if (selectedItem instanceof UserFunctionNode) { // USER FUNCTION / RATIO
-                        content.putString(selectedItem.getName());
+                        content.putString(((UserFunctionNode) selectedItem).getValue());
                     } else if (selectedItem instanceof ExpressionTree) { // CUSTOM EXPRESSION
                         content.putString(((ExpressionTree) selectedItem).prettyPrint(selectedItem, analysis, false));
                     } else {// NUMBER todo: add number
@@ -1689,7 +1689,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             expressionTree.setName(expressionName);
             customExpression.setCustomExpression(expressionTree);
 
-            analysis.getMassSpecExtractedData().replaceCycleDataForCustomExpression(expressionTree);
+            analysis.getMassSpecExtractedData().populateCycleDataForCustomExpression(expressionTree);
 
             tripoliPersistentState.updateTripoliPersistentState();
             populateAnalysisMethodColumnsSelectorPane();
@@ -1702,11 +1702,11 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             customExpression.setTreatAsCustomExpression(true);
             ExpressionTreeInterface expressionTree = ExpressionTree.buildTree(rpnList);
             expressionTree.setName(expressionName);
-            customExpression.setCustomExpression(expressionTree);
+            customExpression.setCustomExpression(expressionTree); // UserFunctionNode returns the value (name) rather than tree name
 
             userFunctions.add(customExpression);
             customExpressionsList.add(expressionTree);
-            analysis.getMassSpecExtractedData().expandCycleDataForCustomExpression(expressionTree);
+            analysis.getMassSpecExtractedData().populateCycleDataForCustomExpression(expressionTree);
 
             analysisMethodPersistance.getUserFunctionDisplayMap().put(customExpression.getName(), new UserFunctionDisplay(customExpression.getName(), true, false));
             analysisMethodPersistance.getExpressionUserFunctionList().add(customExpression);
@@ -1754,6 +1754,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         analysisMethodPersistance.getUserFunctionDisplayMap().remove(customExpression.getName());
         analysisMethodPersistance.getExpressionUserFunctionList().remove(customExpression);
         userFunctions.remove(customExpression);
+        analysis.getMassSpecExtractedData().removeCycleDataForDeletedExpression(customExpression.getCustomExpression());
+
+        int columnIndex = customExpression.getColumnIndex();
+        for (UserFunction uf : userFunctions) { // Reindex down
+            if (uf.getColumnIndex() > columnIndex){
+                uf.setColumnIndex(uf.getColumnIndex() - 1);
+            }
+        }
 
         tripoliPersistentState.updateTripoliPersistentState();
         populateAnalysisMethodColumnsSelectorPane();
