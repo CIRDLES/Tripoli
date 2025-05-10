@@ -17,8 +17,15 @@
 package org.cirdles.tripoli.gui;
 
 import jakarta.xml.bind.JAXBException;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -36,15 +43,20 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
+import javafx.scene.text.*;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.Token;
+import org.cirdles.tripoli.ExpressionsForTripoliLexer;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
+import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTreeInterface;
+import org.cirdles.tripoli.expressions.operations.Operation;
+import org.cirdles.tripoli.expressions.parsing.ShuntingYard;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunctionDisplay;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunctionNode;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMC2PlotsController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMC2PlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
@@ -66,15 +78,19 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.AnalysisMethodPersistance;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
+import static org.cirdles.tripoli.expressions.operations.Operation.OPERATIONS_MAP;
 import static org.cirdles.tripoli.gui.SessionManagerController.tripoliSession;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
@@ -94,7 +110,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public static OGTripoliPlotsWindow ogTripoliPreviewPlotsWindow;
     private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
     public Tab detectorDetailTab;
-    public TabPane analysiMethodTabPane;
+    public TabPane analysisMethodTabPane;
     @FXML
     public HBox blockStatusHBox;
     @FXML
@@ -134,6 +150,38 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public HBox ratiosHeaderHBox;
     public HBox functionsHeaderHBox;
     @FXML
+    public Accordion expressionAccordion;
+    @FXML
+    public TextFlow expressionTextFlow;
+    @FXML
+    public ScrollPane expressionScrollPane;
+    @FXML
+    public Button createExpressionButton;
+    @FXML
+    public Button editExpressionButton;
+    @FXML
+    public Button cancelExpressionButton;
+    @FXML
+    public Button saveExpressionButton;
+    @FXML
+    public TextField expressionNameTextField;
+    @FXML
+    public Button expressionClearBtn;
+    @FXML
+    public Button expressionUndoBtn;
+    @FXML
+    public Button expressionRedoBtn;
+    @FXML
+    public Button expressionAsTextBtn;
+    @FXML
+    public AnchorPane expressionPane;
+    @FXML
+    public HBox expressionsHeaderHBox;
+    @FXML
+    public ScrollPane expressionsScrollPane;
+    @FXML
+    public VBox expressionsVBox;
+    @FXML
     private GridPane analysisManagerGridPane;
     @FXML
     private TextField analysisNameTextField;
@@ -164,6 +212,22 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private List<IsotopicRatio> allRatios;
     @FXML
     private Button addRatioButton;
+    Text insertIndicator = new Text("|");
+    private final TextArea expressionAsTextArea = new TextArea();
+    private final BooleanProperty editAsText = new SimpleBooleanProperty(false);
+    private final StringProperty expressionString = new SimpleStringProperty();
+    private final int EXPRESSION_BUILDER_DEFAULT_FONTSIZE = 13;
+    private int fontSizeModifier = 0; // todo: remove if not implementing font resizing
+    private static final String NUMBER_STRING = "NUMBER";
+    private static final String INVISIBLE_NEWLINE_PLACEHOLDER = " \n";
+    private static final String VISIBLE_NEWLINE_PLACEHOLDER = "\u23CE\n";
+    private static final String INVISIBLE_TAB_PLACEHOLDER = "  ";
+    private static final String VISIBLE_TAB_PLACEHOLDER = " \u21E5";
+    private static final String VISIBLE_WHITESPACE_PLACEHOLDER = "\u2423";
+    private static final String INVISIBLE_WHITESPACE_PLACEHOLDER = " ";
+    private List<String> listOperators = new ArrayList<>();
+    private final Map<String, String> presentationMap = new HashMap<>();
+    private ObservableList<ExpressionTreeInterface> customExpressionsList = FXCollections.observableArrayList();
 
     public static void closePlotWindows() {
         if (null != ogTripoliPreviewPlotsWindow) {
@@ -310,6 +374,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                         && analysis.getMassSpecExtractedData().getBlocksDataFull().isEmpty());
         exportToClipBoardButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
 
+        presentationMap.put("New line", INVISIBLE_NEWLINE_PLACEHOLDER);
+        presentationMap.put("Tab", INVISIBLE_TAB_PLACEHOLDER);
+        presentationMap.put("White space", INVISIBLE_WHITESPACE_PLACEHOLDER);
+
+
+        populateCustomExpressions();
+        setTextFlowListener();
+        initExpressionTextFlowAndTextArea();
     }
 
     private void setupListeners() {
@@ -374,28 +446,28 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         switch (caseNumber) {
             case 0 -> {
-                analysiMethodTabPane.getTabs().remove(detectorDetailTab);
-                analysiMethodTabPane.getTabs().remove(baselineTableTab);
-                analysiMethodTabPane.getTabs().remove(sequenceTableTab);
-                analysiMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
-                analysiMethodTabPane.getTabs().remove(selectColumnsToPlot);
+                analysisMethodTabPane.getTabs().remove(detectorDetailTab);
+                analysisMethodTabPane.getTabs().remove(baselineTableTab);
+                analysisMethodTabPane.getTabs().remove(sequenceTableTab);
+                analysisMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
+                analysisMethodTabPane.getTabs().remove(selectColumnsToPlot);
             }
             case 1 -> {
-                analysiMethodTabPane.getTabs().remove(detectorDetailTab);
-                analysiMethodTabPane.getTabs().remove(baselineTableTab);
-                analysiMethodTabPane.getTabs().remove(sequenceTableTab);
-                analysiMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
-                showTab(analysiMethodTabPane, 2, selectColumnsToPlot);
-                analysiMethodTabPane.getSelectionModel().select(2);
+                analysisMethodTabPane.getTabs().remove(detectorDetailTab);
+                analysisMethodTabPane.getTabs().remove(baselineTableTab);
+                analysisMethodTabPane.getTabs().remove(sequenceTableTab);
+                analysisMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
+                showTab(analysisMethodTabPane, 2, selectColumnsToPlot);
+                analysisMethodTabPane.getSelectionModel().select(2);
                 populateAnalysisMethodColumnsSelectorPane();
                 processingToolBar.setVisible(false);
             }
             case 2, 3, 4 -> {
-                showTab(analysiMethodTabPane, 2, detectorDetailTab);
-                showTab(analysiMethodTabPane, 3, baselineTableTab);
-                showTab(analysiMethodTabPane, 4, sequenceTableTab);
-                showTab(analysiMethodTabPane, 5, selectRatiosToPlotTab);
-                analysiMethodTabPane.getTabs().remove(selectColumnsToPlot);
+                showTab(analysisMethodTabPane, 2, detectorDetailTab);
+                showTab(analysisMethodTabPane, 3, baselineTableTab);
+                showTab(analysisMethodTabPane, 4, sequenceTableTab);
+                showTab(analysisMethodTabPane, 5, selectRatiosToPlotTab);
+                analysisMethodTabPane.getTabs().remove(selectColumnsToPlot);
                 populateAnalysisMethodGridPane();
                 populateAnalysisMethodRatioBuilderPane();
                 populateBlocksStatus();
@@ -555,13 +627,24 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 }
             }
         }
+
+        List<UserFunction> expressionList = analysisMethodPersistance.getExpressionUserFunctionList();
+        for (UserFunction customExpression : expressionList) {
+            if (!userFunctions.contains(customExpression)) {
+                userFunctions.add(customExpression);
+            }
+            analysis.getMassSpecExtractedData().populateCycleDataForCustomExpression(customExpression.getCustomExpression());
+        }
+
         tripoliPersistentState.updateTripoliPersistentState();
+        populateAnalysisMethodColumnsSelectorPane();
     }
 
     private void populateAnalysisMethodColumnsSelectorPane() {
         List<CheckBox> ratioCheckBoxList = new ArrayList<>();
         List<CheckBox> ratioInvertedCheckBoxList = new ArrayList<>();
         List<CheckBox> functionCheckBoxList = new ArrayList<>();
+        List<CheckBox> expressionCheckBoxList = new ArrayList<>();
         List<Label> exportLabelList = new ArrayList<>();
         List<RadioButton> cycleMeanRBs = new ArrayList<>();
 
@@ -580,8 +663,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 checkBoxRatio.setSelected(newValue);
             }
         };
+        ChangeListener<Boolean> allExpressionsChangeListener = (observable, oldValue, newValue) -> {
+            for (CheckBox checkBoxRatio : expressionCheckBoxList) {
+                checkBoxRatio.setSelected(newValue);
+            }
+        };
 
-        ratiosScrollPane.prefHeightProperty().bind(analysiMethodTabPane.heightProperty());
+        // Init Isotopic Ratio Box
+        ratiosScrollPane.prefHeightProperty().bind(analysisMethodTabPane.heightProperty());
         ratiosVBox.prefWidthProperty().bind(ratiosScrollPane.widthProperty());
         ratiosVBox.prefHeightProperty().bind(ratiosScrollPane.heightProperty());
         ratiosVBox.getChildren().clear();
@@ -643,11 +732,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         hBox.getChildren().addAll(toggleCycleMeansLabel, refreshButton);
         ratiosHeaderHBox.getChildren().add(hBox);
+        // ---------- end IR
 
-
+        // Init UserFunction Box
         functionsHeaderHBox.prefWidthProperty().bind(ratiosScrollPane.widthProperty());
         functionsHeaderHBox.getChildren().clear();
-        functionsScrollPane.prefHeightProperty().bind(analysiMethodTabPane.heightProperty());
+        functionsScrollPane.prefHeightProperty().bind(analysisMethodTabPane.heightProperty());
         functionsVBox.prefWidthProperty().bind(ratiosScrollPane.widthProperty());
         functionsVBox.prefHeightProperty().bind(ratiosScrollPane.heightProperty());
         functionsVBox.getChildren().clear();
@@ -661,7 +751,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         count = 0;
         selected = 0;
         for (UserFunction userFunction : userFunctions) {
-            if (!userFunction.isTreatAsIsotopicRatio()) {
+            if (!userFunction.isTreatAsIsotopicRatio() && !userFunction.isTreatAsCustomExpression()) {
                 count++;
                 selected += userFunction.isDisplayed() ? 1 : 0;
             }
@@ -672,6 +762,37 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         hBox.getChildren().add(checkBoxSelectAllFunctions);
         hBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
         functionsHeaderHBox.getChildren().add(hBox);
+        // ---------- end UF
+
+        // Init Custom Expression Box -------------------
+        expressionsHeaderHBox.prefWidthProperty().bind(functionsHeaderHBox.widthProperty());
+        expressionsHeaderHBox.getChildren().clear();
+        expressionsScrollPane.prefHeightProperty().bind(analysisMethodTabPane.heightProperty());
+        expressionsVBox.prefWidthProperty().bind(functionsHeaderHBox.widthProperty());
+        expressionsVBox.prefHeightProperty().bind(functionsHeaderHBox.heightProperty());
+        expressionsVBox.getChildren().clear();
+
+        hBox = new HBox();
+        hBox.setSpacing(5);
+        hBox.setAlignment(Pos.CENTER_LEFT);
+        hBox.setPadding(new Insets(5, 5, 5, 5));
+        hBox.prefWidthProperty().bind(expressionsVBox.widthProperty());
+        CheckBox checkBoxSelectAllExpressions = new CheckBox("Plot all Custom Expressions");
+        count = 0;
+        selected = 0;
+        for (UserFunction userFunction : userFunctions) {
+            if (userFunction.isTreatAsCustomExpression()) {
+                count++;
+                selected += userFunction.isDisplayed() ? 1 : 0;
+            }
+            checkBoxSelectAllExpressions.setSelected(selected == count);
+            checkBoxSelectAllExpressions.setIndeterminate((0 < selected) && (selected < count));
+        }
+        checkBoxSelectAllExpressions.selectedProperty().addListener(allExpressionsChangeListener);
+        hBox.getChildren().add(checkBoxSelectAllExpressions);
+        hBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+        expressionsHeaderHBox.getChildren().add(hBox);
+        // ---------- end CE
 
         userFunctions.sort(null);
         for (UserFunction userFunction : analysis.getUserFunctions()) {
@@ -690,8 +811,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                         ratioInvertedCheckBoxList.get(indexOfCheckBox).setSelected(false);
                     }
                     int selectedR = 0;
-                    for (CheckBox checkBoxRatio2 : ratioCheckBoxList) {
-                        selectedR += (checkBoxRatio2.isSelected() ? 1 : 0);
+                    for (CheckBox checkBoxRatioSingleton : ratioCheckBoxList) {
+                        selectedR += (checkBoxRatioSingleton.isSelected() ? 1 : 0);
                     }
                     checkBoxSelectAllRatios.selectedProperty().removeListener(allRatiosChangeListener);
                     checkBoxSelectAllRatios.setSelected(selectedR == ratioCheckBoxList.size());
@@ -743,6 +864,30 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 hBox.setPadding(new Insets(1, 1, 1, 25));
 
                 ratiosVBox.getChildren().add(hBox);
+            } else if (userFunction.isTreatAsCustomExpression()){
+                hBox = new HBox();
+                CheckBox checkBoxExpression = new CheckBox(userFunction.getName());
+                checkBoxExpression.setPrefWidth(500);
+                checkBoxExpression.setFont(Font.font("Monospaced", FontWeight.BOLD, 12));
+                checkBoxExpression.setUserData(userFunction);
+                checkBoxExpression.setSelected(userFunction.isDisplayed());
+                checkBoxExpression.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                    ((UserFunction) checkBoxExpression.getUserData()).setDisplayed(newValue);
+                    int selectedE = 0;
+                    for (CheckBox checkBoxExpressionSingleton : expressionCheckBoxList) {
+                        selectedE += (checkBoxExpressionSingleton.isSelected() ? 1 : 0);
+                    }
+                    checkBoxSelectAllExpressions.selectedProperty().removeListener(allExpressionsChangeListener);
+                    checkBoxSelectAllExpressions.setSelected(selectedE == expressionCheckBoxList.size());
+                    checkBoxSelectAllExpressions.setIndeterminate((0 < selectedE) && (selectedE < expressionCheckBoxList.size()));
+                    checkBoxSelectAllExpressions.selectedProperty().addListener(allExpressionsChangeListener);
+                });
+                expressionCheckBoxList.add(checkBoxExpression);
+                checkBoxExpression.setPrefWidth(175);
+                hBox.getChildren().add(checkBoxExpression);
+                hBox.setSpacing(45);
+                hBox.setPadding(new Insets(1, 1, 1, 15));
+                expressionsVBox.getChildren().add(hBox);
             } else {
                 hBox = new HBox();
                 CheckBox checkBoxFunction = new CheckBox(userFunction.getName());
@@ -751,8 +896,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 checkBoxFunction.selectedProperty().addListener((observable, oldValue, newValue) -> {
                     ((UserFunction) checkBoxFunction.getUserData()).setDisplayed(newValue);
                     int selectedF = 0;
-                    for (CheckBox checkBoxRatio2 : functionCheckBoxList) {
-                        selectedF += (checkBoxRatio2.isSelected() ? 1 : 0);
+                    for (CheckBox checkBoxFunctionSingleton : functionCheckBoxList) {
+                        selectedF += (checkBoxFunctionSingleton.isSelected() ? 1 : 0);
                     }
                     checkBoxSelectAllFunctions.selectedProperty().removeListener(allFunctionsChangeListener);
                     checkBoxSelectAllFunctions.setSelected(selectedF == functionCheckBoxList.size());
@@ -859,6 +1004,199 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 invertProposedRatio();
             }
         });
+    }
+
+    private void populateCustomExpressions() {
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+        List<Operation> operationList = new ArrayList<>(OPERATIONS_MAP.values());
+        listOperators = OPERATIONS_MAP.keySet().stream().toList();
+
+        ListView<ExpressionTreeInterface> userFunctionLV = new ListView<>();
+        ListView<ExpressionTreeInterface> isotopicRatioLV = new ListView<>();
+        ListView<ExpressionTreeInterface> operationLV = new ListView<>();
+        ListView<ExpressionTreeInterface> customExpressionLV = new ListView<>();
+        for (UserFunction userFunction : userFunctions) {
+            if (userFunction.isTreatAsIsotopicRatio()) {
+                isotopicRatioLV.getItems().add(new UserFunctionNode(userFunction.getName()));
+            } else if(userFunction.isTreatAsCustomExpression()) {
+                customExpressionsList.add(userFunction.getCustomExpression());
+            } else {
+                userFunctionLV.getItems().add(new UserFunctionNode(userFunction.getName()));
+            }
+        }
+
+        customExpressionLV.setItems(customExpressionsList);
+
+        for (Operation op : operationList){
+            op.setName(listOperators.get(operationList.indexOf(op)) + " : "+ op.getName());
+            operationLV.getItems().add(op);
+        }
+        
+        setAccordionListViewListener(userFunctionLV);
+        setAccordionListViewListener(isotopicRatioLV);
+        setAccordionListViewListener(operationLV);
+        setAccordionListViewListener(customExpressionLV);
+
+        TitledPane cePane = new TitledPane("Custom Expressions", customExpressionLV);
+        TitledPane ufPane = new TitledPane("User Functions", userFunctionLV);
+        TitledPane irPane = new TitledPane("Isotopic Ratios", isotopicRatioLV);
+        TitledPane opPane = new TitledPane("Operations", operationLV);
+
+
+        expressionAccordion.getPanes().addAll(cePane, ufPane, irPane, opPane);
+
+        expressionAccordion.setExpandedPane(expressionAccordion.getPanes().get(0));
+    }
+
+    private void setAccordionListViewListener(ListView<ExpressionTreeInterface> accordionLV) {
+        accordionLV.setCellFactory(param -> {
+            ListCell<ExpressionTreeInterface> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(ExpressionTreeInterface item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                    } else {
+                        String displayName = item.getName().replaceAll("[\\[\\]]", "");
+                        setText(displayName);
+
+                    }
+                }
+            };
+
+            cell.setOnDragDetected(event -> {
+                ExpressionTreeInterface selectedItem = accordionLV.getSelectionModel().getSelectedItem();
+                if (selectedItem != null) {
+                    Dragboard dragboard = cell.startDragAndDrop(TransferMode.MOVE);
+                    ClipboardContent content = new ClipboardContent();
+                    if (selectedItem instanceof Operation) { // OPERATION
+                        String key = selectedItem.getName();
+                        key = key.substring(0, key.indexOf(" : "));
+                        if (((Operation) selectedItem).isSingleArg()){
+                            key += "( )";
+                        }
+                        content.putString(key);
+                    } else if (selectedItem instanceof UserFunctionNode) { // USER FUNCTION / RATIO
+                        content.putString(((UserFunctionNode) selectedItem).getValue());
+                    } else if (selectedItem instanceof ExpressionTree) { // CUSTOM EXPRESSION
+                        content.putString(((ExpressionTree) selectedItem).prettyPrint(selectedItem, analysis, false));
+                    } else {// NUMBER todo: add number
+                        content.putString(selectedItem.getName());
+                    }
+                    dragboard.setContent(content);
+                    dragboard.setDragView(cell.snapshot(null, null));
+                    accordionLV.setUserData(selectedItem);
+                    event.consume();
+                }
+            });
+
+            return cell;
+        });
+    }
+
+    private void setTextFlowListener(){
+        insertIndicator.setFill(Color.RED);
+        insertIndicator.setFont(Font.font("SansSerif", FontWeight.BOLD, 12));
+        expressionScrollPane.setOnDragOver(event -> {
+            Dragboard dragboard = event.getDragboard();
+            if (dragboard.hasString()) {
+                event.acceptTransferModes(TransferMode.MOVE);
+            }
+            event.consume();
+        });
+
+        expressionScrollPane.setOnDragEntered(event -> {
+            expressionTextFlow.getChildren().remove(insertIndicator);
+            expressionTextFlow.getChildren().add(insertIndicator);
+        });
+
+        expressionScrollPane.setOnDragExited(event -> {
+            expressionTextFlow.getChildren().remove(insertIndicator);
+        });
+
+        expressionScrollPane.setOnDragDropped((DragEvent event) -> {
+
+            expressionTextFlow.getChildren().remove(insertIndicator);
+
+            Dragboard db = event.getDragboard();
+            boolean success = false;
+
+            int index = expressionTextFlow.getChildren().size();
+
+            if (db.hasString()) {
+                String content = db.getString();
+                expressionTextFlow.getChildren().add(index, new ExpressionTextNode(content));
+                populateTextFlowFromString(makeStringFromExpressionTextNodeList(expressionTextFlow.getChildren()));
+                success = true;
+            }
+
+            event.setDropCompleted(success);
+            event.consume();
+        });
+    }
+
+    private void updateExpressionTextFlowChildren() {
+        for (int i = 0; i < expressionTextFlow.getChildren().size(); i++) {
+            Node node = expressionTextFlow.getChildren().get(i);
+            if (node instanceof ExpressionTextNode et) {
+                et.setIndex(i);
+                expressionTextFlow.getChildren().sort((Node o1, Node o2) -> {
+                    int retVal = 0;
+                    if (o1 instanceof ExpressionTextNode && o2 instanceof ExpressionTextNode) {
+                        retVal = Integer.compare(((ExpressionTextNode) o1).getIndex(), ((ExpressionTextNode) o2).getIndex());
+                    }
+                    return retVal;
+                });
+
+            }
+        }
+
+        expressionString.set(makeStringFromExpressionTextNodeList(expressionTextFlow.getChildren()));
+
+    }
+
+    private void initExpressionTextFlowAndTextArea() {
+        expressionAsTextArea.setFont(Font.font("Monospaced"));
+
+        expressionAsTextArea.textProperty().bindBidirectional(expressionString);
+        expressionString.addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !makeStringFromExpressionTextNodeList(expressionTextFlow.getChildren()).equals(newValue)) {
+                populateTextFlowFromString(newValue);
+            }
+        });
+
+    }
+
+    private String makeStringFromExpressionTextNodeList(List<Node> list) {
+        StringBuilder sb = new StringBuilder();
+        for (Node node : list) {
+            if (node instanceof ExpressionTextNode) {
+                switch (((ExpressionTextNode) node).getText()) {
+                    case VISIBLE_NEWLINE_PLACEHOLDER:
+                    case INVISIBLE_NEWLINE_PLACEHOLDER:
+                        sb.append("\n");
+                        break;
+                    case VISIBLE_TAB_PLACEHOLDER:
+                    case INVISIBLE_TAB_PLACEHOLDER:
+                        sb.append("\t");
+                        break;
+                    case INVISIBLE_WHITESPACE_PLACEHOLDER:
+                    case VISIBLE_WHITESPACE_PLACEHOLDER:
+                        sb.append(" ");
+                        break;
+                    default:
+                        String txt = ((ExpressionTextNode) node).getText().trim();
+                        String nonLetter = "\t\n\r [](),+-*/<>=^\"";
+                        if (sb.isEmpty() || nonLetter.indexOf(sb.charAt(sb.length() - 1)) != -1 || nonLetter.indexOf(txt.charAt(0)) != -1) {
+                            sb.append(txt);
+                        } else {
+                            sb.append(" ").append(txt);
+                        }
+                        break;
+                }
+            }
+        }
+        return sb.toString();
     }
 
     private boolean checkLegalityOfProposedRatio() {
@@ -1299,6 +1637,217 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         tripoliPersistentState.updateTripoliPersistentState();
     }
 
+    public void newCustomExpressionOnAction() {
+        /*
+        if (unsavedChanges){
+            TripoliMessageDialog.showWarningDialog("Unsaved changes detected. Save changes before creating a new custom expression.", TripoliGUI.primaryStage););
+        }
+        */
+        expressionTextFlow.getChildren().clear();
+        expressionAsTextArea.clear();
+        expressionString.set("");
+        expressionNameTextField.clear();
+
+    }
+
+    public void editCustomExpressionOnAction(ActionEvent actionEvent) {
+        TripoliMessageDialog.showWarningDialog("This feature is not yet implemented.", TripoliGUI.primaryStage);
+
+    }
+
+    public void cancelCustomExpressionOnAction(ActionEvent actionEvent) {
+        TripoliMessageDialog.showWarningDialog("This feature is not yet implemented.", TripoliGUI.primaryStage);
+
+    }
+
+    public void saveCustomExpressionOnAction() {
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+            e.printStackTrace();
+        }
+        String expressionName = expressionNameTextField.getText();
+        List<Node> expressionNodes = expressionTextFlow.getChildren();
+        String expressionText = makeStringFromExpressionTextNodeList(expressionNodes);
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+        List<String> rpnList;
+
+        AnalysisMethodPersistance analysisMethodPersistance =
+                tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+
+        if (expressionName.isBlank()) {
+            TripoliMessageDialog.showWarningDialog("Please enter a name for the expression.", TripoliGUI.primaryStage);
+        } else if (expressionText.isBlank()) {
+            TripoliMessageDialog.showWarningDialog("Please enter an expression.", TripoliGUI.primaryStage);
+        } else if (userFunctions.stream().anyMatch(uf -> uf.getName().equalsIgnoreCase(expressionName))) { // Existing Expression
+
+            rpnList = ShuntingYard.infixToPostfix(textFlowToList());
+            UserFunction customExpression = userFunctions.stream().filter(uf -> uf.getName().equalsIgnoreCase(expressionName)).findFirst().get();
+
+            ExpressionTreeInterface expressionTree = ExpressionTree.buildTree(rpnList);
+            expressionTree.setName(expressionName);
+            customExpression.setCustomExpression(expressionTree);
+
+            analysis.getMassSpecExtractedData().populateCycleDataForCustomExpression(expressionTree);
+
+            tripoliPersistentState.updateTripoliPersistentState();
+            populateAnalysisMethodColumnsSelectorPane();
+
+        } else { // New Expression
+
+            rpnList = ShuntingYard.infixToPostfix(textFlowToList());
+            UserFunction customExpression = new UserFunction(expressionName, userFunctions.size(), false, true);
+
+            customExpression.setTreatAsCustomExpression(true);
+            ExpressionTreeInterface expressionTree = ExpressionTree.buildTree(rpnList);
+            expressionTree.setName(expressionName);
+            customExpression.setCustomExpression(expressionTree); // UserFunctionNode returns the value (name) rather than tree name
+
+            userFunctions.add(customExpression);
+            customExpressionsList.add(expressionTree);
+            analysis.getMassSpecExtractedData().populateCycleDataForCustomExpression(expressionTree);
+
+            analysisMethodPersistance.getUserFunctionDisplayMap().put(customExpression.getName(), new UserFunctionDisplay(customExpression.getName(), true, false));
+            analysisMethodPersistance.getExpressionUserFunctionList().add(customExpression);
+            tripoliPersistentState.updateTripoliPersistentState();
+            populateAnalysisMethodColumnsSelectorPane();
+        }
+    }
+
+    public void expressionClearAction() {
+        expressionTextFlow.getChildren().clear();
+        expressionAsTextArea.clear();
+        expressionString.set("");
+        expressionNameTextField.clear();
+    }
+
+    public void expressionUndoAction(ActionEvent actionEvent) {
+        TripoliMessageDialog.showWarningDialog("This feature is not yet implemented.", TripoliGUI.primaryStage);
+
+    }
+
+    public void expressionRedoAction(ActionEvent actionEvent) {
+        TripoliMessageDialog.showWarningDialog("This feature is not yet implemented.", TripoliGUI.primaryStage);
+
+    }
+
+    public void deleteCustomExpressionOnAction() {
+        /*
+        implement warning
+         */
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+            e.printStackTrace();
+        }
+        String expressionName = expressionNameTextField.getText();
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+
+        AnalysisMethodPersistance analysisMethodPersistance =
+                tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+
+        UserFunction customExpression = userFunctions.stream().filter(uf -> uf.getName().equalsIgnoreCase(expressionName)).findFirst().get();
+        customExpressionsList.remove(customExpression.getCustomExpression());
+
+        analysisMethodPersistance.getUserFunctionDisplayMap().remove(customExpression.getName());
+        analysisMethodPersistance.getExpressionUserFunctionList().remove(customExpression);
+        userFunctions.remove(customExpression);
+        analysis.getMassSpecExtractedData().removeCycleDataForDeletedExpression(customExpression.getCustomExpression());
+
+        int columnIndex = customExpression.getColumnIndex();
+        for (UserFunction uf : userFunctions) { // Reindex down
+            if (uf.getColumnIndex() > columnIndex){
+                uf.setColumnIndex(uf.getColumnIndex() - 1);
+            }
+        }
+
+        tripoliPersistentState.updateTripoliPersistentState();
+        populateAnalysisMethodColumnsSelectorPane();
+    }
+
+    private List<String> textFlowToList(){
+        List<String> retVal = new ArrayList<>();
+        for (Node node : expressionTextFlow.getChildren()){
+            String text = ((ExpressionTextNode) node).getText().trim();
+            if (!text.isBlank()) {
+                retVal.add(text);
+            }
+        }
+        return retVal;
+    }
+
+    public void expressionAsTextAction() {
+        if (!editAsText.get()) {
+
+            editAsText.set(true);
+
+            expressionPane.getChildren().setAll(expressionAsTextArea);
+            AnchorPane.setBottomAnchor(expressionAsTextArea, 0.0);
+            AnchorPane.setTopAnchor(expressionAsTextArea, 0.0);
+            AnchorPane.setRightAnchor(expressionAsTextArea, 0.0);
+            AnchorPane.setLeftAnchor(expressionAsTextArea, 0.0);
+            expressionAsTextBtn.setText("Switch to d&d");
+            expressionAsTextArea.requestFocus();
+
+        } else {
+
+            editAsText.set(false);
+
+            expressionPane.getChildren().setAll(expressionScrollPane);
+            AnchorPane.setBottomAnchor(expressionScrollPane, 0.0);
+            AnchorPane.setTopAnchor(expressionScrollPane, 0.0);
+            AnchorPane.setRightAnchor(expressionScrollPane, 0.0);
+            AnchorPane.setLeftAnchor(expressionScrollPane, 0.0);
+            expressionAsTextBtn.setText("Switch to text");
+
+            expressionTextFlow.getChildren().clear();
+            String expression = expressionString.get();
+            expression = expression.replaceAll("( )*\\[", "[");
+            populateTextFlowFromString(expression);
+        }
+    }
+
+    private void populateTextFlowFromString(String string) {
+        List<Node> children = new ArrayList<>();
+
+        try {
+            InputStream stream = new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
+            ExpressionsForTripoliLexer lexer = new ExpressionsForTripoliLexer(CharStreams.fromStream(stream, StandardCharsets.UTF_8));
+            List<? extends Token> tokens = lexer.getAllTokens();
+
+            for (int i = 0; i < tokens.size(); i++) {
+                Token token = tokens.get(i);
+                String nodeText = token.getText();
+
+                ExpressionTextNode etn;
+
+                if (ShuntingYard.isNumber(nodeText) || NUMBER_STRING.equals(nodeText)) {
+                    etn = new NumberTextNode(' ' + nodeText + ' ');
+                } else if (listOperators.contains(nodeText)) {
+                    etn = new OperationTextNode(' ' + nodeText + ' ');
+                } else if (nodeText.equals("\n") || nodeText.equals("\r")) {
+                    etn = new PresentationTextNode(INVISIBLE_NEWLINE_PLACEHOLDER);
+                } else if (nodeText.equals("\t")) {
+                    etn = new PresentationTextNode(INVISIBLE_TAB_PLACEHOLDER);
+                } else if (nodeText.equals(" ")) {
+                    etn = new PresentationTextNode(INVISIBLE_WHITESPACE_PLACEHOLDER);
+                } else if (nodeText.contains("[")){
+                    etn = new UserFunctionTextNode(' ' + nodeText + ' ');
+                } else {
+                    etn = new ExpressionTextNode(' ' + nodeText + ' ');
+                }
+
+                etn.setIndex(i);
+                children.add(etn);
+            }
+        } catch (IOException ignored) {
+        }
+        expressionTextFlow.getChildren().setAll(children);
+        updateExpressionTextFlowChildren();
+    }
+
     class RatioClickHandler implements EventHandler<MouseEvent> {
         IsotopicRatio ratio;
         VBox ratioVBox;
@@ -1371,6 +1920,125 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             boolean displayed = newValue;
             IsotopicRatio ratio = (IsotopicRatio) checkBox.getUserData();
             updateAnalysisRatios(ratio, displayed);
+        }
+    }
+
+    private class ExpressionTextNode extends Text {
+        private final String text;
+        private int index;
+        protected Color regularColor;
+        protected Color selectedColor;
+        protected Color oppositeColor;
+        protected int fontSize;
+
+        public ExpressionTextNode(String text) {
+            super(text);
+
+            setFontSmoothingType(FontSmoothingType.LCD);
+            setFont(Font.font("SansSerif"));
+
+            this.selectedColor = Color.RED;
+            this.regularColor = Color.BLACK;
+            this.oppositeColor = Color.LIME;
+
+            setFill(regularColor);
+
+            this.text = text;
+
+            this.fontSize = EXPRESSION_BUILDER_DEFAULT_FONTSIZE;
+            updateFontSize();
+            setupDragHandlers();
+            setupContextMenu();
+        }
+        public final void updateFontSize() {
+            setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, fontSize + fontSizeModifier));
+        }
+        public int getIndex() { return index; }
+        public void setIndex(int index) { this.index = index; }
+
+        private void setupDragHandlers() {
+            setOnDragOver(event -> {
+                if (event.getGestureSource() != this && event.getDragboard().hasString()) {
+                    event.acceptTransferModes(TransferMode.MOVE);
+                }
+                event.consume();
+            });
+
+            setOnDragEntered(event -> {
+                if (!expressionTextFlow.getChildren().contains(insertIndicator)) {
+                    expressionTextFlow.getChildren().add(insertIndicator);
+                }
+                moveInsertIndicatorToIndex(this.index);
+                event.consume();
+            });
+
+            setOnDragDropped(event -> {
+                Dragboard db = event.getDragboard();
+                boolean success = false;
+                if (db.hasString()) {
+                    String droppedText = db.getString();
+
+                    expressionTextFlow.getChildren().remove(insertIndicator);
+                    expressionTextFlow.getChildren().add(index, new ExpressionTextNode(droppedText));
+                    populateTextFlowFromString(makeStringFromExpressionTextNodeList(expressionTextFlow.getChildren()));
+
+                    success = true;
+                }
+                event.setDropCompleted(success);
+                event.consume();
+            });
+        }
+        private void moveInsertIndicatorToIndex(int index) {
+            expressionTextFlow.getChildren().remove(insertIndicator);
+            expressionTextFlow.getChildren().add(index, insertIndicator);
+        }
+
+
+        private void setupContextMenu() {
+            MenuItem deleteItem = new MenuItem("Delete");
+            deleteItem.setOnAction(event -> {
+                expressionTextFlow.getChildren().remove(this);
+                updateExpressionTextFlowChildren();
+            });
+
+            ContextMenu contextMenu = new ContextMenu(deleteItem);
+
+            setOnContextMenuRequested(event -> {
+                contextMenu.show(this, event.getScreenX(), event.getScreenY());
+            });
+        }
+    }
+
+    private class NumberTextNode extends ExpressionTextNode {
+        public NumberTextNode(String text) {
+            super(text);
+        }
+    }
+
+    private class OperationTextNode extends ExpressionTextNode {
+
+        public OperationTextNode(String text) {
+            super(text);
+            this.regularColor = Color.GREEN;
+            setFill(regularColor);
+            this.fontSize = EXPRESSION_BUILDER_DEFAULT_FONTSIZE + 3;
+            updateFontSize();
+        }
+    }
+    private class PresentationTextNode extends ExpressionTextNode {
+
+        public PresentationTextNode(String text) {
+            super(text);
+            this.fontSize = EXPRESSION_BUILDER_DEFAULT_FONTSIZE + 3;
+            updateFontSize();
+        }
+    }
+    private class UserFunctionTextNode extends ExpressionTextNode {
+
+        public UserFunctionTextNode(String text) {
+            super(text);
+            this.regularColor = Color.BLUE;
+            setFill(regularColor);
         }
     }
 }

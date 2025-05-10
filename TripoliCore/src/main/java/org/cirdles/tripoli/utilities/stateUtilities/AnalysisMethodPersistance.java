@@ -16,9 +16,12 @@
 
 package org.cirdles.tripoli.utilities.stateUtilities;
 
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunctionDisplay;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -37,6 +40,7 @@ public class AnalysisMethodPersistance implements Serializable {
 //    }
     private int cyclesPerBlock;
     private Map<String, UserFunctionDisplay> userFunctionDisplay;
+    private List<UserFunction> expressionUserFunctionList;
 
     public AnalysisMethodPersistance(int cyclesPerBlock) {
         this.cyclesPerBlock = cyclesPerBlock;
@@ -59,5 +63,15 @@ public class AnalysisMethodPersistance implements Serializable {
 
     public void setUserFunctionDisplayMap(Map<String, UserFunctionDisplay> userFunctionDisplay) {
         this.userFunctionDisplay = userFunctionDisplay;
+    }
+
+    public List<UserFunction> getExpressionUserFunctionList() {
+        if (expressionUserFunctionList == null) {
+            expressionUserFunctionList = new ArrayList<>();
+        }
+        return expressionUserFunctionList;
+    }
+    public void setExpressionUserFunctionList(List<UserFunction> expressionUserFunctionList) {
+        this.expressionUserFunctionList = expressionUserFunctionList;
     }
 }
