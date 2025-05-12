@@ -33,6 +33,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -1129,6 +1130,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             if (db.hasString()) {
                 String content = db.getString();
                 expressionTextFlow.getChildren().add(index, new ExpressionTextNode(content));
+
+                if (event.getGestureSource() instanceof ExpressionTextNode) {
+                    expressionTextFlow.getChildren().remove(event.getGestureSource());
+                }
                 populateTextFlowFromString(makeStringFromExpressionTextNodeList());
                 expressionUndoRedoManager.save(expressionString.getValue());
                 success = true;
@@ -1825,14 +1830,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
      * @param expressionString new expression to be shown in the TextFlow
      */
     private void populateTextFlowFromString(String expressionString) {
-        if (expressionString == null) {
-            expressionString = "";
-        }
+        // Handle null as an empty string
+        InputStream stream = new ByteArrayInputStream(Objects.requireNonNullElse(expressionString, "").getBytes(StandardCharsets.UTF_8));
 
         List<Node> children = new ArrayList<>();
 
         try {
-            InputStream stream = new ByteArrayInputStream(expressionString.getBytes(StandardCharsets.UTF_8));
             ExpressionsForTripoliLexer lexer = new ExpressionsForTripoliLexer(CharStreams.fromStream(stream, StandardCharsets.UTF_8));
             List<? extends Token> tokens = lexer.getAllTokens();
 
@@ -1976,8 +1979,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         public void setIndex(int index) { this.index = index; }
 
         private void setupDragHandlers() {
+
             setOnDragOver(event -> {
-                if (event.getGestureSource() != this && event.getDragboard().hasString()) {
+                if (event.getDragboard().hasString()) {
                     event.acceptTransferModes(TransferMode.MOVE);
                 }
                 event.consume();
@@ -1987,8 +1991,15 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 if (!expressionTextFlow.getChildren().contains(insertIndicator)) {
                     expressionTextFlow.getChildren().add(insertIndicator);
                 }
+
                 moveInsertIndicatorToIndex(this.index);
+
+
                 event.consume();
+            });
+
+            setOnDragExited(event -> {
+                expressionTextFlow.getChildren().remove(insertIndicator);
             });
 
             setOnDragDropped(event -> {
@@ -1997,8 +2008,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 if (db.hasString()) {
                     String droppedText = db.getString();
 
+                    int newIndex = expressionTextFlow.getChildren().indexOf(insertIndicator);
                     expressionTextFlow.getChildren().remove(insertIndicator);
-                    expressionTextFlow.getChildren().add(index, new ExpressionTextNode(droppedText));
+                    expressionTextFlow.getChildren().add(newIndex, new ExpressionTextNode(droppedText));
+
+                    if (event.getGestureSource() instanceof ExpressionTextNode) {
+                        expressionTextFlow.getChildren().remove(event.getGestureSource());
+                    }
+
                     populateTextFlowFromString(makeStringFromExpressionTextNodeList());
                     expressionUndoRedoManager.save(expressionString.getValue());
 
@@ -2007,6 +2024,17 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 event.setDropCompleted(success);
                 event.consume();
             });
+
+            setOnDragDetected(event -> {
+                setCursor(Cursor.CLOSED_HAND);
+                Dragboard db = startDragAndDrop(TransferMode.MOVE);
+                db.setDragView(this.snapshot(null, null));
+                ClipboardContent cc = new ClipboardContent();
+                cc.putString(text);
+                db.setContent(cc);
+            });
+
+
         }
         private void moveInsertIndicatorToIndex(int index) {
             expressionTextFlow.getChildren().remove(insertIndicator);
@@ -2028,6 +2056,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 contextMenu.show(this, event.getScreenX(), event.getScreenY());
             });
         }
+
     }
 
     private class NumberTextNode extends ExpressionTextNode {
@@ -2063,7 +2092,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
     }
 
-    public class UndoRedoManager<T> {
+    public static class UndoRedoManager<T> {
+
+        private final BooleanProperty canUndo = new SimpleBooleanProperty(false);
+        private final BooleanProperty canRedo = new SimpleBooleanProperty(false);
+
+        private Node current;
+
 
         private class Node {
             T state;
@@ -2074,8 +2109,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 this.state = state;
             }
         }
-
-        private Node current;
 
         public void save(T state) {
             Node newNode = new Node(state);
@@ -2115,9 +2148,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             canRedo.set(false);
             canUndo.set(false);
         }
-
-        private final BooleanProperty canUndo = new SimpleBooleanProperty(false);
-        private final BooleanProperty canRedo = new SimpleBooleanProperty(false);
 
         public BooleanProperty canUndoProperty() {
             return canUndo;
