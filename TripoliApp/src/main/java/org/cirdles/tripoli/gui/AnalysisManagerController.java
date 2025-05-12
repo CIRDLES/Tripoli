@@ -24,6 +24,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -228,6 +229,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private List<String> listOperators = new ArrayList<>();
     private final Map<String, String> presentationMap = new HashMap<>();
     private ObservableList<ExpressionTreeInterface> customExpressionsList = FXCollections.observableArrayList();
+    private UndoRedoManager<String> expressionUndoRedoManager = new UndoRedoManager<>();
 
     public static void closePlotWindows() {
         if (null != ogTripoliPreviewPlotsWindow) {
@@ -378,10 +380,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         presentationMap.put("Tab", INVISIBLE_TAB_PLACEHOLDER);
         presentationMap.put("White space", INVISIBLE_WHITESPACE_PLACEHOLDER);
 
-
-        populateCustomExpressions();
-        setTextFlowListener();
-        initExpressionTextFlowAndTextArea();
+        populateCustomExpressionTab();
     }
 
     private void setupListeners() {
@@ -1006,7 +1005,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         });
     }
 
-    private void populateCustomExpressions() {
+    private void populateCustomExpressionTab() {
+        // List View inits ---------------------------------------
         List<UserFunction> userFunctions = analysis.getUserFunctions();
         List<Operation> operationList = new ArrayList<>(OPERATIONS_MAP.values());
         listOperators = OPERATIONS_MAP.keySet().stream().toList();
@@ -1042,10 +1042,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         TitledPane irPane = new TitledPane("Isotopic Ratios", isotopicRatioLV);
         TitledPane opPane = new TitledPane("Operations", operationLV);
 
-
         expressionAccordion.getPanes().addAll(cePane, ufPane, irPane, opPane);
-
         expressionAccordion.setExpandedPane(expressionAccordion.getPanes().get(0));
+        // ------------------------- end LV inits
+
+        initCustomExpressionListeners();
+
     }
 
     private void setAccordionListViewListener(ListView<ExpressionTreeInterface> accordionLV) {
@@ -1094,9 +1096,11 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         });
     }
 
-    private void setTextFlowListener(){
+    private void initCustomExpressionListeners(){
         insertIndicator.setFill(Color.RED);
         insertIndicator.setFont(Font.font("SansSerif", FontWeight.BOLD, 12));
+
+        // TextFlow Drag/Drop ----------------------------
         expressionScrollPane.setOnDragOver(event -> {
             Dragboard dragboard = event.getDragboard();
             if (dragboard.hasString()) {
@@ -1116,26 +1120,52 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         expressionScrollPane.setOnDragDropped((DragEvent event) -> {
 
+            int index = expressionTextFlow.getChildren().indexOf(insertIndicator);
             expressionTextFlow.getChildren().remove(insertIndicator);
 
             Dragboard db = event.getDragboard();
             boolean success = false;
 
-            int index = expressionTextFlow.getChildren().size();
-
             if (db.hasString()) {
                 String content = db.getString();
                 expressionTextFlow.getChildren().add(index, new ExpressionTextNode(content));
-                populateTextFlowFromString(makeStringFromExpressionTextNodeList(expressionTextFlow.getChildren()));
+                populateTextFlowFromString(makeStringFromExpressionTextNodeList());
+                expressionUndoRedoManager.save(expressionString.getValue());
                 success = true;
             }
 
             event.setDropCompleted(success);
             event.consume();
         });
+        // ------------ end textflow drag/drop
+
+        // Bind TextArea and TextFlow to expressionString property
+        // This links all three objects to have the same text value
+        expressionAsTextArea.setFont(Font.font("Monospaced"));
+        expressionAsTextArea.textProperty().bindBidirectional(expressionString);
+
+        expressionString.addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !makeStringFromExpressionTextNodeList().equals(newValue)) {
+                populateTextFlowFromString(newValue);
+            }
+        });
+        expressionTextFlow.getChildren().addListener((ListChangeListener<Node>) change -> {
+            String textFlowContent = makeStringFromExpressionTextNodeList();
+            if (!textFlowContent.equals(expressionString.get())) {
+                expressionString.set(textFlowContent);
+            }
+        });
+
+        // Button property bindings
+        expressionUndoBtn.disableProperty().bind(expressionUndoRedoManager.canUndoProperty().not());
+        expressionRedoBtn.disableProperty().bind(expressionUndoRedoManager.canRedoProperty().not());
+        expressionClearBtn.disableProperty().bind(expressionString.isEmpty());
     }
 
-    private void updateExpressionTextFlowChildren() {
+    /**
+     * Re-assign the indices for all the textflow nodes after inserting a new one. Also updates the expressionString
+     */
+    private void reindexExpressionTextFlowChildren() {
         for (int i = 0; i < expressionTextFlow.getChildren().size(); i++) {
             Node node = expressionTextFlow.getChildren().get(i);
             if (node instanceof ExpressionTextNode et) {
@@ -1151,25 +1181,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             }
         }
 
-        expressionString.set(makeStringFromExpressionTextNodeList(expressionTextFlow.getChildren()));
+        //expressionString.set(makeStringFromExpressionTextNodeList());
 
     }
 
-    private void initExpressionTextFlowAndTextArea() {
-        expressionAsTextArea.setFont(Font.font("Monospaced"));
-
-        expressionAsTextArea.textProperty().bindBidirectional(expressionString);
-        expressionString.addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && !makeStringFromExpressionTextNodeList(expressionTextFlow.getChildren()).equals(newValue)) {
-                populateTextFlowFromString(newValue);
-            }
-        });
-
-    }
-
-    private String makeStringFromExpressionTextNodeList(List<Node> list) {
+    private String makeStringFromExpressionTextNodeList() {
         StringBuilder sb = new StringBuilder();
-        for (Node node : list) {
+        for (Node node : expressionTextFlow.getChildren()) {
             if (node instanceof ExpressionTextNode) {
                 switch (((ExpressionTextNode) node).getText()) {
                     case VISIBLE_NEWLINE_PLACEHOLDER:
@@ -1643,10 +1661,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             TripoliMessageDialog.showWarningDialog("Unsaved changes detected. Save changes before creating a new custom expression.", TripoliGUI.primaryStage););
         }
         */
-        expressionTextFlow.getChildren().clear();
-        expressionAsTextArea.clear();
         expressionString.set("");
         expressionNameTextField.clear();
+        expressionUndoRedoManager.clear();
 
     }
 
@@ -1668,8 +1685,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             e.printStackTrace();
         }
         String expressionName = expressionNameTextField.getText();
-        List<Node> expressionNodes = expressionTextFlow.getChildren();
-        String expressionText = makeStringFromExpressionTextNodeList(expressionNodes);
+        String expressionText = makeStringFromExpressionTextNodeList();
         List<UserFunction> userFunctions = analysis.getUserFunctions();
         List<String> rpnList;
 
@@ -1716,19 +1732,18 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     public void expressionClearAction() {
-        expressionTextFlow.getChildren().clear();
-        expressionAsTextArea.clear();
         expressionString.set("");
         expressionNameTextField.clear();
+        expressionUndoRedoManager.clear();
     }
 
-    public void expressionUndoAction(ActionEvent actionEvent) {
-        TripoliMessageDialog.showWarningDialog("This feature is not yet implemented.", TripoliGUI.primaryStage);
+    public void expressionUndoAction() {
+        populateTextFlowFromString(expressionUndoRedoManager.undo());
 
     }
 
     public void expressionRedoAction(ActionEvent actionEvent) {
-        TripoliMessageDialog.showWarningDialog("This feature is not yet implemented.", TripoliGUI.primaryStage);
+        populateTextFlowFromString(expressionUndoRedoManager.redo());
 
     }
 
@@ -1802,18 +1817,22 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             AnchorPane.setLeftAnchor(expressionScrollPane, 0.0);
             expressionAsTextBtn.setText("Switch to text");
 
-            expressionTextFlow.getChildren().clear();
-            String expression = expressionString.get();
-            expression = expression.replaceAll("( )*\\[", "[");
-            populateTextFlowFromString(expression);
         }
     }
 
-    private void populateTextFlowFromString(String string) {
+    /**
+     * Parses a given string into the correct nodes for the expressionTextFlow and then inserts them as children
+     * @param expressionString new expression to be shown in the TextFlow
+     */
+    private void populateTextFlowFromString(String expressionString) {
+        if (expressionString == null) {
+            expressionString = "";
+        }
+
         List<Node> children = new ArrayList<>();
 
         try {
-            InputStream stream = new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
+            InputStream stream = new ByteArrayInputStream(expressionString.getBytes(StandardCharsets.UTF_8));
             ExpressionsForTripoliLexer lexer = new ExpressionsForTripoliLexer(CharStreams.fromStream(stream, StandardCharsets.UTF_8));
             List<? extends Token> tokens = lexer.getAllTokens();
 
@@ -1845,7 +1864,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         } catch (IOException ignored) {
         }
         expressionTextFlow.getChildren().setAll(children);
-        updateExpressionTextFlowChildren();
+        reindexExpressionTextFlowChildren();
     }
 
     class RatioClickHandler implements EventHandler<MouseEvent> {
@@ -1980,7 +1999,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
                     expressionTextFlow.getChildren().remove(insertIndicator);
                     expressionTextFlow.getChildren().add(index, new ExpressionTextNode(droppedText));
-                    populateTextFlowFromString(makeStringFromExpressionTextNodeList(expressionTextFlow.getChildren()));
+                    populateTextFlowFromString(makeStringFromExpressionTextNodeList());
+                    expressionUndoRedoManager.save(expressionString.getValue());
 
                     success = true;
                 }
@@ -1998,7 +2018,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             MenuItem deleteItem = new MenuItem("Delete");
             deleteItem.setOnAction(event -> {
                 expressionTextFlow.getChildren().remove(this);
-                updateExpressionTextFlowChildren();
+                reindexExpressionTextFlowChildren();
+                expressionUndoRedoManager.save(expressionString.getValue());
             });
 
             ContextMenu contextMenu = new ContextMenu(deleteItem);
@@ -2039,6 +2060,75 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             super(text);
             this.regularColor = Color.BLUE;
             setFill(regularColor);
+        }
+    }
+
+    public class UndoRedoManager<T> {
+
+        private class Node {
+            T state;
+            Node prev;
+            Node next;
+
+            Node(T state) {
+                this.state = state;
+            }
+        }
+
+        private Node current;
+
+        public void save(T state) {
+            Node newNode = new Node(state);
+            if (current != null) {
+                current.next = newNode;
+                newNode.prev = current;
+            }
+            current = newNode;
+            updateProperties();
+        }
+
+        public T undo() {
+            if (current != null && current.prev != null) {
+                current = current.prev;
+                updateProperties();
+                return current.state;
+            } else if (current.prev == null) {
+                Node newNext = current;
+                current = new Node(null);
+                current.next = newNext;
+                updateProperties();
+            }
+            return null;
+        }
+
+        public T redo() {
+            if (current != null && current.next != null) {
+                current = current.next;
+                updateProperties();
+                return current.state;
+            }
+            return null;
+        }
+
+        public void clear() {
+            current = null;
+            canRedo.set(false);
+            canUndo.set(false);
+        }
+
+        private final BooleanProperty canUndo = new SimpleBooleanProperty(false);
+        private final BooleanProperty canRedo = new SimpleBooleanProperty(false);
+
+        public BooleanProperty canUndoProperty() {
+            return canUndo;
+        }
+
+        public BooleanProperty canRedoProperty() {
+            return canRedo;
+        }
+        private void updateProperties() {
+            canUndo.set(current.state != null);
+            canRedo.set(current.next != null);
         }
     }
 }
