@@ -35,6 +35,7 @@
      |   WS expr
      |   expr WS
      |   NAMED_EXPRESSION
+     |   NUMERIC_INPUT
      |   DOUBLE
      |   INT
      ;
@@ -68,6 +69,8 @@
  fragment Z:('z'|'Z');
 
  NAMED_EXPRESSION : '[' (' ')? ('\u00B1')? ('%')? ID (ID | '/' | ' ' | '*' | '.' | '_' | '%' | '-' | ':')* Parens* (' %err')* ']' ;
+
+ NUMERIC_INPUT : '#' ;
 
  ID  : (LETTER | NUMBER) (LETTER | NUMBER)* ;
 

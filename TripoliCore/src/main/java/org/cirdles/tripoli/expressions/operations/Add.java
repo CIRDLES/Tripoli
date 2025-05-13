@@ -30,6 +30,10 @@ public class Add extends Operation {
         name = "add";
         precedence = 2;
     }
+    @Override
+    public Add copy(){
+        return new Add();
+    }
 
     @Override
     public Double[][] eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis){

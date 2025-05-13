@@ -30,6 +30,10 @@ public class Log extends Operation {
         precedence = 4;
         singleArg = true;
     }
+    @Override
+    public Log copy(){
+        return new Log();
+    }
 
     @Override
     public Double[][] eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis){

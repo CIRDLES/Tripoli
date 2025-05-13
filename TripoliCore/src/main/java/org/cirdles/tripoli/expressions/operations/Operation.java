@@ -22,6 +22,7 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -53,6 +54,8 @@ public abstract class Operation extends ExpressionTree implements Serializable {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
     public boolean isSingleArg() { return singleArg; }
+    public Operation copy() {return this;}
+
 
 
     public static Operation add() { return new Add(); }

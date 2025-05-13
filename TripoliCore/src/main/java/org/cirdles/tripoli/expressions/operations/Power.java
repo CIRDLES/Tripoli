@@ -29,6 +29,10 @@ public class Power extends Operation {
         name = "power";
         precedence = 4;
     }
+    @Override
+    public Power copy(){
+        return new Power();
+    }
 
     @Override
     public Double[][] eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis){

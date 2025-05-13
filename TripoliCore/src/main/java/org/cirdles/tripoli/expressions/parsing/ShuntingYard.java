@@ -270,6 +270,7 @@ public class ShuntingYard {
          *
          */
         COMMA,
+        NUMERIC_INPUT,
         FORMATTER;
 
         TokenTypes() {}
@@ -305,9 +306,11 @@ public class ShuntingYard {
                 retVal = FORMATTER;
             } else if (isNumber(token)) {
                 retVal = NUMBER;
+            } else if (token.equals("#")) {
+                return NUMERIC_INPUT;
             }
 
             return retVal;
         }
-        }
+    }
 }

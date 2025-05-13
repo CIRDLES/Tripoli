@@ -121,7 +121,11 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
             if (showValues){
                 return String.valueOf(node.eval(analysis)[0][0]);
             } else{
-                return node.getName();
+                if (node instanceof ConstantNode) {
+                    return ((ConstantNode) node).getValue().toString();
+                } else {
+                    return node.getName();
+                }
             }
 
         }

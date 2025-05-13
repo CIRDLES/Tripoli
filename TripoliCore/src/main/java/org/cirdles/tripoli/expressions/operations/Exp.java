@@ -30,6 +30,10 @@ public class Exp extends Operation {
         precedence = 4;
         singleArg = true;
     }
+    @Override
+    public Exp copy(){
+        return new Exp();
+    }
 
     @Override
     public Double[][] eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis){

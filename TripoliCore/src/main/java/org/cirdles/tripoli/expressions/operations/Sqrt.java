@@ -31,6 +31,10 @@ public class Sqrt extends Operation {
         precedence = 4;
         singleArg = true;
     }
+    @Override
+    public Sqrt copy(){
+        return new Sqrt();
+    }
 
     @Override
     public Double[][] eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis){

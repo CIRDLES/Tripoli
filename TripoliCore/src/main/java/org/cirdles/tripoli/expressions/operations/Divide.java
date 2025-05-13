@@ -28,6 +28,10 @@ public class Divide extends Operation {
         name = "divide";
         precedence = 3;
     }
+    @Override
+    public Divide copy(){
+        return new Divide();
+    }
 
     @Override
     public Double[][] eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis) {

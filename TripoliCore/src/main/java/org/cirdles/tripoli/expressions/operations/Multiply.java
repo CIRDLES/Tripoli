@@ -29,6 +29,11 @@ public class Multiply extends Operation {
         precedence = 3;
     }
     @Override
+    public Multiply copy(){
+        return new Multiply();
+    }
+
+    @Override
     public Double[][] eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis){
         Double[][] leftCycle = leftChild.eval(analysis);
         Double[][] rightCycle = rightChild.eval(analysis);

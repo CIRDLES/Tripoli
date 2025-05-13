@@ -64,4 +64,5 @@ public class ConstantNode extends ExpressionTree {
     public String getName() {return name;}
     @Override
     public void setName(String newName) {name = newName;}
+    public Double getValue() {return value;}
 }

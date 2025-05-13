@@ -29,6 +29,10 @@ public class Subtract extends Operation {
         name = "subtract";
         precedence = 2;
     }
+    @Override
+    public Subtract copy(){
+        return new Subtract();
+    }
 
     @Override
     public Double[][] eval(ExpressionTreeInterface leftChild, ExpressionTreeInterface rightChild, AnalysisInterface analysis){

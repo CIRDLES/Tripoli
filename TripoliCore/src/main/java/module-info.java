@@ -82,4 +82,5 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.expressions.expressionTrees;
     exports org.cirdles.tripoli.reports;
     exports org.cirdles.tripoli.expressions.parsing;
+    exports org.cirdles.tripoli.expressions.constants;
 }
