@@ -186,6 +186,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     @FXML
     public VBox expressionsVBox;
     @FXML
+    public Label expressionInvalidLabel;
+    @FXML
     private GridPane analysisManagerGridPane;
     @FXML
     private TextField analysisNameTextField;
@@ -1065,7 +1067,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     } else {
                         String displayName = item.getName().replaceAll("[\\[\\]]", "");
                         setText(displayName);
-
                     }
                 }
             };
@@ -1142,6 +1143,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 }
                 populateTextFlowFromString(makeStringFromExpressionTextNodeList());
                 expressionUndoRedoManager.save(expressionString.getValue());
+                handleExpressionValidity();
+
                 success = true;
             }
 
@@ -1174,7 +1177,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     /**
-     * Re-assign the indices for all the textflow nodes after inserting a new one. Also updates the expressionString
+     * Re-assign the indices for all the textflow nodes after inserting a new one based on their position in the textflow
      */
     private void reindexExpressionTextFlowChildren() {
         for (int i = 0; i < expressionTextFlow.getChildren().size(); i++) {
@@ -1191,9 +1194,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             }
             return retVal;
         });
-
-        //expressionString.set(makeStringFromExpressionTextNodeList());
-
     }
 
     private String makeStringFromExpressionTextNodeList() {
@@ -1226,6 +1226,16 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             }
         }
         return sb.toString();
+    }
+
+    private void handleExpressionValidity() {
+        List<String> rpnList = ShuntingYard.infixToPostfix(textFlowToList());
+        try {
+            ExpressionTree.buildTree(rpnList);
+            expressionInvalidLabel.setVisible(false);
+        } catch (Exception e) {
+            expressionInvalidLabel.setVisible(true);
+        }
     }
 
     private boolean checkLegalityOfProposedRatio() {
@@ -1878,6 +1888,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
         expressionTextFlow.getChildren().setAll(children);
         reindexExpressionTextFlowChildren();
+        handleExpressionValidity();
     }
 
     class RatioClickHandler implements EventHandler<MouseEvent> {
@@ -2027,6 +2038,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
                     populateTextFlowFromString(makeStringFromExpressionTextNodeList());
                     expressionUndoRedoManager.save(expressionString.getValue());
+                    handleExpressionValidity();
 
                     success = true;
                 }
@@ -2058,6 +2070,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 expressionTextFlow.getChildren().remove(this);
                 reindexExpressionTextFlowChildren();
                 expressionUndoRedoManager.save(expressionString.getValue());
+                handleExpressionValidity();
             });
             // --------------- end delete
             
@@ -2073,6 +2086,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 
                 reindexExpressionTextFlowChildren();
                 expressionUndoRedoManager.save(expressionString.getValue());
+                handleExpressionValidity();
             });
 
             // ---------------- end parenthesis
