@@ -1181,16 +1181,16 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             Node node = expressionTextFlow.getChildren().get(i);
             if (node instanceof ExpressionTextNode et) {
                 et.setIndex(i);
-                expressionTextFlow.getChildren().sort((Node o1, Node o2) -> {
-                    int retVal = 0;
-                    if (o1 instanceof ExpressionTextNode && o2 instanceof ExpressionTextNode) {
-                        retVal = Integer.compare(((ExpressionTextNode) o1).getIndex(), ((ExpressionTextNode) o2).getIndex());
-                    }
-                    return retVal;
-                });
-
             }
+
         }
+        expressionTextFlow.getChildren().sort((Node o1, Node o2) -> {
+            int retVal = 0;
+            if (o1 instanceof ExpressionTextNode && o2 instanceof ExpressionTextNode) {
+                retVal = Integer.compare(((ExpressionTextNode) o1).getIndex(), ((ExpressionTextNode) o2).getIndex());
+            }
+            return retVal;
+        });
 
         //expressionString.set(makeStringFromExpressionTextNodeList());
 
@@ -1865,12 +1865,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     etn = new NumberTextNode(' ' + nodeText + ' ');
                 } else if (listOperators.contains(nodeText)) {
                     etn = new OperationTextNode(' ' + nodeText + ' ');
-                } else if (nodeText.equals("\n") || nodeText.equals("\r")) {
-                    etn = new PresentationTextNode(INVISIBLE_NEWLINE_PLACEHOLDER);
-                } else if (nodeText.equals("\t")) {
-                    etn = new PresentationTextNode(INVISIBLE_TAB_PLACEHOLDER);
-                } else if (nodeText.equals(" ")) {
-                    etn = new PresentationTextNode(INVISIBLE_WHITESPACE_PLACEHOLDER);
                 } else if (nodeText.contains("[")){
                     etn = new UserFunctionTextNode(' ' + nodeText + ' ');
                 } else {
@@ -2058,12 +2052,32 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
 
         private void setupContextMenu() {
+            // Delete -------------------
             MenuItem deleteItem = new MenuItem("Delete");
             deleteItem.setOnAction(event -> {
                 expressionTextFlow.getChildren().remove(this);
                 reindexExpressionTextFlowChildren();
                 expressionUndoRedoManager.save(expressionString.getValue());
             });
+            // --------------- end delete
+            
+            // Parenthesis -----------------------
+            MenuItem addParenthesisItem = new MenuItem("Add Parentheses");
+            addParenthesisItem.setOnAction(event -> {
+                int index = expressionTextFlow.getChildren().indexOf(this);
+                expressionTextFlow.getChildren().remove(this);
+                
+                expressionTextFlow.getChildren().add(index, new ExpressionTextNode("("));
+                expressionTextFlow.getChildren().add(index + 1, this);
+                expressionTextFlow.getChildren().add(index + 2, new ExpressionTextNode(")"));
+                
+                reindexExpressionTextFlowChildren();
+                expressionUndoRedoManager.save(expressionString.getValue());
+            });
+
+            // ---------------- end parenthesis
+            
+            // value input (NumberTextNode only) -----------------------
             CustomMenuItem valueInputItem = new CustomMenuItem();
             valueInputItem.setHideOnClick(false);
         
@@ -2073,7 +2087,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             valueField.setPrefWidth(100);
         
             valueField.textProperty().addListener((observable, oldValue, newValue) -> {
-                if (!newValue.matches("\\d*\\.?\\d*")) {
+                if (!newValue.matches("-?\\d*\\.?\\d*")) {
                     valueField.setText(oldValue);
                 }
             });
@@ -2105,16 +2119,18 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             
             inputContainer.getChildren().addAll(label, valueField, applyButton);
             valueInputItem.setContent(inputContainer);
-        
-            ContextMenu contextMenu = new ContextMenu(deleteItem);
-        
+            // -------------- end value input
+            
+            
+            // Build context
+            ContextMenu contextMenu = new ContextMenu(deleteItem, addParenthesisItem);
+
             if (this instanceof NumberTextNode || this.text.equals("#")) {
                 contextMenu.getItems().add(valueInputItem);
             }
         
             setOnContextMenuRequested(event -> {
                 contextMenu.show(this, event.getScreenX(), event.getScreenY());
-                // Store reference to context menu to be able to close it
 
                 // Focus on the text field for immediate input
                 Platform.runLater(valueField::requestFocus);

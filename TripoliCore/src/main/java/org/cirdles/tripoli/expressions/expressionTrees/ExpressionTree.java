@@ -135,7 +135,11 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
             String leftStr = prettyPrint(tree.getLeft(), analysis, showValues);
             String rightStr = prettyPrint(tree.getRight(), analysis, showValues);
 
-            String operatorSymbol = tree.getOperation().getName().split(":")[0];
+            String operatorSymbol = OPERATIONS_MAP.entrySet().stream()
+                    .filter(entry -> entry.getValue().getClass().equals(tree.getOperation().getClass()))
+                    .map(Map.Entry::getKey)
+                    .findFirst()
+                    .orElse("");
 
             return "(" + leftStr + " " + operatorSymbol + " " + rightStr + ")";
         }
