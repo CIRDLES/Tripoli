@@ -168,6 +168,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     @FXML
     public Button saveExpressionButton;
     @FXML
+    public Button deleteExpressionButton;
+    @FXML
     public TextField expressionNameTextField;
     @FXML
     public Button expressionClearBtn;
@@ -187,6 +189,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public VBox expressionsVBox;
     @FXML
     public Label expressionInvalidLabel;
+    @FXML
+    public Label expressionUnsavedLabel;
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -224,16 +228,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private final StringProperty expressionString = new SimpleStringProperty();
     private final int EXPRESSION_BUILDER_DEFAULT_FONTSIZE = 13;
     private int fontSizeModifier = 0; // todo: remove if not implementing font resizing
-    private static final String INVISIBLE_NEWLINE_PLACEHOLDER = " \n";
-    private static final String VISIBLE_NEWLINE_PLACEHOLDER = "\u23CE\n";
-    private static final String INVISIBLE_TAB_PLACEHOLDER = "  ";
-    private static final String VISIBLE_TAB_PLACEHOLDER = " \u21E5";
-    private static final String VISIBLE_WHITESPACE_PLACEHOLDER = "\u2423";
-    private static final String INVISIBLE_WHITESPACE_PLACEHOLDER = " ";
     private List<String> listOperators = new ArrayList<>();
-    private final Map<String, String> presentationMap = new HashMap<>();
     private ObservableList<ExpressionTreeInterface> customExpressionsList = FXCollections.observableArrayList();
-    private UndoRedoManager<String> expressionUndoRedoManager = new UndoRedoManager<>();
+    private StateManager<String> expressionStateManager = new StateManager<>();
 
     public static void closePlotWindows() {
         if (null != ogTripoliPreviewPlotsWindow) {
@@ -379,10 +376,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty()
                         && analysis.getMassSpecExtractedData().getBlocksDataFull().isEmpty());
         exportToClipBoardButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
-
-        presentationMap.put("New line", INVISIBLE_NEWLINE_PLACEHOLDER);
-        presentationMap.put("Tab", INVISIBLE_TAB_PLACEHOLDER);
-        presentationMap.put("White space", INVISIBLE_WHITESPACE_PLACEHOLDER);
 
         populateCustomExpressionTab();
     }
@@ -1142,8 +1135,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     expressionTextFlow.getChildren().remove(event.getGestureSource());
                 }
                 populateTextFlowFromString(makeStringFromExpressionTextNodeList());
-                expressionUndoRedoManager.save(expressionString.getValue());
-                handleExpressionValidity();
+                handleExpressionUpdate(true);
 
                 success = true;
             }
@@ -1171,13 +1163,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         });
 
         // Button property bindings
-        expressionUndoBtn.disableProperty().bind(expressionUndoRedoManager.canUndoProperty().not());
-        expressionRedoBtn.disableProperty().bind(expressionUndoRedoManager.canRedoProperty().not());
+        expressionUndoBtn.disableProperty().bind(expressionStateManager.canUndoProperty().not());
+        expressionRedoBtn.disableProperty().bind(expressionStateManager.canRedoProperty().not());
         expressionClearBtn.disableProperty().bind(expressionString.isEmpty());
     }
 
     /**
-     * Re-assign the indices for all the textflow nodes after inserting a new one based on their position in the textflow
+     * Re-assign the indices for all the textflow nodes after inserting a new one based on their position in the textflow.
      */
     private void reindexExpressionTextFlowChildren() {
         for (int i = 0; i < expressionTextFlow.getChildren().size(); i++) {
@@ -1185,7 +1177,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             if (node instanceof ExpressionTextNode et) {
                 et.setIndex(i);
             }
-
         }
         expressionTextFlow.getChildren().sort((Node o1, Node o2) -> {
             int retVal = 0;
@@ -1200,28 +1191,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         StringBuilder sb = new StringBuilder();
         for (Node node : expressionTextFlow.getChildren()) {
             if (node instanceof ExpressionTextNode) {
-                switch (((ExpressionTextNode) node).getText()) {
-                    case VISIBLE_NEWLINE_PLACEHOLDER:
-                    case INVISIBLE_NEWLINE_PLACEHOLDER:
-                        sb.append("\n");
-                        break;
-                    case VISIBLE_TAB_PLACEHOLDER:
-                    case INVISIBLE_TAB_PLACEHOLDER:
-                        sb.append("\t");
-                        break;
-                    case INVISIBLE_WHITESPACE_PLACEHOLDER:
-                    case VISIBLE_WHITESPACE_PLACEHOLDER:
-                        sb.append(" ");
-                        break;
-                    default:
-                        String txt = ((ExpressionTextNode) node).getText().trim();
-                        String nonLetter = "\t\n\r [](),+-*/<>=^\"";
-                        if (sb.isEmpty() || nonLetter.indexOf(sb.charAt(sb.length() - 1)) != -1 || nonLetter.indexOf(txt.charAt(0)) != -1) {
-                            sb.append(txt);
-                        } else {
-                            sb.append(" ").append(txt);
-                        }
-                        break;
+                ((ExpressionTextNode) node).getText();
+                String txt = ((ExpressionTextNode) node).getText().trim();
+                String nonLetter = "\t\n\r [](),+-*/<>=^\"";
+                if (sb.isEmpty() || nonLetter.indexOf(sb.charAt(sb.length() - 1)) != -1 || nonLetter.indexOf(txt.charAt(0)) != -1) {
+                    sb.append(txt);
+                } else {
+                    sb.append(" ").append(txt);
                 }
             }
         }
@@ -1684,7 +1660,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         */
         expressionString.set("");
         expressionNameTextField.clear();
-        expressionUndoRedoManager.clear();
+        expressionStateManager.clear();
 
     }
 
@@ -1765,16 +1741,16 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public void expressionClearAction() {
         expressionString.set("");
         expressionNameTextField.clear();
-        expressionUndoRedoManager.clear();
+        expressionStateManager.clear();
     }
 
     public void expressionUndoAction() {
-        populateTextFlowFromString(expressionUndoRedoManager.undo());
+        populateTextFlowFromString(expressionStateManager.undo());
 
     }
 
     public void expressionRedoAction(ActionEvent actionEvent) {
-        populateTextFlowFromString(expressionUndoRedoManager.redo());
+        populateTextFlowFromString(expressionStateManager.redo());
 
     }
 
@@ -1887,8 +1863,17 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         } catch (IOException ignored) {
         }
         expressionTextFlow.getChildren().setAll(children);
+        handleExpressionUpdate(false);
+
+    }
+
+    private void handleExpressionUpdate(boolean saveCurrentState) {
         reindexExpressionTextFlowChildren();
         handleExpressionValidity();
+        if (saveCurrentState) {
+            expressionStateManager.save(expressionString.getValue());
+        }
+        expressionUnsavedLabel.setVisible(expressionStateManager.hasChanges());
     }
 
     class RatioClickHandler implements EventHandler<MouseEvent> {
@@ -2012,7 +1997,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 if (!expressionTextFlow.getChildren().contains(insertIndicator)) {
                     expressionTextFlow.getChildren().add(insertIndicator);
                 }
-
                 moveInsertIndicatorToIndex(this.index);
 
                 event.consume();
@@ -2037,8 +2021,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     }
 
                     populateTextFlowFromString(makeStringFromExpressionTextNodeList());
-                    expressionUndoRedoManager.save(expressionString.getValue());
-                    handleExpressionValidity();
+                    handleExpressionUpdate(true);
 
                     success = true;
                 }
@@ -2068,9 +2051,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             MenuItem deleteItem = new MenuItem("Delete");
             deleteItem.setOnAction(event -> {
                 expressionTextFlow.getChildren().remove(this);
-                reindexExpressionTextFlowChildren();
-                expressionUndoRedoManager.save(expressionString.getValue());
-                handleExpressionValidity();
+                handleExpressionUpdate(true);
             });
             // --------------- end delete
             
@@ -2084,9 +2065,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 expressionTextFlow.getChildren().add(index + 1, this);
                 expressionTextFlow.getChildren().add(index + 2, new ExpressionTextNode(")"));
                 
-                reindexExpressionTextFlowChildren();
-                expressionUndoRedoManager.save(expressionString.getValue());
-                handleExpressionValidity();
+                handleExpressionUpdate(true);
             });
 
             // ---------------- end parenthesis
@@ -2169,14 +2148,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             updateFontSize();
         }
     }
-    private class PresentationTextNode extends ExpressionTextNode {
 
-        public PresentationTextNode(String text) {
-            super(text);
-            this.fontSize = EXPRESSION_BUILDER_DEFAULT_FONTSIZE + 3;
-            updateFontSize();
-        }
-    }
     private class UserFunctionTextNode extends ExpressionTextNode {
 
         public UserFunctionTextNode(String text) {
@@ -2186,12 +2158,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
     }
 
-    public static class UndoRedoManager<T> {
+    public static class StateManager<T> {
 
         private final BooleanProperty canUndo = new SimpleBooleanProperty(false);
         private final BooleanProperty canRedo = new SimpleBooleanProperty(false);
 
         private Node current;
+        private Node tail;
 
 
         private class Node {
@@ -2206,11 +2179,17 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         public void save(T state) {
             Node newNode = new Node(state);
+
             if (current != null) {
                 current.next = newNode;
                 newNode.prev = current;
             }
             current = newNode;
+
+            if (tail == null) {
+                tail = current;
+            }
+
             updateProperties();
         }
 
@@ -2239,9 +2218,19 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         public void clear() {
             current = null;
+            tail = null;
             canRedo.set(false);
             canUndo.set(false);
         }
+
+        public boolean hasChanges() {
+            if (current == null || tail == null) {
+                return false;
+            }
+
+            return current.state != tail.state;
+        }
+
 
         public BooleanProperty canUndoProperty() {
             return canUndo;
@@ -2250,6 +2239,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         public BooleanProperty canRedoProperty() {
             return canRedo;
         }
+
         private void updateProperties() {
             canUndo.set(current.state != null);
             canRedo.set(current.next != null);

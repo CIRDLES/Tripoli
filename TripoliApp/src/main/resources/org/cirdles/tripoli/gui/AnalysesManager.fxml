@@ -306,6 +306,8 @@
                             <Button fx:id="cancelExpressionButton" onAction="#cancelCustomExpressionOnAction" text="Cancel" />
                             <Button fx:id="saveExpressionButton" onAction="#saveCustomExpressionOnAction" text="Save" />
                             <Button fx:id="deleteExpressionButton" onAction="#deleteCustomExpressionOnAction" text="Delete" />
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="expressionUnsavedLabel" visible="false" text="UNSAVED CHANGES!" style="-fx-text-fill: RED" />
                      <opaqueInsets>
                         <Insets />
                      </opaqueInsets>
