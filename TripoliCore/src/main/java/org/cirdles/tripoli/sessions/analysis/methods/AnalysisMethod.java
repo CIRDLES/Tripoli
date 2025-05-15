@@ -21,10 +21,16 @@ import com.google.common.collect.HashBiMap;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.constants.TripoliConstants;
+import org.cirdles.tripoli.expressions.constants.ConstantNode;
+import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
+import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTreeInterface;
+import org.cirdles.tripoli.expressions.operations.Add;
+import org.cirdles.tripoli.expressions.parsing.ShuntingYard;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.expressions.species.nuclides.NuclidesFactory;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunctionNode;
 import org.cirdles.tripoli.reports.Report;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
@@ -166,7 +172,9 @@ public class AnalysisMethod implements Serializable {
             System.out.println(columnHeaders[r270_267ColumnIndex + 2]);
 
         }
+
         analysisMethod.refreshReports();
+
         return analysisMethod;
     }
 

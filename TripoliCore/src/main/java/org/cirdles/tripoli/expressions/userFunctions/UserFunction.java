@@ -17,6 +17,8 @@
 package org.cirdles.tripoli.expressions.userFunctions;
 
 import org.cirdles.tripoli.constants.TripoliConstants;
+import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
+import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTreeInterface;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
@@ -44,10 +46,11 @@ public class UserFunction implements Comparable, Serializable {
     private TripoliConstants.ETReduxExportTypeEnum etReduxExportTypeEnum = TripoliConstants.ETReduxExportTypeEnum.NONE;
     private int columnIndex;
     private boolean treatAsIsotopicRatio;
-    private boolean isCustomExpression;
+    private boolean treatAsCustomExpression;
     private boolean displayed;
     private boolean inverted;
     private AnalysisStatsRecord analysisStatsRecord;
+    private ExpressionTreeInterface customExpression;
     private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord = new TreeMap<>();
     private int[] concatenatedBlockCounts;
 
@@ -82,6 +85,8 @@ public class UserFunction implements Comparable, Serializable {
         userFunction.setReductionMode(this.reductionMode);
         userFunction.setInverted(this.inverted);
         userFunction.setEtReduxExportType(this.etReduxExportTypeEnum);
+        userFunction.setTreatAsCustomExpression(this.treatAsCustomExpression);
+        userFunction.setCustomExpression(this.customExpression);
 
         return userFunction;
     }
@@ -175,6 +180,9 @@ public class UserFunction implements Comparable, Serializable {
     public int getColumnIndex() {
         return columnIndex;
     }
+    public void setColumnIndex(int columnIndex) {
+        this.columnIndex = columnIndex;
+    }
 
     public boolean isTreatAsIsotopicRatio() {
         return treatAsIsotopicRatio;
@@ -182,6 +190,12 @@ public class UserFunction implements Comparable, Serializable {
 
     public void setTreatAsIsotopicRatio(boolean treatAsIsotopicRatio) {
         this.treatAsIsotopicRatio = treatAsIsotopicRatio;
+    }
+
+    public boolean isTreatAsCustomExpression() {return treatAsCustomExpression;}
+
+    public void setTreatAsCustomExpression(boolean treatAsCustomExpression) {
+        this.treatAsCustomExpression = treatAsCustomExpression;
     }
 
     public boolean isDisplayed() {
@@ -246,7 +260,13 @@ public class UserFunction implements Comparable, Serializable {
         return inverted ? invertedETReduxName : etReduxName;
     }
 
-    public boolean isCustomExpression() {
-        return false; // TODO: false until CE is implemented
+
+    public ExpressionTreeInterface getCustomExpression() {
+        return customExpression;
+    }
+
+    public void setCustomExpression(ExpressionTreeInterface customExpression) {
+        this.customExpression = customExpression;
+
     }
 }
