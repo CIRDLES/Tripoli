@@ -112,7 +112,14 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
         return stack.pop();
     }
 
-    public String prettyPrint(ExpressionTreeInterface node, AnalysisInterface analysis, boolean showValues) {
+    /**
+     * Recursively generates string for the expression of the given tree in infix notation
+     * @param node Tree root to be printed
+     * @param analysis AnalysisInterface to be used for evaluation of UserFunctions
+     * @param showValues if true, then the numerical values of the nodes are printed. Otherwise, the names of the nodes are printed.
+     * @return String representing the expression tree in infix notation.
+     */
+    public static String prettyPrint(ExpressionTreeInterface node, AnalysisInterface analysis, boolean showValues) {
         if (node == null) {
             return "";
         }
