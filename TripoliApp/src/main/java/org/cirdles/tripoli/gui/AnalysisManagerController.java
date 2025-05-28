@@ -1044,7 +1044,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         expressionAccordion.setExpandedPane(expressionAccordion.getPanes().get(0));
         // ------------------------- end LV inits
 
-        initCustomExpressionListeners(customExpressionLV);
+        initCustomExpressionListeners();
 
     }
 
@@ -1095,7 +1095,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         });
     }
 
-    private void initCustomExpressionListeners(ListView<ExpressionTreeInterface> customExpressionLV) {
+    private void initCustomExpressionListeners() {
         insertIndicator.setFill(Color.RED);
         insertIndicator.setFont(Font.font("SansSerif", FontWeight.BOLD, 12));
 
@@ -1149,7 +1149,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         customExpressionLV.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && currentMode.get().equals(Mode.VIEW)) {
                 expressionNameTextField.setText(newValue.getName());
-                populateTextFlowFromString(ExpressionTree.prettyPrint(newValue, analysis, false));
+                if (newValue instanceof UserFunctionNode) {
+                    populateTextFlowFromString(((UserFunctionNode) newValue).getValue());
+                } else if (newValue instanceof ConstantNode) {
+                    populateTextFlowFromString(((ConstantNode) newValue).getValue().toString());
+                }else if (newValue instanceof ExpressionTree) {
+                    populateTextFlowFromString(ExpressionTree.prettyPrint(newValue, analysis, false));
+                }
+
             }
         });
 
@@ -1700,7 +1707,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public void cancelCustomExpressionOnAction() {
         boolean proceed;
         if (expressionStateManager.hasChanges()) {
-            proceed = TripoliMessageDialog.showChoiceDialog("Unsaved changes detected. Proceed?", TripoliGUI.primaryStage);
+            proceed = showChoiceDialog("Unsaved changes detected. Proceed?", TripoliGUI.primaryStage);
             if (proceed) {
                 expressionString.set(expressionStateManager.revert());
                 if (currentMode.get() == Mode.CREATE) {
@@ -1756,7 +1763,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             return;
         }
 
-        boolean proceed = currentMode.get() != Mode.CREATE || TripoliMessageDialog.showChoiceDialog(
+        boolean proceed = currentMode.get() != Mode.CREATE || showChoiceDialog(
                 "This name is already a custom expression. Would you like to overwrite?", TripoliGUI.primaryStage);
         if (!proceed) return;
 
@@ -1775,7 +1782,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         // replace old expression in list
         customExpressionsList.removeIf(e -> e.getName().equals(expressionTree.getName()));
         customExpressionsList.add(expressionTree);
-        
+        analysis.getMapOfBlockIdToRawDataLiteOne().clear(); // reset map for new data
+
         expressionStateManager.clear();
         currentMode.set(Mode.VIEW);
     }
@@ -1802,6 +1810,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         persistentState.updateTripoliPersistentState();
         populateAnalysisMethodColumnsSelectorPane();
+        analysis.getMapOfBlockIdToRawDataLiteOne().clear(); // reset map for new data
         expressionStateManager.clear();
         currentMode.set(Mode.VIEW);
     }
@@ -1829,7 +1838,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     public void deleteCustomExpressionOnAction() {
-        boolean proceed = TripoliMessageDialog.showChoiceDialog("Are you sure you want to delete this expression?", TripoliGUI.primaryStage);
+        boolean proceed = showChoiceDialog("Are you sure you want to delete this expression?", TripoliGUI.primaryStage);
         if (proceed) {
 
             TripoliPersistentState tripoliPersistentState = null;
@@ -1863,6 +1872,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             populateAnalysisMethodColumnsSelectorPane();
 
             currentMode.set(Mode.VIEW);
+            expressionStateManager.clear();
+            expressionString.set("");
+            expressionNameTextField.clear();
         }
     }
 
