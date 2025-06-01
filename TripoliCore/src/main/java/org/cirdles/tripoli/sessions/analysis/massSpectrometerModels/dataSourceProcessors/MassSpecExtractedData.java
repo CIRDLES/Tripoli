@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 James Bowring, Noah McLean, Scott Burdick, and CIRDLES.org.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
 import org.apache.commons.lang3.time.DateUtils;
@@ -69,8 +85,8 @@ public class MassSpecExtractedData implements Serializable {
         for (String[] headerStrings : headerData) {
             switch (headerStrings[0].trim().toUpperCase()) {
                 // All
-                case "METHODNAME" -> methodName = headerStrings[1].trim();
-                case "METHOD NAME" -> methodName = headerStrings[1].trim();
+                case "METHODNAME" -> methodName = headerStrings[1].trim().substring(0, headerStrings[1].lastIndexOf('.'));
+                case "METHOD NAME" -> methodName = headerStrings[1].trim().substring(0, headerStrings[1].lastIndexOf('.'));
 
                 // Phoenix
                 case "VERSION" -> softwareVersion = headerStrings[1].trim();
@@ -93,7 +109,10 @@ public class MassSpecExtractedData implements Serializable {
                 // Nu
                 case "VERSION NUMBER" -> softwareVersion = headerStrings[1].trim();
                 case "SAMPLE NAME" -> sampleName = headerStrings[1].trim();
-                case "ANALYSIS FILE NAME" -> filename = headerStrings[1].trim();
+                case "ANALYSIS FILE NAME" -> {
+                    filename = headerStrings[1].trim();
+                    if (methodName.isEmpty()) {methodName = headerStrings[1].trim();}
+                }
                 case "NUMBER OF MEASUREMENTS PER BLOCK" -> cyclesPerBlock = Integer.parseInt(headerStrings[1].trim());
             }
         }

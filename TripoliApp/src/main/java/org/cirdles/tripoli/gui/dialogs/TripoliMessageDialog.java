@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.cirdles.tripoli.gui.dialogs;
 
 import javafx.scene.control.Alert;
@@ -60,6 +61,7 @@ public class TripoliMessageDialog extends Alert {
      */
     public static void showWarningDialog(String message, Window owner) {
         Alert alert = new TripoliMessageDialog(AlertType.WARNING, message, "Tripoli warns you:", owner);
+        alert.setOnCloseRequest(event -> {alert.close();});
         alert.showAndWait();
     }
 
@@ -72,6 +74,7 @@ public class TripoliMessageDialog extends Alert {
                 AlertType.INFORMATION,
                 message,
                 "Tripoli informs you:", owner);
+        alert.setOnCloseRequest(event -> {alert.close();});
         alert.showAndWait();
     }
 
@@ -85,8 +88,28 @@ public class TripoliMessageDialog extends Alert {
 
         return (result.get() == ButtonType.OK);
     }
+    public static boolean showOverwriteDialog(File file, Window owner) {
+        if (null == file) {
+            Alert dialog = new TripoliMessageDialog(AlertType.WARNING,
+                    "Path is null!",
+                    "Check permissions ...",
+                    owner);
+            dialog.showAndWait();
+        } else {
+            Alert dialog = new TripoliMessageDialog(AlertType.CONFIRMATION,
+                    showLongfilePath(file.getAbsolutePath()),
+                     "Overwrite file?:",
+                    owner);
+            dialog.getButtonTypes().setAll(ButtonType.NO, ButtonType.YES);
+            dialog.setOnCloseRequest(event -> {dialog.close();});
+            Optional<ButtonType> result = dialog.showAndWait();
 
-    public static void showSavedAsDialog(File file, Window owner) {
+            return (result.get() == ButtonType.YES);
+        }
+        return false;
+    }
+
+    public static String showSavedAsDialog(File file, Window owner) {
         if (null == file) {
             Alert dialog = new TripoliMessageDialog(AlertType.WARNING,
                     "Path is null!",
@@ -98,18 +121,15 @@ public class TripoliMessageDialog extends Alert {
                     showLongfilePath(file.getAbsolutePath()),
                     (file.isDirectory() ? "Files saved in:" : "File saved as:"),
                     owner);
-            ButtonType openButton = new ButtonType((file.isDirectory() ? "Open Directory" : "Open File"), ButtonBar.ButtonData.APPLY);
-            dialog.getButtonTypes().setAll(openButton, ButtonType.OK);
+            ButtonType saveAndOpenButton = new ButtonType("Save and Open", ButtonBar.ButtonData.OK_DONE);
+            ButtonType saveButton = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+            dialog.getButtonTypes().setAll(ButtonType.CANCEL, saveButton, saveAndOpenButton);
+            dialog.setOnCloseRequest(event -> {dialog.close();});
 
-            dialog.showAndWait().ifPresent(action -> {
-                if (action == openButton) {
-                    try {
-                        Desktop.getDesktop().open(file);
-                    } catch (IOException e) {
-                    }
-                }
-            });
+            return dialog.showAndWait().get().getText();
+
         }
+        return null;
     }
 
     public static String showLongfilePath(String path) {

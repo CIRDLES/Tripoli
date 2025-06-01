@@ -1,7 +1,24 @@
+/*
+ * Copyright 2022 James Bowring, Noah McLean, Scott Burdick, and CIRDLES.org.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.cirdles.tripoli.sessions.analysis;
 
 import jakarta.xml.bind.JAXBException;
 import jxl.Workbook;
+import jxl.WorkbookSettings;
 import jxl.read.biff.BiffException;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
@@ -57,7 +74,9 @@ public interface AnalysisInterface {
 
             Workbook workbook = null;
             try {
-                workbook = Workbook.getWorkbook(dataFilePath.toFile());
+                WorkbookSettings workbookSettings = new WorkbookSettings();
+                workbookSettings.setSuppressWarnings(true);
+                workbook = Workbook.getWorkbook(dataFilePath.toFile(), workbookSettings);
                 if (workbook.getSheet("SUMMARY").getCell(0, 0).getContents().compareToIgnoreCase("Summary Report") == 0) {
                     retVal = MassSpectrometerContextEnum.PHOENIX_IONVANTAGE_XLS;
                 }
