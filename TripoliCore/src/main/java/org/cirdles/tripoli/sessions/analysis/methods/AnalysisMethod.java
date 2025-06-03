@@ -187,13 +187,18 @@ public class AnalysisMethod implements Serializable {
         } catch (TripoliException e) {
             e.printStackTrace();
         }
-        AnalysisMethodPersistance analysisMethodPersistance =
-                tripoliPersistentState.getMapMethodNamesToDefaults().get(massSpecExtractedData.getHeader().methodName());
-        List<UserFunction> expressionUserFunctions = analysisMethodPersistance.getExpressionUserFunctionList();
-        for (UserFunction userFunction : expressionUserFunctions) {
-            massSpecExtractedData.populateCycleDataForCustomExpression(userFunction.getCustomExpression());
-            analysisMethod.getUserFunctionsModel().add(userFunction);
+        if (tripoliPersistentState != null) {
+            AnalysisMethodPersistance analysisMethodPersistance =
+                    tripoliPersistentState.getMapMethodNamesToDefaults().get(massSpecExtractedData.getHeader().methodName());
+            if (analysisMethodPersistance != null) {
+                List<UserFunction> expressionUserFunctions = analysisMethodPersistance.getExpressionUserFunctionList();
+                for (UserFunction userFunction : expressionUserFunctions) {
+                    massSpecExtractedData.populateCycleDataForCustomExpression(userFunction.getCustomExpression());
+                    analysisMethod.getUserFunctionsModel().add(userFunction);
+                }
+            }
         }
+
     }
 
     public static AnalysisMethod createAnalysisMethodFromPhoenixAnalysisMethod(
