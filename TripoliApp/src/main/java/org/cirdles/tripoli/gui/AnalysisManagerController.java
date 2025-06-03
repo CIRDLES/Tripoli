@@ -1772,6 +1772,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         expressionTree.setName(expressionName);
 
         existingFunction.setCustomExpression(expressionTree);
+        checkExpressionForRenamedRatio(existingFunction);
         existingFunction.getMapBlockIdToBlockCyclesRecord().clear();
 
         analysis.getMassSpecExtractedData().populateCycleDataForCustomExpression(expressionTree);
@@ -1796,6 +1797,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         UserFunction newFunction = new UserFunction(expressionName, userFunctions.size(), false, true);
         newFunction.setTreatAsCustomExpression(true);
+        checkExpressionForRenamedRatio(newFunction);
         newFunction.setCustomExpression(expressionTree);
         userFunctions.add(newFunction);
 
@@ -1813,6 +1815,22 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         analysis.getMapOfBlockIdToRawDataLiteOne().clear(); // reset map for new data
         expressionStateManager.clear();
         currentMode.set(Mode.VIEW);
+    }
+
+    private void checkExpressionForRenamedRatio(UserFunction userFunction) {
+        if (expressionTextFlow.getChildren().size() == 1){
+            ExpressionTextNode expressionNode = (ExpressionTextNode) expressionTextFlow.getChildren().get(0);
+            String ufName = expressionNode.getText().substring(2, expressionNode.getText().length() - 2);
+            UserFunction existingFunction = analysis.getUserFunctions().stream()
+                    .filter(uf -> uf.getName().equalsIgnoreCase(ufName))
+                    .findFirst()
+                    .orElse(null);
+            if (existingFunction != null && existingFunction.isTreatAsIsotopicRatio()) {
+                userFunction.setTreatAsIsotopicRatio(true);
+            } else {
+                userFunction.setTreatAsIsotopicRatio(false);
+            }
+        }
     }
 
     public void expressionClearAction() {
@@ -1875,6 +1893,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             expressionStateManager.clear();
             expressionString.set("");
             expressionNameTextField.clear();
+            customExpressionLV.getSelectionModel().clearSelection();
         }
     }
 
