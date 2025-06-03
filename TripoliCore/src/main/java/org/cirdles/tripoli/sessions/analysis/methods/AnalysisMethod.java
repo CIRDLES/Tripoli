@@ -41,6 +41,8 @@ import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassS
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceTable;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.AnalysisMethodPersistance;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.IOException;
 import java.io.Serial;
@@ -100,7 +102,7 @@ public class AnalysisMethod implements Serializable {
     }
 
     public static AnalysisMethod createAnalysisMethodFromCase1(
-            MassSpecExtractedData massSpecExtractedData) throws IOException, TripoliException {
+            MassSpecExtractedData massSpecExtractedData) throws IOException {
         int r270_267ColumnIndex = -1;
         int r265_267ColumnIndex = -1;
         AnalysisMethod analysisMethod = new AnalysisMethod(massSpecExtractedData.getHeader().methodName(), massSpecExtractedData.getMassSpectrometerContext());
@@ -170,12 +172,28 @@ public class AnalysisMethod implements Serializable {
             massSpecExtractedData.setColumnHeaders(columnHeadersExpanded);
 
             System.out.println(columnHeaders[r270_267ColumnIndex + 2]);
-
         }
+        populateCustomExpressionFunctions(massSpecExtractedData, analysisMethod);
 
         analysisMethod.refreshReports();
 
         return analysisMethod;
+    }
+
+    private static void populateCustomExpressionFunctions(MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) {
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+            e.printStackTrace();
+        }
+        AnalysisMethodPersistance analysisMethodPersistance =
+                tripoliPersistentState.getMapMethodNamesToDefaults().get(massSpecExtractedData.getHeader().methodName());
+        List<UserFunction> expressionUserFunctions = analysisMethodPersistance.getExpressionUserFunctionList();
+        for (UserFunction userFunction : expressionUserFunctions) {
+            massSpecExtractedData.populateCycleDataForCustomExpression(userFunction.getCustomExpression());
+            analysisMethod.getUserFunctionsModel().add(userFunction);
+        }
     }
 
     public static AnalysisMethod createAnalysisMethodFromPhoenixAnalysisMethod(

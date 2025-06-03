@@ -623,14 +623,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             }
         }
 
-        List<UserFunction> expressionList = analysisMethodPersistance.getExpressionUserFunctionList();
-        for (UserFunction customExpression : expressionList) {
-            if (!userFunctions.contains(customExpression)) {
-                userFunctions.add(customExpression);
-            }
-            analysis.getMassSpecExtractedData().populateCycleDataForCustomExpression(customExpression.getCustomExpression());
-        }
-        tripoliPersistentState.updateTripoliPersistentState();
         populateAnalysisMethodColumnsSelectorPane();
     }
 
