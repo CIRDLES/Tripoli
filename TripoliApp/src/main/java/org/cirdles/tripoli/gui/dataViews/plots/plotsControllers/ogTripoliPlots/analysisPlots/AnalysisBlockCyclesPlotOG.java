@@ -322,25 +322,26 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     }
 
     /**
-     * 
-     * @param geoWeightedMeanRat
-     * @param lesserSigmaPercent
+     * Returns the FormattedStats object needed for the meaAsString(), unctAsString(), and stdvAsString() methods.
+     *
+     * @param mean
+     * @param stdErr
      * @return
      */
-    String meanAsString(double geoWeightedMeanRat, double lesserSigmaPercent) {
-        double geoWeightedMeanRatio = geoWeightedMeanRat;
-        double lesserSigmaPct = lesserSigmaPercent;
+    FormatterForSigFigN.FormattedStats calcFormattedStats(double mean, double stdErr, double stdDev) {
 
         FormatterForSigFigN.FormattedStats formattedStats;
-        if ((abs(geoWeightedMeanRatio) >= 1e7) || (abs(geoWeightedMeanRatio) <= 1e-5)) {
+        if ((abs(mean) >= 1e7) || (abs(mean) <= 1e-5)) {
             formattedStats =
-                    FormatterForSigFigN.formatToScientific(geoWeightedMeanRatio, lesserSigmaPct, 0, 2).padLeft();
+                    FormatterForSigFigN.formatToScientific(mean, stdErr, stdDev, 2).padLeft();
         } else {
             formattedStats =
-                    FormatterForSigFigN.formatToSigFig(geoWeightedMeanRatio, lesserSigmaPct, 0, 2).padLeft();
+                    FormatterForSigFigN.formatToSigFig(mean, stdErr, stdDev, 2).padLeft();
         }
 
-        return formattedStats.meanAsString();
+        return formattedStats;
+
+
     }
 
     /**
@@ -389,7 +390,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
                     countOfTrailingDigitsForSigFig = sigmaPcts.get("countOfTrailingDigitsForSigFig").intValue();
 
-                    String meanAsString = meanAsString(geoWeightedMeanRatio, lesserSigmaPct);
+                    String meanAsString = calcFormattedStats(geoWeightedMeanRatio, lesserSigmaPct, 0).meanAsString();
 
                     g2d.fillText("x  = " + meanAsString, textLeft + 10, textTop += textDeltaY);
                     g2d.fillText("\u0304", textLeft + 10, textTop);
@@ -474,15 +475,8 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     String sigmaPctString;
                     String sigmaMinusPctString = "";
 
-                    if ((abs(geoMean) >= 1e7) || (abs(geoMean) <= 1e-5)) {
-                        FormatterForSigFigN.FormattedStats formattedStats =
-                                FormatterForSigFigN.formatToScientific(geoMean, geoMeanPlusOneStandardDeviation - geoMean, 0, 2).padLeft();
-                        meanAsString = formattedStats.meanAsString();
-                    } else {
-                        FormatterForSigFigN.FormattedStats formattedStats =
-                                FormatterForSigFigN.formatToSigFig(geoMean, geoMeanPlusOneStandardDeviation - geoMean, 0, 2).padLeft();
-                        meanAsString = formattedStats.meanAsString();
-                    }
+                    meanAsString = calcFormattedStats(geoMean, geoMeanPlusOneStandardDeviation - geoMean, 0).meanAsString();
+
                     g2d.fillText("x  = " + meanAsString, textLeft + 10, textTop += textDeltaY);
                     g2d.fillText("\u0304", textLeft + 10, textTop);
                     boolean meanIsPlottable = (mapY(geoMean) >= topMargin) && (mapY(geoMean) <= topMargin + plotHeight);
@@ -606,7 +600,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     g2d.fillText("Bad Data", textLeft + 5, textTop += 2 * textDeltaY);
                 }
 
-            } else { // cycle mode of logratio or function // TODO
+            } else { // cycle mode of logratio or function
                 /*
                 Round the (1-sigma absolute) standard error to two significant decimal places (e.g., 0.0085 below).
                 Round the mean and the standard deviation to the same number of decimal places.
@@ -622,19 +616,13 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     String meanAsString;
                     String unctAsString;
                     String stdvAsString;
-                    if ((abs(cycleModeMean) >= 1e7) || (abs(cycleModeMean) <= 1e-5)) {
-                        FormatterForSigFigN.FormattedStats formattedStats =
-                                FormatterForSigFigN.formatToScientific(cycleModeMean, cycleModeStandardError, cycleModeStandardDeviation, 2).padLeft();
-                        meanAsString = formattedStats.meanAsString();
-                        unctAsString = formattedStats.unctAsString();
-                        stdvAsString = formattedStats.stdvAsString();
-                    } else {
-                        FormatterForSigFigN.FormattedStats formattedStats =
-                                FormatterForSigFigN.formatToSigFig(cycleModeMean, cycleModeStandardError, cycleModeStandardDeviation, 2).padLeft();
-                        meanAsString = formattedStats.meanAsString();
-                        unctAsString = formattedStats.unctAsString();
-                        stdvAsString = formattedStats.stdvAsString();
-                    }
+
+                    FormatterForSigFigN.FormattedStats formattedStats = calcFormattedStats(cycleModeMean, cycleModeStandardError, cycleModeStandardDeviation);
+
+                    meanAsString = formattedStats.meanAsString();
+                    unctAsString = formattedStats.unctAsString();
+                    stdvAsString = formattedStats.stdvAsString();
+
                     g2d.fillText("x  = " + meanAsString, textLeft + 10, textTop += textDeltaY);
                     g2d.fillText("\u0304", textLeft + 10, textTop);
                     g2d.fillText("\u03C3  = " + unctAsString, textLeft + 10, textTop += textDeltaY);
