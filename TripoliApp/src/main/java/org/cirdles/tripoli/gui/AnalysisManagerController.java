@@ -1816,9 +1816,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     private void checkExpressionForRenamedRatio(UserFunction userFunction) {
-        if (expressionTextFlow.getChildren().size() == 1){
-            ExpressionTextNode expressionNode = (ExpressionTextNode) expressionTextFlow.getChildren().get(0);
-            String ufName = expressionNode.getText().substring(2, expressionNode.getText().length() - 2);
+        if (expressionTextFlow.getChildren().size() == 1 && expressionTextFlow.getChildren().get(0) instanceof UserFunctionTextNode expressionNode) {
+            String ufName = expressionNode.getUserFunctionName();
             UserFunction existingFunction = analysis.getUserFunctions().stream()
                     .filter(uf -> uf.getName().equalsIgnoreCase(ufName))
                     .findFirst()
@@ -2062,7 +2061,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     private class ExpressionTextNode extends Text {
-        private final String text;
+        public final String text;
         private int index;
         protected Color regularColor;
         protected Color selectedColor;
@@ -2269,6 +2268,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             super(text);
             this.regularColor = Color.BLUE;
             setFill(regularColor);
+        }
+        public String getUserFunctionName() {
+            return text.trim().substring(1, text.trim().length() - 1);
         }
     }
 

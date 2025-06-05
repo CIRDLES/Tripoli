@@ -478,7 +478,7 @@ public class TripoliGUIController implements Initializable {
         boolean proceed = true;
         if (expressionMismatch){
             proceed = TripoliMessageDialog.showChoiceDialog(
-                    "The Custom Expressions in this Session differ from those saved for the Method. " +
+                    "The Custom Expressions in this Session differ from those saved for the Method. \n" +
                             "Would you like to refresh the Custom Expressions with the saved defaults?", primaryStageWindow);
         }
 

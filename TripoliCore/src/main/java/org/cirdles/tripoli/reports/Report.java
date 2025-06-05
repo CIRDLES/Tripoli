@@ -254,15 +254,19 @@ public class Report implements Serializable, Comparable<Report> {
         File reportCSVFile = getReportCSVFile(listOfAnalyses, sessionName);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(reportCSVFile))) {
-            Set<ReportCategory> categories = this.getCategories();
+            Set<ReportCategory> visibleCategories = this.getCategories().stream()
+                    .filter(ReportCategory::isVisible)
+                    .collect(Collectors.toSet());
+
             // Collect all unique columns across categories
-            List<ReportColumn> allColumns = categories.stream()
+            List<ReportColumn> visibleColumns = visibleCategories.stream()
                     .flatMap(category -> category.getColumns().stream())
+                    .filter(ReportColumn::isVisible)
                     .toList();
 
             // Header row with proper naming for user function columns
             List<String> headers = new ArrayList<>();
-            for (ReportColumn column : allColumns) {
+            for (ReportColumn column : visibleColumns) {
                 if (column.isUserFunction()) {
                     headers.add(column.getColumnName() + " Mean");
                     headers.add("StdDev");
@@ -281,7 +285,7 @@ public class Report implements Serializable, Comparable<Report> {
                     Analysis thisAnalysis = (Analysis) analysis;
                     List<String> rowValues = new ArrayList<>();
 
-                    for (ReportColumn column : allColumns) {
+                    for (ReportColumn column : visibleColumns) {
                         String columnData = column.retrieveData(thisAnalysis);
 
                         // If user function, split the comma-separated values
