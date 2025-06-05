@@ -592,16 +592,6 @@ public class ReportBuilderController {
 
     private void populateAccordion() {
         Report accReport = Report.createFullReport("", analysis.getMethod().getMethodName(), analysis.getUserFunctions());
-        Object[] repoCat = accReport.getCategories().toArray();
-        ReportCategory customExpressionsCat = repoCat[3] instanceof ReportCategory ? (ReportCategory) repoCat[3] : null;
-        /**
-         * Temporary Data inserted for future custom expressions
-         */
-        if (customExpressionsCat != null) {
-            customExpressionsCat.addColumn(new ReportColumn("Alpha", 0, null));
-            customExpressionsCat.addColumn(new ReportColumn("Beta", 1, null));
-            customExpressionsCat.addColumn(new ReportColumn("Gamma", 2, null));
-        }
 
         for (ReportCategory cat : accReport.getCategories()) {
             ListView<ReportColumn> accColumnlv = new ListView<>();
@@ -690,13 +680,13 @@ public class ReportBuilderController {
     public void newOnAction(ActionEvent event) {
         boolean proceed = proceedWithUnsavedDialog();
         if (proceed) {
-        String analysisMethodName = analysis.getMethod().getMethodName();
+            String analysisMethodName = analysis.getMethod().getMethodName();
             if (event.getSource() == newFullButton){ // Generate full report template
                 setCurrentReport(Report.createFullReport(analysisMethodName.replaceAll(" ", "_"), analysisMethodName, analysis.getUserFunctions()));
             } else { // Generate Blank Report Template
                 setCurrentReport(Report.createBlankReport(analysisMethodName.replaceAll(" ", "_"), analysisMethodName));
-
             }
+            deleteButton.setDisable(true);
         }
     }
 
@@ -708,20 +698,20 @@ public class ReportBuilderController {
             TripoliMessageDialog.showWarningDialog("Report must have a name", reportBuilderStage);
         } else if (currentReport.FIXED_REPORT_NAME.equals(reportName)) {
             TripoliMessageDialog.showWarningDialog("Report name: " + currentReport.FIXED_REPORT_NAME + " is restricted", reportBuilderStage);
-        } else if (currentReport.getTripoliReportFile(reportName).exists()) {
+        } else if (currentReport.getTripoliReportFile(reportName).exists() && unsavedChangesLabel.isVisible()) {
             proceed = TripoliMessageDialog.showOverwriteDialog(currentReport.getTripoliReportFile(), reportBuilderStage);
-            if (proceed) {
-                currentReport.setReportName(reportName);
-                currentReport.serializeReport();
-                initalReport = new Report(currentReport); // Reset saved state
-                handleTrackingChanges();
-            }
+            if (proceed) {saveReport(reportName);}
         } else {
-            currentReport.setReportName(reportName);
-            currentReport.serializeReport();
-            initalReport = new Report(currentReport); // Reset saved state
-            handleTrackingChanges();
+            saveReport(reportName);
         }
+    }
+
+    private void saveReport(String reportName) throws TripoliException {
+        currentReport.setReportName(reportName);
+        currentReport.serializeReport();
+        initalReport = new Report(currentReport); // Reset saved state
+        deleteButton.setDisable(false);
+        handleTrackingChanges();
     }
 
     public void restoreOnAction() {

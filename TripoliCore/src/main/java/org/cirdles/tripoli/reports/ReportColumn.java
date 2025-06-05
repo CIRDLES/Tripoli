@@ -72,9 +72,6 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
     }
     public int getPositionIndex() { return positionIndex; }
 
-    public void setMethodName(String methodName) { this.methodName = methodName; }
-    public String getMethodName() { return methodName; }
-
     public boolean isUserFunction() { return isUserFunction; }
 
     /**
@@ -103,9 +100,9 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
                     return String.format(
                             "%s,%s,%s",
                             MathUtilities.roundedToSize(stats.cycleModeMean(), 4),
-                            MathUtilities.roundedToSize(stats.cycleModeVariance(), 4),
-                            MathUtilities.roundedToSize(stats.cycleModeStandardDeviation(), 4)
-                    );
+                            MathUtilities.roundedToSize(stats.cycleModeStandardDeviation(), 4),
+                            MathUtilities.roundedToSize(stats.cycleModeVariance(), 4)
+                            );
                 })
                 .orElse("Error,Error,Error");
     }

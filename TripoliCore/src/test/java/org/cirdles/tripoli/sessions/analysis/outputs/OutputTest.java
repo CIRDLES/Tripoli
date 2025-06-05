@@ -18,6 +18,7 @@ package org.cirdles.tripoli.sessions.analysis.outputs;
 
 import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.Tripoli;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -92,6 +93,12 @@ public class OutputTest {
         for (Path path : dataFilePaths) {
             int index = dataFilePaths.indexOf(path);
             initializeAnalysis(path);
+
+            for (UserFunction uf : analysis.getUserFunctions()){
+                if (uf.isTreatAsCustomExpression()){
+                    uf.setDisplayed(false);
+                }
+            }
 
             String clipBoardString = analysis.prepareFractionForClipboardExport();
             Files.write(outputPath, clipBoardString.getBytes());
