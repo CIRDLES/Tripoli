@@ -782,7 +782,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         userFunctions.sort(null);
         for (UserFunction userFunction : analysis.getUserFunctions()) {
-            if (userFunction.isTreatAsIsotopicRatio()) {
+            if (userFunction.isTreatAsIsotopicRatio() && !userFunction.isTreatAsCustomExpression()) {
                 hBox = new HBox();
                 CheckBox checkBoxRatio = new CheckBox(userFunction.getName());
                 checkBoxRatio.setPrefWidth(500);
@@ -1004,7 +1004,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         ListView<ExpressionTreeInterface> operationLV = new ListView<>();
 
         for (UserFunction userFunction : userFunctions) {
-            if (userFunction.isTreatAsIsotopicRatio()) {
+            if (userFunction.isTreatAsIsotopicRatio() && !userFunction.isTreatAsCustomExpression()) {
                 isotopicRatioLV.getItems().add(new UserFunctionNode(userFunction.getName()));
             } else if(userFunction.isTreatAsCustomExpression()) {
                 customExpressionsList.add(userFunction.getCustomExpression());
@@ -1769,7 +1769,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         analysis.getMassSpecExtractedData().populateCycleDataForCustomExpression(expressionTree);
 
-        persistentState.updateTripoliPersistentState();
+        if (tripoliSession.isExpressionRefreshed()){
+            persistentState.updateTripoliPersistentState();
+        }
+
         populateAnalysisMethodColumnsSelectorPane();
 
         // replace old expression in list
@@ -1795,14 +1798,17 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         analysis.getMassSpecExtractedData().populateCycleDataForCustomExpression(expressionTree);
 
-        AnalysisMethodPersistance methodPersistence =
-                persistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+        if (tripoliSession.isExpressionRefreshed()){
+            AnalysisMethodPersistance methodPersistence =
+                    persistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
 
-        methodPersistence.getUserFunctionDisplayMap().put(
-                expressionName, new UserFunctionDisplay(expressionName, true, false));
-        methodPersistence.getExpressionUserFunctionList().add(newFunction);
+            methodPersistence.getUserFunctionDisplayMap().put(
+                    expressionName, new UserFunctionDisplay(expressionName, true, false));
+            methodPersistence.getExpressionUserFunctionList().add(newFunction);
 
-        persistentState.updateTripoliPersistentState();
+            persistentState.updateTripoliPersistentState();
+        }
+
         populateAnalysisMethodColumnsSelectorPane();
         analysis.getMapOfBlockIdToRawDataLiteOne().clear(); // reset map for new data
         expressionStateManager.clear();
@@ -1860,14 +1866,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             String expressionName = expressionNameTextField.getText();
             List<UserFunction> userFunctions = analysis.getUserFunctions();
 
-            AnalysisMethodPersistance analysisMethodPersistance =
-                    tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
-
             UserFunction customExpression = userFunctions.stream().filter(uf -> uf.getName().equalsIgnoreCase(expressionName)).findFirst().get();
             customExpressionsList.remove(customExpression.getCustomExpression());
 
-            analysisMethodPersistance.getUserFunctionDisplayMap().remove(customExpression.getName());
-            analysisMethodPersistance.getExpressionUserFunctionList().remove(customExpression);
             userFunctions.remove(customExpression);
             analysis.getMassSpecExtractedData().removeCycleDataForDeletedExpression(customExpression.getCustomExpression());
 
@@ -1878,7 +1879,15 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 }
             }
 
-            tripoliPersistentState.updateTripoliPersistentState();
+            if (tripoliSession.isExpressionRefreshed()){
+                AnalysisMethodPersistance analysisMethodPersistance =
+                        tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+
+                analysisMethodPersistance.getUserFunctionDisplayMap().remove(customExpression.getName());
+                analysisMethodPersistance.getExpressionUserFunctionList().removeIf(e -> e.getName().equals(customExpression.getName()));
+                tripoliPersistentState.updateTripoliPersistentState();
+            }
+
             populateAnalysisMethodColumnsSelectorPane();
 
             currentMode.set(Mode.VIEW);
