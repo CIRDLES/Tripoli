@@ -254,14 +254,16 @@ public class Report implements Serializable, Comparable<Report> {
         File reportCSVFile = getReportCSVFile(listOfAnalyses, sessionName);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(reportCSVFile))) {
-            Set<ReportCategory> visibleCategories = this.getCategories().stream()
+            Set<ReportCategory> categories = this.getCategories().stream()
                     .filter(ReportCategory::isVisible)
-                    .collect(Collectors.toSet());
+                    .sorted(Comparator.comparingInt(ReportCategory::getPositionIndex))
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
 
             // Collect all unique columns across categories
-            List<ReportColumn> visibleColumns = visibleCategories.stream()
+            List<ReportColumn> visibleColumns = categories.stream()
                     .flatMap(category -> category.getColumns().stream())
                     .filter(ReportColumn::isVisible)
+                    .sorted(Comparator.comparingInt(ReportColumn::getPositionIndex))
                     .toList();
 
             // Header row with proper naming for user function columns

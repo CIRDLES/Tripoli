@@ -92,6 +92,7 @@ import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
 import static org.cirdles.tripoli.expressions.operations.Operation.OPERATIONS_MAP;
+import static org.cirdles.tripoli.gui.SessionManagerController.listOfSelectedAnalyses;
 import static org.cirdles.tripoli.gui.SessionManagerController.tripoliSession;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
@@ -327,6 +328,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                             analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
                             tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
                             analysis = analysisProposed;
+                            listOfSelectedAnalyses.clear();
+                            listOfSelectedAnalyses.add(analysis);
                             // manage analysis
                             readingFile = true;
                             MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
