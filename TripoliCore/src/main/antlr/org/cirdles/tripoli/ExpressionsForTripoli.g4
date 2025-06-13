@@ -68,7 +68,7 @@
  fragment Y:('y'|'Y');
  fragment Z:('z'|'Z');
 
- NAMED_EXPRESSION : '[' (' ')? ('\u00B1')? ('%')? ID (ID | '/' | ' ' | '*' | '.' | '_' | '%' | '-' | ':')* Parens* (' %err')* ']' ;
+NAMED_EXPRESSION: '[' ( ~']' )* ']' ;
 
  NUMERIC_INPUT : '#' ;
 

@@ -100,6 +100,7 @@ import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDia
 import static org.cirdles.tripoli.gui.utilities.UIUtilities.showTab;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.*;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.*;
+import static org.cirdles.tripoli.sessions.analysis.AnalysisInterface.initializeNewAnalysis;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compareAnalysisMethodToDataFileSpecs;
 
 public class AnalysisManagerController implements Initializable, AnalysisManagerCallbackI {
@@ -224,8 +225,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private final TextArea expressionAsTextArea = new TextArea();
     private final BooleanProperty editAsText = new SimpleBooleanProperty(false);
     private final StringProperty expressionString = new SimpleStringProperty();
-    private final int EXPRESSION_BUILDER_DEFAULT_FONTSIZE = 13;
-    private int fontSizeModifier = 0; // todo: remove if not implementing font resizing
+    private final int EXPRESSION_BUILDER_DEFAULT_FONTSIZE = 15;
     private List<String> listOperators = new ArrayList<>();
     private ObservableList<ExpressionTreeInterface> customExpressionsList = FXCollections.observableArrayList();
     private StateManager<String> expressionStateManager = new StateManager<>();
@@ -996,6 +996,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     private void populateCustomExpressionTab() {
+        expressionAccordion.getPanes().clear();
+
         currentMode.set(Mode.VIEW);
         // List View inits ---------------------------------------
         List<UserFunction> userFunctions = analysis.getUserFunctions();
@@ -1361,18 +1363,40 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     private void loadDataFile(File selectedFile) {
+
         boolean legalFile = true;
+        String oldMethod = analysis.getMethod().getMethodName();
         removeAnalysisMethod();
         String currentAnalysisName = analysis.getAnalysisName();
         if (tripoliSession.getMapOfAnalyses().containsKey(currentAnalysisName))
             tripoliSession.getMapOfAnalyses().remove(currentAnalysisName);
+        AnalysisInterface analysisProposed;
         try {
-            String analysisName = analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
+            analysisProposed = initializeNewAnalysis(0);
+            String analysisName = analysisProposed.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
+            if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
+                analysisProposed.setAnalysisName(analysisName);
+                analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
+                if (oldMethod.equals(analysisProposed.getMethod().getMethodName()) && !tripoliSession.isExpressionRefreshed()) {
+                    List<UserFunction> functionsToRemove = analysisProposed.getUserFunctions().stream()
+                            .filter(UserFunction::isTreatAsCustomExpression)
+                            .toList();
 
-            if (analysis.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
-                analysis.setAnalysisName(analysisName);
-                analysis.setAnalysisStartTime(analysis.getMassSpecExtractedData().getHeader().analysisStartTime());
-                tripoliSession.getMapOfAnalyses().put(analysis.getAnalysisName(), analysis);
+                    analysisProposed.getUserFunctions().removeAll(functionsToRemove);
+
+                    List<UserFunction> functionsToAdd = analysis.getUserFunctions().stream()
+                            .filter(UserFunction::isTreatAsCustomExpression)
+                            .toList();
+
+                    analysisProposed.getUserFunctions().addAll(functionsToAdd);
+                }
+                tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
+                analysis = analysisProposed;
+
+                MCMCPlotsController.analysis = analysis;
+                MCMC2PlotsController.analysis = analysis;
+                OGTripoliViewController.analysis = analysis;
+
             } else {
                 legalFile = false;
             }
@@ -1385,6 +1409,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         if (legalFile) {
             // Proceed based on analysis case per https://docs.google.com/drawings/d/1U6-8LC55mHjHv8N7p6MAfKcdW8NibJSei3iTMT7E1A8/edit?usp=sharing
             populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
+            populateCustomExpressionTab();
 
             try {
                 previewAndSculptDataAction();
@@ -1856,7 +1881,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     public void deleteCustomExpressionOnAction() {
-        boolean proceed = showChoiceDialog("Are you sure you want to delete this expression?", TripoliGUI.primaryStage);
+        boolean proceed = showChoiceDialog("Are you sure you want to delete the expression: " + expressionNameTextField.getText() + "?", TripoliGUI.primaryStage);
         if (proceed) {
 
             TripoliPersistentState tripoliPersistentState = null;
@@ -2091,7 +2116,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             setupContextMenu();
         }
         public final void updateFontSize() {
-            setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, fontSize + fontSizeModifier));
+            setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, fontSize));
         }
         public int getIndex() { return index; }
         public void setIndex(int index) { this.index = index; }

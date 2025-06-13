@@ -449,31 +449,55 @@ public class TripoliGUIController implements Initializable {
         }
     }
 
-    private void handleExpressionsInSavedSession() {
+    public static void handleExpressionsInSavedSession() {
         List<AnalysisInterface> listOfAnalyses = tripoliSession.getMapOfAnalyses().values().stream().toList();
 
         boolean expressionMismatch = false;
-        List<UserFunction> customExpressionsInAnalysis;
+        boolean proceed = true;
+
         for (AnalysisInterface analysisSingleton : listOfAnalyses) {
-            customExpressionsInAnalysis = analysisSingleton.getUserFunctions().stream()
+            List<UserFunction> customExpressionsInAnalysis = analysisSingleton.getUserFunctions().stream()
                     .filter(UserFunction::isTreatAsCustomExpression)
                     .toList();
 
             AnalysisMethodPersistance analysisMethodPersistance =
-                    tripoliPersistentState.getMapMethodNamesToDefaults().get(analysisSingleton.getMassSpecExtractedData().getHeader().methodName());
+                    tripoliPersistentState.getMapMethodNamesToDefaults()
+                            .get(analysisSingleton.getMassSpecExtractedData().getHeader().methodName());
 
-            List<UserFunction> customExpressionInAnalysisMethod = analysisMethodPersistance.getExpressionUserFunctionList();
+            if (analysisMethodPersistance == null) {
+                proceed = false;
+                break;
+            }
 
+            List<UserFunction> customExpressionsInMethod = analysisMethodPersistance.getExpressionUserFunctionList();
 
+            // Check: Analysis has something not in Method
             for (UserFunction customExpression : customExpressionsInAnalysis) {
-                if (customExpressionInAnalysisMethod.stream()
-                        .noneMatch(userFunction -> userFunction.getName().equals(customExpression.getName()))) {
+                boolean foundInMethod = customExpressionsInMethod.stream()
+                        .anyMatch(methodExpr -> methodExpr.getName().equals(customExpression.getName()));
+                if (!foundInMethod) {
                     expressionMismatch = true;
+                    break;
                 }
+            }
+
+            // Check: Method has something not in Analysis
+            for (UserFunction methodExpression : customExpressionsInMethod) {
+                boolean foundInAnalysis = customExpressionsInAnalysis.stream()
+                        .anyMatch(analysisExpr -> analysisExpr.getName().equals(methodExpression.getName()));
+                if (!foundInAnalysis) {
+                    expressionMismatch = true;
+                    break;
+                }
+            }
+
+            if (expressionMismatch) {
+                break;
             }
         }
 
-        boolean proceed = true;
+
+
         if (expressionMismatch){
             proceed = TripoliMessageDialog.showChoiceDialog(
                     "The Custom Expressions in this Session differ from those saved for the Method. \n" +
@@ -530,6 +554,7 @@ public class TripoliGUIController implements Initializable {
 
     private void saveAsSession() throws TripoliException {
         try {
+            tripoliSession.setExpressionRefreshed(false);
             File sessionFile = FileHandlerUtil.saveSessionFile(tripoliSession, primaryStageWindow);
             if (null != sessionFile) {
                 sessionFileName = sessionFile.getPath();
