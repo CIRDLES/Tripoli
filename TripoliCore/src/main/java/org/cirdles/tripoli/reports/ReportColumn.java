@@ -19,6 +19,7 @@ package org.cirdles.tripoli.reports;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
+import org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.mathUtilities.MathUtilities;
 import org.jetbrains.annotations.NotNull;
@@ -26,15 +27,19 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
+
+import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.generateGeometricMeanStats;
 
 public class ReportColumn implements Serializable, Comparable<ReportColumn>{
     private static final long serialVersionUID = 3378567673921898881L;
     public String FIXED_COLUMN_NAME = "Analysis Name";
 
-    private final String columnName;
+    private String columnName;
     private int positionIndex;
     private boolean visible;
     private String methodName;
@@ -63,6 +68,7 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
     }
 
     public String getColumnName() { return columnName; }
+    public void setColumnName(String columnName) { this.columnName = columnName; }
 
     public void setVisible(boolean visible) { this.visible = visible; }
     public boolean isVisible() { return visible; }
@@ -101,12 +107,32 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
                 .findFirst()
                 .map(userFunction -> {
                     AnalysisStatsRecord stats = userFunction.getAnalysisStatsRecord();
-                    return String.format(
-                            "%s,%s,%s",
-                            MathUtilities.roundedToSize(stats.cycleModeMean(), 4),
-                            MathUtilities.roundedToSize(stats.cycleModeStandardDeviation(), 4),
-                            MathUtilities.roundedToSize(stats.cycleModeVariance(), 4)
-                    );
+                    GeometricMeanStatsRecord geoStats =
+                            generateGeometricMeanStats(stats.cycleModeMean(), stats.cycleModeStandardDeviation(), stats.cycleModeStandardError());
+
+                    if (userFunction.isTreatAsIsotopicRatio()) {
+
+                        return String.format(
+                                "%s,%s,%s",
+                                MathUtilities.roundedToSize(geoStats.geoMean(), 4),
+                                MathUtilities.roundedToSize(
+                                        (geoStats.geoMeanPlusOneStdErr() - geoStats.geoMean()) / geoStats.geoMean() * 100.0,
+                                        4) +
+                                        "%",
+                                MathUtilities.roundedToSize(
+                                        (geoStats.geoMeanPlusOneStdDev() - geoStats.geoMean()) / geoStats.geoMean() * 100.0,
+                                        4) +
+                                        "%"
+                        );
+                    } else {
+                        return String.format(
+                                "%s,%s,%s",
+                                MathUtilities.roundedToSize(stats.cycleModeMean(), 4),
+                                MathUtilities.roundedToSize(stats.cycleModeStandardError(), 4),
+                                MathUtilities.roundedToSize(stats.cycleModeStandardDeviation(), 4)
+                        );
+                    }
+
                 })
                 .orElse("Error,Error,Error");
     }

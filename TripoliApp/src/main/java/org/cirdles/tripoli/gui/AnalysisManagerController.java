@@ -1763,6 +1763,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             TripoliMessageDialog.showWarningDialog("Please enter an expression.", TripoliGUI.primaryStage);
             return;
         }
+        if (expressionName.split(" \\( = ").length > 1) {
+            TripoliMessageDialog.showWarningDialog("Expression name cannot contain \" ( = \".", TripoliGUI.primaryStage);
+            return;
+        }
+        if (expressionName.contains("[") || expressionName.contains("]")) {
+            TripoliMessageDialog.showWarningDialog("Expression name cannot contain '[' or ']' .", TripoliGUI.primaryStage);
+            return;
+        }
 
         List<UserFunction> userFunctions = analysis.getUserFunctions();
         UserFunction existingFunction = userFunctions.stream()

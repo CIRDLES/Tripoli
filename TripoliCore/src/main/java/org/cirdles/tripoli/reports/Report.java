@@ -270,16 +270,11 @@ public class Report implements Serializable, Comparable<Report> {
                         }
 
                         // Create a new ReportColumn if needed, or mutate if allowed
-                        ReportColumn updatedColumn = new ReportColumn(
-                                name,
-                                column.getPositionIndex(),
-                                column.isVisible()
-                                // ... copy other fields if necessary
-                        );
+                        ReportColumn updatedColumn = new ReportColumn(column);
+                        updatedColumn.setColumnName(name);
 
                         return updatedColumn;
                     })
-                    .sorted(Comparator.comparingInt(ReportColumn::getPositionIndex))
                     .toList();
 
             // Header row with proper naming for user function columns
@@ -287,8 +282,8 @@ public class Report implements Serializable, Comparable<Report> {
             for (ReportColumn column : visibleColumns) {
                 if (column.isUserFunction()) {
                     headers.add(column.getColumnName() + " Mean");
+                    headers.add("StdErr");
                     headers.add("StdDev");
-                    headers.add("Variance");
                 } else {
                     headers.add(column.getColumnName());
                 }

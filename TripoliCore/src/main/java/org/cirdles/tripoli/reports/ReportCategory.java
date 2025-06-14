@@ -131,7 +131,9 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         Set<ReportColumn> columnSet = new TreeSet<>();
         int i=0;
         for (UserFunction userFunction : userFunctionList){
-            if (userFunction.isTreatAsCustomExpression()){
+            if (userFunction.isTreatAsCustomExpression() && userFunction.isTreatAsIsotopicRatio()){
+                columnSet.add(new ReportColumn(userFunction.getCustomExpression().getName(), i++, true));
+            } else if (userFunction.isTreatAsCustomExpression()){
                 columnSet.add(new ReportColumn(userFunction.getName(), i++, true));
             }
         }
