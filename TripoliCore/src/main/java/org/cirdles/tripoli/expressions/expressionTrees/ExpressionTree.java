@@ -35,8 +35,7 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
     protected String name;
     protected ExpressionTreeInterface leftChildET;
     protected ExpressionTreeInterface rightChildET;
-    public Operation rootOperator;
-    protected boolean rootExpressionTree;
+    protected Operation rootOperator;
 
     public ExpressionTree() {}
 

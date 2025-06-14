@@ -92,8 +92,12 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
     }
 
     private String retrieveUserFunctionData(List<UserFunction> userFunctions) {
+        String baseColumnName = columnName.contains(" ( = ")
+                ? columnName.split(" \\( = ")[0]
+                : columnName;
+
         return userFunctions.stream()
-                .filter(f -> f.getName().equals(columnName))
+                .filter(f -> f.getName().equals(baseColumnName))
                 .findFirst()
                 .map(userFunction -> {
                     AnalysisStatsRecord stats = userFunction.getAnalysisStatsRecord();
@@ -102,10 +106,11 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
                             MathUtilities.roundedToSize(stats.cycleModeMean(), 4),
                             MathUtilities.roundedToSize(stats.cycleModeStandardDeviation(), 4),
                             MathUtilities.roundedToSize(stats.cycleModeVariance(), 4)
-                            );
+                    );
                 })
                 .orElse("Error,Error,Error");
     }
+
 
     private String invokeAnalysisMethod(Analysis analysis) {
         try {

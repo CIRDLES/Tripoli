@@ -855,7 +855,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 ratiosVBox.getChildren().add(hBox);
             } else if (userFunction.isTreatAsCustomExpression()){
                 hBox = new HBox();
-                CheckBox checkBoxExpression = new CheckBox(userFunction.getName());
+                CheckBox checkBoxExpression = new CheckBox(userFunction.getCustomExpression().getName());
                 checkBoxExpression.setPrefWidth(500);
                 checkBoxExpression.setFont(Font.font("Monospaced", FontWeight.BOLD, 12));
                 checkBoxExpression.setUserData(userFunction);
@@ -1775,6 +1775,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         } else {
             handleNewExpression(expressionName, userFunctions, tripoliPersistentState);
         }
+        populateAnalysisMethodColumnsSelectorPane();
+        analysis.getMapOfBlockIdToRawDataLiteOne().clear(); // reset map for new data
+        expressionStateManager.clear();
+        currentMode.set(Mode.VIEW);
+
+        populateAnalysisDataFields();
     }
 
     private void handleExistingExpression(UserFunction existingFunction, String expressionName, TripoliPersistentState persistentState) {
@@ -1801,15 +1807,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             persistentState.updateTripoliPersistentState();
         }
 
-        populateAnalysisMethodColumnsSelectorPane();
-
         // replace old expression in list
         customExpressionsList.removeIf(e -> e.getName().equals(expressionTree.getName()));
         customExpressionsList.add(expressionTree);
-        analysis.getMapOfBlockIdToRawDataLiteOne().clear(); // reset map for new data
 
-        expressionStateManager.clear();
-        currentMode.set(Mode.VIEW);
     }
 
     private void handleNewExpression(String expressionName, List<UserFunction> userFunctions, TripoliPersistentState persistentState) {
@@ -1820,8 +1821,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         UserFunction newFunction = new UserFunction(expressionName, userFunctions.size(), false, true);
         newFunction.setTreatAsCustomExpression(true);
-        checkExpressionForRenamedRatio(newFunction);
         newFunction.setCustomExpression(expressionTree);
+        checkExpressionForRenamedRatio(newFunction);
+
         userFunctions.add(newFunction);
 
         analysis.getMassSpecExtractedData().populateCycleDataForCustomExpression(expressionTree);
@@ -1837,10 +1839,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             persistentState.updateTripoliPersistentState();
         }
 
-        populateAnalysisMethodColumnsSelectorPane();
-        analysis.getMapOfBlockIdToRawDataLiteOne().clear(); // reset map for new data
-        expressionStateManager.clear();
-        currentMode.set(Mode.VIEW);
     }
 
     private void checkExpressionForRenamedRatio(UserFunction userFunction) {
@@ -1852,6 +1850,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     .orElse(null);
             if (existingFunction != null && existingFunction.isTreatAsIsotopicRatio()) {
                 userFunction.setTreatAsIsotopicRatio(true);
+                userFunction.getCustomExpression().setName(userFunction.getCustomExpression().getName() + " ( = " + ufName + " )");
+                expressionNameTextField.setText(userFunction.getCustomExpression().getName());
             } else {
                 userFunction.setTreatAsIsotopicRatio(false);
             }
@@ -1890,7 +1890,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             } catch (TripoliException e) {
                 e.printStackTrace();
             }
-            String expressionName = expressionNameTextField.getText();
+            String expressionName = expressionNameTextField.getText().split(" \\( = ")[0];
             List<UserFunction> userFunctions = analysis.getUserFunctions();
 
             UserFunction customExpression = userFunctions.stream().filter(uf -> uf.getName().equalsIgnoreCase(expressionName)).findFirst().get();
@@ -1922,6 +1922,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             expressionString.set("");
             expressionNameTextField.clear();
             customExpressionLV.getSelectionModel().clearSelection();
+
+            populateAnalysisDataFields();
         }
     }
 

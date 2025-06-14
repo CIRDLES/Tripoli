@@ -567,7 +567,11 @@ public class ReportBuilderController {
         StringBuilder result = new StringBuilder();
 
         if (column.isUserFunction()){
-            result.append(String.format("%-35s %-25s %-10s %-10s%n", analysisNameColumn.getColumnName(), column.getColumnName()+" Mean", "StdDev", "Variance"));
+            if (column.getColumnName().contains(" ( ")){
+                result.append(String.format("%-35s %-25s %-10s %-10s%n", analysisNameColumn.getColumnName(), column.getColumnName().split(" \\( = ")[0] +" Mean", "StdDev", "Variance"));
+            } else {
+                result.append(String.format("%-35s %-25s %-10s %-10s%n", analysisNameColumn.getColumnName(), column.getColumnName()+" Mean", "StdDev", "Variance"));
+            }
         } else {
             result.append(String.format("%-35s %-45s%n", analysisNameColumn.getColumnName(), column.getColumnName()));
         }

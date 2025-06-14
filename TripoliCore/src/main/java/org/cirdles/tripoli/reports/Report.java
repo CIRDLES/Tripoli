@@ -263,6 +263,22 @@ public class Report implements Serializable, Comparable<Report> {
             List<ReportColumn> visibleColumns = categories.stream()
                     .flatMap(category -> category.getColumns().stream())
                     .filter(ReportColumn::isVisible)
+                    .map(column -> {
+                        String name = column.getColumnName();
+                        if (name.contains(" = ( ")) {
+                            name = name.split("\\( = ")[0]; // Split and keep the first part
+                        }
+
+                        // Create a new ReportColumn if needed, or mutate if allowed
+                        ReportColumn updatedColumn = new ReportColumn(
+                                name,
+                                column.getPositionIndex(),
+                                column.isVisible()
+                                // ... copy other fields if necessary
+                        );
+
+                        return updatedColumn;
+                    })
                     .sorted(Comparator.comparingInt(ReportColumn::getPositionIndex))
                     .toList();
 

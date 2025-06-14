@@ -273,7 +273,9 @@ public class MassSpecExtractedData implements Serializable {
      */
     public void populateCycleDataForCustomExpression(ExpressionTreeInterface customExpressionTree){
         Double[][] expressionData = customExpressionTree.eval(columnHeaders, blocksDataLite);
-        int columnIndex = Arrays.asList(columnHeaders).indexOf(customExpressionTree.getName());
+
+        String newColumnHeader = customExpressionTree.getName().split(" \\( = ")[0];
+        int columnIndex = Arrays.asList(columnHeaders).indexOf(newColumnHeader);
 
         for (Integer blockID : blocksDataLite.keySet()) {
             blocksDataLite.put(blockID, blocksDataLite.get(blockID).populateColumnForCustomExpression(expressionData[blockID-1], columnIndex));
@@ -282,14 +284,14 @@ public class MassSpecExtractedData implements Serializable {
         if (columnIndex == -1) {
             String[] columnHeadersExpanded = new String[columnHeaders.length+1];
             System.arraycopy(columnHeaders, 0, columnHeadersExpanded, 0, columnHeaders.length);
-            columnHeadersExpanded[columnHeaders.length] = customExpressionTree.getName();
+            columnHeadersExpanded[columnHeaders.length] = newColumnHeader;
             columnHeaders = columnHeadersExpanded;
         }
 
     }
 
     public void removeCycleDataForDeletedExpression(ExpressionTreeInterface customExpressionTree){
-        int columnIndex = Arrays.asList(columnHeaders).indexOf(customExpressionTree.getName());
+        int columnIndex = Arrays.asList(columnHeaders).indexOf(customExpressionTree.getName().split(" \\( = ")[0]);
 
         for (Integer blockID : blocksDataLite.keySet()) {
             blocksDataLite.put(blockID, blocksDataLite.get(blockID).removeColumnForCustomExpression(columnIndex));
