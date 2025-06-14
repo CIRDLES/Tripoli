@@ -50,6 +50,7 @@ public class Session implements Serializable {
     private boolean mutable;
     private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
     private Parameters sessionDefaultParameters;
+    private boolean expressionRefreshed;
 
 
     // Color Strings for ratio plots
@@ -58,6 +59,7 @@ public class Session implements Serializable {
 
     private Session() {
         this("New Session");
+        expressionRefreshed = true;
     }
 
     private Session(String sessionName) {
@@ -167,6 +169,13 @@ public class Session implements Serializable {
 
     public void setMutable(boolean mutable) {
         this.mutable = mutable;
+    }
+
+    public boolean isExpressionRefreshed() {
+        return expressionRefreshed;
+    }
+    public void setExpressionRefreshed(boolean expressionRefreshed) {
+        this.expressionRefreshed = expressionRefreshed;
     }
 
     public Parameters getSessionDefaultParameters() {

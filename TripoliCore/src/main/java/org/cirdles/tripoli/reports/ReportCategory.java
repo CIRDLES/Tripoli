@@ -104,7 +104,7 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         Set<ReportColumn> columnSet = new TreeSet<>();
         int i=0;
         for (UserFunction userFunction : userFunctionList) {
-            if (userFunction.isTreatAsIsotopicRatio()) {
+            if (userFunction.isTreatAsIsotopicRatio() && !userFunction.isTreatAsCustomExpression()) {
                 columnSet.add(new ReportColumn(userFunction.getName(), i++, true));
             }
         }
@@ -120,7 +120,9 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         Set<ReportColumn> columnSet = new TreeSet<>();
         int i=0;
         for (UserFunction userFunction : userFunctionList){
-            columnSet.add(new ReportColumn(userFunction.getName(), i++, true));
+            if (!userFunction.isTreatAsIsotopicRatio() && !userFunction.isTreatAsCustomExpression()) {
+                columnSet.add(new ReportColumn(userFunction.getName(), i++, true));
+            }
         }
         return new ReportCategory("User Functions", columnSet,2);
     }
@@ -129,7 +131,9 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         Set<ReportColumn> columnSet = new TreeSet<>();
         int i=0;
         for (UserFunction userFunction : userFunctionList){
-            if (userFunction.isCustomExpression()){
+            if (userFunction.isTreatAsCustomExpression() && userFunction.isTreatAsIsotopicRatio()){
+                columnSet.add(new ReportColumn(userFunction.getCustomExpression().getName(), i++, true));
+            } else if (userFunction.isTreatAsCustomExpression()){
                 columnSet.add(new ReportColumn(userFunction.getName(), i++, true));
             }
         }

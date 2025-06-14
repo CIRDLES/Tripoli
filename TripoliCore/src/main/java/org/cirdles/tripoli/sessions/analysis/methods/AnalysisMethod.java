@@ -35,6 +35,8 @@ import org.cirdles.tripoli.sessions.analysis.methods.machineMethods.phoenixMassS
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceTable;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.AnalysisMethodPersistance;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.IOException;
 import java.io.Serial;
@@ -94,7 +96,7 @@ public class AnalysisMethod implements Serializable {
     }
 
     public static AnalysisMethod createAnalysisMethodFromCase1(
-            MassSpecExtractedData massSpecExtractedData) throws IOException, TripoliException {
+            MassSpecExtractedData massSpecExtractedData) throws IOException {
         int r270_267ColumnIndex = -1;
         int r265_267ColumnIndex = -1;
         AnalysisMethod analysisMethod = new AnalysisMethod(massSpecExtractedData.getHeader().methodName(), massSpecExtractedData.getMassSpectrometerContext());
@@ -164,10 +166,33 @@ public class AnalysisMethod implements Serializable {
             massSpecExtractedData.setColumnHeaders(columnHeadersExpanded);
 
             System.out.println(columnHeaders[r270_267ColumnIndex + 2]);
-
         }
-        analysisMethod.refreshReports();
+        populateCustomExpressionFunctions(massSpecExtractedData, analysisMethod);
+
+        analysisMethod.refreshReports(analysisMethod.getUserFunctionsModel());
+
         return analysisMethod;
+    }
+
+    private static void populateCustomExpressionFunctions(MassSpecExtractedData massSpecExtractedData, AnalysisMethod analysisMethod) {
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+            e.printStackTrace();
+        }
+        if (tripoliPersistentState != null) {
+            AnalysisMethodPersistance analysisMethodPersistance =
+                    tripoliPersistentState.getMapMethodNamesToDefaults().get(massSpecExtractedData.getHeader().methodName());
+            if (analysisMethodPersistance != null) {
+                List<UserFunction> expressionUserFunctions = analysisMethodPersistance.getExpressionUserFunctionList();
+                for (UserFunction userFunction : expressionUserFunctions) {
+                    massSpecExtractedData.populateCycleDataForCustomExpression(userFunction.getCustomExpression());
+                    analysisMethod.getUserFunctionsModel().add(userFunction);
+                }
+            }
+        }
+
     }
 
     public static AnalysisMethod createAnalysisMethodFromPhoenixAnalysisMethod(
@@ -507,9 +532,9 @@ public class AnalysisMethod implements Serializable {
     }
     public Set<Report> getReports() { return reportSet; }
 
-    public void refreshReports() throws IOException {
+    public void refreshReports(List<UserFunction> ufList) throws IOException {
         reportSet = new TreeSet<>();
-        reportSet.addAll(Report.generateReportList(methodName, userFunctionsModel));
+        reportSet.addAll(Report.generateReportList(methodName, ufList));
 
     }
 }

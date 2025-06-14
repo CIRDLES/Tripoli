@@ -18,6 +18,7 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTreeInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.DetectorSetup;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -27,6 +28,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -81,7 +83,7 @@ public class MassSpecExtractedData implements Serializable {
         boolean hasBChannels = false;
         // for Lite version
         int cyclesPerBlock = 0;
-        String analysisStartTime = java.time.LocalDateTime.now().toLocalDate().toString();
+        StringBuilder analysisStartTime = new StringBuilder(LocalDateTime.now().toLocalDate().toString());
         for (String[] headerStrings : headerData) {
             switch (headerStrings[0].trim().toUpperCase()) {
                 // All
@@ -95,16 +97,19 @@ public class MassSpecExtractedData implements Serializable {
                         isCorrected = Boolean.parseBoolean(headerStrings[1].trim().toUpperCase().replace("YES", "TRUE"));
                 case "BCHANNELS" ->
                         hasBChannels = Boolean.parseBoolean(headerStrings[1].trim().toUpperCase().replace("YES", "TRUE"));
-                case "TIMEZERO" -> analysisStartTime = headerStrings[1].trim();
-                case "ANALYSISSTART" -> analysisStartTime = headerStrings[1].trim();
+                case "TIMEZERO" -> analysisStartTime = new StringBuilder(headerStrings[1].trim());
+                case "ANALYSISSTART" -> analysisStartTime = new StringBuilder(headerStrings[1].trim());
                 case "CYCLESTOMEASURE" -> cyclesPerBlock = Integer.parseInt(headerStrings[1].trim());
                 case "SAMPLEID" -> {
                     sampleName = headerStrings[1].trim();
                 }
+                // Neptune
+                case "ANALYSIS DATE" -> analysisStartTime = new StringBuilder(headerStrings[1].trim());
+                case "ANALYSIS TIME" -> analysisStartTime.append(" ").append(headerStrings[1].trim());
 
                 // Triton
                 case "DATA VERSION" -> softwareVersion = headerStrings[1].trim();
-                case "DATE" -> analysisStartTime = headerStrings[1].trim();
+                case "DATE" -> analysisStartTime = new StringBuilder(headerStrings[1].trim());
 
                 // Nu
                 case "VERSION NUMBER" -> softwareVersion = headerStrings[1].trim();
@@ -122,14 +127,14 @@ public class MassSpecExtractedData implements Serializable {
 
         Date date = null;
         try {
-            date = DateUtils.parseDate(analysisStartTime,
-                    "yyyy-MM-dd hh:mm:ss", "dd/MM-yyyy", "E d MMMM yyyy hh:mm:ss", "MM/dd/yyyy hh:mm:ss", "dd.MM.yyyy", "MM/dd/yyyy", "yyyy-MM-dd", "y/m/d");
+            date = DateUtils.parseDate(analysisStartTime.toString(),
+                    "yyyy-MM-dd hh:mm:ss", "yyyy-MM-dd h:mm:ss a", "dd/MM-yyyy", "E d MMMM yyyy hh:mm:ss", "MM/dd/yyyy hh:mm:ss", "MM/dd/yyyy h:mm:ss a", "dd.MM.yyyy", "dd.MM.yyyy hh:mm:ss", "MM/dd/yyyy", "yyyy-MM-dd", "y/m/d");
         } catch (Exception e) {
             //
         } finally {
             if (date != null) {
                 DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                analysisStartTime = df.format(date);
+                analysisStartTime = new StringBuilder(df.format(date));
             }
         }
 
@@ -151,7 +156,7 @@ public class MassSpecExtractedData implements Serializable {
                 methodName,
                 isCorrected,
                 hasBChannels,
-                analysisStartTime,
+                analysisStartTime.toString(),
                 cyclesPerBlock
         );
     }
@@ -258,6 +263,45 @@ public class MassSpecExtractedData implements Serializable {
         for (Integer blockID : blocksDataLite.keySet()) {
             blocksDataLite.put(blockID, blocksDataLite.get(blockID).expandForUraniumOxideCorrection(r270_267ColumnIndex, r265_267ColumnIndex, r18O_16O));
         }
+    }
+
+    /**
+     * Checks if the expression already exists in the cycle data headers. If it does, will replace the data with a new evaluation
+     * of the expression tree. Otherwise, expands the cycle data table to add a new column populated with the evaluated
+     * data for the expression and populates a new column header with the expression name.
+     * @param customExpressionTree valid expression tree with name set to expected header name
+     */
+    public void populateCycleDataForCustomExpression(ExpressionTreeInterface customExpressionTree){
+        Double[][] expressionData = customExpressionTree.eval(columnHeaders, blocksDataLite);
+
+        String newColumnHeader = customExpressionTree.getName().split(" \\( = ")[0];
+        int columnIndex = Arrays.asList(columnHeaders).indexOf(newColumnHeader);
+
+        for (Integer blockID : blocksDataLite.keySet()) {
+            blocksDataLite.put(blockID, blocksDataLite.get(blockID).populateColumnForCustomExpression(expressionData[blockID-1], columnIndex));
+        }
+
+        if (columnIndex == -1) {
+            String[] columnHeadersExpanded = new String[columnHeaders.length+1];
+            System.arraycopy(columnHeaders, 0, columnHeadersExpanded, 0, columnHeaders.length);
+            columnHeadersExpanded[columnHeaders.length] = newColumnHeader;
+            columnHeaders = columnHeadersExpanded;
+        }
+
+    }
+
+    public void removeCycleDataForDeletedExpression(ExpressionTreeInterface customExpressionTree){
+        int columnIndex = Arrays.asList(columnHeaders).indexOf(customExpressionTree.getName().split(" \\( = ")[0]);
+
+        for (Integer blockID : blocksDataLite.keySet()) {
+            blocksDataLite.put(blockID, blocksDataLite.get(blockID).removeColumnForCustomExpression(columnIndex));
+        }
+
+        String[] columnHeadersReduced = new String[columnHeaders.length - 1];
+        System.arraycopy(columnHeaders, 0, columnHeadersReduced, 0, columnIndex);
+        System.arraycopy(columnHeaders, columnIndex + 1, columnHeadersReduced, columnIndex, columnHeaders.length - columnIndex - 1);
+
+        columnHeaders = columnHeadersReduced;
     }
 
     public MassSpectrometerContextEnum getMassSpectrometerContext() {

@@ -37,6 +37,7 @@ import javafx.scene.layout.HBox;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
@@ -54,6 +55,7 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.AnalysisMethodPersistance;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.jetbrains.annotations.Nullable;
@@ -361,7 +363,7 @@ public class TripoliGUIController implements Initializable {
 
     @FXML
     public void buildCustomReportMenu() throws TripoliException, IOException {
-        analysis.getAnalysisMethod().refreshReports();
+        analysis.getAnalysisMethod().refreshReports(analysis.getUserFunctions());
         Set<Report> reportTreeSet = analysis.getMethod().getReports();
         customReportMenu.getItems().clear();
         for (Report report : reportTreeSet) {
@@ -428,6 +430,9 @@ public class TripoliGUIController implements Initializable {
             if (null != tripoliSession) {
                 SessionManagerController.tripoliSession = tripoliSession;
                 tripoliPersistentState.updateSessionListMRU(sessionFile);
+
+                handleExpressionsInSavedSession();
+
                 TripoliGUI.updateStageTitle(sessionFileName);
                 buildSessionMenuMRU();
                 tripoliPersistentState.setMRUSessionFolderPath(sessionFile.getParent());
@@ -442,6 +447,84 @@ public class TripoliGUIController implements Initializable {
                 throw new IOException();
             }
         }
+    }
+
+    public static void handleExpressionsInSavedSession() {
+        List<AnalysisInterface> listOfAnalyses = tripoliSession.getMapOfAnalyses().values().stream().toList();
+
+        boolean expressionMismatch = false;
+        boolean proceed = true;
+
+        for (AnalysisInterface analysisSingleton : listOfAnalyses) {
+            List<UserFunction> customExpressionsInAnalysis = analysisSingleton.getUserFunctions().stream()
+                    .filter(UserFunction::isTreatAsCustomExpression)
+                    .toList();
+
+            AnalysisMethodPersistance analysisMethodPersistance =
+                    tripoliPersistentState.getMapMethodNamesToDefaults()
+                            .get(analysisSingleton.getMassSpecExtractedData().getHeader().methodName());
+
+            if (analysisMethodPersistance == null) {
+                proceed = false;
+                break;
+            }
+
+            List<UserFunction> customExpressionsInMethod = analysisMethodPersistance.getExpressionUserFunctionList();
+
+            // Check: Analysis has something not in Method
+            for (UserFunction customExpression : customExpressionsInAnalysis) {
+                boolean foundInMethod = customExpressionsInMethod.stream()
+                        .anyMatch(methodExpr -> methodExpr.getName().equals(customExpression.getName()));
+                if (!foundInMethod) {
+                    expressionMismatch = true;
+                    break;
+                }
+            }
+
+            // Check: Method has something not in Analysis
+            for (UserFunction methodExpression : customExpressionsInMethod) {
+                boolean foundInAnalysis = customExpressionsInAnalysis.stream()
+                        .anyMatch(analysisExpr -> analysisExpr.getName().equals(methodExpression.getName()));
+                if (!foundInAnalysis) {
+                    expressionMismatch = true;
+                    break;
+                }
+            }
+
+            if (expressionMismatch) {
+                break;
+            }
+        }
+
+
+
+        if (expressionMismatch){
+            proceed = TripoliMessageDialog.showChoiceDialog(
+                    "The Custom Expressions in this Session differ from those saved for the Method. \n" +
+                            "Would you like to refresh the Custom Expressions with the saved defaults?", primaryStageWindow);
+        }
+
+        if (proceed) {
+            for (AnalysisInterface analysisSingleton : listOfAnalyses) {
+                List<UserFunction> functionsToRemove = analysisSingleton.getUserFunctions().stream()
+                        .filter(UserFunction::isTreatAsCustomExpression)
+                        .toList();
+
+                analysisSingleton.getUserFunctions().removeAll(functionsToRemove);
+
+                AnalysisMethodPersistance analysisMethodPersistance =
+                        tripoliPersistentState.getMapMethodNamesToDefaults().get(analysisSingleton.getMassSpecExtractedData().getHeader().methodName());
+
+                List<UserFunction> customExpressionInAnalysisMethod = analysisMethodPersistance.getExpressionUserFunctionList();
+
+                analysisSingleton.getUserFunctions().addAll(customExpressionInAnalysisMethod);
+
+                tripoliSession.setExpressionRefreshed(true);
+            }
+        } else {
+            tripoliSession.setExpressionRefreshed(false);
+        }
+
     }
 
     public void openDemonstrationSessionMenuItemAction() throws IOException, TripoliException {
@@ -471,6 +554,7 @@ public class TripoliGUIController implements Initializable {
 
     private void saveAsSession() throws TripoliException {
         try {
+            tripoliSession.setExpressionRefreshed(false);
             File sessionFile = FileHandlerUtil.saveSessionFile(tripoliSession, primaryStageWindow);
             if (null != sessionFile) {
                 sessionFileName = sessionFile.getPath();

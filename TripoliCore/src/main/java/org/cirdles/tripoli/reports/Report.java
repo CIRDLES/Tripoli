@@ -254,19 +254,36 @@ public class Report implements Serializable, Comparable<Report> {
         File reportCSVFile = getReportCSVFile(listOfAnalyses, sessionName);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(reportCSVFile))) {
-            Set<ReportCategory> categories = this.getCategories();
+            Set<ReportCategory> categories = this.getCategories().stream()
+                    .filter(ReportCategory::isVisible)
+                    .sorted(Comparator.comparingInt(ReportCategory::getPositionIndex))
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+
             // Collect all unique columns across categories
-            List<ReportColumn> allColumns = categories.stream()
+            List<ReportColumn> visibleColumns = categories.stream()
                     .flatMap(category -> category.getColumns().stream())
+                    .filter(ReportColumn::isVisible)
+                    .map(column -> {
+                        String name = column.getColumnName();
+                        if (name.contains(" = ( ")) {
+                            name = name.split("\\( = ")[0]; // Split and keep the first part
+                        }
+
+                        // Create a new ReportColumn if needed, or mutate if allowed
+                        ReportColumn updatedColumn = new ReportColumn(column);
+                        updatedColumn.setColumnName(name);
+
+                        return updatedColumn;
+                    })
                     .toList();
 
             // Header row with proper naming for user function columns
             List<String> headers = new ArrayList<>();
-            for (ReportColumn column : allColumns) {
+            for (ReportColumn column : visibleColumns) {
                 if (column.isUserFunction()) {
                     headers.add(column.getColumnName() + " Mean");
+                    headers.add("StdErr");
                     headers.add("StdDev");
-                    headers.add("Variance");
                 } else {
                     headers.add(column.getColumnName());
                 }
@@ -281,7 +298,7 @@ public class Report implements Serializable, Comparable<Report> {
                     Analysis thisAnalysis = (Analysis) analysis;
                     List<String> rowValues = new ArrayList<>();
 
-                    for (ReportColumn column : allColumns) {
+                    for (ReportColumn column : visibleColumns) {
                         String columnData = column.retrieveData(thisAnalysis);
 
                         // If user function, split the comma-separated values
