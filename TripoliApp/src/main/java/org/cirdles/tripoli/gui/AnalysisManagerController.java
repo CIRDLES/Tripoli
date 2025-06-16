@@ -1666,6 +1666,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     public void exportToClipboardAction() {
+        AllBlockInitForDataLiteOne.initBlockModels(analysis);
         String clipBoardString = analysis.prepareFractionForClipboardExport();
         Clipboard clipboard = Clipboard.getSystemClipboard();
         ClipboardContent content = new ClipboardContent();
@@ -1763,7 +1764,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             TripoliMessageDialog.showWarningDialog("Please enter an expression.", TripoliGUI.primaryStage);
             return;
         }
-        if (expressionName.split(" \\( = ").length > 1) {
+        if (expressionName.split(" \\( = ").length > 2 && currentMode.get() == Mode.CREATE) {
             TripoliMessageDialog.showWarningDialog("Expression name cannot contain \" ( = \".", TripoliGUI.primaryStage);
             return;
         }
@@ -1858,7 +1859,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     .orElse(null);
             if (existingFunction != null && existingFunction.isTreatAsIsotopicRatio()) {
                 userFunction.setTreatAsIsotopicRatio(true);
-                userFunction.getCustomExpression().setName(userFunction.getCustomExpression().getName() + " ( = " + ufName + " )");
+                String ratioName = userFunction.getCustomExpression().getName().split(" \\( = ")[0];
+                userFunction.getCustomExpression().setName(ratioName + " ( = " + ufName + " )");
                 expressionNameTextField.setText(userFunction.getCustomExpression().getName());
             } else {
                 userFunction.setTreatAsIsotopicRatio(false);
