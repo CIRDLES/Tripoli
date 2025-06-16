@@ -694,7 +694,7 @@ public class ReportBuilderController {
         }
     }
 
-    public void saveOnAction() throws TripoliException {
+    public void saveOnAction() {
         boolean proceed;
         reportNameTextField.setText(reportNameTextField.getText().replaceAll("\\*", ""));
         String reportName = reportNameTextField.getText();
@@ -702,15 +702,17 @@ public class ReportBuilderController {
             TripoliMessageDialog.showWarningDialog("Report must have a name", reportBuilderStage);
         } else if (currentReport.FIXED_REPORT_NAME.equals(reportName)) {
             TripoliMessageDialog.showWarningDialog("Report name: " + currentReport.FIXED_REPORT_NAME + " is restricted", reportBuilderStage);
-        } else if (currentReport.getTripoliReportFile(reportName).exists() && unsavedChangesLabel.isVisible()) {
-            proceed = TripoliMessageDialog.showOverwriteDialog(currentReport.getTripoliReportFile(), reportBuilderStage);
+        } else if (analysis.getAnalysisMethod().getReports().stream()
+                .anyMatch(obj -> obj.getReportName().equals(reportName))
+                && unsavedChangesLabel.isVisible()) {
+            proceed = TripoliMessageDialog.showOverwriteReportDialog(reportName, reportBuilderStage);
             if (proceed) {saveReport(reportName);}
         } else {
             saveReport(reportName);
         }
     }
 
-    private void saveReport(String reportName) throws TripoliException {
+    private void saveReport(String reportName){
         currentReport.setReportName(reportName);
         currentReport.serializeReport();
         initalReport = new Report(currentReport); // Reset saved state
@@ -726,7 +728,8 @@ public class ReportBuilderController {
     }
 
     public void deleteOnAction() {
-        if (!currentReport.getTripoliReportFile().exists()){
+        if (!analysis.getAnalysisMethod().getReports().stream()
+                .anyMatch(obj -> obj.getReportName().equals(currentReport.getReportName()))){
             TripoliMessageDialog.showWarningDialog("Report does not exist!", reportBuilderStage);
             return;
         }

@@ -64,7 +64,7 @@ public class AnalysisMethod implements Serializable {
     private BiMap<IsotopicRatio, IsotopicRatio> biMapOfRatiosAndInverses = HashBiMap.create();
     private List<UserFunction> userFunctionsModel;
     private boolean useLinearKnots;
-    private Set<Report> reportSet;
+    private List<Report> reportList;
 
     private AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
         this(methodName, massSpectrometerContext, BaselineTable.createEmptyBaselineTable(), SequenceTable.createEmptySequenceTable());
@@ -530,11 +530,9 @@ public class AnalysisMethod implements Serializable {
 
         Collections.sort(derivedIsotopicRatiosList, (ratio1, ratio2) -> ratio1.getNumerator().compareTo(ratio2.getNumerator()));
     }
-    public Set<Report> getReports() { return reportSet; }
+    public List<Report> getReports() { return reportList; }
 
-    public void refreshReports(List<UserFunction> ufList) throws IOException {
-        reportSet = new TreeSet<>();
-        reportSet.addAll(Report.generateReportList(methodName, ufList));
-
+    public void refreshReports(List<UserFunction> ufList) {
+        reportList = Report.getReportList(methodName, ufList);
     }
 }

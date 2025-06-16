@@ -88,25 +88,20 @@ public class TripoliMessageDialog extends Alert {
 
         return (result.get() == ButtonType.OK);
     }
-    public static boolean showOverwriteDialog(File file, Window owner) {
-        if (null == file) {
-            Alert dialog = new TripoliMessageDialog(AlertType.WARNING,
-                    "Path is null!",
-                    "Check permissions ...",
-                    owner);
-            dialog.showAndWait();
-        } else {
+    public static boolean showOverwriteReportDialog(String name, Window owner) {
+        try{
             Alert dialog = new TripoliMessageDialog(AlertType.CONFIRMATION,
-                    showLongfilePath(file.getAbsolutePath()),
-                     "Overwrite file?:",
+                    "Report : " + name + " already exists.  Do you want to overwrite it?",
+                     "Overwrite Report?",
                     owner);
             dialog.getButtonTypes().setAll(ButtonType.NO, ButtonType.YES);
             dialog.setOnCloseRequest(event -> {dialog.close();});
             Optional<ButtonType> result = dialog.showAndWait();
 
             return (result.get() == ButtonType.YES);
+        } catch (Exception ignored){
+            return false;
         }
-        return false;
     }
 
     public static String showSavedAsDialog(File file, Window owner) {

@@ -364,7 +364,7 @@ public class TripoliGUIController implements Initializable {
     @FXML
     public void buildCustomReportMenu() throws TripoliException, IOException {
         analysis.getAnalysisMethod().refreshReports(analysis.getUserFunctions());
-        Set<Report> reportTreeSet = analysis.getMethod().getReports();
+        List<Report> reportTreeSet = analysis.getMethod().getReports();
         customReportMenu.getItems().clear();
         for (Report report : reportTreeSet) {
             if (report.getReportName().equals(report.FIXED_REPORT_NAME)) {
