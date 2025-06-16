@@ -64,7 +64,7 @@ public class AnalysisMethod implements Serializable {
     private BiMap<IsotopicRatio, IsotopicRatio> biMapOfRatiosAndInverses = HashBiMap.create();
     private List<UserFunction> userFunctionsModel;
     private boolean useLinearKnots;
-    private List<Report> reportList;
+    private static List<Report> reportList;
 
     private AnalysisMethod(String methodName, MassSpectrometerContextEnum massSpectrometerContext) {
         this(methodName, massSpectrometerContext, BaselineTable.createEmptyBaselineTable(), SequenceTable.createEmptySequenceTable());
@@ -169,7 +169,7 @@ public class AnalysisMethod implements Serializable {
         }
         populateCustomExpressionFunctions(massSpecExtractedData, analysisMethod);
 
-        analysisMethod.refreshReports(analysisMethod.getUserFunctionsModel());
+        reportList = Report.getReportList(analysisMethod.methodName);
 
         return analysisMethod;
     }
@@ -532,7 +532,4 @@ public class AnalysisMethod implements Serializable {
     }
     public List<Report> getReports() { return reportList; }
 
-    public void refreshReports(List<UserFunction> ufList) {
-        reportList = Report.getReportList(methodName, ufList);
-    }
 }

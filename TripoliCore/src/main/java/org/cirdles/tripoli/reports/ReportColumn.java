@@ -27,8 +27,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
@@ -44,6 +42,7 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
     private boolean visible;
     private String methodName;
     private boolean isUserFunction;
+    private boolean isRatio;
 
     public ReportColumn(String title, int positionIndex, String methodName) {
         columnName = title;
@@ -51,12 +50,14 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
         visible = true;
         this.methodName = methodName;
         isUserFunction = false;
+        isRatio = false;
     }
-    public ReportColumn(String title, int positionIndex, boolean isUserFunction) {
+    public ReportColumn(String title, int positionIndex, boolean isUserFunction, boolean isRatio) {
         columnName = title;
         this.positionIndex = positionIndex;
         visible = true;
         this.isUserFunction = isUserFunction;
+        this.isRatio = isRatio;
     }
     public ReportColumn(ReportColumn otherColumn) {
         columnName = otherColumn.columnName;
@@ -65,6 +66,7 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
         FIXED_COLUMN_NAME = otherColumn.FIXED_COLUMN_NAME;
         methodName = otherColumn.methodName;
         isUserFunction = otherColumn.isUserFunction;
+        isRatio = otherColumn.isRatio;
     }
 
     public String getColumnName() { return columnName; }
@@ -79,6 +81,7 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
     public int getPositionIndex() { return positionIndex; }
 
     public boolean isUserFunction() { return isUserFunction; }
+    public boolean isRatio() { return isRatio; }
 
     /**
      * Use the supplied analysis to extract data for the current column. Handles user function based columns as well as
@@ -117,12 +120,10 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
                                 MathUtilities.roundedToSize(geoStats.geoMean(), 4),
                                 MathUtilities.roundedToSize(
                                         (geoStats.geoMeanPlusOneStdErr() - geoStats.geoMean()) / geoStats.geoMean() * 100.0,
-                                        4) +
-                                        "%",
+                                        4),
                                 MathUtilities.roundedToSize(
                                         (geoStats.geoMeanPlusOneStdDev() - geoStats.geoMean()) / geoStats.geoMean() * 100.0,
-                                        4) +
-                                        "%"
+                                        4)
                         );
                     } else {
                         return String.format(

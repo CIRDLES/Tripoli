@@ -46,7 +46,6 @@ import org.cirdles.tripoli.reports.ReportColumn;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
-import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.awt.*;
 import java.io.File;
@@ -567,8 +566,8 @@ public class ReportBuilderController {
         StringBuilder result = new StringBuilder();
 
         if (column.isUserFunction()){
-            if (column.getColumnName().contains(" ( ")){
-                result.append(String.format("%-35s %-25s %-10s %-10s%n", analysisNameColumn.getColumnName(), column.getColumnName().split(" \\( = ")[0] +" Mean", "StdErr", "StdDev"));
+            if (column.isRatio()){
+                result.append(String.format("%-35s %-25s %-10s %-10s%n", analysisNameColumn.getColumnName(), column.getColumnName().split(" \\( = ")[0] +" Mean", "%StdErr", "%StdDev"));
             } else {
                 result.append(String.format("%-35s %-25s %-10s %-10s%n", analysisNameColumn.getColumnName(), column.getColumnName()+" Mean", "StdErr", "StdDev"));
             }
@@ -595,7 +594,7 @@ public class ReportBuilderController {
     }
 
     private void populateAccordion() {
-        Report accReport = Report.createFullReport("", analysis.getMethod().getMethodName(), analysis.getUserFunctions());
+        Report accReport = Report.createFullReport("Full Report", analysis);
 
         for (ReportCategory cat : accReport.getCategories()) {
             ListView<ReportColumn> accColumnlv = new ListView<>();
@@ -685,10 +684,10 @@ public class ReportBuilderController {
         boolean proceed = proceedWithUnsavedDialog();
         if (proceed) {
             String analysisMethodName = analysis.getMethod().getMethodName();
-            if (event.getSource() == newFullButton){ // Generate full report template
-                setCurrentReport(Report.createFullReport(analysisMethodName.replaceAll(" ", "_"), analysisMethodName, analysis.getUserFunctions()));
+            if (event.getSource() == newFullButton){ // Generate a full report template
+                setCurrentReport(Report.createFullReport(analysisMethodName, analysis));
             } else { // Generate Blank Report Template
-                setCurrentReport(Report.createBlankReport(analysisMethodName.replaceAll(" ", "_"), analysisMethodName));
+                setCurrentReport(Report.createBlankReport(analysisMethodName, analysisMethodName));
             }
             deleteButton.setDisable(true);
         }

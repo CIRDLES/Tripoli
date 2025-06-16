@@ -15,7 +15,6 @@
  */
 
 package org.cirdles.tripoli.gui;
-//import org.cirdles.MakeSqr;
 
 import jakarta.xml.bind.JAXBException;
 import javafx.application.Platform;
@@ -363,20 +362,19 @@ public class TripoliGUIController implements Initializable {
 
     @FXML
     public void buildCustomReportMenu() throws TripoliException, IOException {
-        analysis.getAnalysisMethod().refreshReports(analysis.getUserFunctions());
         List<Report> reportTreeSet = analysis.getMethod().getReports();
         customReportMenu.getItems().clear();
+
+        Report fullReport = Report.createFullReport("Full Report", analysis);
+        MenuItem menuItem = new MenuItem(fullReport.getReportName());
+        menuItem.setOnAction((ActionEvent t) -> {openCustomReport(fullReport);});
+        customReportMenu.getItems().add(0, menuItem);
+
         for (Report report : reportTreeSet) {
-            if (report.getReportName().equals(report.FIXED_REPORT_NAME)) {
-                MenuItem menuItem = new MenuItem(report.getReportName());
-                menuItem.setOnAction((ActionEvent t) -> {openCustomReport(report);});
-                customReportMenu.getItems().add(0, menuItem);
-                customReportMenu.getItems().add(1, new SeparatorMenuItem());
-            } else {
-                MenuItem menuItem = new MenuItem(report.getReportName());
-                menuItem.setOnAction((ActionEvent t) -> {openCustomReport(report);});
-                customReportMenu.getItems().add(menuItem);
-            }
+            customReportMenu.getItems().add(1, new SeparatorMenuItem());
+            menuItem = new MenuItem(report.getReportName());
+            menuItem.setOnAction((ActionEvent t) -> {openCustomReport(report);});
+            customReportMenu.getItems().add(menuItem);
         }
     }
 

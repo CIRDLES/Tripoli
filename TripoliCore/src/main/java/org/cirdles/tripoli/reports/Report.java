@@ -62,9 +62,8 @@ public class Report implements Serializable, Comparable<Report> {
                 .collect(Collectors.toCollection(TreeSet::new));
     }
 
-    // Assumes Report Names will never contain underscores naturally
-    public String getReportName() { return this.reportName.replaceAll("_", " ").trim(); }
-    public void setReportName(String reportName) { this.reportName = reportName.replaceAll("[\\\\/:*?\"<>| ]", "_").trim(); }
+    public String getReportName() { return this.reportName; }
+    public void setReportName(String reportName) { this.reportName = reportName; }
 
     public String getMethodName() { return this.methodName; }
 
@@ -101,20 +100,21 @@ public class Report implements Serializable, Comparable<Report> {
         categorySet.add(category);
     }
 
-    public static List<Report> getReportList(String methodName, List<UserFunction> userFunctionList) {
+    public static List<Report> getReportList(String methodName) {
         TripoliPersistentState tripoliPersistentState;
+        AnalysisMethodPersistance methodPersistence;
         try {
             tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+            methodPersistence = tripoliPersistentState.getMapMethodNamesToDefaults().get(methodName);
         } catch (TripoliException e) {
             e.printStackTrace();
             return new ArrayList<>();
         }
-        AnalysisMethodPersistance methodPersistence =
-                tripoliPersistentState.getMapMethodNamesToDefaults().get(methodName);
-
-        List<Report> methodReports = methodPersistence.getReportList();
-        if ( methodReports.isEmpty()){
-            methodReports.add(Report.createFullReport("Full Report", methodName, userFunctionList));
+        List<Report> methodReports;
+        if (methodPersistence != null){
+             methodReports = methodPersistence.getReportList();
+        } else {
+            methodReports = new ArrayList<>();
         }
         return methodReports;
     }
@@ -135,21 +135,16 @@ public class Report implements Serializable, Comparable<Report> {
         return new Report(reportName, methodName, categorySet);
     }
 
-    /**
-     * Creates a full report which contains every possible (excluding custom) category and column for a given method
-     * @param reportName Name of the report
-     * @param methodName
-     * @param ufList
-     * @return
-     */
-    public static Report createFullReport(String reportName, String methodName, List<UserFunction> ufList) {
+    public static Report createFullReport(String reportName, AnalysisInterface analysis) {
+        List<UserFunction> ufList = analysis.getUserFunctions();
+
         Set<ReportCategory> categories = new TreeSet<>();
         categories.add(ReportCategory.generateAnalysisInfo());
         categories.add(ReportCategory.generateIsotopicRatios(ufList));
         categories.add(ReportCategory.generateUserFunctions(ufList));
         categories.add(ReportCategory.generateCustomExpressions(ufList));
 
-        return new Report(reportName, methodName, categories);
+        return new Report(reportName, analysis.getMethod().getMethodName(), categories);
     }
 
     public void serializeReport() {
@@ -238,7 +233,11 @@ public class Report implements Serializable, Comparable<Report> {
             // Header row with proper naming for user function columns
             List<String> headers = new ArrayList<>();
             for (ReportColumn column : visibleColumns) {
-                if (column.isUserFunction()) {
+                if (column.isUserFunction() && column.isRatio()) {
+                    headers.add(column.getColumnName() + " Mean");
+                    headers.add("%StdErr");
+                    headers.add("%StdDev");
+                } else if (column.isUserFunction()){
                     headers.add(column.getColumnName() + " Mean");
                     headers.add("StdErr");
                     headers.add("StdDev");
