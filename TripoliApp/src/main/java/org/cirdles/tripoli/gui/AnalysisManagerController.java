@@ -1666,6 +1666,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     public void exportToClipboardAction() {
+        AllBlockInitForDataLiteOne.initBlockModels(analysis);
         String clipBoardString = analysis.prepareFractionForClipboardExport();
         Clipboard clipboard = Clipboard.getSystemClipboard();
         ClipboardContent content = new ClipboardContent();
@@ -1763,7 +1764,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             TripoliMessageDialog.showWarningDialog("Please enter an expression.", TripoliGUI.primaryStage);
             return;
         }
-        if (expressionName.split(" \\( = ").length > 1) {
+        if (expressionName.split(" \\( = ").length > 1 && currentMode.get() == Mode.CREATE) {
             TripoliMessageDialog.showWarningDialog("Expression name cannot contain \" ( = \".", TripoliGUI.primaryStage);
             return;
         }
@@ -1772,9 +1773,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             return;
         }
 
+        String searchName = expressionName.split(" \\( = ")[0];
         List<UserFunction> userFunctions = analysis.getUserFunctions();
         UserFunction existingFunction = userFunctions.stream()
-                .filter(uf -> uf.getName().equalsIgnoreCase(expressionName))
+                .filter(uf -> uf.getName().equalsIgnoreCase(searchName))
                 .findFirst()
                 .orElse(null);
 
@@ -1784,7 +1786,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             handleNewExpression(expressionName, userFunctions, tripoliPersistentState);
         }
         populateAnalysisMethodColumnsSelectorPane();
-        analysis.getMapOfBlockIdToRawDataLiteOne().clear(); // reset map for new data
+        analysis.getMapOfBlockIdToRawDataLiteOne().clear();
         expressionStateManager.clear();
         currentMode.set(Mode.VIEW);
 
@@ -1806,6 +1808,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         expressionTree.setName(expressionName);
 
         existingFunction.setCustomExpression(expressionTree);
+        customExpressionsList.removeIf(e -> e.getName().equals(expressionTree.getName()));
         checkExpressionForRenamedRatio(existingFunction);
         existingFunction.getMapBlockIdToBlockCyclesRecord().clear();
 
@@ -1816,7 +1819,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
 
         // replace old expression in list
-        customExpressionsList.removeIf(e -> e.getName().equals(expressionTree.getName()));
         customExpressionsList.add(expressionTree);
 
     }
@@ -1858,10 +1860,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     .orElse(null);
             if (existingFunction != null && existingFunction.isTreatAsIsotopicRatio()) {
                 userFunction.setTreatAsIsotopicRatio(true);
-                userFunction.getCustomExpression().setName(userFunction.getCustomExpression().getName() + " ( = " + ufName + " )");
+                String ratioName = userFunction.getCustomExpression().getName().split(" \\( = ")[0];
+                userFunction.getCustomExpression().setName(ratioName + " ( = " + ufName + " )");
                 expressionNameTextField.setText(userFunction.getCustomExpression().getName());
+
             } else {
                 userFunction.setTreatAsIsotopicRatio(false);
+
             }
         }
     }
