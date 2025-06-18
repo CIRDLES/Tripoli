@@ -86,7 +86,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     private double zoomBoxY;
     private boolean ignoreRejects;
 
-    AnalysisBlockCyclesPlotOG(
+    private AnalysisBlockCyclesPlotOG(
             AnalysisInterface analysis,
             Rectangle bounds,
             UserFunction userFunction,
@@ -468,7 +468,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     double minusSigmaPct = keyValues.get("minusSigmaPct");
                     double geoMeanPlusOneStandardDeviation = keyValues.get("geoMeanPlusOneStandardDeviation");
                     int countOfTrailingDigitsForStdErrPct = keyValues.get("countOfTrailingDigitsForStdErrPct").intValue();
-                    int countOfTrailingDigitsForOneSigmaPct = keyValues.get("countOfTrainlingDigitsForOneSigmaPct").intValue();
+                    int countOfTrailingDigitsForOneSigmaPct = keyValues.get("countOfTrailingDigitsForOneSigmaPct").intValue();
 
                     String meanAsString;
                     String errPctString;
