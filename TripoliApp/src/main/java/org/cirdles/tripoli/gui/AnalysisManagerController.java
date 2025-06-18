@@ -1196,13 +1196,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 currentMode.isNotEqualTo(Mode.VIEW).or(customExpressionLV.getSelectionModel().selectedItemProperty().isNull())
         );
         cancelExpressionButton.disableProperty().bind(currentMode.isEqualTo(Mode.VIEW));
-        /*
-        saveExpressionButton.disableProperty().bind( // Enabled if has changes and be a valid expression
-                expressionStateManager.hasChangesProperty().not()
-                        .or(expressionInvalidLabel.visibleProperty()).or(expressionString.isEmpty())
-                        .or(currentMode.isEqualTo(Mode.EDIT).and(selectedExpressionName.isNotEqualTo(expressionNameTextField.getText())))
-        );
-         */
+
         saveExpressionButton.disableProperty().bind(
                 expressionString.isEmpty()
                         .or(expressionInvalidLabel.visibleProperty())
@@ -1214,10 +1208,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                                                                 selectedExpressionName.isNotEqualTo(expressionNameTextField.textProperty())
                                                         )
                                         )
+                                        .or(
+                                                editAsText
+                                                        .and(expressionInvalidLabel.visibleProperty().not())
+                                        )
                                         .not()
                         )
         );
-
 
 
         deleteExpressionButton.disableProperty().bind( // Enabled if expression selected or editing
