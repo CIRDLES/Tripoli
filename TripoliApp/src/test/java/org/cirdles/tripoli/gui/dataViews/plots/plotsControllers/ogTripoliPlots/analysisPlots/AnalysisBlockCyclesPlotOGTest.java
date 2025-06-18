@@ -5,7 +5,9 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
+import java.util.Map;
 
+import static java.util.Map.entry;
 import static org.cirdles.tripoli.utilities.mathUtilities.FormatterForSigFigN.countOfTrailingDigitsForSigFig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -15,10 +17,10 @@ public class AnalysisBlockCyclesPlotOGTest {
     /**
      * A modified version of calcSigmaPctsCM from AnalysisBlockCyclesPlotOG
      * for testing purposes.
-     * geometricMeanStatsRecord determined from observing values with the debugger.
+     * geometricMeanStatsRecord determined from observing values with the debugger with NBS981 230024b-154.TIMSDP.
      * @return
      */
-    HashMap<String, Double> calcSigmaPctsCM() {
+    private HashMap<String, Double> calcSigmaPctsCM() {
         HashMap<String, Double> geometricMeanStatsRecord = new HashMap<>();
         geometricMeanStatsRecord.put("geoMean", 0.05932789573477027);
         geometricMeanStatsRecord.put("geoMeanPlusOneStdDev", 0.05942628541058665);
@@ -80,6 +82,41 @@ public class AnalysisBlockCyclesPlotOGTest {
         for (String key : expectedValues.keySet()) {
             assertEquals(expectedValues.get(key), actualValues.get(key));
         }
+    }
+
+    /**
+     * A modified version of calcPlotStatsCM from AnalysisBlockCyclesPlotOG
+     * for testing purposes.
+     * mean, stdDev, and stdErr determined from observing values with the debugger with NBS981 230024b-154.TIMSDP.
+     * @return
+     */
+    private HashMap<String, Double> calcPlotStatsCM() {
+        double mean = -2.824675666477416, stdDev = 0.001657031312585908, stdErr = 1.1601539728124193E-4;
+        double meanPlusOneStandardDeviation = mean + stdDev;
+        double meanPlusTwoStandardDeviation = mean + 2.0 * stdDev;
+        double meanPlusTwoStandardError = mean + 2.0 * stdErr;
+        double meanMinusOneStandardDeviation = mean - stdDev;
+        double meanMinusTwoStandardDeviation = mean - 2.0 * stdDev;
+        double meanMinusTwoStandardError = mean - 2.0 * stdErr;
+
+        HashMap<String, Double> output = new HashMap<>(Map.ofEntries(
+                entry("mean", mean),
+                entry("stdDev", stdDev),
+                entry("stdErr", stdErr),
+                entry("meanPlusOneStandardDeviation", meanPlusOneStandardDeviation),
+                entry("meanPlusTwoStandardDeviation", meanPlusTwoStandardDeviation),
+                entry("meanPlusTwoStandardError", meanPlusTwoStandardError),
+                entry("meanMinusOneStandardDeviation", meanMinusOneStandardDeviation),
+                entry("meanMinusTwoStandardDeviation", meanMinusTwoStandardDeviation),
+                entry("meanMinusTwoStandardError", meanMinusTwoStandardError)
+        ));
+
+        return output;
+    }
+
+    @Test
+    public void calcPlotStatsCMTest() {
+
     }
 
 }
