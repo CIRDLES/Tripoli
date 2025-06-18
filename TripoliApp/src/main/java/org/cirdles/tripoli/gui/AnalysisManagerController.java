@@ -1797,7 +1797,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
         boolean proceed = true;
         if (currentMode.get().equals(Mode.EDIT) && !selectedExpressionName.get().equals(expressionName)) {
-            proceed = TripoliMessageDialog.showChoiceDialog("Change expression name from \"" + selectedExpressionName.get() + "\" to \"" + expressionName + "\"?", TripoliGUI.primaryStage);
+            proceed = showChoiceDialog("Change expression name from \"" + selectedExpressionName.get() + "\" to \"" + expressionName + "\"?", TripoliGUI.primaryStage);
         }
         if (!proceed) {
             return;
@@ -1875,7 +1875,17 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     private void checkExpressionForRenamedRatio(UserFunction userFunction) {
-        if (expressionTextFlow.getChildren().size() == 1 && expressionTextFlow.getChildren().get(0) instanceof UserFunctionTextNode expressionNode) {
+        List<Node> meaningfulNodes = expressionTextFlow.getChildren().stream()
+                .filter(node -> {
+                    if (node instanceof Text textNode) {
+                        String trimmed = textNode.getText().trim();
+                        return !trimmed.equals("(") && !trimmed.equals(")");
+                    }
+                    return true;
+                })
+                .toList();
+
+        if (meaningfulNodes.size() == 1 && meaningfulNodes.get(0) instanceof UserFunctionTextNode expressionNode) {
             String ufName = expressionNode.getUserFunctionName();
             UserFunction existingFunction = analysis.getUserFunctions().stream()
                     .filter(uf -> uf.getName().equalsIgnoreCase(ufName))
