@@ -46,6 +46,7 @@ import org.cirdles.tripoli.reports.ReportColumn;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
+import org.cirdles.tripoli.utilities.mathUtilities.MathUtilities;
 
 import java.awt.*;
 import java.io.File;
@@ -584,7 +585,13 @@ public class ReportBuilderController {
                     if (column.isUserFunction()){
                         String[] ufString = column.retrieveData(analysis).split(",");
                         if (ufString.length == 1) {ufString = new String[]{ufString[0], "", ""};} // Handle UF error
-                        result.append(String.format("%-35s %-25s %-10s %-10s%n", analysisNameColumn.retrieveData(analysis), ufString[0], ufString[1], ufString[2]) );
+                        result.append(String.format(
+                                "%-35s %-25s %-10s %-10s%n",
+                                analysisNameColumn.retrieveData(analysis),
+                                MathUtilities.roundedToSize(Double.parseDouble(ufString[0]), 4),
+                                MathUtilities.roundedToSize(Double.parseDouble(ufString[1]), 4),
+                                MathUtilities.roundedToSize(Double.parseDouble(ufString[2]), 4))
+                        );
                     } else {
                         result.append(String.format("%-35s %-45s%n", analysisNameColumn.retrieveData(analysis), column.retrieveData(analysis)));
                     }

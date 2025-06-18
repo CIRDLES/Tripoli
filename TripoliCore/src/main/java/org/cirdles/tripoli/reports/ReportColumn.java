@@ -117,20 +117,16 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
 
                         return String.format(
                                 "%s,%s,%s",
-                                MathUtilities.roundedToSize(geoStats.geoMean(), 4),
-                                MathUtilities.roundedToSize(
-                                        (geoStats.geoMeanPlusOneStdErr() - geoStats.geoMean()) / geoStats.geoMean() * 100.0,
-                                        4),
-                                MathUtilities.roundedToSize(
-                                        (geoStats.geoMeanPlusOneStdDev() - geoStats.geoMean()) / geoStats.geoMean() * 100.0,
-                                        4)
+                                geoStats.geoMean(),
+                                (geoStats.geoMeanPlusOneStdErr() - geoStats.geoMean()) / geoStats.geoMean() * 100.0,
+                                (geoStats.geoMeanPlusOneStdDev() - geoStats.geoMean()) / geoStats.geoMean() * 100.0
                         );
                     } else {
                         return String.format(
                                 "%s,%s,%s",
-                                MathUtilities.roundedToSize(stats.cycleModeMean(), 4),
-                                MathUtilities.roundedToSize(stats.cycleModeStandardError(), 4),
-                                MathUtilities.roundedToSize(stats.cycleModeStandardDeviation(), 4)
+                                stats.cycleModeMean(),
+                                stats.cycleModeStandardError(),
+                                stats.cycleModeStandardDeviation()
                         );
                     }
 

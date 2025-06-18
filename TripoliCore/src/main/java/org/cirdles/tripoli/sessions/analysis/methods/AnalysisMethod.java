@@ -530,6 +530,10 @@ public class AnalysisMethod implements Serializable {
 
         Collections.sort(derivedIsotopicRatiosList, (ratio1, ratio2) -> ratio1.getNumerator().compareTo(ratio2.getNumerator()));
     }
-    public List<Report> getReports() { return reportList; }
+    public List<Report> getReports() {
+        if (null == reportList) {
+            reportList = new ArrayList<>();
+        }
+        return reportList; }
 
 }

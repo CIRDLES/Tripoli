@@ -227,10 +227,11 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private final StringProperty expressionString = new SimpleStringProperty();
     private final int EXPRESSION_BUILDER_DEFAULT_FONTSIZE = 15;
     private List<String> listOperators = new ArrayList<>();
-    private ObservableList<ExpressionTreeInterface> customExpressionsList = FXCollections.observableArrayList();
-    private StateManager<String> expressionStateManager = new StateManager<>();
+    private final ObservableList<ExpressionTreeInterface> customExpressionsList = FXCollections.observableArrayList();
+    private final StateManager<String> expressionStateManager = new StateManager<>();
     private final ObjectProperty<Mode> currentMode = new SimpleObjectProperty<>(Mode.EDIT);
-    private ListView<ExpressionTreeInterface> customExpressionLV = new ListView<>();
+    private final ListView<ExpressionTreeInterface> customExpressionLV = new ListView<>();
+    private final StringProperty selectedExpressionName = new SimpleStringProperty();
 
     public static void closePlotWindows() {
         if (null != ogTripoliPreviewPlotsWindow) {
@@ -1165,6 +1166,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         expressionString.addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !makeStringFromExpressionTextNodeList().equals(newValue)) {
                 populateTextFlowFromString(newValue);
+
             }
         });
         expressionTextFlow.getChildren().addListener((ListChangeListener<Node>) change -> {
@@ -1183,7 +1185,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         expressionAsTextBtn.disableProperty().bind(currentMode.isEqualTo(Mode.VIEW));
 
         // Name field
-        expressionNameTextField.editableProperty().bind(currentMode.isEqualTo(Mode.CREATE));
+        expressionNameTextField.editableProperty().bind(currentMode.isNotEqualTo(Mode.VIEW));
 
         // Unsaved Changes label
         expressionUnsavedLabel.visibleProperty().bind(expressionStateManager.hasChangesProperty());
@@ -1194,8 +1196,30 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 currentMode.isNotEqualTo(Mode.VIEW).or(customExpressionLV.getSelectionModel().selectedItemProperty().isNull())
         );
         cancelExpressionButton.disableProperty().bind(currentMode.isEqualTo(Mode.VIEW));
+        /*
         saveExpressionButton.disableProperty().bind( // Enabled if has changes and be a valid expression
-                expressionStateManager.hasChangesProperty().not().or(expressionInvalidLabel.visibleProperty()).or(expressionString.isEmpty()));
+                expressionStateManager.hasChangesProperty().not()
+                        .or(expressionInvalidLabel.visibleProperty()).or(expressionString.isEmpty())
+                        .or(currentMode.isEqualTo(Mode.EDIT).and(selectedExpressionName.isNotEqualTo(expressionNameTextField.getText())))
+        );
+         */
+        saveExpressionButton.disableProperty().bind(
+                expressionString.isEmpty()
+                        .or(expressionInvalidLabel.visibleProperty())
+                        .or(
+                                expressionStateManager.hasChangesProperty()
+                                        .or(
+                                                currentMode.isEqualTo(Mode.EDIT)
+                                                        .and(
+                                                                selectedExpressionName.isNotEqualTo(expressionNameTextField.textProperty())
+                                                        )
+                                        )
+                                        .not()
+                        )
+        );
+
+
+
         deleteExpressionButton.disableProperty().bind( // Enabled if expression selected or editing
                 currentMode.isEqualTo(Mode.CREATE).or(customExpressionLV.getSelectionModel().selectedItemProperty().isNull())
         );
@@ -1717,11 +1741,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         expressionString.set("");
         expressionNameTextField.clear();
         expressionStateManager.save("");
-
     }
 
     public void editCustomExpressionOnAction() {
         currentMode.set(Mode.EDIT);
+        selectedExpressionName.set(customExpressionLV.getSelectionModel().getSelectedItem().getName().split(" \\( = ")[0]);
+        expressionNameTextField.setText(selectedExpressionName.get());
         handleExpressionUpdate(true);
     }
 
@@ -1736,6 +1761,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 }
                 expressionStateManager.clear();
                 currentMode.set(Mode.VIEW);
+                selectedExpressionName.set("");
             }
         } else {
             expressionStateManager.clear();
@@ -1772,18 +1798,44 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             TripoliMessageDialog.showWarningDialog("Expression name cannot contain '[' or ']' .", TripoliGUI.primaryStage);
             return;
         }
+        boolean proceed = true;
+        if (currentMode.get().equals(Mode.EDIT) && !selectedExpressionName.get().equals(expressionName)) {
+            proceed = TripoliMessageDialog.showChoiceDialog("Change expression name from \"" + selectedExpressionName.get() + "\" to \"" + expressionName + "\"?", TripoliGUI.primaryStage);
+        }
+        if (!proceed) {
+            return;
+        }
 
-        String searchName = expressionName.split(" \\( = ")[0];
         List<UserFunction> userFunctions = analysis.getUserFunctions();
-        UserFunction existingFunction = userFunctions.stream()
-                .filter(uf -> uf.getName().equalsIgnoreCase(searchName))
-                .findFirst()
-                .orElse(null);
+        UserFunction existingFunction;
+
+        if (currentMode.get().equals(Mode.EDIT)){
+            String searchName = selectedExpressionName.get();
+            existingFunction = userFunctions.stream()
+                    .filter(uf -> uf.getName().equalsIgnoreCase(searchName))
+                    .findFirst()
+                    .orElse(null);
+        } else { // User typed the existing expression name
+            existingFunction = userFunctions.stream()
+                    .filter(uf -> uf.getName().equalsIgnoreCase(expressionName))
+                    .findFirst()
+                    .orElse(null);
+        }
 
         if (existingFunction != null) {
-            handleExistingExpression(existingFunction, expressionName, tripoliPersistentState);
+            if (!existingFunction.isTreatAsCustomExpression()) {
+                TripoliMessageDialog.showWarningDialog("This name is already a built-in function. Please choose a different name.", TripoliGUI.primaryStage);
+                return;
+            }
+
+            boolean proceed2 = currentMode.get() != Mode.CREATE || showChoiceDialog(
+                    "This name is already a custom expression. Would you like to overwrite?", TripoliGUI.primaryStage);
+            if (!proceed2) return;
+
+            deleteExpression(existingFunction.getName());
+            saveExpression(expressionName, existingFunction.getColumnIndex(), tripoliPersistentState);
         } else {
-            handleNewExpression(expressionName, userFunctions, tripoliPersistentState);
+            saveExpression(expressionName, userFunctions.size(), tripoliPersistentState);
         }
         populateAnalysisMethodColumnsSelectorPane();
         analysis.getMapOfBlockIdToRawDataLiteOne().clear();
@@ -1791,45 +1843,18 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         currentMode.set(Mode.VIEW);
 
         populateAnalysisDataFields();
-    }
-
-    private void handleExistingExpression(UserFunction existingFunction, String expressionName, TripoliPersistentState persistentState) {
-        if (!existingFunction.isTreatAsCustomExpression()) {
-            TripoliMessageDialog.showWarningDialog("This name is already a built-in function. Please choose a different name.", TripoliGUI.primaryStage);
-            return;
-        }
-
-        boolean proceed = currentMode.get() != Mode.CREATE || showChoiceDialog(
-                "This name is already a custom expression. Would you like to overwrite?", TripoliGUI.primaryStage);
-        if (!proceed) return;
-
-        List<String> rpnList = ShuntingYard.infixToPostfix(textFlowToList());
-        ExpressionTreeInterface expressionTree = ExpressionTree.buildTree(rpnList);
-        expressionTree.setName(expressionName);
-
-        existingFunction.setCustomExpression(expressionTree);
-        customExpressionsList.removeIf(e -> e.getName().equals(expressionTree.getName()));
-        checkExpressionForRenamedRatio(existingFunction);
-        existingFunction.getMapBlockIdToBlockCyclesRecord().clear();
-
-        analysis.getMassSpecExtractedData().populateCycleDataForCustomExpression(expressionTree);
-
-        if (tripoliSession.isExpressionRefreshed()){
-            persistentState.updateTripoliPersistentState();
-        }
-
-        // replace old expression in list
-        customExpressionsList.add(expressionTree);
 
     }
 
-    private void handleNewExpression(String expressionName, List<UserFunction> userFunctions, TripoliPersistentState persistentState) {
+    private void saveExpression(String expressionName, int columnIndex, TripoliPersistentState persistentState) {
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+
         List<String> rpnList = ShuntingYard.infixToPostfix(textFlowToList());
         ExpressionTreeInterface expressionTree = ExpressionTree.buildTree(rpnList);
         expressionTree.setName(expressionName);
         customExpressionsList.add(expressionTree);
 
-        UserFunction newFunction = new UserFunction(expressionName, userFunctions.size(), false, true);
+        UserFunction newFunction = new UserFunction(expressionName, columnIndex, false, true);
         newFunction.setTreatAsCustomExpression(true);
         newFunction.setCustomExpression(expressionTree);
         checkExpressionForRenamedRatio(newFunction);
@@ -1848,7 +1873,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
             persistentState.updateTripoliPersistentState();
         }
-
+        expressionAccordion.getPanes().get(0).setExpanded(true);
+        customExpressionLV.getSelectionModel().select(customExpressionsList.indexOf(expressionTree));
     }
 
     private void checkExpressionForRenamedRatio(UserFunction userFunction) {
@@ -1896,39 +1922,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public void deleteCustomExpressionOnAction() {
         boolean proceed = showChoiceDialog("Are you sure you want to delete the expression: " + expressionNameTextField.getText() + "?", TripoliGUI.primaryStage);
         if (proceed) {
-
-            TripoliPersistentState tripoliPersistentState = null;
-            try {
-                tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
-            } catch (TripoliException e) {
-                e.printStackTrace();
-            }
             String expressionName = expressionNameTextField.getText().split(" \\( = ")[0];
-            List<UserFunction> userFunctions = analysis.getUserFunctions();
-
-            UserFunction customExpression = userFunctions.stream().filter(uf -> uf.getName().equalsIgnoreCase(expressionName)).findFirst().get();
-            customExpressionsList.remove(customExpression.getCustomExpression());
-
-            userFunctions.remove(customExpression);
-            analysis.getMassSpecExtractedData().removeCycleDataForDeletedExpression(customExpression.getCustomExpression());
-
-            int columnIndex = customExpression.getColumnIndex();
-            for (UserFunction uf : userFunctions) { // Reindex down
-                if (uf.getColumnIndex() > columnIndex) {
-                    uf.setColumnIndex(uf.getColumnIndex() - 1);
-                }
-            }
-
-            if (tripoliSession.isExpressionRefreshed()){
-                AnalysisMethodPersistance analysisMethodPersistance =
-                        tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
-
-                analysisMethodPersistance.getUserFunctionDisplayMap().remove(customExpression.getName());
-                analysisMethodPersistance.getExpressionUserFunctionList().removeIf(e -> e.getName().equals(customExpression.getName()));
-                tripoliPersistentState.updateTripoliPersistentState();
-            }
-
-            populateAnalysisMethodColumnsSelectorPane();
+            deleteExpression(expressionName);
 
             currentMode.set(Mode.VIEW);
             expressionStateManager.clear();
@@ -1936,8 +1931,43 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             expressionNameTextField.clear();
             customExpressionLV.getSelectionModel().clearSelection();
 
-            populateAnalysisDataFields();
         }
+    }
+
+    private void deleteExpression(String expressionName) {
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+            e.printStackTrace();
+        }
+
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+
+        UserFunction customExpression = userFunctions.stream().filter(uf -> uf.getName().equalsIgnoreCase(expressionName)).findFirst().get();
+        customExpressionsList.remove(customExpression.getCustomExpression());
+
+        userFunctions.remove(customExpression);
+        analysis.getMassSpecExtractedData().removeCycleDataForDeletedExpression(customExpression.getCustomExpression());
+
+        int columnIndex = customExpression.getColumnIndex();
+        for (UserFunction uf : userFunctions) { // Reindex down
+            if (uf.getColumnIndex() > columnIndex) {
+                uf.setColumnIndex(uf.getColumnIndex() - 1);
+            }
+        }
+
+        if (tripoliSession.isExpressionRefreshed()){
+            AnalysisMethodPersistance analysisMethodPersistance =
+                    tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+
+            analysisMethodPersistance.getUserFunctionDisplayMap().remove(customExpression.getName());
+            analysisMethodPersistance.getExpressionUserFunctionList().removeIf(e -> e.getName().equals(customExpression.getName()));
+            tripoliPersistentState.updateTripoliPersistentState();
+        }
+
+        populateAnalysisMethodColumnsSelectorPane();
+        populateAnalysisDataFields();
     }
 
     private List<String> textFlowToList(){

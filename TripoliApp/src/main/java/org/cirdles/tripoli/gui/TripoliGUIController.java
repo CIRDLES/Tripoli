@@ -362,7 +362,7 @@ public class TripoliGUIController implements Initializable {
 
     @FXML
     public void buildCustomReportMenu() throws TripoliException, IOException {
-        List<Report> reportTreeSet = analysis.getMethod().getReports();
+        List<Report> reportTreeList = analysis.getMethod().getReports();
         customReportMenu.getItems().clear();
 
         Report fullReport = Report.createFullReport("Full Report", analysis);
@@ -370,7 +370,7 @@ public class TripoliGUIController implements Initializable {
         menuItem.setOnAction((ActionEvent t) -> {openCustomReport(fullReport);});
         customReportMenu.getItems().add(0, menuItem);
 
-        for (Report report : reportTreeSet) {
+        for (Report report : reportTreeList) {
             customReportMenu.getItems().add(1, new SeparatorMenuItem());
             menuItem = new MenuItem(report.getReportName());
             menuItem.setOnAction((ActionEvent t) -> {openCustomReport(report);});
@@ -450,6 +450,11 @@ public class TripoliGUIController implements Initializable {
     public static void handleExpressionsInSavedSession() {
         List<AnalysisInterface> listOfAnalyses = tripoliSession.getMapOfAnalyses().values().stream().toList();
 
+        StringBuilder expressionDiffReport = new StringBuilder();
+        String headerLeft = "[" + tripoliSession.getSessionName() + "]";
+        String headerRight = "Method Defaults";
+        expressionDiffReport.append(String.format("%-" + 60 + "s%s%n", headerLeft, headerRight));
+
         boolean expressionMismatch = false;
         boolean proceed = true;
 
@@ -458,48 +463,70 @@ public class TripoliGUIController implements Initializable {
                     .filter(UserFunction::isTreatAsCustomExpression)
                     .toList();
 
+            String methodName = analysisSingleton.getMassSpecExtractedData().getHeader().methodName();
+
             AnalysisMethodPersistance analysisMethodPersistance =
-                    tripoliPersistentState.getMapMethodNamesToDefaults()
-                            .get(analysisSingleton.getMassSpecExtractedData().getHeader().methodName());
+                    tripoliPersistentState.getMapMethodNamesToDefaults().get(methodName);
 
             if (analysisMethodPersistance == null) {
                 proceed = false;
-                break;
+                expressionDiffReport.append("No method definition found for method: ")
+                        .append(methodName)
+                        .append("\n\n");
+                continue;
             }
 
             List<UserFunction> customExpressionsInMethod = analysisMethodPersistance.getExpressionUserFunctionList();
 
-            // Check: Analysis has something not in Method
+            boolean foundMismatch = false;
+
+            // Mismatch: in analysis but not in method
             for (UserFunction customExpression : customExpressionsInAnalysis) {
                 boolean foundInMethod = customExpressionsInMethod.stream()
                         .anyMatch(methodExpr -> methodExpr.getName().equals(customExpression.getName()));
                 if (!foundInMethod) {
-                    expressionMismatch = true;
+                    foundMismatch = true;
                     break;
                 }
             }
 
-            // Check: Method has something not in Analysis
+            // Mismatch: in method but not in analysis
             for (UserFunction methodExpression : customExpressionsInMethod) {
                 boolean foundInAnalysis = customExpressionsInAnalysis.stream()
                         .anyMatch(analysisExpr -> analysisExpr.getName().equals(methodExpression.getName()));
                 if (!foundInAnalysis) {
-                    expressionMismatch = true;
+                    foundMismatch = true;
                     break;
                 }
             }
 
-            if (expressionMismatch) {
-                break;
+            if (foundMismatch) {
+                expressionMismatch = true;
+
+                String secondLineLeft = "[" + analysisSingleton.getAnalysisName() + "] Custom Expressions";
+
+                expressionDiffReport.append(String.format("%-" + 60 + "s%n", secondLineLeft));
+
+                int maxRows = Math.max(customExpressionsInMethod.size(), customExpressionsInAnalysis.size());
+                for (int i = 0; i < maxRows; i++) {
+                    String sessionExpr = i < customExpressionsInAnalysis.size()
+                            ? customExpressionsInAnalysis.get(i).getName()
+                            : "";
+                    String methodExpr = i < customExpressionsInMethod.size()
+                            ? customExpressionsInMethod.get(i).getName()
+                            : "";
+
+
+                    expressionDiffReport.append(String.format("%-" + 60 + "s%s%n", sessionExpr, methodExpr));
+                }
+
+                expressionDiffReport.append("\n\n");
             }
         }
 
-
-
         if (expressionMismatch){
-            proceed = TripoliMessageDialog.showChoiceDialog(
-                    "The Custom Expressions in this Session differ from those saved for the Method. \n" +
-                            "Would you like to refresh the Custom Expressions with the saved defaults?", primaryStageWindow);
+            proceed = TripoliMessageDialog.showSessionDiffDialog(
+                    String.valueOf(expressionDiffReport), primaryStageWindow);
         }
 
         if (proceed) {
