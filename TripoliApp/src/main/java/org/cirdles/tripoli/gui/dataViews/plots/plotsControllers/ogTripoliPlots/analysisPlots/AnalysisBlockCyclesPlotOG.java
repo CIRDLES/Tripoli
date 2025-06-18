@@ -50,6 +50,7 @@ import java.util.Map;
 
 import static java.lang.StrictMath.*;
 import static java.util.Arrays.binarySearch;
+import static java.util.Map.entry;
 import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.generateGeometricMeanStats;
 import static org.cirdles.tripoli.utilities.mathUtilities.FormatterForSigFigN.countOfTrailingDigitsForSigFig;
 import static org.cirdles.tripoli.utilities.mathUtilities.MathUtilities.applyChauvenetsCriterion;
@@ -802,6 +803,37 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         g2d.setFill(savedPaint);
     }
 
+    /**
+     *
+     *
+     * @param mean
+     * @param stdDev
+     * @param stdErr
+     * @return
+     */
+    public HashMap<String, Double> calcPlotStatsCM(double mean, double stdDev, double stdErr) {
+        double meanPlusOneStandardDeviation = mean + stdDev;
+        double meanPlusTwoStandardDeviation = mean + 2.0 * stdDev;
+        double meanPlusTwoStandardError = mean + 2.0 * stdErr;
+        double meanMinusOneStandardDeviation = mean - stdDev;
+        double meanMinusTwoStandardDeviation = mean - 2.0 * stdDev;
+        double meanMinusTwoStandardError = mean - 2.0 * stdErr;
+
+        HashMap<String, Double> output = new HashMap<>(Map.ofEntries(
+                entry("mean", mean),
+                entry("stdDev", stdDev),
+                entry("stdErr", stdErr),
+                entry("meanPlusOneStandardDeviation", meanPlusOneStandardDeviation),
+                entry("meanPlusTwoStandardDeviation", meanPlusTwoStandardDeviation),
+                entry("meanPlusTwoStandardError", meanPlusTwoStandardError),
+                entry("meanMinusOneStandardDeviation", meanMinusOneStandardDeviation),
+                entry("meanMinusTwoStandardDeviation", meanMinusTwoStandardDeviation),
+                entry("meanMinusTwoStandardError", meanMinusTwoStandardError)
+        ));
+
+        return output;
+    }
+
     public void plotStats(GraphicsContext g2d) {
         calcStats();
         BlockStatsRecord[] blockStatsRecords = analysisStatsRecord.blockStatsRecords();
@@ -869,15 +901,14 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             }
 
         } else { //cycle mode
-            double mean = analysisStatsRecord.cycleModeMean();
-            double stdDev = analysisStatsRecord.cycleModeStandardDeviation();
-            double stdErr = analysisStatsRecord.cycleModeStandardError();
-            double meanPlusOneStandardDeviation = mean + stdDev;
-            double meanPlusTwoStandardDeviation = mean + 2.0 * stdDev;
-            double meanPlusTwoStandardError = mean + 2.0 * stdErr;
-            double meanMinusOneStandardDeviation = mean - stdDev;
-            double meanMinusTwoStandardDeviation = mean - 2.0 * stdDev;
-            double meanMinusTwoStandardError = mean - 2.0 * stdErr;
+            HashMap<String, Double> plotStats = calcPlotStatsCM(
+                    analysisStatsRecord.cycleModeMean(),
+                    analysisStatsRecord.cycleModeStandardDeviation(),
+                    analysisStatsRecord.cycleModeStandardError());
+
+            double mean = plotStats.get("mean"), stdDev = plotStats.get("stdDev"), stdErr = plotStats.get("stdErr");
+            double meanPlusOneStandardDeviation = plotStats.get("meanPlusOneStandardDeviation"), meanPlusTwoStandardDeviation = plotStats.get("meanPlusTwoStandardDeviation"), meanPlusTwoStandardError = plotStats.get("meanPlusTwoStandardError");
+            double meanMinusOneStandardDeviation = plotStats.get("meanMinusOneStandardDeviation"), meanMinusTwoStandardDeviation = plotStats.get("meanMinusTwoStandardDeviation"), meanMinusTwoStandardError = plotStats.get("meanMinusTwoStandardError");
 
             double leftX = mapX(xAxisData[0] - 0.5);
             if (leftX < leftMargin) leftX = leftMargin;
