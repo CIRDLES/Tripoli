@@ -906,9 +906,15 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     analysisStatsRecord.cycleModeStandardDeviation(),
                     analysisStatsRecord.cycleModeStandardError());
 
-            double mean = plotStats.get("mean"), stdDev = plotStats.get("stdDev"), stdErr = plotStats.get("stdErr");
-            double meanPlusOneStandardDeviation = plotStats.get("meanPlusOneStandardDeviation"), meanPlusTwoStandardDeviation = plotStats.get("meanPlusTwoStandardDeviation"), meanPlusTwoStandardError = plotStats.get("meanPlusTwoStandardError");
-            double meanMinusOneStandardDeviation = plotStats.get("meanMinusOneStandardDeviation"), meanMinusTwoStandardDeviation = plotStats.get("meanMinusTwoStandardDeviation"), meanMinusTwoStandardError = plotStats.get("meanMinusTwoStandardError");
+            double mean = plotStats.get("mean");
+            double stdDev = plotStats.get("stdDev");
+            double stdErr = plotStats.get("stdErr");
+            double meanPlusOneStandardDeviation = plotStats.get("meanPlusOneStandardDeviation");
+            double meanPlusTwoStandardDeviation = plotStats.get("meanPlusTwoStandardDeviation");
+            double meanPlusTwoStandardError = plotStats.get("meanPlusTwoStandardError");
+            double meanMinusOneStandardDeviation = plotStats.get("meanMinusOneStandardDeviation");
+            double meanMinusTwoStandardDeviation = plotStats.get("meanMinusTwoStandardDeviation");
+            double meanMinusTwoStandardError = plotStats.get("meanMinusTwoStandardError");
 
             double leftX = mapX(xAxisData[0] - 0.5);
             if (leftX < leftMargin) leftX = leftMargin;

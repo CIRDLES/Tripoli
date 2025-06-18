@@ -91,7 +91,9 @@ public class AnalysisBlockCyclesPlotOGTest {
      * @return
      */
     private HashMap<String, Double> calcPlotStatsCM() {
-        double mean = -2.824675666477416, stdDev = 0.001657031312585908, stdErr = 1.1601539728124193E-4;
+        double mean = -2.824675666477416;
+        double stdDev = 0.001657031312585908;
+        double stdErr = 1.1601539728124193E-4;
         double meanPlusOneStandardDeviation = mean + stdDev;
         double meanPlusTwoStandardDeviation = mean + 2.0 * stdDev;
         double meanPlusTwoStandardError = mean + 2.0 * stdErr;
