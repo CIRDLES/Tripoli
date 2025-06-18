@@ -116,7 +116,20 @@ public class AnalysisBlockCyclesPlotOGTest {
 
     @Test
     public void calcPlotStatsCMTest() {
+        HashMap<String, Double> expectedValues = new HashMap<>(Map.ofEntries(
+                entry("meanPlusOneStandardDeviation", -2.82301863516483),
+                entry("meanPlusTwoStandardDeviation", -2.821361603852244),
+                entry("meanPlusTwoStandardError", -2.8244436356828535),
+                entry("meanMinusOneStandardDeviation", -2.826332697790002),
+                entry("meanMinusTwoStandardDeviation", -2.8279897291025877),
+                entry("meanMinusTwoStandardError", -2.8249076972719784)
+        ));
 
+        HashMap<String, Double> actualValues = calcPlotStatsCM();
+
+        for (String key : expectedValues.keySet()) {
+            assertEquals(expectedValues.get(key), actualValues.get(key));
+        }
     }
 
 }
