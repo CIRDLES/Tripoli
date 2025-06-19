@@ -1755,16 +1755,26 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 expressionString.set(expressionStateManager.revert());
                 if (currentMode.get() == Mode.CREATE) {
                     expressionNameTextField.clear();
+                } else {
+                    String originalName = customExpressionsList.stream().filter(expression -> expression.getName().contains(selectedExpressionName.get())).findFirst().get().getName();
+                    expressionNameTextField.setText(originalName);
                 }
                 expressionStateManager.clear();
                 currentMode.set(Mode.VIEW);
                 selectedExpressionName.set("");
             }
         } else {
+            if (currentMode.get() == Mode.EDIT) {
+                String originalName = customExpressionsList.stream().filter(expression -> expression.getName().contains(selectedExpressionName.get())).findFirst().get().getName();
+                expressionNameTextField.setText(originalName);
+            }
             expressionStateManager.clear();
             currentMode.set(Mode.VIEW);
         }
-
+        if (editAsText.get()){
+            expressionAsTextAction();
+        }
+        expressionAccordion.getPanes().get(0).setExpanded(true);
     }
 
     public void saveCustomExpressionOnAction() {
@@ -2434,7 +2444,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
 
         public T revert() {
-            return tail.state;
+            if (tail != null) {
+                return tail.state;
+            }
+            return null;
         }
 
 
