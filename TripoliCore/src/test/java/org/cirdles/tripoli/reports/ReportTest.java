@@ -46,23 +46,6 @@ public class ReportTest {
 
         testReport = new Report("Test Report", "Test Report Method", reportCategories);
     }
-    @AfterAll
-    static void tearDownAfterClass() {
-        File reportParent = testReport.getTripoliReportFile().getParentFile();
-        testReport.deleteReport();
-        reportParent.delete();
-    }
-
-    /**
-     * Ensures serialized reports maintain data integrity
-     * @throws TripoliException
-     */
-    @Test
-    public void reportSerializeTest() throws TripoliException {
-        testReport.serializeReport();
-        Report deserializedReport = (Report) TripoliSerializer.getSerializedObjectFromFile(testReport.getTripoliReportFile().getAbsolutePath(), true);
-        assertTrue(testReport.equals(deserializedReport));
-    }
 
     /**
      * Ensures the overridden equals method properly compares all elements in each class as well

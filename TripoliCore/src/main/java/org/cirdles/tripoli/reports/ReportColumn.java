@@ -19,6 +19,7 @@ package org.cirdles.tripoli.reports;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
+import org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord;
 import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.mathUtilities.MathUtilities;
 import org.jetbrains.annotations.NotNull;
@@ -30,15 +31,18 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
+import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.generateGeometricMeanStats;
+
 public class ReportColumn implements Serializable, Comparable<ReportColumn>{
     private static final long serialVersionUID = 3378567673921898881L;
     public String FIXED_COLUMN_NAME = "Analysis Name";
 
-    private final String columnName;
+    private String columnName;
     private int positionIndex;
     private boolean visible;
     private String methodName;
     private boolean isUserFunction;
+    private boolean isRatio;
 
     public ReportColumn(String title, int positionIndex, String methodName) {
         columnName = title;
@@ -46,12 +50,14 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
         visible = true;
         this.methodName = methodName;
         isUserFunction = false;
+        isRatio = false;
     }
-    public ReportColumn(String title, int positionIndex, boolean isUserFunction) {
+    public ReportColumn(String title, int positionIndex, boolean isUserFunction, boolean isRatio) {
         columnName = title;
         this.positionIndex = positionIndex;
         visible = true;
         this.isUserFunction = isUserFunction;
+        this.isRatio = isRatio;
     }
     public ReportColumn(ReportColumn otherColumn) {
         columnName = otherColumn.columnName;
@@ -60,9 +66,11 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
         FIXED_COLUMN_NAME = otherColumn.FIXED_COLUMN_NAME;
         methodName = otherColumn.methodName;
         isUserFunction = otherColumn.isUserFunction;
+        isRatio = otherColumn.isRatio;
     }
 
     public String getColumnName() { return columnName; }
+    public void setColumnName(String columnName) { this.columnName = columnName; }
 
     public void setVisible(boolean visible) { this.visible = visible; }
     public boolean isVisible() { return visible; }
@@ -72,10 +80,8 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
     }
     public int getPositionIndex() { return positionIndex; }
 
-    public void setMethodName(String methodName) { this.methodName = methodName; }
-    public String getMethodName() { return methodName; }
-
     public boolean isUserFunction() { return isUserFunction; }
+    public boolean isRatio() { return isRatio; }
 
     /**
      * Use the supplied analysis to extract data for the current column. Handles user function based columns as well as
@@ -95,20 +101,39 @@ public class ReportColumn implements Serializable, Comparable<ReportColumn>{
     }
 
     private String retrieveUserFunctionData(List<UserFunction> userFunctions) {
+        String baseColumnName = columnName.contains(" ( = ")
+                ? columnName.split(" \\( = ")[0]
+                : columnName;
+
         return userFunctions.stream()
-                .filter(f -> f.getName().equals(columnName))
+                .filter(f -> f.getName().equals(baseColumnName))
                 .findFirst()
                 .map(userFunction -> {
                     AnalysisStatsRecord stats = userFunction.getAnalysisStatsRecord();
-                    return String.format(
-                            "%s,%s,%s",
-                            MathUtilities.roundedToSize(stats.cycleModeMean(), 4),
-                            MathUtilities.roundedToSize(stats.cycleModeVariance(), 4),
-                            MathUtilities.roundedToSize(stats.cycleModeStandardDeviation(), 4)
-                    );
+                    GeometricMeanStatsRecord geoStats =
+                            generateGeometricMeanStats(stats.cycleModeMean(), stats.cycleModeStandardDeviation(), stats.cycleModeStandardError());
+
+                    if (userFunction.isTreatAsIsotopicRatio()) {
+
+                        return String.format(
+                                "%s,%s,%s",
+                                geoStats.geoMean(),
+                                (geoStats.geoMeanPlusOneStdErr() - geoStats.geoMean()) / geoStats.geoMean() * 100.0,
+                                (geoStats.geoMeanPlusOneStdDev() - geoStats.geoMean()) / geoStats.geoMean() * 100.0
+                        );
+                    } else {
+                        return String.format(
+                                "%s,%s,%s",
+                                stats.cycleModeMean(),
+                                stats.cycleModeStandardError(),
+                                stats.cycleModeStandardDeviation()
+                        );
+                    }
+
                 })
                 .orElse("Error,Error,Error");
     }
+
 
     private String invokeAnalysisMethod(Analysis analysis) {
         try {

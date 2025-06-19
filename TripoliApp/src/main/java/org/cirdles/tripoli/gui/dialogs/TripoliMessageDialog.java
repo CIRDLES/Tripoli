@@ -16,15 +16,12 @@
 
 package org.cirdles.tripoli.gui.dialogs;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 
-import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -88,25 +85,57 @@ public class TripoliMessageDialog extends Alert {
 
         return (result.get() == ButtonType.OK);
     }
-    public static boolean showOverwriteDialog(File file, Window owner) {
-        if (null == file) {
-            Alert dialog = new TripoliMessageDialog(AlertType.WARNING,
-                    "Path is null!",
-                    "Check permissions ...",
-                    owner);
-            dialog.showAndWait();
-        } else {
+
+    public static boolean showSessionDiffDialog(String diffMessage, Window owner) {
+        Alert alert = new TripoliMessageDialog(
+                Alert.AlertType.CONFIRMATION,
+                "",
+                "Tripoli informs you:", owner);
+
+        // Header message (above the text area)
+        Label instructionLabel = new Label(
+                "The Custom Expressions in this Session differ from those saved for the Method. \n" +
+                        "Would you like to replace the Custom Expressions with the saved defaults?"
+        );
+        instructionLabel.setWrapText(true);
+        instructionLabel.setMinHeight(40);
+
+        // Monospaced text area for the formatted diff
+        TextArea textArea = new TextArea(diffMessage);
+        textArea.setEditable(false);
+        textArea.setWrapText(false);
+        textArea.setFont(javafx.scene.text.Font.font("Monospaced"));
+        textArea.setPrefColumnCount(80);
+        textArea.setPrefRowCount(20);
+
+        // Combine label and text area in a vertical layout
+        VBox content = new VBox(20);
+        content.getChildren().addAll(instructionLabel, textArea);
+
+        // Set VBox as the dialog content
+        alert.getDialogPane().setContent(content);
+        alert.getDialogPane().setPrefSize(800, 400);
+
+        alert.getButtonTypes().setAll(ButtonType.NO, ButtonType.OK);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
+    }
+
+    public static boolean showOverwriteReportDialog(String name, Window owner) {
+        try{
             Alert dialog = new TripoliMessageDialog(AlertType.CONFIRMATION,
-                    showLongfilePath(file.getAbsolutePath()),
-                     "Overwrite file?:",
+                    "Report : " + name + " already exists.  Do you want to overwrite it?",
+                     "Overwrite Report?",
                     owner);
             dialog.getButtonTypes().setAll(ButtonType.NO, ButtonType.YES);
             dialog.setOnCloseRequest(event -> {dialog.close();});
             Optional<ButtonType> result = dialog.showAndWait();
 
             return (result.get() == ButtonType.YES);
+        } catch (Exception ignored){
+            return false;
         }
-        return false;
     }
 
     public static String showSavedAsDialog(File file, Window owner) {
