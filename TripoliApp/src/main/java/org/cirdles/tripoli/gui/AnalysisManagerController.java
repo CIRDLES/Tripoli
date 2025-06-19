@@ -1839,6 +1839,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     "This name is already a custom expression. Would you like to overwrite?", TripoliGUI.primaryStage);
             if (!proceed2) return;
 
+            if (editAsText.get()){
+                expressionAsTextAction();
+            }
+
             deleteExpression(existingFunction.getName());
             saveExpression(expressionName, existingFunction.getColumnIndex(), tripoliPersistentState);
         } else {
@@ -1941,6 +1945,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         if (proceed) {
             String expressionName = expressionNameTextField.getText().split(" \\( = ")[0];
             deleteExpression(expressionName);
+
+            if (editAsText.get()){
+                expressionAsTextAction();
+            }
 
             currentMode.set(Mode.VIEW);
             expressionStateManager.clear();
