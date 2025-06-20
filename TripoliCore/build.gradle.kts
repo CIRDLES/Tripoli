@@ -23,6 +23,7 @@ plugins {
     `java-library`
     id("de.jjohannes.extra-java-module-info") version "0.14"
     id("common-build") // Plugin calls common gradle build from buildSrc
+    antlr
 }
 
 dependencies {
@@ -88,13 +89,21 @@ dependencies {
     // https://mvnrepository.com/artifact/org.apache.commons/commons-rng-simple
     implementation("org.apache.commons:commons-rng-simple:1.6")
 
-
+    antlr("org.antlr:antlr4:4.13.1")
+    implementation("org.antlr:antlr4-runtime:4.13.1")
 
 
     testImplementation("com.github.cirdles:commons:bc38781605")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }
+
+tasks.generateGrammarSource {
+    arguments = arguments + listOf("-visitor", "-no-listener")
+    outputDirectory = file("build/generated-src/antlr/main")
+}
+
+sourceSets["main"].java.srcDirs("build/generated-src/antlr/main")
 
 
 tasks.test {

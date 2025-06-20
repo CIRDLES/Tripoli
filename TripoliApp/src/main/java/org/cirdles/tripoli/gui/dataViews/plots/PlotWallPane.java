@@ -442,10 +442,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         labelMode.setFont(commandFont);
         labelMode.setAlignment(Pos.CENTER_RIGHT);
         labelMode.setPrefWidth(50);
-        scaleControlsToolbar.getItems().add(labelMode);
+//        scaleControlsToolbar.getItems().add(labelMode);
 
         cycleCB = new CheckBox("Cycle");
-        scaleControlsToolbar.getItems().add(cycleCB);
+//        scaleControlsToolbar.getItems().add(cycleCB);
         cycleCB.setSelected(true);
         cycleCB.selectedProperty().addListener(cycleCBChangeListener);
         updateStatusOfCycleCheckBox();

@@ -46,7 +46,7 @@ import org.cirdles.tripoli.reports.ReportColumn;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
-import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.mathUtilities.MathUtilities;
 
 import java.awt.*;
 import java.io.File;
@@ -567,7 +567,11 @@ public class ReportBuilderController {
         StringBuilder result = new StringBuilder();
 
         if (column.isUserFunction()){
-            result.append(String.format("%-35s %-25s %-10s %-10s%n", analysisNameColumn.getColumnName(), column.getColumnName()+" Mean", "StdDev", "Variance"));
+            if (column.isRatio()){
+                result.append(String.format("%-35s %-25s %-10s %-10s%n", analysisNameColumn.getColumnName(), column.getColumnName().split(" \\( = ")[0] +" Mean", "%StdErr", "%StdDev"));
+            } else {
+                result.append(String.format("%-35s %-25s %-10s %-10s%n", analysisNameColumn.getColumnName(), column.getColumnName()+" Mean", "StdErr", "StdDev"));
+            }
         } else {
             result.append(String.format("%-35s %-45s%n", analysisNameColumn.getColumnName(), column.getColumnName()));
         }
@@ -581,7 +585,13 @@ public class ReportBuilderController {
                     if (column.isUserFunction()){
                         String[] ufString = column.retrieveData(analysis).split(",");
                         if (ufString.length == 1) {ufString = new String[]{ufString[0], "", ""};} // Handle UF error
-                        result.append(String.format("%-35s %-25s %-10s %-10s%n", analysisNameColumn.retrieveData(analysis), ufString[0], ufString[1], ufString[2]) );
+                        result.append(String.format(
+                                "%-35s %-25s %-10s %-10s%n",
+                                analysisNameColumn.retrieveData(analysis),
+                                MathUtilities.roundedToSize(Double.parseDouble(ufString[0]), 4),
+                                MathUtilities.roundedToSize(Double.parseDouble(ufString[1]), 4),
+                                MathUtilities.roundedToSize(Double.parseDouble(ufString[2]), 4))
+                        );
                     } else {
                         result.append(String.format("%-35s %-45s%n", analysisNameColumn.retrieveData(analysis), column.retrieveData(analysis)));
                     }
@@ -591,17 +601,7 @@ public class ReportBuilderController {
     }
 
     private void populateAccordion() {
-        Report accReport = Report.createFullReport("", analysis.getMethod().getMethodName(), analysis.getUserFunctions());
-        Object[] repoCat = accReport.getCategories().toArray();
-        ReportCategory customExpressionsCat = repoCat[3] instanceof ReportCategory ? (ReportCategory) repoCat[3] : null;
-        /**
-         * Temporary Data inserted for future custom expressions
-         */
-        if (customExpressionsCat != null) {
-            customExpressionsCat.addColumn(new ReportColumn("Alpha", 0, null));
-            customExpressionsCat.addColumn(new ReportColumn("Beta", 1, null));
-            customExpressionsCat.addColumn(new ReportColumn("Gamma", 2, null));
-        }
+        Report accReport = Report.createFullReport("Full Report", analysis);
 
         for (ReportCategory cat : accReport.getCategories()) {
             ListView<ReportColumn> accColumnlv = new ListView<>();
@@ -690,17 +690,17 @@ public class ReportBuilderController {
     public void newOnAction(ActionEvent event) {
         boolean proceed = proceedWithUnsavedDialog();
         if (proceed) {
-        String analysisMethodName = analysis.getMethod().getMethodName();
-            if (event.getSource() == newFullButton){ // Generate full report template
-                setCurrentReport(Report.createFullReport(analysisMethodName.replaceAll(" ", "_"), analysisMethodName, analysis.getUserFunctions()));
+            String analysisMethodName = analysis.getMethod().getMethodName();
+            if (event.getSource() == newFullButton){ // Generate a full report template
+                setCurrentReport(Report.createFullReport(analysisMethodName, analysis));
             } else { // Generate Blank Report Template
-                setCurrentReport(Report.createBlankReport(analysisMethodName.replaceAll(" ", "_"), analysisMethodName));
-
+                setCurrentReport(Report.createBlankReport(analysisMethodName, analysisMethodName));
             }
+            deleteButton.setDisable(true);
         }
     }
 
-    public void saveOnAction() throws TripoliException {
+    public void saveOnAction() {
         boolean proceed;
         reportNameTextField.setText(reportNameTextField.getText().replaceAll("\\*", ""));
         String reportName = reportNameTextField.getText();
@@ -708,20 +708,22 @@ public class ReportBuilderController {
             TripoliMessageDialog.showWarningDialog("Report must have a name", reportBuilderStage);
         } else if (currentReport.FIXED_REPORT_NAME.equals(reportName)) {
             TripoliMessageDialog.showWarningDialog("Report name: " + currentReport.FIXED_REPORT_NAME + " is restricted", reportBuilderStage);
-        } else if (currentReport.getTripoliReportFile(reportName).exists()) {
-            proceed = TripoliMessageDialog.showOverwriteDialog(currentReport.getTripoliReportFile(), reportBuilderStage);
-            if (proceed) {
-                currentReport.setReportName(reportName);
-                currentReport.serializeReport();
-                initalReport = new Report(currentReport); // Reset saved state
-                handleTrackingChanges();
-            }
+        } else if (analysis.getAnalysisMethod().getReports().stream()
+                .anyMatch(obj -> obj.getReportName().equals(reportName))
+                && unsavedChangesLabel.isVisible()) {
+            proceed = TripoliMessageDialog.showOverwriteReportDialog(reportName, reportBuilderStage);
+            if (proceed) {saveReport(reportName);}
         } else {
-            currentReport.setReportName(reportName);
-            currentReport.serializeReport();
-            initalReport = new Report(currentReport); // Reset saved state
-            handleTrackingChanges();
+            saveReport(reportName);
         }
+    }
+
+    private void saveReport(String reportName){
+        currentReport.setReportName(reportName);
+        currentReport.serializeReport();
+        initalReport = new Report(currentReport); // Reset saved state
+        deleteButton.setDisable(false);
+        handleTrackingChanges();
     }
 
     public void restoreOnAction() {
@@ -732,7 +734,8 @@ public class ReportBuilderController {
     }
 
     public void deleteOnAction() {
-        if (!currentReport.getTripoliReportFile().exists()){
+        if (!analysis.getAnalysisMethod().getReports().stream()
+                .anyMatch(obj -> obj.getReportName().equals(currentReport.getReportName()))){
             TripoliMessageDialog.showWarningDialog("Report does not exist!", reportBuilderStage);
             return;
         }

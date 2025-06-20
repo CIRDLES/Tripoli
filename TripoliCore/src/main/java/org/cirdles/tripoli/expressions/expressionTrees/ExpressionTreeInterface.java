@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-module Tripoli.TripoliApp {
-    requires javafx.base;
-    requires javafx.fxml;
-    requires javafx.controls;
-    requires Tripoli.TripoliCore;
-    requires java.datatransfer;
-    requires java.desktop;
-    requires commons.bc38781605;
-    requires jakarta.annotation;
-    requires jakarta.xml.bind;
-    requires org.jetbrains.annotations;
-    requires commons.math3;
-    requires com.google.common;
-    requires java.logging;
-    requires org.antlr.antlr4.runtime;
+package org.cirdles.tripoli.expressions.expressionTrees;
+
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
+
+import java.util.Map;
+
+
+public interface ExpressionTreeInterface {
+
+    Double[][] eval(AnalysisInterface analysis);
+    Double[][] eval(String[] columnHeaders, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite);
+
+    int getOperationPrecedence();
+
+    String getName();
+    void setName(String newName);
 }

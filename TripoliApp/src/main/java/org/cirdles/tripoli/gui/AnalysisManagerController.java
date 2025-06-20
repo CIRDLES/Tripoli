@@ -17,14 +17,21 @@
 package org.cirdles.tripoli.gui;
 
 import jakarta.xml.bind.JAXBException;
+import javafx.application.Platform;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -36,15 +43,21 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
+import javafx.scene.text.*;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.Token;
+import org.cirdles.tripoli.ExpressionsForTripoliLexer;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.expressions.constants.ConstantNode;
+import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
+import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTreeInterface;
+import org.cirdles.tripoli.expressions.operations.Operation;
+import org.cirdles.tripoli.expressions.parsing.ShuntingYard;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunctionDisplay;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunctionNode;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMC2PlotsController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMC2PlotsWindow;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsController;
@@ -66,15 +79,20 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.AnalysisMethodPersistance;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.MISSING_STRING_FIELD;
+import static org.cirdles.tripoli.expressions.operations.Operation.OPERATIONS_MAP;
+import static org.cirdles.tripoli.gui.SessionManagerController.listOfSelectedAnalyses;
 import static org.cirdles.tripoli.gui.SessionManagerController.tripoliSession;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.*;
@@ -82,6 +100,7 @@ import static org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog.showChoiceDia
 import static org.cirdles.tripoli.gui.utilities.UIUtilities.showTab;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.*;
 import static org.cirdles.tripoli.sessions.analysis.Analysis.*;
+import static org.cirdles.tripoli.sessions.analysis.AnalysisInterface.initializeNewAnalysis;
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compareAnalysisMethodToDataFileSpecs;
 
 public class AnalysisManagerController implements Initializable, AnalysisManagerCallbackI {
@@ -94,7 +113,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public static OGTripoliPlotsWindow ogTripoliPreviewPlotsWindow;
     private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
     public Tab detectorDetailTab;
-    public TabPane analysiMethodTabPane;
+    public TabPane analysisMethodTabPane;
     @FXML
     public HBox blockStatusHBox;
     @FXML
@@ -134,6 +153,44 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public HBox ratiosHeaderHBox;
     public HBox functionsHeaderHBox;
     @FXML
+    public Accordion expressionAccordion;
+    @FXML
+    public TextFlow expressionTextFlow;
+    @FXML
+    public ScrollPane expressionScrollPane;
+    @FXML
+    public Button createExpressionButton;
+    @FXML
+    public Button editExpressionButton;
+    @FXML
+    public Button cancelExpressionButton;
+    @FXML
+    public Button saveExpressionButton;
+    @FXML
+    public Button deleteExpressionButton;
+    @FXML
+    public TextField expressionNameTextField;
+    @FXML
+    public Button expressionClearBtn;
+    @FXML
+    public Button expressionUndoBtn;
+    @FXML
+    public Button expressionRedoBtn;
+    @FXML
+    public Button expressionAsTextBtn;
+    @FXML
+    public AnchorPane expressionPane;
+    @FXML
+    public HBox expressionsHeaderHBox;
+    @FXML
+    public ScrollPane expressionsScrollPane;
+    @FXML
+    public VBox expressionsVBox;
+    @FXML
+    public Label expressionInvalidLabel;
+    @FXML
+    public Label expressionUnsavedLabel;
+    @FXML
     private GridPane analysisManagerGridPane;
     @FXML
     private TextField analysisNameTextField;
@@ -164,6 +221,17 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private List<IsotopicRatio> allRatios;
     @FXML
     private Button addRatioButton;
+    Text insertIndicator = new Text("|");
+    private final TextArea expressionAsTextArea = new TextArea();
+    private final BooleanProperty editAsText = new SimpleBooleanProperty(false);
+    private final StringProperty expressionString = new SimpleStringProperty();
+    private final int EXPRESSION_BUILDER_DEFAULT_FONTSIZE = 15;
+    private List<String> listOperators = new ArrayList<>();
+    private final ObservableList<ExpressionTreeInterface> customExpressionsList = FXCollections.observableArrayList();
+    private final StateManager<String> expressionStateManager = new StateManager<>();
+    private final ObjectProperty<Mode> currentMode = new SimpleObjectProperty<>(Mode.EDIT);
+    private final ListView<ExpressionTreeInterface> customExpressionLV = new ListView<>();
+    private final StringProperty selectedExpressionName = new SimpleStringProperty();
 
     public static void closePlotWindows() {
         if (null != ogTripoliPreviewPlotsWindow) {
@@ -261,6 +329,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                             analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
                             tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
                             analysis = analysisProposed;
+                            listOfSelectedAnalyses.clear();
+                            listOfSelectedAnalyses.add(analysis);
                             // manage analysis
                             readingFile = true;
                             MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
@@ -310,6 +380,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                         && analysis.getMassSpecExtractedData().getBlocksDataFull().isEmpty());
         exportToClipBoardButton.setDisable(analysis.getMassSpecExtractedData().getBlocksDataLite().isEmpty());
 
+        populateCustomExpressionTab();
     }
 
     private void setupListeners() {
@@ -374,28 +445,28 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         switch (caseNumber) {
             case 0 -> {
-                analysiMethodTabPane.getTabs().remove(detectorDetailTab);
-                analysiMethodTabPane.getTabs().remove(baselineTableTab);
-                analysiMethodTabPane.getTabs().remove(sequenceTableTab);
-                analysiMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
-                analysiMethodTabPane.getTabs().remove(selectColumnsToPlot);
+                analysisMethodTabPane.getTabs().remove(detectorDetailTab);
+                analysisMethodTabPane.getTabs().remove(baselineTableTab);
+                analysisMethodTabPane.getTabs().remove(sequenceTableTab);
+                analysisMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
+                analysisMethodTabPane.getTabs().remove(selectColumnsToPlot);
             }
             case 1 -> {
-                analysiMethodTabPane.getTabs().remove(detectorDetailTab);
-                analysiMethodTabPane.getTabs().remove(baselineTableTab);
-                analysiMethodTabPane.getTabs().remove(sequenceTableTab);
-                analysiMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
-                showTab(analysiMethodTabPane, 2, selectColumnsToPlot);
-                analysiMethodTabPane.getSelectionModel().select(2);
+                analysisMethodTabPane.getTabs().remove(detectorDetailTab);
+                analysisMethodTabPane.getTabs().remove(baselineTableTab);
+                analysisMethodTabPane.getTabs().remove(sequenceTableTab);
+                analysisMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
+                showTab(analysisMethodTabPane, 2, selectColumnsToPlot);
+                analysisMethodTabPane.getSelectionModel().select(2);
                 populateAnalysisMethodColumnsSelectorPane();
                 processingToolBar.setVisible(false);
             }
             case 2, 3, 4 -> {
-                showTab(analysiMethodTabPane, 2, detectorDetailTab);
-                showTab(analysiMethodTabPane, 3, baselineTableTab);
-                showTab(analysiMethodTabPane, 4, sequenceTableTab);
-                showTab(analysiMethodTabPane, 5, selectRatiosToPlotTab);
-                analysiMethodTabPane.getTabs().remove(selectColumnsToPlot);
+                showTab(analysisMethodTabPane, 2, detectorDetailTab);
+                showTab(analysisMethodTabPane, 3, baselineTableTab);
+                showTab(analysisMethodTabPane, 4, sequenceTableTab);
+                showTab(analysisMethodTabPane, 5, selectRatiosToPlotTab);
+                analysisMethodTabPane.getTabs().remove(selectColumnsToPlot);
                 populateAnalysisMethodGridPane();
                 populateAnalysisMethodRatioBuilderPane();
                 populateBlocksStatus();
@@ -555,13 +626,15 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 }
             }
         }
-        tripoliPersistentState.updateTripoliPersistentState();
+
+        populateAnalysisMethodColumnsSelectorPane();
     }
 
     private void populateAnalysisMethodColumnsSelectorPane() {
         List<CheckBox> ratioCheckBoxList = new ArrayList<>();
         List<CheckBox> ratioInvertedCheckBoxList = new ArrayList<>();
         List<CheckBox> functionCheckBoxList = new ArrayList<>();
+        List<CheckBox> expressionCheckBoxList = new ArrayList<>();
         List<Label> exportLabelList = new ArrayList<>();
         List<RadioButton> cycleMeanRBs = new ArrayList<>();
 
@@ -580,8 +653,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 checkBoxRatio.setSelected(newValue);
             }
         };
+        ChangeListener<Boolean> allExpressionsChangeListener = (observable, oldValue, newValue) -> {
+            for (CheckBox checkBoxRatio : expressionCheckBoxList) {
+                checkBoxRatio.setSelected(newValue);
+            }
+        };
 
-        ratiosScrollPane.prefHeightProperty().bind(analysiMethodTabPane.heightProperty());
+        // Init Isotopic Ratio Box
+        ratiosScrollPane.prefHeightProperty().bind(analysisMethodTabPane.heightProperty());
         ratiosVBox.prefWidthProperty().bind(ratiosScrollPane.widthProperty());
         ratiosVBox.prefHeightProperty().bind(ratiosScrollPane.heightProperty());
         ratiosVBox.getChildren().clear();
@@ -643,11 +722,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         hBox.getChildren().addAll(toggleCycleMeansLabel, refreshButton);
         ratiosHeaderHBox.getChildren().add(hBox);
+        // ---------- end IR
 
-
+        // Init UserFunction Box
         functionsHeaderHBox.prefWidthProperty().bind(ratiosScrollPane.widthProperty());
         functionsHeaderHBox.getChildren().clear();
-        functionsScrollPane.prefHeightProperty().bind(analysiMethodTabPane.heightProperty());
+        functionsScrollPane.prefHeightProperty().bind(analysisMethodTabPane.heightProperty());
         functionsVBox.prefWidthProperty().bind(ratiosScrollPane.widthProperty());
         functionsVBox.prefHeightProperty().bind(ratiosScrollPane.heightProperty());
         functionsVBox.getChildren().clear();
@@ -661,7 +741,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         count = 0;
         selected = 0;
         for (UserFunction userFunction : userFunctions) {
-            if (!userFunction.isTreatAsIsotopicRatio()) {
+            if (!userFunction.isTreatAsIsotopicRatio() && !userFunction.isTreatAsCustomExpression()) {
                 count++;
                 selected += userFunction.isDisplayed() ? 1 : 0;
             }
@@ -672,10 +752,41 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         hBox.getChildren().add(checkBoxSelectAllFunctions);
         hBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
         functionsHeaderHBox.getChildren().add(hBox);
+        // ---------- end UF
+
+        // Init Custom Expression Box -------------------
+        expressionsHeaderHBox.prefWidthProperty().bind(functionsHeaderHBox.widthProperty());
+        expressionsHeaderHBox.getChildren().clear();
+        expressionsScrollPane.prefHeightProperty().bind(analysisMethodTabPane.heightProperty());
+        expressionsVBox.prefWidthProperty().bind(functionsHeaderHBox.widthProperty());
+        expressionsVBox.prefHeightProperty().bind(functionsHeaderHBox.heightProperty());
+        expressionsVBox.getChildren().clear();
+
+        hBox = new HBox();
+        hBox.setSpacing(5);
+        hBox.setAlignment(Pos.CENTER_LEFT);
+        hBox.setPadding(new Insets(5, 5, 5, 5));
+        hBox.prefWidthProperty().bind(expressionsVBox.widthProperty());
+        CheckBox checkBoxSelectAllExpressions = new CheckBox("Plot all Custom Expressions");
+        count = 0;
+        selected = 0;
+        for (UserFunction userFunction : userFunctions) {
+            if (userFunction.isTreatAsCustomExpression()) {
+                count++;
+                selected += userFunction.isDisplayed() ? 1 : 0;
+            }
+            checkBoxSelectAllExpressions.setSelected(selected == count);
+            checkBoxSelectAllExpressions.setIndeterminate((0 < selected) && (selected < count));
+        }
+        checkBoxSelectAllExpressions.selectedProperty().addListener(allExpressionsChangeListener);
+        hBox.getChildren().add(checkBoxSelectAllExpressions);
+        hBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+        expressionsHeaderHBox.getChildren().add(hBox);
+        // ---------- end CE
 
         userFunctions.sort(null);
         for (UserFunction userFunction : analysis.getUserFunctions()) {
-            if (userFunction.isTreatAsIsotopicRatio()) {
+            if (userFunction.isTreatAsIsotopicRatio() && !userFunction.isTreatAsCustomExpression()) {
                 hBox = new HBox();
                 CheckBox checkBoxRatio = new CheckBox(userFunction.getName());
                 checkBoxRatio.setPrefWidth(500);
@@ -690,8 +801,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                         ratioInvertedCheckBoxList.get(indexOfCheckBox).setSelected(false);
                     }
                     int selectedR = 0;
-                    for (CheckBox checkBoxRatio2 : ratioCheckBoxList) {
-                        selectedR += (checkBoxRatio2.isSelected() ? 1 : 0);
+                    for (CheckBox checkBoxRatioSingleton : ratioCheckBoxList) {
+                        selectedR += (checkBoxRatioSingleton.isSelected() ? 1 : 0);
                     }
                     checkBoxSelectAllRatios.selectedProperty().removeListener(allRatiosChangeListener);
                     checkBoxSelectAllRatios.setSelected(selectedR == ratioCheckBoxList.size());
@@ -743,6 +854,30 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 hBox.setPadding(new Insets(1, 1, 1, 25));
 
                 ratiosVBox.getChildren().add(hBox);
+            } else if (userFunction.isTreatAsCustomExpression()){
+                hBox = new HBox();
+                CheckBox checkBoxExpression = new CheckBox(userFunction.getCustomExpression().getName());
+                checkBoxExpression.setPrefWidth(500);
+                checkBoxExpression.setFont(Font.font("Monospaced", FontWeight.BOLD, 12));
+                checkBoxExpression.setUserData(userFunction);
+                checkBoxExpression.setSelected(userFunction.isDisplayed());
+                checkBoxExpression.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                    ((UserFunction) checkBoxExpression.getUserData()).setDisplayed(newValue);
+                    int selectedE = 0;
+                    for (CheckBox checkBoxExpressionSingleton : expressionCheckBoxList) {
+                        selectedE += (checkBoxExpressionSingleton.isSelected() ? 1 : 0);
+                    }
+                    checkBoxSelectAllExpressions.selectedProperty().removeListener(allExpressionsChangeListener);
+                    checkBoxSelectAllExpressions.setSelected(selectedE == expressionCheckBoxList.size());
+                    checkBoxSelectAllExpressions.setIndeterminate((0 < selectedE) && (selectedE < expressionCheckBoxList.size()));
+                    checkBoxSelectAllExpressions.selectedProperty().addListener(allExpressionsChangeListener);
+                });
+                expressionCheckBoxList.add(checkBoxExpression);
+                checkBoxExpression.setPrefWidth(175);
+                hBox.getChildren().add(checkBoxExpression);
+                hBox.setSpacing(45);
+                hBox.setPadding(new Insets(1, 1, 1, 15));
+                expressionsVBox.getChildren().add(hBox);
             } else {
                 hBox = new HBox();
                 CheckBox checkBoxFunction = new CheckBox(userFunction.getName());
@@ -751,8 +886,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 checkBoxFunction.selectedProperty().addListener((observable, oldValue, newValue) -> {
                     ((UserFunction) checkBoxFunction.getUserData()).setDisplayed(newValue);
                     int selectedF = 0;
-                    for (CheckBox checkBoxRatio2 : functionCheckBoxList) {
-                        selectedF += (checkBoxRatio2.isSelected() ? 1 : 0);
+                    for (CheckBox checkBoxFunctionSingleton : functionCheckBoxList) {
+                        selectedF += (checkBoxFunctionSingleton.isSelected() ? 1 : 0);
                     }
                     checkBoxSelectAllFunctions.selectedProperty().removeListener(allFunctionsChangeListener);
                     checkBoxSelectAllFunctions.setSelected(selectedF == functionCheckBoxList.size());
@@ -859,6 +994,281 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 invertProposedRatio();
             }
         });
+    }
+
+    private void populateCustomExpressionTab() {
+        expressionAccordion.getPanes().clear();
+
+        currentMode.set(Mode.VIEW);
+        // List View inits ---------------------------------------
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+        List<Operation> operationList = new ArrayList<>(OPERATIONS_MAP.values());
+        listOperators = OPERATIONS_MAP.keySet().stream().toList();
+
+        ListView<ExpressionTreeInterface> userFunctionLV = new ListView<>();
+        ListView<ExpressionTreeInterface> isotopicRatioLV = new ListView<>();
+        ListView<ExpressionTreeInterface> operationLV = new ListView<>();
+
+        for (UserFunction userFunction : userFunctions) {
+            if (userFunction.isTreatAsIsotopicRatio() && !userFunction.isTreatAsCustomExpression()) {
+                isotopicRatioLV.getItems().add(new UserFunctionNode(userFunction.getName()));
+            } else if(userFunction.isTreatAsCustomExpression()) {
+                customExpressionsList.add(userFunction.getCustomExpression());
+            } else {
+                userFunctionLV.getItems().add(new UserFunctionNode(userFunction.getName()));
+            }
+        }
+
+        customExpressionLV.setItems(customExpressionsList);
+
+        operationLV.getItems().add(new ConstantNode("# : Number", null));
+        for (Operation op : operationList){
+            Operation newOp = op.copy();
+            newOp.setName(listOperators.get(operationList.indexOf(op)) + " : "+ op.getName());
+            operationLV.getItems().add(newOp);
+        }
+        
+        setAccordionListViewListener(userFunctionLV);
+        setAccordionListViewListener(isotopicRatioLV);
+        setAccordionListViewListener(operationLV);
+        setAccordionListViewListener(customExpressionLV);
+
+        TitledPane cePane = new TitledPane("Custom Expressions", customExpressionLV);
+        TitledPane ufPane = new TitledPane("User Functions", userFunctionLV);
+        TitledPane irPane = new TitledPane("Isotopic Ratios", isotopicRatioLV);
+        TitledPane opPane = new TitledPane("Operations", operationLV);
+
+        expressionAccordion.getPanes().addAll(cePane, ufPane, irPane, opPane);
+        expressionAccordion.setExpandedPane(expressionAccordion.getPanes().get(0));
+        // ------------------------- end LV inits
+
+        initCustomExpressionListeners();
+
+    }
+
+    private void setAccordionListViewListener(ListView<ExpressionTreeInterface> accordionLV) {
+        accordionLV.setCellFactory(param -> {
+            ListCell<ExpressionTreeInterface> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(ExpressionTreeInterface item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                    } else {
+                        String displayName = item.getName().replaceAll("[\\[\\]]", "");
+                        setText(displayName);
+                    }
+                }
+            };
+
+            cell.setOnDragDetected(event -> {
+                ExpressionTreeInterface selectedItem = accordionLV.getSelectionModel().getSelectedItem();
+                if (selectedItem != null && !currentMode.get().equals(Mode.VIEW)) {
+                    Dragboard dragboard = cell.startDragAndDrop(TransferMode.MOVE);
+                    ClipboardContent content = new ClipboardContent();
+                    if (selectedItem instanceof Operation) { // OPERATION
+                        String key = selectedItem.getName();
+                        key = key.substring(0, key.indexOf(" : "));
+                        if (((Operation) selectedItem).isSingleArg()){
+                            key += "( )";
+                        }
+                        content.putString(key);
+                    } else if (selectedItem instanceof UserFunctionNode) { // USER FUNCTION / RATIO
+                        content.putString(((UserFunctionNode) selectedItem).getValue());
+                    } else if (selectedItem instanceof ConstantNode && selectedItem.getName().contains(" : ")) { // CONSTANT
+                        String key = selectedItem.getName();
+                        key = key.substring(0, key.indexOf(" : "));
+                        content.putString(key);
+                    } else {// EXPRESSION TREE
+                        content.putString(ExpressionTree.prettyPrint(selectedItem, analysis, false));
+                    }
+                    dragboard.setContent(content);
+                    dragboard.setDragView(cell.snapshot(null, null));
+                    accordionLV.setUserData(selectedItem);
+                    event.consume();
+                }
+            });
+
+            return cell;
+        });
+    }
+
+    private void initCustomExpressionListeners() {
+        insertIndicator.setFill(Color.RED);
+        insertIndicator.setFont(Font.font("SansSerif", FontWeight.BOLD, 12));
+
+        // TextFlow Drag/Drop ----------------------------
+        expressionScrollPane.setOnDragOver(event -> {
+            Dragboard dragboard = event.getDragboard();
+            if (dragboard.hasString() && !currentMode.get().equals(Mode.VIEW)) {
+                event.acceptTransferModes(TransferMode.MOVE);
+            }
+            event.consume();
+        });
+
+        expressionScrollPane.setOnDragEntered(event -> {
+            if (!currentMode.get().equals(Mode.VIEW)){
+                expressionTextFlow.getChildren().remove(insertIndicator);
+                expressionTextFlow.getChildren().add(insertIndicator);
+            }
+        });
+
+        expressionScrollPane.setOnDragExited(event -> {
+            expressionTextFlow.getChildren().remove(insertIndicator);
+        });
+
+        expressionScrollPane.setOnDragDropped((DragEvent event) -> {
+            int index = expressionTextFlow.getChildren().indexOf(insertIndicator);
+            expressionTextFlow.getChildren().remove(insertIndicator);
+
+            Dragboard db = event.getDragboard();
+            boolean success = false;
+
+            if (db.hasString()) {
+                String content = db.getString();
+
+                expressionTextFlow.getChildren().add(index, new ExpressionTextNode(content));
+
+                if (event.getGestureSource() instanceof ExpressionTextNode) {
+                    expressionTextFlow.getChildren().remove(event.getGestureSource());
+                }
+                populateTextFlowFromString(makeStringFromExpressionTextNodeList());
+                handleExpressionUpdate(true);
+
+                success = true;
+            }
+
+            event.setDropCompleted(success);
+            event.consume();
+        });
+        // ------------ end textflow drag/drop
+
+        // Existing expression selector
+        customExpressionLV.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && currentMode.get().equals(Mode.VIEW)) {
+                expressionNameTextField.setText(newValue.getName());
+                if (newValue instanceof UserFunctionNode) {
+                    populateTextFlowFromString(((UserFunctionNode) newValue).getValue());
+                } else if (newValue instanceof ConstantNode) {
+                    populateTextFlowFromString(((ConstantNode) newValue).getValue().toString());
+                }else if (newValue instanceof ExpressionTree) {
+                    populateTextFlowFromString(ExpressionTree.prettyPrint(newValue, analysis, false));
+                }
+
+            }
+        });
+
+        // Bind TextArea and TextFlow to expressionString property
+        // This links all three objects to have the same text value
+        expressionAsTextArea.setFont(Font.font("Monospaced"));
+        expressionAsTextArea.textProperty().bindBidirectional(expressionString);
+
+        expressionString.addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !makeStringFromExpressionTextNodeList().equals(newValue)) {
+                populateTextFlowFromString(newValue);
+
+            }
+        });
+        expressionTextFlow.getChildren().addListener((ListChangeListener<Node>) change -> {
+            String textFlowContent = makeStringFromExpressionTextNodeList();
+            if (!textFlowContent.equals(expressionString.get())) {
+                expressionString.set(textFlowContent);
+            }
+        });
+
+        // Property bindings ----------------------------------
+
+        // Top menubar
+        expressionUndoBtn.disableProperty().bind(expressionStateManager.canUndoProperty().not());
+        expressionRedoBtn.disableProperty().bind(expressionStateManager.canRedoProperty().not());
+        expressionClearBtn.disableProperty().bind(expressionString.isEmpty());
+        expressionAsTextBtn.disableProperty().bind(currentMode.isEqualTo(Mode.VIEW));
+
+        // Name field
+        expressionNameTextField.editableProperty().bind(currentMode.isNotEqualTo(Mode.VIEW));
+
+        // Unsaved Changes label
+        expressionUnsavedLabel.visibleProperty().bind(expressionStateManager.hasChangesProperty());
+
+        // Bottom menubar
+        createExpressionButton.disableProperty().bind(currentMode.isNotEqualTo(Mode.VIEW));
+        editExpressionButton.disableProperty().bind( // Enabled if in view mode and have a selected expression
+                currentMode.isNotEqualTo(Mode.VIEW).or(customExpressionLV.getSelectionModel().selectedItemProperty().isNull())
+        );
+        cancelExpressionButton.disableProperty().bind(currentMode.isEqualTo(Mode.VIEW));
+
+        saveExpressionButton.disableProperty().bind(
+                expressionString.isEmpty()
+                        .or(expressionInvalidLabel.visibleProperty())
+                        .or(
+                                expressionStateManager.hasChangesProperty()
+                                        .or(
+                                                currentMode.isEqualTo(Mode.EDIT)
+                                                        .and(
+                                                                selectedExpressionName.isNotEqualTo(expressionNameTextField.textProperty())
+                                                        )
+                                        )
+                                        .or(
+                                                editAsText
+                                                        .and(expressionInvalidLabel.visibleProperty().not())
+                                        )
+                                        .not()
+                        )
+        );
+
+
+        deleteExpressionButton.disableProperty().bind( // Enabled if expression selected or editing
+                currentMode.isEqualTo(Mode.CREATE).or(customExpressionLV.getSelectionModel().selectedItemProperty().isNull())
+        );
+
+        // ------------------------------ end property bindings
+    }
+
+    /**
+     * Re-assign the indices for all the textflow nodes after inserting a new one based on their position in the textflow.
+     */
+    private void reindexExpressionTextFlowChildren() {
+        for (int i = 0; i < expressionTextFlow.getChildren().size(); i++) {
+            Node node = expressionTextFlow.getChildren().get(i);
+            if (node instanceof ExpressionTextNode et) {
+                et.setIndex(i);
+            }
+        }
+        expressionTextFlow.getChildren().sort((Node o1, Node o2) -> {
+            int retVal = 0;
+            if (o1 instanceof ExpressionTextNode && o2 instanceof ExpressionTextNode) {
+                retVal = Integer.compare(((ExpressionTextNode) o1).getIndex(), ((ExpressionTextNode) o2).getIndex());
+            }
+            return retVal;
+        });
+    }
+
+    private String makeStringFromExpressionTextNodeList() {
+        StringBuilder sb = new StringBuilder();
+        for (Node node : expressionTextFlow.getChildren()) {
+            if (node instanceof ExpressionTextNode) {
+                ((ExpressionTextNode) node).getText();
+                String txt = ((ExpressionTextNode) node).getText().trim();
+                String nonLetter = "\t\n\r [](),+-*/<>=^\"";
+                if (sb.isEmpty() || nonLetter.indexOf(sb.charAt(sb.length() - 1)) != -1 || nonLetter.indexOf(txt.charAt(0)) != -1) {
+                    sb.append(txt);
+                } else {
+                    sb.append(" ").append(txt);
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    private void handleExpressionValidity() {
+        List<String> rpnList = ShuntingYard.infixToPostfix(textFlowToList());
+        try {
+            ExpressionTree.buildTree(rpnList);
+            expressionInvalidLabel.setVisible(false);
+        } catch (Exception e) {
+            expressionInvalidLabel.setVisible(true);
+        }
+        if (rpnList.isEmpty()) { expressionInvalidLabel.setVisible(false);}
     }
 
     private boolean checkLegalityOfProposedRatio() {
@@ -974,18 +1384,40 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     private void loadDataFile(File selectedFile) {
+
         boolean legalFile = true;
+        String oldMethod = analysis.getMethod().getMethodName();
         removeAnalysisMethod();
         String currentAnalysisName = analysis.getAnalysisName();
         if (tripoliSession.getMapOfAnalyses().containsKey(currentAnalysisName))
             tripoliSession.getMapOfAnalyses().remove(currentAnalysisName);
+        AnalysisInterface analysisProposed;
         try {
-            String analysisName = analysis.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
+            analysisProposed = initializeNewAnalysis(0);
+            String analysisName = analysisProposed.extractMassSpecDataFromPath(Path.of(selectedFile.toURI()));
+            if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
+                analysisProposed.setAnalysisName(analysisName);
+                analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
+                if (oldMethod.equals(analysisProposed.getMethod().getMethodName()) && !tripoliSession.isExpressionRefreshed()) {
+                    List<UserFunction> functionsToRemove = analysisProposed.getUserFunctions().stream()
+                            .filter(UserFunction::isTreatAsCustomExpression)
+                            .toList();
 
-            if (analysis.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
-                analysis.setAnalysisName(analysisName);
-                analysis.setAnalysisStartTime(analysis.getMassSpecExtractedData().getHeader().analysisStartTime());
-                tripoliSession.getMapOfAnalyses().put(analysis.getAnalysisName(), analysis);
+                    analysisProposed.getUserFunctions().removeAll(functionsToRemove);
+
+                    List<UserFunction> functionsToAdd = analysis.getUserFunctions().stream()
+                            .filter(UserFunction::isTreatAsCustomExpression)
+                            .toList();
+
+                    analysisProposed.getUserFunctions().addAll(functionsToAdd);
+                }
+                tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
+                analysis = analysisProposed;
+
+                MCMCPlotsController.analysis = analysis;
+                MCMC2PlotsController.analysis = analysis;
+                OGTripoliViewController.analysis = analysis;
+
             } else {
                 legalFile = false;
             }
@@ -998,6 +1430,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         if (legalFile) {
             // Proceed based on analysis case per https://docs.google.com/drawings/d/1U6-8LC55mHjHv8N7p6MAfKcdW8NibJSei3iTMT7E1A8/edit?usp=sharing
             populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
+            populateCustomExpressionTab();
 
             try {
                 previewAndSculptDataAction();
@@ -1254,6 +1687,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     public void exportToClipboardAction() {
+        AllBlockInitForDataLiteOne.initBlockModels(analysis);
         String clipBoardString = analysis.prepareFractionForClipboardExport();
         Clipboard clipboard = Clipboard.getSystemClipboard();
         ClipboardContent content = new ClipboardContent();
@@ -1297,6 +1731,356 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
 
         tripoliPersistentState.updateTripoliPersistentState();
+    }
+
+    public void newCustomExpressionOnAction() {
+        currentMode.set(Mode.CREATE);
+        expressionString.set("");
+        expressionNameTextField.clear();
+        expressionStateManager.save("");
+    }
+
+    public void editCustomExpressionOnAction() {
+        currentMode.set(Mode.EDIT);
+        selectedExpressionName.set(customExpressionLV.getSelectionModel().getSelectedItem().getName().split(" \\( = ")[0]);
+        expressionNameTextField.setText(selectedExpressionName.get());
+        handleExpressionUpdate(true);
+    }
+
+    public void cancelCustomExpressionOnAction() {
+        boolean proceed;
+        if (expressionStateManager.hasChanges()) {
+            proceed = showChoiceDialog("Unsaved changes detected. Proceed?", TripoliGUI.primaryStage);
+            if (proceed) {
+                expressionString.set(expressionStateManager.revert());
+                if (currentMode.get() == Mode.CREATE) {
+                    expressionNameTextField.clear();
+                } else {
+                    String originalName = customExpressionsList.stream().filter(expression -> expression.getName().contains(selectedExpressionName.get())).findFirst().get().getName();
+                    expressionNameTextField.setText(originalName);
+                }
+                expressionStateManager.clear();
+                currentMode.set(Mode.VIEW);
+                selectedExpressionName.set("");
+            }
+        } else {
+            if (currentMode.get() == Mode.EDIT) {
+                String originalName = customExpressionsList.stream().filter(expression -> expression.getName().contains(selectedExpressionName.get())).findFirst().get().getName();
+                expressionNameTextField.setText(originalName);
+            }
+            expressionStateManager.clear();
+            currentMode.set(Mode.VIEW);
+        }
+        if (editAsText.get()){
+            expressionAsTextAction();
+        }
+        expressionAccordion.getPanes().get(0).setExpanded(true);
+    }
+
+    public void saveCustomExpressionOnAction() {
+        TripoliPersistentState tripoliPersistentState;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        String expressionName = expressionNameTextField.getText().trim();
+        String expressionText = makeStringFromExpressionTextNodeList();
+
+        if (expressionName.isBlank()) {
+            TripoliMessageDialog.showWarningDialog("Please enter a name for the expression.", TripoliGUI.primaryStage);
+            return;
+        }
+        if (expressionText.isBlank()) {
+            TripoliMessageDialog.showWarningDialog("Please enter an expression.", TripoliGUI.primaryStage);
+            return;
+        }
+        if (expressionName.split(" \\( = ").length > 1 && currentMode.get() == Mode.CREATE) {
+            TripoliMessageDialog.showWarningDialog("Expression name cannot contain \" ( = \".", TripoliGUI.primaryStage);
+            return;
+        }
+        if (expressionName.contains("[") || expressionName.contains("]")) {
+            TripoliMessageDialog.showWarningDialog("Expression name cannot contain '[' or ']' .", TripoliGUI.primaryStage);
+            return;
+        }
+        boolean proceed = true;
+        if (currentMode.get().equals(Mode.EDIT) && !selectedExpressionName.get().equals(expressionName)) {
+            proceed = showChoiceDialog("Change expression name from \"" + selectedExpressionName.get() + "\" to \"" + expressionName + "\"?", TripoliGUI.primaryStage);
+        }
+        if (!proceed) {
+            return;
+        }
+
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+        UserFunction existingFunction;
+
+        if (currentMode.get().equals(Mode.EDIT)){
+            String searchName = selectedExpressionName.get();
+            existingFunction = userFunctions.stream()
+                    .filter(uf -> uf.getName().equalsIgnoreCase(searchName))
+                    .findFirst()
+                    .orElse(null);
+        } else { // User typed the existing expression name
+            existingFunction = userFunctions.stream()
+                    .filter(uf -> uf.getName().equalsIgnoreCase(expressionName))
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        if (existingFunction != null) {
+            if (!existingFunction.isTreatAsCustomExpression()) {
+                TripoliMessageDialog.showWarningDialog("This name is already a built-in function. Please choose a different name.", TripoliGUI.primaryStage);
+                return;
+            }
+
+            boolean proceed2 = currentMode.get() != Mode.CREATE || showChoiceDialog(
+                    "This name is already a custom expression. Would you like to overwrite?", TripoliGUI.primaryStage);
+            if (!proceed2) return;
+
+            if (editAsText.get()){
+                expressionAsTextAction();
+            }
+
+            deleteExpression(existingFunction.getName());
+            saveExpression(expressionName, existingFunction.getColumnIndex(), tripoliPersistentState);
+        } else {
+            saveExpression(expressionName, userFunctions.size(), tripoliPersistentState);
+        }
+        populateAnalysisMethodColumnsSelectorPane();
+        analysis.getMapOfBlockIdToRawDataLiteOne().clear();
+        expressionStateManager.clear();
+        currentMode.set(Mode.VIEW);
+
+        populateAnalysisDataFields();
+
+    }
+
+    private void saveExpression(String expressionName, int columnIndex, TripoliPersistentState persistentState) {
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+
+        List<String> rpnList = ShuntingYard.infixToPostfix(textFlowToList());
+        ExpressionTreeInterface expressionTree = ExpressionTree.buildTree(rpnList);
+        expressionTree.setName(expressionName);
+        customExpressionsList.add(expressionTree);
+
+        UserFunction newFunction = new UserFunction(expressionName, columnIndex, false, true);
+        newFunction.setTreatAsCustomExpression(true);
+        newFunction.setCustomExpression(expressionTree);
+        checkExpressionForRenamedRatio(newFunction);
+
+        userFunctions.add(newFunction);
+
+        analysis.getMassSpecExtractedData().populateCycleDataForCustomExpression(expressionTree);
+
+        if (tripoliSession.isExpressionRefreshed()){
+            AnalysisMethodPersistance methodPersistence =
+                    persistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+
+            methodPersistence.getUserFunctionDisplayMap().put(
+                    expressionName, new UserFunctionDisplay(expressionName, true, false));
+            methodPersistence.getExpressionUserFunctionList().add(newFunction);
+
+            persistentState.updateTripoliPersistentState();
+        }
+        expressionAccordion.getPanes().get(0).setExpanded(true);
+        customExpressionLV.getSelectionModel().select(customExpressionsList.indexOf(expressionTree));
+    }
+
+    private void checkExpressionForRenamedRatio(UserFunction userFunction) {
+        List<Node> meaningfulNodes = expressionTextFlow.getChildren().stream()
+                .filter(node -> {
+                    if (node instanceof Text textNode) {
+                        String trimmed = textNode.getText().trim();
+                        return !trimmed.equals("(") && !trimmed.equals(")");
+                    }
+                    return true;
+                })
+                .toList();
+
+        if (meaningfulNodes.size() == 1 && meaningfulNodes.get(0) instanceof UserFunctionTextNode expressionNode) {
+            String ufName = expressionNode.getUserFunctionName();
+            UserFunction existingFunction = analysis.getUserFunctions().stream()
+                    .filter(uf -> uf.getName().equalsIgnoreCase(ufName))
+                    .findFirst()
+                    .orElse(null);
+            if (existingFunction != null && existingFunction.isTreatAsIsotopicRatio()) {
+                userFunction.setTreatAsIsotopicRatio(true);
+                String ratioName = userFunction.getCustomExpression().getName().split(" \\( = ")[0];
+                userFunction.getCustomExpression().setName(ratioName + " ( = " + ufName + " )");
+                expressionNameTextField.setText(userFunction.getCustomExpression().getName());
+
+            } else {
+                userFunction.setTreatAsIsotopicRatio(false);
+
+            }
+        }
+    }
+
+    public void expressionClearAction() {
+        if (currentMode.get().equals(Mode.VIEW)){
+            expressionString.set("");
+            expressionNameTextField.clear();
+
+            expressionStateManager.clear();
+            customExpressionLV.getSelectionModel().clearSelection();
+        } else {
+            expressionString.set("");
+
+            handleExpressionUpdate(true);
+        }
+    }
+
+    public void expressionUndoAction() {
+        populateTextFlowFromString(expressionStateManager.undo());
+    }
+
+    public void expressionRedoAction() {
+        populateTextFlowFromString(expressionStateManager.redo());
+    }
+
+    public void deleteCustomExpressionOnAction() {
+        boolean proceed = showChoiceDialog("Are you sure you want to delete the expression: " + expressionNameTextField.getText() + "?", TripoliGUI.primaryStage);
+        if (proceed) {
+            String expressionName = expressionNameTextField.getText().split(" \\( = ")[0];
+            deleteExpression(expressionName);
+
+            if (editAsText.get()){
+                expressionAsTextAction();
+            }
+
+            currentMode.set(Mode.VIEW);
+            expressionStateManager.clear();
+            expressionString.set("");
+            expressionNameTextField.clear();
+            customExpressionLV.getSelectionModel().clearSelection();
+
+        }
+    }
+
+    private void deleteExpression(String expressionName) {
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+            e.printStackTrace();
+        }
+
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+
+        UserFunction customExpression = userFunctions.stream().filter(uf -> uf.getName().equalsIgnoreCase(expressionName)).findFirst().get();
+        customExpressionsList.remove(customExpression.getCustomExpression());
+
+        userFunctions.remove(customExpression);
+        analysis.getMassSpecExtractedData().removeCycleDataForDeletedExpression(customExpression.getCustomExpression());
+
+        int columnIndex = customExpression.getColumnIndex();
+        for (UserFunction uf : userFunctions) { // Reindex down
+            if (uf.getColumnIndex() > columnIndex) {
+                uf.setColumnIndex(uf.getColumnIndex() - 1);
+            }
+        }
+
+        if (tripoliSession.isExpressionRefreshed()){
+            AnalysisMethodPersistance analysisMethodPersistance =
+                    tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+
+            analysisMethodPersistance.getUserFunctionDisplayMap().remove(customExpression.getName());
+            analysisMethodPersistance.getExpressionUserFunctionList().removeIf(e -> e.getName().equals(customExpression.getName()));
+            tripoliPersistentState.updateTripoliPersistentState();
+        }
+
+        populateAnalysisMethodColumnsSelectorPane();
+        populateAnalysisDataFields();
+    }
+
+    private List<String> textFlowToList(){
+        List<String> retVal = new ArrayList<>();
+        for (Node node : expressionTextFlow.getChildren()){
+            String text = ((ExpressionTextNode) node).getText().trim();
+            if (!text.isBlank()) {
+                retVal.add(text);
+            }
+        }
+        return retVal;
+    }
+
+    public void expressionAsTextAction() {
+        if (!editAsText.get()) {
+
+            editAsText.set(true);
+
+            expressionPane.getChildren().setAll(expressionAsTextArea);
+            AnchorPane.setBottomAnchor(expressionAsTextArea, 0.0);
+            AnchorPane.setTopAnchor(expressionAsTextArea, 0.0);
+            AnchorPane.setRightAnchor(expressionAsTextArea, 0.0);
+            AnchorPane.setLeftAnchor(expressionAsTextArea, 0.0);
+            expressionAsTextBtn.setText("Switch to d&d");
+            expressionAsTextArea.requestFocus();
+
+        } else {
+
+            editAsText.set(false);
+
+            expressionPane.getChildren().setAll(expressionScrollPane);
+            AnchorPane.setBottomAnchor(expressionScrollPane, 0.0);
+            AnchorPane.setTopAnchor(expressionScrollPane, 0.0);
+            AnchorPane.setRightAnchor(expressionScrollPane, 0.0);
+            AnchorPane.setLeftAnchor(expressionScrollPane, 0.0);
+            expressionAsTextBtn.setText("Switch to text");
+
+            handleExpressionUpdate(true);
+
+        }
+    }
+
+    /**
+     * Parses a given string into the correct nodes for the expressionTextFlow and then inserts them as children
+     * @param expressionString new expression to be shown in the TextFlow
+     */
+    private void populateTextFlowFromString(String expressionString) {
+        // Handle null as an empty string
+        InputStream stream = new ByteArrayInputStream(Objects.requireNonNullElse(expressionString, "").getBytes(StandardCharsets.UTF_8));
+
+        List<Node> children = new ArrayList<>();
+
+        try {
+            ExpressionsForTripoliLexer lexer = new ExpressionsForTripoliLexer(CharStreams.fromStream(stream, StandardCharsets.UTF_8));
+            List<? extends Token> tokens = lexer.getAllTokens();
+
+            for (int i = 0; i < tokens.size(); i++) {
+                Token token = tokens.get(i);
+                String nodeText = token.getText();
+
+                ExpressionTextNode etn;
+
+                if (ShuntingYard.isNumber(nodeText) || "#".equals(nodeText)) {
+                    etn = new NumberTextNode(' ' + nodeText + ' ');
+                } else if (listOperators.contains(nodeText)) {
+                    etn = new OperationTextNode(' ' + nodeText + ' ');
+                } else if (nodeText.contains("[")){
+                    etn = new UserFunctionTextNode(' ' + nodeText + ' ');
+                } else {
+                    etn = new ExpressionTextNode(' ' + nodeText + ' ');
+                }
+
+                etn.setIndex(i);
+                children.add(etn);
+            }
+        } catch (IOException ignored) {
+        }
+        expressionTextFlow.getChildren().setAll(children);
+        handleExpressionUpdate(false);
+
+    }
+
+    private void handleExpressionUpdate(boolean saveCurrentState) {
+        reindexExpressionTextFlowChildren();
+        handleExpressionValidity();
+        if (saveCurrentState) {
+            expressionStateManager.save(expressionString.getValue());
+        }
     }
 
     class RatioClickHandler implements EventHandler<MouseEvent> {
@@ -1371,6 +2155,340 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             boolean displayed = newValue;
             IsotopicRatio ratio = (IsotopicRatio) checkBox.getUserData();
             updateAnalysisRatios(ratio, displayed);
+        }
+    }
+
+    private class ExpressionTextNode extends Text {
+        public final String text;
+        private int index;
+        protected Color regularColor;
+        protected Color selectedColor;
+        protected Color oppositeColor;
+        protected int fontSize;
+
+        public ExpressionTextNode(String text) {
+            super(text);
+
+            setFontSmoothingType(FontSmoothingType.LCD);
+            setFont(Font.font("SansSerif"));
+
+            this.selectedColor = Color.RED;
+            this.regularColor = Color.BLACK;
+            this.oppositeColor = Color.LIME;
+
+            setFill(regularColor);
+
+            this.text = text;
+
+            this.fontSize = EXPRESSION_BUILDER_DEFAULT_FONTSIZE;
+            updateFontSize();
+            setupDragHandlers();
+            setupContextMenu();
+        }
+        public final void updateFontSize() {
+            setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, fontSize));
+        }
+        public int getIndex() { return index; }
+        public void setIndex(int index) { this.index = index; }
+
+        private void setupDragHandlers() {
+
+            setOnDragOver(event -> {
+                if (event.getDragboard().hasString() && !currentMode.get().equals(Mode.VIEW)) {
+                    event.acceptTransferModes(TransferMode.MOVE);
+                }
+                event.consume();
+            });
+
+            setOnDragEntered(event -> {
+                if (!expressionTextFlow.getChildren().contains(insertIndicator) && !currentMode.get().equals(Mode.VIEW)) {
+                    expressionTextFlow.getChildren().add(insertIndicator);
+                }
+                moveInsertIndicatorToIndex(this.index);
+
+                event.consume();
+            });
+
+            setOnDragExited(event -> {
+                expressionTextFlow.getChildren().remove(insertIndicator);
+            });
+
+            setOnDragDropped(event -> {
+                Dragboard db = event.getDragboard();
+                boolean success = false;
+                if (db.hasString()) {
+                    String droppedText = db.getString();
+
+                    int newIndex = expressionTextFlow.getChildren().indexOf(insertIndicator);
+                    expressionTextFlow.getChildren().remove(insertIndicator);
+                    expressionTextFlow.getChildren().add(newIndex, new ExpressionTextNode(droppedText));
+
+                    if (event.getGestureSource() instanceof ExpressionTextNode) {
+                        expressionTextFlow.getChildren().remove(event.getGestureSource());
+                    }
+
+                    populateTextFlowFromString(makeStringFromExpressionTextNodeList());
+                    handleExpressionUpdate(true);
+
+                    success = true;
+                }
+                event.setDropCompleted(success);
+                event.consume();
+            });
+
+            setOnDragDetected(event -> {
+                if (!currentMode.get().equals(Mode.VIEW)) {
+                    setCursor(Cursor.CLOSED_HAND);
+                    Dragboard db = startDragAndDrop(TransferMode.MOVE);
+                    db.setDragView(this.snapshot(null, null));
+                    ClipboardContent cc = new ClipboardContent();
+                    cc.putString(text);
+                    db.setContent(cc);
+                }
+            });
+
+
+        }
+        private void moveInsertIndicatorToIndex(int index) {
+            expressionTextFlow.getChildren().remove(insertIndicator);
+            expressionTextFlow.getChildren().add(index, insertIndicator);
+        }
+
+
+        private void setupContextMenu() {
+            // Delete -------------------
+            MenuItem deleteItem = new MenuItem("Delete");
+            deleteItem.setOnAction(event -> {
+                expressionTextFlow.getChildren().remove(this);
+                handleExpressionUpdate(true);
+            });
+            // --------------- end delete
+            
+            // Parenthesis -----------------------
+            MenuItem addParenthesisItem = new MenuItem("Add Parentheses");
+            addParenthesisItem.setOnAction(event -> {
+                int index = expressionTextFlow.getChildren().indexOf(this);
+                expressionTextFlow.getChildren().remove(this);
+
+                expressionTextFlow.getChildren().add(index, new ExpressionTextNode("("));
+                expressionTextFlow.getChildren().add(index + 1, this);
+                expressionTextFlow.getChildren().add(index + 2, new ExpressionTextNode(")"));
+
+                handleExpressionUpdate(true);
+            });
+
+            // ---------------- end parenthesis
+            
+            // value input (NumberTextNode only) -----------------------
+            CustomMenuItem valueInputItem = new CustomMenuItem();
+            valueInputItem.setHideOnClick(false);
+        
+            HBox inputContainer = new HBox(5);
+            Label label = new Label("Value:");
+            TextField valueField = new TextField();
+            valueField.setPrefWidth(100);
+        
+            valueField.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue.matches("-?\\d*\\.?\\d*")) {
+                    valueField.setText(oldValue);
+                }
+            });
+            
+            // Create a method to handle the apply action
+            EventHandler<ActionEvent> applyAction = e -> {
+                if (valueField.getText().isEmpty()) {
+                    int index = expressionTextFlow.getChildren().indexOf(this);
+                    expressionTextFlow.getChildren().remove(this);
+                    expressionTextFlow.getChildren().add(index, new NumberTextNode("#"));
+                } else {
+                    double numValue = Double.parseDouble(valueField.getText());
+                    int index = expressionTextFlow.getChildren().indexOf(this);
+                    expressionTextFlow.getChildren().remove(this);
+                    expressionTextFlow.getChildren().add(index, new NumberTextNode(String.valueOf(numValue)));
+                }
+                handleExpressionUpdate(true);
+            };
+            
+            valueField.setOnKeyPressed(event -> {
+                if (event.getCode() == KeyCode.ENTER) {
+                    applyAction.handle(new ActionEvent());
+                    event.consume();
+                }
+            });
+            
+            Button applyButton = new Button("Apply");
+            applyButton.setOnAction(applyAction);
+            
+            inputContainer.getChildren().addAll(label, valueField, applyButton);
+            valueInputItem.setContent(inputContainer);
+            // -------------- end value input
+            
+            
+            // Build context
+            ContextMenu contextMenu = new ContextMenu(deleteItem, addParenthesisItem);
+
+            if (this instanceof NumberTextNode || this.text.equals("#")) {
+                contextMenu.getItems().add(valueInputItem);
+            }
+        
+            setOnContextMenuRequested(event -> {
+                if (!currentMode.get().equals(Mode.VIEW)) {
+                    contextMenu.show(this, event.getScreenX(), event.getScreenY());
+
+                    // Focus on the text field for immediate input
+                    Platform.runLater(valueField::requestFocus);
+                }
+            });
+        }
+
+    }
+
+    private class NumberTextNode extends ExpressionTextNode {
+        public NumberTextNode(String text) {
+            super(text);
+        }
+    }
+
+    private class OperationTextNode extends ExpressionTextNode {
+
+        public OperationTextNode(String text) {
+            super(text);
+            this.regularColor = Color.GREEN;
+            setFill(regularColor);
+            this.fontSize = EXPRESSION_BUILDER_DEFAULT_FONTSIZE + 3;
+            updateFontSize();
+        }
+    }
+
+    private class UserFunctionTextNode extends ExpressionTextNode {
+
+        public UserFunctionTextNode(String text) {
+            super(text);
+            this.regularColor = Color.BLUE;
+            setFill(regularColor);
+        }
+        public String getUserFunctionName() {
+            return text.trim().substring(1, text.trim().length() - 1);
+        }
+    }
+
+    public static class StateManager<T> {
+
+        private final BooleanProperty canUndo = new SimpleBooleanProperty(false);
+        private final BooleanProperty canRedo = new SimpleBooleanProperty(false);
+        private final BooleanProperty hasChanges = new SimpleBooleanProperty(false);
+
+        private Node current;
+        private Node tail;
+
+
+        private class Node {
+            T state;
+            Node prev;
+            Node next;
+
+            Node(T state) {
+                this.state = state;
+            }
+        }
+
+        public void save(T state) {
+            if (current != null && current.state.equals(state)) {
+                return;
+            }
+
+            Node newNode = new Node(state);
+
+            if (current != null) {
+                current.next = newNode;
+                newNode.prev = current;
+            }
+            current = newNode;
+
+            if (tail == null) {
+                tail = current;
+            }
+
+            updateProperties();
+        }
+
+        public T undo() {
+            if (current != null && current.prev != null) {
+                current = current.prev;
+                updateProperties();
+                return current.state;
+            } else if (current.prev == null) {
+                Node newNext = current;
+                current = new Node(null);
+                current.next = newNext;
+                updateProperties();
+            }
+            return null;
+        }
+
+        public T redo() {
+            if (current != null && current.next != null) {
+                current = current.next;
+                updateProperties();
+                return current.state;
+            }
+            return null;
+        }
+
+        public void clear() {
+            current = null;
+            tail = null;
+            canRedo.set(false);
+            canUndo.set(false);
+            hasChanges.set(false);
+        }
+
+        public boolean hasChanges() {
+            if (current == null || tail == null) {
+                return false;
+            }
+
+            return !Objects.equals(current.state, tail.state);
+        }
+
+        public T revert() {
+            if (tail != null) {
+                return tail.state;
+            }
+            return null;
+        }
+
+
+        public BooleanProperty canUndoProperty() {
+            return canUndo;
+        }
+        public BooleanProperty canRedoProperty() {
+            return canRedo;
+        }
+        public BooleanProperty hasChangesProperty() {return hasChanges;}
+
+        private void updateProperties() {
+            canUndo.set(current.prev != null);
+            canRedo.set(current.next != null);
+            hasChanges.set(hasChanges());
+        }
+    }
+
+    private enum Mode {
+
+        EDIT("Edit"),
+        CREATE("Create"),
+        VIEW("View");
+
+        private final String printString;
+
+        Mode(String printString) {
+            this.printString = printString;
+        }
+
+        @Override
+        public String toString() {
+            return printString;
         }
     }
 }
