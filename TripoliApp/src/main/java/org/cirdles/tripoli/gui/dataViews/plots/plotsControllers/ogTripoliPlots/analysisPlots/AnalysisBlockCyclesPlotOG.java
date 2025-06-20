@@ -44,11 +44,13 @@ import org.cirdles.tripoli.utilities.mathUtilities.FormatterForSigFigN;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static java.lang.StrictMath.*;
 import static java.util.Arrays.binarySearch;
+import static java.util.Map.entry;
 import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.generateGeometricMeanStats;
 import static org.cirdles.tripoli.utilities.mathUtilities.FormatterForSigFigN.countOfTrailingDigitsForSigFig;
 import static org.cirdles.tripoli.utilities.mathUtilities.MathUtilities.applyChauvenetsCriterion;
@@ -252,6 +254,98 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     }
 
     /**
+     * For Block Mode:
+     * Generates the values for the lesserSigmaPct, plusSigmaPct, and the minusSigmaPct.
+     * Also returns the generated value for countOfTrailingDigitsForSigFig
+     * @param geoWeightedMeanRatio
+     * @return
+     */
+    HashMap<String, Double> calcSigmaPctsBM(double geoWeightedMeanRatio) {
+        int countOfTrailingDigitsForSigFig;
+
+        double geoWeightedMeanRatioPlusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() + analysisStatsRecord.blockModeWeightedMeanOneSigma());
+        double geoWeightedMeanRatioMinusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() - analysisStatsRecord.blockModeWeightedMeanOneSigma());
+        double geoWeightedMeanRatioPlusOneSigmaPct = (geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio) / geoWeightedMeanRatio * 100.0;
+        double geoWeightedMeanRatioMinusOneSigmaPct = (geoWeightedMeanRatio - geoWeightedMeanRatioMinusOneSigma) / geoWeightedMeanRatio * 100.0;
+
+        countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig(Math.min(geoWeightedMeanRatioPlusOneSigmaPct, geoWeightedMeanRatioMinusOneSigmaPct), 2);
+        double plusSigmaPct = (new BigDecimal(geoWeightedMeanRatioPlusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
+        double minusSigmaPct = (new BigDecimal(geoWeightedMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
+
+        double lesserSigmaPct = Math.min(plusSigmaPct, minusSigmaPct);
+
+        HashMap<String, Double> output = new HashMap<>();
+        output.put("lesserSigmaPct", lesserSigmaPct);
+        output.put("plusSigmaPct", plusSigmaPct);
+        output.put("minusSigmaPct", minusSigmaPct);
+        output.put("countOfTrailingDigitsForSigFig", (double) countOfTrailingDigitsForSigFig);
+
+        return output;
+    }
+
+    /**
+     * For Cycle Mode:
+     * Generates the necessary values for Cycle Mode
+     * @param geometricMeanStatsRecord
+     * @param geoMean
+     * @return HashMap containing the values of plusErrPct, minusErrPct, plusSigmaPct, minusSigmaPct, geoMeanPlusOneStandardDeviation, countOfTrailingDigitsForStdErrPct, and countOfTralingDigitsForOneSigmaPct
+     */
+    HashMap<String, Double> calcSigmaPctsCM(GeometricMeanStatsRecord geometricMeanStatsRecord, double geoMean) {
+        double geoMeanPlusOneStandardError = geometricMeanStatsRecord.geoMeanPlusOneStdErr();
+        double geoMeanMinusOneStandardError = geometricMeanStatsRecord.geoMeanMinusOneStdErr();
+        double geoMeanRatioPlusOneStdErrPct = (geoMeanPlusOneStandardError - geoMean) / geoMean * 100.0;
+        double geoMeanRatioMinusOneStdErrPct = (geoMean - geoMeanMinusOneStandardError) / geoMean * 100.0;
+
+        double smallerGeoMeanRatioOneStdErrPct = Math.min(geoMeanRatioPlusOneStdErrPct, geoMeanRatioMinusOneStdErrPct);
+        int countOfTrailingDigitsForStdErrPct = countOfTrailingDigitsForSigFig(smallerGeoMeanRatioOneStdErrPct, 2);
+        double plusErrPct = (new BigDecimal(geoMeanRatioPlusOneStdErrPct).setScale(countOfTrailingDigitsForStdErrPct, RoundingMode.HALF_UP)).doubleValue();
+        double minusErrPct = (new BigDecimal(geoMeanRatioMinusOneStdErrPct).setScale(countOfTrailingDigitsForStdErrPct, RoundingMode.HALF_UP)).doubleValue();
+
+        double geoMeanPlusOneStandardDeviation = geometricMeanStatsRecord.geoMeanPlusOneStdDev();
+        double geoMeanMinusOneStandardDeviation = geometricMeanStatsRecord.geoMeanMinusOneStdDev();
+        double geoMeanRatioPlusOneSigmaPct = (geoMeanPlusOneStandardDeviation - geoMean) / geoMean * 100.0;
+        double geoMeanRatioMinusOneSigmaPct = (geoMean - geoMeanMinusOneStandardDeviation) / geoMean * 100.0;
+        double smallerGeoMeanRatioForOneSigmaPct = Math.min(geoMeanRatioPlusOneSigmaPct, geoMeanRatioMinusOneSigmaPct);
+        int countOfTrailingDigitsForOneSigmaPct = countOfTrailingDigitsForSigFig(smallerGeoMeanRatioForOneSigmaPct, 2);
+        double plusSigmaPct = (new BigDecimal(geoMeanRatioPlusOneSigmaPct).setScale(countOfTrailingDigitsForOneSigmaPct, RoundingMode.HALF_UP)).doubleValue();
+        double minusSigmaPct = (new BigDecimal(geoMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForOneSigmaPct, RoundingMode.HALF_UP)).doubleValue();
+
+        HashMap<String, Double> output = new HashMap<>();
+        output.put("plusErrPct", plusErrPct);
+        output.put("minusErrPct", minusErrPct);
+        output.put("plusSigmaPct", plusSigmaPct);
+        output.put("minusSigmaPct", minusSigmaPct);
+        output.put("geoMeanPlusOneStandardDeviation", geoMeanPlusOneStandardDeviation);
+        output.put("countOfTrailingDigitsForStdErrPct", (double) countOfTrailingDigitsForStdErrPct);
+        output.put("countOfTrailingDigitsForOneSigmaPct", (double) countOfTrailingDigitsForOneSigmaPct);
+
+        return output;
+    }
+
+    /**
+     * Returns the FormattedStats object needed for the meaAsString(), unctAsString(), and stdvAsString() methods.
+     *
+     * @param mean
+     * @param stdErr
+     * @return
+     */
+    FormatterForSigFigN.FormattedStats calcFormattedStats(double mean, double stdErr, double stdDev) {
+
+        FormatterForSigFigN.FormattedStats formattedStats;
+        if ((abs(mean) >= 1e7) || (abs(mean) <= 1e-5)) {
+            formattedStats =
+                    FormatterForSigFigN.formatToScientific(mean, stdErr, stdDev, 2).padLeft();
+        } else {
+            formattedStats =
+                    FormatterForSigFigN.formatToSigFig(mean, stdErr, stdDev, 2).padLeft();
+        }
+
+        return formattedStats;
+
+
+    }
+
+    /**
      * @param g2d
      */
     @Override
@@ -293,29 +387,14 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 double geoWeightedMeanRatio = exp(analysisStatsRecord.blockModeWeightedMean());
 
                 if (!Double.isNaN(geoWeightedMeanRatio)) {
-                    double geoWeightedMeanRatioPlusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() + analysisStatsRecord.blockModeWeightedMeanOneSigma());
-                    double geoWeightedMeanRatioMinusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() - analysisStatsRecord.blockModeWeightedMeanOneSigma());
-                    double geoWeightedMeanRatioPlusOneSigmaPct = (geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio) / geoWeightedMeanRatio * 100.0;
-                    double geoWeightedMeanRatioMinusOneSigmaPct = (geoWeightedMeanRatio - geoWeightedMeanRatioMinusOneSigma) / geoWeightedMeanRatio * 100.0;
+                    HashMap<String, Double> sigmaPcts = calcSigmaPctsBM(geoWeightedMeanRatio);
+                    double lesserSigmaPct = sigmaPcts.get("lesserSigmaPct");
+                    double plusSigmaPct = sigmaPcts.get("plusSigmaPct");
+                    double minusSigmaPct = sigmaPcts.get("minusSigmaPct");
 
-                    double lesserSigmaPct = (geoWeightedMeanRatioPlusOneSigmaPct > geoWeightedMeanRatioMinusOneSigmaPct) ?
-                            geoWeightedMeanRatioMinusOneSigmaPct : geoWeightedMeanRatioPlusOneSigmaPct;
+                    countOfTrailingDigitsForSigFig = sigmaPcts.get("countOfTrailingDigitsForSigFig").intValue();
 
-                    countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig(lesserSigmaPct, 2);
-                    double plusSigmaPct = (new BigDecimal(geoWeightedMeanRatioPlusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
-                    double minusSigmaPct = (new BigDecimal(geoWeightedMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
-
-                    lesserSigmaPct = (plusSigmaPct > minusSigmaPct) ? minusSigmaPct : plusSigmaPct;
-
-                    FormatterForSigFigN.FormattedStats formattedStats;
-                    if ((abs(geoWeightedMeanRatio) >= 1e7) || (abs(geoWeightedMeanRatio) <= 1e-5)) {
-                        formattedStats =
-                                FormatterForSigFigN.formatToScientific(geoWeightedMeanRatio, lesserSigmaPct, 0, 2).padLeft();
-                    } else {
-                        formattedStats =
-                                FormatterForSigFigN.formatToSigFig(geoWeightedMeanRatio, lesserSigmaPct, 0, 2).padLeft();
-                    }
-                    String meanAsString = formattedStats.meanAsString();
+                    String meanAsString = calcFormattedStats(geoWeightedMeanRatio, lesserSigmaPct, 0).meanAsString();
 
                     g2d.fillText("x  = " + meanAsString, textLeft + 10, textTop += textDeltaY);
                     g2d.fillText("\u0304", textLeft + 10, textTop);
@@ -384,24 +463,15 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                         generateGeometricMeanStats(analysisStatsRecord.cycleModeMean(), analysisStatsRecord.cycleModeStandardDeviation(), analysisStatsRecord.cycleModeStandardError());
                 double geoMean = geometricMeanStatsRecord.geoMean();
                 if (!Double.isNaN(geoMean)) {
-                    double geoMeanPlusOneStandardError = geometricMeanStatsRecord.geoMeanPlusOneStdErr();
-                    double geoMeanMinusOneStandardError = geometricMeanStatsRecord.geoMeanMinusOneStdErr();
-                    double geoMeanRatioPlusOneStdErrPct = (geoMeanPlusOneStandardError - geoMean) / geoMean * 100.0;
-                    double geoMeanRatioMinusOneStdErrPct = (geoMean - geoMeanMinusOneStandardError) / geoMean * 100.0;
 
-                    double smallerGeoMeanRatioOneStdErrPct = Math.min(geoMeanRatioPlusOneStdErrPct, geoMeanRatioMinusOneStdErrPct);
-                    int countOfTrailingDigitsForStdErrPct = countOfTrailingDigitsForSigFig(smallerGeoMeanRatioOneStdErrPct, 2);
-                    double plusErrPct = (new BigDecimal(geoMeanRatioPlusOneStdErrPct).setScale(countOfTrailingDigitsForStdErrPct, RoundingMode.HALF_UP)).doubleValue();
-                    double minusErrPct = (new BigDecimal(geoMeanRatioMinusOneStdErrPct).setScale(countOfTrailingDigitsForStdErrPct, RoundingMode.HALF_UP)).doubleValue();
-
-                    double geoMeanPlusOneStandardDeviation = geometricMeanStatsRecord.geoMeanPlusOneStdDev();
-                    double geoMeanMinusOneStandardDeviation = geometricMeanStatsRecord.geoMeanMinusOneStdDev();
-                    double geoMeanRatioPlusOneSigmaPct = (geoMeanPlusOneStandardDeviation - geoMean) / geoMean * 100.0;
-                    double geoMeanRatioMinusOneSigmaPct = (geoMean - geoMeanMinusOneStandardDeviation) / geoMean * 100.0;
-                    double smallerGeoMeanRatioForOneSigmaPct = Math.min(geoMeanRatioPlusOneSigmaPct, geoMeanRatioMinusOneSigmaPct);
-                    int countOfTrailingDigitsForOneSigmaPct = countOfTrailingDigitsForSigFig(smallerGeoMeanRatioForOneSigmaPct, 2);
-                    double plusSigmaPct = (new BigDecimal(geoMeanRatioPlusOneSigmaPct).setScale(countOfTrailingDigitsForOneSigmaPct, RoundingMode.HALF_UP)).doubleValue();
-                    double minusSigmaPct = (new BigDecimal(geoMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForOneSigmaPct, RoundingMode.HALF_UP)).doubleValue();
+                    HashMap<String, Double> keyValues = calcSigmaPctsCM(geometricMeanStatsRecord, geoMean);
+                    double plusErrPct = keyValues.get("plusErrPct");
+                    double minusErrPct = keyValues.get("minusErrPct");
+                    double plusSigmaPct = keyValues.get("plusSigmaPct");
+                    double minusSigmaPct = keyValues.get("minusSigmaPct");
+                    double geoMeanPlusOneStandardDeviation = keyValues.get("geoMeanPlusOneStandardDeviation");
+                    int countOfTrailingDigitsForStdErrPct = keyValues.get("countOfTrailingDigitsForStdErrPct").intValue();
+                    int countOfTrailingDigitsForOneSigmaPct = keyValues.get("countOfTrailingDigitsForOneSigmaPct").intValue();
 
                     String meanAsString;
                     String errPctString;
@@ -409,15 +479,8 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     String sigmaPctString;
                     String sigmaMinusPctString = "";
 
-                    if ((abs(geoMean) >= 1e7) || (abs(geoMean) <= 1e-5)) {
-                        FormatterForSigFigN.FormattedStats formattedStats =
-                                FormatterForSigFigN.formatToScientific(geoMean, geoMeanPlusOneStandardDeviation - geoMean, 0, 2).padLeft();
-                        meanAsString = formattedStats.meanAsString();
-                    } else {
-                        FormatterForSigFigN.FormattedStats formattedStats =
-                                FormatterForSigFigN.formatToSigFig(geoMean, geoMeanPlusOneStandardDeviation - geoMean, 0, 2).padLeft();
-                        meanAsString = formattedStats.meanAsString();
-                    }
+                    meanAsString = calcFormattedStats(geoMean, geoMeanPlusOneStandardDeviation - geoMean, 0).meanAsString();
+
                     g2d.fillText("x  = " + meanAsString, textLeft + 10, textTop += textDeltaY);
                     g2d.fillText("\u0304", textLeft + 10, textTop);
                     boolean meanIsPlottable = (mapY(geoMean) >= topMargin) && (mapY(geoMean) <= topMargin + plotHeight);
@@ -557,19 +620,13 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     String meanAsString;
                     String unctAsString;
                     String stdvAsString;
-                    if ((abs(cycleModeMean) >= 1e7) || (abs(cycleModeMean) <= 1e-5)) {
-                        FormatterForSigFigN.FormattedStats formattedStats =
-                                FormatterForSigFigN.formatToScientific(cycleModeMean, cycleModeStandardError, cycleModeStandardDeviation, 2).padLeft();
-                        meanAsString = formattedStats.meanAsString();
-                        unctAsString = formattedStats.unctAsString();
-                        stdvAsString = formattedStats.stdvAsString();
-                    } else {
-                        FormatterForSigFigN.FormattedStats formattedStats =
-                                FormatterForSigFigN.formatToSigFig(cycleModeMean, cycleModeStandardError, cycleModeStandardDeviation, 2).padLeft();
-                        meanAsString = formattedStats.meanAsString();
-                        unctAsString = formattedStats.unctAsString();
-                        stdvAsString = formattedStats.stdvAsString();
-                    }
+
+                    FormatterForSigFigN.FormattedStats formattedStats = calcFormattedStats(cycleModeMean, cycleModeStandardError, cycleModeStandardDeviation);
+
+                    meanAsString = formattedStats.meanAsString();
+                    unctAsString = formattedStats.unctAsString();
+                    stdvAsString = formattedStats.stdvAsString();
+
                     g2d.fillText("x  = " + meanAsString, textLeft + 10, textTop += textDeltaY);
                     g2d.fillText("\u0304", textLeft + 10, textTop);
                     g2d.fillText("\u03C3  = " + unctAsString, textLeft + 10, textTop += textDeltaY);
@@ -749,6 +806,37 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         g2d.setFill(savedPaint);
     }
 
+    /**
+     *
+     *
+     * @param mean
+     * @param stdDev
+     * @param stdErr
+     * @return
+     */
+    public HashMap<String, Double> calcPlotStatsCM(double mean, double stdDev, double stdErr) {
+        double meanPlusOneStandardDeviation = mean + stdDev;
+        double meanPlusTwoStandardDeviation = mean + 2.0 * stdDev;
+        double meanPlusTwoStandardError = mean + 2.0 * stdErr;
+        double meanMinusOneStandardDeviation = mean - stdDev;
+        double meanMinusTwoStandardDeviation = mean - 2.0 * stdDev;
+        double meanMinusTwoStandardError = mean - 2.0 * stdErr;
+
+        HashMap<String, Double> output = new HashMap<>(Map.ofEntries(
+                entry("mean", mean),
+                entry("stdDev", stdDev),
+                entry("stdErr", stdErr),
+                entry("meanPlusOneStandardDeviation", meanPlusOneStandardDeviation),
+                entry("meanPlusTwoStandardDeviation", meanPlusTwoStandardDeviation),
+                entry("meanPlusTwoStandardError", meanPlusTwoStandardError),
+                entry("meanMinusOneStandardDeviation", meanMinusOneStandardDeviation),
+                entry("meanMinusTwoStandardDeviation", meanMinusTwoStandardDeviation),
+                entry("meanMinusTwoStandardError", meanMinusTwoStandardError)
+        ));
+
+        return output;
+    }
+
     public void plotStats(GraphicsContext g2d) {
         calcStats();
         BlockStatsRecord[] blockStatsRecords = analysisStatsRecord.blockStatsRecords();
@@ -816,15 +904,20 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             }
 
         } else { //cycle mode
-            double mean = analysisStatsRecord.cycleModeMean();
-            double stdDev = analysisStatsRecord.cycleModeStandardDeviation();
-            double stdErr = analysisStatsRecord.cycleModeStandardError();
-            double meanPlusOneStandardDeviation = mean + stdDev;
-            double meanPlusTwoStandardDeviation = mean + 2.0 * stdDev;
-            double meanPlusTwoStandardError = mean + 2.0 * stdErr;
-            double meanMinusOneStandardDeviation = mean - stdDev;
-            double meanMinusTwoStandardDeviation = mean - 2.0 * stdDev;
-            double meanMinusTwoStandardError = mean - 2.0 * stdErr;
+            HashMap<String, Double> plotStats = calcPlotStatsCM(
+                    analysisStatsRecord.cycleModeMean(),
+                    analysisStatsRecord.cycleModeStandardDeviation(),
+                    analysisStatsRecord.cycleModeStandardError());
+
+            double mean = plotStats.get("mean");
+            double stdDev = plotStats.get("stdDev");
+            double stdErr = plotStats.get("stdErr");
+            double meanPlusOneStandardDeviation = plotStats.get("meanPlusOneStandardDeviation");
+            double meanPlusTwoStandardDeviation = plotStats.get("meanPlusTwoStandardDeviation");
+            double meanPlusTwoStandardError = plotStats.get("meanPlusTwoStandardError");
+            double meanMinusOneStandardDeviation = plotStats.get("meanMinusOneStandardDeviation");
+            double meanMinusTwoStandardDeviation = plotStats.get("meanMinusTwoStandardDeviation");
+            double meanMinusTwoStandardError = plotStats.get("meanMinusTwoStandardError");
 
             double leftX = mapX(xAxisData[0] - 0.5);
             if (leftX < leftMargin) leftX = leftMargin;
