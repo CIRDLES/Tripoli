@@ -88,7 +88,7 @@ public class ReportTest {
      */
     @Test
     public void accurateReportTest() throws URISyntaxException, JAXBException, IOException {
-        File dataFile = new File(getClass().getResource("/org/cirdles/tripoli/core/NBS981 230024b-154.TIMSDP").toURI());
+        File dataFile = new File(Objects.requireNonNull(getClass().getResource("/org/cirdles/tripoli/core/NBS981 230024b-154.TIMSDP")).toURI());
 
         Session tripoliSession = Session.initializeDefaultSession();
         AnalysisInterface analysisProposed;
@@ -120,8 +120,9 @@ public class ReportTest {
         fullReport.generateCSVFile(analysisList, tripoliSession.getSessionName());
 
         String actualReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource("/org/cirdles/tripoli/core/New Session-NBS981 230024b-154-report.csv")).toURI()), "UTF-8");
-        String expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource("org/cirdles/tripoli/core/fullReports/Oracle-NBS981 230024b-154-report.csv")).toURI()), "UTF-8");
+        String expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource("/org/cirdles/tripoli/core/fullReports/Oracle-NBS981 230024b-154-report.csv")).toURI()), "UTF-8");
         assertEquals(expectedReport, actualReport);
+        System.out.println(actualReport);
     }
 
 }
