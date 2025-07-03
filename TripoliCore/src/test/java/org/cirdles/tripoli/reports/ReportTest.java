@@ -1,14 +1,22 @@
 package org.cirdles.tripoli.reports;
 
+import jakarta.xml.bind.JAXBException;
+import org.apache.commons.io.FileUtils;
+import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
-import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -73,6 +81,47 @@ public class ReportTest {
                 () -> assertFalse(testCategory.equals(alteredCategory), "Categories should NOT be equal"),
                 () -> assertFalse(testColumn.equals(alteredColumn), "Columns should NOT be equal")
         );
+    }
+
+    /**
+     * Verifies that the reports generated are accurate to the oracles found prior
+     */
+    @Test
+    public void accurateReportTest() throws URISyntaxException, JAXBException, IOException {
+        File dataFile = new File(getClass().getResource("/org/cirdles/tripoli/core/NBS981 230024b-154.TIMSDP").toURI());
+
+        Session tripoliSession = Session.initializeDefaultSession();
+        AnalysisInterface analysisProposed;
+        AnalysisInterface analysis = null;
+        try {
+            analysisProposed = AnalysisInterface.initializeNewAnalysis(0);
+            String analysisName = analysisProposed.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
+            System.out.println(analysisName);
+
+            if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
+
+                analysisProposed.setAnalysisName(analysisName);
+                analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
+                tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
+                analysis = analysisProposed;
+            }
+            else {
+                analysis = null;
+            }
+
+        } catch (IOException | JAXBException | TripoliException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+
+        }
+
+        assertNotNull(analysis);
+        System.out.println("Analysis Method Name = " + analysis.getAnalysisMethod().getMethodName());
+        Report fullReport = Report.createFullReport("Full Report", analysis);
+        List<AnalysisInterface> analysisList = List.of(analysis);
+        fullReport.generateCSVFile(analysisList, tripoliSession.getSessionName());
+
+        String actualReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource("/org/cirdles/tripoli/core/New Session-NBS981 230024b-154-report.csv")).toURI()), "UTF-8");
+        String expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource("org/cirdles/tripoli/core/fullReports/Oracle-NBS981 230024b-154-report.csv")).toURI()), "UTF-8");
+        assertEquals(expectedReport, actualReport);
     }
 
 }
