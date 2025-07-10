@@ -42,6 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Compares clipboard output for MassSpec data against known formatting
  */
+
 public class OutputTest {
 
     AnalysisInterface analysis;
@@ -108,6 +109,9 @@ public class OutputTest {
                 System.out.println("Mismatch found on file: " + path.toString().split("ogTripoli")[1] + " on position " + byteIndex);
                 mismatchFound = true;
             }
+
+            System.out.println("Generated: " + clipBoardString);
+            System.out.println("Oracle: " + Files.readString(oracleFilePaths.get(index)));
         }
 
         assertFalse(mismatchFound);
