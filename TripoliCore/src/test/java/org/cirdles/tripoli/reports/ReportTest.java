@@ -123,15 +123,18 @@ public class ReportTest {
         List<AnalysisInterface> analysisList = List.of(analysis);
         fullReport.generateCSVFile(analysisList, tripoliSession.getSessionName());
 
-        // "Oracle not found for file " + dataFile.getName() + " at: TripoliCore/src/test/resources/org/cirdles/tripoli/core/fullReports";
+        String actualReport = "";
+        String expectedReport = "Oracle not found for file " + dataFile.getName() + " at: TripoliCore/src/test/resources/org/cirdles/tripoli/core/fullReports";
 
-        String actualReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource("/org/cirdles/tripoli/core/New Session-" + analysisName + "-report.csv")).toURI()), "UTF-8");
-        String expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource("/org/cirdles/tripoli/core/fullReports/Oracle-" + analysisName + "-report.csv")).toURI()), "UTF-8")
-                .replace("DATA_FILE_PATH", dataFile.toPath().toString())
-                .replace("TIME_CREATED", fullReport.getTimeCreated());
-
-        assertNotNull(actualReport, "Test Report not found for file " + dataFile.getName() + " at: TripoliCore/src/test/resources/org/cirdles/tripoli/core/");
-        assertNotNull(expectedReport, "Oracle not found for file " + dataFile.getName() + " at: TripoliCore/src/test/resources/org/cirdles/tripoli/core/fullReports");
+        try {
+            actualReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource("/org/cirdles/tripoli/core/New Session-" + analysisName + "-report.csv")).toURI()), "UTF-8");
+            expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource("/org/cirdles/tripoli/core/fullReports/Oracle-" + analysisName + "-report.csv")).toURI()), "UTF-8")
+                    .replace("DATA_FILE_PATH", dataFile.toPath().toString())
+                    .replace("TIME_CREATED", fullReport.getTimeCreated());
+        }
+        catch (NullPointerException e) {
+            System.out.println(expectedReport);
+        }
 
         assertEquals(expectedReport, actualReport);
     }

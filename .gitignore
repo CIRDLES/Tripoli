@@ -94,6 +94,7 @@ META-INF/
 # Testing resources
 
 !gradle/wrapper/gradle-wrapper.jar
+!TripoliCore/src/test/resources/org/cirdles/tripoli/core/fullReports/*.csv
 
 
 # MACOS
