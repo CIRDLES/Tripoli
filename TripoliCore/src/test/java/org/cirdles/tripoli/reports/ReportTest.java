@@ -90,9 +90,9 @@ public class ReportTest {
      */
     @Test
     public void accurateReportTest() throws URISyntaxException, JAXBException, IOException {
-        String fileName = "NBS981 230024b-154.TIMSDP"; // This is the file that is tested
+        String filepath = "C:/Users/redfl/Desktop/CIRDLES/Test Data/TripoliTestData/IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion2/NBS981 230024b.RAW/NBS981 230024b-154.TIMSDP"; // This is the file that is tested
 
-        File dataFile = new File(Objects.requireNonNull(getClass().getResource("/org/cirdles/tripoli/core/" + fileName)).toURI());
+        File dataFile = new File(filepath);
 
         Session tripoliSession = Session.initializeDefaultSession();
         AnalysisInterface analysisProposed;
@@ -127,7 +127,7 @@ public class ReportTest {
         String expectedReport = "Oracle not found for file " + dataFile.getName() + " at: TripoliCore/src/test/resources/org/cirdles/tripoli/core/fullReports";
 
         try {
-            actualReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource("/org/cirdles/tripoli/core/New Session-" + analysisName + "-report.csv")).toURI()), "UTF-8");
+            actualReport = FileUtils.readFileToString(new File(filepath.substring(0, filepath.lastIndexOf('/') + 1) + "New Session-" + analysisName + "-report.csv"), "UTF-8");
             expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource("/org/cirdles/tripoli/core/fullReports/Oracle-" + analysisName + "-report.csv")).toURI()), "UTF-8")
                     .replace("DATA_FILE_PATH", dataFile.toPath().toString())
                     .replace("TIME_CREATED", fullReport.getTimeCreated());
