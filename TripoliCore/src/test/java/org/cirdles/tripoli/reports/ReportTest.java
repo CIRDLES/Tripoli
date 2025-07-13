@@ -86,11 +86,11 @@ public class ReportTest {
     }
 
     /**
-     * Verifies that the reports generated are accurate to the oracles found prior
+     * Uses a filepath to create a test report and then asserts it to a premade Oracle made with the same analysis name
      */
     @Test
     public void accurateReportTest() throws URISyntaxException, JAXBException, IOException {
-        String filepath = "C:/Users/redfl/Desktop/CIRDLES/Test Data/TripoliTestData/IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion2/NBS981 230024b.RAW/NBS981 230024b-154.TIMSDP"; // This is the file that is tested
+        String filepath = "C:/Users/redfl/Desktop/CIRDLES/Test Data/TripoliTestData/IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion2/NBS981 230024a.RAW/NBS981 230024a-145.TIMSDP"; // This is the absolute path of the file that is tested
 
         File dataFile = new File(filepath);
 
@@ -128,6 +128,14 @@ public class ReportTest {
 
         try {
             actualReport = FileUtils.readFileToString(new File(filepath.substring(0, filepath.lastIndexOf('/') + 1) + "New Session-" + analysisName + "-report.csv"), "UTF-8");
+
+            /**
+             * To make an Oracle for an analysis:
+             * 1. Manually create a report with Tripoli.
+             * 2. Name it Oracle-{analysis name}-report.csv
+             * 3. Move it into TripoliCore/src/test/resources/org/cirdles/tripoli/core/fullReports
+             * 4. Replace the values for "Data File Path" and "Created On:" to DATA_FILE_PATH and TIME_CREATED, respectively
+             */
             expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource("/org/cirdles/tripoli/core/fullReports/Oracle-" + analysisName + "-report.csv")).toURI()), "UTF-8")
                     .replace("DATA_FILE_PATH", dataFile.toPath().toString())
                     .replace("TIME_CREATED", fullReport.getTimeCreated());
