@@ -86,11 +86,12 @@ public class ReportTest {
     }
 
     /**
-     * Uses a filepath to create a test report and then asserts it to a premade Oracle made with the same analysis name
+     * Uses a filepath to generate a test report and then asserts it to a premade Oracle made with the same analysis name
      */
     @Test
     public void accurateReportTest() throws URISyntaxException, JAXBException, IOException {
-        String filepath = "C:/Users/redfl/Desktop/CIRDLES/Test Data/TripoliTestData/IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion2/NBS981 230024a.RAW/NBS981 230024a-145.TIMSDP"; // This is the absolute path of the file that is tested
+        // This is the absolute path of the file that is tested
+        String filepath = "C:/Users/redfl/Desktop/CIRDLES/Test Data/TripoliTestData/IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion2/NBS981 230024a.RAW/NBS981 230024a-145.TIMSDP";
 
         File dataFile = new File(filepath);
 
