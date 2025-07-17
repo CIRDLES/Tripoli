@@ -22,7 +22,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox prefHeight="725.0" prefWidth="1250.0" stylesheets="@css/tripoli.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.TripoliGUIController">
+<VBox prefHeight="725.0" prefWidth="1250.0" stylesheets="@css/tripoli.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.TripoliGUIController">
     <MenuBar prefHeight="17.0" prefWidth="1234.0" VBox.vgrow="NEVER">
         <Menu mnemonicParsing="false" text="Session">
             <MenuItem fx:id="sessionManagerMenuItem" mnemonicParsing="false" onAction="#sessionManagerMenuItemAction" text="Manage Session" />
@@ -52,7 +52,7 @@
         </Menu>
         <Menu fx:id="reportsMenu" mnemonicParsing="false" text="Reports">
             <items>
-                <Menu mnemonicParsing="false" fx:id="customReportMenu" text="Custom Reports" />
+                <Menu fx:id="customReportMenu" mnemonicParsing="false" text="Custom Reports" />
                 <Menu mnemonicParsing="false" text="Builtin Reports">
                     <items>
                         <MenuItem mnemonicParsing="false" onAction="#etReduxExportAction" text="ET_Redux Export" />
@@ -83,6 +83,9 @@
         <Menu disable="true" mnemonicParsing="false" text="Demos" visible="false">
             <MenuItem mnemonicParsing="false" onAction="#showDemo1" text="Demo1: RJ MMC for 2-isotope analysis" visible="false" />
             <MenuItem mnemonicParsing="false" onAction="#showDemo2" text="Demo: PeakShapes" />
+        </Menu>
+        <Menu mnemonicParsing="false" text="LiveData">
+            <MenuItem onAction="#processLiveData" text="LiveData"/>
         </Menu>
     </MenuBar>
     <AnchorPane fx:id="splashAnchor" prefHeight="673.0" prefWidth="900.0" style="-fx-background-color: #faf0e6;" VBox.vgrow="ALWAYS">
