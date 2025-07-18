@@ -44,7 +44,7 @@ public class Report implements Serializable, Comparable<Report> {
 
     private Set<ReportCategory> categorySet;
 
-    private String timeCreated;
+    public static boolean supressContents = true;
 
     public Report(String reportName, String methodName, Set<ReportCategory> categorySet) {
         this.reportName = reportName;
@@ -142,8 +142,8 @@ public class Report implements Serializable, Comparable<Report> {
 
         Set<ReportCategory> categories = new TreeSet<>();
         categories.add(ReportCategory.generateAnalysisInfo());
-        categories.add(ReportCategory.generateIsotopicRatios(ufList)); // TODO
-        categories.add(ReportCategory.generateUserFunctions(ufList)); // TODO
+        categories.add(ReportCategory.generateIsotopicRatios(ufList));
+        categories.add(ReportCategory.generateUserFunctions(ufList));
         categories.add(ReportCategory.generateCustomExpressions(ufList));
 
         return new Report(reportName, analysis.getMethod().getMethodName(), categories);
@@ -277,8 +277,7 @@ public class Report implements Serializable, Comparable<Report> {
                 writer.newLine();
             }
             writer.write(reportCSVFile.getName()+ "  ");
-            setTimeCreated(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            writer.write("Created on: " + getTimeCreated() + "  ");
+            if (!supressContents) writer.write("Created on: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + "  ");
             writer.write("Tripoli  ");
             writer.write(Tripoli.VERSION);
 
@@ -288,14 +287,6 @@ public class Report implements Serializable, Comparable<Report> {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public void setTimeCreated(String timeCreated) {
-        this.timeCreated = timeCreated;
-    }
-
-    public String getTimeCreated() {
-        return timeCreated;
     }
 
     @Override

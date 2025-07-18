@@ -21,17 +21,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class AllReportsTest {
 
-    /**
-     * Uses a filepath to generate a test report and then asserts it to a premade Oracle made with the same analysis name
-     */
-    @Test
-    public void fullReportTest() throws URISyntaxException, JAXBException, IOException {
+    public ReportData generateReportData() throws URISyntaxException, IOException, JAXBException, TripoliException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         // This is the absolute path of the file that is tested
-        String filepath = "C:/Users/redfl/Desktop/CIRDLES/Test Data/TripoliTestData/IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion2/NBS981 230024a.RAW/NBS981 230024a-145.TIMSDP";
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/BoiseState/B998_F11_13223M02 iz1 Pb1-14973.xls";
 
-        File dataFile = new File(filepath);
+        File dataFile = new File(Objects.requireNonNull(getClass().getResource(dataFilepath)).toURI());
 
         Session tripoliSession = Session.initializeDefaultSession();
+
         AnalysisInterface analysisProposed;
         AnalysisInterface analysis = null;
         String analysisName = "";
@@ -50,32 +47,40 @@ public class AllReportsTest {
                 analysis = null;
             }
 
-        } catch (IOException | JAXBException | TripoliException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-
-        }
+        } catch (IOException | JAXBException | TripoliException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {}
 
         assertNotNull(analysis);
         analysis.getUserFunctions().sort(null);
+
+        return new ReportData(List.of(analysis), analysis, analysisName, tripoliSession, dataFilepath, dataFile) ;
+    }
+
+    /**
+     * Uses a filepath to generate a test report and then asserts it to a premade Oracle made with the same analysis name
+     */
+    @Test
+    public void fullReportTest() throws URISyntaxException, JAXBException, IOException, TripoliException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        ReportData reportData = generateReportData();
+        List<AnalysisInterface> analysisList = reportData.getAnalysisList();
+        AnalysisInterface analysis = reportData.getAnalysis();
+        String analysisName = reportData.getAnalysisName();
+        Session tripoliSession = reportData.getTripoliSession();
+        String dataFilepath = reportData.getDataFilepath();
+        File dataFile = reportData.getDataFile();
+
         Report fullReport = Report.createFullReport("Full Report", analysis);
-        List<AnalysisInterface> analysisList = List.of(analysis);
         fullReport.generateCSVFile(analysisList, tripoliSession.getSessionName());
 
+        String actualReportPath = dataFilepath.substring(0, dataFilepath.lastIndexOf('/') + 1) + "New Session-" + analysisName + "-report.csv";
+        String expectedReportPath = dataFilepath.substring(0, dataFilepath.lastIndexOf('/') + 1).replace("dataFiles", "fullReports") + "Oracle-" + analysisName + "-report.csv";
+
         String actualReport = "";
-        String expectedReport = "Oracle not found for file " + dataFile.getName() + " at: TripoliCore/src/test/resources/org/cirdles/tripoli/core/fullReports";
-
+        String expectedReport = "Oracle not found for file " + dataFile.getName() + " at: " + expectedReportPath;
         try {
-            actualReport = FileUtils.readFileToString(new File(filepath.substring(0, filepath.lastIndexOf('/') + 1) + "New Session-" + analysisName + "-report.csv"), "UTF-8");
 
-            /**
-             * To make an Oracle for an analysis:
-             * 1. Manually create a report with Tripoli.
-             * 2. Name it Oracle-{analysis name}-report.csv
-             * 3. Move it into TripoliCore/src/test/resources/org/cirdles/tripoli/core/fullReports
-             * 4. Replace the values for "Data File Path" and "Created On:" to DATA_FILE_PATH and TIME_CREATED, respectively
-             */
-            expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource("/org/cirdles/tripoli/core/reporting/dataFiles/fullReports/Oracle-" + analysisName + "-report.csv")).toURI()), "UTF-8")
-                    .replace("DATA_FILE_PATH", dataFile.toPath().toString())
-                    .replace("TIME_CREATED", fullReport.getTimeCreated());
+            actualReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(actualReportPath)).toURI()), "UTF-8");
+
+            expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(expectedReportPath)).toURI()), "UTF-8");
         }
         catch (NullPointerException e) {
             System.out.println(expectedReport);
@@ -83,10 +88,4 @@ public class AllReportsTest {
 
         assertEquals(expectedReport, actualReport);
     }
-
-    @Test
-    public void clipboardReportTest() {
-
-    }
-
 }
