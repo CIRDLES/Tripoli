@@ -21,11 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class AllReportsTest {
 
-    public ReportData generateReportData() throws URISyntaxException, IOException, JAXBException, TripoliException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
-        // This is the absolute path of the file that is tested
-        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/BoiseState/B998_F11_13223M02 iz1 Pb1-14973.xls";
-
+    public ReportData generateReportData(String dataFilepath) throws URISyntaxException, JAXBException, TripoliException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         File dataFile = new File(Objects.requireNonNull(getClass().getResource(dataFilepath)).toURI());
+        System.out.println("📝 Generating Report Data for " + dataFile.getName());
 
         Session tripoliSession = Session.initializeDefaultSession();
 
@@ -52,21 +50,22 @@ public class AllReportsTest {
         assertNotNull(analysis);
         analysis.getUserFunctions().sort(null);
 
-        return new ReportData(List.of(analysis), analysis, analysisName, tripoliSession, dataFilepath, dataFile) ;
+        return new ReportData(List.of(analysis), analysis, analysisName, tripoliSession, dataFilepath, dataFile);
     }
 
     /**
      * Uses a filepath to generate a test report and then asserts it to a premade Oracle made with the same analysis name
      */
-    @Test
-    public void fullReportTest() throws URISyntaxException, JAXBException, IOException, TripoliException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
-        ReportData reportData = generateReportData();
+    public void fullReportTest(String dataFilepath) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        ReportData reportData = generateReportData(dataFilepath);
         List<AnalysisInterface> analysisList = reportData.getAnalysisList();
         AnalysisInterface analysis = reportData.getAnalysis();
         String analysisName = reportData.getAnalysisName();
         Session tripoliSession = reportData.getTripoliSession();
-        String dataFilepath = reportData.getDataFilepath();
         File dataFile = reportData.getDataFile();
+        System.out.println("✅ Report Data generated successfully!");
+
+        System.out.println("📝 Generating Full Report for " + dataFile.getName());
 
         Report fullReport = Report.createFullReport("Full Report", analysis);
         fullReport.generateCSVFile(analysisList, tripoliSession.getSessionName());
@@ -82,10 +81,22 @@ public class AllReportsTest {
 
             expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(expectedReportPath)).toURI()), "UTF-8");
         }
-        catch (NullPointerException e) {
+        catch (NullPointerException | IOException e) {
             System.out.println(expectedReport);
         }
 
         assertEquals(expectedReport, actualReport);
+    }
+
+    @Test
+    public void B998_F11_13223M02_iz1_Pb1_14973ReportTest() {
+        // This is the absolute path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/BoiseState/B998_F11_13223M02 iz1 Pb1-14973.xls";
+        try {
+            fullReportTest(dataFilepath);
+            System.out.println("✅ Full Report generated successfully!");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+           System.out.println("Error: " + e.getMessage());
+        }
     }
 }
