@@ -74,7 +74,6 @@ META-INF/
 !TripoliCore/src/main/resources/org/cirdles/tripoli/parameterModels/tracerModels/*.txt
 !TripoliCore/src/main/resources/org/cirdles/tripoli/schema/*.txt
 
-!TripoliCore/src/test/resources/org/cirdles/tripoli/core/*.txt
 
 # data files
 !TripoliCore/src/main/resources/org/cirdles/tripoli/dataSourceProcessors/dataSources/synthetic/twoIsotopeSyntheticData/*.txt
@@ -94,8 +93,18 @@ META-INF/
 # Testing resources
 
 !gradle/wrapper/gradle-wrapper.jar
-!TripoliCore/src/test/resources/org/cirdles/tripoli/core/fullReports/*.csv
+!TripoliCore/src/test/resources/org/cirdles/tripoli/core/*.txt
 
+# Test Data Files
+!TripoliCore/src/test/resources/org/cirdles/tripoli/core/reporting/dataFiles/**/*.xls
+!TripoliCore/src/test/resources/org/cirdles/tripoli/core/reporting/dataFiles/**/*.TIMSDP
+!TripoliCore/src/test/resources/org/cirdles/tripoli/core/reporting/dataFiles/**/*.exp
+!TripoliCore/src/test/resources/org/cirdles/tripoli/core/reporting/dataFiles/**/*.txt
+
+# Test Full, Short, and Redux Reports
+!TripoliCore/src/test/resources/org/cirdles/tripoli/core/reporting/fullReports/**/*.csv
+!TripoliCore/src/test/resources/org/cirdles/tripoli/core/reporting/reduxReports/**/*.xml
+!TripoliCore/src/test/resources/org/cirdles/tripoli/core/reporting/shortReports/**/*.txt
 
 # MACOS
 .DS_Store
