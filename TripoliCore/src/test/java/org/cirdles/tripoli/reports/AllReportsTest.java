@@ -42,7 +42,7 @@ public class AllReportsTest {
      */
     public ReportData generateReportData(String dataFilepath) throws URISyntaxException, JAXBException, TripoliException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         File dataFile = new File(Objects.requireNonNull(getClass().getResource(dataFilepath)).toURI());
-        System.out.print("💾 Generating Report Data for " + dataFile.getName());
+        System.out.println("💾 Generating Report Data for " + dataFile.getName());
 
         Session tripoliSession = Session.initializeDefaultSession();
 
@@ -134,7 +134,6 @@ public class AllReportsTest {
      */
     public void reduxReportTest(String dataFilepath, ReportData reportData) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         AnalysisInterface analysis = reportData.getAnalysis();
-        String analysisName = reportData.getAnalysisName();
         File dataFile = reportData.getDataFile();
 
         System.out.println("📝 Generating Redux Report for " + dataFile.getName());
@@ -143,9 +142,6 @@ public class AllReportsTest {
         AllBlockInitForDataLiteOne.initBlockModels(analysis);
         ETReduxFraction actualReport = analysis.prepareFractionForETReduxExport();
         String actualFileName = actualReport.getSampleName() + "_" + actualReport.getFractionID() + "_" + actualReport.getEtReduxExportType() + ".xml";
-        actualReport.serializeXMLObject(actualFileName);
-
-        actualReport = (ETReduxFraction) actualReport.readXMLObject(actualFileName, false);
 
         // Convert the Oracle into an InputStream for XStream to deserialize
         String expectedReportPath = dataFilepath.substring(0, dataFilepath.lastIndexOf('/') + 1).replace("dataFiles", "reduxReports") + "Oracle-" + actualFileName;
@@ -164,13 +160,8 @@ public class AllReportsTest {
 
         // Deserialize Oracle report from resources
         ETReduxFraction expectedReport = (ETReduxFraction) xstream.fromXML(expectedReportXML);
-        String expectedFileName = expectedReport.getSampleName() + "_" + expectedReport.getFractionID() + "_" + expectedReport.getEtReduxExportType() + ".xml";
-
-        expectedReport = (ETReduxFraction) expectedReport.readXMLObject(expectedFileName, false);
-
 
         assertEquals(expectedReport, actualReport);
-
     }
 
     /**
@@ -207,6 +198,8 @@ public class AllReportsTest {
 
         assertEquals(expectedReport, actualReport);
     }
+
+//####################################################################################################################//
 
     /**
      * Report Test for IsotopxPhoenixTIMS/BoiseState/B998_F11_13223M02 iz1 Pb1-14973.xls
