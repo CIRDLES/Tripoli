@@ -1673,7 +1673,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     public void exportToETReduxButtonAction() {
-
+        AllBlockInitForDataLiteOne.initBlockModels(analysis);
         ETReduxFraction etReduxFraction = analysis.prepareFractionForETReduxExport();
         String fileName = etReduxFraction.getSampleName() + "_" + etReduxFraction.getFractionID() + "_" + etReduxFraction.getEtReduxExportType() + ".xml";
         etReduxFraction.serializeXMLObject(fileName);
