@@ -94,15 +94,17 @@ public class AllReportsTest {
         File dataFile = reportData.getDataFile();
 
         System.out.println("📝 Generating Full Report for " + dataFile.getName());
-        Report.supressContents = true;
+        // Create a Full Report to test against the Oracle
+        Report.supressContents = true; // Suppresses the Data File Path column and Created On: line because they would always be different
         Report fullReport = Report.createFullReport("Full Report", analysis);
         fullReport.generateCSVFile(analysisList, tripoliSession.getSessionName());
 
+        // Deserialize the report to test against the Oracle and the Oracle itself
         String actualReportPath = dataFilepath.substring(0, dataFilepath.lastIndexOf('/') + 1) + "New Session-" + analysisName + "-report.csv";
         String expectedReportPath = dataFilepath.substring(0, dataFilepath.lastIndexOf('/') + 1).replace("dataFiles", "fullReports") + "Oracle-" + analysisName + "-report.csv";
 
-        String actualReport = "";
-        String expectedReport = "";
+        String actualReport;
+        String expectedReport;
         try {
             actualReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(actualReportPath)).toURI()), "UTF-8");
 
@@ -136,6 +138,8 @@ public class AllReportsTest {
         File dataFile = reportData.getDataFile();
 
         System.out.println("📝 Generating Redux Report for " + dataFile.getName());
+
+        // Create the report to test against the Oracle
         AllBlockInitForDataLiteOne.initBlockModels(analysis);
         ETReduxFraction actualReport = analysis.prepareFractionForETReduxExport();
         String actualFileName = actualReport.getSampleName() + "_" + actualReport.getFractionID() + "_" + actualReport.getEtReduxExportType() + ".xml";
@@ -143,6 +147,7 @@ public class AllReportsTest {
 
         actualReport = (ETReduxFraction) actualReport.readXMLObject(actualFileName, false);
 
+        // Convert the Oracle into an InputStream for XStream to deserialize
         String expectedReportPath = dataFilepath.substring(0, dataFilepath.lastIndexOf('/') + 1).replace("dataFiles", "reduxReports") + "Oracle-" + actualFileName;
         InputStream expectedReportXML = getClass().getResourceAsStream(expectedReportPath);
         assertNotNull(expectedReportXML,
@@ -157,6 +162,7 @@ public class AllReportsTest {
         xstream.alias("UPbReduxFraction", ETReduxFraction.class);
         xstream.alias("MeasuredUserFunctionModel", MeasuredUserFunction.class);
 
+        // Deserialize Oracle report from resources
         ETReduxFraction expectedReport = (ETReduxFraction) xstream.fromXML(expectedReportXML);
         String expectedFileName = expectedReport.getSampleName() + "_" + expectedReport.getFractionID() + "_" + expectedReport.getEtReduxExportType() + ".xml";
 
@@ -184,9 +190,11 @@ public class AllReportsTest {
         File dataFile = reportData.getDataFile();
 
         System.out.println("📝 Generating Short Report for " + dataFile.getName());
+        // Create the report to test against the Oracle
         AllBlockInitForDataLiteOne.initBlockModels(analysis);
         String actualReport = analysis.prepareFractionForClipboardExport();
 
+        // Deserialize the Oracle report
         String expectedReportPath = dataFilepath.substring(0, dataFilepath.lastIndexOf('/') + 1).replace("dataFiles", "shortReports") + "Oracle-" + analysisName + ".txt";
         String expectedReport;
         try {
@@ -205,7 +213,7 @@ public class AllReportsTest {
 
     @Test
     public void B998_F11_13223M02_iz1_Pb1_14973ReportTest() {
-        // This is the absolute path of the file that is tested
+        // This is the resource path of the file that is tested
         String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/BoiseState/B998_F11_13223M02 iz1 Pb1-14973.xls";
 
         try {
