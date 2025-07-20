@@ -29,6 +29,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class AllReportsTest {
 
+    /**
+     * Generates and returns the data required for a report to be generated.
+     * @param dataFilepath
+     * @return
+     * @throws URISyntaxException
+     * @throws JAXBException
+     * @throws TripoliException
+     * @throws InvocationTargetException
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     */
     public ReportData generateReportData(String dataFilepath) throws URISyntaxException, JAXBException, TripoliException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         File dataFile = new File(Objects.requireNonNull(getClass().getResource(dataFilepath)).toURI());
         System.out.print("💾 Generating Report Data for " + dataFile.getName());
@@ -66,6 +77,14 @@ public class AllReportsTest {
 
     /**
      * Uses a filepath to generate a full report and then asserts it to a premade Oracle made with the same analysis name
+     * @param dataFilepath
+     * @param reportData
+     * @throws JAXBException
+     * @throws TripoliException
+     * @throws URISyntaxException
+     * @throws InvocationTargetException
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
      */
     public void fullReportTest(String dataFilepath, ReportData reportData) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         List<AnalysisInterface> analysisList = reportData.getAnalysisList();
@@ -100,6 +119,17 @@ public class AllReportsTest {
         assertEquals(expectedReport, actualReport);
     }
 
+    /**
+     * Uses a filepath to generate a redux report and then asserts it to a premade Oracle made with the same analysis name
+     * @param dataFilepath
+     * @param reportData
+     * @throws JAXBException
+     * @throws TripoliException
+     * @throws URISyntaxException
+     * @throws InvocationTargetException
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     */
     public void reduxReportTest(String dataFilepath, ReportData reportData) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         AnalysisInterface analysis = reportData.getAnalysis();
         String analysisName = reportData.getAnalysisName();
@@ -137,6 +167,17 @@ public class AllReportsTest {
 
     }
 
+    /**
+     * Uses a filepath to generate a short report and then asserts it to a premade Oracle made with the same analysis name
+     * @param dataFilepath
+     * @param reportData
+     * @throws JAXBException
+     * @throws TripoliException
+     * @throws URISyntaxException
+     * @throws InvocationTargetException
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     */
     public void shortReportTest(String dataFilepath, ReportData reportData) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         AnalysisInterface analysis = reportData.getAnalysis();
         String analysisName = reportData.getAnalysisName();
