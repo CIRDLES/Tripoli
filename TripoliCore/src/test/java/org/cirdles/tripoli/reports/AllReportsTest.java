@@ -24,8 +24,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AllReportsTest {
 
@@ -86,7 +85,7 @@ public class AllReportsTest {
      * @throws NoSuchMethodException
      * @throws IllegalAccessException
      */
-    public void fullReportTest(String dataFilepath, ReportData reportData) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public String[] fullReportTest(String dataFilepath, ReportData reportData) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         List<AnalysisInterface> analysisList = reportData.getAnalysisList();
         AnalysisInterface analysis = reportData.getAnalysis();
         String analysisName = reportData.getAnalysisName();
@@ -118,7 +117,7 @@ public class AllReportsTest {
         }
 
 
-        assertEquals(expectedReport, actualReport);
+        return new String[]{expectedReport, actualReport};
     }
 
     /**
@@ -132,7 +131,7 @@ public class AllReportsTest {
      * @throws NoSuchMethodException
      * @throws IllegalAccessException
      */
-    public void reduxReportTest(String dataFilepath, ReportData reportData) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public ETReduxFraction[] reduxReportTest(String dataFilepath, ReportData reportData) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         AnalysisInterface analysis = reportData.getAnalysis();
         File dataFile = reportData.getDataFile();
 
@@ -161,13 +160,15 @@ public class AllReportsTest {
         // Deserialize Oracle report from resources
         ETReduxFraction expectedReport = (ETReduxFraction) xstream.fromXML(expectedReportXML);
 
-        assertEquals(expectedReport, actualReport);
+        return new ETReduxFraction[]{expectedReport, actualReport};
     }
 
     /**
      * Uses a filepath to generate a short report and then asserts it to a premade Oracle made with the same analysis name
+     *
      * @param dataFilepath
      * @param reportData
+     * @return
      * @throws JAXBException
      * @throws TripoliException
      * @throws URISyntaxException
@@ -175,7 +176,7 @@ public class AllReportsTest {
      * @throws NoSuchMethodException
      * @throws IllegalAccessException
      */
-    public void shortReportTest(String dataFilepath, ReportData reportData) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public String[] shortReportTest(String dataFilepath, ReportData reportData) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         AnalysisInterface analysis = reportData.getAnalysis();
         String analysisName = reportData.getAnalysisName();
         File dataFile = reportData.getDataFile();
@@ -196,7 +197,7 @@ public class AllReportsTest {
                     "Oracle not found for file " + dataFile.getName() + " at: " + expectedReportPath);
         }
 
-        assertEquals(expectedReport, actualReport);
+        return new String[]{expectedReport, actualReport};
     }
 
 //####################################################################################################################//
@@ -214,13 +215,16 @@ public class AllReportsTest {
         try {
             ReportData reportData = generateReportData(dataFilepath);
 
-            fullReportTest(dataFilepath, reportData);
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
             System.out.println("✅ Full Report generated successfully!\n");
 
-            reduxReportTest(dataFilepath, reportData);
+            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
             System.out.println("✅ Redux Report generated successfully!\n");
 
-            shortReportTest(dataFilepath, reportData);
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
             System.out.println("✅ Short Report generated successfully!\n");
         } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
            System.out.println("Error: " + e.getMessage());
@@ -240,13 +244,16 @@ public class AllReportsTest {
         try {
             ReportData reportData = generateReportData(dataFilepath);
 
-            fullReportTest(dataFilepath, reportData);
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
             System.out.println("✅ Full Report generated successfully!\n");
 
-            reduxReportTest(dataFilepath, reportData);
+            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
             System.out.println("✅ Redux Report generated successfully!\n");
 
-            shortReportTest(dataFilepath, reportData);
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
             System.out.println("✅ Short Report generated successfully!\n");
         } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             System.out.println("Error: " + e.getMessage());
@@ -266,13 +273,16 @@ public class AllReportsTest {
         try {
             ReportData reportData = generateReportData(dataFilepath);
 
-            fullReportTest(dataFilepath, reportData);
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
             System.out.println("✅ Full Report generated successfully!\n");
 
-            reduxReportTest(dataFilepath, reportData);
+            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
             System.out.println("✅ Redux Report generated successfully!\n");
 
-            shortReportTest(dataFilepath, reportData);
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
             System.out.println("✅ Short Report generated successfully!\n");
         } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             System.out.println("Error: " + e.getMessage());
@@ -292,13 +302,16 @@ public class AllReportsTest {
         try {
             ReportData reportData = generateReportData(dataFilepath);
 
-            fullReportTest(dataFilepath, reportData);
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
             System.out.println("✅ Full Report generated successfully!\n");
 
-            reduxReportTest(dataFilepath, reportData);
+            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
             System.out.println("✅ Redux Report generated successfully!\n");
 
-            shortReportTest(dataFilepath, reportData);
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
             System.out.println("✅ Short Report generated successfully!\n");
         } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             System.out.println("Error: " + e.getMessage());
@@ -318,13 +331,16 @@ public class AllReportsTest {
         try {
             ReportData reportData = generateReportData(dataFilepath);
 
-            fullReportTest(dataFilepath, reportData);
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
             System.out.println("✅ Full Report generated successfully!\n");
 
-            reduxReportTest(dataFilepath, reportData);
+            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
             System.out.println("✅ Redux Report generated successfully!\n");
 
-            shortReportTest(dataFilepath, reportData);
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
             System.out.println("✅ Short Report generated successfully!\n");
         } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             System.out.println("Error: " + e.getMessage());
@@ -344,13 +360,16 @@ public class AllReportsTest {
         try {
             ReportData reportData = generateReportData(dataFilepath);
 
-            fullReportTest(dataFilepath, reportData);
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
             System.out.println("✅ Full Report generated successfully!\n");
 
-            reduxReportTest(dataFilepath, reportData);
+            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
             System.out.println("✅ Redux Report generated successfully!\n");
 
-            shortReportTest(dataFilepath, reportData);
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
             System.out.println("✅ Short Report generated successfully!\n");
         } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             System.out.println("Error: " + e.getMessage());
@@ -370,13 +389,16 @@ public class AllReportsTest {
         try {
             ReportData reportData = generateReportData(dataFilepath);
 
-            fullReportTest(dataFilepath, reportData);
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
             System.out.println("✅ Full Report generated successfully!\n");
 
-            reduxReportTest(dataFilepath, reportData);
+            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
             System.out.println("✅ Redux Report generated successfully!\n");
 
-            shortReportTest(dataFilepath, reportData);
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
             System.out.println("✅ Short Report generated successfully!\n");
         } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             System.out.println("Error: " + e.getMessage());
@@ -396,13 +418,16 @@ public class AllReportsTest {
         try {
             ReportData reportData = generateReportData(dataFilepath);
 
-            fullReportTest(dataFilepath, reportData);
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
             System.out.println("✅ Full Report generated successfully!\n");
 
-            reduxReportTest(dataFilepath, reportData);
+            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
             System.out.println("✅ Redux Report generated successfully!\n");
 
-            shortReportTest(dataFilepath, reportData);
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
             System.out.println("✅ Short Report generated successfully!\n");
         } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             System.out.println("Error: " + e.getMessage());
@@ -422,13 +447,16 @@ public class AllReportsTest {
         try {
             ReportData reportData = generateReportData(dataFilepath);
 
-            fullReportTest(dataFilepath, reportData);
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
             System.out.println("✅ Full Report generated successfully!\n");
 
-            reduxReportTest(dataFilepath, reportData);
+            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
             System.out.println("✅ Redux Report generated successfully!\n");
 
-            shortReportTest(dataFilepath, reportData);
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
             System.out.println("✅ Short Report generated successfully!\n");
         } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             System.out.println("Error: " + e.getMessage());
