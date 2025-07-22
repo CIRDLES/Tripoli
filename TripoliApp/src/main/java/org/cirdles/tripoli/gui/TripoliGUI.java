@@ -33,6 +33,7 @@ import javafx.stage.Window;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Locale;
 
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_STARTING_YELLOW;
 
@@ -58,7 +59,6 @@ public class TripoliGUI extends Application {
         if (0 < args.length) {
             verbose = args[0].startsWith("-v");
         }
-
 //  http://patorjk.com/software/taag/#p=display&c=c%2B%2B&f=Varsity&t=Tripoli
 //   _________          _                  __    _
 //  |  _   _  |        (_)                [  |  (_)

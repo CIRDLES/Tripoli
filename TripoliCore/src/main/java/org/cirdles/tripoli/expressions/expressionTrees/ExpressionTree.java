@@ -36,6 +36,7 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
     protected ExpressionTreeInterface leftChildET;
     protected ExpressionTreeInterface rightChildET;
     protected Operation rootOperator;
+    protected boolean isRatio = false;
 
     public ExpressionTree() {}
 
@@ -178,6 +179,9 @@ public class ExpressionTree implements ExpressionTreeInterface, Serializable {
     }
     @Override
     public void setName(String name) {this.name = name;}
+
+    public boolean isRatio() {return isRatio;}
+    public void setRatio(boolean isRatio) {this.isRatio = isRatio;}
 
     public Double[][] eval(String[] columnHeaders, Map<Integer, MassSpecOutputBlockRecordLite> blocksDataLite) {
         return rootOperator == null ? null : rootOperator.eval(leftChildET, rightChildET, columnHeaders, blocksDataLite);
