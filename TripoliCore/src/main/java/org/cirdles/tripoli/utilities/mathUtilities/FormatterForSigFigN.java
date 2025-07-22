@@ -19,6 +19,8 @@ package org.cirdles.tripoli.utilities.mathUtilities;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 import static java.lang.StrictMath.*;
 
@@ -37,7 +39,7 @@ public class FormatterForSigFigN {
         if (Math.abs(standardError) < 10.0 && Math.abs(standardError) > 0.0) {
             double rounded = MathUtilities.roundedToSize(standardError, sigFig);
             String pattern = generatePattern(rounded, sigFig);
-            DecimalFormat df = new DecimalFormat(pattern);
+            DecimalFormat df = new DecimalFormat(pattern,new DecimalFormatSymbols(Locale.ENGLISH));
             df.setMaximumFractionDigits(8);
             String roundedString = df.format(rounded);
             int scale = roundedString.split("\\.")[1].length();
