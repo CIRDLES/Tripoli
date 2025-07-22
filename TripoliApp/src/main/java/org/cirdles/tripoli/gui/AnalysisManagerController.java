@@ -191,6 +191,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     @FXML
     public Label expressionUnsavedLabel;
     @FXML
+    public CheckBox treatAsRatioCheckBox;
+    @FXML
+    public Button treatAsRatioButton;
+    @FXML
     private GridPane analysisManagerGridPane;
     @FXML
     private TextField analysisNameTextField;
@@ -232,6 +236,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private final ObjectProperty<Mode> currentMode = new SimpleObjectProperty<>(Mode.EDIT);
     private final ListView<ExpressionTreeInterface> customExpressionLV = new ListView<>();
     private final StringProperty selectedExpressionName = new SimpleStringProperty();
+    private final BooleanProperty selectedExpressionRatioOption = new SimpleBooleanProperty(false);
 
     public static void closePlotWindows() {
         if (null != ogTripoliPreviewPlotsWindow) {
@@ -1149,10 +1154,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 expressionNameTextField.setText(newValue.getName());
                 if (newValue instanceof UserFunctionNode) {
                     populateTextFlowFromString(((UserFunctionNode) newValue).getValue());
+                    treatAsRatioCheckBox.setSelected(newValue.getName().contains(" ( = "));
                 } else if (newValue instanceof ConstantNode) {
                     populateTextFlowFromString(((ConstantNode) newValue).getValue().toString());
+                    treatAsRatioCheckBox.setSelected(false);
                 }else if (newValue instanceof ExpressionTree) {
                     populateTextFlowFromString(ExpressionTree.prettyPrint(newValue, analysis, false));
+                    treatAsRatioCheckBox.setSelected(((ExpressionTree) newValue).isRatio());
                 }
 
             }
@@ -1178,24 +1186,19 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         // Property bindings ----------------------------------
 
-        // Top menubar
-        expressionUndoBtn.disableProperty().bind(expressionStateManager.canUndoProperty().not());
-        expressionRedoBtn.disableProperty().bind(expressionStateManager.canRedoProperty().not());
-        expressionClearBtn.disableProperty().bind(expressionString.isEmpty());
-        expressionAsTextBtn.disableProperty().bind(currentMode.isEqualTo(Mode.VIEW));
-
         // Name field
         expressionNameTextField.editableProperty().bind(currentMode.isNotEqualTo(Mode.VIEW));
 
         // Unsaved Changes label
         expressionUnsavedLabel.visibleProperty().bind(expressionStateManager.hasChangesProperty());
 
-        // Bottom menubar
+        // Top menubar
         createExpressionButton.disableProperty().bind(currentMode.isNotEqualTo(Mode.VIEW));
         editExpressionButton.disableProperty().bind( // Enabled if in view mode and have a selected expression
                 currentMode.isNotEqualTo(Mode.VIEW).or(customExpressionLV.getSelectionModel().selectedItemProperty().isNull())
         );
         cancelExpressionButton.disableProperty().bind(currentMode.isEqualTo(Mode.VIEW));
+
 
         saveExpressionButton.disableProperty().bind(
                 expressionString.isEmpty()
@@ -1204,13 +1207,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                                 expressionStateManager.hasChangesProperty()
                                         .or(
                                                 currentMode.isEqualTo(Mode.EDIT)
-                                                        .and(
-                                                                selectedExpressionName.isNotEqualTo(expressionNameTextField.textProperty())
-                                                        )
+                                                        .and(selectedExpressionName.isNotEqualTo(expressionNameTextField.textProperty()))
                                         )
                                         .or(
-                                                editAsText
-                                                        .and(expressionInvalidLabel.visibleProperty().not())
+                                                editAsText.and(expressionInvalidLabel.visibleProperty().not())
+                                        )
+                                        .or(
+                                                currentMode.isEqualTo(Mode.EDIT)
+                                                        .and(selectedExpressionRatioOption.isNotEqualTo(treatAsRatioCheckBox.selectedProperty()))
                                         )
                                         .not()
                         )
@@ -1220,6 +1224,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         deleteExpressionButton.disableProperty().bind( // Enabled if expression selected or editing
                 currentMode.isEqualTo(Mode.CREATE).or(customExpressionLV.getSelectionModel().selectedItemProperty().isNull())
         );
+
+        // Bottom menubar
+        expressionUndoBtn.disableProperty().bind(expressionStateManager.canUndoProperty().not());
+        expressionRedoBtn.disableProperty().bind(expressionStateManager.canRedoProperty().not());
+        expressionClearBtn.disableProperty().bind(expressionString.isEmpty());
+        expressionAsTextBtn.disableProperty().bind(currentMode.isEqualTo(Mode.VIEW));
+        treatAsRatioCheckBox.disableProperty().bind(currentMode.isEqualTo(Mode.VIEW));
+        treatAsRatioButton.disableProperty().bind(currentMode.isEqualTo(Mode.VIEW));
 
         // ------------------------------ end property bindings
     }
@@ -1738,11 +1750,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         expressionString.set("");
         expressionNameTextField.clear();
         expressionStateManager.save("");
+        treatAsRatioCheckBox.setSelected(false);
     }
 
     public void editCustomExpressionOnAction() {
         currentMode.set(Mode.EDIT);
         selectedExpressionName.set(customExpressionLV.getSelectionModel().getSelectedItem().getName().split(" \\( = ")[0]);
+        selectedExpressionRatioOption.set(treatAsRatioCheckBox.isSelected());
         expressionNameTextField.setText(selectedExpressionName.get());
         handleExpressionUpdate(true);
     }
@@ -1757,16 +1771,21 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     expressionNameTextField.clear();
                 } else {
                     String originalName = customExpressionsList.stream().filter(expression -> expression.getName().contains(selectedExpressionName.get())).findFirst().get().getName();
+                    boolean originalRatioOption = ((ExpressionTree) customExpressionsList.stream().filter(expression -> expression.getName().contains(selectedExpressionName.get())).findFirst().get()).isRatio();
                     expressionNameTextField.setText(originalName);
+                    selectedExpressionRatioOption.set(originalRatioOption);
                 }
                 expressionStateManager.clear();
                 currentMode.set(Mode.VIEW);
                 selectedExpressionName.set("");
+                selectedExpressionRatioOption.set(false);
             }
         } else {
             if (currentMode.get() == Mode.EDIT) {
                 String originalName = customExpressionsList.stream().filter(expression -> expression.getName().contains(selectedExpressionName.get())).findFirst().get().getName();
+                boolean originalRatioOption = ((ExpressionTree) customExpressionsList.stream().filter(expression -> expression.getName().contains(selectedExpressionName.get())).findFirst().get()).isRatio();
                 expressionNameTextField.setText(originalName);
+                selectedExpressionRatioOption.set(originalRatioOption);
             }
             expressionStateManager.clear();
             currentMode.set(Mode.VIEW);
@@ -1861,14 +1880,17 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         List<UserFunction> userFunctions = analysis.getUserFunctions();
 
         List<String> rpnList = ShuntingYard.infixToPostfix(textFlowToList());
-        ExpressionTreeInterface expressionTree = ExpressionTree.buildTree(rpnList);
+        ExpressionTree expressionTree = (ExpressionTree) ExpressionTree.buildTree(rpnList);
         expressionTree.setName(expressionName);
+        expressionTree.setRatio(treatAsRatioCheckBox.isSelected());
         customExpressionsList.add(expressionTree);
 
         UserFunction newFunction = new UserFunction(expressionName, columnIndex, false, true);
         newFunction.setTreatAsCustomExpression(true);
         newFunction.setCustomExpression(expressionTree);
+        newFunction.setTreatAsIsotopicRatio(treatAsRatioCheckBox.isSelected());
         checkExpressionForRenamedRatio(newFunction);
+
 
         userFunctions.add(newFunction);
 
@@ -1910,9 +1932,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 String ratioName = userFunction.getCustomExpression().getName().split(" \\( = ")[0];
                 userFunction.getCustomExpression().setName(ratioName + " ( = " + ufName + " )");
                 expressionNameTextField.setText(userFunction.getCustomExpression().getName());
-
+                treatAsRatioCheckBox.setSelected(true);
             } else {
-                userFunction.setTreatAsIsotopicRatio(false);
+                userFunction.setTreatAsIsotopicRatio(treatAsRatioCheckBox.isSelected());
 
             }
         }
@@ -2081,6 +2103,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         if (saveCurrentState) {
             expressionStateManager.save(expressionString.getValue());
         }
+    }
+
+    public void expressionRatioCheckBoxAction() {
+        treatAsRatioCheckBox.setSelected(!treatAsRatioCheckBox.isSelected());
     }
 
     class RatioClickHandler implements EventHandler<MouseEvent> {
