@@ -21,8 +21,10 @@ import jama.Matrix;
 import java.io.Serial;
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -141,7 +143,7 @@ public abstract class AbstractMatrixModel implements Serializable {
 
         retVal.append("\n");
 
-        NumberFormat formatter = new DecimalFormat("0.000000000E00");
+        NumberFormat formatter = new DecimalFormat("0.000000000E00",new DecimalFormatSymbols(Locale.ENGLISH));
 
         for (int row = 0; row < rows.size(); row++) {
             retVal.append(String.format(formatCell, rows.get(row)));

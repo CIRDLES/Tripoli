@@ -42,6 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Compares clipboard output for MassSpec data against known formatting
  */
+
 public class OutputTest {
 
     AnalysisInterface analysis;
