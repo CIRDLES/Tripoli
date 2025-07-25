@@ -103,7 +103,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     private final Map<IsotopicRatio, AnalysisRatioRecord> mapOfRatioToAnalysisRatioRecord = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockRawDataSetRecord> mapOfBlockIdToRawData = Collections.synchronizedSortedMap(new TreeMap<>());
     private final Map<Integer, SingleBlockRawDataLiteSetRecord> mapOfBlockIdToRawDataLiteOne = Collections.synchronizedSortedMap(new TreeMap<>());
-//    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
+    //    private final Map<Integer, SpeciesColors> mapOfSpeciesToColors = Collections.synchronizedSortedMap(new TreeMap<>());
     private TripoliSpeciesColorMap analysisMapOfSpeciesToColors;
     private TripoliSpeciesColorMap sessionDefaultMapOfSpeciesToColors;
     private Session parentSession;
@@ -180,14 +180,13 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     }
 
 
-
     public static AnalysisInterface concatenateTwoAnalysesLite(AnalysisInterface analysisOne, AnalysisInterface analysisTwo) throws TripoliException {
         // assume for now that these are two sequential runs with all the same metadata
         // TODO: check timestamps, Methods, columnheadings, etc. >> assume right for now
 
         AnalysisInterface analysisConcat = new Analysis(
                 "AnalysisConcatTest", analysisOne.getAnalysisMethod(), analysisOne.getAnalysisSampleName());
-        ((Analysis)analysisConcat).setUserFunctions(analysisConcat.getAnalysisMethod().createUserFunctions());
+        ((Analysis) analysisConcat).setUserFunctions(analysisConcat.getAnalysisMethod().createUserFunctions());
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String analysisTime = df.format(new Date());
@@ -205,14 +204,14 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
             Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMap = uf.getMapBlockIdToBlockCyclesRecord();
             for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMap.entrySet()) {
                 userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
-                concatBlockId ++;
+                concatBlockId++;
             }
         }
         for (UserFunction uf : analysisTwo.getUserFunctions()) {
             Map<Integer, PlotBlockCyclesRecord> plotBlockCyclesRecordMap = uf.getMapBlockIdToBlockCyclesRecord();
             for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : plotBlockCyclesRecordMap.entrySet()) {
                 userFunctionConcatMapBlockToCyclesRecord.put(concatBlockId, entry.getValue().changeBlockIDforConcat(concatBlockId));
-                concatBlockId ++;
+                concatBlockId++;
             }
         }
 
@@ -307,7 +306,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
             } else {
                 // attempt to load specified method
                 File selectedMethodFile = new File((Path.of(dataFilePathString).getParent().getParent().toString()
-                        + File.separator + "Methods" + File.separator + massSpecExtractedData.getHeader().methodName()).toLowerCase(Locale.getDefault()));
+                        + File.separator + "Methods" + File.separator + massSpecExtractedData.getHeader().methodName()) + ".TIMSAM");
                 File getPeakCentresFolder = new File((Path.of(dataFilePathString).getParent().toString()
                         + File.separator + "PeakCentres"));
                 if (selectedMethodFile.exists()) {
@@ -378,7 +377,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         } else {
             // case1
             setMethod(AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData));
-            if (userFunctions.isEmpty()){
+            if (userFunctions.isEmpty()) {
                 userFunctions = analysisMethod.createUserFunctions();
             }
             extractedAnalysisName = dataFilePath.toFile().getName().substring(0, dataFilePath.toFile().getName().lastIndexOf('.'));
@@ -402,7 +401,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
          */
         String sampleName = massSpecExtractedData.getHeader().sampleName();
         if (!sampleName.isEmpty()) {
-            String sampleNameArray[] = sampleName.split(" ");
+            String[] sampleNameArray = sampleName.split(" ");
 
             analysisSampleName = sampleNameArray[0];
             if (sampleNameArray.length > 1) {
@@ -734,43 +733,8 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return sb.toString();
     }
 
-    @Override
-    public void setRatioColors(RatiosColors ratiosColors) {
-        this.ratiosColors = ratiosColors;
-    }
-
     private void setBlockCyclesPlotColors(RatiosPlotColorFlavor flavor, String hexColor) {
         this.ratiosColors = this.ratiosColors.altered(flavor, hexColor);
-    }
-
-    @Override
-    public void setTwoSigmaHexColorString(String newHexColor) {
-        setBlockCyclesPlotColors(TWO_SIGMA_SHADE, newHexColor);
-    }
-
-    @Override
-    public void setTwoStandardErrorHexColorString(String hexColor) {
-        setBlockCyclesPlotColors(TWO_STD_ERR_SHADE, hexColor);
-    }
-
-    @Override
-    public void setOneSigmaHexColorString(String newHexColor) {
-        setBlockCyclesPlotColors(ONE_SIGMA_SHADE, newHexColor);
-    }
-
-    @Override
-    public void setMeanHexColorString(String newHexColor) {
-        setBlockCyclesPlotColors(MEAN_COLOR, newHexColor);
-    }
-
-    @Override
-    public void setDataHexColorString(String hexColor) {
-        setBlockCyclesPlotColors(DATA_COLOR, hexColor);
-    }
-
-    @Override
-    public void setAntiDataHexColorString(String hexColor) {
-        setBlockCyclesPlotColors(REJECTED_COLOR, hexColor);
     }
 
     @Override
@@ -853,11 +817,6 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         this.ratiosColors = session.getBlockCyclesPlotColors();
     }
 
-
-    public void setAnalysisMapOfSpeciesToColors(TripoliSpeciesColorMap analysisMapOfSpeciesToColors) {
-        this.analysisMapOfSpeciesToColors = analysisMapOfSpeciesToColors;
-    }
-
     public TripoliSpeciesColorMap getSessionDefaultMapOfSpeciesToColors() {
         if (this.sessionDefaultMapOfSpeciesToColors == null && parentSession != null) {
             this.sessionDefaultMapOfSpeciesToColors = parentSession.getSessionDefaultMapOfSpeciesToColors();
@@ -877,18 +836,17 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return analysisMethod;
     }
 
+    // TODO: Merge multiple setters (check line 604)
+    public void setAnalysisMethod(AnalysisMethod analysisMethod) {
+        this.analysisMethod = analysisMethod;
+    }
+
     public List<UserFunction> getUserFunctions() {
         return userFunctions;
     }
 
     public void setUserFunctions(List<UserFunction> userFunctions) {
         this.userFunctions = userFunctions;
-    }
-
-
-    // TODO: Merge multiple setters (check line 604)
-    public void setAnalysisMethod(AnalysisMethod analysisMethod) {
-        this.analysisMethod = analysisMethod;
     }
 
     public String getDataFilePathString() {
@@ -947,6 +905,9 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
         return analysisMapOfSpeciesToColors;
     }
 
+    public void setAnalysisMapOfSpeciesToColors(TripoliSpeciesColorMap analysisMapOfSpeciesToColors) {
+        this.analysisMapOfSpeciesToColors = analysisMapOfSpeciesToColors;
+    }
 
     public void setAnalysisDalyFaradayGainMean(double analysisDalyFaradayGainMean) {
         this.analysisDalyFaradayGainMean = analysisDalyFaradayGainMean;
@@ -977,8 +938,13 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     }
 
     @Override
-    public RatiosColors getRatioColors(){
+    public RatiosColors getRatioColors() {
         return this.ratiosColors;
+    }
+
+    @Override
+    public void setRatioColors(RatiosColors ratiosColors) {
+        this.ratiosColors = ratiosColors;
     }
 
     @Override
@@ -987,8 +953,18 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     }
 
     @Override
+    public void setAntiDataHexColorString(String hexColor) {
+        setBlockCyclesPlotColors(REJECTED_COLOR, hexColor);
+    }
+
+    @Override
     public String getOneSigmaHexColorString() {
         return ratiosColors.get(ONE_SIGMA_SHADE);
+    }
+
+    @Override
+    public void setOneSigmaHexColorString(String newHexColor) {
+        setBlockCyclesPlotColors(ONE_SIGMA_SHADE, newHexColor);
     }
 
     @Override
@@ -997,8 +973,18 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     }
 
     @Override
+    public void setTwoSigmaHexColorString(String newHexColor) {
+        setBlockCyclesPlotColors(TWO_SIGMA_SHADE, newHexColor);
+    }
+
+    @Override
     public String getTwoStandardErrorHexColorString() {
         return ratiosColors.get(TWO_STD_ERR_SHADE);
+    }
+
+    @Override
+    public void setTwoStandardErrorHexColorString(String hexColor) {
+        setBlockCyclesPlotColors(TWO_STD_ERR_SHADE, hexColor);
     }
 
     @Override
@@ -1007,8 +993,18 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     }
 
     @Override
+    public void setMeanHexColorString(String newHexColor) {
+        setBlockCyclesPlotColors(MEAN_COLOR, newHexColor);
+    }
+
+    @Override
     public String getDataHexColorString() {
         return ratiosColors.get(DATA_COLOR);
+    }
+
+    @Override
+    public void setDataHexColorString(String hexColor) {
+        setBlockCyclesPlotColors(DATA_COLOR, hexColor);
     }
 
     /**

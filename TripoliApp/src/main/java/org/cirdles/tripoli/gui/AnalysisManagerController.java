@@ -112,6 +112,18 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public static OGTripoliPlotsWindow ogTripoliReviewPlotsWindow;
     public static OGTripoliPlotsWindow ogTripoliPreviewPlotsWindow;
     private final Map<String, boolean[][]> mapOfGridPanesToCellUse = new TreeMap<>();
+    private final TextArea expressionAsTextArea = new TextArea();
+    private final BooleanProperty editAsText = new SimpleBooleanProperty(false);
+    private final StringProperty expressionString = new SimpleStringProperty();
+    private final int EXPRESSION_BUILDER_DEFAULT_FONTSIZE = 15;
+    private final ObservableList<ExpressionTreeInterface> customExpressionsList = FXCollections.observableArrayList();
+    private final StateManager<String> expressionStateManager = new StateManager<>();
+    private final ObjectProperty<Mode> currentMode = new SimpleObjectProperty<>(Mode.EDIT);
+    private final ListView<ExpressionTreeInterface> customExpressionLV = new ListView<>();
+    private final StringProperty selectedExpressionName = new SimpleStringProperty();
+
+    private final BooleanProperty selectedExpressionRatioOption = new SimpleBooleanProperty(false);
+
     public Tab detectorDetailTab;
     public TabPane analysisMethodTabPane;
     @FXML
@@ -190,10 +202,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public Label expressionInvalidLabel;
     @FXML
     public Label expressionUnsavedLabel;
+    Text insertIndicator = new Text("|");
     @FXML
     public CheckBox treatAsRatioCheckBox;
     @FXML
     public Button treatAsRatioButton;
+
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -225,18 +239,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private List<IsotopicRatio> allRatios;
     @FXML
     private Button addRatioButton;
-    Text insertIndicator = new Text("|");
-    private final TextArea expressionAsTextArea = new TextArea();
-    private final BooleanProperty editAsText = new SimpleBooleanProperty(false);
-    private final StringProperty expressionString = new SimpleStringProperty();
-    private final int EXPRESSION_BUILDER_DEFAULT_FONTSIZE = 15;
     private List<String> listOperators = new ArrayList<>();
-    private final ObservableList<ExpressionTreeInterface> customExpressionsList = FXCollections.observableArrayList();
-    private final StateManager<String> expressionStateManager = new StateManager<>();
-    private final ObjectProperty<Mode> currentMode = new SimpleObjectProperty<>(Mode.EDIT);
-    private final ListView<ExpressionTreeInterface> customExpressionLV = new ListView<>();
-    private final StringProperty selectedExpressionName = new SimpleStringProperty();
-    private final BooleanProperty selectedExpressionRatioOption = new SimpleBooleanProperty(false);
 
     public static void closePlotWindows() {
         if (null != ogTripoliPreviewPlotsWindow) {
@@ -369,7 +372,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 //            } else {
 //                previewAndSculptDataAction();
 //            }
-            populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
+        populateAnalysisManagerGridPane(analysis.getAnalysisCaseNumber());
 //        } catch (TripoliException e) {
 //TODO: ALL need fixing:           throw new RuntimeException(e);
 //        }
@@ -445,7 +448,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         if (0 != analysis.getDataFilePathString().compareToIgnoreCase(MISSING_STRING_FIELD)) {
             populateAnalysisDataFields();
-            setupDefaults();
+            if (null != analysis.getAnalysisMethod()) {
+                setupDefaults();
+            }
         }
 
         switch (caseNumber) {
@@ -461,10 +466,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 analysisMethodTabPane.getTabs().remove(baselineTableTab);
                 analysisMethodTabPane.getTabs().remove(sequenceTableTab);
                 analysisMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
-                showTab(analysisMethodTabPane, 2, selectColumnsToPlot);
-                analysisMethodTabPane.getSelectionModel().select(2);
-                populateAnalysisMethodColumnsSelectorPane();
-                processingToolBar.setVisible(false);
+
+                if (null != analysis.getAnalysisMethod()) {
+                    showTab(analysisMethodTabPane, 2, selectColumnsToPlot);
+                    analysisMethodTabPane.getSelectionModel().select(2);
+                    populateAnalysisMethodColumnsSelectorPane();
+                    processingToolBar.setVisible(false);
+                }
             }
             case 2, 3, 4 -> {
                 showTab(analysisMethodTabPane, 2, detectorDetailTab);
@@ -472,10 +480,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 showTab(analysisMethodTabPane, 4, sequenceTableTab);
                 showTab(analysisMethodTabPane, 5, selectRatiosToPlotTab);
                 analysisMethodTabPane.getTabs().remove(selectColumnsToPlot);
-                populateAnalysisMethodGridPane();
-                populateAnalysisMethodRatioBuilderPane();
-                populateBlocksStatus();
-                processingToolBar.setVisible(true);
+                if (null != analysis.getAnalysisMethod()) {
+                    populateAnalysisMethodGridPane();
+                    populateAnalysisMethodRatioBuilderPane();
+                    populateBlocksStatus();
+                    processingToolBar.setVisible(true);
+                }
             }
         }
 
@@ -859,7 +869,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 hBox.setPadding(new Insets(1, 1, 1, 25));
 
                 ratiosVBox.getChildren().add(hBox);
-            } else if (userFunction.isTreatAsCustomExpression()){
+            } else if (userFunction.isTreatAsCustomExpression()) {
                 hBox = new HBox();
                 CheckBox checkBoxExpression = new CheckBox(userFunction.getCustomExpression().getName());
                 checkBoxExpression.setPrefWidth(500);
@@ -1017,7 +1027,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         for (UserFunction userFunction : userFunctions) {
             if (userFunction.isTreatAsIsotopicRatio() && !userFunction.isTreatAsCustomExpression()) {
                 isotopicRatioLV.getItems().add(new UserFunctionNode(userFunction.getName()));
-            } else if(userFunction.isTreatAsCustomExpression()) {
+            } else if (userFunction.isTreatAsCustomExpression()) {
                 customExpressionsList.add(userFunction.getCustomExpression());
             } else {
                 userFunctionLV.getItems().add(new UserFunctionNode(userFunction.getName()));
@@ -1027,12 +1037,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         customExpressionLV.setItems(customExpressionsList);
 
         operationLV.getItems().add(new ConstantNode("# : Number", null));
-        for (Operation op : operationList){
+        for (Operation op : operationList) {
             Operation newOp = op.copy();
-            newOp.setName(listOperators.get(operationList.indexOf(op)) + " : "+ op.getName());
+            newOp.setName(listOperators.get(operationList.indexOf(op)) + " : " + op.getName());
             operationLV.getItems().add(newOp);
         }
-        
+
         setAccordionListViewListener(userFunctionLV);
         setAccordionListViewListener(isotopicRatioLV);
         setAccordionListViewListener(operationLV);
@@ -1074,7 +1084,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     if (selectedItem instanceof Operation) { // OPERATION
                         String key = selectedItem.getName();
                         key = key.substring(0, key.indexOf(" : "));
-                        if (((Operation) selectedItem).isSingleArg()){
+                        if (((Operation) selectedItem).isSingleArg()) {
                             key += "( )";
                         }
                         content.putString(key);
@@ -1112,7 +1122,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         });
 
         expressionScrollPane.setOnDragEntered(event -> {
-            if (!currentMode.get().equals(Mode.VIEW)){
+            if (!currentMode.get().equals(Mode.VIEW)) {
                 expressionTextFlow.getChildren().remove(insertIndicator);
                 expressionTextFlow.getChildren().add(insertIndicator);
             }
@@ -1157,8 +1167,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     treatAsRatioCheckBox.setSelected(newValue.getName().contains(" ( = "));
                 } else if (newValue instanceof ConstantNode) {
                     populateTextFlowFromString(((ConstantNode) newValue).getValue().toString());
+
                     treatAsRatioCheckBox.setSelected(false);
-                }else if (newValue instanceof ExpressionTree) {
+                } else if (newValue instanceof ExpressionTree) {
                     populateTextFlowFromString(ExpressionTree.prettyPrint(newValue, analysis, false));
                     treatAsRatioCheckBox.setSelected(((ExpressionTree) newValue).isRatio());
                 }
@@ -1280,7 +1291,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         } catch (Exception e) {
             expressionInvalidLabel.setVisible(true);
         }
-        if (rpnList.isEmpty()) { expressionInvalidLabel.setVisible(false);}
+        if (rpnList.isEmpty()) {
+            expressionInvalidLabel.setVisible(false);
+        }
     }
 
     private boolean checkLegalityOfProposedRatio() {
@@ -1398,11 +1411,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private void loadDataFile(File selectedFile) {
 
         boolean legalFile = true;
-        String oldMethod = analysis.getMethod().getMethodName();
         removeAnalysisMethod();
         String currentAnalysisName = analysis.getAnalysisName();
-        if (tripoliSession.getMapOfAnalyses().containsKey(currentAnalysisName))
-            tripoliSession.getMapOfAnalyses().remove(currentAnalysisName);
+        tripoliSession.getMapOfAnalyses().remove(currentAnalysisName);
         AnalysisInterface analysisProposed;
         try {
             analysisProposed = initializeNewAnalysis(0);
@@ -1410,18 +1421,22 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
                 analysisProposed.setAnalysisName(analysisName);
                 analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
-                if (oldMethod.equals(analysisProposed.getMethod().getMethodName()) && !tripoliSession.isExpressionRefreshed()) {
-                    List<UserFunction> functionsToRemove = analysisProposed.getUserFunctions().stream()
-                            .filter(UserFunction::isTreatAsCustomExpression)
-                            .toList();
 
-                    analysisProposed.getUserFunctions().removeAll(functionsToRemove);
+                if (analysis.getMethod() != null) {
+                    String oldMethod = analysis.getMethod().getMethodName();
+                    if (oldMethod.equals(analysisProposed.getMethod().getMethodName()) && !tripoliSession.isExpressionRefreshed()) {
+                        List<UserFunction> functionsToRemove = analysisProposed.getUserFunctions().stream()
+                                .filter(UserFunction::isTreatAsCustomExpression)
+                                .toList();
 
-                    List<UserFunction> functionsToAdd = analysis.getUserFunctions().stream()
-                            .filter(UserFunction::isTreatAsCustomExpression)
-                            .toList();
+                        analysisProposed.getUserFunctions().removeAll(functionsToRemove);
 
-                    analysisProposed.getUserFunctions().addAll(functionsToAdd);
+                        List<UserFunction> functionsToAdd = analysis.getUserFunctions().stream()
+                                .filter(UserFunction::isTreatAsCustomExpression)
+                                .toList();
+
+                        analysisProposed.getUserFunctions().addAll(functionsToAdd);
+                    }
                 }
                 tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
                 analysis = analysisProposed;
@@ -1790,7 +1805,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             expressionStateManager.clear();
             currentMode.set(Mode.VIEW);
         }
-        if (editAsText.get()){
+        if (editAsText.get()) {
             expressionAsTextAction();
         }
         expressionAccordion.getPanes().get(0).setExpanded(true);
@@ -1835,7 +1850,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         List<UserFunction> userFunctions = analysis.getUserFunctions();
         UserFunction existingFunction;
 
-        if (currentMode.get().equals(Mode.EDIT)){
+        if (currentMode.get().equals(Mode.EDIT)) {
             String searchName = selectedExpressionName.get();
             existingFunction = userFunctions.stream()
                     .filter(uf -> uf.getName().equalsIgnoreCase(searchName))
@@ -1858,7 +1873,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     "This name is already a custom expression. Would you like to overwrite?", TripoliGUI.primaryStage);
             if (!proceed2) return;
 
-            if (editAsText.get()){
+            if (editAsText.get()) {
                 expressionAsTextAction();
             }
 
@@ -1896,7 +1911,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         analysis.getMassSpecExtractedData().populateCycleDataForCustomExpression(expressionTree);
 
-        if (tripoliSession.isExpressionRefreshed()){
+        if (tripoliSession.isExpressionRefreshed()) {
             AnalysisMethodPersistance methodPersistence =
                     persistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
 
@@ -1941,7 +1956,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     }
 
     public void expressionClearAction() {
-        if (currentMode.get().equals(Mode.VIEW)){
+        if (currentMode.get().equals(Mode.VIEW)) {
             expressionString.set("");
             expressionNameTextField.clear();
 
@@ -1968,7 +1983,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             String expressionName = expressionNameTextField.getText().split(" \\( = ")[0];
             deleteExpression(expressionName);
 
-            if (editAsText.get()){
+            if (editAsText.get()) {
                 expressionAsTextAction();
             }
 
@@ -2004,7 +2019,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             }
         }
 
-        if (tripoliSession.isExpressionRefreshed()){
+        if (tripoliSession.isExpressionRefreshed()) {
             AnalysisMethodPersistance analysisMethodPersistance =
                     tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
 
@@ -2017,9 +2032,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         populateAnalysisDataFields();
     }
 
-    private List<String> textFlowToList(){
+    private List<String> textFlowToList() {
         List<String> retVal = new ArrayList<>();
-        for (Node node : expressionTextFlow.getChildren()){
+        for (Node node : expressionTextFlow.getChildren()) {
             String text = ((ExpressionTextNode) node).getText().trim();
             if (!text.isBlank()) {
                 retVal.add(text);
@@ -2059,6 +2074,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     /**
      * Parses a given string into the correct nodes for the expressionTextFlow and then inserts them as children
+     *
      * @param expressionString new expression to be shown in the TextFlow
      */
     private void populateTextFlowFromString(String expressionString) {
@@ -2081,7 +2097,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     etn = new NumberTextNode(' ' + nodeText + ' ');
                 } else if (listOperators.contains(nodeText)) {
                     etn = new OperationTextNode(' ' + nodeText + ' ');
-                } else if (nodeText.contains("[")){
+                } else if (nodeText.contains("[")) {
                     etn = new UserFunctionTextNode(' ' + nodeText + ' ');
                 } else {
                     etn = new ExpressionTextNode(' ' + nodeText + ' ');
@@ -2107,6 +2123,128 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     public void expressionRatioCheckBoxAction() {
         treatAsRatioCheckBox.setSelected(!treatAsRatioCheckBox.isSelected());
+    }
+
+    private enum Mode {
+
+        EDIT("Edit"),
+        CREATE("Create"),
+        VIEW("View");
+
+        private final String printString;
+
+        Mode(String printString) {
+            this.printString = printString;
+        }
+
+        @Override
+        public String toString() {
+            return printString;
+        }
+    }
+
+    public static class StateManager<T> {
+
+        private final BooleanProperty canUndo = new SimpleBooleanProperty(false);
+        private final BooleanProperty canRedo = new SimpleBooleanProperty(false);
+        private final BooleanProperty hasChanges = new SimpleBooleanProperty(false);
+
+        private Node current;
+        private Node tail;
+
+        public void save(T state) {
+            if (current != null && current.state.equals(state)) {
+                return;
+            }
+
+            Node newNode = new Node(state);
+
+            if (current != null) {
+                current.next = newNode;
+                newNode.prev = current;
+            }
+            current = newNode;
+
+            if (tail == null) {
+                tail = current;
+            }
+
+            updateProperties();
+        }
+
+        public T undo() {
+            if (current != null && current.prev != null) {
+                current = current.prev;
+                updateProperties();
+                return current.state;
+            } else if (current.prev == null) {
+                Node newNext = current;
+                current = new Node(null);
+                current.next = newNext;
+                updateProperties();
+            }
+            return null;
+        }
+
+        public T redo() {
+            if (current != null && current.next != null) {
+                current = current.next;
+                updateProperties();
+                return current.state;
+            }
+            return null;
+        }
+
+        public void clear() {
+            current = null;
+            tail = null;
+            canRedo.set(false);
+            canUndo.set(false);
+            hasChanges.set(false);
+        }
+
+        public boolean hasChanges() {
+            if (current == null || tail == null) {
+                return false;
+            }
+
+            return !Objects.equals(current.state, tail.state);
+        }
+
+        public T revert() {
+            if (tail != null) {
+                return tail.state;
+            }
+            return null;
+        }
+
+        public BooleanProperty canUndoProperty() {
+            return canUndo;
+        }
+
+        public BooleanProperty canRedoProperty() {
+            return canRedo;
+        }
+
+        public BooleanProperty hasChangesProperty() {
+            return hasChanges;
+        }
+
+        private void updateProperties() {
+            canUndo.set(current.prev != null);
+            canRedo.set(current.next != null);
+            hasChanges.set(hasChanges());
+        }
+
+        private class Node {
+            T state;
+            Node prev;
+            Node next;
+
+            Node(T state) {
+                this.state = state;
+            }
+        }
     }
 
     class RatioClickHandler implements EventHandler<MouseEvent> {
@@ -2186,11 +2324,11 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
     private class ExpressionTextNode extends Text {
         public final String text;
-        private int index;
         protected Color regularColor;
         protected Color selectedColor;
         protected Color oppositeColor;
         protected int fontSize;
+        private int index;
 
         public ExpressionTextNode(String text) {
             super(text);
@@ -2211,11 +2349,18 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             setupDragHandlers();
             setupContextMenu();
         }
+
         public final void updateFontSize() {
             setFont(Font.font("SansSerif", FontWeight.SEMI_BOLD, fontSize));
         }
-        public int getIndex() { return index; }
-        public void setIndex(int index) { this.index = index; }
+
+        public int getIndex() {
+            return index;
+        }
+
+        public void setIndex(int index) {
+            this.index = index;
+        }
 
         private void setupDragHandlers() {
 
@@ -2275,6 +2420,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
 
         }
+
         private void moveInsertIndicatorToIndex(int index) {
             expressionTextFlow.getChildren().remove(insertIndicator);
             expressionTextFlow.getChildren().add(index, insertIndicator);
@@ -2289,7 +2435,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 handleExpressionUpdate(true);
             });
             // --------------- end delete
-            
+
             // Parenthesis -----------------------
             MenuItem addParenthesisItem = new MenuItem("Add Parentheses");
             addParenthesisItem.setOnAction(event -> {
@@ -2304,22 +2450,22 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             });
 
             // ---------------- end parenthesis
-            
+
             // value input (NumberTextNode only) -----------------------
             CustomMenuItem valueInputItem = new CustomMenuItem();
             valueInputItem.setHideOnClick(false);
-        
+
             HBox inputContainer = new HBox(5);
             Label label = new Label("Value:");
             TextField valueField = new TextField();
             valueField.setPrefWidth(100);
-        
+
             valueField.textProperty().addListener((observable, oldValue, newValue) -> {
                 if (!newValue.matches("-?\\d*\\.?\\d*")) {
                     valueField.setText(oldValue);
                 }
             });
-            
+
             // Create a method to handle the apply action
             EventHandler<ActionEvent> applyAction = e -> {
                 if (valueField.getText().isEmpty()) {
@@ -2334,29 +2480,29 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 }
                 handleExpressionUpdate(true);
             };
-            
+
             valueField.setOnKeyPressed(event -> {
                 if (event.getCode() == KeyCode.ENTER) {
                     applyAction.handle(new ActionEvent());
                     event.consume();
                 }
             });
-            
+
             Button applyButton = new Button("Apply");
             applyButton.setOnAction(applyAction);
-            
+
             inputContainer.getChildren().addAll(label, valueField, applyButton);
             valueInputItem.setContent(inputContainer);
             // -------------- end value input
-            
-            
+
+
             // Build context
             ContextMenu contextMenu = new ContextMenu(deleteItem, addParenthesisItem);
 
             if (this instanceof NumberTextNode || this.text.equals("#")) {
                 contextMenu.getItems().add(valueInputItem);
             }
-        
+
             setOnContextMenuRequested(event -> {
                 if (!currentMode.get().equals(Mode.VIEW)) {
                     contextMenu.show(this, event.getScreenX(), event.getScreenY());
@@ -2393,128 +2539,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             this.regularColor = Color.BLUE;
             setFill(regularColor);
         }
+
         public String getUserFunctionName() {
             return text.trim().substring(1, text.trim().length() - 1);
-        }
-    }
-
-    public static class StateManager<T> {
-
-        private final BooleanProperty canUndo = new SimpleBooleanProperty(false);
-        private final BooleanProperty canRedo = new SimpleBooleanProperty(false);
-        private final BooleanProperty hasChanges = new SimpleBooleanProperty(false);
-
-        private Node current;
-        private Node tail;
-
-
-        private class Node {
-            T state;
-            Node prev;
-            Node next;
-
-            Node(T state) {
-                this.state = state;
-            }
-        }
-
-        public void save(T state) {
-            if (current != null && current.state.equals(state)) {
-                return;
-            }
-
-            Node newNode = new Node(state);
-
-            if (current != null) {
-                current.next = newNode;
-                newNode.prev = current;
-            }
-            current = newNode;
-
-            if (tail == null) {
-                tail = current;
-            }
-
-            updateProperties();
-        }
-
-        public T undo() {
-            if (current != null && current.prev != null) {
-                current = current.prev;
-                updateProperties();
-                return current.state;
-            } else if (current.prev == null) {
-                Node newNext = current;
-                current = new Node(null);
-                current.next = newNext;
-                updateProperties();
-            }
-            return null;
-        }
-
-        public T redo() {
-            if (current != null && current.next != null) {
-                current = current.next;
-                updateProperties();
-                return current.state;
-            }
-            return null;
-        }
-
-        public void clear() {
-            current = null;
-            tail = null;
-            canRedo.set(false);
-            canUndo.set(false);
-            hasChanges.set(false);
-        }
-
-        public boolean hasChanges() {
-            if (current == null || tail == null) {
-                return false;
-            }
-
-            return !Objects.equals(current.state, tail.state);
-        }
-
-        public T revert() {
-            if (tail != null) {
-                return tail.state;
-            }
-            return null;
-        }
-
-
-        public BooleanProperty canUndoProperty() {
-            return canUndo;
-        }
-        public BooleanProperty canRedoProperty() {
-            return canRedo;
-        }
-        public BooleanProperty hasChangesProperty() {return hasChanges;}
-
-        private void updateProperties() {
-            canUndo.set(current.prev != null);
-            canRedo.set(current.next != null);
-            hasChanges.set(hasChanges());
-        }
-    }
-
-    private enum Mode {
-
-        EDIT("Edit"),
-        CREATE("Create"),
-        VIEW("View");
-
-        private final String printString;
-
-        Mode(String printString) {
-            this.printString = printString;
-        }
-
-        @Override
-        public String toString() {
-            return printString;
         }
     }
 }
