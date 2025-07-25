@@ -28,6 +28,7 @@ import org.cirdles.tripoli.utilities.callbacks.LoggingCallbackInterface;
 import org.cirdles.tripoli.utilities.mathUtilities.MatLabCholesky;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -261,7 +262,7 @@ public class MCMCProcess {
         RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
         randomDataGenerator.reSeedSecure();
 
-        DecimalFormat statsFormat = new DecimalFormat("#0.000000");
+        DecimalFormat statsFormat = new DecimalFormat("#0.000000",new DecimalFormatSymbols(Locale.ENGLISH));
 
         int counter = 0;
         SingleBlockModelUpdater singleBlockModelUpdater = new SingleBlockModelUpdater();

@@ -43,6 +43,8 @@ import org.cirdles.tripoli.utilities.DelegateActionInterface;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 /**
  * @author James F. Bowring
@@ -329,7 +331,7 @@ public abstract class AbstractPlot extends Canvas {
                                 leftMargin, mapY(bigDecimalTicY.doubleValue()), leftMargin + plotWidth, mapY(bigDecimalTicY.doubleValue()));
                         // left side
                         double ticValue = bigDecimalTicY.doubleValue();
-                        DecimalFormat df = new DecimalFormat((99999 < Math.abs(ticValue) || 1.0e-5 > Math.abs(ticValue)) ? "0.0####E0" : "#####0.#####");
+                        DecimalFormat df = new DecimalFormat((99999 < Math.abs(ticValue) || 1.0e-5 > Math.abs(ticValue)) ? "0.0####E0" : "#####0.#####",new DecimalFormatSymbols(Locale.ENGLISH));
                         String yText = (ticValue == 0.0) ? "0" : df.format(ticValue);
 
                         text.setText(yText);
@@ -352,7 +354,7 @@ public abstract class AbstractPlot extends Canvas {
                             topMargin + plotHeight + 3);
                     // bottom
                     double ticValue = ticsX[i].doubleValue();
-                    DecimalFormat df = new DecimalFormat((99999 < Math.abs(ticValue) || 1.0e-5 > Math.abs(ticValue)) ? "0.0####E0" : "#####0.#####");
+                    DecimalFormat df = new DecimalFormat((99999 < Math.abs(ticValue) || 1.0e-5 > Math.abs(ticValue)) ? "0.0####E0" : "#####0.#####",new DecimalFormatSymbols(Locale.ENGLISH));
                     String xText = (ticValue == 0.0) ? "0" : df.format(ticValue);
 
                     g2d.fillText(xText,
