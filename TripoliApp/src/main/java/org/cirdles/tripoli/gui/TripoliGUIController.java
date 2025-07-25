@@ -805,4 +805,7 @@ public class TripoliGUIController implements Initializable {
         BrowserControl.showURI("https://cirdles.org/tripoli-manual");
     }
 
+    public void showTripoliTutorialYoutube() {
+        BrowserControl.showURI("https://www.youtube.com/playlist?list=PLfF8bcNRe2WTSMU4sOvDqciajlYi1-CZI");
+    }
 }
