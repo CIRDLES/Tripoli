@@ -320,8 +320,16 @@
                         <padding>
                            <Insets left="5.0" />
                         </padding></Label>
-                            <TextField fx:id="expressionNameTextField" maxWidth="400.0" minWidth="120.0" opacity="0.99" promptText="type your new expression name here" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
-                            <Region HBox.hgrow="ALWAYS" />
+                            <TextField fx:id="expressionNameTextField" maxWidth="400.0" minWidth="120.0" opacity="0.99" prefHeight="25.0" prefWidth="285.0" promptText="type your new expression name here" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
+                                <Button fx:id="treatAsRatioButton" onAction="#expressionRatioCheckBoxAction">
+                                    <graphic>
+                                        <HBox alignment="center" spacing="5">
+                                            <CheckBox fx:id="treatAsRatioCheckBox" onAction="#expressionRatioCheckBoxAction" styleClass="white-checkbox" />
+                                            <Label text="Treat as Ratio" />
+                                        </HBox>
+                                    </graphic>
+                                </Button>
+                            <Region prefWidth="0.0" HBox.hgrow="ALWAYS" />
                             <Label fx:id="expressionInvalidLabel" style="-fx-text-fill: RED" text="INVALID EXPRESSION!" visible="false" />
                         </HBox>
                         <AnchorPane fx:id="expressionPane">
@@ -335,14 +343,6 @@
                             <Button fx:id="expressionRedoBtn" mnemonicParsing="false" onAction="#expressionRedoAction" text="Redo" />
                             <Region prefWidth="100" />
                             <Button fx:id="expressionAsTextBtn" mnemonicParsing="false" onAction="#expressionAsTextAction" text="Switch to Text" />
-                                <Button fx:id="treatAsRatioButton" onAction="#expressionRatioCheckBoxAction">
-                                    <graphic>
-                                        <HBox spacing="5" alignment="center">
-                                            <CheckBox fx:id="treatAsRatioCheckBox" styleClass="white-checkbox" onAction="#expressionRatioCheckBoxAction"/>
-                                            <Label text="Treat as Ratio" />
-                                        </HBox>
-                                    </graphic>
-                                </Button>
                         </ToolBar>
                     </VBox>
                 </SplitPane>
