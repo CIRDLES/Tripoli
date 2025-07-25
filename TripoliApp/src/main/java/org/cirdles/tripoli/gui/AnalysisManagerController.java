@@ -121,7 +121,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private final ObjectProperty<Mode> currentMode = new SimpleObjectProperty<>(Mode.EDIT);
     private final ListView<ExpressionTreeInterface> customExpressionLV = new ListView<>();
     private final StringProperty selectedExpressionName = new SimpleStringProperty();
+
     private final BooleanProperty selectedExpressionRatioOption = new SimpleBooleanProperty(false);
+
     public Tab detectorDetailTab;
     public TabPane analysisMethodTabPane;
     @FXML
@@ -200,11 +202,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public Label expressionInvalidLabel;
     @FXML
     public Label expressionUnsavedLabel;
+    Text insertIndicator = new Text("|");
     @FXML
     public CheckBox treatAsRatioCheckBox;
     @FXML
     public Button treatAsRatioButton;
-    Text insertIndicator = new Text("|");
+
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
@@ -445,7 +448,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         if (0 != analysis.getDataFilePathString().compareToIgnoreCase(MISSING_STRING_FIELD)) {
             populateAnalysisDataFields();
-            setupDefaults();
+            if (null != analysis.getAnalysisMethod()) {
+                setupDefaults();
+            }
         }
 
         switch (caseNumber) {
@@ -461,10 +466,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 analysisMethodTabPane.getTabs().remove(baselineTableTab);
                 analysisMethodTabPane.getTabs().remove(sequenceTableTab);
                 analysisMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
-                showTab(analysisMethodTabPane, 2, selectColumnsToPlot);
-                analysisMethodTabPane.getSelectionModel().select(2);
-                populateAnalysisMethodColumnsSelectorPane();
-                processingToolBar.setVisible(false);
+
+                if (null != analysis.getAnalysisMethod()) {
+                    showTab(analysisMethodTabPane, 2, selectColumnsToPlot);
+                    analysisMethodTabPane.getSelectionModel().select(2);
+                    populateAnalysisMethodColumnsSelectorPane();
+                    processingToolBar.setVisible(false);
+                }
             }
             case 2, 3, 4 -> {
                 showTab(analysisMethodTabPane, 2, detectorDetailTab);
@@ -472,10 +480,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 showTab(analysisMethodTabPane, 4, sequenceTableTab);
                 showTab(analysisMethodTabPane, 5, selectRatiosToPlotTab);
                 analysisMethodTabPane.getTabs().remove(selectColumnsToPlot);
-                populateAnalysisMethodGridPane();
-                populateAnalysisMethodRatioBuilderPane();
-                populateBlocksStatus();
-                processingToolBar.setVisible(true);
+                if (null != analysis.getAnalysisMethod()) {
+                    populateAnalysisMethodGridPane();
+                    populateAnalysisMethodRatioBuilderPane();
+                    populateBlocksStatus();
+                    processingToolBar.setVisible(true);
+                }
             }
         }
 
@@ -1157,6 +1167,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     treatAsRatioCheckBox.setSelected(newValue.getName().contains(" ( = "));
                 } else if (newValue instanceof ConstantNode) {
                     populateTextFlowFromString(((ConstantNode) newValue).getValue().toString());
+
                     treatAsRatioCheckBox.setSelected(false);
                 } else if (newValue instanceof ExpressionTree) {
                     populateTextFlowFromString(ExpressionTree.prettyPrint(newValue, analysis, false));
@@ -1400,7 +1411,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private void loadDataFile(File selectedFile) {
 
         boolean legalFile = true;
-        String oldMethod = analysis.getMethod().getMethodName();
         removeAnalysisMethod();
         String currentAnalysisName = analysis.getAnalysisName();
         tripoliSession.getMapOfAnalyses().remove(currentAnalysisName);
@@ -1411,18 +1421,22 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
                 analysisProposed.setAnalysisName(analysisName);
                 analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
-                if (oldMethod.equals(analysisProposed.getMethod().getMethodName()) && !tripoliSession.isExpressionRefreshed()) {
-                    List<UserFunction> functionsToRemove = analysisProposed.getUserFunctions().stream()
-                            .filter(UserFunction::isTreatAsCustomExpression)
-                            .toList();
 
-                    analysisProposed.getUserFunctions().removeAll(functionsToRemove);
+                if (analysis.getMethod() != null) {
+                    String oldMethod = analysis.getMethod().getMethodName();
+                    if (oldMethod.equals(analysisProposed.getMethod().getMethodName()) && !tripoliSession.isExpressionRefreshed()) {
+                        List<UserFunction> functionsToRemove = analysisProposed.getUserFunctions().stream()
+                                .filter(UserFunction::isTreatAsCustomExpression)
+                                .toList();
 
-                    List<UserFunction> functionsToAdd = analysis.getUserFunctions().stream()
-                            .filter(UserFunction::isTreatAsCustomExpression)
-                            .toList();
+                        analysisProposed.getUserFunctions().removeAll(functionsToRemove);
 
-                    analysisProposed.getUserFunctions().addAll(functionsToAdd);
+                        List<UserFunction> functionsToAdd = analysis.getUserFunctions().stream()
+                                .filter(UserFunction::isTreatAsCustomExpression)
+                                .toList();
+
+                        analysisProposed.getUserFunctions().addAll(functionsToAdd);
+                    }
                 }
                 tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
                 analysis = analysisProposed;
