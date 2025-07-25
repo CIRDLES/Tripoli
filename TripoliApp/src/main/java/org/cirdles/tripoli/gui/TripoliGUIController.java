@@ -34,10 +34,13 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import org.apache.commons.math3.random.RandomDataGenerator;
+import org.cirdles.tripoli.FileWatcher;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.mcmcPlots.MCMCPlotsWindow;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliPlotsWindow;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.OGTripoliViewController;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapePlotsWindow;
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.gui.reports.ReportBuilderController;
@@ -51,8 +54,11 @@ import org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.SessionBuiltinFactory;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
+import org.cirdles.tripoli.utilities.callbacks.LiveDataCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.AnalysisMethodPersistance;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
@@ -67,10 +73,11 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.*;
 
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
+import static org.cirdles.tripoli.gui.AnalysisManagerController.ogTripoliPreviewPlotsWindow;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStage;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.utilities.BrowserControl.urlEncode;
@@ -83,7 +90,7 @@ import static org.cirdles.tripoli.gui.SessionManagerController.listOfSelectedAna
 /**
  * @author James F. Bowring
  */
-public class TripoliGUIController implements Initializable {
+public class TripoliGUIController implements Initializable, LiveDataCallbackInterface {
 
     public static TripoliPersistentState tripoliPersistentState = null;
     public static @Nullable Session tripoliSession;
@@ -143,6 +150,7 @@ public class TripoliGUIController implements Initializable {
     private MenuItem parameterControlMenuItem;
     @FXML
     private AnchorPane splashAnchor;
+    Thread thread;
 
     public static void quit() {
         try {
@@ -805,4 +813,34 @@ public class TripoliGUIController implements Initializable {
         BrowserControl.showURI("https://cirdles.org/tripoli-manual");
     }
 
+    public void processLiveData(){
+        String homeDir = System.getProperty("user.home");
+        Path testDataPath = Paths.get(homeDir + "\\IdeaProjects\\TripoliTestData\\IsotopxPhoenixTIMS\\KU_IGL\\IsolinxVersion2\\GHR1 230921 F08b.RAW\\LiveData");
+        FileWatcher watcher = new FileWatcher(testDataPath);
+        watcher.setLiveDataUpdateListener(this);
+
+        if (thread != null && thread.isAlive()){
+            watcher.stop();
+            thread.interrupt();
+        } else {
+            thread = new Thread(watcher);
+            thread.setDaemon(true);
+            thread.start();
+        }
+    }
+    @Override
+    public void onLiveDataUpdated(Path filePath, AnalysisInterface liveDataAnalysis) {
+        System.out.println("Sample data " + liveDataAnalysis.getMassSpecExtractedData().getBlocksDataLite().get(Integer.parseInt("1")).cycleData()[0][0]);
+        liveDataAnalysis.getMapOfBlockIdToRawDataLiteOne().clear();
+        AllBlockInitForMCMC.PlottingData plottingData = AllBlockInitForDataLiteOne.initBlockModels(liveDataAnalysis);
+        if (plottingData != null) {
+            OGTripoliViewController.analysis = liveDataAnalysis;
+            if (ogTripoliPreviewPlotsWindow != null) {
+                ogTripoliPreviewPlotsWindow.setPlottingData(plottingData);
+            } else {
+                ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, null, plottingData);
+                ogTripoliPreviewPlotsWindow.loadPlotsWindow();
+            }
+        }
+    }
 }
