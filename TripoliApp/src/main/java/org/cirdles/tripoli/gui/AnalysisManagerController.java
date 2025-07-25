@@ -209,6 +209,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public Button treatAsRatioButton;
 
     @FXML
+    public Tab customExpressionsTab;
+    @FXML
     private GridPane analysisManagerGridPane;
     @FXML
     private TextField analysisNameTextField;
@@ -460,6 +462,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 analysisMethodTabPane.getTabs().remove(sequenceTableTab);
                 analysisMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
                 analysisMethodTabPane.getTabs().remove(selectColumnsToPlot);
+                analysisMethodTabPane.getTabs().remove(customExpressionsTab);
             }
             case 1 -> {
                 analysisMethodTabPane.getTabs().remove(detectorDetailTab);
@@ -480,12 +483,20 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 showTab(analysisMethodTabPane, 4, sequenceTableTab);
                 showTab(analysisMethodTabPane, 5, selectRatiosToPlotTab);
                 analysisMethodTabPane.getTabs().remove(selectColumnsToPlot);
+
+                analysisMethodTabPane.getTabs().remove(customExpressionsTab);
+                populateAnalysisMethodGridPane();
+                populateAnalysisMethodRatioBuilderPane();
+                populateBlocksStatus();
+                processingToolBar.setVisible(true);
+
                 if (null != analysis.getAnalysisMethod()) {
                     populateAnalysisMethodGridPane();
                     populateAnalysisMethodRatioBuilderPane();
                     populateBlocksStatus();
                     processingToolBar.setVisible(true);
                 }
+
             }
         }
 
