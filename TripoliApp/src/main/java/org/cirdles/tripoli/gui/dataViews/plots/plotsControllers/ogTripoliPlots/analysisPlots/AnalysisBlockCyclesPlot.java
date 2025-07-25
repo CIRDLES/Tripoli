@@ -43,7 +43,9 @@ import org.cirdles.tripoli.utilities.mathUtilities.MathUtilities;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 
 import static java.lang.StrictMath.log;
@@ -569,7 +571,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
         int countOfTrailingDigitsForSigFig = 0;
         if (Math.abs(standardError) < 10.0) {
             double rounded = MathUtilities.roundedToSize(standardError, sigFig);
-            DecimalFormat df = new DecimalFormat("#");
+            DecimalFormat df = new DecimalFormat("#",new DecimalFormatSymbols(Locale.ENGLISH));
             df.setMaximumFractionDigits(8);
             String roundedString = df.format(rounded);
             int dotIndex = roundedString.indexOf(".");
