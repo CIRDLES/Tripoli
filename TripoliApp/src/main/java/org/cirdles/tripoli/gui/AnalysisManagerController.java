@@ -207,7 +207,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public CheckBox treatAsRatioCheckBox;
     @FXML
     public Button treatAsRatioButton;
-    Text insertIndicator = new Text("|");
+
     @FXML
     private GridPane analysisManagerGridPane;
     @FXML
