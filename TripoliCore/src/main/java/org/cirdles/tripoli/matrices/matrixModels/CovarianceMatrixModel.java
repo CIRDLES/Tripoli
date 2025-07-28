@@ -20,8 +20,10 @@ import jama.Matrix;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -236,7 +238,7 @@ public class CovarianceMatrixModel extends AbstractMatrixModel {
 
         Matrix rhos = dInvert.times(sCov).times(dInvert);
         // poll every cell of rhos to make sure it is in range [-1,1] or report it
-        NumberFormat formatter = new DecimalFormat("###0.000");
+        NumberFormat formatter = new DecimalFormat("###0.000",new DecimalFormatSymbols(Locale.ENGLISH));
 
         for (int i = 0; i < rhos.getRowDimension() - 1; i++) {
             for (int j = i + 1; j < rhos.getColumnDimension(); j++) {
