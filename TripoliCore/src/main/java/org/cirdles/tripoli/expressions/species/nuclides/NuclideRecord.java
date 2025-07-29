@@ -21,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -37,7 +39,7 @@ public record NuclideRecord(
 ) implements SpeciesRecordInterface, Serializable {
 
     public String prettyPrintLongForm() {
-        DecimalFormat df = new DecimalFormat("###0.0000000#####           ");
+        DecimalFormat df = new DecimalFormat("###0.0000000#####", new DecimalFormatSymbols(Locale.ENGLISH));
         return prettyPrintShortForm() +
                 ": " + df.format(atomicMass) +
                 "\t %abundance: " +

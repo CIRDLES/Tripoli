@@ -306,8 +306,8 @@
                             <Button fx:id="cancelExpressionButton" onAction="#cancelCustomExpressionOnAction" text="Cancel" />
                             <Button fx:id="saveExpressionButton" onAction="#saveCustomExpressionOnAction" text="Save" />
                             <Button fx:id="deleteExpressionButton" onAction="#deleteCustomExpressionOnAction" text="Delete" />
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Label fx:id="expressionUnsavedLabel" visible="false" text="UNSAVED CHANGES!" style="-fx-text-fill: RED" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Label fx:id="expressionUnsavedLabel" style="-fx-text-fill: RED" text="UNSAVED CHANGES!" visible="false" />
                      <opaqueInsets>
                         <Insets />
                      </opaqueInsets>
@@ -320,9 +320,17 @@
                         <padding>
                            <Insets left="5.0" />
                         </padding></Label>
-                            <TextField fx:id="expressionNameTextField" maxWidth="400.0" minWidth="120.0" opacity="0.99" promptText="type your new expression name here" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Label fx:id="expressionInvalidLabel" visible="false" text="INVALID EXPRESSION!" style="-fx-text-fill: RED" />
+                            <TextField fx:id="expressionNameTextField" maxWidth="400.0" minWidth="120.0" opacity="0.99" prefHeight="25.0" prefWidth="285.0" promptText="type your new expression name here" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
+                                <Button fx:id="treatAsRatioButton" onAction="#expressionRatioCheckBoxAction">
+                                    <graphic>
+                                        <HBox alignment="center" spacing="5">
+                                            <CheckBox fx:id="treatAsRatioCheckBox" onAction="#expressionRatioCheckBoxAction" styleClass="white-checkbox" />
+                                            <Label text="Treat as Ratio" />
+                                        </HBox>
+                                    </graphic>
+                                </Button>
+                            <Region prefWidth="0.0" HBox.hgrow="ALWAYS" />
+                            <Label fx:id="expressionInvalidLabel" style="-fx-text-fill: RED" text="INVALID EXPRESSION!" visible="false" />
                         </HBox>
                         <AnchorPane fx:id="expressionPane">
                             <ScrollPane fx:id="expressionScrollPane" prefHeight="77.0" prefWidth="857.0" HBox.hgrow="ALWAYS">
