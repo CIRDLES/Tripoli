@@ -138,6 +138,17 @@ public enum FileHandlerUtil {
         return retVal;
     }
 
+    public static File selectMethodFolder(Window ownerWindow) {
+
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Select Analysis Method folder");
+        File initDirectory = new File(tripoliPersistentState.getMRUMethodXMLFolderPath());
+        directoryChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
+
+        return directoryChooser.showDialog(ownerWindow);
+
+    }
+
     public static File selectPeakShapeResourceFolderForBrowsing(Window ownerWindow) {
         File resourceFile;
 

@@ -66,10 +66,7 @@ import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 import org.jetbrains.annotations.Nullable;
 import org.cirdles.tripoli.reports.Report;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -813,10 +810,41 @@ public class TripoliGUIController implements Initializable, LiveDataCallbackInte
         BrowserControl.showURI("https://cirdles.org/tripoli-manual");
     }
 
-    public void processLiveData(){
-        String homeDir = System.getProperty("user.home");
-        Path testDataPath = Paths.get(homeDir + "\\IdeaProjects\\TripoliTestData\\IsotopxPhoenixTIMS\\KU_IGL\\IsolinxVersion2\\GHR1 230921 F08b.RAW\\LiveData");
-        FileWatcher watcher = new FileWatcher(testDataPath);
+    private Path getLiveDataFolderPath(File methodFolder) throws IOException {
+        File liveDataStatusFile = new File(methodFolder.toString() + File.separator + "liveDataStatus.txt");
+        if (!liveDataStatusFile.exists()) {
+            TripoliMessageDialog.showWarningDialog("Live data status file not found in method folder: " + methodFolder.getAbsolutePath(), primaryStageWindow);
+            return null;
+        }
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(liveDataStatusFile));
+
+        String line = bufferedReader.readLine();
+        while (!Objects.equals(line.split(",")[0], "Method")){
+            line = bufferedReader.readLine();
+        }
+
+        Path methodPath = Path.of(line.split(",")[1].replaceAll("\"", ""));
+        String methodName = methodPath.getParent().getFileName().toString();
+
+        return Path.of(methodFolder + File.separator + methodName + File.separator + "LiveData");
+    }
+
+    public void processLiveData() throws IOException {
+        Path liveDataFolderPath;
+        // Check for MRU Folder
+        if (tripoliPersistentState != null && tripoliPersistentState.getMRUDataFileFolderPath() != null) {
+            Path mruDataFolderPath = Path.of(tripoliPersistentState.getMRUDataFileFolderPath()).getParent();
+            liveDataFolderPath = getLiveDataFolderPath(mruDataFolderPath.toFile());
+        } else { // Otherwise, get from user
+            File methodFolder = FileHandlerUtil.selectMethodFolder(primaryStageWindow);
+            liveDataFolderPath = getLiveDataFolderPath(methodFolder);
+        }
+        // Ensure folder was retrieved
+        if (liveDataFolderPath == null) {
+            return;
+        }
+
+        FileWatcher watcher = new FileWatcher(liveDataFolderPath);
         watcher.setLiveDataUpdateListener(this);
 
         if (thread != null && thread.isAlive()){
@@ -828,6 +856,7 @@ public class TripoliGUIController implements Initializable, LiveDataCallbackInte
             thread.start();
         }
     }
+
     @Override
     public void onLiveDataUpdated(Path filePath, AnalysisInterface liveDataAnalysis) {
         System.out.println("Sample data " + liveDataAnalysis.getMassSpecExtractedData().getBlocksDataLite().get(Integer.parseInt("1")).cycleData()[0][0]);
