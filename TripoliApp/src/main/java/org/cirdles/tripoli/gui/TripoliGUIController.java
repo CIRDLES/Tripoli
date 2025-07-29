@@ -189,7 +189,7 @@ public class TripoliGUIController implements Initializable, LiveDataCallbackInte
         });
         versionLabel.setText("v" + Tripoli.VERSION);
         versionBuildDate.setText(Tripoli.RELEASE_DATE);
-        MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage, null);
+        MCMCPlotsWindow = new MCMCPlotsWindow(primaryStage, null);
 
         buildSessionMenuMRU();
         showStartingMenus();
@@ -212,7 +212,7 @@ public class TripoliGUIController implements Initializable, LiveDataCallbackInte
                     }
                 } else {
                     // new session
-                    MenuItem menuItemSessionNew = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                    MenuItem menuItemSessionNew = ((MenuBar) primaryStage.getScene()
                             .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(2);
                     menuItemSessionNew.fire();
                     for (int i = 0; i < db.getFiles().size(); i++) {
@@ -242,7 +242,7 @@ public class TripoliGUIController implements Initializable, LiveDataCallbackInte
 //                    throw new RuntimeException(e);
                         }
                     }
-                    MenuItem menuItemSessionManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                    MenuItem menuItemSessionManager = ((MenuBar) primaryStage.getScene()
                             .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(0);
                     menuItemSessionManager.fire();
                 }
@@ -711,13 +711,13 @@ public class TripoliGUIController implements Initializable, LiveDataCallbackInte
 
     @FXML
     private void showDemo1() {
-        MCMCPlotsWindow = new MCMCPlotsWindow(TripoliGUI.primaryStage, null);
+        MCMCPlotsWindow = new MCMCPlotsWindow(primaryStage, null);
         MCMCPlotsWindow.loadPlotsWindow();
     }
 
     @FXML
     private void showDemo2() {
-        PeakShapePlotsWindow peakShapePlotsWindow = new PeakShapePlotsWindow(TripoliGUI.primaryStage);
+        PeakShapePlotsWindow peakShapePlotsWindow = new PeakShapePlotsWindow(primaryStage);
         peakShapePlotsWindow.loadPlotsWindow();
     }
 
@@ -743,7 +743,7 @@ public class TripoliGUIController implements Initializable, LiveDataCallbackInte
 
     public void newAnalysisMenuItemOnAction() throws TripoliException {
         if (tripoliSession == null) {
-            MenuItem menuItemSessionNew = ((MenuBar) TripoliGUI.primaryStage.getScene()
+            MenuItem menuItemSessionNew = ((MenuBar) primaryStage.getScene()
                     .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(2);
             menuItemSessionNew.fire();
         }
@@ -762,7 +762,7 @@ public class TripoliGUIController implements Initializable, LiveDataCallbackInte
         reportsMenu.setDisable(false);
         manageAnalysisMenuItem.setDisable(false);
         // manage analysis
-        MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
+        MenuItem menuItemAnalysesManager = ((MenuBar) primaryStage.getScene()
                 .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
         menuItemAnalysesManager.fire();
     }
@@ -838,7 +838,7 @@ public class TripoliGUIController implements Initializable, LiveDataCallbackInte
             if (ogTripoliPreviewPlotsWindow != null) {
                 ogTripoliPreviewPlotsWindow.setPlottingData(plottingData);
             } else {
-                ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, null, plottingData);
+                ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(primaryStage, null, plottingData);
                 ogTripoliPreviewPlotsWindow.loadPlotsWindow();
             }
         }

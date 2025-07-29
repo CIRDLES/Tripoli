@@ -64,10 +64,8 @@ public class FileWatcher implements Runnable {
 
             System.out.println("Stopped watching.");
 
-        } catch (IOException e) {
+        } catch (IOException | TripoliException e) {
             e.printStackTrace();
-        } catch (TripoliException e) {
-            throw new RuntimeException(e);
         }
     }
 
