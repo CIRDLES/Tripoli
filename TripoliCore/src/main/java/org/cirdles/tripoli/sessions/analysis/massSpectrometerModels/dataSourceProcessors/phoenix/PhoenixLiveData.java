@@ -28,6 +28,7 @@ public class PhoenixLiveData {
         massSpecExtractedData = new MassSpecExtractedData();
         liveDataAnalysis.setMassSpecExtractedData(massSpecExtractedData);
     }
+
     public AnalysisInterface readLiveDataFile(Path filePath){
         File liveDataFile = filePath.toFile();
         if (liveDataFile.exists() && liveDataFile.isFile()){
@@ -82,14 +83,15 @@ public class PhoenixLiveData {
                 break;
             case "Cycle":
                 cycleIndex = Integer.parseInt(dataLineSplit[1]);
-                if (cycleData != null){ // Copy old data to new array
+                if (cycleData == null || cycleData.length > cycleIndex) {
+                    cycleData = new double[cycleIndex][numOfFunctions];
+                } else { // Copy old data to new array
                     double[][] expandedCycleData = new double[cycleIndex][numOfFunctions];
                     for (int row = 0; row < cycleData.length; row++) {
                         System.arraycopy(cycleData[row], 0, expandedCycleData[row], 0, cycleData[row].length);
                     }
                     cycleData = expandedCycleData;
-                    } else {
-                    cycleData = new double[cycleIndex][numOfFunctions];
+
                 }
                 break;
             case "Block":

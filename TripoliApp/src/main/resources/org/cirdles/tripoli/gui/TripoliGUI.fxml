@@ -45,6 +45,7 @@
             <MenuItem mnemonicParsing="false" onAction="#newAnalysisMenuItemOnAction" text="New Analysis" />
             <MenuItem disable="true" mnemonicParsing="false" text="Import Analysis" />
             <MenuItem disable="true" mnemonicParsing="false" text="Export Analysis" />
+            <MenuItem onAction="#processLiveData" text="LiveData"/>
             <SeparatorMenuItem mnemonicParsing="false" />
         </Menu>
         <Menu fx:id="parametersMenu" mnemonicParsing="false" text="Parameters">
@@ -84,9 +85,6 @@
         <Menu disable="true" mnemonicParsing="false" text="Demos" visible="false">
             <MenuItem mnemonicParsing="false" onAction="#showDemo1" text="Demo1: RJ MMC for 2-isotope analysis" visible="false" />
             <MenuItem mnemonicParsing="false" onAction="#showDemo2" text="Demo: PeakShapes" />
-        </Menu>
-        <Menu mnemonicParsing="false" text="LiveData">
-            <MenuItem onAction="#processLiveData" text="LiveData"/>
         </Menu>
     </MenuBar>
     <AnchorPane fx:id="splashAnchor" prefHeight="673.0" prefWidth="900.0" style="-fx-background-color: #faf0e6;" VBox.vgrow="ALWAYS">

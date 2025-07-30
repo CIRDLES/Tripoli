@@ -34,7 +34,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import org.apache.commons.math3.random.RandomDataGenerator;
-import org.cirdles.tripoli.FileWatcher;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixLiveData;
+import org.cirdles.tripoli.utilities.file.FileWatcher;
 import org.cirdles.tripoli.Tripoli;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
@@ -58,7 +59,6 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.d
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
-import org.cirdles.tripoli.utilities.callbacks.LiveDataCallbackInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.AnalysisMethodPersistance;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
@@ -81,13 +81,14 @@ import static org.cirdles.tripoli.gui.utilities.BrowserControl.urlEncode;
 import static org.cirdles.tripoli.gui.utilities.fileUtilities.FileHandlerUtil.*;
 import static org.cirdles.tripoli.sessions.SessionBuiltinFactory.TRIPOLI_DEMONSTRATION_SESSION;
 import static org.cirdles.tripoli.sessions.analysis.AnalysisInterface.initializeNewAnalysis;
+import static org.cirdles.tripoli.utilities.comparators.LiveDataEntryComparator.blockCycleComparator;
 import static org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer.serializeObjectToFile;
 import static org.cirdles.tripoli.gui.SessionManagerController.listOfSelectedAnalyses;
 
 /**
  * @author James F. Bowring
  */
-public class TripoliGUIController implements Initializable, LiveDataCallbackInterface {
+public class TripoliGUIController implements Initializable {
 
     public static TripoliPersistentState tripoliPersistentState = null;
     public static @Nullable Session tripoliSession;
@@ -829,7 +830,7 @@ public class TripoliGUIController implements Initializable, LiveDataCallbackInte
         return Path.of(methodFolder + File.separator + methodName + File.separator + "LiveData");
     }
 
-    public void processLiveData() throws IOException {
+    public void processLiveData() throws IOException, TripoliException {
         Path liveDataFolderPath;
         // Check for MRU Folder
         if (tripoliPersistentState != null &&
@@ -839,6 +840,7 @@ public class TripoliGUIController implements Initializable, LiveDataCallbackInte
             liveDataFolderPath = getLiveDataFolderPath(mruDataFolderPath.toFile());
         } else { // Otherwise, get from user
             File methodFolder = FileHandlerUtil.selectMethodFolder(primaryStageWindow);
+            if (methodFolder == null) return;
             liveDataFolderPath = getLiveDataFolderPath(methodFolder);
         }
         // Ensure folder was retrieved
@@ -846,8 +848,20 @@ public class TripoliGUIController implements Initializable, LiveDataCallbackInte
             return;
         }
 
-        FileWatcher watcher = new FileWatcher(liveDataFolderPath);
-        watcher.setLiveDataUpdateListener(this);
+        PhoenixLiveData liveData = new PhoenixLiveData();
+
+        FileWatcher watcher = new FileWatcher(liveDataFolderPath, (filePath, kind) -> {
+            System.out.println("File: " + filePath);
+            if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
+
+                AnalysisInterface liveDataAnalysis = liveData.readLiveDataFile(filePath);
+
+                if (liveDataAnalysis != null) {
+                    Platform.runLater(() -> onLiveDataUpdated(liveDataAnalysis));
+                }
+            }
+        });
+        watcher.processExistingFiles(blockCycleComparator);
 
         if (thread != null && thread.isAlive()){
             watcher.stop();
@@ -859,8 +873,7 @@ public class TripoliGUIController implements Initializable, LiveDataCallbackInte
         }
     }
 
-    @Override
-    public void onLiveDataUpdated(Path filePath, AnalysisInterface liveDataAnalysis) {
+    public void onLiveDataUpdated(AnalysisInterface liveDataAnalysis) {
         liveDataAnalysis.getMapOfBlockIdToRawDataLiteOne().clear();
         AllBlockInitForMCMC.PlottingData plottingData = AllBlockInitForDataLiteOne.initBlockModels(liveDataAnalysis);
         if (plottingData != null) {

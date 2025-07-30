@@ -104,7 +104,12 @@ public class FormatterForSigFigN {
             stdvAsString = significantOfStdvAsString + "e" + string(exponentOfMean);
 
          */
-        int lastSigFigPosition = (int) (floor(log10(stdErr)) - (countOfSigFigs - 1));
+        int lastSigFigPosition;
+        if (stdErr == 0.0) {
+            lastSigFigPosition = 0;
+        } else{
+            lastSigFigPosition = (int) (floor(log10(stdErr)) - (countOfSigFigs - 1));
+        }
         BigDecimal roundedMean = new BigDecimal(mean).setScale(-lastSigFigPosition, RoundingMode.HALF_UP);
         BigDecimal roundedUnct = new BigDecimal(stdErr).setScale(-lastSigFigPosition, RoundingMode.HALF_UP);
         BigDecimal roundedStdv = new BigDecimal(stdDev).setScale(-lastSigFigPosition, RoundingMode.HALF_UP);
