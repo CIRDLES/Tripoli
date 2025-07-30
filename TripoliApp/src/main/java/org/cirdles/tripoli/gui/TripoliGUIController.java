@@ -811,9 +811,9 @@ public class TripoliGUIController implements Initializable, LiveDataCallbackInte
     }
 
     private Path getLiveDataFolderPath(File methodFolder) throws IOException {
-        File liveDataStatusFile = new File(methodFolder.toString() + File.separator + "liveDataStatus.txt");
+        File liveDataStatusFile = new File(methodFolder.toString() + File.separator + "LiveDataStatus.txt");
         if (!liveDataStatusFile.exists()) {
-            TripoliMessageDialog.showWarningDialog("Live data status file not found in method folder: " + methodFolder.getAbsolutePath(), primaryStageWindow);
+            TripoliMessageDialog.showWarningDialog("Phoenix LiveDataStatus file not found in selected folder. Aborting... ", primaryStageWindow);
             return null;
         }
         BufferedReader bufferedReader = new BufferedReader(new FileReader(liveDataStatusFile));
@@ -832,7 +832,9 @@ public class TripoliGUIController implements Initializable, LiveDataCallbackInte
     public void processLiveData() throws IOException {
         Path liveDataFolderPath;
         // Check for MRU Folder
-        if (tripoliPersistentState != null && tripoliPersistentState.getMRUDataFileFolderPath() != null) {
+        if (tripoliPersistentState != null &&
+                tripoliPersistentState.getMRUDataFileFolderPath() != null &&
+                (new File (Path.of(tripoliPersistentState.getMRUDataFileFolderPath()).getParent() + File.separator + "LiveDataStatus.txt").exists())) {
             Path mruDataFolderPath = Path.of(tripoliPersistentState.getMRUDataFileFolderPath()).getParent();
             liveDataFolderPath = getLiveDataFolderPath(mruDataFolderPath.toFile());
         } else { // Otherwise, get from user
@@ -859,7 +861,6 @@ public class TripoliGUIController implements Initializable, LiveDataCallbackInte
 
     @Override
     public void onLiveDataUpdated(Path filePath, AnalysisInterface liveDataAnalysis) {
-        System.out.println("Sample data " + liveDataAnalysis.getMassSpecExtractedData().getBlocksDataLite().get(Integer.parseInt("1")).cycleData()[0][0]);
         liveDataAnalysis.getMapOfBlockIdToRawDataLiteOne().clear();
         AllBlockInitForMCMC.PlottingData plottingData = AllBlockInitForDataLiteOne.initBlockModels(liveDataAnalysis);
         if (plottingData != null) {
