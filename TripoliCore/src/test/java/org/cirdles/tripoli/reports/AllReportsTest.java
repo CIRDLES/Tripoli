@@ -1074,6 +1074,366 @@ public class AllReportsTest {
     }
 
     /**
+     * Report Test for NeptuneMCICPMS/GP-112z1.exp
+     */
+    @Test
+    public void GP_112z1ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/NeptuneMCICPMS/GP-112z1.exp";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for NeptuneMCICPMS/GP-112z3.exp
+     */
+    @Test
+    public void GP_112z3ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/NeptuneMCICPMS/GP-112z3.exp";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for NeptuneMCICPMS/GP-112z4.exp
+     */
+    @Test
+    public void GP_112z4ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/NeptuneMCICPMS/GP-112z4.exp";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for NeptuneMCICPMS/GP-112z5.exp
+     */
+    @Test
+    public void GP_112z5ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/NeptuneMCICPMS/GP-112z5.exp";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for NeptuneMCICPMS/MK-113z1.exp
+     */
+    @Test
+    public void MK_113z1ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/NeptuneMCICPMS/MK-113z1.exp";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for NeptuneMCICPMS/MK-113z2.exp
+     */
+    @Test
+    public void MK_113z2ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/NeptuneMCICPMS/MK-113z2.exp";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for NeptuneMCICPMS/MK-113z3.exp
+     */
+    @Test
+    public void MK_113z3ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/NeptuneMCICPMS/MK-113z3.exp";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for NeptuneMCICPMS/MK-113z6.exp
+     */
+    @Test
+    public void MK_113z6ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/NeptuneMCICPMS/MK-113z6.exp";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for NeptuneMCICPMS/Tail-GP-112z1.exp
+     */
+    @Test
+    public void Tail_GP_112z1ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/NeptuneMCICPMS/Tail-GP-112z1.exp";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for NeptuneMCICPMS/Tail-GP-112z3.exp
+     */
+    @Test
+    public void Tail_GP_112z3ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/NeptuneMCICPMS/Tail-GP-112z3.exp";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for NeptuneMCICPMS/Tail-GP-112z4.exp
+     */
+    @Test
+    public void Tail_GP_112z4ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/NeptuneMCICPMS/Tail-GP-112z4.exp";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for NeptuneMCICPMS/Tail-GP-112z5.exp
+     */
+    @Test
+    public void Tail_GP_112z5ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/NeptuneMCICPMS/Tail-GP-112z5.exp";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
      * Report Test for NeptuneMCICPMS/Tail-MK-113z1.exp
      */
     @Test
@@ -1093,6 +1453,126 @@ public class AllReportsTest {
             ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
             assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
             System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for NeptuneMCICPMS/Tail-MK-113z2.exp
+     */
+    @Test
+    public void Tail_MK_113z2ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/NeptuneMCICPMS/Tail-MK-113z2.exp";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for NeptuneMCICPMS/Tail-MK-113z3.exp
+     */
+    @Test
+    public void Tail_MK_113z3ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/NeptuneMCICPMS/Tail-MK-113z3.exp";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for NeptuneMCICPMS/Tail-MK-113z6.exp
+     */
+    @Test
+    public void Tail_MK_113z6ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/NeptuneMCICPMS/Tail-MK-113z6.exp";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for NeptuneMCICPMS/Tail-SCH-D-1.exp
+     */
+    @Test
+    public void Tail_SCH_D_1ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/NeptuneMCICPMS/Tail-SCH-D-1.exp";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
 
             String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
             assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
