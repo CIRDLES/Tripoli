@@ -1,0 +1,115 @@
+#HEADER
+Analysis
+Version,2.0.11,1.20
+Filename,WH233B z1 Pb-669.TIMSDP
+MethodName,PbDaly_205_45678_Quick.TIMSAM
+MethodPath,C:\IsoLinx\Projects\RIGL.Pro\Methods
+FolderPath,C:\IsoLinx\Projects\RIGL.Pro\Analysis\T0098_P003\WH233B z1 Pb.RAW
+IsoWorksMethod,PbDaly_205_45678_Quick
+TFEMode,False
+TFEMonitorPeak,
+PerformInterBlocks,True
+BeamInterpCycles,True
+DeflectBeamDuringJumps,False
+ExtraMagnetFlybackTime,0
+ActiveSEMDetectors,PM
+BlocksToMeasure,10
+CyclesToMeasure,10
+RejectionSigma,99.0
+RejectionPercentage,0.0
+Corrected,RAW
+BChannels,Yes
+DTCorrected,Yes
+BaselineFile,
+BaselineFrequency,EveryBlock
+ProcessingUnits,CPS
+AnalysisStart,2022-11-28 8:34:42 PM
+AnalysisEnd,2022-11-28 8:38:58 PM
+
+#SAMPLELIST
+Filename, WH233B z1 Pb-669
+AnalysisMethod, PbDaly_205_45678_Quick.TIMSAM
+SampleSerialNo, 669
+SampleID, WH233B z1
+SampleNo, 14
+SamplePrepMethod, PbDaly_205_FocusOnly
+TuneFilename, 
+DetectorFile, 
+ResultsGroup, T0098_P003
+ResultsFolder, 
+SummaryFile, 
+BaselineFolder, 
+BaselineFilename, 
+LabNumber, 
+Operator, RBI
+ConstantsFile, 
+UserP1, 0
+UserP2, 0
+UserP3, 0
+UserP4, 0
+UserP5, 0
+UserP6, 0
+Notes, 
+SampleTAG, 
+SampleTAG2, 
+SampleTAG3, 
+SampleTAG4, 
+SampleTAG5, 
+
+#COLLECTORS
+Name,Type,Resistor,Gain,Efficiency,DT
+PM,PM,1e+11,1.000000000,1.000000000,29.9000
+L5,F,1e+11,1.000000000,1.000000000,0.0000
+L4,F,1e+11,1.000363000,1.000000000,0.0000
+L3,F,1e+11,1.001918700,1.000000000,0.0000
+L2,F,1e+11,0.998705700,1.000000000,0.0000
+Ax,F,1e+11,0.994222300,1.000000000,0.0000
+H1,F,1e+11,1.004331200,1.000000000,0.0000
+H2,F,1e+11,0.967643200,1.000000000,0.0000
+H3,F,1e+11,0.988379100,1.000000000,0.0000
+H4,F,1e+11,0.996368800,1.000000000,0.0000
+
+#USERTABLES
+Table,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30
+UserT,3.142,1000,3.12016096400908,4000,25.5,40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+UserC,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+UserP,0,0,0,0,0,0
+ExternalBetaFactor,0.371607000288174,123456,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+#ELECTRONIC_OFFSETS
+
+#BASELINES
+
+#CYCLES
+
+#BLOCKS
+
+#SUMMARY
+Function,Mean (Aft),Std Dev% (Aft),Std Err% (Aft),Included,Total,Mean,Std Dev,Std Dev%
+i205Pb,0.000000000e+000 ,0.0000 ,0.000000 ,0 ,0 ,0.000000000e+000 ,0.00000e+000 ,0.0000 
+R45,0.000000000e+000 ,0.0000 ,0.000000 ,0 ,0 ,0.000000000e+000 ,0.00000e+000 ,0.0000 
+R65,0.000000000e+000 ,0.0000 ,0.000000 ,0 ,0 ,0.000000000e+000 ,0.00000e+000 ,0.0000 
+R75,0.000000000e+000 ,0.0000 ,0.000000 ,0 ,0 ,0.000000000e+000 ,0.00000e+000 ,0.0000 
+R85,0.000000000e+000 ,0.0000 ,0.000000 ,0 ,0 ,0.000000000e+000 ,0.00000e+000 ,0.0000 
+R64,0.000000000e+000 ,0.0000 ,0.000000 ,0 ,0 ,0.000000000e+000 ,0.00000e+000 ,0.0000 
+R74,0.000000000e+000 ,0.0000 ,0.000000 ,0 ,0 ,0.000000000e+000 ,0.00000e+000 ,0.0000 
+R84,0.000000000e+000 ,0.0000 ,0.000000 ,0 ,0 ,0.000000000e+000 ,0.00000e+000 ,0.0000 
+R67,0.000000000e+000 ,0.0000 ,0.000000 ,0 ,0 ,0.000000000e+000 ,0.00000e+000 ,0.0000 
+R68,0.000000000e+000 ,0.0000 ,0.000000 ,0 ,0 ,0.000000000e+000 ,0.00000e+000 ,0.0000 
+R87,0.000000000e+000 ,0.0000 ,0.000000 ,0 ,0 ,0.000000000e+000 ,0.00000e+000 ,0.0000 
+
+#FUNCTIONS
+Function,Comment,Formula
+PCI_1, i205Pb, Intensity(2,_RPM)
+Srr_1, R45, Intensity(1,_RPM)/Intensity(2,_RPM)
+Srr_2, R65, Intensity(3,_RPM)/Intensity(2,_RPM)
+Srr_3, R75, Intensity(4,_RPM)/Intensity(2,_RPM)
+Srr_4, R85, Intensity(5,_RPM)/Intensity(2,_RPM)
+Srr_5, R64, Intensity(3,_RPM)/Intensity(1,_RPM)
+Srr_6, R74, Intensity(4,_RPM)/Intensity(1,_RPM)
+Srr_7, R84, Intensity(5,_RPM)/Intensity(1,_RPM)
+Srr_8, R67, Intensity(3,_RPM)/Intensity(4,_RPM)
+Srr_9, R68, Intensity(3,_RPM)/Intensity(5,_RPM)
+Srr_10, R87, Intensity(5,_RPM)/Intensity(4,_RPM)
+
+#END,AnalysisCompleted
