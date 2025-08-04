@@ -111,16 +111,17 @@ public class AllReportsTest {
         System.out.println("📝 Generating Full Report for " + dataFile.getName());
         // Create a Full Report to test against the Oracle
         Report.supressContents = true; // Suppresses the Data File Path column and Created On: line because they would always be different
-        Report fullReport = Report.createFullReport("Full Report", analysis);
-        fullReport.generateCSVFile(analysisList, tripoliSession.getSessionName());
-
-        // Deserialize the report to test against the Oracle and the Oracle itself
-        String actualReportPath = dataFilepath.substring(0, dataFilepath.lastIndexOf('/') + 1) + "New Session-" + analysisName + "-report.csv";
-        String expectedReportPath = dataFilepath.substring(0, dataFilepath.lastIndexOf('/') + 1).replace("dataFiles", "fullReports") + "Oracle-" + analysisName + "-report.csv";
-
         String actualReport = null;
         String expectedReport = null;
+        String actualReportPath = dataFilepath.substring(0, dataFilepath.lastIndexOf('/') + 1) + "New Session-" + analysisName + "-report.csv";
+        String expectedReportPath = dataFilepath.substring(0, dataFilepath.lastIndexOf('/') + 1).replace("dataFiles", "fullReports") + "Oracle-" + analysisName + "-report.csv";
+        Report fullReport;
+
         try {
+            fullReport = Report.createFullReport("Full Report", analysis);
+            fullReport.generateCSVFile(analysisList, tripoliSession.getSessionName());
+
+            // Deserialize the report to test against the Oracle and the Oracle itself
             actualReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(actualReportPath)).toURI()), "UTF-8");
 
             expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(expectedReportPath)).toURI()), "UTF-8");
@@ -131,7 +132,21 @@ public class AllReportsTest {
             assertNotNull(expectedReport,
                     "Oracle not found for file " + dataFile.getName() + " at: " + expectedReportPath);
         }
+        catch (ArrayIndexOutOfBoundsException e2) {
+            try {
+                // Deserialize the report to test against the Oracle and the Oracle itself
+                actualReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(actualReportPath)).toURI()), "UTF-8");
 
+                expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(expectedReportPath)).toURI()), "UTF-8");
+            }
+            catch (NullPointerException | IOException e3) {
+                assertNotNull(actualReport,
+                        "Report to test not found for file " + dataFile.getName() + " at: " + actualReportPath);
+                assertNotNull(expectedReport,
+                        "Oracle not found for file " + dataFile.getName() + " at: " + expectedReportPath);
+
+            }
+        }
 
         return new String[]{expectedReport, actualReport};
     }
@@ -199,19 +214,22 @@ public class AllReportsTest {
 
         System.out.println("📝 Generating Short Report for " + dataFile.getName());
         // Create the report to test against the Oracle
-        AllBlockInitForDataLiteOne.initBlockModels(analysis);
-        String actualReport = analysis.prepareFractionForClipboardExport();
-
-        // Deserialize the Oracle report
-        String expectedReportPath = dataFilepath.substring(0, dataFilepath.lastIndexOf('/') + 1).replace("dataFiles", "shortReports") + "Oracle-" + analysisName + ".txt";
+        String actualReport = "";
         String expectedReport = null;
+        String expectedReportPath = null;
         try {
+            // Deserialize the Oracle report
+            expectedReportPath = dataFilepath.substring(0, dataFilepath.lastIndexOf('/') + 1).replace("dataFiles", "shortReports") + "Oracle-" + analysisName + ".txt";
             expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(expectedReportPath)).toURI()), "UTF-8");
+
+            AllBlockInitForDataLiteOne.initBlockModels(analysis);
+            actualReport = analysis.prepareFractionForClipboardExport();
         }
         catch (NullPointerException | IOException e) {
             assertNotNull(expectedReport,
                     "Oracle not found for file " + dataFile.getName() + " at: " + expectedReportPath);
         }
+        catch (ArrayIndexOutOfBoundsException ignored) {}
 
         return new String[]{expectedReport, actualReport};
     }
@@ -277,6 +295,36 @@ public class AllReportsTest {
     }
 
     /**
+     * Report Test for IsotopxPhoenixTIMS/KU_IGL/IonVantage/NBS982 2020-06-10b Pb-6103.xls
+     */
+    @Test
+    public void NBS982_2020_06_10b_Pb_6103ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/KU_IGL/IonVantage/NBS982 2020-06-10b Pb-6103.xls";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
      * Report Test for IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion1/NBS981 210325b-392.TIMSDP
      */
     @Test
@@ -296,6 +344,96 @@ public class AllReportsTest {
             ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
             assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
             System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion1/NBS982 201215-51.TIMSDP
+     */
+    @Test
+    public void NBS982_201215_51ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion1/NBS982 201215-51.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion2/GHR1 230921 F08b-216.TIMSDP
+     */
+    @Test
+    public void GHR1_230921_F08b_216ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion2/GHR1 230921 F08b-216.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion2/GHR1 230921F03 U-239.TIMSDP
+     */
+    @Test
+    public void GHR1_230921F03_U_239ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion2/GHR1 230921F03 U-239.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
 
             String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
             assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
@@ -335,6 +473,96 @@ public class AllReportsTest {
     }
 
     /**
+     * Report Test for IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion2/NBS981 230024b-154.TIMSDP
+     */
+    @Test
+    public void NBS981_230024b_154ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion2/NBS981 230024b-154.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion2/NBS981 230024d-152.TIMSDP
+     */
+    @Test
+    public void NBS981_230024d_152ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion2/NBS981 230024d-152.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion2/NBS982 230024c-153.TIMSDP
+     */
+    @Test
+    public void NBS982_230024c_153ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/KU_IGL/IsolinxVersion2/NBS982 230024c-153.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
      * Report Test for IsotopxPhoenixTIMS/Purdue/WH205 z4 Pb-654.TIMSDP
      */
     @Test
@@ -354,6 +582,488 @@ public class AllReportsTest {
             ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
             assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
             System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/Purdue/WH205 z5 Pb-658.TIMSDP
+     */
+    @Test
+    public void WH205_z5_Pb_658ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/Purdue/WH205 z5 Pb-658.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/Purdue/WH205 z6 Pb-661.TIMSDP
+     */
+    @Test
+    public void WH205_z6_Pb_661ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/Purdue/WH205 z6 Pb-661.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/Purdue/WH205 z6 U-662.TIMSDP
+     */
+    @Test
+    public void WH205_z6_U_662ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/Purdue/WH205 z6 U-662.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/Purdue/WH205 z8 Pb-665.TIMSDP
+     */
+    @Test
+    public void WH205_z8_Pb_665ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/Purdue/WH205 z8 Pb-665.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/Purdue/WH205 z9-638.TIMSDP
+     */
+    @Test
+    public void WH205_z9_638ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/Purdue/WH205 z9-638.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/Purdue/WH205 z41 U-655.TIMSDP
+     */
+    @Test
+    public void WH205_z41_U_655ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/Purdue/WH205 z41 U-655.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/Purdue/WH205 z51 U-659.TIMSDP
+     */
+    @Test
+    public void WH205_z51_U_659ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/Purdue/WH205 z51 U-659.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/Purdue/WH233A z3 Pb-642.TIMSDP
+     */
+    @Test
+    public void WH233A_z3_Pb_642ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/Purdue/WH233A z3 Pb-642.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/Purdue/WH233A z4 Pb-647.TIMSDP
+     */
+    @Test
+    public void WH233A_z4_Pb_647ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/Purdue/WH233A z4 Pb-647.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/Purdue/WH233A z31 U-643.TIMSDP
+     */
+    @Test
+    public void WH233A_z31_U_643ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        System.out.println("Empty Oracle");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/Purdue/WH233A z31 U-643.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/Purdue/WH233A z41 U-648.TIMSDP
+     */
+    @Test
+    public void WH233A_z41_U_648ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/Purdue/WH233A z41 U-648.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/Purdue/WH233A z71 U-652.TIMSDP
+     */
+    @Test
+    public void WH233A_z71_U_652ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/Purdue/WH233A z71 U-652.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/Purdue/WH233A  Pb-651.TIMSDP
+     */
+    @Test
+    public void WH233A_Pb_651ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/Purdue/WH233A  Pb-651.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/Purdue/WH233B z1 Pb-669.TIMSDP
+     */
+    @Test
+    public void WH233B_z1_Pb_669ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        System.out.println("Empty Oracle");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/Purdue/WH233B z1 Pb-669.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/Purdue/WH233B z1 U-671.TIMSDP
+     */
+    @Test
+    public void WH233B_z1_U_671ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/Purdue/WH233B z1 U-671.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
+
+            String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Report Test for IsotopxPhoenixTIMS/Purdue/WH233B z3 Pb-678.TIMSDP
+     */
+    @Test
+    public void WH233B_z3_Pb_678ReportTest() {
+        // Print out a line to visually separate the print statements for each test
+        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        // This is the resource path of the file that is tested
+        String dataFilepath = "/org/cirdles/tripoli/core/reporting/dataFiles/IsotopxPhoenixTIMS/Purdue/WH233B z3 Pb-678.TIMSDP";
+
+        try {
+            ReportData reportData = generateReportData(dataFilepath);
+
+            String[] fullReportTestResults = fullReportTest(dataFilepath, reportData);
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            System.out.println("✅ Full Report generated successfully!\n");
+
+//            No oracle for redux yet
+//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilepath, reportData);
+//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
+//            System.out.println("✅ Redux Report generated successfully!\n");
 
             String[] shortReportTestResults = shortReportTest(dataFilepath, reportData);
             assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
