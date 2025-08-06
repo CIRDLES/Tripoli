@@ -1,7 +1,6 @@
 package org.cirdles.tripoli.utilities.file;
 
 import org.cirdles.tripoli.utilities.callbacks.FileWatcherCallbackInterface;
-import org.cirdles.tripoli.utilities.comparators.LiveDataEntryComparator;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -15,14 +14,27 @@ public class FileWatcher implements Runnable {
     private final Path pathToWatch;
     private final FileWatcherCallbackInterface callback;
     private volatile boolean running = true;
+    private long timeoutSeconds;
+    private long lastEventTime;
+    private boolean eventOccurred = false;
 
     public FileWatcher(Path pathToWatch, FileWatcherCallbackInterface callback) {
         this.pathToWatch = pathToWatch;
         this.callback = callback;
+        this.timeoutSeconds = 0;
+        lastEventTime = System.currentTimeMillis();
+    }
+
+    /**
+     * If set, the watcher will signal the callback if no events occur for the specified number of seconds. The signal
+     * returned event will have a null path and kind. This represents an idle state.
+     * @param seconds Number of seconds to wait before signaling the callback.
+     */
+    public void setTimeoutSeconds(long seconds){
+        timeoutSeconds = seconds*1000;
     }
 
     public void processExistingFiles() {
-
         try{
             List<Path> existingFiles = FileUtilities.listRegularFiles(pathToWatch);
             for (Path entry : existingFiles) {
@@ -55,6 +67,17 @@ public class FileWatcher implements Runnable {
             System.out.println("Started watching: " + pathToWatch);
 
             while (running) {
+
+                // Idle check
+                if (eventOccurred && timeoutSeconds > 0) {
+                    long now = System.currentTimeMillis();
+                    if (now - lastEventTime >= timeoutSeconds) {
+                        if (callback != null) {
+                            callback.onFileEvent(null, null); // Idle signal
+                        }
+                    }
+                }
+
                 WatchKey key = watchService.poll(500, java.util.concurrent.TimeUnit.MILLISECONDS);
                 if (key == null) continue;
 
@@ -64,6 +87,8 @@ public class FileWatcher implements Runnable {
 
                     if (callback != null) {
                         callback.onFileEvent(fullPath, event.kind());
+                        eventOccurred = true;
+                        lastEventTime = System.currentTimeMillis();
                     }
                 }
 
