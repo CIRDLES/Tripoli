@@ -38,7 +38,7 @@ import java.util.Locale;
 import static org.cirdles.tripoli.gui.constants.ConstantsTripoliApp.TRIPOLI_STARTING_YELLOW;
 
 /**
- * @author James F. Bowring
+ * @author James F. Bowringƒ
  */
 public class TripoliGUI extends Application {
 

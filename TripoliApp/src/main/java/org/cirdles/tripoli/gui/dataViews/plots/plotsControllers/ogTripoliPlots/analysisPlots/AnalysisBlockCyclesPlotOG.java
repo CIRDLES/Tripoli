@@ -200,6 +200,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
             }
         }
 
+
         plotAxisLabelY = userFunction.isTreatAsIsotopicRatio() ? "Ratio" : "Function";
         if (logScale && userFunction.isTreatAsIsotopicRatio()) {
             for (int i = 0; i < yAxisData.length; i++) {

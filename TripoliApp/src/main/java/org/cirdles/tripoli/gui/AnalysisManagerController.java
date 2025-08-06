@@ -454,7 +454,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 setupDefaults();
             }
         }
-
         switch (caseNumber) {
             case 0 -> {
                 analysisMethodTabPane.getTabs().remove(detectorDetailTab);
@@ -716,7 +715,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         checkBoxSelectAllRatios.selectedProperty().addListener(allRatiosChangeListener);
         hBox.getChildren().add(checkBoxSelectAllRatios);
 
-        CheckBox checkBoxSelectAllRatiosInverted = new CheckBox("Invert all");
+            CheckBox checkBoxSelectAllRatiosInverted = new CheckBox("Invert all");
         checkBoxSelectAllRatiosInverted.setPrefWidth(110);
         count = 0;
         selected = 0;
@@ -746,7 +745,38 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         refreshButton.setPadding(new Insets(0, 0, 0, 0));
         refreshButton.setOnAction(event -> populateAnalysisMethodColumnsSelectorPane());
 
-        hBox.getChildren().addAll(toggleCycleMeansLabel, refreshButton);
+        Button compareTwoButton = new Button("Compare Two");
+        compareTwoButton.setStyle(";-fx-text-fill: RED;");
+        compareTwoButton.setPrefWidth(100);
+        compareTwoButton.setPadding(new Insets(0, 0, 0, 0));
+        compareTwoButton.setOnAction(event -> {
+                String buttonStyle = compareTwoButton.getStyle();
+                String textFillString = "-fx-text-fill:";
+                int start =  buttonStyle.indexOf(textFillString);
+                int end = buttonStyle.indexOf(";",start);
+                String txtToBeReplaced = buttonStyle.substring(start, end);
+                String buttonColor = txtToBeReplaced.split(":")[1].strip();
+
+                String color = "";
+
+                switch (buttonColor.toUpperCase()) {
+                    case "RED":
+                        color = "GREEN";
+                        checkBoxSelectAllRatios.setDisable(true);
+                        checkBoxSelectAllRatios.setSelected(false);
+                        break;
+                    case "GREEN":
+                        color = "RED";
+                        checkBoxSelectAllRatios.setDisable(false);
+                        break;
+                    default:
+                        break;
+                }
+                buttonStyle = buttonStyle.replace(txtToBeReplaced, textFillString+color);
+                compareTwoButton.setStyle(buttonStyle);
+        });
+
+        hBox.getChildren().addAll(toggleCycleMeansLabel, refreshButton,compareTwoButton);
         ratiosHeaderHBox.getChildren().add(hBox);
         // ---------- end IR
 
