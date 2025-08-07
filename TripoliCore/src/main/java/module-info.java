@@ -33,6 +33,7 @@ module Tripoli.TripoliCore {
     requires org.apache.poi.ooxml;
     requires jxl;
     requires org.antlr.antlr4.runtime;
+    requires javafx.graphics;
 
 
     exports org.cirdles.tripoli;
@@ -83,4 +84,5 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.reports;
     exports org.cirdles.tripoli.expressions.parsing;
     exports org.cirdles.tripoli.expressions.constants;
+    exports org.cirdles.tripoli.utilities.comparators;
 }
