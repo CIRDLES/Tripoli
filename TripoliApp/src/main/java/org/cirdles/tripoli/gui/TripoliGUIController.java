@@ -866,7 +866,7 @@ public class TripoliGUIController implements Initializable {
 
         // Begin watching for new data files
         PhoenixLiveData liveData = new PhoenixLiveData();
-        long timeoutSeconds = 2;
+        long timeoutSeconds = 45;
         AtomicBoolean timeoutOccurred = new AtomicBoolean(false);
 
         liveDataWatcher = new FileWatcher(liveDataFolderPath, (filePath, kind) -> {
@@ -909,6 +909,7 @@ public class TripoliGUIController implements Initializable {
             OGTripoliViewController.analysis = liveDataAnalysis;
             if (ogTripoliPreviewPlotsWindow != null) {
                 ogTripoliPreviewPlotsWindow.setPlottingData(plottingData);
+                ogTripoliPreviewPlotsWindow.loadPlotsWindow();
             } else {
                 ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(primaryStage, null, plottingData);
                 ogTripoliPreviewPlotsWindow.loadPlotsWindow();
