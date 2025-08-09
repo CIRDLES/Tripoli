@@ -105,6 +105,7 @@ import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compa
 
 public class AnalysisManagerController implements Initializable, AnalysisManagerCallbackI {
 
+    public static int compareTwoRemainingBoxes = 2;
     public static boolean compareTwo = false;
     public static boolean readingFile = false;
     public static AnalysisInterface analysis;
@@ -710,7 +711,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 count++;
                 selected += userFunction.isDisplayed() ? 1 : 0;
             }
-            checkBoxSelectAllRatios.setSelected(selected == count);
+            checkBoxSelectAllRatios.setSelected(!compareTwo && selected == count);
+            checkBoxSelectAllRatios.setDisable(compareTwo);
             checkBoxSelectAllRatios.setIndeterminate((0 < selected) && (selected < count));
         }
         checkBoxSelectAllRatios.selectedProperty().addListener(allRatiosChangeListener);
@@ -750,21 +752,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         compareTwoButton.setStyle(compareTwo ? "-fx-text-fill: GREEN;": ";-fx-text-fill: RED;");
         compareTwoButton.setPrefWidth(100);
         compareTwoButton.setPadding(new Insets(0, 0, 0, 0));
-        compareTwoButton.setOnAction(event -> {
-                if(compareTwo) {
-                    compareTwo = false;
-                    compareTwoButton.setStyle("-fx-text-fill: RED;");
-                    checkBoxSelectAllRatios.setDisable(false);
-                }
-                else{
-                    compareTwo = true;
-                    compareTwoButton.setStyle("-fx-text-fill: GREEN;");
-                    checkBoxSelectAllRatios.setDisable(true);
-                    checkBoxSelectAllRatios.setSelected(false);
-                }
-        });
-
-
 
         hBox.getChildren().addAll(toggleCycleMeansLabel, refreshButton,compareTwoButton);
         ratiosHeaderHBox.getChildren().add(hBox);
@@ -791,11 +778,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 count++;
                 selected += userFunction.isDisplayed() ? 1 : 0;
             }
-            if(compareTwo){
-                checkBoxSelectAllFunctions.setDisable(true);
-            }
             else{
-                checkBoxSelectAllFunctions.setSelected(selected == count);
+                checkBoxSelectAllFunctions.setSelected(!compareTwo && selected == count);
+                checkBoxSelectAllFunctions.setDisable(compareTwo);
                 checkBoxSelectAllFunctions.setIndeterminate((0 < selected) && (selected < count));
             }
         }
@@ -844,7 +829,15 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 checkBoxRatio.setFont(Font.font("Monospaced", FontWeight.BOLD, 12));
                 checkBoxRatio.setUserData(userFunction);
                 checkBoxRatio.setSelected(userFunction.isDisplayed());
+
+                checkBoxRatio.addEventFilter(MouseEvent.MOUSE_PRESSED,event->{
+                    if (compareTwo && compareTwoRemainingBoxes == 0 && !checkBoxRatio.isSelected()){
+                        event.consume();
+                    }
+                });
                 checkBoxRatio.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                    if(compareTwo)
+                        compareTwoRemainingBoxes += newValue ? -1 : 1;
                     userFunction.setDisplayed(newValue);
                     userFunction.setInverted(false);
                     if (newValue) {
@@ -859,9 +852,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     checkBoxSelectAllRatios.setSelected(selectedR == ratioCheckBoxList.size());
                     checkBoxSelectAllRatios.setIndeterminate((0 < selectedR) && (selectedR < ratioCheckBoxList.size()));
                     checkBoxSelectAllRatios.selectedProperty().addListener(allRatiosChangeListener);
-                    if(!compareTwo){
-                        populateAnalysisMethodColumnsSelectorPane();
-                    }
+                    populateAnalysisMethodColumnsSelectorPane();
                 });
                 ratioCheckBoxList.add(checkBoxRatio);
                 checkBoxRatio.setPrefWidth(200);
@@ -936,6 +927,11 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 CheckBox checkBoxFunction = new CheckBox(userFunction.getName());
                 checkBoxFunction.setUserData(userFunction);
                 checkBoxFunction.setSelected(userFunction.isDisplayed());
+                checkBoxFunction.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+                    if(compareTwo){
+                        event.consume();
+                    }
+                });
                 checkBoxFunction.selectedProperty().addListener((observable, oldValue, newValue) -> {
                     ((UserFunction) checkBoxFunction.getUserData()).setDisplayed(newValue);
                     int selectedF = 0;
@@ -956,6 +952,29 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 functionsVBox.getChildren().add(hBox);
             }
         }
+        compareTwoButton.setOnAction(event -> {
+            if(compareTwo) {
+                compareTwo = false;
+                compareTwoButton.setStyle("-fx-text-fill: RED;");
+                checkBoxSelectAllRatios.setDisable(false);
+                checkBoxSelectAllRatios.setDisable(false);
+            }
+            else{
+                compareTwoButton.setStyle("-fx-text-fill: GREEN;");
+                checkBoxSelectAllRatios.setSelected(true);
+                checkBoxSelectAllRatios.setSelected(false);
+                checkBoxSelectAllRatios.setDisable(true);
+
+                checkBoxSelectAllFunctions.setSelected(true);
+                checkBoxSelectAllFunctions.setSelected(false);
+                checkBoxSelectAllFunctions.setDisable(true);
+
+                compareTwo = true;
+                compareTwoRemainingBoxes = 2;
+            }
+
+            populateAnalysisMethodColumnsSelectorPane();
+        });
     }
 
     private void populateAnalysisMethodRatioBuilderPane() {
