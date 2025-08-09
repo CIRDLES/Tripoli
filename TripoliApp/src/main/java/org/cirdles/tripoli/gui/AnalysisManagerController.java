@@ -105,6 +105,7 @@ import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compa
 
 public class AnalysisManagerController implements Initializable, AnalysisManagerCallbackI {
 
+    public static boolean compareTwo = false;
     public static boolean readingFile = false;
     public static AnalysisInterface analysis;
     public static MCMCPlotsWindow MCMCPlotsWindow;
@@ -746,35 +747,24 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         refreshButton.setOnAction(event -> populateAnalysisMethodColumnsSelectorPane());
 
         Button compareTwoButton = new Button("Compare Two");
-        compareTwoButton.setStyle(";-fx-text-fill: RED;");
+        compareTwoButton.setStyle(compareTwo ? "-fx-text-fill: GREEN;": ";-fx-text-fill: RED;");
         compareTwoButton.setPrefWidth(100);
         compareTwoButton.setPadding(new Insets(0, 0, 0, 0));
         compareTwoButton.setOnAction(event -> {
-                String buttonStyle = compareTwoButton.getStyle();
-                String textFillString = "-fx-text-fill:";
-                int start =  buttonStyle.indexOf(textFillString);
-                int end = buttonStyle.indexOf(";",start);
-                String txtToBeReplaced = buttonStyle.substring(start, end);
-                String buttonColor = txtToBeReplaced.split(":")[1].strip();
-
-                String color = "";
-
-                switch (buttonColor.toUpperCase()) {
-                    case "RED":
-                        color = "GREEN";
-                        checkBoxSelectAllRatios.setDisable(true);
-                        checkBoxSelectAllRatios.setSelected(false);
-                        break;
-                    case "GREEN":
-                        color = "RED";
-                        checkBoxSelectAllRatios.setDisable(false);
-                        break;
-                    default:
-                        break;
+                if(compareTwo) {
+                    compareTwo = false;
+                    compareTwoButton.setStyle("-fx-text-fill: RED;");
+                    checkBoxSelectAllRatios.setDisable(false);
                 }
-                buttonStyle = buttonStyle.replace(txtToBeReplaced, textFillString+color);
-                compareTwoButton.setStyle(buttonStyle);
+                else{
+                    compareTwo = true;
+                    compareTwoButton.setStyle("-fx-text-fill: GREEN;");
+                    checkBoxSelectAllRatios.setDisable(true);
+                    checkBoxSelectAllRatios.setSelected(false);
+                }
         });
+
+
 
         hBox.getChildren().addAll(toggleCycleMeansLabel, refreshButton,compareTwoButton);
         ratiosHeaderHBox.getChildren().add(hBox);
@@ -801,8 +791,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 count++;
                 selected += userFunction.isDisplayed() ? 1 : 0;
             }
-            checkBoxSelectAllFunctions.setSelected(selected == count);
-            checkBoxSelectAllFunctions.setIndeterminate((0 < selected) && (selected < count));
+            if(compareTwo){
+                checkBoxSelectAllFunctions.setDisable(true);
+            }
+            else{
+                checkBoxSelectAllFunctions.setSelected(selected == count);
+                checkBoxSelectAllFunctions.setIndeterminate((0 < selected) && (selected < count));
+            }
         }
         checkBoxSelectAllFunctions.selectedProperty().addListener(allFunctionsChangeListener);
         hBox.getChildren().add(checkBoxSelectAllFunctions);
@@ -864,7 +859,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     checkBoxSelectAllRatios.setSelected(selectedR == ratioCheckBoxList.size());
                     checkBoxSelectAllRatios.setIndeterminate((0 < selectedR) && (selectedR < ratioCheckBoxList.size()));
                     checkBoxSelectAllRatios.selectedProperty().addListener(allRatiosChangeListener);
-                    populateAnalysisMethodColumnsSelectorPane();
+                    if(!compareTwo){
+                        populateAnalysisMethodColumnsSelectorPane();
+                    }
                 });
                 ratioCheckBoxList.add(checkBoxRatio);
                 checkBoxRatio.setPrefWidth(200);
