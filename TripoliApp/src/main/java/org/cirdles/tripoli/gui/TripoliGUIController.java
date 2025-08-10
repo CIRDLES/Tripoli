@@ -842,6 +842,7 @@ public class TripoliGUIController implements Initializable {
         if (liveDataThread != null && liveDataThread.isAlive()){
             liveDataWatcher.stop();
             processLiveDataMenuItem.textProperty().set("Start LiveData");
+            handleFinishLiveData();
             return;
         }
 
@@ -865,6 +866,7 @@ public class TripoliGUIController implements Initializable {
 
         // Ensure the folder was retrieved
         if (liveDataFolderPath == null) {
+            System.out.println(tripoliPersistentState.getMRUDataFileFolderPath());
             return;
         }
 
@@ -942,7 +944,17 @@ public class TripoliGUIController implements Initializable {
         if (haltLiveData) {
             liveDataWatcher.stop();
             processLiveDataMenuItem.textProperty().set("Start LiveData");
+            handleFinishLiveData();
         }
+    }
+    private void handleFinishLiveData() {
+        Path dataPath = liveDataWatcher.getPath();
+        File analysisDataFile = PhoenixLiveData.getFinishedAnalysisFile(dataPath);
+
+        if (analysisDataFile != null) {
+            System.out.println("Finished LiveData file found at " + analysisDataFile.getAbsolutePath());
+        }
+
     }
 
     // ------------------ End LiveData Methods ------------------------------------------------

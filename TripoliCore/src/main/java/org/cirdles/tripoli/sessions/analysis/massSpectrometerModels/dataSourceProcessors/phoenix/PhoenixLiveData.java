@@ -5,7 +5,6 @@ import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
-import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.File;
@@ -15,9 +14,9 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.createAnalysisMethodFromCase1;
-import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.initializeAnalysisMethod;
 
 public class PhoenixLiveData {
     AnalysisInterface liveDataAnalysis;
@@ -35,6 +34,19 @@ public class PhoenixLiveData {
         massSpecExtractedData.setColumnHeaders(new String[] { "Cycle", "Time" });
         massSpecExtractedData.setMassSpectrometerContext(MassSpectrometerContextEnum.PHOENIX_LIVE_DATA_PROCESSING);
         liveDataAnalysis.setMassSpecExtractedData(massSpecExtractedData);
+    }
+
+    public static File getFinishedAnalysisFile(Path liveDataPath) {
+        String analysisNumber = Objects.requireNonNull(liveDataPath.toFile().list())[0].split("-")[0];
+        String analysisName = liveDataPath.getName(liveDataPath.getNameCount()-2).toString().split("\\.")[0];
+        analysisName = analysisName + "-" + analysisNumber;
+        liveDataPath = liveDataPath.getParent();
+        if (new File(liveDataPath.resolve(analysisName + ".TIMSDP").toString()).exists()) {
+            return liveDataPath.resolve(analysisName + ".TIMSDP").toFile();
+        } else if (new File(liveDataPath.resolve(analysisName + ".xls").toString()).exists()) {
+            return liveDataPath.resolve(analysisName + ".xls").toFile();
+        }
+        return null;
     }
 
     public AnalysisInterface getLiveDataAnalysis(){
@@ -107,7 +119,7 @@ public class PhoenixLiveData {
                 if (initMetaData)
                 {
                     String analysisName = Path.of(dataLineSplit[1].substring(1, dataLineSplit[1].length()-1)).getFileName().toString();
-                    liveDataAnalysis.setAnalysisName(analysisName);
+                    liveDataAnalysis.setAnalysisName(analysisName + (" (Live Data)"));
                     liveDataAnalysis.setAnalysisSampleName(analysisName.split(" ")[0]);
                     liveDataAnalysis.setAnalysisFractionName(analysisName.split(" ")[1].split("-")[0]);
                 }

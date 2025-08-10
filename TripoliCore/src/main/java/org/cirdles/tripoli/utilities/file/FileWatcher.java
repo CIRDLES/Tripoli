@@ -34,11 +34,15 @@ public class FileWatcher implements Runnable {
         timeoutSeconds = seconds*1000;
     }
 
+    public Path getPath(){
+        return pathToWatch;
+    }
+
     public void processExistingFiles() {
         try{
             List<Path> existingFiles = FileUtilities.listRegularFiles(pathToWatch);
             for (Path entry : existingFiles) {
-                callback.onFileEvent(entry, StandardWatchEventKinds.ENTRY_CREATE);
+                callback.onFileEvent(entry, ENTRY_CREATE);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -53,7 +57,7 @@ public class FileWatcher implements Runnable {
             }
 
             for (Path entry : existingFiles) {
-                callback.onFileEvent(entry, StandardWatchEventKinds.ENTRY_CREATE);
+                callback.onFileEvent(entry, ENTRY_CREATE);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -71,10 +75,8 @@ public class FileWatcher implements Runnable {
                 // Idle check
                 if (eventOccurred && timeoutSeconds > 0) {
                     long now = System.currentTimeMillis();
-                    if (now - lastEventTime >= timeoutSeconds) {
-                        if (callback != null) {
-                            callback.onFileEvent(null, null); // Idle signal
-                        }
+                    if (now - lastEventTime >= timeoutSeconds && callback != null) {
+                        callback.onFileEvent(null, null); // Idle signal
                     }
                 }
 
