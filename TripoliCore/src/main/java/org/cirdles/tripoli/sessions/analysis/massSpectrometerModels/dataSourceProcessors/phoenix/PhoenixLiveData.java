@@ -5,6 +5,7 @@ import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.File;
@@ -12,6 +13,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.createAnalysisMethodFromCase1;
+import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.initializeAnalysisMethod;
 
 public class PhoenixLiveData {
     AnalysisInterface liveDataAnalysis;
@@ -26,7 +32,13 @@ public class PhoenixLiveData {
     public PhoenixLiveData() throws TripoliException {
         liveDataAnalysis = AnalysisInterface.initializeNewAnalysis(0);
         massSpecExtractedData = new MassSpecExtractedData();
+        massSpecExtractedData.setColumnHeaders(new String[] { "Cycle", "Time" });
+        massSpecExtractedData.setMassSpectrometerContext(MassSpectrometerContextEnum.PHOENIX_LIVE_DATA_PROCESSING);
         liveDataAnalysis.setMassSpecExtractedData(massSpecExtractedData);
+    }
+
+    public AnalysisInterface getLiveDataAnalysis(){
+        return liveDataAnalysis;
     }
 
     public AnalysisInterface readLiveDataFile(Path filePath){
@@ -37,11 +49,36 @@ public class PhoenixLiveData {
                 for (String line : lines){
                     readLiveDataLine(line);
                 }
+                if (initMetaData) {
+                    MassSpecExtractedData.MassSpecExtractedHeader header = new MassSpecExtractedData.MassSpecExtractedHeader(
+                            "Phoenix",
+                            "LiveData",
+                            "",
+                            "Phoenix_Live_Data_Processing",
+                            false,
+                            false,
+                            "",
+                            0
+                    );
+                    massSpecExtractedData.setHeader(header);
+                    // Have AnalysisMethod figure out ratios and then set them accordingly
+                    liveDataAnalysis.setMethod(createAnalysisMethodFromCase1(massSpecExtractedData));
+                    List<UserFunction> userFunctionModel = liveDataAnalysis.getMethod().getUserFunctionsModel();
+                    for (UserFunction modelFunc : userFunctionModel) {
+                        if (modelFunc.isTreatAsIsotopicRatio()) {
+                            for (UserFunction func : liveDataAnalysis.getUserFunctions()) {
+                                if (func.getName().equals(modelFunc.getName())) {
+                                    func.setTreatAsIsotopicRatio(true);
+                                }
+                            }
+                        }
+                    }
+                    liveDataAnalysis.setDataFilePathString(filePath.getParent().toString());
+                }
                 initMetaData = false;
 
                 blockRecordLite = new MassSpecOutputBlockRecordLite(blockIndex, cycleData);
                 massSpecExtractedData.addBlockLiteRecord(blockRecordLite);
-                massSpecExtractedData.setMassSpectrometerContext(MassSpectrometerContextEnum.PHOENIX_TIMSDP_CASE1);
 
                 for (UserFunction userFunction : liveDataAnalysis.getUserFunctions()){
                     userFunction.getMapBlockIdToBlockCyclesRecord().clear();
@@ -71,6 +108,8 @@ public class PhoenixLiveData {
                 {
                     String analysisName = Path.of(dataLineSplit[1].substring(1, dataLineSplit[1].length()-1)).getFileName().toString();
                     liveDataAnalysis.setAnalysisName(analysisName);
+                    liveDataAnalysis.setAnalysisSampleName(analysisName.split(" ")[0]);
+                    liveDataAnalysis.setAnalysisFractionName(analysisName.split(" ")[1].split("-")[0]);
                 }
                 break;
             case "Acquire Date":
@@ -105,6 +144,10 @@ public class PhoenixLiveData {
                     if (initMetaData){
                         UserFunction userFunction = new UserFunction(userFunctionName, columnIndex);
                         liveDataAnalysis.getUserFunctions().add(userFunction);
+                        String[] headersExpanded = Arrays.copyOf(massSpecExtractedData.getColumnHeaders(),
+                                massSpecExtractedData.getColumnHeaders().length+1);
+                        headersExpanded[columnIndex+2] = userFunctionName;
+                        massSpecExtractedData.setColumnHeaders(headersExpanded);
                     }
                     cycleData[cycleIndex-1][columnIndex] = userFunctionValue;
                 } catch (Exception ignore) {}

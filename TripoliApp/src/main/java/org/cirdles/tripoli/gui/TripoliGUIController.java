@@ -72,6 +72,7 @@ import java.net.URL;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
 import static org.cirdles.tripoli.gui.AnalysisManagerController.ogTripoliPreviewPlotsWindow;
@@ -226,9 +227,10 @@ public class TripoliGUIController implements Initializable {
                             String analysisName = analysisProposed.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
                             if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
 
+                                tripoliPersistentState.setMRUDataFileFolderPath(dataFile.getParent());
                                 analysisProposed.setAnalysisName(analysisName);
                                 analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
-                                tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
+                                tripoliSession.addAnalysis(analysisProposed);
                                 analysis = analysisProposed;
                                 parametersMenu.setDisable(false);
                                 reportsMenu.setDisable(false);
@@ -815,6 +817,8 @@ public class TripoliGUIController implements Initializable {
         BrowserControl.showURI("https://cirdles.org/tripoli-manual");
     }
 
+    // ------------------ LiveData Methods ------------------------------------------------
+
     private Path getLiveDataFolderPath(File methodFolder) throws IOException {
         File liveDataStatusFile = new File(methodFolder.toString() + File.separator + "LiveDataStatus.txt");
         if (!liveDataStatusFile.exists()) {
@@ -868,15 +872,17 @@ public class TripoliGUIController implements Initializable {
         PhoenixLiveData liveData = new PhoenixLiveData();
         long timeoutSeconds = 45;
         AtomicBoolean timeoutOccurred = new AtomicBoolean(false);
+        AtomicReference<AnalysisInterface> liveDataAnalysis = new AtomicReference<>(liveData.getLiveDataAnalysis());
+        liveDataAnalysis.get().setAnalysisName("New LiveData Analysis");
+        attachAnalysisToSession(liveDataAnalysis.get());
 
         liveDataWatcher = new FileWatcher(liveDataFolderPath, (filePath, kind) -> {
             if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
 
-                AnalysisInterface liveDataAnalysis = liveData.readLiveDataFile(filePath);
+                liveDataAnalysis.set(liveData.readLiveDataFile(filePath));
 
-                if (liveDataAnalysis != null) {
-                    analysis = liveDataAnalysis;
-                    Platform.runLater(() -> onLiveDataUpdated(liveDataAnalysis));
+                if (liveDataAnalysis.get() != null) {
+                    Platform.runLater(() -> onLiveDataUpdated(liveDataAnalysis.get()));
                 }
             } // Null return is an idle state, only once, we will prompt for the user to end
             else if (kind == null && !timeoutOccurred.get()) {
@@ -896,9 +902,23 @@ public class TripoliGUIController implements Initializable {
         liveDataThread.setDaemon(true);
         liveDataThread.start();
     }
+    private void attachAnalysisToSession(AnalysisInterface newAnalysis) {
+        // New session
+        if (tripoliSession == null) {
+            MenuItem menuItemSessionNew = ((MenuBar) primaryStage.getScene()
+                    .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(2);
+            menuItemSessionNew.fire();
+        }
+        tripoliSession.addAnalysis(newAnalysis);
+        analysis = newAnalysis;
+
+        MenuItem menuItemSessionManager = ((MenuBar) primaryStage.getScene()
+                .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(0);
+        menuItemSessionManager.fire();
+    }
 
     /**
-     * Resets the analysis used in live data to allow the plots data to recalculate with every update. Calls the plots window
+     * Resets the analysis data used in live data to allow the plots data to recalculate with every update. Calls the plots window
      * on the first update.
      * @param liveDataAnalysis The analysis that holds the livedata points
      */
@@ -924,6 +944,9 @@ public class TripoliGUIController implements Initializable {
             processLiveDataMenuItem.textProperty().set("Start LiveData");
         }
     }
+
+    // ------------------ End LiveData Methods ------------------------------------------------
+
     public void showTripoliTutorialYoutube() {
         BrowserControl.showURI("https://www.youtube.com/playlist?list=PLfF8bcNRe2WTSMU4sOvDqciajlYi1-CZI");
     }
