@@ -12,9 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.createAnalysisMethodFromCase1;
 
@@ -36,15 +34,15 @@ public class PhoenixLiveData {
         liveDataAnalysis.setMassSpecExtractedData(massSpecExtractedData);
     }
 
-    public static File getFinishedAnalysisFile(Path liveDataPath) {
+    private File getAnalysisTxtFile() {
+        Path liveDataPath = Path.of(liveDataAnalysis.getDataFilePathString());
         String analysisNumber = Objects.requireNonNull(liveDataPath.toFile().list())[0].split("-")[0];
         String analysisName = liveDataPath.getName(liveDataPath.getNameCount()-2).toString().split("\\.")[0];
         analysisName = analysisName + "-" + analysisNumber;
-        liveDataPath = liveDataPath.getParent();
-        if (new File(liveDataPath.resolve(analysisName + ".TIMSDP").toString()).exists()) {
-            return liveDataPath.resolve(analysisName + ".TIMSDP").toFile();
-        } else if (new File(liveDataPath.resolve(analysisName + ".xls").toString()).exists()) {
-            return liveDataPath.resolve(analysisName + ".xls").toFile();
+        if (new File(liveDataPath.getParent().resolve(analysisName + ".txt").toString()).exists()) {
+            return liveDataPath.getParent().resolve(analysisName + ".txt").toFile();
+        } else if (new File(liveDataPath.getParent().resolve(analysisName + ".txt").toString()).exists()) {
+            return liveDataPath.getParent().resolve(analysisName + ".txt").toFile();
         }
         return null;
     }
