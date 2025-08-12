@@ -1,5 +1,6 @@
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
@@ -7,11 +8,14 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourcePr
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.createAnalysisMethodFromCase1;
@@ -25,6 +29,7 @@ public class PhoenixLiveData {
     int numOfFunctions = 0;
     int cycleIndex = 0;
     int blockIndex = 0;
+    String analysisNumber;
 
     public PhoenixLiveData() throws TripoliException {
         liveDataAnalysis = AnalysisInterface.initializeNewAnalysis(0);
@@ -35,14 +40,11 @@ public class PhoenixLiveData {
     }
 
     private File getAnalysisTxtFile() {
-        Path liveDataPath = Path.of(liveDataAnalysis.getDataFilePathString());
-        String analysisNumber = Objects.requireNonNull(liveDataPath.toFile().list())[0].split("-")[0];
-        String analysisName = liveDataPath.getName(liveDataPath.getNameCount()-2).toString().split("\\.")[0];
+        Path liveDataPath = Path.of(liveDataAnalysis.getDataFilePathString()).getParent();
+        String analysisName = liveDataAnalysis.getAnalysisSampleName() + " " + liveDataAnalysis.getAnalysisFractionName();
         analysisName = analysisName + "-" + analysisNumber;
-        if (new File(liveDataPath.getParent().resolve(analysisName + ".txt").toString()).exists()) {
-            return liveDataPath.getParent().resolve(analysisName + ".txt").toFile();
-        } else if (new File(liveDataPath.getParent().resolve(analysisName + ".txt").toString()).exists()) {
-            return liveDataPath.getParent().resolve(analysisName + ".txt").toFile();
+        if (new File(liveDataPath.resolve(analysisName + ".txt").toString()).exists()) {
+            return liveDataPath.resolve(analysisName + ".txt").toFile();
         }
         return null;
     }
@@ -53,6 +55,8 @@ public class PhoenixLiveData {
 
     public AnalysisInterface readLiveDataFile(Path filePath){
         File liveDataFile = filePath.toFile();
+        analysisNumber = liveDataFile.getName().split("-")[0];
+
         if (liveDataFile.exists() && liveDataFile.isFile()){
             try {
                 String[] lines = Files.readAllLines(filePath).toArray(new String[0]);
@@ -60,17 +64,7 @@ public class PhoenixLiveData {
                     readLiveDataLine(line);
                 }
                 if (initMetaData) {
-                    MassSpecExtractedData.MassSpecExtractedHeader header = new MassSpecExtractedData.MassSpecExtractedHeader(
-                            "Phoenix",
-                            "LiveData",
-                            "",
-                            "Phoenix_Live_Data_Processing",
-                            false,
-                            false,
-                            "",
-                            0
-                    );
-                    massSpecExtractedData.setHeader(header);
+
                     // Have AnalysisMethod figure out ratios and then set them accordingly
                     liveDataAnalysis.setMethod(createAnalysisMethodFromCase1(massSpecExtractedData));
                     List<UserFunction> userFunctionModel = liveDataAnalysis.getMethod().getUserFunctionsModel();
@@ -103,7 +97,7 @@ public class PhoenixLiveData {
         return null;
     }
 
-    public void readLiveDataLine(String dataLine){
+    private void readLiveDataLine(String dataLine){
         String[] dataLineSplit = dataLine.split(",");
 
         switch (dataLineSplit[0]){
@@ -124,7 +118,27 @@ public class PhoenixLiveData {
                 break;
             case "Acquire Date":
                 if (initMetaData){
-                    liveDataAnalysis.setAnalysisStartTime(LocalDateTime.now().toLocalDate().toString());
+                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    Date date;
+                    try {
+                        date = DateUtils.parseDate(dataLineSplit[1].trim(),
+                                "dd/MM/yyyy HH:mm:ss",
+                                "yyyy-MM-dd hh:mm:ss",
+                                "yyyy-MM-dd h:mm:ss a",
+                                "dd/MM-yyyy",
+                                "E d MMMM yyyy hh:mm:ss",
+                                "MM/dd/yyyy hh:mm:ss",
+                                "MM/dd/yyyy h:mm:ss a",
+                                "dd.MM.yyyy",
+                                "dd.MM.yyyy hh:mm:ss",
+                                "MM/dd/yyyy",
+                                "yyyy-MM-dd",
+                                "y/m/d");
+                        liveDataAnalysis.setAnalysisStartTime(df.format(date));
+
+                    } catch (ParseException ignored) {
+                        liveDataAnalysis.setAnalysisStartTime("Unknown");
+                    }
                 }
                 break;
             case "Functions":
@@ -162,6 +176,57 @@ public class PhoenixLiveData {
                     cycleData[cycleIndex-1][columnIndex] = userFunctionValue;
                 } catch (Exception ignore) {}
         }
+    }
+    private List<String> readTxtHeaderFromFile(File analysisTxtFile) {
+        if (analysisTxtFile != null) {
+            try {
+                BufferedReader br = Files.newBufferedReader(analysisTxtFile.toPath());
+                List<String> headerData = new ArrayList<>();
 
+                String line;
+                while ((line = br.readLine()) != null) {
+                    if (line.contains(",")){
+                        headerData.add(line.split(",")[1]);
+                    }
+                }
+                return headerData;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+    private void setAnalysisHeader(){
+        MassSpecExtractedData.MassSpecExtractedHeader header;
+
+        File analysisTxtFile = getAnalysisTxtFile();
+        List<String> headerData = readTxtHeaderFromFile(analysisTxtFile);
+
+        if (analysisTxtFile != null) {
+            String fileName = headerData.get(1).split("\\.")[0];
+            header = new MassSpecExtractedData.MassSpecExtractedHeader(
+                    headerData.get(0),
+                    fileName,
+                    fileName.substring(0, fileName.lastIndexOf("-")),
+                    headerData.get(2),
+                    Boolean.parseBoolean(headerData.get(6)),
+                    Boolean.parseBoolean(headerData.get(7)),
+                    headerData.get(8),
+                    0
+            );
+        } else {
+            header = new MassSpecExtractedData.MassSpecExtractedHeader(
+                    "Phoenix",
+                    "LiveData",
+                    "",
+                    "Phoenix_Live_Data_Processing",
+                    false,
+                    false,
+                    "",
+                    0
+            );
+        }
+
+        massSpecExtractedData.setHeader(header);
     }
 }

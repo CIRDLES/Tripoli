@@ -874,6 +874,7 @@ public class TripoliGUIController implements Initializable {
         long timeoutSeconds = 45;
         AtomicBoolean timeoutOccurred = new AtomicBoolean(false);
         AtomicReference<AnalysisInterface> liveDataAnalysis = new AtomicReference<>(liveData.getLiveDataAnalysis());
+        liveDataAnalysis.get().setDataFilePathString(liveDataFolderPath.toString());
         liveDataAnalysis.get().setAnalysisName("New LiveData Analysis");
         attachAnalysisToSession(liveDataAnalysis.get());
 
