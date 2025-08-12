@@ -29,6 +29,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.cirdles.tripoli.expressions.species.IsotopicRatio;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
+import org.cirdles.tripoli.gui.AnalysisManagerController;
 import org.cirdles.tripoli.gui.dataViews.plots.*;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotOG;
@@ -163,6 +164,7 @@ public class OGTripoliViewController {
 
         switch (plottingData.analysisCaseNumber()) {
             case 1 -> {
+
 //                SingleBlockRawDataLiteSetRecord[] singleBlockRawDataLiteSetRecords = plottingData.singleBlockRawDataLiteSetRecords();
                 int countOfOnPeakCycles = plottingData.cycleCount();
                 int[] blockIDsPerTimeSlot = analysis.getMassSpecExtractedData().assignBlockIdToSessionTimeLite();
@@ -202,8 +204,7 @@ public class OGTripoliViewController {
 //                        }
 //                    }
 
-//                    userFunction.calculateAnalysisStatsRecord();
-
+//                    userFunction.calculateAnalysisStatsRecord();get
                     AbstractPlot plot = AnalysisBlockCyclesPlotOG.generatePlot(
                             new Rectangle(minPlotWidth, minPlotHeight),
                             analysis,

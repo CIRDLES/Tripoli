@@ -67,7 +67,10 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.O
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
@@ -125,7 +128,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private final StringProperty selectedExpressionName = new SimpleStringProperty();
 
     private final BooleanProperty selectedExpressionRatioOption = new SimpleBooleanProperty(false);
-
     public Tab detectorDetailTab;
     public TabPane analysisMethodTabPane;
     @FXML
@@ -1648,6 +1650,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 case 0 -> {
                 }
                 case 1 -> {
+                    if(compareTwo && compareTwoRemainingBoxes!= 0) {
+                        break;
+                    }
                     plottingData = AllBlockInitForDataLiteOne.initBlockModels(analysis);
                 }
                 case 2 -> {
