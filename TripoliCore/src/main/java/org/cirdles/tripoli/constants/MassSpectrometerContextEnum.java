@@ -49,7 +49,8 @@ public enum MassSpectrometerContextEnum {
     NUTIMS_TXT_CASE1("Nu TIMS", "NU",
             "Version, Sample, Analysis, Number of measurements, Total, Number of answers, Caption",
             NuMassSpec.class, "extractMetaAndBlockDataFromFileNu", 1),
-
+    PHOENIX_LIVE_DATA_PROCESSING("Phoenix Live Data Processing", "Phoenix",
+            "", PhoenixMassSpec.class, "", 1),
     UNKNOWN("UNKNOWN", "UNKNOWN", "",
             null, "", 0);
 

@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -159,7 +160,12 @@ public class SessionManagerController implements Initializable {
             if (MouseButton.PRIMARY == event.getButton() && (null != analysis)) {
                 if (2 == event.getClickCount() && -1 == event.getTarget().toString().lastIndexOf("null")) {
                     File dataFile = new File(analysisSelected.getDataFilePathString());
-                    tripoliPersistentState.setMRUDataFileFolderPath(dataFile.getParent());
+                    if (dataFile.getName().equals("LiveData")) {
+                        tripoliPersistentState.setMRUDataFileFolderPath(dataFile.getParent().substring(0, dataFile.getParent().lastIndexOf(File.separator)));
+                    } else {
+                        tripoliPersistentState.setMRUDataFileFolderPath(dataFile.getParent());
+                    }
+
                     MenuItem menuItemAnalysesManager = ((MenuBar) TripoliGUI.primaryStage.getScene()
                             .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(0);
                     menuItemAnalysesManager.fire();

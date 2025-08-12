@@ -1449,7 +1449,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                         analysisProposed.getUserFunctions().addAll(functionsToAdd);
                     }
                 }
-                tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
+                tripoliSession.addAnalysis(analysisProposed);
                 analysis = analysisProposed;
 
                 MCMCPlotsController.analysis = analysis;
@@ -1459,9 +1459,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             } else {
                 legalFile = false;
             }
-        } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
-//                    throw new RuntimeException(e);
-        } catch (IllegalAccessException | TripoliException e) {
+        } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException |
+                 IllegalAccessException | TripoliException e) {
 //                    throw new RuntimeException(e);
         }
 
