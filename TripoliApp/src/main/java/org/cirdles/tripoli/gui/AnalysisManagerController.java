@@ -67,10 +67,7 @@ import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.O
 import org.cirdles.tripoli.gui.dialogs.TripoliMessageDialog;
 import org.cirdles.tripoli.sessions.analysis.Analysis;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockModelRecord;
-import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
@@ -109,7 +106,7 @@ import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compa
 public class AnalysisManagerController implements Initializable, AnalysisManagerCallbackI {
 
     public static int compareTwoRemainingBoxes = 2;
-    public static boolean compareTwo = false;
+    public static boolean compareTwoOn = false;
     public static boolean readingFile = false;
     public static AnalysisInterface analysis;
     public static MCMCPlotsWindow MCMCPlotsWindow;
@@ -713,8 +710,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 count++;
                 selected += userFunction.isDisplayed() ? 1 : 0;
             }
-            checkBoxSelectAllRatios.setSelected(!compareTwo && selected == count);
-            checkBoxSelectAllRatios.setDisable(compareTwo);
+            checkBoxSelectAllRatios.setSelected(!compareTwoOn && selected == count);
+            checkBoxSelectAllRatios.setDisable(compareTwoOn);
             checkBoxSelectAllRatios.setIndeterminate((0 < selected) && (selected < count));
         }
         checkBoxSelectAllRatios.selectedProperty().addListener(allRatiosChangeListener);
@@ -751,7 +748,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         refreshButton.setOnAction(event -> populateAnalysisMethodColumnsSelectorPane());
 
         Button compareTwoButton = new Button("Compare Two");
-        compareTwoButton.setStyle(compareTwo ? "-fx-text-fill: GREEN;": ";-fx-text-fill: RED;");
+        compareTwoButton.setStyle(compareTwoOn ? "-fx-text-fill: GREEN;": ";-fx-text-fill: RED;");
         compareTwoButton.setPrefWidth(100);
         compareTwoButton.setPadding(new Insets(0, 0, 0, 0));
 
@@ -781,8 +778,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 selected += userFunction.isDisplayed() ? 1 : 0;
             }
             else{
-                checkBoxSelectAllFunctions.setSelected(!compareTwo && selected == count);
-                checkBoxSelectAllFunctions.setDisable(compareTwo);
+                checkBoxSelectAllFunctions.setSelected(!compareTwoOn && selected == count);
+                checkBoxSelectAllFunctions.setDisable(compareTwoOn);
                 checkBoxSelectAllFunctions.setIndeterminate((0 < selected) && (selected < count));
             }
         }
@@ -833,12 +830,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 checkBoxRatio.setSelected(userFunction.isDisplayed());
 
                 checkBoxRatio.addEventFilter(MouseEvent.MOUSE_PRESSED,event->{
-                    if (compareTwo && compareTwoRemainingBoxes == 0 && !checkBoxRatio.isSelected()){
+                    if (compareTwoOn && compareTwoRemainingBoxes == 0 && !checkBoxRatio.isSelected()){
                         event.consume();
                     }
                 });
                 checkBoxRatio.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                    if(compareTwo)
+                    if(compareTwoOn)
                         compareTwoRemainingBoxes += newValue ? -1 : 1;
                     userFunction.setDisplayed(newValue);
                     userFunction.setInverted(false);
@@ -930,7 +927,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 checkBoxFunction.setUserData(userFunction);
                 checkBoxFunction.setSelected(userFunction.isDisplayed());
                 checkBoxFunction.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
-                    if(compareTwo){
+                    if(compareTwoOn){
                         event.consume();
                     }
                 });
@@ -955,11 +952,11 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             }
         }
         compareTwoButton.setOnAction(event -> {
-            if(compareTwo) {
-                compareTwo = false;
+            if(compareTwoOn) {
+                compareTwoOn = false;
                 compareTwoButton.setStyle("-fx-text-fill: RED;");
                 checkBoxSelectAllRatios.setDisable(false);
-                checkBoxSelectAllRatios.setDisable(false);
+                checkBoxSelectAllFunctions.setDisable(false);
             }
             else{
                 compareTwoButton.setStyle("-fx-text-fill: GREEN;");
@@ -971,7 +968,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 checkBoxSelectAllFunctions.setSelected(false);
                 checkBoxSelectAllFunctions.setDisable(true);
 
-                compareTwo = true;
+                compareTwoOn = true;
                 compareTwoRemainingBoxes = 2;
             }
 
@@ -1650,7 +1647,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 case 0 -> {
                 }
                 case 1 -> {
-                    if(compareTwo && compareTwoRemainingBoxes!= 0) {
+                    if(compareTwoOn && compareTwoRemainingBoxes!= 0) {
                         break;
                     }
                     plottingData = AllBlockInitForDataLiteOne.initBlockModels(analysis);
