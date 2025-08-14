@@ -126,11 +126,6 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         this(analysis, bounds, firstUserFunction, blockIDsPerTimeSlot, parentWallPane);
         this.mapBlockIdToBlockCyclesRecordCompareTwo = secondUserFunction.getMapBlockIdToBlockCyclesRecord();
         this.compareTwoUserFunction = secondUserFunction;
-
-        for(Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecordCompareTwo.entrySet()) {
-            PlotBlockCyclesRecord plotBlockCyclesRecord = entry.getValue();
-            System.out.printf("SecondFunction\nLength: %d\nThe Array: %s\n",plotBlockCyclesRecord.cycleMeansData().length,Arrays.toString(plotBlockCyclesRecord.cycleMeansData()));
-        }
     }
 
 
@@ -226,7 +221,6 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     System.arraycopy(plotBlockCyclesRecord.invertedCycleMeansData(), 0, yAxisData, (plotBlockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
                 } else {
                     System.arraycopy(plotBlockCyclesRecord.cycleMeansData(), 0, yAxisData, (plotBlockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
-                    System.out.printf("FirstFunction\nLength: %d\nThe Array: %s\n",availableCyclesPerBlock,Arrays.toString(plotBlockCyclesRecord.cycleMeansData()));
                 }
                 System.arraycopy(plotBlockCyclesRecord.cycleOneSigmaData(), 0, oneSigmaForCycles, (plotBlockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
             }
