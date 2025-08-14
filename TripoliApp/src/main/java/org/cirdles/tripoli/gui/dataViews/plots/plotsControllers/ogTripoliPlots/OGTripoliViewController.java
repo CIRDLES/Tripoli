@@ -179,41 +179,54 @@ public class OGTripoliViewController {
                         userFunctionsToPlot.add(userFunction);
                     }
                 }
-
-                for (UserFunction userFunction : userFunctionsToPlot) {
+                if(AnalysisManagerController.compareTwoOn){
                     TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPaneRatios);
-//
-//                    // todo: simplify since analysis carries most of the info
-//                    Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord = new TreeMap<>();
-//                    for (int blockIndex = 0; blockIndex < singleBlockRawDataLiteSetRecords.length; blockIndex++) {
-//                        if (null != singleBlockRawDataLiteSetRecords[blockIndex]) {
-//                            Integer blockID = singleBlockRawDataLiteSetRecords[blockIndex].blockID();
-//
-//                            mapBlockIdToBlockCyclesRecord.put(blockID, (BlockCyclesBuilder.initializeBlockCycles(
-//                                    blockID,
-//                                    true,
-//                                    true, // TODO: not needed here
-//                                    singleBlockRawDataLiteSetRecords[blockIndex].assembleCyclesIncludedForUserFunction(userFunction),
-//                                    singleBlockRawDataLiteSetRecords[blockIndex].assembleCycleMeansForUserFunction(userFunction),
-//                                    singleBlockRawDataLiteSetRecords[blockIndex].assembleCycleStdDevForUserFunction(userFunction),
-//                                    new String[]{userFunction.getName()},
-//                                    true,
-//                                    userFunction.isTreatAsIsotopicRatio()).getBlockCyclesRecord()));
-//                        } else {
-//                            mapBlockIdToBlockCyclesRecord.put(blockIndex - 1, null);
-//                        }
-//                    }
-
-//                    userFunction.calculateAnalysisStatsRecord();get
-                    AbstractPlot plot = AnalysisBlockCyclesPlotOG.generatePlot(
+                    AbstractPlot plot = AnalysisBlockCyclesPlotOG.generateCompareTwoPlot(
                             new Rectangle(minPlotWidth, minPlotHeight),
                             analysis,
-                            userFunction,
+                            userFunctionsToPlot.get(0),userFunctionsToPlot.get(1),
                             blockIDsPerTimeSlot,
                             (PlotWallPane) plotsWallPaneRatios);
 
                     tripoliPlotPane.addPlot(plot);
                     plot.refreshPanel(false, false);
+                }
+                else {
+                    for (UserFunction userFunction : userFunctionsToPlot) {
+                        TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPaneRatios);
+    //
+    //                    // todo: simplify since analysis carries most of the info
+    //                    Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord = new TreeMap<>();
+    //                    for (int blockIndex = 0; blockIndex < singleBlockRawDataLiteSetRecords.length; blockIndex++) {
+    //                        if (null != singleBlockRawDataLiteSetRecords[blockIndex]) {
+    //                            Integer blockID = singleBlockRawDataLiteSetRecords[blockIndex].blockID();
+    //
+    //                            mapBlockIdToBlockCyclesRecord.put(blockID, (BlockCyclesBuilder.initializeBlockCycles(
+    //                                    blockID,
+    //                                    true,
+    //                                    true, // TODO: not needed here
+    //                                    singleBlockRawDataLiteSetRecords[blockIndex].assembleCyclesIncludedForUserFunction(userFunction),
+    //                                    singleBlockRawDataLiteSetRecords[blockIndex].assembleCycleMeansForUserFunction(userFunction),
+    //                                    singleBlockRawDataLiteSetRecords[blockIndex].assembleCycleStdDevForUserFunction(userFunction),
+    //                                    new String[]{userFunction.getName()},
+    //                                    true,
+    //                                    userFunction.isTreatAsIsotopicRatio()).getBlockCyclesRecord()));
+    //                        } else {
+    //                            mapBlockIdToBlockCyclesRecord.put(blockIndex - 1, null);
+    //                        }
+    //                    }
+
+    //                    userFunction.calculateAnalysisStatsRecord();get
+                        AbstractPlot plot = AnalysisBlockCyclesPlotOG.generatePlot(
+                                new Rectangle(minPlotWidth, minPlotHeight),
+                                analysis,
+                                userFunction,
+                                blockIDsPerTimeSlot,
+                                (PlotWallPane) plotsWallPaneRatios);
+
+                        tripoliPlotPane.addPlot(plot);
+                        plot.refreshPanel(false, false);
+                    }
                 }
             }
 

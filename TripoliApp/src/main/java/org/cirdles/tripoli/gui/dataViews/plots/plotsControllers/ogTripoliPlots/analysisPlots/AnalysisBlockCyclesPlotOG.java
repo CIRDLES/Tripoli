@@ -62,7 +62,9 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     int[] blockIDsPerTimeSlot;
     private AnalysisInterface analysis;
     private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord;
+    private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecordCompareTwo;
     private UserFunction userFunction;
+    private UserFunction compareTwoUserFunction;
 
     private double[] oneSigmaForCycles;
     private boolean logScale;
@@ -113,10 +115,42 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         setOnMouseClicked(new MouseClickEventHandler());
     }
 
+    //constructor for compareTwo mode
+    private AnalysisBlockCyclesPlotOG(
+            AnalysisInterface analysis,
+            Rectangle bounds,
+            UserFunction firstUserFunction,
+            UserFunction secondUserFunction,
+            int[] blockIDsPerTimeSlot,
+            PlotWallPane parentWallPane) {
+        this(analysis, bounds, firstUserFunction, blockIDsPerTimeSlot, parentWallPane);
+        this.mapBlockIdToBlockCyclesRecordCompareTwo = secondUserFunction.getMapBlockIdToBlockCyclesRecord();
+        this.compareTwoUserFunction = secondUserFunction;
+
+        for(Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecordCompareTwo.entrySet()) {
+            PlotBlockCyclesRecord plotBlockCyclesRecord = entry.getValue();
+            System.out.printf("SecondFunction\nLength: %d\nThe Array: %s\n",plotBlockCyclesRecord.cycleMeansData().length,Arrays.toString(plotBlockCyclesRecord.cycleMeansData()));
+        }
+    }
+
+
     public static AbstractPlot generatePlot(
             Rectangle bounds, AnalysisInterface analysis, UserFunction userFunction,
             int[] blockIDsPerTimeSlot, PlotWallPane parentWallPane) {
         return new AnalysisBlockCyclesPlotOG(analysis, bounds, userFunction, blockIDsPerTimeSlot, parentWallPane);
+    }
+
+    public static AbstractPlot generateCompareTwoPlot(
+            Rectangle bounds,
+            AnalysisInterface analysis,
+            UserFunction firstUserFunction,
+            UserFunction secondUserFunction,
+            int[] blockIDsPerTimeSlot,
+            PlotWallPane parentWallPane) {
+
+        return new AnalysisBlockCyclesPlotOG(
+                analysis, bounds, firstUserFunction, secondUserFunction,
+                blockIDsPerTimeSlot, parentWallPane);
     }
 
     public PlotWallPaneInterface getParentWallPane() {
@@ -192,6 +226,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                     System.arraycopy(plotBlockCyclesRecord.invertedCycleMeansData(), 0, yAxisData, (plotBlockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
                 } else {
                     System.arraycopy(plotBlockCyclesRecord.cycleMeansData(), 0, yAxisData, (plotBlockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+                    System.out.printf("FirstFunction\nLength: %d\nThe Array: %s\n",availableCyclesPerBlock,Arrays.toString(plotBlockCyclesRecord.cycleMeansData()));
                 }
                 System.arraycopy(plotBlockCyclesRecord.cycleOneSigmaData(), 0, oneSigmaForCycles, (plotBlockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
             }
