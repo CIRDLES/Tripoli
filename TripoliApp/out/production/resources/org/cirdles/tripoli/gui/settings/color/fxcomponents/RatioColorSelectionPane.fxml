@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<fx:root type="ScrollPane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+      <VBox fx:id="vBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="536.0">
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="42.0" prefWidth="536.0" style="-fx-font-weight: bold;" text="Plot Ratios Color Control" textAlignment="CENTER">
+               <font>
+                   <Font size="22.0" />
+               </font>
+            </Label>
+      </VBox>
+</fx:root>
