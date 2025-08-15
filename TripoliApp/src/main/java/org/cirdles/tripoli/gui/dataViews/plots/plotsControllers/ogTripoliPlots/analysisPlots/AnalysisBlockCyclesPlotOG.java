@@ -32,6 +32,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
+import org.cirdles.tripoli.gui.AnalysisManagerController;
 import org.cirdles.tripoli.gui.dataViews.plots.*;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisBlockCyclesRecord;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
@@ -183,6 +184,11 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         zoomBoxX = mouseStartX;
         zoomBoxY = mouseStartY;
 
+        if(AnalysisManagerController.compareTwoOn){
+            preparePanelCompareTwo(reScaleX,reScaleY);
+            return;
+        }
+
         // process blocks
         int cyclesPerBlock = mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
 
@@ -228,6 +234,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
 
 
         plotAxisLabelY = userFunction.isTreatAsIsotopicRatio() ? "Ratio" : "Function";
+
         if (logScale && userFunction.isTreatAsIsotopicRatio()) {
             for (int i = 0; i < yAxisData.length; i++) {
                 yAxisData[i] = (yAxisData[i] > 0.0) ? log(yAxisData[i]) : 0.0;
@@ -255,6 +262,94 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         }
         prepareExtents(reScaleX, reScaleY);
         showXaxis = false;
+        showStats = true;
+        calcStats();
+        calculateTics();
+        repaint();
+    }
+
+    public void preparePanelCompareTwo(boolean reScaleX, boolean reScaleY){
+        //only ratio comparison
+        boolean doInvert = userFunction.isInverted();
+        int cyclesPerBlock = mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
+
+        int xDataLength = 0;
+        for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecordCompareTwo.entrySet()) {
+            xDataLength += entry.getValue().cycleMeansData().length;
+        }
+
+        xAxisData = new double[xDataLength];
+
+        for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecordCompareTwo.entrySet()) {
+            PlotBlockCyclesRecord plotBlockCyclesRecord = entry.getValue();
+            int availableCyclesPerBlock = plotBlockCyclesRecord.cycleMeansData().length;
+            if(doInvert){
+                System.arraycopy(plotBlockCyclesRecord.invertedCycleMeansData(), 0, xAxisData, (plotBlockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+            }
+            else{
+                System.arraycopy(plotBlockCyclesRecord.cycleMeansData(), 0, xAxisData, (plotBlockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+            }
+        }
+
+        if (reScaleX) {
+            displayOffsetX = 0.0;
+            inSculptorMode = false;
+            sculptBlockID = 0;
+            showSelectionBox = false;
+            removeEventFilter(MouseEvent.MOUSE_DRAGGED, mouseDraggedEventHandler);
+            setOnMouseDragged(new AnalysisBlockCyclesPlotOG.MouseDraggedEventHandler());
+            setOnMousePressed(new AnalysisBlockCyclesPlotOG.MousePressedEventHandler());
+            setOnMouseReleased(new AnalysisBlockCyclesPlotOG.MouseReleasedEventHandler());
+            addEventFilter(ScrollEvent.SCROLL, scrollEventEventHandler);
+
+            minX = 1.0;
+            maxX = xAxisData.length;
+        }
+
+        yAxisData = new double[xAxisData.length];
+        oneSigmaForCycles = new double[xAxisData.length];
+        for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
+            PlotBlockCyclesRecord plotBlockCyclesRecord = entry.getValue();
+            if (plotBlockCyclesRecord != null) {
+                int availableCyclesPerBlock = plotBlockCyclesRecord.cycleMeansData().length;
+                if (doInvert) {
+                    System.arraycopy(plotBlockCyclesRecord.invertedCycleMeansData(), 0, yAxisData, (plotBlockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+                } else {
+                    System.arraycopy(plotBlockCyclesRecord.cycleMeansData(), 0, yAxisData, (plotBlockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+                }
+                System.arraycopy(plotBlockCyclesRecord.cycleOneSigmaData(), 0, oneSigmaForCycles, (plotBlockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+            }
+        }
+
+
+        plotAxisLabelY = "Ratio";
+        if (logScale) {
+            for (int i = 0; i < yAxisData.length; i++) {
+                yAxisData[i] = (yAxisData[i] > 0.0) ? log(yAxisData[i]) : 0.0;
+                // TODO: uncertainties for logs
+                oneSigmaForCycles[i] = 0.0;
+            }
+            plotAxisLabelY = "Log Ratio";
+        }
+
+        if (reScaleY || ignoreRejects) {
+            // calculate ratio and unct across all included blocks
+            minY = Double.MAX_VALUE;
+            maxY = -Double.MAX_VALUE;
+
+            for (int i = 0; i < yAxisData.length; i++) {
+                // TODO: handle logratio uncertainties
+                int blockIndex = i / cyclesPerBlock;
+                if ((yAxisData[i] != 0.0) && (!ignoreRejects || mapBlockIdToBlockCyclesRecord.get(blockIndex + 1).cyclesIncluded()[i % cyclesPerBlock])) {
+                    minY = min(minY, yAxisData[i] - oneSigmaForCycles[i]);
+                    maxY = max(maxY, yAxisData[i] + oneSigmaForCycles[i]);
+                }
+            }
+
+            displayOffsetY = 0.0;
+        }
+        prepareExtents(reScaleX, reScaleY);
+        showXaxis = true;
         showStats = true;
         calcStats();
         calculateTics();
@@ -387,6 +482,9 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         g2d.setFill(Paint.valueOf("RED"));
         g2d.setFont(Font.font("SansSerif", 16));
         String title = userFunction.showCorrectName();
+        if(AnalysisManagerController.compareTwoOn){
+            title = String.format("%s & %s",userFunction.showCorrectName(), compareTwoUserFunction.showCorrectName());
+        }
         if (userFunction.isTreatAsCustomExpression()){
             title = userFunction.getCustomExpression().getName();
         }

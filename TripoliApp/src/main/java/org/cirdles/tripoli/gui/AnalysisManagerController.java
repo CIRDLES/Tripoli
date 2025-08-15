@@ -106,7 +106,7 @@ import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compa
 public class AnalysisManagerController implements Initializable, AnalysisManagerCallbackI {
 
     public static int compareTwoRemainingBoxes = 2;
-    public static boolean compareTwoOn = false;
+    public static boolean compareTwoOn;
     public static boolean readingFile = false;
     public static AnalysisInterface analysis;
     public static MCMCPlotsWindow MCMCPlotsWindow;
@@ -320,6 +320,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
+        compareTwoOn = false;
         mcmc2Button.setDisable(false);
         // March 2024 implement drag n drop of files ===================================================================
         analysisManagerGridPane.setOnDragOver(event -> {
@@ -717,7 +719,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         checkBoxSelectAllRatios.selectedProperty().addListener(allRatiosChangeListener);
         hBox.getChildren().add(checkBoxSelectAllRatios);
 
-            CheckBox checkBoxSelectAllRatiosInverted = new CheckBox("Invert all");
+        CheckBox checkBoxSelectAllRatiosInverted = new CheckBox("Invert all");
         checkBoxSelectAllRatiosInverted.setPrefWidth(110);
         count = 0;
         selected = 0;
@@ -730,6 +732,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             checkBoxSelectAllRatiosInverted.setIndeterminate((0 < selected) && (selected < count));
         }
         checkBoxSelectAllRatiosInverted.selectedProperty().addListener(allRatiosInvertedChangeListener);
+        checkBoxSelectAllRatiosInverted.setDisable(compareTwoOn);
         hBox.getChildren().add(checkBoxSelectAllRatiosInverted);
         hBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
@@ -863,7 +866,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 checkBoxInvert.setSelected(userFunction.isInverted());
                 checkBoxInvert.setDisable(!userFunction.isDisplayed());
                 checkBoxInvert.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                    userFunction.setInverted(newValue);
+                    userFunction.setInverted(!compareTwoOn && newValue);
                     int row = ratioInvertedCheckBoxList.indexOf(checkBoxInvert);
                     exportLabelList.get(row).setText(userFunction.getCorrectETReduxName());
                     int selectedI = 0;
@@ -871,7 +874,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                         selectedI += (checkBoxRatioInverted.isSelected() ? 1 : 0);
                     }
                     checkBoxSelectAllRatiosInverted.selectedProperty().removeListener(allRatiosInvertedChangeListener);
-                    checkBoxSelectAllRatiosInverted.setSelected(selectedI == ratioInvertedCheckBoxList.size());
                     checkBoxSelectAllRatiosInverted.setIndeterminate((0 < selectedI) && (selectedI < ratioCheckBoxList.size()));
                     populateAnalysisMethodColumnsSelectorPane();
                     checkBoxSelectAllRatiosInverted.selectedProperty().addListener(allRatiosInvertedChangeListener);
@@ -957,6 +959,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 compareTwoButton.setStyle("-fx-text-fill: RED;");
                 checkBoxSelectAllRatios.setDisable(false);
                 checkBoxSelectAllFunctions.setDisable(false);
+                checkBoxSelectAllRatiosInverted.setDisable(false);
             }
             else{
                 compareTwoButton.setStyle("-fx-text-fill: GREEN;");
@@ -967,6 +970,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 checkBoxSelectAllFunctions.setSelected(true);
                 checkBoxSelectAllFunctions.setSelected(false);
                 checkBoxSelectAllFunctions.setDisable(true);
+
+                checkBoxSelectAllRatiosInverted.setSelected(true);
+                checkBoxSelectAllRatiosInverted.setSelected(false);
+                checkBoxSelectAllRatiosInverted.setDisable(true);
 
                 compareTwoOn = true;
                 compareTwoRemainingBoxes = 2;

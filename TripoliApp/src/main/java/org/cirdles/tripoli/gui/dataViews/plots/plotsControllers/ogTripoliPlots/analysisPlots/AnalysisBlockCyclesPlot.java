@@ -215,6 +215,7 @@ public class AnalysisBlockCyclesPlot extends AbstractPlot implements AnalysisBlo
 
         }
         prepareExtents(reScaleX, reScaleY);
+
         showXaxis = false;
         showStats = true;
         calcStats();
