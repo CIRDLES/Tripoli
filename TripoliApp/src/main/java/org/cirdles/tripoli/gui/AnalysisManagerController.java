@@ -105,6 +105,8 @@ import static org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod.compa
 
 public class AnalysisManagerController implements Initializable, AnalysisManagerCallbackI {
 
+    public static int compareTwoRemainingBoxes = 2;
+    public static boolean compareTwoOn;
     public static boolean readingFile = false;
     public static AnalysisInterface analysis;
     public static MCMCPlotsWindow MCMCPlotsWindow;
@@ -123,7 +125,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private final StringProperty selectedExpressionName = new SimpleStringProperty();
 
     private final BooleanProperty selectedExpressionRatioOption = new SimpleBooleanProperty(false);
-
     public Tab detectorDetailTab;
     public TabPane analysisMethodTabPane;
     @FXML
@@ -319,6 +320,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
+        compareTwoOn = false;
         mcmc2Button.setDisable(false);
         // March 2024 implement drag n drop of files ===================================================================
         analysisManagerGridPane.setOnDragOver(event -> {
@@ -454,7 +457,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 setupDefaults();
             }
         }
-
         switch (caseNumber) {
             case 0 -> {
                 analysisMethodTabPane.getTabs().remove(detectorDetailTab);
@@ -710,7 +712,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 count++;
                 selected += userFunction.isDisplayed() ? 1 : 0;
             }
-            checkBoxSelectAllRatios.setSelected(selected == count);
+            checkBoxSelectAllRatios.setSelected(!compareTwoOn && selected == count);
+            checkBoxSelectAllRatios.setDisable(compareTwoOn);
             checkBoxSelectAllRatios.setIndeterminate((0 < selected) && (selected < count));
         }
         checkBoxSelectAllRatios.selectedProperty().addListener(allRatiosChangeListener);
@@ -729,6 +732,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             checkBoxSelectAllRatiosInverted.setIndeterminate((0 < selected) && (selected < count));
         }
         checkBoxSelectAllRatiosInverted.selectedProperty().addListener(allRatiosInvertedChangeListener);
+        checkBoxSelectAllRatiosInverted.setDisable(compareTwoOn);
         hBox.getChildren().add(checkBoxSelectAllRatiosInverted);
         hBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
 
@@ -746,7 +750,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         refreshButton.setPadding(new Insets(0, 0, 0, 0));
         refreshButton.setOnAction(event -> populateAnalysisMethodColumnsSelectorPane());
 
-        hBox.getChildren().addAll(toggleCycleMeansLabel, refreshButton);
+        Button compareTwoButton = new Button("Compare Two");
+        compareTwoButton.setStyle(compareTwoOn ? "-fx-text-fill: GREEN;": ";-fx-text-fill: RED;");
+        compareTwoButton.setPrefWidth(100);
+        compareTwoButton.setPadding(new Insets(0, 0, 0, 0));
+
+        hBox.getChildren().addAll(toggleCycleMeansLabel, refreshButton,compareTwoButton);
         ratiosHeaderHBox.getChildren().add(hBox);
         // ---------- end IR
 
@@ -771,8 +780,11 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 count++;
                 selected += userFunction.isDisplayed() ? 1 : 0;
             }
-            checkBoxSelectAllFunctions.setSelected(selected == count);
-            checkBoxSelectAllFunctions.setIndeterminate((0 < selected) && (selected < count));
+            else{
+                checkBoxSelectAllFunctions.setSelected(!compareTwoOn && selected == count);
+                checkBoxSelectAllFunctions.setDisable(compareTwoOn);
+                checkBoxSelectAllFunctions.setIndeterminate((0 < selected) && (selected < count));
+            }
         }
         checkBoxSelectAllFunctions.selectedProperty().addListener(allFunctionsChangeListener);
         hBox.getChildren().add(checkBoxSelectAllFunctions);
@@ -819,7 +831,15 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 checkBoxRatio.setFont(Font.font("Monospaced", FontWeight.BOLD, 12));
                 checkBoxRatio.setUserData(userFunction);
                 checkBoxRatio.setSelected(userFunction.isDisplayed());
+
+                checkBoxRatio.addEventFilter(MouseEvent.MOUSE_PRESSED,event->{
+                    if (compareTwoOn && compareTwoRemainingBoxes == 0 && !checkBoxRatio.isSelected()){
+                        event.consume();
+                    }
+                });
                 checkBoxRatio.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                    if(compareTwoOn)
+                        compareTwoRemainingBoxes += newValue ? -1 : 1;
                     userFunction.setDisplayed(newValue);
                     userFunction.setInverted(false);
                     if (newValue) {
@@ -846,7 +866,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 checkBoxInvert.setSelected(userFunction.isInverted());
                 checkBoxInvert.setDisable(!userFunction.isDisplayed());
                 checkBoxInvert.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                    userFunction.setInverted(newValue);
+                    userFunction.setInverted(!compareTwoOn && newValue);
                     int row = ratioInvertedCheckBoxList.indexOf(checkBoxInvert);
                     exportLabelList.get(row).setText(userFunction.getCorrectETReduxName());
                     int selectedI = 0;
@@ -854,7 +874,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                         selectedI += (checkBoxRatioInverted.isSelected() ? 1 : 0);
                     }
                     checkBoxSelectAllRatiosInverted.selectedProperty().removeListener(allRatiosInvertedChangeListener);
-                    checkBoxSelectAllRatiosInverted.setSelected(selectedI == ratioInvertedCheckBoxList.size());
                     checkBoxSelectAllRatiosInverted.setIndeterminate((0 < selectedI) && (selectedI < ratioCheckBoxList.size()));
                     populateAnalysisMethodColumnsSelectorPane();
                     checkBoxSelectAllRatiosInverted.selectedProperty().addListener(allRatiosInvertedChangeListener);
@@ -909,6 +928,11 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 CheckBox checkBoxFunction = new CheckBox(userFunction.getName());
                 checkBoxFunction.setUserData(userFunction);
                 checkBoxFunction.setSelected(userFunction.isDisplayed());
+                checkBoxFunction.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+                    if(compareTwoOn){
+                        event.consume();
+                    }
+                });
                 checkBoxFunction.selectedProperty().addListener((observable, oldValue, newValue) -> {
                     ((UserFunction) checkBoxFunction.getUserData()).setDisplayed(newValue);
                     int selectedF = 0;
@@ -929,6 +953,34 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 functionsVBox.getChildren().add(hBox);
             }
         }
+        compareTwoButton.setOnAction(event -> {
+            if(compareTwoOn) {
+                compareTwoOn = false;
+                compareTwoButton.setStyle("-fx-text-fill: RED;");
+                checkBoxSelectAllRatios.setDisable(false);
+                checkBoxSelectAllFunctions.setDisable(false);
+                checkBoxSelectAllRatiosInverted.setDisable(false);
+            }
+            else{
+                compareTwoButton.setStyle("-fx-text-fill: GREEN;");
+                checkBoxSelectAllRatios.setSelected(true);
+                checkBoxSelectAllRatios.setSelected(false);
+                checkBoxSelectAllRatios.setDisable(true);
+
+                checkBoxSelectAllFunctions.setSelected(true);
+                checkBoxSelectAllFunctions.setSelected(false);
+                checkBoxSelectAllFunctions.setDisable(true);
+
+                checkBoxSelectAllRatiosInverted.setSelected(true);
+                checkBoxSelectAllRatiosInverted.setSelected(false);
+                checkBoxSelectAllRatiosInverted.setDisable(true);
+
+                compareTwoOn = true;
+                compareTwoRemainingBoxes = 2;
+            }
+
+            populateAnalysisMethodColumnsSelectorPane();
+        });
     }
 
     private void populateAnalysisMethodRatioBuilderPane() {
@@ -1602,6 +1654,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 case 0 -> {
                 }
                 case 1 -> {
+                    if(compareTwoOn && compareTwoRemainingBoxes!= 0) {
+                        break;
+                    }
                     plottingData = AllBlockInitForDataLiteOne.initBlockModels(analysis);
                 }
                 case 2 -> {
