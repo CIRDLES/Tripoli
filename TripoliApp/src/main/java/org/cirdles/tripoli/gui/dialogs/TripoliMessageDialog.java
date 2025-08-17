@@ -20,8 +20,11 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
+import javafx.util.StringConverter;
+import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -84,6 +87,40 @@ public class TripoliMessageDialog extends Alert {
         Optional<ButtonType> result = alert.showAndWait();
 
         return (result.get() == ButtonType.OK);
+    }
+
+    public static MassSpectrometerContextEnum showMassSpecChoiceDialog(String message, Window owner) {
+        Alert alert = new TripoliMessageDialog(
+                Alert.AlertType.CONFIRMATION,
+                message,
+                "Supported MassSpec types:", owner);
+        alert.getButtonTypes().setAll( ButtonType.APPLY);
+        ComboBox<MassSpectrometerContextEnum> comboBox = new ComboBox<>();
+        comboBox.getItems().addAll(MassSpectrometerContextEnum.values());
+        comboBox.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(MassSpectrometerContextEnum context) {
+                return context == null ? "" : context.getName();  // use getName() for display
+            }
+
+            @Override
+            public MassSpectrometerContextEnum fromString(String string) {
+                return Arrays.stream(MassSpectrometerContextEnum.values())
+                        .filter(c -> c.getName().equals(string))
+                        .findFirst()
+                        .orElse(null);
+            }
+        });
+        comboBox.getSelectionModel().selectFirst();
+        alert.getDialogPane().setContent(comboBox);
+
+        // Show dialog and return result
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.APPLY) {
+            return comboBox.getSelectionModel().getSelectedItem();
+        } else {
+            return null;
+        }
     }
 
     public static boolean showSessionDiffDialog(String diffMessage, Window owner) {

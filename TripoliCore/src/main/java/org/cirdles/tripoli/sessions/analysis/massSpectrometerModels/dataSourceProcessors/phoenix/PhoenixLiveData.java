@@ -7,6 +7,7 @@ import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -35,7 +36,12 @@ public class PhoenixLiveData {
         liveDataAnalysis = AnalysisInterface.initializeNewAnalysis(0);
         massSpecExtractedData = new MassSpecExtractedData();
         massSpecExtractedData.setColumnHeaders(new String[] { "Cycle", "Time" });
-        massSpecExtractedData.setMassSpectrometerContext(MassSpectrometerContextEnum.PHOENIX_LIVE_DATA_PROCESSING);
+        MassSpectrometerContextEnum massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
+        try {
+            massSpectrometerContext = TripoliPersistentState.getExistingPersistentState().getCurrentMassSpecContext();
+        } catch (TripoliException ignored) {
+        }
+        massSpecExtractedData.setMassSpectrometerContext(massSpectrometerContext);
         liveDataAnalysis.setMassSpecExtractedData(massSpecExtractedData);
     }
 
@@ -64,6 +70,7 @@ public class PhoenixLiveData {
                     readLiveDataLine(line);
                 }
                 if (initMetaData) {
+                    setAnalysisHeader();
 
                     // Have AnalysisMethod figure out ratios and then set them accordingly
                     liveDataAnalysis.setMethod(createAnalysisMethodFromCase1(massSpecExtractedData));
@@ -184,10 +191,13 @@ public class PhoenixLiveData {
                 List<String> headerData = new ArrayList<>();
 
                 String line;
-                while ((line = br.readLine()) != null) {
+                while (!Objects.equals(line = br.readLine(), "")) {
                     if (line.contains(",")){
                         headerData.add(line.split(",")[1]);
                     }
+                }
+                if (headerData.get(2).contains(".")){ // Strip off file extension
+                    headerData.set(2, headerData.get(2).substring(0, headerData.get(2).lastIndexOf(".")));
                 }
                 return headerData;
             } catch (IOException e) {
@@ -196,7 +206,7 @@ public class PhoenixLiveData {
         }
         return null;
     }
-    private void setAnalysisHeader(){
+    private void setAnalysisHeader() {
         MassSpecExtractedData.MassSpecExtractedHeader header;
 
         File analysisTxtFile = getAnalysisTxtFile();
@@ -211,7 +221,7 @@ public class PhoenixLiveData {
                     headerData.get(2),
                     Boolean.parseBoolean(headerData.get(6)),
                     Boolean.parseBoolean(headerData.get(7)),
-                    headerData.get(8),
+                    headerData.get(8).trim(),
                     0
             );
         } else {

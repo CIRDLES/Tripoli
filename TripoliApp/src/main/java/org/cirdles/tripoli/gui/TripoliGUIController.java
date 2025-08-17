@@ -197,6 +197,7 @@ public class TripoliGUIController implements Initializable {
         buildSessionMenuMRU();
         showStartingMenus();
         detectLatestVersion();
+        detectMassSpecContext();
 
         // March 2024 implement drag n drop of files ===================================================================
         splashAnchor.setOnDragOver(event -> {
@@ -235,6 +236,8 @@ public class TripoliGUIController implements Initializable {
                                 parametersMenu.setDisable(false);
                                 reportsMenu.setDisable(false);
                                 AnalysisManagerController.readingFile = true;
+                                tripoliPersistentState.setCurrentMassSpecContext(analysis.getMassSpecExtractedData().getMassSpectrometerContext());
+                                detectMassSpecContext();
                             } else {
                                 analysis = null;
                                 parametersMenu.setDisable(true);
@@ -292,6 +295,24 @@ public class TripoliGUIController implements Initializable {
             }
         } catch (IOException e) {
             //throw new RuntimeException(e);
+        }
+    }
+
+    public void detectMassSpecContext() {
+        MassSpectrometerContextEnum currentMassSpec;
+        if (tripoliPersistentState == null || tripoliPersistentState.getMRUDataFileFolderPath() == null || tripoliPersistentState.getCurrentMassSpecContext() == null) {
+            TripoliMessageDialog.showWarningDialog("Current mass spectrometer type is unknown. " +
+                    "Please choose a supported mass spectrometer type.", primaryStageWindow);
+            currentMassSpec = TripoliMessageDialog.showMassSpecChoiceDialog("", primaryStageWindow);
+            tripoliPersistentState.setCurrentMassSpecContext(currentMassSpec);
+            tripoliPersistentState.updateTripoliPersistentState();
+        }
+
+        currentMassSpec = tripoliPersistentState.getCurrentMassSpecContext();
+        processLiveDataMenuItem.setVisible(false);
+        if (currentMassSpec != null) {
+            TripoliGUI.updateStageTitle(sessionFileName != null ? sessionFileName : "", currentMassSpec);
+            processLiveDataMenuItem.setVisible(currentMassSpec.getMassSpectrometerName().equals("Phoenix"));
         }
     }
 
@@ -425,7 +446,7 @@ public class TripoliGUIController implements Initializable {
         try {
             sessionFileName = selectSessionFile(primaryStageWindow);
             openSession(sessionFileName);
-        } catch (IOException | TripoliException iOException) {
+        } catch (IOException | TripoliException ignored) {
         }
     }
 
@@ -443,7 +464,7 @@ public class TripoliGUIController implements Initializable {
 
                 handleExpressionsInSavedSession();
 
-                TripoliGUI.updateStageTitle(sessionFileName);
+                detectMassSpecContext();
                 buildSessionMenuMRU();
                 tripoliPersistentState.setMRUSessionFolderPath(sessionFile.getParent());
                 launchSessionManager();
@@ -453,7 +474,7 @@ public class TripoliGUIController implements Initializable {
 //                runSaveMenuDisableCheck = true;
             } else {
                 saveSessionMenuItem.setDisable(true);
-                TripoliGUI.updateStageTitle("");
+                detectMassSpecContext();
                 throw new IOException();
             }
         }
@@ -598,7 +619,7 @@ public class TripoliGUIController implements Initializable {
                 tripoliSession.setSessionFilePathAsString(sessionFileName);
                 saveSessionMenuItem.setDisable(false);
                 tripoliPersistentState.updateSessionListMRU(sessionFile);
-                TripoliGUI.updateStageTitle(sessionFile.getAbsolutePath());
+                detectMassSpecContext();
                 buildSessionMenuMRU();
                 launchSessionManager();
 //                runSaveMenuDisableCheck = true;
@@ -615,10 +636,10 @@ public class TripoliGUIController implements Initializable {
         confirmSaveOnProjectClose();
         removeAllManagers();
         //       launchSessionManager();
-        TripoliGUI.updateStageTitle("");
         analysis = null;
         tripoliSession = null;
         parametersMenu.setDisable(true);
+        detectMassSpecContext();
         SessionManagerController.tripoliSession = tripoliSession;
         //TODO:        menuHighlighter.deHighlight();
         showStartingMenus();

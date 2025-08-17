@@ -499,6 +499,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
             }
         }
+        if (analysis.getAnalysisName().contains("(Live Data)")){
+            analysisMethodTabPane.getTabs().remove(customExpressionsTab);
+        }
+
 
         processingToolBar.setDisable(null == analysis.getAnalysisMethod());
     }
