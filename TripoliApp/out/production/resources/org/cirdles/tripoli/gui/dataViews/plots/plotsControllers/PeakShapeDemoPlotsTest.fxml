@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:id="plotsAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity"
+            minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="600.0"
+            xmlns="http://javafx.com/javafx/17"
+            fx:controller="org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.peakShapePlots.PeakShapeDemoPlotsControllerTest">
+
+    <children>
+        <VBox fx:id="masterVBox" prefHeight="500.0" prefWidth="600.0">
+            <children>
+                <SplitPane dividerPositions="0.7516198704103672" orientation="VERTICAL">
+                    <items>
+                        <Pane fx:id="wallPlotsAnchorPane" prefHeight="336.0" prefWidth="598.0"/>
+                        <SplitPane dividerPositions="0.5">
+                            <items>
+                                <ScrollPane fx:id="resourceListScrollPane" prefHeight="200.0" prefWidth="300.0"/>
+                                <ScrollPane fx:id="eventScrollPane" prefHeight="200.0" prefWidth="300.0">
+                                    <content>
+                                        <AnchorPane fx:id="eventAnchorPane" prefHeight="157.0" prefWidth="297.0">
+                                            <children>
+                                                <TextArea fx:id="eventLogTextArea" prefHeight="185.0" prefWidth="296.0"
+                                                          text="Details will appear here... "/>
+                                            </children>
+                                        </AnchorPane>
+                                    </content>
+                                </ScrollPane>
+                            </items>
+                        </SplitPane>
+                    </items>
+                </SplitPane>
+                <ToolBar fx:id="toolbar" prefHeight="15.0" prefWidth="600.0">
+                    <items>
+                        <Button mnemonicParsing="false" onAction="#browseResourceFileAction"
+                                text="Open Peak Centre Folder"/>
+                    </items>
+                </ToolBar>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
