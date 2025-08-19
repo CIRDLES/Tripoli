@@ -840,11 +840,30 @@ public class TripoliGUIController implements Initializable {
 
     // ------------------ LiveData Methods ------------------------------------------------
 
+    /**
+     * Checks methodfolder and its parent for the existence of LiveDataStatus.txt, retrieves the active livedata location
+     * from the txt and returns the path of it.
+     * @param methodFolder user/mru supplied folder file
+     * @return Path of the active LiveData folder
+     * @throws IOException
+     */
     private Path getLiveDataFolderPath(File methodFolder) throws IOException {
-        File liveDataStatusFile = new File(methodFolder.toString() + File.separator + "LiveDataStatus.txt");
-        if (!liveDataStatusFile.exists()) {
-            TripoliMessageDialog.showWarningDialog("Phoenix LiveDataStatus file not found in selected folder. Aborting... ", primaryStageWindow);
+        File liveDataStatusFile = new File(methodFolder, "LiveDataStatus.txt");
+        File parentLiveDataStatusFile = new File(methodFolder.getParentFile(), "LiveDataStatus.txt");
+
+        File mutatableMethodFolder = methodFolder;
+        if (!liveDataStatusFile.exists() && !parentLiveDataStatusFile.exists()) {
+            TripoliMessageDialog.showWarningDialog(
+                    "Phoenix LiveDataStatus file not found in selected folder or it's parent.",
+                    primaryStageWindow
+            );
             return null;
+        }
+
+        // Prefer methodFolder, fallback to parent
+        if (!liveDataStatusFile.exists()) {
+            liveDataStatusFile = parentLiveDataStatusFile;
+            mutatableMethodFolder = methodFolder.getParentFile();
         }
         BufferedReader bufferedReader = new BufferedReader(new FileReader(liveDataStatusFile));
 
@@ -853,10 +872,12 @@ public class TripoliGUIController implements Initializable {
             line = bufferedReader.readLine();
         }
 
-        Path methodPath = Path.of(line.split(",")[1].replaceAll("\"", ""));
-        String methodName = methodPath.getParent().getFileName().toString();
+        String[] methodParts = line.split("\\\\");
+        String methodName = methodParts[methodParts.length - 2].replace("\"", "");
+        Path liveDataFolderPath = Path.of(mutatableMethodFolder + File.separator + methodName + File.separator + "LiveData");
+        tripoliPersistentState.setMRUDataFileFolderPath(liveDataFolderPath.getParent().toString());
 
-        return Path.of(methodFolder + File.separator + methodName + File.separator + "LiveData");
+        return liveDataFolderPath;
     }
 
     public void processLiveData() throws IOException, TripoliException {
@@ -869,25 +890,22 @@ public class TripoliGUIController implements Initializable {
         Path liveDataFolderPath = null;
         // Check for MRU Folder
         // Prompt if MRU doesnt exist
-        if (tripoliPersistentState == null || tripoliPersistentState.getMRUDataFileFolderPath() == null) {
-            File methodFolder = selectMethodFolder(primaryStageWindow);
-            if (methodFolder == null) return;
-            liveDataFolderPath = getLiveDataFolderPath(methodFolder);
-            tripoliPersistentState.setMRUDataFileFolderPath(methodFolder.toString());
-        // Handle data file folder
-        } else if (new File (Path.of(tripoliPersistentState.getMRUDataFileFolderPath()).getParent() + File.separator + "LiveDataStatus.txt").exists()) {
-            Path mruDataFolderPath = Path.of(tripoliPersistentState.getMRUDataFileFolderPath()).getParent();
-            liveDataFolderPath = getLiveDataFolderPath(mruDataFolderPath.toFile());
-        // Handle root folder
-        } else if (new File (Path.of(tripoliPersistentState.getMRUDataFileFolderPath()) + File.separator + "LiveDataStatus.txt").exists()){
-            Path mruDataFolderPath = Path.of(tripoliPersistentState.getMRUDataFileFolderPath());
-            liveDataFolderPath = getLiveDataFolderPath(mruDataFolderPath.toFile());
-        }
-
-        // Ensure the folder was retrieved
-        if (liveDataFolderPath == null) {
-            System.out.println(tripoliPersistentState.getMRUDataFileFolderPath());
-            return;
+        while (liveDataFolderPath == null) {
+            if (tripoliPersistentState == null || tripoliPersistentState.getMRUDataFileFolderPath() == null) {
+                File methodFolder = selectMethodFolder(primaryStageWindow);
+                if (methodFolder == null) return; // User cancelled, bail
+                liveDataFolderPath = getLiveDataFolderPath(methodFolder);
+                // Handle data file folder
+            } else if (new File (Path.of(tripoliPersistentState.getMRUDataFileFolderPath()).getParent() + File.separator + "LiveDataStatus.txt").exists()) {
+                Path mruDataFolderPath = Path.of(tripoliPersistentState.getMRUDataFileFolderPath()).getParent();
+                liveDataFolderPath = getLiveDataFolderPath(mruDataFolderPath.toFile());
+                // Handle root folder
+            } else if (new File (Path.of(tripoliPersistentState.getMRUDataFileFolderPath()) + File.separator + "LiveDataStatus.txt").exists()){
+                Path mruDataFolderPath = Path.of(tripoliPersistentState.getMRUDataFileFolderPath());
+                liveDataFolderPath = getLiveDataFolderPath(mruDataFolderPath.toFile());
+            } else {
+                tripoliPersistentState.setMRUDataFileFolderPath(null);
+            }
         }
 
         // Begin watching for new data files
