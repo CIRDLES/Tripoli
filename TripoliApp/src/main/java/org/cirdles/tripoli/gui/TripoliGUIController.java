@@ -197,7 +197,6 @@ public class TripoliGUIController implements Initializable {
         buildSessionMenuMRU();
         showStartingMenus();
         detectLatestVersion();
-        detectMassSpecContext();
 
         // March 2024 implement drag n drop of files ===================================================================
         splashAnchor.setOnDragOver(event -> {
@@ -267,6 +266,7 @@ public class TripoliGUIController implements Initializable {
             } catch (TripoliException | IOException ignored) {
             }
         });
+        Platform.runLater(this::detectMassSpecContext);
     }
 
     private void detectLatestVersion() {
@@ -303,7 +303,7 @@ public class TripoliGUIController implements Initializable {
         if (tripoliPersistentState == null || tripoliPersistentState.getMRUDataFileFolderPath() == null || tripoliPersistentState.getCurrentMassSpecContext() == null) {
             TripoliMessageDialog.showWarningDialog("Current mass spectrometer type is unknown. " +
                     "Please choose a supported mass spectrometer type.", primaryStageWindow);
-            currentMassSpec = TripoliMessageDialog.showMassSpecChoiceDialog("", primaryStageWindow);
+            currentMassSpec = TripoliMessageDialog.showMassSpecChoiceDialog("TEST TEST TEST TEST", primaryStageWindow);
             tripoliPersistentState.setCurrentMassSpecContext(currentMassSpec);
             tripoliPersistentState.updateTripoliPersistentState();
         }

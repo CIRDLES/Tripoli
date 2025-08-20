@@ -94,30 +94,36 @@ public class TripoliMessageDialog extends Alert {
                 Alert.AlertType.CONFIRMATION,
                 message,
                 "Supported MassSpec types:", owner);
-        alert.getButtonTypes().setAll( ButtonType.APPLY);
-        ComboBox<MassSpectrometerContextEnum> comboBox = new ComboBox<>();
-        comboBox.getItems().addAll(MassSpectrometerContextEnum.values());
-        comboBox.setConverter(new StringConverter<>() {
-            @Override
-            public String toString(MassSpectrometerContextEnum context) {
-                return context == null ? "" : context.getName();  // use getName() for display
-            }
+        alert.getButtonTypes().setAll(ButtonType.APPLY);
 
+        // Create ListView
+        ListView<MassSpectrometerContextEnum> listView = new ListView<>();
+        listView.getItems().addAll(MassSpectrometerContextEnum.values());
+        listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+        // Show friendly names in the ListView
+        listView.setCellFactory(lv -> new ListCell<>() {
             @Override
-            public MassSpectrometerContextEnum fromString(String string) {
-                return Arrays.stream(MassSpectrometerContextEnum.values())
-                        .filter(c -> c.getName().equals(string))
-                        .findFirst()
-                        .orElse(null);
+            protected void updateItem(MassSpectrometerContextEnum item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "" : item.getName());
             }
         });
-        comboBox.getSelectionModel().selectFirst();
-        alert.getDialogPane().setContent(comboBox);
+
+        // Preselect first item
+        listView.getSelectionModel().selectFirst();
+
+        // Add ListView into dialog content
+        alert.getDialogPane().setContent(listView);
+
+        // Resize based on listView preferred size
+        listView.setPrefHeight(Math.min(listView.getItems().size(), 7) * 28 + 10);
+        alert.getDialogPane().setPrefHeight(listView.getPrefHeight() + 150);
 
         // Show dialog and return result
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.APPLY) {
-            return comboBox.getSelectionModel().getSelectedItem();
+            return listView.getSelectionModel().getSelectedItem();
         } else {
             return null;
         }
