@@ -93,7 +93,7 @@ public class TripoliMessageDialog extends Alert {
         Alert alert = new TripoliMessageDialog(
                 Alert.AlertType.CONFIRMATION,
                 message,
-                "Supported MassSpec types:", owner);
+                "Current mass spectrometer type is unknown", owner);
         alert.getButtonTypes().setAll(ButtonType.APPLY);
 
         // Create ListView
@@ -113,12 +113,20 @@ public class TripoliMessageDialog extends Alert {
         // Preselect first item
         listView.getSelectionModel().selectFirst();
 
-        // Add ListView into dialog content
-        alert.getDialogPane().setContent(listView);
+        // Create message label
+        Label msgLabel = new Label(message);
+        msgLabel.setWrapText(true);
+
+        // Layout containing message + list
+        VBox content = new VBox(20);
+        content.getChildren().addAll(msgLabel, listView);
+
+        // Add VBox to dialog content
+        alert.getDialogPane().setContent(content);
 
         // Resize based on listView preferred size
         listView.setPrefHeight(Math.min(listView.getItems().size(), 7) * 28 + 10);
-        alert.getDialogPane().setPrefHeight(listView.getPrefHeight() + 150);
+        alert.getDialogPane().setPrefHeight(listView.getPrefHeight() + 190);
 
         // Show dialog and return result
         Optional<ButtonType> result = alert.showAndWait();
