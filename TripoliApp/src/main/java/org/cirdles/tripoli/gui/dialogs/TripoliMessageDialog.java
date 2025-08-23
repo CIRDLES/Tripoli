@@ -93,12 +93,16 @@ public class TripoliMessageDialog extends Alert {
         Alert alert = new TripoliMessageDialog(
                 Alert.AlertType.CONFIRMATION,
                 message,
-                "Current mass spectrometer type is unknown", owner);
+                "Current mass spectrometer type is unknown.", owner);
         alert.getButtonTypes().setAll(ButtonType.APPLY);
 
         // Create ListView
         ListView<MassSpectrometerContextEnum> listView = new ListView<>();
-        listView.getItems().addAll(MassSpectrometerContextEnum.values());
+        listView.getItems().addAll(
+                Arrays.stream(MassSpectrometerContextEnum.values())
+                        .filter(MassSpectrometerContextEnum::isDisplayed)
+                        .toList()
+        );
         listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
         // Show friendly names in the ListView
@@ -126,7 +130,7 @@ public class TripoliMessageDialog extends Alert {
 
         // Resize based on listView preferred size
         listView.setPrefHeight(Math.min(listView.getItems().size(), 7) * 28 + 10);
-        alert.getDialogPane().setPrefHeight(listView.getPrefHeight() + 190);
+        alert.getDialogPane().setPrefHeight(listView.getPrefHeight() + 165);
 
         // Show dialog and return result
         Optional<ButtonType> result = alert.showAndWait();
