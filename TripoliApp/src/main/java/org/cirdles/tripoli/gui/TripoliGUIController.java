@@ -76,6 +76,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
 import static org.cirdles.tripoli.gui.AnalysisManagerController.ogTripoliPreviewPlotsWindow;
+import static org.cirdles.tripoli.gui.SessionManagerController.tripoliSession;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStage;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.utilities.BrowserControl.urlEncode;
@@ -963,6 +964,11 @@ public class TripoliGUIController implements Initializable {
      * @param liveDataAnalysis The analysis that holds the livedata points
      */
     public void onLiveDataUpdated(AnalysisInterface liveDataAnalysis) {
+        if (!liveDataAnalysis.getAnalysisName().equals("New LiveData Analysis")
+                && tripoliSession.getMapOfAnalyses().containsKey("New LiveData Analysis")) {
+            tripoliSession.getMapOfAnalyses().remove("New LiveData Analysis");
+            attachAnalysisToSession(liveDataAnalysis);
+        }
         liveDataAnalysis.getMapOfBlockIdToRawDataLiteOne().clear();
         AllBlockInitForMCMC.PlottingData plottingData = AllBlockInitForDataLiteOne.initBlockModels(liveDataAnalysis);
         if (plottingData != null) {

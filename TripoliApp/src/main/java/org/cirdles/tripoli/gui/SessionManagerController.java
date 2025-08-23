@@ -219,8 +219,19 @@ public class SessionManagerController implements Initializable {
             ContextMenu contextMenu = new ContextMenu();
             MenuItem deleteItem = new MenuItem("Delete Analysis");
             deleteItem.setOnAction(event -> {
+                MenuItem liveDataMenuItem = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                        .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(4);
+                boolean isLDRunning = liveDataMenuItem.getText().contains("Stop LiveData");
+                boolean isLDAnalysis = getItem().getAnalysisName().contains("(Live Data)");
+
+                if (isLDAnalysis && isLDRunning){
+                    boolean proceed = TripoliMessageDialog.showChoiceDialog("Live Data is still running. Would you like to stop and delete the analysis?", primaryStageWindow);
+                    if (!proceed) return;
+                    liveDataMenuItem.fire();
+                }
                 tripoliSession.getMapOfAnalyses().remove(getItem().getAnalysisName());
                 AnalysisManagerController.analysis = null;
+
                 if (tripoliSession.getMapOfAnalyses().isEmpty()) {
                     MenuItem reportMenu = ((MenuBar) TripoliGUI.primaryStage.getScene()
                             .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(3);
