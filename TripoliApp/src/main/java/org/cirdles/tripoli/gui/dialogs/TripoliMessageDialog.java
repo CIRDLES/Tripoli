@@ -117,6 +117,15 @@ public class TripoliMessageDialog extends Alert {
         // Preselect first item
         listView.getSelectionModel().selectFirst();
 
+        // Add double-click handler
+        listView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2 && !listView.getSelectionModel().isEmpty()) {
+                // Simulate pressing Apply
+                alert.setResult(ButtonType.APPLY);
+                alert.close();
+            }
+        });
+
         // Create message label
         Label msgLabel = new Label(message);
         msgLabel.setWrapText(true);

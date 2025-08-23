@@ -133,7 +133,7 @@ public class PhoenixLiveData {
             case "Method":
                 if (initMetaData)
                 {
-                    String analysisName = Path.of(dataLineSplit[1].substring(1, dataLineSplit[1].length()-1)).getFileName().toString();
+                    String analysisName = dataLineSplit[1].substring(dataLineSplit[1].lastIndexOf("\\")+1, dataLineSplit[1].length()-1);
                     liveDataAnalysis.setAnalysisName(analysisName + (" (Live Data)"));
                     liveDataAnalysis.setAnalysisSampleName(analysisName.split(" ")[0]);
                     liveDataAnalysis.setAnalysisFractionName(analysisName.split(" ")[1].split("-")[0]);
