@@ -29,6 +29,10 @@ import java.util.ResourceBundle;
 public class SettingsWindowController implements Initializable {
 
     @FXML
+    public VBox liveDataSettingsVBox;
+    @FXML
+    public Spinner<Integer> liveDataTimeoutSpinner;
+    @FXML
     private TabPane settingsTabPane;
     @FXML
     private Tab ratiosColorTab;
@@ -100,6 +104,14 @@ public class SettingsWindowController implements Initializable {
 
     public VBox getPlotIntensitiesVBox() {
         return plotIntensitiesVBox;
+    }
+
+    public VBox getLiveDataSettingsVBox() {
+        return liveDataSettingsVBox;
+    }
+
+    public Spinner<Integer> getLiveDataTimeoutSpinner() {
+        return liveDataTimeoutSpinner;
     }
 
     public Spinner<Double> getChauvenetRejectionProbabilitySpinner() {

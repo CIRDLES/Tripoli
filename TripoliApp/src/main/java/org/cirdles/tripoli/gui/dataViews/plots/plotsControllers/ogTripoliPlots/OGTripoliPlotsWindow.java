@@ -60,6 +60,11 @@ public class OGTripoliPlotsWindow {
     }
 
     public void setPlottingData(AllBlockInitForMCMC.PlottingData plottingData) {
+        if (this.plottingData != null && !plottingData.equals(this.plottingData)) {
+            ogTripoliViewController.setPlottingData(plottingData);
+            ogTripoliViewController.populatePlots();
+        }
+
         this.plottingData = plottingData;
     }
 

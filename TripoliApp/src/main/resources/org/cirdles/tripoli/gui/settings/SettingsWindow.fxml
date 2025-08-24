@@ -6,7 +6,7 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<VBox fx:id="vBoxRoot" prefHeight="543.0" prefWidth="536.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.settings.SettingsWindowController">
+<VBox fx:id="vBoxRoot" prefHeight="543.0" prefWidth="536.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.settings.SettingsWindowController">
    <children>
       <TabPane fx:id="settingsTabPane" prefWidth="414.0">
          <tabs>
@@ -86,46 +86,85 @@
                <content>
                   <AnchorPane fx:id="parameterControlAnchorPane" prefHeight="474.0" prefWidth="536.0">
                      <children>
-                        <HBox alignment="CENTER" layoutX="-1.0" prefHeight="64.0" prefWidth="536.0">
-                           <children>
-                              <Label alignment="CENTER" prefHeight="64.0" prefWidth="538.0" text="Parameter Control" textAlignment="CENTER">
-                                 <font>
-                                    <Font name="Consolas" size="48.0" />
-                                 </font>
-                              </Label>
-                           </children>
-                        </HBox>
-                        <Label layoutX="17.0" layoutY="64.0" prefHeight="38.0" prefWidth="520.0" text="Chauvenet's Criteria" textAlignment="CENTER">
-                           <font>
-                              <Font name="Consolas" size="24.0" />
-                           </font>
-                           <opaqueInsets>
-                              <Insets top="-9.0" />
-                           </opaqueInsets>
-                        </Label>
-                        <Region layoutX="-1.0" layoutY="58.0" prefHeight="383.0" prefWidth="18.0" />
-                        <HBox alignment="CENTER_LEFT" layoutX="17.0" layoutY="95.0" prefHeight="36.0" prefWidth="521.0">
-                           <children>
-                              <Label prefHeight="34.0" prefWidth="239.0" text="Rejection Probability">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <Region prefHeight="36.0" prefWidth="78.0" />
-                              <Spinner fx:id="chauvenetRejectionProbabilitySpinner" prefHeight="25.0" prefWidth="100.0" />
-                           </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" layoutX="17.0" layoutY="131.0" prefHeight="36.0" prefWidth="521.0">
-                           <children>
-                              <Label prefHeight="34.0" prefWidth="239.0" text="Minimum Datum Count">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <Region prefHeight="36.0" prefWidth="78.0" />
-                              <Spinner fx:id="chauvenetMinimumDatumCountSpinner" prefHeight="25.0" prefWidth="100.0" />
-                           </children>
-                        </HBox>
+                         <VBox AnchorPane.leftAnchor="0.0">
+                             <HBox alignment="CENTER" prefHeight="64.0" prefWidth="536.0">
+                                <children>
+                                   <Label alignment="CENTER" prefHeight="64.0" prefWidth="538.0" text="Parameter Control" textAlignment="CENTER">
+                                      <font>
+                                         <Font name="Consolas" size="48.0" />
+                                      </font>
+                                   </Label>
+                                </children>
+                             </HBox>
+                             <VBox>
+                                <Label prefHeight="38.0" prefWidth="520.0" text="Chauvenet's Criteria" textAlignment="CENTER">
+                                   <font>
+                                      <Font name="Consolas" size="24.0" />
+                                   </font>
+                                   <opaqueInsets>
+                                      <Insets top="-9.0" />
+                                   </opaqueInsets>
+                                </Label>
+                                <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="521.0">
+                                   <children>
+                                      <Label prefHeight="34.0" prefWidth="239.0" text="Rejection Probability">
+                                         <font>
+                                            <Font size="18.0" />
+                                         </font>
+                                      </Label>
+                                      <Region prefHeight="36.0" prefWidth="78.0" />
+                                      <Spinner fx:id="chauvenetRejectionProbabilitySpinner" prefHeight="25.0" prefWidth="100.0" />
+                                   </children>
+                                 <padding>
+                                    <Insets left="15.0" />
+                                 </padding>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="521.0">
+                                   <children>
+                                      <Label prefHeight="34.0" prefWidth="239.0" text="Minimum Datum Count">
+                                         <font>
+                                            <Font size="18.0" />
+                                         </font>
+                                      </Label>
+                                      <Region prefHeight="36.0" prefWidth="78.0" />
+                                      <Spinner fx:id="chauvenetMinimumDatumCountSpinner" prefHeight="25.0" prefWidth="100.0" />
+                                   </children>
+                                 <padding>
+                                    <Insets left="15.0" />
+                                 </padding>
+                                </HBox>
+                              <padding>
+                                 <Insets bottom="10.0" left="15.0" />
+                              </padding>
+                             </VBox>
+                             <VBox fx:id="liveDataSettingsVBox">
+                                <Label layoutX="17.0" layoutY="189.0" prefHeight="38.0" prefWidth="520.0" text="Live Data Settings" textAlignment="CENTER">
+                                   <font>
+                                      <Font name="Consolas" size="24.0" />
+                                   </font>
+                                   <opaqueInsets>
+                                      <Insets top="-9.0" />
+                                   </opaqueInsets>
+                                </Label>
+                                <HBox alignment="CENTER_LEFT" layoutX="17.0" layoutY="227.0" prefHeight="36.0" prefWidth="521.0">
+                                   <children>
+                                      <Label prefHeight="34.0" prefWidth="239.0" text="Idle timeout (seconds)">
+                                         <font>
+                                            <Font size="18.0" />
+                                         </font>
+                                      </Label>
+                                      <Region prefHeight="36.0" prefWidth="78.0" />
+                                      <Spinner fx:id="liveDataTimeoutSpinner" prefHeight="25.0" prefWidth="100.0" />
+                                   </children>
+                                 <padding>
+                                    <Insets left="15.0" />
+                                 </padding>
+                                </HBox>
+                              <padding>
+                                 <Insets left="15.0" />
+                              </padding>
+                             </VBox>
+                         </VBox>
                      </children></AnchorPane>
                </content>
             </Tab>
