@@ -402,6 +402,12 @@ public class SettingsWindow {
         });
         settingsWindowController.getRestoreSessionDefaultsButton().setOnAction(e -> {
             Session currentSession = ((Analysis) analysis).getParentSession();
+            analysis.getParameters().setTimeoutSeconds(
+                    currentSession.getSessionDefaultParameters().getTimeoutSeconds()
+            );
+            settingsWindowController.getLiveDataTimeoutSpinner().getValueFactory().setValue(
+                    analysis.getParameters().getTimeoutSeconds()
+            );
             analysis.getParameters().setChauvenetRejectionProbability(
                     currentSession.getSessionDefaultParameters().getChauvenetRejectionProbability()
             );
@@ -432,6 +438,12 @@ public class SettingsWindow {
                 );
                 settingsWindowController.getChauvenetMinimumDatumCountSpinner().getValueFactory().setValue(
                         analysis.getParameters().getRequiredMinDatumCount()
+                );
+                analysis.getParameters().setTimeoutSeconds(
+                        tripoliPersistentState.getTripoliPersistentParameters().getTimeoutSeconds()
+                );
+                settingsWindowController.getLiveDataTimeoutSpinner().getValueFactory().setValue(
+                        analysis.getParameters().getTimeoutSeconds()
                 );
                 analysis.getParameters().setChauvenetRejectionProbability(
                         tripoliPersistentState.getTripoliPersistentParameters().getChauvenetRejectionProbability()
