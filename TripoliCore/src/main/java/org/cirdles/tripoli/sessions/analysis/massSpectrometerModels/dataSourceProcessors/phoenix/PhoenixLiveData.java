@@ -47,6 +47,7 @@ public class PhoenixLiveData {
     int cycleIndex = 0;
     int blockIndex = 0;
     String analysisNumber;
+    int cyclesPerBlock = 0;
 
     public PhoenixLiveData() throws TripoliException {
         liveDataAnalysis = AnalysisInterface.initializeNewAnalysis(0);
@@ -170,6 +171,11 @@ public class PhoenixLiveData {
             case "Cycle":
                 cycleIndex = Integer.parseInt(dataLineSplit[1]);
                 if (cycleData == null || cycleData.length > cycleIndex) {
+                    // Starting a new block, set the CPB and redo the header
+                    if (cycleData != null && cyclesPerBlock == 0){
+                        cyclesPerBlock = cycleData.length;
+                        setAnalysisHeader();
+                    }
                     cycleData = new double[cycleIndex][numOfFunctions];
                 } else { // Copy old data to new array
                     double[][] expandedCycleData = new double[cycleIndex][numOfFunctions];
@@ -238,7 +244,7 @@ public class PhoenixLiveData {
                     Boolean.parseBoolean(headerData.get(6)),
                     Boolean.parseBoolean(headerData.get(7)),
                     headerData.get(8).trim(),
-                    0
+                    cyclesPerBlock
             );
         } else {
             header = new MassSpecExtractedData.MassSpecExtractedHeader(
@@ -249,7 +255,7 @@ public class PhoenixLiveData {
                     false,
                     false,
                     "",
-                    0
+                    cyclesPerBlock
             );
         }
 
