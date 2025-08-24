@@ -76,7 +76,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
 import static org.cirdles.tripoli.gui.AnalysisManagerController.ogTripoliPreviewPlotsWindow;
-import static org.cirdles.tripoli.gui.SessionManagerController.tripoliSession;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStage;
 import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.utilities.BrowserControl.urlEncode;
@@ -910,8 +909,8 @@ public class TripoliGUIController implements Initializable {
 
         // Begin watching for new data files
         PhoenixLiveData liveData = new PhoenixLiveData();
-        long timeoutSeconds = 45;
-        AtomicBoolean timeoutOccurred = new AtomicBoolean(false);
+        long timeoutSeconds = tripoliPersistentState.getTripoliPersistentParameters().getTimeoutSeconds();
+        AtomicBoolean dialogOpen = new AtomicBoolean(false);
         AtomicReference<AnalysisInterface> liveDataAnalysis = new AtomicReference<>(liveData.getLiveDataAnalysis());
         liveDataAnalysis.get().setDataFilePathString(liveDataFolderPath.toString());
         liveDataAnalysis.get().setAnalysisName("New LiveData Analysis");
@@ -926,10 +925,10 @@ public class TripoliGUIController implements Initializable {
                     Platform.runLater(() -> onLiveDataUpdated(liveDataAnalysis.get()));
                 }
             } // Null return is an idle state, only once, we will prompt for the user to end
-            else if (kind == null && !timeoutOccurred.get()) {
+            else if (kind == null && !dialogOpen.get()) {
                 Platform.runLater(() -> {
-                    timeoutOccurred.set(true);
-                    promptForHalt(timeoutSeconds);
+                    dialogOpen.set(true);
+                    promptForHalt(timeoutSeconds, dialogOpen);
                 });
             }
         });
@@ -982,13 +981,16 @@ public class TripoliGUIController implements Initializable {
             }
         }
     }
-    private void promptForHalt(long seconds) {
+    private void promptForHalt(long seconds, AtomicBoolean dialogOpen) {
         boolean haltLiveData = TripoliMessageDialog.showChoiceDialog("No new data files have be created in the LiveData folder for "
-                + seconds + " seconds. Do you wish to stop processing?", primaryStageWindow);
+                + seconds + " seconds. Do you wish to stop processing? \n \n The timeout interval can be changed in the parameters menu", primaryStageWindow);
         if (haltLiveData) {
             liveDataWatcher.stop();
             processLiveDataMenuItem.textProperty().set("Start LiveData");
+        } else {
+            liveDataWatcher.resetTimeout();
         }
+        dialogOpen.set(false);
     }
 
 

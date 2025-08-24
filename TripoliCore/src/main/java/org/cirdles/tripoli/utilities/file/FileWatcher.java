@@ -32,7 +32,6 @@ public class FileWatcher implements Runnable {
     private volatile boolean running = true;
     private long timeoutSeconds;
     private long lastEventTime;
-    private boolean eventOccurred = false;
 
     public FileWatcher(Path pathToWatch, FileWatcherCallbackInterface callback) {
         this.pathToWatch = pathToWatch;
@@ -48,6 +47,14 @@ public class FileWatcher implements Runnable {
      */
     public void setTimeoutSeconds(long seconds){
         timeoutSeconds = seconds*1000;
+    }
+
+    /**
+     * Resets the timeout interval. This is useful if the timeout is called and the user does not
+     * wish to halt the service.
+     */
+    public void resetTimeout(){
+        lastEventTime = System.currentTimeMillis();
     }
 
     public Path getPath(){
@@ -87,9 +94,8 @@ public class FileWatcher implements Runnable {
             System.out.println("Started watching: " + pathToWatch);
 
             while (running) {
-
                 // Idle check
-                if (eventOccurred && timeoutSeconds > 0) {
+                if (timeoutSeconds > 0) {
                     long now = System.currentTimeMillis();
                     if (now - lastEventTime >= timeoutSeconds && callback != null) {
                         callback.onFileEvent(null, null); // Idle signal
@@ -105,7 +111,6 @@ public class FileWatcher implements Runnable {
 
                     if (callback != null) {
                         callback.onFileEvent(fullPath, event.kind());
-                        eventOccurred = true;
                         lastEventTime = System.currentTimeMillis();
                     }
                 }

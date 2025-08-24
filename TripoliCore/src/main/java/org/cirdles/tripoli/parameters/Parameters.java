@@ -17,8 +17,8 @@
 package org.cirdles.tripoli.parameters;
 
 import java.io.Serializable;
-import static org.cirdles.tripoli.constants.TripoliConstants.CHAUVENETS_DEFAULT_REJECT_PROBABILITY;
-import static org.cirdles.tripoli.constants.TripoliConstants.CHAUVENETS_DEFAULT_MIN_DATUM_COUNT;
+
+import static org.cirdles.tripoli.constants.TripoliConstants.*;
 
 public class Parameters implements Serializable {
 
@@ -26,16 +26,19 @@ public class Parameters implements Serializable {
     // Chauvenet's parameters
     private double chauvenetRejectionProbability;
     private int requiredMinDatumCount;
+    private int timeoutSeconds;
 
     public Parameters() {
         this.chauvenetRejectionProbability = CHAUVENETS_DEFAULT_REJECT_PROBABILITY;
         this.requiredMinDatumCount = CHAUVENETS_DEFAULT_MIN_DATUM_COUNT;
+        this.timeoutSeconds = LIVE_DATA_DEFAULT_TIMEOUT_SECONDS;
     }
 
     // Copy Constructor
     public Parameters(Parameters other) {
         this.chauvenetRejectionProbability = other.getChauvenetRejectionProbability();
         this.requiredMinDatumCount = other.getRequiredMinDatumCount();
+        this.timeoutSeconds = other.getTimeoutSeconds();
     }
 
     // Provides a deep copy of this instance
@@ -57,5 +60,11 @@ public class Parameters implements Serializable {
 
     public void setRequiredMinDatumCount(int requiredMinDatumCount) {
         this.requiredMinDatumCount = requiredMinDatumCount;
+    }
+    public int getTimeoutSeconds() {
+        return timeoutSeconds;
+    }
+    public void setTimeoutSeconds(int timeoutSeconds) {
+        this.timeoutSeconds = timeoutSeconds;
     }
 }

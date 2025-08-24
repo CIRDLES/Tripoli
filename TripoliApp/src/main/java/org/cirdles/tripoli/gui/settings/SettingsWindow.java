@@ -152,7 +152,16 @@ public class SettingsWindow {
                     }
             );
             initParameterTextFields();
+            handleLiveDataTimeoutHidden();
         } catch (IOException | TripoliException e) {
+            e.printStackTrace();
+        }
+    }
+    private void handleLiveDataTimeoutHidden() {
+        try {
+            TripoliPersistentState persistentState = TripoliPersistentState.getExistingPersistentState();
+            settingsWindowController.getLiveDataSettingsVBox().setVisible(persistentState.getCurrentMassSpecContext().getMassSpectrometerName().equals("Phoenix"));
+        } catch (TripoliException e) {
             e.printStackTrace();
         }
     }
@@ -160,6 +169,7 @@ public class SettingsWindow {
     private void initParameterTextFields() {
         initProbabilitySpinner();
         initDatumCountSpinner();
+        initTimeoutSpinner();
     }
 
     private void initProbabilitySpinner() {
@@ -198,6 +208,45 @@ public class SettingsWindow {
         });
         probabilitySpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
            analysis.getParameters().setChauvenetRejectionProbability(newValue);
+        });
+    }
+
+    private void initTimeoutSpinner() {
+        Spinner<Integer> timeoutSpinner = settingsWindowController.getLiveDataTimeoutSpinner();
+        timeoutSpinner.setValueFactory( new SpinnerValueFactory.IntegerSpinnerValueFactory(
+                1,
+                Integer.MAX_VALUE,
+                analysis.getParameters().getTimeoutSeconds(), 1));
+        timeoutSpinner.addEventFilter(KeyEvent.KEY_TYPED, event -> {
+            String input = event.getCharacter();
+            if (!input.matches("[0-9.]") || (input.equals(".") && timeoutSpinner.getEditor().getText().contains("."))) {
+                event.consume();
+            }
+        });
+        timeoutSpinner.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            timeoutSpinner.commitValue();
+        });
+        timeoutSpinner.getValueFactory().setConverter(new StringConverter<>() {
+
+            @Override
+            public String toString(Integer value) {
+                if (value == null) {
+                    return "";
+                }
+                return String.valueOf(value);
+            }
+
+            @Override
+            public Integer fromString(String string) {
+                try {
+                    return Integer.parseInt(string);
+                } catch (NumberFormatException e) {
+                    return analysis.getParameters().getTimeoutSeconds();
+                }
+            }
+        });
+        timeoutSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+            analysis.getParameters().setTimeoutSeconds(newValue);
         });
     }
 
@@ -316,6 +365,8 @@ public class SettingsWindow {
         });
         settingsWindowController.getSaveAsSessionDefaultsButton().setOnAction(e -> {
             Session currentSession = ((Analysis) analysis).getParentSession();
+            currentSession.getSessionDefaultParameters().setTimeoutSeconds(
+                    analysis.getParameters().getTimeoutSeconds());
             currentSession.getSessionDefaultParameters().setRequiredMinDatumCount(
                     analysis.getParameters().getRequiredMinDatumCount());
             currentSession.getSessionDefaultParameters().setChauvenetRejectionProbability(
@@ -335,6 +386,8 @@ public class SettingsWindow {
         settingsWindowController.getSaveAsUserDefaultsButton().setOnAction(e -> {
             try{
                 TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+                tripoliPersistentState.getTripoliPersistentParameters().setTimeoutSeconds(
+                        analysis.getParameters().getTimeoutSeconds());
                 tripoliPersistentState.getTripoliPersistentParameters().setChauvenetRejectionProbability(
                         analysis.getParameters().getChauvenetRejectionProbability());
                 tripoliPersistentState.getTripoliPersistentParameters().setRequiredMinDatumCount(
