@@ -909,12 +909,12 @@ public class TripoliGUIController implements Initializable {
 
         // Begin watching for new data files
         PhoenixLiveData liveData = new PhoenixLiveData();
-        long timeoutSeconds = tripoliPersistentState.getTripoliPersistentParameters().getTimeoutSeconds();
         AtomicBoolean dialogOpen = new AtomicBoolean(false);
         AtomicReference<AnalysisInterface> liveDataAnalysis = new AtomicReference<>(liveData.getLiveDataAnalysis());
         liveDataAnalysis.get().setDataFilePathString(liveDataFolderPath.toString());
         liveDataAnalysis.get().setAnalysisName("New LiveData Analysis");
         attachAnalysisToSession(liveDataAnalysis.get());
+        final long[] timeoutSeconds = {liveDataAnalysis.get().getParameters().getTimeoutSeconds()};
 
         liveDataWatcher = new FileWatcher(liveDataFolderPath, (filePath, kind) -> {
             if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
@@ -928,11 +928,16 @@ public class TripoliGUIController implements Initializable {
             else if (kind == null && !dialogOpen.get()) {
                 Platform.runLater(() -> {
                     dialogOpen.set(true);
-                    promptForHalt(timeoutSeconds, dialogOpen);
+                    promptForHalt(timeoutSeconds[0], dialogOpen);
+                    // Set timeout if changed
+                    if (timeoutSeconds[0] != liveDataAnalysis.get().getParameters().getTimeoutSeconds()){
+                        timeoutSeconds[0] = liveDataAnalysis.get().getParameters().getTimeoutSeconds();
+                        liveDataWatcher.setTimeoutSeconds(timeoutSeconds[0]);
+                    }
                 });
             }
         });
-        liveDataWatcher.setTimeoutSeconds(timeoutSeconds);
+        liveDataWatcher.setTimeoutSeconds(timeoutSeconds[0]);
         // Grab any existing files, sorting by block-cycle number
         liveDataWatcher.processExistingFiles(blockCycleComparator);
 
@@ -981,9 +986,10 @@ public class TripoliGUIController implements Initializable {
             }
         }
     }
+
     private void promptForHalt(long seconds, AtomicBoolean dialogOpen) {
         boolean haltLiveData = TripoliMessageDialog.showChoiceDialog("No new data files have be created in the LiveData folder for "
-                + seconds + " seconds. Do you wish to stop processing? \n \n The timeout interval can be changed in the parameters menu", primaryStageWindow);
+                + seconds + " seconds. Do you wish to stop processing?\n\nThe timeout interval can be changed in the parameters menu.", primaryStageWindow);
         if (haltLiveData) {
             liveDataWatcher.stop();
             processLiveDataMenuItem.textProperty().set("Start LiveData");
@@ -992,7 +998,6 @@ public class TripoliGUIController implements Initializable {
         }
         dialogOpen.set(false);
     }
-
 
     // ------------------ End LiveData Methods ------------------------------------------------
 
