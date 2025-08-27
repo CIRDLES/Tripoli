@@ -91,7 +91,7 @@ public class AllBlockInitForDataLiteOne {
     private static SingleBlockRawDataLiteSetRecord prepareSingleBlockDataLiteCaseOne(
             int blockID, MassSpecExtractedData massSpecExtractedData) {
         MassSpecOutputBlockRecordLite massSpecOutputBlockRecordLite = massSpecExtractedData.getBlocksDataLite().get(blockID);
-        boolean[][] rawDataIncluded = new boolean[massSpecOutputBlockRecordLite.cycleData().length][massSpecOutputBlockRecordLite.cycleData()[0].length];
+        boolean[][] rawDataIncluded = new boolean[massSpecOutputBlockRecordLite.cycleData().length][massSpecOutputBlockRecordLite.cycleData()[0].length]; // Array Index Out of Bounds when cycleData is empty
         for (int row = 0; row < rawDataIncluded.length; row++) {
             for (int col = 0; col < rawDataIncluded[row].length; col++) {
                 rawDataIncluded[row][col] = true;
