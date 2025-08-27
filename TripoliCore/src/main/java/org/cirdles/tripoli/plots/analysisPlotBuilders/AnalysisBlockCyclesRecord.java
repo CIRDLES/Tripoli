@@ -32,9 +32,10 @@ public record AnalysisBlockCyclesRecord(
 
     public String[] updatedTitle() {
         String[] retVal = title.clone();
-        if (isInverted && isRatio) {
-            String[] nameSplit = retVal[0].split("/");
-            retVal[0] = nameSplit[1] + "/" + nameSplit[0];
+        if (isInverted && isRatio) { // [000/111 Words]
+            String[] ratioSplit = retVal[0].split("/", 2); // [000], [111 Words]
+            String[] nameSplit = ratioSplit[1].split(" ", 1); // [111], [Words]
+            retVal[0] = nameSplit[0] + "/" + ratioSplit[0] + " " + nameSplit[1]; // [111/000 Words]
         }
         return retVal;
     }
