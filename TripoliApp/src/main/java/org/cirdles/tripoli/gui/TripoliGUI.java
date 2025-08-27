@@ -58,11 +58,11 @@ public class TripoliGUI extends Application {
 
     public static void updateStageTitle(MassSpectrometerContextEnum massSpecContext) {
         String fileSpec = "Tripoli [Session File: NONE] ";
-        String sessionName = primaryStage.getTitle().substring(primaryStage.getTitle().indexOf('['), primaryStage.getTitle().indexOf("]"));
-        fileSpec.replace("NONE", sessionName);
+        String sessionName = primaryStage.getTitle().substring(primaryStage.getTitle().indexOf(':')+2, primaryStage.getTitle().indexOf("]"));
+        //fileSpec.replace("NONE", sessionName);
         String massSpecSpec = " [Mass Spectrometer: UNKNOWN]";
         massSpecSpec = massSpecContext != null ? massSpecSpec.replace("UNKNOWN", massSpecContext.toString()) : massSpecSpec;
-        primaryStage.setTitle(fileSpec + massSpecSpec);
+        primaryStage.setTitle(fileSpec.replace("NONE", sessionName) + massSpecSpec);
     }
 
     public static void main(String[] args) {
