@@ -23,6 +23,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -32,6 +34,8 @@ public class SettingsWindowController implements Initializable {
     public VBox liveDataSettingsVBox;
     @FXML
     public Spinner<Integer> liveDataTimeoutSpinner;
+    @FXML
+    public ComboBox<MassSpectrometerContextEnum> massSpecComboBox;
     @FXML
     private TabPane settingsTabPane;
     @FXML
@@ -112,6 +116,10 @@ public class SettingsWindowController implements Initializable {
 
     public Spinner<Integer> getLiveDataTimeoutSpinner() {
         return liveDataTimeoutSpinner;
+    }
+
+    public ComboBox<MassSpectrometerContextEnum> getMassSpecComboBox() {
+        return massSpecComboBox;
     }
 
     public Spinner<Double> getChauvenetRejectionProbabilitySpinner() {

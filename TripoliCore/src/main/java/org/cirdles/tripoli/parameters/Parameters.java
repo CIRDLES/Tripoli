@@ -16,6 +16,10 @@
 
 package org.cirdles.tripoli.parameters;
 
+import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
+
 import java.io.Serializable;
 
 import static org.cirdles.tripoli.constants.TripoliConstants.*;
@@ -27,11 +31,17 @@ public class Parameters implements Serializable {
     private double chauvenetRejectionProbability;
     private int requiredMinDatumCount;
     private int timeoutSeconds;
+    private MassSpectrometerContextEnum massSpectrometerContext;
 
     public Parameters() {
         this.chauvenetRejectionProbability = CHAUVENETS_DEFAULT_REJECT_PROBABILITY;
         this.requiredMinDatumCount = CHAUVENETS_DEFAULT_MIN_DATUM_COUNT;
         this.timeoutSeconds = LIVE_DATA_DEFAULT_TIMEOUT_SECONDS;
+        try{
+            this.massSpectrometerContext = TripoliPersistentState.getExistingPersistentState().getTripoliPersistentParameters().getMassSpectrometerContext();
+        } catch (TripoliException e) {
+            this.massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
+        }
     }
 
     // Copy Constructor
@@ -39,6 +49,7 @@ public class Parameters implements Serializable {
         this.chauvenetRejectionProbability = other.getChauvenetRejectionProbability();
         this.requiredMinDatumCount = other.getRequiredMinDatumCount();
         this.timeoutSeconds = other.getTimeoutSeconds();
+        this.massSpectrometerContext = other.massSpectrometerContext;
     }
 
     // Provides a deep copy of this instance
@@ -66,5 +77,11 @@ public class Parameters implements Serializable {
     }
     public void setTimeoutSeconds(int timeoutSeconds) {
         this.timeoutSeconds = timeoutSeconds;
+    }
+    public MassSpectrometerContextEnum getMassSpectrometerContext() {
+        return massSpectrometerContext;
+    }
+    public void setMassSpectrometerContext(MassSpectrometerContextEnum massSpectrometerContext) {
+        this.massSpectrometerContext = massSpectrometerContext;
     }
 }

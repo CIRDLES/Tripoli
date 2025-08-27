@@ -46,7 +46,6 @@
             <MenuItem disable="true" mnemonicParsing="false" text="Import Analysis" />
             <MenuItem disable="true" mnemonicParsing="false" text="Export Analysis" />
             <MenuItem fx:id="processLiveDataMenuItem" onAction="#processLiveData" text="Start LiveData"/>
-            <SeparatorMenuItem mnemonicParsing="false" />
         </Menu>
         <Menu fx:id="parametersMenu" mnemonicParsing="false" text="Parameters">
             <MenuItem fx:id="parameterControlMenuItem" mnemonicParsing="false" onAction="#parameterControlMenuItemOnAction" text="Parameter Control" />

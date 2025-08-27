@@ -58,7 +58,6 @@ public class TripoliPersistentState implements Serializable {
     private TripoliSpeciesColorMap mapOfSpeciesToColors;
     private Map<String, AnalysisMethodPersistance> mapMethodNamesToDefaults;
     private Parameters tripoliPersistentParameters;
-    private MassSpectrometerContextEnum currentMassSpecContext;
 
 
     //  Ratio Stat plot colors
@@ -552,10 +551,4 @@ public class TripoliPersistentState implements Serializable {
         this.MRUExportFolderPath = MRUExportFolderPath;
     }
 
-    public MassSpectrometerContextEnum getCurrentMassSpecContext() {
-        return currentMassSpecContext;
-    }
-    public void setCurrentMassSpecContext(MassSpectrometerContextEnum currentMassSpecContext) {
-        this.currentMassSpecContext = currentMassSpecContext;
-    }
 }

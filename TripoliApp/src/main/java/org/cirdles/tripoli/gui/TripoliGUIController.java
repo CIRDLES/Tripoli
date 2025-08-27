@@ -235,7 +235,7 @@ public class TripoliGUIController implements Initializable {
                                 parametersMenu.setDisable(false);
                                 reportsMenu.setDisable(false);
                                 AnalysisManagerController.readingFile = true;
-                                tripoliPersistentState.setCurrentMassSpecContext(analysis.getMassSpecExtractedData().getMassSpectrometerContext());
+                                analysis.getParameters().setMassSpectrometerContext(analysis.getMassSpecExtractedData().getMassSpectrometerContext());
                                 detectMassSpecContext();
                             } else {
                                 analysis = null;
@@ -300,17 +300,22 @@ public class TripoliGUIController implements Initializable {
 
     public void detectMassSpecContext() {
         MassSpectrometerContextEnum currentMassSpec;
-        if (tripoliPersistentState == null || tripoliPersistentState.getMRUDataFileFolderPath() == null || tripoliPersistentState.getCurrentMassSpecContext() == null) {
+        if (tripoliPersistentState == null
+                || tripoliPersistentState.getMRUDataFileFolderPath() == null
+                || tripoliPersistentState.getTripoliPersistentParameters().getMassSpectrometerContext() == MassSpectrometerContextEnum.UNKNOWN) {
             currentMassSpec = TripoliMessageDialog.showMassSpecChoiceDialog(
                     "Please choose a supported mass spectrometer type:", primaryStageWindow);
-            tripoliPersistentState.setCurrentMassSpecContext(currentMassSpec);
+            tripoliPersistentState.getTripoliPersistentParameters().setMassSpectrometerContext(currentMassSpec);
             tripoliPersistentState.updateTripoliPersistentState();
         }
 
-        currentMassSpec = tripoliPersistentState.getCurrentMassSpecContext();
+        currentMassSpec = tripoliPersistentState.getTripoliPersistentParameters().getMassSpectrometerContext();
+        if (analysis != null) {
+            currentMassSpec = analysis.getParameters().getMassSpectrometerContext();
+        }
         processLiveDataMenuItem.setVisible(false);
         if (currentMassSpec != null) {
-            TripoliGUI.updateStageTitle(sessionFileName != null ? sessionFileName : "", currentMassSpec);
+            TripoliGUI.updateStageTitle(currentMassSpec);
             processLiveDataMenuItem.setVisible(currentMassSpec.getMassSpectrometerName().equals("Phoenix"));
         }
     }

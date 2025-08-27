@@ -18,13 +18,13 @@ package org.cirdles.tripoli.gui.settings;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
+import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.species.SpeciesRecordInterface;
 import org.cirdles.tripoli.gui.TripoliGUI;
 import org.cirdles.tripoli.gui.TripoliGUIController;
@@ -47,10 +47,12 @@ import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
 import static javafx.event.Event.fireEvent;
+import static org.cirdles.tripoli.gui.TripoliGUI.primaryStage;
 
 public class SettingsWindow {
 
@@ -158,18 +160,61 @@ public class SettingsWindow {
         }
     }
     private void handleLiveDataTimeoutHidden() {
-        try {
-            TripoliPersistentState persistentState = TripoliPersistentState.getExistingPersistentState();
-            settingsWindowController.getLiveDataSettingsVBox().setVisible(persistentState.getCurrentMassSpecContext().getMassSpectrometerName().equals("Phoenix"));
-        } catch (TripoliException e) {
-            e.printStackTrace();
-        }
+        settingsWindowController.getLiveDataSettingsVBox().setVisible(
+                analysis.getParameters().getMassSpectrometerContext().getMassSpectrometerName().equals("Phoenix"));
+    }
+    private void handleLiveDataMenuHidden() {
+        MenuItem liveDataMenuItem = ((MenuBar) TripoliGUI.primaryStage.getScene()
+                .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(1).getItems().get(4);
+                liveDataMenuItem.setVisible(analysis.getParameters().getMassSpectrometerContext().getMassSpectrometerName().equals("Phoenix"));
     }
 
     private void initParameterTextFields() {
         initProbabilitySpinner();
         initDatumCountSpinner();
         initTimeoutSpinner();
+        initMassSpecCombo();
+    }
+
+    private void initMassSpecCombo() {
+        ComboBox<MassSpectrometerContextEnum> msCombo = settingsWindowController.getMassSpecComboBox();
+
+        // Populate only displayed values
+        msCombo.getItems().setAll(
+                Arrays.stream(MassSpectrometerContextEnum.values())
+                        .filter(MassSpectrometerContextEnum::isDisplayed)
+                        .toList()
+        );
+
+        // Show friendly names in the dropdown list
+        msCombo.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(MassSpectrometerContextEnum item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "" : item.getName());
+            }
+        });
+
+        msCombo.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(MassSpectrometerContextEnum item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "" : item.getName());
+            }
+        });
+
+        // Preselect current value from analysis parameters
+        msCombo.getSelectionModel().select(analysis.getParameters().getMassSpectrometerContext());
+
+        // Update analysis parameters when user changes selection
+        msCombo.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue != null) {
+                analysis.getParameters().setMassSpectrometerContext(newValue);
+                TripoliGUI.updateStageTitle(newValue);
+                handleLiveDataTimeoutHidden();
+                handleLiveDataMenuHidden();
+            }
+        });
     }
 
     private void initProbabilitySpinner() {
@@ -357,16 +402,18 @@ public class SettingsWindow {
         settingsWindowController.getSaveAnalysisSettingsButton().setOnAction(e -> {
             if (TripoliGUIController.sessionFileName != null) {
                 SaveCurrentSessionEvent saveCurrentSessionEvent = new SaveCurrentSessionEvent();
-                fireEvent(TripoliGUI.primaryStage.getScene(), saveCurrentSessionEvent);
+                fireEvent(primaryStage.getScene(), saveCurrentSessionEvent);
             } else {
                 SaveSessionAsEvent saveSessionAsEvent = new SaveSessionAsEvent();
-                fireEvent(TripoliGUI.primaryStage.getScene(), saveSessionAsEvent);
+                fireEvent(primaryStage.getScene(), saveSessionAsEvent);
             }
         });
         settingsWindowController.getSaveAsSessionDefaultsButton().setOnAction(e -> {
             Session currentSession = ((Analysis) analysis).getParentSession();
             currentSession.getSessionDefaultParameters().setTimeoutSeconds(
                     analysis.getParameters().getTimeoutSeconds());
+            currentSession.getSessionDefaultParameters().setMassSpectrometerContext(
+                    analysis.getParameters().getMassSpectrometerContext());
             currentSession.getSessionDefaultParameters().setRequiredMinDatumCount(
                     analysis.getParameters().getRequiredMinDatumCount());
             currentSession.getSessionDefaultParameters().setChauvenetRejectionProbability(
@@ -377,10 +424,10 @@ public class SettingsWindow {
                     putAll(((Analysis) analysis).getAnalysisMapOfSpeciesToColors());
             if (TripoliGUIController.sessionFileName != null) {
                 SaveCurrentSessionEvent saveCurrentSessionEvent = new SaveCurrentSessionEvent();
-                fireEvent(TripoliGUI.primaryStage.getScene(), saveCurrentSessionEvent);
+                fireEvent(primaryStage.getScene(), saveCurrentSessionEvent);
             } else {
                 SaveSessionAsEvent saveSessionAsEvent = new SaveSessionAsEvent();
-                fireEvent(TripoliGUI.primaryStage.getScene(), saveSessionAsEvent);
+                fireEvent(primaryStage.getScene(), saveSessionAsEvent);
             }
         });
         settingsWindowController.getSaveAsUserDefaultsButton().setOnAction(e -> {
@@ -388,6 +435,8 @@ public class SettingsWindow {
                 TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
                 tripoliPersistentState.getTripoliPersistentParameters().setTimeoutSeconds(
                         analysis.getParameters().getTimeoutSeconds());
+                tripoliPersistentState.getTripoliPersistentParameters().setMassSpectrometerContext(
+                        analysis.getParameters().getMassSpectrometerContext());
                 tripoliPersistentState.getTripoliPersistentParameters().setChauvenetRejectionProbability(
                         analysis.getParameters().getChauvenetRejectionProbability());
                 tripoliPersistentState.getTripoliPersistentParameters().setRequiredMinDatumCount(

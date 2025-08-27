@@ -137,6 +137,34 @@
                                  <Insets bottom="10.0" left="15.0" />
                               </padding>
                              </VBox>
+                             <VBox layoutX="10.0" layoutY="194.0">
+                                 <padding>
+                                     <Insets left="15.0" />
+                                 </padding>
+                                 <children>
+                                     <Label layoutX="17.0" layoutY="189.0" prefHeight="38.0" prefWidth="520.0" text="Mass Spectrometer Context" textAlignment="CENTER">
+                                         <font>
+                                             <Font name="Consolas" size="24.0" />
+                                         </font>
+                                         <opaqueInsets>
+                                             <Insets top="-9.0" />
+                                         </opaqueInsets>
+                                     </Label>
+                                     <HBox alignment="CENTER_LEFT" layoutX="17.0" layoutY="227.0" prefHeight="36.0" prefWidth="521.0">
+                                         <children>
+                                             <Label prefHeight="34.0" prefWidth="158.0" text="Current Type">
+                                                 <font>
+                                                     <Font size="18.0" />
+                                                 </font>
+                                             </Label>
+                                             <ComboBox fx:id="massSpecComboBox" prefHeight="25.0" prefWidth="260.0" />
+                                         </children>
+                                         <padding>
+                                             <Insets left="15.0" />
+                                         </padding>
+                                     </HBox>
+                                 </children>
+                             </VBox>
                              <VBox fx:id="liveDataSettingsVBox">
                                 <Label layoutX="17.0" layoutY="189.0" prefHeight="38.0" prefWidth="520.0" text="Live Data Settings" textAlignment="CENTER">
                                    <font>
@@ -148,7 +176,7 @@
                                 </Label>
                                 <HBox alignment="CENTER_LEFT" layoutX="17.0" layoutY="227.0" prefHeight="36.0" prefWidth="521.0">
                                    <children>
-                                      <Label prefHeight="34.0" prefWidth="239.0" text="Idle timeout (seconds)">
+                                      <Label prefHeight="34.0" prefWidth="239.0" text="Idle Timeout (seconds)">
                                          <font>
                                             <Font size="18.0" />
                                          </font>

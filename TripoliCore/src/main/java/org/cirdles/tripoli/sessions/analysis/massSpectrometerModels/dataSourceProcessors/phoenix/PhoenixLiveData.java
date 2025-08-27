@@ -53,11 +53,7 @@ public class PhoenixLiveData {
         liveDataAnalysis = AnalysisInterface.initializeNewAnalysis(0);
         massSpecExtractedData = new MassSpecExtractedData();
         massSpecExtractedData.setColumnHeaders(new String[] { "Cycle", "Time" });
-        MassSpectrometerContextEnum massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
-        try {
-            massSpectrometerContext = TripoliPersistentState.getExistingPersistentState().getCurrentMassSpecContext();
-        } catch (TripoliException ignored) {
-        }
+        MassSpectrometerContextEnum massSpectrometerContext = liveDataAnalysis.getParameters().getMassSpectrometerContext();
         massSpecExtractedData.setMassSpectrometerContext(massSpectrometerContext);
         liveDataAnalysis.setMassSpecExtractedData(massSpecExtractedData);
     }
