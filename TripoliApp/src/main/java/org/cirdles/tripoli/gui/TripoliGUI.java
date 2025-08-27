@@ -29,6 +29,7 @@ import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -47,10 +48,21 @@ public class TripoliGUI extends Application {
     public static Stage primaryStage;
     protected static TripoliAboutWindow tripoliAboutWindow;
 
-    public static void updateStageTitle(String fileName) {
-        String fileSpec = "[Session File: NONE]";
-        fileSpec = 0 < fileName.length() ? fileSpec.replace("NONE", fileName) : fileSpec;
-        primaryStage.setTitle("Tripoli  " + fileSpec);
+    public static void updateStageTitle(String fileName, MassSpectrometerContextEnum massSpecContext) {
+        String fileSpec = " [Session File: NONE] ";
+        fileSpec = !fileName.isEmpty() ? fileSpec.replace("NONE", fileName) : fileSpec;
+        String massSpecSpec = " [Mass Spectrometer: UNKNOWN]";
+        massSpecSpec = massSpecContext != null ? massSpecSpec.replace("UNKNOWN", massSpecContext.toString()) : massSpecSpec;
+        primaryStage.setTitle("Tripoli " + fileSpec + massSpecSpec);
+    }
+
+    public static void updateStageTitle(MassSpectrometerContextEnum massSpecContext) {
+        String fileSpec = "Tripoli [Session File: NONE] ";
+        String sessionName = primaryStage.getTitle().substring(primaryStage.getTitle().indexOf(':')+2, primaryStage.getTitle().indexOf("]"));
+        //fileSpec.replace("NONE", sessionName);
+        String massSpecSpec = " [Mass Spectrometer: UNKNOWN]";
+        massSpecSpec = massSpecContext != null ? massSpecSpec.replace("UNKNOWN", massSpecContext.toString()) : massSpecSpec;
+        primaryStage.setTitle(fileSpec.replace("NONE", sessionName) + massSpecSpec);
     }
 
     public static void main(String[] args) {
@@ -104,7 +116,7 @@ public class TripoliGUI extends Application {
         Parent root = new AnchorPane();
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
-        updateStageTitle("");
+        updateStageTitle("", null);
 
         // this produces non-null window after .show()
         primaryStageWindow = primaryStage.getScene().getWindow();

@@ -16,8 +16,6 @@
 
 package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors;
 
-import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
-
 import java.io.Serializable;
 
 /**

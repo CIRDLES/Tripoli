@@ -786,7 +786,12 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
                 }
                 // may 2024 issue#235
                 if (blockID % 2 == 0) {
-                    showBlockID(g2d, blockID, mapX(xAxisData[i + Math.abs(cyclesPerBlock / 2 - 1)]));
+                    // account for blocks not fully developed via PhoenixLiveData
+                    int offset = Math.abs(cyclesPerBlock / 2 - 1);
+                    int index = Math.min(i + offset, xAxisData.length - 1);
+                    double xPosition = mapX(xAxisData[index]);
+
+                    showBlockID(g2d, blockID, xPosition);
                 }
             }
             blockID++;

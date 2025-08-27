@@ -17,6 +17,7 @@
  */
 package org.cirdles.tripoli.utilities.stateUtilities;
 
+import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.parameters.Parameters;
 import org.cirdles.tripoli.settings.plots.RatiosColors;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
@@ -549,4 +550,5 @@ public class TripoliPersistentState implements Serializable {
     public void setMRUExportFolderPath(String MRUExportFolderPath) {
         this.MRUExportFolderPath = MRUExportFolderPath;
     }
+
 }
