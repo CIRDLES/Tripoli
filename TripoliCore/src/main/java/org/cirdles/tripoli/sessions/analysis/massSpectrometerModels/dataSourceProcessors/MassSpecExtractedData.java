@@ -150,16 +150,15 @@ public class MassSpecExtractedData implements Serializable {
             }
         }
 
-        //  if (cyclesPerBlock == 0){
-        if (TripoliPersistentState.getExistingPersistentState().getMapMethodNamesToDefaults().containsKey(methodName)) {
-            cyclesPerBlock = TripoliPersistentState.getExistingPersistentState().getMapMethodNamesToDefaults().get(methodName).getCyclesPerBlock();
-        } //else cyclesPerBlock = 10;
-        //    }
-        if (cyclesPerBlock == 0) {
-            cyclesPerBlock = 10;
-        }
 
-        int totalUsedCycles = 0;
+        // No cycle data. Use method default or 10 if none
+        if (cyclesPerBlock == 0) {
+            if (TripoliPersistentState.getExistingPersistentState().getMapMethodNamesToDefaults().containsKey(methodName)){
+                cyclesPerBlock = TripoliPersistentState.getExistingPersistentState().getMapMethodNamesToDefaults().get(methodName).getCyclesPerBlock();
+            } else {
+                cyclesPerBlock = 10;
+            }
+        }
 
         header = new MassSpecExtractedHeader(
                 softwareVersion,

@@ -638,7 +638,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         AnalysisMethodPersistance analysisMethodPersistance =
                 tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
         if (analysisMethodPersistance == null) {
-            analysisMethodPersistance = new AnalysisMethodPersistance(10);
+            analysisMethodPersistance = new AnalysisMethodPersistance(analysis.getMassSpecExtractedData().getHeader().cyclesPerBlock());
             tripoliPersistentState.getMapMethodNamesToDefaults().put(analysis.getMethod().getMethodName(), analysisMethodPersistance);
         }
 
