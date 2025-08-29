@@ -11,4 +11,4 @@ workshop announcement.
 
 #### [Abstract 1: An Adaptive Monte Carlo method for analyzing raw multicollector mass spectrometer data.](http://cirdles.org/Tripoli/assets/publications/Burdick_Tripoli_AGU2025_Abstract.pdf)
 
-#### [Abstract 2: An Adaptive Monte Carlo method for analyzing raw multicollector mass spectrometer data.](http://cirdles.org/Tripoli/assets/publications/Burdick_Tripoli_AGU2025_Abstract.pdf)
+#### [Abstract 2: An Adaptive Monte Carlo method for analyzing raw multicollector mass spectrometer data.](http://cirdles.org/Tripoli/assets/publications/McLean_Tripoli_AGU2025_abstract.pdf)
