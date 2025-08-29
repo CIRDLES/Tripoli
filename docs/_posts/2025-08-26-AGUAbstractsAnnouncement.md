@@ -9,6 +9,6 @@ We will present two abstracts at the fall 2025 AGU conference in New Orleans.  T
 in conjunction with a community workshop presenting Tripoli and its capabilities - see
 workshop announcement.
 
-#### [Abstract 1: An Adaptive Monte Carlo method for analyzing raw multicollector mass spectrometer data.](http://cirdles.org/Tripoli/assets/publications/Burdick_Tripoli_AGU2025_Abstract.pdf)
+#### [Abstract 1: Tripoli: New Software Tools for Interactive TIMS and MC-ICPMS Data Reduction and Uncertainty Estimation.](http://cirdles.org/Tripoli/assets/publications/McLean_Tripoli_AGU2025_abstract.pdf)
 
-#### [Abstract 2: An Adaptive Monte Carlo method for analyzing raw multicollector mass spectrometer data.](http://cirdles.org/Tripoli/assets/publications/McLean_Tripoli_AGU2025_abstract.pdf)
+#### [Abstract 2: An Adaptive Monte Carlo method for analyzing raw multicollector mass spectrometer data.](http://cirdles.org/Tripoli/assets/publications/Burdick_Tripoli_AGU2025_Abstract.pdf)
