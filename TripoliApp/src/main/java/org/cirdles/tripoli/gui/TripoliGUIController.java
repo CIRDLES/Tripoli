@@ -748,7 +748,7 @@ public class TripoliGUIController implements Initializable {
                     SettingsWindow.requestSettingsWindow(
                             primaryStage,
                             new DelegateActionSet(),
-                            analysis != null ? analysis : AnalysisInterface.initializeNewAnalysis(0),
+                            analysis != null ? analysis : initializeNewAnalysis(0),
                             SettingsRequestType.MENU_ITEM);
         }
         settingsWindow.show();
