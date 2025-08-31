@@ -301,7 +301,7 @@ public class TripoliGUIController implements Initializable {
     public void detectMassSpecContext() {
         MassSpectrometerContextEnum currentMassSpec;
         if (tripoliPersistentState == null
-                || tripoliPersistentState.getMRUDataFileFolderPath() == null
+                || tripoliPersistentState.getTripoliPersistentParameters().getMassSpectrometerContext() == null
                 || tripoliPersistentState.getTripoliPersistentParameters().getMassSpectrometerContext() == MassSpectrometerContextEnum.UNKNOWN) {
             currentMassSpec = TripoliMessageDialog.showMassSpecChoiceDialog(
                     "Please choose a supported mass spectrometer type:", primaryStageWindow);

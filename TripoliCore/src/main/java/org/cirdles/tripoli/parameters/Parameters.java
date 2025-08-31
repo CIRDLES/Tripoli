@@ -26,6 +26,7 @@ import static org.cirdles.tripoli.constants.TripoliConstants.*;
 
 public class Parameters implements Serializable {
 
+    private static final long serialVersionUID = 4300973848877908846L;
 
     // Chauvenet's parameters
     private double chauvenetRejectionProbability;
@@ -37,11 +38,7 @@ public class Parameters implements Serializable {
         this.chauvenetRejectionProbability = CHAUVENETS_DEFAULT_REJECT_PROBABILITY;
         this.requiredMinDatumCount = CHAUVENETS_DEFAULT_MIN_DATUM_COUNT;
         this.timeoutSeconds = LIVE_DATA_DEFAULT_TIMEOUT_SECONDS;
-        try{
-            this.massSpectrometerContext = TripoliPersistentState.getExistingPersistentState().getTripoliPersistentParameters().getMassSpectrometerContext();
-        } catch (TripoliException e) {
-            this.massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
-        }
+        this.massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
     }
 
     // Copy Constructor
