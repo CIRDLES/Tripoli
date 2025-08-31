@@ -19,12 +19,10 @@ package org.cirdles.tripoli.gui;
 import jakarta.xml.bind.JAXBException;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -48,7 +46,6 @@ import org.cirdles.tripoli.gui.reports.ReportBuilderController;
 import org.cirdles.tripoli.gui.settings.SettingsRequestType;
 import org.cirdles.tripoli.gui.settings.SettingsWindow;
 import org.cirdles.tripoli.gui.utilities.BrowserControl;
-import org.cirdles.tripoli.gui.utilities.events.PlotTabSelectedEvent;
 import org.cirdles.tripoli.gui.utilities.events.SaveCurrentSessionEvent;
 import org.cirdles.tripoli.gui.utilities.events.SaveSessionAsEvent;
 import org.cirdles.tripoli.sessions.Session;
@@ -94,6 +91,7 @@ public class TripoliGUIController implements Initializable {
     public static TripoliPersistentState tripoliPersistentState = null;
     public static @Nullable Session tripoliSession;
     public static MCMCPlotsWindow MCMCPlotsWindow;
+    public static SettingsWindow settingsWindow;
     public static String sessionFileName;
     @FXML
     private static GridPane sessionManagerUI;
@@ -232,14 +230,12 @@ public class TripoliGUIController implements Initializable {
                                 analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
                                 tripoliSession.addAnalysis(analysisProposed);
                                 analysis = analysisProposed;
-                                parametersMenu.setDisable(false);
                                 reportsMenu.setDisable(false);
                                 AnalysisManagerController.readingFile = true;
                                 analysis.getParameters().setMassSpectrometerContext(analysis.getMassSpecExtractedData().getMassSpectrometerContext());
                                 detectMassSpecContext();
                             } else {
                                 analysis = null;
-                                parametersMenu.setDisable(true);
                                 reportsMenu.setDisable(true);
                                 TripoliMessageDialog.showWarningDialog("Tripoli does not recognize this file format.", primaryStageWindow);
                             }
@@ -330,7 +326,6 @@ public class TripoliGUIController implements Initializable {
         analysisMenu.setDisable(false);
         manageAnalysisMenuItem.setDisable(true);
 
-        parametersMenu.setDisable(true);
         reportsMenu.setDisable(true);
     }
 
@@ -373,7 +368,6 @@ public class TripoliGUIController implements Initializable {
         manageAnalysisMenuItem.setDisable(false);
         if (analysis != null) {
             reportsMenu.setDisable(false);
-            parametersMenu.setDisable(false);
         }
     }
 
@@ -642,7 +636,6 @@ public class TripoliGUIController implements Initializable {
         //       launchSessionManager();
         analysis = null;
         tripoliSession = null;
-        parametersMenu.setDisable(true);
         detectMassSpecContext();
         SessionManagerController.tripoliSession = tripoliSession;
         //TODO:        menuHighlighter.deHighlight();
@@ -697,7 +690,6 @@ public class TripoliGUIController implements Initializable {
 
             splashAnchor.getChildren().add(analysesManagerUI);
             analysesManagerUI.setVisible(true);
-            parametersMenu.setDisable(false);
         }
     }
 
@@ -750,23 +742,16 @@ public class TripoliGUIController implements Initializable {
         peakShapePlotsWindow.loadPlotsWindow();
     }
 
-    public void parameterControlMenuItemOnAction() {
-        Optional<Scene> optionalSettingScene = SettingsWindow.getCurrentScene();
-        if (optionalSettingScene.isPresent()) {
-            optionalSettingScene.ifPresent(
-                    scene -> {
-                        Event.fireEvent(scene, PlotTabSelectedEvent.create(SettingsRequestType.MENU_ITEM));
-                    }
-            );
-        } else {
-            SettingsWindow settingsWindow =
+    public void parameterControlMenuItemOnAction() throws TripoliException {
+        if (settingsWindow == null) {
+            settingsWindow =
                     SettingsWindow.requestSettingsWindow(
                             primaryStage,
                             new DelegateActionSet(),
-                            analysis,
+                            analysis != null ? analysis : AnalysisInterface.initializeNewAnalysis(0),
                             SettingsRequestType.MENU_ITEM);
-            settingsWindow.show();
         }
+        settingsWindow.show();
     }
 
 
@@ -787,7 +772,6 @@ public class TripoliGUIController implements Initializable {
         analysisSelected.resetAnalysis();
         tripoliSession.addAnalysis(analysisSelected);
         analysis = analysisSelected;
-        parametersMenu.setDisable(false);
         reportsMenu.setDisable(false);
         manageAnalysisMenuItem.setDisable(false);
         // manage analysis
