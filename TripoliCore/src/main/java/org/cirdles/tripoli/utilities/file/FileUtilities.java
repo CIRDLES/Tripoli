@@ -21,10 +21,13 @@ import org.apache.poi.util.IOUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -90,6 +93,19 @@ public enum FileUtilities {
             }
         }
     }
+
+    public static List<Path> listRegularFiles(Path directory) throws IOException {
+        List<Path> files = new ArrayList<>();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory)) {
+            for (Path entry : stream) {
+                if (Files.isRegularFile(entry)) {
+                    files.add(entry);
+                }
+            }
+        }
+        return files;
+    }
+
 
 
 }
