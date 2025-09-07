@@ -20,8 +20,11 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
+import javafx.util.StringConverter;
+import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -84,6 +87,67 @@ public class TripoliMessageDialog extends Alert {
         Optional<ButtonType> result = alert.showAndWait();
 
         return (result.get() == ButtonType.OK);
+    }
+
+    public static MassSpectrometerContextEnum showMassSpecChoiceDialog(String message, Window owner) {
+        Alert alert = new TripoliMessageDialog(
+                Alert.AlertType.CONFIRMATION,
+                message,
+                "Current mass spectrometer type is unknown.", owner);
+        alert.getButtonTypes().setAll(ButtonType.APPLY);
+
+        // Create ListView
+        ListView<MassSpectrometerContextEnum> listView = new ListView<>();
+        listView.getItems().addAll(
+                Arrays.stream(MassSpectrometerContextEnum.values())
+                        .filter(MassSpectrometerContextEnum::isDisplayed)
+                        .toList()
+        );
+        listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+        // Show friendly names in the ListView
+        listView.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(MassSpectrometerContextEnum item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "" : item.getName());
+            }
+        });
+
+        // Preselect first item
+        listView.getSelectionModel().selectFirst();
+
+        // Add double-click handler
+        listView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2 && !listView.getSelectionModel().isEmpty()) {
+                // Simulate pressing Apply
+                alert.setResult(ButtonType.APPLY);
+                alert.close();
+            }
+        });
+
+        // Create message label
+        Label msgLabel = new Label(message);
+        msgLabel.setWrapText(true);
+
+        // Layout containing message + list
+        VBox content = new VBox(20);
+        content.getChildren().addAll(msgLabel, listView);
+
+        // Add VBox to dialog content
+        alert.getDialogPane().setContent(content);
+
+        // Resize based on listView preferred size
+        listView.setPrefHeight(Math.min(listView.getItems().size(), 7) * 28 + 10);
+        alert.getDialogPane().setPrefHeight(listView.getPrefHeight() + 165);
+
+        // Show dialog and return result
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.APPLY) {
+            return listView.getSelectionModel().getSelectedItem();
+        } else {
+            return null;
+        }
     }
 
     public static boolean showSessionDiffDialog(String diffMessage, Window owner) {

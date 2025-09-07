@@ -147,8 +147,9 @@ public class UserFunction implements Comparable, Serializable {
     public String showCorrectName() {
         String retVal = name;
         if (inverted && treatAsIsotopicRatio) {
-            String[] nameSplit = name.split("/");
-            retVal = nameSplit[1] + "/" + nameSplit[0];
+            String[] ratioSplit = retVal.split("/", 2); // [000], [111 Words]
+            String[] nameSplit = ratioSplit[1].split(" ", 2); // [111], [Words]
+            retVal = nameSplit[0] + "/" + ratioSplit[0] + " " + nameSplit[1]; // [111/000 Words]
         }
         return retVal;
     }

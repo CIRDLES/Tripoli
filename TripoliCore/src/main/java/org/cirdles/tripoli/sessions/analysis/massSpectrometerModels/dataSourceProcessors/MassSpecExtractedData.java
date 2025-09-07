@@ -128,7 +128,19 @@ public class MassSpecExtractedData implements Serializable {
         Date date = null;
         try {
             date = DateUtils.parseDate(analysisStartTime.toString(),
-                    "yyyy-MM-dd hh:mm:ss", "yyyy-MM-dd h:mm:ss a", "dd/MM-yyyy", "E d MMMM yyyy hh:mm:ss", "MM/dd/yyyy hh:mm:ss", "MM/dd/yyyy h:mm:ss a", "dd.MM.yyyy", "dd.MM.yyyy hh:mm:ss", "MM/dd/yyyy", "yyyy-MM-dd", "y/m/d");
+                    "dd/MM/yyyy HH:mm:ss", // Phoenix
+                    "yyyy-MM-dd hh:mm:ss",
+                    "yyyy-MM-dd h:mm:ss a",
+                    "dd/MM-yyyy",
+                    "E d MMMM yyyy hh:mm:ss",
+                    "MM/dd/yyyy hh:mm:ss",
+                    "MM/dd/yyyy h:mm:ss a",
+                    "dd.MM.yyyy",
+                    "dd.MM.yyyy hh:mm:ss",
+                    "MM/dd/yyyy",
+                    "yyyy-MM-dd",
+                    "y/m/d"
+            );
         } catch (Exception e) {
             //
         } finally {
@@ -138,16 +150,15 @@ public class MassSpecExtractedData implements Serializable {
             }
         }
 
-        //  if (cyclesPerBlock == 0){
-        if (TripoliPersistentState.getExistingPersistentState().getMapMethodNamesToDefaults().containsKey(methodName)) {
-            cyclesPerBlock = TripoliPersistentState.getExistingPersistentState().getMapMethodNamesToDefaults().get(methodName).getCyclesPerBlock();
-        } //else cyclesPerBlock = 10;
-        //    }
-        if (cyclesPerBlock == 0) {
-            cyclesPerBlock = 10;
-        }
 
-        int totalUsedCycles = 0;
+        // No cycle data. Use method default or 10 if none
+        if (cyclesPerBlock == 0) {
+            if (TripoliPersistentState.getExistingPersistentState().getMapMethodNamesToDefaults().containsKey(methodName)){
+                cyclesPerBlock = TripoliPersistentState.getExistingPersistentState().getMapMethodNamesToDefaults().get(methodName).getCyclesPerBlock();
+            } else {
+                cyclesPerBlock = 10;
+            }
+        }
 
         header = new MassSpecExtractedHeader(
                 softwareVersion,

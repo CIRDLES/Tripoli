@@ -499,6 +499,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
             }
         }
+        if (analysis.getAnalysisName().contains("(Live Data)")){
+            analysisMethodTabPane.getTabs().remove(customExpressionsTab);
+        }
+
 
         processingToolBar.setDisable(null == analysis.getAnalysisMethod());
     }
@@ -634,7 +638,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         AnalysisMethodPersistance analysisMethodPersistance =
                 tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
         if (analysisMethodPersistance == null) {
-            analysisMethodPersistance = new AnalysisMethodPersistance(10);
+            analysisMethodPersistance = new AnalysisMethodPersistance(analysis.getMassSpecExtractedData().getHeader().cyclesPerBlock());
             tripoliPersistentState.getMapMethodNamesToDefaults().put(analysis.getMethod().getMethodName(), analysisMethodPersistance);
         }
 
@@ -1449,7 +1453,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                         analysisProposed.getUserFunctions().addAll(functionsToAdd);
                     }
                 }
-                tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
+                tripoliSession.addAnalysis(analysisProposed);
                 analysis = analysisProposed;
 
                 MCMCPlotsController.analysis = analysis;
@@ -1459,9 +1463,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             } else {
                 legalFile = false;
             }
-        } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException e) {
-//                    throw new RuntimeException(e);
-        } catch (IllegalAccessException | TripoliException e) {
+        } catch (JAXBException | IOException | InvocationTargetException | NoSuchMethodException |
+                 IllegalAccessException | TripoliException e) {
 //                    throw new RuntimeException(e);
         }
 

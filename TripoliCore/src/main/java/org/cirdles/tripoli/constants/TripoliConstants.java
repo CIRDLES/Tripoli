@@ -92,6 +92,7 @@ public enum TripoliConstants {
     public static final double CHAUVENETS_DEFAULT_REJECT_PROBABILITY = 0.5;
     public static final int CHAUVENETS_DEFAULT_MIN_DATUM_COUNT = 20;
     // END Chauvenet's parameter defaults
+    public static final int LIVE_DATA_DEFAULT_TIMEOUT_SECONDS = 45;
 
     public enum DetectorPlotFlavor {
 

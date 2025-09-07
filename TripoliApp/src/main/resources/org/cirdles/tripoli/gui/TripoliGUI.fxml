@@ -22,7 +22,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox prefHeight="725.0" prefWidth="1250.0" stylesheets="@css/tripoli.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.TripoliGUIController">
+<VBox prefHeight="725.0" prefWidth="1250.0" stylesheets="@css/tripoli.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.cirdles.tripoli.gui.TripoliGUIController">
     <MenuBar prefHeight="17.0" prefWidth="1234.0" VBox.vgrow="NEVER">
         <Menu mnemonicParsing="false" text="Session">
             <MenuItem fx:id="sessionManagerMenuItem" mnemonicParsing="false" onAction="#sessionManagerMenuItemAction" text="Manage Session" />
@@ -45,14 +45,14 @@
             <MenuItem mnemonicParsing="false" onAction="#newAnalysisMenuItemOnAction" text="New Analysis" />
             <MenuItem disable="true" mnemonicParsing="false" text="Import Analysis" />
             <MenuItem disable="true" mnemonicParsing="false" text="Export Analysis" />
-            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem fx:id="processLiveDataMenuItem" onAction="#processLiveData" text="Start LiveData"/>
         </Menu>
         <Menu fx:id="parametersMenu" mnemonicParsing="false" text="Parameters">
             <MenuItem fx:id="parameterControlMenuItem" mnemonicParsing="false" onAction="#parameterControlMenuItemOnAction" text="Parameter Control" />
         </Menu>
         <Menu fx:id="reportsMenu" mnemonicParsing="false" text="Reports">
             <items>
-                <Menu mnemonicParsing="false" fx:id="customReportMenu" text="Custom Reports" />
+                <Menu fx:id="customReportMenu" mnemonicParsing="false" text="Custom Reports" />
                 <Menu mnemonicParsing="false" text="Builtin Reports">
                     <items>
                         <MenuItem mnemonicParsing="false" onAction="#etReduxExportAction" text="ET_Redux Export" />
