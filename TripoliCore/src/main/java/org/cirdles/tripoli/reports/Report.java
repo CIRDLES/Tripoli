@@ -44,7 +44,7 @@ public class Report implements Serializable, Comparable<Report> {
 
     private Set<ReportCategory> categorySet;
 
-    public static boolean supressContents = true;
+    public static boolean supressContents = true; // TODO: Turn off before final merge
 
     public Report(String reportName, String methodName, Set<ReportCategory> categorySet) {
         this.reportName = reportName;
