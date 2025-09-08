@@ -97,7 +97,7 @@ public class OutputTest {
 
         for (Path path : dataFilePaths) {
             int index = dataFilePaths.indexOf(path);
-            initializeAnalysis(path); // TODO: Fix ArrayIndexOutOfBoundsException
+            initializeAnalysis(path);
 
             for (UserFunction uf : analysis.getUserFunctions()) {
                 if (uf.isTreatAsCustomExpression()) {
