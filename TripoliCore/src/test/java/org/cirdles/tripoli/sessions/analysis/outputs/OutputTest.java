@@ -65,7 +65,9 @@ public class OutputTest {
         try {
             AllBlockInitForDataLiteOne.initBlockModels(analysis);
         }
-        catch (ArrayIndexOutOfBoundsException ignored) {} // Throws ArrayIndexOutOfBoundsException when dataFile's result is empty
+        catch (ArrayIndexOutOfBoundsException ignored) {
+            System.out.println("Has no data");
+        } // Throws ArrayIndexOutOfBoundsException when dataFile's result is empty
 
     }
 
@@ -114,7 +116,7 @@ public class OutputTest {
                 mismatchFound = true;
             }
         }
-
+        System.out.println("OutputTest complete");
         assertFalse(mismatchFound);
 
     }
