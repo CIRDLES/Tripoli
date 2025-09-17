@@ -149,8 +149,11 @@ public class TripoliGUIController implements Initializable {
     private MenuItem parameterControlMenuItem;
     @FXML
     private AnchorPane splashAnchor;
-    Thread liveDataThread;
-    FileWatcher liveDataWatcher;
+    Thread liveDataLogThread;
+    FileWatcher liveDataLogWatcher;
+    Thread liveDataFinishFileThread;
+    FileWatcher liveDataFinishFileWatcher;
+    PhoenixLiveData phoenixLiveData;
 
 
     public static void quit() {
@@ -869,8 +872,9 @@ public class TripoliGUIController implements Initializable {
     }
 
     public void processLiveData() throws IOException, TripoliException {
-        if (liveDataThread != null && liveDataThread.isAlive()){
-            liveDataWatcher.stop();
+        if (liveDataLogThread != null && liveDataLogThread.isAlive()){
+            liveDataLogWatcher.stop();
+            liveDataFinishFileWatcher.stop();
             processLiveDataMenuItem.textProperty().set("Start LiveData");
             return;
         }
@@ -897,45 +901,45 @@ public class TripoliGUIController implements Initializable {
         }
 
         // Begin watching for new data files
-        PhoenixLiveData liveData = new PhoenixLiveData();
-        AtomicBoolean dialogOpen = new AtomicBoolean(false);
-        AtomicReference<AnalysisInterface> liveDataAnalysis = new AtomicReference<>(liveData.getLiveDataAnalysis());
+        phoenixLiveData = new PhoenixLiveData();
+        AtomicReference<AnalysisInterface> liveDataAnalysis = new AtomicReference<>(phoenixLiveData.getLiveDataAnalysis());
         liveDataAnalysis.get().setDataFilePathString(liveDataFolderPath.toString());
         liveDataAnalysis.get().setAnalysisName("New LiveData Analysis");
         attachAnalysisToSession(liveDataAnalysis.get());
-        final long[] timeoutSeconds = {liveDataAnalysis.get().getParameters().getTimeoutSeconds()};
 
-        liveDataWatcher = new FileWatcher(liveDataFolderPath, (filePath, kind) -> {
+        liveDataLogWatcher = new FileWatcher(liveDataFolderPath, (filePath, kind) -> {
             if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
 
-                liveDataAnalysis.set(liveData.readLiveDataFile(filePath));
+                liveDataAnalysis.set(phoenixLiveData.readLiveDataFile(filePath));
 
                 if (liveDataAnalysis.get() != null) {
                     Platform.runLater(() -> onLiveDataUpdated(liveDataAnalysis.get()));
                 }
-            } // Null return is an idle state, only once, we will prompt for the user to end
-            else if (kind == null && !dialogOpen.get()) {
-                Platform.runLater(() -> {
-                    dialogOpen.set(true);
-                    promptForHalt(timeoutSeconds[0], dialogOpen);
-                    // Set timeout if changed
-                    if (timeoutSeconds[0] != liveDataAnalysis.get().getParameters().getTimeoutSeconds()){
-                        timeoutSeconds[0] = liveDataAnalysis.get().getParameters().getTimeoutSeconds();
-                        liveDataWatcher.setTimeoutSeconds(timeoutSeconds[0]);
-                    }
-                });
             }
         });
-        liveDataWatcher.setTimeoutSeconds(timeoutSeconds[0]);
         // Grab any existing files, sorting by block-cycle number
-        liveDataWatcher.processExistingFiles(blockCycleComparator);
+        liveDataLogWatcher.processExistingFiles(blockCycleComparator);
 
-        // Start the thread
+        Path analysisFolderPath = Path.of(liveDataFolderPath.getParent().toString());
+
+        // TODO: check for existing finished file first?
+        liveDataFinishFileWatcher = new FileWatcher(analysisFolderPath, (filePath, kind) -> {
+            if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
+                Platform.runLater(() -> handleFinalFileProcessing(filePath));
+            }
+        });
+
+        // Start the threads
         processLiveDataMenuItem.textProperty().set("Stop LiveData");
-        liveDataThread = new Thread(liveDataWatcher);
-        liveDataThread.setDaemon(true);
-        liveDataThread.start();
+        liveDataLogThread = new Thread(liveDataLogWatcher);
+        liveDataLogThread.setDaemon(true);
+        liveDataLogThread.start();
+
+        liveDataFinishFileThread = new Thread(liveDataFinishFileWatcher);
+        liveDataFinishFileThread.setDaemon(true);
+        liveDataFinishFileThread.start();
     }
+
     private void attachAnalysisToSession(AnalysisInterface newAnalysis) {
         // New session
         if (tripoliSession == null) {
@@ -946,6 +950,15 @@ public class TripoliGUIController implements Initializable {
         tripoliSession.addAnalysis(newAnalysis);
         analysis = newAnalysis;
 
+        MenuItem menuItemSessionManager = ((MenuBar) primaryStage.getScene()
+                .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(0);
+        menuItemSessionManager.fire();
+    }
+    private void removeAnalysisFromSession(AnalysisInterface analysisToRemove){
+        if (tripoliSession == null) {
+            return;
+        }
+        tripoliSession.getMapOfAnalyses().remove(analysisToRemove.getAnalysisName());
         MenuItem menuItemSessionManager = ((MenuBar) primaryStage.getScene()
                 .getRoot().getChildrenUnmodifiable().get(0)).getMenus().get(0).getItems().get(0);
         menuItemSessionManager.fire();
@@ -968,7 +981,7 @@ public class TripoliGUIController implements Initializable {
             OGTripoliViewController.analysis = liveDataAnalysis;
             if (ogTripoliPreviewPlotsWindow != null) {
                 ogTripoliPreviewPlotsWindow.setPlottingData(plottingData);
-                ogTripoliPreviewPlotsWindow.loadPlotsWindow();
+                ogTripoliPreviewPlotsWindow.loadPlotsWindow(); // TODO: refresh window instead of reloading
             } else {
                 ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(primaryStage, null, plottingData);
                 ogTripoliPreviewPlotsWindow.loadPlotsWindow();
@@ -976,14 +989,48 @@ public class TripoliGUIController implements Initializable {
         }
     }
 
+    private void handleFinalFileProcessing(Path newFilePath) {
+        if (newFilePath == null) {
+            return;
+        }
+        String finishedFileName = newFilePath.getFileName().toString();
+        if (finishedFileName.endsWith(".TIMSDP")) {
+            AnalysisInterface analysisProposed;
+            try {
+                // Make finished analysis
+                analysisProposed = initializeNewAnalysis(0);
+                String analysisName = analysisProposed.extractMassSpecDataFromPath(newFilePath);
+                analysisProposed.setAnalysisName(analysisName);
+                analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
+
+                // init in UI
+                attachAnalysisToSession(analysisProposed);
+                AllBlockInitForDataLiteOne.initBlockModels(analysisProposed);
+
+                // Merge with LiveData changes
+                phoenixLiveData.mergeFinalFile(analysisProposed);
+
+                // Cleanup
+                removeAnalysisFromSession(phoenixLiveData.getLiveDataAnalysis());
+
+                //TODO: Prep filewatcher for new livedatastatus file
+
+            } catch (TripoliException | JAXBException | IllegalAccessException | NoSuchMethodException |
+                     InvocationTargetException | IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
     private void promptForHalt(long seconds, AtomicBoolean dialogOpen) {
         boolean haltLiveData = TripoliMessageDialog.showChoiceDialog("No new data files have be created in the LiveData folder for "
                 + seconds + " seconds. Do you wish to stop processing?\n\nThe timeout interval can be changed in the parameters menu.", primaryStageWindow);
         if (haltLiveData) {
-            liveDataWatcher.stop();
+            liveDataLogWatcher.stop();
             processLiveDataMenuItem.textProperty().set("Start LiveData");
         } else {
-            liveDataWatcher.resetTimeout();
+            liveDataLogWatcher.resetTimeout();
         }
         dialogOpen.set(false);
     }

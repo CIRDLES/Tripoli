@@ -257,4 +257,29 @@ public class PhoenixLiveData {
 
         massSpecExtractedData.setHeader(header);
     }
+
+    /**
+     * Merges changes from LiveData analysis to finished analysis. Copies BlockIdToRawDataLiteOne included data,
+     * and replaces UserFunctions in FinishedAnalysis with those from LiveDataAnalysis.
+     * @param finishedAnalysis
+     */
+    public void mergeFinalFile(AnalysisInterface finishedAnalysis){
+        liveDataAnalysis.getMapOfBlockIdToRawDataLiteOne().forEach((blockID, blockRawData) -> {
+            boolean[][] liveArray = blockRawData.blockRawDataLiteIncludedArray();
+            boolean[][] finishedArray = finishedAnalysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).blockRawDataLiteIncludedArray();
+            for (int row = 0; row < liveArray.length; row++) {
+                System.arraycopy(liveArray[row], 0, finishedArray[row], 0, liveArray[row].length);
+            }
+        });
+
+        List<UserFunction> liveUFs = liveDataAnalysis.getUserFunctions();
+        List<UserFunction> finishedUFs = finishedAnalysis.getUserFunctions();
+        finishedUFs.replaceAll(finishedUF ->
+                liveUFs.stream()
+                        .filter(liveUF -> liveUF.getName().equals(finishedUF.getName()))
+                        .findFirst()
+                        .orElse(finishedUF)
+        );
+
+    }
 }
