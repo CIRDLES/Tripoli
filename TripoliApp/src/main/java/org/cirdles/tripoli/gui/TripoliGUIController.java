@@ -144,9 +144,9 @@ public class TripoliGUIController implements Initializable {
     @FXML
     private Menu analysisMenu;
     @FXML
-    private Menu parametersMenu;
+    private Menu settingsMenu;
     @FXML
-    private MenuItem parameterControlMenuItem;
+    private MenuItem settingsMenuMenuItem;
     @FXML
     private AnchorPane splashAnchor;
     Thread liveDataLogThread;
@@ -745,7 +745,7 @@ public class TripoliGUIController implements Initializable {
         peakShapePlotsWindow.loadPlotsWindow();
     }
 
-    public void parameterControlMenuItemOnAction() throws TripoliException {
+    public void settingsMenuMenuItemOnAction() throws TripoliException {
         if (settingsWindow == null) {
             settingsWindow =
                     SettingsWindow.requestSettingsWindow(
@@ -1021,18 +1021,6 @@ public class TripoliGUIController implements Initializable {
             }
 
         }
-    }
-
-    private void promptForHalt(long seconds, AtomicBoolean dialogOpen) {
-        boolean haltLiveData = TripoliMessageDialog.showChoiceDialog("No new data files have be created in the LiveData folder for "
-                + seconds + " seconds. Do you wish to stop processing?\n\nThe timeout interval can be changed in the parameters menu.", primaryStageWindow);
-        if (haltLiveData) {
-            liveDataLogWatcher.stop();
-            processLiveDataMenuItem.textProperty().set("Start LiveData");
-        } else {
-            liveDataLogWatcher.resetTimeout();
-        }
-        dialogOpen.set(false);
     }
 
     // ------------------ End LiveData Methods ------------------------------------------------
