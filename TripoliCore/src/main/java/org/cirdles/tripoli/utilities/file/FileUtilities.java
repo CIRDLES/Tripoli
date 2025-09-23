@@ -17,7 +17,7 @@
 package org.cirdles.tripoli.utilities.file;
 
 
-import org.apache.poi.util.IOUtils;
+
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -26,10 +26,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Enumeration;
+
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 /**
  * @author James F. Bowring
@@ -70,6 +68,7 @@ public enum FileUtilities {
         return true;
     }
 
+    /*
     public static void unpackZipFile(File archive, File targetDirectory)
             throws IOException {
         ZipFile zipFile = new ZipFile(archive);
@@ -93,6 +92,7 @@ public enum FileUtilities {
             }
         }
     }
+     */
 
     public static List<Path> listRegularFiles(Path directory) throws IOException {
         List<Path> files = new ArrayList<>();

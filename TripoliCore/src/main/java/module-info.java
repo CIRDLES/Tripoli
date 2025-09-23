@@ -16,13 +16,12 @@
 
 module Tripoli.TripoliCore {
     requires commons.bc38781605;
-    requires org.apache.poi.poi;
     requires org.jetbrains.annotations;
     requires jama;
     requires ojalgo;
     requires com.google.common;
     requires commons.math3;
-    requires org.apache.commons.lang3;
+    requires commons.lang3;
     requires jakarta.xml.bind;
     requires java.xml.bind;
     requires jblas;
@@ -30,7 +29,6 @@ module Tripoli.TripoliCore {
     requires java.logging;
     requires org.apache.commons.rng.api;
     requires org.apache.commons.rng.simple;
-    requires org.apache.poi.ooxml;
     requires jxl;
     requires org.antlr.antlr4.runtime;
     requires javafx.graphics;
