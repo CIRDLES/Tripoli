@@ -869,6 +869,7 @@ public class TripoliGUIController implements Initializable {
         } else {
             processLiveDataOnNewFolder(liveDataFolderPath);
         }
+        processLiveDataMenuItem.textProperty().set("Stop LiveData");
     }
 
     private void attachAnalysisToSession(AnalysisInterface newAnalysis) {
@@ -985,6 +986,7 @@ public class TripoliGUIController implements Initializable {
     }
     private void processLiveDataOnNewFolder(Path liveDataFolderPath) throws TripoliException {
         phoenixLiveData = new PhoenixLiveData();
+        ogTripoliPreviewPlotsWindow = null;
         AtomicReference<AnalysisInterface> liveDataAnalysis = new AtomicReference<>(phoenixLiveData.getLiveDataAnalysis());
         liveDataAnalysis.get().setDataFilePathString(liveDataFolderPath.toString());
 
@@ -1004,10 +1006,7 @@ public class TripoliGUIController implements Initializable {
                 }
             }
         });
-
         liveDataLogWatcher.processExistingFiles(blockCycleComparator);
-
-        processLiveDataMenuItem.textProperty().set("Stop LiveData");
 
         liveDataLogThread = new Thread(liveDataLogWatcher);
         liveDataLogThread.setDaemon(true);
