@@ -29,6 +29,7 @@ import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -74,7 +75,7 @@ public class PhoenixLiveData {
         return liveDataAnalysis;
     }
 
-    public AnalysisInterface readLiveDataFile(Path filePath){
+    public AnalysisInterface readLiveDataFile(Path filePath) {
         File liveDataFile = filePath.toFile();
         analysisNumber = liveDataFile.getName().split("-")[0];
 
@@ -134,7 +135,7 @@ public class PhoenixLiveData {
         return null;
     }
 
-    private void readLiveDataLine(String dataLine){
+    private void readLiveDataLine(String dataLine) {
         String[] dataLineSplit = dataLine.split(",");
 
         switch (dataLineSplit[0]){
@@ -280,7 +281,7 @@ public class PhoenixLiveData {
      * and replaces UserFunctions in FinishedAnalysis with those from LiveDataAnalysis.
      * @param finishedAnalysis
      */
-    public void mergeFinalFile(AnalysisInterface finishedAnalysis){
+    public void mergeFinalFile(AnalysisInterface finishedAnalysis) {
         liveDataAnalysis.getMapOfBlockIdToRawDataLiteOne().forEach((blockID, blockRawData) -> {
             boolean[][] liveArray = blockRawData.blockRawDataLiteIncludedArray();
             boolean[][] finishedArray = finishedAnalysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).blockRawDataLiteIncludedArray();
@@ -298,5 +299,64 @@ public class PhoenixLiveData {
                         .orElse(finishedUF)
         );
 
+    }
+
+    /**
+     * Checks methodfolder and its parent for the existence of LiveDataStatus.txt, retrieves the active livedata location
+     * from the txt and returns the path of it.
+     * @param methodFolder user/mru supplied folder file
+     * @return Path of the active LiveData folder
+     * @throws IOException
+     */
+    public static Path getLiveDataFolderPath(File methodFolder) {
+        File liveDataStatusFile = new File(methodFolder, "LiveDataStatus.txt");
+        File parentLiveDataStatusFile = new File(methodFolder.getParentFile(), "LiveDataStatus.txt");
+
+        File mutatableMethodFolder = methodFolder;
+        if (!liveDataStatusFile.exists() && !parentLiveDataStatusFile.exists()) {
+            return null;
+        }
+
+        // Prefer methodFolder, fallback to parent
+        if (!liveDataStatusFile.exists()) {
+            liveDataStatusFile = parentLiveDataStatusFile;
+            mutatableMethodFolder = methodFolder.getParentFile();
+        }
+
+        String line = "";
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(liveDataStatusFile));
+
+            do {
+                line = bufferedReader.readLine();
+            } while (!Objects.equals(line.split(",")[0], "Method"));
+        } catch (IOException ignored) {}
+
+        String[] methodParts = line.split("\\\\");
+        String methodName = methodParts[methodParts.length - 2].replace("\"", "");
+
+        return Path.of(mutatableMethodFolder + File.separator + methodName + File.separator + "LiveData");
+    }
+    public static File getFinishedFile(File methodFolder) {
+        File liveDataStatusFile = new File(methodFolder, "LiveDataStatus.txt");
+
+        if (!liveDataStatusFile.exists()) {
+            return null;
+        }
+
+        String line = "";
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(liveDataStatusFile));
+
+            do {
+                line = bufferedReader.readLine();
+            } while (!Objects.equals(line.split(",")[0], "Method"));
+        } catch (IOException ignored) {}
+
+        String[] methodParts = line.split("\\\\");
+        String methodName =  methodParts[methodParts.length - 2];
+        String analysisName = methodParts[methodParts.length - 1].replace("\"", "");
+
+        return new File(methodFolder + File.separator + methodName + File.separator + analysisName + ".TIMSDP");
     }
 }

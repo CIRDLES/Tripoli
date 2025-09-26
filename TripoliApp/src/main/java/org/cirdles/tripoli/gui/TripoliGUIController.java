@@ -152,6 +152,8 @@ public class TripoliGUIController implements Initializable {
     FileWatcher liveDataLogWatcher;
     Thread liveDataFinishFileThread;
     FileWatcher liveDataFinishFileWatcher;
+    Thread liveDataStatusThread;
+    FileWatcher liveDataStatusWatcher;
     PhoenixLiveData phoenixLiveData;
 
 
@@ -830,46 +832,6 @@ public class TripoliGUIController implements Initializable {
 
     // ------------------ LiveData Methods ------------------------------------------------
 
-    /**
-     * Checks methodfolder and its parent for the existence of LiveDataStatus.txt, retrieves the active livedata location
-     * from the txt and returns the path of it.
-     * @param methodFolder user/mru supplied folder file
-     * @return Path of the active LiveData folder
-     * @throws IOException
-     */
-    private Path getLiveDataFolderPath(File methodFolder) throws IOException {
-        File liveDataStatusFile = new File(methodFolder, "LiveDataStatus.txt");
-        File parentLiveDataStatusFile = new File(methodFolder.getParentFile(), "LiveDataStatus.txt");
-
-        File mutatableMethodFolder = methodFolder;
-        if (!liveDataStatusFile.exists() && !parentLiveDataStatusFile.exists()) {
-            TripoliMessageDialog.showWarningDialog(
-                    "Phoenix LiveDataStatus file not found in selected folder or it's parent.",
-                    primaryStageWindow
-            );
-            return null;
-        }
-
-        // Prefer methodFolder, fallback to parent
-        if (!liveDataStatusFile.exists()) {
-            liveDataStatusFile = parentLiveDataStatusFile;
-            mutatableMethodFolder = methodFolder.getParentFile();
-        }
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(liveDataStatusFile));
-
-        String line = bufferedReader.readLine();
-        while (!Objects.equals(line.split(",")[0], "Method")){
-            line = bufferedReader.readLine();
-        }
-
-        String[] methodParts = line.split("\\\\");
-        String methodName = methodParts[methodParts.length - 2].replace("\"", "");
-        Path liveDataFolderPath = Path.of(mutatableMethodFolder + File.separator + methodName + File.separator + "LiveData");
-        tripoliPersistentState.setMRUDataFileFolderPath(liveDataFolderPath.getParent().toString());
-
-        return liveDataFolderPath;
-    }
-
     public void processLiveData() throws IOException, TripoliException {
         if (liveDataLogThread != null && liveDataLogThread.isAlive()){
             liveDataLogWatcher.stop();
@@ -885,58 +847,28 @@ public class TripoliGUIController implements Initializable {
             if (tripoliPersistentState == null || tripoliPersistentState.getMRUDataFileFolderPath() == null) {
                 File methodFolder = selectMethodFolder(primaryStageWindow);
                 if (methodFolder == null) return; // User cancelled, bail
-                liveDataFolderPath = getLiveDataFolderPath(methodFolder);
+                liveDataFolderPath = PhoenixLiveData.getLiveDataFolderPath(methodFolder);
                 // Handle data file folder
             } else if (new File (Path.of(tripoliPersistentState.getMRUDataFileFolderPath()).getParent() + File.separator + "LiveDataStatus.txt").exists()) {
                 Path mruDataFolderPath = Path.of(tripoliPersistentState.getMRUDataFileFolderPath()).getParent();
-                liveDataFolderPath = getLiveDataFolderPath(mruDataFolderPath.toFile());
+                liveDataFolderPath = PhoenixLiveData.getLiveDataFolderPath(mruDataFolderPath.toFile());
                 // Handle root folder
             } else if (new File (Path.of(tripoliPersistentState.getMRUDataFileFolderPath()) + File.separator + "LiveDataStatus.txt").exists()){
                 Path mruDataFolderPath = Path.of(tripoliPersistentState.getMRUDataFileFolderPath());
-                liveDataFolderPath = getLiveDataFolderPath(mruDataFolderPath.toFile());
+                liveDataFolderPath = PhoenixLiveData.getLiveDataFolderPath(mruDataFolderPath.toFile());
             } else {
                 tripoliPersistentState.setMRUDataFileFolderPath(null);
             }
         }
+        tripoliPersistentState.setMRUDataFileFolderPath(liveDataFolderPath.getParent().toString());
 
-        // Begin watching for new data files
-        phoenixLiveData = new PhoenixLiveData();
-        AtomicReference<AnalysisInterface> liveDataAnalysis = new AtomicReference<>(phoenixLiveData.getLiveDataAnalysis());
-        liveDataAnalysis.get().setDataFilePathString(liveDataFolderPath.toString());
-        liveDataAnalysis.get().setAnalysisName("New LiveData Analysis");
-        attachAnalysisToSession(liveDataAnalysis.get());
-
-        liveDataLogWatcher = new FileWatcher(liveDataFolderPath, (filePath, kind) -> {
-            if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
-
-                liveDataAnalysis.set(phoenixLiveData.readLiveDataFile(filePath));
-
-                if (liveDataAnalysis.get() != null) {
-                    Platform.runLater(() -> onLiveDataUpdated(liveDataAnalysis.get()));
-                }
-            }
-        });
-        // Grab any existing files, sorting by block-cycle number
-        liveDataLogWatcher.processExistingFiles(blockCycleComparator);
-
-        Path analysisFolderPath = Path.of(liveDataFolderPath.getParent().toString());
-
-        // TODO: check for existing finished file first?
-        liveDataFinishFileWatcher = new FileWatcher(analysisFolderPath, (filePath, kind) -> {
-            if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
-                Platform.runLater(() -> handleFinalFileProcessing(filePath));
-            }
-        });
-
-        // Start the threads
-        processLiveDataMenuItem.textProperty().set("Stop LiveData");
-        liveDataLogThread = new Thread(liveDataLogWatcher);
-        liveDataLogThread.setDaemon(true);
-        liveDataLogThread.start();
-
-        liveDataFinishFileThread = new Thread(liveDataFinishFileWatcher);
-        liveDataFinishFileThread.setDaemon(true);
-        liveDataFinishFileThread.start();
+        Path methodFolderPath = liveDataFolderPath.getParent().getParent();
+        boolean finalFileExists = PhoenixLiveData.getFinishedFile(methodFolderPath.toFile()).exists();
+        if (finalFileExists) {
+            waitForLiveDataStatusUpdate(methodFolderPath);
+        } else {
+            processLiveDataOnNewFolder(liveDataFolderPath);
+        }
     }
 
     private void attachAnalysisToSession(AnalysisInterface newAnalysis) {
@@ -969,11 +901,10 @@ public class TripoliGUIController implements Initializable {
      * @param liveDataAnalysis The analysis that holds the livedata points
      */
     public void onLiveDataUpdated(AnalysisInterface liveDataAnalysis) {
-        if (!liveDataAnalysis.getAnalysisName().equals("New LiveData Analysis")
-                && tripoliSession.getMapOfAnalyses().containsKey("New LiveData Analysis")) {
-            tripoliSession.getMapOfAnalyses().remove("New LiveData Analysis");
+        if (tripoliSession == null || !tripoliSession.getMapOfAnalyses().containsKey(liveDataAnalysis.getAnalysisName())) {
             attachAnalysisToSession(liveDataAnalysis);
         }
+
         liveDataAnalysis.getMapOfBlockIdToRawDataLiteOne().clear();
         AllBlockInitForMCMC.PlottingData plottingData = AllBlockInitForDataLiteOne.initBlockModels(liveDataAnalysis);
 
@@ -1013,7 +944,8 @@ public class TripoliGUIController implements Initializable {
                 // Cleanup
                 removeAnalysisFromSession(phoenixLiveData.getLiveDataAnalysis());
 
-                //TODO: Prep filewatcher for new livedatastatus file
+                waitForLiveDataStatusUpdate(newFilePath.getParent().getParent());
+
 
             } catch (TripoliException | JAXBException | IllegalAccessException | NoSuchMethodException |
                      InvocationTargetException | IOException e) {
@@ -1021,6 +953,69 @@ public class TripoliGUIController implements Initializable {
             }
 
         }
+    }
+    private void waitForLiveDataStatusUpdate(Path parentFolder) throws IOException {
+        liveDataStatusWatcher = new FileWatcher(parentFolder, (filePath, kind) -> {
+            if (kind == StandardWatchEventKinds.ENTRY_MODIFY &&
+                    filePath.getFileName().toString().equals("LiveDataStatus.txt")) {
+
+                // Stop watching once we detect change
+                liveDataStatusWatcher.stop();
+
+                // Read new folder path from status file
+                Path newLiveDataFolder = PhoenixLiveData.getLiveDataFolderPath(parentFolder.toFile());
+
+                // Update MRU path
+                tripoliPersistentState.setMRUDataFileFolderPath(newLiveDataFolder.getParent().toString());
+
+                // Resume normal live data processing on new folder
+                Platform.runLater(() -> {
+                    try {
+                        processLiveDataOnNewFolder(newLiveDataFolder);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+        });
+
+        liveDataStatusThread = new Thread(liveDataStatusWatcher);
+        liveDataStatusThread.setDaemon(true);
+        liveDataStatusThread.start();
+    }
+    private void processLiveDataOnNewFolder(Path liveDataFolderPath) throws TripoliException {
+        phoenixLiveData = new PhoenixLiveData();
+        AtomicReference<AnalysisInterface> liveDataAnalysis = new AtomicReference<>(phoenixLiveData.getLiveDataAnalysis());
+        liveDataAnalysis.get().setDataFilePathString(liveDataFolderPath.toString());
+
+        Path analysisFolderPath = liveDataFolderPath.getParent();
+
+        liveDataFinishFileWatcher = new FileWatcher(analysisFolderPath, (filePath, kind) -> {
+            if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
+                Platform.runLater(() -> handleFinalFileProcessing(filePath));
+            }
+        });
+
+        liveDataLogWatcher = new FileWatcher(liveDataFolderPath, (filePath, kind) -> {
+            if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
+                liveDataAnalysis.set(phoenixLiveData.readLiveDataFile(filePath));
+                if (liveDataAnalysis.get() != null) {
+                    Platform.runLater(() -> onLiveDataUpdated(liveDataAnalysis.get()));
+                }
+            }
+        });
+
+        liveDataLogWatcher.processExistingFiles(blockCycleComparator);
+
+        processLiveDataMenuItem.textProperty().set("Stop LiveData");
+
+        liveDataLogThread = new Thread(liveDataLogWatcher);
+        liveDataLogThread.setDaemon(true);
+        liveDataLogThread.start();
+
+        liveDataFinishFileThread = new Thread(liveDataFinishFileWatcher);
+        liveDataFinishFileThread.setDaemon(true);
+        liveDataFinishFileThread.start();
     }
 
     // ------------------ End LiveData Methods ------------------------------------------------
