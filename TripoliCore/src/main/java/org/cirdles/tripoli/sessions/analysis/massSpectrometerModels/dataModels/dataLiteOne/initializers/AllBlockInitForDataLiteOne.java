@@ -36,7 +36,6 @@ public class AllBlockInitForDataLiteOne {
     public static AllBlockInitForMCMC.PlottingData initBlockModels(AnalysisInterface analysis) {
         // check process status
         MassSpecExtractedData massSpecExtractedData = analysis.getMassSpecExtractedData();
-        AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
 
         int countOfBlocks = massSpecExtractedData.getBlocksDataLite().size();
         SingleBlockRawDataLiteSetRecord[] singleBlockRawDataLiteSetRecords = new SingleBlockRawDataLiteSetRecord[countOfBlocks];
@@ -88,7 +87,7 @@ public class AllBlockInitForDataLiteOne {
     }
 
 
-    private static SingleBlockRawDataLiteSetRecord prepareSingleBlockDataLiteCaseOne(
+    public static SingleBlockRawDataLiteSetRecord prepareSingleBlockDataLiteCaseOne(
             int blockID, MassSpecExtractedData massSpecExtractedData) {
         MassSpecOutputBlockRecordLite massSpecOutputBlockRecordLite = massSpecExtractedData.getBlocksDataLite().get(blockID);
         boolean[][] rawDataIncluded = new boolean[massSpecOutputBlockRecordLite.cycleData().length][massSpecOutputBlockRecordLite.cycleData()[0].length];
@@ -98,12 +97,10 @@ public class AllBlockInitForDataLiteOne {
             }
         }
 
-        SingleBlockRawDataLiteSetRecord singleBlockRawDataLiteSetRecord = new SingleBlockRawDataLiteSetRecord(
+        return new SingleBlockRawDataLiteSetRecord(
                 blockID,
                 true,
                 massSpecOutputBlockRecordLite.cycleData(),
                 rawDataIncluded);
-
-        return singleBlockRawDataLiteSetRecord;
     }
 }

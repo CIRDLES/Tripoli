@@ -68,7 +68,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.*;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.cirdles.tripoli.gui.AnalysisManagerController.analysis;
@@ -977,11 +976,12 @@ public class TripoliGUIController implements Initializable {
         }
         liveDataAnalysis.getMapOfBlockIdToRawDataLiteOne().clear();
         AllBlockInitForMCMC.PlottingData plottingData = AllBlockInitForDataLiteOne.initBlockModels(liveDataAnalysis);
+
         if (plottingData != null) {
             OGTripoliViewController.analysis = liveDataAnalysis;
             if (ogTripoliPreviewPlotsWindow != null) {
                 ogTripoliPreviewPlotsWindow.setPlottingData(plottingData);
-                ogTripoliPreviewPlotsWindow.loadPlotsWindow(); // TODO: refresh window instead of reloading
+                ogTripoliPreviewPlotsWindow.getOgTripoliViewController().replotAllPlots();
             } else {
                 ogTripoliPreviewPlotsWindow = new OGTripoliPlotsWindow(primaryStage, null, plottingData);
                 ogTripoliPreviewPlotsWindow.loadPlotsWindow();

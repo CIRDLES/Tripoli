@@ -19,11 +19,13 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 import org.apache.commons.lang3.time.DateUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockCyclesBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
-import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -104,8 +106,23 @@ public class PhoenixLiveData {
                 blockRecordLite = new MassSpecOutputBlockRecordLite(blockIndex, cycleData);
                 massSpecExtractedData.addBlockLiteRecord(blockRecordLite);
 
+
                 for (UserFunction userFunction : liveDataAnalysis.getUserFunctions()){
-                    userFunction.getMapBlockIdToBlockCyclesRecord().clear();
+                    SingleBlockRawDataLiteSetRecord singleBlockRawDataLiteSetRecord = AllBlockInitForDataLiteOne.prepareSingleBlockDataLiteCaseOne(
+                            blockIndex,
+                            massSpecExtractedData
+                    );
+                    userFunction.getMapBlockIdToBlockCyclesRecord().put(blockIndex, BlockCyclesBuilder.initializeBlockCycles(
+                            blockIndex,
+                            true,
+                            true,
+                            singleBlockRawDataLiteSetRecord.assembleCyclesIncludedForUserFunction(userFunction),
+                            singleBlockRawDataLiteSetRecord.assembleCycleMeansForUserFunction(userFunction),
+                            singleBlockRawDataLiteSetRecord.assembleCycleStdDevForUserFunction(userFunction),
+                            new String[]{userFunction.getName()},
+                            true,
+                            userFunction.isTreatAsIsotopicRatio()).getBlockCyclesRecord()
+                    );
                 }
 
                 return liveDataAnalysis;
