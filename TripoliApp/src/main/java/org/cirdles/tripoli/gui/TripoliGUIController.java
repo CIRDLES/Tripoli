@@ -833,9 +833,15 @@ public class TripoliGUIController implements Initializable {
     // ------------------ LiveData Methods ------------------------------------------------
 
     public void processLiveData() throws IOException, TripoliException {
+        // Handles halting the processing. Two active cases are either:
+        // Logs & Finish watchers are running OR Status watcher is running
         if (liveDataLogThread != null && liveDataLogThread.isAlive()){
             liveDataLogWatcher.stop();
             liveDataFinishFileWatcher.stop();
+            processLiveDataMenuItem.textProperty().set("Start LiveData");
+            return;
+        } else if (liveDataStatusThread != null && liveDataStatusThread.isAlive()){
+            liveDataStatusWatcher.stop();
             processLiveDataMenuItem.textProperty().set("Start LiveData");
             return;
         }

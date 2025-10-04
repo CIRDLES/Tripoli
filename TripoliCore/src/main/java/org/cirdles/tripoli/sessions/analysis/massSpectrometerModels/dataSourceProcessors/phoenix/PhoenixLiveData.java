@@ -51,7 +51,13 @@ public class PhoenixLiveData {
     int blockIndex = 0;
     String analysisNumber;
     int cyclesPerBlock = 0;
+    int r270_267ColumnIndex = -1;
+    int r265_267ColumnIndex = -1;
 
+    /**
+     * Contains all the logic for operating on live data files output by Phoenix mass spectrometer.
+     * @throws TripoliException Thrown by analysis initialization
+     */
     public PhoenixLiveData() throws TripoliException {
         liveDataAnalysis = AnalysisInterface.initializeNewAnalysis(0);
         massSpecExtractedData = new MassSpecExtractedData();
@@ -87,27 +93,42 @@ public class PhoenixLiveData {
                 }
                 if (initMetaData) {
                     setAnalysisHeader();
+                    liveDataAnalysis.setDataFilePathString(filePath.getParent().toString());
 
-                    // Have AnalysisMethod figure out ratios and then set them accordingly
+                    // Import AnalysisMethod user function changes
                     liveDataAnalysis.setMethod(createAnalysisMethodFromCase1(massSpecExtractedData));
                     List<UserFunction> userFunctionModel = liveDataAnalysis.getMethod().getUserFunctionsModel();
                     for (UserFunction modelFunc : userFunctionModel) {
+                        // Set isotopic ratios
                         if (modelFunc.isTreatAsIsotopicRatio()) {
-                            for (UserFunction func : liveDataAnalysis.getUserFunctions()) {
-                                if (func.getName().equals(modelFunc.getName())) {
-                                    func.setTreatAsIsotopicRatio(true);
-                                }
-                            }
+                            liveDataAnalysis.getUserFunctions().stream()
+                                    .filter(func -> func.getName().equals(modelFunc.getName()))
+                                    .forEach(func -> func.setTreatAsIsotopicRatio(true));
+                        }
+
+                        // Add oxide corrected user functions to analysis
+                        if (modelFunc.isOxideCorrected()){
+                            liveDataAnalysis.getUserFunctions().add(modelFunc);
+                        }
+
+                        // Get correction indices
+                        if (modelFunc.getName().equals("270/267")) {
+                            r270_267ColumnIndex = modelFunc.getColumnIndex();
+                        }
+                        if (modelFunc.getName().equals("265/267")) {
+                            r265_267ColumnIndex = modelFunc.getColumnIndex();
                         }
                     }
-                    liveDataAnalysis.setDataFilePathString(filePath.getParent().toString());
+                    initMetaData = false;
                 }
-                initMetaData = false;
 
                 blockRecordLite = new MassSpecOutputBlockRecordLite(blockIndex, cycleData);
+                if (r270_267ColumnIndex != -1 && r265_267ColumnIndex != -1) {
+                    blockRecordLite = blockRecordLite.expandForUraniumOxideCorrection(r270_267ColumnIndex,r265_267ColumnIndex, 0.00205);
+                }
                 massSpecExtractedData.addBlockLiteRecord(blockRecordLite);
 
-
+                // Add data to UF map (For use in plots)
                 for (UserFunction userFunction : liveDataAnalysis.getUserFunctions()){
                     SingleBlockRawDataLiteSetRecord singleBlockRawDataLiteSetRecord = AllBlockInitForDataLiteOne.prepareSingleBlockDataLiteCaseOne(
                             blockIndex,
@@ -129,7 +150,7 @@ public class PhoenixLiveData {
                 return liveDataAnalysis;
 
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Error reading LiveData file: " + e.getMessage());
             }
         }
         return null;
@@ -279,7 +300,7 @@ public class PhoenixLiveData {
     /**
      * Merges changes from LiveData analysis to finished analysis. Copies BlockIdToRawDataLiteOne included data,
      * and replaces UserFunctions in FinishedAnalysis with those from LiveDataAnalysis.
-     * @param finishedAnalysis
+     * @param finishedAnalysis analysis generated from finished timsdp file
      */
     public void mergeFinalFile(AnalysisInterface finishedAnalysis) {
         liveDataAnalysis.getMapOfBlockIdToRawDataLiteOne().forEach((blockID, blockRawData) -> {
@@ -306,7 +327,6 @@ public class PhoenixLiveData {
      * from the txt and returns the path of it.
      * @param methodFolder user/mru supplied folder file
      * @return Path of the active LiveData folder
-     * @throws IOException
      */
     public static Path getLiveDataFolderPath(File methodFolder) {
         File liveDataStatusFile = new File(methodFolder, "LiveDataStatus.txt");
@@ -337,11 +357,12 @@ public class PhoenixLiveData {
 
         return Path.of(mutatableMethodFolder + File.separator + methodName + File.separator + "LiveData");
     }
+
     public static File getFinishedFile(File methodFolder) {
         File liveDataStatusFile = new File(methodFolder, "LiveDataStatus.txt");
 
         if (!liveDataStatusFile.exists()) {
-            return null;
+            return new File("");
         }
 
         String line = "";
