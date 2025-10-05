@@ -254,4 +254,30 @@ public enum FileHandlerUtil {
         }
     }
 
+    public static File selectImportFile(Window ownerWindow) throws TripoliException {
+        File retVal = null;
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select TripolizedData file");
+        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Tripoli Export File", "*.txt"));
+        File initDirectory = new File("");
+        if (tripoliPersistentState.getMRUDataFileFolderPath() != null) {
+            initDirectory = new File(tripoliPersistentState.getMRUDataFileFolderPath());
+        }
+        fileChooser.setInitialDirectory(initDirectory.exists() ? initDirectory : null);
+
+        File dataFile = fileChooser.showOpenDialog(ownerWindow);
+
+        if (null != dataFile) {
+            if (dataFile.getName().toLowerCase(Locale.US).endsWith(".txt")) {
+                retVal = dataFile;
+                tripoliPersistentState.setMRUDataFile(dataFile);
+                tripoliPersistentState.setMRUDataFileFolderPath(dataFile.getParent());
+            } else {
+                throw new TripoliException("Filename does not end with '.txt'");
+            }
+        }
+        return retVal;
+    }
+
 }

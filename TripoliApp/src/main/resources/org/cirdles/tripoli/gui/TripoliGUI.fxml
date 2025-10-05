@@ -43,7 +43,7 @@
         <Menu fx:id="analysisMenu" mnemonicParsing="false" text="Analysis">
             <MenuItem fx:id="manageAnalysisMenuItem" mnemonicParsing="false" onAction="#manageAnalysisMenuItemAction" text="Manage Analysis" visible="false" />
             <MenuItem mnemonicParsing="false" onAction="#newAnalysisMenuItemOnAction" text="New Analysis" />
-            <MenuItem disable="true" mnemonicParsing="false" text="Import Analysis" />
+            <MenuItem fx:id="importAnalysisMenuItem" onAction="#importAnalysisAction" mnemonicParsing="false" text="Import Analysis from ogTripoli" />
             <MenuItem disable="true" mnemonicParsing="false" text="Export Analysis" />
             <MenuItem fx:id="processLiveDataMenuItem" onAction="#processLiveData" text="Start LiveData"/>
         </Menu>

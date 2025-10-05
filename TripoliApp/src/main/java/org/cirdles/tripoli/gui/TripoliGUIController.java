@@ -123,6 +123,8 @@ public class TripoliGUIController implements Initializable {
     public Menu customReportMenu;
     @FXML
     public MenuItem processLiveDataMenuItem;
+    @FXML
+    public MenuItem importAnalysisMenuItem;
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
     @FXML // URL location of the FXML file that was given to the FXMLLoader
@@ -989,6 +991,19 @@ public class TripoliGUIController implements Initializable {
     }
 
     // ------------------ End LiveData Methods ------------------------------------------------
+
+    // ------------------ Import from ogTripoli -----------------------------------------------
+
+    public void importAnalysisAction() throws TripoliException {
+        File ogTripoliFile = selectImportFile(primaryStageWindow);
+        if (ogTripoliFile == null || !ogTripoliFile.exists()) {
+            TripoliMessageDialog.showWarningDialog("Tripoli file not found.", primaryStageWindow);
+            return;
+        }
+
+    }
+
+    // ------------------ End Import from ogTripoli -------------------------------------------
 
     public void showTripoliTutorialYoutube() {
         BrowserControl.showURI("https://www.youtube.com/playlist?list=PLfF8bcNRe2WTSMU4sOvDqciajlYi1-CZI");
