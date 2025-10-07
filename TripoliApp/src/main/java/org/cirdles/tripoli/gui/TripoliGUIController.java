@@ -872,6 +872,7 @@ public class TripoliGUIController implements Initializable {
         boolean finalFileExists = PhoenixLiveData.getFinishedFile(methodFolderPath.toFile()).exists();
         if (finalFileExists) {
             waitForLiveDataStatusUpdate(methodFolderPath);
+            TripoliMessageDialog.showInfoDialog("Finished analysis was found in current directory. Waiting for new analysis to start...", primaryStageWindow);
         } else {
             processLiveDataOnNewFolder(liveDataFolderPath);
         }
@@ -952,7 +953,7 @@ public class TripoliGUIController implements Initializable {
                 removeAnalysisFromSession(phoenixLiveData.getLiveDataAnalysis());
 
                 waitForLiveDataStatusUpdate(newFilePath.getParent().getParent());
-
+                TripoliMessageDialog.showInfoDialog("Analysis has finished and was loaded. Waiting for new analysis to start...", primaryStageWindow);
 
             } catch (TripoliException | JAXBException | IllegalAccessException | NoSuchMethodException |
                      InvocationTargetException | IOException e) {
