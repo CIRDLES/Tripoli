@@ -47,8 +47,8 @@
             <MenuItem disable="true" mnemonicParsing="false" text="Export Analysis" />
             <MenuItem fx:id="processLiveDataMenuItem" onAction="#processLiveData" text="Start LiveData"/>
         </Menu>
-        <Menu fx:id="parametersMenu" mnemonicParsing="false" text="Parameters">
-            <MenuItem fx:id="parameterControlMenuItem" mnemonicParsing="false" onAction="#parameterControlMenuItemOnAction" text="Parameter Control" />
+        <Menu fx:id="settingsMenu" mnemonicParsing="false" text="Settings">
+            <MenuItem fx:id="settingsMenuMenuItem" mnemonicParsing="false" onAction="#settingsMenuMenuItemOnAction" text="Settings Menu" />
         </Menu>
         <Menu fx:id="reportsMenu" mnemonicParsing="false" text="Reports">
             <items>

@@ -165,33 +165,6 @@
                                      </HBox>
                                  </children>
                              </VBox>
-                             <VBox fx:id="liveDataSettingsVBox">
-                                <Label layoutX="17.0" layoutY="189.0" prefHeight="38.0" prefWidth="520.0" text="Live Data Settings" textAlignment="CENTER">
-                                   <font>
-                                      <Font name="Consolas" size="24.0" />
-                                   </font>
-                                   <opaqueInsets>
-                                      <Insets top="-9.0" />
-                                   </opaqueInsets>
-                                </Label>
-                                <HBox alignment="CENTER_LEFT" layoutX="17.0" layoutY="227.0" prefHeight="36.0" prefWidth="521.0">
-                                   <children>
-                                      <Label prefHeight="34.0" prefWidth="239.0" text="Idle Timeout (seconds)">
-                                         <font>
-                                            <Font size="18.0" />
-                                         </font>
-                                      </Label>
-                                      <Region prefHeight="36.0" prefWidth="78.0" />
-                                      <Spinner fx:id="liveDataTimeoutSpinner" prefHeight="25.0" prefWidth="100.0" />
-                                   </children>
-                                 <padding>
-                                    <Insets left="15.0" />
-                                 </padding>
-                                </HBox>
-                              <padding>
-                                 <Insets left="15.0" />
-                              </padding>
-                             </VBox>
                          </VBox>
                      </children></AnchorPane>
                </content>
