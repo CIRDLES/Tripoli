@@ -110,14 +110,6 @@ public class SettingsWindowController implements Initializable {
         return plotIntensitiesVBox;
     }
 
-    public VBox getLiveDataSettingsVBox() {
-        return liveDataSettingsVBox;
-    }
-
-    public Spinner<Integer> getLiveDataTimeoutSpinner() {
-        return liveDataTimeoutSpinner;
-    }
-
     public ComboBox<MassSpectrometerContextEnum> getMassSpecComboBox() {
         return massSpecComboBox;
     }

@@ -43,7 +43,6 @@ import org.cirdles.tripoli.utilities.DelegateActionSet;
 import org.cirdles.tripoli.utilities.collections.TripoliSpeciesColorMap;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
-import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -154,14 +153,9 @@ public class SettingsWindow {
                     }
             );
             initParameterTextFields();
-            handleLiveDataTimeoutHidden();
         } catch (IOException | TripoliException e) {
             e.printStackTrace();
         }
-    }
-    private void handleLiveDataTimeoutHidden() {
-        settingsWindowController.getLiveDataSettingsVBox().setVisible(
-                analysis.getParameters().getMassSpectrometerContext().getMassSpectrometerName().equals("Phoenix"));
     }
     private void handleLiveDataMenuHidden() {
         MenuItem liveDataMenuItem = ((MenuBar) TripoliGUI.primaryStage.getScene()
@@ -172,7 +166,6 @@ public class SettingsWindow {
     private void initParameterTextFields() {
         initProbabilitySpinner();
         initDatumCountSpinner();
-        initTimeoutSpinner();
         initMassSpecCombo();
     }
 
@@ -211,7 +204,6 @@ public class SettingsWindow {
             if (newValue != null) {
                 analysis.getParameters().setMassSpectrometerContext(newValue);
                 TripoliGUI.updateStageTitle(newValue);
-                handleLiveDataTimeoutHidden();
                 handleLiveDataMenuHidden();
             }
         });
@@ -253,45 +245,6 @@ public class SettingsWindow {
         });
         probabilitySpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
            analysis.getParameters().setChauvenetRejectionProbability(newValue);
-        });
-    }
-
-    private void initTimeoutSpinner() {
-        Spinner<Integer> timeoutSpinner = settingsWindowController.getLiveDataTimeoutSpinner();
-        timeoutSpinner.setValueFactory( new SpinnerValueFactory.IntegerSpinnerValueFactory(
-                1,
-                Integer.MAX_VALUE,
-                analysis.getParameters().getTimeoutSeconds(), 1));
-        timeoutSpinner.addEventFilter(KeyEvent.KEY_TYPED, event -> {
-            String input = event.getCharacter();
-            if (!input.matches("[0-9.]") || (input.equals(".") && timeoutSpinner.getEditor().getText().contains("."))) {
-                event.consume();
-            }
-        });
-        timeoutSpinner.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            timeoutSpinner.commitValue();
-        });
-        timeoutSpinner.getValueFactory().setConverter(new StringConverter<>() {
-
-            @Override
-            public String toString(Integer value) {
-                if (value == null) {
-                    return "";
-                }
-                return String.valueOf(value);
-            }
-
-            @Override
-            public Integer fromString(String string) {
-                try {
-                    return Integer.parseInt(string);
-                } catch (NumberFormatException e) {
-                    return analysis.getParameters().getTimeoutSeconds();
-                }
-            }
-        });
-        timeoutSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
-            analysis.getParameters().setTimeoutSeconds(newValue);
         });
     }
 
@@ -410,8 +363,6 @@ public class SettingsWindow {
         });
         settingsWindowController.getSaveAsSessionDefaultsButton().setOnAction(e -> {
             Session currentSession = ((Analysis) analysis).getParentSession();
-            currentSession.getSessionDefaultParameters().setTimeoutSeconds(
-                    analysis.getParameters().getTimeoutSeconds());
             currentSession.getSessionDefaultParameters().setMassSpectrometerContext(
                     analysis.getParameters().getMassSpectrometerContext());
             currentSession.getSessionDefaultParameters().setRequiredMinDatumCount(
@@ -433,8 +384,6 @@ public class SettingsWindow {
         settingsWindowController.getSaveAsUserDefaultsButton().setOnAction(e -> {
             try{
                 TripoliPersistentState tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
-                tripoliPersistentState.getTripoliPersistentParameters().setTimeoutSeconds(
-                        analysis.getParameters().getTimeoutSeconds());
                 tripoliPersistentState.getTripoliPersistentParameters().setMassSpectrometerContext(
                         analysis.getParameters().getMassSpectrometerContext());
                 tripoliPersistentState.getTripoliPersistentParameters().setChauvenetRejectionProbability(
@@ -451,12 +400,6 @@ public class SettingsWindow {
         });
         settingsWindowController.getRestoreSessionDefaultsButton().setOnAction(e -> {
             Session currentSession = ((Analysis) analysis).getParentSession();
-            analysis.getParameters().setTimeoutSeconds(
-                    currentSession.getSessionDefaultParameters().getTimeoutSeconds()
-            );
-            settingsWindowController.getLiveDataTimeoutSpinner().getValueFactory().setValue(
-                    analysis.getParameters().getTimeoutSeconds()
-            );
             analysis.getParameters().setChauvenetRejectionProbability(
                     currentSession.getSessionDefaultParameters().getChauvenetRejectionProbability()
             );
@@ -487,12 +430,6 @@ public class SettingsWindow {
                 );
                 settingsWindowController.getChauvenetMinimumDatumCountSpinner().getValueFactory().setValue(
                         analysis.getParameters().getRequiredMinDatumCount()
-                );
-                analysis.getParameters().setTimeoutSeconds(
-                        tripoliPersistentState.getTripoliPersistentParameters().getTimeoutSeconds()
-                );
-                settingsWindowController.getLiveDataTimeoutSpinner().getValueFactory().setValue(
-                        analysis.getParameters().getTimeoutSeconds()
                 );
                 analysis.getParameters().setChauvenetRejectionProbability(
                         tripoliPersistentState.getTripoliPersistentParameters().getChauvenetRejectionProbability()

@@ -479,4 +479,7 @@ public class OGTripoliViewController {
     public void toggleSculptingModeAction() {
         plotsWallPaneRatios.toggleSculptingMode();
     }
+    public void replotAllPlots(){
+        ((PlotWallPane) plotsWallPaneRatios).replotAll();
+    }
 }
