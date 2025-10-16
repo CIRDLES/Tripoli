@@ -32,6 +32,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import org.apache.commons.math3.random.RandomDataGenerator;
+import org.cirdles.tripoli.sessions.analysis.imports.OgTripoliImporter;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixLiveData;
 import org.cirdles.tripoli.utilities.file.FileWatcher;
 import org.cirdles.tripoli.Tripoli;
@@ -1036,6 +1037,7 @@ public class TripoliGUIController implements Initializable {
             TripoliMessageDialog.showWarningDialog("Tripoli file not found.", primaryStageWindow);
             return;
         }
+        OgTripoliImporter.importTripolizedData(ogTripoliFile);
 
     }
 
