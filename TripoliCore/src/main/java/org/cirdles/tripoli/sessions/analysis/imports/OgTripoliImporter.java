@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 James Bowring, Noah McLean, Scott Burdick, and CIRDLES.org.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.cirdles.tripoli.sessions.analysis.imports;
 
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
@@ -7,7 +23,6 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourcePr
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,18 +30,19 @@ public class OgTripoliImporter {
 
     public static AnalysisInterface importTripolizedData(File ogTripoliFile) {
         try {
-            double[][] cycleData = new double[0][];
-            int cycleIndex = 0;
+            boolean timeExists = false;
+
             int blockIndex = 1;
+            int cyclesPerBlock = 0;
+
             MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
             AnalysisInterface tripoliAnalysis = AnalysisInterface.initializeNewAnalysis(0);
-            List<Double> timeValues = new ArrayList<>();
 
-            Files.readAllLines(ogTripoliFile.toPath()).forEach(line -> {}); //todo this is it maybe?
             FileReader fileReader = new FileReader(ogTripoliFile);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            bufferedReader.readLine(); // Skip the first line
             String line = bufferedReader.readLine();
-            line = bufferedReader.readLine(); // Skip the first line
 
             tripoliAnalysis.setAnalysisName(line.split("\\.")[0]);
 
@@ -38,42 +54,85 @@ public class OgTripoliImporter {
             // Create UserFunctions based on headers (skipping Time)
             String[] headers = line.split("\t");
             List<UserFunction> ufList = tripoliAnalysis.getUserFunctions();
-            for (int i = 1; i < headers.length; i++) {
-                ufList.add(new UserFunction(headers[i], i-1));
+            if (headers[0].equalsIgnoreCase("Time")) timeExists = true;
+
+            for (int i = 0; i < headers.length; i++) {
+                if (timeExists) {
+                    if (i == 0) i++;
+                    ufList.add(new UserFunction(headers[i].trim(), i-1));
+                } else {
+                    ufList.add(new UserFunction(headers[i].trim(), i));
+                }
             }
 
-            // Skip 3 lines
-            for (int i = 0; i < 3; i++) {
+            // Skip over stats
+            for (int i = 0; i < 7; i++) {
                 line = bufferedReader.readLine();
             }
 
-                String[] cycleValues = line.split("\t");
-                if (cycleValues.length == 0) { // Start a new block
-                    massSpecExtractedData.addBlockLiteRecord(new MassSpecOutputBlockRecordLite(blockIndex, cycleData));
-                    cycleData = new double[0][];
-                    blockIndex++;
-                    cycleIndex = 0;
-                } else { // gather cycle data
-                    double[][] expandedCycleData = new double[cycleIndex + 1][cycleValues.length];
-                    for (int row = 0; row < cycleData.length; row++) {
-                        System.arraycopy(cycleData[row], 0, expandedCycleData[row], 0, cycleData[row].length);
-                    }
-                    cycleData = expandedCycleData;
+            // Prepare to accumulate block data
+            List<double[]> currentBlockCycles = new ArrayList<>();
+            String dataLine;
 
-                    for (int i = 1; i < cycleValues.length; i++) {
-                        cycleData[cycleIndex][i-1] = Double.parseDouble(cycleValues[i]);
+            while ((dataLine = bufferedReader.readLine()) != null) {
+                dataLine = dataLine.trim();
+
+                // blank line = end of block
+                if (dataLine.isEmpty()) {
+                    if (!currentBlockCycles.isEmpty()) {
+                        double[][] blockData = currentBlockCycles.toArray(new double[0][]);
+                        massSpecExtractedData.addBlockLiteRecord(
+                                new MassSpecOutputBlockRecordLite(blockIndex, blockData)
+                        );
+                        blockIndex++;
+                        if (cyclesPerBlock == 0) cyclesPerBlock = currentBlockCycles.size();
+                        currentBlockCycles.clear();
                     }
-                    timeValues.add(Double.parseDouble(cycleValues[0]));
-                    cycleIndex++;
+                    continue;
                 }
-                line =  bufferedReader.readLine();
+
+                // Parse data row
+                String[] cycleValues = dataLine.split("\t");
+
+                int timeExistsArrayLength = timeExists ? cycleValues.length - 1 : cycleValues.length;
+                double[] numericCycle = new double[timeExistsArrayLength];
+                boolean[] includedCycle = new boolean[timeExistsArrayLength];
+
+                for (int i = 0; i < cycleValues.length; i++) {
+                    if (timeExists && i == 0) {
+                        // This is where I'd put my time value. IF I HAD ONE
+                        //timeValues.add(Double.parseDouble(cycleValues[0]));
+                        continue;
+                    }
+
+                    int timeExistsIndex = timeExists ? i - 1 : i;
+                    if (cycleValues[i].isEmpty()) cycleValues[i] = "0.0"; // null is 0
+                    double value = Double.parseDouble(cycleValues[i]);
+                    if (value < 0) {
+                        value = Math.abs(value); // negative is not included
+                        includedCycle[timeExistsIndex] = false;
+                    } else {
+                        includedCycle[timeExistsIndex] = true;
+                    }
+                    numericCycle[timeExistsIndex] = value;
+                }
+
+                currentBlockCycles.add(numericCycle);
+            }
+
+            // Handle final block (if not followed by blank line)
+            if (!currentBlockCycles.isEmpty()) {
+                double[][] blockData = currentBlockCycles.toArray(new double[0][]);
+                massSpecExtractedData.addBlockLiteRecord(
+                        new MassSpecOutputBlockRecordLite(blockIndex, blockData)
+                );
+            }
 
             tripoliAnalysis.setMassSpecExtractedData(massSpecExtractedData);
             return tripoliAnalysis;
 
-
-        } catch (IOException | TripoliException e) {
-            throw new RuntimeException(e);
+        } catch (IOException | TripoliException ignored) {
+            return null;
         }
     }
 }

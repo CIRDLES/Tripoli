@@ -17,7 +17,6 @@
 package org.cirdles.tripoli.expressions.userFunctions;
 
 import org.cirdles.tripoli.constants.TripoliConstants;
-import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTree;
 import org.cirdles.tripoli.expressions.expressionTrees.ExpressionTreeInterface;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
