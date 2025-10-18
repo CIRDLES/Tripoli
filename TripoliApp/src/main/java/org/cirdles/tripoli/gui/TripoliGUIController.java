@@ -1037,7 +1037,14 @@ public class TripoliGUIController implements Initializable {
             TripoliMessageDialog.showWarningDialog("Tripoli file not found.", primaryStageWindow);
             return;
         }
-        OgTripoliImporter.importTripolizedData(ogTripoliFile);
+        AnalysisInterface proposedAnalysis = OgTripoliImporter.importTripolizedData(ogTripoliFile);
+
+        if (proposedAnalysis == null) {
+            TripoliMessageDialog.showWarningDialog("Could not process Tripolized data file", primaryStageWindow);
+            return;
+        }
+        analysis = proposedAnalysis;
+        attachAnalysisToSession(analysis);
 
     }
 

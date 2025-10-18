@@ -16,14 +16,18 @@
 
 package org.cirdles.tripoli.sessions.analysis.imports;
 
+import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
+import org.cirdles.tripoli.sessions.analysis.methods.AnalysisMethod;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class OgTripoliImporter {
@@ -35,8 +39,11 @@ public class OgTripoliImporter {
             int blockIndex = 1;
             int cyclesPerBlock = 0;
 
-            MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
             AnalysisInterface tripoliAnalysis = AnalysisInterface.initializeNewAnalysis(0);
+            MassSpecExtractedData massSpecExtractedData = new MassSpecExtractedData();
+
+            MassSpectrometerContextEnum massSpectrometerContext = tripoliAnalysis.getParameters().getMassSpectrometerContext();
+            massSpecExtractedData.setMassSpectrometerContext(massSpectrometerContext);
 
             FileReader fileReader = new FileReader(ogTripoliFile);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -52,17 +59,16 @@ public class OgTripoliImporter {
             }
 
             // Create UserFunctions based on headers (skipping Time)
-            String[] headers = line.split("\t");
+            String[] headers = Arrays.stream(line.split("\t"))
+                    .map(String::trim)
+                    .toArray(String[]::new);
+
             List<UserFunction> ufList = tripoliAnalysis.getUserFunctions();
             if (headers[0].equalsIgnoreCase("Time")) timeExists = true;
 
             for (int i = 0; i < headers.length; i++) {
-                if (timeExists) {
-                    if (i == 0) i++;
-                    ufList.add(new UserFunction(headers[i].trim(), i-1));
-                } else {
-                    ufList.add(new UserFunction(headers[i].trim(), i));
-                }
+                if (timeExists) if (i == 0) i++;
+                ufList.add(new UserFunction(headers[i], timeExists ? i - 1 : i));
             }
 
             // Skip over stats
@@ -72,6 +78,7 @@ public class OgTripoliImporter {
 
             // Prepare to accumulate block data
             List<double[]> currentBlockCycles = new ArrayList<>();
+            List<boolean[]> currentBlockIncluded = new ArrayList<>();
             String dataLine;
 
             while ((dataLine = bufferedReader.readLine()) != null) {
@@ -80,13 +87,28 @@ public class OgTripoliImporter {
                 // blank line = end of block
                 if (dataLine.isEmpty()) {
                     if (!currentBlockCycles.isEmpty()) {
-                        double[][] blockData = currentBlockCycles.toArray(new double[0][]);
+                        double[][] blockDataLite = currentBlockCycles.toArray(new double[0][]);
+                        boolean[][] blockDataLiteIncluded = currentBlockIncluded.toArray(new boolean[0][]);
+                        boolean blockIncluded = currentBlockIncluded.stream()
+                                .anyMatch(row -> {
+                                    for (boolean v : row) {
+                                        if (v) return true;
+                                    }
+                                    return false;
+                                }); // If all values are false, then block is not included
                         massSpecExtractedData.addBlockLiteRecord(
-                                new MassSpecOutputBlockRecordLite(blockIndex, blockData)
+                                new MassSpecOutputBlockRecordLite(blockIndex, blockDataLite)
                         );
+                        tripoliAnalysis.getMapOfBlockIdToRawDataLiteOne().put(blockIndex, new SingleBlockRawDataLiteSetRecord(
+                                blockIndex,
+                                blockIncluded,
+                                blockDataLite,
+                                blockDataLiteIncluded
+                        )); // store each block into map
                         blockIndex++;
                         if (cyclesPerBlock == 0) cyclesPerBlock = currentBlockCycles.size();
                         currentBlockCycles.clear();
+                        currentBlockIncluded.clear();
                     }
                     continue;
                 }
@@ -106,7 +128,8 @@ public class OgTripoliImporter {
                     }
 
                     int timeExistsIndex = timeExists ? i - 1 : i;
-                    if (cycleValues[i].isEmpty()) cycleValues[i] = "0.0"; // null is 0
+                    if (cycleValues[i].trim().isEmpty()) cycleValues[i] = "0.0"; // null is 0
+
                     double value = Double.parseDouble(cycleValues[i]);
                     if (value < 0) {
                         value = Math.abs(value); // negative is not included
@@ -118,6 +141,7 @@ public class OgTripoliImporter {
                 }
 
                 currentBlockCycles.add(numericCycle);
+                currentBlockIncluded.add(includedCycle);
             }
 
             // Handle final block (if not followed by blank line)
@@ -127,8 +151,27 @@ public class OgTripoliImporter {
                         new MassSpecOutputBlockRecordLite(blockIndex, blockData)
                 );
             }
+            // Set headers
+            massSpecExtractedData.setHeader(new MassSpecExtractedData.MassSpecExtractedHeader(
+                    "",
+                    tripoliAnalysis.getAnalysisName(),
+                    "",
+                    "ogTripoliImport",
+                    true,
+                    false,
+                    "",
+                    cyclesPerBlock
+            ));
+
+            String[] columnHeaders = new String[headers.length + 2];
+            columnHeaders[0] = "Cycle";
+            columnHeaders[1] = "Time";
+            System.arraycopy(headers, 0, columnHeaders, 2, headers.length);
+            massSpecExtractedData.setColumnHeaders(columnHeaders);
 
             tripoliAnalysis.setMassSpecExtractedData(massSpecExtractedData);
+            tripoliAnalysis.setMethod(AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData));
+
             return tripoliAnalysis;
 
         } catch (IOException | TripoliException ignored) {
