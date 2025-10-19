@@ -32,6 +32,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import org.apache.commons.math3.random.RandomDataGenerator;
+import org.cirdles.tripoli.sessions.analysis.imports.OgTripoliImporter;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.phoenix.PhoenixLiveData;
 import org.cirdles.tripoli.utilities.file.FileWatcher;
 import org.cirdles.tripoli.Tripoli;
@@ -122,6 +123,8 @@ public class TripoliGUIController implements Initializable {
     public Menu customReportMenu;
     @FXML
     public MenuItem processLiveDataMenuItem;
+    @FXML
+    public MenuItem importAnalysisMenuItem;
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
     @FXML // URL location of the FXML file that was given to the FXMLLoader
@@ -1025,6 +1028,27 @@ public class TripoliGUIController implements Initializable {
     }
 
     // ------------------ End LiveData Methods ------------------------------------------------
+
+    // ------------------ Import from ogTripoli -----------------------------------------------
+
+    public void importAnalysisAction() throws TripoliException {
+        File ogTripoliFile = selectImportFile(primaryStageWindow);
+        if (ogTripoliFile == null) {
+            return;
+        }
+
+        AnalysisInterface proposedAnalysis = OgTripoliImporter.importTripolizedData(ogTripoliFile);
+
+        if (proposedAnalysis == null) {
+            TripoliMessageDialog.showWarningDialog("Could not process Tripolized data file.", primaryStageWindow);
+            return;
+        }
+        analysis = proposedAnalysis;
+        attachAnalysisToSession(analysis);
+
+    }
+
+    // ------------------ End Import from ogTripoli -------------------------------------------
 
     public void showTripoliTutorialYoutube() {
         BrowserControl.showURI("https://www.youtube.com/playlist?list=PLfF8bcNRe2WTSMU4sOvDqciajlYi1-CZI");
