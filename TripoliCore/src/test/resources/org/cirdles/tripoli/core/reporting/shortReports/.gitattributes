@@ -1,0 +1,2 @@
+# Apply LF line endings only within /data and subdirectories
+*.txt text eol=lf
