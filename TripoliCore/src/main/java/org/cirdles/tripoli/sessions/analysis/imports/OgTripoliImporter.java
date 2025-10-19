@@ -67,13 +67,24 @@ public class OgTripoliImporter {
             if (headers[0].equalsIgnoreCase("Time")) timeExists = true;
 
             for (int i = 0; i < headers.length; i++) {
-                if (timeExists) if (i == 0) i++;
-                ufList.add(new UserFunction(headers[i], timeExists ? i - 1 : i));
+                if (timeExists && i == 0) i++; // skip time column
+                UserFunction uf;
+                if (headers[i].contains("OxideCor:")) { // Manually set oxide corrected flag
+                    String[] nameParts = headers[i].split("OxideCor:");
+                    String correctedName = nameParts[0].trim() + "oc";
+                    headers[i] = correctedName;
+                    uf = new UserFunction(correctedName, timeExists ? i - 1 : i);
+                    uf.setOxideCorrected(true);
+                } else {
+                    uf = new UserFunction(headers[i], timeExists ? i - 1 : i);
+                }
+                ufList.add(uf);
+
             }
 
             // Skip over stats
-            for (int i = 0; i < 7; i++) {
-                line = bufferedReader.readLine();
+            for (int i = 0; i < 6; i++) {
+                bufferedReader.readLine();
             }
 
             // Prepare to accumulate block data
@@ -156,7 +167,7 @@ public class OgTripoliImporter {
                     "",
                     tripoliAnalysis.getAnalysisName(),
                     "",
-                    "ogTripoliImport",
+                    "implied ogtripoli",
                     true,
                     false,
                     "",
@@ -169,8 +180,18 @@ public class OgTripoliImporter {
             System.arraycopy(headers, 0, columnHeaders, 2, headers.length);
             massSpecExtractedData.setColumnHeaders(columnHeaders);
 
+            // Set analysis metadata
             tripoliAnalysis.setMassSpecExtractedData(massSpecExtractedData);
             tripoliAnalysis.setMethod(AnalysisMethod.createAnalysisMethodFromCase1(massSpecExtractedData));
+            tripoliAnalysis.setDataFilePathString(ogTripoliFile.getAbsolutePath());
+
+            // Apply isotopic flags
+            List<UserFunction> ufModels = tripoliAnalysis.getAnalysisMethod().getUserFunctionsModel();
+            for (UserFunction ufm : ufModels) {
+                if (ufm.isTreatAsIsotopicRatio()){
+                    ufList.get(ufm.getColumnIndex()).setTreatAsIsotopicRatio(true);
+                }
+            }
 
             return tripoliAnalysis;
 
