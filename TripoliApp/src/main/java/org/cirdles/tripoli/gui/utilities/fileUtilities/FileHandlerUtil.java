@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import static org.cirdles.tripoli.gui.TripoliGUI.primaryStageWindow;
 import static org.cirdles.tripoli.gui.TripoliGUIController.tripoliPersistentState;
 import static org.cirdles.tripoli.utilities.file.FileNameFixer.fixFileName;
 
@@ -274,7 +275,8 @@ public enum FileHandlerUtil {
                 tripoliPersistentState.setMRUDataFile(dataFile);
                 tripoliPersistentState.setMRUDataFileFolderPath(dataFile.getParent());
             } else {
-                throw new TripoliException("Filename does not end with '.txt'");
+                TripoliMessageDialog.showWarningDialog("Selected file is not a txt format.", primaryStageWindow);
+                return null;
             }
         }
         return retVal;

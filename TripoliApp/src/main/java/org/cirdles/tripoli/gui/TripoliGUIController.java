@@ -1033,14 +1033,14 @@ public class TripoliGUIController implements Initializable {
 
     public void importAnalysisAction() throws TripoliException {
         File ogTripoliFile = selectImportFile(primaryStageWindow);
-        if (ogTripoliFile == null || !ogTripoliFile.exists()) {
-            TripoliMessageDialog.showWarningDialog("Tripoli file not found.", primaryStageWindow);
+        if (ogTripoliFile == null) {
             return;
         }
+
         AnalysisInterface proposedAnalysis = OgTripoliImporter.importTripolizedData(ogTripoliFile);
 
         if (proposedAnalysis == null) {
-            TripoliMessageDialog.showWarningDialog("Could not process Tripolized data file", primaryStageWindow);
+            TripoliMessageDialog.showWarningDialog("Could not process Tripolized data file.", primaryStageWindow);
             return;
         }
         analysis = proposedAnalysis;
