@@ -48,9 +48,10 @@ public class OgTripoliImporter {
             FileReader fileReader = new FileReader(ogTripoliFile);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
 
-            bufferedReader.readLine(); // Skip the first line
-            String line = bufferedReader.readLine();
+            String firstLine = bufferedReader.readLine(); // Validate first line
+            if (!firstLine.equals("Tripoli tab-delimited output of processed data for:")) return null;
 
+            String line = bufferedReader.readLine();
             tripoliAnalysis.setAnalysisName(line.split("\\.")[0]);
 
             // Skip 8 lines to get to headers
