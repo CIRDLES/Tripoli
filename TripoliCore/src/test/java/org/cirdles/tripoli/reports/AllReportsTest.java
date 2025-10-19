@@ -66,7 +66,7 @@ public class AllReportsTest {
      */
     public ReportData generateReportData(String dataFilepath) throws URISyntaxException, JAXBException, TripoliException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         File dataFile = new File(Objects.requireNonNull(getClass().getResource(dataFilepath)).toURI());
-        System.out.println("💾 Generating Report Data for " + dataFile.getName());
+        System.out.println("💾 Generating Report Data for " + dataFile.getName() + "...");
 
         Session tripoliSession = Session.initializeDefaultSession();
 
@@ -119,7 +119,7 @@ public class AllReportsTest {
         Session tripoliSession = reportData.getTripoliSession();
         File dataFile = reportData.getDataFile();
 
-        System.out.println("📝 Generating Full Report for " + dataFile.getName());
+        System.out.println("📝 Generating Full Report for " + dataFile.getName() + "...");
         // Create a Full Report to test against the Oracle
         Report.supressContents = true; // Suppresses the Data File Path column and Created On: line because they would always be different
         String actualReport = null;
@@ -175,7 +175,7 @@ public class AllReportsTest {
         AnalysisInterface analysis = reportData.getAnalysis();
         File dataFile = reportData.getDataFile();
 
-        System.out.println("📝 Generating Redux Report for " + dataFile.getName());
+        System.out.println("📝 Generating Redux Report for " + dataFile.getName() + "...");
 
         // Create the report to test against the Oracle
         AllBlockInitForDataLiteOne.initBlockModels(analysis);
@@ -221,7 +221,7 @@ public class AllReportsTest {
         String analysisName = reportData.getAnalysisName();
         File dataFile = reportData.getDataFile();
 
-        System.out.println("📝 Generating Short Report for " + dataFile.getName());
+        System.out.println("📝 Generating Short Report for " + dataFile.getName() + "...");
         // Create the report to test against the Oracle
         String actualReport = "";
         String expectedReport = null;
@@ -252,8 +252,10 @@ public class AllReportsTest {
         Path dataFilesDirPath = Paths.get(Objects.requireNonNull(Tripoli.class.getResource(dataFilesDir)).toURI());
 
         try {
+            // Recursively visits all files within dataFilesDirPath
             Stream<Path> pathStream = Files.walk(dataFilesDirPath);
             System.out.println("✅ File paths generated successfully!");
+            // Filters out oracles generated at build and converts paths into usable filepaths for .getResource()
             return pathStream
                     .filter(Files::isRegularFile)
                     .filter(p -> !p.getFileName().toString().startsWith("New Session-"))
@@ -274,7 +276,7 @@ public class AllReportsTest {
             ReportData reportData = generateReportData(dataFilePath);
 
             String[] fullReportTestResults = fullReportTest(dataFilePath, reportData);
-            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!");
+            assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!\n");
             System.out.println("✅ Full Report generated successfully!\n");
 
 //            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilePath, reportData);
@@ -282,7 +284,7 @@ public class AllReportsTest {
 //            System.out.println("✅ Redux Report generated successfully!\n");
 
             String[] shortReportTestResults = shortReportTest(dataFilePath, reportData);
-            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!");
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!\n");
             System.out.println("✅ Short Report generated successfully!\n");
         } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException |
                  NoSuchMethodException | IllegalAccessException e) {
