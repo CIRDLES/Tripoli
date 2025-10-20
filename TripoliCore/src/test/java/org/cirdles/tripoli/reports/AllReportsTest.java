@@ -51,55 +51,6 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AllReportsTest {
-
-    /**
-     * Generates and returns the data required for a report to be generated.
-     *
-     * @param dataFilepath
-     * @return
-     * @throws URISyntaxException
-     * @throws JAXBException
-     * @throws TripoliException
-     * @throws InvocationTargetException
-     * @throws NoSuchMethodException
-     * @throws IllegalAccessException
-     */
-    public ReportData generateReportData(String dataFilepath) throws URISyntaxException, JAXBException, TripoliException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
-        File dataFile = new File(Objects.requireNonNull(getClass().getResource(dataFilepath)).toURI());
-        System.out.println("💾 Generating Report Data for " + dataFile.getName() + "...");
-
-        Session tripoliSession = Session.initializeDefaultSession();
-
-        AnalysisInterface analysisProposed;
-        AnalysisInterface analysis = null;
-        String analysisName = "";
-        try {
-            analysisProposed = AnalysisInterface.initializeNewAnalysis(0);
-            analysisName = analysisProposed.extractMassSpecDataFromPath(Path.of(dataFile.toURI()));
-
-            if (analysisProposed.getMassSpecExtractedData().getMassSpectrometerContext().compareTo(MassSpectrometerContextEnum.UNKNOWN) != 0) {
-
-                analysisProposed.setAnalysisName(analysisName);
-                analysisProposed.setAnalysisStartTime(analysisProposed.getMassSpecExtractedData().getHeader().analysisStartTime());
-                tripoliSession.getMapOfAnalyses().put(analysisProposed.getAnalysisName(), analysisProposed);
-                analysis = analysisProposed;
-            } else {
-                analysis = null;
-            }
-
-        } catch (IOException | JAXBException | TripoliException | InvocationTargetException | NoSuchMethodException |
-                 IllegalAccessException e) {
-        }
-
-        assertNotNull(analysis);
-        analysis.getUserFunctions().sort(null);
-
-        ReportData reportData = new ReportData(List.of(analysis), analysis, analysisName, tripoliSession, dataFilepath, dataFile);
-        System.out.println("✅ Report Data generated successfully!\n");
-
-        return reportData;
-    }
-
     /**
      * Uses a filepath to generate a full report and then asserts it to a premade Oracle made with the same analysis name
      *
@@ -273,7 +224,8 @@ public class AllReportsTest {
     public void generate_filepaths_test(String dataFilePath) {
         System.out.println("-----------------------------------------------------------------------------------------------------------------");
         try {
-            ReportData reportData = generateReportData(dataFilePath);
+            ReportData reportData = new ReportData();
+            reportData = reportData.generateReportData(dataFilePath);
 
             String[] fullReportTestResults = fullReportTest(dataFilePath, reportData);
             assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!\n");
