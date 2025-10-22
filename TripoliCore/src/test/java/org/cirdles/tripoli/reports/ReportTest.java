@@ -1,14 +1,40 @@
+/*
+ * Copyright 2022 James Bowring, Noah McLean, Scott Burdick, and CIRDLES.org.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.cirdles.tripoli.reports;
 
+import jakarta.xml.bind.JAXBException;
+import org.apache.commons.io.FileUtils;
+import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
-import org.cirdles.tripoli.utilities.stateUtilities.TripoliSerializer;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -67,12 +93,11 @@ public class ReportTest {
         assertAll(
                 () -> assertTrue(testColumn.equals(dupeColumn), "ReportColumns should be equal"),
                 () -> assertTrue(testCategory.equals(dupeCategory), "ReportCategory should be equal"),
-                () -> assertTrue(testReport.equals(dupeReport),"Report should be equal"),
+                () -> assertTrue(testReport.equals(dupeReport), "Report should be equal"),
 
                 () -> assertFalse(testReport.equals(alteredReport), "Reports should NOT be equal"),
                 () -> assertFalse(testCategory.equals(alteredCategory), "Categories should NOT be equal"),
                 () -> assertFalse(testColumn.equals(alteredColumn), "Columns should NOT be equal")
         );
     }
-
 }

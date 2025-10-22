@@ -89,9 +89,9 @@ public class ReportCategory implements Serializable, Comparable<ReportCategory> 
         columnSet.add(new ReportColumn("Sample Description",i++, "getAnalysisSampleDescription"));
         columnSet.add(new ReportColumn("Fraction",i++, "getAnalysisFractionName"));
         columnSet.add(new ReportColumn("Data File Name",i++, "getDataFilePathString"));
-        columnSet.add(new ReportColumn("Data File Path",i++, "getDataFilePathString"));
+        if (!Report.supressContents) columnSet.add(new ReportColumn("Data File Path",i++, "getDataFilePathString"));
         columnSet.add(new ReportColumn("Method Name",i++, "getMethod"));
-        columnSet.add(new ReportColumn("Start Time", i, "getAnalysisStartTime"));
+        if (!Report.supressContents) columnSet.add(new ReportColumn("Start Time", i, "getAnalysisStartTime"));
 
         return new ReportCategory("Analysis Info", columnSet, 0);
     }
