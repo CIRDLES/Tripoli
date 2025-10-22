@@ -19,14 +19,17 @@ package org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceP
 import org.apache.commons.lang3.time.DateUtils;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.BlockCyclesBuilder;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.SingleBlockRawDataLiteSetRecord;
+import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecExtractedData;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordLite;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
-import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -48,7 +51,13 @@ public class PhoenixLiveData {
     int blockIndex = 0;
     String analysisNumber;
     int cyclesPerBlock = 0;
+    int r270_267ColumnIndex = -1;
+    int r265_267ColumnIndex = -1;
 
+    /**
+     * Contains all the logic for operating on live data files output by Phoenix mass spectrometer.
+     * @throws TripoliException Thrown by analysis initialization
+     */
     public PhoenixLiveData() throws TripoliException {
         liveDataAnalysis = AnalysisInterface.initializeNewAnalysis(0);
         massSpecExtractedData = new MassSpecExtractedData();
@@ -72,7 +81,7 @@ public class PhoenixLiveData {
         return liveDataAnalysis;
     }
 
-    public AnalysisInterface readLiveDataFile(Path filePath){
+    public AnalysisInterface readLiveDataFile(Path filePath) {
         File liveDataFile = filePath.toFile();
         analysisNumber = liveDataFile.getName().split("-")[0];
 
@@ -84,40 +93,70 @@ public class PhoenixLiveData {
                 }
                 if (initMetaData) {
                     setAnalysisHeader();
+                    liveDataAnalysis.setDataFilePathString(filePath.getParent().toString());
 
-                    // Have AnalysisMethod figure out ratios and then set them accordingly
+                    // Import AnalysisMethod user function changes
                     liveDataAnalysis.setMethod(createAnalysisMethodFromCase1(massSpecExtractedData));
                     List<UserFunction> userFunctionModel = liveDataAnalysis.getMethod().getUserFunctionsModel();
                     for (UserFunction modelFunc : userFunctionModel) {
+                        // Set isotopic ratios
                         if (modelFunc.isTreatAsIsotopicRatio()) {
-                            for (UserFunction func : liveDataAnalysis.getUserFunctions()) {
-                                if (func.getName().equals(modelFunc.getName())) {
-                                    func.setTreatAsIsotopicRatio(true);
-                                }
-                            }
+                            liveDataAnalysis.getUserFunctions().stream()
+                                    .filter(func -> func.getName().equals(modelFunc.getName()))
+                                    .forEach(func -> func.setTreatAsIsotopicRatio(true));
+                        }
+
+                        // Add oxide corrected user functions to analysis
+                        if (modelFunc.isOxideCorrected()){
+                            liveDataAnalysis.getUserFunctions().add(modelFunc);
+                        }
+
+                        // Get correction indices
+                        if (modelFunc.getName().equals("270/267")) {
+                            r270_267ColumnIndex = modelFunc.getColumnIndex();
+                        }
+                        if (modelFunc.getName().equals("265/267")) {
+                            r265_267ColumnIndex = modelFunc.getColumnIndex();
                         }
                     }
-                    liveDataAnalysis.setDataFilePathString(filePath.getParent().toString());
+                    initMetaData = false;
                 }
-                initMetaData = false;
 
                 blockRecordLite = new MassSpecOutputBlockRecordLite(blockIndex, cycleData);
+                if (r270_267ColumnIndex != -1 && r265_267ColumnIndex != -1) {
+                    blockRecordLite = blockRecordLite.expandForUraniumOxideCorrection(r270_267ColumnIndex,r265_267ColumnIndex, 0.00205);
+                }
                 massSpecExtractedData.addBlockLiteRecord(blockRecordLite);
 
+                // Add data to UF map (For use in plots)
                 for (UserFunction userFunction : liveDataAnalysis.getUserFunctions()){
-                    userFunction.getMapBlockIdToBlockCyclesRecord().clear();
+                    SingleBlockRawDataLiteSetRecord singleBlockRawDataLiteSetRecord = AllBlockInitForDataLiteOne.prepareSingleBlockDataLiteCaseOne(
+                            blockIndex,
+                            massSpecExtractedData
+                    );
+                    userFunction.getMapBlockIdToBlockCyclesRecord().put(blockIndex, BlockCyclesBuilder.initializeBlockCycles(
+                            blockIndex,
+                            true,
+                            true,
+                            singleBlockRawDataLiteSetRecord.assembleCyclesIncludedForUserFunction(userFunction),
+                            singleBlockRawDataLiteSetRecord.assembleCycleMeansForUserFunction(userFunction),
+                            singleBlockRawDataLiteSetRecord.assembleCycleStdDevForUserFunction(userFunction),
+                            new String[]{userFunction.getName()},
+                            true,
+                            userFunction.isTreatAsIsotopicRatio()).getBlockCyclesRecord()
+                    );
                 }
 
                 return liveDataAnalysis;
 
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Error reading LiveData file: " + e.getMessage());
             }
         }
         return null;
     }
 
-    private void readLiveDataLine(String dataLine){
+    private void readLiveDataLine(String dataLine) {
         String[] dataLineSplit = dataLine.split(",");
 
         switch (dataLineSplit[0]){
@@ -256,5 +295,89 @@ public class PhoenixLiveData {
         }
 
         massSpecExtractedData.setHeader(header);
+    }
+
+    /**
+     * Merges changes from LiveData analysis to finished analysis. Copies BlockIdToRawDataLiteOne included data,
+     * and replaces UserFunctions in FinishedAnalysis with those from LiveDataAnalysis.
+     * @param finishedAnalysis analysis generated from finished timsdp file
+     */
+    public void mergeFinalFile(AnalysisInterface finishedAnalysis) {
+        liveDataAnalysis.getMapOfBlockIdToRawDataLiteOne().forEach((blockID, blockRawData) -> {
+            boolean[][] liveArray = blockRawData.blockRawDataLiteIncludedArray();
+            boolean[][] finishedArray = finishedAnalysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).blockRawDataLiteIncludedArray();
+            for (int row = 0; row < liveArray.length; row++) {
+                System.arraycopy(liveArray[row], 0, finishedArray[row], 0, liveArray[row].length);
+            }
+        });
+
+        List<UserFunction> liveUFs = liveDataAnalysis.getUserFunctions();
+        List<UserFunction> finishedUFs = finishedAnalysis.getUserFunctions();
+        finishedUFs.replaceAll(finishedUF ->
+                liveUFs.stream()
+                        .filter(liveUF -> liveUF.getName().equals(finishedUF.getName()))
+                        .findFirst()
+                        .orElse(finishedUF)
+        );
+
+    }
+
+    /**
+     * Checks methodfolder and its parent for the existence of LiveDataStatus.txt, retrieves the active livedata location
+     * from the txt and returns the path of it.
+     * @param methodFolder user/mru supplied folder file
+     * @return Path of the active LiveData folder
+     */
+    public static Path getLiveDataFolderPath(File methodFolder) {
+        File liveDataStatusFile = new File(methodFolder, "LiveDataStatus.txt");
+        File parentLiveDataStatusFile = new File(methodFolder.getParentFile(), "LiveDataStatus.txt");
+
+        File mutatableMethodFolder = methodFolder;
+        if (!liveDataStatusFile.exists() && !parentLiveDataStatusFile.exists()) {
+            return null;
+        }
+
+        // Prefer methodFolder, fallback to parent
+        if (!liveDataStatusFile.exists()) {
+            liveDataStatusFile = parentLiveDataStatusFile;
+            mutatableMethodFolder = methodFolder.getParentFile();
+        }
+
+        String line = "";
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(liveDataStatusFile));
+
+            do {
+                line = bufferedReader.readLine();
+            } while (!Objects.equals(line.split(",")[0], "Method"));
+        } catch (IOException ignored) {}
+
+        String[] methodParts = line.split("\\\\");
+        String methodName = methodParts[methodParts.length - 2].replace("\"", "");
+
+        return Path.of(mutatableMethodFolder + File.separator + methodName + File.separator + "LiveData");
+    }
+
+    public static File getFinishedFile(File methodFolder) {
+        File liveDataStatusFile = new File(methodFolder, "LiveDataStatus.txt");
+
+        if (!liveDataStatusFile.exists()) {
+            return new File("");
+        }
+
+        String line = "";
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(liveDataStatusFile));
+
+            do {
+                line = bufferedReader.readLine();
+            } while (!Objects.equals(line.split(",")[0], "Method"));
+        } catch (IOException ignored) {}
+
+        String[] methodParts = line.split("\\\\");
+        String methodName =  methodParts[methodParts.length - 2];
+        String analysisName = methodParts[methodParts.length - 1].replace("\"", "");
+
+        return new File(methodFolder + File.separator + methodName + File.separator + analysisName + ".TIMSDP");
     }
 }

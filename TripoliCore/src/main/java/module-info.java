@@ -83,4 +83,5 @@ module Tripoli.TripoliCore {
     exports org.cirdles.tripoli.expressions.parsing;
     exports org.cirdles.tripoli.expressions.constants;
     exports org.cirdles.tripoli.utilities.comparators;
+    exports org.cirdles.tripoli.sessions.analysis.imports;
 }
