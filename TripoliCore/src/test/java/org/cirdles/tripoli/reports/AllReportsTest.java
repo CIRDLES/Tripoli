@@ -16,36 +16,25 @@
 
 package org.cirdles.tripoli.reports;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
-import com.thoughtworks.xstream.security.AnyTypePermission;
 import jakarta.xml.bind.JAXBException;
 import org.apache.commons.io.FileUtils;
 import org.cirdles.tripoli.Tripoli;
-import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
-import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
-import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.MeasuredUserFunction;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
-import org.cirdles.tripoli.utilities.xml.ETReduxFractionXMLConverter;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -111,50 +100,6 @@ public class AllReportsTest {
     }
 
     /**
-     * Uses a filepath to generate a redux report and then asserts it to a premade Oracle made with the same analysis name
-     *
-     * @param dataFilepath
-     * @param reportData
-     * @throws JAXBException
-     * @throws TripoliException
-     * @throws URISyntaxException
-     * @throws InvocationTargetException
-     * @throws NoSuchMethodException
-     * @throws IllegalAccessException
-     */
-    public ETReduxFraction[] reduxReportTest(String dataFilepath, ReportData reportData) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
-        AnalysisInterface analysis = reportData.getAnalysis();
-        File dataFile = reportData.getDataFile();
-
-        System.out.println("📝 Generating Redux Report for " + dataFile.getName() + "...");
-
-        // Create the report to test against the Oracle
-        AllBlockInitForDataLiteOne.initBlockModels(analysis);
-        ETReduxFraction actualReport = analysis.prepareFractionForETReduxExport();
-        String actualFileName = actualReport.getSampleName() + "_" + actualReport.getFractionID() + "_" + actualReport.getEtReduxExportType() + ".xml";
-
-        // Convert the Oracle into an InputStream for XStream to deserialize
-        String expectedReportPath = dataFilepath.substring(0, dataFilepath.lastIndexOf('/') + 1).replace("dataFiles", "reduxReports") + "Oracle-" + actualFileName;
-        InputStream expectedReportXML = getClass().getResourceAsStream(expectedReportPath);
-        assertNotNull(expectedReportXML,
-                "Oracle not found for file " + dataFile.getName() + " at: " + expectedReportPath);
-
-        // Set up XStream to deserialize the Oracle
-        XStream xstream = new XStream(new DomDriver());
-        xstream.addPermission(AnyTypePermission.ANY);
-
-        // Custom settings found from ETReduxFraction customizeXstream(XStream xstream)
-        xstream.registerConverter(new ETReduxFractionXMLConverter());
-        xstream.alias("UPbReduxFraction", ETReduxFraction.class);
-        xstream.alias("MeasuredUserFunctionModel", MeasuredUserFunction.class);
-
-        // Deserialize Oracle report from resources
-        ETReduxFraction expectedReport = (ETReduxFraction) xstream.fromXML(expectedReportXML);
-
-        return new ETReduxFraction[]{expectedReport, actualReport};
-    }
-
-    /**
      * Uses a filepath to generate a short report and then asserts it to a premade Oracle made with the same analysis name
      *
      * @param dataFilepath
@@ -196,7 +141,7 @@ public class AllReportsTest {
     //####################################################################################################################//
 
     // Parameterized Test Source
-    public static Stream<String> generate_filepaths() throws URISyntaxException {
+    public static Stream<String> generateFilepaths() throws URISyntaxException {
         System.out.println("🗃️ Generating file paths...");
 
         String dataFilesDir = "/org/cirdles/tripoli/core/reporting/dataFiles/";
@@ -220,8 +165,8 @@ public class AllReportsTest {
     }
 
     @ParameterizedTest
-    @MethodSource("generate_filepaths")
-    public void generate_filepaths_test(String dataFilePath) {
+    @MethodSource("generateFilepaths")
+    public void allReportsTest(String dataFilePath) {
         System.out.println("-----------------------------------------------------------------------------------------------------------------");
         try {
             ReportData reportData = new ReportData();
@@ -230,10 +175,6 @@ public class AllReportsTest {
             String[] fullReportTestResults = fullReportTest(dataFilePath, reportData);
             assertEquals(fullReportTestResults[0], fullReportTestResults[1], "❌ Full Report generation failed!\n");
             System.out.println("✅ Full Report generated successfully!\n");
-
-//            ETReduxFraction[] reduxReportTestResults = reduxReportTest(dataFilePath, reportData);
-//            assertEquals(reduxReportTestResults[0], reduxReportTestResults[1], "❌ Redux Report generation failed!");
-//            System.out.println("✅ Redux Report generated successfully!\n");
 
             String[] shortReportTestResults = shortReportTest(dataFilePath, reportData);
             assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!\n");
