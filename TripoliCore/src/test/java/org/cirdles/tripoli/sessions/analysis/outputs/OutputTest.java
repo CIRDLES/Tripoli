@@ -17,14 +17,14 @@
 package org.cirdles.tripoli.sessions.analysis.outputs;
 
 import jakarta.xml.bind.JAXBException;
+import org.apache.commons.io.FileUtils;
 import org.cirdles.tripoli.Tripoli;
-import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
+import org.cirdles.tripoli.reports.ReportData;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.dataLiteOne.initializers.AllBlockInitForDataLiteOne;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,92 +33,95 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Compares clipboard output for MassSpec data against known formatting
  */
 
 public class OutputTest {
+    /**
+     * Uses a filepath to generate a short report and then asserts it to a premade Oracle made with the same analysis name
+     *
+     * @param dataFilepath
+     * @param reportData
+     * @return
+     * @throws JAXBException
+     * @throws TripoliException
+     * @throws URISyntaxException
+     * @throws InvocationTargetException
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     */
+    public String[] shortReportTest(String dataFilepath, ReportData reportData) throws JAXBException, TripoliException, URISyntaxException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        AnalysisInterface analysis = reportData.getAnalysis();
+        String analysisName = reportData.getAnalysisName();
+        File dataFile = reportData.getDataFile();
 
-    AnalysisInterface analysis;
-    Path outputPath;
-
-    @BeforeEach
-    void setUp() {
-
-    }
-
-    @AfterEach
-    void tearDown() throws IOException {
-        Files.deleteIfExists(outputPath);
-    }
-
-    public void initializeAnalysis(Path dataFilePathPath) throws JAXBException, TripoliException, IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
-        analysis = AnalysisInterface.initializeNewAnalysis(0);
-        analysis.setAnalysisName(analysis.extractMassSpecDataFromPath(dataFilePathPath));
-        analysis.getUserFunctions().sort(null);
+        System.out.println("📝 Generating Short Report for " + dataFile.getName() + "...");
+        // Create the report to test against the Oracle
+        String actualReport = "";
+        String expectedReport = null;
+        String expectedReportPath = null;
         try {
+            // Deserialize the Oracle report
+            expectedReportPath = dataFilepath.substring(0, dataFilepath.lastIndexOf('/') + 1).replace("dataFiles", "shortReports") + "Oracle-" + analysisName + ".txt";
+            expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(expectedReportPath)).toURI()), "UTF-8");
+
             AllBlockInitForDataLiteOne.initBlockModels(analysis);
+            actualReport = analysis.prepareFractionForClipboardExport();
+        } catch (NullPointerException | IOException e) {
+            assertNotNull(expectedReport,
+                    "Oracle not found for file " + dataFile.getName() + " at: " + expectedReportPath);
+        } catch (ArrayIndexOutOfBoundsException ignored) {
         }
-        catch (ArrayIndexOutOfBoundsException ignored) {
-            System.out.println("Has no data");
-        } // Throws ArrayIndexOutOfBoundsException when dataFile's result is empty
 
+        return new String[]{expectedReport, actualReport};
     }
 
-    public List<Path> generateListOfPaths(String directoryString) throws URISyntaxException, IOException {
 
-        File directoryFile = new File(Objects.requireNonNull(Tripoli.class.getResource(directoryString)).toURI());
-        List<Path> filePathsList;
-        try (Stream<Path> pathStream = Files.walk(directoryFile.toPath())) {
-            filePathsList = pathStream.filter(Files::isRegularFile)
-                    .filter(path -> !path.getFileName().toString().startsWith("New Session-"))
-                    .toList();
+    public static Stream<String> generateFilepaths() throws URISyntaxException {
+        System.out.println("🗃️ Generating file paths...");
+
+        String dataFilesDir = "/org/cirdles/tripoli/core/reporting/dataFiles/";
+        Path dataFilesDirPath = Paths.get(Objects.requireNonNull(Tripoli.class.getResource(dataFilesDir)).toURI());
+
+        try {
+            // Recursively visits all files within dataFilesDirPath
+            Stream<Path> pathStream = Files.walk(dataFilesDirPath);
+            System.out.println("✅ File paths generated successfully!");
+            // Filters out oracles generated at build and converts paths into usable filepaths for .getResource()
+            return pathStream
+                    .filter(Files::isRegularFile)
+                    .filter(p -> !p.getFileName().toString().startsWith("New Session-"))
+                    .map(Path::toString)
+                    .map(p -> p.replace("\\", "/"))
+                    .map(p -> p.substring(p.indexOf("/org/")));
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+            return Stream.empty();
         }
-        return filePathsList;
-    }
-//    TODO: Figure out why this is failing in Travis CI but not on local machine. Possibly rewrite this
-    @Test
-    public void massSpecOutputTest() throws URISyntaxException, IOException, JAXBException, TripoliException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
-        String dataDirectoryString = "/org/cirdles/tripoli/core/reporting/dataFiles/";
-        String oracleDirectoryString = "/org/cirdles/tripoli/core/reporting/shortReports/";
-
-        List<Path> dataFilePaths = generateListOfPaths(dataDirectoryString);
-        List<Path> oracleFilePaths = generateListOfPaths(oracleDirectoryString);
-
-        String outputDirectory = String.valueOf(oracleFilePaths.get(0));
-        outputDirectory = outputDirectory.replaceAll("reporting.shortReports.*", "");
-        outputPath = Paths.get(outputDirectory, "reporting/shortReports/output.txt");
-
-        boolean mismatchFound = false;
-
-        for (Path path : dataFilePaths) {
-            int index = dataFilePaths.indexOf(path);
-            initializeAnalysis(path);
-
-            for (UserFunction uf : analysis.getUserFunctions()) {
-                if (uf.isTreatAsCustomExpression()) {
-                    uf.setDisplayed(false);
-                }
-            }
-
-            String clipBoardString = analysis.prepareFractionForClipboardExport();
-            Files.write(outputPath, clipBoardString.getBytes());
-
-            long byteIndex = Files.mismatch(outputPath, oracleFilePaths.get(index));
-            if (byteIndex != -1L) {
-                System.out.println("Mismatch found on file: " + path.toString().split("dataFiles")[1] + " on position " + byteIndex);
-                mismatchFound = true;
-            }
-        }
-        System.out.println("OutputTest complete");
-//        assertFalse(mismatchFound);
-
     }
 
+    @ParameterizedTest
+    @MethodSource("generateFilepaths")
+    public void outputTest (String dataFilePath) {
+        System.out.println("Output Test for " + dataFilePath + "");
+        try {
+            ReportData reportData = new ReportData();
+            reportData = reportData.generateReportData(dataFilePath);
+
+            String[] shortReportTestResults = shortReportTest(dataFilePath, reportData);
+            assertEquals(shortReportTestResults[0], shortReportTestResults[1], "❌ Short Report generation failed!\n");
+            System.out.println("✅ Short Report generated successfully!\n");
+        } catch (JAXBException | TripoliException | URISyntaxException | InvocationTargetException |
+                 NoSuchMethodException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+    }
 }
