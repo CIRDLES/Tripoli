@@ -293,6 +293,32 @@
                 </SplitPane>
             </content>
         </Tab>
+        <Tab fx:id="selectTwoUserFunctionsTab" closable="false" text="Plot Two User Functions">
+            <content>
+                <VBox spacing="10" style="-fx-padding: 10;">
+                    <children>
+                        <Label text="Select two user functions to plot against each other:" style="-fx-font-weight: bold; -fx-font-size: 14;" />
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <children>
+                                <Label text="X-Axis User Function:" prefWidth="150" />
+                                <ComboBox fx:id="xAxisUserFunctionComboBox" prefWidth="300" />
+                            </children>
+                        </HBox>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <children>
+                                <Label text="Y-Axis User Function:" prefWidth="150" />
+                                <ComboBox fx:id="yAxisUserFunctionComboBox" prefWidth="300" />
+                            </children>
+                        </HBox>
+                        <HBox spacing="10" alignment="CENTER">
+                            <children>
+                                <Button fx:id="generateTwoUserFunctionsPlotButton" text="Generate Plot" onAction="#generateTwoUserFunctionsPlotAction" style="-fx-text-fill: RED; -fx-font-weight: bold;" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </content>
+        </Tab>
         <Tab fx:id="customExpressionsTab" closable="false" text="Custom Expressions">
             <content>
                 <SplitPane dividerPositions="0.2" prefHeight="242.0" prefWidth="1065.0" style="-fx-background-color: #fbf6d5">

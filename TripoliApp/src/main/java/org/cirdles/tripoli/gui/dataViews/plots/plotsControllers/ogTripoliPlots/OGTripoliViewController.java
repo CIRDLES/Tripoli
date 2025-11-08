@@ -32,6 +32,7 @@ import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.dataViews.plots.*;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotOG;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisTwoUserFunctionsPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.gui.settings.SettingsRequestType;
 import org.cirdles.tripoli.gui.settings.SettingsWindow;
@@ -141,6 +142,27 @@ public class OGTripoliViewController {
         if (plottingData.analysisCaseNumber() == 4) {
             plotOnPeakIntensitiesAndResiduals();
         }
+    }
+
+    public void initializePlotWallPaneForTwoUserFunctions() {
+        // Initialize the PlotWallPane without calling plotRatios() (which would create all OG plots)
+        ogtCycleRatioPlotsAnchorPane.getChildren().clear();
+
+        plotsWallPaneRatios = PlotWallPane.createPlotWallPane("OGTripoliSession", analysis, null, analysisManagerCallbackI);
+        plotsWallPaneRatios.setToolBarCount(1);
+        plotsWallPaneRatios.setToolBarHeight(35.0);
+        PlotWallPane.menuOffset = 0.0;
+        ((Pane) plotsWallPaneRatios).setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+
+        ((Pane) plotsWallPaneRatios).prefWidthProperty().bind(ogtCycleRatioPlotsAnchorPane.widthProperty());
+        ((Pane) plotsWallPaneRatios).prefHeightProperty().bind(ogtCycleRatioPlotsAnchorPane.heightProperty());
+
+        ogtCycleRatioPlotsAnchorPane.getChildren().add(((Pane) plotsWallPaneRatios));
+        plotWindowVBox.widthProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneRatios.repeatLayoutStyle());
+        plotWindowVBox.heightProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneRatios.repeatLayoutStyle());
+
+        plotsWallPaneRatios.buildToolBar();
+        plotsWallPaneRatios.buildScaleControlsToolbar();
     }
 
     public void plotRatios() {
@@ -281,6 +303,25 @@ public class OGTripoliViewController {
 
         plotsWallPaneRatios.buildToolBar();
         plotsWallPaneRatios.buildScaleControlsToolbar();
+        plotsWallPaneRatios.tilePlots();
+    }
+
+    public void plotTwoUserFunctions(UserFunction xAxisUF, UserFunction yAxisUF) {
+        
+        // Create the plot using the same approach as in plotRatios for case 1
+        TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPaneRatios);
+        
+        AbstractPlot plot = AnalysisTwoUserFunctionsPlot.generatePlot(
+                new Rectangle(minPlotWidth, minPlotHeight),
+                analysis,
+                yAxisUF,
+                xAxisUF,
+                (PlotWallPane) plotsWallPaneRatios);
+        
+        tripoliPlotPane.addPlot(plot);
+        plot.refreshPanel(false, false);
+        
+        // Tile the plots to update layout
         plotsWallPaneRatios.tilePlots();
     }
 

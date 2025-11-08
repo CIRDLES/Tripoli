@@ -16,7 +16,6 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots;
 
-import com.google.common.base.Strings;
 import com.google.common.primitives.Booleans;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
@@ -62,10 +61,11 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     private final Tooltip tooltip;
     private final String tooltipTextSculpt = "Left mouse: cntrl click toggles block, Dbl-click to Sculpt data. Right mouse: cntrl click zooms one block, Dbl-click toggles full view.";
     private final String tooltipTextExitSculpt = "Left mouse: cntrl click toggles block, Dbl-click Exits Sculpting. Right mouse: cntrl click zooms one block, Dbl-click toggles full view.";
-    int[] blockIDsPerTimeSlot;
     private AnalysisInterface analysis;
     private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord;
+    private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecordX;
     private UserFunction userFunction;
+    private UserFunction xAxisUserFunction;
 
     private double[] oneSigmaForCycles;
     private boolean logScale;
@@ -90,19 +90,20 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             AnalysisInterface analysis,
             Rectangle bounds,
             UserFunction userFunction,
-            int[] blockIDsPerTimeSlot, //todo: another userfunction
+            UserFunction xAxisUserFunction,
             PlotWallPane parentWallPane) {
         super(bounds,
                 185, 25,
                 new String[]{userFunction.getName()
                         + "  " + "x\u0304" + "= 0" //+ String.format("%8.8g", analysisBlockCyclesRecord.analysisMean()).trim()
                         , "\u00B1" + " 0"},//String.format("%8.5g", analysisBlockCyclesRecord.analysisOneSigma()).trim()},
-                "Blocks & Cycles by Time",
+                xAxisUserFunction.getName() + " vs " + userFunction.getName(),
                 userFunction.isTreatAsIsotopicRatio() ? "Ratio" : "Function");
         this.analysis = analysis;
         this.userFunction = userFunction;
+        this.xAxisUserFunction = xAxisUserFunction;
         this.mapBlockIdToBlockCyclesRecord = userFunction.getMapBlockIdToBlockCyclesRecord();
-        this.blockIDsPerTimeSlot = blockIDsPerTimeSlot;
+        this.mapBlockIdToBlockCyclesRecordX = xAxisUserFunction.getMapBlockIdToBlockCyclesRecord();
         this.logScale = false;
         this.zoomFlagsXY = new boolean[]{true, true};
         this.parentWallPane = parentWallPane;
@@ -118,8 +119,8 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
 
     public static AbstractPlot generatePlot(
             Rectangle bounds, AnalysisInterface analysis, UserFunction userFunction,
-            int[] blockIDsPerTimeSlot, PlotWallPane parentWallPane) {
-        return new AnalysisTwoUserFunctionsPlot(analysis, bounds, userFunction, blockIDsPerTimeSlot, parentWallPane);
+            UserFunction xAxisUserFunction, PlotWallPane parentWallPane) {
+        return new AnalysisTwoUserFunctionsPlot(analysis, bounds, userFunction, xAxisUserFunction, parentWallPane);
     }
 
     public PlotWallPaneInterface getParentWallPane() {
@@ -152,28 +153,44 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
 
     @Override
     public void preparePanel(boolean reScaleX, boolean reScaleY) {
-        //todo: rewrite this
         selectorBoxX = mouseStartX;
         selectorBoxY = mouseStartY;
         zoomBoxX = mouseStartX;
         zoomBoxY = mouseStartY;
 
-        //
-
-        // process blocks
+        // process blocks - ensure both user functions have compatible structures
         int cyclesPerBlock = mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
 
         if (reScaleX) {
+            // Calculate total data length from y-axis user function (both should match)
             int xDataLength = 0;
             for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
                 xDataLength += entry.getValue().cycleMeansData().length;
             }
             xAxisData = new double[xDataLength];
-            for (int i = 0; i < xAxisData.length; i++) {
-                xAxisData[i] = i + 1;
+            
+            // Populate x-axis data from xAxisUserFunction
+            boolean doInvertX = xAxisUserFunction.isInverted() && xAxisUserFunction.isTreatAsIsotopicRatio();
+            for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecordX.entrySet()) {
+                PlotBlockCyclesRecord plotBlockCyclesRecordX = entry.getValue();
+                if (plotBlockCyclesRecordX != null) {
+                    int availableCyclesPerBlock = plotBlockCyclesRecordX.cycleMeansData().length;
+                    if (doInvertX) {
+                        System.arraycopy(plotBlockCyclesRecordX.invertedCycleMeansData(), 0, xAxisData, (plotBlockCyclesRecordX.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+                    } else {
+                        System.arraycopy(plotBlockCyclesRecordX.cycleMeansData(), 0, xAxisData, (plotBlockCyclesRecordX.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+                    }
+                }
             }
 
-            // mice stuff
+            // Apply log scale to x-axis if enabled
+            if (logScale && xAxisUserFunction.isTreatAsIsotopicRatio()) {
+                for (int i = 0; i < xAxisData.length; i++) {
+                    xAxisData[i] = (xAxisData[i] > 0.0) ? log(xAxisData[i]) : 0.0;
+                }
+            }
+
+            // Initialize mouse event handlers
             displayOffsetX = 0.0;
             inSculptorMode = false;
             sculptBlockID = 0;
@@ -184,18 +201,26 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             setOnMouseReleased(new AnalysisTwoUserFunctionsPlot.MouseReleasedEventHandler());
             addEventFilter(ScrollEvent.SCROLL, scrollEventEventHandler);
 
-            minX = 1.0;
-            maxX = xAxisData.length;
+            // Calculate min/max for x-axis
+            minX = Double.MAX_VALUE;
+            maxX = -Double.MAX_VALUE;
+            for (int i = 0; i < xAxisData.length; i++) {
+                if (xAxisData[i] != 0.0) {
+                    minX = min(minX, xAxisData[i]);
+                    maxX = max(maxX, xAxisData[i]);
+                }
+            }
         }
 
+        // Populate y-axis data
         yAxisData = new double[xAxisData.length];
-        oneSigmaForCycles = new double[xAxisData.length]; // not worried about this
-        boolean doInvert = userFunction.isInverted() && userFunction.isTreatAsIsotopicRatio();
+        oneSigmaForCycles = new double[xAxisData.length];
+        boolean doInvertY = userFunction.isInverted() && userFunction.isTreatAsIsotopicRatio();
         for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
-            PlotBlockCyclesRecord plotBlockCyclesRecord = entry.getValue(); //todo: make this a userfunction for x and y data
+            PlotBlockCyclesRecord plotBlockCyclesRecord = entry.getValue();
             if (plotBlockCyclesRecord != null) {
                 int availableCyclesPerBlock = plotBlockCyclesRecord.cycleMeansData().length;
-                if (doInvert) {
+                if (doInvertY) {
                     System.arraycopy(plotBlockCyclesRecord.invertedCycleMeansData(), 0, yAxisData, (plotBlockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
                 } else {
                     System.arraycopy(plotBlockCyclesRecord.cycleMeansData(), 0, yAxisData, (plotBlockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
@@ -204,23 +229,38 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             }
         }
 
-        plotAxisLabelY = userFunction.isTreatAsIsotopicRatio() ? "Ratio" : "Function";
-        if (logScale && userFunction.isTreatAsIsotopicRatio()) { //todo: if logscale, both userfucntions are logscale
+        // Set axis labels with user function names
+        String xAxisName = xAxisUserFunction.showCorrectName();
+        if (xAxisUserFunction.isTreatAsCustomExpression()) {
+            xAxisName = xAxisUserFunction.getCustomExpression().getName();
+        }
+        plotAxisLabelX = xAxisName;
+        
+        String yAxisName = userFunction.showCorrectName();
+        if (userFunction.isTreatAsCustomExpression()) {
+            yAxisName = userFunction.getCustomExpression().getName();
+        }
+        plotAxisLabelY = yAxisName;
+        
+        // Apply log scale to y-axis if enabled
+        if (logScale && userFunction.isTreatAsIsotopicRatio()) {
             for (int i = 0; i < yAxisData.length; i++) {
                 yAxisData[i] = (yAxisData[i] > 0.0) ? log(yAxisData[i]) : 0.0;
-                // TODO: uncertainties for logs
                 oneSigmaForCycles[i] = 0.0;
             }
             plotAxisLabelY = "Log Ratio";
         }
+        
+        if (logScale && xAxisUserFunction.isTreatAsIsotopicRatio()) {
+            plotAxisLabelX = "Log Ratio";
+        }
 
         if (reScaleY || ignoreRejects) {
-            // calculate ratio and unct across all included blocks
+            // Calculate min/max for y-axis across all included blocks
             minY = Double.MAX_VALUE;
             maxY = -Double.MAX_VALUE;
 
             for (int i = 0; i < yAxisData.length; i++) {
-                // TODO: handle logratio uncertainties
                 int blockIndex = i / cyclesPerBlock;
                 if ((yAxisData[i] != 0.0) && (!ignoreRejects || mapBlockIdToBlockCyclesRecord.get(blockIndex + 1).cyclesIncluded()[i % cyclesPerBlock])) {
                     minY = min(minY, yAxisData[i] - oneSigmaForCycles[i]);
@@ -231,8 +271,8 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             displayOffsetY = 0.0;
         }
         prepareExtents(reScaleX, reScaleY);
-        showXaxis = false;
-        showStats = true;
+        showXaxis = true;
+        showStats = false; // Statistics overlays don't make sense for user-function vs user-function plots
         calcStats();
         calculateTics();
         repaint();
@@ -250,8 +290,8 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     public void calculateTics() {
         super.calculateTics();
 
-        ticsX = ticsY; //todo: replace this with processing x just like y below
-
+        // Parent class already calculates ticsX and ticsY properly based on minX/maxX and minY/maxY
+        // Just need to handle zoom flags
         zoomChunkX = zoomFlagsXY[0] ? zoomChunkX : 0.0;
         zoomChunkY = zoomFlagsXY[1] ? zoomChunkY : 0.0;
     }
@@ -357,9 +397,8 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
      */
     @Override
     public void showLegend(GraphicsContext g2d) {
-        //todo: cut htis out
-
-
+        // Simplified legend for two user functions plot - no legend needed
+        // Axis labels already show the user function names
     }
 
     private String appendTrailingZeroIfNeeded(String valueString, int countOfTrailingDigits) {
@@ -379,17 +418,24 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     }
 
     @Override
-    public void labelAxisX(GraphicsContext g2d) {/* do nothing per Issue #240, item 3*/}
+    public void labelAxisX(GraphicsContext g2d) {
+        // Use parent implementation to display x-axis label
+        super.labelAxisX(g2d);
+    }
 
     public void prepareExtents(boolean reScaleX, boolean reScaleY) {
         if (reScaleX) {
-            minX -= 2;
-            maxX += 2;
+            double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.10);
+            if (xMarginStretch == 0.0 && xAxisData.length > 0) {
+                xMarginStretch = xAxisData[0] / 100.0;
+            }
+            minX -= xMarginStretch;
+            maxX += xMarginStretch;
         }
 
         if (reScaleY || ignoreRejects) {
-            double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.10); //todo: Needs to also do this to x
-            if (yMarginStretch == 0.0) {
+            double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.10);
+            if (yMarginStretch == 0.0 && yAxisData.length > 0) {
                 yMarginStretch = yAxisData[0] / 100.0;
             }
             minY -= yMarginStretch;
@@ -399,9 +445,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
 
     @Override
     public void plotData(GraphicsContext g2d) {
-//        g2d.setFill(dataColor.color());
         g2d.setFill(Color.web(analysis.getDataHexColorString()));
-//        g2d.setStroke(dataColor.color());
         g2d.setStroke(Color.web(analysis.getDataHexColorString()));
         g2d.setLineWidth(1.0);
 
@@ -409,33 +453,31 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         int cycleCount = 0;
 
         for (int i = 0; i < xAxisData.length; i++) {
-            int blockID = (int) ((xAxisData[i] - 0.7) / cyclesPerBlock) + 1;
-            if (pointInPlot(xAxisData[i], yAxisData[i]) && (yAxisData[i] != 0.0)) {
-//                g2d.setFill(dataColor.color());
+            // Calculate block ID from cycle index
+            int blockID = (cycleCount / cyclesPerBlock) + 1;
+            if (blockID > mapBlockIdToBlockCyclesRecord.size()) {
+                blockID = mapBlockIdToBlockCyclesRecord.size();
+            }
+            
+            if (pointInPlot(xAxisData[i], yAxisData[i]) && (xAxisData[i] != 0.0) && (yAxisData[i] != 0.0)) {
                 g2d.setFill(Color.web(analysis.getDataHexColorString()));
-//                g2d.setStroke(dataColor.color());
                 g2d.setStroke(Color.web(analysis.getDataHexColorString()));
-                if (!analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).blockRawDataLiteIncludedArray()[cycleCount][userFunction.getColumnIndex()]) {
-//                    g2d.setFill(Color.RED);
-//                    g2d.setStroke(Color.RED);
+                
+                // Check if this cycle is included
+                if (blockID <= mapBlockIdToBlockCyclesRecord.size() && 
+                    cycleCount < mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded().length &&
+                    !mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded()[cycleCount % cyclesPerBlock]) {
                     g2d.setFill(Color.web(analysis.getAntiDataHexColorString()));
                     g2d.setStroke(Color.web(analysis.getAntiDataHexColorString()));
                 }
-                double dataX = mapX(xAxisData[i]);//todo: this is other userfunction
+                
+                double dataX = mapX(xAxisData[i]);
                 double dataY = mapY(yAxisData[i]);
-                //todo: do not need
-                double dataYplusSigma = mapY(yAxisData[i] + oneSigmaForCycles[i]);
-                double dataYminusSigma = mapY(yAxisData[i] - oneSigmaForCycles[i]);
-
-                if (yAxisData[i] > 0) { //todo: Dont need truthy
-                    g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
-                    g2d.strokeLine(dataX, dataY, dataX, dataYplusSigma);
-                    g2d.strokeLine(dataX, dataY, dataX, dataYminusSigma);
-                } else {
-                    g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
-                }
+                
+                // Plot point as a circle
+                g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
             }
-            cycleCount = (cycleCount + 1) % cyclesPerBlock;
+            cycleCount++;
         }
 
         if (inSculptorMode && showSelectionBox) {
@@ -451,34 +493,45 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             g2d.strokeRect(Math.min(mouseStartX, zoomBoxX), Math.min(mouseStartY, zoomBoxY), Math.abs(zoomBoxX - mouseStartX), Math.abs(zoomBoxY - mouseStartY));
         }
 
-        // block delimiters
+        // Block delimiters - draw vertical lines at block boundaries
+        // Since x-axis is now user function values, we need to find block boundaries differently
         g2d.setStroke(Color.BLACK);
         g2d.setLineWidth(0.5);
         int blockID = 1;
         for (int i = 0; i < xAxisData.length; i += cyclesPerBlock) {
-            if (xInPlot(xAxisData[i])) {
-                double dataX = mapX(xAxisData[i] - 0.5);
-                if (userFunction.getConcatenatedBlockCounts()[0] == blockID - 1) {
-                    g2d.setLineWidth(2.0);
-                    g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
-                    g2d.setLineWidth(1.0);
-                } else {
-                    g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
-                }
-                // may 2024 issue#235
-                if (blockID % 2 == 0) {
-                    // account for blocks not fully developed via PhoenixLiveData
-                    int offset = Math.abs(cyclesPerBlock / 2 - 1);
-                    int index = Math.min(i + offset, xAxisData.length - 1);
-                    double xPosition = mapX(xAxisData[index]);
-
-                    showBlockID(g2d, blockID, xPosition);
+            if (i < xAxisData.length) {
+                // Use the x-axis value at the start of each block
+                double blockStartX = xAxisData[i];
+                if (xInPlot(blockStartX)) {
+                    double dataX = mapX(blockStartX);
+                    if (userFunction.getConcatenatedBlockCounts().length > 0 && 
+                        userFunction.getConcatenatedBlockCounts()[0] == blockID - 1) {
+                        g2d.setLineWidth(2.0);
+                        g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
+                        g2d.setLineWidth(0.5);
+                    } else {
+                        g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
+                    }
+                    // may 2024 issue#235
+                    if (blockID % 2 == 0) {
+                        // account for blocks not fully developed via PhoenixLiveData
+                        int offset = Math.abs(cyclesPerBlock / 2 - 1);
+                        int index = Math.min(i + offset, xAxisData.length - 1);
+                        double xPosition = mapX(xAxisData[index]);
+                        showBlockID(g2d, blockID, xPosition);
+                    }
                 }
             }
             blockID++;
         }
-        double dataX = mapX(xAxisData[xAxisData.length - 1] + 0.5);
-        g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
+        // Draw final delimiter at the end
+        if (xAxisData.length > 0) {
+            double finalX = xAxisData[xAxisData.length - 1];
+            if (xInPlot(finalX)) {
+                double dataX = mapX(finalX);
+                g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
+            }
+        }
 
     }
 
@@ -716,17 +769,33 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     }
 
     private int determineSculptBlock(double mouseX) {
-        double mouseTime = convertMouseXToValue(mouseX);
-        int xAxisIndexOfMouse = Math.min(xAxisData.length - 1, (int) Math.round(mouseTime));
-        double t0 = xAxisData[xAxisIndexOfMouse];
-        double t2 = xAxisData[(xAxisIndexOfMouse >= 2) ? (xAxisIndexOfMouse - 2) : 0];
-        int sculptBlockIDCalc = blockIDsPerTimeSlot[(xAxisIndexOfMouse >= 1) ? (xAxisIndexOfMouse - 1) : 0];
-        if (((t0 - t2) > 5.0) && (Math.abs(mouseTime - t2) > Math.abs(mouseTime - t0))) {
-            sculptBlockIDCalc = blockIDsPerTimeSlot[xAxisIndexOfMouse];
+        // Convert mouse X coordinate to x-axis value (user function value)
+        double mouseXValue = convertMouseXToValue(mouseX);
+        
+        // Find the closest data point index
+        int closestIndex = 0;
+        double minDistance = Double.MAX_VALUE;
+        for (int i = 0; i < xAxisData.length; i++) {
+            double distance = Math.abs(xAxisData[i] - mouseXValue);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestIndex = i;
+            }
         }
-
-        if (sculptBlockIDCalc == 0) sculptBlockIDCalc = mapBlockIdToBlockCyclesRecord.size();
-        return sculptBlockIDCalc;
+        
+        // Calculate block ID from data index
+        int cyclesPerBlock = mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
+        int blockID = (closestIndex / cyclesPerBlock) + 1;
+        
+        // Ensure block ID is within valid range
+        if (blockID > mapBlockIdToBlockCyclesRecord.size()) {
+            blockID = mapBlockIdToBlockCyclesRecord.size();
+        }
+        if (blockID < 1) {
+            blockID = 1;
+        }
+        
+        return blockID;
     }
 
     public Map<Integer, PlotBlockCyclesRecord> getMapBlockIdToBlockCyclesRecord() {
@@ -923,9 +992,15 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
 
                 int expectedCyclesCount = mapBlockIdToBlockCyclesRecord.get(1).cycleMeansData().length;
 
-                int sculptBlockIDStart = blockIDsPerTimeSlot[min(indexLeft, blockIDsPerTimeSlot.length - 1)];
-                int sculptBlockIDEnd = blockIDsPerTimeSlot[min(indexRight, blockIDsPerTimeSlot.length - 1)];
-                if (sculptBlockIDEnd == 0) sculptBlockIDEnd = blockIDsPerTimeSlot[indexRight - expectedCyclesCount];
+                // Calculate block IDs from indices
+                int sculptBlockIDStart = (indexLeft / expectedCyclesCount) + 1;
+                int sculptBlockIDEnd = (indexRight / expectedCyclesCount) + 1;
+                
+                // Ensure block IDs are within valid range
+                if (sculptBlockIDStart < 1) sculptBlockIDStart = 1;
+                if (sculptBlockIDStart > mapBlockIdToBlockCyclesRecord.size()) sculptBlockIDStart = mapBlockIdToBlockCyclesRecord.size();
+                if (sculptBlockIDEnd < 1) sculptBlockIDEnd = 1;
+                if (sculptBlockIDEnd > mapBlockIdToBlockCyclesRecord.size()) sculptBlockIDEnd = mapBlockIdToBlockCyclesRecord.size();
                 // calculate majority for multi-select
                 List<Boolean> statusList = new ArrayList<>();
                 for (int sculptBlockCurrent = sculptBlockIDStart; sculptBlockCurrent <= sculptBlockIDEnd; sculptBlockCurrent++) {

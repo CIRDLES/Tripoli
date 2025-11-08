@@ -44,6 +44,7 @@ import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.*;
+import javafx.util.Callback;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
 import org.cirdles.tripoli.ExpressionsForTripoliLexer;
@@ -146,6 +147,13 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public Tab sequenceTableTab;
     public Tab selectRatiosToPlotTab;
     public Tab selectColumnsToPlot;
+    public Tab selectTwoUserFunctionsTab;
+    @FXML
+    public ComboBox<UserFunction> xAxisUserFunctionComboBox;
+    @FXML
+    public ComboBox<UserFunction> yAxisUserFunctionComboBox;
+    @FXML
+    public Button generateTwoUserFunctionsPlotButton;
     public VBox ratiosVBox;
     public VBox functionsVBox;
     public TextField fractionNameTextField;
@@ -462,6 +470,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 analysisMethodTabPane.getTabs().remove(sequenceTableTab);
                 analysisMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
                 analysisMethodTabPane.getTabs().remove(selectColumnsToPlot);
+                analysisMethodTabPane.getTabs().remove(selectTwoUserFunctionsTab);
                 analysisMethodTabPane.getTabs().remove(customExpressionsTab);
             }
             case 1 -> {
@@ -474,6 +483,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     showTab(analysisMethodTabPane, 2, selectColumnsToPlot);
                     analysisMethodTabPane.getSelectionModel().select(2);
                     populateAnalysisMethodColumnsSelectorPane();
+                    populateTwoUserFunctionsSelectorTab();
                     processingToolBar.setVisible(false);
                 }
             }
@@ -483,6 +493,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 showTab(analysisMethodTabPane, 4, sequenceTableTab);
                 showTab(analysisMethodTabPane, 5, selectRatiosToPlotTab);
                 analysisMethodTabPane.getTabs().remove(selectColumnsToPlot);
+                analysisMethodTabPane.getTabs().remove(selectTwoUserFunctionsTab);
 
                 analysisMethodTabPane.getTabs().remove(customExpressionsTab);
                 populateAnalysisMethodGridPane();
@@ -501,6 +512,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
         if (analysis.getAnalysisName().contains("(Live Data)")){
             analysisMethodTabPane.getTabs().remove(customExpressionsTab);
+            analysisMethodTabPane.getTabs().remove(selectTwoUserFunctionsTab);
         }
 
 
@@ -1024,6 +1036,76 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 invertProposedRatio();
             }
         });
+    }
+
+    private void populateTwoUserFunctionsSelectorTab() {
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+        
+        xAxisUserFunctionComboBox.setItems((ObservableList<UserFunction>) userFunctions);
+        yAxisUserFunctionComboBox.setItems((ObservableList<UserFunction>) userFunctions);
+        
+        // Create shared cell factory and button cell for user function display
+        Callback<ListView<UserFunction>, ListCell<UserFunction>> cellFactory = listView -> new ListCell<>() {
+            @Override
+            protected void updateItem(UserFunction item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.showCorrectName());
+                }
+            }
+        };
+        ListCell<UserFunction> buttonCell = new ListCell<>() {
+            @Override
+            protected void updateItem(UserFunction item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.showCorrectName());
+                }
+            }
+        };
+        
+        // Apply shared cell factory and button cell to both ComboBoxes
+        xAxisUserFunctionComboBox.setCellFactory(cellFactory);
+        xAxisUserFunctionComboBox.setButtonCell(buttonCell);
+        yAxisUserFunctionComboBox.setCellFactory(cellFactory);
+        yAxisUserFunctionComboBox.setButtonCell(buttonCell);
+    }
+    
+    @FXML
+    public void generateTwoUserFunctionsPlotAction() { // TODO: Need to update lists with customUF change
+        UserFunction xAxisUF = xAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        UserFunction yAxisUF = yAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        
+        if (xAxisUF == null || yAxisUF == null) {
+            TripoliMessageDialog.showWarningDialog("Please select both X-axis and Y-axis user functions.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        // Ensure the plots window is open (case 1 only - tab visibility ensures this)
+        if (ogTripoliReviewPlotsWindow == null) {
+            AllBlockInitForMCMC.PlottingData plottingData = AllBlockInitForDataLiteOne.initBlockModels(analysis);
+ 
+            ogTripoliReviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
+            ogTripoliReviewPlotsWindow.loadPlotsWindowForTwoUserFunctions();
+        }
+        
+        // Get the PlotWallPane from the OGTripoliViewController
+        OGTripoliViewController ogTripoliViewController = ogTripoliReviewPlotsWindow.getOgTripoliViewController();
+        if (ogTripoliViewController == null) {
+            TripoliMessageDialog.showWarningDialog("Plots window not properly initialized.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        // Use the plots2 approach - call the new method in OGTripoliViewController
+        try {
+            ogTripoliViewController.plotTwoUserFunctions(xAxisUF, yAxisUF);
+        } catch (Exception e) {
+            TripoliMessageDialog.showWarningDialog("Error creating plot: " + e.getMessage(), TripoliGUI.primaryStage);
+        }
     }
 
     private void populateCustomExpressionTab() {
