@@ -1,0 +1,1106 @@
+/*
+ * Copyright 2022 James Bowring, Noah McLean, Scott Burdick, and CIRDLES.org.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots;
+
+import com.google.common.base.Strings;
+import com.google.common.primitives.Booleans;
+import javafx.event.EventHandler;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import org.cirdles.tripoli.constants.TripoliConstants;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
+import org.cirdles.tripoli.gui.dataViews.plots.*;
+import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisBlockCyclesRecord;
+import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
+import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
+import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
+import org.cirdles.tripoli.sessions.analysis.BlockStatsRecord;
+import org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord;
+import org.cirdles.tripoli.utilities.mathUtilities.FormatterForSigFigN;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static java.lang.StrictMath.*;
+import static java.util.Arrays.binarySearch;
+import static java.util.Map.entry;
+import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.generateGeometricMeanStats;
+import static org.cirdles.tripoli.utilities.mathUtilities.FormatterForSigFigN.countOfTrailingDigitsForSigFig;
+import static org.cirdles.tripoli.utilities.mathUtilities.MathUtilities.applyChauvenetsCriterion;
+
+/**
+ * @author James F. Bowring
+ */
+public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements AnalysisBlockCyclesPlotI {
+    private final Tooltip tooltip;
+    private final String tooltipTextSculpt = "Left mouse: cntrl click toggles block, Dbl-click to Sculpt data. Right mouse: cntrl click zooms one block, Dbl-click toggles full view.";
+    private final String tooltipTextExitSculpt = "Left mouse: cntrl click toggles block, Dbl-click Exits Sculpting. Right mouse: cntrl click zooms one block, Dbl-click toggles full view.";
+    int[] blockIDsPerTimeSlot;
+    private AnalysisInterface analysis;
+    private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord;
+    private UserFunction userFunction;
+
+    private double[] oneSigmaForCycles;
+    private boolean logScale;
+    private boolean[] zoomFlagsXY;
+    private PlotWallPaneInterface parentWallPane;
+    private boolean isRatio;
+    private boolean blockMode;
+    private AnalysisStatsRecord analysisStatsRecord;
+    private double selectorBoxX;
+    private double selectorBoxY;
+    private boolean inSculptorMode;
+    private int sculptBlockID;
+    private boolean showSelectionBox;
+    private int countOfPreviousBlockIncludedData;
+    private boolean inZoomBoxMode;
+    private boolean showZoomBox;
+    private double zoomBoxX;
+    private double zoomBoxY;
+    private boolean ignoreRejects;
+    
+    private AnalysisTwoUserFunctionsPlot(
+            AnalysisInterface analysis,
+            Rectangle bounds,
+            UserFunction userFunction,
+            int[] blockIDsPerTimeSlot, //todo: another userfunction
+            PlotWallPane parentWallPane) {
+        super(bounds,
+                185, 25,
+                new String[]{userFunction.getName()
+                        + "  " + "x\u0304" + "= 0" //+ String.format("%8.8g", analysisBlockCyclesRecord.analysisMean()).trim()
+                        , "\u00B1" + " 0"},//String.format("%8.5g", analysisBlockCyclesRecord.analysisOneSigma()).trim()},
+                "Blocks & Cycles by Time",
+                userFunction.isTreatAsIsotopicRatio() ? "Ratio" : "Function");
+        this.analysis = analysis;
+        this.userFunction = userFunction;
+        this.mapBlockIdToBlockCyclesRecord = userFunction.getMapBlockIdToBlockCyclesRecord();
+        this.blockIDsPerTimeSlot = blockIDsPerTimeSlot;
+        this.logScale = false;
+        this.zoomFlagsXY = new boolean[]{true, true};
+        this.parentWallPane = parentWallPane;
+        this.blockMode = userFunction.getReductionMode().equals(TripoliConstants.ReductionModeEnum.BLOCK);
+        this.isRatio = userFunction.isTreatAsIsotopicRatio();
+        this.ignoreRejects = false;
+
+        tooltip = new Tooltip(tooltipTextSculpt);
+        Tooltip.install(this, tooltip);
+
+        setOnMouseClicked(new MouseClickEventHandler());
+    }
+
+    public static AbstractPlot generatePlot(
+            Rectangle bounds, AnalysisInterface analysis, UserFunction userFunction,
+            int[] blockIDsPerTimeSlot, PlotWallPane parentWallPane) {
+        return new AnalysisTwoUserFunctionsPlot(analysis, bounds, userFunction, blockIDsPerTimeSlot, parentWallPane);
+    }
+
+    public PlotWallPaneInterface getParentWallPane() {
+        return parentWallPane;
+    }
+
+    public void setLogScale(boolean logScale) {
+        this.logScale = logScale;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public boolean getBlockMode() {
+        return blockMode;
+    }
+
+    public void setBlockMode(boolean blockMode) {
+        this.blockMode = blockMode;
+    }
+
+    public void setZoomFlagsXY(boolean[] zoomFlagsXY) {
+        this.zoomFlagsXY = zoomFlagsXY;
+    }
+
+    public void resetBlockMode() {
+        blockMode = userFunction.isTreatAsIsotopicRatio();
+    }
+
+    @Override
+    public void preparePanel(boolean reScaleX, boolean reScaleY) {
+        //todo: rewrite this
+        selectorBoxX = mouseStartX;
+        selectorBoxY = mouseStartY;
+        zoomBoxX = mouseStartX;
+        zoomBoxY = mouseStartY;
+
+        //
+
+        // process blocks
+        int cyclesPerBlock = mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
+
+        if (reScaleX) {
+            int xDataLength = 0;
+            for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
+                xDataLength += entry.getValue().cycleMeansData().length;
+            }
+            xAxisData = new double[xDataLength];
+            for (int i = 0; i < xAxisData.length; i++) {
+                xAxisData[i] = i + 1;
+            }
+
+            // mice stuff
+            displayOffsetX = 0.0;
+            inSculptorMode = false;
+            sculptBlockID = 0;
+            showSelectionBox = false;
+            removeEventFilter(MouseEvent.MOUSE_DRAGGED, mouseDraggedEventHandler);
+            setOnMouseDragged(new AnalysisTwoUserFunctionsPlot.MouseDraggedEventHandler());
+            setOnMousePressed(new AnalysisTwoUserFunctionsPlot.MousePressedEventHandler());
+            setOnMouseReleased(new AnalysisTwoUserFunctionsPlot.MouseReleasedEventHandler());
+            addEventFilter(ScrollEvent.SCROLL, scrollEventEventHandler);
+
+            minX = 1.0;
+            maxX = xAxisData.length;
+        }
+
+        yAxisData = new double[xAxisData.length];
+        oneSigmaForCycles = new double[xAxisData.length]; // not worried about this
+        boolean doInvert = userFunction.isInverted() && userFunction.isTreatAsIsotopicRatio();
+        for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecord.entrySet()) {
+            PlotBlockCyclesRecord plotBlockCyclesRecord = entry.getValue(); //todo: make this a userfunction for x and y data
+            if (plotBlockCyclesRecord != null) {
+                int availableCyclesPerBlock = plotBlockCyclesRecord.cycleMeansData().length;
+                if (doInvert) {
+                    System.arraycopy(plotBlockCyclesRecord.invertedCycleMeansData(), 0, yAxisData, (plotBlockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+                } else {
+                    System.arraycopy(plotBlockCyclesRecord.cycleMeansData(), 0, yAxisData, (plotBlockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+                }
+                System.arraycopy(plotBlockCyclesRecord.cycleOneSigmaData(), 0, oneSigmaForCycles, (plotBlockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+            }
+        }
+
+        plotAxisLabelY = userFunction.isTreatAsIsotopicRatio() ? "Ratio" : "Function";
+        if (logScale && userFunction.isTreatAsIsotopicRatio()) { //todo: if logscale, both userfucntions are logscale
+            for (int i = 0; i < yAxisData.length; i++) {
+                yAxisData[i] = (yAxisData[i] > 0.0) ? log(yAxisData[i]) : 0.0;
+                // TODO: uncertainties for logs
+                oneSigmaForCycles[i] = 0.0;
+            }
+            plotAxisLabelY = "Log Ratio";
+        }
+
+        if (reScaleY || ignoreRejects) {
+            // calculate ratio and unct across all included blocks
+            minY = Double.MAX_VALUE;
+            maxY = -Double.MAX_VALUE;
+
+            for (int i = 0; i < yAxisData.length; i++) {
+                // TODO: handle logratio uncertainties
+                int blockIndex = i / cyclesPerBlock;
+                if ((yAxisData[i] != 0.0) && (!ignoreRejects || mapBlockIdToBlockCyclesRecord.get(blockIndex + 1).cyclesIncluded()[i % cyclesPerBlock])) {
+                    minY = min(minY, yAxisData[i] - oneSigmaForCycles[i]);
+                    maxY = max(maxY, yAxisData[i] + oneSigmaForCycles[i]);
+                }
+            }
+
+            displayOffsetY = 0.0;
+        }
+        prepareExtents(reScaleX, reScaleY);
+        showXaxis = false;
+        showStats = true;
+        calcStats();
+        calculateTics();
+        repaint();
+    }
+
+    /**
+     * @param g2d
+     */
+    @Override
+    public void labelAxisY(GraphicsContext g2d) {
+        // do nothing
+    }
+
+    @Override
+    public void calculateTics() {
+        super.calculateTics();
+
+        ticsX = ticsY; //todo: replace this with processing x just like y below
+
+        zoomChunkX = zoomFlagsXY[0] ? zoomChunkX : 0.0;
+        zoomChunkY = zoomFlagsXY[1] ? zoomChunkY : 0.0;
+    }
+
+    public void calcStats() {
+        analysisStatsRecord = userFunction.calculateAnalysisStatsRecord(analysis);
+    }
+
+    /**
+     * For Block Mode:
+     * Generates the values for the lesserSigmaPct, plusSigmaPct, and the minusSigmaPct.
+     * Also returns the generated value for countOfTrailingDigitsForSigFig
+     * @param geoWeightedMeanRatio
+     * @return
+     */
+    HashMap<String, Double> calcSigmaPctsBM(double geoWeightedMeanRatio) {
+        int countOfTrailingDigitsForSigFig;
+
+        double geoWeightedMeanRatioPlusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() + analysisStatsRecord.blockModeWeightedMeanOneSigma());
+        double geoWeightedMeanRatioMinusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() - analysisStatsRecord.blockModeWeightedMeanOneSigma());
+        double geoWeightedMeanRatioPlusOneSigmaPct = (geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio) / geoWeightedMeanRatio * 100.0;
+        double geoWeightedMeanRatioMinusOneSigmaPct = (geoWeightedMeanRatio - geoWeightedMeanRatioMinusOneSigma) / geoWeightedMeanRatio * 100.0;
+
+        countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig(Math.min(geoWeightedMeanRatioPlusOneSigmaPct, geoWeightedMeanRatioMinusOneSigmaPct), 2);
+        double plusSigmaPct = (new BigDecimal(geoWeightedMeanRatioPlusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
+        double minusSigmaPct = (new BigDecimal(geoWeightedMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
+
+        double lesserSigmaPct = Math.min(plusSigmaPct, minusSigmaPct);
+
+        HashMap<String, Double> output = new HashMap<>();
+        output.put("lesserSigmaPct", lesserSigmaPct);
+        output.put("plusSigmaPct", plusSigmaPct);
+        output.put("minusSigmaPct", minusSigmaPct);
+        output.put("countOfTrailingDigitsForSigFig", (double) countOfTrailingDigitsForSigFig);
+
+        return output;
+    }
+
+    /**
+     * For Cycle Mode:
+     * Generates the necessary values for Cycle Mode
+     * @param geometricMeanStatsRecord
+     * @param geoMean
+     * @return HashMap containing the values of plusErrPct, minusErrPct, plusSigmaPct, minusSigmaPct, geoMeanPlusOneStandardDeviation, countOfTrailingDigitsForStdErrPct, and countOfTralingDigitsForOneSigmaPct
+     */
+    HashMap<String, Double> calcSigmaPctsCM(GeometricMeanStatsRecord geometricMeanStatsRecord, double geoMean) {
+        double geoMeanPlusOneStandardError = geometricMeanStatsRecord.geoMeanPlusOneStdErr();
+        double geoMeanMinusOneStandardError = geometricMeanStatsRecord.geoMeanMinusOneStdErr();
+        double geoMeanRatioPlusOneStdErrPct = (geoMeanPlusOneStandardError - geoMean) / geoMean * 100.0;
+        double geoMeanRatioMinusOneStdErrPct = (geoMean - geoMeanMinusOneStandardError) / geoMean * 100.0;
+
+        double smallerGeoMeanRatioOneStdErrPct = Math.min(geoMeanRatioPlusOneStdErrPct, geoMeanRatioMinusOneStdErrPct);
+        int countOfTrailingDigitsForStdErrPct = countOfTrailingDigitsForSigFig(smallerGeoMeanRatioOneStdErrPct, 2);
+        double plusErrPct = (new BigDecimal(geoMeanRatioPlusOneStdErrPct).setScale(countOfTrailingDigitsForStdErrPct, RoundingMode.HALF_UP)).doubleValue();
+        double minusErrPct = (new BigDecimal(geoMeanRatioMinusOneStdErrPct).setScale(countOfTrailingDigitsForStdErrPct, RoundingMode.HALF_UP)).doubleValue();
+
+        double geoMeanPlusOneStandardDeviation = geometricMeanStatsRecord.geoMeanPlusOneStdDev();
+        double geoMeanMinusOneStandardDeviation = geometricMeanStatsRecord.geoMeanMinusOneStdDev();
+        double geoMeanRatioPlusOneSigmaPct = (geoMeanPlusOneStandardDeviation - geoMean) / geoMean * 100.0;
+        double geoMeanRatioMinusOneSigmaPct = (geoMean - geoMeanMinusOneStandardDeviation) / geoMean * 100.0;
+        double smallerGeoMeanRatioForOneSigmaPct = Math.min(geoMeanRatioPlusOneSigmaPct, geoMeanRatioMinusOneSigmaPct);
+        int countOfTrailingDigitsForOneSigmaPct = countOfTrailingDigitsForSigFig(smallerGeoMeanRatioForOneSigmaPct, 2);
+        double plusSigmaPct = (new BigDecimal(geoMeanRatioPlusOneSigmaPct).setScale(countOfTrailingDigitsForOneSigmaPct, RoundingMode.HALF_UP)).doubleValue();
+        double minusSigmaPct = (new BigDecimal(geoMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForOneSigmaPct, RoundingMode.HALF_UP)).doubleValue();
+
+        HashMap<String, Double> output = new HashMap<>();
+        output.put("plusErrPct", plusErrPct);
+        output.put("minusErrPct", minusErrPct);
+        output.put("plusSigmaPct", plusSigmaPct);
+        output.put("minusSigmaPct", minusSigmaPct);
+        output.put("geoMeanPlusOneStandardDeviation", geoMeanPlusOneStandardDeviation);
+        output.put("countOfTrailingDigitsForStdErrPct", (double) countOfTrailingDigitsForStdErrPct);
+        output.put("countOfTrailingDigitsForOneSigmaPct", (double) countOfTrailingDigitsForOneSigmaPct);
+
+        return output;
+    }
+
+    /**
+     * Returns the FormattedStats object needed for the meaAsString(), unctAsString(), and stdvAsString() methods.
+     *
+     * @param mean
+     * @param stdErr
+     * @return
+     */
+    FormatterForSigFigN.FormattedStats calcFormattedStats(double mean, double stdErr, double stdDev) {
+
+        FormatterForSigFigN.FormattedStats formattedStats;
+        if ((abs(mean) >= 1e7) || (abs(mean) <= 1e-5)) {
+            formattedStats =
+                    FormatterForSigFigN.formatToScientific(mean, stdErr, stdDev, 2).padLeft();
+        } else {
+            formattedStats =
+                    FormatterForSigFigN.formatToSigFig(mean, stdErr, stdDev, 2).padLeft();
+        }
+
+        return formattedStats;
+
+
+    }
+
+    /**
+     * @param g2d
+     */
+    @Override
+    public void showLegend(GraphicsContext g2d) {
+        //todo: cut htis out
+
+
+    }
+
+    private String appendTrailingZeroIfNeeded(String valueString, int countOfTrailingDigits) {
+        String retVal = valueString;
+        if (!valueString.isBlank()) {
+            String checkForTrailingZero = String.format("%,1." + countOfTrailingDigits + "f", Double.parseDouble(valueString));
+            if (checkForTrailingZero.substring(checkForTrailingZero.length() - 1).compareTo("0") == 0) {
+                retVal += "0";
+            }
+        }
+        return retVal;
+    }
+
+    @Override
+    public void paint(GraphicsContext g2d) {
+        super.paint(g2d);
+    }
+
+    @Override
+    public void labelAxisX(GraphicsContext g2d) {/* do nothing per Issue #240, item 3*/}
+
+    public void prepareExtents(boolean reScaleX, boolean reScaleY) {
+        if (reScaleX) {
+            minX -= 2;
+            maxX += 2;
+        }
+
+        if (reScaleY || ignoreRejects) {
+            double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.10); //todo: Needs to also do this to x
+            if (yMarginStretch == 0.0) {
+                yMarginStretch = yAxisData[0] / 100.0;
+            }
+            minY -= yMarginStretch;
+            maxY += yMarginStretch;
+        }
+    }
+
+    @Override
+    public void plotData(GraphicsContext g2d) {
+//        g2d.setFill(dataColor.color());
+        g2d.setFill(Color.web(analysis.getDataHexColorString()));
+//        g2d.setStroke(dataColor.color());
+        g2d.setStroke(Color.web(analysis.getDataHexColorString()));
+        g2d.setLineWidth(1.0);
+
+        int cyclesPerBlock = mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
+        int cycleCount = 0;
+
+        for (int i = 0; i < xAxisData.length; i++) {
+            int blockID = (int) ((xAxisData[i] - 0.7) / cyclesPerBlock) + 1;
+            if (pointInPlot(xAxisData[i], yAxisData[i]) && (yAxisData[i] != 0.0)) {
+//                g2d.setFill(dataColor.color());
+                g2d.setFill(Color.web(analysis.getDataHexColorString()));
+//                g2d.setStroke(dataColor.color());
+                g2d.setStroke(Color.web(analysis.getDataHexColorString()));
+                if (!analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).blockRawDataLiteIncludedArray()[cycleCount][userFunction.getColumnIndex()]) {
+//                    g2d.setFill(Color.RED);
+//                    g2d.setStroke(Color.RED);
+                    g2d.setFill(Color.web(analysis.getAntiDataHexColorString()));
+                    g2d.setStroke(Color.web(analysis.getAntiDataHexColorString()));
+                }
+                double dataX = mapX(xAxisData[i]);//todo: this is other userfunction
+                double dataY = mapY(yAxisData[i]);
+                //todo: do not need
+                double dataYplusSigma = mapY(yAxisData[i] + oneSigmaForCycles[i]);
+                double dataYminusSigma = mapY(yAxisData[i] - oneSigmaForCycles[i]);
+
+                if (yAxisData[i] > 0) { //todo: Dont need truthy
+                    g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
+                    g2d.strokeLine(dataX, dataY, dataX, dataYplusSigma);
+                    g2d.strokeLine(dataX, dataY, dataX, dataYminusSigma);
+                } else {
+                    g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
+                }
+            }
+            cycleCount = (cycleCount + 1) % cyclesPerBlock;
+        }
+
+        if (inSculptorMode && showSelectionBox) {
+            //plot selectorbox
+            g2d.setStroke(Color.RED);
+            g2d.setLineWidth(1.0);
+            g2d.strokeRect(Math.min(mouseStartX, selectorBoxX), Math.min(mouseStartY, selectorBoxY), Math.abs(selectorBoxX - mouseStartX), Math.abs(selectorBoxY - mouseStartY));
+        }
+
+        if (inZoomBoxMode && showZoomBox) {
+            g2d.setStroke(Color.BLUE);
+            g2d.setLineWidth(1.5);
+            g2d.strokeRect(Math.min(mouseStartX, zoomBoxX), Math.min(mouseStartY, zoomBoxY), Math.abs(zoomBoxX - mouseStartX), Math.abs(zoomBoxY - mouseStartY));
+        }
+
+        // block delimiters
+        g2d.setStroke(Color.BLACK);
+        g2d.setLineWidth(0.5);
+        int blockID = 1;
+        for (int i = 0; i < xAxisData.length; i += cyclesPerBlock) {
+            if (xInPlot(xAxisData[i])) {
+                double dataX = mapX(xAxisData[i] - 0.5);
+                if (userFunction.getConcatenatedBlockCounts()[0] == blockID - 1) {
+                    g2d.setLineWidth(2.0);
+                    g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
+                    g2d.setLineWidth(1.0);
+                } else {
+                    g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
+                }
+                // may 2024 issue#235
+                if (blockID % 2 == 0) {
+                    // account for blocks not fully developed via PhoenixLiveData
+                    int offset = Math.abs(cyclesPerBlock / 2 - 1);
+                    int index = Math.min(i + offset, xAxisData.length - 1);
+                    double xPosition = mapX(xAxisData[index]);
+
+                    showBlockID(g2d, blockID, xPosition);
+                }
+            }
+            blockID++;
+        }
+        double dataX = mapX(xAxisData[xAxisData.length - 1] + 0.5);
+        g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
+
+    }
+
+    private void showBlockID(GraphicsContext g2d, int blockID, double xPosition) {
+        Paint savedPaint = g2d.getFill();
+        g2d.setFill(Paint.valueOf("BLACK"));
+
+        g2d.setFont(Font.font("SansSerif", FontWeight.EXTRA_BOLD, 8));
+
+        g2d.fillText("" + blockID, xPosition - 4, topMargin + plotHeight + 10);
+        g2d.setFill(savedPaint);
+    }
+
+    /**
+     *
+     *
+     * @param mean
+     * @param stdDev
+     * @param stdErr
+     * @return
+     */
+    public HashMap<String, Double> calcPlotStatsCM(double mean, double stdDev, double stdErr) {
+        double meanPlusOneStandardDeviation = mean + stdDev;
+        double meanPlusTwoStandardDeviation = mean + 2.0 * stdDev;
+        double meanPlusTwoStandardError = mean + 2.0 * stdErr;
+        double meanMinusOneStandardDeviation = mean - stdDev;
+        double meanMinusTwoStandardDeviation = mean - 2.0 * stdDev;
+        double meanMinusTwoStandardError = mean - 2.0 * stdErr;
+
+        HashMap<String, Double> output = new HashMap<>(Map.ofEntries(
+                entry("mean", mean),
+                entry("stdDev", stdDev),
+                entry("stdErr", stdErr),
+                entry("meanPlusOneStandardDeviation", meanPlusOneStandardDeviation),
+                entry("meanPlusTwoStandardDeviation", meanPlusTwoStandardDeviation),
+                entry("meanPlusTwoStandardError", meanPlusTwoStandardError),
+                entry("meanMinusOneStandardDeviation", meanMinusOneStandardDeviation),
+                entry("meanMinusTwoStandardDeviation", meanMinusTwoStandardDeviation),
+                entry("meanMinusTwoStandardError", meanMinusTwoStandardError)
+        ));
+
+        return output;
+    }
+
+    public void plotStats(GraphicsContext g2d) {
+        calcStats();
+        BlockStatsRecord[] blockStatsRecords = analysisStatsRecord.blockStatsRecords();
+
+        Paint saveFill = g2d.getFill();
+        // TODO: promote color to constant
+        g2d.setFill(Color.rgb(255, 251, 194));
+        //g2d.setGlobalAlpha(0.6);
+
+        if (blockMode) {
+            int totalCycles = 0;
+            int totalActualCycles = 0;
+            int cyclesPerBlock = blockStatsRecords[1].cycleMeansData().length;
+            for (int blockIndex = 0; blockIndex < blockStatsRecords.length; blockIndex++) {
+                int cyclesPerThisBlock = blockStatsRecords[blockIndex].cycleMeansData().length;
+                double leftX = mapX(xAxisData[totalCycles] - 0.5);
+                if (leftX < leftMargin) leftX = leftMargin;
+                double rightX = mapX(xAxisData[totalCycles + cyclesPerBlock - 1] + 0.5);
+                if (rightX > leftMargin + plotWidth) rightX = leftMargin + plotWidth;
+
+                BlockStatsRecord blockStatsRecord = blockStatsRecords[blockIndex];
+                double mean = blockStatsRecords[blockIndex].mean();
+                double meanPlusOneStandardDeviation = mean + blockStatsRecord.standardDeviation();
+                double meanPlusTwoStandardDeviation = mean + 2.0 * blockStatsRecord.standardDeviation();
+                double meanPlusTwoStandardError = mean + 2.0 * blockStatsRecord.standardError();
+                double meanMinusOneStandardDeviation = mean - blockStatsRecord.standardDeviation();
+                double meanMinusTwoStandardDeviation = mean - 2.0 * blockStatsRecord.standardDeviation();
+                double meanMinusTwoStandardError = mean - 2.0 * blockStatsRecord.standardError();
+
+                if (isRatio && !logScale) {
+                    GeometricMeanStatsRecord geometricMeanStatsRecord = generateGeometricMeanStats(mean, blockStatsRecord.standardDeviation(), blockStatsRecord.standardError());
+                    mean = geometricMeanStatsRecord.geoMean();
+                    meanPlusOneStandardDeviation = geometricMeanStatsRecord.geoMeanPlusOneStdDev();
+                    meanPlusTwoStandardDeviation = geometricMeanStatsRecord.geomeanPlusTwoStdDev();
+                    meanPlusTwoStandardError = geometricMeanStatsRecord.geoMeanPlusTwoStdErr();
+                    meanMinusOneStandardDeviation = geometricMeanStatsRecord.geoMeanMinusOneStdDev();
+                    meanMinusTwoStandardDeviation = geometricMeanStatsRecord.geoMeanMinusTwoStdDev();
+                    meanMinusTwoStandardError = geometricMeanStatsRecord.geoMeanMinusTwoStdErr();
+                }
+
+                double plottedTwoSigmaHeight = Math.min(mapY(meanMinusTwoStandardDeviation), topMargin + plotHeight) - Math.max(mapY(meanPlusTwoStandardDeviation), topMargin);
+//                g2d.setFill(OGTRIPOLI_TWOSIGMA);
+                g2d.setFill(Color.web(analysis.getTwoSigmaHexColorString()));
+                g2d.fillRect(leftX, Math.max(mapY(meanPlusTwoStandardDeviation), topMargin), rightX - leftX, plottedTwoSigmaHeight);
+
+                double plottedOneSigmaHeight = Math.min(mapY(meanMinusOneStandardDeviation), topMargin + plotHeight) - Math.max(mapY(meanPlusOneStandardDeviation), topMargin);
+//                g2d.setFill(OGTRIPOLI_ONESIGMA);
+                g2d.setFill(Color.web(analysis.getOneSigmaHexColorString()));
+                g2d.fillRect(leftX, Math.max(mapY(meanPlusOneStandardDeviation), topMargin), rightX - leftX, plottedOneSigmaHeight);
+
+                double plottedTwoStdErrHeight = Math.min(mapY(meanMinusTwoStandardError), topMargin + plotHeight) - Math.max(mapY(meanPlusTwoStandardError), topMargin);
+//                g2d.setFill(OGTRIPOLI_TWOSTDERR);
+                g2d.setFill(Color.web(analysis.getTwoStandardErrorHexColorString()));
+                g2d.fillRect(leftX, Math.max(mapY(meanPlusTwoStandardError), topMargin), rightX - leftX, plottedTwoStdErrHeight);
+
+                boolean meanIsPlottable = (mapY(mean) >= topMargin) && (mapY(mean) <= topMargin + plotHeight);
+                if (meanIsPlottable && (leftX <= rightX)) {
+//                    g2d.setStroke(OGTRIPOLI_MEAN);
+                    g2d.setStroke(Color.web(analysis.getMeanHexColorString()));
+                    g2d.setLineWidth(1.5);
+                    g2d.strokeLine(leftX, mapY(mean), rightX, mapY(mean));
+                }
+                totalCycles = totalCycles + cyclesPerBlock;
+                totalActualCycles = totalActualCycles + cyclesPerThisBlock;
+            }
+
+        } else { //cycle mode
+            HashMap<String, Double> plotStats = calcPlotStatsCM(
+                    analysisStatsRecord.cycleModeMean(),
+                    analysisStatsRecord.cycleModeStandardDeviation(),
+                    analysisStatsRecord.cycleModeStandardError());
+
+            double mean = plotStats.get("mean");
+            double stdDev = plotStats.get("stdDev");
+            double stdErr = plotStats.get("stdErr");
+            double meanPlusOneStandardDeviation = plotStats.get("meanPlusOneStandardDeviation");
+            double meanPlusTwoStandardDeviation = plotStats.get("meanPlusTwoStandardDeviation");
+            double meanPlusTwoStandardError = plotStats.get("meanPlusTwoStandardError");
+            double meanMinusOneStandardDeviation = plotStats.get("meanMinusOneStandardDeviation");
+            double meanMinusTwoStandardDeviation = plotStats.get("meanMinusTwoStandardDeviation");
+            double meanMinusTwoStandardError = plotStats.get("meanMinusTwoStandardError");
+
+            double leftX = mapX(xAxisData[0] - 0.5);
+            if (leftX < leftMargin) leftX = leftMargin;
+            double rightX = mapX(xAxisData[xAxisData.length - 1] + 0.5);
+            if (rightX > leftMargin + plotWidth) rightX = leftMargin + plotWidth;
+
+            if (isRatio && !logScale) {
+                GeometricMeanStatsRecord geometricMeanStatsRecord = generateGeometricMeanStats(mean, stdDev, stdErr);
+                mean = geometricMeanStatsRecord.geoMean();
+                meanPlusOneStandardDeviation = geometricMeanStatsRecord.geoMeanPlusOneStdDev();
+                meanPlusTwoStandardDeviation = geometricMeanStatsRecord.geomeanPlusTwoStdDev();
+                meanPlusTwoStandardError = geometricMeanStatsRecord.geoMeanPlusTwoStdErr();
+                meanMinusOneStandardDeviation = geometricMeanStatsRecord.geoMeanMinusOneStdDev();
+                meanMinusTwoStandardDeviation = geometricMeanStatsRecord.geoMeanMinusTwoStdDev();
+                meanMinusTwoStandardError = geometricMeanStatsRecord.geoMeanMinusTwoStdErr();
+            }
+
+            double plottedTwoSigmaHeight = Math.min(mapY(meanMinusTwoStandardDeviation), topMargin + plotHeight) - Math.max(mapY(meanPlusTwoStandardDeviation), topMargin);
+//            g2d.setFill(OGTRIPOLI_TWOSIGMA);
+            g2d.setFill(Color.web(analysis.getTwoSigmaHexColorString()));
+            g2d.fillRect(leftX, Math.max(mapY(meanPlusTwoStandardDeviation), topMargin), rightX - leftX, plottedTwoSigmaHeight);
+
+            double plottedOneSigmaHeight = Math.min(mapY(meanMinusOneStandardDeviation), topMargin + plotHeight) - Math.max(mapY(meanPlusOneStandardDeviation), topMargin);
+//            g2d.setFill(OGTRIPOLI_ONESIGMA);
+            g2d.setFill(Color.web(analysis.getOneSigmaHexColorString()));
+            g2d.fillRect(leftX, Math.max(mapY(meanPlusOneStandardDeviation), topMargin), rightX - leftX, plottedOneSigmaHeight);
+
+            double plottedTwoStdErrHeight = Math.min(mapY(meanMinusTwoStandardError), topMargin + plotHeight) - Math.max(mapY(meanPlusTwoStandardError), topMargin);
+//            g2d.setFill(OGTRIPOLI_TWOSTDERR);
+            g2d.setFill(Color.web(analysis.getTwoStandardErrorHexColorString()));
+            g2d.fillRect(leftX, Math.max(mapY(meanPlusTwoStandardError), topMargin), rightX - leftX, plottedTwoStdErrHeight);
+
+            boolean meanIsPlottable = (mapY(mean) >= topMargin) && (mapY(mean) <= topMargin + plotHeight);
+            if (meanIsPlottable && (leftX <= rightX)) {
+//                g2d.setStroke(OGTRIPOLI_MEAN);
+                g2d.setStroke(Color.web(analysis.getMeanHexColorString()));
+                g2d.setLineWidth(1.5);
+                g2d.strokeLine(leftX - 2, mapY(mean), rightX + 2, mapY(mean));
+            }
+        }
+        g2d.setFill(saveFill);
+        g2d.setGlobalAlpha(1.0);
+    }
+
+    public void setupPlotContextMenu() {
+        // no menu for now
+        plotContextMenu = new ContextMenu();
+    }
+
+    public void resetData() {
+        for (int i = 0; i < mapBlockIdToBlockCyclesRecord.size(); i++) {
+            mapBlockIdToBlockCyclesRecord.put(i + 1, mapBlockIdToBlockCyclesRecord.get(i + 1).resetAllDataIncluded());
+            analysis.getMapOfBlockIdToRawDataLiteOne().put(i + 1, analysis.getMapOfBlockIdToRawDataLiteOne().get(i + 1).resetAllDataIncluded(userFunction));
+        }
+        repaint();
+    }
+
+    @Override
+    public void performChauvenets() {
+        if (blockMode) {
+            for (int i = 0; i < mapBlockIdToBlockCyclesRecord.size(); i++) {
+                int blockID = i + 1;
+                PlotBlockCyclesRecord plotBlockCyclesRecord = mapBlockIdToBlockCyclesRecord.get(blockID).performChauvenets(analysis.getParameters());
+                mapBlockIdToBlockCyclesRecord.put(blockID, plotBlockCyclesRecord);
+                analysis.getMapOfBlockIdToRawDataLiteOne().put(blockID,
+                        analysis.getMapOfBlockIdToRawDataLiteOne().get(i + 1).recordChauvenets(userFunction, plotBlockCyclesRecord.cyclesIncluded()));
+
+                boolean[] plotBlockCyclesIncluded = analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).assembleCyclesIncludedForUserFunction(userFunction);
+                mapBlockIdToBlockCyclesRecord.put(
+                        blockID,
+                        getMapBlockIdToBlockCyclesRecord().get(blockID).updateCyclesIncluded(plotBlockCyclesIncluded));
+            }
+        } else {
+            // cycle mode
+            boolean[] cycleModeIncluded = analysisStatsRecord.cycleModeIncluded();
+            double[] cycleModeData = analysisStatsRecord.cycleModeData();
+//            if (Booleans.countTrue(cycleModeIncluded) == cycleModeIncluded.length) {
+                boolean[] chauvenets = applyChauvenetsCriterion(
+                        cycleModeData,
+                        cycleModeIncluded,
+                        analysis.getParameters());
+                // reset included cycles for each block
+                BlockStatsRecord[] blockStatsRecords = analysisStatsRecord.blockStatsRecords();
+                int countOfProcessedCycles = 0;
+                for (int i = 0; i < blockStatsRecords.length; i++) {
+                    System.arraycopy(chauvenets, countOfProcessedCycles,
+                            blockStatsRecords[i].cyclesIncluded(), 0, blockStatsRecords[i].cyclesIncluded().length);
+                    countOfProcessedCycles += blockStatsRecords[i].cyclesIncluded().length;
+                    int blockID = i + 1;
+                    PlotBlockCyclesRecord plotBlockCyclesRecord = mapBlockIdToBlockCyclesRecord.get(blockID);
+                    plotBlockCyclesRecord.updateCyclesIncluded(blockStatsRecords[i].cyclesIncluded());
+                    mapBlockIdToBlockCyclesRecord.put(blockID, plotBlockCyclesRecord);
+                    analysis.getMapOfBlockIdToRawDataLiteOne().put(blockID,
+                            analysis.getMapOfBlockIdToRawDataLiteOne().get(i + 1).recordChauvenets(userFunction, plotBlockCyclesRecord.cyclesIncluded()));
+
+                }
+                analysisStatsRecord = AnalysisStatsRecord.generateAnalysisStatsRecord(blockStatsRecords);
+//            }
+        }
+
+        repaint();
+    }
+
+    public boolean detectAllIncludedStatus() {
+        boolean retVal = true;
+        for (int i = 0; i < mapBlockIdToBlockCyclesRecord.size(); i++) {
+            retVal = retVal && mapBlockIdToBlockCyclesRecord.get(i + 1).detectAllIncludedStatus();
+        }
+        return retVal;
+    }
+
+    private int determineSculptBlock(double mouseX) {
+        double mouseTime = convertMouseXToValue(mouseX);
+        int xAxisIndexOfMouse = Math.min(xAxisData.length - 1, (int) Math.round(mouseTime));
+        double t0 = xAxisData[xAxisIndexOfMouse];
+        double t2 = xAxisData[(xAxisIndexOfMouse >= 2) ? (xAxisIndexOfMouse - 2) : 0];
+        int sculptBlockIDCalc = blockIDsPerTimeSlot[(xAxisIndexOfMouse >= 1) ? (xAxisIndexOfMouse - 1) : 0];
+        if (((t0 - t2) > 5.0) && (Math.abs(mouseTime - t2) > Math.abs(mouseTime - t0))) {
+            sculptBlockIDCalc = blockIDsPerTimeSlot[xAxisIndexOfMouse];
+        }
+
+        if (sculptBlockIDCalc == 0) sculptBlockIDCalc = mapBlockIdToBlockCyclesRecord.size();
+        return sculptBlockIDCalc;
+    }
+
+    public Map<Integer, PlotBlockCyclesRecord> getMapBlockIdToBlockCyclesRecord() {
+        return mapBlockIdToBlockCyclesRecord;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public AnalysisBlockCyclesRecord getAnalysisBlockCyclesRecord() {
+        return null;
+    }
+
+    public UserFunction getUserFunction() {
+        return userFunction;
+    }
+
+    private boolean mouseInBlockLabel(double sceneX, double sceneY) {
+        return ((sceneX >= leftMargin)
+                && (sceneY >= topMargin - 15)
+                && (sceneY < topMargin)
+                && (sceneX < (plotWidth + leftMargin - 2)));
+    }
+
+    public void sculptBlock(boolean zoomBlock) {
+        if ((0 < sculptBlockID) && !inSculptorMode) {
+            inSculptorMode = true;
+            showSelectionBox = true;
+            setOnMouseDragged(new AnalysisTwoUserFunctionsPlot.MouseDraggedEventHandlerSculpt());
+            setOnMousePressed(new AnalysisTwoUserFunctionsPlot.MousePressedEventHandlerSculpt());
+            setOnMouseReleased(new AnalysisTwoUserFunctionsPlot.MouseReleasedEventHandlerSculpt());
+            selectorBoxX = mouseStartX;
+            selectorBoxY = mouseStartY;
+
+            // zoom into block
+            countOfPreviousBlockIncludedData = (sculptBlockID - 1) * mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
+            if (zoomBlock) {
+                displayOffsetX = 0;
+                int countOfCycles = mapBlockIdToBlockCyclesRecord.get(sculptBlockID).cyclesIncluded().length;
+                minX = xAxisData[countOfPreviousBlockIncludedData] - 1;
+                maxX = xAxisData[countOfPreviousBlockIncludedData
+                        + countOfCycles - 1] + 1;
+
+                minY = Double.MAX_VALUE;
+                maxY = -Double.MAX_VALUE;
+                for (int i = countOfPreviousBlockIncludedData; i < countOfPreviousBlockIncludedData + countOfCycles; i++) {
+                    if (0.0 != yAxisData[i]) {
+                        minY = min(minY, yAxisData[i]);
+                        maxY = max(maxY, yAxisData[i]);
+                    }
+                }
+                double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.05);
+                maxY += yMarginStretch;
+                minY -= yMarginStretch;
+                displayOffsetY = 0.0;
+
+                refreshPanel(false, false);
+            }
+        } else {
+            inSculptorMode = false;
+            showSelectionBox = false;
+            setOnMouseDragged(new AnalysisTwoUserFunctionsPlot.MouseDraggedEventHandler());
+            setOnMousePressed(new AnalysisTwoUserFunctionsPlot.MousePressedEventHandler());
+            setOnMouseReleased(new AnalysisTwoUserFunctionsPlot.MouseReleasedEventHandler());
+        }
+        repaint();
+    }
+
+    private void exitSculptingMode() {
+        inSculptorMode = false;
+        sculptBlockID = 0;
+        inZoomBoxMode = true;
+        showZoomBox = true;
+        zoomBoxX = mouseStartX;
+        zoomBoxY = mouseStartY;
+        refreshPanel(true, true);
+        ((TripoliPlotPane) getParent().getParent()).removeSculptingHBox();
+        tooltip.setText(tooltipTextSculpt);
+    }
+
+    private void enterSculptingMode() {
+        inSculptorMode = false;
+        inZoomBoxMode = false;
+        showZoomBox = false;
+        ((TripoliPlotPane) getParent().getParent()).removeSculptingHBox();
+        sculptBlockID = 1;//determineSculptBlock(mouseEvent.getX());
+        ((TripoliPlotPane) getParent().getParent()).builtSculptingHBox(
+                "Cycle Sculpting " + "  >> " + tooltipTextExitSculpt);
+        sculptBlock(false);//mouseInBlockLabel(mouseEvent.getX(), mouseEvent.getY()));
+        inSculptorMode = true;
+        tooltip.setText(tooltipTextExitSculpt);
+    }
+
+    public boolean isIgnoreRejects() {
+        return ignoreRejects;
+    }
+
+    public void setIgnoreRejects(boolean ignoreRejects) {
+        this.ignoreRejects = ignoreRejects;
+    }
+
+    public void toggleSculptingMode() {
+        if (inSculptorMode) {
+            exitSculptingMode();
+        } else {
+            enterSculptingMode();
+        }
+    }
+
+    class MouseClickEventHandler implements EventHandler<MouseEvent> {
+        @Override
+        public void handle(MouseEvent mouseEvent) {
+            boolean isPrimary = (0 == mouseEvent.getButton().compareTo(MouseButton.PRIMARY));
+            if (2 == mouseEvent.getClickCount() && !mouseEvent.isControlDown()) {
+                if (isPrimary && (mouseInHouse(mouseEvent.getX(), mouseEvent.getY()) || mouseInBlockLabel(mouseEvent.getX(), mouseEvent.getY()))) {
+                    if (inSculptorMode) {
+                        exitSculptingMode();
+                    } else {
+                        enterSculptingMode();
+                    }
+                }
+            } else {
+                if (isPrimary && mouseEvent.isControlDown() && (mouseInHouse(mouseEvent.getX(), mouseEvent.getY()))) {
+                    // turn off / on block
+                    sculptBlockID = determineSculptBlock(mouseEvent.getX());
+                    mapBlockIdToBlockCyclesRecord.put(sculptBlockID,
+                            mapBlockIdToBlockCyclesRecord.get(sculptBlockID).toggleBlockIncluded());
+                    analysis.getMapOfBlockIdToRawDataLiteOne().put(sculptBlockID,
+                            analysis.getMapOfBlockIdToRawDataLiteOne().get(sculptBlockID).toggleAllDataIncludedUserFunction(userFunction));
+
+                    inZoomBoxMode = !inSculptorMode;
+                    showZoomBox = !inSculptorMode;
+                    refreshPanel(false, false);
+                } else if (!isPrimary && mouseEvent.isControlDown() && (mouseInHouse(mouseEvent.getX(), mouseEvent.getY()))) {
+                    // zoom block
+                    sculptBlockID = determineSculptBlock(mouseEvent.getX());
+                    ((TripoliPlotPane) getParent().getParent()).removeSculptingHBox();
+                    ((TripoliPlotPane) getParent().getParent()).builtSculptingHBox(
+                            "Cycle Sculpting " + "  >> " + tooltipTextExitSculpt);
+                    sculptBlock(true);
+                    inZoomBoxMode = !inSculptorMode;
+                    showZoomBox = !inSculptorMode;
+
+                    tooltip.setText(tooltipTextExitSculpt);
+                    repaint();
+                }
+            }
+        }
+    }
+
+    class MouseDraggedEventHandlerSculpt implements EventHandler<MouseEvent> {
+        @Override
+        public void handle(MouseEvent e) {
+            if (e.isPrimaryButtonDown()) {
+                if (mouseInHouse(e.getX(), e.getY())) {
+                    selectorBoxX = e.getX();
+                    selectorBoxY = e.getY();
+                    showSelectionBox = true;
+                }
+            } else {
+                showSelectionBox = false;
+                displayOffsetX = displayOffsetX + (convertMouseXToValue(mouseStartX) - convertMouseXToValue(e.getX()));
+                displayOffsetY = displayOffsetY + (convertMouseYToValue(mouseStartY) - convertMouseYToValue(e.getY()));
+                adjustMouseStartsForPress(e.getX(), e.getY());
+                calculateTics();
+            }
+            repaint();
+        }
+    }
+
+    class MouseReleasedEventHandlerSculpt implements EventHandler<MouseEvent> {
+        /**
+         * @param e the event which occurred
+         */
+        @Override
+        public void handle(MouseEvent e) {
+            boolean isPrimary = (0 == e.getButton().compareTo(MouseButton.PRIMARY));
+            if (mouseInHouse(e.getX(), e.getY()) && isPrimary) {
+                showSelectionBox = true;
+                // process contained data points
+                selectorBoxX = e.getX();
+                selectorBoxY = e.getY();
+                double timeLeft = convertMouseXToValue(Math.min(mouseStartX, selectorBoxX));
+                double timeRight = convertMouseXToValue(Math.max(mouseStartX, selectorBoxX));
+                int indexLeft = Math.max(1, Math.abs(binarySearch(xAxisData, timeLeft))) - 1;
+                int indexRight = Math.max(2, Math.abs(binarySearch(xAxisData, timeRight))) - 2;
+                if (indexRight < indexLeft) {
+                    indexRight = indexLeft;
+                }
+
+                double intensityTop = convertMouseYToValue(Math.min(mouseStartY, selectorBoxY));
+                double intensityBottom = convertMouseYToValue(Math.max(mouseStartY, selectorBoxY));
+
+                int expectedCyclesCount = mapBlockIdToBlockCyclesRecord.get(1).cycleMeansData().length;
+
+                int sculptBlockIDStart = blockIDsPerTimeSlot[min(indexLeft, blockIDsPerTimeSlot.length - 1)];
+                int sculptBlockIDEnd = blockIDsPerTimeSlot[min(indexRight, blockIDsPerTimeSlot.length - 1)];
+                if (sculptBlockIDEnd == 0) sculptBlockIDEnd = blockIDsPerTimeSlot[indexRight - expectedCyclesCount];
+                // calculate majority for multi-select
+                List<Boolean> statusList = new ArrayList<>();
+                for (int sculptBlockCurrent = sculptBlockIDStart; sculptBlockCurrent <= sculptBlockIDEnd; sculptBlockCurrent++) {
+                    double[] data;
+                    if (userFunction.isInverted()) {
+                        data = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).invertedCycleMeansData();
+                    } else {
+                        data = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).cycleMeansData();
+                    }
+                    boolean[] cyclesIncluded = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).cyclesIncluded().clone();
+
+                    int startLeft = max(0, (indexLeft - (sculptBlockCurrent - 1) * expectedCyclesCount) % cyclesIncluded.length);
+                    int endRight = min(data.length - 1, (indexRight - (sculptBlockCurrent - 1) * expectedCyclesCount));
+
+                    for (int i = startLeft; i <= endRight; i++) {
+                        if ((data[i] <= intensityTop) && (data[i] >= intensityBottom)) {
+                            statusList.add(cyclesIncluded[i]);
+                        }
+                    }
+                }
+
+                boolean[] status = Booleans.toArray(statusList);
+                int countIncluded = Booleans.countTrue(status);
+                boolean majorityIncludedValue = countIncluded > status.length / 2;
+
+                for (int sculptBlockCurrent = sculptBlockIDStart; sculptBlockCurrent <= sculptBlockIDEnd; sculptBlockCurrent++) {
+                    double[] data;
+                    if (userFunction.isInverted()) {
+                        data = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).invertedCycleMeansData();
+                    } else {
+                        data = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).cycleMeansData();
+                    }
+                    boolean[] cyclesIncluded = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).cyclesIncluded().clone();
+
+                    int startLeft = max(0, (indexLeft - (sculptBlockCurrent - 1) * expectedCyclesCount) % cyclesIncluded.length);
+                    int endRight = min(data.length - 1, (indexRight - (sculptBlockCurrent - 1) * expectedCyclesCount));
+
+                    for (int i = startLeft; i <= endRight; i++) {
+                        if ((data[i] <= intensityTop) && (data[i] >= intensityBottom)) {
+                            cyclesIncluded[i] = !majorityIncludedValue;
+                        }
+                    }
+                    mapBlockIdToBlockCyclesRecord.put(sculptBlockCurrent,
+                            mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).updateCyclesIncluded(cyclesIncluded));
+                    analysis.getMapOfBlockIdToRawDataLiteOne().put(sculptBlockCurrent,
+                            analysis.getMapOfBlockIdToRawDataLiteOne().get(sculptBlockCurrent).updateIncludedCycles(userFunction, cyclesIncluded));
+                }
+
+            } else {
+                showSelectionBox = false;
+            }
+            adjustMouseStartsForPress(e.getX(), e.getY());
+            selectorBoxX = mouseStartX;
+            selectorBoxY = mouseStartY;
+
+            refreshPanel(false, false);
+        }
+    }
+
+    class MousePressedEventHandlerSculpt implements EventHandler<MouseEvent> {
+        /**
+         * @param e the event which occurred
+         */
+        @Override
+        public void handle(MouseEvent e) {
+            if (mouseInHouse(e.getX(), e.getY()) && e.isPrimaryButtonDown()) {
+                showSelectionBox = true;
+                adjustMouseStartsForPress(e.getX(), e.getY());
+                selectorBoxX = mouseStartX;
+                selectorBoxY = mouseStartY;
+                sculptBlockID = determineSculptBlock(e.getX());
+                inSculptorMode = false;
+                sculptBlock(false);
+            } else {
+                showSelectionBox = false;
+                adjustMouseStartsForPress(e.getX(), e.getY());
+            }
+        }
+    }
+
+    class MouseDraggedEventHandler implements EventHandler<MouseEvent> {
+        @Override
+        public void handle(MouseEvent e) {
+            if (inZoomBoxMode && mouseInHouse(e.getX(), e.getY()) && e.isPrimaryButtonDown()) {
+                zoomBoxX = e.getX();
+                zoomBoxY = e.getY();
+                showZoomBox = true;
+
+            } else {
+                if (mouseInHouse(e.getX(), e.getY()) && !e.isPrimaryButtonDown() && !e.isControlDown()) {
+                    // right mouse PAN
+                    showZoomBox = false;
+                    displayOffsetX = displayOffsetX + (convertMouseXToValue(mouseStartX) - convertMouseXToValue(e.getX()));
+                    displayOffsetY = displayOffsetY + (convertMouseYToValue(mouseStartY) - convertMouseYToValue(e.getY()));
+                    adjustMouseStartsForPress(e.getX(), e.getY());
+                    calculateTics();
+                }
+            }
+            repaint();
+        }
+    }
+
+    class MousePressedEventHandler implements EventHandler<MouseEvent> {
+        @Override
+        public void handle(MouseEvent e) {
+            if (mouseInHouse(e.getX(), e.getY()) && !e.isPrimaryButtonDown()) {
+                adjustMouseStartsForPress(e.getX(), e.getY());
+                inZoomBoxMode = false;
+                showZoomBox = false;
+            } else if (mouseInHouse(e.getX(), e.getY()) && e.isPrimaryButtonDown()) {
+                inZoomBoxMode = true;
+                showZoomBox = true;
+                adjustMouseStartsForPress(e.getX(), e.getY());
+                zoomBoxX = mouseStartX;
+                zoomBoxY = mouseStartY;
+            }
+        }
+    }
+
+    class MouseReleasedEventHandler implements EventHandler<MouseEvent> {
+        /**
+         * @param e the event which occurred
+         */
+        @Override
+        public void handle(MouseEvent e) {
+            if (inZoomBoxMode && mouseInHouse(e.getX(), e.getY())) {
+                showZoomBox = true;
+                zoomBoxX = e.getX();
+                zoomBoxY = e.getY();
+                if ((zoomBoxX != mouseStartX) && (zoomBoxY != mouseStartY)) {
+                    double timeLeft = convertMouseXToValue(Math.min(mouseStartX, zoomBoxX));
+                    double timeRight = convertMouseXToValue(Math.max(mouseStartX, zoomBoxX));
+                    int indexLeft = Math.max(1, Math.abs(binarySearch(xAxisData, timeLeft))) - 1;
+                    int indexRight = Math.max(2, Math.abs(binarySearch(xAxisData, timeRight))) - 2;
+                    if (indexRight < indexLeft) {
+                        indexRight = indexLeft;
+                    }
+                    double intensityTop = convertMouseYToValue(Math.min(mouseStartY, zoomBoxY));
+                    double intensityBottom = convertMouseYToValue(Math.max(mouseStartY, zoomBoxY));
+
+                    displayOffsetX = xAxisData[indexLeft] - minX - 2;
+                    maxX = xAxisData[(indexRight == xAxisData.length - 1) ? indexRight : indexRight + 1] - displayOffsetX;
+
+                    minY = intensityBottom;
+                    maxY = intensityTop;
+
+                    double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.05);
+                    maxY += yMarginStretch;
+                    minY -= yMarginStretch;
+                    displayOffsetY = 0.0;
+
+                    inZoomBoxMode = false;
+                    showZoomBox = false;
+                    ((TripoliPlotPane) getParent().getParent()).removeSculptingHBox();
+                    ((TripoliPlotPane) getParent().getParent()).builtSculptingHBox(
+                            "Cycle Sculpting " + "  >> " + tooltipTextExitSculpt);
+                    inSculptorMode = true;
+                    showSelectionBox = false;
+                    setOnMouseDragged(new AnalysisTwoUserFunctionsPlot.MouseDraggedEventHandlerSculpt());
+                    setOnMousePressed(new AnalysisTwoUserFunctionsPlot.MousePressedEventHandlerSculpt());
+                    setOnMouseReleased(new AnalysisTwoUserFunctionsPlot.MouseReleasedEventHandlerSculpt());
+                    selectorBoxX = mouseStartX;
+                    selectorBoxY = mouseStartY;
+
+                    refreshPanel(false, false);
+                }
+                adjustMouseStartsForPress(e.getX(), e.getY());
+                zoomBoxX = mouseStartX;
+                zoomBoxY = mouseStartY;
+
+            } else {
+                zoomBoxX = mouseStartX;
+                zoomBoxY = mouseStartY;
+            }
+            repaint();
+        }
+    }
+}
