@@ -68,6 +68,10 @@ public class OGTripoliPlotsWindow {
         plottingStage.close();
     }
 
+    public boolean isShowing() {
+        return plottingStage.isShowing();
+    }
+
     public void loadPlotsWindowForTwoUserFunctions() {
         if (!plottingStage.isShowing() && plottingData != null) {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/dataViews/plots/plotsControllers/OGTripoliView.fxml"));

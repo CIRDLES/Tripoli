@@ -1041,38 +1041,31 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private void populateTwoUserFunctionsSelectorTab() {
         List<UserFunction> userFunctions = analysis.getUserFunctions();
         
-        xAxisUserFunctionComboBox.setItems((ObservableList<UserFunction>) userFunctions);
-        yAxisUserFunctionComboBox.setItems((ObservableList<UserFunction>) userFunctions);
+        xAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctions));
+        yAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctions));
         
-        // Create shared cell factory and button cell for user function display
-        Callback<ListView<UserFunction>, ListCell<UserFunction>> cellFactory = listView -> new ListCell<>() {
-            @Override
-            protected void updateItem(UserFunction item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(item.showCorrectName());
-                }
-            }
-        };
-        ListCell<UserFunction> buttonCell = new ListCell<>() {
-            @Override
-            protected void updateItem(UserFunction item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(item.showCorrectName());
-                }
-            }
-        };
+        // Create shared cell factory for user function display
+        Callback<ListView<UserFunction>, ListCell<UserFunction>> cellFactory = listView -> createUserFunctionListCell();
         
-        // Apply shared cell factory and button cell to both ComboBoxes
+        // Apply shared cell factory and create separate button cells for each ComboBox
         xAxisUserFunctionComboBox.setCellFactory(cellFactory);
-        xAxisUserFunctionComboBox.setButtonCell(buttonCell);
+        xAxisUserFunctionComboBox.setButtonCell(createUserFunctionListCell());
         yAxisUserFunctionComboBox.setCellFactory(cellFactory);
-        yAxisUserFunctionComboBox.setButtonCell(buttonCell);
+        yAxisUserFunctionComboBox.setButtonCell(createUserFunctionListCell());
+    }
+    
+    private ListCell<UserFunction> createUserFunctionListCell() {
+        return new ListCell<>() {
+            @Override
+            protected void updateItem(UserFunction item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.showCorrectName());
+                }
+            }
+        };
     }
     
     @FXML
@@ -1090,6 +1083,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             AllBlockInitForMCMC.PlottingData plottingData = AllBlockInitForDataLiteOne.initBlockModels(analysis);
  
             ogTripoliReviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
+            ogTripoliReviewPlotsWindow.loadPlotsWindowForTwoUserFunctions();
+        } else if (!ogTripoliReviewPlotsWindow.isShowing()) {
+            // Window exists but was closed - reopen it
             ogTripoliReviewPlotsWindow.loadPlotsWindowForTwoUserFunctions();
         }
         
