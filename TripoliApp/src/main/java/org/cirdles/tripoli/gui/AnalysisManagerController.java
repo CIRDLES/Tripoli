@@ -1054,6 +1054,30 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         yAxisUserFunctionComboBox.setButtonCell(createUserFunctionListCell());
     }
     
+    private void refreshTwoUserFunctionsComboBoxes() {
+        if (xAxisUserFunctionComboBox == null || yAxisUserFunctionComboBox == null) {
+            return;
+        }
+        
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+        
+        // Store current selections to preserve them if possible
+        UserFunction currentXSelection = xAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        UserFunction currentYSelection = yAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        
+        // Update the ComboBox items
+        xAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctions));
+        yAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctions));
+        
+        // Restore selections if they still exist in the updated list
+        if (currentXSelection != null && userFunctions.contains(currentXSelection)) {
+            xAxisUserFunctionComboBox.getSelectionModel().select(currentXSelection);
+        }
+        if (currentYSelection != null && userFunctions.contains(currentYSelection)) {
+            yAxisUserFunctionComboBox.getSelectionModel().select(currentYSelection);
+        }
+    }
+    
     private ListCell<UserFunction> createUserFunctionListCell() {
         return new ListCell<>() {
             @Override
@@ -1062,14 +1086,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 if (empty || item == null) {
                     setText(null);
                 } else {
-                    setText(item.showCorrectName());
+                    setText(item.getName());
                 }
             }
         };
     }
     
     @FXML
-    public void generateTwoUserFunctionsPlotAction() { // TODO: Need to update lists with customUF change
+    public void generateTwoUserFunctionsPlotAction() {
         UserFunction xAxisUF = xAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
         UserFunction yAxisUF = yAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
         
@@ -2002,6 +2026,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         userFunctions.add(newFunction);
 
         analysis.getMassSpecExtractedData().populateCycleDataForCustomExpression(expressionTree);
+        
+        // Refresh the two user functions ComboBoxes to include the new custom expression
+        refreshTwoUserFunctionsComboBoxes();
 
         if (tripoliSession.isExpressionRefreshed()) {
             AnalysisMethodPersistance methodPersistence =
@@ -2103,6 +2130,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         userFunctions.remove(customExpression);
         analysis.getMassSpecExtractedData().removeCycleDataForDeletedExpression(customExpression.getCustomExpression());
+        
+        // Refresh the two user functions ComboBoxes to remove the deleted custom expression
+        refreshTwoUserFunctionsComboBoxes();
 
         int columnIndex = customExpression.getColumnIndex();
         for (UserFunction uf : userFunctions) { // Reindex down
