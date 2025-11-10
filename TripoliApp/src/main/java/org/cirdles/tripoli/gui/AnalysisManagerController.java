@@ -1102,10 +1102,11 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             return;
         }
         
+        AllBlockInitForMCMC.PlottingData plottingData = AllBlockInitForDataLiteOne.initBlockModels(analysis);
+        
         // Ensure the plots window is open (case 1 only - tab visibility ensures this)
         if (ogTripoliReviewPlotsWindow == null) {
-            AllBlockInitForMCMC.PlottingData plottingData = AllBlockInitForDataLiteOne.initBlockModels(analysis);
- 
+
             ogTripoliReviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
             ogTripoliReviewPlotsWindow.loadPlotsWindowForTwoUserFunctions();
         } else if (!ogTripoliReviewPlotsWindow.isShowing()) {
