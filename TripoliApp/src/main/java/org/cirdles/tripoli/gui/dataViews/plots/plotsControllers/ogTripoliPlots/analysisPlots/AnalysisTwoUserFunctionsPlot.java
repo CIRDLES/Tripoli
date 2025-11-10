@@ -32,6 +32,7 @@ import javafx.scene.text.FontWeight;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.dataViews.plots.*;
+import org.cirdles.tripoli.gui.utilities.ViridisColorPalette;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisBlockCyclesRecord;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
@@ -93,7 +94,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             UserFunction xAxisUserFunction,
             PlotWallPane parentWallPane) {
         super(bounds,
-                185, 25,
+                185, 50,  // Increased topMargin from 25 to 50 to make room for legend
                 new String[]{userFunction.getName()
                         + "  " + "x\u0304" + "= 0" //+ String.format("%8.8g", analysisBlockCyclesRecord.analysisMean()).trim()
                         , "\u00B1" + " 0"},//String.format("%8.5g", analysisBlockCyclesRecord.analysisOneSigma()).trim()},
@@ -283,7 +284,8 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
      */
     @Override
     public void labelAxisY(GraphicsContext g2d) {
-        // do nothing
+        // Use parent implementation to display y-axis label
+        super.labelAxisY(g2d);
     }
 
     @Override
@@ -397,8 +399,94 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
      */
     @Override
     public void showLegend(GraphicsContext g2d) {
-        // Simplified legend for two user functions plot - no legend needed
-        // Axis labels already show the user function names
+        Paint savedPaint = g2d.getFill();
+        Paint savedStroke = g2d.getStroke();
+        Font savedFont = g2d.getFont();
+        
+        // Position gradient at top, outside chart area
+        double gradientBarWidth = plotWidth * 0.4; // 40% of plot width
+        double gradientBarHeight = 14;
+        double gradientBarX = leftMargin + (plotWidth - gradientBarWidth) / 2.0; // Centered
+        double gradientBarY = 18; // Moved down to prevent text cutoff
+        
+        // Draw color gradient bar
+        int gradientSteps = 100;
+        for (int i = 0; i < gradientSteps; i++) {
+            double normalizedValue = (double) i / (gradientSteps - 1);
+            Color viridisColor = ViridisColorPalette.getViridisColor(normalizedValue);
+            g2d.setFill(viridisColor);
+            g2d.setStroke(viridisColor);
+            double stepWidth = gradientBarWidth / gradientSteps;
+            g2d.fillRect(gradientBarX + i * stepWidth, gradientBarY, stepWidth + 0.5, gradientBarHeight);
+        }
+        
+        // Draw border around gradient
+        g2d.setStroke(Color.BLACK);
+        g2d.setLineWidth(0.5);
+        g2d.strokeRect(gradientBarX, gradientBarY, gradientBarWidth, gradientBarHeight);
+        
+        // Labels for gradient
+        g2d.setFont(Font.font("SansSerif", 9));
+        g2d.setFill(Color.BLACK);
+        g2d.fillText("Time Index:", gradientBarX, gradientBarY - 2);
+        g2d.setFont(Font.font("SansSerif", 8));
+        g2d.fillText("Early", gradientBarX, gradientBarY + gradientBarHeight + 12);
+        g2d.fillText("Late", gradientBarX + gradientBarWidth - 25, gradientBarY + gradientBarHeight + 12);
+        
+        // Position rejection markers to the right of the gradient
+        double markersStartX = gradientBarX + gradientBarWidth + 20;
+        
+        // Label for rejection markers
+        g2d.setFont(Font.font("SansSerif", 9));
+        g2d.fillText("Rejection:", markersStartX, gradientBarY - 2);
+        
+        // Add space between label and icons
+        double markersY = gradientBarY + 8; // More space below the label
+        
+        double markerX = markersStartX;
+        double markerY = markersY;
+        double markerSpacing = 45;
+        
+        // Both rejected - red square
+        g2d.setFill(Color.RED);
+        g2d.setStroke(Color.BLACK);
+        g2d.setLineWidth(0.5);
+        g2d.fillRect(markerX - 2.0, markerY - 2.0, 4, 4);
+        g2d.strokeRect(markerX - 2.0, markerY - 2.0, 4, 4);
+        g2d.setFont(Font.font("SansSerif", 8));
+        g2d.setFill(Color.BLACK);
+        g2d.fillText("Both", markerX + 7, markerY + 4);
+        
+        // X rejected - red downward triangle
+        markerX += markerSpacing;
+        g2d.setFill(Color.RED);
+        g2d.setStroke(Color.BLACK);
+        g2d.setLineWidth(0.5);
+        double[] xPointsDown = {markerX, markerX - 4.0, markerX + 4.0};
+        double[] yPointsDown = {markerY + 4.0, markerY - 3.0, markerY - 3.0};
+        g2d.fillPolygon(xPointsDown, yPointsDown, 3);
+        g2d.strokePolygon(xPointsDown, yPointsDown, 3);
+        g2d.setFont(Font.font("SansSerif", 8));
+        g2d.setFill(Color.BLACK);
+        g2d.fillText("X only", markerX + 7, markerY + 4);
+        
+        // Y rejected - red left triangle
+        markerX += markerSpacing;
+        g2d.setFill(Color.RED);
+        g2d.setStroke(Color.BLACK);
+        g2d.setLineWidth(0.5);
+        double[] xPointsLeft = {markerX - 4.0, markerX + 3.0, markerX + 3.0};
+        double[] yPointsLeft = {markerY, markerY - 4.0, markerY + 4.0};
+        g2d.fillPolygon(xPointsLeft, yPointsLeft, 3);
+        g2d.strokePolygon(xPointsLeft, yPointsLeft, 3);
+        g2d.setFont(Font.font("SansSerif", 8));
+        g2d.setFill(Color.BLACK);
+        g2d.fillText("Y only", markerX + 7, markerY + 4);
+        
+        // Restore saved graphics state
+        g2d.setFill(savedPaint);
+        g2d.setStroke(savedStroke);
+        g2d.setFont(savedFont);
     }
 
     private String appendTrailingZeroIfNeeded(String valueString, int countOfTrailingDigits) {
@@ -445,12 +533,11 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
 
     @Override
     public void plotData(GraphicsContext g2d) {
-        g2d.setFill(Color.web(analysis.getDataHexColorString()));
-        g2d.setStroke(Color.web(analysis.getDataHexColorString()));
-        g2d.setLineWidth(1.0);
-
         int cyclesPerBlock = mapBlockIdToBlockCyclesRecord.get(1).cyclesIncluded().length;
         int cycleCount = 0;
+        
+        // Use viridis color palette based on time index
+        int totalDataPoints = xAxisData.length;
 
         for (int i = 0; i < xAxisData.length; i++) {
             // Calculate block ID from cycle index
@@ -460,22 +547,65 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             }
             
             if (pointInPlot(xAxisData[i], yAxisData[i]) && (xAxisData[i] != 0.0) && (yAxisData[i] != 0.0)) {
-                g2d.setFill(Color.web(analysis.getDataHexColorString()));
-                g2d.setStroke(Color.web(analysis.getDataHexColorString()));
+                // Check rejection status for both x and y user functions
+                boolean yIncluded = true;
+                boolean xIncluded = true;
+                int cycleIndex = cycleCount % cyclesPerBlock;
                 
-                // Check if this cycle is included
+                // Check y-axis user function (main user function)
                 if (blockID <= mapBlockIdToBlockCyclesRecord.size() && 
-                    cycleCount < mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded().length &&
-                    !mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded()[cycleCount % cyclesPerBlock]) {
-                    g2d.setFill(Color.web(analysis.getAntiDataHexColorString()));
-                    g2d.setStroke(Color.web(analysis.getAntiDataHexColorString()));
+                    mapBlockIdToBlockCyclesRecord.get(blockID) != null &&
+                    cycleIndex < mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded().length) {
+                    yIncluded = mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded()[cycleIndex];
+                }
+                
+                // Check x-axis user function
+                if (blockID <= mapBlockIdToBlockCyclesRecordX.size() && 
+                    mapBlockIdToBlockCyclesRecordX.get(blockID) != null &&
+                    cycleIndex < mapBlockIdToBlockCyclesRecordX.get(blockID).cyclesIncluded().length) {
+                    xIncluded = mapBlockIdToBlockCyclesRecordX.get(blockID).cyclesIncluded()[cycleIndex];
                 }
                 
                 double dataX = mapX(xAxisData[i]);
                 double dataY = mapY(yAxisData[i]);
                 
-                // Plot point as a circle
-                g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
+                // Determine marker type and color based on rejection status
+                if (!xIncluded && !yIncluded) {
+                    // Both rejected: red square
+                    g2d.setFill(Color.RED);
+                    g2d.setStroke(Color.BLACK);
+                    g2d.setLineWidth(0.5);
+                    g2d.fillRect(dataX - 2.0, dataY - 2.0, 4, 4);
+                    g2d.strokeRect(dataX - 2.0, dataY - 2.0, 4, 4);
+                } else if (!xIncluded && yIncluded) {
+                    // X rejected only: red downward-pointing triangle ▼
+                    g2d.setFill(Color.RED);
+                    g2d.setStroke(Color.BLACK);
+                    g2d.setLineWidth(0.5);
+                    // Triangle pointing down: apex at bottom, base at top
+                    double[] xPoints = {dataX, dataX - 4.0, dataX + 4.0};
+                    double[] yPoints = {dataY + 4.0, dataY - 3.0, dataY - 3.0};
+                    g2d.fillPolygon(xPoints, yPoints, 3);
+                    g2d.strokePolygon(xPoints, yPoints, 3);
+                } else if (xIncluded && !yIncluded) {
+                    // Y rejected only: red left-pointing triangle ◀
+                    g2d.setFill(Color.RED);
+                    g2d.setStroke(Color.BLACK);
+                    g2d.setLineWidth(0.5);
+                    // Triangle pointing left: apex on left, base on right
+                    double[] xPoints = {dataX - 4.0, dataX + 3.0, dataX + 3.0};
+                    double[] yPoints = {dataY, dataY - 4.0, dataY + 4.0};
+                    g2d.fillPolygon(xPoints, yPoints, 3);
+                    g2d.strokePolygon(xPoints, yPoints, 3);
+                } else {
+                    // Neither rejected: viridis colored circle
+                    Color pointColor = ViridisColorPalette.getViridisColorForIndex(i, totalDataPoints);
+                    g2d.setFill(pointColor);
+                    g2d.setStroke(Color.BLACK);
+                    g2d.setLineWidth(0.5);
+                    g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
+                    g2d.strokeOval(dataX - 2.0, dataY - 2.0, 4, 4);
+                }
             }
             cycleCount++;
         }
@@ -493,45 +623,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             g2d.strokeRect(Math.min(mouseStartX, zoomBoxX), Math.min(mouseStartY, zoomBoxY), Math.abs(zoomBoxX - mouseStartX), Math.abs(zoomBoxY - mouseStartY));
         }
 
-        // Block delimiters - draw vertical lines at block boundaries
-        // Since x-axis is now user function values, we need to find block boundaries differently
-        g2d.setStroke(Color.BLACK);
-        g2d.setLineWidth(0.5);
-        int blockID = 1;
-        for (int i = 0; i < xAxisData.length; i += cyclesPerBlock) {
-            if (i < xAxisData.length) {
-                // Use the x-axis value at the start of each block
-                double blockStartX = xAxisData[i];
-                if (xInPlot(blockStartX)) {
-                    double dataX = mapX(blockStartX);
-                    if (userFunction.getConcatenatedBlockCounts().length > 0 && 
-                        userFunction.getConcatenatedBlockCounts()[0] == blockID - 1) {
-                        g2d.setLineWidth(2.0);
-                        g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
-                        g2d.setLineWidth(0.5);
-                    } else {
-                        g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
-                    }
-                    // may 2024 issue#235
-                    if (blockID % 2 == 0) {
-                        // account for blocks not fully developed via PhoenixLiveData
-                        int offset = Math.abs(cyclesPerBlock / 2 - 1);
-                        int index = Math.min(i + offset, xAxisData.length - 1);
-                        double xPosition = mapX(xAxisData[index]);
-                        showBlockID(g2d, blockID, xPosition);
-                    }
-                }
-            }
-            blockID++;
-        }
-        // Draw final delimiter at the end
-        if (xAxisData.length > 0) {
-            double finalX = xAxisData[xAxisData.length - 1];
-            if (xInPlot(finalX)) {
-                double dataX = mapX(finalX);
-                g2d.strokeLine(dataX, topMargin + plotHeight, dataX, topMargin);
-            }
-        }
+        // Block delimiters removed for heatmap visualization
 
     }
 
@@ -836,19 +928,38 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             if (zoomBlock) {
                 displayOffsetX = 0;
                 int countOfCycles = mapBlockIdToBlockCyclesRecord.get(sculptBlockID).cyclesIncluded().length;
-                minX = xAxisData[countOfPreviousBlockIncludedData] - 1;
-                maxX = xAxisData[countOfPreviousBlockIncludedData
-                        + countOfCycles - 1] + 1;
-
+                int startIndex = countOfPreviousBlockIncludedData;
+                int endIndex = Math.min(startIndex + countOfCycles - 1, xAxisData.length - 1);
+                
+                // Find min/max x-axis values for this block
+                minX = Double.MAX_VALUE;
+                maxX = -Double.MAX_VALUE;
                 minY = Double.MAX_VALUE;
                 maxY = -Double.MAX_VALUE;
-                for (int i = countOfPreviousBlockIncludedData; i < countOfPreviousBlockIncludedData + countOfCycles; i++) {
-                    if (0.0 != yAxisData[i]) {
+                
+                for (int i = startIndex; i <= endIndex; i++) {
+                    if (i < xAxisData.length && xAxisData[i] != 0.0) {
+                        minX = min(minX, xAxisData[i]);
+                        maxX = max(maxX, xAxisData[i]);
+                    }
+                    if (i < yAxisData.length && yAxisData[i] != 0.0) {
                         minY = min(minY, yAxisData[i]);
                         maxY = max(maxY, yAxisData[i]);
                     }
                 }
+                
+                // Add margins
+                double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.05);
+                if (xMarginStretch == 0.0 && (maxX - minX) > 0) {
+                    xMarginStretch = (maxX - minX) / 100.0;
+                }
+                minX -= xMarginStretch;
+                maxX += xMarginStretch;
+                
                 double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.05);
+                if (yMarginStretch == 0.0 && (maxY - minY) > 0) {
+                    yMarginStretch = (maxY - minY) / 100.0;
+                }
                 maxY += yMarginStretch;
                 minY -= yMarginStretch;
                 displayOffsetY = 0.0;
@@ -920,12 +1031,20 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                 }
             } else {
                 if (isPrimary && mouseEvent.isControlDown() && (mouseInHouse(mouseEvent.getX(), mouseEvent.getY()))) {
-                    // turn off / on block
+                    // turn off / on block - update both X and Y user functions
                     sculptBlockID = determineSculptBlock(mouseEvent.getX());
                     mapBlockIdToBlockCyclesRecord.put(sculptBlockID,
                             mapBlockIdToBlockCyclesRecord.get(sculptBlockID).toggleBlockIncluded());
                     analysis.getMapOfBlockIdToRawDataLiteOne().put(sculptBlockID,
                             analysis.getMapOfBlockIdToRawDataLiteOne().get(sculptBlockID).toggleAllDataIncludedUserFunction(userFunction));
+                    
+                    // Also toggle X-axis user function
+                    if (mapBlockIdToBlockCyclesRecordX.get(sculptBlockID) != null) {
+                        mapBlockIdToBlockCyclesRecordX.put(sculptBlockID,
+                                mapBlockIdToBlockCyclesRecordX.get(sculptBlockID).toggleBlockIncluded());
+                        analysis.getMapOfBlockIdToRawDataLiteOne().put(sculptBlockID,
+                                analysis.getMapOfBlockIdToRawDataLiteOne().get(sculptBlockID).toggleAllDataIncludedUserFunction(xAxisUserFunction));
+                    }
 
                     inZoomBoxMode = !inSculptorMode;
                     showZoomBox = !inSculptorMode;
@@ -979,74 +1098,109 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                 // process contained data points
                 selectorBoxX = e.getX();
                 selectorBoxY = e.getY();
-                double timeLeft = convertMouseXToValue(Math.min(mouseStartX, selectorBoxX));
-                double timeRight = convertMouseXToValue(Math.max(mouseStartX, selectorBoxX));
-                int indexLeft = Math.max(1, Math.abs(binarySearch(xAxisData, timeLeft))) - 1;
-                int indexRight = Math.max(2, Math.abs(binarySearch(xAxisData, timeRight))) - 2;
-                if (indexRight < indexLeft) {
-                    indexRight = indexLeft;
-                }
-
-                double intensityTop = convertMouseYToValue(Math.min(mouseStartY, selectorBoxY));
-                double intensityBottom = convertMouseYToValue(Math.max(mouseStartY, selectorBoxY));
+                // Convert selection box to data coordinates
+                double xValueLeft = convertMouseXToValue(Math.min(mouseStartX, selectorBoxX));
+                double xValueRight = convertMouseXToValue(Math.max(mouseStartX, selectorBoxX));
+                double yValueTop = convertMouseYToValue(Math.min(mouseStartY, selectorBoxY));
+                double yValueBottom = convertMouseYToValue(Math.max(mouseStartY, selectorBoxY));
 
                 int expectedCyclesCount = mapBlockIdToBlockCyclesRecord.get(1).cycleMeansData().length;
 
-                // Calculate block IDs from indices
-                int sculptBlockIDStart = (indexLeft / expectedCyclesCount) + 1;
-                int sculptBlockIDEnd = (indexRight / expectedCyclesCount) + 1;
-                
-                // Ensure block IDs are within valid range
-                if (sculptBlockIDStart < 1) sculptBlockIDStart = 1;
-                if (sculptBlockIDStart > mapBlockIdToBlockCyclesRecord.size()) sculptBlockIDStart = mapBlockIdToBlockCyclesRecord.size();
-                if (sculptBlockIDEnd < 1) sculptBlockIDEnd = 1;
-                if (sculptBlockIDEnd > mapBlockIdToBlockCyclesRecord.size()) sculptBlockIDEnd = mapBlockIdToBlockCyclesRecord.size();
-                // calculate majority for multi-select
-                List<Boolean> statusList = new ArrayList<>();
-                for (int sculptBlockCurrent = sculptBlockIDStart; sculptBlockCurrent <= sculptBlockIDEnd; sculptBlockCurrent++) {
-                    double[] data;
-                    if (userFunction.isInverted()) {
-                        data = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).invertedCycleMeansData();
-                    } else {
-                        data = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).cycleMeansData();
-                    }
-                    boolean[] cyclesIncluded = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).cyclesIncluded().clone();
-
-                    int startLeft = max(0, (indexLeft - (sculptBlockCurrent - 1) * expectedCyclesCount) % cyclesIncluded.length);
-                    int endRight = min(data.length - 1, (indexRight - (sculptBlockCurrent - 1) * expectedCyclesCount));
-
-                    for (int i = startLeft; i <= endRight; i++) {
-                        if ((data[i] <= intensityTop) && (data[i] >= intensityBottom)) {
-                            statusList.add(cyclesIncluded[i]);
-                        }
+                // Find indices that fall within the selection box
+                // We need to check each point individually to see if it's in the box
+                List<Integer> selectedIndices = new ArrayList<>();
+                for (int i = 0; i < xAxisData.length && i < yAxisData.length; i++) {
+                    // Check if point is within selection box (both X and Y coordinates)
+                    if (xAxisData[i] >= xValueLeft && xAxisData[i] <= xValueRight &&
+                        yAxisData[i] >= yValueBottom && yAxisData[i] <= yValueTop &&
+                        xAxisData[i] != 0.0 && yAxisData[i] != 0.0) {
+                        selectedIndices.add(i);
                     }
                 }
 
-                boolean[] status = Booleans.toArray(statusList);
-                int countIncluded = Booleans.countTrue(status);
-                boolean majorityIncludedValue = countIncluded > status.length / 2;
+                if (selectedIndices.isEmpty()) {
+                    showSelectionBox = false;
+                    adjustMouseStartsForPress(e.getX(), e.getY());
+                    selectorBoxX = mouseStartX;
+                    selectorBoxY = mouseStartY;
+                    refreshPanel(false, false);
+                    return;
+                }
 
-                for (int sculptBlockCurrent = sculptBlockIDStart; sculptBlockCurrent <= sculptBlockIDEnd; sculptBlockCurrent++) {
-                    double[] data;
-                    if (userFunction.isInverted()) {
-                        data = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).invertedCycleMeansData();
-                    } else {
-                        data = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).cycleMeansData();
+                // Calculate majority status from selected points
+                List<Boolean> statusListY = new ArrayList<>();
+                List<Boolean> statusListX = new ArrayList<>();
+                
+                for (int idx : selectedIndices) {
+                    int blockID = (idx / expectedCyclesCount) + 1;
+                    if (blockID > mapBlockIdToBlockCyclesRecord.size()) {
+                        blockID = mapBlockIdToBlockCyclesRecord.size();
                     }
-                    boolean[] cyclesIncluded = mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).cyclesIncluded().clone();
-
-                    int startLeft = max(0, (indexLeft - (sculptBlockCurrent - 1) * expectedCyclesCount) % cyclesIncluded.length);
-                    int endRight = min(data.length - 1, (indexRight - (sculptBlockCurrent - 1) * expectedCyclesCount));
-
-                    for (int i = startLeft; i <= endRight; i++) {
-                        if ((data[i] <= intensityTop) && (data[i] >= intensityBottom)) {
-                            cyclesIncluded[i] = !majorityIncludedValue;
-                        }
+                    if (blockID < 1) {
+                        blockID = 1;
                     }
-                    mapBlockIdToBlockCyclesRecord.put(sculptBlockCurrent,
-                            mapBlockIdToBlockCyclesRecord.get(sculptBlockCurrent).updateCyclesIncluded(cyclesIncluded));
-                    analysis.getMapOfBlockIdToRawDataLiteOne().put(sculptBlockCurrent,
-                            analysis.getMapOfBlockIdToRawDataLiteOne().get(sculptBlockCurrent).updateIncludedCycles(userFunction, cyclesIncluded));
+                    int cycleIndex = idx % expectedCyclesCount;
+                    
+                    // Get Y-axis status
+                    if (mapBlockIdToBlockCyclesRecord.get(blockID) != null &&
+                        cycleIndex < mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded().length) {
+                        statusListY.add(mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded()[cycleIndex]);
+                    }
+                    
+                    // Get X-axis status
+                    if (blockID <= mapBlockIdToBlockCyclesRecordX.size() && 
+                        mapBlockIdToBlockCyclesRecordX.get(blockID) != null &&
+                        cycleIndex < mapBlockIdToBlockCyclesRecordX.get(blockID).cyclesIncluded().length) {
+                        statusListX.add(mapBlockIdToBlockCyclesRecordX.get(blockID).cyclesIncluded()[cycleIndex]);
+                    }
+                }
+
+                // Determine majority for each axis independently
+                int countIncludedY = 0;
+                for (Boolean b : statusListY) {
+                    if (b) countIncludedY++;
+                }
+                boolean majorityIncludedY = countIncludedY > statusListY.size() / 2;
+                
+                int countIncludedX = 0;
+                for (Boolean b : statusListX) {
+                    if (b) countIncludedX++;
+                }
+                boolean majorityIncludedX = countIncludedX > statusListX.size() / 2;
+
+                // Update both axes for selected points
+                for (int idx : selectedIndices) {
+                    int blockID = (idx / expectedCyclesCount) + 1;
+                    if (blockID > mapBlockIdToBlockCyclesRecord.size()) {
+                        blockID = mapBlockIdToBlockCyclesRecord.size();
+                    }
+                    if (blockID < 1) {
+                        blockID = 1;
+                    }
+                    int cycleIndex = idx % expectedCyclesCount;
+                    
+                    // Update Y-axis user function
+                    if (mapBlockIdToBlockCyclesRecord.get(blockID) != null &&
+                        cycleIndex < mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded().length) {
+                        boolean[] cyclesIncludedY = mapBlockIdToBlockCyclesRecord.get(blockID).cyclesIncluded().clone();
+                        cyclesIncludedY[cycleIndex] = !majorityIncludedY;
+                        mapBlockIdToBlockCyclesRecord.put(blockID,
+                                mapBlockIdToBlockCyclesRecord.get(blockID).updateCyclesIncluded(cyclesIncludedY));
+                        analysis.getMapOfBlockIdToRawDataLiteOne().put(blockID,
+                                analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).updateIncludedCycles(userFunction, cyclesIncludedY));
+                    }
+                    
+                    // Update X-axis user function
+                    if (blockID <= mapBlockIdToBlockCyclesRecordX.size() && 
+                        mapBlockIdToBlockCyclesRecordX.get(blockID) != null &&
+                        cycleIndex < mapBlockIdToBlockCyclesRecordX.get(blockID).cyclesIncluded().length) {
+                        boolean[] cyclesIncludedX = mapBlockIdToBlockCyclesRecordX.get(blockID).cyclesIncluded().clone();
+                        cyclesIncludedX[cycleIndex] = !majorityIncludedX;
+                        mapBlockIdToBlockCyclesRecordX.put(blockID,
+                                mapBlockIdToBlockCyclesRecordX.get(blockID).updateCyclesIncluded(cyclesIncludedX));
+                        analysis.getMapOfBlockIdToRawDataLiteOne().put(blockID,
+                                analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).updateIncludedCycles(xAxisUserFunction, cyclesIncludedX));
+                    }
                 }
 
             } else {
@@ -1131,25 +1285,34 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                 zoomBoxX = e.getX();
                 zoomBoxY = e.getY();
                 if ((zoomBoxX != mouseStartX) && (zoomBoxY != mouseStartY)) {
-                    double timeLeft = convertMouseXToValue(Math.min(mouseStartX, zoomBoxX));
-                    double timeRight = convertMouseXToValue(Math.max(mouseStartX, zoomBoxX));
-                    int indexLeft = Math.max(1, Math.abs(binarySearch(xAxisData, timeLeft))) - 1;
-                    int indexRight = Math.max(2, Math.abs(binarySearch(xAxisData, timeRight))) - 2;
-                    if (indexRight < indexLeft) {
-                        indexRight = indexLeft;
+                    // Convert mouse coordinates to x-axis values (user function values)
+                    double xValueLeft = convertMouseXToValue(Math.min(mouseStartX, zoomBoxX));
+                    double xValueRight = convertMouseXToValue(Math.max(mouseStartX, zoomBoxX));
+                    double yValueTop = convertMouseYToValue(Math.min(mouseStartY, zoomBoxY));
+                    double yValueBottom = convertMouseYToValue(Math.max(mouseStartY, zoomBoxY));
+
+                    // Set zoom bounds directly from the converted values
+                    minX = xValueLeft;
+                    maxX = xValueRight;
+                    minY = yValueBottom;
+                    maxY = yValueTop;
+
+                    // Add margins
+                    double xMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minX, maxX, 0.05);
+                    if (xMarginStretch == 0.0 && (maxX - minX) > 0) {
+                        xMarginStretch = (maxX - minX) / 100.0;
                     }
-                    double intensityTop = convertMouseYToValue(Math.min(mouseStartY, zoomBoxY));
-                    double intensityBottom = convertMouseYToValue(Math.max(mouseStartY, zoomBoxY));
-
-                    displayOffsetX = xAxisData[indexLeft] - minX - 2;
-                    maxX = xAxisData[(indexRight == xAxisData.length - 1) ? indexRight : indexRight + 1] - displayOffsetX;
-
-                    minY = intensityBottom;
-                    maxY = intensityTop;
+                    minX -= xMarginStretch;
+                    maxX += xMarginStretch;
 
                     double yMarginStretch = TicGeneratorForAxes.generateMarginAdjustment(minY, maxY, 0.05);
+                    if (yMarginStretch == 0.0 && (maxY - minY) > 0) {
+                        yMarginStretch = (maxY - minY) / 100.0;
+                    }
                     maxY += yMarginStretch;
                     minY -= yMarginStretch;
+                    
+                    displayOffsetX = 0.0;
                     displayOffsetY = 0.0;
 
                     inZoomBoxMode = false;
