@@ -48,15 +48,15 @@ public class ViridisColorPalette {
      */
     public static Color getViridisColor(double normalizedValue) {
         // Clamp value to [0, 1]
-        normalizedValue = Math.max(0.0, Math.min(1.0, normalizedValue));
+        double clampedValue = Math.max(0.0, Math.min(1.0, normalizedValue));
         
         // Calculate which segment we're in
         double segmentSize = 1.0 / (VIRIDIS_KEY_COLORS.length - 1);
-        int segmentIndex = (int) Math.min(normalizedValue / segmentSize, VIRIDIS_KEY_COLORS.length - 2);
+        int segmentIndex = (int) Math.min(clampedValue / segmentSize, VIRIDIS_KEY_COLORS.length - 2);
         segmentIndex = Math.min(segmentIndex, VIRIDIS_KEY_COLORS.length - 2);
         
         // Calculate position within segment [0, 1]
-        double segmentPosition = (normalizedValue - segmentIndex * segmentSize) / segmentSize;
+        double segmentPosition = (clampedValue - segmentIndex * segmentSize) / segmentSize;
         
         // Interpolate between the two key colors in this segment
         double[] color1 = VIRIDIS_KEY_COLORS[segmentIndex];
