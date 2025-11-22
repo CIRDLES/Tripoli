@@ -322,7 +322,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         }
         prepareExtents(reScaleX, reScaleY);
         showXaxis = true;
-        showStats = false; // Statistics overlays don't make sense for user-function vs user-function plots
+        showStats = false;
         calcStats();
         calculateTics();
         repaint();
@@ -511,8 +511,81 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         // Position gradient at top, outside chart area
         double gradientBarWidth = plotWidth * 0.4; // 40% of plot width
         double gradientBarHeight = 14;
-        double gradientBarX = leftMargin + (plotWidth - gradientBarWidth) / 2.0; // Centered
-        double gradientBarY = 18; // Moved down to prevent text cutoff
+        double gradientBarX;
+        double gradientBarY = 18;
+        
+        // If intensity legend is shown, adjust time index gradient position
+        double intensityLegendWidth = 0;
+        if (intensityUserFunction != null && intensityData != null) {
+            intensityLegendWidth = 180;
+            gradientBarX = leftMargin + intensityLegendWidth + 15 + (plotWidth - gradientBarWidth - intensityLegendWidth - 15) / 2.0;
+        } else {
+            gradientBarX = leftMargin + (plotWidth - gradientBarWidth) / 2.0; // Centered
+        }
+        
+        // Draw intensity scaling legend if intensity user function is provided
+        if (intensityUserFunction != null && intensityData != null) {
+            double intensityLegendX = leftMargin;
+            double intensityLegendY = gradientBarY;
+            
+            // Label for intensity legend
+            g2d.setFont(Font.font("SansSerif", 9));
+            g2d.setFill(Color.BLACK);
+            g2d.fillText("Intensity:", intensityLegendX, intensityLegendY - 2);
+            
+            // Draw multiple circles showing size progression (7 steps - odd number for middle value)
+            double circleY = intensityLegendY + 7; // Center vertically in the bar area
+            int numSteps = 7;
+            double spacing = intensityLegendWidth / (numSteps - 1);
+            
+            g2d.setFill(Color.GRAY);
+            g2d.setStroke(Color.BLACK);
+            g2d.setLineWidth(0.5);
+            
+            for (int i = 0; i < numSteps; i++) {
+                // Calculate size from min (5.0) to max (20.0)
+                double normalized = (double) i / (numSteps - 1);
+                double circleSize = 5.0 + (normalized * 15.0);
+                
+                // Center circle vertically
+                double circleX = intensityLegendX + (i * spacing) - circleSize / 2.0;
+                double circleYPos = circleY - circleSize / 2.0;
+                
+                g2d.fillOval(circleX, circleYPos, circleSize, circleSize);
+                g2d.strokeOval(circleX, circleYPos, circleSize, circleSize);
+            }
+            
+            // Labels below circles - moved down more to avoid overlap with largest circles
+            g2d.setFont(Font.font("SansSerif", 9));
+            if (minIntensity != maxIntensity) {
+                // Format values to be more readable
+                String minLabel = formatIntensityValue(minIntensity);
+                String maxLabel = formatIntensityValue(maxIntensity);
+                
+                // Calculate middle intensity value
+                double midIntensity = (minIntensity + maxIntensity) / 2.0;
+                String midLabel = formatIntensityValue(midIntensity);
+                
+                // Position labels further down to avoid overlap with largest circles (20px radius = 10px from center)
+                double labelY = circleY + 22.0;
+                
+                // Calculate positions to align with circle centers
+                double estimatedCharWidth = 5.5;
+                
+                // Draw min label aligned with first circle center
+                g2d.fillText(minLabel, intensityLegendX, labelY);
+                
+                // Draw middle label aligned with middle circle center (index 3 in 7-step array)
+                double midLabelWidth = midLabel.length() * estimatedCharWidth;
+                double midCircleX = intensityLegendX + (3 * spacing);
+                g2d.fillText(midLabel, midCircleX - (midLabelWidth / 2.0), labelY);
+                
+                // Draw max label aligned with last circle center (index 6 in 7-step array)
+                double maxLabelWidth = maxLabel.length() * estimatedCharWidth;
+                double maxCircleX = intensityLegendX + (6 * spacing);
+                g2d.fillText(maxLabel, maxCircleX - (maxLabelWidth / 2.0), labelY);
+            }
+        }
         
         // Draw color gradient bar
         int gradientSteps = 100;
@@ -603,6 +676,22 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             }
         }
         return retVal;
+    }
+
+    /**
+     * Formats intensity value for display in legend.
+     * Uses scientific notation for very large/small values, otherwise decimal.
+     * @param value The intensity value to format
+     * @return Formatted string representation
+     */
+    private String formatIntensityValue(double value) {
+        if (abs(value) >= 1e4 || (abs(value) < 1e-2 && value != 0.0)) {
+            return String.format("%.2e", value);
+        } else if (abs(value) >= 1.0) {
+            return String.format("%.2f", value);
+        } else {
+            return String.format("%.4f", value);
+        }
     }
 
     /**
