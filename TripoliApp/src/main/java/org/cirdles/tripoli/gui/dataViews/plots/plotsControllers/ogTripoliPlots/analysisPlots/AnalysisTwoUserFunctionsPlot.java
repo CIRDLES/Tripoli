@@ -28,6 +28,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.dataViews.plots.*;
@@ -98,10 +99,10 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             UserFunction intensityUserFunction,
             PlotWallPane parentWallPane) {
         super(bounds,
-                185, 50,  // Increased topMargin from 25 to 50 to make room for legend
+                80, 50,
                 new String[]{userFunction.getName()
-                        + "  " + "x\u0304" + "= 0" //+ String.format("%8.8g", analysisBlockCyclesRecord.analysisMean()).trim()
-                        , "\u00B1" + " 0"},//String.format("%8.5g", analysisBlockCyclesRecord.analysisOneSigma()).trim()},
+                        + "  " + "x\u0304" + "= 0"
+                        , "\u00B1" + " 0"},
                 xAxisUserFunction.getName() + " vs " + userFunction.getName(),
                 userFunction.isTreatAsIsotopicRatio() ? "Ratio" : "Function");
         this.analysis = analysis;
@@ -333,8 +334,17 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
      */
     @Override
     public void labelAxisY(GraphicsContext g2d) {
-        // Use parent implementation to display y-axis label
-        super.labelAxisY(g2d);
+        Paint savedPaint = g2d.getFill();
+        g2d.setFill(Paint.valueOf("BLACK"));
+        g2d.setFont(Font.font("SansSerif", 14));
+        Text text = new Text();
+        text.setFont(Font.font("SansSerif", 14));
+        text.setText(plotAxisLabelY);
+        int textWidth = (int) text.getLayoutBounds().getWidth();
+        g2d.rotate(-90.0);
+        g2d.fillText(text.getText(), -(2.0 * topMargin + plotHeight) / 2.0 - textWidth / 2.0, leftMargin - 55);
+        g2d.rotate(90.0);
+        g2d.setFill(savedPaint);
     }
 
     @Override
@@ -731,8 +741,15 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
 
     @Override
     public void labelAxisX(GraphicsContext g2d) {
-        // Use parent implementation to display x-axis label
-        super.labelAxisX(g2d);
+        Paint savedPaint = g2d.getFill();
+        g2d.setFill(Paint.valueOf("BLACK"));
+        g2d.setFont(Font.font("SansSerif", 14));
+        Text text = new Text();
+        text.setFont(Font.font("SansSerif", 14));
+        text.setText(plotAxisLabelX);
+        int textWidth = (int) text.getLayoutBounds().getWidth();
+        g2d.fillText(text.getText(), leftMargin + (plotWidth - textWidth) / 2.0, plotHeight + 2.0 * topMargin - 8.0);
+        g2d.setFill(savedPaint);
     }
 
     public void prepareExtents(boolean reScaleX, boolean reScaleY) {
