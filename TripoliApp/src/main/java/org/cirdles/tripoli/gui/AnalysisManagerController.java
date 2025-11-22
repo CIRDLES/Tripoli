@@ -44,6 +44,7 @@ import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.*;
+import javafx.util.Callback;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
 import org.cirdles.tripoli.ExpressionsForTripoliLexer;
@@ -146,6 +147,15 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public Tab sequenceTableTab;
     public Tab selectRatiosToPlotTab;
     public Tab selectColumnsToPlot;
+    public Tab selectTwoUserFunctionsTab;
+    @FXML
+    public ComboBox<UserFunction> xAxisUserFunctionComboBox;
+    @FXML
+    public ComboBox<UserFunction> yAxisUserFunctionComboBox;
+    @FXML
+    public ComboBox<UserFunction> intensityUserFunctionComboBox;
+    @FXML
+    public Button generateTwoUserFunctionsPlotButton;
     public VBox ratiosVBox;
     public VBox functionsVBox;
     public TextField fractionNameTextField;
@@ -462,6 +472,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 analysisMethodTabPane.getTabs().remove(sequenceTableTab);
                 analysisMethodTabPane.getTabs().remove(selectRatiosToPlotTab);
                 analysisMethodTabPane.getTabs().remove(selectColumnsToPlot);
+                analysisMethodTabPane.getTabs().remove(selectTwoUserFunctionsTab);
                 analysisMethodTabPane.getTabs().remove(customExpressionsTab);
             }
             case 1 -> {
@@ -474,6 +485,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     showTab(analysisMethodTabPane, 2, selectColumnsToPlot);
                     analysisMethodTabPane.getSelectionModel().select(2);
                     populateAnalysisMethodColumnsSelectorPane();
+                    populateTwoUserFunctionsSelectorTab();
                     processingToolBar.setVisible(false);
                 }
             }
@@ -483,6 +495,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 showTab(analysisMethodTabPane, 4, sequenceTableTab);
                 showTab(analysisMethodTabPane, 5, selectRatiosToPlotTab);
                 analysisMethodTabPane.getTabs().remove(selectColumnsToPlot);
+                analysisMethodTabPane.getTabs().remove(selectTwoUserFunctionsTab);
 
                 analysisMethodTabPane.getTabs().remove(customExpressionsTab);
                 populateAnalysisMethodGridPane();
@@ -501,6 +514,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
         if (analysis.getAnalysisName().contains("(Live Data)")){
             analysisMethodTabPane.getTabs().remove(customExpressionsTab);
+            analysisMethodTabPane.getTabs().remove(selectTwoUserFunctionsTab);
         }
 
 
@@ -1024,6 +1038,118 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 invertProposedRatio();
             }
         });
+    }
+
+    private void populateTwoUserFunctionsSelectorTab() {
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+        
+        // Create lists with null option at the beginning for deselection
+        List<UserFunction> userFunctionsWithBlank = new ArrayList<>();
+        userFunctionsWithBlank.add(null); // Blank option for deselection
+        userFunctionsWithBlank.addAll(userFunctions);
+        
+        xAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctionsWithBlank));
+        yAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctionsWithBlank));
+        intensityUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctionsWithBlank));
+        
+        // Create shared cell factory for user function display
+        Callback<ListView<UserFunction>, ListCell<UserFunction>> cellFactory = listView -> createUserFunctionListCell();
+        
+        // Apply shared cell factory and create separate button cells for each ComboBox
+        xAxisUserFunctionComboBox.setCellFactory(cellFactory);
+        xAxisUserFunctionComboBox.setButtonCell(createUserFunctionListCell());
+        yAxisUserFunctionComboBox.setCellFactory(cellFactory);
+        yAxisUserFunctionComboBox.setButtonCell(createUserFunctionListCell());
+        intensityUserFunctionComboBox.setCellFactory(cellFactory);
+        intensityUserFunctionComboBox.setButtonCell(createUserFunctionListCell());
+    }
+    
+    private void refreshTwoUserFunctionsComboBoxes() {
+        if (xAxisUserFunctionComboBox == null || yAxisUserFunctionComboBox == null || intensityUserFunctionComboBox == null) {
+            return;
+        }
+        
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+        
+        // Store current selections to preserve them if possible
+        UserFunction currentXSelection = xAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        UserFunction currentYSelection = yAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        UserFunction currentIntensitySelection = intensityUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        
+        // Create lists with null option at the beginning for deselection
+        List<UserFunction> userFunctionsWithBlank = new ArrayList<>();
+        userFunctionsWithBlank.add(null); // Blank option for deselection
+        userFunctionsWithBlank.addAll(userFunctions);
+        
+        // Update the ComboBox items
+        xAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctionsWithBlank));
+        yAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctionsWithBlank));
+        intensityUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctionsWithBlank));
+        
+        // Restore selections if they still exist in the updated list
+        if (currentXSelection != null && userFunctions.contains(currentXSelection)) {
+            xAxisUserFunctionComboBox.getSelectionModel().select(currentXSelection);
+        }
+        if (currentYSelection != null && userFunctions.contains(currentYSelection)) {
+            yAxisUserFunctionComboBox.getSelectionModel().select(currentYSelection);
+        }
+        if (currentIntensitySelection != null && userFunctions.contains(currentIntensitySelection)) {
+            intensityUserFunctionComboBox.getSelectionModel().select(currentIntensitySelection);
+        }
+    }
+    
+    private ListCell<UserFunction> createUserFunctionListCell() {
+        return new ListCell<>() {
+            @Override
+            protected void updateItem(UserFunction item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setText(null);
+                } else if (item == null) {
+                    setText(""); // Blank option for deselection
+                } else {
+                    setText(item.getName());
+                }
+            }
+        };
+    }
+    
+    @FXML
+    public void generateTwoUserFunctionsPlotAction() {
+        UserFunction xAxisUF = xAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        UserFunction yAxisUF = yAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        UserFunction intensityUF = intensityUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        
+        if (xAxisUF == null || yAxisUF == null) {
+            TripoliMessageDialog.showWarningDialog("Please select both X-axis and Y-axis user functions.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        AllBlockInitForMCMC.PlottingData plottingData = AllBlockInitForDataLiteOne.initBlockModels(analysis);
+        
+        // Ensure the plots window is open (case 1 only - tab visibility ensures this)
+        if (ogTripoliReviewPlotsWindow == null) {
+
+            ogTripoliReviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
+            ogTripoliReviewPlotsWindow.loadPlotsWindowForTwoUserFunctions();
+        } else if (!ogTripoliReviewPlotsWindow.isShowing()) {
+            // Window exists but was closed - reopen it
+            ogTripoliReviewPlotsWindow.loadPlotsWindowForTwoUserFunctions();
+        }
+        
+        // Get the PlotWallPane from the OGTripoliViewController
+        OGTripoliViewController ogTripoliViewController = ogTripoliReviewPlotsWindow.getOgTripoliViewController();
+        if (ogTripoliViewController == null) {
+            TripoliMessageDialog.showWarningDialog("Plots window not properly initialized.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        // Use the plots2 approach - call the new method in OGTripoliViewController
+        try {
+            ogTripoliViewController.plotTwoUserFunctions(xAxisUF, yAxisUF, intensityUF);
+        } catch (Exception e) {
+            TripoliMessageDialog.showWarningDialog("Error creating plot: " + e.getMessage(), TripoliGUI.primaryStage);
+        }
     }
 
     private void populateCustomExpressionTab() {
@@ -1924,6 +2050,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         userFunctions.add(newFunction);
 
         analysis.getMassSpecExtractedData().populateCycleDataForCustomExpression(expressionTree);
+        
+        // Refresh the two user functions ComboBoxes to include the new custom expression
+        refreshTwoUserFunctionsComboBoxes();
 
         if (tripoliSession.isExpressionRefreshed()) {
             AnalysisMethodPersistance methodPersistence =
@@ -2025,6 +2154,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
         userFunctions.remove(customExpression);
         analysis.getMassSpecExtractedData().removeCycleDataForDeletedExpression(customExpression.getCustomExpression());
+        
+        // Refresh the two user functions ComboBoxes to remove the deleted custom expression
+        refreshTwoUserFunctionsComboBoxes();
 
         int columnIndex = customExpression.getColumnIndex();
         for (UserFunction uf : userFunctions) { // Reindex down

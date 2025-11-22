@@ -388,7 +388,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         Button infoButton = new Button("?");
         infoButton.setFont(commandFont);
         infoButton.setOnAction(event -> {
-            Path resourcePath = Path.of(DOCS_FOLDER.getAbsolutePath() + File.separator + "ogTripoliHelp.md.html");
+            Path resourcePath = Path.of(DOCS_FOLDER.getAbsolutePath() + File.separator + "ogTripoliHelp.md");
             BrowserControl.showURI(resourcePath.toString());
         });
         scaleControlsToolbar.getItems().add(infoButton);
