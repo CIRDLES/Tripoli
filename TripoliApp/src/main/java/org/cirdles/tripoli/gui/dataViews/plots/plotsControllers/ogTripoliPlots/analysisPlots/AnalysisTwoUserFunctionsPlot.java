@@ -16,7 +16,6 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots;
 
-import com.google.common.primitives.Booleans;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
@@ -49,7 +48,6 @@ import java.util.List;
 import java.util.Map;
 
 import static java.lang.StrictMath.*;
-import static java.util.Arrays.binarySearch;
 import static java.util.Map.entry;
 import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.generateGeometricMeanStats;
 import static org.cirdles.tripoli.utilities.mathUtilities.FormatterForSigFigN.countOfTrailingDigitsForSigFig;
@@ -296,6 +294,62 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         // Just need to handle zoom flags
         zoomChunkX = zoomFlagsXY[0] ? zoomChunkX : 0.0;
         zoomChunkY = zoomFlagsXY[1] ? zoomChunkY : 0.0;
+    }
+
+    /**
+     * Finds the actual min/max x-axis values in the data array.
+     * Unlike the parent class which assumes xAxisData contains sorted indices,
+     * this plot uses user function values that may not be sorted.
+     */
+    private double[] getDataMinMaxX() {
+        double dataMinX = Double.MAX_VALUE;
+        double dataMaxX = -Double.MAX_VALUE;
+        for (int i = 0; i < xAxisData.length; i++) {
+            if (xAxisData[i] != 0.0) {
+                dataMinX = min(dataMinX, xAxisData[i]);
+                dataMaxX = max(dataMaxX, xAxisData[i]);
+            }
+        }
+        return new double[]{dataMinX, dataMaxX};
+    }
+
+    protected void reCalcDisplayOffsetX() {
+        // Find the actual min/max x-axis values in the data (not just first/last)
+        double[] minMax = getDataMinMaxX();
+        double dataMinX = minMax[0];
+        double dataMaxX = minMax[1];
+        
+        // Adjust displayOffsetX to keep display within data bounds
+        if (getDisplayMaxX() > dataMaxX) {
+            displayOffsetX -= (getDisplayMaxX() - dataMaxX);
+        }
+        if (getDisplayMinX() < dataMinX) {
+            displayOffsetX -= (getDisplayMinX() - dataMinX);
+        }
+    }
+
+    @Override
+    public void adjustZoomSelf() {
+        // Apply zoom flags before adjusting zoom
+        double effectiveZoomChunkX = zoomFlagsXY[0] ? zoomChunkX : 0.0;
+        double effectiveZoomChunkY = zoomFlagsXY[1] ? zoomChunkY : 0.0;
+        
+        // Find the actual min/max x-axis values in the data
+        double[] minMax = getDataMinMaxX();
+        double dataMinX = minMax[0];
+        double dataMaxX = minMax[1];
+        
+        // Apply zoom to x-axis
+        minX = Math.max(dataMinX, minX - effectiveZoomChunkX);
+        maxX = Math.min(dataMaxX, maxX + effectiveZoomChunkX);
+        reCalcDisplayOffsetX();
+        
+        // Apply zoom to y-axis
+        minY += -effectiveZoomChunkY;
+        maxY -= -effectiveZoomChunkY;
+
+        calculateTics();
+        repaint();
     }
 
     public void calcStats() {
