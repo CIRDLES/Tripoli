@@ -63,10 +63,15 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     private AnalysisInterface analysis;
     private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecord;
     private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecordX;
+    private Map<Integer, PlotBlockCyclesRecord> mapBlockIdToBlockCyclesRecordIntensity;
     private UserFunction userFunction;
     private UserFunction xAxisUserFunction;
+    private UserFunction intensityUserFunction;
 
     private double[] oneSigmaForCycles;
+    private double[] intensityData;
+    private double minIntensity;
+    private double maxIntensity;
     private boolean logScale;
     private boolean[] zoomFlagsXY;
     private PlotWallPaneInterface parentWallPane;
@@ -90,6 +95,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             Rectangle bounds,
             UserFunction userFunction,
             UserFunction xAxisUserFunction,
+            UserFunction intensityUserFunction,
             PlotWallPane parentWallPane) {
         super(bounds,
                 185, 50,  // Increased topMargin from 25 to 50 to make room for legend
@@ -101,14 +107,23 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         this.analysis = analysis;
         this.userFunction = userFunction;
         this.xAxisUserFunction = xAxisUserFunction;
+        this.intensityUserFunction = intensityUserFunction;
         this.mapBlockIdToBlockCyclesRecord = userFunction.getMapBlockIdToBlockCyclesRecord();
         this.mapBlockIdToBlockCyclesRecordX = xAxisUserFunction.getMapBlockIdToBlockCyclesRecord();
+        if (intensityUserFunction != null) {
+            this.mapBlockIdToBlockCyclesRecordIntensity = intensityUserFunction.getMapBlockIdToBlockCyclesRecord();
+        } else {
+            this.mapBlockIdToBlockCyclesRecordIntensity = null;
+        }
         this.logScale = false;
         this.zoomFlagsXY = new boolean[]{true, true};
         this.parentWallPane = parentWallPane;
         this.blockMode = userFunction.getReductionMode().equals(TripoliConstants.ReductionModeEnum.BLOCK);
         this.isRatio = userFunction.isTreatAsIsotopicRatio();
         this.ignoreRejects = false;
+        this.intensityData = null;
+        this.minIntensity = 0.0;
+        this.maxIntensity = 0.0;
 
         tooltip = new Tooltip(tooltipTextSculpt);
         Tooltip.install(this, tooltip);
@@ -118,8 +133,8 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
 
     public static AbstractPlot generatePlot(
             Rectangle bounds, AnalysisInterface analysis, UserFunction userFunction,
-            UserFunction xAxisUserFunction, PlotWallPane parentWallPane) {
-        return new AnalysisTwoUserFunctionsPlot(analysis, bounds, userFunction, xAxisUserFunction, parentWallPane);
+            UserFunction xAxisUserFunction, UserFunction intensityUserFunction, PlotWallPane parentWallPane) {
+        return new AnalysisTwoUserFunctionsPlot(analysis, bounds, userFunction, xAxisUserFunction, intensityUserFunction, parentWallPane);
     }
 
     public PlotWallPaneInterface getParentWallPane() {
@@ -226,6 +241,42 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                 }
                 System.arraycopy(plotBlockCyclesRecord.cycleOneSigmaData(), 0, oneSigmaForCycles, (plotBlockCyclesRecord.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
             }
+        }
+
+        // Populate intensity data if intensity user function is provided
+        if (intensityUserFunction != null && mapBlockIdToBlockCyclesRecordIntensity != null) {
+            intensityData = new double[xAxisData.length];
+            boolean doInvertIntensity = intensityUserFunction.isInverted() && intensityUserFunction.isTreatAsIsotopicRatio();
+            for (Map.Entry<Integer, PlotBlockCyclesRecord> entry : mapBlockIdToBlockCyclesRecordIntensity.entrySet()) {
+                PlotBlockCyclesRecord plotBlockCyclesRecordIntensity = entry.getValue();
+                if (plotBlockCyclesRecordIntensity != null) {
+                    int availableCyclesPerBlock = plotBlockCyclesRecordIntensity.cycleMeansData().length;
+                    if (doInvertIntensity) {
+                        System.arraycopy(plotBlockCyclesRecordIntensity.invertedCycleMeansData(), 0, intensityData, (plotBlockCyclesRecordIntensity.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+                    } else {
+                        System.arraycopy(plotBlockCyclesRecordIntensity.cycleMeansData(), 0, intensityData, (plotBlockCyclesRecordIntensity.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
+                    }
+                }
+            }
+
+            // Calculate min/max intensity values for normalization
+            minIntensity = Double.MAX_VALUE;
+            maxIntensity = -Double.MAX_VALUE;
+            for (int i = 0; i < intensityData.length; i++) {
+                if (intensityData[i] != 0.0) {
+                    minIntensity = min(minIntensity, intensityData[i]);
+                    maxIntensity = max(maxIntensity, intensityData[i]);
+                }
+            }
+            // Handle case where all values are the same or zero
+            if (minIntensity == Double.MAX_VALUE || maxIntensity == -Double.MAX_VALUE || minIntensity == maxIntensity) {
+                minIntensity = 0.0;
+                maxIntensity = 1.0;
+            }
+        } else {
+            intensityData = null;
+            minIntensity = 0.0;
+            maxIntensity = 0.0;
         }
 
         // Set axis labels with user function names
@@ -554,6 +605,29 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         return retVal;
     }
 
+    /**
+     * Calculates point size based on intensity value.
+     * Normalizes intensity to a range of 5-20 pixels radius.
+     * @param intensityValue The intensity value for the point
+     * @return The point size (radius) in pixels, or default size if intensity not available
+     */
+    private double calculatePointSize(double intensityValue) {
+        if (intensityData == null || minIntensity == maxIntensity || intensityValue == 0.0) {
+            return 5.0; // Default size (minimum of range)
+        }
+        
+        // Normalize intensity value to 0-1 range
+        double normalized = (intensityValue - minIntensity) / (maxIntensity - minIntensity);
+        
+        // Clamp to [0, 1] range
+        normalized = Math.max(0.0, Math.min(1.0, normalized));
+        
+        // Map to 5-20 pixel range
+        double minSize = 5.0;
+        double maxSize = 20.0;
+        return minSize + (normalized * (maxSize - minSize));
+    }
+
     @Override
     public void paint(GraphicsContext g2d) {
         super.paint(g2d);
@@ -623,22 +697,29 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                 double dataX = mapX(xAxisData[i]);
                 double dataY = mapY(yAxisData[i]);
                 
+                // Calculate point size based on intensity if available
+                double pointSize = 5.0; // Default size (minimum of range)
+                if (intensityData != null && i < intensityData.length && intensityData[i] != 0.0) {
+                    pointSize = calculatePointSize(intensityData[i]);
+                }
+                double halfSize = pointSize / 2.0;
+                
                 // Determine marker type and color based on rejection status
                 if (!xIncluded && !yIncluded) {
                     // Both rejected: red square
                     g2d.setFill(Color.RED);
                     g2d.setStroke(Color.BLACK);
                     g2d.setLineWidth(0.5);
-                    g2d.fillRect(dataX - 2.0, dataY - 2.0, 4, 4);
-                    g2d.strokeRect(dataX - 2.0, dataY - 2.0, 4, 4);
+                    g2d.fillRect(dataX - halfSize, dataY - halfSize, pointSize, pointSize);
+                    g2d.strokeRect(dataX - halfSize, dataY - halfSize, pointSize, pointSize);
                 } else if (!xIncluded && yIncluded) {
                     // X rejected only: red downward-pointing triangle ▼
                     g2d.setFill(Color.RED);
                     g2d.setStroke(Color.BLACK);
                     g2d.setLineWidth(0.5);
                     // Triangle pointing down: apex at bottom, base at top
-                    double[] xPoints = {dataX, dataX - 4.0, dataX + 4.0};
-                    double[] yPoints = {dataY + 4.0, dataY - 3.0, dataY - 3.0};
+                    double[] xPoints = {dataX, dataX - pointSize, dataX + pointSize};
+                    double[] yPoints = {dataY + pointSize, dataY - halfSize, dataY - halfSize};
                     g2d.fillPolygon(xPoints, yPoints, 3);
                     g2d.strokePolygon(xPoints, yPoints, 3);
                 } else if (xIncluded && !yIncluded) {
@@ -647,8 +728,8 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                     g2d.setStroke(Color.BLACK);
                     g2d.setLineWidth(0.5);
                     // Triangle pointing left: apex on left, base on right
-                    double[] xPoints = {dataX - 4.0, dataX + 3.0, dataX + 3.0};
-                    double[] yPoints = {dataY, dataY - 4.0, dataY + 4.0};
+                    double[] xPoints = {dataX - pointSize, dataX + halfSize, dataX + halfSize};
+                    double[] yPoints = {dataY, dataY - pointSize, dataY + pointSize};
                     g2d.fillPolygon(xPoints, yPoints, 3);
                     g2d.strokePolygon(xPoints, yPoints, 3);
                 } else {
@@ -657,8 +738,8 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                     g2d.setFill(pointColor);
                     g2d.setStroke(Color.BLACK);
                     g2d.setLineWidth(0.5);
-                    g2d.fillOval(dataX - 2.0, dataY - 2.0, 4, 4);
-                    g2d.strokeOval(dataX - 2.0, dataY - 2.0, 4, 4);
+                    g2d.fillOval(dataX - halfSize, dataY - halfSize, pointSize, pointSize);
+                    g2d.strokeOval(dataX - halfSize, dataY - halfSize, pointSize, pointSize);
                 }
             }
             cycleCount++;

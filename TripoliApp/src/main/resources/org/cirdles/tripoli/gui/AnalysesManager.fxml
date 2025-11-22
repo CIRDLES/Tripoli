@@ -310,6 +310,12 @@
                                 <ComboBox fx:id="yAxisUserFunctionComboBox" prefWidth="300" />
                             </children>
                         </HBox>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <children>
+                                <Label text="Intensity User Function (Optional):" prefWidth="150" />
+                                <ComboBox fx:id="intensityUserFunctionComboBox" prefWidth="300" />
+                            </children>
+                        </HBox>
                         <HBox spacing="10" alignment="CENTER">
                             <children>
                                 <Button fx:id="generateTwoUserFunctionsPlotButton" text="Generate Plot" onAction="#generateTwoUserFunctionsPlotAction" style="-fx-text-fill: RED; -fx-font-weight: bold;" />

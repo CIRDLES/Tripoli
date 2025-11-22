@@ -153,6 +153,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     @FXML
     public ComboBox<UserFunction> yAxisUserFunctionComboBox;
     @FXML
+    public ComboBox<UserFunction> intensityUserFunctionComboBox;
+    @FXML
     public Button generateTwoUserFunctionsPlotButton;
     public VBox ratiosVBox;
     public VBox functionsVBox;
@@ -1043,6 +1045,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         
         xAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctions));
         yAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctions));
+        intensityUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctions));
         
         // Create shared cell factory for user function display
         Callback<ListView<UserFunction>, ListCell<UserFunction>> cellFactory = listView -> createUserFunctionListCell();
@@ -1052,10 +1055,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         xAxisUserFunctionComboBox.setButtonCell(createUserFunctionListCell());
         yAxisUserFunctionComboBox.setCellFactory(cellFactory);
         yAxisUserFunctionComboBox.setButtonCell(createUserFunctionListCell());
+        intensityUserFunctionComboBox.setCellFactory(cellFactory);
+        intensityUserFunctionComboBox.setButtonCell(createUserFunctionListCell());
     }
     
     private void refreshTwoUserFunctionsComboBoxes() {
-        if (xAxisUserFunctionComboBox == null || yAxisUserFunctionComboBox == null) {
+        if (xAxisUserFunctionComboBox == null || yAxisUserFunctionComboBox == null || intensityUserFunctionComboBox == null) {
             return;
         }
         
@@ -1064,10 +1069,12 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         // Store current selections to preserve them if possible
         UserFunction currentXSelection = xAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
         UserFunction currentYSelection = yAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        UserFunction currentIntensitySelection = intensityUserFunctionComboBox.getSelectionModel().getSelectedItem();
         
         // Update the ComboBox items
         xAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctions));
         yAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctions));
+        intensityUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctions));
         
         // Restore selections if they still exist in the updated list
         if (currentXSelection != null && userFunctions.contains(currentXSelection)) {
@@ -1075,6 +1082,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         }
         if (currentYSelection != null && userFunctions.contains(currentYSelection)) {
             yAxisUserFunctionComboBox.getSelectionModel().select(currentYSelection);
+        }
+        if (currentIntensitySelection != null && userFunctions.contains(currentIntensitySelection)) {
+            intensityUserFunctionComboBox.getSelectionModel().select(currentIntensitySelection);
         }
     }
     
@@ -1096,6 +1106,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public void generateTwoUserFunctionsPlotAction() {
         UserFunction xAxisUF = xAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
         UserFunction yAxisUF = yAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        UserFunction intensityUF = intensityUserFunctionComboBox.getSelectionModel().getSelectedItem();
         
         if (xAxisUF == null || yAxisUF == null) {
             TripoliMessageDialog.showWarningDialog("Please select both X-axis and Y-axis user functions.", TripoliGUI.primaryStage);
@@ -1123,7 +1134,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         
         // Use the plots2 approach - call the new method in OGTripoliViewController
         try {
-            ogTripoliViewController.plotTwoUserFunctions(xAxisUF, yAxisUF);
+            ogTripoliViewController.plotTwoUserFunctions(xAxisUF, yAxisUF, intensityUF);
         } catch (Exception e) {
             TripoliMessageDialog.showWarningDialog("Error creating plot: " + e.getMessage(), TripoliGUI.primaryStage);
         }

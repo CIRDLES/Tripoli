@@ -306,7 +306,7 @@ public class OGTripoliViewController {
         plotsWallPaneRatios.tilePlots();
     }
 
-    public void plotTwoUserFunctions(UserFunction xAxisUF, UserFunction yAxisUF) {
+    public void plotTwoUserFunctions(UserFunction xAxisUF, UserFunction yAxisUF, UserFunction intensityUF) {
         
         // Create the plot using the same approach as in plotRatios for case 1
         TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPaneRatios);
@@ -316,6 +316,7 @@ public class OGTripoliViewController {
                 analysis,
                 yAxisUF,
                 xAxisUF,
+                intensityUF,
                 (PlotWallPane) plotsWallPaneRatios);
         
         tripoliPlotPane.addPlot(plot);
