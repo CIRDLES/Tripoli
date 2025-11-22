@@ -297,28 +297,28 @@
             <content>
                 <VBox spacing="10" style="-fx-padding: 10;">
                     <children>
-                        <Label text="Select two user functions to plot against each other:" style="-fx-font-weight: bold; -fx-font-size: 14;" />
-                        <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label style="-fx-font-weight: bold; -fx-font-size: 14;" text="Select two user functions to plot against each other:" />
+                        <HBox alignment="CENTER_LEFT" spacing="10">
                             <children>
-                                <Label text="X-Axis User Function:" prefWidth="150" />
-                                <ComboBox fx:id="xAxisUserFunctionComboBox" prefWidth="300" />
+                                <Label prefWidth="200" text="X-Axis User Function:" />
+                                <ComboBox prefWidth="250" fx:id="xAxisUserFunctionComboBox" />
                             </children>
                         </HBox>
-                        <HBox spacing="10" alignment="CENTER_LEFT">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
                             <children>
-                                <Label text="Y-Axis User Function:" prefWidth="150" />
-                                <ComboBox fx:id="yAxisUserFunctionComboBox" prefWidth="300" />
+                                <Label prefWidth="200" text="Y-Axis User Function:" />
+                                <ComboBox fx:id="yAxisUserFunctionComboBox" prefHeight="25.0" prefWidth="250" />
                             </children>
                         </HBox>
-                        <HBox spacing="10" alignment="CENTER_LEFT">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
                             <children>
-                                <Label text="Intensity User Function (Optional):" prefWidth="150" />
-                                <ComboBox fx:id="intensityUserFunctionComboBox" prefWidth="300" />
+                                <Label prefWidth="200" text="Intensity User Function (Optional):" />
+                                <ComboBox fx:id="intensityUserFunctionComboBox" prefWidth="250" />
                             </children>
                         </HBox>
-                        <HBox spacing="10" alignment="CENTER">
+                        <HBox alignment="CENTER" spacing="10">
                             <children>
-                                <Button fx:id="generateTwoUserFunctionsPlotButton" text="Generate Plot" onAction="#generateTwoUserFunctionsPlotAction" style="-fx-text-fill: RED; -fx-font-weight: bold;" />
+                                <Button fx:id="generateTwoUserFunctionsPlotButton" onAction="#generateTwoUserFunctionsPlotAction" style="-fx-text-fill: RED; -fx-font-weight: bold;" text="Generate Plot" />
                             </children>
                         </HBox>
                     </children>

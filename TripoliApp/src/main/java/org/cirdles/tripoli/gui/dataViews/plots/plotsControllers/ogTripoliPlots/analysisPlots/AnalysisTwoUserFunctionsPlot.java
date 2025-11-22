@@ -514,22 +514,28 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         double gradientBarX;
         double gradientBarY = 18;
         
-        // If intensity legend is shown, adjust time index gradient position
+        // Layout: Time Index (left), Intensity (center if exists), Rejection (right)
         double intensityLegendWidth = 0;
+        double rejectionAreaWidth = 150; // Approximate width needed for rejection markers (label + 3 markers with spacing)
+        
         if (intensityUserFunction != null && intensityData != null) {
             intensityLegendWidth = 180;
-            gradientBarX = leftMargin + intensityLegendWidth + 15 + (plotWidth - gradientBarWidth - intensityLegendWidth - 15) / 2.0;
-        } else {
-            gradientBarX = leftMargin + (plotWidth - gradientBarWidth) / 2.0; // Centered
         }
         
-        // Draw intensity scaling legend if intensity user function is provided
+        // Time Index gradient is on the left
+        gradientBarX = leftMargin;
+        
+        // Draw intensity scaling legend if intensity user function is provided (centered between Time Index and Rejection)
         if (intensityUserFunction != null && intensityData != null) {
-            double intensityLegendX = leftMargin;
+            // Center intensity legend between Time Index gradient and Rejection markers
+            double leftEdge = leftMargin + gradientBarWidth;
+            double rightEdge = leftMargin + plotWidth - rejectionAreaWidth;
+            double centerX = (leftEdge + rightEdge) / 2.0;
+            double intensityLegendX = centerX - (intensityLegendWidth / 2.0);
             double intensityLegendY = gradientBarY;
             
             // Label for intensity legend
-            g2d.setFont(Font.font("SansSerif", 9));
+            g2d.setFont(Font.font("SansSerif", 11));
             g2d.setFill(Color.BLACK);
             g2d.fillText("Intensity:", intensityLegendX, intensityLegendY - 2);
             
@@ -556,7 +562,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             }
             
             // Labels below circles - moved down more to avoid overlap with largest circles
-            g2d.setFont(Font.font("SansSerif", 9));
+            g2d.setFont(Font.font("SansSerif", 11));
             if (minIntensity != maxIntensity) {
                 // Format values to be more readable
                 String minLabel = formatIntensityValue(minIntensity);
@@ -604,18 +610,18 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         g2d.strokeRect(gradientBarX, gradientBarY, gradientBarWidth, gradientBarHeight);
         
         // Labels for gradient
-        g2d.setFont(Font.font("SansSerif", 9));
+        g2d.setFont(Font.font("SansSerif", 11));
         g2d.setFill(Color.BLACK);
         g2d.fillText("Time Index:", gradientBarX, gradientBarY - 2);
-        g2d.setFont(Font.font("SansSerif", 8));
+        g2d.setFont(Font.font("SansSerif", 10));
         g2d.fillText("Early", gradientBarX, gradientBarY + gradientBarHeight + 12);
         g2d.fillText("Late", gradientBarX + gradientBarWidth - 25, gradientBarY + gradientBarHeight + 12);
         
-        // Position rejection markers to the right of the gradient
-        double markersStartX = gradientBarX + gradientBarWidth + 20;
+        // Position rejection markers at the right edge
+        double markersStartX = leftMargin + plotWidth - rejectionAreaWidth;
         
         // Label for rejection markers
-        g2d.setFont(Font.font("SansSerif", 9));
+        g2d.setFont(Font.font("SansSerif", 11));
         g2d.fillText("Rejection:", markersStartX, gradientBarY - 2);
         
         // Add space between label and icons
@@ -623,43 +629,44 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         
         double markerX = markersStartX;
         double markerY = markersY;
-        double markerSpacing = 45;
+        double markerSpacing = 50;
+        double markerSize = 6.0; // Increased from 4.0
         
         // Both rejected - red square
         g2d.setFill(Color.RED);
         g2d.setStroke(Color.BLACK);
         g2d.setLineWidth(0.5);
-        g2d.fillRect(markerX - 2.0, markerY - 2.0, 4, 4);
-        g2d.strokeRect(markerX - 2.0, markerY - 2.0, 4, 4);
-        g2d.setFont(Font.font("SansSerif", 8));
+        g2d.fillRect(markerX - markerSize / 2.0, markerY - markerSize / 2.0, markerSize, markerSize);
+        g2d.strokeRect(markerX - markerSize / 2.0, markerY - markerSize / 2.0, markerSize, markerSize);
+        g2d.setFont(Font.font("SansSerif", 10));
         g2d.setFill(Color.BLACK);
-        g2d.fillText("Both", markerX + 7, markerY + 4);
+        g2d.fillText("Both", markerX + 9, markerY + 5);
         
         // X rejected - red downward triangle
         markerX += markerSpacing;
         g2d.setFill(Color.RED);
         g2d.setStroke(Color.BLACK);
         g2d.setLineWidth(0.5);
-        double[] xPointsDown = {markerX, markerX - 4.0, markerX + 4.0};
-        double[] yPointsDown = {markerY + 4.0, markerY - 3.0, markerY - 3.0};
+        double[] xPointsDown = {markerX, markerX - markerSize, markerX + markerSize};
+        double[] yPointsDown = {markerY + markerSize, markerY - markerSize / 2.0, markerY - markerSize / 2.0};
         g2d.fillPolygon(xPointsDown, yPointsDown, 3);
         g2d.strokePolygon(xPointsDown, yPointsDown, 3);
-        g2d.setFont(Font.font("SansSerif", 8));
+        g2d.setFont(Font.font("SansSerif", 10));
         g2d.setFill(Color.BLACK);
-        g2d.fillText("X only", markerX + 7, markerY + 4);
+        g2d.fillText("X only", markerX + 9, markerY + 5);
         
         // Y rejected - red left triangle
         markerX += markerSpacing;
         g2d.setFill(Color.RED);
         g2d.setStroke(Color.BLACK);
         g2d.setLineWidth(0.5);
-        double[] xPointsLeft = {markerX - 4.0, markerX + 3.0, markerX + 3.0};
-        double[] yPointsLeft = {markerY, markerY - 4.0, markerY + 4.0};
+        double[] xPointsLeft = {markerX - markerSize, markerX + markerSize / 2.0, markerX + markerSize / 2.0};
+        double[] yPointsLeft = {markerY, markerY - markerSize, markerY + markerSize};
         g2d.fillPolygon(xPointsLeft, yPointsLeft, 3);
         g2d.strokePolygon(xPointsLeft, yPointsLeft, 3);
-        g2d.setFont(Font.font("SansSerif", 8));
+        g2d.setFont(Font.font("SansSerif", 10));
         g2d.setFill(Color.BLACK);
-        g2d.fillText("Y only", markerX + 7, markerY + 4);
+        g2d.fillText("Y only", markerX + 9, markerY + 5);
         
         // Restore saved graphics state
         g2d.setFill(savedPaint);
