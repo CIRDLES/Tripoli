@@ -1043,9 +1043,14 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private void populateTwoUserFunctionsSelectorTab() {
         List<UserFunction> userFunctions = analysis.getUserFunctions();
         
-        xAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctions));
-        yAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctions));
-        intensityUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctions));
+        // Create lists with null option at the beginning for deselection
+        List<UserFunction> userFunctionsWithBlank = new ArrayList<>();
+        userFunctionsWithBlank.add(null); // Blank option for deselection
+        userFunctionsWithBlank.addAll(userFunctions);
+        
+        xAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctionsWithBlank));
+        yAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctionsWithBlank));
+        intensityUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctionsWithBlank));
         
         // Create shared cell factory for user function display
         Callback<ListView<UserFunction>, ListCell<UserFunction>> cellFactory = listView -> createUserFunctionListCell();
@@ -1071,10 +1076,15 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         UserFunction currentYSelection = yAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
         UserFunction currentIntensitySelection = intensityUserFunctionComboBox.getSelectionModel().getSelectedItem();
         
+        // Create lists with null option at the beginning for deselection
+        List<UserFunction> userFunctionsWithBlank = new ArrayList<>();
+        userFunctionsWithBlank.add(null); // Blank option for deselection
+        userFunctionsWithBlank.addAll(userFunctions);
+        
         // Update the ComboBox items
-        xAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctions));
-        yAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctions));
-        intensityUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctions));
+        xAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctionsWithBlank));
+        yAxisUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctionsWithBlank));
+        intensityUserFunctionComboBox.setItems(FXCollections.observableArrayList(userFunctionsWithBlank));
         
         // Restore selections if they still exist in the updated list
         if (currentXSelection != null && userFunctions.contains(currentXSelection)) {
@@ -1093,8 +1103,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             @Override
             protected void updateItem(UserFunction item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
+                if (empty) {
                     setText(null);
+                } else if (item == null) {
+                    setText(""); // Blank option for deselection
                 } else {
                     setText(item.getName());
                 }
