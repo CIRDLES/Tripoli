@@ -91,8 +91,9 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
         }
     };
     private double plotToolBarHeight = 0;
-    private CheckBox cycleCB;
-    private final CheckBoxChangeListener cycleCheckBoxChangeListener = new CheckBoxChangeListener(cycleCB);
+    // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
+    // private CheckBox cycleCB;
+    // private final CheckBoxChangeListener cycleCheckBoxChangeListener = new CheckBoxChangeListener(cycleCB);
     private PlotWallPaneInterface plotWallPane;
     private AbstractPlot plot;
     private final EventHandler<MouseEvent> mouseReleasedEventHandler = e -> {
@@ -287,10 +288,11 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
             });
             plotToolBar.getItems().add(synchButton);
 
-            cycleCB = new CheckBox("Cycle");
-            plotToolBar.getItems().add(cycleCB);
-            cycleCB.setSelected(!((AnalysisBlockCyclesPlotI) plot).getBlockMode());
-            cycleCB.selectedProperty().addListener(cycleCheckBoxChangeListener);
+            // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
+            // cycleCB = new CheckBox("Cycle");
+            // plotToolBar.getItems().add(cycleCB);
+            // cycleCB.setSelected(!((AnalysisBlockCyclesPlotI) plot).getBlockMode());
+            // cycleCB.selectedProperty().addListener(cycleCheckBoxChangeListener);
 
             setBottom(plotToolBar);
         }
@@ -482,9 +484,10 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
             ((AnalysisBlockCyclesPlotI) plot).getUserFunction().setReductionMode(
                     blockMode ? TripoliConstants.ReductionModeEnum.BLOCK : TripoliConstants.ReductionModeEnum.CYCLE);
 
-            cycleCB.selectedProperty().removeListener(cycleCheckBoxChangeListener);
-            cycleCB.setSelected(!blockMode);
-            cycleCB.selectedProperty().addListener(cycleCheckBoxChangeListener);
+            // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
+            // cycleCB.selectedProperty().removeListener(cycleCheckBoxChangeListener);
+            // cycleCB.setSelected(!blockMode);
+            // cycleCB.selectedProperty().addListener(cycleCheckBoxChangeListener);
 
             plot.refreshPanel(reScaleX, reScaleY);
         }
@@ -515,22 +518,23 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
     ) {
     }
 
-    private class CheckBoxChangeListener implements ChangeListener<Boolean> {
-        private final CheckBox checkBox;
-
-        public CheckBoxChangeListener(CheckBox checkBox) {
-            this.checkBox = checkBox;
-        }
-
-        /**
-         * @param observable The {@code ObservableValue} which value changed
-         * @param oldValue   The old value
-         * @param newValue   The new value
-         */
-        @Override
-        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-            updateAnalysisRatiosPlotted(!newValue, false, false, true);
-            plotWallPane.updateStatusOfCycleCheckBox();
-        }
-    }
+    // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
+    // private class CheckBoxChangeListener implements ChangeListener<Boolean> {
+    //     private final CheckBox checkBox;
+    //
+    //     public CheckBoxChangeListener(CheckBox checkBox) {
+    //         this.checkBox = checkBox;
+    //     }
+    //
+    //     /**
+    //      * @param observable The {@code ObservableValue} which value changed
+    //      * @param oldValue   The old value
+    //      * @param newValue   The new value
+    //      */
+    //     @Override
+    //     public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+    //         updateAnalysisRatiosPlotted(!newValue, false, false, true);
+    //         plotWallPane.updateStatusOfCycleCheckBox();
+    //     }
+    // }
 }

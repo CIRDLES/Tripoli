@@ -73,15 +73,17 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private boolean logScale;
     private boolean blockMode;
     private static final DelegateActionSet repaintDelegateActionSet = new DelegateActionSet();
-    ChangeListener<Boolean> cycleCBChangeListener = (observable, oldValue, newValue) -> {
-        blockMode = !newValue;
-        rebuildPlot(false, true);
-    };
+    // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
+    // ChangeListener<Boolean> cycleCBChangeListener = (observable, oldValue, newValue) -> {
+    //     blockMode = !newValue;
+    //     rebuildPlot(false, true);
+    // };
     private ConstantsTripoliApp.PlotLayoutStyle plotLayoutStyle;
     private ToolBar scaleControlsToolbar;
     private TripoliPlotPane zoomedPlot;
     private Button toggleSculptingModeButton;
-    private CheckBox cycleCB;
+    // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
+    // private CheckBox cycleCB;
 
     private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsController, AnalysisManagerCallbackI analysisManagerCallbackI) {
         this.iD = iD;
@@ -444,11 +446,12 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         labelMode.setPrefWidth(50);
 //        scaleControlsToolbar.getItems().add(labelMode);
 
-        cycleCB = new CheckBox("Cycle");
-//        scaleControlsToolbar.getItems().add(cycleCB);
-        cycleCB.setSelected(true);
-        cycleCB.selectedProperty().addListener(cycleCBChangeListener);
-        updateStatusOfCycleCheckBox();
+        // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
+        // cycleCB = new CheckBox("Cycle");
+        // scaleControlsToolbar.getItems().add(cycleCB);
+        // cycleCB.setSelected(true);
+        // cycleCB.selectedProperty().addListener(cycleCBChangeListener);
+        // updateStatusOfCycleCheckBox();
 
         Label labelScale = new Label("Ratio Scale:");
         labelScale.setFont(commandFont);
@@ -611,25 +614,26 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         analysisManagerCallbackI.callBackSetBlockIncludedStatus(blockID, included);
     }
 
-    public void updateStatusOfCycleCheckBox() {
-        ObservableList<Node> children = getChildren();
-        List<Boolean> allShowCycle = new ArrayList<>();
-        for (Node child : children) {
-            if (child instanceof TripoliPlotPane) {
-                AnalysisBlockCyclesPlotI childPlot = (AnalysisBlockCyclesPlotI) ((TripoliPlotPane) child).getPlot();
-                allShowCycle.add(!childPlot.getBlockMode());
-            }
-        }
-        int countOfShowCycles = Booleans.countTrue(Booleans.toArray(allShowCycle));
-        cycleCB.selectedProperty().removeListener(cycleCBChangeListener);
-        cycleCB.selectedProperty().setValue(countOfShowCycles == allShowCycle.size());
-        cycleCB.setIndeterminate(false);
-        if ((countOfShowCycles != allShowCycle.size()) && (countOfShowCycles > 0)) {
-            cycleCB.selectedProperty().setValue(true);
-            cycleCB.setIndeterminate(true);
-        }
-        cycleCB.selectedProperty().addListener(cycleCBChangeListener);
-    }
+    // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
+    // public void updateStatusOfCycleCheckBox() {
+    //     ObservableList<Node> children = getChildren();
+    //     List<Boolean> allShowCycle = new ArrayList<>();
+    //     for (Node child : children) {
+    //         if (child instanceof TripoliPlotPane) {
+    //             AnalysisBlockCyclesPlotI childPlot = (AnalysisBlockCyclesPlotI) ((TripoliPlotPane) child).getPlot();
+    //             allShowCycle.add(!childPlot.getBlockMode());
+    //         }
+    //     }
+    //     int countOfShowCycles = Booleans.countTrue(Booleans.toArray(allShowCycle));
+    //     cycleCB.selectedProperty().removeListener(cycleCBChangeListener);
+    //     cycleCB.selectedProperty().setValue(countOfShowCycles == allShowCycle.size());
+    //     cycleCB.setIndeterminate(false);
+    //     if ((countOfShowCycles != allShowCycle.size()) && (countOfShowCycles > 0)) {
+    //         cycleCB.selectedProperty().setValue(true);
+    //         cycleCB.setIndeterminate(true);
+    //     }
+    //     cycleCB.selectedProperty().addListener(cycleCBChangeListener);
+    // }
 
     public static DelegateActionSet getRepaintDelegateActionSet() {
         return repaintDelegateActionSet;
