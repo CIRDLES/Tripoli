@@ -460,12 +460,9 @@ public class SettingsWindow {
         
         // Hide Intensity/Residuals Color Control tab for case 1
         if (analysis.getAnalysisCaseNumber() == 1) {
-            if (instance.settingsWindowController.getSettingsTabPane().getTabs().contains(
-                    instance.settingsWindowController.getIntensitiesColorTab())) {
                 instance.settingsWindowController.getSettingsTabPane().getTabs().remove(
                         instance.settingsWindowController.getIntensitiesColorTab()
-                );
-            }
+            );
         }
         
         switch (SettingsRequestType.valueOf(requestType.name())) {
@@ -497,12 +494,9 @@ public class SettingsWindow {
                             instance.settingsWindowController.getRatiosColorTab()
                     );
                     // Only remove intensities tab if it exists
-                    if (instance.settingsWindowController.getSettingsTabPane().getTabs().contains(
-                            instance.settingsWindowController.getIntensitiesColorTab())) {
-                        instance.settingsWindowController.getSettingsTabPane().getTabs().remove(
-                                instance.settingsWindowController.getIntensitiesColorTab()
-                        );
-                    }
+                    instance.settingsWindowController.getSettingsTabPane().getTabs().remove(
+                            instance.settingsWindowController.getIntensitiesColorTab()
+                    );
                 }
             }
         }
