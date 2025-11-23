@@ -78,6 +78,7 @@ import org.cirdles.tripoli.sessions.analysis.methods.sequence.SequenceCell;
 import org.cirdles.tripoli.sessions.analysis.outputs.etRedux.ETReduxFraction;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
 import org.cirdles.tripoli.utilities.stateUtilities.AnalysisMethodPersistance;
+import org.cirdles.tripoli.plots.PlotTwo;
 import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 
 import java.io.ByteArrayInputStream;
@@ -154,6 +155,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     public ComboBox<UserFunction> yAxisUserFunctionComboBox;
     @FXML
     public ComboBox<UserFunction> intensityUserFunctionComboBox;
+    @FXML
+    public ListView<PlotTwo> plot2SelectionLV;
+    
+    private final ObservableList<PlotTwo> plot2SelectionList = FXCollections.observableArrayList();
     @FXML
     public Button generateTwoUserFunctionsPlotButton;
     public VBox ratiosVBox;
@@ -1062,6 +1067,100 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         yAxisUserFunctionComboBox.setButtonCell(createUserFunctionListCell());
         intensityUserFunctionComboBox.setCellFactory(cellFactory);
         intensityUserFunctionComboBox.setButtonCell(createUserFunctionListCell());
+        
+        // Load saved plot2 selections from persistence
+        loadPlot2Selections();
+        
+        // Populate ListView with custom cell factory for checkboxes
+        if (plot2SelectionLV != null) {
+            plot2SelectionLV.setItems(plot2SelectionList);
+            plot2SelectionLV.setCellFactory(listView -> new Plot2SelectionListCell());
+        }
+    }
+    
+    private class Plot2SelectionListCell extends ListCell<PlotTwo> {
+        private final CheckBox checkBox;
+        private final HBox hBox;
+        private final Label label;
+        
+        public Plot2SelectionListCell() {
+            checkBox = new CheckBox();
+            label = new Label();
+            hBox = new HBox(5);
+            hBox.setAlignment(Pos.CENTER_LEFT);
+            hBox.getChildren().addAll(checkBox, label);
+            
+            checkBox.setOnAction(event -> {
+                PlotTwo item = getItem();
+                if (item != null) {
+                    item.setDisplayed(checkBox.isSelected());
+                    savePlot2SelectionDisplayedState();
+                }
+            });
+        }
+        
+        @Override
+        protected void updateItem(PlotTwo item, boolean empty) {
+            super.updateItem(item, empty);
+            
+            if (empty || item == null) {
+                setGraphic(null);
+                setText(null);
+            } else {
+                checkBox.setSelected(item.isDisplayed());
+                label.setText(item.toString());
+                setGraphic(hBox);
+            }
+        }
+    }
+    
+    private void savePlot2SelectionDisplayedState() {
+        if (analysis == null || analysis.getMethod() == null) {
+            return;
+        }
+        
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+            return;
+        }
+        
+        if (tripoliPersistentState == null) {
+            return;
+        }
+        
+        AnalysisMethodPersistance analysisMethodPersistance =
+                tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+        
+        if (analysisMethodPersistance != null) {
+            tripoliPersistentState.updateTripoliPersistentState();
+        }
+    }
+    
+    private void loadPlot2Selections() {
+        plot2SelectionList.clear();
+        
+        if (analysis == null || analysis.getMethod() == null) {
+            return;
+        }
+        
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+            // No persistent state available
+            return;
+        }
+        
+        if (tripoliPersistentState != null) {
+            AnalysisMethodPersistance analysisMethodPersistance =
+                    tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+            if (analysisMethodPersistance != null) {
+                List<PlotTwo> savedSelections = analysisMethodPersistance.getPlotTwoList();
+                plot2SelectionList.addAll(savedSelections);
+            }
+        }
     }
     
     private void refreshTwoUserFunctionsComboBoxes() {
@@ -1150,6 +1249,107 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             TripoliMessageDialog.showWarningDialog("Error creating plot: " + e.getMessage(), TripoliGUI.primaryStage);
         }
     }
+
+    @FXML
+    public void savePlot2SelectionAction() {
+        UserFunction xAxisUF = xAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        UserFunction yAxisUF = yAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        UserFunction intensityUF = intensityUserFunctionComboBox.getSelectionModel().getSelectedItem();
+        
+        if (xAxisUF == null || yAxisUF == null) {
+            TripoliMessageDialog.showWarningDialog("Please select both X-axis and Y-axis user functions before saving.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        if (analysis == null || analysis.getMethod() == null) {
+            TripoliMessageDialog.showWarningDialog("No analysis method loaded.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+            TripoliMessageDialog.showWarningDialog("Error accessing persistent state: " + e.getMessage(), TripoliGUI.primaryStage);
+            return;
+        }
+        
+        if (tripoliPersistentState == null) {
+            TripoliMessageDialog.showWarningDialog("Persistent state not available.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        AnalysisMethodPersistance analysisMethodPersistance =
+                tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+        
+        if (analysisMethodPersistance == null) {
+            TripoliMessageDialog.showWarningDialog("Analysis method persistence not found.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        // Create plot2 selection
+        String intensityName = (intensityUF != null) ? intensityUF.getName() : null;
+        PlotTwo plot2Selection = new PlotTwo(
+                xAxisUF.getName(),
+                yAxisUF.getName(),
+                intensityName,
+                null // No custom name for now
+        );
+        
+        // Add to persistence
+        analysisMethodPersistance.getPlotTwoList().add(plot2Selection);
+        tripoliPersistentState.updateTripoliPersistentState();
+        
+        // Refresh ListView
+        loadPlot2Selections();
+        if (plot2SelectionLV != null) {
+            plot2SelectionLV.getSelectionModel().select(plot2Selection);
+        }
+    }
+
+    @FXML
+    public void deletePlot2SelectionAction() {
+        PlotTwo selected = plot2SelectionLV.getSelectionModel().getSelectedItem();
+        
+        if (selected == null) {
+            TripoliMessageDialog.showWarningDialog("Please select a plot2 selection to delete.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        if (analysis == null || analysis.getMethod() == null) {
+            TripoliMessageDialog.showWarningDialog("No analysis method loaded.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+            TripoliMessageDialog.showWarningDialog("Error accessing persistent state: " + e.getMessage(), TripoliGUI.primaryStage);
+            return;
+        }
+        
+        if (tripoliPersistentState == null) {
+            TripoliMessageDialog.showWarningDialog("Persistent state not available.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        AnalysisMethodPersistance analysisMethodPersistance =
+                tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+        
+        if (analysisMethodPersistance == null) {
+            TripoliMessageDialog.showWarningDialog("Analysis method persistence not found.", TripoliGUI.primaryStage);
+            return;
+        }
+        
+        // Remove from persistence
+        analysisMethodPersistance.getPlotTwoList().remove(selected);
+        tripoliPersistentState.updateTripoliPersistentState();
+        
+        // Refresh ListView
+        loadPlot2Selections();
+    }
+
 
     private void populateCustomExpressionTab() {
         expressionAccordion.getPanes().clear();
