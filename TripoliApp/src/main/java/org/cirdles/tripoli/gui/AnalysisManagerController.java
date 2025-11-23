@@ -161,6 +161,10 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
     private final ObservableList<PlotTwo> plot2SelectionList = FXCollections.observableArrayList();
     @FXML
     public Button generateTwoUserFunctionsPlotButton;
+    @FXML
+    public Button savePlot2SelectionButton;
+    @FXML
+    public Button deletePlot2SelectionButton;
     public VBox ratiosVBox;
     public VBox functionsVBox;
     public TextField fractionNameTextField;
@@ -1076,6 +1080,71 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             plot2SelectionLV.setItems(plot2SelectionList);
             plot2SelectionLV.setCellFactory(listView -> new Plot2SelectionListCell());
         }
+        
+        // Set up button enable/disable logic
+        setupPlot2ButtonStates();
+    }
+    
+    private void setupPlot2ButtonStates() {
+        // Initially disable both buttons
+        if (savePlot2SelectionButton != null) {
+            savePlot2SelectionButton.setDisable(true);
+        }
+        if (deletePlot2SelectionButton != null) {
+            deletePlot2SelectionButton.setDisable(true);
+        }
+        
+        // Enable/disable save and generate plot buttons based on X and Y axis selections
+        if (xAxisUserFunctionComboBox != null && yAxisUserFunctionComboBox != null) {
+            ChangeListener<UserFunction> comboBoxChangeListener = (observable, oldValue, newValue) -> {
+                updateSaveAndGenerateButtonStates();
+            };
+            
+            xAxisUserFunctionComboBox.getSelectionModel().selectedItemProperty().addListener(comboBoxChangeListener);
+            yAxisUserFunctionComboBox.getSelectionModel().selectedItemProperty().addListener(comboBoxChangeListener);
+            
+            // Set initial state
+            updateSaveAndGenerateButtonStates();
+        }
+        
+        // Enable/disable delete button based on ListView selection
+        if (plot2SelectionLV != null && deletePlot2SelectionButton != null) {
+            plot2SelectionLV.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                updateDeleteButtonState();
+            });
+            
+            // Also update when list items change
+            plot2SelectionList.addListener((ListChangeListener<PlotTwo>) c -> {
+                updateDeleteButtonState();
+            });
+            
+            // Set initial state
+            updateDeleteButtonState();
+        }
+    }
+    
+    private void updateDeleteButtonState() {
+        if (deletePlot2SelectionButton != null && plot2SelectionLV != null) {
+            PlotTwo selected = plot2SelectionLV.getSelectionModel().getSelectedItem();
+            deletePlot2SelectionButton.setDisable(selected == null);
+        }
+    }
+    
+    private void updateSaveAndGenerateButtonStates() {
+        if (xAxisUserFunctionComboBox != null && yAxisUserFunctionComboBox != null) {
+            UserFunction xAxis = xAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+            UserFunction yAxis = yAxisUserFunctionComboBox.getSelectionModel().getSelectedItem();
+            
+            // Enable buttons only if both X and Y axes are selected (not null)
+            boolean shouldDisable = (xAxis == null || yAxis == null);
+            
+            if (savePlot2SelectionButton != null) {
+                savePlot2SelectionButton.setDisable(shouldDisable);
+            }
+            if (generateTwoUserFunctionsPlotButton != null) {
+                generateTwoUserFunctionsPlotButton.setDisable(shouldDisable);
+            }
+        }
     }
     
     private class Plot2SelectionListCell extends ListCell<PlotTwo> {
@@ -1305,6 +1374,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         if (plot2SelectionLV != null) {
             plot2SelectionLV.getSelectionModel().select(plot2Selection);
         }
+        
+        // Update button states
+        updateDeleteButtonState();
     }
 
     @FXML
@@ -1348,6 +1420,9 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         
         // Refresh ListView
         loadPlot2Selections();
+        
+        // Update button states (delete button should be disabled after deletion)
+        updateDeleteButtonState();
     }
 
 

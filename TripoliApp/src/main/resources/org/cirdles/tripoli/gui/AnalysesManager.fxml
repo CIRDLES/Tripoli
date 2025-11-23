@@ -298,7 +298,7 @@
                 <VBox spacing="10" style="-fx-padding: 10;">
                     <children>
                         <HBox>
-                        <Label prefHeight="20.0" prefWidth="480.0" style="-fx-font-weight: bold; -fx-font-size: 14;" text="Select two user functions to plot against each other:" />
+                        <Label prefHeight="20.0" prefWidth="513.0" style="-fx-font-weight: bold; -fx-font-size: 14;" text="Select two user functions to plot against each other:" />
                             <Label style="-fx-font-weight: bold; -fx-font-size: 12;" text="Saved Plot2 Selections:" />
                         </HBox>
                         <HBox spacing="20">
@@ -308,26 +308,26 @@
                                         <HBox alignment="CENTER_LEFT" spacing="10">
                                             <children>
                                                 <Label prefWidth="200" text="X-Axis User Function:" />
-                                                <ComboBox fx:id="xAxisUserFunctionComboBox" prefHeight="25.0" prefWidth="255" />
+                                                <ComboBox prefHeight="25.0" prefWidth="282.0" fx:id="xAxisUserFunctionComboBox" />
                                             </children>
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" spacing="10">
                                             <children>
                                                 <Label prefWidth="200" text="Y-Axis User Function:" />
-                                                <ComboBox fx:id="yAxisUserFunctionComboBox" prefHeight="25.0" prefWidth="255" />
+                                                <ComboBox fx:id="yAxisUserFunctionComboBox" prefHeight="25.0" prefWidth="282.0" />
                                             </children>
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" spacing="10">
                                             <children>
                                                 <Label prefWidth="200" text="Intensity User Function (Optional):" />
-                                                <ComboBox fx:id="intensityUserFunctionComboBox" prefHeight="25.0" prefWidth="255" />
+                                                <ComboBox fx:id="intensityUserFunctionComboBox" prefHeight="25.0" prefWidth="282.0" />
                                             </children>
                                         </HBox>
                                         <HBox alignment="CENTER_RIGHT" spacing="10">
                                             <children>
                                                 <Button fx:id="generateTwoUserFunctionsPlotButton" onAction="#generateTwoUserFunctionsPlotAction" style="-fx-text-fill: RED; -fx-font-weight: bold;" text="Generate Plot" />
-                                                <Button onAction="#savePlot2SelectionAction" text="Save Plot" />
-                                                <Button onAction="#deletePlot2SelectionAction" text="Delete Plot" />
+                                                <Button fx:id="savePlot2SelectionButton" onAction="#savePlot2SelectionAction" text="Save Plot" />
+                                                <Button fx:id="deletePlot2SelectionButton" onAction="#deletePlot2SelectionAction" text="Delete Selection" />
                                             </children>
                                         </HBox>
                                     </children>
