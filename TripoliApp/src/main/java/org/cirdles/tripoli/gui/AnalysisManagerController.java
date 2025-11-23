@@ -1125,17 +1125,16 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
             return;
         }
         
+        // Close existing window if it exists (same pattern as Preview and Sculpt Data buttons)
+        if (null != ogTripoliReviewPlotsWindow) {
+            ogTripoliReviewPlotsWindow.close();
+        }
+        
         AllBlockInitForMCMC.PlottingData plottingData = AllBlockInitForDataLiteOne.initBlockModels(analysis);
         
-        // Ensure the plots window is open (case 1 only - tab visibility ensures this)
-        if (ogTripoliReviewPlotsWindow == null) {
-
-            ogTripoliReviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
-            ogTripoliReviewPlotsWindow.loadPlotsWindowForTwoUserFunctions();
-        } else if (!ogTripoliReviewPlotsWindow.isShowing()) {
-            // Window exists but was closed - reopen it
-            ogTripoliReviewPlotsWindow.loadPlotsWindowForTwoUserFunctions();
-        }
+        // Create new window instance
+        ogTripoliReviewPlotsWindow = new OGTripoliPlotsWindow(TripoliGUI.primaryStage, this, plottingData);
+        ogTripoliReviewPlotsWindow.loadPlotsWindowForTwoUserFunctions();
         
         // Get the PlotWallPane from the OGTripoliViewController
         OGTripoliViewController ogTripoliViewController = ogTripoliReviewPlotsWindow.getOgTripoliViewController();
