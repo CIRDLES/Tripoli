@@ -558,10 +558,18 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             g2d.setStroke(Color.BLACK);
             g2d.setLineWidth(0.5);
             
+            // Get min/max sizes from parameters
+            double minSize = 2.0; // Fallback default
+            double maxSize = 50.0; // Fallback default
+            if (analysis != null && analysis.getParameters() != null) {
+                minSize = analysis.getParameters().getScalingDotMinSize();
+                maxSize = analysis.getParameters().getScalingDotMaxSize();
+            }
+            
             for (int i = 0; i < numSteps; i++) {
-                // Calculate size from min (5.0) to max (20.0)
+                // Calculate size from min to max using parameters
                 double normalized = (double) i / (numSteps - 1);
-                double circleSize = 5.0 + (normalized * 15.0);
+                double circleSize = minSize + (normalized * (maxSize - minSize));
                 
                 // Center circle vertically
                 double circleX = intensityLegendX + (i * spacing) - circleSize / 2.0;
@@ -713,13 +721,17 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
 
     /**
      * Calculates point size based on intensity value.
-     * Normalizes intensity to a range of 5-20 pixels radius.
+     * Normalizes intensity to a range defined by parameters (default 2-50 pixels radius).
      * @param intensityValue The intensity value for the point
      * @return The point size (radius) in pixels, or default size if intensity not available
      */
     private double calculatePointSize(double intensityValue) {
         if (intensityData == null || minIntensity == maxIntensity || intensityValue == 0.0) {
-            return 5.0; // Default size (minimum of range)
+            // Return minimum size from parameters, or default if not available
+            if (analysis != null && analysis.getParameters() != null) {
+                return analysis.getParameters().getScalingDotMinSize();
+            }
+            return 2.0; // Fallback default
         }
         
         // Normalize intensity value to 0-1 range
@@ -728,9 +740,13 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         // Clamp to [0, 1] range
         normalized = Math.max(0.0, Math.min(1.0, normalized));
         
-        // Map to 5-20 pixel range
-        double minSize = 5.0;
-        double maxSize = 20.0;
+        // Map to parameter-defined range
+        double minSize = 2.0; // Fallback default
+        double maxSize = 50.0; // Fallback default
+        if (analysis != null && analysis.getParameters() != null) {
+            minSize = analysis.getParameters().getScalingDotMinSize();
+            maxSize = analysis.getParameters().getScalingDotMaxSize();
+        }
         return minSize + (normalized * (maxSize - minSize));
     }
 
@@ -811,7 +827,11 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                 double dataY = mapY(yAxisData[i]);
                 
                 // Calculate point size based on intensity if available
-                double pointSize = 5.0; // Default size (minimum of range)
+                // Get default size from parameters (minimum of range)
+                double pointSize = 2.0; // Fallback default
+                if (analysis != null && analysis.getParameters() != null) {
+                    pointSize = analysis.getParameters().getScalingDotMinSize();
+                }
                 if (intensityData != null && i < intensityData.length && intensityData[i] != 0.0) {
                     pointSize = calculatePointSize(intensityData[i]);
                 }

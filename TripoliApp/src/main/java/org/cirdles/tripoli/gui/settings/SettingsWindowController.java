@@ -45,6 +45,8 @@ public class SettingsWindowController implements Initializable {
     @FXML
     private Tab parameterControlTab;
     @FXML
+    private Tab plotTwoControlsTab;
+    @FXML
     private Button saveAnalysisSettingsButton;
     @FXML
     private Button saveAsSessionDefaultsButton;
@@ -64,6 +66,10 @@ public class SettingsWindowController implements Initializable {
     private Spinner<Double> chauvenetRejectionProbabilitySpinner;
     @FXML
     private Spinner<Integer> chauvenetMinimumDatumCountSpinner;
+    @FXML
+    private Spinner<Double> scalingDotMinSizeSpinner;
+    @FXML
+    private Spinner<Double> scalingDotMaxSizeSpinner;
     @FXML
     private Label speciesHeader;
     @FXML
@@ -122,6 +128,14 @@ public class SettingsWindowController implements Initializable {
         return chauvenetMinimumDatumCountSpinner;
     }
 
+    public Spinner<Double> getScalingDotMinSizeSpinner() {
+        return scalingDotMinSizeSpinner;
+    }
+
+    public Spinner<Double> getScalingDotMaxSizeSpinner() {
+        return scalingDotMaxSizeSpinner;
+    }
+
     public TabPane getSettingsTabPane() {
         return settingsTabPane;
     }
@@ -136,5 +150,9 @@ public class SettingsWindowController implements Initializable {
 
     public Tab getParameterControlTab() {
         return parameterControlTab;
+    }
+
+    public Tab getPlotTwoControlsTab() {
+        return plotTwoControlsTab;
     }
 }
