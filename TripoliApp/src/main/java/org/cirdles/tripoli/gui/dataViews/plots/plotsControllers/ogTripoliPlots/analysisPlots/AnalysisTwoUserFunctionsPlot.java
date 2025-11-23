@@ -1048,8 +1048,15 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
 
     public void resetData() {
         for (int i = 0; i < mapBlockIdToBlockCyclesRecord.size(); i++) {
+            // Reset Y-axis user function
             mapBlockIdToBlockCyclesRecord.put(i + 1, mapBlockIdToBlockCyclesRecord.get(i + 1).resetAllDataIncluded());
             analysis.getMapOfBlockIdToRawDataLiteOne().put(i + 1, analysis.getMapOfBlockIdToRawDataLiteOne().get(i + 1).resetAllDataIncluded(userFunction));
+            
+            // Reset X-axis user function
+            if (mapBlockIdToBlockCyclesRecordX != null && mapBlockIdToBlockCyclesRecordX.containsKey(i + 1)) {
+                mapBlockIdToBlockCyclesRecordX.put(i + 1, mapBlockIdToBlockCyclesRecordX.get(i + 1).resetAllDataIncluded());
+                analysis.getMapOfBlockIdToRawDataLiteOne().put(i + 1, analysis.getMapOfBlockIdToRawDataLiteOne().get(i + 1).resetAllDataIncluded(xAxisUserFunction));
+            }
         }
         repaint();
     }
