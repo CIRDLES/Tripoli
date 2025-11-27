@@ -1454,6 +1454,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     }
                 }
                 tripoliSession.addAnalysis(analysisProposed);
+                listOfSelectedAnalyses.clear();
+                listOfSelectedAnalyses.add(analysisProposed);
                 analysis = analysisProposed;
 
                 MCMCPlotsController.analysis = analysis;
