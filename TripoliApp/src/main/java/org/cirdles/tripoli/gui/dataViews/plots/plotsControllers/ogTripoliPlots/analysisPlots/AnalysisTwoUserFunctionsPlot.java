@@ -457,10 +457,9 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         double timeBarX = legendX;
         double timeBarY = sectionTopY + 4.0;
 
-        // --- Intensity size legend (bottom section, if available) ---
-        // Uses the same width and left edge as the Time Index gradient
+        // --- Intensity size legend (middle section, if available) ---
+        // Uses the same left edge as the Time Index gradient; width adapts to dot sizes
         boolean showIntensityLegend = (intensityUserFunction != null && intensityData != null);
-        double intensityLegendWidth = showIntensityLegend ? timeBarWidth : 0.0;
 
         // --- Time Index gradient section ---
         int gradientSteps = 100;
@@ -481,14 +480,111 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         g2d.setFont(Font.font("SansSerif", 11));
         g2d.setFill(Color.BLACK);
         g2d.fillText("Time Index:", timeBarX, timeBarY - 2);
+
+        // Labels under the gradient, left and right aligned
         g2d.setFont(Font.font("SansSerif", 10));
         g2d.fillText("Early", timeBarX, timeBarY + timeBarHeight + 12);
-        g2d.fillText("Late", timeBarX + timeBarWidth - 25, timeBarY + timeBarHeight + 12);
+        Text lateText = new Text("Late");
+        lateText.setFont(Font.font("SansSerif", 10));
+        double lateWidth = lateText.getLayoutBounds().getWidth();
+        g2d.fillText("Late", timeBarX + timeBarWidth - lateWidth, timeBarY + timeBarHeight + 12);
 
-        // Advance vertical cursor below Time Index section (extra padding before Rejection legend)
-        sectionTopY = timeBarY + timeBarHeight + 30.0;
+        // Advance vertical cursor below Time Index section (extra padding before other legends)
+        sectionTopY = timeBarY + timeBarHeight + 26.0;
 
-        // --- Rejection markers section (middle) ---
+        // --- Intensity legend section (middle, optional) ---
+        if (showIntensityLegend) {
+            double intensityLegendX = legendX;
+            double intensityLegendY = sectionTopY + 4.0;
+
+            // Label for intensity legend
+            g2d.setFont(Font.font("SansSerif", 11));
+            g2d.setFill(Color.BLACK);
+            g2d.fillText("Intensity:", intensityLegendX, intensityLegendY - 2);
+
+            // Show the attached user-function name used for this intensity scaling
+            String intensityName = intensityUserFunction.showCorrectName();
+            if (intensityUserFunction.isTreatAsCustomExpression() && intensityUserFunction.getCustomExpression() != null) {
+                intensityName = intensityUserFunction.getCustomExpression().getName();
+            }
+            String intensityUFLabel = "(" + intensityName + "):";
+            g2d.setFont(Font.font("SansSerif", 11));
+            g2d.fillText(intensityUFLabel, intensityLegendX, intensityLegendY + 10);
+
+            // Get min/max sizes from parameters
+            double minSize = 2.0;
+            double maxSize = 50.0;
+            if (analysis != null && analysis.getParameters() != null) {
+                minSize = analysis.getParameters().getScalingDotMinSize();
+                maxSize = analysis.getParameters().getScalingDotMaxSize();
+            }
+
+            // Choose legend width based on dot radius range so large dots get more horizontal space,
+            // while ensuring the largest dot stays fully inside the same horizontal container as the Time Index bar.
+            int numSteps = 7;
+            double minGapBetweenDots = 4.0;
+            double desiredStepWidth = maxSize + minGapBetweenDots;
+            double requiredWidthForDots = desiredStepWidth * (numSteps - 1);
+
+            // Scale width to account for dynamic dot radius
+            double maxContainerWidth = Math.max(0.0, (timeBarX + timeBarWidth - intensityLegendX) - maxSize / 2.0);
+
+            double intensityLegendWidth = Math.min(requiredWidthForDots, maxContainerWidth);
+
+            // Draw multiple circles showing size progression
+            double circleY = intensityLegendY + 24; // Positioned below the UF label
+            double spacing = intensityLegendWidth / (numSteps - 1);
+
+            g2d.setFill(Color.GRAY);
+            g2d.setStroke(Color.BLACK);
+            g2d.setLineWidth(0.5);
+
+            for (int i = 0; i < numSteps; i++) {
+                // Calculate size from min to max using parameters
+                double normalized = (double) i / (numSteps - 1);
+                double circleSize = minSize + (normalized * (maxSize - minSize));
+
+                // Center circle vertically
+                double circleX = intensityLegendX + (i * spacing) - circleSize / 2.0;
+                double circleYPos = circleY - circleSize / 2.0;
+
+                // Ensure circles stay within legend column
+                if (circleX + circleSize <= legendRightEdge) {
+                    g2d.fillOval(circleX, circleYPos, circleSize, circleSize);
+                    g2d.strokeOval(circleX, circleYPos, circleSize, circleSize);
+                }
+            }
+
+            // Labels below circles - moved down more to avoid overlap with largest circles
+            g2d.setFont(Font.font("SansSerif", 11));
+            g2d.setFill(Color.BLACK);
+            if (minIntensity != maxIntensity) {
+                // Format values to be more readable
+                String minLabel = formatIntensityValue(minIntensity);
+                String maxLabel = formatIntensityValue(maxIntensity);
+
+                // Position labels further down to avoid overlap with largest circles
+                double labelY = circleY + 22.0;
+
+                // Calculate positions to align with circle centers
+                double estimatedCharWidth = 5.5;
+
+                // Draw min label aligned with first circle center
+                g2d.fillText(minLabel, intensityLegendX, labelY);
+
+                // Draw max label aligned with last circle center (index 6 in 7-step array)
+                double maxLabelWidth = maxLabel.length() * estimatedCharWidth;
+                double maxCircleX = intensityLegendX + (6 * spacing);
+                if (maxCircleX + maxLabelWidth / 2.0 <= legendRightEdge) {
+                    g2d.fillText(maxLabel, maxCircleX - (maxLabelWidth / 2.0), labelY);
+                }
+            }
+
+            // Advance vertical cursor below Intensity section
+            sectionTopY = circleY + 40.0;
+        }
+
+        // --- Rejection markers section (bottom) ---
         // Align rejection label and icons within the same left-aligned section as Time Index
         double rejectionLabelX = legendX;
         double rejectionIconX = legendX + 8.0;
@@ -538,86 +634,6 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         g2d.setFont(Font.font("SansSerif", 10));
         g2d.setFill(Color.BLACK);
         g2d.fillText("Y only", rejectionIconX + 12, rejectionIconY + 4);
-
-        // Advance vertical cursor below Rejection section
-        sectionTopY = rejectionIconY + rejectionIconSize + 24.0;
-
-        // --- Intensity legend section (bottom, optional) ---
-        if (showIntensityLegend && intensityLegendWidth > 0.0) {
-            double intensityLegendX = legendX;
-            double intensityLegendY = sectionTopY + 4.0;
-
-            // Label for intensity legend
-            g2d.setFont(Font.font("SansSerif", 11));
-            g2d.setFill(Color.BLACK);
-            g2d.fillText("Intensity:", intensityLegendX, intensityLegendY - 2);
-
-            // Show the attached user-function name used for this intensity scaling
-            String intensityName = intensityUserFunction.showCorrectName();
-            if (intensityUserFunction.isTreatAsCustomExpression() && intensityUserFunction.getCustomExpression() != null) {
-                intensityName = intensityUserFunction.getCustomExpression().getName();
-            }
-            String intensityUFLabel = "(" + intensityName + "):";
-            g2d.setFont(Font.font("SansSerif", 10));
-            g2d.fillText(intensityUFLabel, intensityLegendX, intensityLegendY + 10);
-
-            // Draw multiple circles showing size progression (7 steps - odd number for middle value)
-            double circleY = intensityLegendY + 24; // Positioned below the UF label
-            int numSteps = 7;
-            double spacing = intensityLegendWidth / (numSteps - 1);
-
-            g2d.setFill(Color.GRAY);
-            g2d.setStroke(Color.BLACK);
-            g2d.setLineWidth(0.5);
-
-            // Get min/max sizes from parameters
-            double minSize = 2.0; // Fallback default
-            double maxSize = 50.0; // Fallback default
-            if (analysis != null && analysis.getParameters() != null) {
-                minSize = analysis.getParameters().getScalingDotMinSize();
-                maxSize = analysis.getParameters().getScalingDotMaxSize();
-            }
-
-            for (int i = 0; i < numSteps; i++) {
-                // Calculate size from min to max using parameters
-                double normalized = (double) i / (numSteps - 1);
-                double circleSize = minSize + (normalized * (maxSize - minSize));
-
-                // Center circle vertically
-                double circleX = intensityLegendX + (i * spacing) - circleSize / 2.0;
-                double circleYPos = circleY - circleSize / 2.0;
-
-                // Ensure circles stay within legend column
-                if (circleX + circleSize <= legendRightEdge) {
-                    g2d.fillOval(circleX, circleYPos, circleSize, circleSize);
-                    g2d.strokeOval(circleX, circleYPos, circleSize, circleSize);
-                }
-            }
-
-            // Labels below circles - moved down more to avoid overlap with largest circles
-            g2d.setFont(Font.font("SansSerif", 11));
-            if (minIntensity != maxIntensity) {
-                // Format values to be more readable
-                String minLabel = formatIntensityValue(minIntensity);
-                String maxLabel = formatIntensityValue(maxIntensity);
-
-                // Position labels further down to avoid overlap with largest circles
-                double labelY = circleY + 22.0;
-
-                // Calculate positions to align with circle centers
-                double estimatedCharWidth = 5.5;
-
-                // Draw min label aligned with first circle center
-                g2d.fillText(minLabel, intensityLegendX, labelY);
-
-                // Draw max label aligned with last circle center (index 6 in 7-step array)
-                double maxLabelWidth = maxLabel.length() * estimatedCharWidth;
-                double maxCircleX = intensityLegendX + (6 * spacing);
-                if (maxCircleX + maxLabelWidth / 2.0 <= legendRightEdge) {
-                    g2d.fillText(maxLabel, maxCircleX - (maxLabelWidth / 2.0), labelY);
-                }
-            }
-        }
 
         // Restore saved graphics state
         g2d.setFill(savedPaint);
