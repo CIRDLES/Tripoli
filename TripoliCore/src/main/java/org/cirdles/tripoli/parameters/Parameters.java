@@ -82,6 +82,10 @@ public class Parameters implements Serializable {
     }
 
     public double getScalingDotMinSize() {
+        // Guard against legacy persisted values that may have defaulted to 0.0
+        if (scalingDotMinSize <= 0.0) {
+            scalingDotMinSize = SCALING_DOT_DEFAULT_MIN_SIZE;
+        }
         return scalingDotMinSize;
     }
 
@@ -90,6 +94,10 @@ public class Parameters implements Serializable {
     }
 
     public double getScalingDotMaxSize() {
+        // Guard against legacy persisted values that may have defaulted to 0.0
+        if (scalingDotMaxSize <= 0.0) {
+            scalingDotMaxSize = SCALING_DOT_DEFAULT_MAX_SIZE;
+        }
         return scalingDotMaxSize;
     }
 
