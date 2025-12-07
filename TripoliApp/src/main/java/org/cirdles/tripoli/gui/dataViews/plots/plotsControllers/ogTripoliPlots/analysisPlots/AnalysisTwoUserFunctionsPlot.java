@@ -50,7 +50,6 @@ import java.util.Map;
 
 import static java.lang.StrictMath.*;
 import static java.util.Map.entry;
-import static org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord.generateGeometricMeanStats;
 import static org.cirdles.tripoli.utilities.mathUtilities.FormatterForSigFigN.countOfTrailingDigitsForSigFig;
 import static org.cirdles.tripoli.utilities.mathUtilities.MathUtilities.applyChauvenetsCriterion;
 
@@ -99,7 +98,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             UserFunction intensityUserFunction,
             PlotWallPane parentWallPane) {
         super(bounds,
-                80, 50,
+                185, 25, // Copy PlotOG stats margins
                 new String[]{userFunction.getName()
                         + "  " + "x\u0304" + "= 0"
                         , "\u00B1" + " 0"},
@@ -219,10 +218,10 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             // Calculate min/max for x-axis
             minX = Double.MAX_VALUE;
             maxX = -Double.MAX_VALUE;
-            for (int i = 0; i < xAxisData.length; i++) {
-                if (xAxisData[i] != 0.0) {
-                    minX = min(minX, xAxisData[i]);
-                    maxX = max(maxX, xAxisData[i]);
+            for (double xAxisDatum : xAxisData) {
+                if (xAxisDatum != 0.0) {
+                    minX = min(minX, xAxisDatum);
+                    maxX = max(maxX, xAxisDatum);
                 }
             }
         }
@@ -263,10 +262,10 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             // Calculate min/max intensity values for normalization
             minIntensity = Double.MAX_VALUE;
             maxIntensity = -Double.MAX_VALUE;
-            for (int i = 0; i < intensityData.length; i++) {
-                if (intensityData[i] != 0.0) {
-                    minIntensity = min(minIntensity, intensityData[i]);
-                    maxIntensity = max(maxIntensity, intensityData[i]);
+            for (double intensityDatum : intensityData) {
+                if (intensityDatum != 0.0) {
+                    minIntensity = min(minIntensity, intensityDatum);
+                    maxIntensity = max(maxIntensity, intensityDatum);
                 }
             }
             // Handle case where all values are the same or zero
@@ -292,19 +291,6 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             yAxisName = userFunction.getCustomExpression().getName();
         }
         plotAxisLabelY = yAxisName;
-        
-        // Apply log scale to y-axis if enabled
-        if (logScale && userFunction.isTreatAsIsotopicRatio()) {
-            for (int i = 0; i < yAxisData.length; i++) {
-                yAxisData[i] = (yAxisData[i] > 0.0) ? log(yAxisData[i]) : 0.0;
-                oneSigmaForCycles[i] = 0.0;
-            }
-            plotAxisLabelY = "Log Ratio";
-        }
-        
-        if (logScale && xAxisUserFunction.isTreatAsIsotopicRatio()) {
-            plotAxisLabelX = "Log Ratio";
-        }
 
         if (reScaleY || ignoreRejects) {
             // Calculate min/max for y-axis across all included blocks
@@ -342,7 +328,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         text.setText(plotAxisLabelY);
         int textWidth = (int) text.getLayoutBounds().getWidth();
         g2d.rotate(-90.0);
-        g2d.fillText(text.getText(), -(2.0 * topMargin + plotHeight) / 2.0 - textWidth / 2.0, leftMargin - 55);
+        g2d.fillText(text.getText(), -(2.0 * topMargin + plotHeight) / 2.0 - textWidth / 2.0, leftMargin - 45);
         g2d.rotate(90.0);
         g2d.setFill(savedPaint);
     }
@@ -351,8 +337,6 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     public void calculateTics() {
         super.calculateTics();
 
-        // Parent class already calculates ticsX and ticsY properly based on minX/maxX and minY/maxY
-        // Just need to handle zoom flags
         zoomChunkX = zoomFlagsXY[0] ? zoomChunkX : 0.0;
         zoomChunkY = zoomFlagsXY[1] ? zoomChunkY : 0.0;
     }
@@ -365,17 +349,17 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     private double[] getDataMinMaxX() {
         double dataMinX = Double.MAX_VALUE;
         double dataMaxX = -Double.MAX_VALUE;
-        for (int i = 0; i < xAxisData.length; i++) {
-            if (xAxisData[i] != 0.0) {
-                dataMinX = min(dataMinX, xAxisData[i]);
-                dataMaxX = max(dataMaxX, xAxisData[i]);
+        for (double xAxisDatum : xAxisData) {
+            if (xAxisDatum != 0.0) {
+                dataMinX = min(dataMinX, xAxisDatum);
+                dataMaxX = max(dataMaxX, xAxisDatum);
             }
         }
         return new double[]{dataMinX, dataMaxX};
     }
 
     protected void reCalcDisplayOffsetX() {
-        // Find the actual min/max x-axis values in the data (not just first/last)
+        // Find the actual min/max x-axis values in the data
         double[] minMax = getDataMinMaxX();
         double dataMinX = minMax[0];
         double dataMaxX = minMax[1];
@@ -391,7 +375,6 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
 
     @Override
     public void adjustZoomSelf() {
-        // Apply zoom flags before adjusting zoom
         double effectiveZoomChunkX = zoomFlagsXY[0] ? zoomChunkX : 0.0;
         double effectiveZoomChunkY = zoomFlagsXY[1] ? zoomChunkY : 0.0;
         
@@ -418,98 +401,6 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     }
 
     /**
-     * For Block Mode:
-     * Generates the values for the lesserSigmaPct, plusSigmaPct, and the minusSigmaPct.
-     * Also returns the generated value for countOfTrailingDigitsForSigFig
-     * @param geoWeightedMeanRatio
-     * @return
-     */
-    HashMap<String, Double> calcSigmaPctsBM(double geoWeightedMeanRatio) {
-        int countOfTrailingDigitsForSigFig;
-
-        double geoWeightedMeanRatioPlusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() + analysisStatsRecord.blockModeWeightedMeanOneSigma());
-        double geoWeightedMeanRatioMinusOneSigma = exp(analysisStatsRecord.blockModeWeightedMean() - analysisStatsRecord.blockModeWeightedMeanOneSigma());
-        double geoWeightedMeanRatioPlusOneSigmaPct = (geoWeightedMeanRatioPlusOneSigma - geoWeightedMeanRatio) / geoWeightedMeanRatio * 100.0;
-        double geoWeightedMeanRatioMinusOneSigmaPct = (geoWeightedMeanRatio - geoWeightedMeanRatioMinusOneSigma) / geoWeightedMeanRatio * 100.0;
-
-        countOfTrailingDigitsForSigFig = countOfTrailingDigitsForSigFig(Math.min(geoWeightedMeanRatioPlusOneSigmaPct, geoWeightedMeanRatioMinusOneSigmaPct), 2);
-        double plusSigmaPct = (new BigDecimal(geoWeightedMeanRatioPlusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
-        double minusSigmaPct = (new BigDecimal(geoWeightedMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForSigFig, RoundingMode.HALF_UP)).doubleValue();
-
-        double lesserSigmaPct = Math.min(plusSigmaPct, minusSigmaPct);
-
-        HashMap<String, Double> output = new HashMap<>();
-        output.put("lesserSigmaPct", lesserSigmaPct);
-        output.put("plusSigmaPct", plusSigmaPct);
-        output.put("minusSigmaPct", minusSigmaPct);
-        output.put("countOfTrailingDigitsForSigFig", (double) countOfTrailingDigitsForSigFig);
-
-        return output;
-    }
-
-    /**
-     * For Cycle Mode:
-     * Generates the necessary values for Cycle Mode
-     * @param geometricMeanStatsRecord
-     * @param geoMean
-     * @return HashMap containing the values of plusErrPct, minusErrPct, plusSigmaPct, minusSigmaPct, geoMeanPlusOneStandardDeviation, countOfTrailingDigitsForStdErrPct, and countOfTralingDigitsForOneSigmaPct
-     */
-    HashMap<String, Double> calcSigmaPctsCM(GeometricMeanStatsRecord geometricMeanStatsRecord, double geoMean) {
-        double geoMeanPlusOneStandardError = geometricMeanStatsRecord.geoMeanPlusOneStdErr();
-        double geoMeanMinusOneStandardError = geometricMeanStatsRecord.geoMeanMinusOneStdErr();
-        double geoMeanRatioPlusOneStdErrPct = (geoMeanPlusOneStandardError - geoMean) / geoMean * 100.0;
-        double geoMeanRatioMinusOneStdErrPct = (geoMean - geoMeanMinusOneStandardError) / geoMean * 100.0;
-
-        double smallerGeoMeanRatioOneStdErrPct = Math.min(geoMeanRatioPlusOneStdErrPct, geoMeanRatioMinusOneStdErrPct);
-        int countOfTrailingDigitsForStdErrPct = countOfTrailingDigitsForSigFig(smallerGeoMeanRatioOneStdErrPct, 2);
-        double plusErrPct = (new BigDecimal(geoMeanRatioPlusOneStdErrPct).setScale(countOfTrailingDigitsForStdErrPct, RoundingMode.HALF_UP)).doubleValue();
-        double minusErrPct = (new BigDecimal(geoMeanRatioMinusOneStdErrPct).setScale(countOfTrailingDigitsForStdErrPct, RoundingMode.HALF_UP)).doubleValue();
-
-        double geoMeanPlusOneStandardDeviation = geometricMeanStatsRecord.geoMeanPlusOneStdDev();
-        double geoMeanMinusOneStandardDeviation = geometricMeanStatsRecord.geoMeanMinusOneStdDev();
-        double geoMeanRatioPlusOneSigmaPct = (geoMeanPlusOneStandardDeviation - geoMean) / geoMean * 100.0;
-        double geoMeanRatioMinusOneSigmaPct = (geoMean - geoMeanMinusOneStandardDeviation) / geoMean * 100.0;
-        double smallerGeoMeanRatioForOneSigmaPct = Math.min(geoMeanRatioPlusOneSigmaPct, geoMeanRatioMinusOneSigmaPct);
-        int countOfTrailingDigitsForOneSigmaPct = countOfTrailingDigitsForSigFig(smallerGeoMeanRatioForOneSigmaPct, 2);
-        double plusSigmaPct = (new BigDecimal(geoMeanRatioPlusOneSigmaPct).setScale(countOfTrailingDigitsForOneSigmaPct, RoundingMode.HALF_UP)).doubleValue();
-        double minusSigmaPct = (new BigDecimal(geoMeanRatioMinusOneSigmaPct).setScale(countOfTrailingDigitsForOneSigmaPct, RoundingMode.HALF_UP)).doubleValue();
-
-        HashMap<String, Double> output = new HashMap<>();
-        output.put("plusErrPct", plusErrPct);
-        output.put("minusErrPct", minusErrPct);
-        output.put("plusSigmaPct", plusSigmaPct);
-        output.put("minusSigmaPct", minusSigmaPct);
-        output.put("geoMeanPlusOneStandardDeviation", geoMeanPlusOneStandardDeviation);
-        output.put("countOfTrailingDigitsForStdErrPct", (double) countOfTrailingDigitsForStdErrPct);
-        output.put("countOfTrailingDigitsForOneSigmaPct", (double) countOfTrailingDigitsForOneSigmaPct);
-
-        return output;
-    }
-
-    /**
-     * Returns the FormattedStats object needed for the meaAsString(), unctAsString(), and stdvAsString() methods.
-     *
-     * @param mean
-     * @param stdErr
-     * @return
-     */
-    FormatterForSigFigN.FormattedStats calcFormattedStats(double mean, double stdErr, double stdDev) {
-
-        FormatterForSigFigN.FormattedStats formattedStats;
-        if ((abs(mean) >= 1e7) || (abs(mean) <= 1e-5)) {
-            formattedStats =
-                    FormatterForSigFigN.formatToScientific(mean, stdErr, stdDev, 2).padLeft();
-        } else {
-            formattedStats =
-                    FormatterForSigFigN.formatToSigFig(mean, stdErr, stdDev, 2).padLeft();
-        }
-
-        return formattedStats;
-
-
-    }
-
-    /**
      * @param g2d
      */
     @Override
@@ -517,47 +408,136 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         Paint savedPaint = g2d.getFill();
         Paint savedStroke = g2d.getStroke();
         Font savedFont = g2d.getFont();
-        
-        // Position gradient at top, outside chart area
-        double gradientBarWidth = plotWidth * 0.4; // 40% of plot width
-        double gradientBarHeight = 14;
-        double gradientBarX;
-        double gradientBarY = 18;
-        
-        // Layout: Time Index (left), Intensity (center if exists), Rejection (right)
-        double intensityLegendWidth = 0;
-        double rejectionAreaWidth = 150; // Approximate width needed for rejection markers (label + 3 markers with spacing)
-        
-        if (intensityUserFunction != null && intensityData != null) {
-            intensityLegendWidth = 180;
+
+        // Overall legend column extents (to the left of the plot area)
+        double legendX = 10.0;
+        double legendRightEdge = leftMargin - 10.0;
+        double legendWidth = Math.max(0.0, legendRightEdge - legendX);
+
+        // Vertical cursor for stacking legend sections
+        double legendTopY = 18.0;
+        double sectionTopY = legendTopY;
+
+        // --- Time index color gradient (top section) ---
+        double timeBarHeight = 14.0;
+        // Leave a small margin on the right for text like "Late"
+        double timeBarWidth = Math.max(0.0, legendWidth - 50.0);
+        double timeBarX = legendX;
+        double timeBarY = sectionTopY + 4.0;
+
+        // --- Intensity size legend (bottom section, if available) ---
+        // Uses the same width and left edge as the Time Index gradient
+        boolean showIntensityLegend = (intensityUserFunction != null && intensityData != null);
+        double intensityLegendWidth = showIntensityLegend ? timeBarWidth : 0.0;
+
+        // --- Time Index gradient section ---
+        int gradientSteps = 100;
+        for (int i = 0; i < gradientSteps; i++) {
+            double normalizedValue = (double) i / (gradientSteps - 1);
+            Color viridisColor = ViridisColorPalette.getViridisColor(normalizedValue);
+            g2d.setFill(viridisColor);
+            g2d.setStroke(viridisColor);
+            double stepWidth = timeBarWidth / gradientSteps;
+            g2d.fillRect(timeBarX + i * stepWidth, timeBarY, stepWidth + 0.5, timeBarHeight);
         }
-        
-        // Time Index gradient is on the left
-        gradientBarX = leftMargin;
-        
-        // Draw intensity scaling legend if intensity user function is provided (centered between Time Index and Rejection)
-        if (intensityUserFunction != null && intensityData != null) {
-            // Center intensity legend between Time Index gradient and Rejection markers
-            double leftEdge = leftMargin + gradientBarWidth;
-            double rightEdge = leftMargin + plotWidth - rejectionAreaWidth;
-            double centerX = (leftEdge + rightEdge) / 2.0;
-            double intensityLegendX = centerX - (intensityLegendWidth / 2.0);
-            double intensityLegendY = gradientBarY;
-            
+
+        // Border and labels for gradient
+        g2d.setStroke(Color.BLACK);
+        g2d.setLineWidth(0.5);
+        g2d.strokeRect(timeBarX, timeBarY, timeBarWidth, timeBarHeight);
+
+        g2d.setFont(Font.font("SansSerif", 11));
+        g2d.setFill(Color.BLACK);
+        g2d.fillText("Time Index:", timeBarX, timeBarY - 2);
+        g2d.setFont(Font.font("SansSerif", 10));
+        g2d.fillText("Early", timeBarX, timeBarY + timeBarHeight + 12);
+        g2d.fillText("Late", timeBarX + timeBarWidth - 25, timeBarY + timeBarHeight + 12);
+
+        // Advance vertical cursor below Time Index section (extra padding before Rejection legend)
+        sectionTopY = timeBarY + timeBarHeight + 30.0;
+
+        // --- Rejection markers section (middle) ---
+        // Align rejection label and icons within the same left-aligned section as Time Index
+        double rejectionLabelX = legendX;
+        double rejectionIconX = legendX + 8.0;
+
+        // Label for rejection markers
+        g2d.setFont(Font.font("SansSerif", 11));
+        g2d.setFill(Color.BLACK);
+        g2d.fillText("Rejection:", rejectionLabelX, sectionTopY);
+
+        // Icons below label, stacked vertically (one per line)
+        double rejectionIconY = sectionTopY + 8.0;
+        double rejectionLineSpacing = 14.0;
+        double rejectionIconSize = 6.0;
+
+        // Both rejected - red square
+        g2d.setFill(Color.RED);
+        g2d.setStroke(Color.BLACK);
+        g2d.setLineWidth(0.5);
+        g2d.fillRect(rejectionIconX - rejectionIconSize / 2.0, rejectionIconY - rejectionIconSize / 2.0, rejectionIconSize, rejectionIconSize);
+        g2d.strokeRect(rejectionIconX - rejectionIconSize / 2.0, rejectionIconY - rejectionIconSize / 2.0, rejectionIconSize, rejectionIconSize);
+        g2d.setFont(Font.font("SansSerif", 10));
+        g2d.setFill(Color.BLACK);
+        g2d.fillText("Both", rejectionIconX + 12, rejectionIconY + 4);
+
+        // X rejected - red downward triangle (next line)
+        rejectionIconY += rejectionLineSpacing;
+        g2d.setFill(Color.RED);
+        g2d.setStroke(Color.BLACK);
+        g2d.setLineWidth(0.5);
+        double[] xPointsDown = {rejectionIconX, rejectionIconX - rejectionIconSize, rejectionIconX + rejectionIconSize};
+        double[] yPointsDown = {rejectionIconY + rejectionIconSize, rejectionIconY - rejectionIconSize / 2.0, rejectionIconY - rejectionIconSize / 2.0};
+        g2d.fillPolygon(xPointsDown, yPointsDown, 3);
+        g2d.strokePolygon(xPointsDown, yPointsDown, 3);
+        g2d.setFont(Font.font("SansSerif", 10));
+        g2d.setFill(Color.BLACK);
+        g2d.fillText("X only", rejectionIconX + 12, rejectionIconY + 4);
+
+        // Y rejected - red left triangle (next line)
+        rejectionIconY += rejectionLineSpacing;
+        g2d.setFill(Color.RED);
+        g2d.setStroke(Color.BLACK);
+        g2d.setLineWidth(0.5);
+        double[] xPointsLeft = {rejectionIconX - rejectionIconSize, rejectionIconX + rejectionIconSize / 2.0, rejectionIconX + rejectionIconSize / 2.0};
+        double[] yPointsLeft = {rejectionIconY, rejectionIconY - rejectionIconSize, rejectionIconY + rejectionIconSize};
+        g2d.fillPolygon(xPointsLeft, yPointsLeft, 3);
+        g2d.strokePolygon(xPointsLeft, yPointsLeft, 3);
+        g2d.setFont(Font.font("SansSerif", 10));
+        g2d.setFill(Color.BLACK);
+        g2d.fillText("Y only", rejectionIconX + 12, rejectionIconY + 4);
+
+        // Advance vertical cursor below Rejection section
+        sectionTopY = rejectionIconY + rejectionIconSize + 24.0;
+
+        // --- Intensity legend section (bottom, optional) ---
+        if (showIntensityLegend && intensityLegendWidth > 0.0) {
+            double intensityLegendX = legendX;
+            double intensityLegendY = sectionTopY + 4.0;
+
             // Label for intensity legend
             g2d.setFont(Font.font("SansSerif", 11));
             g2d.setFill(Color.BLACK);
             g2d.fillText("Intensity:", intensityLegendX, intensityLegendY - 2);
-            
+
+            // Show the attached user-function name used for this intensity scaling
+            String intensityName = intensityUserFunction.showCorrectName();
+            if (intensityUserFunction.isTreatAsCustomExpression() && intensityUserFunction.getCustomExpression() != null) {
+                intensityName = intensityUserFunction.getCustomExpression().getName();
+            }
+            String intensityUFLabel = "(" + intensityName + "):";
+            g2d.setFont(Font.font("SansSerif", 10));
+            g2d.fillText(intensityUFLabel, intensityLegendX, intensityLegendY + 10);
+
             // Draw multiple circles showing size progression (7 steps - odd number for middle value)
-            double circleY = intensityLegendY + 7; // Center vertically in the bar area
+            double circleY = intensityLegendY + 24; // Positioned below the UF label
             int numSteps = 7;
             double spacing = intensityLegendWidth / (numSteps - 1);
-            
+
             g2d.setFill(Color.GRAY);
             g2d.setStroke(Color.BLACK);
             g2d.setLineWidth(0.5);
-            
+
             // Get min/max sizes from parameters
             double minSize = 2.0; // Fallback default
             double maxSize = 50.0; // Fallback default
@@ -565,127 +545,48 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                 minSize = analysis.getParameters().getScalingDotMinSize();
                 maxSize = analysis.getParameters().getScalingDotMaxSize();
             }
-            
+
             for (int i = 0; i < numSteps; i++) {
                 // Calculate size from min to max using parameters
                 double normalized = (double) i / (numSteps - 1);
                 double circleSize = minSize + (normalized * (maxSize - minSize));
-                
+
                 // Center circle vertically
                 double circleX = intensityLegendX + (i * spacing) - circleSize / 2.0;
                 double circleYPos = circleY - circleSize / 2.0;
-                
-                g2d.fillOval(circleX, circleYPos, circleSize, circleSize);
-                g2d.strokeOval(circleX, circleYPos, circleSize, circleSize);
+
+                // Ensure circles stay within legend column
+                if (circleX + circleSize <= legendRightEdge) {
+                    g2d.fillOval(circleX, circleYPos, circleSize, circleSize);
+                    g2d.strokeOval(circleX, circleYPos, circleSize, circleSize);
+                }
             }
-            
+
             // Labels below circles - moved down more to avoid overlap with largest circles
             g2d.setFont(Font.font("SansSerif", 11));
             if (minIntensity != maxIntensity) {
                 // Format values to be more readable
                 String minLabel = formatIntensityValue(minIntensity);
                 String maxLabel = formatIntensityValue(maxIntensity);
-                
-                // Calculate middle intensity value
-                double midIntensity = (minIntensity + maxIntensity) / 2.0;
-                String midLabel = formatIntensityValue(midIntensity);
-                
-                // Position labels further down to avoid overlap with largest circles (20px radius = 10px from center)
+
+                // Position labels further down to avoid overlap with largest circles
                 double labelY = circleY + 22.0;
-                
+
                 // Calculate positions to align with circle centers
                 double estimatedCharWidth = 5.5;
-                
+
                 // Draw min label aligned with first circle center
                 g2d.fillText(minLabel, intensityLegendX, labelY);
-                
-                // Draw middle label aligned with middle circle center (index 3 in 7-step array)
-                double midLabelWidth = midLabel.length() * estimatedCharWidth;
-                double midCircleX = intensityLegendX + (3 * spacing);
-                g2d.fillText(midLabel, midCircleX - (midLabelWidth / 2.0), labelY);
-                
+
                 // Draw max label aligned with last circle center (index 6 in 7-step array)
                 double maxLabelWidth = maxLabel.length() * estimatedCharWidth;
                 double maxCircleX = intensityLegendX + (6 * spacing);
-                g2d.fillText(maxLabel, maxCircleX - (maxLabelWidth / 2.0), labelY);
+                if (maxCircleX + maxLabelWidth / 2.0 <= legendRightEdge) {
+                    g2d.fillText(maxLabel, maxCircleX - (maxLabelWidth / 2.0), labelY);
+                }
             }
         }
-        
-        // Draw color gradient bar
-        int gradientSteps = 100;
-        for (int i = 0; i < gradientSteps; i++) {
-            double normalizedValue = (double) i / (gradientSteps - 1);
-            Color viridisColor = ViridisColorPalette.getViridisColor(normalizedValue);
-            g2d.setFill(viridisColor);
-            g2d.setStroke(viridisColor);
-            double stepWidth = gradientBarWidth / gradientSteps;
-            g2d.fillRect(gradientBarX + i * stepWidth, gradientBarY, stepWidth + 0.5, gradientBarHeight);
-        }
-        
-        // Draw border around gradient
-        g2d.setStroke(Color.BLACK);
-        g2d.setLineWidth(0.5);
-        g2d.strokeRect(gradientBarX, gradientBarY, gradientBarWidth, gradientBarHeight);
-        
-        // Labels for gradient
-        g2d.setFont(Font.font("SansSerif", 11));
-        g2d.setFill(Color.BLACK);
-        g2d.fillText("Time Index:", gradientBarX, gradientBarY - 2);
-        g2d.setFont(Font.font("SansSerif", 10));
-        g2d.fillText("Early", gradientBarX, gradientBarY + gradientBarHeight + 12);
-        g2d.fillText("Late", gradientBarX + gradientBarWidth - 25, gradientBarY + gradientBarHeight + 12);
-        
-        // Position rejection markers at the right edge
-        double markersStartX = leftMargin + plotWidth - rejectionAreaWidth;
-        
-        // Label for rejection markers
-        g2d.setFont(Font.font("SansSerif", 11));
-        g2d.fillText("Rejection:", markersStartX, gradientBarY - 2);
-        
-        // Add space between label and icons
-        double markersY = gradientBarY + 8; // More space below the label
-        
-        double markerX = markersStartX;
-        double markerY = markersY;
-        double markerSpacing = 50;
-        double markerSize = 6.0; // Increased from 4.0
-        
-        // Both rejected - red square
-        g2d.setFill(Color.RED);
-        g2d.setStroke(Color.BLACK);
-        g2d.setLineWidth(0.5);
-        g2d.fillRect(markerX - markerSize / 2.0, markerY - markerSize / 2.0, markerSize, markerSize);
-        g2d.strokeRect(markerX - markerSize / 2.0, markerY - markerSize / 2.0, markerSize, markerSize);
-        g2d.setFont(Font.font("SansSerif", 10));
-        g2d.setFill(Color.BLACK);
-        g2d.fillText("Both", markerX + 9, markerY + 5);
-        
-        // X rejected - red downward triangle
-        markerX += markerSpacing;
-        g2d.setFill(Color.RED);
-        g2d.setStroke(Color.BLACK);
-        g2d.setLineWidth(0.5);
-        double[] xPointsDown = {markerX, markerX - markerSize, markerX + markerSize};
-        double[] yPointsDown = {markerY + markerSize, markerY - markerSize / 2.0, markerY - markerSize / 2.0};
-        g2d.fillPolygon(xPointsDown, yPointsDown, 3);
-        g2d.strokePolygon(xPointsDown, yPointsDown, 3);
-        g2d.setFont(Font.font("SansSerif", 10));
-        g2d.setFill(Color.BLACK);
-        g2d.fillText("X only", markerX + 9, markerY + 5);
-        
-        // Y rejected - red left triangle
-        markerX += markerSpacing;
-        g2d.setFill(Color.RED);
-        g2d.setStroke(Color.BLACK);
-        g2d.setLineWidth(0.5);
-        double[] xPointsLeft = {markerX - markerSize, markerX + markerSize / 2.0, markerX + markerSize / 2.0};
-        double[] yPointsLeft = {markerY, markerY - markerSize, markerY + markerSize};
-        g2d.fillPolygon(xPointsLeft, yPointsLeft, 3);
-        g2d.strokePolygon(xPointsLeft, yPointsLeft, 3);
-        g2d.setFont(Font.font("SansSerif", 10));
-        g2d.setFill(Color.BLACK);
-        g2d.fillText("Y only", markerX + 9, markerY + 5);
-        
+
         // Restore saved graphics state
         g2d.setFill(savedPaint);
         g2d.setStroke(savedStroke);
@@ -764,7 +665,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         text.setFont(Font.font("SansSerif", 14));
         text.setText(plotAxisLabelX);
         int textWidth = (int) text.getLayoutBounds().getWidth();
-        g2d.fillText(text.getText(), leftMargin + (plotWidth - textWidth) / 2.0, plotHeight + 2.0 * topMargin - 8.0);
+        g2d.fillText(text.getText(), leftMargin + (plotWidth - textWidth) / 2.0, plotHeight + 2.0 * topMargin - 4.0);
         g2d.setFill(savedPaint);
     }
 
@@ -937,128 +838,8 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     }
 
     public void plotStats(GraphicsContext g2d) {
-        calcStats();
-        BlockStatsRecord[] blockStatsRecords = analysisStatsRecord.blockStatsRecords();
-
-        Paint saveFill = g2d.getFill();
-        // TODO: promote color to constant
-        g2d.setFill(Color.rgb(255, 251, 194));
-        //g2d.setGlobalAlpha(0.6);
-
-        if (blockMode) {
-            int totalCycles = 0;
-            int totalActualCycles = 0;
-            int cyclesPerBlock = blockStatsRecords[1].cycleMeansData().length;
-            for (int blockIndex = 0; blockIndex < blockStatsRecords.length; blockIndex++) {
-                int cyclesPerThisBlock = blockStatsRecords[blockIndex].cycleMeansData().length;
-                double leftX = mapX(xAxisData[totalCycles] - 0.5);
-                if (leftX < leftMargin) leftX = leftMargin;
-                double rightX = mapX(xAxisData[totalCycles + cyclesPerBlock - 1] + 0.5);
-                if (rightX > leftMargin + plotWidth) rightX = leftMargin + plotWidth;
-
-                BlockStatsRecord blockStatsRecord = blockStatsRecords[blockIndex];
-                double mean = blockStatsRecords[blockIndex].mean();
-                double meanPlusOneStandardDeviation = mean + blockStatsRecord.standardDeviation();
-                double meanPlusTwoStandardDeviation = mean + 2.0 * blockStatsRecord.standardDeviation();
-                double meanPlusTwoStandardError = mean + 2.0 * blockStatsRecord.standardError();
-                double meanMinusOneStandardDeviation = mean - blockStatsRecord.standardDeviation();
-                double meanMinusTwoStandardDeviation = mean - 2.0 * blockStatsRecord.standardDeviation();
-                double meanMinusTwoStandardError = mean - 2.0 * blockStatsRecord.standardError();
-
-                if (isRatio && !logScale) {
-                    GeometricMeanStatsRecord geometricMeanStatsRecord = generateGeometricMeanStats(mean, blockStatsRecord.standardDeviation(), blockStatsRecord.standardError());
-                    mean = geometricMeanStatsRecord.geoMean();
-                    meanPlusOneStandardDeviation = geometricMeanStatsRecord.geoMeanPlusOneStdDev();
-                    meanPlusTwoStandardDeviation = geometricMeanStatsRecord.geomeanPlusTwoStdDev();
-                    meanPlusTwoStandardError = geometricMeanStatsRecord.geoMeanPlusTwoStdErr();
-                    meanMinusOneStandardDeviation = geometricMeanStatsRecord.geoMeanMinusOneStdDev();
-                    meanMinusTwoStandardDeviation = geometricMeanStatsRecord.geoMeanMinusTwoStdDev();
-                    meanMinusTwoStandardError = geometricMeanStatsRecord.geoMeanMinusTwoStdErr();
-                }
-
-                double plottedTwoSigmaHeight = Math.min(mapY(meanMinusTwoStandardDeviation), topMargin + plotHeight) - Math.max(mapY(meanPlusTwoStandardDeviation), topMargin);
-//                g2d.setFill(OGTRIPOLI_TWOSIGMA);
-                g2d.setFill(Color.web(analysis.getTwoSigmaHexColorString()));
-                g2d.fillRect(leftX, Math.max(mapY(meanPlusTwoStandardDeviation), topMargin), rightX - leftX, plottedTwoSigmaHeight);
-
-                double plottedOneSigmaHeight = Math.min(mapY(meanMinusOneStandardDeviation), topMargin + plotHeight) - Math.max(mapY(meanPlusOneStandardDeviation), topMargin);
-//                g2d.setFill(OGTRIPOLI_ONESIGMA);
-                g2d.setFill(Color.web(analysis.getOneSigmaHexColorString()));
-                g2d.fillRect(leftX, Math.max(mapY(meanPlusOneStandardDeviation), topMargin), rightX - leftX, plottedOneSigmaHeight);
-
-                double plottedTwoStdErrHeight = Math.min(mapY(meanMinusTwoStandardError), topMargin + plotHeight) - Math.max(mapY(meanPlusTwoStandardError), topMargin);
-//                g2d.setFill(OGTRIPOLI_TWOSTDERR);
-                g2d.setFill(Color.web(analysis.getTwoStandardErrorHexColorString()));
-                g2d.fillRect(leftX, Math.max(mapY(meanPlusTwoStandardError), topMargin), rightX - leftX, plottedTwoStdErrHeight);
-
-                boolean meanIsPlottable = (mapY(mean) >= topMargin) && (mapY(mean) <= topMargin + plotHeight);
-                if (meanIsPlottable && (leftX <= rightX)) {
-//                    g2d.setStroke(OGTRIPOLI_MEAN);
-                    g2d.setStroke(Color.web(analysis.getMeanHexColorString()));
-                    g2d.setLineWidth(1.5);
-                    g2d.strokeLine(leftX, mapY(mean), rightX, mapY(mean));
-                }
-                totalCycles = totalCycles + cyclesPerBlock;
-                totalActualCycles = totalActualCycles + cyclesPerThisBlock;
-            }
-
-        } else { //cycle mode
-            HashMap<String, Double> plotStats = calcPlotStatsCM(
-                    analysisStatsRecord.cycleModeMean(),
-                    analysisStatsRecord.cycleModeStandardDeviation(),
-                    analysisStatsRecord.cycleModeStandardError());
-
-            double mean = plotStats.get("mean");
-            double stdDev = plotStats.get("stdDev");
-            double stdErr = plotStats.get("stdErr");
-            double meanPlusOneStandardDeviation = plotStats.get("meanPlusOneStandardDeviation");
-            double meanPlusTwoStandardDeviation = plotStats.get("meanPlusTwoStandardDeviation");
-            double meanPlusTwoStandardError = plotStats.get("meanPlusTwoStandardError");
-            double meanMinusOneStandardDeviation = plotStats.get("meanMinusOneStandardDeviation");
-            double meanMinusTwoStandardDeviation = plotStats.get("meanMinusTwoStandardDeviation");
-            double meanMinusTwoStandardError = plotStats.get("meanMinusTwoStandardError");
-
-            double leftX = mapX(xAxisData[0] - 0.5);
-            if (leftX < leftMargin) leftX = leftMargin;
-            double rightX = mapX(xAxisData[xAxisData.length - 1] + 0.5);
-            if (rightX > leftMargin + plotWidth) rightX = leftMargin + plotWidth;
-
-            if (isRatio && !logScale) {
-                GeometricMeanStatsRecord geometricMeanStatsRecord = generateGeometricMeanStats(mean, stdDev, stdErr);
-                mean = geometricMeanStatsRecord.geoMean();
-                meanPlusOneStandardDeviation = geometricMeanStatsRecord.geoMeanPlusOneStdDev();
-                meanPlusTwoStandardDeviation = geometricMeanStatsRecord.geomeanPlusTwoStdDev();
-                meanPlusTwoStandardError = geometricMeanStatsRecord.geoMeanPlusTwoStdErr();
-                meanMinusOneStandardDeviation = geometricMeanStatsRecord.geoMeanMinusOneStdDev();
-                meanMinusTwoStandardDeviation = geometricMeanStatsRecord.geoMeanMinusTwoStdDev();
-                meanMinusTwoStandardError = geometricMeanStatsRecord.geoMeanMinusTwoStdErr();
-            }
-
-            double plottedTwoSigmaHeight = Math.min(mapY(meanMinusTwoStandardDeviation), topMargin + plotHeight) - Math.max(mapY(meanPlusTwoStandardDeviation), topMargin);
-//            g2d.setFill(OGTRIPOLI_TWOSIGMA);
-            g2d.setFill(Color.web(analysis.getTwoSigmaHexColorString()));
-            g2d.fillRect(leftX, Math.max(mapY(meanPlusTwoStandardDeviation), topMargin), rightX - leftX, plottedTwoSigmaHeight);
-
-            double plottedOneSigmaHeight = Math.min(mapY(meanMinusOneStandardDeviation), topMargin + plotHeight) - Math.max(mapY(meanPlusOneStandardDeviation), topMargin);
-//            g2d.setFill(OGTRIPOLI_ONESIGMA);
-            g2d.setFill(Color.web(analysis.getOneSigmaHexColorString()));
-            g2d.fillRect(leftX, Math.max(mapY(meanPlusOneStandardDeviation), topMargin), rightX - leftX, plottedOneSigmaHeight);
-
-            double plottedTwoStdErrHeight = Math.min(mapY(meanMinusTwoStandardError), topMargin + plotHeight) - Math.max(mapY(meanPlusTwoStandardError), topMargin);
-//            g2d.setFill(OGTRIPOLI_TWOSTDERR);
-            g2d.setFill(Color.web(analysis.getTwoStandardErrorHexColorString()));
-            g2d.fillRect(leftX, Math.max(mapY(meanPlusTwoStandardError), topMargin), rightX - leftX, plottedTwoStdErrHeight);
-
-            boolean meanIsPlottable = (mapY(mean) >= topMargin) && (mapY(mean) <= topMargin + plotHeight);
-            if (meanIsPlottable && (leftX <= rightX)) {
-//                g2d.setStroke(OGTRIPOLI_MEAN);
-                g2d.setStroke(Color.web(analysis.getMeanHexColorString()));
-                g2d.setLineWidth(1.5);
-                g2d.strokeLine(leftX - 2, mapY(mean), rightX + 2, mapY(mean));
-            }
-        }
-        g2d.setFill(saveFill);
-        g2d.setGlobalAlpha(1.0);
+        // Intentionally left blank: AnalysisTwoUserFunctionsPlot does not render
+        // the block/cycle statistical background (mean line, 1σ/2σ/2SE bands).
     }
 
     public void setupPlotContextMenu() {

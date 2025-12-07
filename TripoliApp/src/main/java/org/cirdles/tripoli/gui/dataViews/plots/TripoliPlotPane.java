@@ -37,6 +37,7 @@ import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotI;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotOG;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisTwoUserFunctionsPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.analysisPlots.AnalysisRatioPlot;
@@ -479,6 +480,13 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
 
     public void updateAnalysisRatiosPlotted(boolean blockMode, boolean logScale, boolean reScaleX, boolean reScaleY) {
         if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
+            // Exclude PlotTwo (two user-functions) plots from ratio/log-ratio scaling;
+            // they always stay in linear space regardless of the toolbar's log checkbox.
+            if (plot instanceof AnalysisTwoUserFunctionsPlot) {
+                plot.refreshPanel(reScaleX, reScaleY);
+                return;
+            }
+
             ((AnalysisBlockCyclesPlotI) plot).setBlockMode(blockMode);
             ((AnalysisBlockCyclesPlotI) plot).setLogScale(logScale);
             ((AnalysisBlockCyclesPlotI) plot).getUserFunction().setReductionMode(

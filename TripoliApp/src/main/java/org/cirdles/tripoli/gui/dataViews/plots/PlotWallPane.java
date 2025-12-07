@@ -85,6 +85,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
     // private CheckBox cycleCB;
 
+    // Controls whether the "Ratio Scale: Log" controls are shown in the scale toolbar
+    // (suppressed for PlotTwo user-function views).
+    private boolean showRatioScaleControls = true;
+
     private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsController, AnalysisManagerCallbackI analysisManagerCallbackI) {
         this.iD = iD;
         zoomFlagsXY[0] = true;
@@ -453,19 +457,22 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         // cycleCB.selectedProperty().addListener(cycleCBChangeListener);
         // updateStatusOfCycleCheckBox();
 
-        Label labelScale = new Label("Ratio Scale:");
-        labelScale.setFont(commandFont);
-        labelScale.setAlignment(Pos.CENTER_RIGHT);
-        labelScale.setPrefWidth(80);
-        scaleControlsToolbar.getItems().add(labelScale);
+        // Optional Ratio Scale (log) controls – hidden for PlotTwo user-function plots
+        if (showRatioScaleControls) {
+            Label labelScale = new Label("Ratio Scale:");
+            labelScale.setFont(commandFont);
+            labelScale.setAlignment(Pos.CENTER_RIGHT);
+            labelScale.setPrefWidth(80);
+            scaleControlsToolbar.getItems().add(labelScale);
 
-        CheckBox logCB = new CheckBox("Log");
-        scaleControlsToolbar.getItems().add(logCB);
-        logCB.selectedProperty().addListener(
-                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
-                    logScale = newVal;
-                    rebuildPlot(false, true);
-                });
+            CheckBox logCB = new CheckBox("Log");
+            scaleControlsToolbar.getItems().add(logCB);
+            logCB.selectedProperty().addListener(
+                    (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                        logScale = newVal;
+                        rebuildPlot(false, true);
+                    });
+        }
 
         Label labelZoom = new Label("Zoom:");
         labelZoom.setFont(commandFont);
@@ -637,6 +644,11 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
 
     public static DelegateActionSet getRepaintDelegateActionSet() {
         return repaintDelegateActionSet;
+    }
+
+    // Control visibility of the "Ratio Scale: Log" controls in the scale toolbar.
+    public void setShowRatioScaleControls(boolean showRatioScaleControls) {
+        this.showRatioScaleControls = showRatioScaleControls;
     }
 
 }
