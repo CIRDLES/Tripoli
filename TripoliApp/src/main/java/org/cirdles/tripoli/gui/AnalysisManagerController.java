@@ -1079,6 +1079,17 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
         if (plot2SelectionLV != null) {
             plot2SelectionLV.setItems(plot2SelectionList);
             plot2SelectionLV.setCellFactory(listView -> new Plot2SelectionListCell());
+
+            // When the user double-clicks a saved Plot2 selection, populate the
+            // X, Y, and Intensity ComboBoxes with that selection's values.
+            plot2SelectionLV.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2) {
+                    PlotTwo selected = plot2SelectionLV.getSelectionModel().getSelectedItem();
+                    if (selected != null) {
+                        applyPlot2SelectionToComboBoxes(selected);
+                    }
+                }
+            });
         }
         
         // Set up button enable/disable logic
@@ -1230,6 +1241,52 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 plot2SelectionList.addAll(savedSelections);
             }
         }
+    }
+
+    /**
+     * Applies a saved PlotTwo selection back into the Plot2 ComboBoxes, matching by user-function name.
+     */
+    private void applyPlot2SelectionToComboBoxes(PlotTwo selection) {
+        if (selection == null || analysis == null) {
+            return;
+        }
+
+        // Ensure combo boxes are populated
+        if (xAxisUserFunctionComboBox == null || yAxisUserFunctionComboBox == null || intensityUserFunctionComboBox == null) {
+            return;
+        }
+
+        String xName = selection.getXAxisUserFunctionName();
+        String yName = selection.getYAxisUserFunctionName();
+        String intensityName = selection.getIntensityUserFunctionName();
+
+        // Match by displayed name; fall back silently if not found.
+        UserFunction xMatch = null;
+        UserFunction yMatch = null;
+        UserFunction intensityMatch = null;
+
+        for (UserFunction uf : analysis.getUserFunctions()) {
+            if (uf != null) {
+                String ufName = uf.getName();
+                if (xMatch == null && ufName != null && ufName.equals(xName)) {
+                    xMatch = uf;
+                }
+                if (yMatch == null && ufName != null && ufName.equals(yName)) {
+                    yMatch = uf;
+                }
+                if (intensityName != null && intensityMatch == null && ufName != null && ufName.equals(intensityName)) {
+                    intensityMatch = uf;
+                }
+            }
+        }
+
+        // Apply matches to combo boxes (null is allowed for intensity)
+        xAxisUserFunctionComboBox.getSelectionModel().select(xMatch);
+        yAxisUserFunctionComboBox.getSelectionModel().select(yMatch);
+        intensityUserFunctionComboBox.getSelectionModel().select(intensityMatch);
+
+        // Keep button enabled/disabled state in sync with new selections
+        updateSaveAndGenerateButtonStates();
     }
     
     private void refreshTwoUserFunctionsComboBoxes() {
