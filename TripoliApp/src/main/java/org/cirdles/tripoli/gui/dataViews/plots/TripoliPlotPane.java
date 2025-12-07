@@ -16,8 +16,6 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -399,15 +397,25 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
     public void resetData() {
         if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
             ((AnalysisBlockCyclesPlotI) plot).resetData();
-            chauvenetButton.setDisable(false);
+            // For Plot2 panes, there is no Chauvenet button; guard against null.
+            if (chauvenetButton != null) {
+                chauvenetButton.setDisable(false);
+            }
             plot.refreshPanel(true, true);
         }
     }
 
     public void performChauvenets() {
         if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
+            // Skip Plot2 (two user-functions) plots entirely; they don't participate in Chauvenet.
+            if (plot instanceof AnalysisTwoUserFunctionsPlot) {
+                return;
+            }
+
             ((AnalysisBlockCyclesPlotI) plot).performChauvenets();
-            chauvenetButton.setDisable(true);
+            if (chauvenetButton != null) {
+                chauvenetButton.setDisable(true);
+            }
             plot.refreshPanel(true, true);
         }
     }
@@ -461,7 +469,10 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
                 }
 
                 plot.refreshPanel(false, false);
-                ((TripoliPlotPane) node).chauvenetButton.setDisable(!detectAllIncludedStatus());
+                // Some panes (such as Plot2) do not expose a Chauvenet button; guard against null.
+                if (((TripoliPlotPane) node).chauvenetButton != null) {
+                    ((TripoliPlotPane) node).chauvenetButton.setDisable(!detectAllIncludedStatus());
+                }
             }
         }
     }
@@ -492,7 +503,7 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
                 return;
             }
 
-            ((AnalysisBlockCyclesPlotI) plot).setBlockMode(blockMode);
+            //((AnalysisBlockCyclesPlotI) plot).setBlockMode(blockMode);
             ((AnalysisBlockCyclesPlotI) plot).setLogScale(logScale);
             ((AnalysisBlockCyclesPlotI) plot).getUserFunction().setReductionMode(
                     blockMode ? TripoliConstants.ReductionModeEnum.BLOCK : TripoliConstants.ReductionModeEnum.CYCLE);

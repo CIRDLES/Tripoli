@@ -27,7 +27,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import org.cirdles.tripoli.constants.TripoliConstants;
 import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
@@ -36,17 +35,12 @@ import org.cirdles.tripoli.gui.utilities.ViridisColorPalette;
 import org.cirdles.tripoli.plots.analysisPlotBuilders.AnalysisBlockCyclesRecord;
 import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
-import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
-import org.cirdles.tripoli.sessions.analysis.BlockStatsRecord;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static java.lang.StrictMath.*;
-import static java.util.Map.entry;
-import static org.cirdles.tripoli.utilities.mathUtilities.MathUtilities.applyChauvenetsCriterion;
 
 /**
  * @author James F. Bowring
@@ -67,11 +61,8 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     private double[] intensityData;
     private double minIntensity;
     private double maxIntensity;
-    private boolean logScale;
     private boolean[] zoomFlagsXY;
     private PlotWallPaneInterface parentWallPane;
-    private boolean blockMode;
-    private AnalysisStatsRecord analysisStatsRecord;
     private double selectorBoxX;
     private double selectorBoxY;
     private boolean inSculptorMode;
@@ -109,10 +100,8 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         } else {
             this.mapBlockIdToBlockCyclesRecordIntensity = null;
         }
-        this.logScale = false;
         this.zoomFlagsXY = new boolean[]{true, true};
         this.parentWallPane = parentWallPane;
-        this.blockMode = userFunction.getReductionMode().equals(TripoliConstants.ReductionModeEnum.BLOCK);
         this.ignoreRejects = false;
         this.intensityData = null;
         this.minIntensity = 0.0;
@@ -135,27 +124,11 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     }
 
     public void setLogScale(boolean logScale) {
-        this.logScale = logScale;
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public boolean getBlockMode() {
-        return blockMode;
-    }
-
-    public void setBlockMode(boolean blockMode) {
-        this.blockMode = blockMode;
+        // Do nothing, Plot2 does not support log scale
     }
 
     public void setZoomFlagsXY(boolean[] zoomFlagsXY) {
         this.zoomFlagsXY = zoomFlagsXY;
-    }
-
-    public void resetBlockMode() {
-        blockMode = userFunction.isTreatAsIsotopicRatio();
     }
 
     @Override
@@ -187,13 +160,6 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                     } else {
                         System.arraycopy(plotBlockCyclesRecordX.cycleMeansData(), 0, xAxisData, (plotBlockCyclesRecordX.blockID() - 1) * cyclesPerBlock, availableCyclesPerBlock);
                     }
-                }
-            }
-
-            // Apply log scale to x-axis if enabled
-            if (logScale && xAxisUserFunction.isTreatAsIsotopicRatio()) {
-                for (int i = 0; i < xAxisData.length; i++) {
-                    xAxisData[i] = (xAxisData[i] > 0.0) ? log(xAxisData[i]) : 0.0;
                 }
             }
 
@@ -303,7 +269,6 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         prepareExtents(reScaleX, reScaleY);
         showXaxis = true;
         showStats = false;
-        calcStats();
         calculateTics();
         repaint();
     }
@@ -324,7 +289,6 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         text.setText(plotAxisLabelX);
         double textWidth = text.getLayoutBounds().getWidth();
 
-        // Default: same centered position as the base class
         double centeredX = leftMargin + (plotWidth - textWidth) / 2.0;
         double labelY = plotHeight + 2.0 * topMargin - 2.0;
 
@@ -336,7 +300,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             labelX -= overflowRight;
         }
 
-        // Allow a small overhang past the left edge of the chart, but not too far
+        // Allow a small overhang past the left edge of the chart
         double maxLeftOverhang = 40.0; // pixels the label is allowed to extend left of the chart box
         double minAllowedX = leftMargin - maxLeftOverhang;
         if (labelX < minAllowedX) {
@@ -428,10 +392,6 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         repaint();
     }
 
-    public void calcStats() {
-        analysisStatsRecord = userFunction.calculateAnalysisStatsRecord(analysis);
-    }
-
     /**
      * @param g2d
      */
@@ -452,13 +412,11 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
 
         // --- Time index color gradient (top section) ---
         double timeBarHeight = 14.0;
-        // Leave a small margin on the right for text like "Late"
         double timeBarWidth = Math.max(0.0, legendWidth - 50.0);
         double timeBarX = legendX;
         double timeBarY = sectionTopY + 4.0;
 
         // --- Intensity size legend (middle section, if available) ---
-        // Uses the same left edge as the Time Index gradient; width adapts to dot sizes
         boolean showIntensityLegend = (intensityUserFunction != null && intensityData != null);
 
         // --- Time Index gradient section ---
@@ -489,7 +447,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         double lateWidth = lateText.getLayoutBounds().getWidth();
         g2d.fillText("Late", timeBarX + timeBarWidth - lateWidth, timeBarY + timeBarHeight + 12);
 
-        // Advance vertical cursor below Time Index section (extra padding before other legends)
+        // Advance vertical cursor below Time Index section (+ extra padding before other legends)
         sectionTopY = timeBarY + timeBarHeight + 26.0;
 
         // --- Intensity legend section (middle, optional) ---
@@ -519,9 +477,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                 maxSize = analysis.getParameters().getScalingDotMaxSize();
             }
 
-            // Choose legend width based on dot radius range so large dots get more horizontal space,
-            // while ensuring the largest dot stays fully inside the same horizontal container as the Time Index bar.
-            int numSteps = 7;
+            int numSteps = 7; // num of dots
             double minGapBetweenDots = 4.0;
             double desiredStepWidth = maxSize + minGapBetweenDots;
             double requiredWidthForDots = desiredStepWidth * (numSteps - 1);
@@ -555,7 +511,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
                 }
             }
 
-            // Labels below circles - moved down more to avoid overlap with largest circles
+            // Labels below circles
             g2d.setFont(Font.font("SansSerif", 11));
             g2d.setFill(Color.BLACK);
             if (minIntensity != maxIntensity) {
@@ -641,17 +597,6 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         g2d.setFont(savedFont);
     }
 
-    private String appendTrailingZeroIfNeeded(String valueString, int countOfTrailingDigits) {
-        String retVal = valueString;
-        if (!valueString.isBlank()) {
-            String checkForTrailingZero = String.format("%,1." + countOfTrailingDigits + "f", Double.parseDouble(valueString));
-            if (checkForTrailingZero.substring(checkForTrailingZero.length() - 1).compareTo("0") == 0) {
-                retVal += "0";
-            }
-        }
-        return retVal;
-    }
-
     /**
      * Formats intensity value for display in legend.
      * Uses scientific notation for very large/small values, otherwise decimal.
@@ -670,7 +615,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
 
     /**
      * Calculates point size based on intensity value.
-     * Normalizes intensity to a range defined by parameters (default 2-50 pixels radius).
+     * Normalizes intensity to a range defined by parameters (or TripoliConstants defaults).
      * @param intensityValue The intensity value for the point
      * @return The point size (radius) in pixels, or default size if intensity not available
      */
@@ -680,7 +625,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             if (analysis != null && analysis.getParameters() != null) {
                 return analysis.getParameters().getScalingDotMinSize();
             }
-            return 2.0; // Fallback default
+            return TripoliConstants.SCALING_DOT_DEFAULT_MIN_SIZE;
         }
         
         // Normalize intensity value to 0-1 range
@@ -689,9 +634,9 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         // Clamp to [0, 1] range
         normalized = Math.max(0.0, Math.min(1.0, normalized));
         
-        // Map to parameter-defined range
-        double minSize = 2.0; // Fallback default
-        double maxSize = 50.0; // Fallback default
+        // Map to parameter-defined range (falling back to TripoliConstants defaults)
+        double minSize = TripoliConstants.SCALING_DOT_DEFAULT_MIN_SIZE;
+        double maxSize = TripoliConstants.SCALING_DOT_DEFAULT_MAX_SIZE;
         if (analysis != null && analysis.getParameters() != null) {
             minSize = analysis.getParameters().getScalingDotMinSize();
             maxSize = analysis.getParameters().getScalingDotMaxSize();
@@ -826,55 +771,10 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
             g2d.setLineWidth(1.5);
             g2d.strokeRect(Math.min(mouseStartX, zoomBoxX), Math.min(mouseStartY, zoomBoxY), Math.abs(zoomBoxX - mouseStartX), Math.abs(zoomBoxY - mouseStartY));
         }
-
-        // Block delimiters removed for heatmap visualization
-
-    }
-
-    private void showBlockID(GraphicsContext g2d, int blockID, double xPosition) {
-        Paint savedPaint = g2d.getFill();
-        g2d.setFill(Paint.valueOf("BLACK"));
-
-        g2d.setFont(Font.font("SansSerif", FontWeight.EXTRA_BOLD, 8));
-
-        g2d.fillText("" + blockID, xPosition - 4, topMargin + plotHeight + 10);
-        g2d.setFill(savedPaint);
-    }
-
-    /**
-     *
-     *
-     * @param mean
-     * @param stdDev
-     * @param stdErr
-     * @return
-     */
-    public HashMap<String, Double> calcPlotStatsCM(double mean, double stdDev, double stdErr) {
-        double meanPlusOneStandardDeviation = mean + stdDev;
-        double meanPlusTwoStandardDeviation = mean + 2.0 * stdDev;
-        double meanPlusTwoStandardError = mean + 2.0 * stdErr;
-        double meanMinusOneStandardDeviation = mean - stdDev;
-        double meanMinusTwoStandardDeviation = mean - 2.0 * stdDev;
-        double meanMinusTwoStandardError = mean - 2.0 * stdErr;
-
-        HashMap<String, Double> output = new HashMap<>(Map.ofEntries(
-                entry("mean", mean),
-                entry("stdDev", stdDev),
-                entry("stdErr", stdErr),
-                entry("meanPlusOneStandardDeviation", meanPlusOneStandardDeviation),
-                entry("meanPlusTwoStandardDeviation", meanPlusTwoStandardDeviation),
-                entry("meanPlusTwoStandardError", meanPlusTwoStandardError),
-                entry("meanMinusOneStandardDeviation", meanMinusOneStandardDeviation),
-                entry("meanMinusTwoStandardDeviation", meanMinusTwoStandardDeviation),
-                entry("meanMinusTwoStandardError", meanMinusTwoStandardError)
-        ));
-
-        return output;
     }
 
     public void plotStats(GraphicsContext g2d) {
-        // Intentionally left blank: AnalysisTwoUserFunctionsPlot does not render
-        // the block/cycle statistical background (mean line, 1σ/2σ/2SE bands).
+        // Do nothing; Plot2 doesn't utilize stats
     }
 
     public void setupPlotContextMenu() {
@@ -899,48 +799,7 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
 
     @Override
     public void performChauvenets() {
-        if (blockMode) {
-            for (int i = 0; i < mapBlockIdToBlockCyclesRecord.size(); i++) {
-                int blockID = i + 1;
-                PlotBlockCyclesRecord plotBlockCyclesRecord = mapBlockIdToBlockCyclesRecord.get(blockID).performChauvenets(analysis.getParameters());
-                mapBlockIdToBlockCyclesRecord.put(blockID, plotBlockCyclesRecord);
-                analysis.getMapOfBlockIdToRawDataLiteOne().put(blockID,
-                        analysis.getMapOfBlockIdToRawDataLiteOne().get(i + 1).recordChauvenets(userFunction, plotBlockCyclesRecord.cyclesIncluded()));
-
-                boolean[] plotBlockCyclesIncluded = analysis.getMapOfBlockIdToRawDataLiteOne().get(blockID).assembleCyclesIncludedForUserFunction(userFunction);
-                mapBlockIdToBlockCyclesRecord.put(
-                        blockID,
-                        getMapBlockIdToBlockCyclesRecord().get(blockID).updateCyclesIncluded(plotBlockCyclesIncluded));
-            }
-        } else {
-            // cycle mode
-            boolean[] cycleModeIncluded = analysisStatsRecord.cycleModeIncluded();
-            double[] cycleModeData = analysisStatsRecord.cycleModeData();
-//            if (Booleans.countTrue(cycleModeIncluded) == cycleModeIncluded.length) {
-                boolean[] chauvenets = applyChauvenetsCriterion(
-                        cycleModeData,
-                        cycleModeIncluded,
-                        analysis.getParameters());
-                // reset included cycles for each block
-                BlockStatsRecord[] blockStatsRecords = analysisStatsRecord.blockStatsRecords();
-                int countOfProcessedCycles = 0;
-                for (int i = 0; i < blockStatsRecords.length; i++) {
-                    System.arraycopy(chauvenets, countOfProcessedCycles,
-                            blockStatsRecords[i].cyclesIncluded(), 0, blockStatsRecords[i].cyclesIncluded().length);
-                    countOfProcessedCycles += blockStatsRecords[i].cyclesIncluded().length;
-                    int blockID = i + 1;
-                    PlotBlockCyclesRecord plotBlockCyclesRecord = mapBlockIdToBlockCyclesRecord.get(blockID);
-                    plotBlockCyclesRecord.updateCyclesIncluded(blockStatsRecords[i].cyclesIncluded());
-                    mapBlockIdToBlockCyclesRecord.put(blockID, plotBlockCyclesRecord);
-                    analysis.getMapOfBlockIdToRawDataLiteOne().put(blockID,
-                            analysis.getMapOfBlockIdToRawDataLiteOne().get(i + 1).recordChauvenets(userFunction, plotBlockCyclesRecord.cyclesIncluded()));
-
-                }
-                analysisStatsRecord = AnalysisStatsRecord.generateAnalysisStatsRecord(blockStatsRecords);
-//            }
-        }
-
-        repaint();
+        // Do nothing: AnalysisTwoUserFunctionsPlot does not support Chauvenets analysis.
     }
 
     public boolean detectAllIncludedStatus() {
@@ -985,9 +844,6 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         return mapBlockIdToBlockCyclesRecord;
     }
 
-    /**
-     * @return
-     */
     @Override
     public AnalysisBlockCyclesRecord getAnalysisBlockCyclesRecord() {
         return null;

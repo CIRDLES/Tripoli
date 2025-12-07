@@ -16,17 +16,11 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots;
 
-import com.google.common.primitives.Booleans;
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
@@ -46,9 +40,7 @@ import org.cirdles.tripoli.utilities.DelegateActionInterface;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;

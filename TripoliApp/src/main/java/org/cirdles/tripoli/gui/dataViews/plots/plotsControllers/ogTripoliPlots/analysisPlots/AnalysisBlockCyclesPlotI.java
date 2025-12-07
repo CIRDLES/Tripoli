@@ -23,9 +23,11 @@ import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import java.util.Map;
 
 public interface AnalysisBlockCyclesPlotI {
+    /* COMMENTED OUT: Block mode removed
     public boolean getBlockMode();
 
     public void setBlockMode(boolean blockMode);
+     */
 
     void setLogScale(boolean logScale);
 
