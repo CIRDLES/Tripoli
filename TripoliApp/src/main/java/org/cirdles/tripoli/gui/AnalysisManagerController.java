@@ -472,6 +472,7 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
                 if (null != analysis.getAnalysisMethod()) {
                     showTab(analysisMethodTabPane, 2, selectColumnsToPlot);
+                    showTab(analysisMethodTabPane, 3, customExpressionsTab);
                     analysisMethodTabPane.getSelectionModel().select(2);
                     populateAnalysisMethodColumnsSelectorPane();
                     processingToolBar.setVisible(false);
@@ -483,7 +484,6 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                 showTab(analysisMethodTabPane, 4, sequenceTableTab);
                 showTab(analysisMethodTabPane, 5, selectRatiosToPlotTab);
                 analysisMethodTabPane.getTabs().remove(selectColumnsToPlot);
-
                 analysisMethodTabPane.getTabs().remove(customExpressionsTab);
                 populateAnalysisMethodGridPane();
                 populateAnalysisMethodRatioBuilderPane();
@@ -1454,6 +1454,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
                     }
                 }
                 tripoliSession.addAnalysis(analysisProposed);
+                listOfSelectedAnalyses.clear();
+                listOfSelectedAnalyses.add(analysisProposed);
                 analysis = analysisProposed;
 
                 MCMCPlotsController.analysis = analysis;
