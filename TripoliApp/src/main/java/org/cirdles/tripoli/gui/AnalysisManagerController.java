@@ -492,6 +492,8 @@ public class AnalysisManagerController implements Initializable, AnalysisManager
 
                 if (null != analysis.getAnalysisMethod()) {
                     showTab(analysisMethodTabPane, 2, selectColumnsToPlot);
+
+                    showTab(analysisMethodTabPane, 4, selectTwoUserFunctionsTab);
                     analysisMethodTabPane.getSelectionModel().select(2);
                     populateAnalysisMethodColumnsSelectorPane();
                     populateTwoUserFunctionsSelectorTab();
