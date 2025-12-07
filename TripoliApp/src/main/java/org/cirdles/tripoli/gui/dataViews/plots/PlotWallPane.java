@@ -85,9 +85,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
     // private CheckBox cycleCB;
 
-    // Controls whether the "Ratio Scale: Log" controls are shown in the scale toolbar
-    // (suppressed for PlotTwo user-function views).
-    private boolean showRatioScaleControls = true;
+    // When false (Plot2-only window), hide analysis-related controls such as the ratio-scale
+    // log toggle in this wall pane's scale toolbar. Individual Plot2 panes also hide their
+    // Chauvenet / SYNCH buttons based on plot type.
+    private boolean showAnalysisControls = true;
 
     private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsController, AnalysisManagerCallbackI analysisManagerCallbackI) {
         this.iD = iD;
@@ -458,7 +459,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         // updateStatusOfCycleCheckBox();
 
         // Optional Ratio Scale (log) controls – hidden for PlotTwo user-function plots
-        if (showRatioScaleControls) {
+        if (showAnalysisControls) {
             Label labelScale = new Label("Ratio Scale:");
             labelScale.setFont(commandFont);
             labelScale.setAlignment(Pos.CENTER_RIGHT);
@@ -646,9 +647,10 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         return repaintDelegateActionSet;
     }
 
-    // Control visibility of the "Ratio Scale: Log" controls in the scale toolbar.
-    public void setShowRatioScaleControls(boolean showRatioScaleControls) {
-        this.showRatioScaleControls = showRatioScaleControls;
+    // Control visibility of analysis-related scale controls (log-scale) for Plot2 windows.
+    public void setShowAnalysisControls(boolean showAnalysisControls) {
+        this.showAnalysisControls = showAnalysisControls;
     }
+
 
 }

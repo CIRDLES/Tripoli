@@ -38,11 +38,7 @@ import org.cirdles.tripoli.plots.compoundPlotBuilders.PlotBlockCyclesRecord;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.sessions.analysis.AnalysisStatsRecord;
 import org.cirdles.tripoli.sessions.analysis.BlockStatsRecord;
-import org.cirdles.tripoli.sessions.analysis.GeometricMeanStatsRecord;
-import org.cirdles.tripoli.utilities.mathUtilities.FormatterForSigFigN;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +46,6 @@ import java.util.Map;
 
 import static java.lang.StrictMath.*;
 import static java.util.Map.entry;
-import static org.cirdles.tripoli.utilities.mathUtilities.FormatterForSigFigN.countOfTrailingDigitsForSigFig;
 import static org.cirdles.tripoli.utilities.mathUtilities.MathUtilities.applyChauvenetsCriterion;
 
 /**
@@ -75,7 +70,6 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     private boolean logScale;
     private boolean[] zoomFlagsXY;
     private PlotWallPaneInterface parentWallPane;
-    private boolean isRatio;
     private boolean blockMode;
     private AnalysisStatsRecord analysisStatsRecord;
     private double selectorBoxX;
@@ -119,7 +113,6 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         this.zoomFlagsXY = new boolean[]{true, true};
         this.parentWallPane = parentWallPane;
         this.blockMode = userFunction.getReductionMode().equals(TripoliConstants.ReductionModeEnum.BLOCK);
-        this.isRatio = userFunction.isTreatAsIsotopicRatio();
         this.ignoreRejects = false;
         this.intensityData = null;
         this.minIntensity = 0.0;
@@ -313,6 +306,45 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
         calcStats();
         calculateTics();
         repaint();
+    }
+
+    /**
+     * Make the X-axis label slide left when it would be clipped on the right edge.
+     * This keeps the Plot2 X label fully visible in narrow layouts instead of
+     * remaining strictly centered and getting cut off.
+     */
+    @Override
+    public void labelAxisX(GraphicsContext g2d) {
+        Paint savedPaint = g2d.getFill();
+        g2d.setFill(Paint.valueOf("BLACK"));
+        g2d.setFont(Font.font("SansSerif", 14));
+
+        Text text = new Text();
+        text.setFont(Font.font("SansSerif", 14));
+        text.setText(plotAxisLabelX);
+        double textWidth = text.getLayoutBounds().getWidth();
+
+        // Default: same centered position as the base class
+        double centeredX = leftMargin + (plotWidth - textWidth) / 2.0;
+        double labelY = plotHeight + 2.0 * topMargin - 2.0;
+
+        // Slide left if the centered label would extend beyond the plot window's right edge
+        double plotRightEdge = leftMargin + plotWidth;
+        double labelX = centeredX;
+        double overflowRight = (labelX + textWidth) - plotRightEdge;
+        if (overflowRight > 0.0) {
+            labelX -= overflowRight;
+        }
+
+        // Allow a small overhang past the left edge of the chart, but not too far
+        double maxLeftOverhang = 40.0; // pixels the label is allowed to extend left of the chart box
+        double minAllowedX = leftMargin - maxLeftOverhang;
+        if (labelX < minAllowedX) {
+            labelX = minAllowedX;
+        }
+
+        g2d.fillText(text.getText(), labelX, labelY);
+        g2d.setFill(savedPaint);
     }
 
     /**
@@ -654,19 +686,6 @@ public class AnalysisTwoUserFunctionsPlot extends AbstractPlot implements Analys
     @Override
     public void paint(GraphicsContext g2d) {
         super.paint(g2d);
-    }
-
-    @Override
-    public void labelAxisX(GraphicsContext g2d) {
-        Paint savedPaint = g2d.getFill();
-        g2d.setFill(Paint.valueOf("BLACK"));
-        g2d.setFont(Font.font("SansSerif", 14));
-        Text text = new Text();
-        text.setFont(Font.font("SansSerif", 14));
-        text.setText(plotAxisLabelX);
-        int textWidth = (int) text.getLayoutBounds().getWidth();
-        g2d.fillText(text.getText(), leftMargin + (plotWidth - textWidth) / 2.0, plotHeight + 2.0 * topMargin - 4.0);
-        g2d.setFill(savedPaint);
     }
 
     public void prepareExtents(boolean reScaleX, boolean reScaleY) {

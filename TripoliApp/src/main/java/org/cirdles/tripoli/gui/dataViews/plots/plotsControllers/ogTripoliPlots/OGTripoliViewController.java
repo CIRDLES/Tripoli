@@ -153,8 +153,8 @@ public class OGTripoliViewController {
         ogtCycleRatioPlotsAnchorPane.getChildren().clear();
 
         plotsWallPaneRatios = PlotWallPane.createPlotWallPane("OGTripoliSession", analysis, null, analysisManagerCallbackI);
-        // Disable the ratio-scale (Log) checkbox for PlotTwo user-function views
-        ((PlotWallPane) plotsWallPaneRatios).setShowRatioScaleControls(false);
+        // Disable analysis-related controls (log-scale, Chauvenet, SYNCH) for PlotTwo user-function views
+        ((PlotWallPane) plotsWallPaneRatios).setShowAnalysisControls(false);
         plotsWallPaneRatios.setToolBarCount(1);
         plotsWallPaneRatios.setToolBarHeight(35.0);
         PlotWallPane.menuOffset = 0.0;

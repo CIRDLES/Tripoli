@@ -262,32 +262,37 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
             replotButton.setOnAction(event -> replot());
             plotToolBar.getItems().add(replotButton);
 
+            // For Plot2 views (two-user-function plots), always suppress Chauvenet/SYNCH controls.
+            boolean showAnalysisControls = !(plot instanceof AnalysisTwoUserFunctionsPlot);
+
             Button resetDataButton = new Button("Reset Data");
-            chauvenetButton = new Button("Chauvenet");
             resetDataButton.setFont(toolBarFont);
             resetDataButton.setOnAction(event -> {
                 resetData();
-                chauvenetButton.setDisable(false);
+                if (chauvenetButton != null) {
+                    chauvenetButton.setDisable(false);
+                }
             });
             plotToolBar.getItems().add(resetDataButton);
 
-            chauvenetButton.setFont(toolBarFont);
-            chauvenetButton.setDisable(!detectAllIncludedStatus());
-            chauvenetButton.setOnAction(event -> {
-                performChauvenets();
-            });
-            plotToolBar.getItems().add(chauvenetButton);
+            if (showAnalysisControls) {
+                chauvenetButton = new Button("Chauvenet");
+                chauvenetButton.setFont(toolBarFont);
+                chauvenetButton.setDisable(!detectAllIncludedStatus());
+                chauvenetButton.setOnAction(event -> performChauvenets());
+                plotToolBar.getItems().add(chauvenetButton);
 
-            Button synchButton = new Button("SYNCH");
-            synchButton.setFont(toolBarFont);
-            synchButton.setOnAction(event -> {
-                if (analysis.getAnalysisCaseNumber() == 4) {
-                    synch();
-                } else {
-                    synchOG();
-                }
-            });
-            plotToolBar.getItems().add(synchButton);
+                Button synchButton = new Button("SYNCH");
+                synchButton.setFont(toolBarFont);
+                synchButton.setOnAction(event -> {
+                    if (analysis.getAnalysisCaseNumber() == 4) {
+                        synch();
+                    } else {
+                        synchOG();
+                    }
+                });
+                plotToolBar.getItems().add(synchButton);
+            }
 
             // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
             // cycleCB = new CheckBox("Cycle");
