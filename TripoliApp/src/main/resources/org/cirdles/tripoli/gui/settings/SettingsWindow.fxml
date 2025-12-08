@@ -169,6 +169,65 @@
                      </children></AnchorPane>
                </content>
             </Tab>
+            <Tab fx:id="plotTwoControlsTab" closable="false" text="PlotTwo Controls">
+               <content>
+                  <AnchorPane fx:id="plotTwoControlsAnchorPane" prefHeight="474.0" prefWidth="536.0">
+                     <children>
+                         <VBox AnchorPane.leftAnchor="0.0">
+                             <HBox alignment="CENTER" prefHeight="64.0" prefWidth="536.0">
+                                <children>
+                                   <Label alignment="CENTER" prefHeight="64.0" prefWidth="538.0" text="PlotTwo Controls" textAlignment="CENTER">
+                                      <font>
+                                         <Font name="Consolas" size="48.0" />
+                                      </font>
+                                   </Label>
+                                </children>
+                             </HBox>
+                             <VBox>
+                                <Label prefHeight="38.0" prefWidth="520.0" text="Scaling Dot Sizes" textAlignment="CENTER">
+                                   <font>
+                                      <Font name="Consolas" size="24.0" />
+                                   </font>
+                                   <opaqueInsets>
+                                      <Insets top="-9.0" />
+                                   </opaqueInsets>
+                                </Label>
+                                <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="521.0">
+                                   <children>
+                                      <Label prefHeight="34.0" prefWidth="239.0" text="Minimum Dot Size">
+                                         <font>
+                                            <Font size="18.0" />
+                                         </font>
+                                      </Label>
+                                      <Region prefHeight="36.0" prefWidth="78.0" />
+                                      <Spinner fx:id="scalingDotMinSizeSpinner" prefHeight="25.0" prefWidth="100.0" />
+                                   </children>
+                                 <padding>
+                                    <Insets left="15.0" />
+                                 </padding>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="521.0">
+                                   <children>
+                                      <Label prefHeight="34.0" prefWidth="239.0" text="Maximum Dot Size">
+                                         <font>
+                                            <Font size="18.0" />
+                                         </font>
+                                      </Label>
+                                      <Region prefHeight="36.0" prefWidth="78.0" />
+                                      <Spinner fx:id="scalingDotMaxSizeSpinner" prefHeight="25.0" prefWidth="100.0" />
+                                   </children>
+                                 <padding>
+                                    <Insets left="15.0" />
+                                 </padding>
+                                </HBox>
+                              <padding>
+                                 <Insets bottom="10.0" left="15.0" />
+                              </padding>
+                             </VBox>
+                         </VBox>
+                     </children></AnchorPane>
+               </content>
+            </Tab>
          </tabs>
       </TabPane>
       <ToolBar fx:id="saveDefaultsToolbar" prefHeight="30.0" prefWidth="536.0" style="-fx-border-width: .5; -fx-border-color: #888888;">

@@ -32,11 +32,17 @@ public class Parameters implements Serializable {
     private double chauvenetRejectionProbability;
     private int requiredMinDatumCount;
     private MassSpectrometerContextEnum massSpectrometerContext;
+    
+    // Scaling dot size parameters
+    private double scalingDotMinSize;
+    private double scalingDotMaxSize;
 
     public Parameters() {
         this.chauvenetRejectionProbability = CHAUVENETS_DEFAULT_REJECT_PROBABILITY;
         this.requiredMinDatumCount = CHAUVENETS_DEFAULT_MIN_DATUM_COUNT;
         this.massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
+        this.scalingDotMinSize = SCALING_DOT_DEFAULT_MIN_SIZE;
+        this.scalingDotMaxSize = SCALING_DOT_DEFAULT_MAX_SIZE;
     }
 
     // Copy Constructor
@@ -44,6 +50,8 @@ public class Parameters implements Serializable {
         this.chauvenetRejectionProbability = other.getChauvenetRejectionProbability();
         this.requiredMinDatumCount = other.getRequiredMinDatumCount();
         this.massSpectrometerContext = other.massSpectrometerContext;
+        this.scalingDotMinSize = other.getScalingDotMinSize();
+        this.scalingDotMaxSize = other.getScalingDotMaxSize();
     }
 
     // Provides a deep copy of this instance
@@ -71,5 +79,29 @@ public class Parameters implements Serializable {
     }
     public void setMassSpectrometerContext(MassSpectrometerContextEnum massSpectrometerContext) {
         this.massSpectrometerContext = massSpectrometerContext;
+    }
+
+    public double getScalingDotMinSize() {
+        // Guard against legacy persisted values that may have defaulted to 0.0
+        if (scalingDotMinSize <= 0.0) {
+            scalingDotMinSize = SCALING_DOT_DEFAULT_MIN_SIZE;
+        }
+        return scalingDotMinSize;
+    }
+
+    public void setScalingDotMinSize(double scalingDotMinSize) {
+        this.scalingDotMinSize = scalingDotMinSize;
+    }
+
+    public double getScalingDotMaxSize() {
+        // Guard against legacy persisted values that may have defaulted to 0.0
+        if (scalingDotMaxSize <= 0.0) {
+            scalingDotMaxSize = SCALING_DOT_DEFAULT_MAX_SIZE;
+        }
+        return scalingDotMaxSize;
+    }
+
+    public void setScalingDotMaxSize(double scalingDotMaxSize) {
+        this.scalingDotMaxSize = scalingDotMaxSize;
     }
 }

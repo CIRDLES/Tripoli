@@ -16,8 +16,6 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -37,6 +35,7 @@ import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotI;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotOG;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisTwoUserFunctionsPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.RatioHistogramPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.tripoliPlots.analysisPlots.AnalysisRatioPlot;
@@ -91,8 +90,9 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
         }
     };
     private double plotToolBarHeight = 0;
-    private CheckBox cycleCB;
-    private final CheckBoxChangeListener cycleCheckBoxChangeListener = new CheckBoxChangeListener(cycleCB);
+    // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
+    // private CheckBox cycleCB;
+    // private final CheckBoxChangeListener cycleCheckBoxChangeListener = new CheckBoxChangeListener(cycleCB);
     private PlotWallPaneInterface plotWallPane;
     private AbstractPlot plot;
     private final EventHandler<MouseEvent> mouseReleasedEventHandler = e -> {
@@ -260,37 +260,43 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
             replotButton.setOnAction(event -> replot());
             plotToolBar.getItems().add(replotButton);
 
+            // For Plot2 views (two-user-function plots), always suppress Chauvenet/SYNCH controls.
+            boolean showAnalysisControls = !(plot instanceof AnalysisTwoUserFunctionsPlot);
+
             Button resetDataButton = new Button("Reset Data");
-            chauvenetButton = new Button("Chauvenet");
             resetDataButton.setFont(toolBarFont);
             resetDataButton.setOnAction(event -> {
                 resetData();
-                chauvenetButton.setDisable(false);
+                if (chauvenetButton != null) {
+                    chauvenetButton.setDisable(false);
+                }
             });
             plotToolBar.getItems().add(resetDataButton);
 
-            chauvenetButton.setFont(toolBarFont);
-            chauvenetButton.setDisable(!detectAllIncludedStatus());
-            chauvenetButton.setOnAction(event -> {
-                performChauvenets();
-            });
-            plotToolBar.getItems().add(chauvenetButton);
+            if (showAnalysisControls) {
+                chauvenetButton = new Button("Chauvenet");
+                chauvenetButton.setFont(toolBarFont);
+                chauvenetButton.setDisable(!detectAllIncludedStatus());
+                chauvenetButton.setOnAction(event -> performChauvenets());
+                plotToolBar.getItems().add(chauvenetButton);
 
-            Button synchButton = new Button("SYNCH");
-            synchButton.setFont(toolBarFont);
-            synchButton.setOnAction(event -> {
-                if (analysis.getAnalysisCaseNumber() == 4) {
-                    synch();
-                } else {
-                    synchOG();
-                }
-            });
-            plotToolBar.getItems().add(synchButton);
+                Button synchButton = new Button("SYNCH");
+                synchButton.setFont(toolBarFont);
+                synchButton.setOnAction(event -> {
+                    if (analysis.getAnalysisCaseNumber() == 4) {
+                        synch();
+                    } else {
+                        synchOG();
+                    }
+                });
+                plotToolBar.getItems().add(synchButton);
+            }
 
-            cycleCB = new CheckBox("Cycle");
-            plotToolBar.getItems().add(cycleCB);
-            cycleCB.setSelected(!((AnalysisBlockCyclesPlotI) plot).getBlockMode());
-            cycleCB.selectedProperty().addListener(cycleCheckBoxChangeListener);
+            // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
+            // cycleCB = new CheckBox("Cycle");
+            // plotToolBar.getItems().add(cycleCB);
+            // cycleCB.setSelected(!((AnalysisBlockCyclesPlotI) plot).getBlockMode());
+            // cycleCB.selectedProperty().addListener(cycleCheckBoxChangeListener);
 
             setBottom(plotToolBar);
         }
@@ -391,15 +397,25 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
     public void resetData() {
         if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
             ((AnalysisBlockCyclesPlotI) plot).resetData();
-            chauvenetButton.setDisable(false);
+            // For Plot2 panes, there is no Chauvenet button; guard against null.
+            if (chauvenetButton != null) {
+                chauvenetButton.setDisable(false);
+            }
             plot.refreshPanel(true, true);
         }
     }
 
     public void performChauvenets() {
         if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
+            // Skip Plot2 (two user-functions) plots entirely; they don't participate in Chauvenet.
+            if (plot instanceof AnalysisTwoUserFunctionsPlot) {
+                return;
+            }
+
             ((AnalysisBlockCyclesPlotI) plot).performChauvenets();
-            chauvenetButton.setDisable(true);
+            if (chauvenetButton != null) {
+                chauvenetButton.setDisable(true);
+            }
             plot.refreshPanel(true, true);
         }
     }
@@ -453,7 +469,10 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
                 }
 
                 plot.refreshPanel(false, false);
-                ((TripoliPlotPane) node).chauvenetButton.setDisable(!detectAllIncludedStatus());
+                // Some panes (such as Plot2) do not expose a Chauvenet button; guard against null.
+                if (((TripoliPlotPane) node).chauvenetButton != null) {
+                    ((TripoliPlotPane) node).chauvenetButton.setDisable(!detectAllIncludedStatus());
+                }
             }
         }
     }
@@ -477,14 +496,22 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
 
     public void updateAnalysisRatiosPlotted(boolean blockMode, boolean logScale, boolean reScaleX, boolean reScaleY) {
         if (plot != null && (plot instanceof AnalysisBlockCyclesPlotI)) {
-            ((AnalysisBlockCyclesPlotI) plot).setBlockMode(blockMode);
+            // Exclude PlotTwo (two user-functions) plots from ratio/log-ratio scaling;
+            // they always stay in linear space regardless of the toolbar's log checkbox.
+            if (plot instanceof AnalysisTwoUserFunctionsPlot) {
+                plot.refreshPanel(reScaleX, reScaleY);
+                return;
+            }
+
+            //((AnalysisBlockCyclesPlotI) plot).setBlockMode(blockMode);
             ((AnalysisBlockCyclesPlotI) plot).setLogScale(logScale);
             ((AnalysisBlockCyclesPlotI) plot).getUserFunction().setReductionMode(
                     blockMode ? TripoliConstants.ReductionModeEnum.BLOCK : TripoliConstants.ReductionModeEnum.CYCLE);
 
-            cycleCB.selectedProperty().removeListener(cycleCheckBoxChangeListener);
-            cycleCB.setSelected(!blockMode);
-            cycleCB.selectedProperty().addListener(cycleCheckBoxChangeListener);
+            // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
+            // cycleCB.selectedProperty().removeListener(cycleCheckBoxChangeListener);
+            // cycleCB.setSelected(!blockMode);
+            // cycleCB.selectedProperty().addListener(cycleCheckBoxChangeListener);
 
             plot.refreshPanel(reScaleX, reScaleY);
         }
@@ -515,22 +542,23 @@ public class TripoliPlotPane extends BorderPane implements Comparable<TripoliPlo
     ) {
     }
 
-    private class CheckBoxChangeListener implements ChangeListener<Boolean> {
-        private final CheckBox checkBox;
-
-        public CheckBoxChangeListener(CheckBox checkBox) {
-            this.checkBox = checkBox;
-        }
-
-        /**
-         * @param observable The {@code ObservableValue} which value changed
-         * @param oldValue   The old value
-         * @param newValue   The new value
-         */
-        @Override
-        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-            updateAnalysisRatiosPlotted(!newValue, false, false, true);
-            plotWallPane.updateStatusOfCycleCheckBox();
-        }
-    }
+    // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
+    // private class CheckBoxChangeListener implements ChangeListener<Boolean> {
+    //     private final CheckBox checkBox;
+    //
+    //     public CheckBoxChangeListener(CheckBox checkBox) {
+    //         this.checkBox = checkBox;
+    //     }
+    //
+    //     /**
+    //      * @param observable The {@code ObservableValue} which value changed
+    //      * @param oldValue   The old value
+    //      * @param newValue   The new value
+    //      */
+    //     @Override
+    //     public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+    //         updateAnalysisRatiosPlotted(!newValue, false, false, true);
+    //         plotWallPane.updateStatusOfCycleCheckBox();
+    //     }
+    // }
 }

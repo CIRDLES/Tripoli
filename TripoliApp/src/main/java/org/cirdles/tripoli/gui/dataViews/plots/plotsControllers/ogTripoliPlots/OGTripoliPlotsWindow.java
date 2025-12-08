@@ -68,6 +68,36 @@ public class OGTripoliPlotsWindow {
         plottingStage.close();
     }
 
+    public boolean isShowing() {
+        return plottingStage.isShowing();
+    }
+
+    public void loadPlotsWindowForTwoUserFunctions() {
+        if (!plottingStage.isShowing() && plottingData != null) {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/dataViews/plots/plotsControllers/OGTripoliView.fxml"));
+            try {
+                Scene scene = new Scene(loader.load());
+                plottingStage.setScene(scene);
+            } catch (IOException iOException) {
+                iOException.printStackTrace();
+            }
+            plottingWindow = plottingStage.getScene().getWindow();
+            plottingStage.setTitle("Tripoli " + (plottingData.preview() ? "PREVIEW" : "REVIEW") + " and Sculpt Data from Analysis:   " + OGTripoliViewController.analysis.getAnalysisName());
+
+            ogTripoliViewController = loader.getController();
+            ogTripoliViewController.setPlottingData(plottingData);
+
+            ogTripoliViewController.initializePlotWallPaneForTwoUserFunctions();
+
+            plottingStage.show();
+        }
+
+        // center on app window
+        plottingStage.setX(primaryStage.getX() + (primaryStage.getWidth() - plottingStage.getWidth()) / 2);
+        plottingStage.setY(primaryStage.getY() + (primaryStage.getHeight() - plottingStage.getHeight()) / 2);
+        plottingStage.requestFocus();
+    }
+
     public void loadPlotsWindow() {
         if (!plottingStage.isShowing() && plottingData != null) {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/cirdles/tripoli/gui/dataViews/plots/plotsControllers/OGTripoliView.fxml"));

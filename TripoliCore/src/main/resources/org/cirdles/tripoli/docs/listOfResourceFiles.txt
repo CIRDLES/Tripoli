@@ -1,1 +1,1 @@
-ogTripoliHelp.md.html
+ogTripoliHelp.md
