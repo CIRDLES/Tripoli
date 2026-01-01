@@ -96,9 +96,9 @@ public class ShuntingYard {
                     pop o2 off the operator stack, onto the output queue;
                     at the end of iteration push o1 onto the operator stack.
                  */
-//                    operatorStack.push(token);
-//                    lastWasOperationOrFunction = true;
-//                    break;
+                    operatorStack.push(token);
+                    lastWasOperationOrFunction = true;
+                    break;
                 case LEFT_PAREN:
                     if (!lastWasOperationOrFunction) {
                         // If the last token was a value or right parenthesis, insert a multiplication operator
