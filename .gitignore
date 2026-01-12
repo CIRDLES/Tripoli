@@ -55,6 +55,8 @@ TripoliResources/
 *.TIMSAM
 
 META-INF/
+!TripoliApp/libs/jama.jar
+!TripoliCore/libs/jama.jar
 
 # Website docs
 !/docs/assets/publications/*.pdf
