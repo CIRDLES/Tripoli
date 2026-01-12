@@ -43,7 +43,8 @@ dependencies {
     implementation("net.sourceforge.jexcelapi:jxl:2.6.12")
 
     // modernized update: https://github.com/topobyte/jama
-    implementation("com.github.topobyte:jama:master-SNAPSHOT")
+    //implementation("com.github.topobyte:jama:master-SNAPSHOT")
+    implementation("com.github.topobyte:jama:1.1.0") // Check GitHub for the latest version
 
     // https://github.com/optimatika/ojAlgo/wiki/Optimisation-Modelling-Advice
     implementation("org.ojalgo:ojalgo:52.0.1")
@@ -109,7 +110,7 @@ extraJavaModuleInfo {
 
 
     automaticModule("com.zaxxer:SparseBitSet", "SparseBitSet")
-    automaticModule("jama-master-SNAPSHOT.jar", "jama")
+    automaticModule("jama.jar", "jama")
     automaticModule("org.ojalgo:ojalgo", "ojalgo")
 
     automaticModule("org.jblas:jblas", "jblas")
