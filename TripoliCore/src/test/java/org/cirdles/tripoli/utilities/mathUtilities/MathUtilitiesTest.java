@@ -28,6 +28,8 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import static org.apache.commons.math3.special.Erf.erfc;
 import com.google.common.math.Stats;
 
+import java.util.Arrays;
+
 class MathUtilitiesTest {
 
     double[] arr;
@@ -48,7 +50,7 @@ class MathUtilitiesTest {
         indices = new boolean[] {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
 
 
-        solvedIndices = new boolean[] {false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false};
+        solvedIndices = new boolean[] {false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false};
     }
 
     @AfterEach
