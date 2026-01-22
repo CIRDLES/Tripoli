@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import static org.apache.commons.math3.special.Erf.erfc;
 import com.google.common.math.Stats;
 
 import java.util.Arrays;

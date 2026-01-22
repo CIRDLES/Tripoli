@@ -22,7 +22,6 @@ import org.cirdles.tripoli.parameters.Parameters;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Arrays;
 
 import static org.apache.commons.math3.special.Erf.erfc;
 
