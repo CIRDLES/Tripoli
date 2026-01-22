@@ -27,8 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import com.google.common.math.Stats;
 
-import java.util.Arrays;
-
 class MathUtilitiesTest {
 
     double[] arr;
