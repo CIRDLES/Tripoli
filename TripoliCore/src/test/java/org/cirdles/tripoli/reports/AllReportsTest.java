@@ -73,9 +73,9 @@ public class AllReportsTest {
             fullReport.generateCSVFile(analysisList, tripoliSession.getSessionName());
 
             // Deserialize the report to test against the Oracle and the Oracle itself
-            actualReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(actualReportPath)).toURI()), "UTF-8");
+            actualReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(actualReportPath)).toURI()), "UTF-8").replaceAll("\\r\\n|\\r|\\n", "\\n");
 
-            expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(expectedReportPath)).toURI()), "UTF-8");
+            expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(expectedReportPath)).toURI()), "UTF-8").replaceAll("\\r\\n|\\r|\\n", "\\n");
         } catch (NullPointerException | IOException e) {
             assertNotNull(actualReport,
                     "Report to test not found for file " + dataFile.getName() + " at: " + actualReportPath);
@@ -84,9 +84,9 @@ public class AllReportsTest {
         } catch (ArrayIndexOutOfBoundsException e2) {
             try {
                 // Deserialize the report to test against the Oracle and the Oracle itself
-                actualReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(actualReportPath)).toURI()), "UTF-8");
+                actualReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(actualReportPath)).toURI()), "UTF-8").replaceAll("\\r\\n|\\r|\\n", "\\n");
 
-                expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(expectedReportPath)).toURI()), "UTF-8");
+                expectedReport = FileUtils.readFileToString(new File(Objects.requireNonNull(getClass().getResource(expectedReportPath)).toURI()), "UTF-8").replaceAll("\\r\\n|\\r|\\n", "\\n");;
             } catch (NullPointerException | IOException e3) {
                 assertNotNull(actualReport,
                         "Report to test not found for file " + dataFile.getName() + " at: " + actualReportPath);
