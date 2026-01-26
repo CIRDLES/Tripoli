@@ -32,6 +32,7 @@ import org.cirdles.tripoli.gui.AnalysisManagerCallbackI;
 import org.cirdles.tripoli.gui.dataViews.plots.*;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisBlockCyclesPlotOG;
+import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.AnalysisTwoUserFunctionsPlot;
 import org.cirdles.tripoli.gui.dataViews.plots.plotsControllers.ogTripoliPlots.analysisPlots.SpeciesIntensityAnalysisPlot;
 import org.cirdles.tripoli.gui.settings.SettingsRequestType;
 import org.cirdles.tripoli.gui.settings.SettingsWindow;
@@ -47,6 +48,10 @@ import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.m
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.SingleBlockRawDataSetRecord;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataModels.mcmc.initializers.AllBlockInitForMCMC;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.dataSourceProcessors.MassSpecOutputBlockRecordFull;
+import org.cirdles.tripoli.utilities.exceptions.TripoliException;
+import org.cirdles.tripoli.utilities.stateUtilities.AnalysisMethodPersistance;
+import org.cirdles.tripoli.plots.PlotTwo;
+import org.cirdles.tripoli.utilities.stateUtilities.TripoliPersistentState;
 import org.cirdles.tripoli.sessions.analysis.massSpectrometerModels.detectorSetups.Detector;
 
 import java.util.*;
@@ -141,6 +146,29 @@ public class OGTripoliViewController {
         if (plottingData.analysisCaseNumber() == 4) {
             plotOnPeakIntensitiesAndResiduals();
         }
+    }
+
+    public void initializePlotWallPaneForTwoUserFunctions() {
+        // Initialize the PlotWallPane without calling plotRatios() (which would create all OG plots)
+        ogtCycleRatioPlotsAnchorPane.getChildren().clear();
+
+        plotsWallPaneRatios = PlotWallPane.createPlotWallPane("OGTripoliSession", analysis, null, analysisManagerCallbackI);
+        // Disable analysis-related controls (log-scale, Chauvenet, SYNCH) for PlotTwo user-function views
+        ((PlotWallPane) plotsWallPaneRatios).setShowAnalysisControls(false);
+        plotsWallPaneRatios.setToolBarCount(1);
+        plotsWallPaneRatios.setToolBarHeight(35.0);
+        PlotWallPane.menuOffset = 0.0;
+        ((Pane) plotsWallPaneRatios).setBackground(new Background(new BackgroundFill(Paint.valueOf("LINEN"), null, null)));
+
+        ((Pane) plotsWallPaneRatios).prefWidthProperty().bind(ogtCycleRatioPlotsAnchorPane.widthProperty());
+        ((Pane) plotsWallPaneRatios).prefHeightProperty().bind(ogtCycleRatioPlotsAnchorPane.heightProperty());
+
+        ogtCycleRatioPlotsAnchorPane.getChildren().add(((Pane) plotsWallPaneRatios));
+        plotWindowVBox.widthProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneRatios.repeatLayoutStyle());
+        plotWindowVBox.heightProperty().addListener((observable, oldValue, newValue) -> plotsWallPaneRatios.repeatLayoutStyle());
+
+        plotsWallPaneRatios.buildToolBar();
+        plotsWallPaneRatios.buildScaleControlsToolbar();
     }
 
     public void plotRatios() {
@@ -279,8 +307,100 @@ public class OGTripoliViewController {
             }
         }
 
+        // Auto-plot saved plot2 selections
+        plotSavedPlot2Selections();
+
         plotsWallPaneRatios.buildToolBar();
         plotsWallPaneRatios.buildScaleControlsToolbar();
+        plotsWallPaneRatios.tilePlots();
+    }
+
+    private void plotSavedPlot2Selections() {
+        if (analysis == null || analysis.getMethod() == null) {
+            return;
+        }
+
+        TripoliPersistentState tripoliPersistentState = null;
+        try {
+            tripoliPersistentState = TripoliPersistentState.getExistingPersistentState();
+        } catch (TripoliException e) {
+            // No persistent state available
+            return;
+        }
+
+        if (tripoliPersistentState == null) {
+            return;
+        }
+
+        AnalysisMethodPersistance analysisMethodPersistance =
+                tripoliPersistentState.getMapMethodNamesToDefaults().get(analysis.getMethod().getMethodName());
+
+        if (analysisMethodPersistance == null) {
+            return;
+        }
+
+        List<PlotTwo> plot2Selections = analysisMethodPersistance.getPlotTwoList();
+        if (plot2Selections == null || plot2Selections.isEmpty()) {
+            return;
+        }
+
+        // Get all user functions for name matching
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+
+        // Plot each saved plot2 selection (only if displayed is true)
+        for (PlotTwo plot2Selection : plot2Selections) {
+            // Skip if not displayed
+            if (!plot2Selection.isDisplayed()) {
+                continue;
+            }
+            
+            // Find UserFunctions by name
+            UserFunction xAxisUF = null;
+            UserFunction yAxisUF = null;
+            UserFunction intensityUF = null;
+
+            for (UserFunction uf : userFunctions) {
+                if (uf.getName().equals(plot2Selection.getXAxisUserFunctionName())) {
+                    xAxisUF = uf;
+                }
+                if (uf.getName().equals(plot2Selection.getYAxisUserFunctionName())) {
+                    yAxisUF = uf;
+                }
+                if (plot2Selection.getIntensityUserFunctionName() != null &&
+                    uf.getName().equals(plot2Selection.getIntensityUserFunctionName())) {
+                    intensityUF = uf;
+                }
+            }
+
+            // Only plot if both x and y axes are found
+            if (xAxisUF != null && yAxisUF != null) {
+                try {
+                    plotTwoUserFunctions(xAxisUF, yAxisUF, intensityUF);
+                } catch (Exception e) {
+                    // Skip this plot if there's an error, continue with others
+                    System.err.println("Error plotting saved plot2 selection: " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    public void plotTwoUserFunctions(UserFunction xAxisUF, UserFunction yAxisUF, UserFunction intensityUF) {
+        
+        // Create the plot using the same approach as in plotRatios for case 1
+        TripoliPlotPane tripoliPlotPane = TripoliPlotPane.makePlotPane(plotsWallPaneRatios);
+        
+        AbstractPlot plot = AnalysisTwoUserFunctionsPlot.generatePlot(
+                new Rectangle(minPlotWidth, minPlotHeight),
+                analysis,
+                yAxisUF,
+                xAxisUF,
+                intensityUF,
+                (PlotWallPane) plotsWallPaneRatios);
+        
+        tripoliPlotPane.addPlot(plot);
+        plot.refreshPanel(false, false);
+        
+        // Tile the plots to update layout
         plotsWallPaneRatios.tilePlots();
     }
 
@@ -478,5 +598,8 @@ public class OGTripoliViewController {
 
     public void toggleSculptingModeAction() {
         plotsWallPaneRatios.toggleSculptingMode();
+    }
+    public void replotAllPlots(){
+        ((PlotWallPane) plotsWallPaneRatios).replotAll();
     }
 }

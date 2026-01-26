@@ -44,7 +44,9 @@
     <padding>
         <Insets bottom="15.0" left="20.0" right="20.0" top="1.0" />
     </padding>
-    <Button disable="true" mnemonicParsing="false" onAction="#testConcatAction" text="Experimental concatenation of two sequential files (same columns) per issue #229 for comment.  Top two listed files automatically chosen.  Thanks for feedback." GridPane.columnIndex="1" GridPane.rowIndex="4" />
+    <!-- Removed pending needed documentation to move forward with feature
+        <Button disable="true" mnemonicParsing="false" onAction="#testConcatAction" text="Experimental concatenation of two sequential files (same columns) per issue #229 for comment.  Top two listed files automatically chosen.  Thanks for feedback." GridPane.columnIndex="1" GridPane.rowIndex="4" />
+        -->
     <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
         <TextField fx:id="sessionNameText" prefHeight="27.0" prefWidth="323.0" promptText="Please provide session name" HBox.hgrow="ALWAYS" />
         <Label style="-fx-text-fill: #3c77c9; -fx-font-weight: bold;" text="Analyst Name:" />

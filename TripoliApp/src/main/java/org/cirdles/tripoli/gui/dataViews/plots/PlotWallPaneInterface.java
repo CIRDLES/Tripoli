@@ -40,7 +40,8 @@ public interface PlotWallPaneInterface {
 
     void repeatLayoutStyle();
 
-    void updateStatusOfCycleCheckBox();
+    // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
+    // void updateStatusOfCycleCheckBox();
 
     void toggleSculptingMode();
 

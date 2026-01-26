@@ -16,17 +16,11 @@
 
 package org.cirdles.tripoli.gui.dataViews.plots;
 
-import com.google.common.primitives.Booleans;
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
@@ -46,9 +40,7 @@ import org.cirdles.tripoli.utilities.DelegateActionInterface;
 import org.cirdles.tripoli.utilities.DelegateActionSet;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -73,15 +65,22 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
     private boolean logScale;
     private boolean blockMode;
     private static final DelegateActionSet repaintDelegateActionSet = new DelegateActionSet();
-    ChangeListener<Boolean> cycleCBChangeListener = (observable, oldValue, newValue) -> {
-        blockMode = !newValue;
-        rebuildPlot(false, true);
-    };
+    // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
+    // ChangeListener<Boolean> cycleCBChangeListener = (observable, oldValue, newValue) -> {
+    //     blockMode = !newValue;
+    //     rebuildPlot(false, true);
+    // };
     private ConstantsTripoliApp.PlotLayoutStyle plotLayoutStyle;
     private ToolBar scaleControlsToolbar;
     private TripoliPlotPane zoomedPlot;
     private Button toggleSculptingModeButton;
-    private CheckBox cycleCB;
+    // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
+    // private CheckBox cycleCB;
+
+    // When false (Plot2-only window), hide analysis-related controls such as the ratio-scale
+    // log toggle in this wall pane's scale toolbar. Individual Plot2 panes also hide their
+    // Chauvenet / SYNCH buttons based on plot type.
+    private boolean showAnalysisControls = true;
 
     private PlotWallPane(String iD, AnalysisInterface analysis, MCMCPlotsControllerInterface mcmcPlotsController, AnalysisManagerCallbackI analysisManagerCallbackI) {
         this.iD = iD;
@@ -388,7 +387,7 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         Button infoButton = new Button("?");
         infoButton.setFont(commandFont);
         infoButton.setOnAction(event -> {
-            Path resourcePath = Path.of(DOCS_FOLDER.getAbsolutePath() + File.separator + "ogTripoliHelp.md.html");
+            Path resourcePath = Path.of(DOCS_FOLDER.getAbsolutePath() + File.separator + "ogTripoliHelp.md");
             BrowserControl.showURI(resourcePath.toString());
         });
         scaleControlsToolbar.getItems().add(infoButton);
@@ -444,25 +443,29 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         labelMode.setPrefWidth(50);
 //        scaleControlsToolbar.getItems().add(labelMode);
 
-        cycleCB = new CheckBox("Cycle");
-//        scaleControlsToolbar.getItems().add(cycleCB);
-        cycleCB.setSelected(true);
-        cycleCB.selectedProperty().addListener(cycleCBChangeListener);
-        updateStatusOfCycleCheckBox();
+        // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
+        // cycleCB = new CheckBox("Cycle");
+        // scaleControlsToolbar.getItems().add(cycleCB);
+        // cycleCB.setSelected(true);
+        // cycleCB.selectedProperty().addListener(cycleCBChangeListener);
+        // updateStatusOfCycleCheckBox();
 
-        Label labelScale = new Label("Ratio Scale:");
-        labelScale.setFont(commandFont);
-        labelScale.setAlignment(Pos.CENTER_RIGHT);
-        labelScale.setPrefWidth(80);
-        scaleControlsToolbar.getItems().add(labelScale);
+        // Optional Ratio Scale (log) controls – hidden for PlotTwo user-function plots
+        if (showAnalysisControls) {
+            Label labelScale = new Label("Ratio Scale:");
+            labelScale.setFont(commandFont);
+            labelScale.setAlignment(Pos.CENTER_RIGHT);
+            labelScale.setPrefWidth(80);
+            scaleControlsToolbar.getItems().add(labelScale);
 
-        CheckBox logCB = new CheckBox("Log");
-        scaleControlsToolbar.getItems().add(logCB);
-        logCB.selectedProperty().addListener(
-                (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
-                    logScale = newVal;
-                    rebuildPlot(false, true);
-                });
+            CheckBox logCB = new CheckBox("Log");
+            scaleControlsToolbar.getItems().add(logCB);
+            logCB.selectedProperty().addListener(
+                    (ObservableValue<? extends Boolean> ov, Boolean oldVal, Boolean newVal) -> {
+                        logScale = newVal;
+                        rebuildPlot(false, true);
+                    });
+        }
 
         Label labelZoom = new Label("Zoom:");
         labelZoom.setFont(commandFont);
@@ -611,28 +614,35 @@ public class PlotWallPane extends Pane implements PlotWallPaneInterface {
         analysisManagerCallbackI.callBackSetBlockIncludedStatus(blockID, included);
     }
 
-    public void updateStatusOfCycleCheckBox() {
-        ObservableList<Node> children = getChildren();
-        List<Boolean> allShowCycle = new ArrayList<>();
-        for (Node child : children) {
-            if (child instanceof TripoliPlotPane) {
-                AnalysisBlockCyclesPlotI childPlot = (AnalysisBlockCyclesPlotI) ((TripoliPlotPane) child).getPlot();
-                allShowCycle.add(!childPlot.getBlockMode());
-            }
-        }
-        int countOfShowCycles = Booleans.countTrue(Booleans.toArray(allShowCycle));
-        cycleCB.selectedProperty().removeListener(cycleCBChangeListener);
-        cycleCB.selectedProperty().setValue(countOfShowCycles == allShowCycle.size());
-        cycleCB.setIndeterminate(false);
-        if ((countOfShowCycles != allShowCycle.size()) && (countOfShowCycles > 0)) {
-            cycleCB.selectedProperty().setValue(true);
-            cycleCB.setIndeterminate(true);
-        }
-        cycleCB.selectedProperty().addListener(cycleCBChangeListener);
-    }
+    // COMMENTED OUT: Cycle checkbox no longer needed - removed block mode toggle functionality
+    // public void updateStatusOfCycleCheckBox() {
+    //     ObservableList<Node> children = getChildren();
+    //     List<Boolean> allShowCycle = new ArrayList<>();
+    //     for (Node child : children) {
+    //         if (child instanceof TripoliPlotPane) {
+    //             AnalysisBlockCyclesPlotI childPlot = (AnalysisBlockCyclesPlotI) ((TripoliPlotPane) child).getPlot();
+    //             allShowCycle.add(!childPlot.getBlockMode());
+    //         }
+    //     }
+    //     int countOfShowCycles = Booleans.countTrue(Booleans.toArray(allShowCycle));
+    //     cycleCB.selectedProperty().removeListener(cycleCBChangeListener);
+    //     cycleCB.selectedProperty().setValue(countOfShowCycles == allShowCycle.size());
+    //     cycleCB.setIndeterminate(false);
+    //     if ((countOfShowCycles != allShowCycle.size()) && (countOfShowCycles > 0)) {
+    //         cycleCB.selectedProperty().setValue(true);
+    //         cycleCB.setIndeterminate(true);
+    //     }
+    //     cycleCB.selectedProperty().addListener(cycleCBChangeListener);
+    // }
 
     public static DelegateActionSet getRepaintDelegateActionSet() {
         return repaintDelegateActionSet;
     }
+
+    // Control visibility of analysis-related scale controls (log-scale) for Plot2 windows.
+    public void setShowAnalysisControls(boolean showAnalysisControls) {
+        this.showAnalysisControls = showAnalysisControls;
+    }
+
 
 }

@@ -31,22 +31,27 @@ public class Parameters implements Serializable {
     // Chauvenet's parameters
     private double chauvenetRejectionProbability;
     private int requiredMinDatumCount;
-    private int timeoutSeconds;
     private MassSpectrometerContextEnum massSpectrometerContext;
+    
+    // Scaling dot size parameters
+    private double scalingDotMinSize;
+    private double scalingDotMaxSize;
 
     public Parameters() {
         this.chauvenetRejectionProbability = CHAUVENETS_DEFAULT_REJECT_PROBABILITY;
         this.requiredMinDatumCount = CHAUVENETS_DEFAULT_MIN_DATUM_COUNT;
-        this.timeoutSeconds = LIVE_DATA_DEFAULT_TIMEOUT_SECONDS;
         this.massSpectrometerContext = MassSpectrometerContextEnum.UNKNOWN;
+        this.scalingDotMinSize = SCALING_DOT_DEFAULT_MIN_SIZE;
+        this.scalingDotMaxSize = SCALING_DOT_DEFAULT_MAX_SIZE;
     }
 
     // Copy Constructor
     public Parameters(Parameters other) {
         this.chauvenetRejectionProbability = other.getChauvenetRejectionProbability();
         this.requiredMinDatumCount = other.getRequiredMinDatumCount();
-        this.timeoutSeconds = other.getTimeoutSeconds();
         this.massSpectrometerContext = other.massSpectrometerContext;
+        this.scalingDotMinSize = other.getScalingDotMinSize();
+        this.scalingDotMaxSize = other.getScalingDotMaxSize();
     }
 
     // Provides a deep copy of this instance
@@ -69,16 +74,34 @@ public class Parameters implements Serializable {
     public void setRequiredMinDatumCount(int requiredMinDatumCount) {
         this.requiredMinDatumCount = requiredMinDatumCount;
     }
-    public int getTimeoutSeconds() {
-        return timeoutSeconds;
-    }
-    public void setTimeoutSeconds(int timeoutSeconds) {
-        this.timeoutSeconds = timeoutSeconds;
-    }
     public MassSpectrometerContextEnum getMassSpectrometerContext() {
         return massSpectrometerContext;
     }
     public void setMassSpectrometerContext(MassSpectrometerContextEnum massSpectrometerContext) {
         this.massSpectrometerContext = massSpectrometerContext;
+    }
+
+    public double getScalingDotMinSize() {
+        // Guard against legacy persisted values that may have defaulted to 0.0
+        if (scalingDotMinSize <= 0.0) {
+            scalingDotMinSize = SCALING_DOT_DEFAULT_MIN_SIZE;
+        }
+        return scalingDotMinSize;
+    }
+
+    public void setScalingDotMinSize(double scalingDotMinSize) {
+        this.scalingDotMinSize = scalingDotMinSize;
+    }
+
+    public double getScalingDotMaxSize() {
+        // Guard against legacy persisted values that may have defaulted to 0.0
+        if (scalingDotMaxSize <= 0.0) {
+            scalingDotMaxSize = SCALING_DOT_DEFAULT_MAX_SIZE;
+        }
+        return scalingDotMaxSize;
+    }
+
+    public void setScalingDotMaxSize(double scalingDotMaxSize) {
+        this.scalingDotMaxSize = scalingDotMaxSize;
     }
 }

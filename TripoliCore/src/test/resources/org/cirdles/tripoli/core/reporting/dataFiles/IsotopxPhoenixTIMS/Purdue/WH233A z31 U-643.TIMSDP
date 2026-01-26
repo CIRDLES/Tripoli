@@ -1,0 +1,105 @@
+#HEADER
+Analysis
+Version,2.0.11,1.20
+Filename,WH233A z31 U-643.TIMSDP
+MethodName,UO2_Faraday_265_267_268_270_272_AllFaraday.TIMSAM
+MethodPath,C:\IsoLinx\Projects\RIGL.Pro\Methods
+FolderPath,C:\IsoLinx\Projects\RIGL.Pro\Analysis\T0098_P003\WH233A z31 U.RAW
+IsoWorksMethod,UO2_Faraday_265_267_268_270_272_AllFaraday
+TFEMode,False
+TFEMonitorPeak,
+PerformInterBlocks,True
+BeamInterpCycles,False
+DeflectBeamDuringJumps,True
+ExtraMagnetFlybackTime,0
+ActiveSEMDetectors,PM
+BlocksToMeasure,50
+CyclesToMeasure,15
+RejectionSigma,100.0
+RejectionPercentage,0.0
+Corrected,RAW
+BChannels,Yes
+DTCorrected,Yes
+BaselineFile,
+BaselineFrequency,EveryBlock
+ProcessingUnits,Volts
+AnalysisStart,2022-11-27 1:32:17 PM
+AnalysisEnd,2022-11-27 1:33:03 PM
+
+#SAMPLELIST
+Filename, WH233A z31 U-643
+AnalysisMethod, UO2_Faraday_265_267_268_270_272_AllFaraday.TIMSAM
+SampleSerialNo, 643
+SampleID, WH233A z3
+SampleNo, 3
+SamplePrepMethod, 
+TuneFilename, 
+DetectorFile, 
+ResultsGroup, T0098_P003
+ResultsFolder, 
+SummaryFile, 
+BaselineFolder, 
+BaselineFilename, 
+LabNumber, 
+Operator, RBI
+ConstantsFile, 
+UserP1, 0
+UserP2, 0
+UserP3, 0
+UserP4, 0
+UserP5, 0
+UserP6, 0
+Notes, 
+SampleTAG, 
+SampleTAG2, 
+SampleTAG3, 
+SampleTAG4, 
+SampleTAG5, 
+
+#COLLECTORS
+Name,Type,Resistor,Gain,Efficiency,DT
+PM,PM,1e+11,1.000000000,1.000000000,29.9000
+L5,F,1e+11,1.000000000,1.000000000,0.0000
+L4,F,1e+11,1.000363000,1.000000000,0.0000
+L3,F,1e+11,1.001918700,1.000000000,0.0000
+L2,F,1e+11,0.998705700,1.000000000,0.0000
+Ax,F,1e+11,0.994222300,1.000000000,0.0000
+H1,F,1e+11,1.004331200,1.000000000,0.0000
+H2,F,1e+11,0.967643200,1.000000000,0.0000
+H3,F,1e+11,0.988379100,1.000000000,0.0000
+H4,F,1e+11,0.996368800,1.000000000,0.0000
+
+#USERTABLES
+Table,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30
+UserT,3.142,1000,3.12016096400908,4000,25.5,40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+UserC,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+UserP,0,0,0,0,0,0
+ExternalBetaFactor,0.371607000288174,123456,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+#ELECTRONIC_OFFSETS
+
+#BASELINES
+
+#CYCLES
+
+#BLOCKS
+
+#SUMMARY
+Function,Mean (Aft),Std Dev% (Aft),Std Err% (Aft),Included,Total,Mean,Std Dev,Std Dev%
+265UO2_V,0.000000000e+000 ,0.0000 ,0.000000 ,0 ,0 ,0.000000000e+000 ,0.00000e+000 ,0.0000 
+268/265,0.000000000e+000 ,0.0000 ,0.000000 ,0 ,0 ,0.000000000e+000 ,0.00000e+000 ,0.0000 
+270/265,0.000000000e+000 ,0.0000 ,0.000000 ,0 ,0 ,0.000000000e+000 ,0.00000e+000 ,0.0000 
+272/270,0.000000000e+000 ,0.0000 ,0.000000 ,0 ,0 ,0.000000000e+000 ,0.00000e+000 ,0.0000 
+267/265,0.000000000e+000 ,0.0000 ,0.000000 ,0 ,0 ,0.000000000e+000 ,0.00000e+000 ,0.0000 
+270/267,0.000000000e+000 ,0.0000 ,0.000000 ,0 ,0 ,0.000000000e+000 ,0.00000e+000 ,0.0000 
+
+#FUNCTIONS
+Function,Comment,Formula
+PCI_1, 265UO2_V, Intensity(1,_Low5)
+Srr_1, 268/265, Intensity(1,_Low3)/Intensity(1,_Low5)
+Srr_2, 270/265, Intensity(1,_Low2)/Intensity(1,_Low5)
+Srr_3, 272/270, Intensity(1,_Axial)/Intensity(1,_Low2)
+Srr_4, 267/265, Intensity(1,_Low4)/Intensity(1,_Low5)
+Srr_5, 270/267, Intensity(1,_Low2)/Intensity(1,_Low4)
+
+#END,AnalysisCompleted

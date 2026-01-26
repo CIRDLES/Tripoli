@@ -36,7 +36,6 @@ public class AllBlockInitForDataLiteOne {
     public static AllBlockInitForMCMC.PlottingData initBlockModels(AnalysisInterface analysis) {
         // check process status
         MassSpecExtractedData massSpecExtractedData = analysis.getMassSpecExtractedData();
-        AnalysisMethod analysisMethod = analysis.getAnalysisMethod();
 
         int countOfBlocks = massSpecExtractedData.getBlocksDataLite().size();
         SingleBlockRawDataLiteSetRecord[] singleBlockRawDataLiteSetRecords = new SingleBlockRawDataLiteSetRecord[countOfBlocks];
@@ -88,22 +87,20 @@ public class AllBlockInitForDataLiteOne {
     }
 
 
-    private static SingleBlockRawDataLiteSetRecord prepareSingleBlockDataLiteCaseOne(
+    public static SingleBlockRawDataLiteSetRecord prepareSingleBlockDataLiteCaseOne(
             int blockID, MassSpecExtractedData massSpecExtractedData) {
         MassSpecOutputBlockRecordLite massSpecOutputBlockRecordLite = massSpecExtractedData.getBlocksDataLite().get(blockID);
-        boolean[][] rawDataIncluded = new boolean[massSpecOutputBlockRecordLite.cycleData().length][massSpecOutputBlockRecordLite.cycleData()[0].length];
+        boolean[][] rawDataIncluded = new boolean[massSpecOutputBlockRecordLite.cycleData().length][massSpecOutputBlockRecordLite.cycleData()[0].length]; // Array Index Out of Bounds when cycleData is empty
         for (int row = 0; row < rawDataIncluded.length; row++) {
             for (int col = 0; col < rawDataIncluded[row].length; col++) {
                 rawDataIncluded[row][col] = true;
             }
         }
 
-        SingleBlockRawDataLiteSetRecord singleBlockRawDataLiteSetRecord = new SingleBlockRawDataLiteSetRecord(
+        return new SingleBlockRawDataLiteSetRecord(
                 blockID,
                 true,
                 massSpecOutputBlockRecordLite.cycleData(),
                 rawDataIncluded);
-
-        return singleBlockRawDataLiteSetRecord;
     }
 }

@@ -130,10 +130,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
         this.logScale = logScale;
     }
 
-    /**
-     * @return
-     */
-    @Override
+    /* COMMENTED OUT: Block mode removed
     public boolean getBlockMode() {
         return blockMode;
     }
@@ -141,6 +138,7 @@ public class AnalysisBlockCyclesPlotOG extends AbstractPlot implements AnalysisB
     public void setBlockMode(boolean blockMode) {
         this.blockMode = blockMode;
     }
+     */
 
     public void setZoomFlagsXY(boolean[] zoomFlagsXY) {
         this.zoomFlagsXY = zoomFlagsXY;

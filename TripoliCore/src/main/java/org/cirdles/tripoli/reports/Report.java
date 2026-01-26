@@ -44,6 +44,8 @@ public class Report implements Serializable, Comparable<Report> {
 
     private Set<ReportCategory> categorySet;
 
+    public static boolean supressContents = false;
+
     public Report(String reportName, String methodName, Set<ReportCategory> categorySet) {
         this.reportName = reportName;
         this.methodName = methodName;
@@ -271,14 +273,15 @@ public class Report implements Serializable, Comparable<Report> {
                 }
             }
 
-            for (int i = 0; i < 10; i++) {
-                writer.newLine();
+            if (!supressContents) {
+                for (int i = 0; i < 10; i++) {
+                    writer.newLine();
+                }
+                writer.write(reportCSVFile.getName() + "  ");
+                writer.write("Created on: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + "  ");
+                writer.write("Tripoli  ");
+                writer.write(Tripoli.VERSION);
             }
-            writer.write(reportCSVFile.getName()+ "  ");
-            writer.write("Created on: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + "  ");
-            writer.write("Tripoli  ");
-            writer.write(Tripoli.VERSION);
-
 
             return reportCSVFile;
         } catch (IOException e) {
@@ -286,7 +289,6 @@ public class Report implements Serializable, Comparable<Report> {
             return null;
         }
     }
-
 
     @Override
     public int compareTo(@NotNull Report o) {

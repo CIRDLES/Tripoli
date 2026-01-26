@@ -34,7 +34,8 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation("org.apache.commons:commons-lang3:3.12.0")  //group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
-
+    // https://mvnrepository.com/artifact/commons-io/commons-io
+    implementation("commons-io:commons-io:2.20.0")
     // https://mvnrepository.com/artifact/com.zaxxer/SparseBitSet
     implementation("com.zaxxer:SparseBitSet:1.2") //group: 'com.zaxxer', name: 'SparseBitSet', version: '1.2'
 
@@ -42,7 +43,8 @@ dependencies {
     implementation("net.sourceforge.jexcelapi:jxl:2.6.12")
 
     // modernized update: https://github.com/topobyte/jama
-    implementation("com.github.topobyte:jama:master-SNAPSHOT")
+    //implementation("com.github.topobyte:jama:master-SNAPSHOT")
+    implementation("com.github.topobyte:jama:1.1.0") // Check GitHub for the latest version
 
     // https://github.com/optimatika/ojAlgo/wiki/Optimisation-Modelling-Advice
     implementation("org.ojalgo:ojalgo:52.0.1")
@@ -72,6 +74,7 @@ dependencies {
 
     testImplementation("com.github.cirdles:commons:bc38781605")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }
 
@@ -107,7 +110,7 @@ extraJavaModuleInfo {
 
 
     automaticModule("com.zaxxer:SparseBitSet", "SparseBitSet")
-    automaticModule("jama-master-SNAPSHOT.jar", "jama")
+    automaticModule("jama.jar", "jama")
     automaticModule("org.ojalgo:ojalgo", "ojalgo")
 
     automaticModule("org.jblas:jblas", "jblas")
