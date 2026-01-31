@@ -18,6 +18,7 @@ package org.cirdles.tripoli.reports;
 
 import jakarta.xml.bind.JAXBException;
 import org.cirdles.tripoli.constants.MassSpectrometerContextEnum;
+import org.cirdles.tripoli.expressions.userFunctions.UserFunction;
 import org.cirdles.tripoli.sessions.Session;
 import org.cirdles.tripoli.sessions.analysis.AnalysisInterface;
 import org.cirdles.tripoli.utilities.exceptions.TripoliException;
@@ -29,6 +30,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -116,6 +118,10 @@ public class ReportData {
 
         assertNotNull(analysis);
         analysis.getUserFunctions().sort(null);
+        List<UserFunction> userFunctions = analysis.getUserFunctions();
+
+        userFunctions = userFunctions.stream().filter(uf -> uf.getCustomExpression() == null).toList();
+        analysis.setUserFunctions(userFunctions);
 
         ReportData reportData = new ReportData(List.of(analysis), analysis, analysisName, tripoliSession, dataFilepath, dataFile);
         System.out.println("✅ Report Data generated successfully!\n");
