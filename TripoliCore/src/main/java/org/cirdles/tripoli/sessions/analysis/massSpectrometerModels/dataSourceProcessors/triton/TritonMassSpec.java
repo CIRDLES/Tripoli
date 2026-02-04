@@ -119,7 +119,7 @@ public enum TritonMassSpec {
         for (String line : blockData) {
             String[] lineSplit = line.split("\t");
             timeStampByLineSplit.add(lineSplit[1].trim());
-            cycleDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 2, lineSplit.length));
+            cycleDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 0, lineSplit.length));
         }
 
         return buildSingleBlockTritonRecord(

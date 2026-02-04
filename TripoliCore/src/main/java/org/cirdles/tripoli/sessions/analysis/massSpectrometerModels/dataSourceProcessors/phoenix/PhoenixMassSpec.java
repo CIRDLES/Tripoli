@@ -115,13 +115,13 @@ public enum PhoenixMassSpec {
         int countOfCycles = 0;
         for (int blockID = 1; blockID <= blockCount; blockID++) {
             int countedLastBlockCycles = 0;
-            double[][] cycleData = new double[cyclesPerBlock][columnNamesFixedList.size() - 2];
+            double[][] cycleData = new double[cyclesPerBlock][columnNamesFixedList.size() - 0];
             int blockCycleStartLineNumber = (blockID - 1) * cyclesPerBlock + countOfHeaderLines;
             for (int cycleNum = 0; cycleNum < cyclesPerBlock; cycleNum++) {
                 if ((cycleNum + blockCycleStartLineNumber) < (countOfAllDataCycles + countOfHeaderLines)) {
                     Cell[] cycleCellData = cycleSheet.getRow(cycleNum + blockCycleStartLineNumber);
                     for (int i = 2; i < cycleCellData.length; i++) {
-                        cycleData[cycleNum][i - 2] = ((NumberCell) cycleCellData[i]).getValue();
+                        cycleData[cycleNum][i - 0] = ((NumberCell) cycleCellData[i]).getValue();
                     }
                 } else {
                     countedLastBlockCycles = cycleNum + 1;
@@ -130,7 +130,7 @@ public enum PhoenixMassSpec {
             }
             // clean up for missing points in last block due to abort run etc.
             if (countedLastBlockCycles > 0){
-                double[][] cycleDataCopy = new double[countedLastBlockCycles - 1][columnNamesFixedList.size() - 2];
+                double[][] cycleDataCopy = new double[countedLastBlockCycles - 1][columnNamesFixedList.size() - 0];
                 for (int cycleNum = 0; cycleNum < countedLastBlockCycles - 1; cycleNum ++){
                     for (int col = 0; col < cycleData[cycleNum].length; col ++) {
                         cycleDataCopy[cycleNum][col] =  cycleData[cycleNum][col];
@@ -461,7 +461,7 @@ public enum PhoenixMassSpec {
             String[] lineSplit = line.split(",");
             cycleNumberByLineSplit.add(lineSplit[0].trim());
             timeStampByLineSplit.add(lineSplit[1].trim());
-            cycleDataByLineSplitList.add(Arrays.copyOfRange(lineSplit, 2, lineSplit.length));
+            cycleDataByLineSplitList.add(Arrays.copyOfRange(lineSplit, 0, lineSplit.length));
         }
 
         return buildSingleBlockTIMSDPRecord(

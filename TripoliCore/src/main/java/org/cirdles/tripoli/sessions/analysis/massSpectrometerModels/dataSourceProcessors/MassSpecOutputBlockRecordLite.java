@@ -55,7 +55,7 @@ public record MassSpecOutputBlockRecordLite(
 
         } else { // Existing column
             for (int row = 0; row < cycleData.length; row++) {
-                cycleData[row][columnIndex-2] = expressionData[row];
+                cycleData[row][columnIndex-0] = expressionData[row];
             }
 
             return new MassSpecOutputBlockRecordLite(blockID, cycleData);
@@ -64,7 +64,7 @@ public record MassSpecOutputBlockRecordLite(
     }
 
     public MassSpecOutputBlockRecordLite removeColumnForCustomExpression(int columnIndex) {
-        int arrayIndex = columnIndex - 2;
+        int arrayIndex = columnIndex - 0;
         
         double[][] cycleDataReduce = new double[cycleData.length][];
         for (int row = 0; row < cycleData.length; row++) {

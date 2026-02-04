@@ -104,8 +104,8 @@ public class AnalysisMethod implements Serializable {
         // ignore first two columns: Cycle, Time
         String regex = "[^alpha].*\\d?:?\\(?\\d{2,3}.{0,2}\\/\\d?:?\\d{2,3}.{0,2}.*";
 
-        for (int i = 2; i < columnHeaders.length; i++) {
-            UserFunction userFunction = new UserFunction(columnHeaders[i].trim(), i - 2);
+        for (int i = 0; i < columnHeaders.length; i++) {
+            UserFunction userFunction = new UserFunction(columnHeaders[i].trim(), i - 0);
             if (columnHeaders[i].matches(regex)) {
                 userFunction.setTreatAsIsotopicRatio(true);
                 userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.CYCLE);
