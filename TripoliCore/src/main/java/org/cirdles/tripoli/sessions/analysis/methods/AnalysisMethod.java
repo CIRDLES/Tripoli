@@ -119,10 +119,10 @@ public class AnalysisMethod implements Serializable {
                 }
 
                 if (etReduxRatioName.compareTo("270_267") == 0) {
-                    r270_267ColumnIndex = i - 2;
+                    r270_267ColumnIndex = i - 0;
                 }
                 if (etReduxRatioName.compareTo("265_267") == 0) {
-                    r265_267ColumnIndex = i - 2;
+                    r265_267ColumnIndex = i - 0;
                 }
 
                 String invertedETReduxRatioName = denominator + "_" + numerator;
@@ -165,7 +165,7 @@ public class AnalysisMethod implements Serializable {
 
             massSpecExtractedData.setColumnHeaders(columnHeadersExpanded);
 
-            System.out.println(columnHeaders[r270_267ColumnIndex + 2]);
+            System.out.println(columnHeaders[r270_267ColumnIndex + 0]);
         }
         populateCustomExpressionFunctions(massSpecExtractedData, analysisMethod);
 
