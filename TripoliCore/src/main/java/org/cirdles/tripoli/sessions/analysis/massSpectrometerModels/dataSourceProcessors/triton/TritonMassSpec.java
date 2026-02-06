@@ -118,8 +118,10 @@ public enum TritonMassSpec {
         // case 1:  Triton Cycle,Time, DATA[custom fields]
         for (String line : blockData) {
             String[] lineSplit = line.split("\t");
+            // handle strange time from UCDavis
+            lineSplit[1] = lineSplit[1].trim().replace(":","");
             timeStampByLineSplit.add(lineSplit[1].trim());
-            cycleDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 2, lineSplit.length));
+            cycleDataByLineSplit.add(Arrays.copyOfRange(lineSplit, 0, lineSplit.length));
         }
 
         return buildSingleBlockTritonRecord(

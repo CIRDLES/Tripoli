@@ -882,7 +882,7 @@ public enum SingleBlockModelInitForMCMC {
         double varSum = 0.0;
         for (int i = 0; i < ee.length; i++) {
             p[i] = StrictMath.exp(-ee[i] / 2.0) / sumExpEE;
-            varSum += p[i] * StrictMath.pow((testArray[i] - 0.0), 2.0);
+            varSum += p[i] * StrictMath.pow((testArray[i]), 2.0);
         }
 
         return varSum;
