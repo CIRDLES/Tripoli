@@ -146,19 +146,19 @@ public class AnalysisMethod implements Serializable {
             System.arraycopy(columnHeaders, 0, columnHeadersExpanded, 0, columnHeaders.length);
 
             columnHeadersExpanded[columnHeaders.length + 0] = "233/235oc";
-            UserFunction userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length], columnHeaders.length - 2, true, true);
+            UserFunction userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length], columnHeaders.length - 0, true, true);
             userFunction.setEtReduxName("233_235");
             userFunction.setOxideCorrected(true);
             analysisMethod.getUserFunctionsModel().add(userFunction);
 
             columnHeadersExpanded[columnHeaders.length + 1] = "238/235oc";
-            userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length + 1], columnHeaders.length - 1, true, true);
+            userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length + 1], columnHeaders.length + 1, true, true);
             userFunction.setEtReduxName("238_235");
             userFunction.setOxideCorrected(true);
             analysisMethod.getUserFunctionsModel().add(userFunction);
 
             columnHeadersExpanded[columnHeaders.length + 2] = "238/233oc";
-            userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length + 2], columnHeaders.length, true, true);
+            userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length + 2], columnHeaders.length + 2, true, true);
             userFunction.setEtReduxName("238_233");
             userFunction.setOxideCorrected(true);
             analysisMethod.getUserFunctionsModel().add(userFunction);
