@@ -146,7 +146,7 @@ public class AnalysisMethod implements Serializable {
             System.arraycopy(columnHeaders, 0, columnHeadersExpanded, 0, columnHeaders.length);
 
             columnHeadersExpanded[columnHeaders.length + 0] = "233/235oc";
-            UserFunction userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length], columnHeaders.length - 0, true, true);
+            UserFunction userFunction = new UserFunction(columnHeadersExpanded[columnHeaders.length], columnHeaders.length, true, true);
             userFunction.setEtReduxName("233_235");
             userFunction.setOxideCorrected(true);
             analysisMethod.getUserFunctionsModel().add(userFunction);
