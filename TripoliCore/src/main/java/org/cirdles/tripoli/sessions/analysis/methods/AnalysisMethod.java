@@ -101,7 +101,7 @@ public class AnalysisMethod implements Serializable {
         int r265_267ColumnIndex = -1;
         AnalysisMethod analysisMethod = new AnalysisMethod(massSpecExtractedData.getHeader().methodName(), massSpecExtractedData.getMassSpectrometerContext());
         String[] columnHeaders = massSpecExtractedData.getColumnHeaders();
-        // ignore first two columns: Cycle, Time
+
         String regex = "[^alpha].*\\d?:?\\(?\\d{2,3}.{0,2}\\/\\d?:?\\d{2,3}.{0,2}.*";
 
         for (int i = 0; i < columnHeaders.length; i++) {
@@ -133,6 +133,9 @@ public class AnalysisMethod implements Serializable {
             } else {
                 userFunction.setTreatAsIsotopicRatio(false);
                 userFunction.setReductionMode(TripoliConstants.ReductionModeEnum.CYCLE);
+                if (userFunction.getName().contains("Cycle") || userFunction.getName().contains("Time")){
+                    userFunction.setDisplayed(false);
+                }
             }
             analysisMethod.getUserFunctionsModel().add(userFunction);
         }
