@@ -63,8 +63,8 @@ public enum PhoenixMassSpec {
             throw new RuntimeException(e);
         }
         List<String> columnNamesFixedList = new ArrayList<>();
-        columnNamesFixedList.add("");
-        columnNamesFixedList.add("");
+        columnNamesFixedList.add("Cycle");
+        columnNamesFixedList.add("Time");
         Cell[] functionNamesRow = cycleSheet.getRow(1);
         for (int col = 2; col < functionNamesRow.length; col++) {
             if (functionNamesRow[col].getType() != CellType.EMPTY) {
@@ -123,6 +123,8 @@ public enum PhoenixMassSpec {
                     for (int i = 2; i < cycleCellData.length; i++) {
                         cycleData[cycleNum][i] = ((NumberCell) cycleCellData[i]).getValue();
                     }
+                    cycleData[cycleNum][0] = ((NumberCell) cycleCellData[0]).getValue();
+                    cycleData[cycleNum][1] = ((NumberCell) cycleCellData[1]).getValue();
                 } else {
                     countedLastBlockCycles = cycleNum + 1;
                     break;
