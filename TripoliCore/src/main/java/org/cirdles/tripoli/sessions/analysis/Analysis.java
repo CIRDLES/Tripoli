@@ -676,7 +676,7 @@ public class Analysis implements Serializable, AnalysisInterface, Comparable {
     public final String prepareFractionForClipboardExport() {
         String retVal = "";
         for (UserFunction uf : userFunctions) {
-            if (uf.isDisplayed()) {
+            if (uf.isDisplayed() && !uf.getName().contains("Cycle") && !uf.getName().contains("Time")) {
                 MeasuredUserFunction measuredUserFunctionModel = new MeasuredUserFunction(uf.showCorrectName());
                 measuredUserFunctionModel.refreshStats(uf);
                 retVal += measuredUserFunctionModel.showClipBoardOutput();
