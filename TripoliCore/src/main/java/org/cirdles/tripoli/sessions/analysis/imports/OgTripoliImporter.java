@@ -186,10 +186,8 @@ public class OgTripoliImporter {
                     cyclesPerBlock
             ));
 
-            String[] columnHeaders = new String[headers.length + 2];
-            columnHeaders[0] = "Cycle";
-            columnHeaders[1] = "Time";
-            System.arraycopy(headers, 0, columnHeaders, 2, headers.length);
+            String[] columnHeaders = new String[headers.length];
+            System.arraycopy(headers, 0, columnHeaders, 0, headers.length);
             massSpecExtractedData.setColumnHeaders(columnHeaders);
 
             // Set analysis metadata
@@ -201,12 +199,12 @@ public class OgTripoliImporter {
             List<UserFunction> ufModels = tripoliAnalysis.getAnalysisMethod().getUserFunctionsModel();
             for (UserFunction ufm : ufModels) {
                 if (ufm.isTreatAsIsotopicRatio()){
-                    ufList.get(ufm.getColumnIndex()).setTreatAsIsotopicRatio(true);
+                    ufModels.get(ufm.getColumnIndex()).setTreatAsIsotopicRatio(true);
                 }
             }
             // hide cycle and time
-            ufList.get(0).setDisplayed(false);
-            ufList.get(1).setDisplayed(false);
+            tripoliAnalysis.getUserFunctions().get(0).setDisplayed(false);
+            tripoliAnalysis.getUserFunctions().get(1).setDisplayed(false);
 
             return tripoliAnalysis;
 
